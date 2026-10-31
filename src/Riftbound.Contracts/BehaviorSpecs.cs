@@ -78,6 +78,8 @@ public static class TriggerKinds
     public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
     public const string ControllerOpponentTurnPlayCreateMinion = "CONTROLLER_OPPONENT_TURN_PLAY_CREATE_MINION";
+    public const string ControllerCardPlayBasePowerSource = "CONTROLLER_CARD_PLAY_BASE_POWER_SOURCE";
+    public const string ControllerHighCostGraveyardPlaySource = "CONTROLLER_HIGH_COST_GRAVEYARD_PLAY_SOURCE";
     public const string SourceUnitPlayedDestroyEquipmentGrantTurnPlay = "SOURCE_UNIT_PLAYED_DESTROY_EQUIPMENT_GRANT_TURN_PLAY";
     public const string ControllerTargetedOrReadiedSourcePower = "CONTROLLER_TARGETED_OR_READIED_SOURCE_POWER";
     public const string SourceExhaustedChooseUnusedMode = "SOURCE_EXHAUSTED_CHOOSE_UNUSED_MODE";
@@ -92,6 +94,7 @@ public static class TriggerKinds
     public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";
     public const string TurnEndRevealUntilUnit = "TURN_END_REVEAL_UNTIL_UNIT";
     public const string TurnEndReadyRunes = "TURN_END_READY_RUNES";
+    public const string TurnEndRecycleRunesCall = "TURN_END_RECYCLE_RUNES_CALL";
     public const string BattlefieldUnitMovedAwayPowerModifier =
         "BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER";
     public const string BattlefieldHeldNextSpellEcho =
@@ -207,6 +210,8 @@ public static class TriggerKinds
     public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementMillPlayer = "UNIT_FIRST_MOVEMENT_MILL_PLAYER";
+    public const string UnitOrdinalMovementGainResources = "UNIT_ORDINAL_MOVEMENT_GAIN_RESOURCES";
+    public const string UnitOrdinalMovementBanishTopPlay = "UNIT_ORDINAL_MOVEMENT_BANISH_TOP_PLAY";
     public const string UnitMovedAllPlayersDrawOrDiscard = "UNIT_MOVED_ALL_PLAYERS_DRAW_OR_DISCARD";
     public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
     public const string UnitMovedRevealTopDrawPowerfulUnitOrRecycle = "UNIT_MOVED_REVEAL_TOP_DRAW_POWERFUL_UNIT_OR_RECYCLE";
@@ -763,6 +768,8 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? BasePowerUntilEndOfTurn = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MovementOrdinal = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     string? DamageSourceKeyword = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? GeneratedPower = null);
@@ -801,7 +808,9 @@ public sealed record ActivatedAbilitySpec(
     int? PowerModifierAmount = null,
     int? MinimumPowerAfterModifier = null,
     string? TargetUnitName = null,
-    bool? OncePerTurn = null);
+    bool? OncePerTurn = null,
+    string? SourceScope = null,
+    string? RequiredControllerCardNoOnField = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

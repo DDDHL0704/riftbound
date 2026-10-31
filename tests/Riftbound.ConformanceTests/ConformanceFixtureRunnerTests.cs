@@ -996,14 +996,18 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
                 "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER",
+                "RAD_040_FRIENDLY_LEGEND_POWER",
+                "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",
                 "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER",
                 "RENATA_GLASC_PAY_1_BLUE_DRAW_1",
                 "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1",
                 "SCRYING_BLOSSOM_DESTROY_INSIGHT_DRAW_EXPERIENCE",
+                "SFD_052_221_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN",
                 "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
                 "SKY_STRIDER_DISCARD_DAMAGE",
                 "TUNDRA_HUNTER_READY",
-                "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER"
+                "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER",
+                "UNL_001_219_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN"
             ],
             P4ActivatedAbilityCatalog.GetAll()
                 .Select(definition => definition.AbilityId)

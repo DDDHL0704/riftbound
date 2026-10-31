@@ -18,7 +18,7 @@ public sealed partial class CoreRuleEngine
     internal const string CreateEndAbilityEffect = "CREATE_DELAYED_END_ABILITY";
     internal const string DelayedEndReadyPrefix = "DELAYED_END_READY:";
     private static TriggerSpec? EndSpec(string? no) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(no)
-        .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd && t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes)
+        .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd && t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes or TriggerKinds.TurnEndRecycleRunesCall)
         ?? (CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var behavior) && behavior.EndStepSelfDestructionDamage > 0
             ? new("DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS", TriggerTimings.TurnEnd, "摧毁来源并对其控制者的所有单位造成伤害。", DamageAmount: behavior.EndStepSelfDestructionDamage) : null);
 
@@ -38,7 +38,7 @@ public sealed partial class CoreRuleEngine
                 result.Add(new($"end-{state.Tick + 1}-{source.ObjectId}-{instance.Id}", state.TurnPlayerId, source.ObjectId,
                     EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) {
                     EndAbility = new(instance.CardNo, spec.Kind, source, location, state.TurnNumber,
-                        spec.RuneReadyCount ?? 0, instance.Origin) });
+                        spec.RuneReadyCount ?? spec.RuneCallCount ?? 0, instance.Origin) });
             }
         }
         foreach (var marker in state.UntilEndOfTurnEffects.Where(s => s.StartsWith(DelayedEndReadyPrefix, StringComparison.Ordinal)))
@@ -49,6 +49,7 @@ public sealed partial class CoreRuleEngine
                 EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) { EndAbility = context });
         }
         result.AddRange(CaptureDelayedEmpowerEndAbilities(state));
+        result.AddRange(CaptureBombRebuildEndAbilities(state));
         return result.ToArray();
     }
 
@@ -63,7 +64,7 @@ public sealed partial class CoreRuleEngine
         var next = state with { Tick = state.Tick + 1, Phase = MatchPhases.TurnEnd,
             EndStep = new(intent.PlayerId, state.TurnNumber), TimingState = TimingStates.NeutralClosed,
             TriggerQueue = state.TriggerQueue.Concat(triggers).ToArray(), PriorityPlayerId = null, PassedPriorityPlayerIds = [],
-            UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Where(s => !s.StartsWith(DelayedEndReadyPrefix, StringComparison.Ordinal) && !s.StartsWith(DelayedEmpowerPrefix, StringComparison.Ordinal)).ToArray() };
+            UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Where(s => !s.StartsWith(DelayedEndReadyPrefix, StringComparison.Ordinal) && !s.StartsWith(DelayedEmpowerPrefix, StringComparison.Ordinal) && !s.StartsWith(BombRebuildPrefix, StringComparison.Ordinal)).ToArray() };
         return new(true, null, next, [new("TURN_END_STEP_STARTED", "开始结束步骤，先处理触发和待确认出牌", new Dictionary<string,object?> {
             ["playerId"] = intent.PlayerId, ["turnNumber"] = state.TurnNumber })], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
@@ -123,6 +124,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveEndAbility(MatchState state, StackItemState item)
     {
+        if (item.EndAbility!.Kind == TriggerKinds.TurnEndRecycleRunesCall) return ResolveEndRuneRecycleCall(state, item);
         if (item.EndAbility!.Kind == "DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS") return ResolveEndSelfDestructionDamage(state, item);
         if (item.EndAbility!.Kind == TriggerKinds.TurnEndRevealUntilUnit)
         {
@@ -181,7 +183,7 @@ public sealed partial class CoreRuleEngine
             && c.CardNo == item.CardNo && item.EffectKind is EndAbilityEffect or CreateEndAbilityEffect
             && c.Source.ObjectId == item.SourceObjectId && c.Source.ObjectGeneration >= 0 && !c.Source.IsFaceDown
             && c.TurnNumber == state.TurnNumber && state.Seats.ContainsKey(item.ControllerId)
-            && c.Source.ControllerId == item.ControllerId && c.RuneCount == (spec.RuneReadyCount ?? 0)
+            && c.Source.ControllerId == item.ControllerId && c.RuneCount == (spec.RuneReadyCount ?? spec.RuneCallCount ?? 0)
             && c.Source.OwnerId is { } owner && state.Seats.ContainsKey(owner)
             && (c.Origin is not null || c.Source.CardNo == c.CardNo)
             && (c.Kind != "DELAYED_READY_RUNES" ? c.CreationTick is null
@@ -194,7 +196,7 @@ public sealed partial class CoreRuleEngine
                 : IsTokenObject(c.Source) && P6TokenFactoryCatalog.TryGetByCardNo(c.Source.TokenFactoryCardNo ?? c.Source.CardNo ?? "", out _))
             && AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.ObjectGeneration, c.CardNo)
             && item.EffectRepeatCount == 1 && item.OptionalCosts.Count == 0 && item.DamageAmount == 0
-            && (creation || c.Kind == TriggerKinds.TurnEndRevealUntilUnit ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+            && (creation || c.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndRecycleRunesCall ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
                 : item.TargetObjectIds.Count <= c.RuneCount && (item.TargetGenerations is null ? item.TargetObjectIds.Count == 0
                     : item.TargetGenerations.Keys.ToHashSet().SetEquals(item.TargetObjectIds)
                         && item.TargetGenerations.All(p => p.Value >= 0 && state.CardObjects.TryGetValue(p.Key,out var rune)

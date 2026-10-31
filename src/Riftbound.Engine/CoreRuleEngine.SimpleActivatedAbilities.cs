@@ -1,3 +1,4 @@
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -51,6 +52,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
+            : ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true ? state.Seats.ContainsKey(id) && id != actor
             : state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
             && IsObjectOnField(state.PlayerZones, id)
             && (ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId && target.Tags.Contains(CardObjectTags.EquipmentCard)
@@ -68,7 +70,7 @@ public sealed partial class CoreRuleEngine
             || !IsSimpleAbilitySource(state, intent.PlayerId, command.SourceObjectId, ability)
             || targets.Any(id => !IsSimpleAbilityTarget(state, intent.PlayerId, command.SourceObjectId, id, ability)))
             return RejectWithCorePrompts(state, "技能来源、横置或解除强化费用、目标不合法。", ErrorCodes.InvalidTarget);
-        if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
+        if (!TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
                 out var extras, out var resources, out var recycled)
             || (ability.SimpleEffect!.DiscardsEquipmentAsCost ? extras.Count != 1
                 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(extras[0]) : extras.Count != 0))
@@ -88,8 +90,10 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var events = new List<GameEvent>();
-        var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations,
-            intent.PlayerId, recycled, events, window, paymentId);
+        var pools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, resources, zones, ref cards,
+                locations, ref pools, events, window, paymentId))
+            return RejectWithCorePrompts(state, "支付资源动作顺序或来源无效。", ErrorCodes.InvalidTarget);
         var paid = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!paid.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置或解除来源的强化。", ErrorCodes.InsufficientCost);
         var source = cards[command.SourceObjectId];
@@ -108,7 +112,7 @@ public sealed partial class CoreRuleEngine
             source = changed.CardObjects[source.ObjectId];
             events.AddRange(changed.Events);
         }
-        cards[source.ObjectId] = source with { IsExhausted = source.IsExhausted || ability.ExhaustsSourceAsCost };
+        cards[source.ObjectId] = ability.ExhaustsSourceAsCost ? ExhaustForInstruction(zones, cards, source) : source;
         var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
@@ -141,7 +145,9 @@ public sealed partial class CoreRuleEngine
 
     internal static bool SimpleActivationTargetsPlayer(MatchState state, StackItemState item)
         => P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability)
-            && ability.SimpleEffect?.TransfersSourceToChosenPlayer == true && ValidSimpleActivation(state, item);
+            && (ability.SimpleEffect?.TransfersSourceToChosenPlayer == true
+                || ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true)
+            && ValidSimpleActivation(state, item);
 
     internal static bool ValidSimpleActivation(MatchState state, StackItemState item)
     {
@@ -155,11 +161,14 @@ public sealed partial class CoreRuleEngine
             || source.ObjectGeneration == context.Source.Generation
                 && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo) || !source.Tags.Contains(ability.SourceRequiredTag))
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
-            || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer ? 0 : ability.RequiredTargetCount)
+            || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
+                || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
                 || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory)
                 || !factory.Tags.Contains(ability.SimpleEffect!.EmpowersOtherEquipment ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard))
-            || (ability.SimpleEffect!.TransfersSourceToChosenPlayer ? item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id))
+            || (ability.SimpleEffect!.TransfersSourceToChosenPlayer || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+                ? item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id)
+                    || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield && id == item.ControllerId)
                 : item.TargetObjectIds.Any(id => item.TargetGenerations!.GetValueOrDefault(id, -1) < 0
                 || (state.CardObjects.TryGetValue(id, out var target)
                     ? item.TargetGenerations![id] > target.ObjectGeneration
@@ -188,6 +197,51 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", $"{ability.DisplayName}技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["abilityId"] = ability.AbilityId }) };
         var result = NoopStackResolutionResult(state);
+        if (spec.CommandsOpponentUnitToSourceBattlefield
+            && cards.TryGetValue(item.SourceObjectId, out var commandedSource)
+            && commandedSource.ObjectGeneration == item.SimpleActivation!.Source.Generation
+            && TryGetPreciseFieldLocation(zones, locations, commandedSource.ObjectId, out var sourceLocation)
+            && sourceLocation.Zone == "BATTLEFIELD"
+            && sourceLocation.BattlefieldObjectId is { } battlefieldId
+            && BattlefieldLocalRules.Battlefield(state, battlefieldId) is not null)
+        {
+            var opponent = item.TargetObjectIds.Single();
+            var current = state with {
+                PlayerZones = zones,
+                CardObjects = cards,
+                ObjectLocations = locations,
+                RunePools = pools
+            };
+            var legal = cards.Values
+                .Where(card => IsFaceUpNonStandbyUnit(card)
+                    && FindFieldObjectLocation(zones, card.ObjectId) is { } location
+                    && location.PlayerId == opponent
+                    && IsUnitMovementDestination(current, card.ObjectId, "BATTLEFIELD:" + battlefieldId)
+                    && MovementRestrictionRules.CanMove(card, opponent))
+                .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+                .ToArray();
+            if (legal.Length > 0)
+            {
+                var frame = RuleChoices.Value ?? throw new InvalidOperationException("提灯亚龙需要对手选择移动单位。");
+                var selected = frame.Choose(opponent, "提灯亚龙：选择你控制的一名单位，移动到提灯亚龙所在战场。",
+                    legal.Select(card => new RuleChoiceOption(
+                        "MOVE:" + card.ObjectId,
+                        OfficialCardSourceIdentityGroups.DisplayName(card.CardNo ?? "") + "（" + card.ObjectId + "）",
+                        [card.ObjectId])).ToArray(),
+                    kind: "MOVEMENT_SELECTION", preview: current);
+                TryMoveFieldUnitByEffect(current, zones, cards, locations, selected[5..],
+                    new(item.ControllerId, "BATTLEFIELD", battlefieldId), opponent, item, events);
+            }
+            else
+            {
+                events.Add(new("ABILITY_NO_EFFECT", "提灯亚龙结算时对手没有可移动的单位",
+                    new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["opponentId"] = opponent,
+                        ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
+                        ["reason"] = "NO_LEGAL_OPPONENT_UNIT"
+                    }));
+            }
+        }
         if (spec.TransfersSourceToChosenPlayer && cards.TryGetValue(item.SourceObjectId, out var transferred)
             && transferred.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, transferred.ObjectId)) {
             var controller = item.TargetObjectIds.Single();

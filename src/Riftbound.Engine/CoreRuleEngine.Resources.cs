@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         // The card says a friendly unit, not another unit. Exhaust first so the
         // source can itself pay the destruction cost without being resurrected.
-        cards[command.SourceObjectId] = source with { IsExhausted = true };
+        cards[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cards, source);
         var cost = new StackItemState($"cost-{state.Tick + 1}-{command.SourceObjectId}", intent.PlayerId,
             command.SourceObjectId, ability.EffectKind, source.CardNo, [costId]);
         var destroyed = ResolveFieldDestructions(state, zones, cards, cost, new HashSet<string>(),
@@ -95,7 +95,8 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool IsImmediateResourceTrigger(TriggerQueueItemState trigger)
-        => IsJhinMovementResourceTrigger(trigger) || trigger.ConquestSource?.Kind == TriggerKinds.UnitConquestGainResources;
+        => IsImmediateMovementResourceTrigger(trigger)
+            || trigger.ConquestSource?.Kind == TriggerKinds.UnitConquestGainResources;
 
     private static ResolutionResult ResolveImmediateResourceTriggers(MatchState before, ResolutionResult result)
     {
@@ -109,8 +110,11 @@ public sealed partial class CoreRuleEngine
             // The trigger has already captured its controller and source. Moving again,
             // leaving play, or changing controller cannot cancel an earned resource.
             var pool = pools.GetValueOrDefault(trigger.ControllerId, RunePool.Empty);
-            var spec = trigger.ConquestSource is { } conquest ? ConquestSourceSpec(conquest.CardNo) : null;
-            var mana = spec?.ManaDelta ?? 1; var power = spec?.GeneratedPower ?? 1;
+            var movementSpec = trigger.MovementObserver is { Kind: TriggerKinds.UnitOrdinalMovementGainResources } movement
+                ? UnitMovedTriggerSpecRules.MovementTriggers(movement.CardNo).Single(t => t.Kind == movement.Kind) : null;
+            var conquestSpec = trigger.ConquestSource is { } conquest ? ConquestSourceSpec(conquest.CardNo) : null;
+            var mana = movementSpec?.ManaDelta ?? conquestSpec?.ManaDelta ?? 1;
+            var power = movementSpec?.GeneratedPower ?? conquestSpec?.GeneratedPower ?? 1;
             if (!pool.HasSupportedAmounts || (long)pool.TotalStoredMana + mana > int.MaxValue
                 || (long)pool.TotalStoredPower + power > int.MaxValue)
                 return RejectWithCorePrompts(before, "资源技能获得的费用资源超出支持范围。", ErrorCodes.UnsupportedCardBehavior);
@@ -122,14 +126,21 @@ public sealed partial class CoreRuleEngine
                 ["resourceLifecycle"] = "rune-pool", ["resourceSkill"] = true
             };
             events.Add(BuildTriggerResolvedEvent(trigger));
-            if (mana > 0) events.Add(new("MANA_GAINED", "资源技能获得法力", payload));
-            if (power > 0) events.Add(new("POWER_GAINED", "资源技能获得任意特性符能", payload));
+            if (mana > 0)
+                events.Add(new("MANA_GAINED", movementSpec is not null ? $"移动触发：获得 {mana} 点法力" : "资源技能获得法力", payload));
+            if (power > 0)
+                events.Add(new("POWER_GAINED", movementSpec is not null ? $"移动触发：获得 {power} 点任意特性符能" : "资源技能获得任意特性符能", payload));
         }
         var state = result.State with { RunePools = pools,
             TriggerQueue = result.State.TriggerQueue.Where(t => !IsImmediateResourceTrigger(t)).ToArray() };
         return result with { State = state, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
+
+    private static bool IsImmediateMovementResourceTrigger(TriggerQueueItemState trigger)
+        => IsJhinMovementResourceTrigger(trigger) || trigger.EffectKind == MovementObserverEffect
+            && trigger.MovementObserver is { Kind: TriggerKinds.UnitOrdinalMovementGainResources } movement
+            && ValidMovementObserver(movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId, trigger.SourceCardNo);
 
     private static bool IsImmediatePoolResourceAbility(string id)
         => id == P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId
@@ -220,7 +231,7 @@ public sealed partial class CoreRuleEngine
         if (!pools[intent.PlayerId].HasSupportedAmounts)
             return RejectWithCorePrompts(state, "资源数量超出支持范围，未获取资源或支付费用。", ErrorCodes.UnsupportedCardBehavior);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        cards[command.SourceObjectId] = source with { IsExhausted = true };
+        cards[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cards, source);
         var next = state with { Tick = state.Tick + 1, CardObjects = cards, RunePools = pools };
         var payload = new Dictionary<string, object?>
         {
@@ -267,7 +278,7 @@ public sealed partial class CoreRuleEngine
         var source = state.CardObjects[command.SourceObjectId];
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        cards[command.SourceObjectId] = source with { IsExhausted = true };
+        cards[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cards, source);
         var cost = new StackItemState($"gold-cost-{state.Tick + 1}-{command.SourceObjectId}", intent.PlayerId,
             command.SourceObjectId, ability.EffectKind, source.CardNo, []);
         var destroyed = ResolveFieldDestructions(state, zones, cards, cost, new HashSet<string>(),

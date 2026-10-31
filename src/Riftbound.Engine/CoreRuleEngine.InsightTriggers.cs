@@ -8,7 +8,9 @@ public sealed record InsightTriggerContext(string CardNo, string ControllerId, i
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PredictGrantOrigin? PredictGrant = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PrintedPredictEntryOrigin? PrintedPredict = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? SourceFaceRevision = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? SourceCapturedTick = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -24,10 +26,11 @@ public sealed partial class CoreRuleEngine
     private static TriggerSpec? HeldInsightSpec(string? cardNo) => cardNo is not null ? HeldInsightSpecs.Value.GetValueOrDefault(cardNo) : null;
 
     private static bool IsInsightSource(string? cardNo, string kind)
-        => kind == "HELD" ? HeldInsightSpec(cardNo) is not null : InsightSourceFamilies.Value[kind switch { "SPELL_PLAYED" => "UNL-211/219", "LAST_BREATH" => "UNL-062/219", "DUEL" => "UNL-079/219", "EMPOWERED" => "VEN·047", _ => "UNL-136/219" }]
+        => kind == "EXHAUSTED" ? UnitEventSpec(cardNo) is { Timing: "BECAME_EXHAUSTED", Effect: "INSIGHT" }
+            : kind == "HELD" ? HeldInsightSpec(cardNo) is not null : InsightSourceFamilies.Value[kind switch { "SPELL_PLAYED" => "UNL-211/219", "LAST_BREATH" => "UNL-062/219", "DUEL" => "UNL-079/219", "EMPOWERED" => "VEN·047", _ => "UNL-136/219" }]
             .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
 
-    internal static bool IsCapturedInsightKind(string? kind) => kind is "LAST_BREATH" or "DUEL" or "EMPOWERED" or "HELD";
+    internal static bool IsCapturedInsightKind(string? kind) => kind is "LAST_BREATH" or "DUEL" or "EMPOWERED" or "HELD" or "EXHAUSTED";
 
     private static IReadOnlyList<InsightTriggerContext> CaptureLastBreathInsights(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
@@ -47,7 +50,11 @@ public sealed partial class CoreRuleEngine
                 ? unit.ObjectGeneration >= context.SourceGeneration && unit.TokenFactoryCardNo == context.SourceTokenFactoryCardNo
                 : context.SourceTokenFactoryCardNo is not null && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo)))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind)
-                && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo));
+                && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo))
+            && (context.Kind != "EXHAUSTED" || context.SourceCapturedTick is > 0 && context.SourceCapturedTick <= state.Tick
+                && context.SourceFaceRevision is >= 0 && (context.Origin is not null || PredictBindingMatches(state,
+                    new(source, context.SourceGeneration), context.CardNo, context.SourceFaceRevision.Value,
+                    context.SourceCapturedTick.Value, context.SourceTokenFactoryCardNo)));
 
     internal static bool ValidCeasedInsightSource(MatchState state, InsightTriggerContext? context,
         string source, string effect, string controller, string? cardNo = null)
@@ -57,12 +64,14 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidInsightTrigger(InsightTriggerContext context, string effect, string controller, string? cardNo = null)
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
+            && (context.Kind == "EXHAUSTED" ? context.SourceFaceRevision is >= 0 && context.SourceCapturedTick is > 0
+                : context.SourceFaceRevision is null && context.SourceCapturedTick is null)
             && (context.SourceTokenFactoryCardNo is null || IsCapturedInsightKind(context.Kind)
                 && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind) && context.Origin.CardNo == context.CardNo
                 && context.Origin.Unit is { } unit && unit.Generation == context.SourceGeneration)
-            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT" or "EMPOWERED" or "HELD"
-            && context.Count == (context.Kind == "HELD" ? HeldInsightSpec(context.CardNo)?.RevealCount ?? 0 : context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
+            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT" or "EMPOWERED" or "HELD" or "EXHAUSTED"
+            && context.Count == (context.Kind == "EXHAUSTED" ? UnitEventSpec(context.CardNo)?.Amount ?? 0 : context.Kind == "HELD" ? HeldInsightSpec(context.CardNo)?.RevealCount ?? 0 : context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
                 : context.Kind is "SPELL_PLAYED" or "DUEL" or "GRANTED_PREDICT" or "PRINTED_PREDICT" ? 1 : 2) && context.Count>0
             && (context.Kind == "DUEL" ? !string.IsNullOrEmpty(context.BattlefieldObjectId) && !string.IsNullOrEmpty(context.ReturnFocusPlayerId)
                 : (context.Kind is "CONQUEST_LOOK" or "HELD" ? !string.IsNullOrWhiteSpace(context.BattlefieldObjectId) : context.BattlefieldObjectId is null)

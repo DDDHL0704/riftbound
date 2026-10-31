@@ -344,7 +344,7 @@ public sealed partial class CoreRuleEngine
             return;
         }
         RecallAttachedGroupToBase(zones, cards, option.Target, player);
-        cards[option.Target] = current with { Damage = 0, DamageMarkedByPlayerIds = null, IsExhausted = true, IsAttacking = false, IsDefending = false, ControllerId = player,
+        cards[option.Target] = ExhaustForInstruction(zones, cards, current) with { Damage = 0, DamageMarkedByPlayerIds = null, IsExhausted = true, IsAttacking = false, IsDefending = false, ControllerId = player,
             UntilEndOfTurnEffects = option.Kind == "RECALL" ? current.UntilEndOfTurnEffects.Where(e => e != RecallToBaseExhaustedIfDestroyedThisTurnEffectId).ToArray() : current.UntilEndOfTurnEffects };
         events.Add(new("UNIT_RECALLED_TO_BASE", "移除伤害并休眠召回", new Dictionary<string, object?> {
             ["sourceObjectId"] = option.Kind == "RECALL" ? cause?.SourceObjectId ?? option.Source : effectSource,
@@ -393,10 +393,10 @@ public sealed partial class CoreRuleEngine
         var paidPower = PayPowerCost(current, traitToSpend is null ? 1 : 0, paymentTraits);
         pools[player] = current with { Power = paidPower.AnyPower, PowerByTrait = paidPower.PowerByTrait };
         RecallAttachedGroupToBase(zones, cards, option.Target, player);
-        cards[option.Target] = unitState with { Damage = 0, DamageMarkedByPlayerIds = null, Power = unitState.Power - 1, IsExhausted = true,
+        cards[option.Target] = ExhaustForInstruction(zones, cards, unitState) with { Damage = 0, DamageMarkedByPlayerIds = null, Power = unitState.Power - 1, IsExhausted = true,
             IsAttacking = false, IsDefending = false, ControllerId = player,
             Tags = unitState.Tags.Where(t => t != CardObjectTags.Boon).ToArray() };
-        cards[option.Source] = cards[option.Source] with { IsExhausted = true };
+        cards[option.Source] = ExhaustForInstruction(zones, cards, cards[option.Source]);
         events.Add(new("COST_PAID", "支付腕豪替换费用：1 点任意符能", new Dictionary<string, object?> {
             ["playerId"] = player, ["mana"] = 0, ["power"] = 1, ["reason"] = SettRecallEffect }));
         events.Add(new("BOON_CONSUMED", "消耗增益", new Dictionary<string, object?> {

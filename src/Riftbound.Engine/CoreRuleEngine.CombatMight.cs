@@ -66,15 +66,15 @@ public sealed partial class CoreRuleEngine
         if (!result.Accepted) return result;
         FieldTriggerContext? Update(string sourceId, FieldTriggerContext? context)
         {
-            if (context is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind }) return context;
+            if (context is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind }) return context;
             var location = CombatMightSourceLocation(result.State, sourceId, context.SourceGeneration)
                 ?? CombatMightSourceLocation(before, sourceId, context.SourceGeneration);
             return location is null || location == context.SourceLocation ? context : context with { SourceLocation = location };
         }
         var state = result.State with {
-            StackItems = result.State.StackItems.Select(i => i.FieldContext is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind } ? i
+            StackItems = result.State.StackItems.Select(i => i.FieldContext is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind } ? i
                 : i with { FieldContext = Update(i.SourceObjectId, i.FieldContext) }).ToArray(),
-            TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind } ? t
+            TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind } ? t
                 : t with { FieldContext = Update(t.SourceObjectId, t.FieldContext) }).ToArray() };
         return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
@@ -83,6 +83,7 @@ public sealed partial class CoreRuleEngine
         string controller, string effect, string? cardNo = null)
     {
         if (!ValidFieldContext(context, effect, cardNo)) return false;
+        if (context.Kind == BombDestructionKind) return ValidBombDestructionSource(state, context, sourceId, controller);
         if (context.Kind == EquipmentDeathReturnKind) return ValidEquipmentDeathSource(state, context, sourceId, controller);
         if (context.Kind == DisarmKind) return ValidDisarmSource(state, context, sourceId, controller);
         if (context.Kind == SelfActionPowerKind) return ValidSelfActionSource(state, context, sourceId, controller);
@@ -97,7 +98,7 @@ public sealed partial class CoreRuleEngine
         if (context.Kind == "RECYCLE_BOON") return ValidRecycledBoonSource(state, context, sourceId, controller);
         if (context.Kind == "ENEMY_ATTACK_MIGHT")
             return ValidEnemyAttackMightState(state, context, sourceId, controller);
-        if (context.Kind is not ("COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind)) return true;
+        if (context.Kind is not ("COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind)) return true;
         if (string.IsNullOrWhiteSpace(sourceId) || !state.Seats.ContainsKey(controller)
             || !ValidCapturedFieldSource(state, context, sourceId)
             || context.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(context.ReturnFocusPlayerId)

@@ -39,6 +39,13 @@ public sealed partial class CoreRuleEngine
             definition = GraveyardPlayBehavior(graveyard);
             return true;
         }
+        if (parent.HighCostPlayObserver is { } highCost
+            && parent.EffectKind == HighCostGraveyardPlayEffect
+            && HighCostPlaysSourceFromGraveyard(highCost.CardNo))
+        {
+            definition = HighCostGraveyardPlayBehavior(highCost.CardNo);
+            return true;
+        }
         if(parent.ObservedPlayPermission is { } observed)
         {
             definition=new(parent.CardNo,observed.Context.Instruction.Kind == "REVEAL" ? "展示期间放逐的卡牌" : "查看期间放逐的卡牌",0,ObservedDeckPlayEffect,0,0,
@@ -98,7 +105,8 @@ public sealed partial class CoreRuleEngine
         if (state.PendingEffectPlay is not { } pending)
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId))
-                    .Concat(FlowPlaySources(state, playerId)).Concat(NormalGraveyardPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
+                    .Concat(FlowPlaySources(state, playerId)).Concat(NormalGraveyardPlaySources(state, playerId))
+                    .Concat(TimedBanishPlayRules.Sources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
         if (pending.SourcePlayerId is { } sourcePlayer && state.PlayerZones.TryGetValue(sourcePlayer, out var sourceZones)) zones = sourceZones;

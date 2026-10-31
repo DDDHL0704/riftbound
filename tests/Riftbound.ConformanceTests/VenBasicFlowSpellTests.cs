@@ -206,6 +206,11 @@ public sealed class VenBasicFlowSpellTests
         private MatchSession session;
         internal MatchState State { get; private set; }
         internal ResolutionResult? LastRetainedResult { get; private set; }
+        // Most fixtures intentionally cold-recover every command. Slow canonical
+        // openings can temporarily batch ordinary commands and call ColdCheckpoint
+        // at an explicit stage boundary; the default remains the original behavior.
+        internal bool RecoverAfterEveryCommand { get; set; } = true;
+        private (string Player, string Intent, GameCommand Command, JsonElement Raw)? last;
         internal ActionPromptDto PromptFor(string player) => session.PromptFor(player);
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
@@ -236,23 +241,43 @@ public sealed class VenBasicFlowSpellTests
             raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = State.Tick;
             var wire = JsonSerializer.SerializeToElement(raw, json); command = GameCommandJsonMapper.Map(wire);
             var id = "basic-flow-" + entries.Count;
+            last = (player, id, command, wire);
             var result = await session.SubmitAsync(player, id, command, wire, default);
             Assert.True(result.Accepted, result.ErrorMessage); State = result.State;
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
-            var seq = entries[^1].CompletedEventSequence;
-            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
-            var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, seq, snapshots[p], State.Tick, seq, prompts[p]));
-            var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, seq, [], State);
-            var errors = MatchRecoveryValidator.Validate(State.RoomId, seq, Commands(), Events(), views, State, State.Tick, spectator);
-            Assert.True(errors.Count == 0, string.Join(Environment.NewLine, errors));
-            var frame = new MatchRecoveryFrame(State.RoomId, State.Tick, seq, Commands(), Events(), views, errors, State, initial, spectator) { OpeningSeed = initial.Seed };
-            session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
+            var frame = Frame();
+            Assert.Empty(frame.ValidationErrors);
+            if (RecoverAfterEveryCommand) session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
             var count = entries.Count; var hash = MatchStateHasher.Hash(State);
             var duplicate = await session.SubmitAsync(player, id, command, wire, default);
             Assert.True(duplicate.Accepted);
             Assert.Equal(count, entries.Count); Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
             Assert.Equal(hash, MatchStateHasher.Hash(State));
+            if (RecoverAfterEveryCommand) await Replay();
+        }
+
+        internal async Task ColdCheckpoint()
+        {
+            var frame = Frame(); Assert.Empty(frame.ValidationErrors);
+            var hash = MatchStateHasher.Hash(State); var count = entries.Count;
+            session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
+            if (last is { } previous)
+            {
+                var duplicate = await session.SubmitAsync(previous.Player, previous.Intent, previous.Command, previous.Raw, default);
+                Assert.True(duplicate.Accepted); Assert.Equal(count, entries.Count);
+                Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
+            }
             await Replay();
+        }
+
+        private MatchRecoveryFrame Frame()
+        {
+            var sequence = entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence;
+            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
+            var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
+            var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
+            return new(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator) { OpeningSeed = initial.Seed };
         }
         internal async Task ActRetained(ConformanceCommand retained, bool expectedAccepted)
         {

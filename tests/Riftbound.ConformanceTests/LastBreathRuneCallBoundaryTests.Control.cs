@@ -33,6 +33,10 @@ public sealed partial class LastBreathRuneCallBoundaryTests
             ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
             ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
         var game = new Driver(initial);
+        // The setup creates the copied sources and the controlled death queue.
+        // Keep command-level duplicate/privacy checks, then cold-restore once
+        // before exercising the real private draw and rune scarcity boundary.
+        game.RecoverAfterEveryCommand = false;
         try
         {
             await Tap(game, "P1", Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i));
@@ -54,6 +58,8 @@ public sealed partial class LastBreathRuneCallBoundaryTests
             foreach (var id in goldIds.Skip(3)) await game.Act("P2", new ActivateAbilityCommand(id, P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId, []));
             Assert.Equal(2, game.State.RunePools["P2"].Power);
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
+            game.RecoverAfterEveryCommand = true;
+            await game.ColdCheckpoint();
             Assert.Equal(0, game.State.RunePools["P2"].TotalPower); Assert.All(goldIds, id => Assert.False(game.State.CardObjects.ContainsKey(id)));
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard); Assert.Equal(3, game.State.TriggerQueue.Count);
             Assert.All(game.State.TriggerQueue, item => {

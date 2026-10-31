@@ -371,6 +371,22 @@ public static class TriggerParser
                 "After a card with the required printed mana cost finishes being played, ready this source on resolution.",
                 TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: int.Parse(highCostReady.Groups["mana"].Value),
                 ReadiesSource: true));
+        var cardPlayBasePower = Regex.Match(text,
+            @"当你打出一张卡牌时，你可以选择让我的基础战力在本回合内变为等同于该卡牌的法力费用。",
+            RegexOptions.CultureInvariant);
+        if (cardPlayBasePower.Success)
+            triggers.Add(new(TriggerKinds.ControllerCardPlayBasePowerSource, "CARD_PLAY_COMPLETED", cardPlayBasePower.Value,
+                "When this controller finishes playing a card, optionally set this source's base Might to that card's printed mana cost for this turn.",
+                TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: 0, Optional: true));
+        var highCostGraveyardPlay = Regex.Match(text,
+            @"当你打出一张法力费用不低于\{\{(?<mana>[0-9]+)\}\}的卡牌时，你可以选择从你的废牌堆中以\{\{(?<trait>黄色)\}\}的费用将我打出。",
+            RegexOptions.CultureInvariant);
+        if (highCostGraveyardPlay.Success)
+            triggers.Add(new(TriggerKinds.ControllerHighCostGraveyardPlaySource, "CARD_PLAY_COMPLETED", highCostGraveyardPlay.Value,
+                "When this controller finishes playing a card with the required printed mana cost, optionally pay the colored power cost to play this source from its graveyard.",
+                TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: int.Parse(highCostGraveyardPlay.Groups["mana"].Value),
+                PowerCost: 1, PowerCostTrait: "yellow", PlayCount: 1, PlayOriginZone: TriggerZones.Graveyard,
+                PlayDestinationZone: TriggerZones.Stack, IgnorePlayManaCost: true, PayPlayPowerCosts: true, Optional: true));
         var highCostRunes = Regex.Match(text,
             @"当你打出一个法力费用不低于\{\{(?<mana>[0-9]+)\}\}的单位、装备或主动技能时，你可以选择让我变为休眠状态，以此让最多(?<runes>[0-9一两二三四五六七八九十]+)枚符文变为活跃状态。",
             RegexOptions.CultureInvariant);
@@ -399,6 +415,7 @@ public static class TriggerParser
                 attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
                 TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
                 GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
+        triggers.AddRange(MovementOrdinalParser.Parse(text));
         var firstMoveMill = Regex.Match(text,
             @"每回合首次，当我移动时，选择一名玩家。该玩家\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}。?", RegexOptions.CultureInvariant);
         if (firstMoveMill.Success)
@@ -490,6 +507,10 @@ public static class TriggerParser
             "End-step reveal until first unit, banish and normal free pending play.", RevealSourceZone: TriggerZones.MainDeck,
             BanishCount: 1, PlayCount: 1, PlayOriginZone: "BANISHED", PlayDestinationZone: TriggerZones.Stack,
             RecycleDestinationZone: TriggerZones.MainDeck));
+        var endRecycleRunes = Regex.Match(text, @"在你的回合结束时，回收你的所有符文，然后召出(?<count>[0-9一两二三四五六七八九十]+)枚休眠的符文。", RegexOptions.CultureInvariant);
+        if (endRecycleRunes.Success) triggers.Add(new(TriggerKinds.TurnEndRecycleRunesCall, TriggerTimings.TurnEnd,
+            endRecycleRunes.Value, "Recycle all controlled runes in owner-chosen bottom order, then channel exhausted runes.",
+            RuneCallCount: ParseChineseNumber(endRecycleRunes.Groups["count"].Value)));
         var endReady = Regex.Match(text, @"在你(?:的)?回合结束时，(?<here>如果我位于战场上，则)?让最多(?<count>[0-9一两二三四五六七八九十]+)枚(?:友方)?符文变为活跃状态。", RegexOptions.CultureInvariant);
         if (endReady.Success) triggers.Add(new(TriggerKinds.TurnEndReadyRunes, TriggerTimings.TurnEnd, endReady.Value,
             "End-step optional rune target confirmation before ordinary response.", RuneReadyCount: ParseChineseNumber(endReady.Groups["count"].Value),
@@ -690,6 +711,8 @@ public static class TriggerParser
             .Where(segment => !hasSourceUnitPlayedLowCostGraveyardSpellTrigger
                 || !segment.Contains("当你打出我时，你可以选择从你的废牌堆中打出一个法力费用不高于", StringComparison.Ordinal)
                 || !segment.Contains("的法术", StringComparison.Ordinal))
+            .Where(segment => !cardPlayBasePower.Success || !cardPlayBasePower.Value.Contains(segment, StringComparison.Ordinal))
+            .Where(segment => !highCostGraveyardPlay.Success || !highCostGraveyardPlay.Value.Contains(segment, StringComparison.Ordinal))
             .Select(ToTriggerSpec)
             .ToArray());
 
@@ -2844,7 +2867,7 @@ public static class ActivatedAbilityParser
 
     public static IReadOnlyList<ActivatedAbilitySpec> Parse(string text)
     {
-        return SplitActivatedAbilitySegments(text)
+        var abilities = SplitActivatedAbilitySegments(text)
             .Where(segment => segment.Contains("：", StringComparison.Ordinal)
                 || segment.Contains(":", StringComparison.Ordinal))
             .Select(segment =>
@@ -2890,7 +2913,34 @@ public static class ActivatedAbilityParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Activated ability parsed for P3 routing only; execution remains unimplemented.");
             })
-            .ToArray();
+            .ToList();
+        if (TryParseFriendlyLegendPowerGrant(text, out var friendlyLegendPowerGrant))
+            abilities.Add(friendlyLegendPowerGrant);
+        return abilities;
+    }
+
+    private static bool TryParseFriendlyLegendPowerGrant(string text, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        const string marker = "所有友方传奇具有“{{T}}：给予一名单位在本回合内{{S}}+3。”";
+        if (!text.Contains(marker, StringComparison.Ordinal)) return false;
+        const int amount = 3;
+        const string cost = "{{T}}";
+        var effect = $"给予一名单位在本回合内{{{{S}}}}+{amount}。";
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Implemented,
+            "Friendly legends gain a shared targeted power skill while the granting unit remains on the controller's field.",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn,
+            ExhaustsSourceAsCost: true,
+            ManaCost: 0,
+            PowerCost: 0,
+            RequiredTargetCount: 1,
+            TargetScope: "ANY_UNIT",
+            PowerModifierAmount: amount,
+            MinimumPowerAfterModifier: 0,
+            SourceScope: ActivatedAbilitySourceScopes.FriendlyLegend,
+            RequiredControllerCardNoOnField: "RAD·040/167");
+        return true;
     }
 
     private static IReadOnlyList<string> SplitActivatedAbilitySegments(string text)
@@ -2995,11 +3045,13 @@ public static class ActivatedAbilityParser
     {
         ability = default!;
         var match = Regex.Match(effect,
-            @"^让一名单位(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<min>\d+)\{\{S\}\}[。.]?$",
+            @"^让一名单位(?:在)?本回合内\{\{S\}\}(?<delta>[+-]\d+)(?:[，,]\s*不得低于(?<min>\d+)\{\{S\}\})?[。.]?$",
             RegexOptions.CultureInvariant);
         if (cost != "{{横置}}" || !match.Success
-            || !int.TryParse(match.Groups["delta"].Value, out var delta) || delta >= 0
-            || !int.TryParse(match.Groups["min"].Value, out var minimum) || minimum <= 0) return false;
+            || !int.TryParse(match.Groups["delta"].Value, out var delta) || delta == 0) return false;
+        var minimum = match.Groups["min"].Success && int.TryParse(match.Groups["min"].Value, out var parsedMinimum)
+            ? parsedMinimum : 0;
+        if (delta < 0 && minimum <= 0 || delta > 0 && minimum != 0) return false;
         ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
             BehaviorImplementationStatuses.Unimplemented,
             "Typed exhaust and targeted Might modifier; execution is supplied by the activated-ability registry.",

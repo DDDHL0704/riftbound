@@ -46,6 +46,11 @@ internal static class UnitMovedTriggerSpecRules
                     || trigger.Kind == TriggerKinds.UnitFirstMovementMillPlayer && trigger.MillCount > 0 && trigger.OncePerTurn == true
                     || trigger.Kind == TriggerKinds.UnitMovedAllPlayersDrawOrDiscard && trigger.DrawCount > 0 && trigger.DiscardCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
+                    || trigger.Kind == TriggerKinds.UnitOrdinalMovementGainResources && trigger.MovementOrdinal == 1
+                        && trigger.ManaDelta > 0 && trigger.GeneratedPower > 0
+                    || trigger.Kind == TriggerKinds.UnitOrdinalMovementBanishTopPlay && trigger.MovementOrdinal == 2
+                        && trigger.BanishCount == 1 && trigger.PlayCount == 1 && trigger.PlayOriginZone == "BANISHED"
+                        && trigger.Duration == MovementOrdinalParser.NextControllerTurnEnd
                     || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
                         && trigger.Duration == TriggerDurations.UntilEndOfTurn);
 

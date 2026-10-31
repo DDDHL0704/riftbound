@@ -1945,6 +1945,10 @@ internal static partial class ActionPromptBuilder
                     var objectChoice = ObjectChoice(state, objectId, "pending payment resource action: recycle rune");
                     label = $"回收符文支付：{objectChoice.Label}";
                 }
+                else if (TryParseTapRunePaymentActionId(choiceId, out var tapId))
+                {
+                    label = $"横置符文支付：{ObjectChoice(state, tapId, "pending payment resource action: tap rune").Label}";
+                }
 
 
                 return new ActionPromptChoiceDto(choiceId, label, "服务端支付资源候选");
@@ -1973,8 +1977,16 @@ internal static partial class ActionPromptBuilder
         PendingPaymentState payment)
     {
         return PendingPaymentResourceActionIds(payment)
-
+            .Concat(payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow
+                ? [] : CoreRuleEngine.TapRunePaymentResourceActionIds(state, payment.PlayerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static bool TryParseTapRunePaymentActionId(string choiceId, out string objectId)
+    {
+        objectId = choiceId.StartsWith(TapRunePaymentOptionalCostPrefix, StringComparison.Ordinal)
+            ? choiceId[TapRunePaymentOptionalCostPrefix.Length..].Trim() : string.Empty;
+        return objectId.Length > 0;
     }
 }

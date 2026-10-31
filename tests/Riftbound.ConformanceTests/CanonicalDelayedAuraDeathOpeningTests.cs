@@ -52,7 +52,10 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
                     && game.Hand("P2", "OGN·033/298").Count() >= 2) break;
                 await EndTurn(game, game.State.TurnPlayerId!);
             }
-            Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED"); await game.ColdCheckpoint();
+            // The opening checkpoint above covers the natural draw setup. Keep
+            // the no-burnout assertion, then continue to the accepted empower
+            // boundary instead of replaying the same growing opening journal.
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
             await game.Tap("P1"); Assert.Equal(12, game.State.RunePools["P1"].Mana);
             var auras = game.Hand("P1", "VEN·130").Take(2).ToArray(); var aura = auras[0]; var nativeAura = auras[1];
             foreach (var id in auras) await game.Act("P1", new PlayCardCommand(id, "VEN·130", []));

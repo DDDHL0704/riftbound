@@ -8,13 +8,16 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
+  pull-requests: read
 
-# PR revisions replace their predecessors. Let the active main verification finish;
-# GitHub keeps only the latest pending main revision in the same group.
+# PR revisions and main pushes replace their predecessors. Keep a manually
+# dispatched run stable for investigation, while releasing runner slots held by
+# an obsolete automatic revision.
 concurrency:
   group: l2-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -29,6 +32,7 @@ jobs:
       sdk: ${{ steps.plan.outputs.sdk }}
       tier: ${{ steps.scope.outputs.tier }}
       quality: ${{ steps.quality.outcome }}
+      reused: ${{ steps.reuse.outputs.reused }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -47,42 +51,57 @@ jobs:
           python3 -m unittest discover -s scripts/tests -p test_scoped_ci.py -v
           python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
+          python3 -m unittest discover -s scripts/tests -p test_main_l2_reuse.py -v
       - name: Check committed formatting
         run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
       - name: Inspect the fixed Git change scope
         run: >-
-          python3 scripts/ci-change-scope.py --docs-pr-only --event "$GITHUB_EVENT_PATH"
+          python3 scripts/ci-change-scope.py --docs-pr-only --allow-main-docs --event "$GITHUB_EVENT_PATH"
           --head "$GITHUB_SHA" --output var/qa/l2-quality/scope-candidate.json
       - name: Recheck scope before selecting jobs; uncertainty runs the complete suite
         id: scope
         run: >-
-          python3 scripts/ci-change-scope.py --docs-pr-only --event "$GITHUB_EVENT_PATH"
+          python3 scripts/ci-change-scope.py --docs-pr-only --allow-main-docs --event "$GITHUB_EVENT_PATH"
           --head "$GITHUB_SHA" --recheck var/qa/l2-quality/scope-candidate.json
           --output var/qa/l2-quality/scope.json --github-output "$GITHUB_OUTPUT"
+      - name: Try to reuse a passed PR L2 for an identical main tree
+        id: reuse
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 scripts/main-l2-reuse.py --event "$GITHUB_EVENT_PATH"
+          --head "$GITHUB_SHA" --output var/qa/l2-reuse/decision.json
+          --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() }}
         with:
           name: l2-quality
           path: var/qa/l2-quality/
           retention-days: 14
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() }}
+        with:
+          name: l2-main-reuse
+          path: var/qa/l2-reuse/
+          retention-days: 30
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        if: steps.scope.outputs.tier != 'DOCS'
+        if: steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true'
         with:
           dotnet-version: |
             8.0.x
             10.0.403
       - name: Verify exact checkout
-        if: steps.scope.outputs.tier != 'DOCS'
+        if: steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true'
         run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-prepared/checkout.json
       - name: Prove mixed row and whole-method selection on Linux before the rule build
-        if: steps.scope.outputs.tier != 'DOCS'
+        if: steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true'
         run: python3 scripts/probe-l2-row-selection.py --commit "$GITHUB_SHA" --output var/qa/l2-prepared/row-filter-probe
       - name: Build API and conformance once and enumerate the complete L2 input
-        if: steps.scope.outputs.tier != 'DOCS'
+        if: steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true'
         id: plan
         run: python3 scripts/l2-distributed.py prepare --commit "$GITHUB_SHA" --shards 9 --output var/qa/l2-prepared --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ !cancelled() && steps.scope.outputs.tier != 'DOCS' }}
+        if: ${{ !cancelled() && steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true' }}
         with:
           name: l2-plan
           path: |
@@ -92,13 +111,13 @@ jobs:
             var/qa/l2-prepared/row-filter-probe/receipt.json
           retention-days: 30
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ !cancelled() && steps.scope.outputs.tier != 'DOCS' }}
+        if: ${{ !cancelled() && steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true' }}
         with:
           name: l2-row-filter-probe
           path: var/qa/l2-prepared/row-filter-probe/
           retention-days: 30
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: steps.scope.outputs.tier != 'DOCS'
+        if: steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true'
         with:
           name: l2-built-input
           path: var/qa/l2-prepared/bundle.tar.gz
@@ -107,7 +126,7 @@ jobs:
 
   rule_suite:
     needs: [prepare]
-    if: needs.prepare.outputs.tier != 'DOCS'
+    if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     strategy:
@@ -164,10 +183,12 @@ jobs:
           RIFTBOUND_QUALITY: ${{ needs.prepare.outputs.quality }}
           RIFTBOUND_RULE_SUITE: ${{ needs.rule_suite.result }}
           RIFTBOUND_TIER: ${{ needs.prepare.outputs.tier }}
+          RIFTBOUND_REUSED: ${{ needs.prepare.outputs.reused }}
         run: |
           python3 - <<'PYGATE'
           import os
-          expected = 'skipped' if os.environ['RIFTBOUND_TIER'] == 'DOCS' else 'success'
+          expected = 'skipped' if (os.environ['RIFTBOUND_TIER'] == 'DOCS'
+                                   or os.environ['RIFTBOUND_REUSED'] == 'true') else 'success'
           for stage, outcome in [('PREPARE', 'success'), ('QUALITY', 'success'), ('RULE_SUITE', expected)]:
               actual = os.environ['RIFTBOUND_' + stage]
               if actual != outcome:
@@ -179,35 +200,46 @@ jobs:
         with:
           name: l2-quality
           path: var/qa/l2-quality
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-main-reuse
+          path: var/qa/l2-reuse
       - name: Verify the documentation exemption for this checkout and workflow attempt
         if: needs.prepare.outputs.tier == 'DOCS'
         run: >-
           python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
           --head "$GITHUB_SHA" --verify-docs-receipt var/qa/l2-quality
           --checkout var/qa/l2-gate/checkout.json --output var/qa/l2-gate/documentation.json
+      - name: Verify the main L2 reuse receipt for this checkout and workflow attempt
+        if: needs.prepare.outputs.reused == 'true'
+        run: >-
+          python3 scripts/main-l2-reuse.py --event "$GITHUB_EVENT_PATH"
+          --event-name "$GITHUB_EVENT_NAME" --head "$GITHUB_SHA"
+          --verify-receipt var/qa/l2-reuse/decision.json
+          --checkout var/qa/l2-gate/checkout.json --output var/qa/l2-gate/reuse.json
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        if: needs.prepare.outputs.tier != 'DOCS'
+        if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'
         with:
           name: l2-plan
           path: var/qa/l2-prepared
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        if: needs.prepare.outputs.tier != 'DOCS'
+        if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'
         with:
           pattern: l2-shard-*
           path: var/qa/l2-shards
       - name: Restore original shard names
-        if: needs.prepare.outputs.tier != 'DOCS'
+        if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'
         run: |
           python3 -c "from pathlib import Path; p=Path('var/qa/l2-shards'); [(x.rename(p/x.name.removeprefix('l2-'))) for x in list(p.iterdir()) if x.is_dir() and x.name.startswith('l2-shard-')]"
       - name: Verify the targeted view checkout
-        if: needs.prepare.outputs.tier != 'DOCS'
+        if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'
         run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-targeted/checkout.json
       - name: Derive targeted coverage from the original execution TRX; no second execution
         id: targeted
-        if: needs.prepare.outputs.tier != 'DOCS'
+        if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'
         run: python3 scripts/run-l2-targeted.py --commit "$GITHUB_SHA" --prepared var/qa/l2-prepared --inputs var/qa/l2-shards --output var/qa/l2-targeted
       - name: Require all children, fixed identities and exact original case coverage
-        if: needs.prepare.outputs.tier != 'DOCS'
+        if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'
         env:
           RIFTBOUND_QUALITY: ${{ needs.prepare.outputs.quality }}
           RIFTBOUND_PREPARE: ${{ needs.prepare.result }}
@@ -225,7 +257,7 @@ jobs:
           path: var/qa/l2-gate/
           retention-days: 30
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ !cancelled() && needs.prepare.outputs.tier != 'DOCS' }}
+        if: ${{ !cancelled() && needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true' }}
         with:
           name: l2-targeted
           path: var/qa/l2-targeted/

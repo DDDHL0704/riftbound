@@ -62,6 +62,7 @@ public sealed partial class CoreRuleEngine
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = TimedBanishPlayRules.Prune(collected);
             collected = RecordTargetedPowerSourceStatus(state, collected);
             collected = RecordDepartedTokenTargets(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
