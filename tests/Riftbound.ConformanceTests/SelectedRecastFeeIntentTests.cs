@@ -66,7 +66,11 @@ public sealed class SelectedRecastFeeIntentTests
                 Assert.Equal(0, quote.Cost!.Mana); Assert.Equal(1, quote.Cost.PowerByTrait[RuneTrait.Blue]);
             }
             var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
-            raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = game.State.Tick;
+            if (kind is not ("outside-window" or "wrong-player"))
+            {
+                raw["promptId"] = session.PromptFor(player).PromptId;
+                raw["snapshotTick"] = game.State.Tick;
+            }
             switch (kind)
             {
                 case "false-price": raw["manaCost"] = 99; raw["powerCost"] = 99; break;

@@ -111,8 +111,11 @@ public sealed class Ven013And103PaidGraveyardConsumers
         }
         try
         {
-            // Audit setup and natural draws at stage boundaries; keep cold recovery
-            // on paid plays and movement, then validate the complete final journal.
+            // Audit the submitted opening and the completed natural draw stage; keep
+            // cold recovery on paid plays and movement, then validate the complete
+            // final journal.  The three bounded waits below each retain their
+            // assertions, while one completed-opening restore covers their shared
+            // growing history instead of replaying the same setup twice.
             foreach (var player in new[] { "P1", "P2" })
                 await Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
             await Act("P1", new ReadyCommand()); await Act("P2", new ReadyCommand());
@@ -120,8 +123,8 @@ public sealed class Ven013And103PaidGraveyardConsumers
             await Act(game.State.OpeningSecondActionPlayerId!, new MulliganCommand([]));
             await game.ColdCheckpoint();
             var enemy = Arena.Other(actor);
-            await WaitFor(actor, Assassin, Assassin, Return); await game.ColdCheckpoint();
-            await WaitFor(enemy, Assassin, Strike); await game.ColdCheckpoint();
+            await WaitFor(actor, Assassin, Assassin, Return);
+            await WaitFor(enemy, Assassin, Strike);
             await WaitFor(actor); await game.ColdCheckpoint();
             var units = game.Hand(actor, Assassin).Take(2).ToArray();
             var food = game.Hand(enemy, Assassin).First(); var spell = game.Hand(actor, Return).First();
@@ -136,7 +139,6 @@ public sealed class Ven013And103PaidGraveyardConsumers
                     await game.ColdCheckpoint();
                 },
                 game.Events, actor, units[0], units[1], units[0], food, strike, spell, field, 2);
-            await game.ColdCheckpoint();
         }
         finally { await game.Save("ven013-103-submitted-paid-graveyard-" + actor); }
     }

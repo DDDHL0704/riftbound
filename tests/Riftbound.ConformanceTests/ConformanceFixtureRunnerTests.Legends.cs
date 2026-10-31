@@ -1097,7 +1097,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidPayload, result.ErrorCode);
         Assert.Equal(1, result.State.RunePools["P1"].Mana);
         Assert.Contains("P1-STANDBY-TEEMO", result.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("P1-STANDBY-TEEMO", result.State.PlayerZones["P1"].Base);

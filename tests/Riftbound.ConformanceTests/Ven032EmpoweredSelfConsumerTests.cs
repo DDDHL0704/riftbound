@@ -116,9 +116,11 @@ public sealed class Ven032EmpoweredSelfConsumerTests
         var node = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
         node["promptId"] = ResolutionResult.BuildPrompts(driver.State)["P1"].PromptId; node["snapshotTick"] = driver.State.Tick;
         await driver.ActRetained(new("P1", "ven032-reject-" + branch, JsonSerializer.SerializeToElement(node, Json)), false);
-        Assert.Equal(branch == "mana" ? "资源不足，无法支付强化费用。" : branch == "target"
+        Assert.Equal(branch is "mana" or "repeated" ? "当前操作未在行动提示中提供，请按最新提示重新提交。" : branch == "target"
             ? "强化来源不是目标，请选择当前存在的技能与费用。" : "请在你的开放主阶段选择一个仍可强化的公开物体。",
             driver.Commands().Last().ErrorMessage);
+        Assert.Equal(branch is "mana" or "repeated" ? ErrorCodes.PromptExpired : ErrorCodes.InvalidTarget,
+            driver.Commands().Last().ErrorCode);
         await Export("illegal-" + branch, initial, driver);
     }
 

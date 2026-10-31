@@ -71,7 +71,6 @@ public sealed class MandatoryRecastMixedSourcesTests
                 coreDecline = await engine.ResolveAsync(state, new("mixed-core", "P1", command.CmdType), command, default);
                 var session = new MatchSession(state, engine, NoopMatchJournal.Instance);
                 var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
-                raw["promptId"] = session.PromptFor("P1").PromptId; raw["snapshotTick"] = state.Tick;
                 var wire = JsonSerializer.SerializeToElement(raw, Json);
                 nativeDecline = await session.SubmitAsync("P1", "mixed-native", GameCommandJsonMapper.Map(wire), wire, default);
                 var duplicate = await session.SubmitAsync("P1", "mixed-native", GameCommandJsonMapper.Map(wire), wire, default);

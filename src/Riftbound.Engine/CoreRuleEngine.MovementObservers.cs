@@ -61,7 +61,8 @@ public sealed partial class CoreRuleEngine
         if (!ValidMovementInstructionShape(c)) return false;
         if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
             && c.SourceWasEmpowered is null && c.MovementBatch is null && c.SourceLocation is null && MovementScoreDefinition(c.CardNo) is { } score && c.MovementOrdinal == score.Ordinal;
-        if (c.MovementOrdinal is not null && c.Kind != TriggerKinds.UnitFirstMovementMillPlayer) return false;
+        var ordinalSpec = UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).FirstOrDefault(t => t.Kind == c.Kind);
+        if (c.Kind != TriggerKinds.UnitFirstMovementMillPlayer && c.MovementOrdinal != ordinalSpec?.MovementOrdinal) return false;
         if (c.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw)
         {
             if (c.SourceWasEmpowered is not null || c.MovementBatch is not { Count: > 0 } batch || c.SourceLocation is not { } location
@@ -139,6 +140,8 @@ public sealed partial class CoreRuleEngine
                 TriggerKinds.OpponentMovedToOtherBattlefieldDraw => "：对手移动到其他战场后抽牌",
                 TriggerKinds.UnitMovedDraw => "：移动后抽牌",
                 TriggerKinds.UnitFirstMovementMillPlayer => "：本回合首次移动，所选玩家燃烧",
+                TriggerKinds.UnitOrdinalMovementGainResources => "：本回合首次移动，立即获得资源",
+                TriggerKinds.UnitOrdinalMovementBanishTopPlay => "：本回合第二次移动，放逐顶牌并获得临时打出权限",
                 TriggerKinds.UnitMovedAllPlayersDrawOrDiscard => c.Mode switch {
                     "DRAW" => "：移动后每名玩家各抽一张牌",
                     "DISCARD" => "：移动后每名玩家各弃置一张手牌",
@@ -185,9 +188,10 @@ public sealed partial class CoreRuleEngine
                         && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)
                         && (t.RequiresSourceEmpowered != true || unit.IsEmpowered)
                         && (t.OncePerTurn != true || ordinal == 1)
+                        && (t.MovementOrdinal is null || t.MovementOrdinal == ordinal)
                         && (t.MaximumControlledRunes is not { } max || EmpowerRules.ControlledRunes(before, fact.ControllerId) <= max)))
                     Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, spec.Kind, unit.ObjectGeneration, fact,
-                        MovementOrdinal: spec.Kind == TriggerKinds.UnitFirstMovementMillPlayer ? ordinal : null) {
+                        MovementOrdinal: spec.Kind == TriggerKinds.UnitFirstMovementMillPlayer || spec.MovementOrdinal is not null ? ordinal : null) {
                         SourceWasEmpowered = spec.RequiresSourceEmpowered == true ? true : null,
                         ControlledRunesAtTrigger = spec.MaximumControlledRunes is not null ? EmpowerRules.ControlledRunes(before, fact.ControllerId) : null });
                 if (P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, instance.CardNo))
@@ -264,6 +268,8 @@ public sealed partial class CoreRuleEngine
             item.SourceObjectId, item.EffectKind, TriggerTimings.UnitMoved) { MovementObserver = context }) };
         var unitSpec = UnitMovedTriggerSpecRules.MovementTriggers(context.CardNo).FirstOrDefault(t => t.Kind == context.Kind
             && UnitMovedTriggerSpecRules.MatchesMovement(t, context.Unit) && MovementEmpowermentMatches(t, context));
+        if (context.Kind == TriggerKinds.UnitOrdinalMovementBanishTopPlay)
+            return ResolveMovementTimedBanishPlay(state, item, events);
         if (HasMovementDamage(item))
         {
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {

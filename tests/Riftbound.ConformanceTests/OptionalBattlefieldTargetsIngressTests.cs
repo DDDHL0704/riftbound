@@ -195,6 +195,8 @@ public sealed class OptionalBattlefieldTargetsIngressTests
     private static JsonElement Raw(Setup setup, string kind, string? value, string? extra = null)
     {
         var node = JsonNode.Parse(setup.PlannedPlay.GetRawText())!.AsObject();
+        node.Remove("promptId");
+        node.Remove("snapshotTick");
         node["cmdType"] = kind;
         node["battlefieldId"] = setup.Current.State.PlayerZones[setup.Actor].Battlefields.First(id =>
             setup.Current.State.CardObjects[id].Tags.Contains("CARD_TYPE:BATTLEFIELD"));

@@ -26,6 +26,7 @@ public sealed record CardBehaviorDefinition(
     int DrawCount = 0,
     bool DestroysTarget = false,
     string TargetScope = CardTargetScopes.BattlefieldUnit,
+    bool TargetScopeIsExplicit = false,
     int MinTargetCount = -1,
     string Mode = "",
     string DrawConditionKind = CardDrawConditionKinds.None,
@@ -171,6 +172,9 @@ public sealed record CardBehaviorDefinition(
     string CreatedBattlefieldEquipmentTokenName = "",
     string CreatedBattlefieldEquipmentTokenTags = "",
     bool CreatedBattlefieldEquipmentTokenIsExhausted = false,
+    bool ReadiesAllEnemyUnitsOnPlay = false,
+    bool OtherUnitsEnterReady = false,
+    bool SuppressesAllUnitWake = false,
     int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
     bool DamageAmountFromFirstTargetManaCost = false,
@@ -444,6 +448,7 @@ public static class CardTargetScopes
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
     public const string Legend = "LEGEND";
+    public const string FriendlyLegend = "FRIENDLY_LEGEND";
     public const string StackSpell = "STACK_SPELL";
     public const string SacredJudgmentKeepCard = "SACRED_JUDGMENT_KEEP_CARD";
 }
@@ -457,6 +462,7 @@ public static class CardCounteredStackItemDestinationZones
 public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
+    public const string LegendCard = "CARD_TYPE:LEGEND";
     public const string EquipmentCard = "CARD_TYPE:EQUIPMENT";
     public const string RuneCard = "CARD_TYPE:RUNE";
     public const string SpellCard = "CARD_TYPE:SPELL";
@@ -767,7 +773,7 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.EnemyUnit, Mode: "REDUCE_ENEMY", PowerModifierAmount: -2,
             CanPlayDuringPriority: true),
         new("VEN·106", "风灵瞬转", 3, "SPIRIT_SHIFT_CONDITIONAL_REMOVAL", 0, 1,
-            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true, CanPlayDuringSpellDuel: true,
             ConditionalTargetRemoval: new(3, "BANISH", "RETURN_TO_HAND")),
         new("VEN·127", "血戮", 2, "BLOODLETTING_CONDITIONAL_DESTROY", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, FlowCost: new(4, 2, [RuneTrait.Yellow]),
@@ -998,7 +1004,7 @@ public static class CardBehaviorRegistry
         new("VEN·055", "实干研究员", 4, "VEN_055_EMPOWERED_SPELL_DISCOUNT_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·059", "电能震荡", 3, "VEN_059_EMPOWERED_OBJECT_COST_DAMAGE", 4, 1,
-            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true, CanPlayDuringSpellDuel: true,
             CostReductionConditionKind: CardCostReductionConditionKinds.ControllerControlsEmpoweredObject, CostReductionMana: 2),
         new("VEN·049", "深水打捞", 2, "DEEP_SALVAGE_DRAW_ONE", 0, 0,
             DrawCount: 1, FlowCost: new(2, 0, [])),
@@ -1009,7 +1015,7 @@ public static class CardBehaviorRegistry
         new("VEN·122", "烈阳之鹰", 3, "VEN_122_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "鸟类"),
         new("VEN·008", "无情打击", 3, "VEN_008_OPTIONAL_DISCARD_DAMAGE", 3, 1,
-            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true, CanPlayDuringSpellDuel: true,
             DamageAmountIfDiscardHandCardOptionalCost: 5),
         new("VEN·043", "钢爪", 1, "STEELCLAW_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 0, SourceUnitTags: "猫科|法盾"),
@@ -1021,7 +1027,7 @@ public static class CardBehaviorRegistry
         new("VEN·181", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
         new("VEN·010", "蚀骨诅咒", 2, "VEN_010_GRAVEYARD_SAME_NAME_DAMAGE", 2, 1,
-            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true, CanPlayDuringSpellDuel: true,
             ExtraDamagePerSameNameInControllerGraveyard: 1),
         new("VEN·150", "加速之门", 3, "VEN_ACCELERATION_GATE_READY_OBJECTS", 0, 4,
             TargetScope: CardTargetScopes.UnitEquipmentOrRune, MinTargetCount: 0, ReadiesTarget: true),
@@ -1075,7 +1081,7 @@ public static class CardBehaviorRegistry
             "PUNISHMENT_DAMAGE_3",
             3,
             1,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             BanishesIfDestroyedThisTurn: true,
             CanPlayDuringSpellDuel: true),
         new(
@@ -1375,7 +1381,7 @@ public static class CardBehaviorRegistry
             "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS",
             0,
             2,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             SwapsTargetPowersUntilEndOfTurn: true),
         new(
             "SFD·001/221",
@@ -1414,7 +1420,7 @@ public static class CardBehaviorRegistry
             "PAINFUL_PAYOFF_DAMAGE_3_CREATE_GOLD_EQUIPMENT",
             3,
             1,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             CreatedBaseEquipmentTokenCount: 1,
             CreatedBaseEquipmentTokenName: "金币",
             CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
@@ -1438,7 +1444,7 @@ public static class CardBehaviorRegistry
             0,
             1,
             DestroysTarget: true,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             MaxTargetPower: 2,
             CreatedBaseEquipmentTokenName: "金币",
             CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
@@ -1452,7 +1458,7 @@ public static class CardBehaviorRegistry
             "PIERCING_LIGHT_DAMAGE_2_UP_TO_2_BATTLEFIELD_UNITS",
             2,
             2,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             MinTargetCount: 1),
         new(
             "OGN·009/298",
@@ -3023,7 +3029,7 @@ public static class CardBehaviorRegistry
             "ZAUN_BODYGUARD_PLAY_UNIT_RETURN_BATTLEFIELD_UNIT",
             0,
             1,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             TargetRequiredTag: CardObjectTags.UnitCard,
             ReturnsTargetToHand: true,
             PlaysSourceToBaseAsUnit: true,
@@ -3084,7 +3090,7 @@ public static class CardBehaviorRegistry
             "BLAST_CREW_APPRENTICE_PLAY_UNIT_OPTIONAL_DAMAGE",
             2,
             1,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             TargetRequiredTag: CardObjectTags.UnitCard,
             MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true,
@@ -7140,7 +7146,7 @@ public static class CardBehaviorRegistry
             "WINDSONG_WING_PLAY_UNIT_OPTIONAL_RETURN_SMALL_BATTLEFIELD",
             0,
             1,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             TargetRequiredTag: CardObjectTags.UnitCard,
             MinTargetCount: 0,
             MaxTargetPower: 3,
@@ -7177,7 +7183,7 @@ public static class CardBehaviorRegistry
             "FRENZIED_RAIDER_PLAY_UNIT_MOVE_BATTLEFIELD_UNIT_TO_BASE",
             0,
             1,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             TargetRequiredTag: CardObjectTags.UnitCard,
             MovesTargetToBase: true,
             PlaysSourceToBaseAsUnit: true,
@@ -9335,7 +9341,7 @@ public static class CardBehaviorRegistry
             0,
             1,
             DestroysTarget: true,
-            TargetScope: CardTargetScopes.BattlefieldUnit),
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true),
         new(
             "SFD·087/221",
             "先知之兆",
@@ -9373,7 +9379,7 @@ public static class CardBehaviorRegistry
         new("VEN·146", "汲魂痛击", 4, "SIPHONING_STRIKE_DAMAGE_DELAYED_RUNE", 4, 1,
             DamageConditionKind: CardDamageConditionKinds.ControllerHasAtLeastRunes,
             ConditionalDamageAmount: 7, DamageConditionRuneCount: 7,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
             DelayedDestructionReward: new(RuneCallCount: 1)),
         new("VEN·142", "终极统治", 4, "DOUBLE_UNIT_POWER_GRANT_READY_ACTIVATION", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, CanPlayDuringSpellDuel: true,
@@ -9431,6 +9437,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·015/167", "阿卡丽 - 狂傲不羁", 5, "UNIT_ORDINAL_MOVEMENT_PLAY:RAD015", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·SP2/005", "阿卡丽 - 狂傲不羁", 5, "UNIT_ORDINAL_MOVEMENT_PLAY:RADSP2", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("RAD·061/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061", 0, 0,
             RequiresReturnFriendlyUnitAdditionalCost: true,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),
@@ -9583,6 +9593,40 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "约德尔人")
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantNextBatchUnits =
+    [
+        new("RAD·003/167", "比港追捕者", 3, "RAD_003_PLAY_DAMAGE_UP_TO_TWO", 1, 2,
+            TargetScope: CardTargetScopes.AnyUnit, MinTargetCount: 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·008/167", "战争斥候", 3, "RAD_008_PLAY_BUFF_HASTE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("RAD·058/167", "怒海法师", 4, "RAD_058_PLAY_DEBUFF_HASTE", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, PowerModifierAmount: -3,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Blue),
+        new("RAD·118/167", "帝皇令使", 5, "RAD_118_PLAY_SET_POWER", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, BasePowerUntilEndOfTurn: 5,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·019/167", "焰烙劫掠者", 6, "RAD_019_PLAY_READY_ENEMIES", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitIsExhausted: false,
+            ReadiesAllEnemyUnitsOnPlay: true, OtherUnitsEnterReady: true, SuppressesAllUnitWake: true),
+        new("RAD·094/167", "爆破猿", 6, "RAD_094_DEFEND_BOMBS", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6,
+            CreatedBattlefieldEquipmentTokenCount: 3,
+            CreatedBattlefieldEquipmentTokenName: "炸弹",
+            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy),
+    ];
+
+    private static readonly CardBehaviorDefinition[] RadiantLegendarySupportUnits =
+    [
+        new("RAD·040/167", "鼓舞之魂", 7, "SOUL_OF_INSPIRATION_PLAY_READY_FRIENDLY_LEGEND", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyLegend,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "灵体",
+            ReadiesTarget: true)
+    ];
+
     private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
     [
         new("RAD·067/167", "钟塔守护者", 8, "HELD_INSIGHT_LAST_BREATH_PLAY_UNIT", 0, 0,
@@ -9618,12 +9662,22 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantFinalUnits =
+    [
+        new("RAD·113/167", "提灯亚龙", 8, "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "龙|法盾"),
+        new("RAD·115/167", "易位法师", 6, "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
-            .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+            .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
+            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits)
+            .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

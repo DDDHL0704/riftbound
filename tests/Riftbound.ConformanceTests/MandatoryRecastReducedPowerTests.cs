@@ -54,7 +54,11 @@ public sealed class MandatoryRecastReducedPowerTests
             var session = new MatchSession(game.State, engine, NoopMatchJournal.Instance);
             var originalPrompt = session.PromptFor("P1");
             var raw = JsonSerializer.SerializeToNode(decline, Json)!.AsObject();
-            raw["promptId"] = originalPrompt.PromptId; raw["snapshotTick"] = game.State.Tick;
+            if (!empower)
+            {
+                raw["promptId"] = originalPrompt.PromptId;
+                raw["snapshotTick"] = game.State.Tick;
+            }
             var wire = JsonSerializer.SerializeToElement(raw, Json);
             native = await session.SubmitAsync("P1", "reduced-fee-native", GameCommandJsonMapper.Map(wire), wire, default);
             Assert.Equal(!empower, core.Accepted); Assert.Equal(!empower, native.Accepted);

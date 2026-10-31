@@ -415,6 +415,7 @@ public static class TriggerParser
                 attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
                 TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
                 GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
+        triggers.AddRange(MovementOrdinalParser.Parse(text));
         var firstMoveMill = Regex.Match(text,
             @"每回合首次，当我移动时，选择一名玩家。该玩家\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}。?", RegexOptions.CultureInvariant);
         if (firstMoveMill.Success)
@@ -2805,7 +2806,7 @@ public static class ActivatedAbilityParser
 
     public static IReadOnlyList<ActivatedAbilitySpec> Parse(string text)
     {
-        return SplitActivatedAbilitySegments(text)
+        var abilities = SplitActivatedAbilitySegments(text)
             .Where(segment => segment.Contains("：", StringComparison.Ordinal)
                 || segment.Contains(":", StringComparison.Ordinal))
             .Select(segment =>
@@ -2846,7 +2847,34 @@ public static class ActivatedAbilityParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Activated ability parsed for P3 routing only; execution remains unimplemented.");
             })
-            .ToArray();
+            .ToList();
+        if (TryParseFriendlyLegendPowerGrant(text, out var friendlyLegendPowerGrant))
+            abilities.Add(friendlyLegendPowerGrant);
+        return abilities;
+    }
+
+    private static bool TryParseFriendlyLegendPowerGrant(string text, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        const string marker = "所有友方传奇具有“{{T}}：给予一名单位在本回合内{{S}}+3。”";
+        if (!text.Contains(marker, StringComparison.Ordinal)) return false;
+        const int amount = 3;
+        const string cost = "{{T}}";
+        var effect = $"给予一名单位在本回合内{{{{S}}}}+{amount}。";
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Implemented,
+            "Friendly legends gain a shared targeted power skill while the granting unit remains on the controller's field.",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn,
+            ExhaustsSourceAsCost: true,
+            ManaCost: 0,
+            PowerCost: 0,
+            RequiredTargetCount: 1,
+            TargetScope: "ANY_UNIT",
+            PowerModifierAmount: amount,
+            MinimumPowerAfterModifier: 0,
+            SourceScope: ActivatedAbilitySourceScopes.FriendlyLegend,
+            RequiredControllerCardNoOnField: "RAD·040/167");
+        return true;
     }
 
     private static IReadOnlyList<string> SplitActivatedAbilitySegments(string text)
@@ -2975,11 +3003,13 @@ public static class ActivatedAbilityParser
     {
         ability = default!;
         var match = Regex.Match(effect,
-            @"^让一名单位(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<min>\d+)\{\{S\}\}[。.]?$",
+            @"^让一名单位(?:在)?本回合内\{\{S\}\}(?<delta>[+-]\d+)(?:[，,]\s*不得低于(?<min>\d+)\{\{S\}\})?[。.]?$",
             RegexOptions.CultureInvariant);
         if (cost != "{{横置}}" || !match.Success
-            || !int.TryParse(match.Groups["delta"].Value, out var delta) || delta >= 0
-            || !int.TryParse(match.Groups["min"].Value, out var minimum) || minimum <= 0) return false;
+            || !int.TryParse(match.Groups["delta"].Value, out var delta) || delta == 0) return false;
+        var minimum = match.Groups["min"].Success && int.TryParse(match.Groups["min"].Value, out var parsedMinimum)
+            ? parsedMinimum : 0;
+        if (delta < 0 && minimum <= 0 || delta > 0 && minimum != 0) return false;
         ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
             BehaviorImplementationStatuses.Unimplemented,
             "Typed exhaust and targeted Might modifier; execution is supplied by the activated-ability registry.",

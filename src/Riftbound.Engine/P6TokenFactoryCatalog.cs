@@ -161,6 +161,11 @@ public static class P6TokenFactoryCatalog
             && TryGetByCardNo(cardNo.Trim(), out _);
     }
 
+    public static bool IsBombTokenFactory(string? cardNo)
+    {
+        return string.Equals(cardNo?.Trim(), BombTokenCardNo, StringComparison.Ordinal);
+    }
+
     public static bool IsBaronNestBattlefieldToken(string? cardNo)
     {
         return IsBattlefieldToken(cardNo, BaronNestTokenCardNo);
