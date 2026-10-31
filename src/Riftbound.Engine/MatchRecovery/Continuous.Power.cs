@@ -1059,22 +1059,30 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        var equipmentKeywordAura = scope == "OBJECT"
+            && effectKind == StaticAuraKinds.FriendlyEquipmentKeyword
+            && sourcePath == "CoreRuleEngine.EquipmentKeywordAuraContributions"
+            && !string.IsNullOrWhiteSpace(sourceCardNo)
+            && (sourceCardNo.Contains('·') || sourceCardNo.Contains('/'))
+            && TryReadObjectString(effectPayload, "effectId", out var equipmentEffectId)
+            && equipmentEffectId is not null
+            && equipmentEffectId.StartsWith("EQUIPMENT_KEYWORD_AURA:", StringComparison.Ordinal);
         var battleKeyword = scope == "OBJECT" && effectKind == "BATTLE_STEADFAST_DEFEND" && sourceCardNo == "OGN·279/298"
             && sourcePath == "CoreRuleEngine.ResolveBattleLimitedRoleSkill"
             && TryReadObjectString(effectPayload, "duration", out var battleDuration) && battleDuration == "UNTIL_END_OF_BATTLE"
             && TryReadObjectString(effectPayload, "effectId", out var battleEffectId) && battleEffectId is not null
             && battleEffectId.StartsWith("OBJECT:", StringComparison.Ordinal) && battleEffectId.Contains(":COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal);
-        if (!battleKeyword && !string.IsNullOrWhiteSpace(effectKind))
+        if (!battleKeyword && !equipmentKeywordAura && !string.IsNullOrWhiteSpace(effectKind))
         {
             errors.Add($"{effectLabel} RULE_TEXT effect kind must be absent");
         }
 
-        if (!battleKeyword && !string.IsNullOrWhiteSpace(sourceCardNo))
+        if (!battleKeyword && !equipmentKeywordAura && !string.IsNullOrWhiteSpace(sourceCardNo))
         {
             errors.Add($"{effectLabel} RULE_TEXT source card no must be absent");
         }
 
-        if (!battleKeyword && !string.IsNullOrWhiteSpace(sourcePath))
+        if (!battleKeyword && !equipmentKeywordAura && !string.IsNullOrWhiteSpace(sourcePath))
         {
             errors.Add($"{effectLabel} RULE_TEXT source path must be absent");
         }

@@ -5,7 +5,7 @@ using Xunit;
 namespace Riftbound.ConformanceTests;
 
 // Explicit midgame positions using the reviewed physical print. This exercises
-// shared resource behavior, not the unsupported normal play of the unit itself.
+// shared resource behavior; normal unit plays have separate integration coverage.
 public sealed class ReviewedRuneCallReplacementTests
 {
     private const string Wyvern = "RAD·092/167";

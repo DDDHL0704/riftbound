@@ -6,9 +6,12 @@ public sealed record UnitEntryTriggerContext(string CardNo, long SourceGeneratio
 
 public static class MovementRestrictionRules
 {
+    public const string AllPlayers = "MOVEMENT_PROHIBITED_ALL_PLAYERS";
     public static string ForPlayer(string player) => "MOVEMENT_PROHIBITED:" + player;
     public static bool CanMove(CardObjectState? card, string player)
-        => card is not null && !card.UntilEndOfTurnEffects.Contains(ForPlayer(player), StringComparer.Ordinal);
+        => card is not null
+            && !card.UntilEndOfTurnEffects.Contains(AllPlayers, StringComparer.Ordinal)
+            && !card.UntilEndOfTurnEffects.Contains(ForPlayer(player), StringComparer.Ordinal);
 }
 
 public sealed partial class CoreRuleEngine

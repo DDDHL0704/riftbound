@@ -21,6 +21,7 @@ public sealed partial class CoreRuleEngine
     // The common case (the finalizer's own hand) remains absent in serialized
     // histories. Other zones and another player's hand carry explicit provenance.
     private const string CardPlayHistoryObservationKey = "cardPlayHistoryObservation";
+    private const string PlayedPermanentToBattlefieldPrefix = "PLAYED_PERMANENT_TO_BATTLEFIELD_THIS_TURN:";
     private static (string? OtherHandPlayerId, bool OutsideHands) CardPlayHandOrigin(MatchState state, string objectId, string player)
     {
         var handOwner = state.PlayerZones.FirstOrDefault(pair => pair.Value.Hand.Contains(objectId, StringComparer.Ordinal)).Key;
@@ -146,6 +147,13 @@ public sealed partial class CoreRuleEngine
         var nextHistory = result.State.TurnNumber == before.TurnNumber
             ? new TurnCardPlayHistory(before.TurnNumber, finalized, resolved)
             : new TurnCardPlayHistory(result.State.TurnNumber, [], []);
+        if (result.State.TurnNumber == before.TurnNumber)
+            foreach (var ev in result.Events)
+                if (ev.Kind is "UNIT_PLAYED_TO_BATTLEFIELD" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
+                        or "UNIT_TOKEN_CREATED" or "EQUIPMENT_TOKEN_CREATED"
+                    && Equals(ev.Payload.GetValueOrDefault("destinationZone"), "BATTLEFIELD")
+                    && ev.Payload.GetValueOrDefault("playerId") is string player && result.State.Seats.ContainsKey(player))
+                    effects = AddUntilEndOfTurnEffect(effects, PlayedPermanentToBattlefieldPrefix + player);
         foreach (var (observer, index) in observers.DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Origin))
             .Select((o, i) => (o, i))) {
             var captured = observer;
