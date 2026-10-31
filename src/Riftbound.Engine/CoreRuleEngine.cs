@@ -20179,6 +20179,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return TurnStartReadyResult.Empty;
         }
 
+        var suppressesUnitWake = cardObjects.Values.Any(card =>
+            !card.IsFaceDown
+            && IsObjectOnField(playerZones, card.ObjectId)
+            && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? string.Empty, out var behavior)
+            && behavior.SuppressesAllUnitWake);
+
         var readiedObjectIds = zones.Base
             .Concat(zones.Battlefields)
             .Concat(zones.LegendZone)
@@ -20187,6 +20193,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.IsExhausted
                 && !cardObject.IsFaceDown
+                && (!suppressesUnitWake || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
                 && !CardStaticAbilitySpecRules.CardCannotBecomeActive(cardObject.CardNo)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, turnPlayerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -24406,6 +24413,32 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem,
                 cardObjects,
                 events);
+        }
+
+        if (behavior.ReadiesAllEnemyUnitsOnPlay)
+        {
+            foreach (var targetId in cardObjects.Keys.ToArray())
+            {
+                if (!cardObjects.TryGetValue(targetId, out var target)
+                    || !target.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    || target.IsFaceDown
+                    || !IsObjectOnField(playerZones, targetId)
+                    || string.Equals(EffectiveFieldControllerId(playerZones, targetId, target), stackItem.ControllerId, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var readied = ApplyReadyState(
+                    target,
+                    behavior,
+                    stackItem,
+                    targetId,
+                    out var readyEvent,
+                    playerZones,
+                    cardObjects);
+                cardObjects[targetId] = readied;
+                if (readyEvent is not null) events.Add(readyEvent);
+            }
         }
 
         if (ShouldResolveStandbyReactionMainDeckCountedDamage(behavior, stackItem))
