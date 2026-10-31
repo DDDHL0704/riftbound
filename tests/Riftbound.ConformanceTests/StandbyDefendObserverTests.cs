@@ -231,7 +231,8 @@ public sealed class StandbyDefendObserverTests
             if (command is PlayCardCommand play)
                 Export(name + "-quote.json", new CoreRuleEngine().PreviewPlayCard(State, player, new("quote", prompt.PromptId!, State.Tick, play)));
             var fields = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(command, command.GetType(), options), options)!;
-            fields["promptId"] = JsonSerializer.SerializeToElement(prompt.PromptId);
+            if (prompt.Actionable)
+                fields["promptId"] = JsonSerializer.SerializeToElement(prompt.PromptId);
             fields["snapshotTick"] = JsonSerializer.SerializeToElement(State.Tick);
             var raw = JsonSerializer.SerializeToElement(fields);
             var nativePath = evidence is null ? null : Path.Combine(evidence, name + "-command.json");
