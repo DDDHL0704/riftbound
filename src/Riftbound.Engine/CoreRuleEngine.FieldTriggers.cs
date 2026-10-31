@@ -83,7 +83,7 @@ public sealed partial class CoreRuleEngine
         if (context.EmpoweredTransition is not null) return false;
         if (context.Kind != AttackAreaDamageKind && context.AttackConditionFrame is not null) return false;
         return IsBattleLimitedContextShape(context, effect, cardNo) || effect == FieldTriggerEffect && context.SourceGeneration >= 0
-            && (context.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or "RECYCLE_BOON" or AttackAreaDamageKind
+            && (context.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or "RECYCLE_BOON" or AttackAreaDamageKind
                 ? (!context.SourceCeasedToExist || context.SourceTokenFactoryCardNo is not null)
                     && (context.SourceTokenFactoryCardNo is null
                         || P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
@@ -98,7 +98,7 @@ public sealed partial class CoreRuleEngine
                 && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.AffectedUnit is null && !context.AffectedUnitCeasedToExist && (context.Kind == "ATTACK_DECK_PLAY" ? AttackDeckPlaySpec(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind == AttackGraveyardBanishKind ? AttackBanishAssaultAmount(context.CardNo) > 0 && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
-                : context.Kind == "STANDBY_DEFEND" ? StandbyDefendDefinition(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
+                : context.Kind is "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" ? StandbyDefendDefinition(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind ? CombatMightSpec(context.CardNo, context.Kind) is not null && context.SourceLocation is not null
                 : context.Kind == AttackAreaDamageKind ? AttackAreaDamageSpec(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind is "SECOND_DRAW" or "DEFEND" && HasFieldTrigger(context.CardNo, context.Kind)
@@ -163,7 +163,7 @@ public sealed partial class CoreRuleEngine
                 : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? true
                 : item.FieldContext.Kind == CombatKeywordDoubleKind ? EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
-                : item.FieldContext.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or AttackMightDamageKind or DisarmKind ? c.ControllerId != item.ControllerId
+                : item.FieldContext.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or AttackMightDamageKind or DisarmKind ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind is "SECOND_DRAW" or "RECYCLE_BOON" ? c.ControllerId == item.ControllerId
                 : item.FieldContext.Kind == BombDestructionKind
@@ -189,7 +189,7 @@ public sealed partial class CoreRuleEngine
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.HighCostPlayObserver is not null && !HighCostReadiesSource(i.CardNo) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
-            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or ExhaustionDrawKind or OtherExhaustionPowerKind or SourceExhaustionModeKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend or EquipmentDeathReturnKind } && i.TargetGenerations is null
+            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or ExhaustionDrawKind or OtherExhaustionPowerKind or SourceExhaustionModeKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend or EquipmentDeathReturnKind or "STANDBY_DEFEND_BOMBS" } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)
             || NeedsBattlefieldConquestReadyEquipmentConfirmation(i)
             || NeedsMovementInstructionConfirmation(i);

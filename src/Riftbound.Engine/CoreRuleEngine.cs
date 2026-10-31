@@ -20259,6 +20259,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return TurnStartReadyResult.Empty;
         }
 
+        var suppressesUnitWake = cardObjects.Values.Any(card =>
+            !card.IsFaceDown
+            && IsObjectOnField(playerZones, card.ObjectId)
+            && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? string.Empty, out var behavior)
+            && behavior.SuppressesAllUnitWake);
+
         var readiedObjectIds = zones.Base
             .Concat(zones.Battlefields)
             .Concat(zones.LegendZone)
@@ -20267,6 +20273,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.IsExhausted
                 && !cardObject.IsFaceDown
+                && (!suppressesUnitWake || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
                 && !CardStaticAbilitySpecRules.CardCannotBecomeActive(cardObject.CardNo)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, turnPlayerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -21151,6 +21158,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.AnyMainDeckTopFiveCard => IsAnyMainDeckTopCards(state, objectId, 5),
             CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
             CardTargetScopes.Legend => IsLegendObject(state, objectId),
+            CardTargetScopes.FriendlyLegend => IsLegendObject(state, objectId)
+                && state.PlayerZones.TryGetValue(playerId, out var friendlyLegendZones)
+                && friendlyLegendZones.LegendZone.Contains(objectId, StringComparer.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var friendlyLegend)
+                && SourceObjectControlledByPlayerOrLegacyOwned(friendlyLegend, playerId),
             CardTargetScopes.StackSpell => StackObjectRules.CanChoose(state, objectId, allowAbilities),
             CardTargetScopes.SacredJudgmentKeepCard => IsSacredJudgmentKeepCandidate(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
@@ -24489,6 +24501,32 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.ReadiesAllEnemyUnitsOnPlay)
+        {
+            foreach (var targetId in cardObjects.Keys.ToArray())
+            {
+                if (!cardObjects.TryGetValue(targetId, out var target)
+                    || !target.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    || target.IsFaceDown
+                    || !IsObjectOnField(playerZones, targetId)
+                    || string.Equals(EffectiveFieldControllerId(playerZones, targetId, target), stackItem.ControllerId, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var readied = ApplyReadyState(
+                    target,
+                    behavior,
+                    stackItem,
+                    targetId,
+                    out var readyEvent,
+                    playerZones,
+                    cardObjects);
+                cardObjects[targetId] = readied;
+                if (readyEvent is not null) events.Add(readyEvent);
+            }
+        }
+
         if (ShouldResolveStandbyReactionMainDeckCountedDamage(behavior, stackItem))
         {
             var standbyReactionResult = ResolveStandbyReactionMainDeckCountedDamage(
@@ -25929,7 +25967,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         targetControllerDrawRecipientIds.Add(replacements.Controllers[targetObjectId]);
                         continue;
                     }
-                    var targetIsLegend = string.Equals(behavior.TargetScope, CardTargetScopes.Legend, StringComparison.Ordinal)
+                    var targetIsLegend = behavior.TargetScope is CardTargetScopes.Legend or CardTargetScopes.FriendlyLegend
                         && IsLegendObject(playerZones, cardObjects, targetObjectId);
                     if (!targetIsLegend
                         && !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId))

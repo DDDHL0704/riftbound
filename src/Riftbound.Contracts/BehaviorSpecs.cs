@@ -799,7 +799,9 @@ public sealed record ActivatedAbilitySpec(
     int? PowerModifierAmount = null,
     int? MinimumPowerAfterModifier = null,
     string? TargetUnitName = null,
-    bool? OncePerTurn = null);
+    bool? OncePerTurn = null,
+    string? SourceScope = null,
+    string? RequiredControllerCardNoOnField = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,
