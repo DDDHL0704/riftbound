@@ -5073,7 +5073,7 @@ internal static partial class ActionPromptBuilder
             if (requirement.OptionalCostChoices.Any(choice =>
                     choice.Id.StartsWith(RecycleGraveyardCardAdditionalCostPrefix, StringComparison.Ordinal)))
             {
-                view["requiredOptionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount;
+                view["requiredOptionalCostChoiceCount"] = 1;
             }
         }
         if (requirement.PaymentResourceChoices.Count > 0)
