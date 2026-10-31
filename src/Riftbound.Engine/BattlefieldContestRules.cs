@@ -35,15 +35,6 @@ internal static class BattlefieldContestRules
             return false;
         }
 
-        // A static imported contest is only safe to bypass when both sides are
-        // actually present.  A lone occupant whose controller disagrees with
-        // the printed battlefield controller is a dirty fixture and must enter
-        // the normal control task instead of silently skipping it.
-        if (battlefield.OccupantControllerIds.Count < 2)
-        {
-            return false;
-        }
-
         var prefix = MarkerPrefix(battlefield.BattlefieldObjectId);
         return !state.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(prefix, StringComparison.Ordinal));
     }
