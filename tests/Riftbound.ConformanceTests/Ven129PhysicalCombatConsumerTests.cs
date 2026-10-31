@@ -84,10 +84,12 @@ public sealed class Ven129PhysicalCombatConsumerTests
             var play = new PlayCardCommand("UNIT", No, []); var raw = JsonSerializer.SerializeToNode(play, Json)!.AsObject();
             raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;
             var retained = new ConformanceCommand("P1", "ven129-short-" + missing, JsonSerializer.SerializeToElement(raw, Json));
+            await game.ColdCheckpoint();
             await game.ActRetained(retained, false); Assert.Equal(ErrorCodes.InsufficientCost, game.LastRetainedResult!.ErrorCode);
             Assert.Equal(missing == "mana" ? 3 : 4, game.State.RunePools["P1"].Mana); Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
             if (missing == "mana") await game.Act("P1", new TapRuneCommand(Rune("P1", 3)));
             else await game.Act("P1", new RecycleRuneCommand(Rune("P1", 1)));
+            await game.ColdCheckpoint();
             await game.ActRetained(retained, false); Assert.Equal(4, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
             var prefix = game.Events().Length; await game.Act("P1", play);
             var paid = Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "COST_PAID"); Assert.Equal(4, paid.Event.Payload["totalManaCost"]); Assert.Equal(1, paid.Event.Payload["totalPowerCost"]);
