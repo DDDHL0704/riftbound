@@ -3958,6 +3958,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             EquipmentPlayGrants = TurnEquipmentPlayRules.Consume(state, behavior),
+            TimedBanishPlayGrants = TimedBanishPlayRules.Consume(state, command.SourceObjectId),
             CardObjects = cardObjects,
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
@@ -19053,6 +19054,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PendingEffectPlay = stackResolution.PendingEffectPlay,
                 LinkedExiles = stackResolution.LinkedExiles ?? state.LinkedExiles,
                 EquipmentPlayGrants = stackResolution.EquipmentPlayGrants ?? state.EquipmentPlayGrants,
+                TimedBanishPlayGrants = stackResolution.TimedBanishPlayGrants ?? state.TimedBanishPlayGrants,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -19869,6 +19871,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
+        state = TimedBanishPlayRules.ExpireAtEndStep(state);
         var endTriggers = CaptureEndAbilities(state);
         if (endTriggers.Length > 0) return BeginEndStep(state, intent, endTriggers);
         return CompleteTurnEnd(state, intent, true);
@@ -19913,6 +19916,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             TurnNumber = state.TurnNumber + 1,
             EquipmentPlayGrants = null,
+            TimedBanishPlayGrants = TimedBanishPlayRules.BeginNextTurn(state, nextPlayerId),
             FaceDownLookPermissions = [],
             ActivePlayerId = nextPlayerId,
             TurnPlayerId = nextPlayerId,
@@ -20943,7 +20947,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             Graveyard = state.PendingEffectPlay?.SourceZone == "GRAVEYARD" || FlowPlaySources(state, playerId).Contains(sourceObjectId)
                 || NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId)
                 ? RemoveFromZone(zones.Graveyard, sourceObjectId) : zones.Graveyard,
-            Banished = state.PendingEffectPlay?.SourceZone == "BANISHED" ? RemoveFromZone(zones.Banished, sourceObjectId) : zones.Banished,
+            Banished = state.PendingEffectPlay?.SourceZone == "BANISHED" || TimedBanishPlayRules.Sources(state, playerId).Contains(sourceObjectId)
+                ? RemoveFromZone(zones.Banished, sourceObjectId) : zones.Banished,
             MainDeck = state.PendingEffectPlay?.SourceZone == "MAIN_DECK" ? RemoveFromZone(zones.MainDeck, sourceObjectId) : zones.MainDeck,
             Hand = zones.Hand
                 .Where(cardId => !string.Equals(cardId, sourceObjectId, StringComparison.Ordinal))
@@ -34844,7 +34849,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PendingEffectPlayState? PendingEffectPlay = null,
         IReadOnlyList<LinkedExileGroup>? LinkedExiles = null,
         IReadOnlyList<string>? CompletedCardPlayIds = null,
-        IReadOnlyList<TurnEquipmentPlayGrant>? EquipmentPlayGrants = null);
+        IReadOnlyList<TurnEquipmentPlayGrant>? EquipmentPlayGrants = null,
+        IReadOnlyList<TimedBanishPlayGrant>? TimedBanishPlayGrants = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,

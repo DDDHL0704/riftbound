@@ -723,6 +723,9 @@ public sealed partial record MatchState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<TurnEquipmentPlayGrant>? EquipmentPlayGrants { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<TimedBanishPlayGrant>? TimedBanishPlayGrants { get; init; }
+
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
 
