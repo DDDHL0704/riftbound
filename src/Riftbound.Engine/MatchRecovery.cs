@@ -4977,6 +4977,11 @@ public static partial class MatchRecoveryValidator
         P4ActivatedAbilityDefinition ability,
         string? cardNo)
     {
+        if (string.IsNullOrWhiteSpace(sourceObjectId) || string.IsNullOrWhiteSpace(cardNo))
+        {
+            return false;
+        }
+
         if (ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend)
         {
             return state.PlayerZones.TryGetValue(playerId, out var zones)
