@@ -59,6 +59,17 @@ public sealed partial class CoreRuleEngine
                     && IsObjectOnField(state.PlayerZones, id)
                     && SourceObjectControlledByPlayerOrLegacyOwned(returned, actor)
                     && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.GrantsBoonOrPower == true
+                ? state.CardObjects.TryGetValue(id, out var boonTarget)
+                    && !boonTarget.IsFaceDown && boonTarget.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && IsObjectOnField(state.PlayerZones, id)
+                    && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.StunsTarget == true
+                ? state.CardObjects.TryGetValue(id, out var stunTarget)
+                    && !stunTarget.IsFaceDown && stunTarget.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && IsObjectOnField(state.PlayerZones, id)
+                    && EffectiveFieldControllerId(state.PlayerZones, id, stunTarget) != actor
+                    && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
             : state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
             && IsObjectOnField(state.PlayerZones, id)
             && (ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId && target.Tags.Contains(CardObjectTags.EquipmentCard)
@@ -351,6 +362,64 @@ public sealed partial class CoreRuleEngine
             return result with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(locations, zones), PendingEffectPlay = pending,
                 Events = events };
+        }
+        if (spec.GrantsBoonOrPower)
+        {
+            var targetId = item.TargetObjectIds.SingleOrDefault();
+            if (targetId is not null && item.TargetGenerations?.GetValueOrDefault(targetId, -1) == cards.GetValueOrDefault(targetId)?.ObjectGeneration
+                && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
+            {
+                var target = cards[targetId];
+                if (target.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal))
+                {
+                    var next = ApplyDirectUntilEndPowerModifier(
+                        target, targetId, item.SourceObjectId, item.CardNo, item.EffectKind,
+                        "CoreRuleEngine.ResolveSimpleActivationEffect.PrismwingFlock", spec.ExistingBoonPowerBonus,
+                        target.Power + spec.ExistingBoonPowerBonus);
+                    cards[targetId] = next;
+                    events.Add(new("POWER_MODIFIED_UNTIL_END_OF_TURN", "已有增益的单位本回合战力提高",
+                        new Dictionary<string, object?> {
+                            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                            ["powerDelta"] = spec.ExistingBoonPowerBonus,
+                            ["appliedPowerDelta"] = next.Power - target.Power,
+                            ["minimumPower"] = 0, ["resultingPower"] = next.Power
+                        }));
+                }
+                else
+                    GrantLegendBoon(cards, targetId, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
+            }
+            else
+                events.Add(new("ABILITY_NO_EFFECT", "幻彩飞禽结算时目标已不再合法", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                    ["abilityId"] = ability.AbilityId, ["reason"] = "TARGET_NO_LONGER_LEGAL" }));
+        }
+        if (spec.StunsTarget)
+        {
+            var targetId = item.TargetObjectIds.SingleOrDefault();
+            if (targetId is not null && item.TargetGenerations?.GetValueOrDefault(targetId, -1) == cards.GetValueOrDefault(targetId)?.ObjectGeneration
+                && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
+            {
+                var target = cards[targetId];
+                if (CanExecuteStun(target))
+                {
+                    cards[targetId] = target with {
+                        UntilEndOfTurnEffects = target.UntilEndOfTurnEffects
+                            .Concat(["STUNNED"])
+                            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
+                    var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                        ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
+                    events.Add(CaptureStunObservers(applied, zones, cards, item, targetId));
+                }
+                else
+                    events.Add(new("ABILITY_NO_EFFECT", "无情潜伏者结算时目标已经眩晕", new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                        ["abilityId"] = ability.AbilityId, ["reason"] = "ALREADY_STUNNED" }));
+            }
+            else
+                events.Add(new("ABILITY_NO_EFFECT", "无情潜伏者结算时目标已不再合法", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                    ["abilityId"] = ability.AbilityId, ["reason"] = "TARGET_NO_LONGER_LEGAL" }));
         }
         if (spec.TransfersSourceToChosenPlayer && cards.TryGetValue(item.SourceObjectId, out var transferred)
             && transferred.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, transferred.ObjectId)) {
