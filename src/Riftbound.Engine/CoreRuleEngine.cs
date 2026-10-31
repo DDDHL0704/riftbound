@@ -19,6 +19,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const int BasicRuneTapManaGain = 1;
     private const string BasicRuneRecycleAbilityId = "BASIC_RUNE_RECYCLE_GAIN_TRAIT_POWER";
     private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
+    private const string TapRunePaymentOptionalCostPrefix = "TAP_RUNE:";
     private const int BasicRuneRecyclePowerGain = 1;
     private const string StandbyRevealMode = "STANDBY_REVEAL";
     private const string StandbyRevealDestination = "BASE";
@@ -3581,23 +3582,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration, ControllerId = intent.PlayerId };
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        if (plan.RenektonResourceAction is not null)
-        {
-            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, plan.PaymentResourceActions,
-                    playerZones, ref cardObjects, objectLocations, ref runePools, paymentEvents, paymentWindow, paymentId))
-                return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
-        }
-        else
-            runePools = ApplyRecycleRunePaymentResourceActions(runePools, playerZones, cardObjects, objectLocations,
-                intent.PlayerId, plan.RecycledPaymentRuneObjectIds, paymentEvents, paymentWindow, paymentId);
-        if (plan.RenektonResourceAction is null)
-            runePools = ApplyLuxSpellOnlyResourceActions(
-                runePools, playerZones,
-                cardObjects,
-                intent.PlayerId,
-                plan.LuxSpellOnlyResourceSourceObjectIds,
-                paymentEvents,
-                paymentId);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, plan.PaymentResourceActions,
+                playerZones, ref cardObjects, objectLocations, ref runePools, paymentEvents, paymentWindow, paymentId))
+            return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
         var duelOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).DuelOnlyMana;
@@ -3778,6 +3765,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
                     ["optionalCosts"] = plan.OptionalCosts.ToArray(),
                     ["paymentResourceActions"] = plan.PaymentResourceActions.ToArray(),
+                    ["tappedRuneObjectIds"] = plan.PaymentResourceActions
+                        .Where(action => TryParseTapRunePaymentOptionalCost(action, out _))
+                        .Select(action => ParseTapRunePaymentObjectId(action))
+                        .ToArray(),
                     ["recycledRuneObjectIds"] = plan.RecycledPaymentRuneObjectIds.ToArray(),
                     ["luxSpellOnlyResourceActions"] = plan.LuxSpellOnlyResourceActions.ToArray(),
                     ["luxSpellOnlyResourceSourceObjectIds"] = plan.LuxSpellOnlyResourceSourceObjectIds.ToArray(),
@@ -5429,7 +5420,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (renektonResourceAction is not null)
         {
-            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, orderedPaymentResources, playerZones,
+            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedPaymentResources, playerZones,
                     ref cardObjects, objectLocations, ref runePools, paymentEvents, paymentWindow, paymentId))
                 return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         }
@@ -5993,7 +5984,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (renektonResourceAction is not null)
         {
-            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, orderedPaymentResources, playerZones,
+            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedPaymentResources, playerZones,
                     ref cardObjects, objectLocations, ref runePools, paymentEvents, paymentWindow, paymentId))
                 return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         }
@@ -6254,7 +6245,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (renektonResourceAction is not null)
         {
-            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, orderedPaymentResources, playerZones,
+            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedPaymentResources, playerZones,
                     ref cardObjects, objectLocations, ref runePools, paymentEvents, paymentWindow, paymentId))
                 return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         }
@@ -10673,7 +10664,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool IsPaymentResourceActionId(string choiceId)
     {
-        return IsRecycleRunePaymentResourceActionId(choiceId)
+        return IsTapRunePaymentResourceActionId(choiceId)
+            || IsRecycleRunePaymentResourceActionId(choiceId)
             || TryParseLuxSpellOnlyResourceActionId(choiceId, out _);
     }
 
@@ -18310,10 +18302,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!TryExtractRecycleRunePaymentResourceActions(
+        if (!TryExtractTapRunePaymentResourceActions(
                 state,
                 intent.PlayerId,
                 optionalCostsWithoutLuxResources,
+                out var optionalCostsWithoutTapResources,
+                out var tapRunePaymentResourceActions,
+                out var tappedPaymentRuneObjectIds))
+        {
+            rejection = Reject(
+                state,
+                $"Unsupported payment resource action for {behavior.DisplayName}.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                optionalCostsWithoutTapResources,
                 out var behaviorOptionalCosts,
                 out var nonLuxPaymentResourceActions,
                 out var recycledPaymentRuneObjectIds))
@@ -18325,10 +18332,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var paymentResourceActions = renektonResourceAction is null
-            ? nonLuxPaymentResourceActions.Concat(luxSpellOnlyResourceActions).ToArray()
-            : OrderedRenektonPaymentResources(normalizedCommandOptionalCosts,
-                nonLuxPaymentResourceActions.Concat(luxSpellOnlyResourceActions).ToArray(), renektonResourceAction).ToArray();
+        var allPaymentResourceActions = nonLuxPaymentResourceActions
+            .Concat(tapRunePaymentResourceActions)
+            .Concat(luxSpellOnlyResourceActions)
+            .ToHashSet(StringComparer.Ordinal);
+        var paymentResourceActions = normalizedCommandOptionalCosts
+            .Where(allPaymentResourceActions.Contains)
+            .ToArray();
+        if (renektonResourceAction is not null)
+        {
+            paymentResourceActions = OrderedRenektonPaymentResources(
+                normalizedCommandOptionalCosts,
+                paymentResourceActions,
+                renektonResourceAction).ToArray();
+        }
 
         if (EffectPlayIgnoresAllCosts(state, intent.PlayerId)
             && (paymentResourceActions.Length != 0 || manaSpend is not null || powerSpend is not null
@@ -18608,17 +18625,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         var paymentAdjustedPool = currentPool;
-        if (renektonResourceAction is not null)
+        if (!TryPreviewOrderedPaymentResources(state, intent.PlayerId, currentPool,
+                paymentResourceActions, out paymentAdjustedPool))
         {
-            if (!TryPreviewOrderedRenektonResources(state, intent.PlayerId, currentPool,
-                    paymentResourceActions, out paymentAdjustedPool))
-            {
-                rejection = Reject(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
-                return false;
-            }
+            rejection = Reject(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
+            return false;
         }
-        else
-            paymentAdjustedPool = ApplyRecycleRunePaymentToPool(currentPool, state.CardObjects, recycledPaymentRuneObjectIds);
         var powerPurpose = PowerPurposeForPlay(behavior);
         var spendablePowerPool = PaymentCostRules.PowerPoolForPurpose(paymentAdjustedPool, powerPurpose);
         var extraGenericPower = ignoresAllCosts ? 0 : extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
@@ -18686,7 +18698,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             costReductionMana, optionalCostManaReduction, battlefieldEchoCostReductionMana,
             battlefieldEquipmentCostReductionMana, dragonUnitCostReductionMana, nextSpellCostReductionMana,
             battlefieldSpellCostReductionMana, battlefieldHeldUnitCostIncreaseMana, spellshieldTaxPower,
-            spellshieldTaxTargetObjectIds, recycledPaymentRuneObjectIds, luxSpellOnlyResourceActions,
+            spellshieldTaxTargetObjectIds, recycledPaymentRuneObjectIds, tappedPaymentRuneObjectIds,
+            luxSpellOnlyResourceActions,
             luxSpellOnlyResourceSourceObjectIds, luxSpellOnlyGeneratedMana, luxSpellOnlyConsumedMana,
             luxSpellOnlyRemainingMana, optionalReductions));
         var spellIncreases = OpponentSpellCostIncreases(state, intent.PlayerId, behavior);
@@ -18821,6 +18834,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int spellshieldTaxPower,
         IReadOnlyList<string> spellshieldTaxTargetObjectIds,
         IReadOnlyList<string> recycledRuneObjectIds,
+        IReadOnlyList<string>? tappedRuneObjectIds = null,
         IReadOnlyList<string>? luxSpellOnlyResourceActions = null,
         IReadOnlyList<string>? luxSpellOnlyResourceSourceObjectIds = null,
         int luxSpellOnlyGeneratedMana = 0,
@@ -18841,6 +18855,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["spellshieldTaxPower"] = spellshieldTaxPower,
             ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
             ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+            ["tappedRuneObjectIds"] = (tappedRuneObjectIds ?? Array.Empty<string>()).ToArray(),
             ["luxSpellOnlyResourceActions"] = (luxSpellOnlyResourceActions ?? Array.Empty<string>()).ToArray(),
             ["luxSpellOnlyResourceSourceObjectIds"] = (luxSpellOnlyResourceSourceObjectIds ?? Array.Empty<string>()).ToArray(),
             ["luxSpellOnlyGeneratedMana"] = luxSpellOnlyGeneratedMana,
