@@ -285,6 +285,12 @@ public sealed partial class CoreRuleEngine
         {
             if (!TryMovementTokenInstruction(state, item, out var instruction))
                 return NoopStackResolutionResult(state) with { Events = events };
+            // Movement token instructions take this path before the common
+            // stack-effect token replacement hook. Suspend the instruction
+            // before creating its first token so the replacement choice can
+            // add copies atomically with every other token-producing effect.
+            if (BeginTokenReplacement(state, item) is { } replacement)
+                return replacement with { Events = events.Concat(replacement.Events).ToArray() };
             var created = CreateUnitTokenBatch(state, item, instruction.FactoryCardNo,
                 instruction.Count + AdditionalUnitTokens(item), false, instruction.Location.BattlefieldObjectId, context.Kind);
             return created with { Events = events.Concat(created.Events).ToArray() };

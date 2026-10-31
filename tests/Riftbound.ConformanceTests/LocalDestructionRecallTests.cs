@@ -16,7 +16,8 @@ public sealed class LocalDestructionRecallTests
         zones[player] = zone switch {
             "BASE" => zones[player] with { Base = [..zones[player].Base, id] },
             "HAND" => zones[player] with { Hand = [..zones[player].Hand, id] },
-            _ => zones[player] with { Battlefields = [..zones[player].Battlefields, id] }
+            "BATTLEFIELD" => zones[player] with { Battlefields = [..zones[player].Battlefields, id] },
+            _ => zones[player]
         };
         return s with {PlayerZones=zones,CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {[id]=s.CardObjects[id] with {ControllerId=player}},
             ObjectLocations=new Dictionary<string,ObjectLocationState>(s.ObjectLocations) {[id]=new(player,zone,field)}};

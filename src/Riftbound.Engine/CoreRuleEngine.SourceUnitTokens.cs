@@ -136,6 +136,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidSourceUnitTokens(state, item.SourceUnitTokens, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
             throw new InvalidOperationException("Invalid source unit token trigger.");
+        if (BeginTokenReplacement(state, item) is { } replacement)
+            return replacement;
         var spec = SourceUnitTokenSpecs.Value[item.SourceUnitTokens!.CardNo];
         return CreateUnitTokenBatch(state, item, SourceUnitTokenFactory(item.SourceUnitTokens.CardNo)!.CardNo,
             spec.CreatedTokenCount!.Value + AdditionalUnitTokens(item), entersReady: spec.CreatedTokenExhausted != true);
