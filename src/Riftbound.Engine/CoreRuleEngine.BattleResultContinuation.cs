@@ -30,6 +30,7 @@ public sealed partial class CoreRuleEngine
             result = RecordEquipmentAbilityPlays(state, result);
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
             result = QueueSelfActionObservers(state, result);
+            result = QueueExhaustionObservers(state, result);
             result = RecordHandDiscardObservers(result);
             result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
@@ -81,6 +82,7 @@ public sealed partial class CoreRuleEngine
             // Checked target intents may become confirmed while earned skills
             // are published. Observe those selections before opening responses.
             completed = QueueSelfActionObservers(collected.State, completed);
+            completed = QueueExhaustionObservers(collected.State, completed);
             return NormalizeTurnEffectMarkers(StampNewTriggerQueueTimes(state,
                 RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldConquests(PrepareTriggerConfirmation(PublishPendingTriggers(completed)))))));
     }

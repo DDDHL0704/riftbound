@@ -11,6 +11,7 @@ namespace Riftbound.ConformanceTests;
 // cases do not authorize whole cards, decks or a canonical match birth.
 public sealed class ReviewedScopedPrintUniverseTests
 {
+    internal static readonly string[] ImplementedPrints = ["RAD·038/167", "RAD·050/167", "RAD·054/167", "RAD·055/167", "RAD·093/167", "RAD·097/167", "RAD·063/167", "RAD·065/167", "RAD·065a/167", "RAD·109/167", "RAD·109a/167", "RAD·SP3/005"];
     private static readonly object[][] Sources = [
         [40107L, "RAD·038/167", 4, 4, "green", 1, "", true, 1],
         [40122L, "RAD·050/167", 5, 4, "blue", 0, "", false, 2],
@@ -35,8 +36,8 @@ public sealed class ReviewedScopedPrintUniverseTests
     public static IEnumerable<object[]> ResetRows => PhysicalRows.SelectMany(row =>
         new[] { "HAND", "GRAVEYARD" }.Select(zone => row.Append(zone).ToArray()));
     public static IEnumerable<object[]> ResourceCostRows => Sources.Select(row => new[] { row[0], row[1], row[4], row[5] });
-    private static bool Admitted(string no) => no is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·093/167" or "RAD·097/167";
-    public static IEnumerable<object[]> PlayRows => Sources.Where(row => !Admitted((string)row[1])).Select(row => new[] { row[0], row[1] });
+    public static IEnumerable<object[]> PlayRows => Sources.Where(row => !ImplementedPrints.Contains((string)row[1], StringComparer.Ordinal))
+        .Select(row => new[] { row[0], row[1] });
 
     [Theory]
     [MemberData(nameof(AllRows))]
@@ -59,7 +60,7 @@ public sealed class ReviewedScopedPrintUniverseTests
             Assert.Equal("机械", grant.RequiredUnitTag); Assert.Equal(1, grant.Value);
         }
         else Assert.Empty(spec.FriendlyGrants);
-        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(ImplementedPrints.Contains(no, StringComparer.Ordinal), CardBehaviorRegistry.TryGetByCardNo(no, out _));
         Keep("metadata-" + id, new { card, spec });
     }
 
@@ -72,7 +73,7 @@ public sealed class ReviewedScopedPrintUniverseTests
         Keep("create-" + id, new { no, accepted, card });
         Assert.True(accepted, no);
         Printed(card, no, mana, might, color, tag, hero);
-        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(ImplementedPrints.Contains(no, StringComparer.Ordinal), CardBehaviorRegistry.TryGetByCardNo(no, out _));
     }
 
     [Theory]
@@ -138,7 +139,7 @@ public sealed class ReviewedScopedPrintUniverseTests
         Keep("unsupported-" + id, new { initial, result });
         Assert.False(result.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
         Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(initial)); Assert.Equal(hash, MatchStateHasher.Hash(result.State));
-        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(ImplementedPrints.Contains(no, StringComparer.Ordinal), CardBehaviorRegistry.TryGetByCardNo(no, out _));
     }
 
     [Fact]

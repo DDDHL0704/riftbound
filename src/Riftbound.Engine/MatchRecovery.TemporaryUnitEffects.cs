@@ -20,7 +20,7 @@ public static partial class MatchRecoveryValidator
                 || !TryReadObjectLong(ev.Payload, "targetGeneration", out var generation)) continue;
             if (ev.Kind is "DAMAGE_PREVENTION_GRANTED" or "BASE_MIGHT_SET_UNTIL_END_OF_TURN")
             {
-                if (!TryReadObjectString(ev.Payload, "cardNo", out var no) || no is null || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)) {
+                if (!TryReadObjectString(ev.Payload, "cardNo", out var no) || no is null) {
                     errors.Add("temporary numeric unit effect has no official behavior"); continue;
                 }
                 if (ev.Kind == "BASE_MIGHT_SET_UNTIL_END_OF_TURN") {
@@ -35,10 +35,18 @@ public static partial class MatchRecoveryValidator
                             errors.Add("base Might grant differs from its official behavior");
                         else bases[(target!, generation)] = value;
                     }
-                    else if (value != behavior.BasePowerUntilEndOfTurn)
-                        errors.Add("base Might grant differs from its official behavior");
-                    else bases[(target!, generation)] = value;
+                    else {
+                        var expectedBase = CardBehaviorRegistry.TryGetByCardNo(no, out var baseBehavior) ? baseBehavior.BasePowerUntilEndOfTurn : null;
+                        if (expectedBase is null && UnitMovedTriggerSpecRules.TryGetTrigger(no, UnitMovedTriggerSpecRules.IsMovementBaseMightTrigger, out var movement))
+                            expectedBase = movement.BasePowerUntilEndOfTurn;
+                        if (expectedBase is null || value != expectedBase)
+                            errors.Add("base Might grant differs from its official behavior");
+                        else bases[(target!, generation)] = value;
+                    }
                 } else {
+                    if (!CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)) {
+                        errors.Add("temporary numeric unit effect has no official behavior"); continue;
+                    }
                     if (!TryReadObjectString(ev.Payload, "budgetId", out var id)
                         || !TryReadObjectInt(ev.Payload, "amount", out var amount) || amount <= 0 || amount != behavior.PreventDamageUntilEndOfTurn
                         || !budgets.TryAdd((target!, generation, id!), amount)) errors.Add("invalid finite damage prevention grant");

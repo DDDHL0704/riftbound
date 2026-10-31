@@ -68,6 +68,8 @@
   - [x] [#281](https://github.com/DDDHL0704/riftbound/pull/281) 已合入：厄斐琉斯·出尘、伊泽瑞尔·翩然俊朗、永恩·一剑封尘、凯隐·巨镰奔扬、瑟提·魁首、放逐之刃、铁铠冥魂及轮回绝境，共八项效果、17 个新 RAD 印次；同时补齐三个既有 SFD 伊泽瑞尔印次。六片完整规则与 `L2 required` 全部通过，对应八项已从 CARD_BACKLOG 移除，RAD 剩余 164 项效果。
   - [x] [#285](https://github.com/DDDHL0704/riftbound/pull/285) 已合入：莫德凯撒·冥王进军与冥途二渡，共两个英雄效果、四个官方印次；可选弃牌摧毁、每个文本实例每回合一次的摧毁费用与休眠召回均已接入，九片完整规则和 `L2 required` 全部通过。对应两项已从 CARD_BACKLOG 移除，RAD 剩余 162 项效果。
   - B 线 `b/rad-entry-cost`：艾克·灵光一现与放逐之锋合批，共两项效果、三个 RAD 印次。接入返回友方单位的必付额外费用、装配费用二选一及百炼减费后的费用选择（204.1.b、818.1.c、821.1.c）；定向回归中，通过后只开一个 PR，合入后移除清单。
+  - 本地合批 `b/rad-hero-batch`：在关键词／休眠批次中合入嘉文四世「冕武天骄」、奥莉安娜「机械奇迹」和星籁歌姬传奇；相对 #293 新增 18 项效果、41 个 RAD 印次。每个减费来源保留独立的休眠指令，新增三人同时休眠触发抽牌、单名来源休眠造指示物、锐雯观察其他友方休眠，以及两次费用共用每回合抽牌限额的组合测试。同步 main 的战场费用增减与 Forge 装配技能记录；已同步 main 的共享缴械与关键词数值模型，保留复制指示物离场证明及来源伪造负控；待 Release 构建及 affected 定向回归全绿后只开一个 PR，合入后再从 CARD_BACKLOG 移除对应条目。
+  - 嘉文四世「冕武天骄」按核心规则 359.3.f.2 在执行时引用来源的当前战场，按 383.3.a 在确认阶段允许放弃；覆盖真实费用、非法目标、来源换战场／回基地／离场、目标代际、复制文本、隐私与恢复回放，已合入上述本地批次。
   - **共享机制矩阵（A 线，待逐项实现）**：已将当前 `CARD_BACKLOG` 的 RAD 原文与引擎现有解析／结算能力交叉核对。下列条目是主干尚无独立共享模型、或仍缺少完整恢复与隐私覆盖的机制；后续卡牌 PR 必须复用对应共享流程，不能为单张卡旁路实现。编号按中国区官方快照，异画以同一组编号合并。
     - 炸弹装备指示物的生成、同处连锁摧毁、回合结束重建及来源绑定：`RAD·001`、`023/023a`、`094`、`096`、`112/112a`、`141`、`142`、`169*/169`。
       - [x] [#319](https://github.com/DDDHL0704/riftbound/pull/319) 已合入：部署的非单位装备免于未贴附召回（核心 323.6、830.1.b.3），实际清理与待清理任务共用判断；本地 Release 54/54 通过。完整 [41109837298](https://github.com/DDDHL0704/riftbound/actions/runs/41109837298) 的九片规则、9,794 个方法、20,414 条用例和门槛全部通过；实际 Counter 与固定计划一致，较前次全绿 main 仅新增 11 条部署清理回归，零移除。炸弹生成、同处连锁及打出落点继续另行实现。
@@ -178,3 +180,5 @@ git show <分支>:<路径> > <路径>
   - #262 前端需适配：终极统治授予的回合内技能复用 `ACTIVATE_ABILITY` 提示，按返回的 `GRANTED:<hash>` 原样提交 `abilityId`，展示两点任意符能费用及付款候选；结算链的 `grantedAbilityId` 用于对应技能展示。
   - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。
   - `b/rad-discard-destroy` 前端需适配：选择触发目标后，使用 `CHOOSE_CARDS` / `TRIGGER_HAND_DISCARD_COST` 选择一张手牌；空选择放弃技能。若随后出现 `TRIGGER_TARGET_COST`，支付或放弃法盾费用与弃牌一起提交，支付成功后再开放响应。所选手牌在付款前只对操作者可见。
+  - `b/rad-equipment-play-discount` 前端需适配：从装备出牌的 `sourceRequirements.optionalCostChoices` 选择 `USE_PLAY_COST_REDUCTION:<hash>`，按原值通过 `PLAY_CARD.optionalCosts` 提交；不选时支付原费用并保留该技能本回合的使用次数。询价返回“可选打出减费”费用明细。
+  - `b/rad-equipment-play-discount` 前端需适配：法术出牌的 `optionalPlayCostReductionGroups` 给出减费来源、父选择 `choiceId`、`requiredUnitCount` 和 `unitChoiceIds`。选用星籁歌姬时，把父选择及恰好三个不同单位的选择一起原样提交到 `PLAY_CARD.optionalCosts`；这些是费用，不是法术目标。

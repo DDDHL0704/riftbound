@@ -114,7 +114,9 @@ public static partial class MatchRecoveryValidator
         var knownRecoveredPlayerIds = recoveredPlayerIds.ToHashSet(StringComparer.Ordinal);
         var previousFrameStartedEventSequence = 0L;
         var previousFrameCompletedEventSequence = 0L;
-        var previousFrameCompletedTick = 0L;
+        // A recovery frame may begin from a pre-existing authoritative state,
+        // whose first journal command can legitimately start after tick zero.
+        var previousFrameCompletedTick = commands.Count == 0 ? 0L : commands[0].StartedTick;
         foreach (var command in commands)
         {
             if (command.StartedEventSequence < previousFrameStartedEventSequence

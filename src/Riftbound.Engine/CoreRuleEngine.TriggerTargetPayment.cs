@@ -7,8 +7,14 @@ public sealed partial class CoreRuleEngine
     internal const string TriggerTargetCostWindow = "TRIGGER_TARGET_COST";
 
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
-        => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
-            && (NeedsLastBreathHereTarget(item) && ValidLastBreathBattlefieldDamageStack(state, item)
+    {
+        var item = state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId);
+        if (item is null) return false;
+        if (item.FieldContext?.Kind == SourceExhaustionModeKind)
+            return ValidExhaustionModePayment(state, payment);
+
+        return (HasTargetedMovementSkill(item) && ValidTargetedMovementStack(state, item)
+                || NeedsLastBreathHereTarget(item) && ValidLastBreathBattlefieldDamageStack(state, item)
                 || HasMovementDamage(item) && ValidMovementDamageStack(state, item)
                 || item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
                 || item.UnitPlayMight is not null && RengarPlayRecoveryRules.ValidStack(state, item)
@@ -19,7 +25,7 @@ public sealed partial class CoreRuleEngine
                 || item.UnitConquest is not null && ValidConquestDamageStack(state,item)
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
-                || item.FieldContext is { } field && (field.Kind is BombDestructionKind or EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(field.Kind)
+                || item.FieldContext is { } field && (field.Kind is BombDestructionKind or EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(field.Kind)
                     ? ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                     : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
@@ -39,7 +45,7 @@ public sealed partial class CoreRuleEngine
                     ? payment.ManaCost == 0 && payment.PowerCost > 0
                         && payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _)
                     : payment.ManaCost == 0 && (item.HighCostPlayObserver is not null ? payment.PowerCost >= 0 : payment.PowerCost > 0 || payment.ExperienceCost > 0))
-            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasMovementDamage(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
+            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasTargetedMovementSkill(item) && !HasMovementDamage(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (BombDestructionKind or EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or EquipmentDeathReturnKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.SequenceEqual(item.HighCostPlayObserver is { } highCost
                 && HighCostPlaysSourceFromGraveyard(highCost.CardNo)
                 ? new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Yellow] = 1 }
@@ -47,15 +53,19 @@ public sealed partial class CoreRuleEngine
             && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
+    }
 
     private static ResolutionResult ResolveTriggerTargetPayment(MatchState state, PlayerIntent intent, PendingPaymentState pending,
         IReadOnlyList<string> choices, int rawCount)
     {
+        if (state.StackItems.FirstOrDefault(i => i.StackItemId == pending.ResolvingStackItemId)?.FieldContext?.Kind == SourceExhaustionModeKind)
+            return ResolveExhaustionModePayment(state, pending, choices, rawCount);
         if (!ValidTriggerTargetPayment(state, pending) || rawCount != 1 || choices.Count != 1 || choices[0] is not ("PAY" or "DECLINE"))
             return RejectWithCorePrompts(state, "请选择支付法盾费用或放弃技能。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
         var legal = item.HighCostPlayObserver is not null ? HighCostRuneTargets(state, item)
+            : HasTargetedMovementSkill(item) ? TargetedMovementTargets(state, item)
             : NeedsLastBreathHereTarget(item) ? LastBreathHereTargets(state, item)
             : HasMovementDamage(item) ? MovementDamageTargets(state, item)
             : item.UnitPlayMight is not null ? UnitPlayMightTargets(state, item.ControllerId)

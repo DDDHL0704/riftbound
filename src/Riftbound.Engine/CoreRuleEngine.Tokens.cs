@@ -21,15 +21,16 @@ public sealed partial class CoreRuleEngine
             return new(new(sourceId, context.SourceGeneration), context.SourceTokenFactoryCardNo!, result.State.Tick,
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
-        FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
-            context is { Kind: EquipmentDeathReturnKind, EquipmentDestruction: { } equipmentDeath }
+        FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context)
+        {
+            context = FinalizeDisarmContributionDepartures(before, result.State, departed, context);
+            return context is { Kind: EquipmentDeathReturnKind, EquipmentDestruction: { } equipmentDeath }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, EquipmentDestruction = equipmentDeath with {
                     CeasedSource = new(result.State.Tick, context.Origin?.CardNo
                         ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], equipmentDeath.SourceFaceRevision, equipmentDeath.CapturedTick) ?? string.Empty) } }
-                :
-            context is { Kind: PaidUnitStunKind or PaidUnitDestroyKind, PaidUnitTrigger: { } paid }
+                : context is { Kind: PaidUnitStunKind or PaidUnitDestroyKind, PaidUnitTrigger: { } paid }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, PaidUnitTrigger = paid with {
@@ -42,6 +43,12 @@ public sealed partial class CoreRuleEngine
                 ? context with { SourceCeasedToExist = true, StunObserver = stun with {
                     CeasedSource = new(result.State.Tick, context.Origin?.CardNo
                         ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], stun.SourceFaceRevision, stun.CapturedTick) ?? string.Empty) } }
+                : context is { Kind: ExhaustionDrawKind or OtherExhaustionPowerKind or SourceExhaustionModeKind, ExhaustionObserver: { } exhaustion }
+                && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
+                && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
+                ? context with { SourceCeasedToExist = true, ExhaustionObserver = exhaustion with {
+                    CeasedSource = new(result.State.Tick, context.Origin?.CardNo
+                        ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], exhaustion.FaceRevision, exhaustion.CapturedTick) ?? string.Empty) } }
                 : context is { Kind: SelfActionPowerKind, SelfAction: { } action }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
@@ -65,17 +72,22 @@ public sealed partial class CoreRuleEngine
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, RecycledBoon = origin with {
                     CeasedSource = CaptureBoonSource(sourceId, context, origin) } }
-                : context is { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
+                : context is { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == (before.CardObjects[sourceId].TokenFactoryCardNo ?? before.CardObjects[sourceId].CardNo)
                 ? context with { SourceCeasedToExist = true }
                 : context is { Kind: "ENEMY_ATTACK_MIGHT", AffectedUnit: { } affected }
                 && departed.Contains(affected.ObjectId) && before.CardObjects[affected.ObjectId].ObjectGeneration == affected.Generation
                 ? context with { AffectedUnitCeasedToExist = true } : context;
+        }
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
             .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
-            StackItems = result.State.StackItems.Select(i => i.FieldContext is null ? i : i with { FieldContext = Invalidate(i.SourceObjectId, i.FieldContext) }).ToArray(),
-            TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is null ? t : t with { FieldContext = Invalidate(t.SourceObjectId, t.FieldContext) }).ToArray() };
+            StackItems = result.State.StackItems.Select(i => i with {
+                FieldContext = Invalidate(i.SourceObjectId, i.FieldContext),
+                HeldContext = MarkCeasedUnitHeld(before, departed, i.SourceObjectId, i.HeldContext) }).ToArray(),
+            TriggerQueue = result.State.TriggerQueue.Select(t => t with {
+                FieldContext = Invalidate(t.SourceObjectId, t.FieldContext),
+                HeldContext = MarkCeasedUnitHeld(before, departed, t.SourceObjectId, t.HeldContext) }).ToArray() };
         // Preserve the originally declared participant identities. The current
         // resolution's before-state proves these missing objects were tokens;
         // recovery never invents a live unit to replace a ceased participant.
