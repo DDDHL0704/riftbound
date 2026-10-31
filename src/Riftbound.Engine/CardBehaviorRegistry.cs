@@ -43,12 +43,15 @@ public sealed record CardBehaviorDefinition(
     bool GrantsNormalGraveyardPlay = false, bool SkipsDrawPhase = false, bool BanishesNonDeckGraveyardEntries = false,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
+    bool DamagesAllBaseUnits = false,
     bool DamagesAllEnemyCombatUnits = false,
     bool DestroysAllEquipment = false,
     int OtherEnemyBattlefieldUnitsDamageAmount = 0,
     bool ModifiesAllFriendlyUnits = false,
     int MaxTargetManaCost = 0,
     int MaxTargetPower = 0,
+    bool TargetEquipmentIgnoresPowerLimit = false,
+    bool BanishesTarget = false,
     string DrawRecipientKind = CardDrawRecipientKinds.Controller,
     bool DestroysAllUnits = false,
     bool ReturnsTargetToHand = false,
@@ -108,6 +111,7 @@ public sealed record CardBehaviorDefinition(
     bool MayEnterReadyWithMovementProhibition = false,
     bool EntersReadyAfterFriendlyPermanentDestroyed = false,
     bool RequiresReturnFriendlyUnitAdditionalCost = false,
+    bool RequiresExhaustFriendlyUnitAdditionalCost = false,
     bool DestroysFirstTargetAndBuffsSecondByDestroyedPower = false,
     string SecondaryStatusEffectId = "",
     int EffectRepeatCountIfDiscardHandCardOptionalCost = 0,
@@ -127,6 +131,7 @@ public sealed record CardBehaviorDefinition(
     bool RecyclesUnselectedMainDeckLookCards = false,
     bool UsesFriendlyBattlefieldUnitCountAsMaxTargetCount = false,
     bool UsesEnemyBattlefieldUnitCountAsPowerModifierMultiplier = false,
+    bool UsesControlledExhaustedUnitCountAsPowerModifierMultiplier = false,
     int PowerModifierTargetIndex = -1,
     int StatusEffectTargetIndex = -1,
     string TargetForbiddenTag = "",
@@ -202,6 +207,7 @@ public sealed record CardBehaviorDefinition(
     string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard,
     int CounterUnlessControllerPaysMana = 0,
     int? MaxTargetPowerCost = null,
+    int? MinTargetPowerCost = null,
     bool RequiresTargetCostsAtMostDestroyedAdditionalCostUnit = false,
     bool RequiresTargetStackItemControlledByEnemy = false,
     bool RequiresTargetStackItemTargetsFriendlyUnitOrEquipment = false,
@@ -324,6 +330,7 @@ public sealed record CardBehaviorDefinition(
     bool GrantsHasteToFriendlyUnitsPlayedOutsideHand = false,
     IReadOnlyList<string>? GrantedHastePowerTraits = null,
     bool MaySacrificeUnitForPrintedCostReduction = false,
+    int? FixedUnitSacrificeManaReduction = null,
     bool DeckPlayOptionalReflexiveEmpower = false,
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
@@ -331,6 +338,7 @@ public sealed record CardBehaviorDefinition(
     string? AppliedFlowGrant = null,
     bool GrantsPrintedCostFlowOnConquest = false,
     int BurnCount = 0,
+    int BurnAfterEffectCount = 0,
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
@@ -350,6 +358,12 @@ public sealed record CardBehaviorDefinition(
     bool CannotBeCountered = false,
     bool IgnoresSpellshield = false,
     ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null,
+    // Some official effects apply a boon to only one member of a multi-target
+    // instruction.  The default keeps the historical single-target behavior.
+    int BoonTargetIndex = -1,
+    // A destruction effect may create the replacement equipment in the
+    // destroyed card's controller's base rather than the spell controller's.
+    bool CreatedBaseEquipmentTokenForTargetController = false,
     int CostReductionPower = 0,
     string CostReductionPowerTrait = "",
     int CostReductionBattlefieldUnitCount = 0,
@@ -389,6 +403,7 @@ public static class CardTargetScopes
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+    public const string AnyUnitOrEquipment = "ANY_UNIT_OR_EQUIPMENT";
     public const string UnitEquipmentOrRune = "UNIT_EQUIPMENT_OR_RUNE";
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
@@ -402,6 +417,7 @@ public static class CardTargetScopes
     public const string EnemyThenFriendlyUnits = "ENEMY_THEN_FRIENDLY_UNITS";
     public const string UnitThenItsControllersWeapon = "UNIT_THEN_ITS_CONTROLLERS_WEAPON";
     public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
+    public const string FriendlyEquipmentThenBattlefieldUnit = "FRIENDLY_EQUIPMENT_THEN_BATTLEFIELD_UNIT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldThenEnemyBattlefieldUnits = "FRIENDLY_BATTLEFIELD_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldUnitThenStackSpell = "FRIENDLY_BATTLEFIELD_UNIT_THEN_STACK_SPELL";
@@ -482,10 +498,12 @@ public static class CardCostReductionConditionKinds
     public const string None = "NONE";
     public const string EnemyUnitDestroyedThisTurn = "ENEMY_UNIT_DESTROYED_THIS_TURN";
     public const string ControllerHighestUnitPower = "CONTROLLER_HIGHEST_UNIT_POWER";
+    public const string ControllerExhaustedUnitCount = "CONTROLLER_EXHAUSTED_UNIT_COUNT";
     public const string OpponentWithinThreeOfWinningScore = "OPPONENT_WITHIN_THREE_OF_WINNING_SCORE";
     public const string ControllerControlsTaggedUnit = "CONTROLLER_CONTROLS_TAGGED_UNIT";
     public const string ControllerControlsEmpoweredObject = "CONTROLLER_CONTROLS_EMPOWERED_OBJECT";
     public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
+    public const string ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn = "CONTROLLER_PLAYED_UNIT_OR_EQUIPMENT_TO_BATTLEFIELD_THIS_TURN";
     public const string PlayedOutsideOwnHand = "PLAYED_OUTSIDE_OWN_HAND";
     public const string ControlledFieldEquipmentCount = "CONTROLLED_FIELD_EQUIPMENT_COUNT";
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
@@ -834,6 +852,104 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·003/167", "比港追捕者", 3, "BILGEWATER_PURSUER_PLAY_UNIT_DAMAGE_UP_TO_TWO", 1, 2,
+            TargetScope: CardTargetScopes.AnyUnit, MinTargetCount: 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·008/167", "战争斥候", 3, "WAR_SCOUT_PLAY_UNIT_POWER_PLUS_TWO", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 2, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("RAD·009/167", "分裂强袭机", 6, "SPLITTING_ASSAULT_MECH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "约德尔人|机械", SourceUnitIsExhausted: false),
+        new("RAD·013/167", "葬身沙海", 3, "CONSUMED_BY_SANDS_BATTLEFIELD_UNIT_DAMAGE_FOUR", 4, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, Mode: "BATTLEFIELD_UNIT_DAMAGE_4",
+            CanPlayDuringSpellDuel: true, TargetRequiredTag: CardObjectTags.UnitCard),
+        new("RAD·013/167", "葬身沙海", 3, "CONSUMED_BY_SANDS_DESTROY_EQUIPMENT", 0, 1,
+            TargetScope: CardTargetScopes.Equipment, Mode: "DESTROY_EQUIPMENT",
+            CanPlayDuringSpellDuel: true, DestroysTarget: true),
+        new("RAD·025/167", "聆听天意", 1, "LISTEN_TO_FATE_STEADFAST_TWO_INSIGHT", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            StatusEffectId: "COMBAT_KEYWORD:坚守2", InsightCount: 1, CanPlayDuringPriority: true),
+        new("RAD·034/167", "气敛神聚", 1, "CENTERING_READY_RESTRICT_MOVEMENT_DRAW", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, ReadiesTarget: true,
+            StatusEffectId: MovementRestrictionRules.AllPlayers, DrawCount: 1, CanPlayDuringPriority: true),
+        new("RAD·028/167", "震魂怒吼", 1, "SOULSHATTERING_ROAR_EXHAUST_COST_STUN", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, StatusEffectId: "STUNNED",
+            RequiresExhaustFriendlyUnitAdditionalCost: true, CanPlayDuringSpellDuel: true),
+        new("RAD·029/167", "破厄新生", 1, "RENEWAL_EXHAUST_COST_DRAW_CALL_RUNE", 0, 0,
+            RequiresExhaustFriendlyUnitAdditionalCost: true, DrawCount: 1, RuneCallCount: 1,
+            DrawsBeforeRuneCall: true, CanPlayDuringPriority: true),
+        new("RAD·037/167", "警觉的收藏家", 3, "WATCHFUL_COLLECTOR_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·041/167", "缄默术", 1, "SILENCE_COUNTER_SPELL_MINIMUM_POWER_COST_TWO", 0, 1,
+            TargetScope: CardTargetScopes.StackSpell, CountersTargetStackSpell: true,
+            MinTargetPowerCost: 2, CanPlayDuringPriority: true),
+        new("RAD·048/167", "清籁穿云", 3, "CLEAR_CHORUS_EXHAUSTED_UNIT_COUNT_MIGHT_REDUCTION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: -1,
+            UsesControlledExhaustedUnitCountAsPowerModifierMultiplier: true, CanPlayDuringPriority: true),
+        new("RAD·049/167", "勤勉的机械匠", 4, "DILIGENT_MECHANIC_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
+        new("RAD·056/167", "随手投掷", 3, "CASUAL_TOSS_DAMAGE_FRIENDLY_EQUIPMENT_MANA_COST", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit,
+            DamageAmountFromFirstTargetManaCost: true, DamageTargetIndex: 1, CanPlayDuringSpellDuel: true),
+        new("RAD·058/167", "怒海法师", 4, "SEASPRAY_MAGE_PLAY_UNIT_ENEMY_POWER_MINUS_THREE", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: -3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Blue),
+        new("RAD·059/167", "超新星", 9, "SUPERNOVA_DAMAGE_TEN_DRAW_TWO", 10, 1,
+            DrawCount: 2, TargetScope: CardTargetScopes.AnyUnit),
+        new("RAD·070/167", "先打再跟", 3, "PLAY_THEN_FOLLOW_POWER_PLUS_THREE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 3,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn,
+            CostReductionMana: 2, CanPlayDuringSpellDuel: true),
+        new("RAD·101/167", "无法拒绝的提议", 2, "IRRESISTIBLE_OFFER_DESTROY_EQUIPMENT_CREATE_TARGET_CONTROLLER_GOLD", 0, 1,
+            TargetScope: CardTargetScopes.Equipment, DestroysTarget: true,
+            CreatedBaseEquipmentTokenCount: 1, CreatedBaseEquipmentTokenName: "金币",
+            CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+            CreatedBaseEquipmentTokenIsExhausted: true,
+            CreatedBaseEquipmentTokenForTargetController: true, CanPlayDuringSpellDuel: true),
+        new("RAD·121/167", "组合拳", 3, "COMBO_GRANT_BOON_AND_STUN", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
+            StatusEffectId: "STUNNED", StatusEffectTargetIndex: 1,
+            GrantsBoon: true, BoonTargetIndex: 0, CanPlayDuringSpellDuel: true),
+        new("RAD·071/167", "纳祖芒陀斧", 1, "NTOFO_BLADES_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
+        new("RAD·077/167", "弗雷尔卓德之怒", 9, "FRELJORD_FURY_PLAY_READY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "灵体|坚守3", SourceUnitIsExhausted: false),
+        new("RAD·079/167", "雪崩", 5, "AVALANCHE_DAMAGE_ALL_BASE_UNITS_THREE", 3, 0,
+            DamagesAllBaseUnits: true),
+        new("RAD·083/167", "坚毅牧羊人", 4, "RESOLUTE_SHEPHERD_PLAY_UNIT_DESTROY_CHEAP_EQUIPMENT", 0, 1,
+            TargetScope: CardTargetScopes.Equipment, MinTargetCount: 0, DestroysTarget: true, MaxTargetManaCost: 4,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "坚守2"),
+        new("RAD·088/167", "坚毅生还者", 2, "RESOLUTE_SURVIVOR_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "强攻2|坚守2"),
+        new("RAD·092/167", "天界双足龙", 7, "CELESTIAL_WYVERN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "龙"),
+        new("RAD·118/167", "帝皇令使", 5, "EMPERORS_HERALD_PLAY_UNIT_SET_FRIENDLY_BASE_MIGHT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            BasePowerUntilEndOfTurn: 5, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·117/167", "为了德玛西亚！", 3, "FOR_DEMACIA_BATTLEFIELD_FRIENDLY_STEADFAST_TWO", 0, 1,
+            TargetScope: CardTargetScopes.Battlefield, CanPlayDuringPriority: true,
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: false, FriendlyStatusEffectId: "COMBAT_KEYWORD:坚守2")),
+        new("RAD·119/167", "狩猎犬", 3, "HUNTING_HOUNDS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "犬形"),
+        new("RAD·122/167", "不速之客", 9, "UNINVITED_GUEST_EXHAUSTED_UNIT_COST_REDUCTION", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: CardObjectTags.Bulwark,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExhaustedUnitCount, CostReductionMana: 1),
+        new("RAD·123/167", "守护者之盾", 2, "GUARDIANS_SHIELD_AGILE_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "武装|灵便"),
+        new("RAD·124/167", "冥火销魂", 3, "BALEFIRE_BANISH_UNIT_OR_EQUIPMENT_BURN_TWO", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnitOrEquipment, MaxTargetPower: 3,
+            TargetEquipmentIgnoresPowerLimit: true, BanishesTarget: true, BurnAfterEffectCount: 2),
+        new("RAD·125/167", "沙丘吞噬者", 7, "DUNE_SWALLOWER_OPTIONAL_SACRIFICE_WARD_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "法盾",
+            MaySacrificeUnitForPrintedCostReduction: true, FixedUnitSacrificeManaReduction: 2),
+        new("RAD·128/167", "坚定游骑", 4, "STEADFAST_RANGER_FRIENDLY_OBJECT_THRESHOLD_POWER", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: CardCombatKeywordNames.Bulwark),
+        new("RAD·134/167", "炸裂神曲", 7, "BANGER_READY_FRIENDLY_UNITS_POWER_PLUS_THREE", 0, 0,
+            ReadiesAllFriendlyUnits: true, ModifiesAllFriendlyUnits: true, PowerModifierAmount: 3),
+
         new("VEN·133", "发光石", 2, "EQUIPMENT_PLAY:VEN·133", 0, 0,
             PlaysSourceToBaseAsEquipment: true, EndStepSelfDestructionDamage: 5),
         new("VEN·077", "帝国工具", 4, "IMPERIAL_TOOL_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
@@ -847,6 +963,7 @@ public static class CardBehaviorRegistry
         new("VEN·075", "剑头蛟的卵", 3, "JAWFISH_EGG_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),
         new("VEN·087", "海克斯圆盘", 4, "HEXTECH_DISC_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+
         new("VEN·084", "安蓓萨 · 恶狼意志", 4, "VEN_AMBESSA_DAMAGE_IMMUNITY_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·084a", "安蓓萨 · 恶狼意志", 4, "VEN_AMBESSA_DAMAGE_IMMUNITY_PLAY_UNIT", 0, 0,

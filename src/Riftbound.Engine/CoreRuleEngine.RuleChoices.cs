@@ -91,7 +91,10 @@ public sealed partial class CoreRuleEngine
             var raw = pending?.Command ?? CaptureRuleChoiceCommand(command);
             var resources = GetCompletedRuleChoiceResources(frame);
             var next = CommitRuleChoiceResources(origin, resources) with {
-                Tick = state.Tick + 1, PendingRuleChoice = new(origin, originalIntent, raw, answers, required.Request) };
+                Tick = state.Tick + 1,
+                PendingRuleChoice = new(origin, originalIntent, raw, answers, required.Request),
+                PriorityPlayerId = null,
+                PassedPriorityPlayerIds = [] };
             var events = UncommittedRuleChoiceEvents(resources.SelectMany(step => step.Events).ToArray(), committedResources)
                 .Append(new GameEvent("RULE_CHOICE_REQUESTED", required.Request.Reason,
                     new Dictionary<string,object?> { ["playerId"] = required.Request.PlayerId, ["choiceId"] = required.Request.Id })).ToArray();
@@ -152,7 +155,12 @@ public sealed partial class CoreRuleEngine
         if (reproduced is not { } current
             || MatchStateHasher.HashValue(current.Request) != MatchStateHasher.HashValue(p.Request)) return false;
         resources = GetCompletedRuleChoiceResources(current.Frame);
-        var expected = CommitRuleChoiceResources(p.Origin, resources);
+        // A pending synchronous choice closes the priority window while the
+        // designated player confirms it. The recovery comparison must include
+        // the same control normalization as the live checkpoint.
+        var expected = CommitRuleChoiceResources(p.Origin, resources) with {
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [] };
         return MatchStateHasher.Hash(state with { Tick = p.Origin.Tick, PendingRuleChoice = null }) == MatchStateHasher.Hash(expected);
     }
 

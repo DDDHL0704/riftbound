@@ -108,7 +108,9 @@ internal static class AssembleEquipmentProfileCatalog
         return spec.Keywords.Any(keyword => string.Equals(
             keyword.Keyword,
             CardEquipmentKeywordNames.Assemble,
-            StringComparison.Ordinal));
+            StringComparison.Ordinal))
+            || spec.OfficialText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(line => CompactRulesText(line).StartsWith(CardEquipmentKeywordNames.Assemble, StringComparison.Ordinal));
     }
 
     private static bool TryParseAssembleCost(BehaviorSpec spec, out AssembleCost assembleCost)
@@ -172,6 +174,16 @@ internal static class AssembleEquipmentProfileCatalog
                 RequiredGraveyardRecycleCardCount: requiredGraveyardRecycleCardCount,
                 RequiresDestroyFriendlyUnitCost: requiresDestroyFriendlyUnitCost,
                 ManaCost: typedManaCost);
+            return true;
+        }
+
+        var manaOnly = Regex.Match(compactText, @"装配(?<mana>[0-9]+)(?:（|\(|$)");
+        if (manaOnly.Success && int.TryParse(manaOnly.Groups["mana"].Value, out var manaOnlyCost))
+        {
+            assembleCost = new AssembleCost($"ASSEMBLE_{manaOnlyCost}_MANA", $"装配 {manaOnlyCost} 法力",
+                string.Empty, 0, "mana assemble cost", ManaCost: manaOnlyCost,
+                RequiredGraveyardRecycleCardCount: requiredGraveyardRecycleCardCount,
+                RequiresDestroyFriendlyUnitCost: requiresDestroyFriendlyUnitCost);
             return true;
         }
 

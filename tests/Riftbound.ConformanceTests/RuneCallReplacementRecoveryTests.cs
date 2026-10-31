@@ -12,13 +12,14 @@ public sealed class RuneCallReplacementRecoveryTests
     private const string Mobilize = "OGN·134/298";
 
     [Fact]
-    public void ReviewedTextParsesAsTheSharedReplacementWithoutPromotingCardPlay()
+    public void AdmittedWyvernUsesTheSharedRuneCallReplacement()
     {
         Assert.True(ReviewedRuneCardSources.TryGet(Wyvern, out var source));
         var spec = Assert.Single(StaticAbilityParser.Parse(source.CardEffect!, []),
             ability => ability.Kind == StaticAbilityKinds.ControllerRuneCallExtraExhausted);
         Assert.Equal(1, spec.Amount);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(Wyvern, out _));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(Wyvern, out var behavior));
+        Assert.Equal(7, behavior.ManaCost); Assert.Equal(7, behavior.SourceUnitPower);
         Assert.DoesNotContain(StaticAbilityParser.Parse("召出一枚休眠的符文。", []),
             ability => ability.Kind == StaticAbilityKinds.ControllerRuneCallExtraExhausted);
     }

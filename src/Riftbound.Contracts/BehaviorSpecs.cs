@@ -43,6 +43,8 @@ public static class ActivatedAbilityKinds
     public const string RecycleGraveyardCardGrantSelfMight = "RECYCLE_GRAVEYARD_CARD_GRANT_SELF_MIGHT";
     public const string SwiftSwapSelfWithNamedControlledUnit = "SWIFT_SWAP_SELF_WITH_NAMED_CONTROLLED_UNIT";
     public const string UnitPowerModifierUntilEndOfTurn = "UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN";
+    public const string StunEnemyUnit = "STUN_ENEMY_UNIT";
+    public const string GrantUnitBoonOrTemporaryPower = "GRANT_UNIT_BOON_OR_TEMPORARY_POWER";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
         "DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST";
@@ -483,6 +485,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string SourceBattlefieldFriendlyObjectThresholdPower = "SOURCE_BATTLEFIELD_FRIENDLY_OBJECT_THRESHOLD_POWER";
     public const string SourceObjectPowerWithFriendlyEquipment = "SOURCE_POWER_WITH_FRIENDLY_EQUIPMENT";
     public const string SourceOtherSameNameUnitCountPower = "SOURCE_OTHER_SAME_NAME_UNIT_COUNT_POWER";
     public const string FriendlyFilteredUnitCountToSourcePower = "FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
@@ -518,6 +521,7 @@ public static class StaticAuraKinds
     public const string OtherFriendlyUnitsKeyword = "OTHER_FRIENDLY_UNITS_KEYWORD";
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
+    public const string FriendlyEquipmentKeyword = "FRIENDLY_EQUIPMENT_KEYWORD";
     public const string SourceAttackingWithAnotherUnitPower = "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER";
     public const string SourceLoneBattlePower = "SOURCE_LONE_BATTLE_POWER";
     public const string SourceAttackingReadyEnemyUnitPower = "SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER";
@@ -537,10 +541,12 @@ public static class StaticAuraTargetScopes
     public const string FriendlyUnits = "FRIENDLY_UNITS";
     public const string OtherFriendlyUnits = "OTHER_FRIENDLY_UNITS";
     public const string FriendlyFilteredUnits = "FRIENDLY_FILTERED_UNITS";
+    public const string FriendlyEquipment = "FRIENDLY_EQUIPMENT";
 }
 
 public static class StaticAuraParticipantScopes
 {
+    public const string SameBattlefieldOtherFriendlyPublicUnitsOrEquipment = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS_OR_EQUIPMENT";
     public const string SameBattlefieldFriendlyFilteredEquipment = "SAME_BATTLEFIELD_FRIENDLY_FILTERED_EQUIPMENT";
     public const string SameLocationOtherFriendlySameNameUnits = "SAME_LOCATION_OTHER_FRIENDLY_SAME_NAME_UNITS";
     public const string SameLocationEnemyFilteredPublicUnits = "SAME_LOCATION_ENEMY_FILTERED_PUBLIC_UNITS";

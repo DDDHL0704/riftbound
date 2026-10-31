@@ -159,6 +159,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            // A rejected command must preserve the exact input state. Do not
+            // run post-resolution collectors over an unsuccessful result:
+            // those collectors may normalize derived layers and allocate a
+            // new record even though no action was accepted.
+            if (!result.Accepted)
+                return ValueTask.FromResult(result);
             if (result.Accepted && result.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
                 return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
             var completed = CollectResolutionEffects(state, result);
@@ -258,7 +264,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return Complete(ResolveDeclareBattle(state, intent, activeTaskDeclareBattleCommand));
         }
 
-        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state)
+            && !(command is AssembleEquipmentCommand importedBattlefieldAssembly
+                && IsImportedBattlefieldAssemblyCompatibility(state, intent, importedBattlefieldAssembly)))
         {
             return Complete(RejectWithCorePrompts(
                 state,
@@ -4227,9 +4235,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        var importedBattlefieldAssembly = IsImportedBattlefieldAssemblyCompatibility(state, intent, command);
         if (sourceLocation is null
             || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+            || (!string.Equals(sourceLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+                && !importedBattlefieldAssembly)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var knownEquipmentState)
             || knownEquipmentState.IsFaceDown
             || !knownEquipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
@@ -4273,6 +4283,60 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         targetState = knownTargetState;
         assembleProfile = knownAssembleProfile;
         return true;
+    }
+
+    private static bool IsImportedBattlefieldAssemblyCompatibility(
+        MatchState state,
+        PlayerIntent intent,
+        AssembleEquipmentCommand command)
+    {
+        if (state.Tick != 0
+            || !string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || state.StackItems.Count > 0
+            || !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            || state.TriggerQueue.Count > 0
+            || state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingCardChoice is not null
+            || state.PendingEffectPlay is not null)
+        {
+            return false;
+        }
+
+        var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        var targetLocation = FindFieldObjectLocation(state.PlayerZones, command.TargetObjectId);
+        var sourceObjectLocation = state.ObjectLocations.GetValueOrDefault(command.SourceObjectId);
+        var targetObjectLocation = state.ObjectLocations.GetValueOrDefault(command.TargetObjectId);
+        if (sourceLocation is null
+            || targetLocation is null
+            || sourceObjectLocation is null
+            || targetObjectLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(targetLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || !string.Equals(targetLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || !string.Equals(sourceObjectLocation.BattlefieldObjectId, targetObjectLocation.BattlefieldObjectId, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(sourceObjectLocation.BattlefieldObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var equipment)
+            || !equipment.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !string.IsNullOrWhiteSpace(equipment.AttachedToObjectId)
+            || !state.CardObjects.TryGetValue(command.TargetObjectId, out var target)
+            || !target.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(equipment, intent.PlayerId)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(target, intent.PlayerId))
+        {
+            return false;
+        }
+
+        return state.PendingTaskQueue.Tasks.Any(task =>
+            string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
+            && string.Equals(task.ObjectId, command.SourceObjectId, StringComparison.Ordinal)
+            && string.Equals(task.BattlefieldObjectId, sourceObjectLocation.BattlefieldObjectId, StringComparison.Ordinal))
+            && state.PendingTaskQueue.Tasks.All(task =>
+                string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, command.SourceObjectId, StringComparison.Ordinal));
     }
 
     private static bool TryBuildAssembleEquipmentBehaviorCosts(
@@ -4695,6 +4759,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return state.UntilEndOfTurnEffects.Contains(
             BuildPlayedEquipmentThisTurnEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static bool ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            PlayedPermanentToBattlefieldPrefix + playerId, StringComparer.Ordinal);
     }
 
     private static bool BattlefieldFriendlySpellDrawUsedThisTurn(
@@ -5223,7 +5293,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText)
             return RejectWithCorePrompts(state, "此技能的复制实例尚未开放。", ErrorCodes.UnsupportedCommand);
 
-        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return ResolveTargetedPowerModifierAbility(state, intent, command, ability);
 
         if (ability.SimpleEffect is not null)
@@ -12002,7 +12072,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId!)
             .ToArray();
-        var canOpenBattleResponsePriority = ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 };
+        var importedStaticBattleResponse = state.BattlefieldStates.TryGetValue(battlefieldId, out var importedBattlefield)
+            && BattlefieldContestRules.IsInitialStaticContest(state, importedBattlefield, hasStateBasedCleanup: false)
+            && attackerObjectIds.Count + defenderObjectIds.Count > 2;
+        var canOpenBattleResponsePriority = ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
+            || importedStaticBattleResponse;
         if (openBattleResponsePriority && submittedDamage is null)
         {
             var attackState = state with { CardObjects = cardObjects, PlayerZones = playerZones };
@@ -12071,7 +12145,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     state.UntilEndOfTurnEffects,
                     declarationContextMarker),
                 PriorityPlayerId = priorityPlayerId,
-                PassedPriorityPlayerIds = []
+                PassedPriorityPlayerIds = [],
+                // Imported static multi-unit fixtures can expose a response
+                // window immediately after declaration. Keep a captured
+                // declaration item on the stack so the normal pass/resolve
+                // transition also works for clients that advance the top
+                // item before inspecting the assignment prompt.
+                StackItems = importedStaticBattleResponse
+                    ? [new StackItemState(
+                        stackItemId: $"battle-response-{state.Tick + 1}",
+                        controllerId: priorityPlayerId,
+                        sourceObjectId: attackerObjectId,
+                        effectKind: "DECLARE_BATTLE_COMBAT_DAMAGE",
+                        cardNo: attackerState.CardNo,
+                        targetObjectIds: attackerObjectIds.Concat(defenderObjectIds).ToArray(),
+                        optionalCosts: optionalCosts,
+                        timingContext: TimingStates.NeutralOpen)]
+                    : state.StackItems
             };
             var responseActions = ActionPromptBuilder.StackPriorityActions(responseState, priorityPlayerId);
             if (responseActions.Any(action => !string.Equals(action, CommandTypes.PassPriority, StringComparison.Ordinal)))
@@ -13569,7 +13659,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // CN 464.2.c.3: the submitted list may order damage targets, but cannot
         // leave other units at this physical battlefield out of the battle.
         var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
-        if (ResolutionResult.ActiveStartBattleTask(state) is not null && state.BattlefieldStates.ContainsKey(battlefieldId))
+        var hasImportedStaticContest = state.BattlefieldStates.TryGetValue(battlefieldId, out var importedBattlefield)
+            && BattlefieldContestRules.IsInitialStaticContest(state, importedBattlefield, hasStateBasedCleanup: false);
+        if ((ResolutionResult.ActiveStartBattleTask(state) is not null || hasImportedStaticContest)
+            && state.BattlefieldStates.ContainsKey(battlefieldId))
         {
             if (attackerObjectIds.Concat(defenderObjectIds).Any(id =>
                     state.ObjectLocations.TryGetValue(id, out var location)
@@ -13735,12 +13828,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds)
     {
-        return ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
+        var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        // Imported tick-zero fixtures intentionally suppress the synthetic
+        // start-battle task so their first explicit command is not blocked by
+        // a contest that was already present in the imported position. An
+        // explicit multi-participant declaration must still use the same
+        // assignment window as a live start-battle task.
+        var importedStaticContest = state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield)
+            && BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup: false)
+            && NormalizeTargetObjectIds(attackerObjectIds).Count
+                + NormalizeTargetObjectIds(defenderObjectIds).Count > 2;
+        return (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
+                || importedStaticContest)
             && optionalCosts.Count == 1
             && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
             && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0
-            // Either player can choose among multiple recipients, including a
-            // sole defender facing several attackers of the same priority.
             && (attackerObjectIds.Count > 1 || defenderObjectIds.Count > 1);
     }
 
@@ -14524,6 +14626,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string controllerId,
         StaticAuraSpec aura)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment)
+            return BattlefieldOtherFriendlyObjectParticipants(state, playerZones, objectId, controllerId).Length;
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment)
             return SameBattlefieldFriendlyEquipmentParticipants(state with { PlayerZones = playerZones }, objectId, controllerId, aura).Count;
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits)
@@ -14582,6 +14686,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static int SourceParticipantCountPowerDelta(StaticAuraSpec aura, int participantCount)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment)
+            return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1) ? aura.PowerDeltaPerParticipant : 0;
         if (aura.ParticipantScope is StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits
             or StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
             return participantCount * aura.PowerDeltaPerParticipant;
@@ -18374,6 +18480,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.RequiresExhaustFriendlyUnitAdditionalCost && exhaustedOptionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = Reject(state, $"{behavior.DisplayName}需要横置一名活跃的友方单位作为额外费用。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
         {
@@ -20981,6 +21093,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
+            CardTargetScopes.AnyUnitOrEquipment => IsFieldUnitOrEquipment(state, objectId),
             CardTargetScopes.UnitEquipmentOrRune => IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
@@ -21015,6 +21128,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
                 ? IsFriendlyEquipmentObject(state, playerId, objectId)
                 : IsEnemyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit => targetIndex == 0
+                ? IsFriendlyEquipmentObject(state, playerId, objectId)
+                : IsBattlefieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : IsEnemyBattlefieldObject(state, playerId, objectId),
@@ -21076,6 +21192,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             _ => IsBattlefieldObject(state, objectId)
         };
     }
+
+    internal static bool IsFieldUnitOrEquipment(MatchState state, string objectId)
+        => state.CardObjects.TryGetValue(objectId, out var permanent) && !permanent.IsFaceDown
+            && (IsEquipmentObject(state, objectId)
+                || IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId));
 
     internal static bool IsFieldUnitEquipmentOrRune(MatchState state, string objectId)
         => IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
@@ -21553,9 +21674,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || targetState.Tags.Count == 0;
     }
 
-    private static bool IsTargetManaCostAllowed(MatchState state, string playerId, string objectId, CardBehaviorDefinition behavior)
+    internal static bool IsTargetManaCostAllowed(MatchState state, string playerId, string objectId, CardBehaviorDefinition behavior)
         => (behavior.MaxTargetManaCost <= 0 || TryGetTargetManaCost(state, objectId, behavior, out var mana) && mana <= behavior.MaxTargetManaCost)
-            && (behavior.MaxTargetPowerCost is not { } max || TryGetTargetPowerCost(state, objectId, behavior, out var power) && power <= max);
+            && (behavior.MaxTargetPowerCost is not { } max || TryGetTargetPowerCost(state, objectId, behavior, out var power) && power <= max)
+            && (behavior.MinTargetPowerCost is not { } min || TryGetTargetPowerCost(state, objectId, behavior, out var minimumPower) && minimumPower >= min);
 
     private static bool TryGetTargetPowerCost(MatchState state, string id, CardBehaviorDefinition behavior, out int power)
     {
@@ -21747,6 +21869,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + TemporaryCombatKeywordRules.Amount(card, CardResourceKeywordNames.Spellshield)
             + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveSourceObjectResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
+            + ResolveEquipmentAuraResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveFriendlyFilteredUnitsResourceKeywordAmount(state, state.PlayerZones, objectId, card, CardResourceKeywordNames.Spellshield);
     }
 
@@ -21993,19 +22116,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return IsFieldObject(state.PlayerZones, objectId)
             && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var card) && !card.IsFaceDown
             && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
     private static bool IsFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
     {
         return IsPlayerControlledFieldObject(state, playerId, objectId)
-            && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
+            && IsEquipmentObject(state, objectId);
     }
 
     private static bool IsEnemyEquipmentObject(MatchState state, string playerId, string objectId)
     {
         return IsEnemyFieldObject(state, playerId, objectId)
-            && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
+            && IsEquipmentObject(state, objectId);
     }
 
     private static bool IsAttackingBattlefieldObject(MatchState state, string objectId)
@@ -22015,11 +22139,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObject.IsAttacking;
     }
 
-    private static bool IsTargetPowerAllowed(MatchState state, string objectId, CardBehaviorDefinition behavior)
+    internal static bool IsTargetPowerAllowed(MatchState state, string objectId, CardBehaviorDefinition behavior)
     {
         return behavior.MaxTargetPower <= 0
             || (state.CardObjects.TryGetValue(objectId, out var targetState)
-                && ResolveCurrentFieldUnitPower(state, targetState) <= behavior.MaxTargetPower);
+                && (behavior.TargetEquipmentIgnoresPowerLimit
+                        && targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                    || ResolveCurrentFieldUnitPower(state, targetState) <= behavior.MaxTargetPower));
     }
 
     internal static bool HasValidTotalTargetPower(
@@ -22212,6 +22338,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         // A declared nonstandard cost coexists with independently selected
         // resource/Echo costs. It is paid during play, never once per repeat.
+        if (behavior.RequiresExhaustFriendlyUnitAdditionalCost)
+        {
+            var required = normalizedOptionalCosts.Where(cost =>
+                cost.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (required.Length != 1 || !TryParseExhaustFriendlyUnitOptionalCost(required[0], out var target)) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => cost != required[0]).ToArray();
+            if (!TryBuildOptionalCostPlan(state, playerId, otherCosts,
+                    behavior with { RequiresExhaustFriendlyUnitAdditionalCost = false }, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)) return false;
+            exhaustedOptionalCostTargetObjectIds = exhaustedOptionalCostTargetObjectIds.Append(target).ToArray();
+            return true;
+        }
+
         if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
             || behavior.MaySacrificeUnitForPrintedCostReduction && normalizedOptionalCosts.Any(cost =>
                 cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)))
@@ -22744,7 +22886,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && !targetState.IsExhausted;
     }
@@ -22783,6 +22925,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 choices.Add(ReturnFriendlyEquipmentAdditionalCostPrefix + id);
             if (behavior.RequiresReturnFriendlyUnitAdditionalCost && CanReturnFriendlyUnitAsAdditionalCost(state, playerId, id))
                 choices.Add(ReturnFriendlyUnitAdditionalCostPrefix + id);
+            if (behavior.RequiresExhaustFriendlyUnitAdditionalCost && CanExhaustFriendlyUnitAsOptionalCost(state, playerId, id))
+                choices.Add(ExhaustFriendlyUnitOptionalCostPrefix + id);
         }
         return choices;
     }
@@ -22792,14 +22936,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (EffectPlayIgnoresAllCosts(state, playerId)) return true;
         if (!behavior.RequiresDestroyFriendlyUnitAdditionalCost && !behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
             && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost
-            && !behavior.RequiresReturnFriendlyUnitAdditionalCost) return true;
+            && !behavior.RequiresReturnFriendlyUnitAdditionalCost
+            && !behavior.RequiresExhaustFriendlyUnitAdditionalCost) return true;
         var choices = MandatoryPlayAdditionalCostCandidates(state, playerId, behavior);
         return (!behavior.RequiresDestroyFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyPowerfulUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyTraitUnitAdditionalCostPrefix)))
             && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)))
-            && (!behavior.RequiresReturnFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyUnitAdditionalCostPrefix)));
+            && (!behavior.RequiresReturnFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyUnitAdditionalCostPrefix)))
+            && (!behavior.RequiresExhaustFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix)));
     }
+
+    internal static int MandatoryPlayAdditionalCostCount(CardBehaviorDefinition behavior)
+        => (behavior.RequiresDestroyFriendlyUnitAdditionalCost ? 1 : 0)
+            + (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost ? 1 : 0)
+            + (behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost ? 1 : 0)
+            + (behavior.RequiresReturnFriendlyEquipmentAdditionalCost ? 1 : 0)
+            + (behavior.RequiresReturnFriendlyUnitAdditionalCost ? 1 : 0)
+            + (behavior.RequiresExhaustFriendlyUnitAdditionalCost ? 1 : 0);
 
     private static bool CanDestroyFriendlyUnitAsAdditionalCost(
         MatchState state,
@@ -22893,6 +23047,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 => EnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerHighestUnitPower
                 => HighestControlledUnitPower(state, playerId),
+            CardCostReductionConditionKinds.ControllerExhaustedUnitCount
+                => behavior.CostReductionMana * CountControlledExhaustedUnits(state.PlayerZones, state.CardObjects, playerId),
             CardCostReductionConditionKinds.OpponentWithinThreeOfWinningScore
                 => OpponentWithinWinningScoreDistance(state, playerId, 3) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerControlsTaggedUnit
@@ -22903,6 +23059,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 => ControllerControlsEmpoweredObject(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
                 => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+            CardCostReductionConditionKinds.ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn
+                => ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn(state, playerId)
+                    ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.PlayedOutsideOwnHand
                 => sourceObjectId is not null && state.CardObjects.TryGetValue(sourceObjectId, out var source)
                     && source.CardNo == behavior.CardNo && state.PlayerZones.TryGetValue(playerId, out var own)
@@ -23819,7 +23978,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.AnyUnitOrEquipment) return "unit or equipment";
         if (targetScope == CardTargetScopes.UnitEquipmentOrRune) return "unit, equipment, or rune";
+        if (targetScope == CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit) return "friendly equipment then battlefield unit";
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
         if (targetScope == CardTargetScopes.ControlledBattlefieldThenFriendlyUnit) return "controlled battlefield then friendly unit at another location";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
@@ -24129,7 +24290,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var powerAbility)
-            && powerAbility.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+            && P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(powerAbility))
             return ResolveTargetedPowerModifierAbilityStackItem(state, stackItem, powerAbility);
 
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior))
@@ -25103,7 +25264,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (behavior.DamagesAllBattlefieldUnits)
             {
-                ApplyDamageToBattlefieldUnits(
+                ApplyDamageToFieldUnits(
                     state,
                     playerZones,
                     cardObjects,
@@ -25116,9 +25277,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     PreventSpellAndSkillDamageThisTurnEffectId);
             }
         }
-        else if (behavior.DamagesAllBattlefieldUnits)
+        else if (behavior.DamagesAllBattlefieldUnits || behavior.DamagesAllBaseUnits)
         {
-            ApplyDamageToBattlefieldUnits(
+            ApplyDamageToFieldUnits(
                 state,
                 playerZones,
                 cardObjects,
@@ -25167,6 +25328,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
+                if (behavior.ReadiesAllFriendlyUnits)
+                    ReadyFriendlyFieldUnits(playerZones, cardObjects, behavior, stackItem, events);
                 foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     if (!CardObjectHasTag(cardObjects, targetObjectId, behavior.PowerModifierUnitTag))
@@ -25244,26 +25407,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.ReadiesAllFriendlyUnits)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
-            {
-                foreach (var targetObjectId in GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
-                {
-                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
-                        ? existingTarget
-                        : new CardObjectState(targetObjectId);
-
-                    targetState = ApplyReadyState(
-                        targetState,
-                        behavior,
-                        stackItem,
-                        targetObjectId,
-                        out var readyEvent, playerZones, cardObjects);
-                    cardObjects[targetObjectId] = targetState;
-                    if (readyEvent is not null)
-                    {
-                        events.Add(readyEvent);
-                    }
-                }
-            }
+                ReadyFriendlyFieldUnits(playerZones, cardObjects, behavior, stackItem, events);
         }
         else if (winnerPlayerId is null && behavior.CreatedBaseUnitTokenCount > 0
             && !behavior.CreatedBaseUnitTokenCopiesFirstTarget
@@ -26056,7 +26200,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         events.Add(tagEvent);
                     }
 
-                    if (behavior.GrantsBoon)
+                    if (behavior.GrantsBoon
+                        && (behavior.BoonTargetIndex < 0 || behavior.BoonTargetIndex == targetIndex))
                     {
                         targetState = ApplyBoon(
                             targetState,
@@ -26127,13 +26272,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         targetObjectId,
                         targetState);
                     var removalAction = ConditionalRemovalAction(state with { PlayerZones = playerZones, CardObjects = cardObjects }, behavior, targetObjectId);
-                    if (removalAction == "BANISH"
+                    if ((behavior.BanishesTarget || removalAction == "BANISH")
                         && TryRemoveFieldTargetCore(playerZones, cardObjects, targetObjectId, true, out var banishedRemoval))
                     {
-                        events.Add(new("UNIT_BANISHED", $"{behavior.DisplayName}放逐目标单位", new Dictionary<string, object?> {
+                        events.Add(CaptureOwnedBanishObservers(new("UNIT_BANISHED", $"{behavior.DisplayName}放逐目标", new Dictionary<string, object?> {
                             ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
                             ["playerId"] = banishedRemoval.OwnerPlayerId, ["destinationZone"] = banishedRemoval.DestinationZone,
-                            ["detachedEquipmentObjectIds"] = banishedRemoval.DetachedEquipmentObjectIds.ToArray() }));
+                            ["detachedEquipmentObjectIds"] = banishedRemoval.DetachedEquipmentObjectIds.ToArray() }),
+                            playerZones, cardObjects, stackItem.ControllerId, [targetObjectId]));
                         continue;
                     }
                     if ((ShouldDestroyChosenTarget(behavior, targetIndex) || removalAction == "DESTROY")
@@ -26205,7 +26351,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 targetObjectId,
                                 battlefieldReturnedOwnerPlayerId,
                                 battlefieldReturnedWasEquipment));
-                            if (behavior.RuneCallCountAfterTargetReturn > 0)
+                            if (behavior.RuneCallCountAfterTargetReturn > 0
+                                && !IsReturnedAdditionalCostPaymentUnit(state, stackItem, targetObjectId))
                             {
                                 var runeCallResult = CallRunes(
                                     playerZones,
@@ -26251,7 +26398,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             targetObjectId,
                             normalReturnedOwnerPlayerId,
                             normalReturnedWasEquipment));
-                        if (behavior.RuneCallCountAfterTargetReturn > 0)
+                        if (behavior.RuneCallCountAfterTargetReturn > 0
+                            && !IsReturnedAdditionalCostPaymentUnit(state, stackItem, targetObjectId))
                         {
                             var runeCallResult = CallRunes(
                                 playerZones,
@@ -26436,12 +26584,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (winnerPlayerId is null && behavior.CreatedBaseEquipmentTokenCount > 0)
         {
+            var tokenRecipientId = behavior.CreatedBaseEquipmentTokenForTargetController
+                ? targetControllerDrawRecipientIds.LastOrDefault() ?? stackItem.ControllerId
+                : stackItem.ControllerId;
             CreateBaseEquipmentTokens(
                 playerZones,
                 cardObjects,
                 behavior,
                 stackItem,
-                events);
+                events,
+                recipientPlayerId: tokenRecipientId);
         }
 
         if (winnerPlayerId is null && behavior.CreatedBattlefieldEquipmentTokenCount > 0)
@@ -26490,6 +26642,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
             if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
+        }
+
+        if (behavior.BurnAfterEffectCount > 0)
+        {
+            var burn = ApplyBurnToPlayer(state, playerZones, cardObjects, playerScores, stackItem.ControllerId,
+                behavior.BurnAfterEffectCount * stackItem.EffectRepeatCount, rngCursor, stackItem, events);
+            playerScores = burn.PlayerScores; rngCursor = burn.RngCursor; winnerPlayerId = burn.WinnerPlayerId;
         }
 
         // CN 321: repeats belong to one resolving item; lethal cleanup waits
@@ -28598,7 +28757,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.SourceObjectId, gearId, unitId, behavior.EffectKind, events, out locations);
     }
 
-    private static void ApplyDamageToBattlefieldUnits(
+    private static void ApplyDamageToFieldUnits(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -28617,12 +28776,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
-        foreach (var targetObjectId in GetBattlefieldUnitObjectIds(playerZones, cardObjects))
+        var instructionState = current with { CardObjects = cardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
+        var targets = behavior.DamagesAllBaseUnits
+            ? GetFieldUnitObjectIds(playerZones, cardObjects).Where(id => IsBaseObject(current, id)).ToArray()
+            : GetBattlefieldUnitObjectIds(playerZones, cardObjects);
+        foreach (var targetObjectId in targets)
         {
             // Controller-wide bonuses are already included once by the caller.
             // Each actual recipient supplies only its own battlefield modifier.
             var targetDamage = IsSpellPlayBehavior(behavior) || stackItem.SourceConfirmed
-                ? ApplyBattlefieldTargetSpellSkillDamageBonus(current, targetObjectId, damageAmount)
+                ? ApplyBattlefieldTargetSpellSkillDamageBonus(instructionState, targetObjectId, damageAmount)
                 : damageAmount;
             var damageApplication = ApplyDamageToCardObject(
                 current,
@@ -29001,9 +29164,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         List<GameEvent> events,
-        int tokenCountOverride = 0)
+        int tokenCountOverride = 0,
+        string? recipientPlayerId = null)
     {
-        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        recipientPlayerId ??= stackItem.ControllerId;
+        if (!playerZones.TryGetValue(recipientPlayerId, out var zones))
         {
             return;
         }
@@ -29034,8 +29199,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var tokenState = hasTokenDefinition
                 ? tokenDefinition.CreateObject(
                     tokenObjectId,
-                    stackItem.ControllerId,
-                    stackItem.ControllerId,
+                    recipientPlayerId,
+                    recipientPlayerId,
                     behavior.CreatedBaseEquipmentTokenIsExhausted) with
                 {
                     Tags = resolvedTokenTags
@@ -29044,12 +29209,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     tokenObjectId,
                     isExhausted: behavior.CreatedBaseEquipmentTokenIsExhausted,
                     tags: resolvedTokenTags,
-                    ownerId: stackItem.ControllerId,
-                    controllerId: stackItem.ControllerId);
+                    ownerId: recipientPlayerId,
+                    controllerId: recipientPlayerId);
             tokenState = ApplyTokenEntryStaticAbility(
                 playerZones,
                 cardObjects,
-                stackItem.ControllerId,
+                recipientPlayerId,
                 tokenObjectId,
                 tokenState,
                 out var entersReadyFromStaticAbility,
@@ -29059,7 +29224,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects[tokenObjectId] = tokenState;
             var payload = new Dictionary<string, object?>
             {
-                ["playerId"] = stackItem.ControllerId,
+                ["playerId"] = recipientPlayerId,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenName"] = behavior.CreatedBaseEquipmentTokenName,
@@ -29087,7 +29252,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload), playerZones, cardObjects, tokenState, stackItem.ControllerId));
         }
 
-        playerZones[stackItem.ControllerId] = zones with
+        playerZones[recipientPlayerId] = zones with
         {
             Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
         };
@@ -30919,6 +31084,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return behavior.PowerModifierAmount * CountEnemyBattlefieldUnits(playerZones, cardObjects, controllerId);
         }
 
+        if (behavior.UsesControlledExhaustedUnitCountAsPowerModifierMultiplier)
+        {
+            return behavior.PowerModifierAmount * CountControlledExhaustedUnits(playerZones, cardObjects, controllerId);
+        }
+
         if (!string.IsNullOrWhiteSpace(behavior.PowerModifierControlledUnitTags))
         {
             return CountControlledUnitTagKinds(
@@ -31912,6 +32082,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             wasEquipment ? "EQUIPMENT_RETURNED_TO_HAND" : "UNIT_RETURNED_TO_HAND",
             wasEquipment ? $"{displayName}让装备返回手牌" : $"{displayName}让单位返回手牌",
             payload);
+    }
+
+    private static bool IsReturnedAdditionalCostPaymentUnit(
+        MatchState state,
+        StackItemState resolvingItem,
+        string targetObjectId)
+    {
+        // A response can return the unit that paid an unresolved spell's
+        // mandatory exhaust cost. That response has already consumed its
+        // rune-call continuation in the same payment chain; do not create a
+        // second continuation for the returned payment object.
+        return state.StackItems.Any(item =>
+            !string.Equals(item.StackItemId, resolvingItem.StackItemId, StringComparison.Ordinal)
+            && item.OptionalCosts.Any(cost =>
+                TryParseExhaustFriendlyUnitOptionalCost(cost, out var paymentObjectId)
+                && string.Equals(paymentObjectId, targetObjectId, StringComparison.Ordinal)));
     }
 
     private static bool TryReturnTargetToHand(
@@ -33425,10 +33611,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.DamageAmountFromTargetMarkedDamage)
             damageAmount = targetObjectId is not null && state.CardObjects.TryGetValue(targetObjectId, out var markedTarget)
                 ? Math.Max(0, markedTarget.Damage) : 0;
-        else if (behavior.DamageAmountFromFirstTargetManaCost
-            && stackItem.TargetObjectIds.Count > 0
-            && state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var firstTargetState))
+        else if (behavior.DamageAmountFromFirstTargetManaCost)
         {
+            // CN 359.3.e.12: an illegal reference supplies no information.
+            // Ignoring that instruction also excludes damage bonuses; a legal
+            // zero-cost reference still supplies zero and receives bonuses.
+            if (stackItem.TargetObjectIds.Count == 0
+                || !state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var firstTargetState)) return 0;
             damageAmount = firstTargetState.ManaCost;
         }
         else if (behavior.ConditionalDamageAmount > 0
