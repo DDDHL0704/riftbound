@@ -71,11 +71,11 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             var recyclableSpell = game.Hand("P2", "OGN·004/298").First();
             await game.Act("P2", new PlayCardCommand(recyclableSpell, "OGN·004/298", [source])); await game.Top();
             Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(new[] { recyclableSpell }, game.State.PlayerZones["P2"].Graveyard);
-            // The opening checkpoint above and the post-exhaustion checkpoint
-            // below cover this same accepted setup history. Keep the command
-            // assertions here, then recover once after the held-point phase
-            // instead of replaying the growing journal at this intermediate
-            // boundary.
+            // The opening checkpoint above and the later
+            // post-exhaustion/burnout checkpoint cover this same accepted
+            // setup history. Keep the command assertions here, then recover
+            // once after the held-point phase instead of replaying the growing
+            // journal at this intermediate boundary.
             var holdWindow = winOnDraw ? 6 : 4;
             for (var i = 0; ; i++)
             {
