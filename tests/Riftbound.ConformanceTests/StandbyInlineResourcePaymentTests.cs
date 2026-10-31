@@ -19,6 +19,7 @@ public sealed class StandbyInlineResourcePaymentTests
         Assert.Contains(candidate.OptionalCosts!, c => c.Id == "RECYCLE_RUNE:HIDE-RUNE");
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
         Assert.Single(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]));
+        Assert.Equal(1, requirement["requiredOptionalCostChoiceCount"]);
         Assert.Contains(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]), c => c.Id == "RECYCLE_RUNE:HIDE-RUNE");
         var driver = new Driver(initial);
         await driver.Act("P1", Command(["STANDBY_A", "RECYCLE_RUNE:HIDE-RUNE"]));
@@ -62,7 +63,7 @@ public sealed class StandbyInlineResourcePaymentTests
         var result = await new CoreRuleEngine().ResolveAsync(initial, new("hide-rejected", "P1", command.CmdType), command, default);
         Assert.False(result.Accepted);
         Assert.Equal(boundary == "insufficient" ? ErrorCodes.InsufficientCost
-            : boundary is "missing-fee" or "two-fees" ? ErrorCodes.UnsupportedCardBehavior : ErrorCodes.InvalidTarget, result.ErrorCode);
+            : boundary is "missing-fee" or "two-fees" ? ErrorCodes.InvalidPayload : ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
         Assert.Equal(before, MatchStateHasher.Hash(initial));

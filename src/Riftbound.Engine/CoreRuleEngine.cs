@@ -18084,7 +18084,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayCardCommand command,
         out PlayCardPlan plan,
         out ResolutionResult rejection,
-        bool includeRejectionProjections = true, bool validateRepeats = true)
+        bool includeRejectionProjections = true, bool validateRepeats = true, bool previewWithoutTargets = false)
     {
         ResolutionResult Reject(MatchState rejectedState, string message, string code)
             => includeRejectionProjections ? RejectWithCorePrompts(rejectedState, message, code)
@@ -18253,7 +18253,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds,
             out targetObjectIds);
         var targetScope = PlayCardTargetScopeForBehavior(behavior);
-        if (!HasLegalDeclaredTargets(state, intent.PlayerId, command.SourceObjectId, behavior, targetObjectIds, targetScope))
+        var legalTargets = HasLegalDeclaredTargets(state, intent.PlayerId, command.SourceObjectId, behavior, targetObjectIds, targetScope);
+        var incompleteTargets = previewWithoutTargets
+            && targetObjectIds.Count == 0
+            && !behavior.TargetScopeIsExplicit
+            && string.Equals(targetScope, CardTargetScopes.BattlefieldUnit, StringComparison.Ordinal)
+            && !legalTargets;
+        if (!incompleteTargets && !legalTargets)
         {
             rejection = Reject(
                 state,
@@ -18423,7 +18429,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!(HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts))
+        if (!incompleteTargets && !(HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts))
             && !HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
         {
             rejection = Reject(
@@ -18579,7 +18585,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!AreTargetCostsAtMostDestroyedAdditionalCostUnit(
+        if (!incompleteTargets && !AreTargetCostsAtMostDestroyedAdditionalCostUnit(
                 state,
                 behavior,
                 targetObjectIds,
@@ -18603,7 +18609,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         IReadOnlyList<SpellExecutionState>? repeatExecutions = null;
-        if (validateRepeats && !TryBuildRepeatExecutions(state, intent, command, behavior, targetObjectIds,
+        if (validateRepeats && !incompleteTargets && !TryBuildRepeatExecutions(state, intent, command, behavior, targetObjectIds,
                 effectRepeatCount, out repeatExecutions, out var repeatError))
         {
             rejection = Reject(state, repeatError, ErrorCodes.InvalidTarget);
@@ -18810,7 +18816,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentPlan,
             paymentAdjustedPool,
             currentExperience,
-            originalExtraManaCost) { RepeatExecutions = repeatExecutions,
+            originalExtraManaCost) { RequiresTargetSelection = incompleteTargets, RepeatExecutions = repeatExecutions,
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = selectedPower.Reduction - battlefieldSpellPowerReduction,
@@ -34981,6 +34987,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int AvailableExperience,
         int AdditionalManaCost)
     {
+        public bool RequiresTargetSelection { get; init; }
         public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
