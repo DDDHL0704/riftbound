@@ -19,6 +19,26 @@ public sealed partial class CoreRuleEngine
     private static bool UnitTokenLocationChoiceGranted(IReadOnlyList<string>? effects, string player)
         => ActiveUnitPlayGrants(effects, player, "PLAY_BOON").Any(GrantsAnyUnitPlayBattlefield);
 
+    private static bool ShouldOfferUnitTokenLocationChoice(MatchState state, string player, string? cardNo,
+        string family, Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
+        Dictionary<string, RunePool> pools, CardBehaviorDefinition? behavior = null)
+    {
+        if (!UnitTokenInstructionAllowsLocationChoice(cardNo, family)) return false;
+        // Entry-trigger tokens and Rengar's unit-play window consume the token
+        // immediately; their follow-up choice must stay ahead of a destination
+        // menu. Ordinary token plays retain the normal base/battlefield choice.
+        if (behavior is { CreatedTokenReadyCount: > 0 } || behavior?.CreatedBaseUnitTokenPerEquipment == true
+            || ControllerHasRengarLegend(state, player)) return false;
+        // An outside-hand haste grant has its own pre-entry payment window. Do
+        // not interleave an ordinary destination choice before that payment,
+        // including when the grant source is hidden, controlled by the other
+        // player, or has just left the field while the token play is resolving.
+        if (cards.Values.Any(card => (card.OwnerId == player || card.ControllerId == player)
+                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var grant)
+                && grant.GrantsHasteToFriendlyUnitsPlayedOutsideHand)) return false;
+        return true;
+    }
+
     private static string? ChooseUnitTokenBattlefield(MatchState state, string player, string family,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         IReadOnlyDictionary<string, ObjectLocationState> locations, IReadOnlyDictionary<string, RunePool> pools,

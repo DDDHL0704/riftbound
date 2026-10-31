@@ -22,12 +22,13 @@ public sealed partial class CoreRuleEngine
             var id = NextTokenObjectId(zones, cards, visibleSource == "HIDDEN" ? item.ControllerId + "-PUBLIC" : visibleSource, i + 1);
             var token = factory.CreateObject(id, item.ControllerId, item.ControllerId, isExhausted: !entersReady);
             token = token with { Tags = ApplyAzirSandSoldierTemperedTags(zones, cards, item.ControllerId, token.Tags) };
-            var entryField = battlefieldId;
-            if (entryField is null && UnitTokenInstructionAllowsLocationChoice(item.CardNo, factory.TokenFamilyName))
-                entryField = ChooseUnitTokenBattlefield(state, item.ControllerId, factory.TokenFamilyName,
-                    zones, cards, locations, pools, state.UntilEndOfTurnEffects);
             var hastePaid = ChooseTokenHaste(state, item.ControllerId, item.SourceObjectId, token, zones, cards, pools, events);
             if (hastePaid) token = token with { IsExhausted = false };
+            var entryField = battlefieldId;
+            if (entryField is null && ShouldOfferUnitTokenLocationChoice(state, item.ControllerId, item.CardNo,
+                    factory.TokenFamilyName, zones, cards, pools))
+                entryField = ChooseUnitTokenBattlefield(state, item.ControllerId, factory.TokenFamilyName,
+                    zones, cards, locations, pools, state.UntilEndOfTurnEffects);
             token = ApplyUnitTokenEntryStaticAbility(zones, cards, item.ControllerId, id, token,
                 out var ready, out var staticSourceId, out var staticSource, out var staticAbility, entryField);
             cards[id] = token;
