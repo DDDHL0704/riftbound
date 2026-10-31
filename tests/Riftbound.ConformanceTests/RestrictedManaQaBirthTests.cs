@@ -86,7 +86,11 @@ public sealed class RestrictedManaQaBirthTests
         {
             var hash = MatchStateHasher.Hash(State());
             var node = JsonSerializer.SerializeToNode(command, command.GetType(), Web)!.AsObject();
-            node["promptId"] = session.PromptFor(player).PromptId; node["snapshotTick"] = State().Tick;
+            if (accepted)
+            {
+                node["promptId"] = session.PromptFor(player).PromptId;
+                node["snapshotTick"] = State().Tick;
+            }
             if (!accepted) { node["manaPurpose"] = "PLAY_SPELL"; node["spellOnlyMana"] = 99; }
             var raw = JsonSerializer.SerializeToElement(node); command = GameCommandJsonMapper.Map(raw);
             var id = "restricted-birth-" + journal.Entries.Count;
