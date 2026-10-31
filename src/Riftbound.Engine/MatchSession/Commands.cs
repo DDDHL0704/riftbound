@@ -147,6 +147,58 @@ public sealed partial class MatchSession
         return false;
     }
 
+    private static bool TryRejectUnavailablePromptAction(
+        MatchState state,
+        string playerId,
+        GameCommand command,
+        JsonElement? rawCommand,
+        out ResolutionResult rejection)
+    {
+        rejection = default!;
+        if (rawCommand is not { ValueKind: JsonValueKind.Object } raw)
+        {
+            return false;
+        }
+
+        var hasPromptId = TryReadStringProperty(raw, "promptId", out var submittedPromptId);
+        var hasSnapshotTick = TryReadLongProperty(raw, "snapshotTick", out var submittedSnapshotTick);
+        if (!hasPromptId && !hasSnapshotTick)
+        {
+            return false;
+        }
+
+        // TryRejectStalePrompt has already accepted each supplied freshness
+        // component. Match the components together here so a prompt id and a
+        // snapshot tick that belong to different current prompt variants do
+        // not authorize an action accidentally.
+        var currentPrompts = BuildPromptFreshnessCandidates(state, playerId)
+            .Where(currentPrompt =>
+                (!hasPromptId || string.Equals(submittedPromptId, currentPrompt.PromptId, StringComparison.Ordinal))
+                && (!hasSnapshotTick || submittedSnapshotTick == currentPrompt.SnapshotTick))
+            .ToArray();
+        // Snapshot-only envelopes are also used by legacy native callers for
+        // phase-level validation. A prompt id is the client-side commitment
+        // that identifies the exact candidate list; without it, retain the
+        // old wait-prompt behavior while still protecting an actionable prompt.
+        if (!hasPromptId && !currentPrompts.Any(currentPrompt => currentPrompt.Actionable))
+        {
+            return false;
+        }
+        if (currentPrompts.Any(currentPrompt =>
+                currentPrompt.Candidates?.Any(candidate =>
+                    string.Equals(candidate.Action, command.CmdType, StringComparison.Ordinal)
+                    && candidate.Enabled) == true))
+        {
+            return false;
+        }
+
+        rejection = ResolutionResult.Rejected(
+            state,
+            "当前操作未在行动提示中提供，请按最新提示重新提交。",
+            ErrorCodes.PromptExpired);
+        return true;
+    }
+
     private static IReadOnlyList<ActionPromptDto> BuildPromptFreshnessCandidates(MatchState state, string playerId)
     {
         var currentPrompt = ResolutionResult.BuildPrompts(state)[playerId];
