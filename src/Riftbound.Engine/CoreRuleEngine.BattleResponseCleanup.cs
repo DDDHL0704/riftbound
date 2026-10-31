@@ -66,7 +66,7 @@ public sealed partial class CoreRuleEngine
             new Dictionary<string, object?> { ["playerId"] = winner, ["legendCardNo"] = legend,
                 ["trigger"] = "BATTLE_WON_DRAW_ONE", ["sourceObjectId"] = attackers.FirstOrDefault(),
                 ["attackerObjectId"] = attackers.FirstOrDefault(), ["defenderObjectIds"] = defenders.ToArray() }));
-        var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, winner, 1, state.RngCursor, events);
+        var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, winner, 1, state.RngCursor, events);
         return state with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores, RngCursor = draw.RngCursor,
             Status = draw.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = draw.WinnerPlayerId ?? state.WinnerPlayerId };
