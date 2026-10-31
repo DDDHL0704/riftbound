@@ -10,15 +10,16 @@ public sealed class TranspositionMageActivatedAbilityTests
     private const string CardNo = "RAD·115/167";
     private const string AbilityId = P4ActivatedAbilityCatalog.TranspositionMageAbilityId;
 
-    private static MatchState Position(bool eligibleHandUnit = true, int handPower = 4)
+    private static MatchState Position(bool eligibleHandUnit = true, int handPower = 4, bool targetOwnedByOpponent = false)
     {
+        var targetOwnerId = targetOwnedByOpponent ? "P2" : "P1";
         var cards = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
             ["BF"] = new("BF", cardNo: "OGN·278/298", ownerId: "P1", controllerId: "P1",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
             ["MAGE"] = new("MAGE", manaCost: 6, power: 4, cardNo: CardNo, ownerId: "P1", controllerId: "P1",
                 tags: [CardObjectTags.UnitCard]),
-            ["TARGET"] = new("TARGET", manaCost: 2, power: 4, cardNo: "TEST·UNIT", ownerId: "P1", controllerId: "P1",
+            ["TARGET"] = new("TARGET", manaCost: 2, power: 4, cardNo: "TEST·UNIT", ownerId: targetOwnerId, controllerId: "P1",
                 tags: [CardObjectTags.UnitCard]),
             ["PLAY"] = new("PLAY", manaCost: 6, power: handPower, cardNo: eligibleHandUnit ? CardNo : "TEST·SPELL",
                 ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard])
@@ -93,6 +94,22 @@ public sealed class TranspositionMageActivatedAbilityTests
         Assert.Empty(game.State.StackItems);
         Assert.Contains(game.Events(), item => item.Event.Kind == "ABILITY_NO_EFFECT"
             && Equals(item.Event.Payload["reason"], "NO_ELIGIBLE_HAND_UNIT"));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ControlledForeignOwnedTargetReturnsToItsOwnersHand()
+    {
+        var game = new Driver(Position(targetOwnedByOpponent: true));
+        await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]));
+        await game.Top();
+
+        Assert.Contains("TARGET", game.State.PlayerZones["P2"].Hand);
+        Assert.DoesNotContain("TARGET", game.State.PlayerZones["P1"].Hand);
+        Assert.NotNull(game.State.PendingEffectPlay);
+        Assert.Equal(["PLAY"], game.State.PendingEffectPlay!.Sources.Keys.ToArray());
+        await game.Act("P1", new PlayCardCommand("PLAY", CardNo, [], Destination: "BASE"));
+        Assert.Contains("PLAY", game.State.PlayerZones["P1"].Base);
         await game.Replay();
     }
 
