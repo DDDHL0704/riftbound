@@ -41,7 +41,7 @@
   - [x] **P1-4a 支付窗口里允许横置符文（S5）**。`PAY_COST` 的 `paymentChoiceIds` 现可携带 `TAP_RUNE:<objectId>`，在同一原子结算中横置符文并继续支付，恢复与回放投影也同步可用候选。依据：204.4.b.1、430.3。
   - [x] **P1-4b 传奇技能和主动技能的候选按可横置、可回收的符文计算（S2 末尾）**。`LEGEND_ACT`、`ACTIVATE_ABILITY` 现计入可横置和可回收的符文，并在同一原子命令中按提交顺序应用横置、回收及传奇资源行动；容量、非法来源、重复和回放均由共享支付流程校验。依据：204.4.b.1、430.3。
   - [x] **P1-4c 询价失败时返回具体原因（S4）**。费用询价现在保留具体拒绝原因；缺少必选目标时返回已知费用并标注目标相关费用。依据：204.4.b.1、430.3。
-  - [ ] **P1-4d 拒绝原因改中文（S6）**。`CoreRuleEngine.cs` 里的 "Invalid printed power allocation."、"Payment resource actions are not required to play …"、"Not enough mana / power / experience / resources to play …" 改成中文，错误码不变。
+  - [x] **P1-4d 拒绝原因改中文（S6）**。`CoreRuleEngine.cs` 里的 "Invalid printed power allocation."、支付资源动作无效、"Not enough mana / power / experience / resources to play …" 已改成中文，错误码不变。
   - [ ] **P1-4e 待命布置费用标明单选，并修正错误码（S7）**。`HIDE_CARD` 的费用选项在提示元数据里标明"必选 1 个"；`CoreRuleEngine.Standby.cs` 中"不能以该费用进行待命埋伏"的错误码从 `UNSUPPORTED_CARD_BEHAVIOR` 改为 `INVALID_PAYLOAD`。
   - [ ] **P1-4f 提示里没提供的命令统一返回"已过期 / 未提供"（S8）**。命令类型不在当前提示的已启用候选里时，返回 `PROMPT_EXPIRED` 或专门的错误码，不再进入该命令的阶段检查。
   - [x] **P1-4g 出牌时多回收的符文被拒绝（S3）**。支付期间主动回收符文属于自愿获取资源，允许获取多于当前费用所需的符能；实际费用仍须满足指定特性，非法、重复、非本方、错误区域或未付足原费继续拒绝。PR #131 已合入。依据中国区核心规则 164.2.b、166–168、204.4.b.1、430.3。
