@@ -27,7 +27,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
     var node=JsonSerializer.SerializeToNode(play,Json)!.AsObject();node["promptId"]=game.PromptFor(enemy).PromptId;node["snapshotTick"]=game.State.Tick;
     var bad=new ConformanceCommand(enemy,"paid-ward-one-short-"+actor,JsonSerializer.SerializeToElement(node,Json));
     await game.ActRetained(bad,false);Assert.Equal(7,game.State.RunePools[enemy].Mana);Assert.Equal(1,game.State.RunePools[enemy].TotalPower);Assert.Contains(spell,game.State.PlayerZones[enemy].Hand);
-    await game.Act(enemy,new RecycleRuneCommand(Arena.Rune(enemy,1)));await game.ActRetained(bad,false);
+    await game.Act(enemy,new RecycleRuneCommand(Arena.Rune(enemy,1)));await game.ColdCheckpoint();await game.ActRetained(bad,false);
     Assert.Equal(7,game.State.RunePools[enemy].Mana);Assert.Equal(2,game.State.RunePools[enemy].TotalPower);
    }
    prefix=game.Events().Length;await game.Act(enemy,play);Arena.Cost(game.Events().Skip(prefix),7,empowered?2:0);
