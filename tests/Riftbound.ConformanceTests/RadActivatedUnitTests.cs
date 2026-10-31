@@ -27,16 +27,21 @@ public sealed class RadActivatedUnitTests
                 ownerId: targetPlayer, controllerId: targetPlayer, tags: targetTags,
                 untilEndOfTurnEffects: targetEffects)
         };
+        if (enemyTarget)
+            cards["BF2"] = new("BF2", cardNo: "OGN·278/298", ownerId: "P2", controllerId: "P2",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag]);
         var locations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
         {
             ["BF"] = new("P1", "BATTLEFIELD", "BF"),
             ["SOURCE"] = new("P1", "BATTLEFIELD", "BF"),
-            ["TARGET"] = new(targetPlayer, "BATTLEFIELD", "BF")
+            ["TARGET"] = new(targetPlayer, "BATTLEFIELD", enemyTarget ? "BF2" : "BF")
         };
+        if (enemyTarget)
+            locations["BF2"] = new("P2", "BATTLEFIELD", "BF2");
         var zones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
         {
             ["P1"] = PlayerZones.Empty with { Battlefields = enemyTarget ? ["BF", "SOURCE"] : ["BF", "SOURCE", "TARGET"] },
-            ["P2"] = PlayerZones.Empty with { Battlefields = enemyTarget ? ["BF", "TARGET"] : [] }
+            ["P2"] = PlayerZones.Empty with { Battlefields = enemyTarget ? ["BF2", "TARGET"] : [] }
         };
         return new MatchState("RAD-ACTIVATED-UNITS", 0, 5, "P1",
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
