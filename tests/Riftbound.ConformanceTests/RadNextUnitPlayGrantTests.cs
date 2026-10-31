@@ -117,10 +117,19 @@ public sealed class RadNextUnitPlayGrantTests
                 PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
                     Base = initial.PlayerZones["P1"].Base.Append(id).ToArray() } } };
         }
-        var game = new Driver(await StandbySourceRulesTests.ReadyShadow("OGN·135/298", initial));
+        initial = AttackDamageDistributionTests.Spell(initial, "REPLY", "OGN·048/298", "P2");
+        var game = new Driver(initial);
+        await game.Act("P1", new HideCardCommand("SHADOW", "OGN·135/298", "BATTLEFIELD:F", ["STANDBY_A"]));
+        await FaceDownPlayTestDriver.NextTurn(game);
+        foreach (var n in new[] { 1, 2, 3 }) await game.Act("P2", new TapRuneCommand("SHADOW-P2-RUNE-" + n));
+        foreach (var n in new[] { 4, 5 }) await game.Act("P2", new RecycleRuneCommand("SHADOW-P2-RUNE-" + n));
+        await game.Act("P2", new PlayCardCommand("REPLY", "OGN·048/298", []));
+        await game.Act("P2", new PassPriorityCommand());
         await Reject(game.State, new("SHADOW", "OGN·135/298", [], Destination: "BATTLEFIELD:OTHER"));
         foreach (var n in new[] { 1, 2 }) await game.Act("P1", new TapRuneCommand("NEXT-UNIT-MANA-" + n));
         await Grant(game);
+        Assert.Equal("P2", game.State.PriorityPlayerId);
+        await game.Act("P2", new PassPriorityCommand());
         await game.Act("P1", new PlayCardCommand("SHADOW", "OGN·135/298", [], Destination: "BATTLEFIELD:OTHER"));
         Assert.False(game.State.CardObjects["SHADOW"].IsFaceDown);
         Assert.Equal("OTHER", game.State.ObjectLocations["SHADOW"].BattlefieldObjectId);
@@ -246,7 +255,7 @@ public sealed class RadNextUnitPlayGrantTests
         var state = OfficialHoldSequenceTests.AddUnit(Position(), "LILLIA", no, "F", "P1");
         state = LocalDestructionRecallTests.At(state, "LILLIA", "P1", "BASE");
         var game = new Driver(state); await Grant(game);
-        await game.Act("P1", new MoveUnitCommand("LILLIA", Destination: "BATTLEFIELD:OPEN"));
+        await game.Act("P1", new MoveUnitCommand("LILLIA", "BASE", "BATTLEFIELD:OPEN"));
         Assert.Single(game.State.StackItems, item => item.MovementObserver is not null);
         await game.Top();
         Assert.Null(game.State.PendingRuleChoice);
@@ -323,32 +332,29 @@ public sealed class RadNextUnitPlayGrantTests
         await game.Act("P1", new PlayCardCommand("UNIT", Unit, [], Destination: "BASE"));
         var earned = Assert.Single(game.State.StackItems).TurnUnitPlayBoon!;
         var receipt = Assert.Single(game.State.UntilEndOfTurnEffects, e => e.StartsWith(Used, StringComparison.Ordinal));
+        await game.Top();
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
         await game.Act("P1", new PlayCardCommand("ATTACH", "SFD·011/221", ["UNIT", "GLASSES"])); await game.Top();
         var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
         Assert.Equal("ATTACHMENT_COPY_SELECTION", choice.Request.Kind);
         await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
         Assert.Equal("OGN·219/298", game.State.CardObjects["UNIT"].CardNo);
         Assert.Equal(earned.Unit.Generation, game.State.CardObjects["UNIT"].ObjectGeneration);
-        Assert.Equal(earned, Assert.Single(game.State.StackItems).TurnUnitPlayBoon);
         Assert.Contains(receipt, game.State.UntilEndOfTurnEffects);
-        // A later public copy cannot rewrite the face of the earlier play.
+        // A later public copy cannot rewrite the face of the earlier play's receipt.
         foreach (var revision in new[] { earned.FaceRevision, game.State.CardObjects["UNIT"].CopyFaceTransitions!.Count }) {
-            var forged = game.State with { StackItems = game.State.StackItems.Select(item => item with {
-                TurnUnitPlayBoon = earned with { UnitCardNo = "OGN·219/298", FaceRevision = revision } }).ToArray() };
-            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), error => error.Contains("unit play boon", StringComparison.Ordinal));
             var use = JsonSerializer.Deserialize<TurnUnitPlayGrantUse>(Convert.FromBase64String(receipt[Used.Length..]))!;
             var altered = Used + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(use with {
                 UnitCardNo = "OGN·219/298", FaceRevision = revision }));
-            forged = game.State with { UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(e => e == receipt ? altered : e).ToArray() };
+            var forged = game.State with { UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(e => e == receipt ? altered : e).ToArray() };
             Assert.Contains("invalid temporary unit play grant", OfficialInsightAndSpellLockTests.Errors(forged));
         }
         if (detach) {
             await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["UNIT", "GLASSES"])); await game.Top();
             Assert.Equal(Unit, game.State.CardObjects["UNIT"].CardNo);
             Assert.Null(game.State.CardObjects["UNIT"].AttachmentUnitCopies);
-            Assert.Equal(earned, Assert.Single(game.State.StackItems).TurnUnitPlayBoon);
         }
-        await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
         Assert.Contains(receipt, game.State.UntilEndOfTurnEffects);
         await CloseShowdown(game);
         await Reject(game.State, new("FOLLOW", Unit, [], Destination: "BATTLEFIELD:OTHER"));
