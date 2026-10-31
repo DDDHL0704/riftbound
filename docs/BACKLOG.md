@@ -2,8 +2,8 @@
 
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
-**当前状态（2026-10-31）**
-- **main**：最新为 `2dfa92873`（#329 文档记录）。合入 #329 后的完整运行 [41159049774](https://github.com/DDDHL0704/riftbound/actions/runs/41159049774) 九个规则分片和 `L2 required` 全部通过，墙钟约 35 分钟；主干完整验证恢复，但 P3-2 的 30 分钟目标仍未达到。最新定时夜验 [41136063296](https://github.com/DDDHL0704/riftbound/actions/runs/41136063296) 全绿，固定 `3959436b`；PostgreSQL 分区 0 用时约 218 分钟，见 P0-2 的 SQL 资源采样记录。
+**当前状态（2026-11-01）**
+- **main**：最新为 `7766f6bed`（#349）。固定基准运行 [41159049774](https://github.com/DDDHL0704/riftbound/actions/runs/41159049774) 的九个规则分片和 `L2 required` 全部通过，墙钟约 35 分钟；主干完整验证恢复，但 P3-2 的 30 分钟目标仍未达到。最新定时夜验 [41136063296](https://github.com/DDDHL0704/riftbound/actions/runs/41136063296) 全绿，固定 `3959436b`；PostgreSQL 分区 0 用时约 218 分钟，见 P0-2 的 SQL 资源采样记录。
 - **夜间验收**：完整验收 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 已连续三次全绿，P0-2 达标；之后只依靠每晚定时运行，失败时按 P0-2 登记。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
