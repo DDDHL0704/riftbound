@@ -51,7 +51,9 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0,
     bool TransfersSourceToChosenPlayer = false,
     bool CommandsOpponentUnitToSourceBattlefield = false,
-    bool ReturnsFriendlyUnitThenFreePlayUpToPower = false);
+    bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
+    bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
+    bool StunsTarget = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -260,6 +262,14 @@ public static class P4ActivatedAbilityCatalog
     public const string TranspositionMageAbilityId = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
     public const string TranspositionMageAbilityEffectKind = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
 
+    public const string PrismwingFlockCardNo = "RAD·027/167";
+    public const string PrismwingFlockAbilityId = "RAD_027_GRANT_BOON_OR_POWER";
+    public const string PrismwingFlockAbilityEffectKind = "RAD_027_GRANT_BOON_OR_POWER";
+
+    public const string RelentlessStalkerCardNo = "RAD·104/167";
+    public const string RelentlessStalkerAbilityId = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
+    public const string RelentlessStalkerAbilityEffectKind = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
         new(LanternDragonAbilityId, LanternDragonCardNo, LanternDragonAbilityEffectKind, "提灯亚龙", 0, 0, 1,
@@ -275,6 +285,18 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Purple] = 1 },
             SourceRequiredTag: CardObjectTags.UnitCard,
             SimpleEffect: new(ReturnsFriendlyUnitThenFreePlayUpToPower: true)),
+        new(PrismwingFlockAbilityId, PrismwingFlockCardNo, PrismwingFlockAbilityEffectKind, "幻彩飞禽", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: true,
+            Reason: "官方中文：横置，给予一名单位增益；如果该单位已拥有增益，则改为给予其本回合内战力+2。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(GrantsBoonOrPower: true, ExistingBoonPowerBonus: 2)),
+        new(RelentlessStalkerAbilityId, RelentlessStalkerCardNo, RelentlessStalkerAbilityEffectKind, "无情潜伏者", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: true,
+            Reason: "官方中文：横置，眩晕一名敌方单位。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(StunsTarget: true)),
         new("GLOWING_STONE_TRANSFER", "VEN·133", "GLOWING_STONE_TRANSFER", "发光石", 0, 0, 1,
             false, true, 0, false, "解除强化并横置：选择一名玩家，该玩家获得此牌的控制权并将其召回。",
             SourceRequiredTag: CardObjectTags.EquipmentCard,

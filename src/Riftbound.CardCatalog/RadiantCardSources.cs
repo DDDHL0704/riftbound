@@ -44,6 +44,8 @@ public static class RadiantCardSources
             (Id: 39493L, CardNo: "RAD·003/167"), (Id: 39498L, CardNo: "RAD·008/167"), (Id: 39554L, CardNo: "RAD·058/167"), (Id: 39623L, CardNo: "RAD·118/167"),
             (Id: 39556L, CardNo: "RAD·060/167"), (Id: 39605L, CardNo: "RAD·103/167"), (Id: 39609L, CardNo: "RAD·107/167"),
             (Id: 39509L, CardNo: "RAD·019/167"), (Id: 39596L, CardNo: "RAD·094/167"),
+            (Id: 39520L, CardNo: "RAD·027/167"), (Id: 39606L, CardNo: "RAD·104/167"),
+            (Id: 39620L, CardNo: "RAD·115/167"),
             (Id: 39533L, CardNo: "RAD·040/167") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints().Where(card =>
