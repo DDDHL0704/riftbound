@@ -55,7 +55,7 @@ public sealed class PrintedUnitEquipmentResourceCostTests
                 var wire = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
                 wire["promptId"] = prompt.PromptId; wire["snapshotTick"] = before.Tick;
                 await game.ActRetained(new("P1", "printed-dual-rejected", JsonSerializer.SerializeToElement(wire, Json)), false);
-                Assert.Equal(ErrorCodes.UnsupportedCardBehavior, game.Commands()[^1].ErrorCode);
+                Assert.Equal(ErrorCodes.PromptExpired, game.Commands()[^1].ErrorCode);
             }
             else
             {

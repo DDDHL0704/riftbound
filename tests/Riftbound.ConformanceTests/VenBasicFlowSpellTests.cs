@@ -238,7 +238,12 @@ public sealed class VenBasicFlowSpellTests
         internal async Task Act(string player, GameCommand command)
         {
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
-            raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = State.Tick;
+            var prompt = session.PromptFor(player);
+            if (prompt.EnabledActions().Contains(command.CmdType, StringComparer.Ordinal))
+            {
+                raw["promptId"] = prompt.PromptId;
+                raw["snapshotTick"] = State.Tick;
+            }
             var wire = JsonSerializer.SerializeToElement(raw, json); command = GameCommandJsonMapper.Map(wire);
             var id = "basic-flow-" + entries.Count;
             last = (player, id, command, wire);
