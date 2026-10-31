@@ -23,13 +23,14 @@ internal static partial class ActionPromptBuilder
     private static ActivateAbilityPromptRequirement WithAbilityRunePaymentResources(
         MatchState state, string playerId, ActivateAbilityPromptRequirement requirement)
     {
-        var taps = requirement.ManaCost > 0 ? AbilityTapRunePaymentChoices(state, playerId) : [];
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        var purpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
+        var availableMana = PaymentCostRules.AvailableMana(pool, purpose, state);
+        var taps = requirement.ManaCost > availableMana ? AbilityTapRunePaymentChoices(state, playerId) : [];
         var taxed = requirement.SpellshieldTaxPowerByTargetObjectId?.Values.Any(amount => amount > 0) == true;
         var recycles = taxed ? RecycleRunePaymentResourceChoices(state, playerId, "支付目标的法盾费用") : [];
         var choices = requirement.PaymentResourceChoices.Concat(taps).Concat(recycles)
             .DistinctBy(choice => choice.Id, StringComparer.Ordinal).ToArray();
-        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
-        var purpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
         var powerPool = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability)
             ? PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability))
             : PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Other);
@@ -49,12 +50,13 @@ internal static partial class ActionPromptBuilder
     private static LegendActionPromptRequirement WithLegendRunePaymentResources(
         MatchState state, string playerId, LegendActionPromptRequirement requirement)
     {
-        var taps = requirement.ManaCost > 0 ? AbilityTapRunePaymentChoices(state, playerId) : [];
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        var availableMana = PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state);
+        var taps = requirement.ManaCost > availableMana ? AbilityTapRunePaymentChoices(state, playerId) : [];
         var recycles = requirement.PowerCost > 0
             || requirement.SpellshieldTaxPowerByTargetObjectId?.Values.Any(amount => amount > 0) == true
                 ? RecycleRunePaymentResourceChoices(state, playerId, "支付传奇技能费用") : [];
         var choices = taps.Concat(recycles).ToArray();
-        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
         var powerPool = PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Other);
         return requirement with {
             PaymentResourceChoices = choices,

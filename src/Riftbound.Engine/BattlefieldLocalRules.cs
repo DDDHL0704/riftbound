@@ -62,6 +62,13 @@ internal static class BattlefieldLocalRules
                 ? ability.Amount : 0).Sum();
 
     public static IEnumerable<CardObjectState> ControlledBy(MatchState state, string playerId) =>
-        state.BattlefieldStates.Values.Where(b => b.ControllerId == playerId)
-            .Select(b => Battlefield(state, b.BattlefieldObjectId)).OfType<CardObjectState>();
+        state.PlayerZones.Values
+            .SelectMany(zones => zones.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .Where(id => state.BattlefieldStates.TryGetValue(id, out var battlefield)
+                ? string.Equals(battlefield.ControllerId, playerId, StringComparison.Ordinal)
+                : state.CardObjects.TryGetValue(id, out var card)
+                    && string.Equals(card.ControllerId, playerId, StringComparison.Ordinal))
+            .Select(id => Battlefield(state, id))
+            .OfType<CardObjectState>();
 }
