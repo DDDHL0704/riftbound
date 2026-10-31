@@ -405,6 +405,14 @@ public sealed partial record MatchState
                 continue;
             }
 
+            if (BattlefieldContestRules.IsInitialStaticContest(
+                    state,
+                    battlefield,
+                    tasks.Any(task => IsStateBasedCleanupTask(task.Kind))))
+            {
+                continue;
+            }
+
             var initiatingPlayerId = BattlefieldContestRules.Initiator(state, battlefield);
             tasks.Add(new CleanupTaskState(
                 $"cleanup:battlefield-contested:{battlefield.BattlefieldObjectId}",

@@ -14,7 +14,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool SupportsTargetedInsightRepeat(CardBehaviorDefinition behavior)
         => behavior.PerformsInsight && behavior.RequiredTargetCount == 1 && behavior.DrawAfterInsightCount == 0
-            && (behavior.TargetScope == CardTargetScopes.AnyUnit && behavior.PowerModifierAmount != 0 && !behavior.CountersTargetStackSpell
+            && (behavior.TargetScope == CardTargetScopes.AnyUnit && (behavior.PowerModifierAmount != 0 || ResolveStatusEffectIds(behavior).Length > 0)
+                && !behavior.CountersTargetStackSpell
                 || behavior.TargetScope == CardTargetScopes.StackSpell && behavior.CountersTargetStackSpell
                     && behavior.CounteredStackItemDestination == CardCounteredStackItemDestinationZones.Hand);
 

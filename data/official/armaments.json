@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceSnapshot": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
   "sourceSha256": "cdf1fad1874125e1cd3ff148e630b713c5b2e8e6cf140b4310613e6d4b343322",
-  "scope": "Current engine prints only; separate armament effect text retained as official English source, not a claim of implemented behavior. VEN·011, VEN·027 and VEN·073 use the official Chinese 2026-10-16 catalog power fields.",
+  "scope": "Current engine prints only; separate armament effect text retained as official English source, not a claim of implemented behavior. VEN·011, VEN·027 and VEN·073 use the official Chinese 2026-10-16 catalog power fields. Chinese lower-box additions are identified in scopedAdditions; source inclusion alone does not imply implemented behavior.",
   "records": [
     {
       "cardNo": "SFD·009/221",
@@ -274,6 +274,26 @@
       "copiesChosenFriendlyUnit": true
     },
     {
+      "cardNo": "RAD·071/167",
+      "sourceCardNo": "RAD·071/167",
+      "baseMightBonus": 0,
+      "effectText": "坚守2（只要我是防守方，便战力+2。）",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20261012/c400b435b44744ef85813961007d02d4.png",
+      "grantedKeywords": [
+        "坚守2"
+      ]
+    },
+    {
+      "cardNo": "RAD·123/167",
+      "sourceCardNo": "RAD·123/167",
+      "baseMightBonus": 1,
+      "effectText": "壁垒（必须先为我分配战斗伤害。）",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20261012/9117b4465a0543c1a29c92b8dd14a2a2.png",
+      "grantedKeywords": [
+        "壁垒"
+      ]
+    },
+    {
       "cardNo": "VEN·011",
       "sourceCardNo": "VEN·011",
       "baseMightBonus": 1,
@@ -321,6 +341,18 @@
       "cnImageSha256": "fde3a9e1ec0824a952d9ab0f073c214a3a3ee62d60d20223f9939b809327c30f",
       "cnFetchedAt": "2026-10-23T20:51:01.438779+00:00",
       "scope": "Verified CN lower armament box and CN Core 373.2/719.1; typed host destruction replacement profile only, no whole-card certification or source-text replacement"
+    },
+    {
+      "cardNo": "RAD·071/167",
+      "cnSourceImage": "https://cdn.playloltcg.com/lol/card/20261012/c400b435b44744ef85813961007d02d4.png",
+      "cnImageSha256": "ba4760ba468b4e41508428e26e122a78edceeb04be9c97a75670e6fbf1e1736d",
+      "scope": "中国区官方卡图下框：基础战力修正及授予贴附单位的关键词。"
+    },
+    {
+      "cardNo": "RAD·123/167",
+      "cnSourceImage": "https://cdn.playloltcg.com/lol/card/20261012/9117b4465a0543c1a29c92b8dd14a2a2.png",
+      "cnImageSha256": "47123a01489766c1a24add48e782e3acd949312680966ebe645324361b25ecc9",
+      "scope": "中国区官方卡图下框：基础战力修正及授予贴附单位的关键词。"
     }
   ]
 }

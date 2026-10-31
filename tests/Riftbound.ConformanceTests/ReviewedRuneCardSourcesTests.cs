@@ -7,7 +7,7 @@ using Xunit;
 namespace Riftbound.ConformanceTests;
 
 // Exact official source facts and shared physical/resource paths. VEN·005/006
-// also have reviewed consumers; the separate RAD print remains source-only.
+// and the RAD print are also admitted for normal card play.
 public sealed class ReviewedRuneCardSourcesTests
 {
     [Theory]
@@ -30,8 +30,7 @@ public sealed class ReviewedRuneCardSourcesTests
         Assert.Equal(no, physical.CardNo); Assert.Equal(mana, physical.ManaCost); Assert.Equal(might, physical.Power);
         Assert.Contains(CardObjectTags.UnitCard, physical.Tags); Assert.Contains("COLOR:" + trait, physical.Tags);
         var cost = PrintedPowerCostRules.ForCard(no); Assert.Equal(0, cost.Amount); Assert.Equal([trait], cost.Traits);
-        var admitted = no is "VEN·005" or "VEN·006";
-        Assert.Equal(admitted, CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(no, out _));
         var state = new MatchState("REVIEWED-RUNE-SOURCE-ONLY", 0, 3, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(100, 100), ["P2"] = RunePool.Empty },
@@ -40,16 +39,8 @@ public sealed class ReviewedRuneCardSourcesTests
             objectLocations: new Dictionary<string, ObjectLocationState> { ["CARD"] = new("P1", "HAND") });
         var result = await new CoreRuleEngine().ResolveAsync(state, new("unregistered", "P1", CommandTypes.PlayCard),
             new PlayCardCommand("CARD", no, []), default);
-        if (admitted)
-        {
-            Assert.True(result.Accepted, result.ErrorMessage);
-            Assert.Contains("CARD", result.State.PlayerZones["P1"].Base);
-        }
-        else
-        {
-            Assert.False(result.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-            Assert.Empty(result.Events); Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
-        }
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains("CARD", result.State.PlayerZones["P1"].Base);
     }
 
     [Fact]

@@ -1161,6 +1161,7 @@ public sealed partial record MatchState
         effects.AddRange(BuildPublicFieldFriendlyPowerStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsKeywordAuraEffects(state));
+        effects.AddRange(BuildEquipmentKeywordAuraEffects(state));
         var publicFieldSourceOrders = PublicFieldSourceOrders(state);
 
         return effects
@@ -1265,6 +1266,8 @@ public sealed partial record MatchState
         string controllerId,
         StaticAuraSpec aura)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment)
+            return CoreRuleEngine.BattlefieldOtherFriendlyObjectParticipants(state, state.PlayerZones, objectId, controllerId);
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment)
             return CoreRuleEngine.SameBattlefieldFriendlyEquipmentParticipants(state, objectId, controllerId, aura);
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits)
@@ -1322,6 +1325,8 @@ public sealed partial record MatchState
 
     private static int SourceParticipantCountPowerDelta(StaticAuraSpec aura, int participantCount)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment)
+            return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1) ? aura.PowerDeltaPerParticipant : 0;
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment
             || aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits)
             return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1) ? aura.PowerDeltaPerParticipant : 0;
@@ -2935,7 +2940,7 @@ internal static partial class ActionPromptBuilder
             {
                 continue;
             }
-            if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
                 && !CoreRuleEngine.IsPowerAbilitySource(state, playerId, sourceObjectId, ability)) continue;
             if (ability.SimpleEffect is not null
                 && !CoreRuleEngine.IsSimpleAbilitySource(state, playerId, sourceObjectId, ability)) continue;
@@ -3766,6 +3771,7 @@ internal static partial class ActionPromptBuilder
         return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
             .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex, behavior.CanCounterAbilities)
                 && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
+                && CoreRuleEngine.IsTargetManaCostAllowed(state, playerId, objectId, behavior)
                 && CoreRuleEngine.StandbyTargetAllowed(state, behavior, objectId, targetIndex)
                 && CoreRuleEngine.IsMovementEquipmentCandidate(state, behavior, objectId, targetIndex)
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
@@ -3880,6 +3886,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
                 || IsPromptEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
+            CardTargetScopes.AnyUnitOrEquipment => CoreRuleEngine.IsFieldUnitOrEquipment(state, objectId),
             CardTargetScopes.UnitEquipmentOrRune => CoreRuleEngine.IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
@@ -3914,6 +3921,9 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
                 ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
                 : IsPromptEnemyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit => targetIndex == 0
+                ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
+                : IsPromptBattlefieldObject(state, objectId) && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
                 : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
@@ -4106,6 +4116,7 @@ internal static partial class ActionPromptBuilder
                 var label = parts[0] switch {
                     "DESTROY_FRIENDLY_POWERFUL_UNIT" => "摧毁友方强力单位", "DESTROY_FRIENDLY_TRAIT_UNIT" => "摧毁符合属性的友方单位",
                     "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", "RETURN_FRIENDLY_UNIT" => "返回友方单位",
+                    "EXHAUST_FRIENDLY_UNIT" => "横置友方单位",
                     _ => "摧毁友方单位" };
                 return new ActionPromptChoiceDto(cost, $"{label}：{choice.Label}", choice.Reason);
             }));
@@ -5338,6 +5349,13 @@ internal static partial class ActionPromptBuilder
             ["composable"] = true,
             ["unsupportedReason"] = string.Empty
         };
+        var requiredAdditionalCosts = CoreRuleEngine.MandatoryPlayAdditionalCostCount(behavior);
+        if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) && requiredAdditionalCosts > 0)
+        {
+            var mandatoryIds = CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).ToHashSet(StringComparer.Ordinal);
+            requirement["additionalCostChoices"] = optionalCostChoices.Where(choice => mandatoryIds.Contains(choice.Id)).ToArray();
+            requirement["requiredAdditionalCostChoiceCount"] = requiredAdditionalCosts;
+        }
         var spellPowerReductionChoices = CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior);
         if (spellPowerReductionChoices.Count > 0) requirement["spellPowerReductionChoices"] = spellPowerReductionChoices;
         if (paymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
@@ -5492,6 +5510,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.BattlefieldUnitOrEquipment => "战场单位或装备",
             CardTargetScopes.BaseUnit => "基地单位",
             CardTargetScopes.AnyUnit => "任意单位",
+            CardTargetScopes.AnyUnitOrEquipment => "单位或装备",
             CardTargetScopes.UnitEquipmentOrRune => "单位、装备或符文",
             CardTargetScopes.AnyEmpoweredUnit => "已强化单位",
             CardTargetScopes.FriendlyUnit => "友方单位",
@@ -5506,6 +5525,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",
             CardTargetScopes.FriendlyEquipment => "友方装备",
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "友方装备，然后敌方装备",
+            CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit => "友方装备，然后战场单位",
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "友方战场单位，然后结算链法术",

@@ -945,7 +945,7 @@ public static class TriggerParser
         trigger = default!;
         var match = Regex.Match(
             text,
-            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[0-9一两二三四五六七八九十]+)\{\{S\}\}的?“(?<name>[^”]+)”到你的基地(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?",
+            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[0-9一两二三四五六七八九十]+)\{\{S\}\}的?“(?<name>[^”]+)”(?:单位指示物)?到你的基地(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?",
             RegexOptions.CultureInvariant);
         if (!match.Success)
         {
@@ -1056,6 +1056,16 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var playedHereToken = Regex.Match(segment,
+            @"^当你打出我时，在此处打出(?:一名|一个)(?<ready>活跃的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”单位指示物。?$",
+            RegexOptions.CultureInvariant);
+        if (playedHereToken.Success)
+            return new(TriggerKinds.SourceUnitPlayedOrScoredCreateUnit, TriggerTimings.SourceUnitPlayed, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: 1,
+                CreatedTokenName: playedHereToken.Groups["name"].Value,
+                CreatedTokenPower: int.Parse(playedHereToken.Groups["might"].Value, CultureInfo.InvariantCulture),
+                CreatedTokenDestination: TriggerTokenDestinations.SourceLocation,
+                CreatedTokenExhausted: !playedHereToken.Groups["ready"].Success);
         if (segment == "当你打出我时，或每回合首次你打出一件非指示物装备时，你可以选择让除我以外且处于休眠状态的一个物体变为活跃状态")
             return new(TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject, TriggerTimings.SourcePlayedOrFirstEquipmentPlayed,
                 segment, TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, Optional: true,
@@ -1397,7 +1407,7 @@ public static class TriggerParser
 
         var unitLastBreathCreateBaseUnitMatch = Regex.Match(
             segment,
-            @"(?:\{\{绝念>?\}\}\s*[—-]?\s*)?打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”到你的基地(?:，它拥有\{\{([^}]+)\}\})?。?$",
+            @"(?:\{\{绝念>?\}\}\s*[—-]?\s*)?打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”(?:单位指示物)?到你的基地(?:，它拥有\{\{([^}]+)\}\})?。?$",
             RegexOptions.CultureInvariant);
         if (unitLastBreathCreateBaseUnitMatch.Success)
         {
@@ -2805,6 +2815,7 @@ public static class ActivatedAbilityParser
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
                 if (TryParseSourceBoonMight(cost, effect, out var boonMight)) return boonMight;
+                if (TryParseTargetedExhaustEffect(cost, effect, out var targetedEffect)) return targetedEffect;
                 if (TryParseManaSelfMight(cost, effect, out var selfMight))
                     return selfMight;
                 if (TryParseRecycleGraveyardSelfMight(cost, effect, out var recycledMight))
@@ -2961,6 +2972,30 @@ public static class ActivatedAbilityParser
             Kind: ActivatedAbilityKinds.SwiftSwapSelfWithNamedControlledUnit, ManaCost: mana, PowerCost: 1,
             PowerCostTrait: trait, RequiredTargetCount: 1, TargetScope: "NAMED_CONTROLLED_UNIT",
             TargetUnitName: effectMatch.Groups["name"].Value);
+        return true;
+    }
+
+    private static bool TryParseTargetedExhaustEffect(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        if (cost is not ("{{T}}" or "{{横置}}")) return false;
+        var functionalEffect = Regex.Replace(effect, @"（[^）]*）|\([^)]*\)", "", RegexOptions.CultureInvariant).Trim().TrimEnd('。', '.');
+        if (Regex.IsMatch(functionalEffect, @"^\{\{眩晕\}\}一名敌方单位$", RegexOptions.CultureInvariant))
+        {
+            ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+                BehaviorImplementationStatuses.Unimplemented, "Exhaust to stun a public enemy unit through the ordinary stack.",
+                Kind: ActivatedAbilityKinds.StunEnemyUnit, ExhaustsSourceAsCost: true,
+                ManaCost: 0, PowerCost: 0, RequiredTargetCount: 1, TargetScope: "ENEMY_UNIT");
+            return true;
+        }
+        var boon = Regex.Match(functionalEffect,
+            @"^给予一名单位\{\{增益\}\}[。.]如果该单位已拥有增益[，,]则改为给予其在本回合内\{\{S\}\}\+(?<amount>\d+)[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (!boon.Success || !int.TryParse(boon.Groups["amount"].Value, out var amount) || amount <= 0) return false;
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Unimplemented, "Check the target's current boon when the ability resolves.",
+            Kind: ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower, ExhaustsSourceAsCost: true,
+            ManaCost: 0, PowerCost: 0, RequiredTargetCount: 1, TargetScope: "ANY_UNIT", PowerModifierAmount: amount);
         return true;
     }
 
@@ -3857,6 +3892,27 @@ public static class StaticAuraParser
                 }
             }
 
+            var friendlyObjectThreshold = Regex.Match(segment,
+                @"^只要我所在的战场(?:上)?有不少于(?<count>[0-9]+|[一两二三四五六七八九十])个其他友方单位和/或装备，我便具有\{\{S\}\}\+(?<delta>[0-9]+)。?$",
+                RegexOptions.CultureInvariant);
+            if (friendlyObjectThreshold.Success
+                && int.TryParse(friendlyObjectThreshold.Groups["delta"].Value, out var thresholdDelta))
+            {
+                var rawCount = friendlyObjectThreshold.Groups["count"].Value;
+                var required = int.TryParse(rawCount, out var numericCount) ? numericCount
+                    : rawCount == "两" ? 2 : "一二三四五六七八九十".IndexOf(rawCount, StringComparison.Ordinal) + 1;
+                if (required > 0)
+                {
+                    auras.Add(new(StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower, StaticAuraLayer,
+                        "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                        StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment,
+                        thresholdDelta, segment, BehaviorImplementationStatuses.Unimplemented,
+                        "A fixed bonus while enough other friendly public units or equipment occupy the source battlefield.",
+                        RequiredParticipantCount: required));
+                    continue;
+                }
+            }
+
             var sourceSameLocationOtherFriendlyUnitPowerMatch = Regex.Match(
                 segment,
                 @"如果你在此处有其他单位，则我获得\{\{S\}\}\+(\d+)",
@@ -4256,13 +4312,20 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var friendlyEquipmentKeywordMatch = Regex.Match(segment,
+                @"^你的装备(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
+            if (friendlyEquipmentKeywordMatch.Success
+                && TryAddFriendlyKeywordAuras(auras, segment, "", friendlyEquipmentKeywordMatch.Groups["grants"].Value,
+                    StaticAuraKinds.FriendlyEquipmentKeyword, StaticAuraTargetScopes.FriendlyEquipment,
+                    StaticAuraParticipantScopes.FriendlyPublicFieldEquipment)) continue;
+
             var friendlyTokenUnitsKeywordMatch = Regex.Match(
                 segment,
                 @"你的指示物单位获得(?<grants>[^。（]+)",
                 RegexOptions.CultureInvariant);
             if (friendlyTokenUnitsKeywordMatch.Success)
             {
-                if (TryAddFriendlyFilteredUnitsKeywordAuras(
+                if (TryAddFriendlyKeywordAuras(
                         auras,
                         segment,
                         StaticAuraTargetFilters.UnitToken,
@@ -4280,7 +4343,7 @@ public static class StaticAuraParser
             {
                 var targetTag = friendlyTaggedUnitsKeywordMatch.Groups[1].Value.Trim();
                 if (!string.IsNullOrWhiteSpace(targetTag)
-                    && TryAddFriendlyFilteredUnitsKeywordAuras(
+                    && TryAddFriendlyKeywordAuras(
                         auras,
                         segment,
                         StaticAuraTargetFilters.TagPrefix + targetTag,
@@ -4389,11 +4452,14 @@ public static class StaticAuraParser
             .ToArray();
     }
 
-    private static bool TryAddFriendlyFilteredUnitsKeywordAuras(
+    private static bool TryAddFriendlyKeywordAuras(
         List<StaticAuraSpec> auras,
         string segment,
         string targetFilter,
-        string grantsText)
+        string grantsText,
+        string kind = StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+        string targetScope = StaticAuraTargetScopes.FriendlyFilteredUnits,
+        string participantScope = StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
     {
         var added = false;
         foreach (Match keywordMatch in Regex.Matches(
@@ -4409,11 +4475,11 @@ public static class StaticAuraParser
             }
 
             auras.Add(new StaticAuraSpec(
-                StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+                kind,
                 RuleTextLayer,
                 "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
-                StaticAuraTargetScopes.FriendlyFilteredUnits,
-                StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                targetScope,
+                participantScope,
                 0,
                 segment,
                 BehaviorImplementationStatuses.Unimplemented,
