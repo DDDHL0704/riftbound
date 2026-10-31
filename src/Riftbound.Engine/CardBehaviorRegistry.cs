@@ -5,7 +5,11 @@ namespace Riftbound.Engine;
 public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
-    int LeadingDestroyOtherFriendlyPermanents = 0);
+    int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
+    string? CreatedTokenFactoryCardNo = null);
+public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
+    int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
+    string? CreatedTokenFactoryCardNo = null);
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
 
@@ -157,6 +161,10 @@ public sealed record CardBehaviorDefinition(
     string CreatedBaseEquipmentTokenName = "",
     string CreatedBaseEquipmentTokenTags = "",
     bool CreatedBaseEquipmentTokenIsExhausted = false,
+    int CreatedBattlefieldEquipmentTokenCount = 0,
+    string CreatedBattlefieldEquipmentTokenName = "",
+    string CreatedBattlefieldEquipmentTokenTags = "",
+    bool CreatedBattlefieldEquipmentTokenIsExhausted = false,
     int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
     bool DamageAmountFromFirstTargetManaCost = false,
@@ -9518,6 +9526,16 @@ public static class CardBehaviorRegistry
             MayReturnFriendlyEquipmentAdditionalCost: true, ManaReductionIfEquipmentReturned: 2)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantBombUnits =
+    [
+        new("RAD·001/167", "业余爆破狂", 2, "RAD_001_PLAY_BOMB", 0, 1,
+            TargetScope: CardTargetScopes.Battlefield,
+            CreatedBattlefieldEquipmentTokenCount: 1,
+            CreatedBattlefieldEquipmentTokenName: "炸弹",
+            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "约德尔人")
+    ];
+
     private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
     [
         new("RAD·067/167", "钟塔守护者", 8, "HELD_INSIGHT_LAST_BREATH_PLAY_UNIT", 0, 0,
@@ -9532,11 +9550,33 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantResourceObserverUnits =
+    [
+        new("RAD·105/167", "鲁莽的发明家", 3, "EXHAUST_CHOOSE_RESOURCE_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Purple,
+            UnitEventAbility: new("BECAME_EXHAUSTED", "CHOOSE_MODE", Modes: [
+                new("CREATE_GOLD", "打出一个休眠的金币装备指示物", "CREATE_EQUIPMENT_TOKEN", 1,
+                    CreatedTokenFactoryCardNo: "UNL·T05"),
+                new("PAY_DRAW", "支付 1 紫色符能，以此抽一张牌", "DRAW", 1,
+                    LeadingPowerCost: 1, LeadingPowerTrait: "purple") ])),
+        new("RAD·053/167", "翼之神谕者", 2, "EXHAUST_INSIGHT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "鸟类",
+            UnitEventAbility: new("BECAME_EXHAUSTED", "INSIGHT", 1)),
+        new("RAD·016/167", "能量聚合体", 4, "END_RUNE_RECYCLE_CHANNEL_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·057/167", "皮城向导机器人", 4, "CONTROLLER_CARD_PLAY_BASE_POWER_SOURCE", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "机械"),
+        new("RAD·120/167", "细心的修复师", 2, "CONTROLLER_HIGH_COST_GRAVEYARD_PLAY_SOURCE", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
-            .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+            .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
+            .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {
