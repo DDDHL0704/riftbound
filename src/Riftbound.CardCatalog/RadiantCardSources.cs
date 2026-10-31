@@ -104,6 +104,8 @@ public static class RadiantCardSources
             (Id: 39605L, CardNo: "RAD·103/167"),
             (Id: 39609L, CardNo: "RAD·107/167"),
             (Id: 39491L, CardNo: "RAD·001/167"),
+            (Id: 39505L, CardNo: "RAD·015/167"),
+            (Id: 39721L, CardNo: "RAD·SP2/005"),
             (Id: 39607L, CardNo: "RAD·105/167"),
             (Id: 39549L, CardNo: "RAD·053/167"),
             (Id: 39506L, CardNo: "RAD·016/167"),

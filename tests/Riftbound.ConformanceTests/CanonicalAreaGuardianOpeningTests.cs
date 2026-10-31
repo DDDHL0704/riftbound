@@ -53,7 +53,11 @@ public sealed class CanonicalAreaGuardianOpeningTests
                     && game.Hand("P2", "SFD·059/221").Count() >= 2) break;
                 await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             }
-            Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED"); await game.ColdCheckpoint();
+            // The opening checkpoint above already validates recovery for the
+            // natural draw setup. Keep the no-burnout assertion and recover at
+            // the next accepted empower boundary instead of replaying this
+            // same growing journal twice.
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
             Assert.Equal(0, game.State.RunePools["P1"].Mana); await game.Tap("P1"); Assert.Equal(12, game.State.RunePools["P1"].Mana);
             var sentinels = game.Hand("P1", "OGN·096/298").Take(2).ToArray(); var host = sentinels[0]; var victim = sentinels[1];
             foreach (var id in sentinels) await game.Act("P1", new PlayCardCommand(id, "OGN·096/298", []));

@@ -4101,6 +4101,7 @@ public static partial class MatchRecoveryValidator
         foreach (var card in state.CardObjects.Values)
             if (!CoreRuleEngine.ValidBanishReplacementOrigins(state, card)) errors.Add("invalid banish replacement origin");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
+        if (!TimedBanishPlayRules.ValidAll(state)) errors.Add("invalid timed banish play permission");
         if (!CoreRuleEngine.ValidMovementDiscardState(state)) errors.Add("invalid movement discard inline bindings");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.MovementObserver is { } movement
