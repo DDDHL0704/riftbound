@@ -209,6 +209,8 @@ public sealed class OptionalCostsIngressTests
     private static JsonElement Raw(Setup setup, string kind, string? value, string? extra = null)
     {
         var node = JsonNode.Parse(setup.PlannedPlay.GetRawText())!.AsObject();
+        node.Remove("promptId");
+        node.Remove("snapshotTick");
         node["cmdType"] = kind;
         node["abilityId"] = "SHAPE_ONLY_ABILITY";
         node["origin"] = "BASE";

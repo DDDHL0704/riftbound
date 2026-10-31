@@ -113,7 +113,7 @@ public sealed class MandatoryRecastOpeningTests
                 if (mode == "zero")
                 {
                     Assert.DoesNotContain(session.PromptFor(actor).Candidates!, c => c.Action == CommandTypes.ChooseCards && c.Enabled);
-                    await Act(actor, refusal, accepted: false);
+                    await Act(actor, refusal, accepted: false, expectedError: ErrorCodes.PromptExpired);
                 }
                 else await Act(actor, new RecycleRuneCommand(blue));
                 var play = new PlayCardCommand(unit, unitNo, []);
@@ -179,7 +179,7 @@ public sealed class MandatoryRecastOpeningTests
             }
         }
         string WireHash(object? value) => MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(value, Json));
-        async Task Act(string player, GameCommand command, bool accepted = true)
+        async Task Act(string player, GameCommand command, bool accepted = true, string? expectedError = null)
         {
             var before = MatchStateHasher.Hash(State());
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
@@ -192,7 +192,7 @@ public sealed class MandatoryRecastOpeningTests
                 _ => await session.SubmitAsync(player, intent, command, wire, default) };
             var result = await Send(); Assert.True(result.Accepted == accepted, result.ErrorMessage);
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
-            if (!accepted) { Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode); Assert.Equal(before, MatchStateHasher.Hash(result.State)); Assert.Empty(result.Events); }
+            if (!accepted) { Assert.Equal(expectedError ?? ErrorCodes.InvalidTarget, result.ErrorCode); Assert.Equal(before, MatchStateHasher.Hash(result.State)); Assert.Empty(result.Events); }
             var count = journal.Entries.Count; var duplicate = await Send();
             Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
             Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
