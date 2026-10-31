@@ -6407,6 +6407,10 @@ public sealed partial class MatchSession : IMatchSession
             {
                 result = promptRejection;
             }
+            else if (TryRejectUnavailablePromptAction(state, normalizedPlayerId, command, rawCommand, out var unavailablePromptRejection))
+            {
+                result = unavailablePromptRejection;
+            }
             else
             {
                 var intent = new PlayerIntent(normalizedIntentId, normalizedPlayerId, command.CmdType);
