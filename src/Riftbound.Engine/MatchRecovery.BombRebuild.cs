@@ -16,8 +16,9 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateBombRebuildState(MatchState state, List<string> errors)
     {
-        foreach (var marker in state.UntilEndOfTurnEffects
-            .Where(effect => effect.StartsWith(CoreRuleEngine.BombRebuildPrefix, StringComparison.Ordinal)))
+        foreach (var marker in state.UntilEndOfTurnEffects?.Where(
+                     effect => effect.StartsWith(CoreRuleEngine.BombRebuildPrefix, StringComparison.Ordinal))
+                 ?? [])
         {
             var context = CoreRuleEngine.ReadBombRebuild(marker);
             if (context is null || !CoreRuleEngine.ValidBombRebuild(state, context))
