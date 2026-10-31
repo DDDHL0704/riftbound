@@ -17,7 +17,7 @@ public sealed class RadDisarmHeroTests
         var initial = AttackDamageDistributionTests.Position(no, copied);
         var game = new Driver(initial);
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
-        var skill = Assert.Single(game.State.StackItems); Assert.Equal("DISARM", skill.FieldContext!.Kind);
+        var skill = Assert.Single(game.State.StackItems); Assert.Equal("ATTACK_DISARM", skill.FieldContext!.Kind);
         Assert.Equal(copied ? 2 : 1, skill.FieldContext.Disarm!.Contributions.Sum(c => c.Value));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.DoesNotContain("HOST", choice.LegalObjectIds); Assert.Contains("ENEMY1", choice.LegalObjectIds);
@@ -41,8 +41,8 @@ public sealed class RadDisarmHeroTests
         Assert.Equal(2, game.State.CardObjects["ENEMY1"].Power); await game.Replay();
         var defending = new Driver(AhriCombatMightTests.Board(no, defending: true));
         await defending.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
-        Assert.DoesNotContain(defending.State.StackItems, i => i.FieldContext?.Kind == "DISARM");
-        Assert.DoesNotContain(defending.State.TriggerQueue, i => i.FieldContext?.Kind == "DISARM"); await defending.Replay();
+        Assert.DoesNotContain(defending.State.StackItems, i => i.FieldContext?.Kind == "ATTACK_DISARM");
+        Assert.DoesNotContain(defending.State.TriggerQueue, i => i.FieldContext?.Kind == "ATTACK_DISARM"); await defending.Replay();
     }
 
     [Theory]

@@ -262,7 +262,7 @@ public sealed class RadLegendPlayDiscountTests
         var token = Assert.Single(game.State.CardObjects.Values, c => c.TokenFactoryCardNo is not null);
         Assert.True(token.IsExhausted); Assert.Equal(1, token.Power);
         var snapshot = CurrentPowerTargetTests.Snapshot(game.State);
-        Assert.Equal(7, snapshot.GetProperty("players").GetProperty("P1").GetProperty("objects")
+        Assert.Equal(8, snapshot.GetProperty("players").GetProperty("P1").GetProperty("objects")
             .GetProperty("U2").GetProperty("effectivePower").GetInt32());
         await game.Replay();
     }

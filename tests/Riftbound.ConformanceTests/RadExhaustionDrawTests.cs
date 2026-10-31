@@ -124,7 +124,7 @@ public sealed class RadExhaustionDrawTests
         // The shared counter path removes a skill without refunding confirmation.
         // Test that postcondition directly: current official counters require a
         // friendly target and cannot target this targetless draw skill.
-        var removed = game.State with { StackItems = [], PriorityPlayerId = null, ActivePlayerId = "P1" };
+        var removed = game.State with { StackItems = [], PriorityPlayerId = null, TimingState = TimingStates.NeutralOpen, ActivePlayerId = "P1" };
         ArmamentMightTests.PublicRecovery(removed);
         var result = await new CoreRuleEngine().ResolveAsync(removed, new("after-removed-draw", "P1", "MOVE_UNIT"),
             new MoveUnitCommand("U3", "BASE", "BATTLEFIELD:F", SourceObjectIds: ["U3", "U4", "U5"]), default);
