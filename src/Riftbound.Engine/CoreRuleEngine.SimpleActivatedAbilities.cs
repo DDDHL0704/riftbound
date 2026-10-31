@@ -1,3 +1,4 @@
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -51,6 +52,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
+            : ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true ? state.Seats.ContainsKey(id) && id != actor
             : state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
             && IsObjectOnField(state.PlayerZones, id)
             && (ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId && target.Tags.Contains(CardObjectTags.EquipmentCard)
@@ -141,7 +143,9 @@ public sealed partial class CoreRuleEngine
 
     internal static bool SimpleActivationTargetsPlayer(MatchState state, StackItemState item)
         => P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability)
-            && ability.SimpleEffect?.TransfersSourceToChosenPlayer == true && ValidSimpleActivation(state, item);
+            && (ability.SimpleEffect?.TransfersSourceToChosenPlayer == true
+                || ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true)
+            && ValidSimpleActivation(state, item);
 
     internal static bool ValidSimpleActivation(MatchState state, StackItemState item)
     {
@@ -155,11 +159,14 @@ public sealed partial class CoreRuleEngine
             || source.ObjectGeneration == context.Source.Generation
                 && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo) || !source.Tags.Contains(ability.SourceRequiredTag))
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
-            || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer ? 0 : ability.RequiredTargetCount)
+            || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
+                || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
                 || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory)
                 || !factory.Tags.Contains(ability.SimpleEffect!.EmpowersOtherEquipment ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard))
-            || (ability.SimpleEffect!.TransfersSourceToChosenPlayer ? item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id))
+            || (ability.SimpleEffect!.TransfersSourceToChosenPlayer || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+                ? item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id)
+                    || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield && id == item.ControllerId)
                 : item.TargetObjectIds.Any(id => item.TargetGenerations!.GetValueOrDefault(id, -1) < 0
                 || (state.CardObjects.TryGetValue(id, out var target)
                     ? item.TargetGenerations![id] > target.ObjectGeneration
@@ -188,6 +195,51 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", $"{ability.DisplayName}技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["abilityId"] = ability.AbilityId }) };
         var result = NoopStackResolutionResult(state);
+        if (spec.CommandsOpponentUnitToSourceBattlefield
+            && cards.TryGetValue(item.SourceObjectId, out var commandedSource)
+            && commandedSource.ObjectGeneration == item.SimpleActivation!.Source.Generation
+            && TryGetPreciseFieldLocation(zones, locations, commandedSource.ObjectId, out var sourceLocation)
+            && sourceLocation.Zone == "BATTLEFIELD"
+            && sourceLocation.BattlefieldObjectId is { } battlefieldId
+            && BattlefieldLocalRules.Battlefield(state, battlefieldId) is not null)
+        {
+            var opponent = item.TargetObjectIds.Single();
+            var current = state with {
+                PlayerZones = zones,
+                CardObjects = cards,
+                ObjectLocations = locations,
+                RunePools = pools
+            };
+            var legal = cards.Values
+                .Where(card => IsFaceUpNonStandbyUnit(card)
+                    && FindFieldObjectLocation(zones, card.ObjectId) is { } location
+                    && location.PlayerId == opponent
+                    && IsUnitMovementDestination(current, card.ObjectId, "BATTLEFIELD:" + battlefieldId)
+                    && MovementRestrictionRules.CanMove(card, opponent))
+                .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+                .ToArray();
+            if (legal.Length > 0)
+            {
+                var frame = RuleChoices.Value ?? throw new InvalidOperationException("提灯亚龙需要对手选择移动单位。");
+                var selected = frame.Choose(opponent, "提灯亚龙：选择你控制的一名单位，移动到提灯亚龙所在战场。",
+                    legal.Select(card => new RuleChoiceOption(
+                        "MOVE:" + card.ObjectId,
+                        OfficialCardSourceIdentityGroups.DisplayName(card.CardNo ?? "") + "（" + card.ObjectId + "）",
+                        [card.ObjectId])).ToArray(),
+                    kind: "MOVEMENT_SELECTION", preview: current);
+                TryMoveFieldUnitByEffect(current, zones, cards, locations, selected[5..],
+                    new(item.ControllerId, "BATTLEFIELD", battlefieldId), opponent, item, events);
+            }
+            else
+            {
+                events.Add(new("ABILITY_NO_EFFECT", "提灯亚龙结算时对手没有可移动的单位",
+                    new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["opponentId"] = opponent,
+                        ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
+                        ["reason"] = "NO_LEGAL_OPPONENT_UNIT"
+                    }));
+            }
+        }
         if (spec.TransfersSourceToChosenPlayer && cards.TryGetValue(item.SourceObjectId, out var transferred)
             && transferred.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, transferred.ObjectId)) {
             var controller = item.TargetObjectIds.Single();

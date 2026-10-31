@@ -49,7 +49,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
     bool ReadiesSource = false, int SourcePowerBonus = 0, bool OncePerTurn = false,
     bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0,
-    bool TransfersSourceToChosenPlayer = false);
+    bool TransfersSourceToChosenPlayer = false,
+    bool CommandsOpponentUnitToSourceBattlefield = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -250,8 +251,18 @@ public static class P4ActivatedAbilityCatalog
     public const string SoulOfInspirationAbilityId = "RAD_040_FRIENDLY_LEGEND_POWER";
     public const string SoulOfInspirationAbilityEffectKind = "RAD_040_FRIENDLY_LEGEND_POWER";
 
+    public const string LanternDragonCardNo = "RAD·113/167";
+    public const string LanternDragonAbilityId = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
+    public const string LanternDragonAbilityEffectKind = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(LanternDragonAbilityId, LanternDragonCardNo, LanternDragonAbilityEffectKind, "提灯亚龙", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：横置，选择一名对手；该对手必须将其控制的一名单位移动到提灯亚龙所在战场。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(CommandsOpponentUnitToSourceBattlefield: true)),
         new("GLOWING_STONE_TRANSFER", "VEN·133", "GLOWING_STONE_TRANSFER", "发光石", 0, 0, 1,
             false, true, 0, false, "解除强化并横置：选择一名玩家，该玩家获得此牌的控制权并将其召回。",
             SourceRequiredTag: CardObjectTags.EquipmentCard,
