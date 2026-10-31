@@ -68,7 +68,7 @@ public sealed partial class CoreRuleEngine
             || !IsSimpleAbilitySource(state, intent.PlayerId, command.SourceObjectId, ability)
             || targets.Any(id => !IsSimpleAbilityTarget(state, intent.PlayerId, command.SourceObjectId, id, ability)))
             return RejectWithCorePrompts(state, "技能来源、横置或解除强化费用、目标不合法。", ErrorCodes.InvalidTarget);
-        if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
+        if (!TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
                 out var extras, out var resources, out var recycled)
             || (ability.SimpleEffect!.DiscardsEquipmentAsCost ? extras.Count != 1
                 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(extras[0]) : extras.Count != 0))
@@ -88,8 +88,10 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var events = new List<GameEvent>();
-        var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations,
-            intent.PlayerId, recycled, events, window, paymentId);
+        var pools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, resources, zones, ref cards,
+                locations, ref pools, events, window, paymentId))
+            return RejectWithCorePrompts(state, "支付资源动作顺序或来源无效。", ErrorCodes.InvalidTarget);
         var paid = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!paid.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置或解除来源的强化。", ErrorCodes.InsufficientCost);
         var source = cards[command.SourceObjectId];

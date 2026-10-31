@@ -176,8 +176,8 @@ public sealed partial class CoreRuleEngine
         var requestedCosts = NormalizeOptionalCosts(command.OptionalCosts);
         if (!TryExtractRenektonPlayPayment(requestedCosts, out var withoutRenekton, out var renektonResourceAction))
             return RejectWithCorePrompts(state, "只能选择一次传奇支付资源行动。", ErrorCodes.InvalidTarget);
-        if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
-            out var extra, out var resources, out var recycled))
+        if (!TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
+            out var extra, out var resources, out _))
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
         ObjectBinding? discarded = null, destroyed = null;
         if (EmpowerRules.RequiresHandDiscard(ability.Cost))
@@ -208,15 +208,9 @@ public sealed partial class CoreRuleEngine
         var zones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>(); var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        if (renektonResourceAction is not null)
-        {
-            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedPaymentResources, zones,
-                    ref cards, locations, ref pools, events, "ACTIVATE_ABILITY", plan.PaymentId))
-                return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
-        }
-        else
-            pools = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, locations, intent.PlayerId,
-                recycled, events, "ACTIVATE_ABILITY", plan.PaymentId);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedPaymentResources, zones,
+                ref cards, locations, ref pools, events, "ACTIVATE_ABILITY", plan.PaymentId))
+            return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         var beforeManaPayment = pools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，无法支付强化费用。", ErrorCodes.InsufficientCost);
