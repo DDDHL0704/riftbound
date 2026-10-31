@@ -9534,13 +9534,19 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantTranspositionUnits =
+    [
+        new("RAD·115/167", "易位法师", 6, "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
-            .Concat(RadiantLegendarySupportUnits)
+            .Concat(RadiantLegendarySupportUnits).Concat(RadiantTranspositionUnits)
             .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
