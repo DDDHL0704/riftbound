@@ -3084,7 +3084,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             state.PlayerScores,
             intent.PlayerId,
             pendingChoice.DrawCount,
@@ -7748,7 +7748,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     intent.PlayerId,
                     1,
@@ -15563,7 +15563,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawResult = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     nextPlayerScores,
                     playerId,
                     drawCount,
@@ -16549,7 +16549,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         discardedObjectIds = discarded;
         drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             playerId,
             drawCount,
@@ -16620,7 +16620,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             playerId,
             drawCount,
@@ -17411,7 +17411,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         string battlefieldId,
@@ -17460,7 +17460,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
         drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             playerId,
             drawCount,
@@ -24393,7 +24393,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     stackItem.ControllerId,
                     conditionalSourceDrawCount,
@@ -24409,7 +24409,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     stackItem.ControllerId,
                     optionalSourceDrawCount,
@@ -24479,7 +24479,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var drawApplication = ApplyDrawToPlayer(
                 state,
-                playerZones,
+                playerZones, cardObjects,
                 playerScores,
                 stackItem.ControllerId,
                 behavior.LevelDrawOnPlayCount,
@@ -24617,7 +24617,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     stackItem.ControllerId,
                     behavior.SourceBoonDrawCount,
@@ -24768,7 +24768,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     drawPlayerId,
                     behavior.DrawCount * stackItem.EffectRepeatCount,
@@ -24862,7 +24862,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     {
                         var drawApplication = ApplyDrawToPlayer(
                             state,
-                            playerZones,
+                            playerZones, cardObjects,
                             playerScores,
                             drawPlayerId,
                             preRuneDrawCount * stackItem.EffectRepeatCount,
@@ -25314,7 +25314,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     drawPlayerId,
                     perPlayerDrawCount * stackItem.EffectRepeatCount,
@@ -26507,7 +26507,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     drawPlayerId,
                     drawCount * stackItem.EffectRepeatCount,
@@ -26662,6 +26662,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StackItemState stackItem)
     {
         var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
         {
             new(
@@ -26681,7 +26682,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             state.PlayerScores,
             stackItem.ControllerId,
             1,
@@ -26691,7 +26692,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return new StackResolutionResult(
             playerZones,
-            state.CardObjects,
+            cardObjects,
             drawApplication.PlayerScores,
             NormalizeExperienceForSeats(state),
             state.RunePools,
@@ -26966,6 +26967,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int drawCount)
     {
         var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
         {
             BuildTriggerResolvedEvent(new TriggerQueueItemState(
@@ -26979,7 +26981,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             state.PlayerScores,
             stackItem.ControllerId,
             drawCount,
@@ -26989,7 +26991,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return new StackResolutionResult(
             playerZones,
-            state.CardObjects,
+            cardObjects,
             drawApplication.PlayerScores,
             NormalizeExperienceForSeats(state),
             state.RunePools,
@@ -27100,7 +27102,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (drawCount > 0)
         {
-            var draw = ApplyDrawToPlayer(state, playerZones, state.PlayerScores, stackItem.ControllerId,
+            var draw = ApplyDrawToPlayer(state, playerZones, cardObjects, state.PlayerScores, stackItem.ControllerId,
                 drawCount, state.RngCursor, events, deferNormalVictory: true);
             return new StackResolutionResult(playerZones, cardObjects, draw.PlayerScores,
                 NormalizeExperienceForSeats(state), state.RunePools, state.UntilEndOfTurnEffects,
@@ -27400,7 +27402,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             stackItem.ControllerId,
             drawCount,
@@ -32004,7 +32006,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardCardFromHand(
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string targetObjectId)
     {
@@ -32017,6 +32019,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
             zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
+        AdvanceNonFieldObjectIdentity(cardObjects, targetObjectId);
         return true;
     }
 
@@ -32045,7 +32048,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardCardFromAnyHand(
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         out string ownerPlayerId)
     {
@@ -32060,6 +32063,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
                 zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
+            AdvanceNonFieldObjectIdentity(cardObjects, targetObjectId);
             ownerPlayerId = playerId;
             return true;
         }
@@ -32069,7 +32073,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardPlayerHand(
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         out IReadOnlyList<string> discardedObjectIds)
     {
@@ -32087,6 +32091,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var discardedObjectIdSet = discardedObjectIds.ToHashSet(StringComparer.Ordinal);
         playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
             zones with { Hand = zones.Hand.Where(objectId => !discardedObjectIdSet.Contains(objectId)).ToArray() }, discardedObjectIds);
+        foreach (var id in discardedObjectIds) AdvanceNonFieldObjectIdentity(cardObjects, id);
         return true;
     }
 
@@ -33221,7 +33226,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static DrawResult DrawCards(MatchState state, string playerId, PlayerZones zones, int drawCount,
+    private static DrawResult DrawCards(MatchState state, Dictionary<string, CardObjectState> cardObjects, string playerId, PlayerZones zones, int drawCount,
         bool deferNormalVictory = false)
     {
         DrawResult result = new(
@@ -33247,7 +33252,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 },
                 playerId,
                 currentZones,
-                burnouts.Count);
+                burnouts.Count, cardObjects);
             drawnCards.AddRange(result.DrawnCards);
             burnouts.AddRange(result.Burnouts);
             currentZones = currentZones with
@@ -33269,6 +33274,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static DrawApplicationResult ApplyDrawToPlayer(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         int drawCount,
@@ -33288,7 +33294,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             RngCursor = rngCursor
         };
         var drawResult = DrawCards(
-            drawState,
+            drawState, cardObjects,
             playerId,
             drawPlayerZones,
             drawCount,
@@ -33875,7 +33881,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryApplyBattlefieldScore(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         string battlefieldId,
@@ -33944,7 +33950,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId) }));
             var draw = ApplyDrawToPlayer(state with {
                 PlayerZones = playerZones, CardObjects = cardObjects, UntilEndOfTurnEffects = nextUntilEndOfTurnEffects },
-                playerZones, playerScores, playerId, 1, state.RngCursor, events);
+                playerZones, cardObjects, playerScores, playerId, 1, state.RngCursor, events);
             nextPlayerScores = draw.PlayerScores;
             winnerPlayerId = draw.WinnerPlayerId;
             nextRngCursor = draw.RngCursor;
@@ -34178,6 +34184,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var turnPlayerIndex = Array.IndexOf(players, state.TurnPlayerId);
         return turnPlayerIndex >= 0
             && state.TurnNumber == turnPlayerIndex + 1;
+    }
+
+    private static DrawResult TakeTopCardWithBurnout(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount,
+        Dictionary<string, CardObjectState> cardObjects)
+    {
+        var result = TakeTopCardWithBurnout(state with { CardObjects = cardObjects }, playerId, zones, priorBurnoutCount);
+        foreach (var id in zones.Graveyard.Except(result.Graveyard, StringComparer.Ordinal))
+            AdvanceNonFieldObjectIdentity(cardObjects, id);
+        foreach (var id in result.DrawnCards) AdvanceNonFieldObjectIdentity(cardObjects, id);
+        return result;
     }
 
     private static DrawResult TakeTopCardWithBurnout(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount)

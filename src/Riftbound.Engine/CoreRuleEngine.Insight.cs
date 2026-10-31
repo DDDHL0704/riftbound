@@ -99,7 +99,7 @@ public sealed partial class CoreRuleEngine
             }
             if (shouldDraw)
             {
-                var draw = ApplyDrawToPlayer(state, triggerZones, scores, item.ControllerId, 1, rng, triggerEvents, deferNormalVictory: true);
+                var draw = ApplyDrawToPlayer(state, triggerZones, triggerCards, scores, item.ControllerId, 1, rng, triggerEvents, deferNormalVictory: true);
                 scores = draw.PlayerScores; rng = draw.RngCursor; winner = draw.WinnerPlayerId;
             }
             if (context.Kind == "ACTIVATED" && winner is null)
@@ -117,7 +117,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
-        var subsequentDraw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId,
+        var subsequentDraw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId,
             behavior.DrawAfterInsightCount, state.RngCursor, events,
             deferNormalVictory: true);
         if (item.EffectRepeatCount > 1)
