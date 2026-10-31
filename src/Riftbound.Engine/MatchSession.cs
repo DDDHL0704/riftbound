@@ -3661,6 +3661,15 @@ internal static partial class ActionPromptBuilder
         string playerId,
         string objectId)
     {
+        // The official opening's first main prompt only permits the opening
+        // resource actions.  Do not let otherwise playable hand cards leak
+        // into that prompt (CN core opening procedure); the command gate and
+        // the prompt must share this boundary.
+        if (IsOfficialOpeningFirstTurn(state, playerId))
+        {
+            return [];
+        }
+
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
             || string.IsNullOrWhiteSpace(cardObject.CardNo))
         {
