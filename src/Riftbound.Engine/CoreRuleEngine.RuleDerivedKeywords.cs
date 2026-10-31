@@ -22,9 +22,11 @@ public sealed partial class CoreRuleEngine
 
     private static MatchState RecomputeConditionalRuleDerivedKeywords(MatchState state)
     {
+        var armamentKeywords = AttachedArmamentKeywordGrants(state);
         var field = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal);
         var candidates = field.Where(id => state.CardObjects.TryGetValue(id, out var card)
             && CardStaticAbilitySpecRules.TryGetStaticAbility(AttachedRuleTextRules.Face(card), CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out _))
+            .Concat(armamentKeywords.Keys)
             .Concat(state.CardObjects.Values.Where(c => c.RuleDerivedTags is not null).Select(c => c.ObjectId))
             .Concat(state.CardObjects.Values.Where(c => c.IsEmpowered && c.Tags.Contains(CardObjectTags.UnitCard)).Select(c => c.ObjectId))
             .Concat(state.CardObjects.Values.Where(c => c.AttachedRuleText is { } copy
@@ -38,7 +40,8 @@ public sealed partial class CoreRuleEngine
             var specs = AttachedRuleTextRules.Instances(state, card).Select(instance =>
                 CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo, CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out var spec)
                     ? (instance, spec) : ((RuleTextInstance, StaticAbilitySpec)?)null).Where(s => s.HasValue).Select(s => s!.Value).ToArray();
-            if (specs.Length == 0 && card.RuleDerivedTags is null && EmpowerRules.Keywords(state, card).Length == 0) continue;
+            if (specs.Length == 0 && card.RuleDerivedTags is null && EmpowerRules.Keywords(state, card).Length == 0
+                && !armamentKeywords.ContainsKey(id)) continue;
             // Independent printed/granted tags survive removal of this layer.
             var disarmDerived = (card.RuleDerivedTags ?? []).Where(IsDisarmTag).ToArray();
             var removable = (card.RuleDerivedTags ?? []).Where(t => !IsDisarmTag(t))
@@ -48,7 +51,7 @@ public sealed partial class CoreRuleEngine
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
             cards[card.ObjectId] = card with { Tags = basis,
                 RuleDerivedTags = disarmDerived.Length == 0 ? null : disarmDerived };
-            if ((specs.Length > 0 || EmpowerRules.Keywords(state, card).Length > 0)
+            if ((specs.Length > 0 || EmpowerRules.Keywords(state, card).Length > 0 || armamentKeywords.ContainsKey(id))
                 && IsFaceUpNonStandbyUnit(card) && IsObjectOnField(state.PlayerZones, card.ObjectId)) grants[card.ObjectId] = specs;
         }
         if (grants.Count == 0 && cards.All(e => e.Value == state.CardObjects[e.Key])) return state;
@@ -65,7 +68,8 @@ public sealed partial class CoreRuleEngine
                             CountControlledPublicFieldEquipmentObjects(current.PlayerZones, current.CardObjects,
                                 EffectiveFieldControllerId(current.PlayerZones, id, card)))
                         : s.Spec.GrantedKeywords ?? [])
-                    .Concat(EmpowerRules.Keywords(current, card)).ToArray();
+                    .Concat(EmpowerRules.Keywords(current, card))
+                    .Concat(armamentKeywords.GetValueOrDefault(id) ?? []).ToArray();
                 var countedKeywords = new[] { CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast, CardObjectTags.Spellshield };
                 var tags = keywords.Where(k => !countedKeywords.Any(name => k == name
                     || k.StartsWith(name, StringComparison.Ordinal) && int.TryParse(k[name.Length..], out _)))
@@ -110,28 +114,13 @@ public sealed partial class CoreRuleEngine
         return count == required;
     }
 
-    private static bool HasFriendlyEquipmentHere(MatchState state, CardObjectState source)
-    {
-        if (!IsObjectOnField(state.PlayerZones, source.ObjectId)
-            || !state.ObjectLocations.TryGetValue(source.ObjectId, out var here) || here.Zone is not ("BASE" or "BATTLEFIELD")) return false;
-        var controller = EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source);
-        return state.CardObjects.Values.Any(card => !card.IsFaceDown && card.Tags.Contains(CardObjectTags.EquipmentCard)
-            && CardControlRules.IsControlledByPlayerOrLegacyOwned(card, controller)
-            && IsObjectOnField(state.PlayerZones, card.ObjectId)
-            && state.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.Zone == here.Zone
-            && (here.Zone == "BASE" ? at.PlayerId == here.PlayerId : at.BattlefieldObjectId == here.BattlefieldObjectId));
-    }
-
     private static bool CanDealCombatDamage(MatchState state, CardObjectState source)
         => !AttachedRuleTextRules.Instances(state, source).Any(instance =>
             CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
                 ability => ability.Kind is StaticAbilityKinds.UnitCannotDealCombatDamage
-                    or StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage
-                    or StaticAbilityKinds.UnitFriendlyEquipmentHereCombatDamage, out var spec)
+                    or StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage, out var spec)
             && (spec.Kind == StaticAbilityKinds.UnitCannotDealCombatDamage
-                || (spec.Kind == StaticAbilityKinds.UnitFriendlyEquipmentHereCombatDamage
-                    ? !HasFriendlyEquipmentHere(state, source)
-                    : !HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits))));
+                || !HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits)));
 
     private static ResolutionResult RefreshRuleDerivedKeywordLayers(ResolutionResult result)
     {

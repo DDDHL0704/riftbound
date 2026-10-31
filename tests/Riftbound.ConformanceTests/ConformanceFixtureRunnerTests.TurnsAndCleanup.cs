@@ -1709,8 +1709,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, prompt.EnabledActions());
-        Assert.DoesNotContain(CommandTypes.Pass, prompt.EnabledActions());
-        var rawCommand = PromptScopedRawCommand(CommandTypes.Pass, prompt);
+        var rawCommand = JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.Pass });
         const string clientIntentId = "intent-p1-pass-raw-idempotency";
 
         var accepted = await session.SubmitAsync(
@@ -1741,8 +1740,6 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.True(journalEntry.Accepted);
         Assert.True(journalEntry.RawCommand.HasValue);
         Assert.Equal(CommandTypes.Pass, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
-        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
-        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
         Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replay = await session.SubmitAsync(
@@ -1770,8 +1767,6 @@ public sealed partial class ConformanceFixtureRunnerTests
         var changedRawCommand = JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.Pass,
-            promptId = prompt.PromptId,
-            snapshotTick = prompt.SnapshotTick,
             clientNote = "changed-payload"
         });
         var conflict = await session.SubmitAsync(

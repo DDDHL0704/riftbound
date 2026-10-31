@@ -8,29 +8,16 @@ internal static class PrintedCardFactory
 {
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
     {
-        var cards = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        // Admitted runtime prints take precedence over metadata-only reviewed
+        // sources, as they do for printed resource costs. Gallery ids and
+        // product metadata can differ between official snapshots.
+        return OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints())
             .Concat(ReviewedRuneCardSources.GetPhysicalPrints())
             .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
+            .DistinctBy(card => card.CardNo, StringComparer.Ordinal)
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
-        foreach (var card in OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards)
-        {
-            if (!cards.TryAdd(card.CardNo, card) && !SamePrintedDefinition(cards[card.CardNo], card))
-                throw new InvalidDataException($"Conflicting official print: {card.CardNo}");
-        }
-        return cards;
     });
-
-    // Gallery database IDs and product listings can change between official
-    // snapshots. They do not change the printed card. Compare collection values
-    // structurally and retain the conflict guard for every other printed field.
-    internal static bool SamePrintedDefinition(OfficialCard left, OfficialCard right)
-        => left.CardCategoryList.SequenceEqual(right.CardCategoryList, StringComparer.Ordinal)
-            && left.CardCategoryNameList.SequenceEqual(right.CardCategoryNameList, StringComparer.Ordinal)
-            && left.CardColorList.SequenceEqual(right.CardColorList, StringComparer.Ordinal)
-            && (left with { Id = right.Id, ProductCodeList = right.ProductCodeList, ProductNameList = right.ProductNameList,
-                CardCategoryList = right.CardCategoryList, CardCategoryNameList = right.CardCategoryNameList,
-                CardColorList = right.CardColorList }) == right;
 
     internal static bool TryRestoreOutsidePlay(CardObjectState previous, string owner, out CardObjectState restored)
     {

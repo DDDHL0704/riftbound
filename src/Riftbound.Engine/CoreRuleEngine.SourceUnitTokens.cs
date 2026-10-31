@@ -136,8 +136,31 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidSourceUnitTokens(state, item.SourceUnitTokens, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
             throw new InvalidOperationException("Invalid source unit token trigger.");
+        if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
         var spec = SourceUnitTokenSpecs.Value[item.SourceUnitTokens!.CardNo];
+        if (!TrySourceUnitTokenDestination(state, item, out var battlefield)) return NoopStackResolutionResult(state);
         return CreateUnitTokenBatch(state, item, SourceUnitTokenFactory(item.SourceUnitTokens.CardNo)!.CardNo,
-            spec.CreatedTokenCount!.Value + AdditionalUnitTokens(item), entersReady: spec.CreatedTokenExhausted != true);
+            spec.CreatedTokenCount!.Value + AdditionalUnitTokens(item), entersReady: spec.CreatedTokenExhausted != true,
+            battlefieldId: battlefield);
+    }
+
+    // CN 359.3.f.2: "here" is the original source object's location when this
+    // instruction resolves. A card that left and returned is a different object.
+    private static bool TrySourceUnitTokenDestination(MatchState state, StackItemState item, out string? battlefield)
+    {
+        battlefield = null;
+        if (item.SourceUnitTokens is not { } context) return false;
+        if (!SourceUnitTokenSpecs.Value.TryGetValue(context.CardNo, out var spec)) return false;
+        if (spec.CreatedTokenDestination == TriggerTokenDestinations.OwnerBase) return true;
+        if (spec.CreatedTokenDestination != TriggerTokenDestinations.SourceLocation
+            || !state.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
+            || source.ObjectGeneration != context.Source.Generation || !IsFaceUpNonStandbyUnit(source)
+            || !IsObjectOnField(state.PlayerZones, source.ObjectId)
+            || !state.ObjectLocations.TryGetValue(source.ObjectId, out var at)) return false;
+        if (at.Zone == "BASE") return at.PlayerId == item.ControllerId && at.BattlefieldObjectId is null;
+        if (at.Zone != "BATTLEFIELD" || BattlefieldLocalRules.Battlefield(state, at.BattlefieldObjectId) is null
+            || BattlefieldLocalRules.PreventsUnitPlay(state, "BATTLEFIELD:" + at.BattlefieldObjectId)) return false;
+        battlefield = at.BattlefieldObjectId;
+        return true;
     }
 }

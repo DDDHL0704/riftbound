@@ -172,6 +172,7 @@ public static class CardBasicActionRules
             && (behavior.DamageAmount > 0
                 || behavior.ConditionalDamageAmount > 0
                 || behavior.DamagesAllBattlefieldUnits
+                || behavior.DamagesAllBaseUnits
                 || behavior.DamagesAllEnemyCombatUnits
                 || behavior.SelectedBattlefieldEffect?.DamagesEnemyUnits == true
                 || behavior.OtherEnemyBattlefieldUnitsDamageAmount > 0
@@ -232,6 +233,7 @@ public static class CardBasicActionRules
     {
         return behavior is not null
             && (behavior.BanishesIfDestroyedThisTurn
+                || behavior.BanishesTarget
                 || behavior.EffectPlaySourceZone == "BANISHED"
                 || behavior.BanishesTargetThenPlaysToBase
                 || behavior.BanishesAllFriendlyGraveyardUnits

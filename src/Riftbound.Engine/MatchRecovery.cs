@@ -1835,7 +1835,8 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (effectKind == StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower)
+                if (effectKind is StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower
+                    or StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower)
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
                         $"STATIC_AURA:{effectKind}:{sourceObjectId}", "object static aura effect id", errors);
@@ -2298,7 +2299,8 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (effectKind == StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower)
+                if (effectKind is StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower
+                    or StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower)
                 {
                     if (sourceCardNo is null || !StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(a => a.Kind == effectKind))
                         errors.Add($"{effectLabel} source lacks the controlled unit count aura");
@@ -2815,7 +2817,8 @@ public static partial class MatchRecoveryValidator
             : StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
 
         if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
-                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment
+                    || effectKind == StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower)
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return participantCount >= enemyAura.RequiredParticipantCount.GetValueOrDefault(1) ? enemyAura.PowerDeltaPerParticipant : 0;
 
@@ -4930,14 +4933,14 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems) {
             if (item is null) continue;
             var recognized = P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var effect)
-                && effect.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn;
+                && P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(effect);
             var context = item.TargetedPowerAbility;
             if (context is null) {
                 if (recognized) errors.Add($"stack item {item.StackItemId} targeted power ability context is required");
                 continue;
             }
             if (!recognized || !P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)
-                || ability.Kind != ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+                || !P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
                 || ability.EffectKind != item.EffectKind
                 || !TargetedPowerAbilitySourceMatches(state, item.ControllerId, item.SourceObjectId, ability, item.CardNo)
                 || string.IsNullOrWhiteSpace(context.SourceObjectId)

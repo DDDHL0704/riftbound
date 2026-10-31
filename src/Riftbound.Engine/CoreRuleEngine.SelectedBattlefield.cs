@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 public sealed record SelectedBattlefieldEffectSpec(int EnemyPowerModifier, bool MoveOptionalEnemy,
     int FriendlyPowerModifier = 0, bool DamagesEnemyUnits = false, int BattlefieldTargetIndex = 0,
     int? DamageFromUnitTargetIndex = null, int? PrimaryEnemyTargetIndex = null,
-    int? RequiredFriendlyUnitCount = null, int? OptionalEnemyReturnMinimumUnitCount = null);
+    int? RequiredFriendlyUnitCount = null, string FriendlyStatusEffectId = "",
+    int? OptionalEnemyReturnMinimumUnitCount = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -80,6 +81,17 @@ public sealed partial class CoreRuleEngine
             var instructionState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
             foreach (var id in affected)
             {
+                if (!string.IsNullOrEmpty(spec.FriendlyStatusEffectId)
+                    && IsPlayerControlledFieldUnitObject(current, item.ControllerId, id))
+                {
+                    var effect = TemporaryCombatKeywordRules.AppliedEffectId(cards[id], spec.FriendlyStatusEffectId);
+                    cards[id] = cards[id] with {
+                        UntilEndOfTurnEffects = cards[id].UntilEndOfTurnEffects.Append(effect)
+                            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
+                    events.Add(new("STATUS_EFFECT_APPLIED", $"{behavior.DisplayName}施加{spec.FriendlyStatusEffectId}",
+                        new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId,
+                            ["targetObjectId"] = id, ["effectId"] = spec.FriendlyStatusEffectId }));
+                }
                 if (spec.DamagesEnemyUnits && IsEnemyBattlefieldUnitObject(current, item.ControllerId, id))
                 {
                     var amount = unitDamageAmount is { } fromUnit

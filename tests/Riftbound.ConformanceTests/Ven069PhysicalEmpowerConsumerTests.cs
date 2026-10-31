@@ -194,7 +194,6 @@ public sealed class Ven069PhysicalEmpowerConsumerTests
     private static async Task<ConformanceCommand> Reject(Driver game, string code)
     {
         var node = JsonSerializer.SerializeToNode(Activate(), Json)!.AsObject();
-        node["promptId"] = game.PromptFor("P1").PromptId; node["snapshotTick"] = game.State.Tick;
         var command = new ConformanceCommand("P1", "ven069-rejected-" + game.Commands().Length, JsonSerializer.SerializeToElement(node, Json));
         await game.ActRetained(command, false); Assert.Equal(code, game.LastRetainedResult!.ErrorCode); return command;
     }

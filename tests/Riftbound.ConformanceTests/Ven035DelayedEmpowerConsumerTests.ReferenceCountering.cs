@@ -37,7 +37,6 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             var before = MatchStateHasher.Hash(game.State);
             var command = new PlayCardCommand("REFERENCE-COUNTER", counter, [inverse.StackItemId]);
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
-            raw["promptId"] = game.PromptFor("P2").PromptId; raw["snapshotTick"] = game.State.Tick;
             await game.ActRetained(new("P2", "no35-reference-counter", JsonSerializer.SerializeToElement(raw, Json)), false);
             Assert.Equal(ErrorCodes.InvalidTarget, game.Commands()[^1].ErrorCode);
             Assert.Equal(before, MatchStateHasher.Hash(game.State));
