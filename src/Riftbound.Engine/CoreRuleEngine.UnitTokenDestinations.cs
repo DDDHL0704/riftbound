@@ -16,6 +16,9 @@ public sealed partial class CoreRuleEngine
         => cardNo is not null && UnitTokenInstructionTexts.Value.TryGetValue(cardNo, out var text)
             && UnitTokenLocationParser.AllowsOrdinaryLocationChoice(text, family);
 
+    private static bool UnitTokenLocationChoiceGranted(IReadOnlyList<string>? effects, string player)
+        => ActiveUnitPlayGrants(effects, player, "PLAY_BOON").Any(GrantsAnyUnitPlayBattlefield);
+
     private static string? ChooseUnitTokenBattlefield(MatchState state, string player, string family,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         IReadOnlyDictionary<string, ObjectLocationState> locations, IReadOnlyDictionary<string, RunePool> pools,
@@ -23,7 +26,7 @@ public sealed partial class CoreRuleEngine
     {
         var context = state with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(locations, zones), UntilEndOfTurnEffects = effects };
-        var anywhere = ActiveUnitPlayGrants(effects, player, "PLAY_BOON").Any(GrantsAnyUnitPlayBattlefield);
+        var anywhere = UnitTokenLocationChoiceGranted(effects, player);
         var options = new List<RuleChoiceOption> { new("BASE", "基地") };
         foreach (var field in cards.Values.Where(card => BattlefieldLocalRules.Battlefield(context, card.ObjectId) is not null)
             .OrderBy(card => card.ObjectId, StringComparer.Ordinal))
