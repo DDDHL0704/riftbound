@@ -110,7 +110,7 @@ public sealed partial class CoreRuleEngine
             source = changed.CardObjects[source.ObjectId];
             events.AddRange(changed.Events);
         }
-        cards[source.ObjectId] = source with { IsExhausted = source.IsExhausted || ability.ExhaustsSourceAsCost };
+        cards[source.ObjectId] = ability.ExhaustsSourceAsCost ? ExhaustForInstruction(zones, cards, source) : source;
         var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,

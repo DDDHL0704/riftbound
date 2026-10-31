@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         // The card says a friendly unit, not another unit. Exhaust first so the
         // source can itself pay the destruction cost without being resurrected.
-        cards[command.SourceObjectId] = source with { IsExhausted = true };
+        cards[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cards, source);
         var cost = new StackItemState($"cost-{state.Tick + 1}-{command.SourceObjectId}", intent.PlayerId,
             command.SourceObjectId, ability.EffectKind, source.CardNo, [costId]);
         var destroyed = ResolveFieldDestructions(state, zones, cards, cost, new HashSet<string>(),
@@ -220,7 +220,7 @@ public sealed partial class CoreRuleEngine
         if (!pools[intent.PlayerId].HasSupportedAmounts)
             return RejectWithCorePrompts(state, "资源数量超出支持范围，未获取资源或支付费用。", ErrorCodes.UnsupportedCardBehavior);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        cards[command.SourceObjectId] = source with { IsExhausted = true };
+        cards[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cards, source);
         var next = state with { Tick = state.Tick + 1, CardObjects = cards, RunePools = pools };
         var payload = new Dictionary<string, object?>
         {
@@ -267,7 +267,7 @@ public sealed partial class CoreRuleEngine
         var source = state.CardObjects[command.SourceObjectId];
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        cards[command.SourceObjectId] = source with { IsExhausted = true };
+        cards[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cards, source);
         var cost = new StackItemState($"gold-cost-{state.Tick + 1}-{command.SourceObjectId}", intent.PlayerId,
             command.SourceObjectId, ability.EffectKind, source.CardNo, []);
         var destroyed = ResolveFieldDestructions(state, zones, cards, cost, new HashSet<string>(),

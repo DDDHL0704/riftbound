@@ -227,7 +227,7 @@ public sealed partial class CoreRuleEngine
             effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discarded.ObjectId], zones);
             locations = ReconcileObjectLocations(locations, zones);
         }
-        if (cost.Exhaust) cards[source.ObjectId] = cards[source.ObjectId] with { IsExhausted = true };
+        if (cost.Exhaust) cards[source.ObjectId] = ExhaustForInstruction(zones, cards, cards[source.ObjectId]);
         var paidTokenFactory = destroyed is not null && IsTokenObject(state.CardObjects[destroyed.ObjectId])
             ? state.CardObjects[destroyed.ObjectId].TokenFactoryCardNo ?? state.CardObjects[destroyed.ObjectId].CardNo : null;
         var destructionReceipt = destroyed is null ? null : new EmpowerUnitDestructionReceipt(destroyed, paidTokenFactory);

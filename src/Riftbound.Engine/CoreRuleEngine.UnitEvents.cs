@@ -7,7 +7,7 @@ namespace Riftbound.Engine;
 public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
     string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
     ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null,
-    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null);
+    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null);
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -101,6 +101,21 @@ public sealed partial class CoreRuleEngine
         return WithUnitEvents(ev, CaptureUnitEvents(zones, cards, [unit], "BECAME_READY"));
     }
 
+    // Capture the transition at the instruction, before later ready/departure
+    // instructions can erase it. Entry initialization and legality previews do
+    // not call this operation. The command frame is rebuilt on choice replay.
+    private static CardObjectState ExhaustForInstruction(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState source)
+    {
+        if (!source.IsExhausted && RuleChoices.Value is { } frame && IsObjectOnField(zones, source.ObjectId))
+        {
+            IReadOnlyDictionary<string, CardObjectState> current = cards.TryGetValue(source.ObjectId, out var old) && ReferenceEquals(old, source)
+                ? cards : new Dictionary<string, CardObjectState>(cards) { [source.ObjectId] = source };
+            frame.ExhaustedUnitEvents.AddRange(CaptureUnitEvents(zones, current, [source.ObjectId], "BECAME_EXHAUSTED"));
+        }
+        return source with { IsExhausted = true };
+    }
+
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
         string timing, string eventKind)
         => CaptureRoleUnitEvents(state, attackers, "ATTACK", timing, eventKind);
@@ -138,15 +153,25 @@ public sealed partial class CoreRuleEngine
 
     private static TriggerQueueItemState UnitEventTrigger(UnitEventObservation observation, long tick, int ordinal,
         string eventKind, string? timing = null)
-        => new($"unit-event-{tick}-{ordinal}-{observation.Source}-{observation.Context.Timing}", observation.Controller,
-            observation.Source, UnitEventEffect, eventKind, timing) {
-            UnitEvent = observation.Context with { CapturedTick = observation.Context.CapturedTick > 0 ? observation.Context.CapturedTick : tick },
-            SourceCardNo = observation.Context.CardNo };
+    {
+        var captured = observation.Context;
+        var id = $"unit-event-{tick}-{ordinal}-{observation.Source}-{captured.Timing}";
+        if (UnitEventSpec(captured.CardNo) is { Effect: "INSIGHT" } insight)
+            return new(id, observation.Controller, observation.Source, InsightTriggerEffect, eventKind, timing) {
+                SourceCardNo = captured.CardNo,
+                InsightContext = new(captured.CardNo, observation.Controller, insight.Amount, captured.SourceGeneration, "EXHAUSTED",
+                    Origin: captured.Origin, SourceTokenFactoryCardNo: captured.TokenFactoryCardNo,
+                    SourceFaceRevision: captured.FaceRevision, SourceCapturedTick: tick) };
+        return new(id, observation.Controller, observation.Source, UnitEventEffect, eventKind, timing) {
+            UnitEvent = captured with { CapturedTick = captured.CapturedTick > 0 ? captured.CapturedTick : tick },
+            SourceCardNo = captured.CardNo };
+    }
 
     private static ResolutionResult QueueUnitEvents(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
-        var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList(); var ordinal = 0;
+        var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList();
+        var ordinal = RuleChoices.Value?.UnitEventOrdinal ?? 0;
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i))) {
             if (ev.Payload.GetValueOrDefault(UnitEventCaptureKey) is not UnitEventObservation[] observations) continue;
             events[index] = ev with { Payload = ev.Payload.Where(p => p.Key != UnitEventCaptureKey).ToDictionary(p => p.Key, p => p.Value) };
@@ -167,7 +192,23 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
-        if (events.Count == result.Events.Count) return result;
+        if (RuleChoices.Value is { } frame) frame.UnitEventOrdinal = ordinal;
+        if (events.Count == result.Events.Count) return QueueExhaustedUnitEvents(before, result);
+        var next = result.State with { TriggerQueue = queue };
+        return QueueExhaustedUnitEvents(before, result with { State = next, Events = events,
+            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
+    }
+
+    private static ResolutionResult QueueExhaustedUnitEvents(MatchState before, ResolutionResult result, int start = 0)
+    {
+        if (!result.Accepted || RuleChoices.Value is not { } frame || frame.ExhaustedUnitEvents.Count <= start) return result;
+        var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList();
+        foreach (var observation in frame.ExhaustedUnitEvents.Skip(start)) {
+            var trigger = UnitEventTrigger(observation, result.State.Tick, frame.UnitEventOrdinal++, "UNIT_EXHAUSTED",
+                before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : before.StackItems.LastOrDefault()?.TimingContext);
+            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+        frame.ExhaustedUnitEvents.RemoveRange(start, frame.ExhaustedUnitEvents.Count - start);
         var next = result.State with { TriggerQueue = queue };
         return result with { State = next, Events = events, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
@@ -175,6 +216,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidUnitEvent(MatchState state, UnitEventContext? c, string effect, string source, string? no = null)
         => c is null ? effect != UnitEventEffect : effect == UnitEventEffect && (no is null || no == c.CardNo)
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
+            && (c.Mode is null || spec.Modes?.Any(m => m.Id == c.Mode) == true)
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
             && (spec.Effect == "BURN_MIGHT_FRIENDLY"
                 ? c.BurnedUnit is { } burned
@@ -266,7 +308,8 @@ public sealed partial class CoreRuleEngine
         var context = item.UnitEvent!;
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured unit event.");
-        var spec = UnitEventSpec(context.CardNo)!;
+        var spec = SelectedUnitEventSpec(context)!;
+        if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
         if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
@@ -291,6 +334,16 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "CREATE_EQUIPMENT_TOKEN") {
+            if (!P6TokenFactoryCatalog.TryGetByCardNo(spec.CreatedTokenFactoryCardNo!, out var factory)
+                || !factory.Tags.Contains(CardObjectTags.EquipmentCard))
+                throw new InvalidOperationException("Invalid unit event equipment token factory.");
+            for (var i = 0; i < spec.Amount; i++)
+                CreateLegendEquipmentToken(zones, cards, item.ControllerId, item.SourceObjectId, item.EffectKind,
+                    factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
+        }
         if (spec.Effect == "MIGHT_FRIENDLY" && item.TriggerCost is not null && item.TargetObjectIds.SingleOrDefault() is { } buffed
             && StackObjectRules.ReferencesCurrentObject(state, item, buffed) && UnitEventTargets(state, item).Contains(buffed)) {
             var behavior = new CardBehaviorDefinition(context.CardNo, "弃牌触发战力加成", 0, item.EffectKind, 0, 1, PowerModifierAmount: spec.Amount);
