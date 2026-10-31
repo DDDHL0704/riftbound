@@ -47,9 +47,9 @@ public sealed partial class CoreRuleEngine
         => profile.HasExhaustUnitAlternative && costs.Count == 1
             && TryParseExhaustFriendlyUnitOptionalCost(costs[0], out var id) ? id : null;
 
-    private static GameEvent ExhaustEquipmentCost(Dictionary<string, CardObjectState> cards, string id, string source, string player)
+    private static GameEvent ExhaustEquipmentCost(IReadOnlyDictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, string id, string source, string player)
     {
-        cards[id] = cards[id] with { IsExhausted = true };
+        cards[id] = ExhaustForInstruction(zones, cards, cards[id]);
         return new("UNIT_EXHAUSTED", "支付装配费用，让友方单位变为休眠状态", new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = source, ["targetObjectId"] = id,
             ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ASSEMBLE_COST" });

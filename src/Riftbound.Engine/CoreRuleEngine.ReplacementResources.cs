@@ -181,7 +181,7 @@ public sealed partial class CoreRuleEngine
         };
         if (!result.Accepted) throw new InvalidOperationException("Invalid generated resource choice: " + result.ErrorMessage);
         result = FinalizeTokenDepartures(context, result);
-        result = CompleteRuleChoiceResourceEffects(context, result);
+        result = CompleteRuleChoiceResourceEffects(context, result, capture?.ExhaustEventStart ?? 0);
         Replace(zones, result.State.PlayerZones); Replace(cards, result.State.CardObjects); Replace(pools, result.State.RunePools);
         events.AddRange(result.Events);
         var frame = RuleChoices.Value!;

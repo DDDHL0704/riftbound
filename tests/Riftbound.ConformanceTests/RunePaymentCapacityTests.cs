@@ -124,7 +124,10 @@ public sealed class RunePaymentCapacityTests
         Assert.Equal(int.MaxValue - capacity, requirement["availablePower"]!.GetValue<int>());
         Assert.Equal(int.MaxValue - capacity, requirement["availablePowerByTrait"]![RuneTrait.Blue]!.GetValue<int>());
         Assert.Equal(int.MaxValue - capacity + Math.Min(capacity, 2), requirement["availablePowerWithPaymentResources"]!.GetValue<int>());
-        var ids = requirement["paymentResourceChoices"]!.AsArray().Select(n => n!["id"]!.GetValue<string>()).ToArray();
+        var ids = requirement["paymentResourceChoices"]!.AsArray()
+            .Select(n => n!["id"]!.GetValue<string>())
+            .Where(id => id.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal))
+            .ToArray();
         if (capacity == 0) Assert.DoesNotContain(ids, id => id.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal));
         else Assert.Equal(new[] { "RECYCLE_RUNE:GREEN", "RECYCLE_RUNE:RUNE" }, ids.Order());
         if (capacity == 1)

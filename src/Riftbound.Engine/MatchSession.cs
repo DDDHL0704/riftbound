@@ -1112,7 +1112,13 @@ public sealed partial record MatchState
                         objectId,
                         null,
                         cardObject.UntilEndOfTurnPowerModifier,
-                        ResolveBasePower(cardObject),
+                        // A base-Might replacement is stored separately from
+                        // ordinary temporary deltas. The legacy scalar still
+                        // carries the replacement's difference from printed
+                        // Might so turn-end cleanup can restore the card; the
+                        // projection base for this scalar is therefore the
+                        // printed/current pre-replacement value.
+                        cardObject.Power - cardObject.UntilEndOfTurnPowerModifier,
                         cardObject.Power));
                 }
             }
@@ -1590,6 +1596,7 @@ public sealed partial record ResolutionResult(
         if (trigger.ReflexiveDuel is not null) return "移动终点：选择另一名敌方单位互斗";
         if (trigger.ConquestFlow is not null) return "征服：本回合给予废牌堆法术流转";
         if (trigger.UnitConquest is not null) return "征服未受控制战场：战力伤害";
+        if (trigger.EndAbility is not null) return "结束步骤技能；双方响应后结算。";
         if (trigger.HandDiscardObserver is { } discard) return CoreRuleEngine.HandDiscardObserverLabel(discard);
         if (trigger.MovementObserver is { } movement) return CoreRuleEngine.MovementObserverLabel(movement);
         if (trigger.DamageDestruction is not null) return "受伤后摧毁原单位";
@@ -1628,6 +1635,7 @@ public sealed partial record ResolutionResult(
         }
 
         if (trigger.UnitConquestReturn is not null) return "征服后可支付费用；双方响应后返回手牌。";
+        if (trigger.EndAbility is not null) return "结束步骤技能；双方响应后结算。";
         if (trigger.HandDiscardObserver is { } discard) return CoreRuleEngine.HandDiscardObserverLabel(discard) + "；双方响应后结算。";
         if (trigger.MovementObserver is { } movement) return CoreRuleEngine.MovementObserverLabel(movement) + "；双方响应后结算。";
         if (trigger.DamageDestruction is not null) return "原单位已受到伤害；双方可以响应，结算时摧毁其原实例。";
@@ -1663,7 +1671,7 @@ public sealed partial record ResolutionResult(
     {
         if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
-        if (trigger.UnitConquestReturn is not null || trigger.ConquestToken is not null || trigger.SourceUnitTokens is not null || trigger.ReadyObjectTrigger is not null || trigger.SourceReadied is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.OutsideHandPlayObserver is not null || trigger.HighCostPlayObserver is not null || trigger.ConquestSource is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
+        if (trigger.EndAbility is not null || trigger.InsightContext is { Kind: "EXHAUSTED" } || trigger.UnitConquestReturn is not null || trigger.ConquestToken is not null || trigger.SourceUnitTokens is not null || trigger.ReadyObjectTrigger is not null || trigger.SourceReadied is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.OutsideHandPlayObserver is not null || trigger.HighCostPlayObserver is not null || trigger.ConquestSource is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
             ? "HIDDEN"
@@ -1686,7 +1694,7 @@ public sealed partial record ResolutionResult(
         string viewerPlayerId)
     {
         if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
-        return trigger.UnitEvent is null && trigger.UnitConquestReturn is null && trigger.ConquestFlow is null && trigger.ConquestToken is null && trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+        return trigger.EndAbility is null && trigger.UnitEvent is null && trigger.UnitConquestReturn is null && trigger.ConquestToken is null && trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
 
@@ -1741,8 +1749,8 @@ public sealed partial record ResolutionResult(
         var hiddenSource = IsHiddenStackSourceForViewer(state, item, viewerPlayerId);
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
-        var sourceId = hiddenSource ? "HIDDEN" : item.UnitConquestReturn is not null || item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
-            || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null || item.RecycleMightActivation is not null || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
+        var sourceId = hiddenSource ? "HIDDEN" : item.EndAbility is not null || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
+            || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null || item.RecycleMightActivation is not null || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
             || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
@@ -1782,6 +1790,7 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "HELD" } heldInsight) view["heldInsight"] = heldInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: "EXHAUSTED" } exhaustedInsight) view["exhaustedInsight"] = exhaustedInsight;
         if (item.TemporaryActivation is { } temporary) {
             view["grantedAbilityId"] = CoreRuleEngine.TemporaryActivationId(temporary.Grant);
             view["abilityLabel"] = "本回合获得的活跃技能";
@@ -1903,7 +1912,7 @@ public sealed partial record ResolutionResult(
         string viewerPlayerId)
     {
         if (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
-        return item.UnitEvent is null && item.UnitConquestReturn is null && item.ConquestFlow is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return item.EndAbility is null && item.UnitEvent is null && item.UnitConquestReturn is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
@@ -1986,6 +1995,7 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "HELD" } heldInsight) view["heldInsight"] = heldInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: "EXHAUSTED" } exhaustedInsight) view["exhaustedInsight"] = exhaustedInsight;
         if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
         if (!hiddenSource && item.DamageDestruction is not null) view["damageDestruction"] = item.DamageDestruction;
         if (!hiddenSource && item.GraveyardPlay is not null) view["graveyardPlay"] = item.GraveyardPlay;
@@ -3642,7 +3652,7 @@ internal static partial class ActionPromptBuilder
         var reachability = new RunePaymentReachability(pool, resources);
         return CoreRuleEngine.OptionalSacrificePlayCosts(state, playerId, behavior, source,
                 additionalMana, additionalPower, additionalTrait)
-            .Where(cost => PaymentCostRules.AvailableMana(pool, cost.ManaPurpose, state: state) >= cost.Mana.Total
+            .Where(cost => PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, source, additionalMana) >= cost.Mana.Total
                 && reachability.CanPay(cost.GenericPower, cost.TypedPower)).ToArray();
     }
 
@@ -3661,6 +3671,15 @@ internal static partial class ActionPromptBuilder
         string playerId,
         string objectId)
     {
+        // The official opening's first main prompt only permits the opening
+        // resource actions.  Do not let otherwise playable hand cards leak
+        // into that prompt (CN core opening procedure); the command gate and
+        // the prompt must share this boundary.
+        if (IsOfficialOpeningFirstResourcePrompt(state, playerId))
+        {
+            return [];
+        }
+
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
             || string.IsNullOrWhiteSpace(cardObject.CardNo))
         {
@@ -3793,7 +3812,7 @@ internal static partial class ActionPromptBuilder
             : RunePool.Empty;
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
         var ward = behavior.IgnoresSpellshield ? 0 : CoreRuleEngine.SpellshieldPowerCostForTargets(state, playerId, targetObjectIds);
-        return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
+        return PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, null) >= manaRequired
             && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "", targets: targetObjectIds);
     }
 
@@ -4079,7 +4098,7 @@ internal static partial class ActionPromptBuilder
                     (int)echoGeneric, echo.TypedPower, EchoCostRules.PrintedCosts([echo]));
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [echo.Id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (!ignoresAllCosts && !reduced && (AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
+            if (!ignoresAllCosts && !reduced && (PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, mana) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
                 || !canPayEcho)) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
@@ -4104,7 +4123,7 @@ internal static partial class ActionPromptBuilder
             if (!ignoresAllCosts && !reduced && (behavior.MaySacrificeUnitForPrintedCostReduction
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
-                : AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
+                : PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
                 || !CanPayHasteReadyPowerCost(state, playerId, runePool, paymentResourcePowerByTrait,
                     behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait }))) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
@@ -4145,7 +4164,7 @@ internal static partial class ActionPromptBuilder
             var id = $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (ignoresAllCosts || AvailablePlayMana(state, runePool, behavior) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
+            if (ignoresAllCosts || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id, $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
                     $"{behavior.DisplayName}的可选额外费用"));
@@ -4236,7 +4255,7 @@ internal static partial class ActionPromptBuilder
         string? sourceObjectId)
     {
         if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+            || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
             || !SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
         {
             return false;
@@ -4286,19 +4305,146 @@ internal static partial class ActionPromptBuilder
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        string? sourceObjectId)
+        string? sourceObjectId,
+        int extraManaCost = 0)
     {
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
-        var available = AvailablePlayMana(state, runePool, behavior)
+        var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, extraManaCost);
+        var available = PromptAvailableManaBeforeTap(state, playerId, behavior, sourceObjectId, requiredMana);
+        // A ready rune is a payment resource only when the cost still has a
+        // mana shortfall after the other available resource actions.  Keeping
+        // it out when the pool already covers the cost prevents unrelated
+        // payment prompts from advertising every ready rune.
+        if (available < requiredMana)
+            available += PromptTapRuneGeneratedMana(state, playerId);
+        // All acquired mana shares the stored-mana capacity, including pools
+        // restricted to a different purpose.
+        return (int)Math.Min(available, (long)AvailablePlayMana(state, runePool, behavior)
+            + Math.Max(0, int.MaxValue - runePool.TotalStoredMana));
+    }
+
+    private static long PromptAvailableManaBeforeTap(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId,
+        int requiredMana)
+    {
+        var runePool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        var available = (long)AvailablePlayMana(state, runePool, behavior)
             + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
         if (behavior.PlaysSourceToBaseAsUnit && PromptRenektonPaymentChoices(state, playerId).Any(choice =>
                 CanPayPlayPowerCosts(state, playerId, choice.RemainingPool, choice.RemainingRunePower,
                     behavior, 0, "", choice.RemainingRuneCapacity)))
             available += 2;
         return available;
+    }
+
+    private static bool ShouldOfferTapRunePaymentResource(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (PromptTapRuneGeneratedMana(state, playerId) <= 0)
+            return false;
+
+        var baseMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
+        if (PromptAvailableManaBeforeTap(state, playerId, behavior, sourceObjectId, baseMana) < baseMana)
+            return true;
+
+        // Optional branches can add a mana component after the base cost has
+        // already been covered.  Keep the inline rune action available for
+        // those branches as well (for example, a haste-ready unit).
+        foreach (var extraMana in OptionalManaCostsThatMayBePaid(state, playerId, behavior, sourceObjectId))
+        {
+            if (extraMana <= 0)
+                continue;
+            var required = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, extraMana);
+            if (PromptAvailableManaBeforeTap(state, playerId, behavior, sourceObjectId, required) < required)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<int> OptionalManaCostsThatMayBePaid(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (behavior.HasteReadyManaCost > 0)
+            yield return behavior.HasteReadyManaCost;
+        if (behavior.SourceBoonAdditionalManaCost > 0)
+            yield return behavior.SourceBoonAdditionalManaCost;
+        if (behavior.TargetEffectAdditionalManaCost > 0)
+            yield return behavior.TargetEffectAdditionalManaCost;
+
+        if (EchoCostRules.SupportsRepeatResolution(behavior))
+        {
+            foreach (var echo in EchoCostRules.Available(state, playerId, behavior))
+            {
+                if (echo.Mana > 0)
+                    yield return echo.Mana;
+            }
+        }
+    }
+
+    private static int PromptTapRuneGeneratedMana(MatchState state, string playerId)
+    {
+        // The opening main prompt is intentionally limited to resource actions
+        // until the first player's turn has advanced.  Keep that prompt
+        // boundary independent from ordinary turn-one test positions, which
+        // do not carry the official opening marker.
+        if (IsOfficialOpeningFirstTurn(state, playerId))
+            return 0;
+
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        var capacity = Math.Max(0, int.MaxValue - pool.TotalStoredMana);
+        return Math.Min(CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Count, capacity);
+    }
+
+    private static bool IsOfficialOpeningFirstTurn(MatchState state, string playerId)
+    {
+        return IsOfficialOpeningMainPhase(state)
+            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsOfficialOpeningFirstResourcePrompt(MatchState state, string playerId)
+    {
+        if (!IsOfficialOpeningFirstTurn(state, playerId)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        if (pool.TotalStoredMana > 0 || pool.TotalPower > 0)
+        {
+            return false;
+        }
+
+        // The official opening begins with two ready runes in the active
+        // player's base.  Once a rune has been tapped or recycled, the
+        // opening resource prompt has been completed and ordinary PLAY_CARD
+        // candidates must be exposed for the rest of that first turn.
+        var baseRunes = zones.Base
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+            .ToArray();
+        return baseRunes.Length > 0
+            && baseRunes.All(objectId => !state.CardObjects[objectId].IsExhausted);
+    }
+
+    private static bool IsOfficialOpeningMainPhase(MatchState state)
+    {
+        return state.TurnNumber == 1
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.OpeningSecondActionPlayerId)
+            && state.MulliganCompletedPlayerIds.Count >= 2;
     }
 
     private static int PromptLuxSpellOnlyGeneratedMana(
@@ -4355,8 +4501,23 @@ internal static partial class ActionPromptBuilder
     {
         if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
             || !PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId)) return [];
-        return RenektonAwareRecycleRuneChoices(state, playerId,
+        IReadOnlyList<ActionPromptChoiceDto> tapChoices = ShouldOfferTapRunePaymentResource(state, playerId, behavior, sourceObjectId)
+            ? CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId)
+            .Select(id =>
+            {
+                var objectId = id["TAP_RUNE:".Length..];
+                var choice = ObjectChoice(state, objectId, "payment resource action: tap rune while playing card");
+                return new ActionPromptChoiceDto(
+                    id,
+                    $"横置符文支付：{choice.Label}",
+                    "横置此符文获得 1 点法力并继续支付出牌费用");
+            })
+            .ToArray()
+            : [];
+        return tapChoices
+            .Concat(RenektonAwareRecycleRuneChoices(state, playerId,
                 "payment resource action: recycle rune while playing card")
+            )
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
             .Concat(PromptRenektonPaymentChoices(state, playerId)
                 .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
@@ -4433,8 +4594,8 @@ internal static partial class ActionPromptBuilder
     {
         return behavior.TargetEffectAdditionalPowerCost > 0
             && (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
-                || AvailablePlayMana(state, runePool, behavior) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
-                    + behavior.TargetEffectAdditionalManaCost
+                || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.TargetEffectAdditionalManaCost)
+                    >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.TargetEffectAdditionalManaCost)
                 && CanPayTargetEffectAdditionalPowerCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior)
                 || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
                     TargetEffectAdditionalCostIds(behavior), runePool, out _,
@@ -4502,6 +4663,8 @@ internal static partial class ActionPromptBuilder
         return choice.LegalObjectIds
             .Select(objectId => choice.ChoiceWindow == CoreRuleEngine.ReadiedModeWindow
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.ReadiedModeLabel(objectId), choice.Reason)
+                : choice.ChoiceWindow == CoreRuleEngine.UnitEventModeWindow
+                ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.UnitEventModeLabel(state, choice, objectId), choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.AttachmentModeLabel(state, choice, objectId), choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow
@@ -5180,6 +5343,23 @@ internal static partial class ActionPromptBuilder
                     };
                 },
                 StringComparer.Ordinal);
+
+        foreach (var choice in paymentResourceChoices.Where(choice => choice.Id.StartsWith("TAP_RUNE:", StringComparison.Ordinal)))
+        {
+            var objectId = choice.Id["TAP_RUNE:".Length..];
+            if (!string.IsNullOrWhiteSpace(objectId) && state.CardObjects.ContainsKey(objectId))
+            {
+                metadata[choice.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["mana"] = 1,
+                    ["paymentOnly"] = false,
+                    ["sourceObjectId"] = objectId,
+                    ["cardNo"] = state.CardObjects[objectId].CardNo,
+                    ["abilityId"] = "BASIC_RUNE_EXHAUST_GAIN_1_MANA",
+                    ["resourceLifecycle"] = "rune-pool"
+                };
+            }
+        }
 
         var legendChoices = PromptRenektonPaymentChoices(state, playerId);
         foreach (var choice in paymentResourceChoices)
