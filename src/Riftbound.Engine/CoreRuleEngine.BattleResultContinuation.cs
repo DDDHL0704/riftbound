@@ -299,9 +299,10 @@ public sealed partial class CoreRuleEngine
             new Dictionary<string, object?> { ["playerId"] = context.ControllerId, ["legendCardNo"] = context.CardNo,
                 ["sourceObjectId"] = context.Source.ObjectId, ["battlefieldId"] = context.BattlefieldId,
                 ["trigger"] = "BATTLE_WON_DRAW_ONE" }) };
-        var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, context.ControllerId, 1,
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, context.ControllerId, 1,
             state.RngCursor, events, deferNormalVictory: true);
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,
             WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor, Events = events,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

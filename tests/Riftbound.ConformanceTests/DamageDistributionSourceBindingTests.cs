@@ -72,7 +72,9 @@ public sealed class DamageDistributionSourceBindingTests
         var context = item.DamageDistribution!;
         var currentGeneration = run.State.CardObjects["HOST"].ObjectGeneration;
         Assert.Equal(0, context.Source.Generation);
-        Assert.Equal(1, currentGeneration);
+        // The unit crosses three non-field zones here: battlefield -> graveyard,
+        // graveyard -> main deck during burnout, then main deck -> hand.
+        Assert.Equal(3, currentGeneration);
         Assert.Equal(5, run.Commands().Length);
         Assert.Equal(18, run.Events().Length);
         Assert.Equal("HAND", run.State.ObjectLocations["HOST"].Zone);

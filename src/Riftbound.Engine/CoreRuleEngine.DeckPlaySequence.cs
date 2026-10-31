@@ -286,7 +286,7 @@ public sealed partial class CoreRuleEngine
         {
             var remaining = c.Viewed[recycleOwner].Select(card => card.ObjectId).Where(x => x != id).ToArray();
             if (definition.DeckPlayDrawsUnselected)
-                ApplyDrawToPlayer(state, zones, state.PlayerScores, recycleOwner, remaining.Length, cursor, events, deferNormalVictory: true);
+                ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, recycleOwner, remaining.Length, cursor, events, deferNormalVictory: true);
             else
             {
                 var recycled = RandomizeForMainDeckBottom(remaining, state.Seed, cursor, item.SourceObjectId);

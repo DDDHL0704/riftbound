@@ -80,11 +80,12 @@ public sealed partial class CoreRuleEngine
                 ["sourceCardNo"] = context.CardNo, ["battlefieldId"] = context.BattlefieldId,
                 ["trigger"] = UnitBattleWinDrawEffect, ["drawCount"] = 1
             }) };
-        var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, context.ControllerId,
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, context.ControllerId,
             1, state.RngCursor, events, deferNormalVictory: true);
         return NoopStackResolutionResult(state) with
         {
-            PlayerZones = zones, PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId,
+            PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId,
             RngCursor = draw.RngCursor, Events = events,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones)
         };
