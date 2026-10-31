@@ -182,6 +182,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult RecordDeathObservers(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
+        result = QueueBombDestructionObservers(result);
         result = QueueEquipmentDestructionObservers(result);
         var state=result.State;
         var ledger = RuleChoices.Value?.ResourceDeathLedger ?? before.DeathLedger;
