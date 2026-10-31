@@ -12,11 +12,12 @@ permissions:
   contents: read
   pull-requests: read
 
-# PR revisions replace their predecessors. Let the active main verification finish;
-# GitHub keeps only the latest pending main revision in the same group.
+# PR revisions and main pushes replace their predecessors. Keep a manually
+# dispatched run stable for investigation, while releasing runner slots held by
+# an obsolete automatic revision.
 concurrency:
   group: l2-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
