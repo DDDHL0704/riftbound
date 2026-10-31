@@ -4849,6 +4849,7 @@ internal static partial class ActionPromptBuilder
             ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
             ["manaCost"] = requirement.ManaCost,
             ["powerCost"] = requirement.OptionalCostChoices.Any(c => c.Id == StandbyHideOptionalCost) ? 1 : 0,
+            ["requiredOptionalCostChoiceCount"] = 1,
             ["costsByChoice"] = requirement.OptionalCostChoices.ToDictionary(c => c.Id, c => (object)new Dictionary<string, object?> { ["mana"] = c.Id == StandbyHideTeemoOptionalCost ? 1 : 0, ["power"] = c.Id == StandbyHideOptionalCost ? 1 : 0 }),
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
