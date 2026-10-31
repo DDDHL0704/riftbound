@@ -239,8 +239,11 @@ public sealed class VenBasicFlowSpellTests
         {
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
             var prompt = session.PromptFor(player);
-            if (prompt.Actionable) raw["promptId"] = prompt.PromptId;
-            raw["snapshotTick"] = State.Tick;
+            if (prompt.EnabledActions().Contains(command.CmdType, StringComparer.Ordinal))
+            {
+                raw["promptId"] = prompt.PromptId;
+                raw["snapshotTick"] = State.Tick;
+            }
             var wire = JsonSerializer.SerializeToElement(raw, json); command = GameCommandJsonMapper.Map(wire);
             var id = "basic-flow-" + entries.Count;
             last = (player, id, command, wire);
