@@ -19,7 +19,7 @@ public sealed partial class CoreRuleEngine
                 || item.UnitConquest is not null && ValidConquestDamageStack(state,item)
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
-                || item.FieldContext is { } field && (field.Kind is EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(field.Kind)
+                || item.FieldContext is { } field && (field.Kind is BombDestructionKind or EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(field.Kind)
                     ? ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                     : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
@@ -40,7 +40,11 @@ public sealed partial class CoreRuleEngine
                         && payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _)
                     : payment.ManaCost == 0 && (item.HighCostPlayObserver is not null ? payment.PowerCost >= 0 : payment.PowerCost > 0 || payment.ExperienceCost > 0))
             && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasMovementDamage(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
-            && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
+            && payment.PowerCostByTrait.SequenceEqual(item.HighCostPlayObserver is { } highCost
+                && HighCostPlaysSourceFromGraveyard(highCost.CardNo)
+                ? new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Yellow] = 1 }
+                : new Dictionary<string, int>(StringComparer.Ordinal))
+            && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
 
@@ -69,7 +73,8 @@ public sealed partial class CoreRuleEngine
             return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var plan = new PaymentCostRules.PaymentPlan(pending.PaymentId, pending.PaymentWindow, intent.PlayerId,
             baseManaCost: pending.ManaCost, totalManaCost: pending.ManaCost, genericPowerCost: pending.PowerCost,
-            totalPowerCost: pending.PowerCost, experienceCost: pending.ExperienceCost, sourceObjectId: item.SourceObjectId);
+            totalPowerCost: pending.PowerCost + pending.PowerCostByTrait.Values.Sum(),
+            powerCostByTrait: pending.PowerCostByTrait, experienceCost: pending.ExperienceCost, sourceObjectId: item.SourceObjectId);
         var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
         if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足；可先使用资源技能或放弃此触发技能。", ErrorCodes.InsufficientCost);
         next = next with { RunePools = committed.RunePools, PlayerExperience = committed.PlayerExperience };

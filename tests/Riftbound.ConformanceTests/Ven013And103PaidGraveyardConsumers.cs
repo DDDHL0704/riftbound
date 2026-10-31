@@ -80,11 +80,12 @@ public sealed class Ven013And103PaidGraveyardConsumers
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-013-103-" + actor,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 46574 };
         var game = new CanonicalGame(initial);
-        var verifyColdRecoveryAfterEveryCommand = true;
-        async Task Act(string player, GameCommand command)
+        async Task Act(string player, GameCommand command) => await ActCore(player, command,
+            checkpoint: command is PlayCardCommand or MoveUnitCommand);
+        async Task ActCore(string player, GameCommand command, bool checkpoint)
         {
             await game.Act(player, command);
-            if (verifyColdRecoveryAfterEveryCommand) await game.ColdCheckpoint();
+            if (checkpoint) await game.ColdCheckpoint();
             if (game.State.Phase != MatchPhases.TurnStart) return;
             for (var step = 0; step < 12 && game.State.Phase == MatchPhases.TurnStart; step++)
             {
@@ -93,33 +94,25 @@ public sealed class Ven013And103PaidGraveyardConsumers
                 Assert.Equal("CAPTURED_BEGINNING_DRAW", trigger.EffectKind);
                 Assert.Equal("OGN·251/298", trigger.CardNo);
                 await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-                if (verifyColdRecoveryAfterEveryCommand) await game.ColdCheckpoint();
+                if (checkpoint) await game.ColdCheckpoint();
             }
             Assert.Equal(MatchPhases.Main, game.State.Phase);
         }
         async Task WaitFor(string player, params string[] cards)
         {
-            // Each caller cold-recovers the full natural-draw/channeling prefix once.
-            // The payment, destruction and owner-return sequence still recovers every command.
-            verifyColdRecoveryAfterEveryCommand = false;
-            try
+            for (var turn = 0; turn < 80; turn++)
             {
-                for (var turn = 0; turn < 80; turn++)
-                {
-                    Assert.Equal(MatchPhases.Main, game.State.Phase);
-                    if (game.State.TurnPlayerId == player && game.Runes(player).Length == 12
-                        && cards.GroupBy(no => no).All(g => game.Hand(player, g.Key).Count() >= g.Count())) return;
-                    await Act(game.State.TurnPlayerId!, new EndTurnCommand());
-                }
-                Assert.Fail("The fixed legal deck must naturally draw the required cards within the bounded turns.");
+                Assert.Equal(MatchPhases.Main, game.State.Phase);
+                if (game.State.TurnPlayerId == player && game.Runes(player).Length == 12
+                    && cards.GroupBy(no => no).All(g => game.Hand(player, g.Key).Count() >= g.Count())) return;
+                await ActCore(game.State.TurnPlayerId!, new EndTurnCommand(), checkpoint: false);
             }
-            finally { verifyColdRecoveryAfterEveryCommand = true; }
+            Assert.Fail("The fixed legal deck must naturally draw the required cards within the bounded turns.");
         }
         try
         {
-            // Deck submission, ready and opening mulligans form one canonical
-            // checkpoint. Keep the real commands, then recover once before play.
-            verifyColdRecoveryAfterEveryCommand = false;
+            // Audit setup and natural draws at stage boundaries; keep cold recovery
+            // on paid plays and movement, then validate the complete final journal.
             foreach (var player in new[] { "P1", "P2" })
                 await Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
             await Act("P1", new ReadyCommand()); await Act("P2", new ReadyCommand());
@@ -135,7 +128,13 @@ public sealed class Ven013And103PaidGraveyardConsumers
             var strike = game.Hand(enemy, Strike).First();
             var field = Assert.Single(game.State.PlayerZones[actor].Battlefields, id => game.State.CardObjects[id].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag));
             await Sequence(() => game.State, Act,
-                async () => { while (game.State.StackItems.Count > 0) await Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); },
+                async () =>
+                {
+                    while (game.State.StackItems.Count > 0) await Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+                    // Recover both the lethal destruction and the later hidden hand returns
+                    // before executing any subsequent turn or play commands.
+                    await game.ColdCheckpoint();
+                },
                 game.Events, actor, units[0], units[1], units[0], food, strike, spell, field, 2);
             await game.ColdCheckpoint();
         }

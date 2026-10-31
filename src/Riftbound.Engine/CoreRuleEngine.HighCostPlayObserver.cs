@@ -19,6 +19,8 @@ public sealed partial class CoreRuleEngine
 {
     internal const string HighCostPlayEffect = "CONTROLLER_HIGH_COST_PLAY_READY_RUNES";
     internal const string HighCostReadySourceEffect = "CONTROLLER_HIGH_COST_PLAY_READY_SOURCE";
+    internal const string CardPlayBasePowerEffect = "CONTROLLER_CARD_PLAY_BASE_POWER";
+    internal const string HighCostGraveyardPlayEffect = "CONTROLLER_HIGH_COST_GRAVEYARD_PLAY";
     private sealed record HighCostPlayObserverCandidate(ObjectBinding Source, string CardNo, string ControllerId,
         long FaceRevision, string RuleTextInstanceId, string? SourceTokenFactoryCardNo, RuleTextInstanceBinding? Origin)
     {
@@ -30,25 +32,42 @@ public sealed partial class CoreRuleEngine
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo, StringComparer.Ordinal));
     private static int? PrintedManaCost(string cardNo) => HighCostCards.Value.GetValueOrDefault(cardNo)?.Energy;
     private static TriggerSpec? HighCostPlaySpec(string cardNo) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo)
-        .FirstOrDefault(t => t.Kind is TriggerKinds.ControllerHighCostUnitEquipmentOrAbilityReadyRunes or TriggerKinds.ControllerHighCostCardReadySelf);
+        .FirstOrDefault(t => t.Kind is TriggerKinds.ControllerHighCostUnitEquipmentOrAbilityReadyRunes
+            or TriggerKinds.ControllerHighCostCardReadySelf or TriggerKinds.ControllerCardPlayBasePowerSource
+            or TriggerKinds.ControllerHighCostGraveyardPlaySource);
     internal static bool HighCostReadiesSource(string? cardNo) => cardNo is not null
         && HighCostPlaySpec(cardNo)?.Kind == TriggerKinds.ControllerHighCostCardReadySelf;
-    private static string HighCostEffectFor(string cardNo) => HighCostReadiesSource(cardNo) ? HighCostReadySourceEffect : HighCostPlayEffect;
-    private static bool HighCostObservesCard(string cardNo, int types) => HighCostReadiesSource(cardNo) || (types & 3) != 0;
+    internal static bool HighCostSetsSourceBasePower(string? cardNo) => cardNo is not null
+        && HighCostPlaySpec(cardNo)?.Kind == TriggerKinds.ControllerCardPlayBasePowerSource;
+    internal static bool HighCostPlaysSourceFromGraveyard(string? cardNo) => cardNo is not null
+        && HighCostPlaySpec(cardNo)?.Kind == TriggerKinds.ControllerHighCostGraveyardPlaySource;
+    private static string HighCostEffectFor(string cardNo) => HighCostReadiesSource(cardNo) ? HighCostReadySourceEffect
+        : HighCostSetsSourceBasePower(cardNo) ? CardPlayBasePowerEffect
+        : HighCostPlaysSourceFromGraveyard(cardNo) ? HighCostGraveyardPlayEffect : HighCostPlayEffect;
+    private static bool HighCostObservesCard(string cardNo, int types) => HighCostReadiesSource(cardNo)
+        || HighCostSetsSourceBasePower(cardNo) || HighCostPlaysSourceFromGraveyard(cardNo) || (types & 3) != 0;
     private static HighCostPlayObserverCandidate[] CaptureHighCostPlayObservers(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards, string player)
     {
         if (!zones.TryGetValue(player, out var own)) return [];
-        return own.Base.Concat(own.Battlefields).Concat(own.LegendZone).Distinct(StringComparer.Ordinal)
+        var field = own.Base.Concat(own.Battlefields).Concat(own.LegendZone).Distinct(StringComparer.Ordinal)
             .Where(id => cards.TryGetValue(id, out var source) && !source.IsFaceDown
                 && SourceObjectControlledByPlayerOrLegacyOwned(source, player))
             .Order(StringComparer.Ordinal)
             .SelectMany(id => AttachedRuleTextRules.Instances(zones, cards, cards[id])
-                .Where(instance => HighCostPlaySpec(instance.CardNo) is not null)
+                .Where(instance => HighCostPlaySpec(instance.CardNo) is not null
+                    && !HighCostPlaysSourceFromGraveyard(instance.CardNo))
                 .Select(instance => new HighCostPlayObserverCandidate(new(id, cards[id].ObjectGeneration),
                     instance.CardNo, player, instance.Origin?.FaceRevision ?? cards[id].CopyFaceTransitions?.Count ?? 0,
                     instance.Id, cards[id].TokenFactoryCardNo, instance.Origin)))
             .ToArray();
+        var graveyard = own.Graveyard.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)
+            .Where(id => cards.TryGetValue(id, out var source) && !source.IsFaceDown
+                && HighCostPlaysSourceFromGraveyard(source.CardNo) && source.OwnerId == player)
+            .Select(id => new HighCostPlayObserverCandidate(new(id, cards[id].ObjectGeneration), cards[id].CardNo!, player,
+                cards[id].CopyFaceTransitions?.Count ?? 0, $"PRINTED:{id}:{cards[id].ObjectGeneration}", cards[id].TokenFactoryCardNo, null))
+            .ToArray();
+        return field.Concat(graveyard).ToArray();
     }
 
     private const string HighCostSkillCaptureKey = "internalHighCostSkillObservers";
@@ -134,7 +153,7 @@ public sealed partial class CoreRuleEngine
             {
                 var context = observation.Context;
                 var trigger = new TriggerQueueItemState($"high-cost-play-{context.CapturedTick}-{index}-{ordinal}",
-                    context.ControllerId, context.Source.ObjectId, HighCostPlayEffect, "ABILITY_RESOLVED")
+                    context.ControllerId, context.Source.ObjectId, HighCostEffectFor(context.CardNo), "ABILITY_RESOLVED")
                     { HighCostPlayObserver = context, SourceCardNo = context.CardNo };
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
@@ -201,7 +220,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidHighCostObserver(MatchState state, HighCostPlayObserverContext? context,
         string effect, string sourceId, string controller, string? cardNo)
     {
-        if (context is null) return effect is not (HighCostPlayEffect or HighCostReadySourceEffect);
+        if (context is null) return effect is not (HighCostPlayEffect or HighCostReadySourceEffect or CardPlayBasePowerEffect or HighCostGraveyardPlayEffect);
         if (string.IsNullOrWhiteSpace(context.CardNo)) return false;
         var spec = HighCostPlaySpec(context.CardNo);
         if (spec?.MinimumCardMana is not { } minimum || effect != HighCostEffectFor(context.CardNo) || context.CardNo != cardNo
@@ -240,6 +259,13 @@ public sealed partial class CoreRuleEngine
             return item.StackItemId.StartsWith($"ordered-high-cost-play-{context.CapturedTick}-", StringComparison.Ordinal)
                 && !context.Paid && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
                 && item.OptionalCosts.Count == 0 && item.DamageAmount == 0 && item.EffectRepeatCount == 1 && !item.SourceConfirmed;
+        if (HighCostSetsSourceBasePower(context.CardNo) || HighCostPlaysSourceFromGraveyard(context.CardNo))
+            return item.StackItemId.StartsWith($"ordered-high-cost-play-{context.CapturedTick}-", StringComparison.Ordinal)
+                && (!context.Paid && item.TargetObjectIds.Count == 0
+                    && (item.TargetGenerations is null || item.TargetGenerations.Count == 0)
+                    || context.Paid && item.TargetObjectIds.Count <= 1
+                        && (item.TargetGenerations is null || item.TargetGenerations.Count == item.TargetObjectIds.Count))
+                && item.OptionalCosts.Count == 0 && item.DamageAmount == 0 && item.EffectRepeatCount == 1 && !item.SourceConfirmed;
         var max = HighCostPlaySpec(context.CardNo)!.RuneReadyCount ?? 0;
         return item.StackItemId.StartsWith($"ordered-high-cost-play-{context.CapturedTick}-", StringComparison.Ordinal)
             && item.TargetObjectIds.Count <= max && item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count
@@ -251,11 +277,18 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool CanPayHighCostExhaustion(MatchState state, StackItemState item)
-        => item.HighCostPlayObserver is { } context && state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
-            && source.ObjectGeneration == context.Source.Generation && !source.IsExhausted && !source.IsFaceDown
-            && SourceObjectControlledByPlayerOrLegacyOwned(source, item.ControllerId)
+    {
+        if (item.HighCostPlayObserver is not { } context || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+            || source.ObjectGeneration != context.Source.Generation || source.IsFaceDown) return false;
+        if (HighCostSetsSourceBasePower(context.CardNo))
+            return SourceObjectControlledByPlayerOrLegacyOwned(source, item.ControllerId)
+                && IsObjectOnField(state.PlayerZones, source.ObjectId);
+        if (HighCostPlaysSourceFromGraveyard(context.CardNo))
+            return source.OwnerId == item.ControllerId && state.PlayerZones[item.ControllerId].Graveyard.Contains(source.ObjectId);
+        return !source.IsExhausted && SourceObjectControlledByPlayerOrLegacyOwned(source, item.ControllerId)
             && (IsObjectOnField(state.PlayerZones, source.ObjectId)
                 || state.PlayerZones[item.ControllerId].LegendZone.Contains(source.ObjectId));
+    }
 
     private static string[] HighCostRuneTargets(MatchState state, StackItemState item)
         => state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal)
@@ -265,6 +298,10 @@ public sealed partial class CoreRuleEngine
 
     private static PendingCardChoiceState HighCostRuneChoice(MatchState state, StackItemState item)
     {
+        if (HighCostSetsSourceBasePower(item.CardNo) || HighCostPlaysSourceFromGraveyard(item.CardNo))
+            return new("HIGH-COST-RUNES:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 0, 0, [], [],
+                HighCostPlaysSourceFromGraveyard(item.CardNo) ? "支付 1 黄色符能，或放弃从废牌堆打出此单位。" : "选择是否让来源本回合基础战力变为所打出卡牌的法力费用。",
+                item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
         var ids = HighCostRuneTargets(state, item);
         return new("HIGH-COST-RUNES:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 0,
             Math.Min(ids.Length, HighCostPlaySpec(item.CardNo!)!.RuneReadyCount ?? 0), ids, ids,
@@ -303,6 +340,40 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidHighCostStack(state, item))
             throw new InvalidOperationException("Invalid high-cost play observer.");
+        if (HighCostSetsSourceBasePower(item.CardNo))
+        {
+            if (item.HighCostPlayObserver is not { Paid: true, CardPlay: { } played }
+                || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+                || source.ObjectGeneration != item.HighCostPlayObserver.Source.Generation
+                || !IsObjectOnField(state.PlayerZones, source.ObjectId))
+                return NoopStackResolutionResult(state);
+            var printed = PrintedManaCost(played.CardNo);
+            if (printed is not { } basePower) return NoopStackResolutionResult(state);
+            var changed = TemporaryUnitEffectRules.SetNumber(source, TemporaryUnitEffectRules.BaseMightPrefix, basePower, retainZero: true);
+            var recomputed = RecomputePowerAfterTemporaryBaseReplacement(state, changed, basePower);
+            var baseCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+            baseCards[source.ObjectId] = recomputed;
+            return NoopStackResolutionResult(state) with { CardObjects = baseCards, Events = [new(
+                "BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = item.SourceObjectId,
+                    ["targetGeneration"] = source.ObjectGeneration, ["baseMight"] = basePower,
+                    ["cardNo"] = item.CardNo, ["playedCardNo"] = played.CardNo })] };
+        }
+        if (HighCostPlaysSourceFromGraveyard(item.CardNo))
+        {
+            if (item.EffectPlayCompleted) return NoopStackResolutionResult(state);
+            if (item.HighCostPlayObserver is not { Paid: true } context
+                || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)
+                || !zones.Graveyard.Contains(item.SourceObjectId)
+                || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+                || source.ObjectGeneration != context.Source.Generation)
+                return NoopStackResolutionResult(state);
+            var parent = item with { TargetObjectIds = new[] { item.SourceObjectId }, TargetGenerations = null };
+            var pending = BeginEffectPlay(state, parent, HighCostGraveyardPlayBehavior(context.CardNo));
+            return pending with { Events = new[] { BuildTriggerResolvedEvent(new(item.StackItemId, item.ControllerId,
+                item.SourceObjectId, item.EffectKind, context.CardPlay is null ? "ABILITY_RESOLVED" : "CARD_PLAY_COMPLETED") { HighCostPlayObserver = context }) }
+                .Concat(pending.Events).ToArray() };
+        }
         if (HighCostReadiesSource(item.CardNo))
         {
             var cardsToReady = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
@@ -331,5 +402,19 @@ public sealed partial class CoreRuleEngine
                     ["objectIds"] = new[] { id }, ["count"] = 1 }));
             }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
+    }
+
+    internal static CardBehaviorDefinition HighCostGraveyardPlayBehavior(string cardNo)
+        => new(cardNo, "高费用触发从废牌堆打出", 0, HighCostGraveyardPlayEffect, 0, 0,
+            EffectPlaySourceZone: "GRAVEYARD", EffectPlayIgnoreBaseMana: true,
+            EffectPlayIgnoreBasePower: true, EffectPlayDestination: "BASE");
+
+    private static CardObjectState RecomputePowerAfterTemporaryBaseReplacement(MatchState state, CardObjectState card, int basePower)
+    {
+        var printed = PrintedCardFactory.TryCreate(card.ObjectId, card.OwnerId ?? "", card.CardNo, out var face)
+            ? face.Power
+            : card.Power - card.UntilEndOfTurnPowerModifier - TemporaryUnitEffectRules.BaseMightDelta(card);
+        var delta = basePower - printed;
+        return card with { Power = card.Power + delta, UntilEndOfTurnPowerModifier = card.UntilEndOfTurnPowerModifier + delta };
     }
 }
