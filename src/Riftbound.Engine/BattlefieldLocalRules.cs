@@ -12,7 +12,9 @@ internal static class BattlefieldLocalRules
             || card.IsFaceDown || !card.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
             || !state.PlayerZones.Values.Any(z => z.Battlefields.Contains(id, StringComparer.Ordinal))
             || (state.ObjectLocations.TryGetValue(id, out var location)
-                && (location.Zone != "BATTLEFIELD" || location.BattlefieldObjectId != id))) return null;
+                && (location.Zone != "BATTLEFIELD"
+                    || location.BattlefieldObjectId is { Length: > 0 } locatedBattlefieldId
+                        && !string.Equals(locatedBattlefieldId, id, StringComparison.Ordinal)))) return null;
         return card;
     }
 
