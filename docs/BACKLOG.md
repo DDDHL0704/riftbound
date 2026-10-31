@@ -31,7 +31,7 @@
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
-- [ ] **P1-1 征服时机（#231）**。征服触发的技能应先让对手响应，再结算效果。PR [#275](https://github.com/DDDHL0704/riftbound/pull/275) 覆盖 SFD·212 磨牌、薇恩返回手牌、祖安、Shirana、Moonveil 的响应窗口与费用确认，依据中国区核心规则 383.3.a–d、383.4.c.2.a–c、337.1.b、204.3.a、359.3.e、124、186.1；对象跨区身份追踪和伪造历史校验继续在 `c/zone-identity` 完成后勾选本项。
+- [x] **P1-1 征服时机（#231）**。征服触发的技能应先让对手响应，再结算效果。PR [#275](https://github.com/DDDHL0704/riftbound/pull/275) 覆盖 SFD·212 磨牌、薇恩返回手牌、祖安、Shirana、Moonveil 的响应窗口与费用确认；对象跨区身份追踪和伪造历史校验已在 `c/zone-identity` 补齐。依据中国区核心规则 383.3.a–d、383.4.c.2.a–c、337.1.b、204.3.a、359.3.e、124、186.1。
 - [ ] **P1-2 出牌候选计入可横置的符文**。现在只有法力池里已有的法力才算可用，手上能靠横置符文付费的牌也不会出现在可打出列表里。规则依据：204.4.b.1、430.3。前端目前靠询价绕过，详见 `clients/web/docs/server-findings.md` 的 S1。
 - [x] **P1-3 待命布置时允许回收符文支付**。[#259](https://github.com/DDDHL0704/riftbound/pull/259) 已实现：`HIDE_CARD` 候选在支付待命费用时可携带回收符文资源动作，并在同一原子结算中完成回收与扣费。依据：811.1.b、430.3（见 S2）。
 - [ ] **P1-4 其余前端反馈的服务端问题**：详见 `clients/web/docs/server-findings.md`。2026-10-30 已在 main 上逐条复核，以下问题仍然存在。每条单独一个小 PR，按顺序做：
@@ -111,6 +111,7 @@
   - `a/l2-runtime-profile`：复核新增 VEN 机制后的主干 [41013909621](https://github.com/DDDHL0704/riftbound/actions/runs/41013909621)，原有慢方法耗时中位数增加约 38%，testhost 分配量增加约 40%；九片完全均衡的执行下界也约 30.2 分钟，需继续优化测试夹具或执行方式，不能只靠重平衡。本轮把共享测试驱动消费者中的 45 处连续单符文横置准备改为生产批量命令，保留相同符文顺序、资源总量、逐批实际事件和完整恢复／去重／回放断言；不改引擎。完整规则清单与唯一门槛保留。
   - [#310](https://github.com/DDDHL0704/riftbound/pull/310) 已合入：将 `VenRunePrintingConsumerTests` 中真实开局的三张符文逐枚横置／回收和重复失败提交改为批量命令，保留每张印次身份、代际、区域、法力／符能、符文顺序、RNG 游标、非法外部符文、过期命令、自然重入和冷恢复断言；不改引擎。完整 [41063997240](https://github.com/DDDHL0704/riftbound/actions/runs/41063997240) 及包含该优化的主干 [41078351418](https://github.com/DDDHL0704/riftbound/actions/runs/41078351418) 的九片规则与 `L2 required` 全部通过；后者分片约 27.4–31.1 分钟，仍高于 30 分钟整次目标。
   - [#323](https://github.com/DDDHL0704/riftbound/pull/323) 已合入（`cd545d595`）：将九个测试夹具中连续的符文横置／回收准备改为生产批量命令，不改引擎；本地 Release 定向回归 24/24 通过，PR L2 [41137679904](https://github.com/DDDHL0704/riftbound/actions/runs/41137679904) 九片及 `L2 required` 全部通过。
+  - [#327](https://github.com/DDDHL0704/riftbound/pull/327) 已合入（`d0c0487a`）：将 VEN013/103 合法开局的提交牌组、就绪和调度起手阶段冷恢复合并为阶段末一次，保留支付、结算、回放及关键恢复检查；PR L2 [41151087570](https://github.com/DDDHL0704/riftbound/actions/runs/41151087570) 九片与 `L2 required` 全部通过，分片用时约 25.4–33.4 分钟。
   - 固定 `cc16515b6` 的主干完整 [41057698950](https://github.com/DDDHL0704/riftbound/actions/runs/41057698950) 九片规则与 `L2 required` 均通过，运行墙钟约 38 分 48 秒，主干验证恢复但仍高于 30 分钟目标。
   - 包含 #316 的固定 `febefb0be` 主干完整 [41098699611](https://github.com/DDDHL0704/riftbound/actions/runs/41098699611) 已于 18:08 UTC 通过九片规则及 `L2 required`，确认合入后主干仍能完整验证；本次墙钟约 42 分 40 秒，P3-2 保持打开。
   - 包含 #317 的固定 `6ef93d4fb` 主干完整 [41104458818](https://github.com/DDDHL0704/riftbound/actions/runs/41104458818) 已通过九片规则和 `L2 required`；9,792 个方法、20,403 条实际用例 Counter 与固定计划及前次全绿 main 完全一致，零增删。
