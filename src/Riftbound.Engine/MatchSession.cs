@@ -3665,7 +3665,7 @@ internal static partial class ActionPromptBuilder
         // resource actions.  Do not let otherwise playable hand cards leak
         // into that prompt (CN core opening procedure); the command gate and
         // the prompt must share this boundary.
-        if (IsOfficialOpeningFirstTurn(state, playerId))
+        if (IsOfficialOpeningMainPhase(state))
         {
             return [];
         }
@@ -4399,9 +4399,14 @@ internal static partial class ActionPromptBuilder
 
     private static bool IsOfficialOpeningFirstTurn(MatchState state, string playerId)
     {
+        return IsOfficialOpeningMainPhase(state)
+            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsOfficialOpeningMainPhase(MatchState state)
+    {
         return state.TurnNumber == 1
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.OpeningSecondActionPlayerId)
             && state.MulliganCompletedPlayerIds.Count >= 2;
     }
