@@ -13797,20 +13797,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // explicit multi-participant declaration must still use the same
         // assignment window as a live start-battle task.
         var importedStaticContest = state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield)
-            && BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup: false)
-            // A single attacker/defender declaration is a normal imported
-            // fixture battle. Only an explicit multi-unit declaration needs
-            // the synthetic start-battle task bypass to expose assignment.
-            && NormalizeTargetObjectIds(attackerObjectIds).Count
-                + NormalizeTargetObjectIds(defenderObjectIds).Count > 2;
+            && BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup: false);
         return (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
                 || importedStaticContest)
             && optionalCosts.Count == 1
             && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
             && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0
-            // Either player can choose among multiple recipients, including a
-            // sole defender facing several attackers of the same priority.
-            && (attackerObjectIds.Count > 1 || defenderObjectIds.Count > 1);
+            // Imported contests have no live START_BATTLE task, so preserve
+            // the explicit COMBAT_ASSIGNMENT request even for one attacker
+            // against one defender. Live battles retain the multi-recipient
+            // guard because a single pair is assigned automatically.
+            && (importedStaticContest
+                || attackerObjectIds.Count > 1
+                || defenderObjectIds.Count > 1);
     }
 
     private static bool IsObjectLocatedAtBattlefield(
