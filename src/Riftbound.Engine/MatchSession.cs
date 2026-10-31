@@ -1526,7 +1526,7 @@ public sealed partial record MatchState
             || pendingCardChoice.RequiredCount < 0
             || pendingCardChoice.MaxCount < pendingCardChoice.RequiredCount
             || pendingCardChoice.LegalObjectIds.Count < pendingCardChoice.RequiredCount
-            || pendingCardChoice.ContextObjectIds.Count == 0 && !CoreRuleEngine.IsEmptyRevealedHandChoice(pendingCardChoice))
+            || pendingCardChoice.ContextObjectIds.Count == 0 && !CoreRuleEngine.AllowsEmptyContextCardChoice(pendingCardChoice))
         {
             return null;
         }

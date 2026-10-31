@@ -530,7 +530,7 @@ public static partial class MatchRecoveryValidator
                 $"authoritative state pending card choice {choiceLabel} legal object count {distinctLegalObjectCount} is less than required count {pendingCardChoice.RequiredCount}");
         }
 
-        if (pendingCardChoice.ContextObjectIds.Count == 0 && !CoreRuleEngine.IsEmptyRevealedHandChoice(pendingCardChoice))
+        if (pendingCardChoice.ContextObjectIds.Count == 0 && !CoreRuleEngine.AllowsEmptyContextCardChoice(pendingCardChoice))
         {
             errors.Add($"authoritative state pending card choice {choiceLabel} context object count is invalid");
         }
