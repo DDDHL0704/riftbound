@@ -54,7 +54,7 @@ class RegistrationHotspotTests(unittest.TestCase):
         result = hotspots.summarize(rows)
 
         self.assertEqual(result["batchCount"], 30)
-        self.assertEqual(result["statusCounts"], {"closed": 2, "merged": 27, "open": 1})
+        self.assertEqual(result["statusCounts"], {"closed": 2, "merged": 28, "open": 0})
         self.assertEqual(
             result["counts"],
             {

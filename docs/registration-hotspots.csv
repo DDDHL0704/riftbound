@@ -21,7 +21,7 @@ pr,branch,title,status,src/Riftbound.Engine/CardBehaviorRegistry.cs,src/Riftboun
 281,b/rad-legend-resources,feat(cards): 接入 RAD 传奇、英雄与专属法术的17个印次,merged,1,1,1,1,0,1,0,0
 284,d/rad-basic-effects,feat(cards): 接入 RAD 普通牌基础效果批次,closed,1,1,1,1,0,1,1,0
 285,b/rad-discard-destroy,feat(cards): 接入莫德凯撒两项 RAD 英雄效果与四个印次,merged,1,1,1,1,0,1,0,0
-287,d/rad-next,feat(cards): 接入 RAD 普通牌汇总批次（35 项）,open,1,1,1,1,0,1,1,0
+287,d/rad-next,feat(cards): 接入 RAD 普通牌汇总批次（35 项）,merged,1,1,1,1,0,1,1,0
 293,b/rad-entry-cost,feat(cards): 接入艾克额外费用与放逐之锋替代装配费用,merged,1,1,1,0,0,1,0,0
 302,e/rad-unit-batch,feat(cards): 接入五张 RAD 缴械单位及共享缴械流程,merged,1,1,1,1,0,1,0,0
 303,e/rad-entry-choices,feat(cards): 接入五张 RAD 打出触发单位,merged,1,1,1,0,0,1,0,0
