@@ -4667,11 +4667,17 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidTurnFlowGrants(state)) errors.Add("invalid temporary flow grant");
         if (!CoreRuleEngine.ValidCurrentTurnUnitPlayGrants(state)) errors.Add("invalid temporary unit play grant");
         foreach (var item in state.StackItems)
-            if (!CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
+            if (item.TurnUnitPlayDraw is null && !CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
                 errors.Add("invalid captured unit play boon stack");
+        foreach (var item in state.StackItems)
+            if (item.TurnUnitPlayDraw is not null && !CoreRuleEngine.ValidTurnUnitPlayDraw(state, item.TurnUnitPlayDraw, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
+                errors.Add("invalid captured unit play draw stack");
         foreach (var item in state.TriggerQueue)
-            if (!CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo))
+            if (item.TurnUnitPlayDraw is null && !CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo))
                 errors.Add("invalid captured unit play boon trigger");
+        foreach (var item in state.TriggerQueue)
+            if (item.TurnUnitPlayDraw is not null && !CoreRuleEngine.ValidTurnUnitPlayDraw(state, item.TurnUnitPlayDraw, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo))
+                errors.Add("invalid captured unit play draw trigger");
         if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK" && sourcePending.Parent.ObservedPlayPermission is null)
             && !CoreRuleEngine.ValidSourceReplayPending(state, sourcePending)) errors.Add("invalid source replay continuation");
         foreach (var item in state.StackItems)
@@ -5383,6 +5389,7 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyOtherObjectStack(authoritativeState, stackItem))
                 && !(stackItem.SourceUnitTokens is not null && CoreRuleEngine.ValidSourceUnitTokens(authoritativeState, stackItem.SourceUnitTokens, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, stackItem.SourcePlayDraw, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
+                && !(stackItem.TurnUnitPlayDraw is not null && CoreRuleEngine.ValidTurnUnitPlayDraw(authoritativeState, stackItem.TurnUnitPlayDraw, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
                     stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
                 && !UnitDestroyedTriggerSpecRules.TryGetTrigger(stackItem.CardNo,
@@ -5534,6 +5541,7 @@ public static partial class MatchRecoveryValidator
                 && !(trigger.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyObjectTrigger(authoritativeState, trigger.ReadyObjectTrigger, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))
                 && !(trigger.SourceUnitTokens is not null && CoreRuleEngine.ValidSourceUnitTokens(authoritativeState, trigger.SourceUnitTokens, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
+                && !(trigger.TurnUnitPlayDraw is not null && CoreRuleEngine.ValidTurnUnitPlayDraw(authoritativeState, trigger.TurnUnitPlayDraw, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
                 && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(trigger.SourceCardNo,
