@@ -7,7 +7,8 @@ public sealed record PendingEffectPlayState(
     string ChoiceId, string PlayerId, StackItemState Parent, string SourceZone,
     IReadOnlyDictionary<string, long> Sources, bool IgnoreBaseMana, bool IgnoreBasePower,
     int ManaReduction, string DestinationPolicy, bool Optional, IReadOnlyList<string>? ViewedCardIds = null,
-    bool IgnoreAllCosts = false, RevealedHandPlayContext? RevealedHand = null)
+    bool IgnoreAllCosts = false, RevealedHandPlayContext? RevealedHand = null,
+    int? MaximumUnitPower = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SourceReplayContinuation? SourceReplay { get; init; }
