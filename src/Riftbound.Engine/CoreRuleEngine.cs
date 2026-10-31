@@ -29096,7 +29096,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var entryStaticAbilitySourceState = new CardObjectState();
             StaticAbilitySpec entryStaticAbility = default!;
             var entryField = shadowField?.ObjectId;
-            if (entryField is null && UnitTokenInstructionAllowsLocationChoice(stackItem.CardNo, behavior.CreatedBaseUnitTokenName))
+            if (entryField is null && UnitTokenLocationChoiceGranted(turnEffects, stackItem.ControllerId)
+                && UnitTokenInstructionAllowsLocationChoice(stackItem.CardNo, behavior.CreatedBaseUnitTokenName))
                 entryField = ChooseUnitTokenBattlefield(state, stackItem.ControllerId, behavior.CreatedBaseUnitTokenName,
                     playerZones, cardObjects, objectLocations ?? state.ObjectLocations, runePools, turnEffects);
             var hastePaid = ChooseTokenHaste(state, stackItem.ControllerId, stackItem.SourceObjectId, tokenState,
