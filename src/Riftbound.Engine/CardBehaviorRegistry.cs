@@ -430,6 +430,7 @@ public static class CardTargetScopes
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
     public const string Legend = "LEGEND";
+    public const string FriendlyLegend = "FRIENDLY_LEGEND";
     public const string StackSpell = "STACK_SPELL";
     public const string SacredJudgmentKeepCard = "SACRED_JUDGMENT_KEEP_CARD";
 }
@@ -443,6 +444,7 @@ public static class CardCounteredStackItemDestinationZones
 public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
+    public const string LegendCard = "CARD_TYPE:LEGEND";
     public const string EquipmentCard = "CARD_TYPE:EQUIPMENT";
     public const string RuneCard = "CARD_TYPE:RUNE";
     public const string SpellCard = "CARD_TYPE:SPELL";
@@ -9489,6 +9491,14 @@ public static class CardBehaviorRegistry
             CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy),
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantLegendarySupportUnits =
+    [
+        new("RAD·040/167", "鼓舞之魂", 7, "SOUL_OF_INSPIRATION_PLAY_READY_FRIENDLY_LEGEND", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyLegend,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "灵体",
+            ReadiesTarget: true)
+    ];
+
     private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
     [
         new("RAD·067/167", "钟塔守护者", 8, "HELD_INSIGHT_LAST_BREATH_PLAY_UNIT", 0, 0,
@@ -9530,6 +9540,7 @@ public static class CardBehaviorRegistry
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
+            .Concat(RadiantLegendarySupportUnits)
             .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)

@@ -4934,14 +4934,13 @@ public static partial class MatchRecoveryValidator
             if (!recognized || !P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)
                 || ability.Kind != ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
                 || ability.EffectKind != item.EffectKind
-                || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
+                || !TargetedPowerAbilitySourceMatches(state, item.ControllerId, item.SourceObjectId, ability, item.CardNo)
                 || string.IsNullOrWhiteSpace(context.SourceObjectId)
                 || context.SourceObjectId != item.SourceObjectId || context.SourceGeneration < 0
                 || !state.CardObjects.TryGetValue(context.SourceObjectId, out var source)
                 || source.ObjectGeneration < context.SourceGeneration
                 || source.ObjectGeneration == context.SourceGeneration
-                    && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
-                        || !source.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal))
+                    && !TargetedPowerAbilitySourceMatches(state, item.ControllerId, source.ObjectId, ability, source.CardNo)
                 || (ability.PowerModifierAmountIfSourceEmpowered is null ? context.LastKnownSourceEmpowered is not null
                     : context.LastKnownSourceEmpowered is null || source.ObjectGeneration == context.SourceGeneration
                         && state.PlayerZones.Values.Any(z => z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId))
@@ -4967,6 +4966,27 @@ public static partial class MatchRecoveryValidator
                 || !string.IsNullOrEmpty(item.TimingContext) || item.OptionalCosts.Count != 0)
                 errors.Add($"stack item {item.StackItemId} targeted power ability identity, source or effect shape is invalid");
         }
+    }
+
+    private static bool TargetedPowerAbilitySourceMatches(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        P4ActivatedAbilityDefinition ability,
+        string? cardNo)
+    {
+        if (ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend)
+        {
+            return state.PlayerZones.TryGetValue(playerId, out var zones)
+                && zones.LegendZone.Contains(sourceObjectId, StringComparer.Ordinal)
+                && state.CardObjects.TryGetValue(sourceObjectId, out var source)
+                && !source.IsFaceDown
+                && CoreRuleEngine.HasControllerCardOnField(state, playerId, ability.RequiredControllerCardNoOnField);
+        }
+
+        return P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardNo)
+            && state.CardObjects.TryGetValue(sourceObjectId, out var ordinarySource)
+            && ordinarySource.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal);
     }
 
     private static void ValidateAuthoritativeStateStackItemValues(

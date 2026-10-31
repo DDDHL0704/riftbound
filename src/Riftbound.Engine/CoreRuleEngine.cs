@@ -21078,6 +21078,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.AnyMainDeckTopFiveCard => IsAnyMainDeckTopCards(state, objectId, 5),
             CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
             CardTargetScopes.Legend => IsLegendObject(state, objectId),
+            CardTargetScopes.FriendlyLegend => IsLegendObject(state, objectId)
+                && state.PlayerZones.TryGetValue(playerId, out var friendlyLegendZones)
+                && friendlyLegendZones.LegendZone.Contains(objectId, StringComparer.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var friendlyLegend)
+                && SourceObjectControlledByPlayerOrLegacyOwned(friendlyLegend, playerId),
             CardTargetScopes.StackSpell => StackObjectRules.CanChoose(state, objectId, allowAbilities),
             CardTargetScopes.SacredJudgmentKeepCard => IsSacredJudgmentKeepCandidate(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
@@ -25874,7 +25879,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         targetControllerDrawRecipientIds.Add(replacements.Controllers[targetObjectId]);
                         continue;
                     }
-                    var targetIsLegend = string.Equals(behavior.TargetScope, CardTargetScopes.Legend, StringComparison.Ordinal)
+                    var targetIsLegend = behavior.TargetScope is CardTargetScopes.Legend or CardTargetScopes.FriendlyLegend
                         && IsLegendObject(playerZones, cardObjects, targetObjectId);
                     if (!targetIsLegend
                         && !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId))

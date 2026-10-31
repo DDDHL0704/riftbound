@@ -18,6 +18,7 @@ public sealed class RadNextBatchUnitTests
     [InlineData("RAD·008/167", "战争斥候", 39498, 3, 2)]
     [InlineData("RAD·058/167", "怒海法师", 39554, 4, 3)]
     [InlineData("RAD·118/167", "帝皇令使", 39623, 5, 3)]
+    [InlineData("RAD·040/167", "鼓舞之魂", 39533, 7, 7)]
     [InlineData(FlameRaider, "焰烙劫掠者", 39509, 6, 6)]
     [InlineData(BombMonkey, "爆破猿", 39596, 6, 6)]
     public async Task OfficialPrintingsAndSharedDefinitionsRemainBound(
@@ -59,6 +60,12 @@ public sealed class RadNextBatchUnitTests
         {
             Assert.Equal(CardTargetScopes.FriendlyUnit, behavior.TargetScope);
             Assert.Equal(5, behavior.BasePowerUntilEndOfTurn);
+        }
+        else if (cardNo == "RAD·040/167")
+        {
+            Assert.Equal(CardTargetScopes.FriendlyLegend, behavior.TargetScope);
+            Assert.True(behavior.ReadiesTarget);
+            Assert.Contains("灵体", behavior.SourceUnitTags);
         }
         else
         {
@@ -328,6 +335,81 @@ public sealed class RadNextBatchUnitTests
         Assert.Equal(3, game.Events().Count(entry => entry.Event.Kind == "EQUIPMENT_TOKEN_CREATED"
             && Equals(entry.Event.Payload.GetValueOrDefault("tokenCardNo"), P6TokenFactoryCatalog.BombTokenCardNo)));
         await game.Replay();
+    }
+
+    [Fact]
+    public async Task SoulOfInspirationReadiesAFriendlyLegendAndGrantsItsSharedPowerSkill()
+    {
+        var initial = SoulOfInspirationPosition();
+        var game = new Driver(initial);
+
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·040/167", ["LEGEND"], Destination: "BASE"));
+        await game.Top();
+
+        Assert.False(game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        var ability = Assert.Single(P4ActivatedAbilityCatalog.GetAll(), candidate =>
+            candidate.SourceCardNo == "RAD·040/167"
+            && candidate.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn);
+        var prompt = game.PromptFor("P1");
+        Assert.Contains(prompt.Candidates ?? [], candidate => candidate.Action == CommandTypes.ActivateAbility
+            && candidate.Sources?.Any(source => source.Id == "LEGEND") == true);
+
+        await game.Act("P1", new ActivateAbilityCommand("LEGEND", ability.AbilityId, ["ALLY"]));
+        await game.Top();
+
+        Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Equal(initial.CardObjects["ALLY"].Power + 3, game.State.CardObjects["ALLY"].Power);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task SoulOfInspirationRejectsAnEnemyLegendAndLosesTheGrantedSkillWhenItLeaves()
+    {
+        var initial = SoulOfInspirationPosition();
+        var before = MatchStateHasher.Hash(initial);
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial,
+            new("illegal-soul-target", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("UNIT", "RAD·040/167", ["ENEMY-LEGEND"], Destination: "BASE"), default);
+        Assert.False(rejected.Accepted);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+        Assert.Empty(rejected.Events);
+
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·040/167", ["LEGEND"], Destination: "BASE"));
+        await game.Top();
+        var ability = Assert.Single(P4ActivatedAbilityCatalog.GetAll(), candidate =>
+            candidate.SourceCardNo == "RAD·040/167"
+            && candidate.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn);
+        var cards = game.State.CardObjects.ToDictionary();
+        var zones = game.State.PlayerZones.ToDictionary();
+        var locations = game.State.ObjectLocations.ToDictionary();
+        zones["P1"] = zones["P1"] with { Base = zones["P1"].Base.Where(id => id != "UNIT").ToArray(), Hand = ["UNIT"] };
+        locations["UNIT"] = new("P1", "HAND");
+        var removed = game.State with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations };
+        var noSkill = await new CoreRuleEngine().ResolveAsync(removed,
+            new("skill-without-source", "P1", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand("LEGEND", ability.AbilityId, ["ALLY"]), default);
+        Assert.False(noSkill.Accepted);
+        Assert.Equal(MatchStateHasher.Hash(removed), MatchStateHasher.Hash(noSkill.State));
+        Assert.Empty(noSkill.Events);
+    }
+
+    private static MatchState SoulOfInspirationPosition()
+    {
+        var state = VenUnitEntryBasicTests.Position("RAD·040/167");
+        var cards = state.CardObjects.ToDictionary();
+        var zones = state.PlayerZones.ToDictionary();
+        var locations = state.ObjectLocations.ToDictionary();
+        cards["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "OGN·183/298", "P1")
+            with { Tags = [CardObjectTags.LegendCard], IsExhausted = true };
+        cards["ENEMY-LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY-LEGEND", "OGN·183/298", "P2")
+            with { Tags = [CardObjectTags.LegendCard] };
+        zones["P1"] = zones["P1"] with { LegendZone = ["LEGEND"] };
+        zones["P2"] = zones["P2"] with { LegendZone = ["ENEMY-LEGEND"] };
+        locations["LEGEND"] = new("P1", "LEGEND");
+        locations["ENEMY-LEGEND"] = new("P2", "LEGEND");
+        return state with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations };
     }
 
     private static MatchState FlamePosition()
