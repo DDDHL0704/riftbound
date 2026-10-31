@@ -102,21 +102,28 @@ public sealed class VenRunePrintingConsumerTests
         var driver = new Driver(initial); var lifecycle = new List<object>(); var cycled = new List<(string Player, string Id, string No, long Generation)>();
         try
         {
-            foreach (var player in new[] { "P1", "P2" }) await driver.Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
-            await driver.Act("P1", new ReadyCommand()); await driver.Act("P2", new ReadyCommand());
+            // The setup commands are covered by the first checkpoint after natural
+            // channeling. Replaying each unchanged setup prefix separately only
+            // repeats the same full action-log audit before any resource behavior
+            // exists to distinguish the checkpoints.
+            foreach (var player in new[] { "P1", "P2" })
+                await driver.Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields), coldRecovery: false);
+            await driver.Act("P1", new ReadyCommand(), coldRecovery: false); await driver.Act("P2", new ReadyCommand(), coldRecovery: false);
             var active = driver.State.ActivePlayerId; var second = driver.State.OpeningSecondActionPlayerId!;
-            await driver.Act(active, new MulliganCommand([])); await driver.Act(second, new MulliganCommand([]));
+            await driver.Act(active, new MulliganCommand([]), coldRecovery: false); await driver.Act(second, new MulliganCommand([]), coldRecovery: false);
             for (var guard = 0; driver.State.PlayerZones.Any(e => e.Value.RuneDeck.Count > 0); guard++)
             {
                 Assert.True(guard < 16, "Real turn channeling did not exhaust the initial rune decks.");
                 await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand(), coldRecovery: false);
             }
-            // Recover the complete natural-channeling prefix once. The resource assertions below
-            // still cold-recover every accepted/rejected tap, recycle and batch command.
+            // Recover the complete natural-channeling prefix once. Resource commands below
+            // keep their result, privacy and duplicate assertions, then share one cold
+            // checkpoint per player's complete batch.
             await driver.ColdCheckpoint();
             foreach (var player in new[] { "P1", "P2" })
             {
-                if (driver.State.TurnPlayerId != player) await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand());
+                if (driver.State.TurnPlayerId != player)
+                    await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand(), coldRecovery: false);
                 Assert.Equal(12, driver.State.PlayerZones[player].Base.Count(id => driver.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)));
                 var entered = numbers.Select(no =>
                 {
@@ -126,12 +133,12 @@ public sealed class VenRunePrintingConsumerTests
                 }).ToArray();
                 var enteredIds = entered.Select(r => r.Id).ToArray();
                 var cycleBefore = driver.State; var cycleMana = cycleBefore.RunePools[player].Mana;
-                await driver.Act(player, new TapRuneCommand(enteredIds[0], enteredIds));
+                await driver.Act(player, new TapRuneCommand(enteredIds[0], enteredIds), coldRecovery: false);
                 Assert.Equal(cycleMana + enteredIds.Length, driver.State.RunePools[player].Mana);
                 Assert.All(enteredIds, id => Assert.True(driver.State.CardObjects[id].IsExhausted));
-                await driver.Act(player, new TapRuneCommand(enteredIds[0], enteredIds), false);
+                await driver.Act(player, new TapRuneCommand(enteredIds[0], enteredIds), accepted: false, coldRecovery: false);
                 var recycleBefore = driver.State; var cyclePower = recycleBefore.RunePools[player].PowerByTrait.GetValueOrDefault(trait);
-                await driver.Act(player, new RecycleRuneCommand(enteredIds[0], enteredIds));
+                await driver.Act(player, new RecycleRuneCommand(enteredIds[0], enteredIds), coldRecovery: false);
                 Assert.Equal(cyclePower + enteredIds.Length, driver.State.RunePools[player].PowerByTrait.GetValueOrDefault(trait));
                 Assert.Equal(recycleBefore.PlayerZones[player].RuneDeck.Concat(enteredIds), driver.State.PlayerZones[player].RuneDeck);
                 Assert.Equal(recycleBefore.RngCursor, driver.State.RngCursor);
@@ -143,18 +150,18 @@ public sealed class VenRunePrintingConsumerTests
                     cycled.Add((player, entry.Id, entry.No, entry.Generation));
                     lifecycle.Add(new { player, no = entry.No, id = entry.Id, enteredGeneration = entry.Generation, recycledGeneration = driver.State.CardObjects[entry.Id].ObjectGeneration });
                 }
-                await driver.Act(player, new RecycleRuneCommand(enteredIds[0], enteredIds), false);
+                await driver.Act(player, new RecycleRuneCommand(enteredIds[0], enteredIds), accepted: false, coldRecovery: false);
                 var available = numbers.Reverse().Select(no => driver.State.PlayerZones[player].Base.First(id => driver.State.CardObjects[id].CardNo == no && !driver.State.CardObjects[id].IsExhausted)).ToArray();
                 var opponent = player == "P1" ? "P2" : "P1";
                 var foreign = driver.State.PlayerZones[opponent].Base.First(id => driver.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard));
-                await driver.Act(player, new TapRuneCommand(foreign), false);
-                await driver.Act(player, new TapRuneCommand(available[0], [available[0], foreign, available[1]]), false);
-                await driver.Act(player, new TapRuneCommand("NO-SUCH-RUNE"), false);
+                await driver.Act(player, new TapRuneCommand(foreign), accepted: false, coldRecovery: false);
+                await driver.Act(player, new TapRuneCommand(available[0], [available[0], foreign, available[1]]), accepted: false, coldRecovery: false);
+                await driver.Act(player, new TapRuneCommand("NO-SUCH-RUNE"), accepted: false, coldRecovery: false);
                 var batchBefore = driver.State; var batchMana = batchBefore.RunePools[player].Mana;
-                await driver.Act(player, new TapRuneCommand(available[0], available));
+                await driver.Act(player, new TapRuneCommand(available[0], available), coldRecovery: false);
                 Assert.Equal(batchMana + 3, driver.State.RunePools[player].Mana); Assert.All(available, id => Assert.True(driver.State.CardObjects[id].IsExhausted));
                 var batchRecycleBefore = driver.State; var typed = batchRecycleBefore.RunePools[player].PowerByTrait.GetValueOrDefault(trait);
-                await driver.Act(player, new RecycleRuneCommand(available[0], available));
+                await driver.Act(player, new RecycleRuneCommand(available[0], available), coldRecovery: false);
                 Assert.Equal(typed + 3, driver.State.RunePools[player].PowerByTrait.GetValueOrDefault(trait));
                 Assert.Equal(batchRecycleBefore.PlayerZones[player].RuneDeck.Concat(available), driver.State.PlayerZones[player].RuneDeck);
                 Assert.Equal(batchRecycleBefore.RngCursor, driver.State.RngCursor);
@@ -167,6 +174,7 @@ public sealed class VenRunePrintingConsumerTests
                 Assert.Equal(6, driver.State.RunePools[player].PowerByTrait.GetValueOrDefault(trait));
                 Assert.Equal(6, driver.State.RunePools[player].Mana);
                 Assert.All(driver.State.RunePools[player].PowerByTrait.Where(p => p.Key != trait), p => Assert.Equal(0, p.Value));
+                await driver.ColdCheckpoint();
             }
             for (var guard = 0; cycled.Any(c => driver.State.ObjectLocations[c.Id].Zone != "BASE"); guard++)
             {
