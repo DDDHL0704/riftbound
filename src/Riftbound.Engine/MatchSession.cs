@@ -3665,7 +3665,7 @@ internal static partial class ActionPromptBuilder
         // resource actions.  Do not let otherwise playable hand cards leak
         // into that prompt (CN core opening procedure); the command gate and
         // the prompt must share this boundary.
-        if (IsOfficialOpeningMainPhase(state))
+        if (IsOfficialOpeningFirstResourcePrompt(state, playerId))
         {
             return [];
         }
@@ -4401,6 +4401,32 @@ internal static partial class ActionPromptBuilder
     {
         return IsOfficialOpeningMainPhase(state)
             && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsOfficialOpeningFirstResourcePrompt(MatchState state, string playerId)
+    {
+        if (!IsOfficialOpeningFirstTurn(state, playerId)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        if (pool.TotalStoredMana > 0 || pool.TotalPower > 0)
+        {
+            return false;
+        }
+
+        // The official opening begins with two ready runes in the active
+        // player's base.  Once a rune has been tapped or recycled, the
+        // opening resource prompt has been completed and ordinary PLAY_CARD
+        // candidates must be exposed for the rest of that first turn.
+        var baseRunes = zones.Base
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+            .ToArray();
+        return baseRunes.Length > 0
+            && baseRunes.All(objectId => !state.CardObjects[objectId].IsExhausted);
     }
 
     private static bool IsOfficialOpeningMainPhase(MatchState state)
