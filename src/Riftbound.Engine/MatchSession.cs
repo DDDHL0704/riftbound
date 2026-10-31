@@ -2039,6 +2039,8 @@ public sealed partial record ResolutionResult(
         return payment.PaymentResourceActionIds
                 .Concat(payment.LegalPaymentChoiceIds.Where(choiceId =>
                     choiceId.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)))
+                .Concat(payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow
+                    ? [] : CoreRuleEngine.TapRunePaymentResourceActionIds(state, payment.PlayerId))
 
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
@@ -2188,6 +2190,8 @@ public sealed partial record ResolutionResult(
 internal static partial class ActionPromptBuilder
 {
     private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
+    private const string TapRunePaymentOptionalCostPrefix = "TAP_RUNE:";
+    private const int BasicRuneTapManaGain = 1;
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string RecycleGraveyardCardAdditionalCostPrefix = "RECYCLE_GRAVEYARD_CARD:";
     private const int BasicRuneRecyclePowerGain = 1;
