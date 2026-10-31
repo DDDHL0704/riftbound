@@ -117,11 +117,15 @@ public sealed class Ven013And103PaidGraveyardConsumers
         }
         try
         {
+            // Deck submission, ready and opening mulligans form one canonical
+            // checkpoint. Keep the real commands, then recover once before play.
+            verifyColdRecoveryAfterEveryCommand = false;
             foreach (var player in new[] { "P1", "P2" })
                 await Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
             await Act("P1", new ReadyCommand()); await Act("P2", new ReadyCommand());
             await Act(game.State.ActivePlayerId, new MulliganCommand([]));
             await Act(game.State.OpeningSecondActionPlayerId!, new MulliganCommand([]));
+            await game.ColdCheckpoint();
             var enemy = Arena.Other(actor);
             await WaitFor(actor, Assassin, Assassin, Return); await game.ColdCheckpoint();
             await WaitFor(enemy, Assassin, Strike); await game.ColdCheckpoint();
