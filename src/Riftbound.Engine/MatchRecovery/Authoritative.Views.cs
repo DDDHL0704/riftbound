@@ -466,18 +466,22 @@ public static partial class MatchRecoveryValidator
             foreach (var payload in payloads)
             {
                 TryReadObjectString(payload, queue ? "triggerId" : "stackItemId", out var id);
-                var expected = queue ? state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id)?.TurnUnitPlayBoon
+                var expectedBoon = queue ? state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id)?.TurnUnitPlayBoon
                     : state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.TurnUnitPlayBoon;
+                var expectedDraw = queue ? state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id)?.TurnUnitPlayDraw
+                    : state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.TurnUnitPlayDraw;
+                var expected = expectedBoon ?? expectedDraw;
+                var property = expectedDraw is null ? "turnUnitPlayBoon" : "turnUnitPlayDraw";
                 try
                 {
                     var json = JsonSerializer.SerializeToElement(payload);
                     if (json.ValueKind != JsonValueKind.Object) continue;
-                    var actual = json.TryGetProperty("turnUnitPlayBoon", out var raw) && raw.ValueKind != JsonValueKind.Null
+                    var actual = json.TryGetProperty(property, out var raw) && raw.ValueKind != JsonValueKind.Null
                         ? raw.Deserialize<TurnUnitPlayBoonContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
                     if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
-                        errors.Add("public captured unit play boon differs from authoritative state");
+                        errors.Add(expectedDraw is null ? "public captured unit play boon differs from authoritative state" : "public captured unit play draw differs from authoritative state");
                 }
-                catch (JsonException) { errors.Add("invalid public captured unit play boon"); }
+                catch (JsonException) { errors.Add(expectedDraw is null ? "invalid public captured unit play boon" : "invalid public captured unit play draw"); }
             }
         }
         Check(snapshot.Stack, false);
