@@ -35,19 +35,6 @@ internal static class BattlefieldContestRules
             return false;
         }
 
-        // A lone occupant on a field controlled by another player is a dirty
-        // imported fixture.  It must enter the normal control task instead of
-        // silently bypassing the contest lifecycle.
-        if (battlefield.OccupantControllerIds.Count == 1
-            && (string.IsNullOrWhiteSpace(battlefield.ControllerId)
-                || !string.Equals(
-                    battlefield.ControllerId,
-                    battlefield.OccupantControllerIds[0],
-                    StringComparison.Ordinal)))
-        {
-            return false;
-        }
-
         var prefix = MarkerPrefix(battlefield.BattlefieldObjectId);
         return !state.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(prefix, StringComparison.Ordinal));
     }
