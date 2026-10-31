@@ -13790,7 +13790,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds)
     {
-        return ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
+        var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        // Imported tick-zero fixtures intentionally suppress the synthetic
+        // start-battle task so their first explicit command is not blocked by
+        // a contest that was already present in the imported position. An
+        // explicit multi-participant declaration must still use the same
+        // assignment window as a live start-battle task.
+        var importedStaticContest = state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield)
+            && BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup: false);
+        return (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
+                || importedStaticContest)
             && optionalCosts.Count == 1
             && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
             && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0
