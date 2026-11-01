@@ -2,9 +2,9 @@
 
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
-**当前状态（2026-10-31）**
-- **main**：最新为 `2dfa92873`（#329 文档记录）。合入 #329 后的完整运行 [41159049774](https://github.com/DDDHL0704/riftbound/actions/runs/41159049774) 九个规则分片和 `L2 required` 全部通过，墙钟约 35 分钟；主干完整验证恢复，但 P3-2 的 30 分钟目标仍未达到。最新定时夜验 [41136063296](https://github.com/DDDHL0704/riftbound/actions/runs/41136063296) 全绿，固定 `3959436b`；PostgreSQL 分区 0 用时约 218 分钟，见 P0-2 的 SQL 资源采样记录。
-- **夜间验收**：完整验收 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 已连续三次全绿，P0-2 达标；之后只依靠每晚定时运行，失败时按 P0-2 登记。
+**当前状态（2026-11-01）**
+- **main**：最新为 `295d232a2`（#358 合入）。#358 之后的 L2 [41264744350](https://github.com/DDDHL0704/riftbound/actions/runs/41264744350) 已取消；#360 仍为草稿并阻塞。此前主干完整验证已恢复，但 P3-2 的 30 分钟目标仍未达到。
+- **夜间验收**：此前 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 连续三次全绿；定时夜验 [41242878171](https://github.com/DDDHL0704/riftbound/actions/runs/41242878171)（固定 `e0a389ded`）失败，连续计数归零，失败项与修复见 P0-2。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
 
@@ -15,7 +15,7 @@
   - 修正 6 局完整对局和对应的投影测试。
 
   SourceLone 对局已在伤害结算前无条件检查双方参与者，死亡后检查墓地和投影中的反向结果。L2 通过后已合入；[手动夜验 40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647) 的付款重连、完整对局进程分片及其他集成验收均通过，规则全量因六小时超时而未完成，详见 P0-2。
-- [x] **P0-2 夜间验收连续通过**。`40990497783`、`41010811413`、`41024183616` 已连续三次完整验收全绿，手动运行按当前口径计入，P0-2 达标。之后不再手动连跑，只依靠每晚定时运行；失败时在这里登记失败项、原因和修复 PR。
+- [ ] **P0-2 夜间验收连续通过（当前计数归零）**。此前 `40990497783`、`41010811413`、`41024183616` 已连续三次完整验收全绿，手动运行按当前口径计入；定时夜验 `41242878171` 失败后重新计数。修复合入后由管理者手动触发一次 `native-desktop.yml` 夜验确认，再恢复只依靠每晚定时运行。
   - [#296](https://github.com/DDDHL0704/riftbound/pull/296) 已合入：SQL 验收独立进程复用完整规则测试已验证的 1,024 条静态正则缓存，并在现有分区结果中记录实际缓存容量、CPU 数和 GC 模式。保留全部 69 个 SQL 场景、原始命令、冷恢复、反伪造和完整回放检查；现有验收驱动任务同时编译完整 PostgreSQL Release 项目，任务数保持。45 项工具检查及 CI 验收驱动通过；完整 [41005415912](https://github.com/DDDHL0704/riftbound/actions/runs/41005415912) 的 9,491 个方法、19,625 条用例与门槛通过，Counter 与固定计划及全绿 main 一致，零跳过。九片实际约 19.2–24.1 分钟，末片排队约四分钟使总墙钟为 30 分 26 秒。真实 SQL 提速幅度仍待完整夜验测量。
   - [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)（#289 修复后运行，固定 `c7100536`，不含 #292 缓存及 #294 配置，第 1 次）：最终 **success**，八片完整规则、四个 PostgreSQL 分区、SQL SignalR、网络、双桌面及最终完整门槛全部通过。9,649 个方法、19,890 条用例逐条 Counter 与固定 full 计划一致，含全部 144 个完整对局方法；69 个 SQL 场景恰好各执行一次。SQL 四片实际场景耗时约 211.1 / 112.1 / 165.7 / 133.6 分钟，销毁墓地最慢约 100.8 分钟，非卡死。
   - [41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413)（运行，固定 `03106805`，第 2 次）：最终 **success**。八片完整规则、四个 PostgreSQL 分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及最终完整门槛全部通过；规则清单为 9,649 个方法、19,890 条用例，八片 Counter 合计 19,890，全部通过且零跳过，69 个 SQL 场景四分区恰好各执行一次。规则 testhost 全部确认四处理器 ARM64、Server GC、Regex 缓存 1,024；SQL 分区也确认 Regex 缓存 1,024。规则分片实际约 35.0 / 35.1 / 53.5 / 35.0 / 45.7 / 74.9 / 63.0 / 43.8 分钟；SQL 分区 0–3 最慢场景分别为 `destruction-graveyard` 57.8 分钟、`copied-last-breath-insight` 32.4 分钟、`copied-duel-insight` 24.6 分钟、`empowered-insight` 26.7 分钟，未见卡死。
@@ -26,6 +26,8 @@
   - [40967451157](https://github.com/DDDHL0704/riftbound/actions/runs/40967451157)（北京时间 10 月 30 日定时运行，固定 `92a8350b`）：shard-3 的皮城学院回响完整对局失败；连续惩戒伤害留下多个同一单位的强制放逐替换，测试助手在 `DESTRUCTION_REPLACEMENT` 窗口继续让出优先权，未由指定玩家提交替换顺序选择。[#289](https://github.com/DDDHL0704/riftbound/pull/289) 已合入，保留付款、回响与完整日志回放断言，补充目标实际放逐和真实选择命令断言，并加入常规 L2，原有两局完整对局继续执行。本地该方法 1/1 通过；完整 [40980378753](https://github.com/DDDHL0704/riftbound/actions/runs/40980378753) 的 9,454 个方法、19,497 条用例和门槛全部通过，旧 19,496 条零移除，仅新增该回归；ARM64 实测该用例约 34.5 秒。最终仅该用例及依赖它的规则汇总、完整门槛失败；其余七个规则分片、四个 PostgreSQL 分区及 PostgreSQL 汇总、SQL SignalR、网络和双桌面全部通过。
   - [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616)（固定 `07592c16`，第 3 次）：最终 **success**，八片完整规则、四个 PostgreSQL 分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及最终完整门槛全部通过；规则与 PostgreSQL 汇总也通过。分区 0 于 08:06:30–11:47:00 UTC 完成（约 220 分钟），18 个场景均通过。与 #257 合入前的 41010811413 固定提交 `03106805` 对比，`destruction-graveyard` 为 6,562.7 秒（此前 3,468.3 秒）、`paka-move-reveal` 为 2,731.2 秒（此前 1,702.6 秒）、`attached-predict` 为 1,948.2 秒（此前 1,104.5 秒）、`multi-controller-trigger-order` 为 987.7 秒（此前 544.2 秒）；用例数量、冷恢复和结果均一致，未发现死循环。该差异与 #257 后的主干回归时间相符，但期间还有其他合入，后续按场景继续 profiling。
   - [41136063296](https://github.com/DDDHL0704/riftbound/actions/runs/41136063296)（10 月 31 日定时运行，固定 `3959436b`）：最终 **success**。规则八片、四个 PostgreSQL 分区、SQL SignalR、网络、双桌面及完整门槛全部通过；分区 0 从 22:11:33 到 01:49:41 UTC 完成，约 218 分钟，仍明显偏慢但未见卡死或失败。资源采样中 PostgreSQL 测试进程持续使用约 1 个 CPU，峰值 RSS 约 1.07 GiB，cgroup 没有 CPU throttling；分区从头到尾完成，无等待或挂起迹象。
+
+  - [41242878171](https://github.com/DDDHL0704/riftbound/actions/runs/41242878171)（11 月 1 日定时运行，固定 `e0a389ded`）：规则全量通过，但两个真实 PostgreSQL 集成项失败。`postgres_partitions` 分区 0 的 `DravenBattleDeathSqlAcceptance` 在加载排队技能时报告 SQL 行与输入不一致；恢复时的触发器规范化复制器遗漏 `DravenBattleDeathScore`，导致 `DravenBattleDeathRecoveryRules` 无法验证复制后的技能。SQL SignalR 进程重启的 `optional-additional-cost-reductions` `play` 步骤退出码非零；可选减费 copied case 的首次连接需要重放完整恢复历史，旧 90 秒夹具 deadline 到期，取消最终在 `PostgresMatchJournal.RecordAsync` 表现出来。修复 [PR #361](https://github.com/DDDHL0704/riftbound/pull/361)（`a/p0-nightly-fix`）补上触发器字段复制（包括 Draven 分数和死亡观察者），并将该夹具 deadline 提高到 3 分钟并注明恢复重放成本；定向验证已通过，合入后手动夜验确认。
 
   - **分区 0 变慢复核（10-30）**：固定提交 `03106805` 与 `07592c16` 之间，四个慢场景对应的测试和 fixture 文件没有变化；两次 PostgreSQL 产物中的命令数、事件数和冷恢复次数也一致，增加的是执行耗时。该区间还包含 #257 之后的其他合入，现有运行无法单独把回归归因于 #257；未发现用例增加或循环迹象。
   - **分区 0 复核（10-31）**：`03106805`（#257 合入前启动）到 `07592c16`（#257 合入后）间 18 个场景总耗时由约 122.4 分钟增至 219.2 分钟，所有场景均变慢；之后固定 `3959436b` 总耗时约 216.8 分钟，与前一次接近。最大场景 `destruction-graveyard` 从约 57.8 分钟升至约 109.4 分钟，最新约 110.3 分钟。提交间还合入了 #298、#293 及其他变更，所以结果显示回归发生于 #257 后，但不能单独归因于 #257；命令、事件和冷恢复数未增加，资源采样显示持续 CPU 计算而非等待或挂起。
