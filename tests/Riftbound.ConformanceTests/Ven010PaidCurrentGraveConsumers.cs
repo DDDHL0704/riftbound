@@ -116,9 +116,9 @@ public sealed class Ven010PaidCurrentGraveConsumers
                 async () => { await Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); await Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); },
                 game.Events, actor, unit, curses, enemyCurse, moon, dispose, field, add,
                 checkpointAfterReaction: game.ColdCheckpoint);
-            await game.ColdCheckpoint();
             var forged = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects)
                 { [unit] = game.State.CardObjects[unit] with { Damage = 1 } } };
+            // The forgery probe also restores this unchanged original history.
             await game.RejectCoordinatedForgery("invented-damage-after-real-turn-cleanup", forged);
         }
         finally { await game.Save("ven010-paid-current-grave-" + actor + "-" + add); }
@@ -194,15 +194,19 @@ public sealed class Ven010PaidCurrentGraveConsumers
                 async () => { await Act(run.State.PriorityPlayerId!, new PassPriorityCommand()); await Act(run.State.PriorityPlayerId!, new PassPriorityCommand()); },
                 () => run.Frame().Events.ToArray(), actor, unit, curses, enemyCurse, moon, dispose, field, add,
                 checkpointAfterReaction: run.Cold);
-            await run.Cold(); var original = run.Frame();
+            var original = run.Frame();
             Assert.Empty(original.ValidationErrors);
-            Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(original, new CoreRuleEngine(), default));
+            var originalHistoryHash = MatchStateHasher.HashValue(new { original.Commands, original.Events, original.AuthoritativeState });
             var forged = run.State with { CardObjects = new Dictionary<string, CardObjectState>(run.State.CardObjects)
                 { [unit] = run.State.CardObjects[unit] with { Damage = 1 } } };
             var forgedFrame = run.Frame(forged); Assert.Empty(forgedFrame.ValidationErrors);
             forgeryErrors = (await MatchActionLogReplayer.ValidateRecoveryFrameAsync(forgedFrame, new CoreRuleEngine(), default)).ToArray();
             Assert.NotEmpty(forgeryErrors);
             Assert.Contains(forgeryErrors, e => e.Contains("replayed final state hash", StringComparison.Ordinal));
+            var unchanged = run.Frame();
+            Assert.Equal(originalHistoryHash, MatchStateHasher.HashValue(new { unchanged.Commands, unchanged.Events, unchanged.AuthoritativeState }));
+            // Cold audits this same original history before native restoration;
+            // keep one positive audit alongside the independent forged replay.
             await run.Cold();
         }
         finally

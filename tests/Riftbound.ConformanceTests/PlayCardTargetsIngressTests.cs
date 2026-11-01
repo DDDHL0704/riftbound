@@ -254,7 +254,8 @@ public sealed class PlayCardTargetsIngressTests
     {
         var frame = Frame(setup, setup.Current.State);
         Assert.Empty(StructuralErrors(frame));
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        // The fresh registry below audits the complete original history before
+        // restoring the JSON round trip of this frame.
         var restoredFrame = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Web), Web)!;
         var writes = new Journal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), writes, new Store(restoredFrame));

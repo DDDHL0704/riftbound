@@ -30,7 +30,9 @@ public sealed partial class CoreRuleEngine
                 output.Add(id);
             }
         if (newScope && TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battle.BattlefieldId,
-            out var fieldId, out var field) && BattleLimitedMarkers.Definition(field.CardNo ?? "", BattleLimitedMarkers.SteadfastDefend)
+            out var fieldId, out var field)
+            && (BattleLimitedMarkers.Definition(field.CardNo ?? "", BattleLimitedMarkers.SteadfastDefend)
+                || BattleLimitedMarkers.Definition(field.CardNo ?? "", BattleLimitedMarkers.BulwarkDefend))
             && SourceObjectControlledByPlayerOrLegacyOwned(field, scope.DefendingPlayerId))
             effects.Add(BattleLimitedMarkers.RoleId(new(scope, fieldId, field.ObjectGeneration, scope.DefendingPlayerId,
                 "PLAYER_DEFENDER", field.CardNo!, 0, state.Tick, eventOrder, oneOnOne, null)));
@@ -59,11 +61,14 @@ public sealed partial class CoreRuleEngine
                 }
             }
         if (newScope && TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battlefield, out var fieldId, out var field)
-            && BattleLimitedMarkers.Definition(field.CardNo ?? "", BattleLimitedMarkers.SteadfastDefend)
+            && (BattleLimitedMarkers.Definition(field.CardNo ?? "", BattleLimitedMarkers.SteadfastDefend)
+                || BattleLimitedMarkers.Definition(field.CardNo ?? "", BattleLimitedMarkers.BulwarkDefend))
             && SourceObjectControlledByPlayerOrLegacyOwned(field, scope.DefendingPlayerId)) {
-            var context = new FieldTriggerContext(field.CardNo!, BattleLimitedMarkers.SteadfastDefend,
+            var kind = BattleLimitedMarkers.Definition(field.CardNo ?? "", BattleLimitedMarkers.BulwarkDefend)
+                ? BattleLimitedMarkers.BulwarkDefend : BattleLimitedMarkers.SteadfastDefend;
+            var context = new FieldTriggerContext(field.CardNo!, kind,
                 field.ObjectGeneration, battlefield, focus) { SourceLocation = new(scope.DefendingPlayerId, "BATTLEFIELD", battlefield) };
-            queue.Add(new($"battle-limited-{scope.StartedAtTick}-{scope.RoleEventOrder}-{fieldId}-steadfast", scope.DefendingPlayerId,
+            queue.Add(new($"battle-limited-{scope.StartedAtTick}-{scope.RoleEventOrder}-{fieldId}-{kind}", scope.DefendingPlayerId,
                 fieldId, FieldTriggerEffect, eventKind, TimingStates.SpellDuelOpen) { FieldContext = context });
         }
         return queue.ToArray();
@@ -79,7 +84,7 @@ public sealed partial class CoreRuleEngine
             && (context.SourceTokenFactoryCardNo is null
                 || P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
                     && token.Tags.Contains(CardObjectTags.UnitCard))
-            && (context.Kind == BattleLimitedMarkers.SteadfastDefend
+            && (BattleLimitedMarkers.IsDefendGrant(context.Kind)
                 ? context.Origin is null && context.SourceTokenFactoryCardNo is null && !context.SourceCeasedToExist
                 : !context.SourceCeasedToExist || context.SourceTokenFactoryCardNo is not null);
 
@@ -89,10 +94,10 @@ public sealed partial class CoreRuleEngine
         if (!IsBattleLimitedContextShape(context, effect, cardNo) || !state.Seats.ContainsKey(controller)
             || context.ReturnFocusPlayerId is null || !state.Seats.ContainsKey(context.ReturnFocusPlayerId)
             || BattleLimitedMarkers.ScopeFor(state, context.BattlefieldId!) is not { } scope) return false;
-        var role = context.Kind == BattleLimitedMarkers.SteadfastDefend ? "PLAYER_DEFENDER" : BattleLimitedMarkers.Role(context.Kind);
+        var role = BattleLimitedMarkers.IsDefendGrant(context.Kind) ? "PLAYER_DEFENDER" : BattleLimitedMarkers.Role(context.Kind);
         var first = BattleLimitedMarkers.First(state, scope, sourceId, context.SourceGeneration, role);
         if (first is null || first.ControllerId != controller || context.SourceLocation!.PlayerId != controller
-            || context.Kind != BattleLimitedMarkers.SteadfastDefend && !first.OneOnOne
+            || !BattleLimitedMarkers.IsDefendGrant(context.Kind) && !first.OneOnOne
             || context.Origin is null && first.SourceFace != context.CardNo
             || context.Origin?.CapturedTick is { } capturedTick && capturedTick > first.AcquiredAtTick
             || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, sourceId, context.SourceGeneration, context.CardNo)) return false;
@@ -105,7 +110,7 @@ public sealed partial class CoreRuleEngine
         if (source.ObjectGeneration < context.SourceGeneration || context.SourceCeasedToExist) return false;
         if (context.SourceTokenFactoryCardNo != first.TokenFactoryCardNo) return false;
         if (context.Origin is not null || source.ObjectGeneration > context.SourceGeneration) return true;
-        if (context.Kind == BattleLimitedMarkers.SteadfastDefend) {
+        if (BattleLimitedMarkers.IsDefendGrant(context.Kind)) {
             if (source.CardNo == first.SourceFace && first.SourceFace == context.CardNo) return true;
             return first.SourceFace == context.CardNo && source.ReplacedBattlefieldCard is { } old
                 && state.CardObjects.TryGetValue(old.ObjectId, out var previous) && previous.ObjectGeneration == old.Generation

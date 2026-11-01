@@ -61,8 +61,8 @@ public sealed class OptionalSacrificeOpeningTests
         Assert.Equal(before.RunePools["P1"].Mana - (outsideHand ? 8 : 7), result.State.RunePools["P1"].Mana);
         Assert.Equal(before.RunePools["P1"].TotalPower - (outsideHand ? 4 : 3), result.State.RunePools["P1"].TotalPower);
         var final = Frame(prefix.ReplayInitialState, journal, result.State);
+        // This fresh registry audits the complete original history before admission.
         Assert.NotNull(await new InMemoryMatchSessionRegistry(engine, NoopMatchJournal.Instance, new Store(final)).GetOrCreateAsync(final.RoomId, default));
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(final, engine, default));
         if (nativeDirectory is not null)
             await File.WriteAllTextAsync(Path.Combine(nativeDirectory, "replay.json"), JsonSerializer.Serialize(new {
                 nativeCommands = native ? 1 : 0, accepted = 1, coldRestores = 2, originalOpeningTick = 0,

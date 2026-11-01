@@ -131,9 +131,9 @@ jobs:
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      # Current complete ARM64 measurements need at least 26.0 minutes of
-      # execution with eight shards, before 3.7 minutes of CI overhead.
-      # Nine shards leave margin and two rule runs use 18 of the 20 job slots.
+      # Run 41317603039 measured 1,312 case-minutes: even nine four-worker
+      # shards need about 36.5 minutes before CI overhead. Reduce fixture work
+      # before shrinking this matrix; two rule runs use 18 of about 20 job slots.
       max-parallel: 9
       matrix:
         shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8, shard-9]

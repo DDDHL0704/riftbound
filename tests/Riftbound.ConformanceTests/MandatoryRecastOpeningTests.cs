@@ -26,6 +26,7 @@ public sealed class MandatoryRecastOpeningTests
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
         var verifyColdRecoveryAfterEveryCommand = true;
+        string? auditedReplayHash = null;
         var coldTimingsDirectory = Environment.GetEnvironmentVariable("RIFTBOUND_RECAST_PHASE_TIMINGS");
         var coldTimingsFile = string.IsNullOrWhiteSpace(coldTimingsDirectory) ? null
             : Path.Combine(coldTimingsDirectory, actor + "-" + mode + "-" + Environment.ProcessId + "-" + Guid.NewGuid().ToString("N") + ".jsonl");
@@ -138,8 +139,9 @@ public sealed class MandatoryRecastOpeningTests
             await Drain();
             Assert.Equal(MatchStatuses.InProgress, State().Status); Assert.Null(State().WinnerPlayerId);
             Assert.All(State().PlayerScores.Values, score => Assert.Equal(0, score));
-            var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State(), engine, default, Events());
-            Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+            // Cold already verified the complete original replay through the production
+            // registry. Require exactly those audited inputs and final state here.
+            Assert.Equal(auditedReplayHash, OriginalHistoryHash());
             Assert.Equal(MatchSession.RoomSeatCommandType, Commands()[0].CommandType);
             Assert.Equal(MatchSession.RoomSeatCommandType, Commands()[1].CommandType);
             Assert.DoesNotContain(Commands(), c => c.CommandType.StartsWith("DEV_SEED_SCENARIO", StringComparison.Ordinal));
@@ -162,6 +164,7 @@ public sealed class MandatoryRecastOpeningTests
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) {
                 TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         RecoveredEvent[] Events() => journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
+        string OriginalHistoryHash() => MatchStateHasher.HashValue(new { initial, commands = Commands(), events = Events(), state = State() });
         MatchRecoveryFrame Clone(MatchRecoveryFrame frame) => JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
         MatchRecoveryFrame Frame(MatchState state)
         {
@@ -190,6 +193,7 @@ public sealed class MandatoryRecastOpeningTests
                 Assert.Equal(WireHash(frame.PlayerViews[player].Snapshot), WireHash(session.SnapshotFor(player)));
                 Assert.Equal(WireHash(frame.PlayerViews[player].Prompt), WireHash(session.PromptFor(player)));
             }
+            auditedReplayHash = OriginalHistoryHash();
             if (coldTimingsFile is not null)
             {
                 var checkedViews = Stopwatch.GetTimestamp();
@@ -229,6 +233,7 @@ public sealed class MandatoryRecastOpeningTests
             // keeps its duplicate and rule assertions, while restoring the same
             // growing journal after each pass would replay identical history.
             var recover = verifyColdRecoveryAfterEveryCommand;
+            var commandsBeforeDrain = journal.Entries.Count;
             verifyColdRecoveryAfterEveryCommand = false;
             var closed = false;
             for (var i = 0; i < 30; i++)
@@ -241,7 +246,9 @@ public sealed class MandatoryRecastOpeningTests
             }
             verifyColdRecoveryAfterEveryCommand = recover;
             Assert.True(closed, "The finite canonical recast window did not close.");
-            if (recover) await Cold();
+            // Callers already restored the preceding Act. An empty Drain has
+            // no new history to restore; keep the boundary whenever it acts.
+            if (recover && journal.Entries.Count != commandsBeforeDrain) await Cold();
         }
     }
 

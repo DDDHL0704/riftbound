@@ -146,12 +146,19 @@ public sealed partial class PlayPowerSpendSelectionTests
             var errors = MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
                 frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick, frame.SpectatorReplayFrame);
             frame = frame with { ValidationErrors = errors }; Save(label + "-frame", frame); Assert.Empty(errors);
-            var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(Initial, frame.Commands, State, new CoreRuleEngine(), default, frame.Events);
-            Save(label + "-replay", replay); Assert.True(replay.IsMatch, string.Join(';', replay.Errors));
             if (ordinary)
             {
+                // Birth validation includes the same complete replay. Bind its
+                // serialized endpoints to the original states before reusing it.
+                Assert.Equal(MatchStateHasher.Hash(Initial), MatchStateHasher.Hash(frame.ReplayInitialState!));
+                Assert.Equal(MatchStateHasher.Hash(State), MatchStateHasher.Hash(frame.AuthoritativeState!));
                 var birth = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default);
                 Save(label + "-birth", new { errors = birth }); Assert.Empty(birth);
+            }
+            else
+            {
+                var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(Initial, frame.Commands, State, new CoreRuleEngine(), default, frame.Events);
+                Save(label + "-replay", replay); Assert.True(replay.IsMatch, string.Join(';', replay.Errors));
             }
             session = MatchSession.Restore(frame, new CoreRuleEngine(), this, players, options);
             foreach (var actor in State.Seats.Keys)

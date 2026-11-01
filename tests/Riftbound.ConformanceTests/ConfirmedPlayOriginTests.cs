@@ -125,6 +125,7 @@ public sealed class ConfirmedPlayOriginTests
         }
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance, new Store(valid));
         Assert.NotNull(await registry.GetOrCreateAsync(state.RoomId, default));
+        var auditedHistory = MatchStateHasher.HashValue(new { initial, valid.Commands, valid.Events, state });
         var forged = state with { StackItems = state.StackItems.Select(item => item.SourceObjectId == source
             ? item with { PlayedFromHand = !fromHand } : item).ToArray() };
         var bad = Frame(forged);
@@ -134,8 +135,9 @@ public sealed class ConfirmedPlayOriginTests
         Assert.NotEmpty(errors);
         var rejected = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance, new Store(bad));
         await Assert.ThrowsAsync<MatchSessionException>(async () => { await rejected.GetOrCreateAsync(state.RoomId, default); });
-        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, valid.Commands, state, new CoreRuleEngine(), default, valid.Events);
-        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        // The normal registry already audited these exact replay inputs; the
+        // separate forged replay and rejection must leave them unchanged.
+        Assert.Equal(auditedHistory, MatchStateHasher.HashValue(new { initial, valid.Commands, valid.Events, state }));
     }
 
     [Theory]
