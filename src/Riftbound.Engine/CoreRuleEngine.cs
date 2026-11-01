@@ -13519,7 +13519,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Distinct(StringComparer.Ordinal).Count()
                     != parsed.AttackerObjectIds.Length + parsed.DefenderObjectIds.Length
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Any(id => !state.CardObjects.TryGetValue(id, out var unit)
-                    ? parsed.CeasedTokens?.ContainsKey(id) != true : !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                    ? parsed.CeasedTokens?.ContainsKey(id) != true
+                    // A returned animated equipment is a new nonunit object;
+                    // the declaration still references its captured unit generation.
+                    : !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                        && parsed.PublicObjectBindings?.Any(binding => binding is not null && binding.ObjectId == id
+                            && binding.Generation >= 0 && binding.Generation < unit.ObjectGeneration) != true)
                 || parsed.CeasedTokens is not null && (parsed.CeasedTokens.Count == 0 || parsed.CeasedTokens.Any(e =>
                     string.IsNullOrWhiteSpace(e.Key) || e.Value is null || e.Value.Generation < 0
                     || !parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Contains(e.Key, StringComparer.Ordinal)

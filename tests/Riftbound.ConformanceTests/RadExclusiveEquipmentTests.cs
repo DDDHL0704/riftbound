@@ -1,3 +1,5 @@
+using System.Text;
+using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -89,6 +91,21 @@ public sealed class RadExclusiveEquipmentTests
         await game.Top();
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
         Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > generation);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["UNIT"].Tags);
+        Assert.True(CoreRuleEngine.TryReadBattleResponseDeclarationContext(game.State, "OTHER", out var battle));
+        Assert.Equal(generation, Assert.Single(battle.PublicObjectBindings!, b => b.ObjectId == "UNIT").Generation);
+        const string prefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
+        foreach (var forgedGeneration in new long?[] { null, game.State.CardObjects["UNIT"].ObjectGeneration,
+            game.State.CardObjects["UNIT"].ObjectGeneration + 1 })
+        {
+            var bindings = battle.PublicObjectBindings!.Where(b => b.ObjectId != "UNIT").ToList();
+            if (forgedGeneration is { } value) bindings.Add(new("UNIT", value));
+            var forgedBattle = battle with { PublicObjectBindings = bindings };
+            var marker = prefix + Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(forgedBattle)));
+            var forged = game.State with { UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects
+                .Where(e => !e.StartsWith(prefix, StringComparison.Ordinal)).Append(marker).ToArray() };
+            Assert.Contains("invalid battle response declaration", OfficialInsightAndSpellLockTests.Errors(forged));
+        }
         Assert.Single(game.State.StackItems);
         var firstEvent = game.Events().Length;
         await game.Top();
