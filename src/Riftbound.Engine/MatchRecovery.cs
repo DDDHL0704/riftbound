@@ -4581,7 +4581,7 @@ public static partial class MatchRecoveryValidator
         }
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidEndTrigger(state, trigger)) errors.Add("invalid end-step trigger");
-        foreach (var marker in (state.UntilEndOfTurnEffects ?? []).Where(s => s.StartsWith(CoreRuleEngine.DelayedEndReadyPrefix, StringComparison.Ordinal)))
+        foreach (var marker in (state.UntilEndOfTurnEffects ?? []).Where(s => s?.StartsWith(CoreRuleEngine.DelayedEndReadyPrefix, StringComparison.Ordinal) == true))
             if (!CoreRuleEngine.ValidDelayedEndReady(state, marker)) errors.Add("invalid delayed end-step ability");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.EndRuneChoiceWindow } endRuneChoice
             && !CoreRuleEngine.ValidEndRuneChoice(state, endRuneChoice)) errors.Add("invalid end-step rune choice");

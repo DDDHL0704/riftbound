@@ -15,8 +15,8 @@ public static partial class MatchRecoveryValidator
             if (e.Sequence > start && CoreRuleEngine.TryBattlefieldPermanentPlay(e.Event, out var player, out var field)
                 && accepted[e.Tick].Any(c => e.Sequence > c.StartedEventSequence && e.Sequence <= c.CompletedEventSequence))
                 expected.Add(CoreRuleEngine.BattlefieldPermanentPlayUse(player, field));
-        var actual = state.UntilEndOfTurnEffects.Where(use => use.StartsWith(
-            CoreRuleEngine.BattlefieldPermanentPlayUsePrefix, StringComparison.Ordinal)).ToArray();
+        var actual = state.UntilEndOfTurnEffects.Where(use => use?.StartsWith(
+            CoreRuleEngine.BattlefieldPermanentPlayUsePrefix, StringComparison.Ordinal) == true).ToArray();
         if (actual.Distinct(StringComparer.Ordinal).Count() != actual.Length || !expected.SetEquals(actual))
             errors.Add("battlefield permanent play uses differ from accepted play history");
     }
