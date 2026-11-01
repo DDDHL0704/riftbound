@@ -10,7 +10,13 @@ public sealed record GrantedActivatedAbilitySpec(string Kind, int GenericPowerCo
 public sealed record TemporaryActivatedAbilityGrant(ObjectBinding Spell, string CardNo, ObjectBinding Unit,
     string CreatingStackItemId, int TurnNumber, int ExecutionIndex);
 public sealed record TemporaryActivationContext(TemporaryActivatedAbilityGrant Grant, string CardNo,
-    long ActivatedTick, long FaceRevision);
+    long ActivatedTick, long FaceRevision)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceTokenFactoryCardNo { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -113,10 +119,8 @@ public sealed partial class CoreRuleEngine
             || item.SourceConfirmed || item.TargetObjectIds.Count != 0 || item.DamageAmount != 0
             || item.EffectRepeatCount != 1 || item.OptionalCosts.Count != 0 || item.RepeatExecutions is not null
             || !state.Seats.ContainsKey(item.ControllerId)) return false;
-        if (!state.CardObjects.TryGetValue(item.SourceObjectId, out var unit))
-            return P6TokenFactoryCatalog.TryGetByCardNo(context.CardNo, out _);
-        return unit.ObjectGeneration > grant.Unit.Generation || unit.ObjectGeneration == grant.Unit.Generation
-            && CopyFaceTimeline.FaceAt(unit, context.FaceRevision, context.ActivatedTick) == context.CardNo;
+        return SelfAbilitySourceRules.Valid(state, grant.Unit, context.CardNo, context.FaceRevision, context.ActivatedTick,
+            context.SourceTokenFactoryCardNo, context.CeasedSource, usesPrintedFace: true);
     }
 
     private static ResolutionResult ResolveTemporaryActivation(MatchState state, PlayerIntent intent, ActivateAbilityCommand command)
@@ -152,7 +156,8 @@ public sealed partial class CoreRuleEngine
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "符能不足，无法支付启动技能费用。", ErrorCodes.InsufficientCost);
         var cardNo = AttachedRuleTextRules.Face(source)!;
-        var context = new TemporaryActivationContext(grant, cardNo, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0);
+        var context = new TemporaryActivationContext(grant, cardNo, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0) {
+            SourceTokenFactoryCardNo = source.TokenFactoryCardNo };
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-GRANTED", intent.PlayerId,
             source.ObjectId, TemporaryActivationEffect, cardNo, [], 0, 0, []) { TemporaryActivation = context };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId,

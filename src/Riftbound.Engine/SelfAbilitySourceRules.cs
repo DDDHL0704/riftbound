@@ -9,7 +9,8 @@ public sealed record CeasedSelfAbilitySource(ObjectBinding Source, string CardNo
 internal static class SelfAbilitySourceRules
 {
     internal static bool Valid(MatchState state, ObjectBinding source, string cardNo, long revision,
-        long acquiredTick, string? tokenFactory, CeasedSelfAbilitySource? ceased, bool usesPrintedFace)
+        long acquiredTick, string? tokenFactory, CeasedSelfAbilitySource? ceased, bool usesPrintedFace,
+        bool ceasedAsCost = false)
     {
         if (string.IsNullOrWhiteSpace(source.ObjectId) || source.Generation < 0 || revision < 0
             || acquiredTick <= 0 || acquiredTick > state.Tick) return false;
@@ -24,7 +25,8 @@ internal static class SelfAbilitySourceRules
         return P6TokenFactoryCatalog.IsUnitTokenFactory(tokenFactory) && ceased is not null
             && ceased.Source == source && ceased.CardNo == cardNo && ceased.FaceRevision == revision
             && ceased.AcquiredTick == acquiredTick && ceased.TokenFactoryCardNo == tokenFactory
-            && ceased.DepartedTick > acquiredTick && ceased.DepartedTick <= state.Tick;
+            && (ceased.DepartedTick > acquiredTick || ceasedAsCost && ceased.DepartedTick == acquiredTick)
+            && ceased.DepartedTick <= state.Tick;
     }
 
     internal static CeasedSelfAbilitySource? Capture(MatchState before, long departedTick,
@@ -48,6 +50,18 @@ public sealed partial class CoreRuleEngine
                 && departed.Contains(recycle.Source.ObjectId) && RecycleMightRules.Valid(before, item))
                 return item with { RecycleMightActivation = recycle with { CeasedSource = SelfAbilitySourceRules.Capture(
                     before, state.Tick, recycle.Source, recycle.CardNo, recycle.FaceRevision, recycle.AcquiredTick, recycle.SourceTokenFactoryCardNo) } };
+            if (item.EmpowerActivation is { CeasedSource: null } empower
+                && departed.Contains(empower.Source.ObjectId) && EmpowerRules.Valid(before, item))
+                return item with { EmpowerActivation = empower with { CeasedSource = SelfAbilitySourceRules.Capture(
+                    before, state.Tick, empower.Source, empower.CardNo, empower.FaceRevision, empower.AcquiredTick, empower.SourceTokenFactoryCardNo) } };
+            if (item.SelfMovement is { CeasedSource: null } movement
+                && departed.Contains(movement.Source.ObjectId) && ValidSelfMovement(before, item))
+                return item with { SelfMovement = movement with { CeasedSource = SelfAbilitySourceRules.Capture(
+                    before, state.Tick, movement.Source, item.CardNo!, movement.FaceRevision, movement.CapturedTick, movement.SourceTokenFactoryCardNo) } };
+            if (item.TemporaryActivation is { CeasedSource: null } temporary
+                && departed.Contains(temporary.Grant.Unit.ObjectId) && ValidTemporaryActivation(before, item))
+                return item with { TemporaryActivation = temporary with { CeasedSource = SelfAbilitySourceRules.Capture(
+                    before, state.Tick, temporary.Grant.Unit, temporary.CardNo, temporary.FaceRevision, temporary.ActivatedTick, temporary.SourceTokenFactoryCardNo) } };
             return item;
         }).ToArray();
         return state with { StackItems = stack };
