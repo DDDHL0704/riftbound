@@ -23,7 +23,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid captured last-breath unit creation trigger");
         var contexts = state.StackItems.Select(i => i.LastBreathUnitCreation)
             .Concat(state.TriggerQueue.Select(i => i.LastBreathUnitCreation)).OfType<LastBreathUnitCreationContext>().ToArray();
-        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex)).Distinct().Count() != contexts.Length)
+        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex, c.CopyOrdinal)).Distinct().Count() != contexts.Length)
             errors.Add("duplicate captured last-breath unit creation instance");
     }
 

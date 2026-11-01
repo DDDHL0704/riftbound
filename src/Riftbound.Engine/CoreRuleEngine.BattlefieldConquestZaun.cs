@@ -92,10 +92,11 @@ public sealed partial class CoreRuleEngine
         // discarding or calling a rune.
         if (isCallRune && discardCount == 0)
             return NoopStackResolutionResult(state);
-        if (discardCount > 0 && legal.Length > discardCount)
+        if (discardCount > 0 && (isCallRune ? legal.Length > 0 : legal.Length > discardCount))
         {
             var choice = new PendingHandChoiceState($"CONQUEST-HAND:{item.StackItemId}",
-                TriggerKinds.BattlefieldConquerDiscardDraw, item.ControllerId, discardCount, discardCount, legal,
+                TriggerKinds.BattlefieldConquerDiscardDraw, item.ControllerId,
+                isCallRune ? 0 : discardCount, discardCount, legal,
                 TriggerKinds.BattlefieldConquerDiscardDraw, context.Source.ObjectId, item.EffectKind, drawCount)
                 { BattlefieldConquestDiscardDraw = new(context, item.StackItemId) };
             var requested = new GameEvent("HAND_CHOICE_REQUESTED", "征服战场：选择要弃置的手牌，然后抽牌",
@@ -157,11 +158,18 @@ public sealed partial class CoreRuleEngine
             || !state.PlayerZones.TryGetValue(choice.PlayerId, out var zones)) return false;
         var legal = zones.Hand.Where(id => IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, choice.PlayerId, id)).ToArray();
         var count = Math.Min(spec.DiscardCount.GetValueOrDefault(), legal.Length);
-        return count > 0 && legal.Length > count && choice.ChoiceId == $"CONQUEST-HAND:{continuation.StackItemId}"
+        var isCallRune = BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(spec);
+        var validShape = isCallRune
+            ? legal.Length > 0 && choice.RequiredCount == 0 && choice.MaxCount == count
+            : count > 0 && legal.Length > count && choice.RequiredCount == count && choice.MaxCount == count;
+        return validShape && choice.ChoiceId == $"CONQUEST-HAND:{continuation.StackItemId}"
             && choice.ChoiceWindow == TriggerKinds.BattlefieldConquerDiscardDraw && choice.Reason == choice.ChoiceWindow
-            && choice.RequiredCount == count && choice.MaxCount == count
-            && choice.DrawCount == (BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(spec)
-                ? 0 : spec.DrawCount.GetValueOrDefault())
+            && choice.DrawCount == (isCallRune ? 0 : spec.DrawCount.GetValueOrDefault())
             && choice.LegalObjectIds.SequenceEqual(legal);
     }
+
+    internal static bool IsOptionalBattlefieldConquestDiscardChoice(PendingHandChoiceState choice)
+        => choice.BattlefieldConquestDiscardDraw is not null
+            && choice.EffectKind == TriggerKinds.BattlefieldConquerDiscardCallRune
+            && choice.RequiredCount == 0;
 }

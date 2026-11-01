@@ -3035,9 +3035,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId.Trim())
             .ToArray();
+        var optionalConquestDiscard = IsOptionalBattlefieldConquestDiscardChoice(pendingChoice);
         if (submittedObjectIds.Length != chosenObjectIds.Count
             || submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
-            || submittedObjectIds.Length != pendingChoice.RequiredCount
+            || (!optionalConquestDiscard && submittedObjectIds.Length != pendingChoice.RequiredCount)
             || submittedObjectIds.Length > pendingChoice.MaxCount)
         {
             return RejectWithCorePrompts(
@@ -3108,7 +3109,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor,
                 events,
                 deferNormalVictory: true);
-        if (isConquestCallRune)
+        if (isConquestCallRune && submittedObjectIds.Length > 0)
         {
             var called = CallRunes(playerZones, cardObjects, intent.PlayerId,
                 callRuneSpec!.RuneCallCount.GetValueOrDefault(1));

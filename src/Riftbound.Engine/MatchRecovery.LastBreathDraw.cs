@@ -29,7 +29,7 @@ public static partial class MatchRecoveryValidator
         var contexts = state.StackItems.Select(i => i.LastBreathDraw)
             .Concat(state.TriggerQueue.Select(i => i.LastBreathDraw))
             .Append(state.PendingHandChoice?.LastBreathDraw).OfType<LastBreathDrawContext>().ToArray();
-        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex)).Distinct().Count() != contexts.Length)
+        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex, c.CopyOrdinal)).Distinct().Count() != contexts.Length)
             errors.Add("duplicate captured last-breath draw instance");
     }
 

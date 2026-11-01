@@ -15,7 +15,11 @@ public sealed record LastKnownMightFrame(
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record LastBreathMightContext(string SourceObjectId, string CardNo, long SourceGeneration,
-    string ControllerId, int Might, LastKnownMightFrame Frame, string InstanceId, RuleTextInstanceBinding? Origin = null);
+    string ControllerId, int Might, LastKnownMightFrame Frame, string InstanceId, RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int CopyOrdinal { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -99,7 +103,7 @@ public sealed partial class CoreRuleEngine
     {
         if (context is not { SourceGeneration: >= 0, Might: >= 0, Frame: { } frame }
             || effect != TriggerKinds.UnitLastBreathPowerfulDraw || context.SourceObjectId != source
-            || context.ControllerId != controller || frame.CardObjects is null || frame.PlayerZones is null
+            || context.ControllerId != controller || context.CopyOrdinal < 0 || frame.CardObjects is null || frame.PlayerZones is null
             || frame.ObjectLocations is null || frame.BattleDeclarations is null || frame.PlayerZones.Count == 0
             || !ValidMightFrameExperience(frame)
             || frame.BattleDeclarations.Any(e => e is null || !e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal))

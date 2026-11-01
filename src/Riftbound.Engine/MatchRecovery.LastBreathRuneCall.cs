@@ -26,7 +26,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid captured last-breath rune call trigger");
         var contexts = state.StackItems.Select(i => i.LastBreathRuneCall)
             .Concat(state.TriggerQueue.Select(i => i.LastBreathRuneCall)).OfType<LastBreathRuneCallContext>().ToArray();
-        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex)).Distinct().Count() != contexts.Length)
+        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex, c.CopyOrdinal)).Distinct().Count() != contexts.Length)
             errors.Add("duplicate captured last-breath rune call instance");
     }
 

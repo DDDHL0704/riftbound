@@ -12,12 +12,16 @@ public sealed record LastBreathBattlefieldDamageContext(string DeathId, string C
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceBasePlayerId = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? BanishedDeckTop = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? BanishedDeckTop = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int CopyOrdinal { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
     private static string LastBreathBattlefieldDamageTriggerId(LastBreathBattlefieldDamageContext c)
-        => $"TRIGGER-{c.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(c.InstanceId))}:{c.TriggerIndex}-{c.Source.ObjectId}-{c.Kind}"
+        => $"TRIGGER-{c.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(c.InstanceId))}:{c.TriggerIndex}{LastBreathCopySuffix(c.CopyOrdinal)}-{c.Source.ObjectId}-{c.Kind}"
             + (c.BattlefieldObjectId is { } field ? SourceBattlefieldTriggerContextMarker + field : "");
 
     private static LastBreathBattlefieldDamageContext[] CaptureLastBreathBattlefieldDamage(MatchState state,
@@ -66,7 +70,7 @@ public sealed partial class CoreRuleEngine
         if (c.Source is not { Generation: >= 0 } || string.IsNullOrWhiteSpace(c.Source.ObjectId)
             || string.IsNullOrWhiteSpace(c.SourceCardNo) || string.IsNullOrWhiteSpace(c.ControllerId) || !state.Seats.ContainsKey(c.ControllerId)
             || string.IsNullOrWhiteSpace(c.DeathId) || !c.DeathId.StartsWith("death-", StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(c.InstanceId) || c.TurnNumber != state.TurnNumber || c.CreatedAtTick <= 0 || c.CreatedAtTick > state.Tick
+            || string.IsNullOrWhiteSpace(c.InstanceId) || c.TurnNumber != state.TurnNumber || c.CreatedAtTick <= 0 || c.CreatedAtTick > state.Tick || c.CopyOrdinal < 0
             || (c.BanishedDeckTop is not null && (c.Kind != TriggerKinds.UnitLastBreathBanishDeckTopPlay
                 || c.BanishedDeckTop.Generation < 1 || !state.CardObjects.TryGetValue(c.BanishedDeckTop.ObjectId, out var banished)
                 || banished.ObjectGeneration < c.BanishedDeckTop.Generation))

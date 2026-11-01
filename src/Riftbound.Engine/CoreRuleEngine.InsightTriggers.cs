@@ -65,14 +65,9 @@ public sealed partial class CoreRuleEngine
         // pre-removal locations, so destruction of the modifier itself cannot
         // leak into the captured context.
         if (kind == "LAST_BREATH"
-            && locations.TryGetValue(unit.ObjectId, out var unitLocation)
-            && unitLocation.Zone == "BATTLEFIELD"
-            && cards.Values.Count(card => card.CardNo == Rad017CardNo
-                && !card.IsFaceDown
-                && locations.TryGetValue(card.ObjectId, out var modifierLocation)
-                && modifierLocation.Zone == "BATTLEFIELD"
-                && modifierLocation.BattlefieldObjectId == unitLocation.BattlefieldObjectId
-                && EffectiveFieldControllerId(zones, card.ObjectId, card) == controller) is var modifierCount
+            && FriendlyLastBreathAmplifierCount(zones, cards, locations,
+                RuleChoices.Value?.CurrentDestructions ?? new HashSet<string>(StringComparer.Ordinal),
+                unit, controller) is var modifierCount
             && modifierCount > 0)
         {
             var original = captured.ToArray();

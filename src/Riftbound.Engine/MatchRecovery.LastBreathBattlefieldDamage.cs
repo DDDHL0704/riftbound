@@ -21,7 +21,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid captured last-breath battlefield damage trigger");
         var all = state.StackItems.Select(i => i.LastBreathBattlefieldDamage).Concat(state.TriggerQueue.Select(i => i.LastBreathBattlefieldDamage))
             .OfType<LastBreathBattlefieldDamageContext>().ToArray();
-        if (all.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex)).Distinct().Count() != all.Length)
+        if (all.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex, c.CopyOrdinal)).Distinct().Count() != all.Length)
             errors.Add("duplicate captured last-breath battlefield damage instance");
     }
 

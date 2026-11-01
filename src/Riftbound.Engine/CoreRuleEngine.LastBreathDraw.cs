@@ -9,12 +9,16 @@ public sealed record LastBreathDrawContext(string DeathId, string CardNo, string
     string ControllerId, ObjectBinding Source, string InstanceId, int TriggerIndex,
     bool SourceWasEmpowered, bool SourceWasAlone, int TurnNumber, long CreatedAtTick,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int CopyOrdinal { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
     private static string LastBreathDrawTriggerId(LastBreathDrawContext context)
-        => $"TRIGGER-{context.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(context.InstanceId))}:{context.TriggerIndex}-{context.Source.ObjectId}-{context.Kind}";
+        => $"TRIGGER-{context.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(context.InstanceId))}:{context.TriggerIndex}{LastBreathCopySuffix(context.CopyOrdinal)}-{context.Source.ObjectId}-{context.Kind}";
 
     private static LastBreathDrawContext[] CaptureLastBreathDraws(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
@@ -62,7 +66,7 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(context.ControllerId) || !state.Seats.ContainsKey(context.ControllerId)
             || string.IsNullOrWhiteSpace(context.DeathId) || !context.DeathId.StartsWith("death-", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(context.InstanceId) || context.TurnNumber != state.TurnNumber
-            || context.CreatedAtTick <= 0 || context.CreatedAtTick > state.Tick
+            || context.CreatedAtTick <= 0 || context.CreatedAtTick > state.Tick || context.CopyOrdinal < 0
             || !TryGetLastBreathDrawSpec(context, out _)) return false;
         if (context.Origin is { } binding && (binding.Unit is null || binding.Equipment is null
             || string.IsNullOrWhiteSpace(binding.Unit.ObjectId) || string.IsNullOrWhiteSpace(binding.Equipment.ObjectId))) return false;

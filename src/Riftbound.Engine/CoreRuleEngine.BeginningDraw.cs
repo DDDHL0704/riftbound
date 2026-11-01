@@ -34,6 +34,9 @@ public sealed partial class CoreRuleEngine
         {
             var kind = BeginningDrawKind(source.CardNo);
             if (kind is null || source.ControllerId != player || source.IsFaceDown) continue;
+            // RAD·111 has a distinct instruction: it does not require a
+            // face-down battlefield card, so its trigger is queued below.
+            if (kind == "RAD111_SLOT_MACHINE") continue;
             if (kind == "HAND_BELOW_TWO")
             {
                 if (!state.PlayerZones[player].LegendZone.Contains(source.ObjectId) || !source.Tags.Contains("CARD_TYPE:LEGEND")) continue;
@@ -100,7 +103,10 @@ public sealed partial class CoreRuleEngine
         if (context.CardNo != "RAD·111/167" || item.CardNo != context.CardNo
             || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
             || source.ObjectGeneration != context.SourceGeneration || source.ControllerId != item.ControllerId
-            || !IsObjectOnField(state.PlayerZones, source.ObjectId))
+            || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !string.IsNullOrWhiteSpace(source.AttachedToObjectId)
+            || !IsObjectOnField(state.PlayerZones, source.ObjectId)
+            || !IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, source.ObjectId))
             throw new InvalidOperationException("Invalid RAD·111 beginning ability.");
 
         var zones = NormalizeZonesForSeats(state);

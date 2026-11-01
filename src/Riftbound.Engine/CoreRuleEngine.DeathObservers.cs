@@ -39,6 +39,47 @@ internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, D
 public sealed partial class CoreRuleEngine
 {
     internal const string DeathObserverEffect = "FRIENDLY_UNIT_DEATH_OBSERVER";
+    private static string LastBreathCopySuffix(int copyOrdinal)
+        => copyOrdinal <= 0 ? string.Empty : $":copy{copyOrdinal}";
+
+    private static int FriendlyLastBreathAmplifierCount(
+        IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards,
+        IReadOnlyDictionary<string, ObjectLocationState> locations,
+        IReadOnlySet<string> currentDestructions,
+        CardObjectState unit,
+        string controller)
+    {
+        if (!locations.TryGetValue(unit.ObjectId, out var unitLocation)
+            || unitLocation.Zone != "BATTLEFIELD"
+            || string.IsNullOrWhiteSpace(unitLocation.BattlefieldObjectId))
+            return 0;
+
+        return cards.Values.Count(card => card.CardNo == Rad017CardNo
+            && card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !card.IsFaceDown
+            && !currentDestructions.Contains(card.ObjectId)
+            && locations.TryGetValue(card.ObjectId, out var modifierLocation)
+            && modifierLocation.Zone == "BATTLEFIELD"
+            && modifierLocation.BattlefieldObjectId == unitLocation.BattlefieldObjectId
+            && EffectiveFieldControllerId(zones, card.ObjectId, card) == controller);
+    }
+
+    private static IReadOnlyList<T> AddLastBreathCopies<T>(
+        IReadOnlyList<T> originals,
+        int amplifierCount,
+        Func<T, int, T> copy)
+    {
+        if (originals.Count == 0 || amplifierCount <= 0)
+            return originals;
+
+        var result = new List<T>(originals.Count * (amplifierCount + 1));
+        result.AddRange(originals);
+        for (var ordinal = 1; ordinal <= amplifierCount; ordinal++)
+            result.AddRange(originals.Select(item => copy(item, ordinal)));
+        return result;
+    }
+
     internal static bool IsDeathObserverKind(string kind) => kind is TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn
         or TriggerKinds.UnitFriendlyDestroyedGainExperience or TriggerKinds.UnitFirstFriendlyDestroyedDrawOne
         or TriggerKinds.UnitDestroyedNonMinionCreateMinion
@@ -173,14 +214,31 @@ public sealed partial class CoreRuleEngine
                                 SourceLocation = observerLocation, DestroyedLocation = capturedDestroyedLocation }));
                     }
         var deathId = $"death-{frame.Origin.Tick}-{frame.DeathSequence++}";
+        var amplifierCount = FriendlyLastBreathAmplifierCount(
+            zones, cards, locations, frame.CurrentDestructions, unit, controller);
+        var unitCreations = AddLastBreathCopies(
+            CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId), amplifierCount,
+            (context, ordinal) => context with { CopyOrdinal = ordinal });
+        var runeCalls = AddLastBreathCopies(
+            CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId), amplifierCount,
+            (context, ordinal) => context with { CopyOrdinal = ordinal });
+        var draws = AddLastBreathCopies(
+            CaptureLastBreathDraws(state, zones, cards, unit, deathId), amplifierCount,
+            (context, ordinal) => context with { CopyOrdinal = ordinal });
+        var battlefieldDamages = AddLastBreathCopies(
+            CaptureLastBreathBattlefieldDamage(state, zones, cards, unit, deathId), amplifierCount,
+            (context, ordinal) => context with { CopyOrdinal = ordinal });
+        var lastBreathMights = AddLastBreathCopies(
+            CaptureLastBreathMight(state, zones, cards, unit), amplifierCount,
+            (context, ordinal) => context with { CopyOrdinal = ordinal });
         return new(deathId,frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
-            UnitCreations = CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId),
-            RuneCalls = CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId),
-            Draws = CaptureLastBreathDraws(state, zones, cards, unit, deathId),
-            BattlefieldDamages = CaptureLastBreathBattlefieldDamage(state, zones, cards, unit, deathId),
+            UnitCreations = unitCreations,
+            RuneCalls = runeCalls,
+            Draws = draws,
+            BattlefieldDamages = battlefieldDamages,
             DravenBattleDeathScore = CaptureDravenBattleDeathScore(state, zones, cards,
                 frame.CurrentDestructionLocations ?? state.ObjectLocations, unit, deathId, state.Tick + 1),
-            LastBreathMights = CaptureLastBreathMight(state, zones, cards, unit), GraveyardPlays = CaptureGraveyardPlays(zones, cards, unit) };
+            LastBreathMights = lastBreathMights, GraveyardPlays = CaptureGraveyardPlays(zones, cards, unit) };
     }
 
     private static ResolutionResult RecordDeathObservers(MatchState before, ResolutionResult result)
@@ -272,7 +330,7 @@ public sealed partial class CoreRuleEngine
                 && c.Might >= spec.RequiredPowerThreshold.GetValueOrDefault(PowerfulUnitPowerThreshold)))
             {
                 var trigger = new TriggerQueueItemState(
-                    $"TRIGGER-{death.Id}{(captured.Origin is null ? "" : ":" + captured.InstanceId)}-{death.Unit.ObjectId}-{TriggerKinds.UnitLastBreathPowerfulDraw}",
+                    $"TRIGGER-{death.Id}{(captured.Origin is null ? "" : ":" + captured.InstanceId)}{LastBreathCopySuffix(captured.CopyOrdinal)}-{death.Unit.ObjectId}-{TriggerKinds.UnitLastBreathPowerfulDraw}",
                     captured.ControllerId, death.Unit.ObjectId, TriggerKinds.UnitLastBreathPowerfulDraw, "UNIT_DESTROYED") {
                     SourceCardNo = captured.CardNo, LastBreathMight = captured };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
