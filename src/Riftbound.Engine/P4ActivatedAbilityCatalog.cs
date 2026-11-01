@@ -54,7 +54,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool CommandsOpponentUnitToSourceBattlefield = false,
     bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
-    bool StunsTarget = false, bool OncePerTurnPerPlayer = false);
+    bool StunsTarget = false, bool OncePerTurnPerPlayer = false, int? RuneCallCount = null);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -328,6 +328,10 @@ public static class P4ActivatedAbilityCatalog
             false, true, 0, false, "官方中文：解除强化、支付1并横置，抽一张牌。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
             SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, DrawCount: 1)),
+        new("RAD_046_EXHAUST_DRAW_CALL_RUNE", "RAD·046/167", "RAD_046_EXHAUST_DRAW_CALL_RUNE", "辉映圣坛", 0, 0, 0,
+            false, true, 0, false, "官方中文：横置，抽一张牌并召出一枚休眠符文。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DrawCount: 1, RuneCallCount: 1)),
         new("HEXTECH_DISC_CREATE_ROBOT", "VEN·087", "HEXTECH_DISC_CREATE_ROBOT", "海克斯圆盘", 1, 0, 0,
             false, true, 0, false, "官方中文：解除强化、支付1并横置，打出3战力机器人。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,

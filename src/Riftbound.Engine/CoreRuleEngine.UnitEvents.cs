@@ -397,7 +397,7 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
         }
-        if ((spec.Effect == "MIGHT_FRIENDLY" && item.TriggerCost is not null || spec.Effect == "MIGHT_ATTACKERS") && item.TargetObjectIds.SingleOrDefault() is { } buffed
+        if ((spec.Effect == "MIGHT_FRIENDLY" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null) || spec.Effect == "MIGHT_ATTACKERS") && item.TargetObjectIds.SingleOrDefault() is { } buffed
             && StackObjectRules.ReferencesCurrentObject(state, item, buffed) && UnitEventTargets(state, item).Contains(buffed)) {
             var behavior = new CardBehaviorDefinition(context.CardNo, "触发技能给予战力加成", 0, item.EffectKind, 0, 1, PowerModifierAmount: spec.Amount);
             cards[buffed] = ApplyPowerModifier(state, cards[buffed], behavior, item, buffed, spec.Amount, out var power);

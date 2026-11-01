@@ -500,6 +500,15 @@ public sealed partial class CoreRuleEngine
             var drawn = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);
             result = result with { PlayerScores = drawn.PlayerScores, WinnerPlayerId = drawn.WinnerPlayerId, RngCursor = drawn.RngCursor };
         }
+        if (spec.RuneCallCount is > 0 && result.WinnerPlayerId is null)
+        {
+            var called = CallRunes(zones, cards, item.ControllerId, spec.RuneCallCount.Value);
+            events.Add(new("RUNES_CALLED", $"{item.ControllerId} 召出 {called.CalledRuneObjectIds.Count} 枚休眠符文",
+                new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray(),
+                    ["reason"] = item.EffectKind }));
+        }
         if (spec.CreatedRobotCount > 0)
             CreateBaseUnitTokens(state, zones, cards, pools, SimpleActivationTokenBehavior(ability), item, events, locations, state.UntilEndOfTurnEffects);
         if (spec.EmpowersOtherEquipment)
