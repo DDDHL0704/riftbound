@@ -14,7 +14,8 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
     [InlineData(false, 0)] [InlineData(false, 2)] [InlineData(true, 0)] [InlineData(true, 2)]
     public async Task EachPaidKogmawTextEarnsAResponseAndUsesOnlyItsCapturedBattlefieldAndSourceGeneration(bool battlefield, int copies)
     {
-        var initial = Position(); var game = new Driver(initial);
+        // Place and copy the physical source before the movement/death case.
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Flow.Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
@@ -27,6 +28,8 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
                 await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
                 Assert.Equal(Unit, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
             }
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
             await BattleWinnerPhaseBoundaryTests.PassFocus(game);
             await game.Act("P1", new EndTurnCommand()); await Flow.Tap(game, "P2");
