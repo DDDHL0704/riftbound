@@ -299,9 +299,15 @@ public sealed partial class CoreRuleEngine
     private static PendingCardChoiceState HighCostRuneChoice(MatchState state, StackItemState item)
     {
         if (HighCostSetsSourceBasePower(item.CardNo) || HighCostPlaysSourceFromGraveyard(item.CardNo))
+        {
+            var spec = HighCostPlaySpec(item.CardNo!);
+            var payment = HighCostPlaysSourceFromGraveyard(item.CardNo)
+                ? $"支付 {spec?.ManaCost ?? 0} 法力和 {spec?.PowerCost ?? 0} {RuneTraitLabel(spec?.PowerCostTrait ?? RuneTrait.Yellow)}符能，或放弃从废牌堆打出此牌。"
+                : "选择是否让来源本回合基础战力变为所打出卡牌的法力费用。";
             return new("HIGH-COST-RUNES:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 0, 0, [], [],
-                HighCostPlaysSourceFromGraveyard(item.CardNo) ? "支付 1 黄色符能，或放弃从废牌堆打出此单位。" : "选择是否让来源本回合基础战力变为所打出卡牌的法力费用。",
+                payment,
                 item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
+        }
         var ids = HighCostRuneTargets(state, item);
         return new("HIGH-COST-RUNES:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 0,
             Math.Min(ids.Length, HighCostPlaySpec(item.CardNo!)!.RuneReadyCount ?? 0), ids, ids,
@@ -361,7 +367,11 @@ public sealed partial class CoreRuleEngine
         }
         if (HighCostPlaysSourceFromGraveyard(item.CardNo))
         {
-            if (item.EffectPlayCompleted) return NoopStackResolutionResult(state);
+            if (item.EffectPlayCompleted)
+                return item.EffectPlayCount > 0 && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var completedBehavior)
+                    && completedBehavior.HighCostGraveyardPlayBanishSource
+                    ? BanishCompletedHighCostSource(state, item)
+                    : NoopStackResolutionResult(state);
             if (item.HighCostPlayObserver is not { Paid: true } context
                 || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)
                 || !zones.Graveyard.Contains(item.SourceObjectId)
@@ -404,10 +414,54 @@ public sealed partial class CoreRuleEngine
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }
 
+    private static StackResolutionResult BanishCompletedHighCostSource(MatchState state, StackItemState item)
+    {
+        if (!state.CardObjects.TryGetValue(item.SourceObjectId, out var source))
+            return NoopStackResolutionResult(state);
+        var owner = NonFieldDestinationOwner(state.PlayerZones, source, item.ControllerId);
+        if (!state.PlayerZones.TryGetValue(owner, out _)
+            || state.PlayerZones.Values.Any(z => z.Banished.Contains(item.SourceObjectId, StringComparer.Ordinal)))
+            return NoopStackResolutionResult(state);
+        var zones = NormalizeZonesForSeats(state);
+        var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var locations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        DetachEquipmentFromRemovedHost(cards, item.SourceObjectId);
+        foreach (var playerId in zones.Keys.ToArray())
+        {
+            var current = zones[playerId];
+            zones[playerId] = current with {
+                Base = RemoveFromZone(current.Base, item.SourceObjectId),
+                Battlefields = RemoveFromZone(current.Battlefields, item.SourceObjectId),
+                Hand = RemoveFromZone(current.Hand, item.SourceObjectId),
+                ChampionZone = RemoveFromZone(current.ChampionZone, item.SourceObjectId),
+                Graveyard = RemoveFromZone(current.Graveyard, item.SourceObjectId),
+                MainDeck = RemoveFromZone(current.MainDeck, item.SourceObjectId) };
+        }
+        zones[owner] = zones[owner] with { Banished = zones[owner].Banished.Append(item.SourceObjectId).Distinct(StringComparer.Ordinal).ToArray() };
+        ResetCardOutsidePlay(zones, cards, item.SourceObjectId, source, owner);
+        locations.Remove(item.SourceObjectId);
+        var banished = CaptureOwnedBanishObservers(new("CARD_BANISHED", "高费用触发放逐来源牌", new Dictionary<string, object?> {
+            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = item.SourceObjectId,
+            ["ownerPlayerId"] = owner, ["destinationZone"] = "BANISHED" }), zones, cards, owner, [item.SourceObjectId]);
+        return NoopStackResolutionResult(state) with {
+            PlayerZones = zones,
+            CardObjects = cards,
+            ObjectLocations = ReconcileObjectLocations(locations, zones),
+            Events = [banished] };
+    }
+
     internal static CardBehaviorDefinition HighCostGraveyardPlayBehavior(string cardNo)
-        => new(cardNo, "高费用触发从废牌堆打出", 0, HighCostGraveyardPlayEffect, 0, 0,
+    {
+        var registered = CardBehaviorRegistry.TryGetByCardNo(cardNo, out var behavior)
+            ? behavior : null;
+        return new(cardNo, "高费用触发从废牌堆打出", 0, HighCostGraveyardPlayEffect, 0, 0,
             EffectPlaySourceZone: "GRAVEYARD", EffectPlayIgnoreBaseMana: true,
-            EffectPlayIgnoreBasePower: true, EffectPlayDestination: "BASE");
+            EffectPlayIgnoreBasePower: true, EffectPlayDestination: "BASE", EffectPlayAllowsAnyCard: true,
+            HighCostGraveyardPlayPowerTraits: registered?.HighCostGraveyardPlayPowerTraits ?? string.Empty,
+            HighCostGraveyardPlayManaCost: registered?.HighCostGraveyardPlayManaCost ?? 0,
+            HighCostGraveyardPlayPowerCost: registered?.HighCostGraveyardPlayPowerCost ?? 0,
+            HighCostGraveyardPlayBanishSource: registered?.HighCostGraveyardPlayBanishSource ?? false);
+    }
 
     private static CardObjectState RecomputePowerAfterTemporaryBaseReplacement(MatchState state, CardObjectState card, int basePower)
     {

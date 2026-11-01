@@ -127,6 +127,7 @@ public sealed partial class CoreRuleEngine
             && state.Seats.ContainsKey(pending.PlayerId) && state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)
             && pending.IgnoreBaseMana == behavior.EffectPlayIgnoreBaseMana
             && pending.IgnoreBasePower == behavior.EffectPlayIgnoreBasePower
+            && pending.IgnoreAllCosts == behavior.EffectPlayIgnoreAllCosts
             && pending.ManaReduction == behavior.EffectPlayManaReduction
             && pending.DestinationPolicy == behavior.EffectPlayDestination && pending.Optional == behavior.EffectPlayOptional
             && pending.ViewedCardIds is null && !pending.Parent.EffectPlayCompleted
@@ -135,12 +136,32 @@ public sealed partial class CoreRuleEngine
                     && ValidTriggerCostReceipt(state, pending.Parent) && pending.Parent.TriggerCost is not null
                     && pending.Sources.Count == 1 && pending.Sources.GetValueOrDefault(graveyard.Source.ObjectId, -1) == graveyard.Source.Generation)
             && (!behavior.PlaysSourceToBaseAsUnit || pending.Parent.SourceConfirmed)
-            && pending.Sources.Count > 0
-            && pending.Sources.All(s => pending.Parent.TargetObjectIds.Contains(s.Key)
-                && zones.Graveyard.Contains(s.Key) && state.CardObjects.TryGetValue(s.Key, out var card)
-                && card.ObjectGeneration == s.Value && card.Tags.Contains(CardObjectTags.UnitCard)
-                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var unit) && unit.PlaysSourceToBaseAsUnit
-                && IsTargetManaCostAllowed(state, pending.PlayerId, s.Key, behavior));
+            && (behavior.EffectPlayRequiresUnitOrEquipment
+                ? pending.Sources.All(s => pending.Parent.TargetObjectIds.Contains(s.Key, StringComparer.Ordinal)
+                        && zones.Graveyard.Contains(s.Key)
+                        && state.CardObjects.TryGetValue(s.Key, out var card)
+                        && card.ObjectGeneration == s.Value && !card.IsFaceDown
+                        && (card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                            || card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal))
+                        && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var permanent)
+                        && (permanent.PlaysSourceToBaseAsUnit || permanent.PlaysSourceToBaseAsEquipment)
+                        && EffectPlayCandidateCostAllowed(card, behavior))
+                : pending.Parent.HighCostPlayObserver is { } highCost
+                    && HighCostPlaysSourceFromGraveyard(highCost.CardNo)
+                    ? ValidHighCostStack(state, pending.Parent)
+                        && pending.Sources.Count > 0
+                        && pending.Sources.All(s => pending.Parent.TargetObjectIds.Contains(s.Key, StringComparer.Ordinal)
+                            && zones.Graveyard.Contains(s.Key)
+                            && state.CardObjects.TryGetValue(s.Key, out var card)
+                            && card.ObjectGeneration == s.Value && !card.IsFaceDown
+                            && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out _)
+                            && EffectPlaySourceMatches(card, behavior))
+                    : pending.Sources.Count > 0
+                    && pending.Sources.All(s => pending.Parent.TargetObjectIds.Contains(s.Key)
+                        && zones.Graveyard.Contains(s.Key) && state.CardObjects.TryGetValue(s.Key, out var card)
+                        && card.ObjectGeneration == s.Value && card.Tags.Contains(CardObjectTags.UnitCard)
+                        && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var unit) && unit.PlaysSourceToBaseAsUnit
+                        && IsTargetManaCostAllowed(state, pending.PlayerId, s.Key, behavior)));
 
     internal static CardBehaviorDefinition EffectPlayBehavior(MatchState state, string playerId, CardBehaviorDefinition behavior)
         => state.PendingEffectPlay is { } pending && pending.PlayerId == playerId
@@ -311,6 +332,19 @@ public sealed partial class CoreRuleEngine
         ObjectLocationState? originalLocation = null;
         ObjectBinding? originalBattlefield = null;
         IReadOnlyList<string> sources = sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
+        if (sourceZone == "GRAVEYARD" && behavior.EffectPlayRequiresUnitOrEquipment
+            && zones.TryGetValue(actor, out var graveyardOwner))
+        {
+            sources = sources.Where(graveyardOwner.Graveyard.Contains)
+                .Where(id => cards.TryGetValue(id, out var card)
+                    && !card.IsFaceDown && !IsTokenObject(card)
+                    && (card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                        || card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal))
+                    && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var permanent)
+                    && (permanent.PlaysSourceToBaseAsUnit || permanent.PlaysSourceToBaseAsEquipment)
+                    && EffectPlayCandidateCostAllowed(card, behavior))
+                .Distinct(StringComparer.Ordinal).ToArray();
+        }
         if (sourceZone == "BANISHED")
         {
             sources = sources.Take(1).ToArray();
@@ -358,12 +392,26 @@ public sealed partial class CoreRuleEngine
         var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{parent.StackItemId}", actor, parent,
             sourceZone, sources.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
             behavior.EffectPlayIgnoreBaseMana, behavior.EffectPlayIgnoreBasePower, behavior.EffectPlayManaReduction,
-            behavior.EffectPlayDestination, behavior.EffectPlayOptional) {
+            behavior.EffectPlayDestination, behavior.EffectPlayOptional,
+            IgnoreAllCosts: behavior.EffectPlayIgnoreAllCosts) {
                 OriginalLocation = originalLocation, OriginalBattlefield = originalBattlefield,
                 SourcePlayerId = parent.EmpowerInteraction?.Opponent };
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
             PendingEffectPlay = pending, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }
+
+    private static bool EffectPlayCandidateCostAllowed(CardObjectState card, CardBehaviorDefinition effect)
+        => (effect.EffectPlayMaximumManaCost <= 0 || card.ManaCost <= effect.EffectPlayMaximumManaCost)
+            && (effect.EffectPlayMaximumPowerCost <= 0
+                || PrintedPowerCostRules.ForCard(card.CardNo ?? string.Empty).Amount <= effect.EffectPlayMaximumPowerCost);
+
+    internal static bool EffectPlayPermanentTargetAllowed(MatchState state, string id, CardBehaviorDefinition behavior)
+        => !behavior.EffectPlayRequiresUnitOrEquipment
+            || state.CardObjects.TryGetValue(id, out var card) && !card.IsFaceDown && !IsTokenObject(card)
+                && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))
+                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? string.Empty, out var permanent)
+                && (permanent.PlaysSourceToBaseAsUnit || permanent.PlaysSourceToBaseAsEquipment)
+                && EffectPlayCandidateCostAllowed(card, behavior);
 
     private static ResolutionResult ResolveEffectPlayCommand(MatchState state, PlayerIntent intent, GameCommand command)
     {
@@ -407,7 +455,7 @@ public sealed partial class CoreRuleEngine
                 }
             }
             result = ApplyEffectPlayFollowup(result, pending, play);
-            return FinishEffectPlay(result.State, intent, pending, result.Events.Concat(RecastPlayedEvents(result.State, pending, play)).ToArray());
+            return FinishEffectPlay(result.State, intent, pending, result.Events.Concat(RecastPlayedEvents(result.State, pending, play)).ToArray(), play.SourceObjectId);
         }
         if (pending.IgnoreAllCosts) return RejectWithCorePrompts(state, "忽略一切费用时直接完成出牌，无需产费。", ErrorCodes.PhaseNotAllowed);
         if (command is LegendActCommand legendResource
@@ -423,16 +471,47 @@ public sealed partial class CoreRuleEngine
         return RejectWithCorePrompts(state, "请先完成效果要求的再次打出。", ErrorCodes.PhaseNotAllowed);
     }
 
-    private static ResolutionResult FinishEffectPlay(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> playEvents)
+    private static ResolutionResult FinishEffectPlay(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> playEvents,
+        string? playedSourceObjectId = null)
     {
         if(pending.Parent.ObservedPlayPermission is not null)return FinishObservedDeckPlay(state,pending,playEvents);
         if (pending.Parent.DeckPlaySequence is not null) return FinishDeckPlaySequence(state, intent, pending, playEvents);
         if (pending.SourceReplay is not null)
             pending = pending with { Parent = pending.Parent with { SourceReplayDecisionCompleted = true } };
-        // Resume the parent immediately. Its remaining cleanup and observers still
-        // run through the ordinary stack resolver, before responding to child triggers.
+        var parent = pending.Parent;
+        var maximum = CardBehaviorRegistry.TryGetByEffectKind(parent.EffectKind, out var effectPlayDefinition)
+            ? Math.Max(1, effectPlayDefinition.EffectPlayMaximumCount) : 1;
+        var countsEffectPlay = !string.IsNullOrWhiteSpace(playedSourceObjectId)
+            && (maximum > 1 || parent.HighCostPlayObserver is not null);
+        if (countsEffectPlay)
+            parent = parent with { EffectPlayCount = checked(parent.EffectPlayCount + 1) };
+        var completed = string.IsNullOrWhiteSpace(playedSourceObjectId) || !countsEffectPlay || parent.EffectPlayCount >= maximum;
+        // Resume the parent through the ordinary stack resolver.  A high-cost
+        // graveyard play reuses the physical source card for the child spell;
+        // the child must resolve and leave the stack before the parent banishes
+        // that source, otherwise completion would append the same object to the
+        // graveyard after it was already banished.
+        var resumedParent = parent with { EffectPlayCompleted = completed };
+        var resumedStack = state.StackItems.Concat([resumedParent]).ToArray();
+        if (!string.IsNullOrWhiteSpace(playedSourceObjectId)
+            && resumedParent.HighCostPlayObserver is not null
+            && HighCostPlaysSourceFromGraveyard(resumedParent.CardNo)
+            && string.Equals(resumedParent.SourceObjectId, playedSourceObjectId, StringComparison.Ordinal))
+        {
+            var childIndex = state.StackItems
+                .Select((item, index) => (item, index))
+                .Where(pair => string.Equals(pair.item.SourceObjectId, playedSourceObjectId, StringComparison.Ordinal))
+                .Select(pair => (int?)pair.index)
+                .LastOrDefault();
+            if (childIndex is { } index)
+            {
+                var ordered = state.StackItems.ToList();
+                ordered.Insert(index, resumedParent);
+                resumedStack = ordered.ToArray();
+            }
+        }
         var resumed = state with { Tick = state.Tick - 1, PendingEffectPlay = null,
-            StackItems = state.StackItems.Concat([pending.Parent with { EffectPlayCompleted = true }]).ToArray() };
+            StackItems = resumedStack };
         var result = ResolvePassPriority(resumed, intent, forceResolve: true);
         return result with { Events = playEvents.Concat(result.Events).ToArray() };
     }
