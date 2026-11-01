@@ -128,7 +128,9 @@ public sealed class MandatoryRecastOpeningTests
             Assert.Equal(priorCommands, MatchStateHasher.HashValue(Commands().Take(commandCount).ToArray()));
             Assert.Equal(priorEvents, MatchStateHasher.HashValue(Events().Take(eventCount).ToArray()));
             Assert.Null(State().PendingEffectPlay); Assert.Contains(parent, State().PlayerZones[actor].Graveyard);
-            await Drain(); await Cold();
+            // Drain restores the completed response window with the original
+            // history; there is no intervening command to require another Cold.
+            await Drain();
             Assert.Equal(MatchStatuses.InProgress, State().Status); Assert.Null(State().WinnerPlayerId);
             Assert.All(State().PlayerScores.Values, score => Assert.Equal(0, score));
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State(), engine, default, Events());

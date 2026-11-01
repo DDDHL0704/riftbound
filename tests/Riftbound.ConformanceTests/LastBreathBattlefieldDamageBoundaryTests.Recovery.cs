@@ -25,7 +25,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             ["P1"] = initial.PlayerZones["P1"] with { MainDeck = initial.PlayerZones["P1"].MainDeck.Take(1).ToArray(),
                 Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
             ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
-        var game = new Driver(initial);
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             var funding = Enumerable.Range(0, 7).Select(i => "P1-RUNE-" + i).ToArray();
@@ -42,6 +42,12 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
             await BattleWinnerPhaseBoundaryTests.PassFocus(game); await game.Act("P1", new EndTurnCommand()); await Flow.Tap(game, "P2");
             for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            // The paid unit, copied texts and physical resources prepare the
+            // transfer under test. Recover their complete history once before
+            // CONTROL; transfers, private return and captured damage still
+            // recover and replay after every command.
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P2"].Base); Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
             Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
