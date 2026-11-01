@@ -47,6 +47,15 @@ public sealed partial class CoreRuleEngine
                 : P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
                     && token.Tags.Contains(CardObjectTags.UnitCard));
 
+    internal static bool ValidAttackRallyStack(StackItemState item)
+    {
+        if (item.FieldContext is not { Kind: AttackRallyKind }) return true;
+        return item.OptionalCosts.Count == 0
+            && item.DamageAmount == 0
+            && item.EffectRepeatCount == 1
+            && item.Destination.Length == 0;
+    }
+
     private static bool IsAttackRallyTarget(MatchState state, StackItemState item, CardObjectState target)
         => EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target) == item.ControllerId
             && CombatMightHere(state, item) is { Zone: "BATTLEFIELD", BattlefieldObjectId: { } field }

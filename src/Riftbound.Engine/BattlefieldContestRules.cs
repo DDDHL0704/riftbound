@@ -35,16 +35,6 @@ internal static class BattlefieldContestRules
             return false;
         }
 
-        // A live control change moves the battlefield card into the
-        // controller's battlefield zone.  A tick-zero position whose card
-        // controller disagrees with that zone is therefore an unresolved
-        // control task, rather than an imported contest that may be skipped.
-        if (!string.IsNullOrWhiteSpace(battlefield.ControllerId)
-            && !string.Equals(battlefield.ControllerId, battlefield.ZonePlayerId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
         var prefix = MarkerPrefix(battlefield.BattlefieldObjectId);
         return !state.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(prefix, StringComparison.Ordinal));
     }

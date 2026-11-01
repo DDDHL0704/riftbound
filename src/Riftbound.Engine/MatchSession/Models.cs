@@ -52,6 +52,10 @@ public static class BattlefieldTaskMarkers
 {
     public const string SpellDuelCompletedPrefix = "BATTLEFIELD_SPELL_DUEL_COMPLETED:";
     public const string BattleSkippedPrefix = "BATTLEFIELD_BATTLE_SKIPPED:";
+    // Imported fixtures can begin with an already-contested battlefield. Keep
+    // that contest from being mistaken for a new control check after the
+    // first ordinary command mutates the state.
+    public const string StaticContestPrefix = "BATTLEFIELD_STATIC_CONTEST:";
     public const string ScoreGainedThisTurnPrefix = "BATTLEFIELD_SCORE_GAINED_THIS_TURN:";
 
     public static string SpellDuelCompleted(string battlefieldObjectId)
@@ -62,6 +66,11 @@ public static class BattlefieldTaskMarkers
     public static string BattleSkipped(string battlefieldObjectId)
     {
         return $"{BattleSkippedPrefix}{battlefieldObjectId}";
+    }
+
+    public static string StaticContest(string battlefieldObjectId)
+    {
+        return $"{StaticContestPrefix}{battlefieldObjectId}";
     }
 
     public static string ScoreGainedThisTurn(string battlefieldObjectId, string playerId)

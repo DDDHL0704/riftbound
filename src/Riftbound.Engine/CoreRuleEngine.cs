@@ -167,6 +167,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return ValueTask.FromResult(result);
             if (result.Accepted && result.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
                 return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
+            // Accepted commands are the boundary at which an authoritative
+            // state is persisted and exposed to recovery.  Imported fixtures
+            // can carry a stale duplicate object reference in a zone (for
+            // example, after a helper moves an object and then appends it to
+            // the destination).  Resolve paths that do not otherwise touch
+            // zones, such as beginning an end step, would otherwise publish
+            // that duplicate unchanged and make the state unrecoverable.
+            var canonicalZones = NormalizeZonesForSeats(result.State);
+            var canonicalLocations = ReconcileObjectLocations(result.State.ObjectLocations, canonicalZones);
+            var canonicalState = result.State with
+            {
+                PlayerZones = canonicalZones,
+                ObjectLocations = canonicalLocations
+            };
+            result = result with
+            {
+                State = canonicalState,
+                Snapshots = ResolutionResult.BuildSnapshots(canonicalState),
+                Prompts = BuildCorePrompts(canonicalState)
+            };
             var completed = CollectResolutionEffects(state, result);
             // Each stage's newly produced events are collected once before the
             // next stage can run. A resulting chain/choice suspends settlement.
@@ -11024,6 +11044,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
             || state.StackItems.Count > 0)
         {
+            if (string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_MOVES"), "1", StringComparison.Ordinal))
+                Console.Error.WriteLine($"MOVE_REJECT phase={state.Phase} timing={state.TimingState} active={state.ActivePlayerId} player={intent.PlayerId} stack={state.StackItems.Count} trigger={state.TriggerQueue.Count} pending={state.PendingCardChoice?.ChoiceWindow ?? "-"} pendingPay={state.PendingPayment?.PaymentWindow ?? "-"} tick={state.Tick} fields={string.Join(",", state.BattlefieldStates.Values.Select(f => $"{f.BattlefieldObjectId}:{f.ControllerId}:{string.Join("/", f.OccupantObjectIds)}:{string.Join("/", f.OccupantControllerIds)}"))} Fcard={state.CardObjects.GetValueOrDefault("F")?.CardNo}/{state.CardObjects.GetValueOrDefault("F")?.OwnerId}/{state.CardObjects.GetValueOrDefault("F")?.ControllerId} Floc={state.ObjectLocations.GetValueOrDefault("F")?.Zone}/{state.ObjectLocations.GetValueOrDefault("F")?.PlayerId}");
             return RejectWithCorePrompts(
                 state,
                 "移动单位只能在当前玩家的开放主阶段提交。",
@@ -11266,6 +11288,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
+        if (string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_RAD"), "1", StringComparison.Ordinal))
+            Console.Error.WriteLine($"RAD_MOVE tick={nextState.Tick} focus={nextState.FocusPlayerId ?? "-"} priority={nextState.PriorityPlayerId ?? "-"} pending={nextState.PendingCardChoice?.ChoiceWindow ?? "-"} stack={nextState.StackItems.Count} triggers={nextState.TriggerQueue.Count} hostAttack={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsAttacking} hostDef={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsDefending} field={nextState.ObjectLocations.GetValueOrDefault(command.SourceObjectId)?.BattlefieldObjectId ?? "-"} events={string.Join(",", events.Select(e => e.Kind))}");
 
         return new ResolutionResult(
             true,
@@ -11550,6 +11574,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
+
+        if (string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_RAD"), "1", StringComparison.Ordinal))
+            Console.Error.WriteLine($"RAD_PRECISE_MOVE tick={nextState.Tick} focus={nextState.FocusPlayerId ?? "-"} priority={nextState.PriorityPlayerId ?? "-"} pending={nextState.PendingCardChoice?.ChoiceWindow ?? "-"} stack={nextState.StackItems.Count} triggers={nextState.TriggerQueue.Count} sourceAttack={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsAttacking} sourceDef={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsDefending} field={nextState.ObjectLocations.GetValueOrDefault(command.SourceObjectId)?.BattlefieldObjectId ?? "-"} events={string.Join(",", events.Select(e => e.Kind))}");
 
         return new ResolutionResult(
             true,
@@ -19934,6 +19961,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battlefield = state.BattlefieldStates.Values
             .Where(candidate => candidate.Contested
                 && !state.UntilEndOfTurnEffects.Contains(
+                    BattlefieldTaskMarkers.StaticContest(candidate.BattlefieldObjectId),
+                    StringComparer.Ordinal)
+                && !state.UntilEndOfTurnEffects.Contains(
                     BattlefieldTaskMarkers.SpellDuelCompleted(candidate.BattlefieldObjectId),
                     StringComparer.Ordinal)
                 && !state.UntilEndOfTurnEffects.Contains(
@@ -20710,8 +20740,71 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return state.Seats.Keys.ToDictionary(
             playerId => playerId,
-            playerId => state.PlayerZones.TryGetValue(playerId, out var zones) ? zones : PlayerZones.Empty,
+            playerId => state.PlayerZones.TryGetValue(playerId, out var zones)
+                ? NormalizePlayerZones(state, playerId, zones)
+                : PlayerZones.Empty,
             StringComparer.Ordinal);
+    }
+
+    // Fixtures and recovered clients can briefly carry an object in both its
+    // old and new zone while the object-location map already identifies the
+    // authoritative incarnation.  Every engine transition must operate on one
+    // physical location per object; retain the location recorded there and
+    // drop stale duplicate entries before rebuilding locations and prompts.
+    private static PlayerZones NormalizePlayerZones(
+        MatchState state,
+        string playerId,
+        PlayerZones zones)
+    {
+        var entries = new[]
+        {
+            (Zone: "MAIN_DECK", Ids: zones.MainDeck),
+            (Zone: "RUNE_DECK", Ids: zones.RuneDeck),
+            (Zone: "HAND", Ids: zones.Hand),
+            (Zone: "BASE", Ids: zones.Base),
+            (Zone: MoveUnitBattlefieldZone, Ids: zones.Battlefields),
+            (Zone: "GRAVEYARD", Ids: zones.Graveyard),
+            (Zone: "BANISHED", Ids: zones.Banished),
+            (Zone: "LEGEND", Ids: zones.LegendZone),
+            (Zone: "CHAMPION", Ids: zones.ChampionZone)
+        };
+        var chosen = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var entry in entries)
+        {
+            foreach (var objectId in entry.Ids.Where(id => !string.IsNullOrWhiteSpace(id)))
+            {
+                var normalized = objectId.Trim();
+                if (chosen.ContainsKey(normalized)) continue;
+                if (state.ObjectLocations.TryGetValue(normalized, out var location)
+                    && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
+                    && !string.Equals(location.Zone, entry.Zone, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+                chosen[normalized] = entry.Zone;
+            }
+        }
+
+        IReadOnlyList<string> Keep(string zone, IReadOnlyList<string> ids)
+            => ids.Where(id => !string.IsNullOrWhiteSpace(id)
+                && chosen.TryGetValue(id.Trim(), out var selected)
+                && string.Equals(selected, zone, StringComparison.Ordinal))
+                .Select(id => id.Trim())
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
+        return zones with
+        {
+            MainDeck = Keep("MAIN_DECK", zones.MainDeck),
+            RuneDeck = Keep("RUNE_DECK", zones.RuneDeck),
+            Hand = Keep("HAND", zones.Hand),
+            Base = Keep("BASE", zones.Base),
+            Battlefields = Keep(MoveUnitBattlefieldZone, zones.Battlefields),
+            Graveyard = Keep("GRAVEYARD", zones.Graveyard),
+            Banished = Keep("BANISHED", zones.Banished),
+            LegendZone = Keep("LEGEND", zones.LegendZone),
+            ChampionZone = Keep("CHAMPION", zones.ChampionZone)
+        };
     }
 
     private static string StackTimingContextForNewStackItem(MatchState state)

@@ -93,6 +93,17 @@ internal static class PrintedCardFactory
             tags.Add($"HERO:{card.Hero}");
         }
 
+        // A printed object must expose the same intrinsic keywords as the
+        // object produced by the normal unit-entry path.  Runtime fixtures
+        // and recovered objects are created directly from the official print;
+        // omitting SourceUnitTags here makes combat keywords disappear until
+        // a card is played through CoreRuleEngine.UnitEntry.
+        if (CardBehaviorRegistry.TryGetByCardNo(card.CardNo, out var behavior))
+        {
+            tags.AddRange(behavior.SourceUnitTags
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        }
+
         tags.AddRange(card.CardColorList
             .Where(color => !string.IsNullOrWhiteSpace(color))
             .Select(color => $"COLOR:{color.Trim()}"));

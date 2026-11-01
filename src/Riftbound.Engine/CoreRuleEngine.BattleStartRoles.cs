@@ -124,6 +124,8 @@ public sealed partial class CoreRuleEngine
                 ["optionalCosts"] = context.OptionalCosts, ["battlefieldTargetObjectIds"] = context.BattlefieldTargetObjectIds,
                 ["declarationContextPreserved"] = true }));
         events.AddRange(queue.Select(BuildTriggerQueuedEvent));
+        if (string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_RAD"), "1", StringComparison.Ordinal))
+            Console.Error.WriteLine($"RAD_ROLES tick={state.Tick} field={context.BattlefieldId} attackers={string.Join(",", newAttackers)} defenders={string.Join(",", newDefenders)} host={string.Join("/", state.CardObjects.Where(p => p.Value.IsAttacking || p.Value.IsDefending).Select(p => $"{p.Key}:a{p.Value.IsAttacking}:d{p.Value.IsDefending}:tags={string.Join("|",p.Value.Tags)}"))} queue={string.Join(",", queue.Select(q => q.FieldContext?.Kind ?? q.EffectKind))}");
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 

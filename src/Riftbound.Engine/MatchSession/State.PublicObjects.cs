@@ -405,6 +405,13 @@ public sealed partial record MatchState
                 continue;
             }
 
+            if (state.UntilEndOfTurnEffects.Contains(
+                    BattlefieldTaskMarkers.StaticContest(battlefield.BattlefieldObjectId),
+                    StringComparer.Ordinal))
+            {
+                continue;
+            }
+
             if (BattlefieldContestRules.IsInitialStaticContest(
                     state,
                     battlefield,
@@ -543,11 +550,29 @@ public sealed partial record MatchState
             .SelectMany(field => new[]
             {
                 BattlefieldTaskMarkers.SpellDuelCompleted(field.BattlefieldObjectId),
-                BattlefieldTaskMarkers.BattleSkipped(field.BattlefieldObjectId)
+                BattlefieldTaskMarkers.BattleSkipped(field.BattlefieldObjectId),
+                BattlefieldTaskMarkers.StaticContest(field.BattlefieldObjectId)
             }).ToHashSet(StringComparer.Ordinal);
-        return newlyContested.Count == 0 ? state : state with
+        var staticContests = state.BattlefieldStates.Values
+            .Where(field => field.Contested
+                && previousState.BattlefieldStates.TryGetValue(field.BattlefieldObjectId, out var previousField)
+                && previousField.Contested
+                && BattlefieldContestRules.IsInitialStaticContest(previousState, previousField, hasStateBasedCleanup: false)
+                // The marker represents the exact imported contest.  Once a
+                // command changes its occupants or controller, the ordinary
+                // contest lifecycle must resume for the new contest state.
+                && field.ControllerId == previousField.ControllerId
+                && field.OccupantObjectIds.SequenceEqual(previousField.OccupantObjectIds, StringComparer.Ordinal)
+                && field.OccupantControllerIds.SequenceEqual(previousField.OccupantControllerIds, StringComparer.Ordinal))
+            .Select(field => BattlefieldTaskMarkers.StaticContest(field.BattlefieldObjectId));
+        var markers = state.UntilEndOfTurnEffects
+            .Where(effect => !newlyContested.Contains(effect))
+            .Concat(staticContests)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return markers.SequenceEqual(state.UntilEndOfTurnEffects, StringComparer.Ordinal) ? state : state with
         {
-            UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Where(effect => !newlyContested.Contains(effect)).ToArray()
+            UntilEndOfTurnEffects = markers
         };
     }
 
