@@ -6,7 +6,13 @@ namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SelfMightActivationContext(ObjectBinding Source, string CardNo, int AbilityIndex,
-    long AcquiredTick, long FaceRevision, string InstanceId, RuleTextInstanceBinding? Origin = null);
+    long AcquiredTick, long FaceRevision, string InstanceId, RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceTokenFactoryCardNo { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
+}
 
 internal sealed record SelfMightAbility(string Id, RuleTextInstance Instance, int Index, ActivatedAbilitySpec Spec)
 {
@@ -40,15 +46,14 @@ internal static class SelfMightRules
             || item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null || item.OptionalCosts.Count != 0
             || item.EffectRepeatCount != 1 || item.SourceConfirmed || item.DamageAmount != 0
             || !state.Seats.ContainsKey(item.ControllerId)
-            || state.CardObjects.TryGetValue(c.Source.ObjectId, out var source) && source.ObjectGeneration < c.Source.Generation
+            || !SelfAbilitySourceRules.Valid(state, c.Source, c.CardNo, c.FaceRevision, c.AcquiredTick,
+                c.SourceTokenFactoryCardNo, c.CeasedSource, c.Origin is null)
             || !AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.Generation, c.CardNo)
             || item.EmpowerActivation is not null || item.TargetedPowerAbility is not null || item.SpellContext is not null
             || item.FieldContext is not null || item.PlayCost is not null) return false;
         return c.Origin is { } origin
             ? c.InstanceId == $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
-            : c.InstanceId == $"PRINTED:{c.Source.ObjectId}:{c.Source.Generation}"
-                && (!state.CardObjects.TryGetValue(c.Source.ObjectId, out var live) || live.ObjectGeneration != c.Source.Generation
-                    || CopyFaceTimeline.FaceAt(live, c.FaceRevision, c.AcquiredTick) == c.CardNo);
+            : c.InstanceId == $"PRINTED:{c.Source.ObjectId}:{c.Source.Generation}";
     }
 }
 
@@ -82,7 +87,8 @@ public sealed partial class CoreRuleEngine
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，无法支付技能费用。", ErrorCodes.InsufficientCost);
         var context = new SelfMightActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
-            ability.Index, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0, ability.Instance.Id, ability.Instance.Origin);
+            ability.Index, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0, ability.Instance.Id, ability.Instance.Origin) {
+                SourceTokenFactoryCardNo = source.TokenFactoryCardNo };
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-SELF-MIGHT", intent.PlayerId,
             source.ObjectId, SelfMightRules.Effect, ability.Instance.CardNo, [], 0, 1, []) { SelfMightActivation = context };
         events.Add(new("COST_PAID", "支付战力技能费用", PaymentCostRules.BuildCostPaidPayload(plan, payment.RunePools,
