@@ -11,6 +11,13 @@ namespace Riftbound.ConformanceTests;
 public sealed class RadCombatHeroTests
 {
     private const string Graves = "RAD·085/167";
+    internal static MatchState Response(MatchState state, string cardNo, string player)
+    {
+        state = EquipChainTests.Response(state, cardNo, player);
+        return state with { PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+            [player] = state.PlayerZones[player] with { Hand = state.PlayerZones[player].Hand.Distinct(StringComparer.Ordinal).ToArray() } } };
+    }
+
     private static readonly string[] Prints = ["RAD·042/167", "RAD·042a/167", Graves];
     public static IEnumerable<object[]> Numbers() => Prints.Select(no => new object[] { no });
 
@@ -64,6 +71,10 @@ public sealed class RadCombatHeroTests
     {
         var s = AhriCombatMightTests.Board(no, defend, copied);
         var source = defend ? "ENEMY1" : "HOST";
+        // A deployed equipment may remain unattached on a battlefield (CN323.6 / 830.1.b.3).
+        if (!copied) s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["GEAR"] = new("GEAR", ownerId: "P1", controllerId: "P1",
+                tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Deploy]) } };
         return s with { CardObjects = s.CardObjects.ToDictionary(p => p.Key, p => p.Key == source
             ? p.Value with { Power = 4, Tags = no == Graves ? [CardObjectTags.UnitCard] : [CardObjectTags.UnitCard, "坚守"] }
             : p.Key is "HOST" or "ENEMY1" or "ENEMY2" or "ENEMY3" ? p.Value with { Power = 20 } : p.Value) };
@@ -106,7 +117,7 @@ public sealed class RadCombatHeroTests
         // Gust's limit is three Might; it must actually be legal to recall the source.
         if (branch == "recall") s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["HOST"] = s.CardObjects["HOST"] with { Power = 3 } } };
         var response = branch == "recall" ? "OGN·169/298" : "OGN·145/298";
-        s = EquipChainTests.Response(s, response, "P2");
+        s = Response(s, response, "P2");
         var game = new Driver(s); await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         Assert.Single(game.State.StackItems); await game.Act("P1", new PassPriorityCommand());
         await game.Act("P2", new PlayCardCommand("RESPONSE", response, branch == "recall" ? ["HOST"] : []));
@@ -119,7 +130,7 @@ public sealed class RadCombatHeroTests
     [Fact]
     public async Task ACounterThatRequiresFriendlyTargetsCannotSelectTheUntargetedAreaSkill()
     {
-        var game = new Driver(EquipChainTests.Response(Board(Graves), "SFD·045/221", "P2"));
+        var game = new Driver(Response(Board(Graves), "SFD·045/221", "P2"));
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         var skill = Assert.Single(game.State.StackItems); await game.Act("P1", new PassPriorityCommand());
         await Reject(game.State, "P2", new PlayCardCommand("RESPONSE", "SFD·045/221", [skill.StackItemId]));
@@ -191,8 +202,11 @@ public sealed class RadCombatHeroTests
     [Theory, InlineData("OGN·022/298"), InlineData("SFD·135/221")]
     public async Task DestroyingOrRecallingTheEquipmentDuringResponsesDisablesCombatDamageImmediately(string response)
     {
-        var s = LocalDestructionRecallTests.At(Board("RAD·042/167"), "GEAR", "P1", "BATTLEFIELD", "F");
-        s = EquipChainTests.Response(s, response, "P2");
+        var s = Board("RAD·042/167");
+        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["GEAR"] = new("GEAR", cardNo: "SFD·022/221", ownerId: "P1", controllerId: "P1",
+                tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], attachedToObjectId: "HOST") } };
+        s = Response(s, response, "P2");
         var game = new Driver(s); await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         // The open battle duel lets either player answer before combat damage.
         if (game.State.FocusPlayerId == "P1") await game.Act("P1", new PassFocusCommand());

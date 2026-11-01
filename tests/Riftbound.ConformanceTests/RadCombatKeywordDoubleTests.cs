@@ -12,6 +12,16 @@ namespace Riftbound.ConformanceTests;
 public sealed class RadCombatKeywordDoubleTests
 {
     private const string Hero = "RAD·045/167";
+    [Theory]
+    [InlineData("当我进攻或防守时，让此处你控制的一名单位在本回合内{{坚守}}数值翻倍。", true)]
+    [InlineData("当我进攻或防守时, 让此处你控制的一名单位在本回合内{{坚守}}数值翻倍.", true)]
+    [InlineData("当我进攻或防守时，让此处你控制的一名单位在本回合内{{坚守}}数值翻倍", true)]
+    [InlineData("当我进攻时，让此处你控制的一名单位在本回合内{{坚守}}数值翻倍。", false)]
+    [InlineData("当我进攻或防守时，让此处的一名敌方单位在本回合内{{坚守}}数值翻倍。", false)]
+    [InlineData("当我进攻或防守时，让此处你控制的所有单位在本回合内{{坚守}}数值翻倍。", false)]
+    public void OnlyTheOfficialFriendlyKeywordDoublingIsParsed(string text, bool expected)
+        => Assert.Equal(expected, TriggerParser.Parse(text).Any(t => t.Kind == TriggerKinds.UnitAttackOrDefendDoubleFriendlyKeywordHere));
+
     [Theory, InlineData("RAD·045/167", 39540), InlineData("RAD·045a/167", 39541)]
     public async Task EveryHeroPrintingUsesPrintedPaymentAndKeepsItsChampionIdentity(string no, long id)
     {
@@ -104,7 +114,7 @@ public sealed class RadCombatKeywordDoubleTests
         s = DeathObserverAuditTests.Source(s, "OGN·001/298", "ALLY", "P1");
         s = LocalDestructionRecallTests.At(s, "ALLY", "P1", "BASE");
         s = WithCard(s, "ALLY", c => c with { Power = 3, Tags = [CardObjectTags.UnitCard, "坚守2"] });
-        var game = new Driver(EquipChainTests.Response(s, "OGN·169/298", "P2"));
+        var game = new Driver(RadCombatHeroTests.Response(s, "OGN·169/298", "P2"));
         await Pending(game, "ALLY"); await game.Act("P1", new PassPriorityCommand());
         var recalled = branch == "source" ? "HOST" : "ALLY";
         await game.Act("P2", new PlayCardCommand("RESPONSE", "OGN·169/298", [recalled])); await game.Top();

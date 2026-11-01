@@ -20,13 +20,16 @@ public sealed class RadAttackRallyTests
         state = At(state, "ALLY", "P1", "BASE");
         state = OfficialHoldSequenceTests.AddUnit(state, "FAR", "OGN·219/298", "OTHER", "P1");
         state = OfficialHoldSequenceTests.AddUnit(state, "HERE", "OGN·219/298", "F", "P1");
+        state = At(state, "HERE", "P1", "BASE");
+        var hero = OfficialGarenConquestBattlefieldCountTests.Printed("HOST", no, "P1");
         return state with { RoomId = "RAD-ATTACK-RALLY", CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["HOST"] = OfficialGarenConquestBattlefieldCountTests.Printed("HOST", no, "P1"),
+            ["HOST"] = hero with { Tags = [.. hero.Tags, "强攻", "壁垒"] },
             ["ALLY"] = state.CardObjects["ALLY"] with { IsExhausted = exhausted },
             ["OTHER"] = state.CardObjects["OTHER"] with { ControllerId = "P1" } } };
     }
 
-    private static Task Attack(Driver game) => game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+    private static Task Attack(Driver game) => game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", [],
+        SourceObjectIds: game.State.PlayerZones["P1"].Base.Contains("HERE") ? ["HOST", "HERE"] : ["HOST"]));
     private static Task Choose(Driver game, params string[] ids)
     {
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
@@ -79,6 +82,7 @@ public sealed class RadAttackRallyTests
     {
         var game = new Driver(Position(no, exhausted: exhausted)); var mana = game.State.RunePools["P1"].Mana;
         await Attack(game);
+        Assert.True(game.State.CardObjects["HOST"].IsAttacking);
         Assert.Equal(8, ArmamentMightTests.Might(game.State));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal(0, choice.RequiredCount); Assert.Equal(1, choice.MaxCount); Assert.Equal(["ALLY", "FAR"], choice.LegalObjectIds);
