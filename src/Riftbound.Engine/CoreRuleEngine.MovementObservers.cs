@@ -50,7 +50,7 @@ public sealed partial class CoreRuleEngine
                 : effect != MovementDiscardInlineEffect || c.DiscardInline is null)
             || c.DiscardInline is not null && (c.Kind != TriggerKinds.UnitMovedDrawDiscardTypes || !ValidMovementDiscardInline(c.DiscardInline))
             || c.SourceGeneration < 0 || c.SourceWasEmpowered == false || cardNo is not null && cardNo != c.CardNo
-            || c.TargetTokenFactoryCardNo is not null && (c.Kind is not (TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage)
+            || c.TargetTokenFactoryCardNo is not null && (c.Kind is not (TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight)
                 || !P6TokenFactoryCatalog.IsUnitTokenFactory(c.TargetTokenFactoryCardNo))
             || !ValidMovedUnitFact(c.Unit)
             || (c.Origin is null ? c.RuleTextInstanceId is not null
@@ -131,6 +131,7 @@ public sealed partial class CoreRuleEngine
                 _ => "：弃置法术后，抽一张牌" }
             : c.Kind switch {
                 MovementScoreKind => "：第三次移动后获得 1 分",
+                TriggerKinds.UnitMovedSetOtherUnitBaseMight => "：移动后可设置另一名单位本回合的基础战力",
                 TriggerKinds.UnitMovedDamageAtOriginOrDestination => "：移动后可对起点或终点战场的一名单位造成伤害",
                 TriggerKinds.UnitMovedSourceKeywordDamage => "：移动后可对战场上的一名单位造成等同于坚守数值的伤害",
                 TriggerKinds.UnitMovedCreateDormantGold => "：移动后打出休眠金币",
@@ -184,7 +185,7 @@ public sealed partial class CoreRuleEngine
                 if (MovementScoreDefinition(instance.CardNo) is { } score && ordinal == score.Ordinal)
                     Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, MovementScoreKind, unit.ObjectGeneration, fact, MovementOrdinal: ordinal));
                 foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(instance.CardNo)
-                    .Where(t => (t.TargetScope == TriggerTargetScopes.SourceUnit || UnitMovedTriggerSpecRules.IsMovementDamageTrigger(t))
+                    .Where(t => (t.TargetScope == TriggerTargetScopes.SourceUnit || UnitMovedTriggerSpecRules.IsTargetedMovementTrigger(t))
                         && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)
                         && (t.RequiresSourceEmpowered != true || unit.IsEmpowered)
                         && (t.OncePerTurn != true || ordinal == 1)
@@ -245,7 +246,7 @@ public sealed partial class CoreRuleEngine
                     observer.Context.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD") { MovementObserver = resource ? null : observer.Context, SourceCardNo = observer.Context.CardNo };
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
-                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage)
+                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight)
                     queued = queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
                         ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, trigger.SourceObjectId, "__spectator__") } };
                 events.Add(queued);
@@ -270,11 +271,12 @@ public sealed partial class CoreRuleEngine
             && UnitMovedTriggerSpecRules.MatchesMovement(t, context.Unit) && MovementEmpowermentMatches(t, context));
         if (context.Kind == TriggerKinds.UnitOrdinalMovementBanishTopPlay)
             return ResolveMovementTimedBanishPlay(state, item, events);
-        if (HasMovementDamage(item))
+        if (HasTargetedMovementSkill(item))
         {
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
                 ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") } };
-            return ResolveMovementDamage(state, item, events);
+            return context.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight
+                ? ResolveMovementBaseMight(state, item, events) : ResolveMovementDamage(state, item, events);
         }
         if (context.Kind is TriggerKinds.UnitFirstMovementMillPlayer or TriggerKinds.UnitMovedAllPlayersDrawOrDiscard
             || unitSpec is { MillCount: > 0, Optional: true, PowerDelta: > 0 })

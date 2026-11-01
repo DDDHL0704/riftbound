@@ -468,6 +468,14 @@ public static class TriggerParser
         if (nextDamageDestroy.Success)
             triggers.Add(new(TriggerKinds.SpellNextDamageOrInspiredDestroy, "UNIT_DAMAGED", nextDamageDestroy.Value,
                 "Confirmed Inspire destroys immediately; otherwise bind the original target's next damage this turn.", Duration: TriggerDurations.UntilEndOfTurn));
+        var movedBaseMight = Regex.Match(text,
+            @"(?:^|\n)当我移动时，你可以选择让另一名单位的基础战力在本回合内变为(?<might>[0-9]+)。?(?=$|\n)",
+            RegexOptions.CultureInvariant);
+        if (movedBaseMight.Success && int.TryParse(movedBaseMight.Groups["might"].Value, out var baseMight))
+            triggers.Add(new(TriggerKinds.UnitMovedSetOtherUnitBaseMight, TriggerTimings.UnitMoved,
+                movedBaseMight.Value.TrimStart(), "Optionally target another field unit; replace its base Might for this turn after responses.",
+                TargetScope: TriggerTargetScopes.OtherUnitOnField, Optional: true,
+                Duration: TriggerDurations.UntilEndOfTurn, BasePowerUntilEndOfTurn: baseMight));
         var movedOriginDamage = Regex.Match(text,
             @"当我移动时，你可以选择对我移动起点或终点的战场上的一名单位造成(?<normal>[0-9一两二三四五六七八九十]+)点伤害。\s*如果我\{\{已强化\}\}，则改为造成(?<empowered>[0-9一两二三四五六七八九十]+)点伤害。?",
             RegexOptions.CultureInvariant);
@@ -667,6 +675,7 @@ public static class TriggerParser
             .Where(segment => !graveyardPlay.Success || !graveyardPlay.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !turnDamageDestroy.Success || !turnDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !nextDamageDestroy.Success || !nextDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
+            .Where(segment => !movedBaseMight.Success || !segment.StartsWith("当我移动时，你可以选择让另一名单位的基础战力在本回合内变为", StringComparison.Ordinal))
             .Where(segment => !movedTypedDiscard.Success || !segment.StartsWith("当我移动时，抽一张牌，然后弃置一张手牌", StringComparison.Ordinal))
             .Where(segment => !movedReveal.Success || !segment.StartsWith("当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal)
                 && !segment.StartsWith("每当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal))
@@ -1712,6 +1721,12 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.TriggeringAttacker, PowerDelta: enemyAttackDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: enemyAttackMinimum);
 
+        if (segment == "当我进攻或防守时，让此处你控制的一名单位在本回合内{{坚守}}数值翻倍。")
+            return new TriggerSpec(TriggerKinds.UnitAttackOrDefendDoubleFriendlyKeywordHere, TriggerTimings.UnitAttackOrDefend,
+                segment, "Add the current numeric keyword value as a fixed turn modifier (CN433.1.a).",
+                TargetScope: TriggerTargetScopes.FriendlyUnitHere, Duration: "UNTIL_END_OF_TURN",
+                GrantedKeyword: "坚守");
+
         var combatMight = Regex.Match(segment,
             @"^当我进攻或防守时[，,]\s*(?:让|给予)此处的一名敌方单位(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<minimum>\d+)\{\{S\}\}[。.]?$",
             RegexOptions.CultureInvariant);
@@ -1728,6 +1743,14 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitAttackOrDefendSourceMightDamage, TriggerTimings.UnitAttackOrDefend,
                 segment, TargetScope: TriggerTargetScopes.EnemyUnitHere);
 
+        if (Regex.IsMatch(segment,
+            @"^当我进攻或防守时[，,]\s*对此处的所有敌方单位各造成等同于我战力的伤害[。.]?$",
+            RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.UnitAttackOrDefendSourceMightDamageAllEnemyUnitsHere,
+                TriggerTimings.UnitAttackOrDefend, segment,
+                "Damage all enemies at the source's current location using its current Might; no targets are chosen.",
+                TargetScope: TriggerTargetScopes.AllEnemyUnitsHere);
+
         var empoweredAttackDestroy = Regex.Match(segment,
             @"^\{\{已强化>\}\}\s*当我进攻时[，,]\s*摧毁此处一名战力低于我的敌方单位[。.]?$",
             RegexOptions.CultureInvariant);
@@ -1735,6 +1758,12 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitEmpoweredAttackDestroyWeakerEnemyHere, TriggerTimings.UnitAttack, segment,
                 "When an empowered unit attacks, confirm a weaker local enemy before responses and recheck the target on resolution.",
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, RequiresSourceEmpowered: true);
+        if (Regex.IsMatch(segment,
+            @"^当我进攻时[，,]\s*你可以选择将你控制的一名单位移动到我(?:所在的|的)战场[。.]?$",
+            RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.UnitAttackMoveControlledUnitToSourceBattlefield, TriggerTimings.UnitAttack,
+                segment, "Confirm an optional friendly target before responses; move it to the source's current battlefield (CN359.3.f.2).",
+                TargetScope: TriggerTargetScopes.ControlledUnitOnField, Optional: true, MovementDestinationZone: "BATTLEFIELD");
         var attackStun = Regex.Match(segment,
             @"^当我进攻时[，,]\s*(?:\{\{眩晕\}\}|眩晕)此处的一名敌方单位[。.]?$",
             RegexOptions.CultureInvariant);
@@ -3401,6 +3430,14 @@ public static class StaticAbilityParser
                 staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitCannotDealCombatDamage, segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "The source contributes no combat damage; its Might and spell/skill damage remain unchanged."));
+                continue;
+            }
+            if (Regex.IsMatch(segment, @"^除非此处有一件友方装备[，,]\s*否则我无法造成战斗伤害[。.]?$",
+                RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitFriendlyEquipmentHereCombatDamage,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "A current friendly face-up equipment at the source's location permits combat damage."));
                 continue;
             }
             var exactOtherFriendlyBattlefieldCombatDamage = Regex.Match(segment,
