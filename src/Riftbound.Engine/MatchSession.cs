@@ -3053,10 +3053,14 @@ internal static partial class ActionPromptBuilder
                 renataGoldExtraManaAvailable,
                 renataGoldExtraManaAvailable ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0,
                 azirArmamentReattachChoicesByTargetObjectId,
-                AdditionalCostChoices: ability.SimpleEffect?.DiscardsEquipmentAsCost == true
-                    ? CoreRuleEngine.SimpleActivationDiscardChoices(state, playerId).Select(id => new ActionPromptChoiceDto(id,
-                        "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label, "弃置装备以支付技能费用")).ToArray() : null,
-                RequiredAdditionalCostChoiceCount: ability.SimpleEffect?.DiscardsEquipmentAsCost == true ? 1 : 0);
+                AdditionalCostChoices: CoreRuleEngine.SimpleActivationHasAdditionalCost(ability)
+                    ? CoreRuleEngine.SimpleActivationAdditionalCostChoices(state, playerId, sourceObjectId, ability).Select(id =>
+                        id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)
+                            ? new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
+                                "弃置装备以支付技能费用")
+                            : new ActionPromptChoiceDto(id, "让" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "费用").Label + "变为休眠状态",
+                                "让友方单位变为休眠状态以支付技能费用", [id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..]])).ToArray() : null,
+                RequiredAdditionalCostChoiceCount: CoreRuleEngine.SimpleActivationHasAdditionalCost(ability) ? 1 : 0);
             foreach (var instance in AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability))
             {
                 var copyId = instance.Origin is null ? null : instance.Id;
