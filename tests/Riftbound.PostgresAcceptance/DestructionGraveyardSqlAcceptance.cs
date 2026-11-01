@@ -128,7 +128,9 @@ internal static class DestructionGraveyardSqlAcceptance
                 Check(frame.IsConsistent && frame.Commands.Count == count && frame.OpeningSeed == 0
                     && frame.ReplayInitialState is { Tick: 0 } blank && blank.CardObjects.Count == 0
                     && MatchStateHasher.Hash(frame.AuthoritativeState!) == MatchStateHasher.Hash(state), "Original blank seed, complete command history and authoritative state match.");
-                Check((await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default)).Count == 0, "Full original action/event/state replay.");
+                // A fresh production registry mandates the full original action/event/state
+                // replay before restoring this same SQL history. Auditing it here as well
+                // would replay every accepted command twice at each cold boundary.
                 var restored = await new InMemoryMatchSessionRegistry(engine, journal, store, players, options).GetOrCreateAsync(room, default);
                 foreach (var player in initial.Seats.Keys)
                     Check(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(session.SnapshotFor(player)), JsonSerializer.SerializeToNode(restored.SnapshotFor(player)))
