@@ -104,13 +104,28 @@ public sealed partial class CoreRuleEngine
         return count == required;
     }
 
+    private static bool HasFriendlyEquipmentHere(MatchState state, CardObjectState source)
+    {
+        if (!IsObjectOnField(state.PlayerZones, source.ObjectId)
+            || !state.ObjectLocations.TryGetValue(source.ObjectId, out var here) || here.Zone is not ("BASE" or "BATTLEFIELD")) return false;
+        var controller = EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source);
+        return state.CardObjects.Values.Any(card => !card.IsFaceDown && card.Tags.Contains(CardObjectTags.EquipmentCard)
+            && CardControlRules.IsControlledByPlayerOrLegacyOwned(card, controller)
+            && IsObjectOnField(state.PlayerZones, card.ObjectId)
+            && state.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.Zone == here.Zone
+            && (here.Zone == "BASE" ? at.PlayerId == here.PlayerId : at.BattlefieldObjectId == here.BattlefieldObjectId));
+    }
+
     private static bool CanDealCombatDamage(MatchState state, CardObjectState source)
         => !AttachedRuleTextRules.Instances(state, source).Any(instance =>
             CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
                 ability => ability.Kind is StaticAbilityKinds.UnitCannotDealCombatDamage
-                    or StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage, out var spec)
+                    or StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage
+                    or StaticAbilityKinds.UnitFriendlyEquipmentHereCombatDamage, out var spec)
             && (spec.Kind == StaticAbilityKinds.UnitCannotDealCombatDamage
-                || !HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits)));
+                || (spec.Kind == StaticAbilityKinds.UnitFriendlyEquipmentHereCombatDamage
+                    ? !HasFriendlyEquipmentHere(state, source)
+                    : !HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits))));
 
     private static ResolutionResult RefreshRuleDerivedKeywordLayers(ResolutionResult result)
     {
