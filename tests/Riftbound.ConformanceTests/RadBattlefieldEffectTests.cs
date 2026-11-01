@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -65,6 +66,13 @@ public sealed class RadBattlefieldEffectTests
         Assert.Single(game.State.PlayerZones["P1"].RuneDeck);
         await game.Top();
         var choice = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
+        var candidate = Assert.Single(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.ChooseHandCards);
+        var step = Assert.Single(candidate.SelectionSteps!);
+        Assert.False(step.Required);
+        Assert.False(Assert.Single(candidate.CommandTemplate!.Bindings, b => b.Field == "chosenObjectIds").Required);
+        Assert.Equal(new[] { "H1" }, step.Choices.Select(c => c.Id));
+        var decoded = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(game.State))!;
+        Assert.Equal(MatchStateHasher.HashValue(choice), MatchStateHasher.HashValue(decoded.PendingHandChoice));
         await Reject(game.State, "P2", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["H1"]));
         await Reject(game.State, "P1", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["DRAW1"]));
         await game.Act("P1", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, accept ? ["H1"] : []));

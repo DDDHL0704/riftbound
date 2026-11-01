@@ -49,6 +49,42 @@ public sealed class RadBattlefieldBoundaryTests
     }
 
     [Fact]
+    public async Task RuinedMonasteryCanDiscardWithAnEmptyRuneDeckWithoutDrawing()
+    {
+        var game = new Driver(ConquestLifecycleRegressionTests.State("RAD·166/167", 1));
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
+        await game.Act("P1", new PassFocusCommand());
+        await game.Act("P2", new PassFocusCommand());
+        await game.Top();
+        var choice = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
+        await game.Act("P1", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["H1"]));
+        Assert.Empty(game.State.PlayerZones["P1"].Hand);
+        Assert.Contains("H1", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(game.State.PlayerZones["P1"].RuneDeck);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "CARD_DRAWN");
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("RAD·166/167", 2)]
+    [InlineData("OGN·298/298", 0)]
+    public async Task ConquestDiscardRecoveryRejectsForgedRequiredCounts(string no, int required)
+    {
+        var game = new Driver(ConquestLifecycleRegressionTests.State(no, 3));
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
+        await game.Act("P1", new PassFocusCommand());
+        await game.Act("P2", new PassFocusCommand());
+        await game.Top();
+        var choice = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
+        var forged = game.State with { PendingHandChoice = choice with { RequiredCount = required } };
+        var commands = game.Commands();
+        var errors = MatchRecoveryValidator.Validate(forged.RoomId, commands[^1].CompletedEventSequence,
+            commands, game.Events(), new Dictionary<string, RecoveredPlayerView>(), forged, forged.Tick);
+        Assert.Contains(errors, e => e.Contains("invalid battlefield conquest discard hand continuation", StringComparison.Ordinal));
+        await Reject(forged, "P1", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+    }
+
+    [Fact]
     public async Task CosmicVistaDoesNotTriggerWhenTheLastRuneIsChanneledAfterHold()
     {
         var initial = OfficialHoldSequenceTests.State("RAD·160/167");

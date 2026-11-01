@@ -3634,12 +3634,13 @@ public static partial class MatchRecoveryValidator
             payloadLabel,
             "player id",
             errors);
-        var requiredCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
-            choicePayload,
-            "requiredCount",
-            payloadLabel,
-            "required count",
-            errors);
+        var optionalConquestDiscard = TryReadObjectString(choicePayload, "effectKind", out var effectKind)
+            && effectKind == TriggerKinds.BattlefieldConquerDiscardCallRune
+            && TryReadObjectString(choicePayload, "choiceWindow", out var choiceWindow)
+            && choiceWindow == TriggerKinds.BattlefieldConquerDiscardDraw;
+        var requiredCount = optionalConquestDiscard
+            ? ValidateSnapshotPayloadRequiredNonNegativeIntValue(choicePayload, "requiredCount", payloadLabel, "required count", errors)
+            : ValidateSnapshotPayloadRequiredPositiveIntValue(choicePayload, "requiredCount", payloadLabel, "required count", errors);
         var maxCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
             choicePayload,
             "maxCount",

@@ -408,7 +408,9 @@ public static partial class MatchRecoveryValidator
             effectKind,
             errors);
 
-        if (pendingHandChoice.RequiredCount < 1)
+        if (pendingHandChoice.RequiredCount < 0
+            || pendingHandChoice.RequiredCount == 0
+                && !CoreRuleEngine.IsOptionalBattlefieldConquestDiscardChoice(pendingHandChoice))
         {
             errors.Add(
                 $"authoritative state pending hand choice {choiceLabel} required count {pendingHandChoice.RequiredCount} is invalid");
