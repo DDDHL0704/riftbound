@@ -10,7 +10,9 @@ public sealed partial class CoreRuleEngine
     internal const string CreatedTokenReadyEffect = "CREATED_TOKEN_READY";
 
     private static int BaseUnitTokenInstructionCount(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
-        => behavior.CreatedBaseUnitTokenCount * Math.Max(1, item.EffectRepeatCount)
+        => (item.Showcase is not null && behavior.CreatedBaseUnitTokenCountIfShowcase > 0
+                ? behavior.CreatedBaseUnitTokenCountIfShowcase
+                : behavior.CreatedBaseUnitTokenCount) * Math.Max(1, item.EffectRepeatCount)
             * (behavior.CreatedBaseUnitTokenPerEquipment
                 ? CountControlledPublicFieldEquipmentObjects(state.PlayerZones, state.CardObjects, item.ControllerId) : 1);
 

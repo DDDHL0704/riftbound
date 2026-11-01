@@ -150,7 +150,11 @@ public sealed partial class CoreRuleEngine
             && IsMainDeckTargetTagAllowed(state, objectId, index, behavior)
             && IsTargetRequiredTagAllowed(state, objectId, behavior)
             && IsTargetTagAllowed(state, objectId, behavior)
+            && (!behavior.MovesFriendlyEquipmentToChosenBattlefield
+                || index != 0 || IsFriendlyEquipmentMovementCandidate(state, playerId, objectId))
             && IsTargetManaCostAllowed(state, playerId, objectId, behavior)
             && IsStackItemTargetConditionAllowed(state, playerId, objectId, index, targets, behavior)
-            && IsTargetPowerAllowed(state, objectId, behavior);
+            && IsTargetPowerAllowed(state, objectId, behavior)
+            && (!behavior.RequiresMovementThisTurn
+                || state.CardObjects.TryGetValue(objectId, out var moved) && moved.MovementCountThisTurn > 0);
 }
