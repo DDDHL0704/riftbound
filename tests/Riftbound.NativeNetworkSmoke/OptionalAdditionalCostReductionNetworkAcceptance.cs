@@ -16,7 +16,9 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
 
     private static async Task RunCaseAsync(string url, string output, bool recover)
     {
-        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+        // A copied-case recovery replays the complete journal before the live payment step;
+        // on the shared SQL runner that replay can legitimately exceed the old 90-second limit.
+        using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(3));
         var token = deadline.Token;
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         json.Converters.Add(new JsonStringEnumConverter());
