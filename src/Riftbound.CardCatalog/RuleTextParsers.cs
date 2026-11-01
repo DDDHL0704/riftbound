@@ -1703,6 +1703,10 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        if (Regex.IsMatch(segment, @"^当你征服此处时，你在本回合内打出的下一名单位具有\{\{急速\}\}[。.]?(?:（.*）)?$", RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.BattlefieldConquerNextUnitHaste, TriggerTimings.BattlefieldConquered,
+                segment, GrantedKeyword: "急速", Duration: TriggerDurations.UntilEndOfTurn);
+
         var firstLocalDeathToken = Regex.Match(segment,
             @"^于每名玩家，当每回合首次有其控制的一名非指示物单位在此处被摧毁时，该玩家将([0-9一两二三四五六七八九十]+)名([0-9]+)\{\{S\}\}的“随从”单位指示物打出到其基地[。.]?$",
             RegexOptions.CultureInvariant);

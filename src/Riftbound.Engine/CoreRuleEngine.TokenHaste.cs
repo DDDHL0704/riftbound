@@ -10,7 +10,8 @@ public sealed partial class CoreRuleEngine
         CardObjectState token, Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         Dictionary<string, RunePool> pools, List<GameEvent> events)
     {
-        if (!HasOutsideHandHasteGrant(ReplacementResourceContext(state, zones, cards, pools, player), player)) return false;
+        if (!HasNextUnitHasteGrant(state, player)
+            && !HasOutsideHandHasteGrant(ReplacementResourceContext(state, zones, cards, pools, player), player)) return false;
         var traits = PrintedPowerCostRules.ForCard(token.CardNo ?? "").Traits;
         while (true)
         {

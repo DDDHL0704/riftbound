@@ -60,6 +60,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult RecordCardPlayHistory(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
+        result = RecordNextUnitPlayGrants(result);
         var history = result.State.CardPlays;
         var finalized = (history.TurnNumber == before.TurnNumber ? history.Finalized : []).ToList();
         var resolved = (history.TurnNumber == before.TurnNumber ? history.Resolved : []).ToList();

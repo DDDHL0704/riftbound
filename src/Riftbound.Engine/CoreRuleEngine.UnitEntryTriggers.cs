@@ -55,6 +55,7 @@ public sealed partial class CoreRuleEngine
             ev = CaptureCardPlayHistory(ev, entered, player, ev.Payload.GetValueOrDefault("historyPlayId") as string,
                 true, ev.Kind == "UNIT_PLAYED_TO_BASE" ? "BASE" : "BATTLEFIELD", zones: zones, cards: cards);
         ev = CaptureTurnUnitPlayGrants(ev, cards, entered, player, turnEffects);
+        ev = CaptureNextUnitPlayGrants(ev, player, turnEffects);
         ev = CaptureGrantedPredict(ev, zones, cards, entered, player);
         if (entered.LastStandbyPlay is not null && ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
             ev = CaptureStandbyPlayed(ev, zones, cards, player);

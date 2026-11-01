@@ -25,6 +25,9 @@ public sealed class RadDeathBattlefieldTests
         Assert.True(token.IsExhausted);
         Assert.Equal(player, token.ControllerId);
         Assert.Contains(token.ObjectId, game.State.PlayerZones[player].Base);
+        Assert.Contains(game.State.UntilEndOfTurnEffects, e => e.StartsWith("DEATH_OBSERVER_ONCE:"));
+        await game.Act("P1", new EndTurnCommand());
+        Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, e => e.StartsWith("DEATH_OBSERVER_ONCE:"));
         await game.Replay();
     }
 

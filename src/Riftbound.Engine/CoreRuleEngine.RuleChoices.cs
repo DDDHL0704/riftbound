@@ -26,6 +26,7 @@ public sealed partial class CoreRuleEngine
         public TurnDeathLedger? ResourceDeathLedger { get; set; }
         public HashSet<string> DestructionCandidates { get; set; } = new(StringComparer.Ordinal);
         public HashSet<string> CurrentDestructions { get; set; } = [];
+        public HashSet<string> ConsumedNextUnitPlayGrants { get; } = new(StringComparer.Ordinal);
         public HashSet<string> AppliedDestructionReplacements { get; set; } = new(StringComparer.Ordinal);
         public int DeathSequence { get; set; }
         public int DiscardSequence { get; set; }

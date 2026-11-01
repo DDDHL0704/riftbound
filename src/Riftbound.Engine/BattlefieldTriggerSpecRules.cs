@@ -458,6 +458,7 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldFirstPermanentPlayedInsight => true,
             TriggerKinds.BattlefieldStandbyHiddenCreateEquipmentToken => true,
             TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion => true,
+            TriggerKinds.BattlefieldConquerNextUnitHaste => true,
             TriggerKinds.BattlefieldTurnStartDamageAllUnits => true,
             TriggerKinds.BattlefieldTurnStartDestroyUnitDraw => true,
             TriggerKinds.BattlefieldFirstTurnExtraRune => true,

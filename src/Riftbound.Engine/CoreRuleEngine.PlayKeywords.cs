@@ -10,8 +10,9 @@ public sealed partial class CoreRuleEngine
         if (!behavior.PlaysSourceToBaseAsUnit
             || CardPermissionKeywordRules.HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste)
             || !state.CardObjects.TryGetValue(source, out var card) || card.CardNo != behavior.CardNo
-            || !state.PlayerZones.TryGetValue(player, out var zones) || zones.Hand.Contains(source, StringComparer.Ordinal)
-            || !HasOutsideHandHasteGrant(state, player)) return behavior;
+            || !state.PlayerZones.TryGetValue(player, out var zones)
+            || !HasNextUnitHasteGrant(state, player)
+                && (zones.Hand.Contains(source, StringComparer.Ordinal) || !HasOutsideHandHasteGrant(state, player))) return behavior;
 
         return WithGrantedHasteCost(behavior);
     }
