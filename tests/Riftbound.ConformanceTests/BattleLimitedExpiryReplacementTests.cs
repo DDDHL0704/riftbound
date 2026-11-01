@@ -17,12 +17,15 @@ Put("P2-ORANGE","UNL-R04","P2","BASE");Put("P2-GREEN","UNL-R02","P2","BASE");Put
 foreach(var i in Enumerable.Range(1,2)){Put("DAMAGE-"+i,"OGN·127/298","P1","HAND");Put("P1-ORANGE-"+i,"UNL-R04","P1","BASE");}
 foreach(var i in Enumerable.Range(1,6))Put("P1-FUND-"+i,"UNL-R06","P1","BASE");
 initial=initial with{CardObjects=cards,PlayerZones=zones,ObjectLocations=locations};
-var run=new Driver(initial);
+// Keep command acceptance and duplicate-intent checks for every action, while
+// restoring the growing journal at the externally visible battle boundaries.
+var run=new Driver(initial) { RecoverAfterEveryCommand = false };
 
  await run.Act("P1",new PlayCardCommand("HOST","OGN·210/298",[],Destination:"BATTLEFIELD:HOME"));await run.Act("P1",new EndTurnCommand());
  var funds=Enumerable.Range(1,12).Select(i=>"P2-FUND-"+i).ToArray();await run.Act("P2",new TapRuneCommand(funds[0],funds));await run.Act("P2",new RecycleRuneCommand("P2-ORANGE"));await run.Act("P2",new RecycleRuneCommand("P2-GREEN",["P2-GREEN","P2-GREEN-2"]));
  await run.Act("P2",new PlayCardCommand("ATTACKER","SFD·110/221",[],Destination:"BASE"));await run.Act("P2",new PlayCardCommand("GEAR","SFD·051/221",[],Destination:"BASE"));await run.Act("P2",new AssembleEquipmentCommand("GEAR","ATTACKER",["ASSEMBLE_GREEN"]));await run.Top();Assert.Equal("ATTACKER",run.State.CardObjects["GEAR"].AttachedToObjectId);await run.Act("P2",new PlayCardCommand("GEAR-2","SFD·051/221",[],Destination:"BASE"));await run.Act("P2",new AssembleEquipmentCommand("GEAR-2","ATTACKER",["ASSEMBLE_GREEN"]));await run.Top();Assert.Equal("ATTACKER",run.State.CardObjects["GEAR-2"].AttachedToObjectId);await run.Act("P2",new PlayCardCommand("READY","OGN·146/298",["ATTACKER"]));await run.Top();
  await run.Act("P2",new MoveUnitCommand("ATTACKER","BASE","BATTLEFIELD:HOME",[]));await run.Top();Assert.Equal(8,run.State.CardObjects["ATTACKER"].Power);
+ await run.ColdCheckpoint();
  var doubled=Assert.Single(run.Events(),e=>e.Event.Kind=="UNIT_POWER_CHANGED"&&Equals(e.Event.Payload.GetValueOrDefault("duration"),"UNTIL_END_OF_BATTLE"));
  Assert.Equal(5,Convert.ToInt32(doubled.Event.Payload["snapshotMight"]));Assert.Equal(5,Convert.ToInt32(doubled.Event.Payload["powerDelta"]));
  if(run.State.FocusPlayerId!="P1")await run.Act(run.State.FocusPlayerId!,new PassFocusCommand());
@@ -31,6 +34,7 @@ var run=new Driver(initial);
  for(var i=0;run.State.FocusPlayerId is not null;i++){Assert.InRange(i,0,3);await run.Act(run.State.FocusPlayerId,new PassFocusCommand());}
  await run.Act("P2",new DeclareBattleCommand("HOME",["ATTACKER"],["HOST"],["COMBAT_ASSIGNMENT"]));
  Assert.Equal("RESULT_TRIGGERS",run.State.PendingBattleResult!.Stage);Assert.Equal(0,run.State.CardObjects["ATTACKER"].Damage);
+ await run.ColdCheckpoint(); run.RecoverAfterEveryCommand = true;
  foreach(var i in Enumerable.Range(1,2)){
   if(run.State.PriorityPlayerId!="P1")await run.Act(run.State.PriorityPlayerId!,new PassPriorityCommand());
   await run.Act("P1",new PlayCardCommand("DAMAGE-"+i,"OGN·127/298",[]));await run.Top();
@@ -48,7 +52,7 @@ var run=new Driver(initial);
  Assert.Equal("ATTACKER",run.State.CardObjects["GEAR-2"].AttachedToObjectId);Assert.DoesNotContain("GEAR-2",run.State.PlayerZones["P2"].Graveyard);Assert.Equal(3,run.State.CardObjects["ATTACKER"].Power);Assert.Equal(0,run.State.CardObjects["ATTACKER"].Damage);Assert.Equal(1,run.State.CardObjects["ATTACKER"].ObjectGeneration);
  Assert.DoesNotContain(run.Events(),e=>e.Event.Kind=="UNIT_DESTROYED"&&Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"),"ATTACKER"));
  Assert.Equal(0,run.State.DeathLedger.Counts.GetValueOrDefault("P2"));
- Assert.DoesNotContain(run.Events(),e=>e.Event.Payload.ContainsKey("capturedUnitDeath"));await run.Replay();BattleLimitedCleanupTests.Save("expiry-two-guardian-replacement",initial,run);
+ Assert.DoesNotContain(run.Events(),e=>e.Event.Payload.ContainsKey("capturedUnitDeath"));await run.ColdCheckpoint();await run.Replay();BattleLimitedCleanupTests.Save("expiry-two-guardian-replacement",initial,run);
 
  }
 }

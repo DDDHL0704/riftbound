@@ -16,12 +16,13 @@ public sealed class Ven159PhysicalBulwarkCombatConsumerTests
     [InlineData("P1")] [InlineData("P2")]
     public async Task RealPaidUnitsFromBothPlayersUseSevenMightAndLethalAndRejectSixBeforeTheOtherTarget(string defender)
     {
-        var initial = Position(); var game = new Driver(initial);
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await PayPair(game, "P1"); await game.Act("P1", new EndTurnCommand()); await PayPair(game, "P2");
             await game.Act("P2", new EndTurnCommand());
             if (defender == "P2") await game.Act("P1", new EndTurnCommand());
+            await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             var attacker = Other(defender); Assert.False(game.State.CardObjects[Wall(defender)].IsExhausted);
             await game.Act(defender, new MoveUnitCommand(Wall(defender), "BASE", "BATTLEFIELD:BF", [], SourceObjectIds: [Wall(defender), Guard(defender)]));
             AssertAtTemple(game.State, "BF", defender); Assert.Equal(6, Might(game.State, Wall(attacker)));
@@ -50,11 +51,12 @@ public sealed class Ven159PhysicalBulwarkCombatConsumerTests
     [InlineData("P1")] [InlineData("P2")]
     public async Task ARealPaidBulwarkGetsOneOnlyHereAndLosesItOnAnOrdinarySameGenerationMoveToBase(string player)
     {
-        var initial = Position(); var game = new Driver(initial);
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             if (player == "P2") await game.Act("P1", new EndTurnCommand());
             await PayPair(game, player); await game.Act(player, new EndTurnCommand()); await game.Act(Other(player), new EndTurnCommand());
+            await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             var id = Wall(player); var generation = game.State.CardObjects[id].ObjectGeneration;
             Assert.Equal(6, Might(game.State, id)); await game.Act(player, new MoveUnitCommand(id, "BASE", "BATTLEFIELD:BF", []));
             AssertAtTemple(game.State, "BF", player); Assert.Equal(6, Might(game.State, Guard(player)));
