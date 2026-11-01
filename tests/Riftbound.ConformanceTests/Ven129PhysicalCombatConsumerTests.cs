@@ -63,7 +63,9 @@ public sealed class Ven129PhysicalCombatConsumerTests
             Assert.All(dealt, e => { Assert.Equal(6, e.Event.Payload["basePower"]); Assert.Equal(6, e.Event.Payload["combatPower"]); Assert.Equal(0, e.Event.Payload["keywordBonus"]); });
             Assert.Equal(6, game.State.CardObjects["UNIT"].Power); Assert.Equal(6, Common.Might(game.State)); Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
             Assert.False(game.State.CardObjects["UNIT"].IsAttacking); Assert.False(game.State.CardObjects["UNIT"].IsDefending); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
-            Assert.Equal(0, game.State.CardObjects["UNIT"].Damage); AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
+            Assert.Equal(0, game.State.CardObjects["UNIT"].Damage); AssertTwelveEach(game.State);
+            // ColdCheckpoint already replays the complete original journal.
+            await game.ColdCheckpoint();
         }
         finally { await Save("actual-paid-combat-" + attacking + "-" + companions, initial, game); }
     }
@@ -96,7 +98,9 @@ public sealed class Ven129PhysicalCombatConsumerTests
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(missing == "trait" ? 1 : 0, game.State.RunePools["P1"].TotalPower);
             if (missing == "trait") Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Orange]);
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Equal(6, Common.Might(game.State)); Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
-            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
+            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); AssertTwelveEach(game.State);
+            // ColdCheckpoint already replays the complete original journal.
+            await game.ColdCheckpoint();
         }
         finally { await Save("actual-short-" + missing, initial, game); }
     }
