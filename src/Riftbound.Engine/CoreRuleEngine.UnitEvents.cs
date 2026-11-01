@@ -61,10 +61,46 @@ public sealed partial class CoreRuleEngine
     }
 
     private static GameEvent CaptureOtherUnitPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
-        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
-        => ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED") ? ev
-            : WithUnitEvents(ev, CaptureUnitEvents(zones, cards, cards.Values.Where(c => c.ObjectId != entered.ObjectId
-                && EffectiveFieldControllerId(zones, c.ObjectId, c) == player).Select(c => c.ObjectId), "ANOTHER_UNIT_PLAYED"));
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player,
+        IReadOnlyList<string> turnEffects)
+    {
+        if (ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")) return ev;
+        var destinationZone = ev.Payload.GetValueOrDefault("destinationZone") as string ?? "BASE";
+        // Some token instructions append the batch to its zone after emitting
+        // each entry event. Include the entering object in this comparison.
+        if (!IsObjectOnField(zones, entered.ObjectId))
+        {
+            var own = zones[player];
+            zones = new Dictionary<string, PlayerZones>(zones) { [player] = destinationZone == "BATTLEFIELD"
+                ? own with { Battlefields = [..own.Battlefields, entered.ObjectId] }
+                : own with { Base = [..own.Base, entered.ObjectId] } };
+        }
+        var friendly = cards.Values.Where(c => EffectiveFieldControllerId(zones, c.ObjectId, c) == player)
+            .Select(c => c.ObjectId).ToArray();
+        var observations = CaptureUnitEvents(zones, cards, friendly.Where(id => id != entered.ObjectId), "ANOTHER_UNIT_PLAYED")
+            .Concat(CaptureUnitEvents(zones, cards, friendly, "FRIENDLY_UNIT_PLAYED")).ToArray();
+        if (observations.Any(o => UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest))
+        {
+            // Compare at the entry instruction, including current auras. Later
+            // responses cannot remove or create the earned trigger (CN383.2).
+            var origin = RuleChoices.Value!.ResolutionState ?? RuleChoices.Value.Origin;
+            var locations = ReconcileObjectLocations(origin.ObjectLocations, zones);
+            var field = ev.Payload.GetValueOrDefault("battlefieldObjectId") as string
+                ?? ev.Payload.GetValueOrDefault("battlefieldId") as string;
+            if (string.IsNullOrEmpty(field) && ev.Payload.GetValueOrDefault("destination") is string destination)
+                field = PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(destination));
+            if (string.IsNullOrEmpty(field) && ev.Payload.GetValueOrDefault("sourceObjectId") is string source
+                && origin.BattlefieldStates.ContainsKey(source)) field = source;
+            locations[entered.ObjectId] = new(player, destinationZone, destinationZone == "BATTLEFIELD" ? field : null);
+            var current = origin with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = locations, UntilEndOfTurnEffects = turnEffects };
+            var power = ResolveCurrentFieldUnitPower(current, entered);
+            var strongest = cards.Values.Where(c => c.ObjectId != entered.ObjectId && IsFaceUpNonStandbyUnit(c)
+                    && IsObjectOnField(zones, c.ObjectId)).All(c => ResolveCurrentFieldUnitPower(current, c) < power);
+            observations = observations.Where(o => !UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest || strongest).ToArray();
+        }
+        return WithUnitEvents(ev, observations);
+    }
 
     private static GameEvent CaptureEquipmentPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
@@ -185,7 +221,9 @@ public sealed partial class CoreRuleEngine
                 if (timing is not (TimingStates.SpellDuelOpen or TimingStates.NeutralClosed))
                     timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
                 var captured = observation;
-                if (captured.Context.Timing is "PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" && ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
+                var enteredId = ev.Payload.GetValueOrDefault("unitObjectId") as string ?? ev.Payload.GetValueOrDefault("tokenObjectId") as string;
+                if ((captured.Context.Timing is "PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" && ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
+                        || captured.Context.Timing == "FRIENDLY_UNIT_PLAYED" && captured.Source == enteredId)
                     && before.CardObjects.TryGetValue(captured.Source, out var entering) && !IsObjectOnField(before.PlayerZones, entering.ObjectId))
                     captured = captured with { Context = captured.Context with {
                         SourceGeneration = Math.Max(captured.Context.SourceGeneration, entering.ObjectGeneration + 1) } };
@@ -405,7 +443,7 @@ public sealed partial class CoreRuleEngine
             cards[matching.ObjectId] = ApplyPowerModifier(state, matching, behavior, item, matching.ObjectId, delta, out var power);
             events.Add(power);
         }
-        if (spec.Effect == "DRAW") {
+        if (spec.Effect == "DRAW" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)) {
             // CN383.2.a.1: the undamaged clause is checked when the battle ends.
             var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.Amount, state.RngCursor, events, deferNormalVictory: true);
             return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,

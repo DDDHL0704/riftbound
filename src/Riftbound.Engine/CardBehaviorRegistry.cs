@@ -6,7 +6,8 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
-    string? CreatedTokenFactoryCardNo = null);
+    string? CreatedTokenFactoryCardNo = null, bool RequiresPlayedUnitStrongest = false,
+    bool LeadingSourceExhaust = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null);
@@ -9603,6 +9604,10 @@ public static class CardBehaviorRegistry
             StandbyReactionMaxTargetCount: 1, StandbyReactionMinTargetCount: 1,
             StandbyReactionTargetScope: CardTargetScopes.FriendlyUnit,
             GrantsRoamIfNoOpenBattlefield: true),
+        new("RAD·089/167", "泰坦圣祠", 3, "RAD_089_STRONGEST_UNIT_EXHAUST_DRAW", 0, 0,
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("FRIENDLY_UNIT_PLAYED", "DRAW", 1,
+                RequiresPlayedUnitStrongest: true, LeadingSourceExhaust: true)),
         new("RAD·127/167", "辉映同心", 5, "RAD_127_SHOW_HIGH_COST_CREATE_MINIONS", 0, 0,
             CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenCountIfShowcase: 4,
             CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "随从",
