@@ -124,7 +124,8 @@ public sealed class Ven069PhysicalEmpowerConsumerTests
         initial = initial with { CardObjects = cards, ObjectLocations = locations,
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
                 Base = [..initial.PlayerZones["P1"].Base, ..songs] } } };
-        var game = new Driver(initial);
+        // Prepare the paid host and copied texts before the chosen-Might action.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Play(game, 7); await game.Top(); await game.Act("P1", Activate()); await game.Top();
@@ -142,6 +143,8 @@ public sealed class Ven069PhysicalEmpowerConsumerTests
                 Assert.Equal(generation, gear.AttachedRuleText.Unit.Generation); Assert.True(gear.AttachmentRevision > 0);
                 Assert.Equal(1, Draws(game)); Assert.Equal(4, game.State.CardObjects["UNIT"].Power);
             }
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             await game.Act("P1", new TapRuneCommand("MEL-RUNE-10"));
             await game.Act("P1", new PlayCardCommand("DEBUFF", "OGN·095/298", ["ENEMY"])); await game.Top();
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
@@ -201,7 +204,7 @@ public sealed class Ven069PhysicalEmpowerConsumerTests
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN069_EVIDENCE") is not { Length: > 0 } root) return;
         Directory.CreateDirectory(root); await File.WriteAllTextAsync(Path.Combine(root, label + ".json"), JsonSerializer.Serialize(new {
-            scope = "Exact base CN37762 in an explicit turn-five fixture, zero starting pools and eight/ten physical runes. Actual play/entry draw, mana-only native Empower, zero/one/two actually paid text copies and chosen negative Might; Songs pre-exist unattached. Per-command hidden/recovery/dedup/original replay checks remain enabled. No ordinary opening, alternate-printing or whole-card/L2/L3 claim.",
+            scope = "Exact base CN37762 in an explicit turn-five fixture, zero starting pools and eight/ten physical runes. Actual play/entry draw, mana-only native Empower, zero/one/two actually paid text copies and chosen negative Might; Songs pre-exist unattached. Per-command hidden/dedup and complete original replay checks remain; the paid-copy case cold-recovers its complete setup once and the chosen-Might action per command. No ordinary opening, alternate-printing or whole-card/L2/L3 claim.",
             initial, final = game.State, commands = game.Commands(), events = game.Events(), ruleInputs = RuleInputIdentity.Current }, Json));
     }
 }
