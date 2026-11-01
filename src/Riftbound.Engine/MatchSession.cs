@@ -9,6 +9,9 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record LegendEquipmentUnitState(ObjectBinding SourceLegend, int OriginalPower,
+    IReadOnlyList<string> OriginalTags, long CapturedTick);
+
 public sealed record CardObjectState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -29,6 +32,8 @@ public sealed record CardObjectState
     public IReadOnlyList<BanishReplacementOrigin>? BanishReplacementOrigins { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AttachmentUnitCopyLedger? AttachmentUnitCopies { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LegendEquipmentUnitState? LegendEquipmentUnit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CopyFaceTransition>? CopyFaceTransitions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -1436,7 +1441,7 @@ public sealed partial record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName };
+            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, LegendEquipmentUnit = state.LegendEquipmentUnit, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -3213,6 +3218,10 @@ internal static partial class ActionPromptBuilder
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId),
                 "未来守护者传奇双装备活跃技能", 1, 0, "SPEND_MANA:1", 2, false, "LEGEND_READY_EQUIPMENT",
                 RequiresEmpoweredSource: true, RequiresAnyEquipmentTarget: true),
+            new(LegendActionAbilityCatalog.OriannaLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.OriannaLegendAbilityId),
+                "发条魔灵传奇装备单位技能", 1, 0, "SPEND_MANA:1", 1, false, "LEGEND_EQUIPMENT_AS_UNIT",
+                RequiresAnyEquipmentTarget: true),
             new(LegendActionAbilityCatalog.MelLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
                 "流光镜影传奇减战力技能", 0, 0, string.Empty, 1, false, "LEGEND_UNIT_POWER_MODIFIER",
@@ -3485,7 +3494,9 @@ internal static partial class ActionPromptBuilder
         {
             var choices = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields))
                 .Distinct(StringComparer.Ordinal)
-                .Where(id => CoreRuleEngine.IsLegendEquipmentReadyTarget(state, playerId, id))
+                .Where(id => CoreRuleEngine.IsLegendEquipmentAsUnitEffect(ability.EffectKind)
+                    ? CoreRuleEngine.IsLegendEquipmentUnitTarget(state, playerId, id)
+                    : CoreRuleEngine.IsLegendEquipmentReadyTarget(state, playerId, id))
                 .Select(id => ObjectChoice(state, id, "场上的装备")).ToArray();
             for (var index = 0; index < ability.RequiredTargetCount; index++)
                 result[index.ToString(System.Globalization.CultureInfo.InvariantCulture)] = choices;
@@ -3551,6 +3562,7 @@ internal static partial class ActionPromptBuilder
             LegendActionAbilityCatalog.ZedLegendAbilityId => "迅捷解除强化并横置：弃一张手牌，然后抽一张牌",
             LegendActionAbilityCatalog.JayceLegendReadyOneAbilityId => "支付 1 法力并横置：使一件装备活跃",
             LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId => "已强化时支付 1 法力并横置：使两件装备活跃",
+            LegendActionAbilityCatalog.OriannaLegendAbilityId => "支付 1 法力并横置：使一件友方装备成为单位装备",
             LegendActionAbilityCatalog.MelLegendAbilityId => "解除强化并横置：战场上一名单位本回合战力 -2",
             LegendActionAbilityCatalog.AmbessaLegendAbilityId => "解除强化、支付 1 符能并横置：使一名单位活跃",
             LegendActionAbilityCatalog.AkaliLegendAbilityId => "迅捷横置：如果是你的回合，将法术对决中的友方单位移至基地；如果已强化，使其活跃",
