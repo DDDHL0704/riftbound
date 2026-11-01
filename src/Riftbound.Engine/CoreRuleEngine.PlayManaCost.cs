@@ -51,7 +51,7 @@ public sealed partial class CoreRuleEngine
             reductions.Add(("optional", behavior.ManaReductionIfEquipmentReturned, 0));
         reductions.Add(("optional", SelectedSacrificeCostReduction(state, playerId, behavior, optionalCosts ?? []).Mana, 0));
         reductions.Add(("equipment", ResolveBattlefieldEquipmentCostReductionMana(state, playerId, behavior), 0));
-        if (destination is { Length: > 12 }
+        if (state.TurnPlayerId == playerId && destination is { Length: > 12 }
             && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             && (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment))
         {

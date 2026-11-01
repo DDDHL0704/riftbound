@@ -296,7 +296,7 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
-        new(RuneBladeAnvilAbilityId, "RAD·012/167", RuneBladeAnvilAbilityEffectKind, "符刃铁砧：摧毁自身", 0, 2, 0,
+        new(RuneBladeAnvilAbilityId, "RAD·012/167", RuneBladeAnvilAbilityEffectKind, "符刃铁砧：摧毁自身", 2, 0, 0,
             RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false, Reason: "官方中文：支付2和红色，横置，摧毁此牌。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,

@@ -15,21 +15,21 @@ internal static class StandardMovementCostRules
 
         var mana = 0;
         var genericPower = 0;
-        if (battlefield.ControllerId is { Length: > 0 } controller
-            && controller != playerId
-            && state.ObjectLocations.Any(entry =>
+        var gravityFields = state.ObjectLocations.Count(entry =>
                 entry.Value.Zone == "BATTLEFIELD"
                 && entry.Value.BattlefieldObjectId == battlefieldId
                 && state.CardObjects.TryGetValue(entry.Key, out var source)
                 && source.CardNo == "RAD·062/167"
                 && !source.IsFaceDown
                 && source.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-                && CoreRuleEngine.EffectiveFieldControllerId(state.PlayerZones, entry.Key, source) == controller))
+                && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(entry.Key, StringComparer.Ordinal))
+                && CoreRuleEngine.EffectiveFieldControllerId(state.PlayerZones, entry.Key, source) != playerId);
+        if (gravityFields > 0)
         {
             // RAD·062 imposes {{1}} plus {{A}}.  The latter is one generic
             // power, rather than an orange typed-power requirement.
-            mana = 1;
-            genericPower = 1;
+            mana = gravityFields;
+            genericPower = gravityFields;
         }
 
         var power = genericPower + PowerPerExtraUnit(state, playerId, battlefieldId) * Math.Max(0, unitCount - 1);

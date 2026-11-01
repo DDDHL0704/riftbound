@@ -432,7 +432,7 @@ public sealed partial class CoreRuleEngine
             && StackObjectRules.ReferencesCurrentObject(state, item, buffed) && UnitEventTargets(state, item).Contains(buffed)) {
             if (spec.Effect == "BOON_FRIENDLY")
                 GrantLegendBoon(cards, buffed, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
-            else if (item.TriggerCost is not null) {
+            else {
                 var behavior = new CardBehaviorDefinition(context.CardNo, "弃牌触发战力加成", 0, item.EffectKind, 0, 1, PowerModifierAmount: spec.Amount);
                 cards[buffed] = ApplyPowerModifier(state, cards[buffed], behavior, item, buffed, spec.Amount, out var power);
                 events.Add(power);

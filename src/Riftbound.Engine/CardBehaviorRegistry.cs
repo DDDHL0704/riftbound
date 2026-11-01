@@ -6,7 +6,7 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
-    string? CreatedTokenFactoryCardNo = null, bool LeadingDiscardHand = false);
+    string? CreatedTokenFactoryCardNo = null, bool LeadingDiscardHand = false, bool LeadingExhaustSelf = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null);
@@ -9534,7 +9534,7 @@ public static class CardBehaviorRegistry
             UnitEventAbility: new("PLAY", "MOVE_ENEMY_TO_HERE", Optional: true)),
         new("RAD·046/167", "辉映圣坛", 8, "RAD_046_RADIANT_ALTAR", 0, 0,
             PlaysSourceToBaseAsEquipment: true,
-            UnitEventAbility: new("BECAME_EXHAUSTED", "MIGHT_FRIENDLY", 3, Optional: true)),
+            UnitEventAbility: new("BECAME_EXHAUSTED", "MIGHT_FRIENDLY", 3)),
         new("RAD·052/167", "资源开采器", 1, "RAD_052_RESOURCE_EXTRACTOR", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: CardEquipmentKeywordNames.Deploy),
         new("RAD·062/167", "重力场", 5, "RAD_062_GRAVITY_FIELD", 0, 0,
@@ -9551,7 +9551,7 @@ public static class CardBehaviorRegistry
             UnitEventAbility: new("PLAY", "READY_LOCAL", LeadingPowerCost: 1, LeadingPowerTrait: RuneTrait.Orange, Optional: true)),
         new("RAD·089/167", "泰坦圣祠", 3, "RAD_089_TITAN_SHRINE", 0, 0,
             PlaysSourceToBaseAsEquipment: true,
-            UnitEventAbility: new("ANOTHER_UNIT_PLAYED", "DRAW_IF_GREATER")),
+            UnitEventAbility: new("ANOTHER_UNIT_PLAYED", "DRAW_IF_GREATER", LeadingExhaustSelf: true)),
         new("RAD·106/167", "好东西", 3, "RAD_106_GOOD_STUFF", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: CardEquipmentKeywordNames.Deploy,
             UnitEventAbility: new("PLAY", "DRAW", 3, LeadingDiscardHand: true)),
