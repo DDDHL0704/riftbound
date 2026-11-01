@@ -42,10 +42,8 @@ public sealed partial class CoreRuleEngine
             || context.SourceObjectId != item.SourceObjectId || context.SourceGeneration < 0
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || context.SourceFaceRevision < 0
             || item.StackItemId != $"STACK-{context.AcquiredTick}-{context.SourceObjectId}-POWER"
-            || !state.CardObjects.TryGetValue(context.SourceObjectId, out var source)
-            || source.ObjectGeneration < context.SourceGeneration
-            || source.ObjectGeneration == context.SourceGeneration
-                && CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) != item.CardNo)
+            || !TargetedPowerBindingMatches(state, new(context.SourceObjectId, context.SourceGeneration), item.CardNo!,
+                context.SourceFaceRevision, context.AcquiredTick, context.SourceTokenFactoryCardNo, context.CeasedSource))
             return false;
 
         if (ability.SourceScope != ActivatedAbilitySourceScopes.FriendlyLegend)
@@ -55,11 +53,29 @@ public sealed partial class CoreRuleEngine
         // its text even if the granting unit leaves or changes controller/face.
         return PrintedCardFactory.TryCreate(item.SourceObjectId, item.ControllerId, item.CardNo, out var printed)
             && printed.Tags.Contains(CardObjectTags.LegendCard, StringComparer.Ordinal)
+            && context.SourceTokenFactoryCardNo is null
             && !string.IsNullOrWhiteSpace(ability.RequiredControllerCardNoOnField)
             && context.Grant is { Source: not null, FaceRevision: >= 0 } grant
-            && PredictBindingMatches(state, grant.Source, ability.RequiredControllerCardNoOnField,
-                grant.FaceRevision, context.AcquiredTick, grant.TokenFactoryCardNo);
+            && TargetedPowerBindingMatches(state, grant.Source, ability.RequiredControllerCardNoOnField,
+                grant.FaceRevision, context.AcquiredTick, grant.TokenFactoryCardNo, grant.CeasedSource);
     }
+
+    internal static bool ValidTargetedPowerAbilitySource(MatchState state, StackItemState item)
+        => item.TargetedPowerAbility is { } context
+            && P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)
+            && P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
+            && ability.EffectKind == item.EffectKind && ValidTargetedPowerAbilitySource(state, item, ability);
+
+    private static bool TargetedPowerBindingMatches(MatchState state, ObjectBinding binding, string face,
+        long revision, long acquiredTick, string? tokenFactory, CeasedTargetedPowerSource? ceased)
+        => !string.IsNullOrWhiteSpace(binding.ObjectId) && binding.Generation >= 0 && revision >= 0
+            && (state.CardObjects.ContainsKey(binding.ObjectId)
+                ? ceased is null && PredictBindingMatches(state, binding, face, revision, acquiredTick, tokenFactory)
+                : P6TokenFactoryCatalog.IsUnitTokenFactory(tokenFactory)
+                    && ceased is not null && ceased.CardNo == face
+                    && ceased.Source == binding && ceased.FaceRevision == revision
+                    && ceased.AcquiredTick == acquiredTick && ceased.TokenFactoryCardNo == tokenFactory
+                    && ceased.DepartedTick > acquiredTick && ceased.DepartedTick <= state.Tick);
 
     internal static bool IsPowerAbilityTarget(MatchState state, string player, string id, P4ActivatedAbilityDefinition? ability = null)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
@@ -119,6 +135,7 @@ public sealed partial class CoreRuleEngine
                 TargetedPowerAbility = new(ability.AbilityId, source.ObjectId, source.ObjectGeneration,
                     ability.PowerModifierAmountIfSourceEmpowered is not null ? source.IsEmpowered : null) {
                         AcquiredTick = state.Tick + 1, SourceFaceRevision = source.CopyFaceTransitions?.Count ?? 0,
+                        SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
                         Grant = grantingSource is null ? null : new(new(grantingSource.ObjectId, grantingSource.ObjectGeneration),
                             grantingSource.CopyFaceTransitions?.Count ?? 0, grantingSource.TokenFactoryCardNo) } };
         var payload = new Dictionary<string, object?> {
@@ -195,13 +212,27 @@ public sealed partial class CoreRuleEngine
         var changed = false;
         var stack = result.State.StackItems.Select(item => {
             if (item.TargetedPowerAbility is not { } context
-                || !P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)
-                || ability.PowerModifierAmountIfSourceEmpowered is null) return item;
+                || !P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)) return item;
+            var original = context;
+            CeasedTargetedPowerSource? Capture(ObjectBinding binding, string face, long revision, string? factory)
+                => factory is not null && !result.State.CardObjects.ContainsKey(binding.ObjectId)
+                    && before.CardObjects.TryGetValue(binding.ObjectId, out var departed)
+                    && departed.ObjectGeneration == binding.Generation && departed.TokenFactoryCardNo == factory
+                    && CopyFaceTimeline.FaceAt(departed, revision, context.AcquiredTick) == face
+                    ? new(binding, face, revision, context.AcquiredTick, factory, result.State.Tick) : null;
+            if (context.CeasedSource is null)
+                context = context with { CeasedSource = Capture(new(context.SourceObjectId, context.SourceGeneration),
+                    item.CardNo!, context.SourceFaceRevision, context.SourceTokenFactoryCardNo) };
+            if (context.Grant is { CeasedSource: null } grant)
+                context = context with { Grant = grant with { CeasedSource = Capture(grant.Source,
+                    ability.RequiredControllerCardNoOnField, grant.FaceRevision, grant.TokenFactoryCardNo) } };
             bool? empowered = context.LastKnownSourceEmpowered;
-            if (result.State.CardObjects.TryGetValue(context.SourceObjectId, out var current)
+            if (ability.PowerModifierAmountIfSourceEmpowered is not null
+                && result.State.CardObjects.TryGetValue(context.SourceObjectId, out var current)
                 && current.ObjectGeneration == context.SourceGeneration && IsObjectOnField(result.State.PlayerZones, current.ObjectId))
                 empowered = current.IsEmpowered;
-            else if (before.CardObjects.TryGetValue(context.SourceObjectId, out var previous)
+            else if (ability.PowerModifierAmountIfSourceEmpowered is not null
+                && before.CardObjects.TryGetValue(context.SourceObjectId, out var previous)
                 && previous.ObjectGeneration == context.SourceGeneration && IsObjectOnField(before.PlayerZones, previous.ObjectId)) {
                 empowered = previous.IsEmpowered;
                 foreach (var ev in result.Events)
@@ -211,12 +242,15 @@ public sealed partial class CoreRuleEngine
                         && Convert.ToInt64(generation, System.Globalization.CultureInfo.InvariantCulture) == context.SourceGeneration)
                         empowered = ev.Kind == "OBJECT_EMPOWERED";
             }
-            if (empowered == context.LastKnownSourceEmpowered) return item;
+            context = context with { LastKnownSourceEmpowered = empowered };
+            if (context == original) return item;
             changed = true;
-            events.Add(new("ABILITY_SOURCE_STATUS_CAPTURED", "保留技能来源的最后强化状态", new Dictionary<string, object?> {
+            events.Add(new("ABILITY_SOURCE_STATUS_CAPTURED", "保留已入链技能的来源状态", new Dictionary<string, object?> {
                 ["stackItemId"] = item.StackItemId, ["sourceObjectId"] = context.SourceObjectId,
-                ["sourceGeneration"] = context.SourceGeneration, ["isEmpowered"] = empowered }));
-            return item with { TargetedPowerAbility = context with { LastKnownSourceEmpowered = empowered } };
+                ["sourceGeneration"] = context.SourceGeneration, ["isEmpowered"] = empowered,
+                ["sourceCeasedToExist"] = context.CeasedSource is not null,
+                ["grantSourceCeasedToExist"] = context.Grant?.CeasedSource is not null }));
+            return item with { TargetedPowerAbility = context };
         }).ToArray();
         if (!changed) return result;
         var state = result.State with { StackItems = stack };

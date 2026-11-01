@@ -553,8 +553,15 @@ public sealed record PowerModifierLedgerEntry
 public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null, string Destination = "",
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? MovementDeclarationPlayerId = null);
 
+public sealed record CeasedTargetedPowerSource(ObjectBinding Source, string CardNo, long FaceRevision,
+    long AcquiredTick, string TokenFactoryCardNo, long DepartedTick);
+
 public sealed record TargetedPowerAbilityGrant(ObjectBinding Source, long FaceRevision,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedTargetedPowerSource? CeasedSource { get; init; }
+}
 
 public sealed record TargetedPowerAbilityContext(string AbilityId, string SourceObjectId, long SourceGeneration,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? LastKnownSourceEmpowered = null)
@@ -563,6 +570,10 @@ public sealed record TargetedPowerAbilityContext(string AbilityId, string Source
     public long AcquiredTick { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public long SourceFaceRevision { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceTokenFactoryCardNo { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedTargetedPowerSource? CeasedSource { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TargetedPowerAbilityGrant? Grant { get; init; }
 }
