@@ -754,7 +754,9 @@ public static class P4ActivatedAbilityCatalog
         var sources = SourceCardNosByRepresentativeCardNo.Value.TryGetValue(sourceCardNo, out var sourceCardNos)
             ? sourceCardNos
             : [sourceCardNo];
-        return sources;
+        // CN187.5 defines the same Gold skill despite the gallery's keyword placement.
+        return definition.AbilityId == GoldTokenSfdResourceAbilityId
+            ? sources.Append("VEN·T02").Distinct(StringComparer.Ordinal).ToArray() : sources;
     }
 
     public static string AzirSwiftSwapUsedThisTurnEffectId(string playerId, string sourceObjectId, long generation = 0, string? instanceId = null)

@@ -50,6 +50,7 @@ public sealed record OfficialCardCatalog(
             .Select(identity => reviewed.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Concat(VendettaCardSources.GetAdmittedCards())
             .Concat(RadiantCardSources.GetAdmittedCards())
+            .Concat(TournamentChampionReprintSources.GetAdmittedCards())
             .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
             .ToArray();
         if (admitted.Any(card => Cards.Any(existing => existing.Id == card.Id || existing.CardNo == card.CardNo)))

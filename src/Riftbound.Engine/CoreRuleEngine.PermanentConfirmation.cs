@@ -13,7 +13,7 @@ public sealed partial class CoreRuleEngine
                 && PaidUnitTriggerSpec(behavior.CardNo, PaidUnitDestroyKind) is null
                 && !SourceUnitTokenSpecs.Value.ContainsKey(behavior.CardNo)
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
-                && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START")
+                && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE")
                 && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
                     || ShouldCreateBaseUnitTokens(behavior, item))
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
@@ -56,7 +56,7 @@ public sealed partial class CoreRuleEngine
         { ["sourceObjectId"] = item.SourceObjectId, ["controllerId"] = item.ControllerId,
             ["stackItemId"] = ability.StackItemId, ["effectKind"] = item.EffectKind }));
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
-        if (item.PlayedFromStandby is { } shadow) locations[item.SourceObjectId] = new(item.ControllerId, "BATTLEFIELD", shadow.Battlefield.ObjectId);
+        if (IsStackItemBattlefieldDestination(item)) locations[item.SourceObjectId] = new(item.ControllerId, "BATTLEFIELD", PreciseBattlefieldLocationObjectId(item.Destination));
         return new(zones, cards, state.PlayerScores, state.PlayerExperience, state.RunePools,
             state.UntilEndOfTurnEffects, null, events, [],
             state.StackItems.Where(x => x.StackItemId != item.StackItemId).Append(ability).ToArray(),

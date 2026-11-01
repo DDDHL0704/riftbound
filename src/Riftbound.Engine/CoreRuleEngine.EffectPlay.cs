@@ -183,7 +183,10 @@ public sealed partial class CoreRuleEngine
             .Select(id => state.CardObjects.GetValueOrDefault(id)?.CardNo)
             .Select(no => CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var found) ? found : null)
             .OfType<CardBehaviorDefinition>();
-        return ordinary.Concat(behaviors.SelectMany(b => BattlefieldUnitPlayGrants(state, playerId, b))
+        var deployed = EffectPlayAllowsDeployment(state, playerId) && behaviors.Any(IsDeployedEquipment)
+                ? state.CardObjects.Keys.Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)
+                    .Select(id => "BATTLEFIELD:" + id) : [];
+        return ordinary.Concat(deployed).Concat(behaviors.SelectMany(b => BattlefieldUnitPlayGrants(state, playerId, b))
                 .Select(g => "BATTLEFIELD:" + g.Field.ObjectId))
             .Where(destination => behavior is null || UnitPlayLocationRestrictionAllows(state, playerId, behavior, destination))
             .Distinct(StringComparer.Ordinal).ToArray();

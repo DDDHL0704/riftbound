@@ -9626,6 +9626,14 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·146/167", "魔偶", 5, "THE_BALL_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署|游走",
+            UnitEventAbility: new("PLAY_OR_MOVE", "CHOOSE_MODE", Modes: [
+                new("DRAW", "抽一张牌", "DRAW", 1),
+                new("DAMAGE", "对此处的敌方单位各造成2点伤害", "DAMAGE_ENEMIES_HERE", 2)])),
+        new("RAD·156/167", "德邦军旗", 2, "DEMACIAN_STANDARD_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
+            UnitEventAbility: new("FRIENDLY_ATTACK_HERE", "MIGHT_ATTACKERS", 2)),
         new("RAD·150/167", "放逐之锋", 3, "BLADE_OF_THE_EXILE_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true)
     ];
@@ -9789,6 +9797,7 @@ public static class CardBehaviorRegistry
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
+            .Concat([RawDefinitions.Single(b => b.CardNo == "VEN·084") with { CardNo = "T1S·001/005" }])
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
             .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits)
