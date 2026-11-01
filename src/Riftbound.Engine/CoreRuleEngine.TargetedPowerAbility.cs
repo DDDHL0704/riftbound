@@ -34,6 +34,32 @@ public sealed partial class CoreRuleEngine
                 && candidate.CardNo == cardNo
                 && IsObjectOnField(state.PlayerZones, candidate.ObjectId));
 
+    internal static bool ValidTargetedPowerAbilitySource(MatchState state, StackItemState item,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (item.TargetedPowerAbility is not { } context
+            || context.SourceObjectId != item.SourceObjectId || context.SourceGeneration < 0
+            || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || context.SourceFaceRevision < 0
+            || item.StackItemId != $"STACK-{context.AcquiredTick}-{context.SourceObjectId}-POWER"
+            || !state.CardObjects.TryGetValue(context.SourceObjectId, out var source)
+            || source.ObjectGeneration < context.SourceGeneration
+            || source.ObjectGeneration == context.SourceGeneration
+                && CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) != item.CardNo)
+            return false;
+
+        if (ability.SourceScope != ActivatedAbilitySourceScopes.FriendlyLegend)
+            return context.Grant is null && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo);
+
+        // The grant is needed when activating. Once captured, the skill keeps
+        // its text even if the granting unit leaves or changes controller/face.
+        return PrintedCardFactory.TryCreate(item.SourceObjectId, item.ControllerId, item.CardNo, out var printed)
+            && printed.Tags.Contains(CardObjectTags.LegendCard, StringComparer.Ordinal)
+            && !string.IsNullOrWhiteSpace(ability.RequiredControllerCardNoOnField)
+            && context.Grant is { Source: not null, FaceRevision: >= 0 } grant
+            && PredictBindingMatches(state, grant.Source, ability.RequiredControllerCardNoOnField,
+                grant.FaceRevision, context.AcquiredTick, grant.TokenFactoryCardNo);
+    }
+
     internal static bool IsPowerAbilityTarget(MatchState state, string player, string id, P4ActivatedAbilityDefinition? ability = null)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
             && !string.IsNullOrWhiteSpace(card.CardNo) && !card.IsFaceDown
@@ -81,11 +107,19 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "资源不足，无法支付目标的法盾。", ErrorCodes.InsufficientCost);
 
         var source = cards[command.SourceObjectId];
+        var grantingSource = ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend
+            ? cards.Values.Where(card => card.ControllerId == intent.PlayerId
+                && card.CardNo == ability.RequiredControllerCardNoOnField
+                && IsObjectOnField(zones, card.ObjectId)).OrderBy(card => card.ObjectId, StringComparer.Ordinal).First()
+            : null;
         cards[command.SourceObjectId] = ExhaustForInstruction(zones, cards, source);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-POWER", intent.PlayerId,
             source.ObjectId, ability.EffectKind, source.CardNo, targets, 0, 1, []) {
                 TargetedPowerAbility = new(ability.AbilityId, source.ObjectId, source.ObjectGeneration,
-                    ability.PowerModifierAmountIfSourceEmpowered is not null ? source.IsEmpowered : null) };
+                    ability.PowerModifierAmountIfSourceEmpowered is not null ? source.IsEmpowered : null) {
+                        AcquiredTick = state.Tick + 1, SourceFaceRevision = source.CopyFaceTransitions?.Count ?? 0,
+                        Grant = grantingSource is null ? null : new(new(grantingSource.ObjectId, grantingSource.ObjectGeneration),
+                            grantingSource.CopyFaceTransitions?.Count ?? 0, grantingSource.TokenFactoryCardNo) } };
         var payload = new Dictionary<string, object?> {
             ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
             ["sourceObjectId"] = source.ObjectId, ["cardNo"] = source.CardNo,

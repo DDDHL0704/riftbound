@@ -395,15 +395,15 @@ public sealed class RadNextBatchUnitTests
         Assert.Empty(noSkill.Events);
     }
 
-    private static MatchState SoulOfInspirationPosition()
+    internal static MatchState SoulOfInspirationPosition()
     {
         var state = VenUnitEntryBasicTests.Position("RAD·040/167");
         var cards = state.CardObjects.ToDictionary();
         var zones = state.PlayerZones.ToDictionary();
         var locations = state.ObjectLocations.ToDictionary();
-        cards["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "OGN·183/298", "P1")
+        cards["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "OGN·255/298", "P1")
             with { Tags = [CardObjectTags.LegendCard], IsExhausted = true };
-        cards["ENEMY-LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY-LEGEND", "OGN·183/298", "P2")
+        cards["ENEMY-LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY-LEGEND", "OGN·255/298", "P2")
             with { Tags = [CardObjectTags.LegendCard] };
         zones["P1"] = zones["P1"] with { LegendZone = ["LEGEND"] };
         zones["P2"] = zones["P2"] with { LegendZone = ["ENEMY-LEGEND"] };
