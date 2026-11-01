@@ -1058,7 +1058,9 @@ internal static partial class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !IsPromptBattlefieldCardObject(battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
-            || battlefieldState.CardNo == "OGN·279/298"
+            || BattlefieldTriggerSpecRules.TryGetTrigger(battlefieldState.CardNo,
+                trigger => BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger(trigger)
+                    || BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantBulwarkTrigger(trigger), out _)
             || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
                 BattlefieldTriggerSpecRules.IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger,

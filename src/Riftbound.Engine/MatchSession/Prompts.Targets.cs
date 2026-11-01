@@ -330,6 +330,9 @@ internal static partial class ActionPromptBuilder
         return zones.Base
             .Concat(zones.Battlefields)
             .Concat(zones.LegendZone)
+            .Concat(state.BattlefieldStates.Keys.Where(id => P4ActivatedAbilityCatalog.GetAll()
+                .Any(ability => ability.UsableByAnyPlayerOnOwnTurn
+                    && CoreRuleEngine.IsSimpleAbilitySource(state, playerId, id, ability))))
             .Distinct(StringComparer.Ordinal)
             .SelectMany(objectId => ActivateAbilityRequirementsForSource(state, playerId, objectId))
             .ToArray();

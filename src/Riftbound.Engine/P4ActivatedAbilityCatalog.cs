@@ -43,7 +43,8 @@ public sealed record P4ActivatedAbilityDefinition(
     int? GeneratedManaIfSourceEmpowered = null,
     int? PowerModifierAmountIfSourceEmpowered = null,
     string SourceScope = "",
-    string RequiredControllerCardNoOnField = "");
+    string RequiredControllerCardNoOnField = "",
+    bool UsableByAnyPlayerOnOwnTurn = false);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -53,7 +54,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool CommandsOpponentUnitToSourceBattlefield = false,
     bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
-    bool StunsTarget = false);
+    bool StunsTarget = false, bool OncePerTurnPerPlayer = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -255,6 +256,10 @@ public static class P4ActivatedAbilityCatalog
     public const string SoulOfInspirationAbilityEffectKind = "RAD_040_FRIENDLY_LEGEND_POWER";
 
     public const string LanternDragonCardNo = "RAD·113/167";
+    public const string BlackMarketCardNo = "RAD·158/167";
+    public const string BlackMarketAbilityId = "RAD_158_PAY_TWO_POWER_DRAW";
+    public const string BlackMarketAbilityEffectKind = "RAD_158_PAY_TWO_POWER_DRAW";
+
     public const string LanternDragonAbilityId = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
     public const string LanternDragonAbilityEffectKind = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
 
@@ -272,6 +277,13 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(BlackMarketAbilityId, BlackMarketCardNo, BlackMarketAbilityEffectKind, "黑市", 0, 2, 0,
+            RequiresBattlefieldSource: true, ExhaustsSourceAsCost: false, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：支付两点符能，抽一张牌；每名玩家每回合一次，即使未控制此战场。",
+            SourceRequiredTag: P6TokenFactoryCatalog.BattlefieldCardTag,
+            SimpleEffect: new(DrawCount: 1, OncePerTurn: true, OncePerTurnPerPlayer: true),
+            UsableByAnyPlayerOnOwnTurn: true),
         new(LanternDragonAbilityId, LanternDragonCardNo, LanternDragonAbilityEffectKind, "提灯亚龙", 0, 0, 1,
             RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false,

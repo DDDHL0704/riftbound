@@ -108,6 +108,9 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE";
     public const string BattlefieldDefendMoveFriendlyUnitToBase =
         "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE";
+    public const string BattlefieldDefendGrantBulwark = "BATTLEFIELD_DEFENSE_GRANT_BULWARK";
+    public const string BattlefieldHeldEmptyRuneScore = "BATTLEFIELD_HELD_EMPTY_RUNE_SCORE";
+    public const string BattlefieldConquerDiscardCallRune = "BATTLEFIELD_CONQUER_DISCARD_CALL_RUNE";
     public const string BattlefieldDefendGrantSteadfast =
         "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO";
     public const string BattlefieldHeldGrantBoon =
