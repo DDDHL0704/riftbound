@@ -431,6 +431,7 @@ public static class CardTargetScopes
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
+    public const string UnitThenRunes = "UNIT_THEN_RUNES";
     public const string FriendlyUnitThenEnemyBattlefield = "FRIENDLY_UNIT_THEN_ENEMY_BATTLEFIELD";
     public const string FriendlyEquipmentThenBattlefield = "FRIENDLY_EQUIPMENT_THEN_BATTLEFIELD";
     public const string EnemyBattlefield = "ENEMY_BATTLEFIELD";
@@ -9532,8 +9533,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.AnyUnit, StatusEffectId: "COMBAT_KEYWORD:强攻",
             CanPlayDuringPriority: true, StatusEffectUsesTargetCurrentPower: true),
         new("RAD·006/167", "灼热焦土", 4, "RAD_006_DISTRIBUTE_FIVE_DAMAGE", 0, 1,
-            TargetScope: CardTargetScopes.Battlefield, CanPlayDuringPriority: true,
-            DamageDistributionAmount: 5),
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringPriority: true,
+            AnyNumberOfTargets: true, TargetsShareBattlefield: true, DamageDistributionAmount: 5),
         new("RAD·007/167", "战争集结", 3, "RAD_007_CREATE_THREE_MINIONS_AT_ENEMY_BATTLEFIELD", 0, 1,
             TargetScope: CardTargetScopes.EnemyBattlefield, CreatedBaseUnitTokenCount: 3,
             CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "随从",
@@ -9543,8 +9544,9 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.AnyUnit, ReadiesTarget: true,
             HighCostGraveyardPlayPowerTraits: RuneTrait.Red, HighCostGraveyardPlayManaCost: 1,
             HighCostGraveyardPlayPowerCost: 2, HighCostGraveyardPlayBanishSource: true),
-        new("RAD·032/167", "战前仪式", 2, "RAD_032_SHOW_EQUIPMENT_POWER_PLUS_TWO", 0, 1,
-            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2,
+        new("RAD·032/167", "战前仪式", 2, "RAD_032_SHOW_EQUIPMENT_POWER_PLUS_TWO", 0, 3,
+            TargetScope: CardTargetScopes.UnitThenRunes, MinTargetCount: 1,
+            PowerModifierAmount: 2, PowerModifierTargetIndex: 0,
             CanPlayDuringPriority: true, Showcase: new("EQUIPMENT", ReadyEntry: false),
             RuneReadyCountIfShowcase: 2),
         new("RAD·033/167", "指令：攻击", 1, "RAD_033_MOVE_DEPLOYED_EQUIPMENT", 0, 2,
@@ -9575,16 +9577,23 @@ public static class CardBehaviorRegistry
             CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
             CreatedBaseEquipmentTokenIsExhausted: true,
             StandbyPlayFrom: null),
-        new("RAD·102/167", "恶魔魅影", 3, "RAD_102_STANDBY_MOVE_OR_ROAM", 0, 1,
+        new("RAD·102/167", "恶魔魅影", 3, "RAD_102_MOVE_TO_OPEN_BATTLEFIELD", 0, 1,
+            Mode: "MOVE_TO_OPEN_BATTLEFIELD", MovesTargetsToChosenLocation: true,
             TargetScope: CardTargetScopes.FriendlyUnit, StandbyReactionMaxTargetCount: 1,
             StandbyReactionMinTargetCount: 1, StandbyReactionTargetScope: CardTargetScopes.FriendlyUnit,
-            MovesTargetToOpenBattlefield: true, GrantsRoamIfNoOpenBattlefield: true),
+            MovesTargetToOpenBattlefield: true),
+        new("RAD·102/167", "恶魔魅影", 3, "RAD_102_GRANT_ROAM_WITH_NO_OPEN_BATTLEFIELD", 0, 1,
+            Mode: "GRANT_ROAM", TargetScope: CardTargetScopes.FriendlyUnit,
+            StandbyReactionMaxTargetCount: 1, StandbyReactionMinTargetCount: 1,
+            StandbyReactionTargetScope: CardTargetScopes.FriendlyUnit,
+            GrantsRoamIfNoOpenBattlefield: true),
         new("RAD·127/167", "辉映同心", 5, "RAD_127_SHOW_HIGH_COST_CREATE_MINIONS", 0, 0,
             CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenCountIfShowcase: 4,
             CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "随从",
             CreatedBaseUnitTokenTags: CardObjectTags.MinionTokenFamily + "|随从",
             Showcase: new("ANY"), ShowcaseMinimumManaCost: 7),
-        new("RAD·135/167", "不朽铭记", 8, "RAD_135_REPLAY_UP_TO_THREE_CHEAP_PERMANENTS", 0, 0,
+        new("RAD·135/167", "不朽铭记", 8, "RAD_135_REPLAY_UP_TO_THREE_CHEAP_PERMANENTS", 0, 3,
+            TargetScope: CardTargetScopes.FriendlyGraveyardCard, MinTargetCount: 0,
             EffectPlaySourceZone: "GRAVEYARD", EffectPlayIgnoreAllCosts: true,
             EffectPlayAllowsAnyCard: true, EffectPlayRequiresUnitOrEquipment: true,
             EffectPlayMaximumCount: 3, EffectPlayMaximumManaCost: 3,

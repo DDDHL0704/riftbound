@@ -4210,8 +4210,6 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid token entry continuation");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TokenReplacementWindow } tokenChoice
             && !CoreRuleEngine.ValidTokenReplacementChoice(state, tokenChoice)) errors.Add("invalid token replacement choice");
-        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.RadShowcaseRuneChoiceWindow } radShowcaseChoice
-            && !CoreRuleEngine.ValidRadShowcaseRuneChoice(state, radShowcaseChoice)) errors.Add("invalid RAD showcase rune choice");
 
         if (!BattleResultRecoveryRules.ValidContinuation(state)) errors.Add("invalid captured battle result continuation");
         if (!TurnEquipmentPlayRules.ValidAll(state)) errors.Add("invalid turn equipment play permission");

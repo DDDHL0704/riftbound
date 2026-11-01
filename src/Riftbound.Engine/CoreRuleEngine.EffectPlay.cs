@@ -137,7 +137,8 @@ public sealed partial class CoreRuleEngine
                     && pending.Sources.Count == 1 && pending.Sources.GetValueOrDefault(graveyard.Source.ObjectId, -1) == graveyard.Source.Generation)
             && (!behavior.PlaysSourceToBaseAsUnit || pending.Parent.SourceConfirmed)
             && (behavior.EffectPlayRequiresUnitOrEquipment
-                ? pending.Sources.All(s => zones.Graveyard.Contains(s.Key)
+                ? pending.Sources.All(s => pending.Parent.TargetObjectIds.Contains(s.Key, StringComparer.Ordinal)
+                        && zones.Graveyard.Contains(s.Key)
                         && state.CardObjects.TryGetValue(s.Key, out var card)
                         && card.ObjectGeneration == s.Value && !card.IsFaceDown
                         && (card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -334,7 +335,7 @@ public sealed partial class CoreRuleEngine
         if (sourceZone == "GRAVEYARD" && behavior.EffectPlayRequiresUnitOrEquipment
             && zones.TryGetValue(actor, out var graveyardOwner))
         {
-            sources = graveyardOwner.Graveyard
+            sources = sources.Where(graveyardOwner.Graveyard.Contains)
                 .Where(id => cards.TryGetValue(id, out var card)
                     && !card.IsFaceDown && !IsTokenObject(card)
                     && (card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -403,6 +404,14 @@ public sealed partial class CoreRuleEngine
         => (effect.EffectPlayMaximumManaCost <= 0 || card.ManaCost <= effect.EffectPlayMaximumManaCost)
             && (effect.EffectPlayMaximumPowerCost <= 0
                 || PrintedPowerCostRules.ForCard(card.CardNo ?? string.Empty).Amount <= effect.EffectPlayMaximumPowerCost);
+
+    internal static bool EffectPlayPermanentTargetAllowed(MatchState state, string id, CardBehaviorDefinition behavior)
+        => !behavior.EffectPlayRequiresUnitOrEquipment
+            || state.CardObjects.TryGetValue(id, out var card) && !card.IsFaceDown && !IsTokenObject(card)
+                && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))
+                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? string.Empty, out var permanent)
+                && (permanent.PlaysSourceToBaseAsUnit || permanent.PlaysSourceToBaseAsEquipment)
+                && EffectPlayCandidateCostAllowed(card, behavior);
 
     private static ResolutionResult ResolveEffectPlayCommand(MatchState state, PlayerIntent intent, GameCommand command)
     {

@@ -23,6 +23,24 @@ public sealed partial class CoreRuleEngine
     internal static bool HasChosenMovementDestination(MatchState state, string player, string target)
         => ChosenMovementDestinations(state, player).Any(choice => IsUnitMovementDestination(state, target, choice.Id));
 
+    internal static bool IsOpenBattlefield(MatchState state, string fieldId)
+        => BattlefieldLocalRules.Battlefield(state, fieldId) is { ControllerId: null }
+            && !state.CardObjects.Values.Any(unit => FieldObjectTypeRules.IsVisibleUnit(unit)
+                && IsObjectOnField(state.PlayerZones, unit.ObjectId)
+                && state.ObjectLocations.GetValueOrDefault(unit.ObjectId) is { Zone: "BATTLEFIELD" } at
+                && at.BattlefieldObjectId == fieldId);
+
+    internal static IReadOnlyList<ActionPromptChoiceDto> OpenBattlefieldDestinations(MatchState state, string player)
+        => ChosenMovementDestinations(state, player)
+            .Where(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                && IsOpenBattlefield(state, choice.Id[12..])).ToArray();
+
+    private static bool OpenBattlefieldModeAllowed(MatchState state, string player,
+        CardBehaviorDefinition behavior, string destination)
+        => (!behavior.MovesTargetToOpenBattlefield
+                || OpenBattlefieldDestinations(state, player).Any(choice => choice.Id == destination))
+            && (!behavior.GrantsRoamIfNoOpenBattlefield || OpenBattlefieldDestinations(state, player).Count == 0);
+
     internal static bool IsEquipmentMovementDestination(MatchState state, string equipmentObjectId, string destination)
     {
         if (!destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)) return false;

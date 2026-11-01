@@ -55,6 +55,22 @@ public sealed class RadSpellBatchTests
         Assert.Equal(prompts, JsonSerializer.Serialize(ResolutionResult.BuildPrompts(result.State)));
     }
 
+    private static async Task<MatchState> ResolveTopAfterSimulatedResponse(MatchState state)
+    {
+        var top = state.StackItems[^1].StackItemId;
+        for (var passes = 0; state.StackItems.Any(item => item.StackItemId == top)
+            && state.PriorityPlayerId is { } player; passes++)
+        {
+            Assert.True(passes < 4);
+            var result = await new CoreRuleEngine().ResolveAsync(state,
+                new("rad-response-" + passes, player, CommandTypes.PassPriority), new PassPriorityCommand(), default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            state = result.State;
+        }
+        return state;
+    }
+
     [Fact]
     public async Task OfficialSpellPrintsAreAdmittedWithTheirPrintedRules()
     {
@@ -130,6 +146,34 @@ public sealed class RadSpellBatchTests
     }
 
     [Fact]
+    public async Task PrecisionBombCanReturnAUnitToBaseWhileCreatingTheBombAtAnotherBattlefield()
+    {
+        var initial = LocalDestructionRecallTests.At(SpellPosition("RAD·096/167"), "ALLY", "P1", "BATTLEFIELD", "BF");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·096/167", ["ALLY", "OTHER"], Destination: "BASE:P1"));
+        await game.Top();
+        Assert.Contains("ALLY", game.State.PlayerZones["P1"].Base);
+        var bomb = Assert.Single(game.State.PlayerZones["P1"].Battlefields,
+            id => game.State.CardObjects[id].Tags.Contains(CardEquipmentKeywordNames.Deploy));
+        Assert.Equal("OTHER", game.State.ObjectLocations[bomb].BattlefieldObjectId);
+        var kinds = game.Events().Select(entry => entry.Event.Kind).ToArray();
+        Assert.True(Array.IndexOf(kinds, "UNIT_MOVED_TO_BASE") < Array.IndexOf(kinds, "EQUIPMENT_TOKEN_CREATED"));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task WarGatheringDoesNotCreateMinionsInBaseWhenItsBattlefieldTargetBecomesIllegal()
+    {
+        var game = new Driver(SpellPosition("RAD·007/167"));
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·007/167", ["OTHER"]));
+        var response = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+            ["OTHER"] = game.State.CardObjects["OTHER"] with { ControllerId = "P1" } } };
+        var resumed = await ResolveTopAfterSimulatedResponse(response);
+        Assert.DoesNotContain(resumed.CardObjects.Values, card => card.Tags.Contains(CardObjectTags.MinionTokenFamily));
+        Assert.Contains("SPELL", resumed.PlayerZones["P1"].Graveyard);
+    }
+
+    [Fact]
     public async Task SirenSongMovesOnlyAnEnemyUnitThatMovedThisTurn()
     {
         var initial = SpellPosition("RAD·098/167") with {
@@ -165,30 +209,49 @@ public sealed class RadSpellBatchTests
     }
 
     [Fact]
-    public async Task DemonShadeMovesToAnOpenBattlefieldAndOtherwiseGrantsRoam()
+    public async Task DemonShadeDeclaresItsOpenBattlefieldAndWorksFromHandOrStandby()
     {
-        var openCards = StandbySourceRulesTests.Position("RAD·102/167").CardObjects.ToDictionary();
-        openCards["OTHER"] = openCards["OTHER"] with { ControllerId = null };
-        var open = StandbySourceRulesTests.Position("RAD·102/167") with { CardObjects = openCards };
-        var openGame = new Driver(open);
-        await openGame.Act("P1", new HideCardCommand("SHADOW", "RAD·102/167", "BATTLEFIELD:F", ["STANDBY_A"]));
-        await openGame.Act("P1", new EndTurnCommand()); await openGame.Act("P2", new EndTurnCommand());
-        await openGame.Act("P1", new RevealCardCommand("SHADOW", "RAD·102/167", ["HOST"], "STANDBY_REACTION", [], "STACK"));
-        await openGame.Top();
-        Assert.Equal("OTHER", openGame.State.ObjectLocations["HOST"].BattlefieldObjectId);
+        var ordinary = SpellPosition("RAD·102/167");
+        ordinary = ordinary with { CardObjects = new Dictionary<string, CardObjectState>(ordinary.CardObjects) {
+            ["BF"] = ordinary.CardObjects["BF"] with { ControllerId = null },
+            ["OTHER"] = ordinary.CardObjects["OTHER"] with { ControllerId = null } } };
+        var game = new Driver(ordinary);
+        await Reject(ordinary, "P1", new PlayCardCommand("SPELL", "RAD·102/167", ["ALLY"], Mode: "GRANT_ROAM"));
+        await Reject(ordinary, "P1", new PlayCardCommand("SPELL", "RAD·102/167", ["GEAR"],
+            Mode: "MOVE_TO_OPEN_BATTLEFIELD", Destination: "BATTLEFIELD:OTHER"));
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·102/167", ["ALLY"],
+            Mode: "MOVE_TO_OPEN_BATTLEFIELD", Destination: "BATTLEFIELD:OTHER"));
+        await game.Top();
+        Assert.Equal("OTHER", game.State.ObjectLocations["ALLY"].BattlefieldObjectId);
+        Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
+        await game.Replay();
 
-        var closedCards = open.CardObjects.ToDictionary();
-        foreach (var field in new[] { "F", "OTHER" })
-            closedCards[field] = closedCards[field] with { ControllerId = "P1" };
-        var closed = open with { CardObjects = closedCards };
-        closed = AddUnitAt(closed, "BLOCKER", "OGN·219/298", "P1", "OTHER");
-        var closedGame = new Driver(closed);
-        await closedGame.Act("P1", new HideCardCommand("SHADOW", "RAD·102/167", "BATTLEFIELD:F", ["STANDBY_A"]));
-        await closedGame.Act("P1", new EndTurnCommand()); await closedGame.Act("P2", new EndTurnCommand());
-        await closedGame.Act("P1", new RevealCardCommand("SHADOW", "RAD·102/167", ["HOST"], "STANDBY_REACTION", [], "STACK"));
-        await closedGame.Top();
-        Assert.Contains("ROAM", closedGame.State.CardObjects["HOST"].UntilEndOfTurnEffects);
-        await Reject(open, "P1", new RevealCardCommand("SHADOW", "RAD·102/167", ["GEAR"], "STANDBY_REACTION", [], "STACK"));
+        var open = StandbySourceRulesTests.Position("RAD·102/167");
+        open = open with { CardObjects = new Dictionary<string, CardObjectState>(open.CardObjects) {
+            ["OTHER"] = open.CardObjects["OTHER"] with { ControllerId = null } } };
+        var hidden = new Driver(open);
+        await hidden.Act("P1", new HideCardCommand("SHADOW", "RAD·102/167", "BATTLEFIELD:F", ["STANDBY_A"]));
+        await hidden.Act("P1", new EndTurnCommand()); await hidden.Act("P2", new EndTurnCommand());
+        await hidden.Act("P1", new RevealCardCommand("SHADOW", "RAD·102/167", ["HOST"],
+            "MOVE_TO_OPEN_BATTLEFIELD", [], "BATTLEFIELD:OTHER"));
+        await hidden.Top();
+        Assert.Equal("OTHER", hidden.State.ObjectLocations["HOST"].BattlefieldObjectId);
+        await hidden.Replay();
+    }
+
+    [Fact]
+    public async Task DemonShadeGrantsTemporaryRoamOnlyWhenThereIsNoOpenBattlefield()
+    {
+        var closed = SpellPosition("RAD·102/167");
+        var game = new Driver(closed);
+        await Reject(closed, "P1", new PlayCardCommand("SPELL", "RAD·102/167", ["ALLY"],
+            Mode: "MOVE_TO_OPEN_BATTLEFIELD", Destination: "BATTLEFIELD:OTHER"));
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·102/167", ["ALLY"], Mode: "GRANT_ROAM"));
+        await game.Top();
+        Assert.Contains("ROAM", game.State.CardObjects["ALLY"].UntilEndOfTurnEffects);
+        await game.Act("P1", new EndTurnCommand());
+        Assert.DoesNotContain("ROAM", game.State.CardObjects["ALLY"].UntilEndOfTurnEffects);
+        await game.Replay();
     }
 
     [Fact]
@@ -211,24 +274,56 @@ public sealed class RadSpellBatchTests
     }
 
     [Fact]
-    public async Task BalefireDistributesFiveDamageOnlyAmongUnitsAtTheChosenBattlefield()
+    public async Task BalefireDeclaresFriendlyAndEnemyTargetsBeforeResolutionAndDistributesFiveDamage()
     {
         var initial = AddUnitAt(SpellPosition("RAD·006/167"), "ENEMY-F", "OGN·208/298", "P2", "OTHER");
+        initial = AddUnitAt(initial, "ALLY-F", "OGN·208/298", "P1", "OTHER");
         var game = new Driver(initial);
-        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·006/167", ["OTHER"]));
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·006/167", ["OTHER"]));
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·006/167", ["ALLY"]));
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·006/167", ["ALLY-F", "ENEMY-F"]));
+        Assert.Equal(new[] { "ALLY-F", "ENEMY-F" }, game.State.StackItems[^1].TargetObjectIds);
+        Assert.Null(game.State.PendingCardChoice);
         await game.Top();
-        var targetChoice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-        Assert.Equal("TRIGGER_CONFIRMATION", targetChoice.ChoiceWindow);
-        Assert.Equal(["ENEMY-F"], targetChoice.LegalObjectIds);
-        await game.Act("P1", new ChooseCardsCommand(targetChoice.ChoiceId, targetChoice.ChoiceWindow, ["ENEMY-F"]));
+        var request = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice).Request;
+        Assert.Equal("DISTRIBUTED_DAMAGE_AMOUNT", request.Kind);
+        Assert.Null(game.State.PriorityPlayerId);
+        await Reject(game.State, "P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["forged-allocation"]));
+        await SelectDistributedAmount(game, 2);
+        Assert.Equal(2, game.State.CardObjects["ALLY-F"].Damage);
+        Assert.Equal(3, game.State.CardObjects["ENEMY-F"].Damage);
+        Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task BalefireRejectsTargetsOnDifferentBattlefieldsOrMoreTargetsThanItsDamage()
+    {
+        var initial = SpellPosition("RAD·006/167");
+        foreach (var i in Enumerable.Range(1, 6))
+            initial = AddUnitAt(initial, "TARGET-" + i, "OGN·208/298", "P2", "OTHER");
+        initial = AddUnitAt(initial, "ELSEWHERE", "OGN·208/298", "P2", "BF");
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·006/167", ["TARGET-1", "ELSEWHERE"]));
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·006/167", Enumerable.Range(1, 6).Select(i => "TARGET-" + i).ToArray()));
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·006/167", ["TARGET-1"]));
         await game.Top();
-        var allocation = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-        await Reject(game.State, "P1", new AssignEffectDamageCommand(allocation.ResolvingStackItemId!, [
-            new("SPELL", "ENEMY-F", 4)]));
-        await game.Act("P1", new AssignEffectDamageCommand(allocation.ResolvingStackItemId!, [
-            new("SPELL", "ENEMY-F", 5)]));
-        Assert.Equal(5, game.State.CardObjects["ENEMY-F"].Damage);
-        await Reject(SpellPosition("RAD·006/167"), "P1", new PlayCardCommand("SPELL", "RAD·006/167", ["ALLY"]));
+        Assert.Equal(5, game.State.CardObjects["TARGET-1"].Damage);
+        Assert.Equal(0, game.State.CardObjects["ELSEWHERE"].Damage);
+        Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
+        await game.Replay();
+    }
+
+    private static async Task SelectDistributedAmount(Driver game, int amount)
+    {
+        while (game.State.PendingRuleChoice is { Request: { Kind: "DISTRIBUTED_DAMAGE_AMOUNT" } request })
+        {
+            var selected = Assert.Single(request.Options, option => {
+                var pieces = option.Id.Split(':');
+                return int.Parse(pieces[^2]) <= amount && amount <= int.Parse(pieces[^1]); });
+            await game.Act(request.PlayerId, new PayCostCommand(request.Id, "RULE_REPLACEMENT", [selected.Id]));
+        }
     }
 
     [Fact]
@@ -239,6 +334,7 @@ public sealed class RadSpellBatchTests
         zones["P1"] = zones["P1"] with { Hand = zones["P1"].Hand.Where(id => id != "SPELL").ToArray(), Graveyard = ["GRAVE", "SPELL"] };
         var locations = initial.ObjectLocations.ToDictionary(); locations["SPELL"] = new("P1", "GRAVEYARD");
         var cards = initial.CardObjects.ToDictionary();
+        cards["ALLY"] = cards["ALLY"] with { IsExhausted = true };
         cards["HIGH"] = OfficialGarenConquestBattlefieldCountTests.Printed("HIGH", "OGN·041/298", "P1");
         locations["HIGH"] = new("P1", "HAND"); zones["P1"] = zones["P1"] with { Hand = [.. zones["P1"].Hand, "HIGH"] };
         var pools = initial.RunePools.ToDictionary(); pools["P1"] = new(20, 20, new Dictionary<string, int> { [RuneTrait.Red] = 20 });
@@ -278,15 +374,28 @@ public sealed class RadSpellBatchTests
         }
         initial = initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones };
         var game = new Driver(initial);
-        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·032/167", ["ALLY"], OptionalCosts: ["SHOWCASE:GEAR"]));
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·032/167", ["ALLY", "R1", "R2"], OptionalCosts: ["SHOWCASE:GEAR"]));
         await game.Top();
-        var runeChoice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-        Assert.Equal(CoreRuleEngine.RadShowcaseRuneChoiceWindow, runeChoice.ChoiceWindow);
-        await Reject(game.State, "P1", new ChooseCardsCommand(runeChoice.ChoiceId, runeChoice.ChoiceWindow, ["R1", "R2", "R3"]));
-        await game.Act("P1", new ChooseCardsCommand(runeChoice.ChoiceId, runeChoice.ChoiceWindow, ["R1", "R2"]));
-        await game.Top();
+        Assert.Null(game.State.PendingCardChoice);
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·032/167", ["ALLY", "R1", "R2", "R3"], OptionalCosts: ["SHOWCASE:GEAR"]));
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·032/167", ["ALLY", "R1"]));
         Assert.False(game.State.CardObjects["R1"].IsExhausted); Assert.False(game.State.CardObjects["R2"].IsExhausted); Assert.True(game.State.CardObjects["R3"].IsExhausted);
         Assert.Equal(2, game.State.CardObjects["ALLY"].UntilEndOfTurnPowerModifier);
+        await game.Replay();
+        var unshown = new Driver(initial);
+        await unshown.Act("P1", new PlayCardCommand("SPELL", "RAD·032/167", ["ALLY"]));
+        await unshown.Top();
+        Assert.Equal(2, unshown.State.CardObjects["ALLY"].UntilEndOfTurnPowerModifier);
+        Assert.True(unshown.State.CardObjects["R1"].IsExhausted);
+        await unshown.Replay();
+        var changed = new Driver(initial);
+        await changed.Act("P1", new PlayCardCommand("SPELL", "RAD·032/167", ["ALLY", "R1", "R2"], OptionalCosts: ["SHOWCASE:GEAR"]));
+        var response = changed.State with { CardObjects = new Dictionary<string, CardObjectState>(changed.State.CardObjects) {
+            ["R1"] = changed.State.CardObjects["R1"] with { ObjectGeneration = 1, IsExhausted = true } } };
+        var resumed = await ResolveTopAfterSimulatedResponse(response);
+        Assert.True(resumed.CardObjects["R1"].IsExhausted);
+        Assert.False(resumed.CardObjects["R2"].IsExhausted);
+        Assert.Equal(2, resumed.CardObjects["ALLY"].UntilEndOfTurnPowerModifier);
         await Reject(SpellPosition("RAD·032/167"), "P1", new PlayCardCommand("SPELL", "RAD·032/167", ["ALLY"], OptionalCosts: ["SHOWCASE:ALLY"]));
     }
 
@@ -335,27 +444,34 @@ public sealed class RadSpellBatchTests
     {
         var initial = SpellPosition("RAD·135/167");
         var cards = initial.CardObjects.ToDictionary(); var locations = initial.ObjectLocations.ToDictionary(); var zones = initial.PlayerZones.ToDictionary();
-        foreach (var (id, cardNo) in new[] { ("U1", "VEN·004"), ("E1", "SFD·033/221"), ("U2", "OGN·041/298") })
+        foreach (var (id, cardNo) in new[] { ("U1", "VEN·004"), ("E1", "SFD·033/221"), ("U2", "OGN·041/298"), ("U3", "VEN·004"), ("U4", "VEN·004") })
         {
             cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, cardNo, "P1");
             locations[id] = new("P1", "GRAVEYARD");
         }
-        zones["P1"] = zones["P1"] with { Graveyard = ["GRAVE", "U1", "E1", "U2"] };
+        zones["P1"] = zones["P1"] with { Graveyard = ["GRAVE", "U1", "E1", "U2", "U3", "U4"] };
         initial = initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones, RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(8, 2) } };
         var game = new Driver(initial);
-        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·135/167", []));
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·135/167", ["U2"]));
+        await Reject(initial, "P1", new PlayCardCommand("SPELL", "RAD·135/167", ["U1", "E1", "U3", "U4"]));
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·135/167", ["U1", "E1", "U3"]));
         await game.Top();
         var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
-        Assert.Equal(new[] { "E1", "U1" }, pending.Sources.Keys.Order().ToArray());
+        Assert.Equal(new[] { "E1", "U1", "U3" }, pending.Sources.Keys.Order().ToArray());
         await Reject(game.State, "P1", new PlayCardCommand("U2", "OGN·041/298", [], Destination: "BASE"));
+        await Reject(game.State, "P1", new PlayCardCommand("U4", "VEN·004", [], Destination: "BASE"));
         await game.Act("P1", new PlayCardCommand("U1", "VEN·004", [], Destination: "BASE"));
         pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
         await game.Act("P1", new PlayCardCommand("E1", "SFD·033/221", [], Destination: "BASE"));
-        if (game.State.PendingEffectPlay is { } optional)
-            await game.Act("P1", new ChooseCardsCommand(optional.ChoiceId, "EFFECT_PLAY", []));
+        await game.Act("P1", new PlayCardCommand("U3", "VEN·004", [], Destination: "BASE"));
+        Assert.Null(game.State.PendingEffectPlay);
         Assert.Contains("U1", game.State.PlayerZones["P1"].Base);
         Assert.Contains("E1", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("U3", game.State.PlayerZones["P1"].Base);
         Assert.Contains("U2", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("U4", game.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        await game.Replay();
     }
 }

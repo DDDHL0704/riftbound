@@ -3264,7 +3264,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == EndRuneChoiceWindow) return ResolveEndRuneChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == MovementDiscardRuneChoiceWindow) return ResolveMovementDiscardRuneChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DeckPlayChoiceWindow) return ResolveDeckPlaySelection(state, pendingChoice, submittedObjectIds);
-        if (pendingChoice.ChoiceWindow == RadShowcaseRuneChoiceWindow) return ResolveRadShowcaseRuneChoice(state, pendingChoice, submittedObjectIds);
 
         return RejectWithCorePrompts(
             state,
@@ -18112,6 +18111,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         command = command with { OptionalCosts = costsWithoutShowcase };
+        behavior = ShowcaseTargetDefinition(behavior, showcase is not null);
 
         if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
             && !StackObjectRules.IsAbility(item)
@@ -18229,6 +18229,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !IsCommandedMovementDestinationAllowed(state, intent.PlayerId, destination, command.TargetObjectIds, commanded))
         {
             rejection = Reject(state, "请选择受你控制、且与目标单位当前位置不同的战场。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (!OpenBattlefieldModeAllowed(state, intent.PlayerId, behavior, destination))
+        {
+            rejection = Reject(state, "所选模式或目的地不满足开放战场条件。", ErrorCodes.InvalidTarget);
             return false;
         }
         if (behavior.MovesTargetsToChosenLocation
@@ -21111,6 +21116,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
+            CardTargetScopes.UnitThenRunes => targetIndex == 0
+                ? IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+                : IsFieldRuneObject(state, objectId),
             CardTargetScopes.AnyUnitOrEquipment => IsFieldUnitOrEquipment(state, objectId),
             CardTargetScopes.UnitEquipmentOrRune => IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
@@ -24006,6 +24014,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (targetScope == CardTargetScopes.AnyUnitOrEquipment) return "unit or equipment";
         if (targetScope == CardTargetScopes.UnitEquipmentOrRune) return "unit, equipment, or rune";
+        if (targetScope == CardTargetScopes.UnitThenRunes) return "unit then runes";
         if (targetScope == CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit) return "friendly equipment then battlefield unit";
         if (targetScope == CardTargetScopes.FriendlyEquipmentThenBattlefield) return "friendly equipment then battlefield";
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
@@ -24380,57 +24389,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!confirmPermanent && IsDeferredDeckChoice(behavior) && !stackItem.DeckChoiceCompleted)
             return BeginDeckChoice(state, stackItem, behavior);
         stackItem = ResolveTargetGroup(state, MaskTargetsNoLongerLegal(state, stackItem, behavior), behavior);
-        if (behavior.RuneReadyCountIfShowcase > 0 && stackItem.Showcase is not null
-            && stackItem.ShowcaseRuneTargets is null)
-        {
-            var runeChoice = RadShowcaseRuneChoice(state, stackItem);
-            if (runeChoice.LegalObjectIds.Count > 0)
-                return NoopStackResolutionResult(state) with {
-                    StackItems = state.StackItems.Select(s => s.StackItemId == stackItem.StackItemId ? stackItem : s).ToArray(),
-                    PendingCardChoice = runeChoice,
-                    Events = [new GameEvent("RAD_SHOWCASE_RUNES_REQUESTED", "战前仪式等待选择符文", new Dictionary<string, object?> {
-                        ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["maxCount"] = runeChoice.MaxCount
-                    })]
-                };
-            stackItem = stackItem with { ShowcaseRuneTargets = new Dictionary<string, long>(StringComparer.Ordinal) };
-        }
-        if (behavior.DamageDistributionAmount > 0 && stackItem.DamageDistribution is null)
-        {
-            // RAD·006 captures the selected battlefield as the source of a
-            // shared spell-damage pool. Keep the ordinary spell on the stack
-            // until target confirmation and damage allocation are complete.
-            var battlefieldId = stackItem.TargetObjectIds.FirstOrDefault();
-            if (BattlefieldLocalRules.Battlefield(state, battlefieldId) is not null
-                && state.CardObjects.TryGetValue(battlefieldId ?? string.Empty, out var battlefieldCard)
-                && state.ObjectLocations.TryGetValue(battlefieldId ?? string.Empty, out var battlefieldLocation))
-            {
-                var bonuses = DistributionBonuses(state, stackItem.ControllerId, battlefieldLocation);
-                var initialDamage = checked(behavior.DamageDistributionAmount + bonuses.Sum(b => b.Amount));
-                var context = new DamageDistributionContext(behavior.CardNo,
-                    new(battlefieldId!, battlefieldCard.ObjectGeneration), battlefieldLocation,
-                    initialDamage, bonuses);
-                var suspended = stackItem with {
-                    EffectKind = DistributedDamageEffect,
-                    DamageDistribution = context,
-                    DamageAmount = initialDamage,
-                    SourceConfirmed = true,
-                    TargetObjectIds = [],
-                    TargetGenerations = null };
-                var stack = state.StackItems.Where(i => i.StackItemId != stackItem.StackItemId)
-                    .Append(suspended).ToArray();
-                var suspendedState = state with { StackItems = stack };
-                // The battlefield was selected while the spell was played, but
-                // the units that receive the shared damage are chosen when the
-                // spell resolves.  Suspend the item at that target window so a
-                // subsequent pass cannot consume the unbound distribution.
-                var targetChoice = DistributionTargetChoice(suspendedState, suspended);
-                return NoopStackResolutionResult(suspendedState) with {
-                    StackItems = suspendedState.StackItems,
-                    PendingCardChoice = targetChoice
-                };
-            }
-        }
         if (behavior.DamageAlternativeDrawCount > 0)
         {
             if (stackItem.ResolutionDamageChoice is null && stackItem.TargetObjectIds.Count == 1
@@ -24471,15 +24429,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? extraTurnPlayerId = null;
         int? drawCountOverride = null;
         ApplyTemporaryEmpowerInstruction(state, stackItem, cardObjects, untilEndOfTurnEffects, events);
+        var distributedSpellAmounts = DistributedSpellAmounts(state, stackItem, behavior);
         var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
         StackItemState[]? updatedStackItems = null;
         PendingPaymentState? pendingPayment = null;
         IReadOnlyDictionary<string, ObjectLocationState>? resolvedObjectLocations = null;
         MatchState DamageFrame() => state with { PlayerZones = playerZones,
             ObjectLocations = ReconcileObjectLocations(resolvedObjectLocations ?? state.ObjectLocations, playerZones) };
-
-        if (behavior.RuneReadyCountIfShowcase > 0)
-            stackItem = ResolveRadShowcaseRuneTargets(state, stackItem, behavior, playerZones, cardObjects, events);
 
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
@@ -26137,9 +26093,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             ["budgetId"] = $"{TemporaryUnitEffectRules.DamagePreventionPrefix}{state.Tick + 1}:{events.Count}", ["cardNo"] = stackItem.CardNo }));
                     }
 
-                    var damageAmount = ShouldApplyDamageToTarget(behavior, targetIndex)
-                        ? ResolveDamageAmount(state, stackItem, behavior, targetObjectId)
-                        : 0;
+                    var damageAmount = behavior.DamageDistributionAmount > 0
+                        ? distributedSpellAmounts.GetValueOrDefault(targetObjectId)
+                        : ShouldApplyDamageToTarget(behavior, targetIndex)
+                            ? ResolveDamageAmount(state, stackItem, behavior, targetObjectId) : 0;
                     if (behavior.BanishesIfDestroyedThisTurn)
                     {
                         targetState = targetState with
@@ -26325,7 +26282,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     if (behavior.GrantsActivatedAbilityUntilEndOfTurn is not null)
                         targetState = GrantTemporaryActivation(state, stackItem, targetState, events);
 
-                    if (behavior.ReadiesTarget)
+                    if (behavior.ReadiesTarget || behavior.RuneReadyCountIfShowcase > 0
+                        && stackItem.Showcase is not null && targetIndex > 0)
                     {
                         targetState = ApplyReadyState(
                             targetState,
@@ -26689,17 +26647,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 recipientPlayerId: tokenRecipientId);
         }
 
-        if (winnerPlayerId is null && behavior.CreatedBattlefieldEquipmentTokenCount > 0)
-        {
-            resolvedObjectLocations = CreateBattlefieldEquipmentTokens(
-                playerZones,
-                cardObjects,
-                behavior,
-                stackItem,
-                events,
-                resolvedObjectLocations ?? state.ObjectLocations);
-        }
-
         if (behavior.RecyclesSelectedMainDeckTargets && !IsDeferredDeckChoice(behavior))
         {
             var recycleResult = RecycleSelectedMainDeckTargets(
@@ -26717,7 +26664,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         AddBoonAmplifiers(state, stackItem, behavior, untilEndOfTurnEffects, events);
         AddTurnUnitPlayGrants(state, stackItem, behavior, untilEndOfTurnEffects, events);
 
-        if (behavior.MovesTargetsToChosenLocation)
+        if (behavior.MovesTargetsToChosenLocation
+            && (!behavior.MovesTargetToOpenBattlefield
+                || stackItem.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                    && IsOpenBattlefield(state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                        ObjectLocations = resolvedObjectLocations ?? state.ObjectLocations }, stackItem.Destination[12..])))
         {
             // CN 359.3.e / 323 and the official Shuriken Flip ruling:
             // finish the movement instruction before lethal cleanup.
@@ -26746,34 +26697,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
-        if (behavior.MovesTargetToOpenBattlefield && stackItem.PlayedFromStandby is not null
-            && stackItem.TargetObjectIds.FirstOrDefault() is { } roamTarget
-            && IsLegalChosenCardTarget(state with { PlayerZones = playerZones, CardObjects = cardObjects },
-                stackItem.ControllerId, roamTarget, 0, stackItem.TargetObjectIds,
-                behavior.StandbyReactionTargetScope, behavior))
+        if (behavior.GrantsRoamIfNoOpenBattlefield
+            && OpenBattlefieldDestinations(state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                ObjectLocations = resolvedObjectLocations ?? state.ObjectLocations }, stackItem.ControllerId).Count == 0
+            && stackItem.TargetObjectIds.FirstOrDefault() is { Length: > 0 } roamTarget)
+            GrantLegendRoam(cardObjects, roamTarget, stackItem.ControllerId, stackItem.SourceObjectId,
+                stackItem.EffectKind, events);
+
+        if (winnerPlayerId is null && behavior.CreatedBattlefieldEquipmentTokenCount > 0)
         {
-            var open = state.BattlefieldStates.Values
-                .Where(field => field.ControllerId is null
-                    && !cardObjects.Values.Any(card => FieldObjectTypeRules.IsVisibleUnit(card)
-                        && IsObjectOnField(playerZones, card.ObjectId)
-                        && (resolvedObjectLocations ?? state.ObjectLocations).GetValueOrDefault(card.ObjectId) is { Zone: "BATTLEFIELD", BattlefieldObjectId: var at }
-                        && at == field.BattlefieldObjectId))
-                .OrderBy(field => field.BattlefieldObjectId, StringComparer.Ordinal)
-                .FirstOrDefault();
-            if (open is not null)
-            {
-                var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-                var movementItem = stackItem with { Destination = "BATTLEFIELD:" + open.BattlefieldObjectId };
-                var moved = MoveFieldUnitsToChosenLocation(
-                    state with { PlayerZones = playerZones, CardObjects = cardObjects, ObjectLocations = movementLocations },
-                    playerZones, cardObjects, movementLocations, runePools, movementItem, [roamTarget],
-                    movementItem.Destination, events);
-                if (moved.Length > 0)
-                    resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
-            }
-            else if (behavior.GrantsRoamIfNoOpenBattlefield)
-                GrantLegendRoam(cardObjects, roamTarget, stackItem.ControllerId, stackItem.SourceObjectId,
-                    stackItem.EffectKind, events);
+            resolvedObjectLocations = CreateBattlefieldEquipmentTokens(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events,
+                resolvedObjectLocations ?? state.ObjectLocations);
         }
 
         if (behavior.PreventsOpponentSpellPlayThisTurn
@@ -29158,7 +29097,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (BattlefieldLocalRules.Battlefield(state, targetBattlefieldId) is { } targetBattlefield)
                 shadowField = new(targetBattlefield.ObjectId, targetBattlefield.ObjectGeneration);
             else
-                shadowField = null;
+                return;
         }
         if (shadowField is not null && (!cardObjects.TryGetValue(shadowField.ObjectId, out var field)
             || field.ObjectGeneration != shadowField.Generation || !field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)))

@@ -68,9 +68,24 @@ public sealed partial class CoreRuleEngine
     }
 
     private static CardBehaviorDefinition ShowcaseDefinition(CardBehaviorDefinition behavior, StackItemState item)
-        => behavior.Showcase is not { } spec ? behavior : behavior with {
+        => behavior.Showcase is not { } spec ? behavior : ShowcaseTargetDefinition(behavior, item.Showcase is not null) with {
             InsightCount = item.Showcase is not null && spec.InsightFromPowerCost ? item.Showcase.PowerCost : 0,
             DrawAfterInsightCount = item.Showcase is not null ? spec.DrawAfter : 0 };
+
+    private static CardBehaviorDefinition ShowcaseTargetDefinition(CardBehaviorDefinition behavior, bool showcased)
+        => behavior.RuneReadyCountIfShowcase > 0
+            ? behavior with { RequiredTargetCount = showcased ? 1 + behavior.RuneReadyCountIfShowcase : 1 }
+            : behavior;
+
+    internal static bool ValidShowcaseRuneTargetCount(StackItemState item)
+        => !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
+            || behavior.RuneReadyCountIfShowcase <= 0
+            || item.TargetObjectIds.Count >= 1
+                && item.TargetObjectIds.Count <= ShowcaseTargetDefinition(behavior, item.Showcase is not null).RequiredTargetCount;
+
+    internal static bool IsFieldRuneObject(MatchState state, string id)
+        => state.CardObjects.TryGetValue(id, out var rune) && !rune.IsFaceDown
+            && IsRuneObject(id, rune) && IsObjectOnField(state.PlayerZones, id);
 
     internal static bool ValidShowcaseReceipt(MatchState state, ShowcaseReceipt? receipt, string sourceCardNo, string source)
     {

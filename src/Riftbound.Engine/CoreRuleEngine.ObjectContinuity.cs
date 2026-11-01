@@ -153,6 +153,7 @@ public sealed partial class CoreRuleEngine
             && (!behavior.MovesFriendlyEquipmentToChosenBattlefield
                 || index != 0 || IsFriendlyEquipmentMovementCandidate(state, playerId, objectId))
             && IsTargetManaCostAllowed(state, playerId, objectId, behavior)
+            && EffectPlayPermanentTargetAllowed(state, objectId, behavior)
             && IsStackItemTargetConditionAllowed(state, playerId, objectId, index, targets, behavior)
             && IsTargetPowerAllowed(state, objectId, behavior)
             && (!behavior.RequiresMovementThisTurn
