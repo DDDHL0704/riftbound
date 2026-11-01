@@ -67,9 +67,8 @@ public sealed class BattlefieldPlayRecoveryGuardTests(ITestOutputHelper output)
         Assert.Contains(enemy!, damage.State.PlayerZones[opponent].Graveyard);
         Assert.Contains(damage.Events, e => e.Kind == "DAMAGE_APPLIED" && Equals(e.Payload["targetObjectId"], enemy));
         var finalFrame = Frame(initial, journal, state);
-        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, finalFrame.Commands, state,
-            new CoreRuleEngine(), default, finalFrame.Events);
-        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        // Cold admits this unchanged final history through a fresh production
+        // registry, which includes the complete original action/event replay.
         await Cold();
         if (Environment.GetEnvironmentVariable("RIFTBOUND_BATTLEFIELD_PLAY_EVIDENCE") is { Length: > 0 } directory)
         {
