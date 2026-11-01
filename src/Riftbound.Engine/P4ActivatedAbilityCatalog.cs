@@ -281,7 +281,7 @@ public static class P4ActivatedAbilityCatalog
         new(TranspositionMageAbilityId, TranspositionMageCardNo, TranspositionMageAbilityEffectKind, "易位法师", 0, 0, 1,
             RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false,
-            Reason: "官方中文：支付1紫色符能并横置，让一名友方单位返回其所属的手牌；你可以选择打出一名战力不高于该单位的单位，无视其费用。",
+            Reason: "官方中文：支付1紫色符能并横置，让一名友方单位返回其所属的手牌；你可以选择打出一名战力低于该单位的单位，无视其费用。",
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Purple] = 1 },
             SourceRequiredTag: CardObjectTags.UnitCard,
             SimpleEffect: new(ReturnsFriendlyUnitThenFreePlayUpToPower: true)),
