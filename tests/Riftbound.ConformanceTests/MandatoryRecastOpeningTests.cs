@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
@@ -25,6 +26,10 @@ public sealed class MandatoryRecastOpeningTests
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
         var verifyColdRecoveryAfterEveryCommand = true;
+        var coldTimingsDirectory = Environment.GetEnvironmentVariable("RIFTBOUND_RECAST_PHASE_TIMINGS");
+        var coldTimingsFile = string.IsNullOrWhiteSpace(coldTimingsDirectory) ? null
+            : Path.Combine(coldTimingsDirectory, actor + "-" + mode + "-" + Environment.ProcessId + "-" + Guid.NewGuid().ToString("N") + ".jsonl");
+        var coldCheckpoint = 0;
         OfficialDecklist? deck = null; object? forgery = null;
         try
         {
@@ -169,8 +174,14 @@ public sealed class MandatoryRecastOpeningTests
         }
         async Task Cold()
         {
-            var frame = Clone(Frame(State())); Assert.Empty(frame.ValidationErrors);
+            var started = coldTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
+            var frame = Frame(State());
+            var framed = coldTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
+            frame = Clone(frame);
+            var decoded = coldTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
+            Assert.Empty(frame.ValidationErrors);
             session = await new InMemoryMatchSessionRegistry(engine, journal, new Store(frame), NoopMatchPlayerStore.Instance, options).GetOrCreateAsync(room, default);
+            var restored = coldTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             foreach (var player in frame.PlayerViews.Keys)
             {
                 // Persisted untyped metadata retains camel-case wire keys;
@@ -178,6 +189,18 @@ public sealed class MandatoryRecastOpeningTests
                 // Compare the entire actual wire shape on both sides.
                 Assert.Equal(WireHash(frame.PlayerViews[player].Snapshot), WireHash(session.SnapshotFor(player)));
                 Assert.Equal(WireHash(frame.PlayerViews[player].Prompt), WireHash(session.PromptFor(player)));
+            }
+            if (coldTimingsFile is not null)
+            {
+                var checkedViews = Stopwatch.GetTimestamp();
+                Directory.CreateDirectory(coldTimingsDirectory!);
+                await File.AppendAllTextAsync(coldTimingsFile, JsonSerializer.Serialize(new {
+                    actor, mode, checkpoint = ++coldCheckpoint, commandCount = frame.Commands.Count, tick = frame.CurrentTick,
+                    frameMilliseconds = Stopwatch.GetElapsedTime(started, framed).TotalMilliseconds,
+                    jsonMilliseconds = Stopwatch.GetElapsedTime(framed, decoded).TotalMilliseconds,
+                    replayMilliseconds = Stopwatch.GetElapsedTime(decoded, restored).TotalMilliseconds,
+                    viewsMilliseconds = Stopwatch.GetElapsedTime(restored, checkedViews).TotalMilliseconds,
+                    totalMilliseconds = Stopwatch.GetElapsedTime(started, checkedViews).TotalMilliseconds }) + Environment.NewLine);
             }
         }
         string WireHash(object? value) => MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(value, Json));
