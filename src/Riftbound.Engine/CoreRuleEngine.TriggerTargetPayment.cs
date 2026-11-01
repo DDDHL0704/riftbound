@@ -11,7 +11,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId);
         var result = item is not null
             && (NeedsLastBreathHereTarget(item) && ValidLastBreathBattlefieldDamageStack(state, item)
-                || HasMovementDamage(item) && ValidMovementDamageStack(state, item)
+                || HasTargetedMovementSkill(item) && ValidTargetedMovementStack(state, item)
                 || item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
                 || item.UnitPlayMight is not null && RengarPlayRecoveryRules.ValidStack(state, item)
                 || item.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(item) && ValidCreatedTokenReadyStack(state, item)
@@ -21,7 +21,7 @@ public sealed partial class CoreRuleEngine
                 || item.UnitConquest is not null && ValidConquestDamageStack(state,item)
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
-                || item.FieldContext is { } field && (field.Kind is BombDestructionKind or EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(field.Kind)
+                || item.FieldContext is { } field && (field.Kind is BombDestructionKind or EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(field.Kind)
                     ? ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                     : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
@@ -44,7 +44,7 @@ public sealed partial class CoreRuleEngine
                         ? payment.ManaCost == (HighCostPlaysSourceFromGraveyard(highCostPayment.CardNo)
                             ? HighCostPlaySpec(highCostPayment.CardNo)?.ManaCost ?? 0 : 0) && payment.PowerCost >= 0
                         : payment.ManaCost == 0 && (payment.PowerCost > 0 || payment.ExperienceCost > 0))
-            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasMovementDamage(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
+            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasTargetedMovementSkill(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.SequenceEqual(item.HighCostPlayObserver is { } highCost
                 && HighCostPlaysSourceFromGraveyard(highCost.CardNo)
                 && HighCostPlaySpec(highCost.CardNo) is { PowerCost: > 0, PowerCostTrait: { } trait } spec
@@ -65,7 +65,7 @@ public sealed partial class CoreRuleEngine
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
         var legal = item.HighCostPlayObserver is not null ? HighCostRuneTargets(state, item)
             : NeedsLastBreathHereTarget(item) ? LastBreathHereTargets(state, item)
-            : HasMovementDamage(item) ? MovementDamageTargets(state, item)
+            : HasTargetedMovementSkill(item) ? TargetedMovementTargets(state, item)
             : item.UnitPlayMight is not null ? UnitPlayMightTargets(state, item.ControllerId)
             : item.CreatedTokenReady is not null ? CreatedTokenReadyTargets(state, item)
             : item.PermanentPlayTargetsPending ? PermanentPlayTargetChoices(state, item)

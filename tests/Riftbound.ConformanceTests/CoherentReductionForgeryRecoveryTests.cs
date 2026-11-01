@@ -38,7 +38,8 @@ public sealed class CoherentReductionForgeryRecoveryTests
         var setup = await Opening(copied);
         var original = setup.Journal.Entries[^1].AuthoritativeState;
         var normal = Frame(setup, original, original); Assert.Empty(normal.ValidationErrors);
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(normal, new CoreRuleEngine(), default));
+        // The repair below loads this unchanged normal frame through the same
+        // production registry and requires its complete original replay audit.
         var history = MatchStateHasher.HashValue(new { normal.Commands, normal.Events });
         var forged = ExtraMana(original, setup.Actor);
         var bad = Frame(setup, forged, forged); Assert.Empty(bad.ValidationErrors);

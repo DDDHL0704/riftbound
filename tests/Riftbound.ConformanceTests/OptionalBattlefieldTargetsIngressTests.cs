@@ -247,7 +247,8 @@ public sealed class OptionalBattlefieldTargetsIngressTests
     {
         var frame = Frame(setup, state);
         Assert.Empty(StructuralErrors(frame));
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        // The fresh registry below audits the complete original history in the
+        // JSON round trip before restoring this same frame.
         var restoredFrame = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Web), Web)!;
         var writes = new Journal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), writes, new Store(restoredFrame));

@@ -7,7 +7,21 @@ namespace Riftbound.Engine;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SourceBoonMightContext(ObjectBinding Source, string CardNo, int AbilityIndex,
     long AcquiredTick, long FaceRevision, string RuleTextInstanceId, string? TokenFactoryCardNo = null,
-    RuleTextInstanceBinding? Origin = null);
+    RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SourceBoonMightCost? BoonCost { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSourceBoonMight? CeasedSource { get; init; }
+}
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record SourceBoonMightCost(ObjectBinding Source,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? TokenCeasedAtTick = null);
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record CeasedSourceBoonMight(ObjectBinding Source, string CardNo, long FaceRevision,
+    long AcquiredTick, string TokenFactoryCardNo, long DepartedTick);
 
 internal sealed record SourceBoonMightAbility(string Id, RuleTextInstance Instance, int Index, ActivatedAbilitySpec Spec)
 {
@@ -53,12 +67,45 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidSourceBoonMightBinding(MatchState state, StackItemState item)
     {
         var c = item.SourceBoonMight!;
+        if (c.BoonCost is not { } cost || cost.Source != c.Source
+            || cost.TokenCeasedAtTick is { } costDeparture
+                && (costDeparture != c.AcquiredTick || c.CeasedSource?.DepartedTick != costDeparture)) return false;
+        if (state.CardObjects.TryGetValue(c.Source.ObjectId, out var current))
+        {
+            if (c.CeasedSource is not null || current.ObjectGeneration < c.Source.Generation
+                || current.TokenFactoryCardNo != c.TokenFactoryCardNo) return false;
+        }
+        else if (!P6TokenFactoryCatalog.IsUnitTokenFactory(c.TokenFactoryCardNo)
+            || c.CeasedSource is not { } ceased || ceased.Source != c.Source || ceased.CardNo != c.CardNo
+            || ceased.FaceRevision != c.FaceRevision || ceased.AcquiredTick != c.AcquiredTick
+            || ceased.TokenFactoryCardNo != c.TokenFactoryCardNo || ceased.DepartedTick > state.Tick
+            || ceased.DepartedTick < c.AcquiredTick
+            || ceased.DepartedTick == c.AcquiredTick && cost.TokenCeasedAtTick != c.AcquiredTick) return false;
         return c.Origin is null
             ? c.RuleTextInstanceId == $"PRINTED:{c.Source.ObjectId}:{c.Source.Generation}"
                 && PredictBindingMatches(state, c.Source, c.CardNo, c.FaceRevision, c.AcquiredTick, c.TokenFactoryCardNo)
             : c.Origin.Equipment is { } equipment
                 && c.RuleTextInstanceId == $"ATTACHED:{equipment.ObjectId}:{equipment.Generation}:{c.Origin.Revision}"
+                && c.FaceRevision == c.Origin.FaceRevision && c.Origin.CapturedTick <= c.AcquiredTick
                 && AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.Generation, c.CardNo);
+    }
+
+    private static MatchState RecordCeasedSourceBoonMight(MatchState before, MatchState state, IReadOnlySet<string> departed)
+    {
+        var stack = state.StackItems.Select(item => {
+            if (item.SourceBoonMight is not { CeasedSource: null } context
+                || !departed.Contains(context.Source.ObjectId)
+                || !P6TokenFactoryCatalog.IsUnitTokenFactory(context.TokenFactoryCardNo)
+                || !before.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
+                || source.ObjectGeneration != context.Source.Generation
+                || source.TokenFactoryCardNo != context.TokenFactoryCardNo
+                || !SourceBoonMightRules.Valid(before, item)) return item;
+            // CN 186.1, 355.9.c and 377.3: the token disappears while its
+            // already paid skill remains independent on the stack.
+            return item with { SourceBoonMight = context with { CeasedSource = new(context.Source,
+                context.CardNo, context.FaceRevision, context.AcquiredTick, context.TokenFactoryCardNo!, state.Tick) } };
+        }).ToArray();
+        return state with { StackItems = stack };
     }
 
     private static ResolutionResult ResolveSourceBoonMightActivation(MatchState state, PlayerIntent intent, ActivateAbilityCommand command)
@@ -76,7 +123,8 @@ public sealed partial class CoreRuleEngine
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var context = new SourceBoonMightContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
             ability.Index, state.Tick + 1, ability.Instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
-            ability.Instance.Id, source.TokenFactoryCardNo, ability.Instance.Origin);
+            ability.Instance.Id, source.TokenFactoryCardNo, ability.Instance.Origin) {
+                BoonCost = new(new(source.ObjectId, source.ObjectGeneration)) };
         var item = new StackItemState($"STACK-{state.Tick + 1}-SOURCE-BOON-MIGHT", intent.PlayerId,
             source.ObjectId, SourceBoonMightRules.Effect, ability.Instance.CardNo, [], 0, 1, []) { SourceBoonMight = context };
         var events = new List<GameEvent> {
@@ -99,6 +147,14 @@ public sealed partial class CoreRuleEngine
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,
             objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         events.AddRange(cleanup.Events);
+        if (P6TokenFactoryCatalog.IsUnitTokenFactory(source.TokenFactoryCardNo) && !cards.ContainsKey(source.ObjectId))
+        {
+            context = context with {
+                BoonCost = context.BoonCost! with { TokenCeasedAtTick = state.Tick + 1 },
+                CeasedSource = new(context.Source, context.CardNo, context.FaceRevision,
+                    context.AcquiredTick, source.TokenFactoryCardNo!, state.Tick + 1) };
+            item = item with { SourceBoonMight = context };
+        }
         var next = state with { Tick = state.Tick + 1, CardObjects = cards, PlayerZones = zones,
             ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = cleanup.RunePools,
             TriggerQueue = state.TriggerQueue.Concat(cleanup.TriggerQueue).ToArray(),
