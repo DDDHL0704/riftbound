@@ -25678,7 +25678,13 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(item.DamageDistribution is null ? "FIELD_TARGETED_TRIGGER" : "CAPTURED_DISTRIBUTED_DAMAGE", item.EffectKind);
                     if (item.DamageDistribution is { } distribution)
                     {
-                        Assert.Equal(item.SourceObjectId, distribution.Source.ObjectId);
+                        // RAD·006 captures the selected battlefield as the
+                        // distribution source while the stack item remains the
+                        // spell that created the damage pool.
+                        var expectedDistributionSource = distribution.CardNo == "RAD·006/167"
+                            ? distribution.SourceLocation.BattlefieldObjectId
+                            : item.SourceObjectId;
+                        Assert.Equal(expectedDistributionSource, distribution.Source.ObjectId);
                         var capturedSource = row["damageDistribution"]?["source"];
                         Assert.Equal(distribution.Source.ObjectId, capturedSource?["objectId"]?.GetValue<string>());
                         Assert.Equal(distribution.Source.Generation, capturedSource?["generation"]?.GetValue<long>());

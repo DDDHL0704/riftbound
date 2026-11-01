@@ -371,7 +371,28 @@ public sealed record CardBehaviorDefinition(
     bool PlayTriggerBanishesGraveyardCardAsCost = false,
     SourceStaticLimitsSpec? SourceStaticLimits = null,
     int EndStepSelfDestructionDamage = 0,
-    ShowcaseSpec? Showcase = null)
+    ShowcaseSpec? Showcase = null,
+    int DamageDistributionAmount = 0,
+    bool DamageAmountFromShowcasePower = false,
+    bool RequiresMovementThisTurn = false,
+    bool MovesTargetToOpenBattlefield = false,
+    bool GrantsRoamIfNoOpenBattlefield = false,
+    bool PreventsOpponentSpellPlayThisTurn = false,
+    bool MovesFriendlyEquipmentToChosenBattlefield = false,
+    int CreatedBaseUnitTokenCountIfShowcase = 0,
+    bool CreatedBaseUnitTokensAtTargetBattlefield = false,
+    int CreatedBattlefieldEquipmentTokenTargetIndex = -1,
+    int RuneReadyCountIfShowcase = 0,
+    int ShowcaseMinimumManaCost = 0,
+    string HighCostGraveyardPlayPowerTraits = "",
+    int HighCostGraveyardPlayManaCost = 0,
+    int HighCostGraveyardPlayPowerCost = 0,
+    bool HighCostGraveyardPlayBanishSource = false,
+    int EffectPlayMaximumCount = 1,
+    bool EffectPlayRequiresUnitOrEquipment = false,
+    int EffectPlayMaximumManaCost = 0,
+    int EffectPlayMaximumPowerCost = 0,
+    bool StatusEffectUsesTargetCurrentPower = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -406,6 +427,9 @@ public static class CardTargetScopes
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
+    public const string FriendlyUnitThenEnemyBattlefield = "FRIENDLY_UNIT_THEN_ENEMY_BATTLEFIELD";
+    public const string FriendlyEquipmentThenBattlefield = "FRIENDLY_EQUIPMENT_THEN_BATTLEFIELD";
+    public const string EnemyBattlefield = "ENEMY_BATTLEFIELD";
     public const string ControlledBattlefieldThenFriendlyUnit = "CONTROLLED_BATTLEFIELD_THEN_FRIENDLY_UNIT";
     public const string FriendlyBaseUnitThenBattlefield = "FRIENDLY_BASE_UNIT_THEN_BATTLEFIELD";
     public const string BattlefieldThenEnemyUnit = "BATTLEFIELD_THEN_ENEMY_UNIT";
@@ -9494,6 +9518,68 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
     [
+        new("RAD·004/167", "乱殴", 3, "RAD_004_ASSAULT_EQUAL_TO_POWER", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, StatusEffectId: "COMBAT_KEYWORD:强攻",
+            CanPlayDuringPriority: true, StatusEffectUsesTargetCurrentPower: true),
+        new("RAD·006/167", "灼热焦土", 4, "RAD_006_DISTRIBUTE_FIVE_DAMAGE", 0, 1,
+            TargetScope: CardTargetScopes.Battlefield, CanPlayDuringPriority: true,
+            DamageDistributionAmount: 5),
+        new("RAD·007/167", "战争集结", 3, "RAD_007_CREATE_THREE_MINIONS_AT_ENEMY_BATTLEFIELD", 0, 1,
+            TargetScope: CardTargetScopes.EnemyBattlefield, CreatedBaseUnitTokenCount: 3,
+            CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "随从",
+            CreatedBaseUnitTokenTags: CardObjectTags.MinionTokenFamily + "|随从",
+            CreatedBaseUnitTokensAtTargetBattlefield: true),
+        new("RAD·010/167", "禁忌秘术", 2, "RAD_010_READY_AND_RECAST_HIGH_COST", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, ReadiesTarget: true,
+            HighCostGraveyardPlayPowerTraits: RuneTrait.Red, HighCostGraveyardPlayManaCost: 1,
+            HighCostGraveyardPlayPowerCost: 2, HighCostGraveyardPlayBanishSource: true),
+        new("RAD·032/167", "战前仪式", 2, "RAD_032_SHOW_EQUIPMENT_POWER_PLUS_TWO", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2,
+            CanPlayDuringPriority: true, Showcase: new("EQUIPMENT", ReadyEntry: false),
+            RuneReadyCountIfShowcase: 2),
+        new("RAD·033/167", "指令：攻击", 1, "RAD_033_MOVE_DEPLOYED_EQUIPMENT", 0, 2,
+            Mode: "MOVE_DEPLOYED_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyEquipmentThenBattlefield,
+            MovesFriendlyEquipmentToChosenBattlefield: true),
+        new("RAD·033/167", "指令：攻击", 1, "RAD_033_LOOK_TOP_FIVE_EQUIPMENT", 0, 1,
+            Mode: "LOOK_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyMainDeckCard,
+            MainDeckLookCount: 5, MainDeckTargetRequiredTag: CardObjectTags.EquipmentCard,
+            DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true),
+        new("RAD·082/167", "洪荒咆哮", 4, "RAD_082_SHOW_UNIT_DAMAGE_POWER", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, Showcase: new("UNIT"),
+            DamageAmountFromShowcasePower: true),
+        new("RAD·084/167", "天崩地裂", 4, "RAD_084_LOCK_SPELLS_MOVE_TO_ENEMY_BATTLEFIELD", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyUnitThenEnemyBattlefield,
+            TargetReferencedMovement: new(0, 1, ReferenceIsBattlefield: true),
+            PreventsOpponentSpellPlayThisTurn: true),
+        new("RAD·096/167", "定点爆破", 3, "RAD_096_MOVE_AND_CREATE_BOMB", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyUnitThenBattlefield, CanPlayDuringPriority: true,
+            MovesTargetsToChosenLocation: true, ChosenMovementTargetIndex: 0,
+            CreatedBattlefieldEquipmentTokenCount: 1, CreatedBattlefieldEquipmentTokenName: "炸弹",
+            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy,
+            CreatedBattlefieldEquipmentTokenTargetIndex: 1),
+        new("RAD·098/167", "海妖之歌", 2, "RAD_098_MOVE_ENEMY_THAT_MOVED", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, RequiresMovementThisTurn: true,
+            CanPlayDuringPriority: true, MovesTargetsToChosenLocation: true),
+        new("RAD·100/167", "过海费", 1, "RAD_100_CREATE_GOLD_STANDBY", 0, 0,
+            CreatedBaseEquipmentTokenCount: 1, CreatedBaseEquipmentTokenName: "金币",
+            CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+            CreatedBaseEquipmentTokenIsExhausted: true,
+            StandbyPlayFrom: null),
+        new("RAD·102/167", "恶魔魅影", 3, "RAD_102_STANDBY_MOVE_OR_ROAM", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, StandbyReactionMaxTargetCount: 1,
+            StandbyReactionMinTargetCount: 1, StandbyReactionTargetScope: CardTargetScopes.FriendlyUnit,
+            MovesTargetToOpenBattlefield: true, GrantsRoamIfNoOpenBattlefield: true),
+        new("RAD·127/167", "辉映同心", 5, "RAD_127_SHOW_HIGH_COST_CREATE_MINIONS", 0, 0,
+            CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenCountIfShowcase: 4,
+            CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "随从",
+            CreatedBaseUnitTokenTags: CardObjectTags.MinionTokenFamily + "|随从",
+            Showcase: new("ANY"), ShowcaseMinimumManaCost: 7),
+        new("RAD·135/167", "不朽铭记", 8, "RAD_135_REPLAY_UP_TO_THREE_CHEAP_PERMANENTS", 0, 0,
+            EffectPlaySourceZone: "GRAVEYARD", EffectPlayIgnoreAllCosts: true,
+            EffectPlayAllowsAnyCard: true, EffectPlayRequiresUnitOrEquipment: true,
+            EffectPlayMaximumCount: 3, EffectPlayMaximumManaCost: 3,
+            EffectPlayMaximumPowerCost: 1, EffectPlayOptional: true)
+        ,
         new("RAD·051/167", "时光交错", 2, "TIME_WARP_RETURN_FRIENDLY_UNIT_DAMAGE_FIVE", 5, 1,
             TargetScope: CardTargetScopes.BattlefieldUnit,
             RequiresReturnFriendlyUnitAdditionalCost: true),

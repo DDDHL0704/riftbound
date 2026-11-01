@@ -4206,6 +4206,8 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid token entry continuation");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TokenReplacementWindow } tokenChoice
             && !CoreRuleEngine.ValidTokenReplacementChoice(state, tokenChoice)) errors.Add("invalid token replacement choice");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.RadShowcaseRuneChoiceWindow } radShowcaseChoice
+            && !CoreRuleEngine.ValidRadShowcaseRuneChoice(state, radShowcaseChoice)) errors.Add("invalid RAD showcase rune choice");
 
         if (!BattleResultRecoveryRules.ValidContinuation(state)) errors.Add("invalid captured battle result continuation");
         if (!TurnEquipmentPlayRules.ValidAll(state)) errors.Add("invalid turn equipment play permission");
@@ -4321,7 +4323,7 @@ public static partial class MatchRecoveryValidator
             if (item.CompletedHandExecutions < 0 || item.CompletedHandExecutions > item.EffectRepeatCount
                 || item.CompletedHandExecutions > 0 && !CoreRuleEngine.TryGetRevealedHandChoiceSpec(item, out _))
                 errors.Add("invalid revealed hand execution count");
-        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null, Parent.ObservedPlayPermission: null } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
+        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null, Parent.ObservedPlayPermission: null } handPlay && (handPlay.RevealedHand is not null
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
                 && handDefinition.EffectPlaySourceZone == "OPPONENT_HAND") && !CoreRuleEngine.ValidRevealedHandPlay(state, handPlay))
             errors.Add("invalid revealed hand effect-play continuation");
@@ -4365,8 +4367,9 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
         {
             if (item.PlayCost is { } cost && (cost.CardMana < 0 || cost.PaidMana < 0
-                || item.SpellContext is not null || !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
-                || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)) errors.Add("invalid card play cost receipt");
+                || item.SpellContext is not null
+                || item.DamageDistribution is null && (!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
+                    || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment))) errors.Add("invalid card play cost receipt");
             if (item.SpellContext is { } context ? !CoreRuleEngine.ValidSpellContext(context, item.EffectKind, item.CardNo)
                 || !CoreRuleEngine.ValidSpellContextSource(state, context, item.SourceObjectId)
                 || !state.Seats.ContainsKey(context.PlayedOwnerId)

@@ -20,6 +20,7 @@ public sealed record ShowcaseReceipt(
     [property: JsonRequired] int PowerCost,
     [property: JsonRequired] bool FromHand,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? CapturedPower = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] CeasedShowcaseToken? CeasedToken = null);
 
 public sealed partial class CoreRuleEngine
@@ -39,7 +40,10 @@ public sealed partial class CoreRuleEngine
             && (zones.Hand.Contains(card.ObjectId) || PublicStaticAuraSourceObjectIds(state.PlayerZones).Contains(card.ObjectId)
                 && EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, card.ObjectId, card) == player)
             && (spec.Filter == "ANY" && !IsTokenObject(card) || spec.Filter == "MECHANICAL" && card.Tags.Contains("机械")
-                || spec.Filter == "STANDBY" && !IsTokenObject(card) && (card.Tags.Contains("待命") || AttachedRuleTextRules.Instances(state, card).Any(instance => PrintedStandbyCards.Value.Contains(instance.CardNo)))))
+                || spec.Filter == "STANDBY" && !IsTokenObject(card) && (card.Tags.Contains("待命") || AttachedRuleTextRules.Instances(state, card).Any(instance => PrintedStandbyCards.Value.Contains(instance.CardNo)))
+                || spec.Filter == "EQUIPMENT" && !IsTokenObject(card) && card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                || spec.Filter == "UNIT" && !IsTokenObject(card) && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            && (behavior.ShowcaseMinimumManaCost <= 0 || card.ManaCost >= behavior.ShowcaseMinimumManaCost))
             .Select(card => ShowcaseChoicePrefix + card.ObjectId).Order(StringComparer.Ordinal).ToArray();
     }
 
@@ -53,10 +57,13 @@ public sealed partial class CoreRuleEngine
         if (choices.Length == 0) return true;
         if (choices.Length != 1 || !ShowcaseChoices(state, player, source, behavior).Contains(choices[0])) return false;
         var card = state.CardObjects[choices[0][ShowcaseChoicePrefix.Length..]];
+        int? capturedPower = card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            ? ResolveCurrentFieldUnitPower(state, card) : null;
         receipt = new(new(card.ObjectId, card.ObjectGeneration), card.CardNo!, player, state.Tick + 1,
             card.CopyFaceTransitions?.Count ?? 0, PrintedPowerCostRules.ForCard(card.CardNo!).Amount,
             state.PlayerZones[player].Hand.Contains(card.ObjectId),
-            IsTokenObject(card) ? card.TokenFactoryCardNo ?? card.CardNo : null);
+            IsTokenObject(card) ? card.TokenFactoryCardNo ?? card.CardNo : null,
+            capturedPower);
         return true;
     }
 
@@ -74,6 +81,7 @@ public sealed partial class CoreRuleEngine
             && state.Seats.ContainsKey(receipt.PlayerId) && receipt.Tick > 0 && receipt.Tick <= state.Tick
             && receipt.FaceRevision >= 0 && !string.IsNullOrWhiteSpace(receipt.CardNo)
             && receipt.PowerCost == PrintedPowerCostRules.ForCard(receipt.CardNo).Amount)) return false;
+        if (receipt.CapturedPower is < 0) return false;
         if (receipt.TokenFactoryCardNo is { } factory
             && (receipt.FromHand || behavior.Showcase.Filter != "MECHANICAL" || !P6TokenFactoryCatalog.IsTokenFactory(factory))) return false;
         if (!state.CardObjects.TryGetValue(binding.ObjectId, out var card))

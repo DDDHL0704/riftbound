@@ -82,9 +82,21 @@ public sealed partial class CoreRuleEngine
     }
 
     private static ObjectLocationState? DistributionHere(MatchState state, DamageDistributionContext context)
-        => state.CardObjects.TryGetValue(context.Source.ObjectId, out var source) && source.ObjectGeneration == context.Source.Generation
-            && state.ObjectLocations.TryGetValue(source.ObjectId, out var location) && location.Zone is "BASE" or "BATTLEFIELD"
-            ? location : null;
+    {
+        if (state.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
+            && source.ObjectGeneration == context.Source.Generation
+            && state.ObjectLocations.TryGetValue(source.ObjectId, out var location)
+            && location.Zone is "BASE" or "BATTLEFIELD")
+            return location;
+        // RAD·006 names the selected battlefield as the damage source.  The
+        // battlefield card itself is not required to remain in a player zone
+        // for the captured "here" location to remain meaningful.
+        return context.CardNo == "RAD·006/167"
+            && context.SourceLocation.Zone is "BASE" or "BATTLEFIELD"
+            && (context.SourceLocation.Zone != "BATTLEFIELD"
+                || BattlefieldLocalRules.Battlefield(state, context.SourceLocation.BattlefieldObjectId) is not null)
+            ? context.SourceLocation : null;
+    }
 
     private static string[] DistributionTargets(MatchState state, StackItemState item)
     {
@@ -102,7 +114,12 @@ public sealed partial class CoreRuleEngine
         return item.TargetObjectIds.Where(id => legal.Contains(id)
             && item.TargetGenerations?.GetValueOrDefault(id, -1) == state.CardObjects[id].ObjectGeneration).ToArray();
     }
-    private static int DistributionDamage(MatchState state, StackItemState item) => checked(AttackDamageSpec(item.CardNo)!.DamageAmount!.Value
+    private static int DistributionBaseDamage(StackItemState item)
+        => AttackDamageSpec(item.CardNo)?.DamageAmount
+            ?? (CardBehaviorRegistry.TryGetByCardNo(item.CardNo ?? string.Empty, out var behavior)
+                ? behavior.DamageDistributionAmount : 0);
+
+    private static int DistributionDamage(MatchState state, StackItemState item) => checked(DistributionBaseDamage(item)
         + DistributionBonuses(state, item.ControllerId, DistributionHere(state, item.DamageDistribution!)).Sum(b => b.Amount));
 
     private static PendingCardChoiceState DistributionTargetChoice(MatchState state, StackItemState item)
@@ -137,10 +154,19 @@ public sealed partial class CoreRuleEngine
             && (l.Zone == "BASE" && l.BattlefieldObjectId is null || l.Zone == "BATTLEFIELD"
                 && BattlefieldLocalRules.Battlefield(state, l.BattlefieldObjectId) is not null);
         var spec = AttackDamageSpec(context.CardNo);
-        if (effect != DistributedDamageEffect || cardNo is not null && cardNo != context.CardNo || spec is null
-            || !state.Seats.ContainsKey(controller) || !Binding(context.Source) || context.Source.ObjectId != sourceId || !Location(context.SourceLocation)
+        var registeredBaseDamage = CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var registeredBehavior)
+            ? registeredBehavior.DamageDistributionAmount : 0;
+        var baseDamage = spec?.DamageAmount ?? (registeredBaseDamage > 0 ? registeredBaseDamage : 0);
+        var battlefieldSourcedSpell = context.CardNo == "RAD·006/167";
+        if (effect != DistributedDamageEffect || cardNo is not null && cardNo != context.CardNo || baseDamage <= 0
+            || !state.Seats.ContainsKey(controller) || !Binding(context.Source) || !battlefieldSourcedSpell && context.Source.ObjectId != sourceId || !Location(context.SourceLocation)
             || context.InitialBonuses is null || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, sourceId, context.Source.Generation, context.CardNo)
             || context.Assignments is not null || context.ResolutionDamage is <= 0) return false;
+        if (battlefieldSourcedSpell
+            && (!state.CardObjects.TryGetValue(context.Source.ObjectId, out var battlefield)
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                || context.SourceLocation.Zone != "BATTLEFIELD"
+                || context.SourceLocation.BattlefieldObjectId != context.Source.ObjectId)) return false;
         if (context.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(context.ReturnFocusPlayerId)) return false;
         foreach (var bonus in context.InitialBonuses)
         {
@@ -155,9 +181,13 @@ public sealed partial class CoreRuleEngine
             if (!valid) return false;
         }
         var keys = context.InitialBonuses.Select(b => b.Source.ObjectId + ":" + b.Source.Generation + ":" + b.Kind + ":" + (b.Origin?.Equipment.ObjectId ?? "PRINTED")).ToArray();
-        if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length || (long)spec.DamageAmount!.Value + context.InitialBonuses.Sum(b => (long)b.Amount) != context.InitialDamage) return false;
+        if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length || (long)baseDamage + context.InitialBonuses.Sum(b => (long)b.Amount) != context.InitialDamage) return false;
         var source = state.CardObjects[sourceId];
         // Only a departed generation can retain a historical field location.
+        if (battlefieldSourcedSpell)
+            return state.CardObjects.TryGetValue(context.Source.ObjectId, out var field)
+                && field.ObjectGeneration == context.Source.Generation
+                && BattlefieldLocalRules.Battlefield(state, context.Source.ObjectId) is not null;
         return source.ObjectGeneration != context.Source.Generation
             || (source.CardNo == context.CardNo && IsObjectOnField(state.PlayerZones, sourceId)
                 && state.ObjectLocations.TryGetValue(sourceId, out var currentLocation)
