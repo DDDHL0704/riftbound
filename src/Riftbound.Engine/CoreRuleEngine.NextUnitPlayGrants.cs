@@ -12,9 +12,9 @@ public sealed partial class CoreRuleEngine
 {
     internal const string NextUnitPlayGrantEffect = "CONQUEST_NEXT_UNIT_PLAY_GRANT";
     internal const string NextUnitPlayGrantPrefix = "NEXT_UNIT_PLAY_GRANT:";
-    private const string NextUnitPlayConsumedKey = "nextUnitPlayGrantsConsumed";
+    internal const string NextUnitPlayConsumedKey = "nextUnitPlayGrantsConsumed";
     private static string NextUnitPlayMarker(NextUnitPlayGrant grant) => NextUnitPlayGrantPrefix + JsonSerializer.Serialize(grant);
-    private static NextUnitPlayGrant? ReadNextUnitPlayGrant(string marker)
+    internal static NextUnitPlayGrant? ReadNextUnitPlayGrant(string marker)
     {
         try { return marker.StartsWith(NextUnitPlayGrantPrefix, StringComparison.Ordinal)
             ? JsonSerializer.Deserialize<NextUnitPlayGrant>(marker[NextUnitPlayGrantPrefix.Length..]) : null; }

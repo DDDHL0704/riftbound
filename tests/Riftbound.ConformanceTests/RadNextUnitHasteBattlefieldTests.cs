@@ -139,6 +139,28 @@ public sealed class RadNextUnitHasteBattlefieldTests
         await game.Replay();
     }
 
+    [Fact]
+    public async Task WinningAContestedBattleGrantsTheNextUnitHasteAfterItsSkillResolves()
+    {
+        var state = Position();
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["DEFENDER"] = OfficialGarenConquestBattlefieldCountTests.Printed("DEFENDER", "OGN·175/298", "P2") } };
+        state = RadUnitEffectTestFixture.Place(state, "DEFENDER", "P2", "BATTLEFIELD", "BF");
+        var game = new Driver(state);
+        await Conquer(game);
+        await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
+        for (var i = 0; i < 12 && !game.State.UntilEndOfTurnEffects.Any(m => m.StartsWith(GrantPrefix)); i++)
+        {
+            Assert.NotNull(game.State.PriorityPlayerId);
+            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
+        Assert.Single(game.State.UntilEndOfTurnEffects, m => m.StartsWith(GrantPrefix));
+        await game.Act("P1", new PlayCardCommand("FIRST", Unit, [], OptionalCosts: [HasteOptionalCostNames.HasteReady]));
+        Assert.False(game.State.CardObjects["FIRST"].IsExhausted);
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("missing")]
     [InlineData("player")]
@@ -157,6 +179,49 @@ public sealed class RadNextUnitHasteBattlefieldTests
             _ => context with { Source = context.Source with { Generation = context.Source.Generation + 1 } } };
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [item with { NextUnitPlayGrant = forged }] }),
             e => e.Contains("next unit play grant", StringComparison.Ordinal));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("missing")]
+    [InlineData("other-player")]
+    [InlineData("spent")]
+    public async Task RecoveryRejectsGrantsThatDifferFromAcceptedConquestAndPlayHistory(string boundary)
+    {
+        var game = new Driver(Position());
+        await Conquer(game); await game.Top();
+        var marker = Assert.Single(game.State.UntilEndOfTurnEffects, m => m.StartsWith(GrantPrefix));
+        if (boundary == "spent")
+            await game.Act("P1", new PlayCardCommand("FIRST", Unit, []));
+        var commands = game.Commands();
+        IReadOnlyList<string> Errors(MatchState state) => MatchRecoveryValidator.Validate(state.RoomId,
+            commands[^1].CompletedEventSequence, commands, game.Events(), new Dictionary<string, RecoveredPlayerView>(), state, state.Tick);
+        Assert.Empty(Errors(game.State));
+        var grant = System.Text.Json.JsonSerializer.Deserialize<NextUnitPlayGrant>(marker[GrantPrefix.Length..])!;
+        var forged = GrantPrefix + System.Text.Json.JsonSerializer.Serialize(grant with { ControllerId = "P2" });
+        var effects = game.State.UntilEndOfTurnEffects.Where(m => !m.StartsWith(GrantPrefix)).ToList();
+        if (boundary != "missing") effects.Add(boundary == "spent" ? marker : forged);
+        Assert.Contains(Errors(game.State with { UntilEndOfTurnEffects = effects }),
+            e => e.Contains("next unit play grant history", StringComparison.Ordinal));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("player")]
+    [InlineData("tick")]
+    public async Task RecoveryRejectsCapturedGrantsWithoutTheirAcceptedConquest(string boundary)
+    {
+        var game = new Driver(Position());
+        await Conquer(game);
+        var item = Assert.Single(game.State.StackItems);
+        var grant = item.NextUnitPlayGrant!;
+        var forged = boundary == "player" ? grant with { ControllerId = "P2" }
+            : grant with { ConquestTick = grant.ConquestTick - 1 };
+        var changed = game.State with { StackItems = [item with { ControllerId = forged.ControllerId, NextUnitPlayGrant = forged }] };
+        var commands = game.Commands();
+        Assert.Contains(MatchRecoveryValidator.Validate(changed.RoomId, commands[^1].CompletedEventSequence,
+                commands, game.Events(), new Dictionary<string, RecoveredPlayerView>(), changed, changed.Tick),
+            e => e.Contains("next unit play grant history has no accepted conquest", StringComparison.Ordinal));
         await game.Replay();
     }
 
