@@ -18646,7 +18646,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,
             optionalCostManaReduction, optionalCosts, paymentTargets, command.SourceObjectId,
-            componentEchoReduction: optionalReductions.EchoManaReduction);
+            componentEchoReduction: optionalReductions.EchoManaReduction, destination: unitPlayDestination);
         var battlefieldEchoCostReductionMana = manaCost.EchoReduction;
         var costReductionMana = manaCost.CardReduction;
         optionalCostManaReduction = manaCost.OptionalReduction;

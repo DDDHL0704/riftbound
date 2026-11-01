@@ -3106,6 +3106,13 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        var firstPermanent = Regex.Match(text,
+            @"于每名玩家，该玩家在其回合内在此处打出的首个单位或装备，其费用减少\{\{(?<amount>[0-9]+)\}\}",
+            RegexOptions.CultureInvariant);
+        if (firstPermanent.Success)
+            staticSpecs.Add(new(StaticAbilityKinds.BattlefieldFirstPermanentPlayManaReduction, firstPermanent.Value,
+                BehaviorImplementationStatuses.Implemented, "每名玩家自己的回合，在此处首次打出单位或装备减费。",
+                int.Parse(firstPermanent.Groups["amount"].Value, CultureInfo.InvariantCulture)));
         if (text.Contains("我拥有等同于你控制装备数量的{{强攻}}数值", StringComparison.Ordinal))
             staticSpecs.Add(new(StaticAbilityKinds.UnitEquipmentCountSelfKeywords, text,
                 BehaviorImplementationStatuses.Unimplemented, "Current equipment count determines the source's Assault amount.",

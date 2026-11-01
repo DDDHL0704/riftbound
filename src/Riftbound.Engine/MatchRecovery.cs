@@ -1135,6 +1135,8 @@ public static partial class MatchRecoveryValidator
         bool requireAcceptedBattleHistory)
     {
         var errors = new List<string>();
+        if (authoritativeState is not null)
+            ValidateBattlefieldPermanentPlayUses(authoritativeState, commands, events, errors);
         if (authoritativeState is { } inputState && !RuleInputIdentity.IsCurrentState(inputState))
             errors.Add("authoritative rule input identity is missing or differs from running inputs");
         if (commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))

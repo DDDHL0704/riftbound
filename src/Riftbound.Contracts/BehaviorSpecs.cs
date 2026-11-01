@@ -426,6 +426,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string BattlefieldFirstPermanentPlayManaReduction = "BATTLEFIELD_FIRST_PERMANENT_PLAY_MANA_REDUCTION";
     public const string SourceCostReductionPerConqueredBattlefieldThisTurn = "SOURCE_COST_REDUCTION_PER_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFilteredUnitPlayAdditionalPower = "BATTLEFIELD_FILTERED_UNIT_PLAY_ADDITIONAL_POWER";
     public const string UnitPlayOnlyToConqueredBattlefieldThisTurn = "UNIT_PLAY_ONLY_TO_CONQUERED_BATTLEFIELD_THIS_TURN";

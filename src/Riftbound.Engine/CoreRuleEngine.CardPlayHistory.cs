@@ -163,8 +163,8 @@ public sealed partial class CoreRuleEngine
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
         var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue, UntilEndOfTurnEffects = effects };
-        return result with { State = next, Events = events,
-            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+        return RecordBattlefieldPermanentPlays(before, result with { State = next, Events = events,
+            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
     }
 
     internal static bool ValidCardPlayHistory(MatchState state)
