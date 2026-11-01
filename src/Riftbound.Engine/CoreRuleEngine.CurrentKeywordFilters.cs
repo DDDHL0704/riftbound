@@ -92,6 +92,10 @@ public sealed partial class CoreRuleEngine
                         && battlefield is not null && BattlefieldLocalRules.AtUnit(state, id)?.ObjectId == battlefield.ObjectId
                         && StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura(aura)
                         && SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, target);
+                    applies |= friendly && battlefield is not null
+                        && state.ObjectLocations.TryGetValue(id, out var sourceLocation) && sourceLocation.Zone == "BATTLEFIELD"
+                        && sourceLocation.BattlefieldObjectId == battlefield.ObjectId
+                        && StaticAuraSpecRules.IsSameBattlefieldFriendlyKeywordAura(aura);
                     applies |= battlefield?.ObjectId == id && StaticAuraSpecRules.IsBattlefieldKeywordStaticAura(aura)
                         && BattlefieldStaticAuraAppliesToParticipant(state, aura, target);
                     if (applies) yield return (id, instance, aura);

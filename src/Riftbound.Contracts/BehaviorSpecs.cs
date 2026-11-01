@@ -490,6 +490,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string SameBattlefieldFriendlyUnitsKeyword = "SAME_BATTLEFIELD_FRIENDLY_UNITS_KEYWORD";
     public const string SourceBattlefieldFriendlyObjectThresholdPower = "SOURCE_BATTLEFIELD_FRIENDLY_OBJECT_THRESHOLD_POWER";
     public const string SourceObjectPowerWithFriendlyEquipment = "SOURCE_POWER_WITH_FRIENDLY_EQUIPMENT";
     public const string SourceOtherSameNameUnitCountPower = "SOURCE_OTHER_SAME_NAME_UNIT_COUNT_POWER";
@@ -534,6 +535,7 @@ public static class StaticAuraKinds
 
 public static class StaticAuraTargetScopes
 {
+    public const string SameBattlefieldFriendlyUnits = "SAME_BATTLEFIELD_FRIENDLY_UNITS";
     public const string SameLocationEnemyFilteredUnits = "SAME_LOCATION_ENEMY_FILTERED_UNITS";
     public const string SourceObject = "SOURCE_OBJECT";
     public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
@@ -551,6 +553,7 @@ public static class StaticAuraTargetScopes
 
 public static class StaticAuraParticipantScopes
 {
+    public const string SameBattlefieldFriendlyPublicUnits = "SAME_BATTLEFIELD_FRIENDLY_PUBLIC_UNITS";
     public const string SameBattlefieldOtherFriendlyPublicUnitsOrEquipment = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS_OR_EQUIPMENT";
     public const string SameBattlefieldFriendlyFilteredEquipment = "SAME_BATTLEFIELD_FRIENDLY_FILTERED_EQUIPMENT";
     public const string SameLocationOtherFriendlySameNameUnits = "SAME_LOCATION_OTHER_FRIENDLY_SAME_NAME_UNITS";

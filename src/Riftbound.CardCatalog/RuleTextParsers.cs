@@ -4278,6 +4278,21 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var sameBattlefieldFriendlyKeywordMatch = Regex.Match(segment,
+                @"^此处的友方单位具有(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
+            if (sameBattlefieldFriendlyKeywordMatch.Success)
+            {
+                foreach (Match keyword in Regex.Matches(sameBattlefieldFriendlyKeywordMatch.Groups["grants"].Value,
+                    @"\{\{([^}]+)\}\}", RegexOptions.CultureInvariant))
+                    auras.Add(new StaticAuraSpec(StaticAuraKinds.SameBattlefieldFriendlyUnitsKeyword,
+                        RuleTextLayer, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
+                        StaticAuraTargetScopes.SameBattlefieldFriendlyUnits,
+                        StaticAuraParticipantScopes.SameBattlefieldFriendlyPublicUnits, 0, segment,
+                        BehaviorImplementationStatuses.Implemented, "Shared same-battlefield friendly keyword aura.",
+                        GrantedKeyword: keyword.Groups[1].Value.Trim()));
+                continue;
+            }
+
             var conditionalSameBattlefieldOtherFriendlyKeywordMatch = Regex.Match(
                 segment,
                 @"如果我位于战场上，则你此处的其他单位获得(?<grants>[^。（]+)",
