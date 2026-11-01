@@ -60,10 +60,11 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     [InlineData("VEN·049")] [InlineData("OGN·093/298")]
     public async Task ARealSpellIsDiscardedBeforeEmpowerResolvesWithoutPrechoosingTheFutureBanishTarget(string spell)
     {
-        var initial = Position(spell); var game = new Driver(initial);
+        var initial = Position(spell); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await game.Act("P1", new PlayCardCommand("UNIT", No, [])); Assert.Equal(15, game.State.RunePools["P1"].Mana);
+            await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             var generation = game.State.CardObjects["FODDER"].ObjectGeneration;
             await game.Act("P1", Activate());
             Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard); Assert.DoesNotContain("FODDER", game.State.PlayerZones["P1"].Hand);
@@ -80,10 +81,10 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     [InlineData("missing")] [InlineData("unit")] [InlineData("equipment")] [InlineData("duplicate")] [InlineData("target")]
     public async Task ActualMissingOrNonspellCostsCannotPartlyDiscardOrActivate(string branch)
     {
-        var initial = Add(Add(Position(), "WRONG-UNIT", "OGN·096/298"), "WRONG-GEAR", "SFD·022/221"); var game = new Driver(initial);
+        var initial = Add(Add(Position(), "WRONG-UNIT", "OGN·096/298"), "WRONG-GEAR", "SFD·022/221"); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, []));
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             var command = Activate() with { OptionalCosts = branch switch {
                 "missing" => [], "unit" => ["DISCARD_HAND_CARD:WRONG-UNIT"], "equipment" => ["DISCARD_HAND_CARD:WRONG-GEAR"],
                 "duplicate" => ["DISCARD_HAND_CARD:FODDER", "DISCARD_HAND_CARD:FODDER"], _ => ["DISCARD_HAND_CARD:FODDER"] },
@@ -103,10 +104,11 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     [Fact]
     public async Task NoEnemyBattlefieldTargetDoesNotPreventPayingTheCostAndBecomingEmpowered()
     {
-        var initial = Position(); var game = new Driver(initial);
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate()); await game.Top();
             Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
             Assert.Equal(4, game.State.CardObjects["UNIT"].Power); Assert.Equal(15, game.State.RunePools["P1"].Mana);
             Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); await game.Replay(); Restore(initial, game);
@@ -121,10 +123,11 @@ public sealed class Ven110EmpoweredBanishConsumerTests
         var initial = Add(Add(Add(Add(Position(), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "OTHER"),
             "LAST-BREATH", "OGN·096/298", "P2", "BATTLEFIELD", "OTHER"), "BASE-SMALL", "OGN·175/298", "P2", "BASE"),
             "FRIENDLY-SMALL", "OGN·175/298", "P1", "BATTLEFIELD", "BF");
-        initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER"); var game = new Driver(initial);
+        initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER"); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate());
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate());
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Null(game.State.PendingCardChoice);
             await game.Top(); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard); Assert.Equal(15, game.State.RunePools["P1"].Mana);
@@ -150,10 +153,11 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     [Fact]
     public async Task ReturningTheSourceBeforeEmpowerResolvesKeepsTheDiscardPaidWithoutEmpoweringTheNewGeneration()
     {
-        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate());
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate());
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
@@ -169,10 +173,11 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     public async Task AnEarnedBanishOutlivesItsSourceReturningWithoutRefundingTheDiscard()
     {
         var initial = Add(Add(Position(), "RETURN", "OGN·104/298"), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "OTHER");
-        var game = new Driver(initial);
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate()); await game.Top();
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
             await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["SMALL"]));
@@ -232,10 +237,11 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     [Fact]
     public async Task AnAlreadyEmpoweredSourceRejectsAnotherActualSpellPaymentWithoutDiscardingIt()
     {
-        var initial = Add(Position(), "SPARE", "SFD·122/221"); var game = new Driver(initial);
+        var initial = Add(Position(), "SPARE", "SFD·122/221"); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate()); await game.Top();
             var command = Activate() with { OptionalCosts = ["DISCARD_HAND_CARD:SPARE"] };
             var node = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
             node["promptId"] = ResolutionResult.BuildPrompts(game.State)["P1"].PromptId; node["snapshotTick"] = game.State.Tick;
