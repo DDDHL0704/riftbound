@@ -470,11 +470,13 @@ public sealed partial class CoreRuleEngine
         if (pending.SourceReplay is not null)
             pending = pending with { Parent = pending.Parent with { SourceReplayDecisionCompleted = true } };
         var parent = pending.Parent;
-        if (!string.IsNullOrWhiteSpace(playedSourceObjectId))
-            parent = parent with { EffectPlayCount = checked(parent.EffectPlayCount + 1) };
         var maximum = CardBehaviorRegistry.TryGetByEffectKind(parent.EffectKind, out var effectPlayDefinition)
             ? Math.Max(1, effectPlayDefinition.EffectPlayMaximumCount) : 1;
-        var completed = string.IsNullOrWhiteSpace(playedSourceObjectId) || parent.EffectPlayCount >= maximum;
+        var countsEffectPlay = !string.IsNullOrWhiteSpace(playedSourceObjectId)
+            && (maximum > 1 || parent.HighCostPlayObserver is not null);
+        if (countsEffectPlay)
+            parent = parent with { EffectPlayCount = checked(parent.EffectPlayCount + 1) };
+        var completed = string.IsNullOrWhiteSpace(playedSourceObjectId) || !countsEffectPlay || parent.EffectPlayCount >= maximum;
         // Resume the parent through the ordinary stack resolver.  A high-cost
         // graveyard play reuses the physical source card for the child spell;
         // the child must resolve and leave the stack before the parent banishes

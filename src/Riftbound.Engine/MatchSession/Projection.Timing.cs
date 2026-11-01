@@ -619,6 +619,31 @@ public sealed partial record ResolutionResult
             : objectId;
     }
 
+    internal static TurnUnitPlayBoonContext? PublicTurnUnitPlayBoonContext(
+        MatchState state,
+        TurnUnitPlayBoonContext? context,
+        string viewerPlayerId)
+    {
+        if (context is null) return null;
+
+        var unitObjectId = VisibleObjectIdForViewer(state, context.Unit.ObjectId, viewerPlayerId);
+        var sourceObjectId = VisibleObjectIdForViewer(state, context.Grant.Source.ObjectId, viewerPlayerId);
+        var sourceIsHidden = sourceObjectId == "HIDDEN";
+        var grant = context.Grant with
+        {
+            Source = context.Grant.Source with { ObjectId = sourceObjectId },
+            CardNo = sourceIsHidden ? "HIDDEN" : context.Grant.CardNo,
+            StackItemId = VisibleMetadataIdForViewer(state, context.Grant.StackItemId, viewerPlayerId) ?? context.Grant.StackItemId,
+            Marker = sourceIsHidden ? "HIDDEN" : context.Grant.Marker
+        };
+        return context with
+        {
+            Grant = grant,
+            Unit = context.Unit with { ObjectId = unitObjectId, Generation = unitObjectId == "HIDDEN" ? -1 : context.Unit.Generation },
+            UnitCardNo = unitObjectId == "HIDDEN" ? "HIDDEN" : context.UnitCardNo
+        };
+    }
+
     private static IReadOnlyList<string> VisibleObjectIdsForViewer(
         MatchState state,
         IEnumerable<string> objectIds,

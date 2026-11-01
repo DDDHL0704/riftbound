@@ -25756,6 +25756,9 @@ public sealed partial class FullGameEndToEndTests
                 var trigger = queue ? state.TriggerQueue.SingleOrDefault(i => i.TriggerId == id) : null;
                 var c = queue ? trigger?.TurnUnitPlayBoon : item?.TurnUnitPlayBoon;
                 if (c is null) continue;
+                var viewerPlayerId = snapshot["table"]?["viewerPlayerId"]?.GetValue<string>() ?? "__spectator__";
+                var publicContext = ResolutionResult.PublicTurnUnitPlayBoonContext(state, c, viewerPlayerId)!;
+                var publicPayload = row["turnUnitPlayBoon"]!.AsObject();
                 var sourceId = queue ? trigger!.SourceObjectId : item!.SourceObjectId;
                 var controller = queue ? trigger!.ControllerId : item!.ControllerId;
                 Assert.Equal("DELAYED_FRIENDLY_UNIT_PLAYED_BOON", queue ? trigger!.EffectKind : item!.EffectKind);
@@ -25774,19 +25777,32 @@ public sealed partial class FullGameEndToEndTests
                 Assert.StartsWith("STACK-", c.Grant.StackItemId); Assert.EndsWith("-" + sourceId, c.Grant.StackItemId);
                 var tick = long.Parse(c.Grant.StackItemId[6..^(sourceId.Length + 1)]);
                 Assert.InRange(tick, 1, state.Tick); Assert.Equal($"STACK-{tick}-{sourceId}", c.Grant.StackItemId);
-                Assert.Equal(sourceId, row["turnUnitPlayBoon"]?["grant"]?["source"]?["objectId"]?.GetValue<string>());
-                Assert.Equal(c.Unit.ObjectId, row["turnUnitPlayBoon"]?["unit"]?["objectId"]?.GetValue<string>());
+                Assert.Equal(publicContext.Grant.Source.ObjectId, publicPayload["grant"]?["source"]?["objectId"]?.GetValue<string>());
+                Assert.Equal(publicContext.Unit.ObjectId, publicPayload["unit"]?["objectId"]?.GetValue<string>());
                 var unit = state.CardObjects.GetValueOrDefault(c.Unit.ObjectId);
-                Assert.True(unit is null || unit.ObjectGeneration >= c.Unit.Generation);
-                if (unit is null || unit.ObjectGeneration != c.Unit.Generation)
-                    row["turnUnitPlayBoon"]!["unit"]!["objectId"] = "CHECKED_CAPTURED_PLAYED_UNIT";
-                else Assert.Equal(c.UnitCardNo, unit.CardNo ?? "");
+                if (publicContext.Unit.ObjectId == "HIDDEN")
+                {
+                    Assert.Equal("HIDDEN", publicPayload["unit"]?["unitCardNo"]?.GetValue<string>());
+                    Assert.Equal(-1, publicPayload["unit"]?["generation"]?.GetValue<long>());
+                }
+                else
+                {
+                    Assert.True(unit is null || unit.ObjectGeneration >= c.Unit.Generation);
+                    if (unit is null || unit.ObjectGeneration != c.Unit.Generation)
+                        publicPayload["unit"]!["objectId"] = "CHECKED_CAPTURED_PLAYED_UNIT";
+                    else Assert.Equal(c.UnitCardNo, unit.CardNo ?? "");
+                }
                 var source = state.CardObjects[sourceId];
-                Assert.InRange(c.Grant.Source.Generation, 0, source.ObjectGeneration);
-                if (source.ObjectGeneration != c.Grant.Source.Generation)
+                if (publicContext.Grant.Source.ObjectId == "HIDDEN")
+                {
+                    Assert.Equal("HIDDEN", publicPayload["grant"]?["cardNo"]?.GetValue<string>());
+                    Assert.Equal("HIDDEN", publicPayload["grant"]?["source"]?["objectId"]?.GetValue<string>());
+                    Assert.Equal("HIDDEN", publicPayload["grant"]?["marker"]?.GetValue<string>());
+                }
+                else if (source.ObjectGeneration != c.Grant.Source.Generation)
                 {
                     row["sourceObjectId"] = "CHECKED_CAPTURED_TURN_GRANT_SOURCE";
-                    row["turnUnitPlayBoon"]!["grant"]!["source"]!["objectId"] = "CHECKED_CAPTURED_TURN_GRANT_SOURCE";
+                    publicPayload["grant"]!["source"]!["objectId"] = "CHECKED_CAPTURED_TURN_GRANT_SOURCE";
                 }
                 else Assert.Equal(c.Grant.CardNo, source.CardNo);
             }
