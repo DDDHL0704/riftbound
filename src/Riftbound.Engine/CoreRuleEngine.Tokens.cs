@@ -13,6 +13,16 @@ public sealed partial class CoreRuleEngine
         var departed = before.CardObjects.Where(e => IsTokenObject(e.Value)
             && !result.State.CardObjects.ContainsKey(e.Key)).Select(e => e.Key).ToHashSet(StringComparer.Ordinal);
         if (departed.Count == 0) return result;
+        StackItemState BindSimpleSource(StackItemState item)
+        {
+            if (item.SimpleActivation is not { CeasedSource: null } activation
+                || !departed.Contains(activation.Source.ObjectId)
+                || before.CardObjects[activation.Source.ObjectId] is not { } source
+                || source.ObjectGeneration != activation.Source.Generation
+                || !ValidSimpleActivation(before, item)) return item;
+            return item with { SimpleActivation = activation with {
+                CeasedSource = new(source.TokenFactoryCardNo ?? source.CardNo!, result.State.Tick) } };
+        }
         CeasedRecycledBoonSource CaptureBoonSource(string sourceId, FieldTriggerContext context, RecycledCardBoonOrigin boon)
         {
             var source = before.CardObjects[sourceId];
@@ -74,7 +84,9 @@ public sealed partial class CoreRuleEngine
                 ? context with { AffectedUnitCeasedToExist = true } : context;
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
             .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
-            StackItems = result.State.StackItems.Select(i => i.FieldContext is null ? i : i with { FieldContext = Invalidate(i.SourceObjectId, i.FieldContext) }).ToArray(),
+            StackItems = result.State.StackItems.Select(i => BindSimpleSource(i.FieldContext is null ? i : i with { FieldContext = Invalidate(i.SourceObjectId, i.FieldContext) })).ToArray(),
+            PendingEffectPlay = result.State.PendingEffectPlay is { } pending
+                ? pending with { Parent = BindSimpleSource(pending.Parent) } : null,
             TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is null ? t : t with { FieldContext = Invalidate(t.SourceObjectId, t.FieldContext) }).ToArray() };
         // Preserve the originally declared participant identities. The current
         // resolution's before-state proves these missing objects were tokens;

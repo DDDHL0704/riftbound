@@ -13547,7 +13547,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Distinct(StringComparer.Ordinal).Count()
                     != parsed.AttackerObjectIds.Length + parsed.DefenderObjectIds.Length
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Any(id => !state.CardObjects.TryGetValue(id, out var unit)
-                    ? parsed.CeasedTokens?.ContainsKey(id) != true : !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                    ? parsed.CeasedTokens?.ContainsKey(id) != true
+                    // A returned animated equipment is a new nonunit object;
+                    // the declaration still references its captured unit generation.
+                    : !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                        && parsed.PublicObjectBindings?.Any(binding => binding is not null && binding.ObjectId == id
+                            && binding.Generation >= 0 && binding.Generation < unit.ObjectGeneration) != true)
                 || parsed.CeasedTokens is not null && (parsed.CeasedTokens.Count == 0 || parsed.CeasedTokens.Any(e =>
                     string.IsNullOrWhiteSpace(e.Key) || e.Value is null || e.Value.Generation < 0
                     || !parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Contains(e.Key, StringComparer.Ordinal)
@@ -18609,7 +18614,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
-            && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+            && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit && !IsDeployedEquipment(behavior) || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+                && !DeployedEquipmentDestinationAllowed(state, behavior, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
                 && !OpenBattlefieldPlayAllowed(state, behavior, destination)
                 && !PaidBattlefieldUnitPlayDestination(optionalCosts, destination)
@@ -24473,10 +24479,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 events);
-            if (stackItem.PlayedFromStandby is { } shadowEquipment && !stackItem.SourceConfirmed)
+            if (IsStackItemBattlefieldDestination(stackItem) && !stackItem.SourceConfirmed)
             {
                 var locations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-                locations[stackItem.SourceObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", shadowEquipment.Battlefield.ObjectId);
+                locations[stackItem.SourceObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", PreciseBattlefieldLocationObjectId(stackItem.Destination));
                 resolvedObjectLocations = locations;
             }
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
@@ -29549,15 +29555,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         playerZones[stackItem.ControllerId] = zones with
         {
-            Base = stackItem.PlayedFromStandby is not null ? zones.Base : zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+            Base = IsStackItemBattlefieldDestination(stackItem) ? zones.Base : zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
                 ? zones.Base
                 : zones.Base.Concat([stackItem.SourceObjectId]).ToArray(),
-            Battlefields = stackItem.PlayedFromStandby is null ? zones.Battlefields : zones.Battlefields.Append(stackItem.SourceObjectId).Distinct().ToArray()
+            Battlefields = !IsStackItemBattlefieldDestination(stackItem) ? zones.Battlefields : zones.Battlefields.Append(stackItem.SourceObjectId).Distinct().ToArray()
         };
 
         var playedEvent = new GameEvent(
-            stackItem.PlayedFromStandby is null ? "EQUIPMENT_PLAYED_TO_BASE" : "EQUIPMENT_PLAYED_TO_BATTLEFIELD",
-            stackItem.PlayedFromStandby is null ? $"{behavior.DisplayName}打出装备到基地" : $"{behavior.DisplayName}从待命打出至原战场",
+            !IsStackItemBattlefieldDestination(stackItem) ? "EQUIPMENT_PLAYED_TO_BASE" : "EQUIPMENT_PLAYED_TO_BATTLEFIELD",
+            !IsStackItemBattlefieldDestination(stackItem) ? $"{behavior.DisplayName}打出装备到基地" : $"{behavior.DisplayName}打出装备到战场",
             CreateEquipmentPlayedPayload(
                 stackItem,
                 behavior,
@@ -29566,7 +29572,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
         playedEvent = CaptureEquipmentPlayReadyObjects(playedEvent, playerZones, cardObjects, equipmentState, stackItem.ControllerId, stackItem.StackItemId);
         playedEvent = CaptureCardPlayHistory(playedEvent, equipmentState, stackItem.ControllerId,
-            stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD",
+            stackItem.StackItemId, true, !IsStackItemBattlefieldDestination(stackItem) ? "BASE" : "BATTLEFIELD",
             zones: playerZones, cards: cardObjects);
         events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
     }
@@ -29582,10 +29588,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["equipmentObjectId"] = stackItem.SourceObjectId,
                 ["equipmentName"] = behavior.DisplayName,
-                ["destinationZone"] = stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD",
+                ["destinationZone"] = !IsStackItemBattlefieldDestination(stackItem) ? "BASE" : "BATTLEFIELD",
                 ["tags"] = equipmentState.Tags.ToArray()
             };
-        if (stackItem.PlayedFromStandby is { } shadow) payload["battlefieldObjectId"] = shadow.Battlefield.ObjectId;
+        if (IsStackItemBattlefieldDestination(stackItem)) payload["battlefieldObjectId"] = PreciseBattlefieldLocationObjectId(stackItem.Destination);
         if (equipmentState.IsExhausted)
         {
             payload["isExhausted"] = true;

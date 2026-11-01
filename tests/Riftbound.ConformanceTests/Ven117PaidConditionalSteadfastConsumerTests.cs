@@ -43,7 +43,9 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
             await FinishBattle(() => game.State, game.Act, game.Events, actor, Host(actor), friends, Enemy(Other(actor)), expected,
                 (p, c, id) => Ven001PhysicalThresholdConsumerTests.Reject(game, p, c, id));
             AssertOutcome(game.State, game.Events().Skip(prefix).ToArray(), Host(actor), expected, attacking, generation);
-            Common.AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
+            Common.AssertTwelveEach(game.State);
+            // ColdCheckpoint already replays the complete original journal.
+            await game.ColdCheckpoint();
         }
         finally { await Save("actual-two-mana-" + actor + "-" + companions + "-" + attacking, initial, game); }
     }
@@ -83,7 +85,9 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
             await FinishBattle(() => game.State, game.Act, game.Events, actor, host, [friend], Enemy(enemy), 4,
                 (p, c, id) => Ven001PhysicalThresholdConsumerTests.Reject(game, p, c, id));
             AssertOutcome(game.State, game.Events().Skip(prefix).ToArray(), host, 4, false, generation);
-            Common.AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
+            Common.AssertTwelveEach(game.State);
+            // ColdCheckpoint already replays the complete original journal.
+            await game.ColdCheckpoint();
         }
         finally { await Save("actual-one-power-standby-" + actor, initial, game); }
     }

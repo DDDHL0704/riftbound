@@ -223,7 +223,9 @@ public sealed partial class CoreRuleEngine
                     Add(source.ObjectId, field.PlayerId, instance, new(instance.CardNo, spec.Kind, source.ObjectGeneration, group.First(), units.ToArray(), after));
         }
         foreach(var fact in units) cards[fact.ObjectId] = cards[fact.ObjectId] with {MovementCountThisTurn=checked(cards[fact.ObjectId].MovementCountThisTurn+1)};
-        return new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() });
+        return WithUnitEvents(new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() }),
+            units.SelectMany(f => CaptureUnitEvents(before.PlayerZones, before.CardObjects, [f.ObjectId], "MOVE")
+                .Select(o => o with { Context = o.Context with { Here = f.Destination } })).ToArray());
     }
 
     private static ResolutionResult RecordMovementObservers(ResolutionResult result)

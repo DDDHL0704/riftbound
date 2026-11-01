@@ -32,7 +32,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task ChinaStandardDeckCanSubmitAndOpenWithTheHeroInTheMainDeck(string no)
     {
         const OfficialDeckFormat format = OfficialDeckFormat.ChinaStandard20260724;
@@ -66,8 +66,8 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084", 37778)] [InlineData("VEN·084a", 37779)]
-    public async Task BothOfficialPrintsHaveTheSameEmpoweredImmunityAndMight(string no, long id)
+    [InlineData("VEN·084", 37778)] [InlineData("VEN·084a", 37779)] [InlineData("T1S·001/005", 38003)]
+    public async Task OfficialPrintsHaveTheSameEmpoweredImmunityAndMight(string no, long id)
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
         Assert.Equal(id, card.Id); Assert.Equal("恶狼意志", card.SubTitle); Assert.Equal(4, card.Energy); Assert.Equal(4, card.Power);
@@ -79,7 +79,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task EmpowerCostsThreeManaAndOrangeAndTheCurrentViewShowsProtectionAndMight(string no)
     {
         var game = new Driver(HeroPosition(no));
@@ -94,7 +94,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task WrongEmpowerPowerIsRejectedWithoutPartialPayment(string no)
     {
         var state = HeroPosition(no) with { RunePools = new Dictionary<string, RunePool> {
@@ -105,7 +105,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task HeroCanBePlayedFromChampionZoneOnlyWithFourMana(string no)
     {
         var state = VenUnitEntryBasicTests.Position(no);
@@ -125,6 +125,7 @@ public sealed class VenAmbessaDamageImmunityTests
     [Theory]
     [InlineData("VEN·084", false, 2)] [InlineData("VEN·084", true, 0)]
     [InlineData("VEN·084a", false, 2)] [InlineData("VEN·084a", true, 0)]
+    [InlineData("T1S·001/005", false, 2)] [InlineData("T1S·001/005", true, 0)]
     public async Task TargetedDamageIsLegalButOnlyEmpoweredUnitOutsideBattleIsImmune(string no, bool empowered, int damage)
     {
         var game = new Driver(DefenderPosition(no, empowered));
@@ -135,7 +136,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task UntargetedDamageProtectsTheEmpoweredUnitButNotAnotherEnemy(string no)
     {
         var state = OfficialHoldSequenceTests.AddUnit(DefenderPosition(no, true), "D2", "OGN·001/298", "BF", "P2");
@@ -148,7 +149,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task EmpoweredDefenderCanTakeSpellDamageDuringTheFirstBattleDuel(string no)
     {
         var game = new Driver(DefenderPosition(no, true));
@@ -159,7 +160,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task EmpoweredDefenderTakesCombatDamageAndUsesItsEmpoweredMight(string no)
     {
         var game = new Driver(DefenderPosition(no, true));
@@ -194,6 +195,7 @@ public sealed class VenAmbessaDamageImmunityTests
     [Theory]
     [InlineData("VEN·084", false, 0)] [InlineData("VEN·084", true, 2)]
     [InlineData("VEN·084a", false, 0)] [InlineData("VEN·084a", true, 2)]
+    [InlineData("T1S·001/005", false, 0)] [InlineData("T1S·001/005", true, 2)]
     public async Task EmpowermentAtResolutionDeterminesWhetherDamageIsPrevented(string no, bool initiallyEmpowered, int damage)
     {
         var state = AttackDamageDistributionTests.Spell(DefenderPosition(no, initiallyEmpowered), "STATUS", "VEN·035", "P1");
@@ -205,7 +207,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task CopiedTokenCanEmpowerAndUseTheSamePrintedDamageImmunity(string no)
     {
         var state = AttackDamageDistributionTests.Spell(OfficialCopyIdentityTests.Position(no), "BEAM", "OGS·022/024", "P1");
@@ -226,7 +228,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task MovingDefenderOutOfBattleInResponseRestoresItsImmunity(string no)
     {
         var game = new Driver(DefenderPosition(no, true));
@@ -239,7 +241,7 @@ public sealed class VenAmbessaDamageImmunityTests
     }
 
     [Theory]
-    [InlineData("VEN·084")] [InlineData("VEN·084a")]
+    [InlineData("VEN·084")] [InlineData("VEN·084a")] [InlineData("T1S·001/005")]
     public async Task DamageImmunityDoesNotPreventDirectDestruction(string no)
     {
         var state = AttackDamageDistributionTests.Spell(DefenderPosition(no, true), "DESTROY", "OGN·229/298", "P1");
