@@ -19928,8 +19928,44 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         state = MatchState.ClearCompletedMarkersForNewBattlefieldContests(state, previousState);
-        state = BattlefieldContestRules.RecordNewContests(state, previousState, causingPlayerId);
         state = MatchState.ClearStaleBattlefieldBattleSkippedMarkers(state, previousState);
+
+        // Returning to a battlefield that this same player just vacated does
+        // not create a new opponent contest.  The control cleanup records the
+        // lost controller for the turn; restore that control through the
+        // ordinary conquest path before opening a spell duel.  A first entry
+        // into an uncontrolled battlefield has no marker and still starts the
+        // normal spell duel.
+        var returningControlledBattlefield = state.BattlefieldStates.Values
+            .FirstOrDefault(field => field.ControllerId is null
+                && field.OccupantControllerIds.Count == 1
+                && state.UntilEndOfTurnEffects.Contains(
+                    BattlefieldTaskMarkers.ControlLost(field.BattlefieldObjectId, field.OccupantControllerIds[0]),
+                    StringComparer.Ordinal)
+                && !state.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(
+                    BattlefieldContestRules.InitiatorPrefix + field.BattlefieldObjectId + ":",
+                    StringComparison.Ordinal)));
+        if (returningControlledBattlefield is not null)
+        {
+            var restoredControl = ResolveNonBattlefieldControlAfterSpellDuelClosed(
+                state,
+                returningControlledBattlefield.BattlefieldObjectId);
+            var restoredMarkers = restoredControl.State.UntilEndOfTurnEffects
+                .Where(effect => !effect.StartsWith(
+                    BattlefieldTaskMarkers.ControlLostPrefix + returningControlledBattlefield.BattlefieldObjectId + ":",
+                    StringComparison.Ordinal))
+                .ToArray();
+            var restoredState = restoredControl.State with { UntilEndOfTurnEffects = restoredMarkers };
+            var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(
+                restoredState,
+                causingPlayerId,
+                previousState);
+            return (
+                taskAdvance.State,
+                restoredControl.Events.Concat(taskAdvance.Events).ToArray());
+        }
+
+        state = BattlefieldContestRules.RecordNewContests(state, previousState, causingPlayerId);
 
         if (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 } activeStartBattleTask)
         {
@@ -34690,6 +34726,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // immediately, without reaching its ordinary cleanup boundary.
             if (priorBurnoutCount + burnouts.Count > 1)
                 winnerPlayerId = WinningPlayerId(playerScores, EffectiveWinningScore(state));
+
+            // A replacement draw consumes the first burnout and then stops if
+            // no card was recycled.  The next burnout is only attempted when
+            // the first one has put the opponent at the winning score; that
+            // preserves the immediate second-burnout victory rule while
+            // preventing an empty deck from burning forever during a normal
+            // turn transition.
+            if (winnerPlayerId is null
+                && mainDeck.Count == 0
+                && playerScores[opponentId] < EffectiveWinningScore(state))
+            {
+                break;
+            }
         }
 
         return new DrawResult(

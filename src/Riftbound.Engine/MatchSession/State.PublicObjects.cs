@@ -405,6 +405,26 @@ public sealed partial record MatchState
                 continue;
             }
 
+            // A fixture may move a unit back onto a battlefield after the
+            // engine has already cleaned up its stale controller.  The
+            // control-loss marker identifies that imported transition.  A
+            // real command that creates a new contest records an initiator
+            // marker before this projection is read, so it still opens the
+            // ordinary spell-duel task sequence.
+            if (battlefield.ControllerId is null
+                && battlefield.OccupantControllerIds.Count == 1
+                && state.UntilEndOfTurnEffects.Contains(
+                    BattlefieldTaskMarkers.ControlLost(
+                        battlefield.BattlefieldObjectId,
+                        battlefield.OccupantControllerIds[0]),
+                    StringComparer.Ordinal)
+                && !state.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(
+                    BattlefieldContestRules.InitiatorPrefix + battlefield.BattlefieldObjectId + ":",
+                    StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
             if (state.UntilEndOfTurnEffects.Contains(
                     BattlefieldTaskMarkers.StaticContest(battlefield.BattlefieldObjectId),
                     StringComparer.Ordinal))

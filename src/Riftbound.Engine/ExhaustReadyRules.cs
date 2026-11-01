@@ -73,12 +73,16 @@ public sealed partial class CoreRuleEngine
                 c.AcquiredTick, c.CostUnit.TokenFactoryCardNo)
             || state.CardObjects.TryGetValue(c.Target.ObjectId, out var target) && target.ObjectGeneration < c.Target.Generation)
             return false;
+        var ceasedCopiedToken = c.Origin is null
+            && c.SourceTokenFactoryCardNo is not null
+            && !state.CardObjects.ContainsKey(c.Source.ObjectId);
         return c.Origin is { } origin
             ? c.FaceRevision == origin.FaceRevision
                 && c.InstanceId == $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
                 && AttachedRuleTextRules.ValidCaptured(state, origin, c.Source.ObjectId, c.Source.Generation, c.CardNo)
             : c.InstanceId == $"PRINTED:{c.Source.ObjectId}:{c.Source.Generation}"
-                && PredictBindingMatches(state, c.Source, c.CardNo, c.FaceRevision, c.AcquiredTick, c.SourceTokenFactoryCardNo);
+                && (ceasedCopiedToken
+                    || PredictBindingMatches(state, c.Source, c.CardNo, c.FaceRevision, c.AcquiredTick, c.SourceTokenFactoryCardNo));
     }
 
     internal static bool ValidExhaustReadyUses(MatchState state)
@@ -93,9 +97,9 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidExhaustReadyActivation(MatchState state, StackItemState item)
     {
         if (item.ExhaustReadyActivation is not { } c) return item.EffectKind != ExhaustReadyRules.Effect;
-        return ValidExhaustReadyContext(state, item.ControllerId, c)
+        var valid = ValidExhaustReadyContext(state, item.ControllerId, c)
             && item.EffectKind == ExhaustReadyRules.Effect && item.CardNo == c.CardNo && item.SourceObjectId == c.Source.ObjectId
-            && item.StackItemId == $"STACK-{c.AcquiredTick}-{c.Source.ObjectId}-EXHAUST-READY"
+            && item.StackItemId == $"STACK-{c.AcquiredTick}-EXHAUST-READY"
             && item.TargetObjectIds.Count == 1 && item.TargetObjectIds[0] == c.Target.ObjectId
             && item.TargetGenerations is { Count: 1 } && item.TargetGenerations.GetValueOrDefault(c.Target.ObjectId, -1) == c.Target.Generation
             && item.OptionalCosts.Count == 0 && !item.SourceConfirmed && item.EffectRepeatCount == 1 && item.DamageAmount == 0
@@ -103,6 +107,7 @@ public sealed partial class CoreRuleEngine
             && item.SelfMightActivation is null && item.RecycleMightActivation is null && item.TargetedPowerAbility is null
             && item.TemporaryActivation is null && item.EmpowerActivation is null
             && state.UntilEndOfTurnEffects.Contains(ExhaustReadyRules.Marker(new(item.ControllerId, c)), StringComparer.Ordinal);
+        return valid;
     }
 
     private static ResolutionResult ResolveExhaustReadyActivation(MatchState state, PlayerIntent intent, ActivateAbilityCommand command)
@@ -150,7 +155,7 @@ public sealed partial class CoreRuleEngine
             new(new(paid.ObjectId, paid.ObjectGeneration), AttachedRuleTextRules.Face(paid)!, paid.CopyFaceTransitions?.Count ?? 0, paid.TokenFactoryCardNo),
             new(targets[0], state.CardObjects[targets[0]].ObjectGeneration), state.TurnNumber, state.Tick + 1,
             ability.Instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0, ability.Instance.Id, source.TokenFactoryCardNo, ability.Instance.Origin);
-        var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-EXHAUST-READY", intent.PlayerId,
+        var item = new StackItemState($"STACK-{state.Tick + 1}-EXHAUST-READY", intent.PlayerId,
             source.ObjectId, ExhaustReadyRules.Effect, ability.Instance.CardNo, targets, 0, 1, []) {
                 ExhaustReadyActivation = context, TargetGenerations = new Dictionary<string, long> { [targets[0]] = context.Target.Generation } };
         CaptureExhaustionInstruction(zones, cards, intent.PlayerId, [costId], "ACTIVATE_ABILITY:" + item.StackItemId, events);
@@ -177,6 +182,14 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveExhaustReadyStack(MatchState state, StackItemState item)
     {
+        // A captured target that crossed a zone is a new object generation. The
+        // target binding has already been masked from the stack item by the
+        // shared continuity pass; resolve the earned skill as a no-op instead
+        // of treating the stale target as malformed state.
+        if (item.ExhaustReadyActivation is { Target: { } capturedTarget }
+            && (!state.CardObjects.TryGetValue(capturedTarget.ObjectId, out var currentTarget)
+                || currentTarget.ObjectGeneration != capturedTarget.Generation))
+            return NoopStackResolutionResult(state);
         if (!ValidExhaustReadyActivation(state, item)) throw new InvalidOperationException("Invalid exhaust-ready activation.");
         var target = item.ExhaustReadyActivation!.Target;
         if (!state.CardObjects.TryGetValue(target.ObjectId, out var unit) || unit.ObjectGeneration != target.Generation
@@ -184,6 +197,14 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var behavior = new CardBehaviorDefinition(item.CardNo!, "单位活跃技能", 0, item.EffectKind, 0, 1);
         cards[unit.ObjectId] = ApplyReadyState(unit, behavior, item, unit.ObjectId, out var ready, state.PlayerZones, cards);
+        if (ready is not null)
+        {
+            var payload = new Dictionary<string, object?>(ready.Payload)
+            {
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__")
+            };
+            ready = ready with { Payload = payload };
+        }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = ready is null ? [] : [ready] };
     }
 }

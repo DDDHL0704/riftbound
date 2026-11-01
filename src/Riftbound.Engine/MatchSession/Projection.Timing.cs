@@ -684,7 +684,10 @@ public sealed partial record ResolutionResult
             return false;
         }
 
-        if (CoreRuleEngine.CanViewObservedDeckCard(state,objectId,viewerPlayerId) || CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId) || CoreRuleEngine.IsPubliclyRevealedDeckCard(state, objectId)) return false;
+        var observed = CoreRuleEngine.CanViewObservedDeckCard(state, objectId, viewerPlayerId);
+        var revealedHand = CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId);
+        var revealedDeck = CoreRuleEngine.IsPubliclyRevealedDeckCard(state, objectId);
+        if (observed || revealedHand || revealedDeck) return false;
         if (IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
         {
             return true;
