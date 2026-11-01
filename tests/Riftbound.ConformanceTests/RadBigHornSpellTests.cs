@@ -68,6 +68,33 @@ public sealed class RadBigHornSpellTests
     }
 
     [Fact]
+    public async Task BigHornSpectatorRecoveryRedactsItsSourceAfterReturningToHand()
+    {
+        var initial = AttackDamageDistributionTests.Spell(
+            TurnUnitPlayGrantsTests.Position(Spell), "ANNIE", "OGS·010/024", "P1");
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+
+        await driver.Act("P1", new PlayCardCommand("GRANT", Spell, []));
+        await driver.Top();
+        await driver.Act("P1", new PlayCardCommand("ANNIE", "OGS·010/024", [], Destination: "BASE"));
+        for (var step = 0; step < 12 && driver.State.ObjectLocations["GRANT"].Zone != "HAND"; step++)
+        {
+            if (driver.State.TriggerQueue.Count > 0)
+                await driver.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: driver.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            else if (driver.State.PendingCardChoice is { } choice)
+                await driver.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GRANT"]));
+            else if (driver.State.PriorityPlayerId is { } priority)
+                await driver.Act(priority, new PassPriorityCommand());
+            else
+                Assert.Fail("Big Horn must expose its return choice or response window.");
+        }
+
+        Assert.Equal("HAND", driver.State.ObjectLocations["GRANT"].Zone);
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(driver.State.RoomId, driver.State.Tick, 0, [], driver.State);
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(driver.State, spectatorReplayFrame: spectator));
+    }
+
+    [Fact]
     public async Task BigHornDoesNotCreateAHiddenGrantWithoutResolvingTheSpell()
     {
         var initial = AddUnits(TurnUnitPlayGrantsTests.Position(Spell), "UNIT2");

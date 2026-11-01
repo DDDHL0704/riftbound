@@ -25782,7 +25782,7 @@ public sealed partial class FullGameEndToEndTests
                 var unit = state.CardObjects.GetValueOrDefault(c.Unit.ObjectId);
                 if (publicContext.Unit.ObjectId == "HIDDEN")
                 {
-                    Assert.Equal("HIDDEN", publicPayload["unit"]?["unitCardNo"]?.GetValue<string>());
+                    Assert.Equal("HIDDEN", publicPayload["unitCardNo"]?.GetValue<string>());
                     Assert.Equal(-1, publicPayload["unit"]?["generation"]?.GetValue<long>());
                 }
                 else
