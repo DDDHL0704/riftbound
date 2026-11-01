@@ -1919,7 +1919,11 @@ public sealed partial record ResolutionResult(
         }
         if (item.BeginningDraw is not null) {
             view["beginningDraw"] = item.BeginningDraw;
-            view["abilityLabel"] = item.BeginningDraw.Kind == "HAND_BELOW_TWO" ? "开始阶段：手牌少于两张时抽一张" : "开始阶段：抽一张牌";
+            view["abilityLabel"] = item.BeginningDraw.Kind switch {
+                "HAND_BELOW_TWO" => "开始阶段：手牌少于两张时抽一张",
+                "LOWEST_DECK_TOP_MANA" => "开始阶段：展示牌顶并比较法力费用",
+                _ => "开始阶段：抽一张牌"
+            };
         }
         if (item.EphemeralStart is not null) {
             view["ephemeralStart"] = item.EphemeralStart;
