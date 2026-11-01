@@ -250,7 +250,7 @@ public sealed class VenBasicFlowSpellTests
             var result = await session.SubmitAsync(player, id, command, wire, default);
             Assert.True(result.Accepted, result.ErrorMessage); State = result.State;
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
-            var frame = Frame();
+            var frame = Frame(result);
             Assert.True(frame.ValidationErrors.Count == 0, string.Join(Environment.NewLine, frame.ValidationErrors));
             if (RecoverAfterEveryCommand) session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
             var count = entries.Count; var hash = MatchStateHasher.Hash(State);
@@ -275,10 +275,13 @@ public sealed class VenBasicFlowSpellTests
             await Replay();
         }
 
-        private MatchRecoveryFrame Frame()
+        private MatchRecoveryFrame Frame(ResolutionResult? result = null)
         {
             var sequence = entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence;
-            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
+            // The command result already projects this state for both players.
+            // Explicit checkpoints still rebuild their views independently.
+            var snapshots = result?.Snapshots ?? ResolutionResult.BuildSnapshots(State);
+            var prompts = result?.Prompts ?? ResolutionResult.BuildPrompts(State);
             var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
@@ -299,7 +302,7 @@ public sealed class VenBasicFlowSpellTests
             }
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             var sequence = entries[^1].CompletedEventSequence;
-            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
+            var snapshots = result.Snapshots; var prompts = result.Prompts;
             var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
