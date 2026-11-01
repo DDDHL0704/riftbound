@@ -9611,6 +9611,8 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·052/167", "资源开采器", 1, "RESOURCE_EXTRACTOR_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署"),
         new("RAD·039/167", "除灵结界", 4, "PURIFICATION_WARD_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("ANOTHER_UNIT_PLAYED", "DESTROY_SELF")),
         new("RAD·024/167", "幻梦之根", 2, "DREAM_ROOT_PLAY_EQUIPMENT", 0, 0,
