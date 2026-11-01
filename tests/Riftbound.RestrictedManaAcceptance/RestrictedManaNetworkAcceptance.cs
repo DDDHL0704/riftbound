@@ -100,12 +100,15 @@ internal static class RestrictedManaNetworkAcceptance
                 await Submit(peer, "restricted-second-pass-b", Raw(peer, new PassPriorityCommand()));
                 await Submit(actor, "restricted-second-zero", Payment("SPEND_POWER:0"));
                 var unit = new PlayCardCommand("QA-UNIT", "OGN·044/298", []); var denied = await Quote(unit);
-                Check(!denied.CanPay && denied.Cost is { AvailableMana: 1, AvailableSpellOnlyMana: 0, RemainingSpellOnlyMana: null },
+                Check(!denied.CanPay && denied.ErrorCode == ErrorCodes.InsufficientCost
+                    && denied.Cost is { AvailableMana: 1, AvailableSpellOnlyMana: 0, RemainingSpellOnlyMana: null },
                     "Unit payment must not count the actor's two restricted mana.");
+                Check(!(prompts[actor].Candidates ?? []).Any(c => c.Action == CommandTypes.PlayCard && c.Enabled),
+                    "No card is affordable with the remaining unrestricted resources, so PLAY_CARD is not offered.");
                 var unitRaw = Raw(actor, unit); var tick = prompts[actor].SnapshotTick;
-                var refusal = await audit.Reject(actor, actor, ErrorCodes.InsufficientCost, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token), token);
-                Check(!refusal.Accepted && refusal.ErrorCode == ErrorCodes.InsufficientCost && refusal.ServerTick == tick, "The server must independently reject the actual unit command.");
-                var duplicate = await audit.WithoutWrites("duplicate-" + prompts[actor].SnapshotTick, () => audit.Reject(actor, actor, ErrorCodes.InsufficientCost, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token), token));
+                var refusal = await audit.Reject(actor, actor, ErrorCodes.PromptExpired, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token), token);
+                Check(!refusal.Accepted && refusal.ErrorCode == ErrorCodes.PromptExpired && refusal.ServerTick == tick, "The server must reject the unoffered unit command without spending restricted mana.");
+                var duplicate = await audit.WithoutWrites("duplicate-" + prompts[actor].SnapshotTick, () => audit.Reject(actor, actor, ErrorCodes.PromptExpired, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token), token));
                 Check(!duplicate.Accepted && duplicate.ServerTick == tick, "A rejected unit intent must retain its original cached receipt.");
                 Check(PoolAmount(actor, "spellOnlyMana") == 2 && PoolAmount(peer, "spellOnlyMana") == 2, "Both genuine balances must remain positive before turn end.");
                 await Save(folder, "network-before-clear.json", new { snapshots, prompts, quote, denied, refusal, duplicate });
