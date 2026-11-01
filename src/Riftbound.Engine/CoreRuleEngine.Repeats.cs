@@ -54,7 +54,8 @@ public sealed partial class CoreRuleEngine
         var movesFriendlyUnit = behavior.TargetScope is CardTargetScopes.FriendlyUnit
             or CardTargetScopes.FriendlyUnitThenFriendlyEquipment
             || behavior.ChosenMovementTargetIndex == 0 && behavior.TargetScope is
-                CardTargetScopes.FriendlyThenEnemyUnits or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits;
+                CardTargetScopes.FriendlyThenEnemyUnits or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
+                or CardTargetScopes.FriendlyUnitThenBattlefield;
         if (destination.StartsWith("BASE:", StringComparison.Ordinal))
             return behavior.MovesTargetsToChosenLocation && state.Seats.ContainsKey(destination[5..])
                 && (execution.TargetObjectIds.Count == 0 || behavior.TargetScope == CardTargetScopes.AnyUnit

@@ -4,9 +4,18 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
+public sealed record CeasedSimpleActivationSource(string TokenFactoryCardNo, long DepartedTick)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long SourceFaceRevision { get; init; }
+}
+
+[System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Source, long AcquiredTick,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyDictionary<string, string>? TargetTokenFactories = null)
+    IReadOnlyDictionary<string, string>? TargetTokenFactories = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    CeasedSimpleActivationSource? CeasedSource = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public long SourceFaceRevision { get; init; }
@@ -183,10 +192,7 @@ public sealed partial class CoreRuleEngine
             || context.SourceFaceRevision < 0
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
-            || !state.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
-            || source.ObjectGeneration < context.Source.Generation
-            || source.ObjectGeneration == context.Source.Generation
-                && CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) != item.CardNo
+            || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
             || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
                 || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
@@ -209,19 +215,38 @@ public sealed partial class CoreRuleEngine
             && (item.TokenEntryPlan is null || ability.SimpleEffect!.CreatedRobotCount > 0 && ValidTokenEntryPlan(state, item));
     }
 
+    private static bool ValidSimpleActivationSource(MatchState state, SimpleActivationContext context,
+        P4ActivatedAbilityDefinition ability, string cardNo)
+    {
+        if (state.CardObjects.TryGetValue(context.Source.ObjectId, out var source))
+            return context.CeasedSource is null && source.ObjectGeneration >= context.Source.Generation
+                && (source.ObjectGeneration != context.Source.Generation
+                    || CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) == cardNo);
+        return context.CeasedSource is { } ceased && ceased.DepartedTick >= context.AcquiredTick
+            && ceased.DepartedTick <= state.Tick
+            && ceased.SourceFaceRevision == context.SourceFaceRevision
+            && P6TokenFactoryCatalog.TryGetByCardNo(ceased.TokenFactoryCardNo, out var factory)
+            && factory.Tags.Contains(ability.SourceRequiredTag);
+    }
+
     internal static bool ValidTranspositionMageEffectPlay(MatchState state, PendingEffectPlayState pending)
     {
         if (!P4ActivatedAbilityCatalog.TryGetByEffectKind(pending.Parent.EffectKind, out var ability)
             || ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower != true
             || pending.RevealedHand is not null || pending.Parent.EffectPlayCompleted
             || pending.SourceZone != "HAND" || pending.PlayerId != pending.Parent.ControllerId
+            || pending.DestinationPolicy != "" || pending.SourcePlayerId is not null
+            || pending.SourceReplay is not null || pending.OriginalLocation is not null || pending.OriginalBattlefield is not null
+            || pending.ViewedCardIds is not null || pending.Sources.Count == 0
             || !pending.Optional || !pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
             || pending.ManaReduction != 0 || pending.MaximumUnitPower is not >= 0
             || !ValidSimpleActivation(state, pending.Parent, allowMissingReturnTarget: true)
             || !state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)) return false;
 
         var targetId = pending.Parent.TargetObjectIds.SingleOrDefault();
-        if (targetId is null || !state.PlayerZones.Values.Any(player => player.Hand.Contains(targetId, StringComparer.Ordinal))) return false;
+        if (targetId is null || !state.PlayerZones.Values.Any(player => player.Hand.Contains(targetId, StringComparer.Ordinal))
+            && (state.CardObjects.ContainsKey(targetId)
+                || pending.Parent.SimpleActivation?.TargetTokenFactories?.ContainsKey(targetId) != true)) return false;
 
         var eligible = zones.Hand
             .Where(id => state.CardObjects.TryGetValue(id, out var card)
@@ -249,9 +274,6 @@ public sealed partial class CoreRuleEngine
         if (!ValidSimpleActivation(state, item,
                 allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
             throw new InvalidOperationException("Invalid captured printed activation.");
-        if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted
-            && !state.PlayerZones.Values.Any(player => player.Hand.Contains(item.TargetObjectIds.SingleOrDefault() ?? string.Empty, StringComparer.Ordinal)))
-            throw new InvalidOperationException("Invalid completed transposition target.");
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
@@ -305,6 +327,9 @@ public sealed partial class CoreRuleEngine
             }
         }
         if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted)
+            // A child play can reuse the returned card after its modifiers
+            // reset. A returned token ceases to exist instead (CN186.1).
+            // Neither must remain in a hand when the parent resumes.
             return result;
         if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && !item.EffectPlayCompleted)
         {
@@ -343,7 +368,7 @@ public sealed partial class CoreRuleEngine
                     && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                     && CardBehaviorRegistry.TryGetByCardNo(candidate.CardNo ?? "", out var behavior)
                     && behavior.PlaysSourceToBaseAsUnit
-                    && ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, candidate) <= capturedPower)
+                    && ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, candidate) < capturedPower)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
             if (eligible.Length == 0)
@@ -363,7 +388,7 @@ public sealed partial class CoreRuleEngine
                 eligible.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
                 IgnoreBaseMana: true, IgnoreBasePower: true, ManaReduction: 0,
                 DestinationPolicy: "", Optional: true, IgnoreAllCosts: true,
-                MaximumUnitPower: capturedPower);
+                MaximumUnitPower: capturedPower - 1);
             return result with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(locations, zones), PendingEffectPlay = pending,
                 Events = events };
