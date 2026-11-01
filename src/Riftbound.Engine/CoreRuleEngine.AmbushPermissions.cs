@@ -63,6 +63,7 @@ public sealed partial class CoreRuleEngine
             var destination = "BATTLEFIELD:" + field.ObjectId;
             if ((DeployedEquipmentDestinationAllowed(state, behavior, destination)
                     || IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
+                    || GrantedUnitPlayBattlefieldAllowed(state, player, behavior, destination)
                     || OpenBattlefieldPlayAllowed(state, behavior, destination)
                     || BattlefieldUnitPlayGrants(state, player, behavior).Any(g => g.Field.ObjectId == field.ObjectId)
                     || AmbushLocationAllowed(state, player, behavior, destination)
