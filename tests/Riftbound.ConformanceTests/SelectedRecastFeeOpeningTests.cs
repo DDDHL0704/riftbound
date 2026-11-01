@@ -31,6 +31,7 @@ public sealed class SelectedRecastFeeOpeningTests
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
         var verifyColdRecoveryAfterEveryCommand = true;
+        string? auditedReplayHash = null;
         OfficialDecklist? deck = null; ResolutionResult? core = null, native = null; object? forgery = null;
         PlayCostQuoteDto? defaultQuote = null, selectedQuote = null;
         try
@@ -155,8 +156,9 @@ public sealed class SelectedRecastFeeOpeningTests
             await Drain();
             Assert.Equal(MatchStatuses.InProgress, State().Status); Assert.Null(State().WinnerPlayerId);
             Assert.All(State().PlayerScores.Values, score => Assert.Equal(0, score));
-            var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State(), engine, default, Events());
-            Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+            // Cold already verified the complete original replay through the production
+            // registry. Require exactly those audited inputs and final state here.
+            Assert.Equal(auditedReplayHash, OriginalHistoryHash());
             Assert.Equal(MatchSession.RoomSeatCommandType, Commands()[0].CommandType);
             Assert.Equal(MatchSession.RoomSeatCommandType, Commands()[1].CommandType);
             Assert.DoesNotContain(Commands(), c => c.CommandType.StartsWith("DEV_SEED_SCENARIO", StringComparison.Ordinal));
@@ -183,6 +185,7 @@ public sealed class SelectedRecastFeeOpeningTests
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) {
                 TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         RecoveredEvent[] Events() => journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
+        string OriginalHistoryHash() => MatchStateHasher.HashValue(new { initial, commands = Commands(), events = Events(), state = State() });
         MatchRecoveryFrame Clone(MatchRecoveryFrame frame) => JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
         MatchRecoveryFrame Frame(MatchState state)
         {
@@ -203,6 +206,7 @@ public sealed class SelectedRecastFeeOpeningTests
                 Assert.Equal(WireHash(frame.PlayerViews[player].Snapshot), WireHash(session.SnapshotFor(player)));
                 Assert.Equal(WireHash(frame.PlayerViews[player].Prompt), WireHash(session.PromptFor(player)));
             }
+            auditedReplayHash = OriginalHistoryHash();
         }
         async Task Act(string player, GameCommand command) => await Send(player, JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject());
         async Task Send(string player, JsonObject raw, bool accepted = true)
@@ -226,6 +230,7 @@ public sealed class SelectedRecastFeeOpeningTests
             // Keep one cold restore at the completed response-window boundary;
             // per-pass restores only replay the unchanged prefix.
             var recover = verifyColdRecoveryAfterEveryCommand;
+            var commandsBeforeDrain = journal.Entries.Count;
             verifyColdRecoveryAfterEveryCommand = false;
             var closed = false;
             for (var i = 0; i < 30; i++)
@@ -238,7 +243,9 @@ public sealed class SelectedRecastFeeOpeningTests
             }
             verifyColdRecoveryAfterEveryCommand = recover;
             Assert.True(closed, "The selected-fee recast window did not close.");
-            if (recover) await Cold();
+            // The preceding Act already restored this history when Drain did
+            // not submit a command. Restore every window that adds history.
+            if (recover && journal.Entries.Count != commandsBeforeDrain) await Cold();
         }
     }
 
