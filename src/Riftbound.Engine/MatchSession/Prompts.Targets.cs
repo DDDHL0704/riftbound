@@ -327,9 +327,18 @@ internal static partial class ActionPromptBuilder
             return [];
         }
 
+        var publicBlackMarkets = state.CardObjects.Values
+            .Where(card => card.CardNo == P4ActivatedAbilityCatalog.BlackMarketCardNo
+                && card.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                && !card.IsFaceDown
+                && state.ObjectLocations.GetValueOrDefault(card.ObjectId)?.Zone == "BATTLEFIELD"
+                && state.BattlefieldStates.ContainsKey(card.ObjectId))
+            .Select(card => card.ObjectId);
+
         return zones.Base
             .Concat(zones.Battlefields)
             .Concat(zones.LegendZone)
+            .Concat(publicBlackMarkets)
             .Distinct(StringComparer.Ordinal)
             .SelectMany(objectId => ActivateAbilityRequirementsForSource(state, playerId, objectId))
             .ToArray();
@@ -1961,6 +1970,7 @@ internal static partial class ActionPromptBuilder
             || string.IsNullOrWhiteSpace(cardObject.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
                 && !CoreRuleEngine.IsForeignGraveyardEffectPlay(state, playerId, objectId)
+                && !CoreRuleEngine.IsForeignBanishedEffectPlay(state, playerId, objectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == playerId && self.Sources.ContainsKey(objectId)))
         {
             return false;

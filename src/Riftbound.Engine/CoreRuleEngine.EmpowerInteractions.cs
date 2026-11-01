@@ -265,4 +265,9 @@ public sealed partial class CoreRuleEngine
     internal static bool IsForeignGraveyardEffectPlay(MatchState state, string player, string source)
         => state.PendingEffectPlay is { SourcePlayerId: not null } p && p.PlayerId == player
             && p.Sources.ContainsKey(source) && ValidEmpowerInteractionPlay(state, p);
+
+    internal static bool IsForeignBanishedEffectPlay(MatchState state, string player, string source)
+        => state.PendingEffectPlay is { SourcePlayerId: not null } p && p.PlayerId == player
+            && p.SourceZone == "BANISHED" && p.Sources.ContainsKey(source)
+            && IsDockCageEffectPlay(p) && ValidDockCageEffectPlay(state, p);
 }

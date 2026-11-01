@@ -26,6 +26,7 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
+            result = ResolveRadBattlefieldObservers(state, result);
             result = RecordBattlefieldConquests(result);
             result = RecordEquipmentAbilityPlays(state, result);
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);

@@ -2,16 +2,24 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static bool IsDeployEquipmentBehavior(CardBehaviorDefinition behavior)
+        => behavior.PlaysSourceToBaseAsEquipment
+            && behavior.SourceEquipmentTags.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Contains(CardEquipmentKeywordNames.Deploy, StringComparer.Ordinal);
+
     // CN805: this is an optional cost on the unit being played. The grant is
     // evaluated before payment; its later departure cannot undo a paid cost.
     internal static CardBehaviorDefinition PlaySourceKeywordBehavior(
         MatchState state, string player, string source, CardBehaviorDefinition behavior)
     {
+        var hasRad162Grant = state.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(
+            Rad162NextHasteMarkerPrefix(player), StringComparison.Ordinal));
+        var hasOutsideHandGrant = HasOutsideHandHasteGrant(state, player);
         if (!behavior.PlaysSourceToBaseAsUnit
             || CardPermissionKeywordRules.HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste)
             || !state.CardObjects.TryGetValue(source, out var card) || card.CardNo != behavior.CardNo
-            || !state.PlayerZones.TryGetValue(player, out var zones) || zones.Hand.Contains(source, StringComparer.Ordinal)
-            || !HasOutsideHandHasteGrant(state, player)) return behavior;
+            || !state.PlayerZones.TryGetValue(player, out var zones)
+            || !hasRad162Grant && (zones.Hand.Contains(source, StringComparer.Ordinal) || !hasOutsideHandGrant)) return behavior;
 
         return WithGrantedHasteCost(behavior);
     }

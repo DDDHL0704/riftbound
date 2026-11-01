@@ -12,6 +12,8 @@ namespace Riftbound.Engine;
 public sealed record CardObjectState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DockCageExileContext? DockCageExile { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SpellNameDeclaration? DeclaredSpellName { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public StandbyPlacement? StandbyPlacement { get; init; }
@@ -1436,7 +1438,7 @@ public sealed partial record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName };
+            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName, DockCageExile = state.DockCageExile };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -1805,6 +1807,7 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "HELD" } heldInsight) view["heldInsight"] = heldInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "EXHAUSTED" } exhaustedInsight) view["exhaustedInsight"] = exhaustedInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: CoreRuleEngine.Rad165InsightKind } rad165Insight) view["rad165Insight"] = rad165Insight;
         if (item.TemporaryActivation is { } temporary) {
             view["grantedAbilityId"] = CoreRuleEngine.TemporaryActivationId(temporary.Grant);
             view["abilityLabel"] = "本回合获得的活跃技能";
@@ -2022,6 +2025,7 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "HELD" } heldInsight) view["heldInsight"] = heldInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "EXHAUSTED" } exhaustedInsight) view["exhaustedInsight"] = exhaustedInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: CoreRuleEngine.Rad165InsightKind } rad165Insight) view["rad165Insight"] = rad165Insight;
         if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
         if (!hiddenSource && item.DamageDestruction is not null) view["damageDestruction"] = item.DamageDestruction;
         if (!hiddenSource && item.GraveyardPlay is not null) view["graveyardPlay"] = item.GraveyardPlay;
@@ -2770,11 +2774,17 @@ internal static partial class ActionPromptBuilder
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
             || !state.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             || cardObject.IsFaceDown)
         {
             return [];
         }
+
+        var isPublicBlackMarket = cardObject.CardNo == P4ActivatedAbilityCatalog.BlackMarketCardNo
+            && cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+            && state.ObjectLocations.GetValueOrDefault(sourceObjectId)?.Zone == "BATTLEFIELD"
+            && state.BattlefieldStates.ContainsKey(sourceObjectId);
+        if (!isPublicBlackMarket && !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            return [];
 
         var requirements = new List<ActivateAbilityPromptRequirement>();
         if (SourceBoonMightRules.CanActivate(state, playerId, cardObject))
@@ -2923,7 +2933,9 @@ internal static partial class ActionPromptBuilder
         {
             if (!AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability).Any()
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
-                || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+                || (ability.RequiresBattlefieldSource
+                    && ability.AbilityId != P4ActivatedAbilityCatalog.BlackMarketAbilityId
+                    && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
                 || P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(ability.AbilityId)
                 || ability.Kind == "TRIGGERED_RESOURCE"

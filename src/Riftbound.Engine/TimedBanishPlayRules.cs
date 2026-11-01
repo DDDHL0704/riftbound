@@ -5,15 +5,15 @@ namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record TimedBanishPlayGrant(string Id, string ControllerId, int CreatedTurnNumber, long CreatedTick,
-    string ResolvingStackItemId, MovementObserverContext Movement, ObjectBinding Card, string CardNo,
-    int? ExpiringTurnNumber = null);
+    string ResolvingStackItemId, MovementObserverContext? Movement, ObjectBinding Card, string CardNo,
+    string Kind = "MOVEMENT", int? ExpiringTurnNumber = null);
 
 internal static class TimedBanishPlayRules
 {
     internal static string Id(TimedBanishPlayGrant grant)
         => "TIMED-BANISH-PLAY:" + MatchStateHasher.HashValue(new {
             grant.ControllerId, grant.CreatedTurnNumber, grant.CreatedTick, grant.ResolvingStackItemId,
-            grant.Movement, grant.Card, grant.CardNo });
+            grant.Movement, grant.Card, grant.CardNo, grant.Kind });
 
     private static bool CardRemainsBanished(MatchState state, TimedBanishPlayGrant grant)
         => state.PlayerZones.TryGetValue(grant.ControllerId, out var zones) && zones.Banished.Contains(grant.Card.ObjectId)
@@ -23,14 +23,17 @@ internal static class TimedBanishPlayRules
             && state.ObjectLocations.GetValueOrDefault(grant.Card.ObjectId) == new ObjectLocationState(grant.ControllerId, "BANISHED");
 
     internal static bool Valid(MatchState state, TimedBanishPlayGrant? grant)
-        => grant is { Card: { Generation: > 0 }, Movement: { Kind: TriggerKinds.UnitOrdinalMovementBanishTopPlay } movement }
+        => grant is { Card: { Generation: > 0 } }
             && state.Seats.ContainsKey(grant.ControllerId) && grant.CreatedTurnNumber > 0
             && grant.CreatedTurnNumber <= state.TurnNumber && grant.CreatedTick > 0 && grant.CreatedTick <= state.Tick
             && !string.IsNullOrWhiteSpace(grant.ResolvingStackItemId) && grant.Id == Id(grant)
-            && CoreRuleEngine.ValidMovementObserver(state, movement, CoreRuleEngine.MovementObserverEffect,
-                grant.ControllerId, movement.Unit.ObjectId, movement.CardNo)
-            && state.Seats.ContainsKey(movement.Unit.MovingPlayerId)
-            && CoreRuleEngine.ValidMovementInstanceId(movement, grant.ResolvingStackItemId, stack: true)
+            && (grant.Kind == "RAD012"
+                ? grant.Movement is null
+                : grant.Kind == "MOVEMENT" && grant.Movement is { Kind: TriggerKinds.UnitOrdinalMovementBanishTopPlay } movement
+                    && CoreRuleEngine.ValidMovementObserver(state, movement, CoreRuleEngine.MovementObserverEffect,
+                        grant.ControllerId, movement.Unit.ObjectId, movement.CardNo)
+                    && state.Seats.ContainsKey(movement.Unit.MovingPlayerId)
+                    && CoreRuleEngine.ValidMovementInstanceId(movement, grant.ResolvingStackItemId, stack: true))
             && (grant.ExpiringTurnNumber is { } expiry
                 ? expiry >= grant.CreatedTurnNumber && expiry == state.TurnNumber && state.TurnPlayerId == grant.ControllerId
                     && state.Phase != MatchPhases.TurnEnd
@@ -87,7 +90,7 @@ public sealed partial class CoreRuleEngine
         // one earned in another player's turn waits for the controller's turn.
         var grant = new TimedBanishPlayGrant("", item.ControllerId, state.TurnNumber, tick, item.StackItemId,
             item.MovementObserver!, new(id, cards[id].ObjectGeneration), cards[id].CardNo!,
-            state.TurnPlayerId == item.ControllerId && state.Phase != MatchPhases.TurnEnd ? state.TurnNumber : null);
+            "MOVEMENT", state.TurnPlayerId == item.ControllerId && state.Phase != MatchPhases.TurnEnd ? state.TurnNumber : null);
         grant = grant with { Id = TimedBanishPlayRules.Id(grant) };
         var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
         events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) { ["sourceObjectId"] = source } };

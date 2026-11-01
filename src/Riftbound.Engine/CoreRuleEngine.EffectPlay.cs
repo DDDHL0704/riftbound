@@ -23,6 +23,13 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.CardNo == Rad136CardNo && parent.HeldContext?.Deployment?.ExiledCard is not null)
+        {
+            definition = new(parent.CardNo, "码头囚笼据守打出放逐卡牌", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreAllCosts: true,
+                EffectPlayAllowsAnyCard: true);
+            return true;
+        }
         if (parent.LastBreathBattlefieldDamage is { Kind: TriggerKinds.UnitLastBreathBanishDeckTopPlay })
         {
             definition = new(parent.CardNo, "绝念放逐牌库顶并打出", 0, parent.EffectKind, 0, 0,
@@ -153,6 +160,33 @@ public sealed partial class CoreRuleEngine
                 MayReturnFriendlyEquipmentAdditionalCost = false,
                 RequiresExhaustFriendlyUnitAdditionalCost = false
             } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
+
+    internal static bool IsDockCageEffectPlay(PendingEffectPlayState pending)
+        => pending.Parent.CardNo == Rad136CardNo
+            && pending.Parent.HeldContext?.Deployment?.ExiledCard is not null
+            && pending.Parent.EffectKind == "HOLD_" + DeploymentHeldKind;
+
+    internal static bool ValidDockCageEffectPlay(MatchState state, PendingEffectPlayState pending)
+    {
+        if (!IsDockCageEffectPlay(pending) || pending.Parent.EffectPlayCompleted
+            || pending.SourceZone != "BANISHED" || !pending.IgnoreAllCosts
+            || pending.ManaReduction != 0 || pending.Optional || pending.ViewedCardIds is not null
+            || pending.RevealedHand is not null || pending.SourceReplay is not null
+            || pending.Parent.TargetObjectIds.Count != 0 || pending.Sources.Count != 1
+            || pending.PlayerId != pending.Parent.ControllerId
+            || !state.Seats.ContainsKey(pending.PlayerId)) return false;
+        var origin = pending.Parent.HeldContext!.Deployment!;
+        if (origin.ExiledCard is not { } exiled || !ValidDockCageExileContext(state, exiled, pending.PlayerId)) return false;
+        var source = pending.Sources.Single();
+        return source.Key == exiled.ExiledCard.ObjectId && source.Value == exiled.ExiledCard.Generation
+            && pending.SourcePlayerId == (exiled.OwnerId == pending.PlayerId ? null : exiled.OwnerId)
+            && state.CardObjects.TryGetValue(source.Key, out var card)
+            && card.ObjectGeneration == source.Value && card.CardNo == exiled.CardNo
+            && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !TokenObjectRules.IsToken(card)
+            && state.PlayerZones.TryGetValue(exiled.OwnerId, out var zones)
+            && zones.Banished.Contains(source.Key, StringComparer.Ordinal);
+    }
 
     internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId, CardBehaviorDefinition? behavior = null)
     {

@@ -70,7 +70,7 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool IsBattlefieldConquestChoiceEffect(string effect)
-        => effect is TriggerKinds.BattlefieldConquerDiscardDraw or TriggerKinds.BattlefieldConquerReadyEquipment
+        => effect is TriggerKinds.BattlefieldConquerDiscardDraw or TriggerKinds.BattlefieldConquerDiscardCallRune or TriggerKinds.BattlefieldConquerReadyEquipment
             or TriggerKinds.BattlefieldConquerConsumeBoonDraw;
 
     private static void ValidateBattlefieldConquestChoiceContinuations(MatchState state, List<string> errors)
@@ -114,7 +114,7 @@ public static partial class MatchRecoveryValidator
         var actualDiscard = ReadBattlefieldConquestPublicContext<BattlefieldConquestDiscardDrawPublicContext>(payload, "battlefieldConquestDiscardDraw");
         var actualReady = ReadBattlefieldConquestPublicContext<BattlefieldConquestReadyEquipmentPublicContext>(payload, "battlefieldConquestReadyEquipment");
         var actualBoon = ReadBattlefieldConquestPublicContext<BattlefieldConquestConsumeBoonPublicContext>(payload, "battlefieldConquestConsumeBoon");
-        if ((effect == TriggerKinds.BattlefieldConquerDiscardDraw) != (actualDiscard is not null)
+        if ((effect is TriggerKinds.BattlefieldConquerDiscardDraw or TriggerKinds.BattlefieldConquerDiscardCallRune) != (actualDiscard is not null)
             || (effect == TriggerKinds.BattlefieldConquerReadyEquipment) != (actualReady is not null)
             || (effect == TriggerKinds.BattlefieldConquerConsumeBoonDraw) != (actualBoon is not null)
             || TryReadObjectValue(payload, "battlefieldConquestDiscardDraw", out _) && actualDiscard is null
@@ -163,7 +163,7 @@ public static partial class MatchRecoveryValidator
             var conqueror = discard?.ConquestSourceObjectId ?? ready?.ConquestSourceObjectId ?? boon?.ConquestSourceObjectId;
             var tick = discard?.ConquestTick ?? ready?.ConquestTick ?? boon?.ConquestTick ?? -1;
             var kind = discard is not null ? "CONQUEST-DISCARD-DRAW" : ready is not null ? "CONQUEST-READY-EQUIPMENT" : "CONQUEST-BOON-DRAW";
-            var effect = discard is not null ? TriggerKinds.BattlefieldConquerDiscardDraw
+            var effect = discard is not null ? (discard.CardNo == CoreRuleEngine.Rad166CardNo ? TriggerKinds.BattlefieldConquerDiscardCallRune : TriggerKinds.BattlefieldConquerDiscardDraw)
                 : ready is not null ? TriggerKinds.BattlefieldConquerReadyEquipment : TriggerKinds.BattlefieldConquerConsumeBoonDraw;
             if (source is null) { errors.Add("captured battlefield conquest choice has no source"); continue; }
             var triggerId = $"{kind}:{tick}:{source.ObjectId}";

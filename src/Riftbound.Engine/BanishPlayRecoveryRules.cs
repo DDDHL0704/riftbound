@@ -23,7 +23,8 @@ internal static class BanishPlayRecoveryRules
             .Select(c => c.CardNo).ToHashSet(StringComparer.Ordinal));
 
     internal static bool Applies(PendingEffectPlayState pending)
-        => pending.SourceZone == "BANISHED" || Instructions.ContainsKey(pending.Parent.CardNo);
+        => !CoreRuleEngine.IsDockCageEffectPlay(pending)
+            && (pending.SourceZone == "BANISHED" || Instructions.ContainsKey(pending.Parent.CardNo));
 
     internal static bool Valid(MatchState state, PendingEffectPlayState pending)
     {

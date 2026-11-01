@@ -305,7 +305,7 @@ public static partial class MatchRecoveryValidator
 
     private static string CapturedInsightLabel(InsightTriggerContext? context)
         => context is { Kind: "DUEL" } ? "captured duel Insight"
-            : context is { Kind: "EXHAUSTED" } ? "captured exhausted Insight" : context is { Kind: "HELD" } ? "captured held Insight" : context is { Kind: "EMPOWERED" } ? "captured empowered Insight" : "captured last-breath Insight";
+            : context is { Kind: "EXHAUSTED" } ? "captured exhausted Insight" : context is { Kind: "HELD" } ? "captured held Insight" : context is { Kind: "EMPOWERED" } ? "captured empowered Insight" : context is { Kind: CoreRuleEngine.Rad165InsightKind } ? "captured RAD·165 Insight" : "captured last-breath Insight";
 
     private static InsightTriggerContext? CapturedInsight(InsightTriggerContext? context)
         => CoreRuleEngine.IsCapturedInsightKind(context?.Kind) ? context : null;
@@ -320,11 +320,12 @@ public static partial class MatchRecoveryValidator
             var hasEmpowered = json.TryGetProperty("empoweredInsight", out var empowered) && empowered.ValueKind != JsonValueKind.Null;
             var hasHeld = json.TryGetProperty("heldInsight", out var held) && held.ValueKind != JsonValueKind.Null;
             var hasExhausted = json.TryGetProperty("exhaustedInsight", out var exhausted) && exhausted.ValueKind != JsonValueKind.Null;
-            if ((hasExhausted ? 1 : 0) + (hasHeld ? 1 : 0) + (hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1) return null;
-            var context = (hasExhausted ? exhausted : hasHeld ? held : hasLastBreath ? lastBreath : hasDuel ? duel : empowered).Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
+            var hasRad165 = json.TryGetProperty("rad165Insight", out var rad165) && rad165.ValueKind != JsonValueKind.Null;
+            if ((hasExhausted ? 1 : 0) + (hasHeld ? 1 : 0) + (hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) + (hasRad165 ? 1 : 0) != 1) return null;
+            var context = (hasExhausted ? exhausted : hasHeld ? held : hasLastBreath ? lastBreath : hasDuel ? duel : hasEmpowered ? empowered : rad165).Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
                 PropertyNameCaseInsensitive = true,
                 UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow });
-            return context?.Kind == (hasExhausted ? "EXHAUSTED" : hasHeld ? "HELD" : hasLastBreath ? "LAST_BREATH" : hasDuel ? "DUEL" : "EMPOWERED") ? context : null;
+            return context?.Kind == (hasExhausted ? "EXHAUSTED" : hasHeld ? "HELD" : hasLastBreath ? "LAST_BREATH" : hasDuel ? "DUEL" : hasEmpowered ? "EMPOWERED" : CoreRuleEngine.Rad165InsightKind) ? context : null;
         } catch (JsonException) { return null; }
     }
 
@@ -336,19 +337,20 @@ public static partial class MatchRecoveryValidator
         var hasEmpowered = TryReadObjectValue(payload, "empoweredInsight", out var empowered) && !IsNullSnapshotPayloadValue(empowered);
         var hasHeld = TryReadObjectValue(payload, "heldInsight", out var held) && !IsNullSnapshotPayloadValue(held);
         var hasExhausted = TryReadObjectValue(payload, "exhaustedInsight", out var exhausted) && !IsNullSnapshotPayloadValue(exhausted);
-        if (!hasExhausted && !hasHeld && !hasLastBreath && !hasDuel && !hasEmpowered) return false;
+        var hasRad165 = TryReadObjectValue(payload, "rad165Insight", out var rad165) && !IsNullSnapshotPayloadValue(rad165);
+        if (!hasExhausted && !hasHeld && !hasLastBreath && !hasDuel && !hasEmpowered && !hasRad165) return false;
         var context = ReadCapturedInsightView(payload);
-        if ((hasExhausted ? 1 : 0) + (hasHeld ? 1 : 0) + (hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1
+        if ((hasExhausted ? 1 : 0) + (hasHeld ? 1 : 0) + (hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) + (hasRad165 ? 1 : 0) != 1
             || context is null || !CoreRuleEngine.IsCapturedInsightKind(context.Kind) || string.IsNullOrWhiteSpace(source)
             || !CoreRuleEngine.ValidInsightTrigger(context, effect ?? "", controller ?? "")
             || context.Origin is { } origin && (origin.Unit is null || origin.Unit.ObjectId != source))
         {
-            errors.Add($"invalid public {(hasDuel ? "captured duel Insight" : hasEmpowered ? "captured empowered Insight" : "captured last-breath Insight")}");
+            errors.Add($"invalid public {CapturedInsightLabel(context)}");
             return false;
         }
         // This proves only the public shape. Exact typed-authority comparisons
         // below still bind the historical token, equipment, face and trigger.
-        return context.SourceTokenFactoryCardNo is not null;
+        return context.SourceTokenFactoryCardNo is not null || context.Kind == CoreRuleEngine.Rad165InsightKind;
     }
 
     private static void ValidateCapturedInsightStackViews(IReadOnlyList<object?> payloads,

@@ -308,7 +308,7 @@ public sealed partial class CoreRuleEngine
             ["previousEmpowermentCount"] = source.EmpowermentCount, ["empowermentCount"] = count };
         if (empowered)
         {
-            var insights = CaptureRuleTextInsights(state.PlayerZones, cards, cards[source.ObjectId],
+            var insights = CaptureRuleTextInsights(state.PlayerZones, cards, state.ObjectLocations, cards[source.ObjectId],
                 EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source), "EMPOWERED");
             if (insights.Count > 0) payload["insightTriggerContexts"] = insights;
             var interactions = CaptureEmpowerInteractions(state, cards, cards[source.ObjectId], "EMPOWERED");

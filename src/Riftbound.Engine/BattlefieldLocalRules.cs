@@ -41,8 +41,15 @@ internal static class BattlefieldLocalRules
         AtUnit(state, unitId) is { } battlefield && StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo)
             .Where(StaticAuraSpecRules.IsBattlefieldKeywordStaticAura)
             .Where(a => a.TargetScope == StaticAuraTargetScopes.SameBattlefieldUnits
-                || (a.TargetScope == StaticAuraTargetScopes.SameBattlefieldFilteredUnits && StaticAuraSpecRules.TargetMatchesFilter(a, state.CardObjects[unitId])))
+                || (a.TargetScope == StaticAuraTargetScopes.SameBattlefieldFilteredUnits && StaticAuraSpecRules.TargetMatchesFilter(a, state.CardObjects[unitId]))
+                || a.TargetScope == StaticAuraTargetScopes.SameBattlefieldFriendlyUnits
+                    && string.Equals(EffectiveController(state, unitId), battlefield.ControllerId, StringComparison.Ordinal))
             .Any(a => a.GrantedKeyword is { Length: > 0 } granted && CardCombatKeywordRules.KeywordAmount([granted], keyword) > 0);
+
+    private static string EffectiveController(MatchState state, string objectId)
+        => state.CardObjects.TryGetValue(objectId, out var card)
+            ? card.ControllerId ?? card.OwnerId ?? ""
+            : "";
 
     public static bool HasAbility(CardObjectState? battlefield, Func<StaticAbilitySpec, bool> predicate) =>
         battlefield is not null && BattlefieldStaticAbilitySpecRules.TryGetAbility(battlefield.CardNo, predicate, out _);

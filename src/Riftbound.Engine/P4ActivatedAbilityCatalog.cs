@@ -50,7 +50,12 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool ReadiesSource = false, int SourcePowerBonus = 0, bool OncePerTurn = false,
     bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0,
     bool TransfersSourceToChosenPlayer = false,
-    bool CommandsOpponentUnitToSourceBattlefield = false);
+    bool CommandsOpponentUnitToSourceBattlefield = false,
+    int CreatedGoldCount = 0, int CreatedMinionCount = 0,
+    bool DestroysEquipmentAsCost = false, bool DestroysUnitAsCost = false,
+    int CallRuneCount = 0, bool ExhaustsTargetAsCost = false,
+    bool ScrutinizesOpponentGuess = false,
+    bool DestroysSourceAsCost = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -255,8 +260,69 @@ public static class P4ActivatedAbilityCatalog
     public const string LanternDragonAbilityId = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
     public const string LanternDragonAbilityEffectKind = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
 
+    public const string BlackMarketCardNo = "RAD·158/167";
+    public const string BlackMarketAbilityId = "RAD_158_PAY_TWO_POWER_DRAW";
+    public const string BlackMarketAbilityEffectKind = "RAD_158_PAY_TWO_POWER_DRAW";
+
+    public const string SpinningTopGoldAbilityId = "RAD_022_CREATE_GOLD";
+    public const string SpinningTopGoldAbilityEffectKind = "RAD_022_CREATE_GOLD";
+    public const string SpinningTopMinionAbilityId = "RAD_022_DESTROY_EQUIPMENT_CREATE_MINION";
+    public const string SpinningTopMinionAbilityEffectKind = "RAD_022_DESTROY_EQUIPMENT_CREATE_MINION";
+    public const string SpinningTopRobotAbilityId = "RAD_022_DESTROY_UNIT_CREATE_ROBOT";
+    public const string SpinningTopRobotAbilityEffectKind = "RAD_022_DESTROY_UNIT_CREATE_ROBOT";
+    public const string RadiantAltarAbilityId = "RAD_046_DRAW_CALL_RUNE";
+    public const string RadiantAltarAbilityEffectKind = "RAD_046_DRAW_CALL_RUNE";
+    public const string WakeflowerAbilityId = "RAD_035_EXHAUST_POWERFUL_DRAW";
+    public const string WakeflowerAbilityEffectKind = "RAD_035_EXHAUST_POWERFUL_DRAW";
+    public const string ScrutinyLensAbilityId = "RAD_064_SCRUTINY_LENS";
+    public const string ScrutinyLensAbilityEffectKind = "RAD_064_SCRUTINY_LENS";
+    public const string RuneBladeAnvilAbilityId = "RAD_012_DESTROY_SELF";
+    public const string RuneBladeAnvilAbilityEffectKind = "RAD_012_DESTROY_SELF";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(RuneBladeAnvilAbilityId, "RAD·012/167", RuneBladeAnvilAbilityEffectKind, "符刃铁砧：摧毁自身", 0, 2, 0,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "官方中文：支付2和红色，横置，摧毁此牌。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal) { ["red"] = 1 },
+            SimpleEffect: new(DestroysSourceAsCost: true)),
+        new(SpinningTopGoldAbilityId, "RAD·022/167", SpinningTopGoldAbilityEffectKind, "旋转陀螺机：金币", 0, 0, 0,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "官方中文：横置，打出一个休眠的金币装备指示物。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(CreatedGoldCount: 1)),
+        new(SpinningTopMinionAbilityId, "RAD·022/167", SpinningTopMinionAbilityEffectKind, "旋转陀螺机：随从", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "官方中文：摧毁一件友方装备，横置，打出一名1战力的随从单位指示物。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(CreatedMinionCount: 1, DestroysEquipmentAsCost: true)),
+        new(SpinningTopRobotAbilityId, "RAD·022/167", SpinningTopRobotAbilityEffectKind, "旋转陀螺机：机器人", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "官方中文：摧毁一名友方单位，横置，打出一名3战力的机器人单位指示物。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(CreatedRobotCount: 1, DestroysUnitAsCost: true)),
+        new(RadiantAltarAbilityId, "RAD·046/167", RadiantAltarAbilityEffectKind, "辉映圣坛", 0, 0, 0,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "官方中文：横置，抽一张牌并召出一枚休眠的符文。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DrawCount: 1, CallRuneCount: 1)),
+        new(WakeflowerAbilityId, "RAD·035/167", WakeflowerAbilityEffectKind, "醒神花", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "官方中文：让一名友方强力单位变为休眠状态，横置，抽一张牌。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DrawCount: 1, ExhaustsTargetAsCost: true)),
+        new(ScrutinyLensAbilityId, "RAD·064/167", ScrutinyLensAbilityEffectKind, "严审透镜", 1, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "官方中文：支付1，横置，选择一名对手并猜测卡牌类型；展示牌库顶牌，猜中回收，否则抽取。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(ScrutinizesOpponentGuess: true)),
+        new(BlackMarketAbilityId, BlackMarketCardNo, BlackMarketAbilityEffectKind, "黑市", 0, 2, 0,
+            RequiresBattlefieldSource: true, ExhaustsSourceAsCost: false, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：支付两点符能，抽一张牌；每名玩家每回合一次，即使未控制此战场。",
+            SourceRequiredTag: P6TokenFactoryCatalog.BattlefieldCardTag,
+            SimpleEffect: new(DrawCount: 1, OncePerTurn: true)),
         new(LanternDragonAbilityId, LanternDragonCardNo, LanternDragonAbilityEffectKind, "提灯亚龙", 0, 0, 1,
             RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false,

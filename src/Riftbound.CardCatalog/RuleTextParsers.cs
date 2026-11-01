@@ -1056,6 +1056,68 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var standbyGold = Regex.Match(segment,
+            @"^当你在此处布置一张\{\{待命\}\}卡牌时，打出一个休眠的“金币”装备指示物。?$",
+            RegexOptions.CultureInvariant);
+        if (standbyGold.Success)
+            return new(TriggerKinds.BattlefieldDeployStandbyCreateGold, TriggerTimings.BattlefieldStandbyPlaced,
+                segment, TargetScope: TriggerTargetScopes.SourceBattlefieldUnits, CreatedTokenCount: 1,
+                CreatedTokenName: "金币", CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
+                CreatedTokenExhausted: true);
+
+        var destroyedHereMinion = Regex.Match(segment,
+            @"^于每名玩家，当每回合首次有其控制的一名非指示物单位在此处被摧毁时，该玩家将一名([0-9一两二三四五六七八九十]+)\{\{S\}\}的“随从”单位指示物打出到其基地。?$",
+            RegexOptions.CultureInvariant);
+        if (destroyedHereMinion.Success)
+            return new(TriggerKinds.BattlefieldUnitDestroyedCreateMinion, TriggerTimings.UnitDestroyed,
+                segment, TargetScope: TriggerTargetScopes.UnitAtThisBattlefield,
+                ExcludesTokens: true, OncePerTurn: true, CreatedTokenCount: 1,
+                CreatedTokenName: "随从", CreatedTokenPower: ParseChineseNumber(destroyedHereMinion.Groups[1].Value),
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
+
+        var heldEmptyRuneScore = Regex.Match(segment,
+            @"^当你据守此处时，如果你的符文牌堆为空，则你获得([0-9一两二三四五六七八九十]+)分。?$",
+            RegexOptions.CultureInvariant);
+        if (heldEmptyRuneScore.Success)
+            return new(TriggerKinds.BattlefieldHeldEmptyRuneScore, TriggerTimings.BattlefieldHeld,
+                segment, TargetScope: TriggerTargetScopes.SourceBattlefieldUnits,
+                RequiredEmptyZone: TriggerZones.RuneDeck,
+                ScoreAmount: ParseChineseNumber(heldEmptyRuneScore.Groups[1].Value));
+
+        var conquerNextUnitHaste = Regex.Match(segment,
+            @"^当你征服此处时，你在本回合内打出的下一名单位具有\{\{急速\}\}。?.*$",
+            RegexOptions.CultureInvariant);
+        if (conquerNextUnitHaste.Success)
+            return new(TriggerKinds.BattlefieldConquerNextUnitHaste, TriggerTimings.BattlefieldConquered,
+                segment, TargetScope: TriggerTargetScopes.PlayedUnitAtThisBattlefield,
+                Duration: TriggerDurations.UntilEndOfTurn, OncePerTurn: true, GrantedKeyword: "急速");
+
+        var firstPermanentReduction = Regex.Match(segment,
+            @"^于每名玩家，该玩家在其回合内在此处打出的首个单位或装备，其费用减少\{\{1\}\}。?$",
+            RegexOptions.CultureInvariant);
+        if (firstPermanentReduction.Success)
+            return new(TriggerKinds.BattlefieldFirstPermanentCostReduction, TriggerTimings.BattlefieldPermanentPlayed,
+                segment, TargetScope: TriggerTargetScopes.PlayedUnitAtThisBattlefield,
+                ManaDelta: -1, OncePerTurn: true);
+
+        var firstPermanentInsight = Regex.Match(segment,
+            @"^于每名玩家，当其每回合首次在此处打出一个单位或装备时，其\{\{洞察\}\}。.*$",
+            RegexOptions.CultureInvariant);
+        if (firstPermanentInsight.Success)
+            return new(TriggerKinds.BattlefieldFirstPermanentInsight, TriggerTimings.BattlefieldPermanentPlayed,
+                segment, TargetScope: TriggerTargetScopes.PlayedUnitAtThisBattlefield, OncePerTurn: true,
+                RevealCount: 1, RevealSourceZone: TriggerZones.MainDeck,
+                RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.MainDeck);
+
+        var conquerDiscardRune = Regex.Match(segment,
+            @"^当你征服此处时，你可以选择弃置一张手牌并召出一枚休眠的符文。?$",
+            RegexOptions.CultureInvariant);
+        if (conquerDiscardRune.Success)
+            return new(TriggerKinds.BattlefieldConquerDiscardCallRune, TriggerTimings.BattlefieldConquered,
+                segment, TargetScope: TriggerTargetScopes.ControlledHandCard, DiscardCount: 1,
+                DiscardSourceZone: TriggerZones.Hand, DiscardDestinationZone: TriggerZones.Graveyard,
+                RuneCallCount: 1, Optional: true);
+
         var playedHereToken = Regex.Match(segment,
             @"^当你打出我时，在此处打出(?:一名|一个)(?<ready>活跃的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”单位指示物。?$",
             RegexOptions.CultureInvariant);
@@ -2298,6 +2360,22 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.DefenderUnitAtThisBattlefield,
                 GrantedKeyword: "坚守",
                 KeywordBonus: ParseChineseNumber(battlefieldDefendGrantSteadfastMatch.Groups[1].Value));
+        }
+
+        var battlefieldDefendGrantBulwarkMatch = Regex.Match(
+            segment,
+            @"当你在此处防守时，选择此处你控制的一名单位。在本次战斗中给予其\{\{壁垒\}\}",
+            RegexOptions.CultureInvariant);
+        if (battlefieldDefendGrantBulwarkMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldDefendGrantBulwark,
+                TriggerTimings.BattlefieldDefended,
+                segment,
+                "RAD 杜朗纪念碑：防守单位先分配战斗伤害后获得本场战斗壁垒。",
+                TargetScope: TriggerTargetScopes.FriendlyUnitAtThisBattlefield,
+                GrantedKeyword: "壁垒",
+                KeywordBonus: 1);
         }
 
         var battlefieldHeldGrantBoonMatch = Regex.Match(
@@ -3817,7 +3895,7 @@ public static class StaticAuraParser
                 auras.Add(new StaticAuraSpec(
                     StaticAuraKinds.SourceObjectPower,
                     StaticAuraLayer,
-                    "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
                     StaticAuraTargetScopes.SourceObject,
                     StaticAuraParticipantScopes.SourceObject,
                     sourceObjectLevelPowerDelta,
@@ -3830,6 +3908,25 @@ public static class StaticAuraParser
 
             if (levelSourceKeywordAdded)
             {
+                continue;
+            }
+
+            var allFriendlyUnitsPowerMatch = Regex.Match(
+                segment,
+                @"^你的所有单位具有\{\{S\}\}\+(?<delta>[0-9一两二三四五六七八九十]+)。?$",
+                RegexOptions.CultureInvariant);
+            if (allFriendlyUnitsPowerMatch.Success)
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.FriendlyUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.FriendlyUnits,
+                    StaticAuraParticipantScopes.FriendlyPublicUnits,
+                    ParseStaticAuraNumber(allFriendlyUnitsPowerMatch.Groups["delta"].Value),
+                    segment,
+                    BehaviorImplementationStatuses.Implemented,
+                    "RAD 除灵结界：你的所有单位获得战力加成。"));
                 continue;
             }
 
@@ -4059,6 +4156,66 @@ public static class StaticAuraParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Current Bulwark possession uses the shared battlefield power filter.",
                     StaticAuraTargetFilters.CurrentKeywordPrefix + "壁垒"));
+                continue;
+            }
+
+            var battlefieldHeroPowerMatch = Regex.Match(
+                segment,
+                @"^此处的英雄单位具有\{\{S\}\}\+(?<delta>[0-9一两二三四五六七八九十]+)。?$",
+                RegexOptions.CultureInvariant);
+            if (battlefieldHeroPowerMatch.Success)
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldFilteredUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldFilteredUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                    ParseStaticAuraNumber(battlefieldHeroPowerMatch.Groups["delta"].Value),
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "RAD 星耀殿堂：此处的英雄单位获得战力加成。",
+                    StaticAuraTargetFilters.TagPrefix + "CARD_CATEGORY:英雄单位"));
+                continue;
+            }
+
+            var battlefieldFriendlyPowerMatch = Regex.Match(
+                segment,
+                @"^此处的友方单位(?:具有|获得)\{\{S\}\}\+(?<delta>[0-9一两二三四五六七八九十]+)。?$",
+                RegexOptions.CultureInvariant);
+            if (battlefieldFriendlyPowerMatch.Success)
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldFriendlyUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldFriendlyUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                    ParseStaticAuraNumber(battlefieldFriendlyPowerMatch.Groups["delta"].Value),
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Friendly battlefield-unit power aura is evaluated against the battlefield controller."));
+                continue;
+            }
+
+            var battlefieldFriendlyKeywordMatch = Regex.Match(
+                segment,
+                @"^此处的友方单位(?:具有|获得)\{\{(?<keyword>[^}]+)\}\}(?!\+)。?$",
+                RegexOptions.CultureInvariant);
+            if (battlefieldFriendlyKeywordMatch.Success
+                && !string.Equals(battlefieldFriendlyKeywordMatch.Groups["keyword"].Value, "S", StringComparison.Ordinal))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldFriendlyUnitsKeyword,
+                    RuleTextLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldFriendlyUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                    0,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Friendly battlefield-unit keyword aura is evaluated against the battlefield controller.",
+                    GrantedKeyword: battlefieldFriendlyKeywordMatch.Groups["keyword"].Value.Trim()));
                 continue;
             }
 
@@ -4568,6 +4725,25 @@ public static class StaticAuraParser
         }
 
         return added;
+    }
+
+    private static int ParseStaticAuraNumber(string raw)
+    {
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)) return value;
+        return raw.Trim() switch
+        {
+            "一" => 1,
+            "两" or "二" => 2,
+            "三" => 3,
+            "四" => 4,
+            "五" => 5,
+            "六" => 6,
+            "七" => 7,
+            "八" => 8,
+            "九" => 9,
+            "十" => 10,
+            _ => 0
+        };
     }
 }
 

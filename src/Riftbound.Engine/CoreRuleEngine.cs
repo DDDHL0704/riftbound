@@ -3093,18 +3093,37 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 intent.PlayerId,
                 submittedObjectIds, playerZones)
             .ToArray();
-        var drawApplication = ApplyDrawToPlayer(
-            state,
-            playerZones, cardObjects,
-            state.PlayerScores,
-            intent.PlayerId,
-            pendingChoice.DrawCount,
-            state.RngCursor,
-            events,
-            deferNormalVictory: true);
+        TriggerSpec? callRuneSpec = null;
+        var isConquestCallRune = pendingChoice.BattlefieldConquestDiscardDraw is { } discardContext
+            && BattlefieldTriggerSpecRules.TryGetTrigger(discardContext.Context.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger, out callRuneSpec);
+        var drawApplication = isConquestCallRune
+            ? new DrawApplicationResult(state.PlayerScores, null, state.RngCursor)
+            : ApplyDrawToPlayer(
+                state,
+                playerZones, cardObjects,
+                state.PlayerScores,
+                intent.PlayerId,
+                pendingChoice.DrawCount,
+                state.RngCursor,
+                events,
+                deferNormalVictory: true);
+        if (isConquestCallRune)
+        {
+            var called = CallRunes(playerZones, cardObjects, intent.PlayerId,
+                callRuneSpec!.RuneCallCount.GetValueOrDefault(1));
+            events.Add(new("RUNES_CALLED", "征服战场后召出休眠符文",
+                new Dictionary<string, object?> {
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                    ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds,
+                    ["reason"] = pendingChoice.EffectKind
+                }));
+        }
         if (pendingChoice.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw)
         {
-            events.Add(new GameEvent("BATTLEFIELD_TRIGGER_RESOLVED", "征服战场：已弃置所选手牌并抽牌",
+            events.Add(new GameEvent("BATTLEFIELD_TRIGGER_RESOLVED", isConquestCallRune
+                ? "征服战场：已弃置所选手牌并召出符文"
+                : "征服战场：已弃置所选手牌并抽牌",
                 new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId, ["battlefieldObjectId"] = pendingChoice.SourceObjectId,
                     ["sourceObjectId"] = pendingChoice.SourceObjectId,
@@ -10897,7 +10916,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Contains(tag, StringComparer.Ordinal);
     }
 
-    private static string EffectiveFieldControllerId(
+    internal static string EffectiveFieldControllerId(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
         CardObjectState cardObject)
@@ -10926,6 +10945,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryGetBattlefieldExtraStandbyObject(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         string playerId,
         string battlefieldObjectId,
         out CardObjectState battlefieldState)
@@ -10934,10 +10954,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!playerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var candidate)
-            || !BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                candidate.CardNo,
-                BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility,
-                out _)
+            || !(
+                BattlefieldStaticAbilitySpecRules.TryGetAbility(
+                    candidate.CardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility,
+                    out _)
+                || cardObjects.Values.Any(equipment => equipment.CardNo == "RAD·108/167"
+                    && equipment.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                    && SourceObjectControlledByPlayerOrLegacyOwned(equipment, playerId)
+                    && objectLocations.GetValueOrDefault(equipment.ObjectId) is { Zone: "BATTLEFIELD", BattlefieldObjectId: var field }
+                    && string.Equals(field, battlefieldObjectId, StringComparison.Ordinal)))
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
         {
             return false;
@@ -14161,6 +14187,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal))
         {
             return true;
+        }
+
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFriendlyUnits, StringComparison.Ordinal))
+        {
+            if (!state.ObjectLocations.TryGetValue(cardObject.ObjectId, out var location)
+                || location.Zone != MoveUnitBattlefieldZone
+                || string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+                || !state.BattlefieldStates.TryGetValue(location.BattlefieldObjectId, out var battlefield))
+            {
+                return false;
+            }
+
+            var controller = EffectiveFieldControllerId(state.PlayerZones, cardObject.ObjectId, cardObject);
+            return !string.IsNullOrWhiteSpace(controller)
+                && string.Equals(controller, battlefield.ControllerId, StringComparison.Ordinal);
         }
 
         return string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFilteredUnits, StringComparison.Ordinal)
@@ -18187,6 +18228,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId)
                 && !IsForeignGraveyardEffectPlay(state, intent.PlayerId, command.SourceObjectId)
+                && !IsForeignBanishedEffectPlay(state, intent.PlayerId, command.SourceObjectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
                 rejection = Reject(
@@ -18569,7 +18611,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
-            && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+            && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit
+                    && !IsDeployEquipmentBehavior(behavior)
+                || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+                && !IsDeployEquipmentBattlefieldDestinationAllowed(state, behavior, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
                 && !OpenBattlefieldPlayAllowed(state, behavior, destination)
                 && !PaidBattlefieldUnitPlayDestination(optionalCosts, destination)
@@ -18646,7 +18691,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,
             optionalCostManaReduction, optionalCosts, paymentTargets, command.SourceObjectId,
-            componentEchoReduction: optionalReductions.EchoManaReduction);
+            componentEchoReduction: optionalReductions.EchoManaReduction,
+            destination: unitPlayDestination);
         var battlefieldEchoCostReductionMana = manaCost.EchoReduction;
         var costReductionMana = manaCost.CardReduction;
         optionalCostManaReduction = manaCost.OptionalReduction;
@@ -20845,6 +20891,27 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && string.Equals(battlefieldState.ControllerId, playerId, StringComparison.Ordinal);
     }
 
+    private static bool IsDeployEquipmentBattlefieldDestinationAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        string destination)
+    {
+        if (!IsDeployEquipmentBehavior(behavior))
+        {
+            return false;
+        }
+
+        var normalized = NormalizeMoveUnitLocation(destination);
+        if (!normalized.StartsWith($"{MoveUnitBattlefieldZone}:", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var battlefieldObjectId = PreciseBattlefieldLocationObjectId(normalized);
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId)
+            && state.BattlefieldStates.ContainsKey(battlefieldObjectId);
+    }
+
     private static bool TryNormalizeMoveUnitZone(
         string value,
         out string zone,
@@ -21070,6 +21137,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (IsForeignGraveyardEffectPlay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } owner)
             playerZones[owner] = playerZones[owner] with { Graveyard = RemoveFromZone(playerZones[owner].Graveyard, sourceObjectId) };
+        if (IsForeignBanishedEffectPlay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } banishedOwner)
+            playerZones[banishedOwner] = playerZones[banishedOwner] with { Banished = RemoveFromZone(playerZones[banishedOwner].Banished, sourceObjectId) };
         return playerZones;
     }
 
@@ -24411,6 +24480,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
             if (!stackItem.SourceConfirmed) PlaySourceEquipmentToBase(
+                state,
                 playerZones,
                 cardObjects,
                 behavior,
@@ -24420,6 +24490,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var locations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
                 locations[stackItem.SourceObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", shadowEquipment.Battlefield.ObjectId);
+                resolvedObjectLocations = locations;
+            }
+            else if (!stackItem.SourceConfirmed && IsDeployEquipmentBehavior(behavior)
+                && IsStackItemBattlefieldDestination(stackItem))
+            {
+                var locations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+                locations[stackItem.SourceObjectId] = new(stackItem.ControllerId, "BATTLEFIELD",
+                    PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(stackItem.Destination)));
                 resolvedObjectLocations = locations;
             }
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
@@ -29406,6 +29484,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void PlaySourceEquipmentToBase(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
@@ -29434,17 +29513,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         cardObjects[stackItem.SourceObjectId] = equipmentState;
 
+        var deployedToBattlefield = IsDeployEquipmentBehavior(behavior)
+            && IsStackItemBattlefieldDestination(stackItem)
+            && PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(stackItem.Destination)) is { Length: > 0 } deployedBattlefieldId
+            && state.BattlefieldStates.ContainsKey(deployedBattlefieldId);
+
         playerZones[stackItem.ControllerId] = zones with
         {
-            Base = stackItem.PlayedFromStandby is not null ? zones.Base : zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+            Base = deployedToBattlefield || stackItem.PlayedFromStandby is not null ? zones.Base : zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
                 ? zones.Base
                 : zones.Base.Concat([stackItem.SourceObjectId]).ToArray(),
-            Battlefields = stackItem.PlayedFromStandby is null ? zones.Battlefields : zones.Battlefields.Append(stackItem.SourceObjectId).Distinct().ToArray()
+            Battlefields = deployedToBattlefield || stackItem.PlayedFromStandby is not null
+                ? zones.Battlefields.Append(stackItem.SourceObjectId).Distinct().ToArray()
+                : zones.Battlefields
         };
 
         var playedEvent = new GameEvent(
-            stackItem.PlayedFromStandby is null ? "EQUIPMENT_PLAYED_TO_BASE" : "EQUIPMENT_PLAYED_TO_BATTLEFIELD",
-            stackItem.PlayedFromStandby is null ? $"{behavior.DisplayName}打出装备到基地" : $"{behavior.DisplayName}从待命打出至原战场",
+            deployedToBattlefield || stackItem.PlayedFromStandby is not null ? "EQUIPMENT_PLAYED_TO_BATTLEFIELD" : "EQUIPMENT_PLAYED_TO_BASE",
+            deployedToBattlefield ? $"{behavior.DisplayName}部署到战场"
+                : stackItem.PlayedFromStandby is null ? $"{behavior.DisplayName}打出装备到基地" : $"{behavior.DisplayName}从待命打出至原战场",
             CreateEquipmentPlayedPayload(
                 stackItem,
                 behavior,
@@ -29453,9 +29540,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
         playedEvent = CaptureEquipmentPlayReadyObjects(playedEvent, playerZones, cardObjects, equipmentState, stackItem.ControllerId, stackItem.StackItemId);
         playedEvent = CaptureCardPlayHistory(playedEvent, equipmentState, stackItem.ControllerId,
-            stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD",
+            stackItem.StackItemId, true,
+            IsDeployEquipmentBehavior(behavior) && IsStackItemBattlefieldDestination(stackItem)
+                || stackItem.PlayedFromStandby is not null ? "BATTLEFIELD" : "BASE",
             zones: playerZones, cards: cardObjects);
-        events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
+        events.Add(stackItem.PlayedFromStandby is null || deployedToBattlefield
+            ? playedEvent
+            : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
     }
 
     private static Dictionary<string, object?> CreateEquipmentPlayedPayload(
@@ -29469,10 +29560,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["equipmentObjectId"] = stackItem.SourceObjectId,
                 ["equipmentName"] = behavior.DisplayName,
-                ["destinationZone"] = stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD",
+                ["destinationZone"] = IsDeployEquipmentBehavior(behavior) && IsStackItemBattlefieldDestination(stackItem)
+                    || stackItem.PlayedFromStandby is not null ? "BATTLEFIELD" : "BASE",
                 ["tags"] = equipmentState.Tags.ToArray()
             };
         if (stackItem.PlayedFromStandby is { } shadow) payload["battlefieldObjectId"] = shadow.Battlefield.ObjectId;
+        else if (IsDeployEquipmentBehavior(behavior) && IsStackItemBattlefieldDestination(stackItem))
+            payload["battlefieldObjectId"] = PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(stackItem.Destination));
         if (equipmentState.IsExhausted)
         {
             payload["isExhausted"] = true;
@@ -31891,7 +31985,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var equipmentObservers = before is null ? [] : CaptureEquipmentDestructionObservers(state, zones, cards, before);
         var bombObserver = before is null ? null : CaptureBombDestructionObserver(state, zones, before);
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
-        IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
+        IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(
+            zones, cards, state.ObjectLocations, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
             Death = removed && removal.WasDestroyed && removal.WasUnit

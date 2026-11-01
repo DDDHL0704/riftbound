@@ -14,7 +14,7 @@ public sealed partial class CoreRuleEngine
         MatchState state, string playerId, CardBehaviorDefinition behavior,
         int additionalMana = 0, int optionalReduction = 0,
         IReadOnlyList<string>? optionalCosts = null, IReadOnlyList<string>? targets = null,
-        string? sourceObjectId = null, int? componentEchoReduction = null)
+        string? sourceObjectId = null, int? componentEchoReduction = null, string? destination = null)
     {
         if (EffectPlayIgnoresAllCosts(state, playerId)) return new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         var echoReduction = componentEchoReduction
@@ -51,6 +51,16 @@ public sealed partial class CoreRuleEngine
             reductions.Add(("optional", behavior.ManaReductionIfEquipmentReturned, 0));
         reductions.Add(("optional", SelectedSacrificeCostReduction(state, playerId, behavior, optionalCosts ?? []).Mana, 0));
         reductions.Add(("equipment", ResolveBattlefieldEquipmentCostReductionMana(state, playerId, behavior), 0));
+        if (destination is { Length: > 12 }
+            && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment))
+        {
+            var battlefieldId = destination[12..];
+            if (state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield)
+                && battlefield.CardNo == Rad163CardNo
+                && !state.UntilEndOfTurnEffects.Contains(Rad163UsedMarker(state.TurnNumber, playerId, battlefieldId), StringComparer.Ordinal))
+                reductions.Add(("rad163", 1, 0));
+        }
         var applied = new Dictionary<string, int>();
         foreach (var reduction in reductions.OrderByDescending(item => item.Floor))
         {

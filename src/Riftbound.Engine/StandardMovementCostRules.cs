@@ -2,6 +2,41 @@ namespace Riftbound.Engine;
 
 internal static class StandardMovementCostRules
 {
+    internal readonly record struct MovementCost(int Mana, int Power,
+        IReadOnlyDictionary<string, int>? PowerCostByTrait = null)
+    {
+        public bool IsZero => Mana == 0 && Power == 0 && (PowerCostByTrait is null || PowerCostByTrait.Values.Sum() == 0);
+    }
+
+    public static MovementCost ForMove(MatchState state, string playerId, string? battlefieldId, int unitCount)
+    {
+        if (battlefieldId is null || !state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield))
+            return default;
+
+        var mana = 0;
+        var genericPower = 0;
+        if (battlefield.ControllerId is { Length: > 0 } controller
+            && controller != playerId
+            && state.ObjectLocations.Any(entry =>
+                entry.Value.Zone == "BATTLEFIELD"
+                && entry.Value.BattlefieldObjectId == battlefieldId
+                && state.CardObjects.TryGetValue(entry.Key, out var source)
+                && source.CardNo == "RAD·062/167"
+                && !source.IsFaceDown
+                && source.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && CoreRuleEngine.EffectiveFieldControllerId(state.PlayerZones, entry.Key, source) == controller))
+        {
+            // RAD·062 imposes {{1}} plus {{A}}.  The latter is one generic
+            // power, rather than an orange typed-power requirement.
+            mana = 1;
+            genericPower = 1;
+        }
+
+        var power = genericPower + PowerPerExtraUnit(state, playerId, battlefieldId) * Math.Max(0, unitCount - 1);
+        var typed = new Dictionary<string, int>(StringComparer.Ordinal);
+        return new(mana, power, typed);
+    }
+
     // CN 204.4 / UNL-163/219: independent text instances impose independent
     // costs. Copied weapon text belongs to the weapon's controller (CN 718.5.f).
     public static int PowerPerExtraUnit(MatchState state, string playerId, string? battlefieldId)
@@ -32,7 +67,8 @@ internal static class StandardMovementCostRules
 
     public static bool TryPowerCost(MatchState state, string playerId, string? battlefieldId, int unitCount, out int cost)
     {
-        var amount = (long)PowerPerExtraUnit(state, playerId, battlefieldId) * Math.Max(0, unitCount - 1);
+        var movement = ForMove(state, playerId, battlefieldId, unitCount);
+        var amount = (long)movement.Power + (movement.PowerCostByTrait?.Values.Sum() ?? 0);
         cost = amount <= int.MaxValue ? (int)amount : 0;
         return amount <= int.MaxValue;
     }

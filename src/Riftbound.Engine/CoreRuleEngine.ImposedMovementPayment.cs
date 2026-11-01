@@ -27,16 +27,24 @@ public sealed partial class CoreRuleEngine
                 PendingPayment = new("imposed-movement-resource", RuleChoiceWindow, player) };
             var movers = currentMovers(context);
             if (movers is null) return ImposedMovementPaymentResult.Declined;
-            if (!StandardMovementCostRules.TryPowerCost(context, player, battlefield, movers.Length, out var amount))
-                return ImposedMovementPaymentResult.Unsupported;
-            if (amount == 0) return ImposedMovementPaymentResult.Paid;
+            var imposed = StandardMovementCostRules.ForMove(context, player, battlefield, movers.Length);
+            var manaAmount = imposed.Mana;
+            var amount = imposed.Power;
+            var typedPower = PaymentCostRules.NormalizePowerCostByTrait(
+                imposed.PowerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+            var typedPowerAmount = typedPower.Values.Sum();
+            var totalPowerAmount = checked(amount + typedPowerAmount);
+            if (manaAmount < 0 || amount < 0 || totalPowerAmount < 0) return ImposedMovementPaymentResult.Unsupported;
+            if (manaAmount == 0 && totalPowerAmount == 0) return ImposedMovementPaymentResult.Paid;
             var pool = pools.GetValueOrDefault(player, RunePool.Empty);
             var plan = new PaymentCostRules.PaymentPlan(
                 PaymentCostRules.BuildPaymentId(state.Tick, ImposedMovementPaymentKind, player, sourceId),
-                ImposedMovementPaymentKind, player, genericPowerCost: amount, totalPowerCost: amount,
-                reason: "MAGESEEKER_PATROL_MOVE_TAX_STATIC", sourceObjectId: sourceId);
+                ImposedMovementPaymentKind, player, baseManaCost: manaAmount, totalManaCost: manaAmount,
+                genericPowerCost: amount, totalPowerCost: totalPowerAmount,
+                powerCostByTrait: typedPower,
+                reason: manaAmount > 0 ? "RAD062_GRAVITY_FIELD" : "MAGESEEKER_PATROL_MOVE_TAX_STATIC", sourceObjectId: sourceId);
             var canPay = PaymentCostRules.AuthorizePayment(plan, pool, state: state).Accepted;
-            var multipleAllocations = canPay && amount < pool.TotalPower
+            var multipleAllocations = canPay && typedPowerAmount == 0 && amount > 0 && amount < pool.TotalPower
                 && pool.PowerByTrait.Values.Count(value => value > 0) + (pool.Power > 0 ? 1 : 0) > 1;
             // A uniquely funded standard intent still completes directly.
             if (canPay && standardMove && !acquired && !multipleAllocations) { Commit(plan); return ImposedMovementPaymentResult.Paid; }
@@ -46,9 +54,11 @@ public sealed partial class CoreRuleEngine
                     || r.Command is not ActivateAbilityCommand activated || !movers.Contains(activated.SourceObjectId, StringComparer.Ordinal))
                 .ToArray();
             var options = new List<RuleChoiceOption>();
-            if (canPay) options.Add(new("PAY", $"支付 {amount} 点符能，执行此次群体移动"));
+            if (canPay) options.Add(new("PAY", manaAmount > 0
+                ? $"支付 {manaAmount} 点法力和 {totalPowerAmount} 点符能，执行此次群体移动"
+                : $"支付 {totalPowerAmount} 点符能，执行此次群体移动"));
             if (multipleAllocations)
-                options.Add(new(AllocateImposedMovementPowerChoice, $"自行分配此次 {amount} 点符能的各特性数量"));
+                options.Add(new(AllocateImposedMovementPowerChoice, $"自行分配此次 {totalPowerAmount} 点符能的各特性数量"));
             options.Add(new("DECLINE", "不支付，放弃此次群体移动"));
             foreach (var id in zones[player].Base.Order(StringComparer.Ordinal))
             {
@@ -63,13 +73,16 @@ public sealed partial class CoreRuleEngine
             options.AddRange(resources.Select(r => r.Choice));
             if (!canPay && options.Count == 1 && standardMove && !acquired) return ImposedMovementPaymentResult.Unfunded;
             var selected = RuleChoices.Value!.Choose(player,
-                $"此次同时移动需额外支付 {amount} 点符能；可先获得资源或放弃此次移动。",
-                options, amount, ImposedMovementPaymentKind, context with { PendingPayment = null });
+                manaAmount > 0
+                    ? $"此次移动需额外支付 {manaAmount} 点法力和 {totalPowerAmount} 点符能；可先获得资源或放弃此次移动。"
+                    : $"此次同时移动需额外支付 {totalPowerAmount} 点符能；可先获得资源或放弃此次移动。",
+                options, totalPowerAmount, ImposedMovementPaymentKind, context with { PendingPayment = null }, manaCost: manaAmount);
             if (selected == "DECLINE")
             {
                 events.Add(new("MOVEMENT_COST_DECLINED", "未支付施加费用，此次群体移动不执行",
                     new Dictionary<string, object?> { ["playerId"] = player, ["sourceObjectId"] = sourceId,
-                        ["sourceObjectIds"] = movers, ["battlefieldObjectId"] = battlefield, ["powerCost"] = amount }));
+                        ["sourceObjectIds"] = movers, ["battlefieldObjectId"] = battlefield,
+                        ["manaCost"] = manaAmount, ["powerCost"] = totalPowerAmount }));
                 return ImposedMovementPaymentResult.Declined;
             }
             if (selected == "PAY") { Commit(plan); return ImposedMovementPaymentResult.Paid; }
@@ -78,6 +91,7 @@ public sealed partial class CoreRuleEngine
                 var allocation = ChooseImposedMovementPowerAllocation(context, player, movers[0], pool, amount);
                 if (allocation is null) continue;
                 var exactPlan = new PaymentCostRules.PaymentPlan(plan.PaymentId, plan.PaymentWindow, player,
+                    baseManaCost: manaAmount, totalManaCost: manaAmount,
                     genericPowerCost: allocation.Wildcard, totalPowerCost: amount, powerCostByTrait: allocation.PowerByTrait,
                     reason: plan.Reason, sourceObjectId: sourceId);
                 Commit(exactPlan);
@@ -112,7 +126,7 @@ public sealed partial class CoreRuleEngine
                 events.Add(new("COST_PAID", "支付群体移动的施加费用",
                     PaymentCostRules.BuildCostPaidPayload(selectedPlan, pools, null, new Dictionary<string, object?> {
                         ["sourceObjectIds"] = movers, ["battlefieldObjectId"] = battlefield,
-                        ["manaCost"] = 0, ["powerCost"] = amount })));
+                        ["manaCost"] = manaAmount, ["powerCost"] = totalPowerAmount })));
             }
         }
     }

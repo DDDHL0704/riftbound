@@ -26,24 +26,62 @@ public sealed partial class CoreRuleEngine
     private static TriggerSpec? HeldInsightSpec(string? cardNo) => cardNo is not null ? HeldInsightSpecs.Value.GetValueOrDefault(cardNo) : null;
 
     private static bool IsInsightSource(string? cardNo, string kind)
-        => kind == "EXHAUSTED" ? UnitEventSpec(cardNo) is { Timing: "BECAME_EXHAUSTED", Effect: "INSIGHT" }
-            : kind == "HELD" ? HeldInsightSpec(cardNo) is not null : InsightSourceFamilies.Value[kind switch { "SPELL_PLAYED" => "UNL-211/219", "LAST_BREATH" => "UNL-062/219", "DUEL" => "UNL-079/219", "EMPOWERED" => "VEN·047", _ => "UNL-136/219" }]
+    {
+        if (IsRad165InsightKind(kind))
+            return cardNo == Rad165CardNo;
+        if (kind == "EXHAUSTED")
+            return UnitEventSpec(cardNo) is { Timing: "BECAME_EXHAUSTED", Effect: "INSIGHT" };
+        if (kind == "HELD")
+            return HeldInsightSpec(cardNo) is not null;
+        return InsightSourceFamilies.Value[kind switch {
+            "SPELL_PLAYED" => "UNL-211/219", "LAST_BREATH" => "UNL-062/219",
+            "DUEL" => "UNL-079/219", "EMPOWERED" => "VEN·047", _ => "UNL-136/219" }]
             .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
+    }
 
-    internal static bool IsCapturedInsightKind(string? kind) => kind is "LAST_BREATH" or "DUEL" or "EMPOWERED" or "HELD" or "EXHAUSTED";
+    internal static bool IsCapturedInsightKind(string? kind) => kind is "LAST_BREATH" or "DUEL" or "EMPOWERED" or "HELD" or "EXHAUSTED" or Rad165InsightKind;
 
     private static IReadOnlyList<InsightTriggerContext> CaptureLastBreathInsights(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
-        CardObjectState unit, string controller)
-        => CaptureRuleTextInsights(zones, cards, unit, controller, "LAST_BREATH");
+        IReadOnlyDictionary<string, ObjectLocationState> locations, CardObjectState unit, string controller)
+        => CaptureRuleTextInsights(zones, cards, locations, unit, controller, "LAST_BREATH");
 
     private static IReadOnlyList<InsightTriggerContext> CaptureRuleTextInsights(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
-        CardObjectState unit, string controller, string kind)
-        => unit.IsFaceDown || !unit.Tags.Contains(CardObjectTags.UnitCard) ? []
-            : AttachedRuleTextRules.Instances(zones, cards, unit).Where(i => IsInsightSource(i.CardNo, kind))
-                .Select(i => new InsightTriggerContext(i.CardNo, controller, 2, unit.ObjectGeneration, kind,
-                    Origin: i.Origin, SourceTokenFactoryCardNo: unit.TokenFactoryCardNo)).ToArray();
+        IReadOnlyDictionary<string, ObjectLocationState> locations, CardObjectState unit, string controller, string kind)
+    {
+        if (unit.IsFaceDown || !unit.Tags.Contains(CardObjectTags.UnitCard))
+            return [];
+
+        var captured = AttachedRuleTextRules.Instances(zones, cards, unit)
+            .Where(i => IsInsightSource(i.CardNo, kind))
+            .Select(i => new InsightTriggerContext(i.CardNo, controller, 2, unit.ObjectGeneration, kind,
+                Origin: i.Origin, SourceTokenFactoryCardNo: unit.TokenFactoryCardNo))
+            .ToList();
+
+        // RAD·017's static text is a shared trigger modifier: every friendly
+        // Last Breath insight at its battlefield is captured a second time.
+        // Capture this while the destroyed unit and equipment still have their
+        // pre-removal locations, so destruction of the modifier itself cannot
+        // leak into the captured context.
+        if (kind == "LAST_BREATH"
+            && locations.TryGetValue(unit.ObjectId, out var unitLocation)
+            && unitLocation.Zone == "BATTLEFIELD"
+            && cards.Values.Count(card => card.CardNo == Rad017CardNo
+                && !card.IsFaceDown
+                && locations.TryGetValue(card.ObjectId, out var modifierLocation)
+                && modifierLocation.Zone == "BATTLEFIELD"
+                && modifierLocation.BattlefieldObjectId == unitLocation.BattlefieldObjectId
+                && EffectiveFieldControllerId(zones, card.ObjectId, card) == controller) is var modifierCount
+            && modifierCount > 0)
+        {
+            var original = captured.ToArray();
+            for (var extra = 0; extra < modifierCount; extra++)
+                captured.AddRange(original);
+        }
+
+        return captured;
+    }
 
     internal static bool ValidInsightRuleTextSource(MatchState state, InsightTriggerContext context, string source)
         => (!IsCapturedInsightKind(context.Kind) || !string.IsNullOrWhiteSpace(source) && (state.CardObjects.TryGetValue(source, out var unit)
@@ -70,9 +108,9 @@ public sealed partial class CoreRuleEngine
                 && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind) && context.Origin.CardNo == context.CardNo
                 && context.Origin.Unit is { } unit && unit.Generation == context.SourceGeneration)
-            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT" or "EMPOWERED" or "HELD" or "EXHAUSTED"
+            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT" or "EMPOWERED" or "HELD" or "EXHAUSTED" or Rad165InsightKind
             && context.Count == (context.Kind == "EXHAUSTED" ? UnitEventSpec(context.CardNo)?.Amount ?? 0 : context.Kind == "HELD" ? HeldInsightSpec(context.CardNo)?.RevealCount ?? 0 : context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
-                : context.Kind is "SPELL_PLAYED" or "DUEL" or "GRANTED_PREDICT" or "PRINTED_PREDICT" ? 1 : 2) && context.Count>0
+                : context.Kind is "SPELL_PLAYED" or "DUEL" or "GRANTED_PREDICT" or "PRINTED_PREDICT" or Rad165InsightKind ? 1 : 2) && context.Count>0
             && (context.Kind == "DUEL" ? !string.IsNullOrEmpty(context.BattlefieldObjectId) && !string.IsNullOrEmpty(context.ReturnFocusPlayerId)
                 : (context.Kind is "CONQUEST_LOOK" or "HELD" ? !string.IsNullOrWhiteSpace(context.BattlefieldObjectId) : context.BattlefieldObjectId is null)
                     && context.ReturnFocusPlayerId is null && !context.PaymentAccepted)

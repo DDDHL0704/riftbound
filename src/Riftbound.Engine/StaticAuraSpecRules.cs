@@ -405,7 +405,9 @@ internal static class StaticAuraSpecRules
                 && string.Equals(
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
-                    StringComparison.Ordinal));
+                    StringComparison.Ordinal))
+            || string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFriendlyUnits, StringComparison.Ordinal)
+                && string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.SameBattlefieldPublicUnits, StringComparison.Ordinal);
     }
 
     public static bool IsBattlefieldAllUnitsPowerStaticAura(StaticAuraSpec aura)
@@ -448,7 +450,9 @@ internal static class StaticAuraSpecRules
                 && string.Equals(
                     aura.ParticipantScope,
                     StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
-                    StringComparison.Ordinal));
+                    StringComparison.Ordinal))
+            || string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFriendlyUnits, StringComparison.Ordinal)
+                && string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.SameBattlefieldPublicUnits, StringComparison.Ordinal);
     }
 
     public static bool IsBattlefieldAllUnitsKeywordStaticAura(StaticAuraSpec aura)

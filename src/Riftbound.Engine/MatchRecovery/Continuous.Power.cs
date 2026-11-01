@@ -362,7 +362,7 @@ public static partial class MatchRecoveryValidator
     {
         if (duration == "UNTIL_END_OF_BATTLE") {
             if (!(layer == ContinuousEffectLayers.PowerModifier && effectKind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND"
-                || layer == ContinuousEffectLayers.RuleText && effectKind == "BATTLE_STEADFAST_DEFEND"))
+                || layer == ContinuousEffectLayers.RuleText && effectKind is "BATTLE_STEADFAST_DEFEND" or "BATTLE_BULWARK_DEFEND"))
                 errors.Add($"{effectLabel} battle duration is invalid for its layer or definition");
             return;
         }
@@ -1067,11 +1067,16 @@ public static partial class MatchRecoveryValidator
             && TryReadObjectString(effectPayload, "effectId", out var equipmentEffectId)
             && equipmentEffectId is not null
             && equipmentEffectId.StartsWith("EQUIPMENT_KEYWORD_AURA:", StringComparison.Ordinal);
-        var battleKeyword = scope == "OBJECT" && effectKind == "BATTLE_STEADFAST_DEFEND" && sourceCardNo == "OGN·279/298"
+        var battleKeyword = scope == "OBJECT" && effectKind is "BATTLE_STEADFAST_DEFEND" or "BATTLE_BULWARK_DEFEND"
+            && sourceCardNo is not null
+            && (BattleLimitedMarkers.Definition(sourceCardNo, BattleLimitedMarkers.SteadfastDefend)
+                || BattleLimitedMarkers.Definition(sourceCardNo, BattleLimitedMarkers.BulwarkDefend))
             && sourcePath == "CoreRuleEngine.ResolveBattleLimitedRoleSkill"
             && TryReadObjectString(effectPayload, "duration", out var battleDuration) && battleDuration == "UNTIL_END_OF_BATTLE"
             && TryReadObjectString(effectPayload, "effectId", out var battleEffectId) && battleEffectId is not null
-            && battleEffectId.StartsWith("OBJECT:", StringComparison.Ordinal) && battleEffectId.Contains(":COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal);
+            && battleEffectId.StartsWith("OBJECT:", StringComparison.Ordinal)
+            && (battleEffectId.Contains(":COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal)
+                || battleEffectId.Contains(":COMBAT_KEYWORD:壁垒:", StringComparison.Ordinal));
         if (!battleKeyword && !equipmentKeywordAura && !string.IsNullOrWhiteSpace(effectKind))
         {
             errors.Add($"{effectLabel} RULE_TEXT effect kind must be absent");

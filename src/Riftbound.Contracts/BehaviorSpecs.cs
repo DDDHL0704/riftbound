@@ -110,6 +110,24 @@ public static class TriggerKinds
         "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE";
     public const string BattlefieldDefendGrantSteadfast =
         "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO";
+    public const string BattlefieldDefendGrantBulwark =
+        "BATTLEFIELD_DEFENSE_GRANT_BULWARK";
+    public const string BattlefieldDeployStandbyCreateGold =
+        "BATTLEFIELD_DEPLOY_STANDBY_CREATE_GOLD";
+    public const string BattlefieldActivatedPayDraw =
+        "BATTLEFIELD_ACTIVATED_PAY_TWO_DRAW";
+    public const string BattlefieldUnitDestroyedCreateMinion =
+        "BATTLEFIELD_UNIT_DESTROYED_CREATE_MINION";
+    public const string BattlefieldHeldEmptyRuneScore =
+        "BATTLEFIELD_HELD_EMPTY_RUNE_SCORE";
+    public const string BattlefieldConquerNextUnitHaste =
+        "BATTLEFIELD_CONQUER_NEXT_UNIT_HASTE";
+    public const string BattlefieldFirstPermanentCostReduction =
+        "BATTLEFIELD_FIRST_PERMANENT_COST_REDUCTION";
+    public const string BattlefieldFirstPermanentInsight =
+        "BATTLEFIELD_FIRST_PERMANENT_INSIGHT";
+    public const string BattlefieldConquerDiscardCallRune =
+        "BATTLEFIELD_CONQUER_DISCARD_CALL_RUNE";
     public const string BattlefieldHeldGrantBoon =
         "BATTLEFIELD_HELD_GRANT_BOON";
     public const string BattlefieldHeldCreateMinion =
@@ -325,6 +343,8 @@ public static class TriggerTimings
     public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
+    public const string BattlefieldPermanentPlayed = "BATTLEFIELD_PERMANENT_PLAYED";
+    public const string BattlefieldStandbyPlaced = "BATTLEFIELD_STANDBY_PLACED";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
     public const string SourceUnitPlayed = "SOURCE_UNIT_PLAYED";
@@ -505,6 +525,8 @@ public static class StaticAuraKinds
     public const string BattlefieldAllUnitsKeyword = "BATTLEFIELD_ALL_UNITS_KEYWORD";
     public const string BattlefieldFilteredUnitsPower = "BATTLEFIELD_FILTERED_UNITS_POWER";
     public const string BattlefieldFilteredUnitsKeyword = "BATTLEFIELD_FILTERED_UNITS_KEYWORD";
+    public const string BattlefieldFriendlyUnitsPower = "BATTLEFIELD_FRIENDLY_UNITS_POWER";
+    public const string BattlefieldFriendlyUnitsKeyword = "BATTLEFIELD_FRIENDLY_UNITS_KEYWORD";
     public const string BattlefieldIsolatedDefenderKeywordModifier =
         "BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER";
     public const string SameBattlefieldOtherFriendlyUnitsPowerPlusOne =
@@ -535,6 +557,7 @@ public static class StaticAuraTargetScopes
     public const string SourceObject = "SOURCE_OBJECT";
     public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
     public const string SameBattlefieldFilteredUnits = "SAME_BATTLEFIELD_FILTERED_UNITS";
+    public const string SameBattlefieldFriendlyUnits = "SAME_BATTLEFIELD_FRIENDLY_UNITS";
     public const string SameBattlefieldIsolatedDefender = "SAME_BATTLEFIELD_ISOLATED_DEFENDER";
     public const string SameBattlefieldOtherFriendlyUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS";
     public const string SameBattlefieldOtherFriendlyFilteredUnits =

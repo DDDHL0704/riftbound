@@ -867,6 +867,18 @@ public sealed partial record MatchState
                 aura);
         }
 
+        if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFriendlyUnits, StringComparison.Ordinal))
+        {
+            var controller = state.BattlefieldStates.GetValueOrDefault(battlefieldObjectId)?.ControllerId
+                ?? state.CardObjects.GetValueOrDefault(battlefieldObjectId)?.ControllerId;
+            return string.IsNullOrWhiteSpace(controller)
+                ? []
+                : BattlefieldStaticAuraParticipantObjectIds(state, battlefieldObjectId)
+                    .Where(id => state.CardObjects.TryGetValue(id, out var unit)
+                        && string.Equals(CoreRuleEngine.EffectiveFieldControllerId(state.PlayerZones, id, unit), controller, StringComparison.Ordinal))
+                    .ToArray();
+        }
+
         return [];
     }
 

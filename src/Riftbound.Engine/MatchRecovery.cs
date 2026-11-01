@@ -4352,8 +4352,13 @@ public static partial class MatchRecoveryValidator
         if (state.PendingEffectPlay is { } recast && recast.SourceReplay is null && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
             errors.Add("invalid spell effect-play continuation");
 
-        if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay))
+        if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay
+            && !CoreRuleEngine.IsDockCageEffectPlay(foreignPlay)
+            && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay))
             errors.Add("invalid foreign graveyard effect-play continuation");
+        if (state.PendingEffectPlay is { } dockCagePlay && CoreRuleEngine.IsDockCageEffectPlay(dockCagePlay)
+            && !CoreRuleEngine.ValidDockCageEffectPlay(state, dockCagePlay))
+            errors.Add("invalid dock-cage banished effect-play continuation");
         if (state.PendingEffectPlay is { } graveyard && graveyard.Parent.RecastContext is null
             && graveyard.DestinationPolicy != "STACK"
             && (graveyard.SourceZone == "GRAVEYARD"
@@ -4855,7 +4860,7 @@ public static partial class MatchRecoveryValidator
                     or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "RETURN_PERMANENT"
                     or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
                     or "VEX" or "IVERN" or "BRUSH_RETURN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
-                    or "BURN" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");
+                    or "BURN" or "EMPTY_RUNE_SCORE" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");
         }
         foreach (var item in state.StackItems.Where(x => x.HeldContext is not null))
             if (!CoreRuleEngine.ValidExactOtherFriendlyHeldContext(state, item.HeldContext!, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))

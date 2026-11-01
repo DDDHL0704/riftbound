@@ -45,13 +45,22 @@ public sealed partial class CoreRuleEngine
                         ["duration"] = BattleLimitedMarkers.Duration, ["stackItemId"] = item.StackItemId }));
                 }
                 else {
-                    keywordId = TemporaryCombatKeywordRules.AppliedEffectId(target, "COMBAT_KEYWORD:坚守2");
+                    var grant = BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
+                        trigger => BattleLimitedMarkers.IsDefendGrant(context.Kind)
+                            && (context.Kind == BattleLimitedMarkers.SteadfastDefend
+                                ? BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger(trigger)
+                                : BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantBulwarkTrigger(trigger)), out var grantSpec)
+                        ? grantSpec : null;
+                    var keyword = grant?.GrantedKeyword ?? CardCombatKeywordNames.Steadfast;
+                    var amount = grant?.KeywordBonus.GetValueOrDefault() ?? 2;
+                    var keywordText = keyword == CardCombatKeywordNames.Bulwark ? keyword : keyword + amount;
+                    keywordId = TemporaryCombatKeywordRules.AppliedEffectId(target, "COMBAT_KEYWORD:" + keywordText);
                     cards[targetId] = target with { UntilEndOfTurnEffects = target.UntilEndOfTurnEffects.Append(keywordId).ToArray() };
-                    events.Add(new("BATTLEFIELD_TRIGGER_RESOLVED", "强化阵地使一名单位在本次战斗期间获得坚守2", new Dictionary<string, object?> {
+                    events.Add(new("BATTLEFIELD_TRIGGER_RESOLVED", "战场防守技能使单位获得战斗期间关键词", new Dictionary<string, object?> {
                         ["playerId"] = item.ControllerId, ["battlefieldId"] = scope.BattlefieldId,
                         ["battlefieldObjectId"] = item.SourceObjectId, ["battlefieldCardNo"] = context.CardNo,
-                        ["trigger"] = TriggerKinds.BattlefieldDefendGrantSteadfast, ["targetObjectId"] = targetId,
-                        ["keyword"] = CardCombatKeywordNames.Steadfast, ["keywordBonus"] = 2, ["duration"] = BattleLimitedMarkers.Duration,
+                        ["trigger"] = context.Kind == BattleLimitedMarkers.BulwarkDefend ? TriggerKinds.BattlefieldDefendGrantBulwark : TriggerKinds.BattlefieldDefendGrantSteadfast, ["targetObjectId"] = targetId,
+                        ["keyword"] = keyword, ["keywordBonus"] = amount, ["duration"] = BattleLimitedMarkers.Duration,
                         ["stackItemId"] = item.StackItemId }));
                 }
                 if (keywordId is not null || powerId is not null) {

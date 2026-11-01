@@ -8,7 +8,9 @@ public sealed record TurnDeathLedger(int TurnNumber, IReadOnlyDictionary<string,
     public IReadOnlyList<string> PermanentControllers { get; init; } = [];
 }
 public sealed record DestroyedUnitFact(string ObjectId, string CardNo, string OwnerId, string ControllerId, long Generation, bool WasMinion,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool WasStunned = false);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool WasStunned = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectLocationState? Location = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool WasToken = false);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record DeathObserverContext(string CardNo, string Kind, long SourceGeneration, DestroyedUnitFact Destroyed)
 {
@@ -136,9 +138,11 @@ public sealed partial class CoreRuleEngine
         if (!unit.Tags.Contains(CardObjectTags.UnitCard) || unit.IsFaceDown) return null;
         var frame=RuleChoices.Value!;
         var controller=EffectiveFieldControllerId(zones,unit.ObjectId,unit);
-        var fact=new DestroyedUnitFact(unit.ObjectId,unit.CardNo ?? "",unit.OwnerId ?? controller,controller,unit.ObjectGeneration,unit.Tags.Contains(CardObjectTags.MinionTokenFamily), IsStunnedForBattle(unit));
-        var observers=new List<CapturedDeathObserver>();
         var locations = frame.CurrentDestructionLocations ?? state.ObjectLocations;
+        var destroyedLocation = locations.GetValueOrDefault(unit.ObjectId);
+        var fact=new DestroyedUnitFact(unit.ObjectId,unit.CardNo ?? "",unit.OwnerId ?? controller,controller,unit.ObjectGeneration,unit.Tags.Contains(CardObjectTags.MinionTokenFamily), IsStunnedForBattle(unit), destroyedLocation,
+            WasToken: TokenObjectRules.IsToken(unit));
+        var observers=new List<CapturedDeathObserver>();
         // CN 383.2.c.2: an observer leaving in the same action does not trigger.
         // A nested resource cost has its own destruction batch, before the outer death.
         foreach(var source in cards.Values.OrderBy(c=>c.ObjectId,StringComparer.Ordinal))
@@ -155,18 +159,18 @@ public sealed partial class CoreRuleEngine
                         if (spec.Kind == TriggerKinds.UnitStunnedEnemyDestroyedHereDraw && !fact.WasStunned) continue;
                         if (localEnemy ? observerController == controller || !IsSameFieldLocation(zones, locations, unit.ObjectId, source.ObjectId)
                             : observerController != controller) continue;
-                        ObjectLocationState? observerLocation = null, destroyedLocation = null;
+                        ObjectLocationState? observerLocation = null, capturedDestroyedLocation = null;
                         if (localEnemy)
                         {
                             if (!TryGetPreciseFieldLocation(zones, locations, source.ObjectId, out var capturedSource)
                                 || !TryGetPreciseFieldLocation(zones, locations, unit.ObjectId, out var capturedDestroyed)) continue;
                             observerLocation = capturedSource;
-                            destroyedLocation = capturedDestroyed;
+                            capturedDestroyedLocation = capturedDestroyed;
                         }
                         observers.Add(new(source.ObjectId, observerController,
                             new(instance.CardNo, spec.Kind, source.ObjectGeneration, fact) {
                                 RuleTextInstanceId = instance.Origin is null ? null : instance.Id, Origin = instance.Origin,
-                                SourceLocation = observerLocation, DestroyedLocation = destroyedLocation }));
+                                SourceLocation = observerLocation, DestroyedLocation = capturedDestroyedLocation }));
                     }
         var deathId = $"death-{frame.Origin.Tick}-{frame.DeathSequence++}";
         return new(deathId,frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {

@@ -19,6 +19,9 @@ public sealed partial class CoreRuleEngine
     internal const string DelayedEndReadyPrefix = "DELAYED_END_READY:";
     private static TriggerSpec? EndSpec(string? no) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(no)
         .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd && t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes or TriggerKinds.TurnEndRecycleRunesCall)
+        ?? (string.Equals(no, Rad052CardNo, StringComparison.Ordinal)
+            ? new TriggerSpec("RAD052_CREATE_GOLD", TriggerTimings.TurnEnd, "资源开采器：若控制战场，打出一个休眠金币。")
+            : null)
         ?? (CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var behavior) && behavior.EndStepSelfDestructionDamage > 0
             ? new("DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS", TriggerTimings.TurnEnd, "摧毁来源并对其控制者的所有单位造成伤害。", DamageAmount: behavior.EndStepSelfDestructionDamage) : null);
 
@@ -35,6 +38,9 @@ public sealed partial class CoreRuleEngine
             {
                 var spec = EndSpec(instance.CardNo);
                 if (spec is null || spec.RequiresSourceBattlefieldAtTrigger == true && location.Zone != "BATTLEFIELD") continue;
+                if (string.Equals(instance.CardNo, Rad052CardNo, StringComparison.Ordinal)
+                    && (location.Zone != "BATTLEFIELD"
+                        || state.BattlefieldStates.GetValueOrDefault(location.BattlefieldObjectId ?? "")?.ControllerId != state.TurnPlayerId)) continue;
                 result.Add(new($"end-{state.Tick + 1}-{source.ObjectId}-{instance.Id}", state.TurnPlayerId, source.ObjectId,
                     EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) {
                     EndAbility = new(instance.CardNo, spec.Kind, source, location, state.TurnNumber,
@@ -125,21 +131,36 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveEndAbility(MatchState state, StackItemState item)
     {
         if (item.EndAbility!.Kind == TriggerKinds.TurnEndRecycleRunesCall) return ResolveEndRuneRecycleCall(state, item);
+        if (item.EndAbility!.Kind == "RAD052_CREATE_GOLD")
+        {
+            var zones = NormalizeZonesForSeats(state);
+            var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            var events = new List<GameEvent>();
+            var behavior = new CardBehaviorDefinition(item.CardNo!, "资源开采器", 0, item.EffectKind, 0, 0,
+                CreatedBaseEquipmentTokenCount: 1, CreatedBaseEquipmentTokenName: "金币",
+                CreatedBaseEquipmentTokenTags: "反应", CreatedBaseEquipmentTokenIsExhausted: true);
+            CreateBaseEquipmentTokens(zones, cards, behavior, item, events);
+            events.Insert(0, new("BATTLEFIELD_TRIGGER_RESOLVED", "资源开采器打出休眠金币",
+                new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["battlefieldCardNo"] = Rad052CardNo, ["trigger"] = "RAD052_CREATE_GOLD" }));
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
+        }
         if (item.EndAbility!.Kind == "DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS") return ResolveEndSelfDestructionDamage(state, item);
         if (item.EndAbility!.Kind == TriggerKinds.TurnEndRevealUntilUnit)
         {
             if (item.EffectPlayCompleted) return NoopStackResolutionResult(state);
             TryGetEffectPlayDefinition(item, out var definition); return BeginDeckPlaySequence(state, item, definition);
         }
-        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); var events = new List<GameEvent>();
+        var readyCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); var readyEvents = new List<GameEvent>();
         foreach (var id in item.TargetObjectIds)
-            if (EndRuneTargets(state, item.ControllerId).Contains(id) && cards[id].ObjectGeneration == item.TargetGenerations!.GetValueOrDefault(id, -1))
+            if (EndRuneTargets(state, item.ControllerId).Contains(id) && readyCards[id].ObjectGeneration == item.TargetGenerations!.GetValueOrDefault(id, -1))
             {
-                cards[id] = cards[id] with { IsExhausted = false };
-                events.Add(new("RUNE_READIED", "结束步骤让选择的符文变为活跃状态", new Dictionary<string,object?> {
+                readyCards[id] = readyCards[id] with { IsExhausted = false };
+                readyEvents.Add(new("RUNE_READIED", "结束步骤让选择的符文变为活跃状态", new Dictionary<string,object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["objectIds"] = new[]{id}, ["count"] = 1 }));
             }
-        return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
+        return NoopStackResolutionResult(state) with { CardObjects = readyCards, Events = readyEvents };
     }
 
     private static StackResolutionResult ResolveEndSelfDestructionDamage(MatchState state, StackItemState item)

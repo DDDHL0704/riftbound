@@ -450,7 +450,10 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "SFD·219/221"
             or "SFD·220/221"
             or "SFD·221/221"
-            or "VEN·157" or "VEN·158" or "VEN·159" or "VEN·160" or "VEN·161" or "VEN·162" or "VEN·163" or "VEN·164" or "VEN·165" or "VEN·166";
+            or "VEN·157" or "VEN·158" or "VEN·159" or "VEN·160" or "VEN·161" or "VEN·162" or "VEN·163" or "VEN·164" or "VEN·165" or "VEN·166"
+            or "RAD·157/167" or "RAD·158/167" or "RAD·159/167" or "RAD·160/167" or "RAD·161/167" or "RAD·162/167"
+            or "RAD·163/167" or "RAD·164/167" or "RAD·165/167" or "RAD·166/167" or "RAD·184/167";
+
     }
 }
 
