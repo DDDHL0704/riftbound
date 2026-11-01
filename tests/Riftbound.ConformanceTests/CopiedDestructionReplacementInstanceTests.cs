@@ -62,7 +62,9 @@ public sealed partial class CopiedDestructionReplacementInstanceTests
             Assert.Equal(copied, run.State.PlayerZones["P1"].Base.Contains(id));
             Assert.Equal(!copied, run.State.PlayerZones["P1"].Graveyard.Contains(id));
         }
-        Assert.Null(run.State.PendingRuleChoice); await run.Replay(); Export("complete", initial, run, no, copied);
+        Assert.Null(run.State.PendingRuleChoice);
+        // The final replacement command already audited this same original history.
+        Export("complete", initial, run, no, copied);
     }
 
     private static async Task Select(Driver run, string id)

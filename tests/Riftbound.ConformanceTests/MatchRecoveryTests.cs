@@ -35841,7 +35841,7 @@ public sealed class MatchRecoveryTests
             turnPlayerId: "bob",
             untilEndOfTurnEffects: ["STUNNED"])
         {
-            UntilEndOfTurnEffects = [" STUNNED ", "STUNNED", ""]
+            UntilEndOfTurnEffects = [" STUNNED ", "STUNNED", "", null!]
         };
         var nullListState = new MatchState(
             "room-a",

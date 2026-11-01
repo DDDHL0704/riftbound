@@ -16,7 +16,13 @@ public sealed record EmpowerActivationContext(ObjectBinding Source, string CardN
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? DiscardedHandCard = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EmpowerUnitDestructionReceipt? DestructionCost = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EmpowerBattlefieldReduction? BattlefieldReduction = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EquipmentAbilityManaReductionReceipt? EquipmentManaReduction = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EquipmentAbilityManaReductionReceipt? EquipmentManaReduction = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceTokenFactoryCardNo { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
+}
 internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, EmpowerSpec Spec, EmpowerCostSpec Cost, int Alternative, EmpowerBattlefieldReduction? BattlefieldReduction = null)
 {
     internal string? InstanceId => Instance.Origin is null ? null : $"{Instance.Id}:{Id}";
@@ -95,10 +101,12 @@ internal static class EmpowerRules
             || item.StackItemId != $"STACK-{c.AcquiredTick}-{c.Source.ObjectId}-EMPOWER"
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.TargetObjectIds.Count != 0 || item.OptionalCosts.Count != 0
             || !state.Seats.ContainsKey(item.ControllerId)
-            || state.CardObjects.TryGetValue(c.Source.ObjectId, out var source) && c.Source.Generation > source.ObjectGeneration
-            || !AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.Generation, c.CardNo)
-            || c.Origin is null && state.CardObjects.TryGetValue(c.Source.ObjectId, out var live) && live.ObjectGeneration == c.Source.Generation
-                && CopyFaceTimeline.FaceAt(live, c.FaceRevision, c.AcquiredTick) != c.CardNo) return false;
+            || !SelfAbilitySourceRules.Valid(state, c.Source, c.CardNo, c.FaceRevision, c.AcquiredTick,
+                c.SourceTokenFactoryCardNo, c.CeasedSource, c.Origin is null,
+                c.DestructionCost is { } destruction && destruction.Unit == c.Source
+                    && destruction.TokenFactoryCardNo == c.SourceTokenFactoryCardNo
+                    && destruction.TokenCeasedAtTick == c.AcquiredTick)
+            || !AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.Generation, c.CardNo)) return false;
         var spec = specs[c.Keyword]; var cost = spec.Alternatives[c.Alternative];
         if (!SupportedCost(cost) || !CoreRuleEngine.TryApplyCapturedEmpowerReduction(state, c, cost, out var reducedCost)
             || !CoreRuleEngine.ValidEquipmentEmpowerReduction(state, c, Mana(spec, reducedCost, c.ControlledRunes))
@@ -233,7 +241,8 @@ public sealed partial class CoreRuleEngine
         var destructionReceipt = destroyed is null ? null : new EmpowerUnitDestructionReceipt(destroyed, paidTokenFactory);
         var context = new EmpowerActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
             ability.Spec.Index, ability.Alternative, mana, runes, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0,
-            ability.Instance.Origin, discarded, destructionReceipt, ability.BattlefieldReduction, equipmentReduction);
+            ability.Instance.Origin, discarded, destructionReceipt, ability.BattlefieldReduction, equipmentReduction) {
+                SourceTokenFactoryCardNo = source.TokenFactoryCardNo };
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-EMPOWER", intent.PlayerId, source.ObjectId,
             EmpowerRules.Effect, ability.Instance.CardNo, [], 0, 0, []) { EmpowerActivation = context };
         var committedPools = payment.RunePools;
@@ -254,7 +263,12 @@ public sealed partial class CoreRuleEngine
             locations = ReconcileObjectLocations(locations, zones);
             if (paidTokenFactory is not null && !cards.ContainsKey(destroyed.ObjectId))
             {
-                context = context with { DestructionCost = destructionReceipt! with { TokenCeasedAtTick = state.Tick + 1 } };
+                // Paying with the source itself can make the token cease at
+                // the same tick at which its independent skill is captured.
+                context = context with {
+                    DestructionCost = destructionReceipt! with { TokenCeasedAtTick = state.Tick + 1 },
+                    CeasedSource = destroyed == context.Source ? SelfAbilitySourceRules.Capture(state, state.Tick + 1,
+                        context.Source, context.CardNo, context.FaceRevision, context.AcquiredTick, context.SourceTokenFactoryCardNo) : null };
                 item = item with { EmpowerActivation = context };
             }
         }

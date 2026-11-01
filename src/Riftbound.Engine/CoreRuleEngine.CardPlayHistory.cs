@@ -60,6 +60,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult RecordCardPlayHistory(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
+        result = RecordNextUnitPlayGrants(result);
         var history = result.State.CardPlays;
         var finalized = (history.TurnNumber == before.TurnNumber ? history.Finalized : []).ToList();
         var resolved = (history.TurnNumber == before.TurnNumber ? history.Resolved : []).ToList();
@@ -163,8 +164,8 @@ public sealed partial class CoreRuleEngine
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
         var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue, UntilEndOfTurnEffects = effects };
-        return result with { State = next, Events = events,
-            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+        return RecordBattlefieldPermanentPlays(before, result with { State = next, Events = events,
+            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
     }
 
     internal static bool ValidCardPlayHistory(MatchState state)

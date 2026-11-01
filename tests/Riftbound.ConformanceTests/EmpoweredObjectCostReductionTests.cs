@@ -1,4 +1,3 @@
-using System.Reflection;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -102,20 +101,17 @@ public sealed class EmpoweredObjectCostReductionTests
         CardBehaviorDefinition? behavior = null)
     {
         var before = MatchStateHasher.Hash(state);
-        var calculated = Method("CalculatePlayManaCost").Invoke(null,
-            [state, "P1", behavior ?? Behavior, additionalMana, 0, null, null, null, null])!;
-        var minimum = Method("MinimumPlayManaCost").Invoke(null,
-            [state, "P1", behavior ?? Behavior, null, additionalMana])!;
+        var calculated = CoreRuleEngine.CalculatePlayManaCost(
+            state, "P1", behavior ?? Behavior, additionalMana: additionalMana);
+        var minimum = CoreRuleEngine.MinimumPlayManaCost(
+            state, "P1", behavior ?? Behavior, sourceObjectId: null, additionalMana: additionalMana);
         foreach (var result in new[] { calculated, minimum })
         {
-            Assert.Equal(mana, Assert.IsType<int>(result.GetType().GetProperty("Total")!.GetValue(result)));
-            Assert.Equal(reduction, Assert.IsType<int>(result.GetType().GetProperty("CardReduction")!.GetValue(result)));
+            Assert.Equal(mana, result.Total);
+            Assert.Equal(reduction, result.CardReduction);
         }
         Assert.Equal(before, MatchStateHasher.Hash(state));
     }
-
-    private static MethodInfo Method(string name)
-        => typeof(CoreRuleEngine).GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!;
 
     private static MatchState Position(string zone, string tag, string owner = "P1", string controller = "P1", string zonePlayer = "P1")
     {

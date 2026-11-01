@@ -14,7 +14,7 @@ public sealed partial class CoreRuleEngine
         MatchState state, string playerId, CardBehaviorDefinition behavior,
         int additionalMana = 0, int optionalReduction = 0,
         IReadOnlyList<string>? optionalCosts = null, IReadOnlyList<string>? targets = null,
-        string? sourceObjectId = null, int? componentEchoReduction = null)
+        string? sourceObjectId = null, int? componentEchoReduction = null, string? destination = "BASE")
     {
         if (EffectPlayIgnoresAllCosts(state, playerId)) return new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         var echoReduction = componentEchoReduction
@@ -41,6 +41,7 @@ public sealed partial class CoreRuleEngine
         reductions.Add(("next", SourceNextSpellCostReductionEffects(state, playerId)
             .Where(effect => effect.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(effect => effect.Mana), 0));
         reductions.Add(("card", ResolveCostReductionMana(state, playerId, behavior, sourceObjectId), 0));
+        reductions.Add(("card", BattlefieldFirstPermanentManaReduction(state, playerId, behavior, destination), 0));
         if (!string.IsNullOrEmpty(behavior.TargetTraitsManaReductionTags)
             && (targets ?? []).Any(id => state.CardObjects.TryGetValue(id, out var card)
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
@@ -88,6 +89,6 @@ public sealed partial class CoreRuleEngine
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
             optionalReduction += behavior.TargetTraitsManaReduction;
         return CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,
-            sourceObjectId: sourceObjectId);
+            sourceObjectId: sourceObjectId, destination: null);
     }
 }
