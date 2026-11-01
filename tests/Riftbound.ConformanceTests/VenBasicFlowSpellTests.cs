@@ -251,7 +251,7 @@ public sealed class VenBasicFlowSpellTests
             Assert.True(result.Accepted, result.ErrorMessage); State = result.State;
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             var frame = Frame();
-            Assert.Empty(frame.ValidationErrors);
+            Assert.True(frame.ValidationErrors.Count == 0, string.Join(Environment.NewLine, frame.ValidationErrors));
             if (RecoverAfterEveryCommand) session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
             var count = entries.Count; var hash = MatchStateHasher.Hash(State);
             var duplicate = await session.SubmitAsync(player, id, command, wire, default);

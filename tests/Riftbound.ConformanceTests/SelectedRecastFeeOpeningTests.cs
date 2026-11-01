@@ -151,7 +151,8 @@ public sealed class SelectedRecastFeeOpeningTests
             Assert.Contains(gift, State().PlayerZones[actor].Graveyard);
             Assert.Equal(originalCommands, MatchStateHasher.HashValue(Commands().Take(commandCount).ToArray()));
             Assert.Equal(originalEvents, MatchStateHasher.HashValue(Events().Take(eventCount).ToArray()));
-            await Drain(); await Cold();
+            // Drain restores the completed response window, including its full original history.
+            await Drain();
             Assert.Equal(MatchStatuses.InProgress, State().Status); Assert.Null(State().WinnerPlayerId);
             Assert.All(State().PlayerScores.Values, score => Assert.Equal(0, score));
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State(), engine, default, Events());

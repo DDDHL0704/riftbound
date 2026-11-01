@@ -1190,6 +1190,7 @@ public sealed partial record MatchState
     private static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
         return BattleLimitedMarkers.PrivateMarker(effectId)
+            || effectId.StartsWith(CoreRuleEngine.SimpleActivationUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnFlowGrantPrefix, StringComparison.Ordinal)
@@ -1516,7 +1517,9 @@ public sealed partial record MatchState
             || string.IsNullOrWhiteSpace(pendingHandChoice.ChoiceId)
             || string.IsNullOrWhiteSpace(pendingHandChoice.ChoiceWindow)
             || string.IsNullOrWhiteSpace(pendingHandChoice.PlayerId)
-            || pendingHandChoice.RequiredCount <= 0
+            || pendingHandChoice.RequiredCount < 0
+            || pendingHandChoice.RequiredCount == 0
+                && !CoreRuleEngine.IsOptionalBattlefieldConquestDiscardChoice(pendingHandChoice)
             || pendingHandChoice.MaxCount < pendingHandChoice.RequiredCount
             || pendingHandChoice.LegalObjectIds.Count < pendingHandChoice.RequiredCount)
         {
@@ -2547,10 +2550,15 @@ internal static partial class ActionPromptBuilder
         if (action == CommandTypes.ChooseHandCards && state.PendingHandChoice is { } handChoice
             && handChoice.PlayerId == playerId)
         {
+            if (commandTemplate is not null)
+                commandTemplate = commandTemplate with { Bindings = commandTemplate.Bindings
+                    .Select(binding => binding.Field == "chosenObjectIds"
+                        ? binding with { Required = handChoice.RequiredCount > 0 } : binding).ToArray() };
             var handChoices = AnnotatePromptChoiceObjectIds(PendingHandChoiceDtos(state, handChoice));
             var steps = new List<ActionPromptSelectionStepDto>();
-            for (var index = 0; index < handChoice.RequiredCount; index++)
-                AddSelectionStep(steps, "target", $"第 {index + 1} 张弃牌", true, handChoices);
+            for (var index = 0; index < handChoice.MaxCount; index++)
+                AddSelectionStep(steps, "target", index < handChoice.RequiredCount
+                    ? $"第 {index + 1} 张弃牌" : "选择弃置的手牌；不选则放弃", index < handChoice.RequiredCount, handChoices);
             selectionSteps = steps;
         }
         if (action == CommandTypes.ChooseCards && state.PendingCardChoice is { } cardChoice
@@ -2787,7 +2795,9 @@ internal static partial class ActionPromptBuilder
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
             || !state.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            || (!SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && !P4ActivatedAbilityCatalog.GetAll().Any(ability => ability.UsableByAnyPlayerOnOwnTurn
+                    && CoreRuleEngine.IsSimpleAbilitySource(state, playerId, sourceObjectId, ability)))
             || cardObject.IsFaceDown)
         {
             return [];
@@ -2940,7 +2950,8 @@ internal static partial class ActionPromptBuilder
         {
             if (!AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability).Any()
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
-                || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+                || (ability.RequiresBattlefieldSource && !ability.UsableByAnyPlayerOnOwnTurn
+                    && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
                 || P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(ability.AbilityId)
                 || ability.Kind == "TRIGGERED_RESOURCE"
