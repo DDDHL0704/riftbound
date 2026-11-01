@@ -3035,9 +3035,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId.Trim())
             .ToArray();
+        var optionalConquestDiscard = IsOptionalBattlefieldConquestDiscardChoice(pendingChoice);
         if (submittedObjectIds.Length != chosenObjectIds.Count
             || submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
-            || submittedObjectIds.Length != pendingChoice.RequiredCount
+            || (!optionalConquestDiscard && submittedObjectIds.Length != pendingChoice.RequiredCount)
             || submittedObjectIds.Length > pendingChoice.MaxCount)
         {
             return RejectWithCorePrompts(
@@ -3093,18 +3094,37 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 intent.PlayerId,
                 submittedObjectIds, playerZones)
             .ToArray();
-        var drawApplication = ApplyDrawToPlayer(
-            state,
-            playerZones, cardObjects,
-            state.PlayerScores,
-            intent.PlayerId,
-            pendingChoice.DrawCount,
-            state.RngCursor,
-            events,
-            deferNormalVictory: true);
-        if (pendingChoice.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw)
+        TriggerSpec? callRuneSpec = null;
+        var isConquestCallRune = pendingChoice.BattlefieldConquestDiscardDraw is { } discardContext
+            && BattlefieldTriggerSpecRules.TryGetTrigger(discardContext.Context.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger, out callRuneSpec);
+        var drawApplication = isConquestCallRune
+            ? new DrawApplicationResult(state.PlayerScores, null, state.RngCursor)
+            : ApplyDrawToPlayer(
+                state,
+                playerZones, cardObjects,
+                state.PlayerScores,
+                intent.PlayerId,
+                pendingChoice.DrawCount,
+                state.RngCursor,
+                events,
+                deferNormalVictory: true);
+        if (isConquestCallRune && submittedObjectIds.Length > 0)
         {
-            events.Add(new GameEvent("BATTLEFIELD_TRIGGER_RESOLVED", "征服战场：已弃置所选手牌并抽牌",
+            var called = CallRunes(playerZones, cardObjects, intent.PlayerId,
+                callRuneSpec!.RuneCallCount.GetValueOrDefault(1));
+            events.Add(new("RUNES_CALLED", "征服战场后召出休眠符文",
+                new Dictionary<string, object?> {
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                    ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds,
+                    ["reason"] = pendingChoice.EffectKind
+                }));
+        }
+        if (pendingChoice.EffectKind is TriggerKinds.BattlefieldConquerDiscardDraw or TriggerKinds.BattlefieldConquerDiscardCallRune)
+        {
+            events.Add(new GameEvent("BATTLEFIELD_TRIGGER_RESOLVED", isConquestCallRune
+                ? "征服战场：已弃置所选手牌并召出符文"
+                : "征服战场：已弃置所选手牌并抽牌",
                 new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId, ["battlefieldObjectId"] = pendingChoice.SourceObjectId,
                     ["sourceObjectId"] = pendingChoice.SourceObjectId,

@@ -148,6 +148,9 @@ public sealed partial class CoreRuleEngine
                 : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? IsEmpoweredAttackDestroyTarget(state, item, c)
                 : item.FieldContext.Kind is AttackWeaponDamageKind or DisarmKind ? IsAttackWeaponDamageTarget(state, item, c)
                 : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? true
+                : item.FieldContext.Kind == BattleLimitedMarkers.BulwarkDefend
+                    ? EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
+                        && IsObjectLocatedAtBattlefield(state.PlayerZones, state.ObjectLocations, c.ObjectId, item.FieldContext.BattlefieldId!)
                 : item.FieldContext.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or AttackMightDamageKind ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind is "SECOND_DRAW" or "RECYCLE_BOON" ? c.ControllerId == item.ControllerId
@@ -248,6 +251,7 @@ public sealed partial class CoreRuleEngine
                     : item.FieldContext.Kind == StunBoonKind ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : item.FieldContext.Kind == "RECYCLE_BOON" ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? "选择一名单位，在本次战斗期间获得坚守2；确认目标和法盾费用后开放响应"
+                    : item.FieldContext.Kind == BattleLimitedMarkers.BulwarkDefend ? "选择一名此处友方单位，在本次战斗期间获得壁垒；确认目标和法盾费用后开放响应"
                     : "选择一名友方单位获得本回合 +2 战力；确认后开放响应",
                 item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
         }

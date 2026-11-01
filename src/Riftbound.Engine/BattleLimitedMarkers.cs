@@ -61,17 +61,22 @@ internal static class BattleLimitedMarkers
     internal const string DoubleAttack = "BATTLE_DOUBLE_SELF_ATTACK";
     internal const string DoubleDefend = "BATTLE_DOUBLE_SELF_DEFEND";
     internal const string SteadfastDefend = "BATTLE_STEADFAST_DEFEND";
+    internal const string BulwarkDefend = "BATTLE_BULWARK_DEFEND";
     internal const string SourcePath = "CoreRuleEngine.ResolveBattleLimitedRoleSkill";
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) {
         PropertyNameCaseInsensitive = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
 
-    internal static bool Kind(string value) => value is DoubleAttack or DoubleDefend or SteadfastDefend;
+    internal static bool Kind(string value) => value is DoubleAttack or DoubleDefend or SteadfastDefend or BulwarkDefend;
+    internal static bool IsDefendGrant(string kind) => kind is SteadfastDefend or BulwarkDefend;
     internal static string Role(string kind) => kind == DoubleAttack ? "ATTACKER" : "DEFENDER";
     internal static bool Definition(string cardNo, string kind) => kind switch {
         DoubleAttack or DoubleDefend => cardNo is "SFD·110/221" or "SFD·110a/221",
         SteadfastDefend => BattlefieldTriggerSpecRules.TryGetTrigger(cardNo,
-            BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger, out _), _ => false };
+            BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger, out _),
+        BulwarkDefend => BattlefieldTriggerSpecRules.TryGetTrigger(cardNo,
+            BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantBulwarkTrigger, out _),
+        _ => false };
     internal static string ScopeId(BattleLimitedScope scope) => ScopePrefix + JsonSerializer.Serialize(scope, Json);
     internal static string RoleId(BattleFirstRole role) => RolePrefix + JsonSerializer.Serialize(role, Json);
     internal static string GrantId(BattleLimitedGrant grant) => GrantPrefix + JsonSerializer.Serialize(grant, Json);

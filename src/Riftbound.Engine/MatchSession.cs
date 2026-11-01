@@ -2770,7 +2770,9 @@ internal static partial class ActionPromptBuilder
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
             || !state.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            || (!SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && !P4ActivatedAbilityCatalog.GetAll().Any(ability => ability.UsableByAnyPlayerOnOwnTurn
+                    && CoreRuleEngine.IsSimpleAbilitySource(state, playerId, sourceObjectId, ability)))
             || cardObject.IsFaceDown)
         {
             return [];
@@ -2923,7 +2925,8 @@ internal static partial class ActionPromptBuilder
         {
             if (!AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability).Any()
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
-                || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+                || (ability.RequiresBattlefieldSource && !ability.UsableByAnyPlayerOnOwnTurn
+                    && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
                 || P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(ability.AbilityId)
                 || ability.Kind == "TRIGGERED_RESOURCE"

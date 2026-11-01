@@ -26,6 +26,7 @@ public sealed partial class CoreRuleEngine
     });
     private static (string Kind, int Amount)? HeldDefinition(string? cardNo) =>
         BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldBurnTrigger, out var burn) ? ("BURN", burn.MillCount!.Value) :
+        BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldEmptyRuneScoreTrigger, out var emptyRune) ? ("EMPTY_RUNE_SCORE", emptyRune.ScoreAmount!.Value) :
         HeldCards.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), out var definition) ? definition : null;
 
     private static TriggerSpec? ExactOtherFriendlyHeldSpec(string cardNo)
@@ -42,8 +43,9 @@ public sealed partial class CoreRuleEngine
             return ValidDeploymentHeldContext(state, context, effect, controller, source, cardNo);
         if (context.Deployment is not null) return false;
         var conditional = context.Kind is "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE";
-        if (context.Kind == "BURN") return HeldDefinition(context.CardNo) is { Kind: "BURN" } burn
-            && context.Amount == burn.Amount && effect == "HOLD_BURN" && cardNo == context.CardNo
+        if (context.Kind is "BURN" or "EMPTY_RUNE_SCORE") return HeldDefinition(context.CardNo) is { } burn
+            && burn.Kind == context.Kind
+            && context.Amount == burn.Amount && effect == "HOLD_" + context.Kind && cardNo == context.CardNo
             && controller == state.TurnPlayerId && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "CHANNEL"
             && context.Origin is null && context.RuleTextInstanceId is null && context.RequiredExactOtherFriendlyBattlefieldUnits is null
             && context.SourceGeneration >= 0 && source == context.BattlefieldObjectId
@@ -87,6 +89,7 @@ public sealed partial class CoreRuleEngine
                 var abilities = new List<(string Kind, int Amount, RuleTextInstance? Instance, int? ExactCount)>();
                 if (HeldDefinition(card.CardNo) is { } definition
                     && (definition.Kind != "SEVEN_WIN" || units.Length >= definition.Amount)
+                    && (definition.Kind != "EMPTY_RUNE_SCORE" || state.PlayerZones[player].RuneDeck.Count == 0)
                     && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player))) abilities.Add((definition.Kind, definition.Amount, null, null));
                 if (units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
                     abilities.Add(("EXPERIENCE", hunt, null, null));
@@ -249,6 +252,18 @@ public sealed partial class CoreRuleEngine
                 var nextScores = scores.ToDictionary(e => e.Key, e => e.Value); nextScores[player] += scoreAmount; scores = nextScores;
                 if (nextScores[player] >= EffectiveWinningScore(state)) winner = player;
                 events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = scoreAmount, ["score"] = nextScores[player], ["sourceObjectId"] = item.SourceObjectId }));
+                break;
+            case "EMPTY_RUNE_SCORE":
+                if (state.PlayerZones.GetValueOrDefault(player)?.RuneDeck.Count == 0)
+                {
+                    var emptyScores = scores.ToDictionary(e => e.Key, e => e.Value);
+                    emptyScores[player] += context.Amount;
+                    scores = emptyScores;
+                    if (emptyScores[player] >= EffectiveWinningScore(state)) winner = player;
+                    events.Add(new("SCORE_GAINED", "符文牌堆为空时据守获得分数", new Dictionary<string, object?> {
+                        ["playerId"] = player, ["amount"] = context.Amount, ["score"] = emptyScores[player],
+                        ["sourceObjectId"] = item.SourceObjectId, ["battlefieldId"] = field }));
+                }
                 break;
             case "SEVEN_WIN":
                 if (HeldUnitsAt(state, field, player).Length >= context.Amount) {

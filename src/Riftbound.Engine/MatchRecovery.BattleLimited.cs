@@ -40,9 +40,15 @@ public static partial class MatchRecoveryValidator
                     && TryReadObjectString(e.Event.Payload, self ? "sourceObjectId" : "battlefieldObjectId", out var source) && source == grant.SourceObjectId).ToArray();
                 if (births.Length != 1 || !Accepted(births[0]) || self && (!TryReadObjectInt(births[0].Event.Payload, "snapshotMight", out var snapshot)
                     || snapshot != grant.SnapshotMight || !TryReadObjectInt(births[0].Event.Payload, "powerDelta", out var delta) || delta != grant.SnapshotMight)
-                    || !self && (!TryReadObjectString(births[0].Event.Payload, "battlefieldCardNo", out var no) || no != "OGN·279/298"
-                        || !TryReadObjectString(births[0].Event.Payload, "keyword", out var keyword) || keyword != CardCombatKeywordNames.Steadfast
-                        || !TryReadObjectInt(births[0].Event.Payload, "keywordBonus", out var amount) || amount != 2))
+                    || !self && (!TryReadObjectString(births[0].Event.Payload, "battlefieldCardNo", out var no)
+                        || !TryReadObjectString(births[0].Event.Payload, "keyword", out var keyword)
+                        || !TryReadObjectInt(births[0].Event.Payload, "keywordBonus", out var amount)
+                        || !BattleLimitedMarkers.Definition(no ?? "", grant.Context.Kind)
+                        || !BattlefieldTriggerSpecRules.TryGetTrigger(no, t =>
+                            grant.Context.Kind == BattleLimitedMarkers.BulwarkDefend
+                                ? BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantBulwarkTrigger(t)
+                                : BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger(t), out var expected)
+                        || keyword != expected.GrantedKeyword || amount != expected.KeywordBonus))
                     errors.Add("battle grant has no matching accepted resolution event");
             }
     }
@@ -91,8 +97,10 @@ public static partial class MatchRecoveryValidator
                 || role.RoleEventOrder < 0 || role.AcquiredAtTick == role.Scope.StartedAtTick && role.RoleEventOrder < role.Scope.RoleEventOrder
                 || role.Role is not ("ATTACKER" or "DEFENDER" or "PLAYER_DEFENDER") || string.IsNullOrWhiteSpace(role.SourceFace)
                 || role.ControllerId != (role.Role == "ATTACKER" ? role.Scope.AttackingPlayerId : role.Scope.DefendingPlayerId)
-                || role.Role == "PLAYER_DEFENDER" && (role.SourceObjectId != role.Scope.BattlefieldId || role.SourceFace != "OGN·279/298"
-                    || role.FaceRevision != 0 || role.TokenFactoryCardNo is not null)
+                || role.Role == "PLAYER_DEFENDER" && (role.SourceObjectId != role.Scope.BattlefieldId
+                    || role.FaceRevision != 0 || role.TokenFactoryCardNo is not null
+                    || !BattleLimitedMarkers.Definition(role.SourceFace, BattleLimitedMarkers.SteadfastDefend)
+                        && !BattleLimitedMarkers.Definition(role.SourceFace, BattleLimitedMarkers.BulwarkDefend))
                 || state.CardObjects.TryGetValue(role.SourceObjectId, out var source)
                     && (source.ObjectGeneration < role.SourceGeneration || source.ObjectGeneration == role.SourceGeneration
                         && role.Role != "PLAYER_DEFENDER" && (!CopyFaceTimeline.Valid(state, source)
@@ -104,10 +112,10 @@ public static partial class MatchRecoveryValidator
                 errors.Add("missing ordinary battle first-role source");
         }
         var seenGrants = new HashSet<(BattleLimitedScope, string)>();
-        foreach (var trigger in state.TriggerQueue.Where(t => t.FieldContext?.Kind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" or "BATTLE_STEADFAST_DEFEND"))
+        foreach (var trigger in state.TriggerQueue.Where(t => t.FieldContext?.Kind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" or "BATTLE_STEADFAST_DEFEND" or "BATTLE_BULWARK_DEFEND"))
             if (trigger.TriggeredByEventKind is not ("BATTLE_ROLES_ESTABLISHED" or "BATTLE_ROLE_ACQUIRED"))
                 errors.Add("battle role skill has an unrelated trigger event");
-        foreach (var item in state.StackItems.Where(i => i.FieldContext?.Kind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" or "BATTLE_STEADFAST_DEFEND"))
+        foreach (var item in state.StackItems.Where(i => i.FieldContext?.Kind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" or "BATTLE_STEADFAST_DEFEND" or "BATTLE_BULWARK_DEFEND"))
             if (item.DamageAmount != 0 || item.EffectRepeatCount != 1 || item.Destination.Length != 0
                 || item.TargetedPowerAbility is not null || item.DamageDistribution is not null || item.OptionalCosts.Count != 0)
                 errors.Add("battle role skill has unrelated stack instructions");
@@ -122,7 +130,7 @@ public static partial class MatchRecoveryValidator
                 var first = roles.Where(r => r.Scope == grant.Scope && r.SourceObjectId == grant.SourceObjectId
                     && r.SourceGeneration == grant.SourceGeneration && r.Role == roleName).ToArray();
                 var correctDefinition = self ? c.CardNo is "SFD·110/221" or "SFD·110a/221"
-                    : c.Kind == "BATTLE_STEADFAST_DEFEND" && c.CardNo == "OGN·279/298";
+                    : BattleLimitedMarkers.Definition(c.CardNo, c.Kind);
                 var onField = state.PlayerZones.Values.Any(z => z.Base.Contains(id) || z.Battlefields.Contains(id));
                 if (!scopes.Contains(grant.Scope) || !seenGrants.Add((grant.Scope, grant.StackItemId))
                     || string.IsNullOrWhiteSpace(grant.StackItemId) || first.Length != 1 || first[0].ControllerId != grant.ControllerId
@@ -149,7 +157,13 @@ public static partial class MatchRecoveryValidator
                         errors.Add("invalid battle snapshot numeric ledger");
                 }
                 else if (grant.PowerEffectId is not null || grant.SnapshotMight is not null || grant.KeywordEffectId is not { } keyword
-                    || !keyword.StartsWith("COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal) || !TemporaryCombatKeywordRules.IsValid(keyword)
+                    || !TemporaryCombatKeywordRules.IsValid(keyword)
+                    || !BattlefieldTriggerSpecRules.TryGetTrigger(c.CardNo, t => c.Kind == BattleLimitedMarkers.BulwarkDefend
+                        ? BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantBulwarkTrigger(t)
+                        : BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger(t), out var expectedKeyword)
+                    || keyword != "COMBAT_KEYWORD:" + expectedKeyword.GrantedKeyword
+                        + (expectedKeyword.GrantedKeyword == CardCombatKeywordNames.Bulwark ? "" : expectedKeyword.KeywordBonus)
+                        + ":" + keyword[(keyword.LastIndexOf(':') + 1)..]
                     || card.UntilEndOfTurnEffects.Count(t => t == keyword) != 1 || !pairedKeywords.Add(keyword))
                     errors.Add("invalid battle keyword grant pair");
             }
@@ -179,7 +193,7 @@ public static partial class MatchRecoveryValidator
             foreach (var effect in effects) {
                 TryReadObjectString(effect, "effectId", out var id); TryReadObjectString(effect, "duration", out var duration);
                 TryReadObjectString(effect, "effectKind", out var kind);
-                if (duration != "UNTIL_END_OF_BATTLE" && kind is not ("BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" or "BATTLE_STEADFAST_DEFEND")
+                if (duration != "UNTIL_END_OF_BATTLE" && kind is not ("BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" or "BATTLE_STEADFAST_DEFEND" or "BATTLE_BULWARK_DEFEND")
                     && id?.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal) != true) continue;
                 if (id is null || !actual.TryAdd(id, effect)) errors.Add("invalid duplicate battle effect view");
             }
