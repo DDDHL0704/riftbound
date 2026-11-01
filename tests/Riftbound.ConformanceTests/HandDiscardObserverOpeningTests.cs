@@ -106,8 +106,9 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         Assert.Single(run.State.StackItems, i => i.SourceObjectId == spell);
         Assert.DoesNotContain(run.Frame().Events.Where(e => e.Sequence > start), e => e.Event.Kind == "TRIGGER_RESOLVED");
         await run.Cold(); await Save(run, actor, format, "pending-skill");
-        var persisted = Persist(run.Frame()); var audit = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(persisted, new CoreRuleEngine(), default);
-        Assert.Empty(audit);
+        var persisted = Persist(run.Frame());
+        // Loading this exact frame through the fresh production registry below
+        // includes its complete original action/event replay audit.
         var coldJournal = new Journal();
         var cold = await new InMemoryMatchSessionRegistry(new CoreRuleEngine(), coldJournal, new Store(persisted),
             NoopMatchPlayerStore.Instance, new(false, format)).GetOrCreateAsync(run.State.RoomId, default);

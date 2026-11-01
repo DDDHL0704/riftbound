@@ -24,6 +24,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
         var verifyColdRecoveryAfterEveryCommand = true;
+        string? auditedReplayHash = null;
         OfficialDecklist? deck = null; PlayCostQuoteDto? defaultQuote = null, discountQuote = null; object? forgery = null;
         try
         {
@@ -152,9 +153,9 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             Assert.Equal(0, State().RunePools[actor].TotalPower);
             Assert.Equal(scores, MatchStateHasher.HashValue(State().PlayerScores));
             Assert.Equal(MatchStatuses.InProgress, State().Status); Assert.Null(State().WinnerPlayerId);
-            // The decline command or the paid-play Drain already restored this unchanged history.
-            var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State(), engine, default, Events());
-            Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+            // The decline command or paid-play Drain already audited the complete
+            // original replay. Keep those exact inputs and final state unchanged.
+            Assert.Equal(auditedReplayHash, OriginalHistoryHash());
             Assert.Equal(MatchSession.RoomSeatCommandType, Commands()[0].CommandType);
             Assert.Equal(MatchSession.RoomSeatCommandType, Commands()[1].CommandType);
             Assert.DoesNotContain(Commands(), c => c.CommandType.StartsWith("DEV_SEED_SCENARIO", StringComparison.Ordinal));
@@ -179,6 +180,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) {
                 TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         RecoveredEvent[] Events() => journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
+        string OriginalHistoryHash() => MatchStateHasher.HashValue(new { initial, commands = Commands(), events = Events(), state = State() });
         MatchRecoveryFrame Clone(MatchRecoveryFrame frame) => JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
         MatchRecoveryFrame Frame(MatchState state)
         {
@@ -199,6 +201,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
                 Assert.Equal(WireHash(frame.PlayerViews[player].Snapshot), WireHash(session.SnapshotFor(player)));
                 Assert.Equal(WireHash(frame.PlayerViews[player].Prompt), WireHash(session.PromptFor(player)));
             }
+            auditedReplayHash = OriginalHistoryHash();
         }
         async Task<ResolutionResult> Act(string player, GameCommand command)
         {
@@ -247,6 +250,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             // assertions. A single restore after the window avoids replaying the
             // same action log for every priority/focus pass.
             var recover = verifyColdRecoveryAfterEveryCommand;
+            var commandsBeforeDrain = journal.Entries.Count;
             verifyColdRecoveryAfterEveryCommand = false;
             var closed = false;
             for (var i = 0; i < 30; i++)
@@ -259,7 +263,9 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             }
             verifyColdRecoveryAfterEveryCommand = recover;
             Assert.True(closed, "The finite held-tax replay window did not close.");
-            if (recover) await Cold();
+            // Every caller restores its preceding Act. Skip another restore
+            // only when draining the window submitted no command at all.
+            if (recover && journal.Entries.Count != commandsBeforeDrain) await Cold();
         }
     }
 
