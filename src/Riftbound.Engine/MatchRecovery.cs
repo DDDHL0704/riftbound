@@ -1201,8 +1201,6 @@ public static partial class MatchRecoveryValidator
             spectatorReplayFrame,
             errors);
 
-        if (errors.Count > 0 && string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_RECOVERY"), "1", StringComparison.Ordinal))
-            Console.Error.WriteLine("RECOVERY_ERRORS: " + string.Join(" || ", errors));
 
         return errors;
     }
@@ -4330,7 +4328,9 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid revealed hand execution count");
         if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null, Parent.ObservedPlayPermission: null } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
-                && handDefinition.EffectPlaySourceZone == "OPPONENT_HAND") && !CoreRuleEngine.ValidRevealedHandPlay(state, handPlay))
+                && handDefinition.EffectPlaySourceZone == "OPPONENT_HAND")
+            && !CoreRuleEngine.ValidRevealedHandPlay(state, handPlay)
+            && !CoreRuleEngine.ValidTranspositionMageEffectPlay(state, handPlay))
             errors.Add("invalid revealed hand effect-play continuation");
         if (state.PendingCardChoice is { ChoiceWindow: "RECYCLE_FOR_EFFECT_PLAY" } recycling
             && !CoreRuleEngine.ValidRecyclingChoice(state, recycling)) errors.Add("invalid recycling cost choice");

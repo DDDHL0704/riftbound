@@ -98,7 +98,8 @@ public sealed partial class BattleWinnerPhaseBoundaryTests
     internal static async Task<(MatchState Initial, Driver Run)> Open(string mode, MatchState? position = null,
         string? hostNo = null, string? attackerNo = null)
     {
-        var initial = position ?? BattleWinnerPhaseScenarioTests.Build(mode); var run = new Driver(initial);
+        var initial = position ?? BattleWinnerPhaseScenarioTests.Build(mode);
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         hostNo ??= mode == "defender" ? "OGN·142/298" : "OGN·210/298";
         attackerNo ??= mode == "defender" ? "OGN·210/298" : "OGN·142/298";
         await run.Act("P1", new PlayCardCommand("HOST", hostNo, [], Destination: "BATTLEFIELD:HOME"));
@@ -111,7 +112,13 @@ public sealed partial class BattleWinnerPhaseBoundaryTests
         await run.Act("P2", new PlayCardCommand("ATTACKER", attackerNo, [], Destination: "BASE"));
         await run.Act("P2", new PlayCardCommand("READY", "OGN·146/298", ["ATTACKER"])); await run.Top();
         if (mode == "skipped-damage") await run.Act("P2", new RecycleRuneCommand("P2-RED"));
-        await run.Act("P2", new MoveUnitCommand("ATTACKER", "BASE", "BATTLEFIELD:HOME", [])); return (initial, run);
+        await run.Act("P2", new MoveUnitCommand("ATTACKER", "BASE", "BATTLEFIELD:HOME", []));
+        // The opening commands only establish the two combatants and their
+        // resources. Keep acceptance and duplicate-intent checks on each
+        // command, then cold-recover once before the result-sensitive window.
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
+        return (initial, run);
     }
     internal static async Task PassFocus(Driver run)
     { for (var i = 0; run.State.FocusPlayerId is not null; i++) { Assert.InRange(i, 0, 3); await run.Act(run.State.FocusPlayerId, new PassFocusCommand()); } }

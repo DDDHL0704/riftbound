@@ -20,7 +20,8 @@ public sealed partial class CopiedDestructionReplacementInstanceTests
     [InlineData("SFD·239*/221", false)] [InlineData("SFD·239*/221", true)]
     public async Task ActualCopiedSorakaCanStartItsUnusedGroupAfterTheSourceIsRecalled(string no, bool copied)
     {
-        var initial = Position(no, copied); var run = new Driver(initial);
+        var initial = Position(no, copied);
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("S", no, [], Destination: "BATTLEFIELD:HOME"));
         foreach (var id in new[] { "FIELD-1", "FIELD-2", "BASE-1", "BASE-2" })
             await run.Act("P1", new PlayCardCommand(id, "OGN·210/298", [], Destination:
@@ -38,6 +39,11 @@ public sealed partial class CopiedDestructionReplacementInstanceTests
         var runes = Enumerable.Range(1, 9).Select(i => "P2-FUND-" + i).ToArray();
         await run.Act("P2", new TapRuneCommand(runes[0], runes));
         await run.Act("P2", new RecycleRuneCommand(runes[0], runes.Take(3).ToArray()));
+        // The legal opening and resource preparation have no replacement
+        // choices. Validate the full journal at this boundary, then retain
+        // per-command cold recovery for the actual replacement transcript.
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
         await run.Act("P2", new PlayCardCommand("AOE", "UNL-180/219", [])); await run.Top();
         await Select(run, "LOCAL_RECALL:FIELD-1:S");
         await Select(run, "GEAR:S:G1");

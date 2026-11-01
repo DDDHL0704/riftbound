@@ -787,7 +787,9 @@ internal static partial class ActionPromptBuilder
                     : PublicBoardObjects(state)
                     .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
-                    .Select(id => ObjectChoice(state, id, ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
+                    .Select(id => ObjectChoice(state, id,
+                        ability.SimpleEffect.ReturnsFriendlyUnitThenFreePlayUpToPower ? "友方单位目标"
+                            : ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
 
         if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
@@ -1442,6 +1444,10 @@ internal static partial class ActionPromptBuilder
             return $"{ability.DisplayName}：横置，让一名单位本回合战力{ability.PowerModifierAmount:+0;-0}，最低{ability.MinimumPowerAfterModifier}";
         return ability.AbilityId switch
         {
+            P4ActivatedAbilityCatalog.LanternDragonAbilityId => "提灯亚龙：横置，选择一名对手移动其单位",
+            P4ActivatedAbilityCatalog.TranspositionMageAbilityId => "易位法师：支付 1 紫色符能并横置，返回友方单位并免费打出较弱单位",
+            P4ActivatedAbilityCatalog.PrismwingFlockAbilityId => "幻彩飞禽：横置，给予单位增益；已有增益则本回合战力+2",
+            P4ActivatedAbilityCatalog.RelentlessStalkerAbilityId => "无情潜伏者：横置，眩晕一名敌方单位",
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点任意特性符能",
@@ -1468,6 +1474,11 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn) return "任意公开单位";
+        if (ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true) return "一名对手";
+        if (ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true) return "一名友方单位";
+        if (ability.SimpleEffect?.StunsTarget == true) return "一名敌方单位";
+        if (ability.SimpleEffect?.GrantsBoonOrPower == true) return "一名单位";
         if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return ability.TargetScope == CardTargetScopes.EnemyUnit ? "敌方公开单位" : "任意公开单位";
         return ability.RequiredTargetCount == 0

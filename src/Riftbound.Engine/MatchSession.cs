@@ -5072,6 +5072,16 @@ internal static partial class ActionPromptBuilder
         {
             view["additionalCostChoices"] = requirement.AdditionalCostChoices;
             view["requiredAdditionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount;
+
+            // Recycle-Might's graveyard card is presented in optionalCostChoices,
+            // but the skill requires exactly one of those choices. Keep the
+            // dedicated count in the prompt so clients can enforce that
+            // cardinality instead of treating every optional cost as optional.
+            if (requirement.OptionalCostChoices.Any(choice =>
+                    choice.Id.StartsWith(RecycleGraveyardCardAdditionalCostPrefix, StringComparison.Ordinal)))
+            {
+                view["requiredOptionalCostChoiceCount"] = 1;
+            }
         }
         if (requirement.PaymentResourceChoices.Count > 0)
             view["paymentResourceOrderMatters"] = true;

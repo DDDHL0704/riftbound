@@ -11044,8 +11044,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
             || state.StackItems.Count > 0)
         {
-            if (string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_MOVES"), "1", StringComparison.Ordinal))
-                Console.Error.WriteLine($"MOVE_REJECT phase={state.Phase} timing={state.TimingState} active={state.ActivePlayerId} player={intent.PlayerId} stack={state.StackItems.Count} trigger={state.TriggerQueue.Count} pending={state.PendingCardChoice?.ChoiceWindow ?? "-"} pendingPay={state.PendingPayment?.PaymentWindow ?? "-"} tick={state.Tick} fields={string.Join(",", state.BattlefieldStates.Values.Select(f => $"{f.BattlefieldObjectId}:{f.ControllerId}:{string.Join("/", f.OccupantObjectIds)}:{string.Join("/", f.OccupantControllerIds)}"))} Fcard={state.CardObjects.GetValueOrDefault("F")?.CardNo}/{state.CardObjects.GetValueOrDefault("F")?.OwnerId}/{state.CardObjects.GetValueOrDefault("F")?.ControllerId} Floc={state.ObjectLocations.GetValueOrDefault("F")?.Zone}/{state.ObjectLocations.GetValueOrDefault("F")?.PlayerId}");
             return RejectWithCorePrompts(
                 state,
                 "移动单位只能在当前玩家的开放主阶段提交。",
@@ -11288,8 +11286,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
-        if (string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_RAD"), "1", StringComparison.Ordinal))
-            Console.Error.WriteLine($"RAD_MOVE tick={nextState.Tick} focus={nextState.FocusPlayerId ?? "-"} priority={nextState.PriorityPlayerId ?? "-"} pending={nextState.PendingCardChoice?.ChoiceWindow ?? "-"} stack={nextState.StackItems.Count} triggers={nextState.TriggerQueue.Count} hostAttack={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsAttacking} hostDef={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsDefending} field={nextState.ObjectLocations.GetValueOrDefault(command.SourceObjectId)?.BattlefieldObjectId ?? "-"} events={string.Join(",", events.Select(e => e.Kind))}");
 
         return new ResolutionResult(
             true,
@@ -11575,8 +11571,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         nextState = taskAdvance.State;
         events.AddRange(taskAdvance.Events);
 
-        if (string.Equals(Environment.GetEnvironmentVariable("RIFT_DEBUG_RAD"), "1", StringComparison.Ordinal))
-            Console.Error.WriteLine($"RAD_PRECISE_MOVE tick={nextState.Tick} focus={nextState.FocusPlayerId ?? "-"} priority={nextState.PriorityPlayerId ?? "-"} pending={nextState.PendingCardChoice?.ChoiceWindow ?? "-"} stack={nextState.StackItems.Count} triggers={nextState.TriggerQueue.Count} sourceAttack={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsAttacking} sourceDef={nextState.CardObjects.GetValueOrDefault(command.SourceObjectId)?.IsDefending} field={nextState.ObjectLocations.GetValueOrDefault(command.SourceObjectId)?.BattlefieldObjectId ?? "-"} events={string.Join(",", events.Select(e => e.Kind))}");
 
         return new ResolutionResult(
             true,
@@ -24343,7 +24337,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.EphemeralStart is not null) return ResolveEphemeralStart(state, stackItem);
         if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
-        if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var simpleAbility) && simpleAbility.SimpleEffect is not null)
+        if (stackItem.SimpleActivation is not null
+            && P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var simpleAbility)
+            && simpleAbility.SimpleEffect is not null)
             return ResolveSimpleActivationEffect(state, stackItem, simpleAbility);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
