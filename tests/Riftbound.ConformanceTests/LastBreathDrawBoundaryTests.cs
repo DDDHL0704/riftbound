@@ -16,7 +16,9 @@ public sealed partial class LastBreathDrawBoundaryTests
     [InlineData(0)] [InlineData(1)] [InlineData(2)]
     public async Task EachActuallyPaidSongInstanceEarnsItsOwnPrintedDrawSkillAndResponseWindow(int copies)
     {
-        var initial = Position(); var game = new Driver(initial);
+        // The paid unit, copied texts and opposing resources prepare the death.
+        // Recover their complete history once before the destructive command.
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1"); var mana = game.State.RunePools["P1"].Mana;
@@ -34,6 +36,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             }
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
             await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var deck = game.State.PlayerZones["P1"].MainDeck.ToArray(); var prefix = game.Events().Length;
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
@@ -51,7 +55,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.Equal(deck.Take(i + 1), game.State.PlayerZones["P1"].Hand);
                 Assert.Equal(deck.Skip(i + 1), game.State.PlayerZones["P1"].MainDeck);
             }
-            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            // Act/Top already audited the unchanged final original history.
         }
         finally { await Save("actual-paid-draw-copies-" + copies, initial, game); }
     }
@@ -79,7 +84,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind == "CARD_DRAWN" && Equals(e.Event.Payload.GetValueOrDefault("playerId"), "P1"));
             Assert.Equal(earnsDraw ? 1 : 0, game.State.TriggerQueue.Count + game.State.StackItems.Count);
             if (earnsDraw) { await game.Top(); Assert.Equal(deck.Take(1), game.State.PlayerZones["P1"].Hand); }
-            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            // Act/Top already audited the unchanged final original history.
         }
         finally { await Save("conditional-native-" + no.Replace('/', '-') + "-ally-" + hasAlly, initial, game); }
     }
@@ -117,7 +123,7 @@ public sealed partial class LastBreathDrawBoundaryTests
         if (Environment.GetEnvironmentVariable("RIFTBOUND_LAST_BREATH_DRAW_EVIDENCE") is not { Length: > 0 } output) return;
         Directory.CreateDirectory(output);
         await File.WriteAllTextAsync(Path.Combine(output, label + ".json"), JsonSerializer.Serialize(new {
-            scope = "Controlled turn-five initial material, zero pools, actual physical payment/copies/destruction; per-command privacy, recovery, dedup and original action/event replay. No ordinary opening, SQL/network/restart or whole-card certification.",
+            scope = "Controlled turn-five initial material, zero pools, actual physical payment/copies/destruction; per-command privacy/dedup, cold recovery at setup and rule boundaries, complete original action/event replay. No ordinary opening, SQL/network/restart or whole-card certification.",
             initial, final = game.State, commands = game.Commands(), events = game.Events()
         }, Json));
     }

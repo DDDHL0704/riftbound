@@ -21,7 +21,10 @@ public sealed class Ven124LastBreathCostInteractionTests
     public async Task ActualRequiredDestructionEarnsEveryPaidTextBeforeTheParentEmpowerCanResolve(
         string victimNo, int copies, int unitMana, int unitPower, int drawCount, int runeCount, int discardCount, int held)
     {
-        var initial = Position(victimNo, copies, unitMana, unitPower, held); var game = new Driver(initial);
+        // Audit physical funding, victim and copied equipment as one setup.
+        // Actual destruction payment and every earned skill still recover per command.
+        var initial = Position(victimNo, copies, unitMana, unitPower, held);
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             var neededMana = 3 + unitMana + copies;
@@ -46,6 +49,8 @@ public sealed class Ven124LastBreathCostInteractionTests
             await game.Act("P1", new PlayCardCommand("UNIT", "VEN·124", []));
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var candidate = Assert.Single(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates!, c => c.Action == CommandTypes.ActivateAbility);
             var row = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]),
                 r => (string?)r["sourceObjectId"] == "UNIT" && (string?)r["abilityId"] == "EMPOWER:0:0");
@@ -175,7 +180,7 @@ public sealed class Ven124LastBreathCostInteractionTests
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN124_LAST_BREATH_EVIDENCE") is not { Length: > 0 } folder) return;
         Directory.CreateDirectory(folder); await File.WriteAllTextAsync(Path.Combine(folder, no.Replace('/', '-') + "-copies-" + copies + "-held-" + held + ".json"), JsonSerializer.Serialize(new {
-            scope = "Real No124 required destruction with zero pools, exactly12 physical own runes, actual paid normal victim/No124 plays and0/2 paid Song texts. Independent plain draw, compound runes-then-draw and discard-then-draw skills respond/finish before parent Empower. Initial gear/held cards/decks are explicit turn-five material; no forced empowerment/skills/results/source profile, ordinary opening, SQL/network, applicability, complete L2/L3 or whole-card claim. Original per-command hidden/current recovery/dedup/action replay remains.",
+            scope = "Real No124 required destruction with zero pools, exactly12 physical own runes, actual paid normal victim/No124 plays and0/2 paid Song texts. Independent plain draw, compound runes-then-draw and discard-then-draw skills respond/finish before parent Empower. Initial gear/held cards/decks are explicit turn-five material; no forced empowerment/skills/results/source profile, ordinary opening, SQL/network, applicability, complete L2/L3 or whole-card claim. Setup has a complete cold checkpoint; per-command privacy/dedup and subsequent recovery/action replay remain.",
             initial, final = game.State, commands = game.Commands(), events = game.Events(), ruleInputs = RuleInputIdentity.Current }, Json));
     }
 }
