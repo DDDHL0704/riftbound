@@ -102,7 +102,12 @@ public sealed class RadDreamRootTests
         frame = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, json), json)!;
         var errors = MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
             frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick, frame.SpectatorReplayFrame);
-        Assert.Contains(errors, e => e.Contains("battle-result skill", StringComparison.Ordinal));
+        // A coherent incarnation change requires original accepted history,
+        // just as it does for the participating unit battle-win skills.
+        if (mutation == "generation") Assert.Empty(errors);
+        else Assert.Contains(errors, e => e.Contains("battle-result skill", StringComparison.Ordinal));
+        var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default);
+        Assert.Contains(replayErrors, e => e.Contains("battle-result skill", StringComparison.Ordinal));
         await game.Top(); await game.Replay();
     }
 

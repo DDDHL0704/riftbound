@@ -3810,6 +3810,16 @@ public static class StaticAuraParser
                 PowerDeltaIfSourceEmpowered: int.Parse(empoweredFriendlyPower.Groups[2].Value)));
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var allFriendlyPower = Regex.Match(segment,
+                @"^\s*你的所有单位具有\{\{S\}\}\+(\d+)。?\s*$", RegexOptions.CultureInvariant);
+            if (allFriendlyPower.Success)
+            {
+                auras.Add(new(StaticAuraKinds.FriendlyUnitsPower, StaticAuraLayer, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.FriendlyUnits, StaticAuraParticipantScopes.FriendlyPublicUnits,
+                    int.Parse(allFriendlyPower.Groups[1].Value), segment, BehaviorImplementationStatuses.Unimplemented,
+                    "All friendly public units receive the printed power bonus while this source remains on the field."));
+                continue;
+            }
             var sameNameCount = Regex.Match(segment,
                 @"你在此处每控制一名和我同名的其他单位，我便获得\{\{S\}\}\+(\d+)", RegexOptions.CultureInvariant);
             if (sameNameCount.Success)
