@@ -136,6 +136,12 @@ public static class RadiantCardSources
             (Id: 39665L, CardNo: "RAD·157/167"),
             (Id: 39667L, CardNo: "RAD·159/167"),
             (Id: 39670L, CardNo: "RAD·162/167"),
+            (Id: 39666L, CardNo: "RAD·158/167"),
+            (Id: 39668L, CardNo: "RAD·160/167"),
+            (Id: 39669L, CardNo: "RAD·161/167"),
+            (Id: 39672L, CardNo: "RAD·164/167"),
+            (Id: 39674L, CardNo: "RAD·166/167"),
+            (Id: 39707L, CardNo: "RAD·184/167"),
             (Id: 39653L, CardNo: "RAD·145/167"),
             (Id: 39682L, CardNo: "RAD·171*/167"),
             (Id: 39683L, CardNo: "RAD·171/167")

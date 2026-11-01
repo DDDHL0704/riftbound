@@ -4,19 +4,33 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
-public sealed record CeasedSimpleActivationSource(string TokenFactoryCardNo, long DepartedTick);
+public sealed record CeasedSimpleActivationSource(string TokenFactoryCardNo, long DepartedTick)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long SourceFaceRevision { get; init; }
+}
 
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Source, long AcquiredTick,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    CeasedSimpleActivationSource? CeasedSource = null);
+    CeasedSimpleActivationSource? CeasedSource = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long SourceFaceRevision { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
-    private static string SimpleActivationUse(CardObjectState source, string ability)
-        => $"PRINTED_ACTIVATION_USED:{source.ObjectId}:{source.ObjectGeneration}:{ability}";
+    internal const string SimpleActivationUsePrefix = "PRINTED_ACTIVATION_USED:";
+
+    internal static string SimpleActivationUse(ObjectBinding source, P4ActivatedAbilityDefinition ability, string actor)
+        => $"{SimpleActivationUsePrefix}{source.ObjectId}:{source.Generation}:{ability.AbilityId}"
+            + (ability.SimpleEffect?.OncePerTurnPerPlayer == true ? ":PLAYER:" + actor : "");
+    private static string SimpleActivationUse(CardObjectState source, P4ActivatedAbilityDefinition ability, string actor)
+        => SimpleActivationUse(new ObjectBinding(source.ObjectId, source.ObjectGeneration), ability, actor);
+
     private static string EnemyUnitTargetMarker(string actor) => "TARGETED_ENEMY_UNIT_THIS_TURN:" + actor;
 
     // Track confirmed targets for every skill/spell through the shared stack;
@@ -44,14 +58,17 @@ public sealed partial class CoreRuleEngine
             && card.Tags.Contains(CardObjectTags.EquipmentCard)).Select(id => "DISCARD_HAND_CARD:" + id).ToArray();
 
     internal static bool IsSimpleAbilitySource(MatchState state, string actor, string id, P4ActivatedAbilityDefinition ability)
-        => state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id && source.ControllerId == actor
+        => state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id
+            && (source.ControllerId == actor || ability.UsableByAnyPlayerOnOwnTurn && state.TurnPlayerId == actor)
             && !source.IsFaceDown && (!ability.ExhaustsSourceAsCost || !source.IsExhausted)
             && source.Tags.Contains(ability.SourceRequiredTag)
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
-            && FindFieldObjectLocation(state.PlayerZones, id) is { } at && at.PlayerId == actor
-            && state.ObjectLocations.TryGetValue(id, out var precise) && precise.PlayerId == actor && precise.Zone == at.Zone
+            && FindFieldObjectLocation(state.PlayerZones, id) is { } at && (at.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn)
+            && state.ObjectLocations.TryGetValue(id, out var precise) && (precise.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn) && precise.Zone == at.Zone
+            && (!ability.RequiresBattlefieldSource || precise.Zone == "BATTLEFIELD" && state.BattlefieldStates.ContainsKey(id))
+            && (!ability.RequiresBaseEquipmentSource || precise.Zone == "BASE")
             && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered)
-            && (ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(SimpleActivationUse(source, ability.AbilityId)))
+            && (ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(SimpleActivationUse(source, ability, actor)))
             && (ability.SimpleEffect?.RequiresEnemyUnitTargetThisTurn != true || state.UntilEndOfTurnEffects.Contains(EnemyUnitTargetMarker(actor)))
             && (ability.SimpleEffect?.DiscardsEquipmentAsCost != true || SimpleActivationDiscardChoices(state, actor).Length > 0);
 
@@ -138,7 +155,8 @@ public sealed partial class CoreRuleEngine
         var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
-            tokenTargets.Count == 0 ? null : tokenTargets);
+            tokenTargets.Count == 0 ? null : tokenTargets) {
+                SourceFaceRevision = source.CopyFaceTransitions?.Count ?? 0 };
         var targetGenerations = targets
             .Where(id => cards.ContainsKey(id))
             .ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
@@ -146,13 +164,15 @@ public sealed partial class CoreRuleEngine
             with { TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
+        if (ability.SimpleEffect.OncePerTurnPerPlayer)
+            payload["sourceGeneration"] = source.ObjectGeneration;
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
         if (ability.ExhaustsSourceAsCost)
             events.Add(new(source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED", "横置来源以支付技能费用", payload));
         events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, paid.RunePools, paid.PlayerExperience, payload)));
         events.Add(new("STACK_ITEM_ADDED", "技能进入结算链", new Dictionary<string, object?>(payload) { ["stackItemId"] = item.StackItemId }));
         var effects = ability.SimpleEffect.OncePerTurn
-            ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability.AbilityId)).ToArray()
+            ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability, intent.PlayerId)).ToArray()
             : state.UntilEndOfTurnEffects;
         if (ability.SimpleEffect.DiscardsEquipmentAsCost)
             effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [extras.Single()["DISCARD_HAND_CARD:".Length..]], zones);
@@ -180,9 +200,10 @@ public sealed partial class CoreRuleEngine
         var recognized = P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability) && ability.SimpleEffect is not null;
         if (item.SimpleActivation is not { } context) return !recognized;
         if (!recognized || context.AbilityId != ability.AbilityId || context.Source is not { Generation: >= 0 }
+            || context.SourceFaceRevision < 0
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
-            || !ValidSimpleActivationSource(state, context, ability)
+            || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
             || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
                 || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
@@ -206,15 +227,15 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool ValidSimpleActivationSource(MatchState state, SimpleActivationContext context,
-        P4ActivatedAbilityDefinition ability)
+        P4ActivatedAbilityDefinition ability, string cardNo)
     {
         if (state.CardObjects.TryGetValue(context.Source.ObjectId, out var source))
             return context.CeasedSource is null && source.ObjectGeneration >= context.Source.Generation
                 && (source.ObjectGeneration != context.Source.Generation
-                    || P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
-                        && source.Tags.Contains(ability.SourceRequiredTag));
+                    || CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) == cardNo);
         return context.CeasedSource is { } ceased && ceased.DepartedTick >= context.AcquiredTick
             && ceased.DepartedTick <= state.Tick
+            && ceased.SourceFaceRevision == context.SourceFaceRevision
             && P6TokenFactoryCatalog.TryGetByCardNo(ceased.TokenFactoryCardNo, out var factory)
             && factory.Tags.Contains(ability.SourceRequiredTag);
     }

@@ -21,7 +21,8 @@ public sealed partial class CoreRuleEngine
                 || source.ObjectGeneration != activation.Source.Generation
                 || !ValidSimpleActivation(before, item)) return item;
             return item with { SimpleActivation = activation with {
-                CeasedSource = new(source.TokenFactoryCardNo ?? source.CardNo!, result.State.Tick) } };
+                CeasedSource = new(source.TokenFactoryCardNo ?? source.CardNo!, result.State.Tick) {
+                    SourceFaceRevision = activation.SourceFaceRevision } } };
         }
         CeasedRecycledBoonSource CaptureBoonSource(string sourceId, FieldTriggerContext context, RecycledCardBoonOrigin boon)
         {

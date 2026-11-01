@@ -30,7 +30,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battlefield, out var id, out var card)
             || !BattlefieldTriggerSpecRules.TryGetTrigger(card.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger, out var spec)) return [];
+                trigger => BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger(trigger)
+                    || BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(trigger), out var spec)) return [];
         var context = new BattlefieldConquestDiscardDrawContext(new(id, card.ObjectGeneration), card.CardNo!,
             controller, conquestSourceObjectId, tick);
         return [new($"CONQUEST-DISCARD-DRAW:{tick}:{id}", controller, id, spec.Kind, "BATTLEFIELD_CONQUERED")
@@ -46,12 +47,17 @@ public sealed partial class CoreRuleEngine
             && !string.IsNullOrWhiteSpace(context.CardNo) && !string.IsNullOrWhiteSpace(context.ControllerId)
             && !string.IsNullOrWhiteSpace(context.ConquestSourceObjectId) && context.ConquestTick >= 0
             && BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger, out _);
+                trigger => BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger(trigger)
+                    || BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(trigger), out _);
 
     internal static bool ValidBattlefieldConquestDiscardDrawContext(MatchState state,
         BattlefieldConquestDiscardDrawContext context, string effect, string source, string controller, string? cardNo)
         => ValidBattlefieldConquestDiscardDrawFrame(context)
-            && effect == TriggerKinds.BattlefieldConquerDiscardDraw && source == context.Source.ObjectId
+            && (effect == TriggerKinds.BattlefieldConquerDiscardDraw
+                || effect == TriggerKinds.BattlefieldConquerDiscardCallRune)
+            && source == context.Source.ObjectId
+            && BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
+                trigger => trigger.Kind == effect, out _)
             && controller == context.ControllerId && cardNo == context.CardNo && state.Seats.ContainsKey(controller)
             && context.ConquestTick <= state.Tick && state.CardObjects.TryGetValue(source, out var battlefield)
             && (battlefield.CardNo == context.CardNo || ReplacedBattlefieldCard(state, battlefield)?.CardNo == context.CardNo)
@@ -72,7 +78,8 @@ public sealed partial class CoreRuleEngine
         if (!ValidBattlefieldConquestDiscardDrawContext(state, context, item.EffectKind, item.SourceObjectId,
                 item.ControllerId, item.CardNo)
             || !BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger, out var spec))
+                trigger => BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger(trigger)
+                    || BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(trigger), out var spec))
             throw new InvalidOperationException("Invalid captured battlefield conquest discard/draw.");
 
         var zones = NormalizeZonesForSeats(state);
@@ -80,11 +87,18 @@ public sealed partial class CoreRuleEngine
         var legal = zones[item.ControllerId].Hand
             .Where(id => IsCardObjectControlledByPlayerOrLegacyOwned(cards, item.ControllerId, id)).ToArray();
         var discardCount = Math.Min(spec.DiscardCount.GetValueOrDefault(), legal.Length);
-        var drawCount = spec.DrawCount.GetValueOrDefault();
-        if (discardCount > 0 && legal.Length > discardCount)
+        var isCallRune = BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(spec);
+        var drawCount = isCallRune ? 0 : spec.DrawCount.GetValueOrDefault();
+        // An optional discard followed by a rune call needs an actual hand card: with no hand card there is no legal way to
+        // choose the discard-and-call-rune mode, so it resolves without
+        // discarding or calling a rune.
+        if (isCallRune && discardCount == 0)
+            return NoopStackResolutionResult(state);
+        if (discardCount > 0 && (isCallRune ? legal.Length > 0 : legal.Length > discardCount))
         {
             var choice = new PendingHandChoiceState($"CONQUEST-HAND:{item.StackItemId}",
-                TriggerKinds.BattlefieldConquerDiscardDraw, item.ControllerId, discardCount, discardCount, legal,
+                TriggerKinds.BattlefieldConquerDiscardDraw, item.ControllerId,
+                isCallRune ? 0 : discardCount, discardCount, legal,
                 TriggerKinds.BattlefieldConquerDiscardDraw, context.Source.ObjectId, item.EffectKind, drawCount)
                 { BattlefieldConquestDiscardDraw = new(context, item.StackItemId) };
             var requested = new GameEvent("HAND_CHOICE_REQUESTED", "征服战场：选择要弃置的手牌，然后抽牌",
@@ -115,8 +129,18 @@ public sealed partial class CoreRuleEngine
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, item.ControllerId, "CARD_DISCARDED",
                 context.Source.ObjectId, discarded, events);
         var until = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, discarded, zones);
-        var draw = ApplyDrawToPlayer(state with { PlayerZones = zones, CardObjects = cards }, zones, cards,
-            state.PlayerScores, item.ControllerId, drawCount, state.RngCursor, events, deferNormalVictory: true);
+        var draw = isCallRune
+            ? new DrawApplicationResult(state.PlayerScores, null, state.RngCursor)
+            : ApplyDrawToPlayer(state with { PlayerZones = zones, CardObjects = cards }, zones, cards,
+                state.PlayerScores, item.ControllerId, drawCount, state.RngCursor, events, deferNormalVictory: true);
+        if (isCallRune)
+        {
+            var called = CallRunes(zones, cards, item.ControllerId, spec.RuneCallCount.GetValueOrDefault(1));
+            events.Add(new GameEvent("RUNES_CALLED", "征服战场后召出休眠符文", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = context.Source.ObjectId,
+                ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds,
+                ["reason"] = item.EffectKind }));
+        }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
             PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor,
             UntilEndOfTurnEffects = until, Events = events };
@@ -131,13 +155,23 @@ public sealed partial class CoreRuleEngine
                 choice.EffectKind, choice.SourceObjectId, choice.PlayerId, context.CardNo)
             || continuation.StackItemId != $"ordered-CONQUEST-DISCARD-DRAW:{context.ConquestTick}:{context.Source.ObjectId}"
             || !BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger, out var spec)
+                trigger => BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardDrawTrigger(trigger)
+                    || BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(trigger), out var spec)
             || !state.PlayerZones.TryGetValue(choice.PlayerId, out var zones)) return false;
         var legal = zones.Hand.Where(id => IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, choice.PlayerId, id)).ToArray();
         var count = Math.Min(spec.DiscardCount.GetValueOrDefault(), legal.Length);
-        return count > 0 && legal.Length > count && choice.ChoiceId == $"CONQUEST-HAND:{continuation.StackItemId}"
+        var isCallRune = BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(spec);
+        var validShape = isCallRune
+            ? legal.Length > 0 && choice.RequiredCount == 0 && choice.MaxCount == count
+            : count > 0 && legal.Length > count && choice.RequiredCount == count && choice.MaxCount == count;
+        return validShape && choice.ChoiceId == $"CONQUEST-HAND:{continuation.StackItemId}"
             && choice.ChoiceWindow == TriggerKinds.BattlefieldConquerDiscardDraw && choice.Reason == choice.ChoiceWindow
-            && choice.RequiredCount == count && choice.MaxCount == count && choice.DrawCount == spec.DrawCount.GetValueOrDefault()
+            && choice.DrawCount == (isCallRune ? 0 : spec.DrawCount.GetValueOrDefault())
             && choice.LegalObjectIds.SequenceEqual(legal);
     }
+
+    internal static bool IsOptionalBattlefieldConquestDiscardChoice(PendingHandChoiceState choice)
+        => choice.BattlefieldConquestDiscardDraw is not null
+            && choice.EffectKind == TriggerKinds.BattlefieldConquerDiscardCallRune
+            && choice.RequiredCount == 0;
 }

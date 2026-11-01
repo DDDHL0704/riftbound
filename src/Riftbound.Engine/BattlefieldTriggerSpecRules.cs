@@ -99,6 +99,28 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.KeywordBonus.GetValueOrDefault() > 0;
     }
 
+    public static bool IsBattlefieldDefendGrantBulwarkTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Kind, TriggerKinds.BattlefieldDefendGrantBulwark, StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.GrantedKeyword, CardCombatKeywordNames.Bulwark, StringComparison.Ordinal)
+            && trigger.KeywordBonus.GetValueOrDefault() > 0;
+    }
+
+    public static bool IsBattlefieldHeldEmptyRuneScoreTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.BattlefieldHeldEmptyRuneScore
+            && trigger.Timing == TriggerTimings.BattlefieldHeld
+            && trigger.RequiredEmptyZone == TriggerZones.RuneDeck
+            && trigger.ScoreAmount is > 0;
+
+    public static bool IsBattlefieldConquerDiscardCallRuneTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.BattlefieldConquerDiscardCallRune
+            && trigger.Timing == TriggerTimings.BattlefieldConquered
+            && trigger.DiscardCount == 1
+            && trigger.RuneCallCount == 1
+            && trigger.Optional == true;
+
     public static bool IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
