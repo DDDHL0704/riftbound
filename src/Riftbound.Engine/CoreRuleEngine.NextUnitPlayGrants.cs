@@ -29,6 +29,7 @@ public sealed partial class CoreRuleEngine
         string source, string controller, string? cardNo)
         => grant is null ? effect != NextUnitPlayGrantEffect
             : effect == NextUnitPlayGrantEffect && grant.Kind == "HASTE" && grant.Source is { Generation: >= 0 }
+                && !string.IsNullOrWhiteSpace(source) && !string.IsNullOrWhiteSpace(controller)
                 && grant.Source.ObjectId == source && grant.ControllerId == controller && grant.CardNo == cardNo
                 && grant.TurnNumber == state.TurnNumber && state.Seats.ContainsKey(controller)
                 && grant.ConquestTick > 0 && grant.ConquestTick <= state.Tick && HasNextUnitHasteSpec(grant.CardNo)

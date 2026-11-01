@@ -168,12 +168,24 @@ public sealed class RadNextUnitHasteBattlefieldTests
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
     }
 
-    [Fact]
-    public void RecoveryRejectsAGrantMarkerWithoutASource()
+    [Theory]
+    [InlineData("source")]
+    [InlineData("source-id")]
+    [InlineData("controller")]
+    public void RecoveryRejectsAGrantMarkerWithoutRequiredBindings(string missing)
     {
-        var marker = GrantPrefix + System.Text.Json.JsonSerializer.Serialize(
-            new NextUnitPlayGrant(5, "P1", null!, "RAD·162/167", 1, "HASTE"));
-        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(Position() with { UntilEndOfTurnEffects = [marker] }),
+        var state = Position() with { Tick = 1 };
+        var grant = new NextUnitPlayGrant(state.TurnNumber, "P1", new("BF", state.CardObjects["BF"].ObjectGeneration),
+            "RAD·162/167", 1, "HASTE");
+        var valid = GrantPrefix + System.Text.Json.JsonSerializer.Serialize(grant);
+        Assert.DoesNotContain(OfficialInsightAndSpellLockTests.Errors(state with { UntilEndOfTurnEffects = [valid] }),
+            e => e.Contains("invalid next unit play grant", StringComparison.Ordinal));
+        grant = missing switch {
+            "source" => grant with { Source = null! },
+            "source-id" => grant with { Source = grant.Source with { ObjectId = null! } },
+            _ => grant with { ControllerId = null! } };
+        var marker = GrantPrefix + System.Text.Json.JsonSerializer.Serialize(grant);
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state with { UntilEndOfTurnEffects = [marker] }),
             e => e.Contains("invalid next unit play grant", StringComparison.Ordinal));
     }
 
