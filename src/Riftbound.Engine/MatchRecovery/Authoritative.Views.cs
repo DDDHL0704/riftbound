@@ -483,6 +483,12 @@ public static partial class MatchRecoveryValidator
                         ? raw.Deserialize<TurnUnitPlayBoonContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
                     if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(publicExpected))
                         errors.Add(expectedDraw is null ? "public captured unit play boon differs from authoritative state" : "public captured unit play draw differs from authoritative state");
+                    var expectedNext = queue ? state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id)?.NextUnitPlayGrant
+                        : state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.NextUnitPlayGrant;
+                    var actualNext = json.TryGetProperty("nextUnitPlayGrant", out var nextRaw) && nextRaw.ValueKind != JsonValueKind.Null
+                        ? nextRaw.Deserialize<NextUnitPlayGrant>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+                    if (MatchStateHasher.HashValue(actualNext) != MatchStateHasher.HashValue(expectedNext))
+                        errors.Add("public captured next unit play grant differs from authoritative state");
                 }
                 catch (JsonException) { errors.Add(expectedDraw is null ? "invalid public captured unit play boon" : "invalid public captured unit play draw"); }
             }

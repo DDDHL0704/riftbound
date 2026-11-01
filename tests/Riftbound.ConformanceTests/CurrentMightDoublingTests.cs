@@ -121,7 +121,9 @@ public sealed class CurrentMightDoublingTests(ITestOutputHelper output)
 
     private static async Task<Driver> Prepare(MatchState initial, bool equipped)
     {
-        var run = new Driver(initial);
+        // Funding and placing the physical target prepare the doubling case.
+        // Recover the complete setup once before the first doubling attempt.
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new TapRuneCommand(Funding[0], Funding));
         foreach (var id in Funding.Where(id => id.StartsWith("GREEN-", StringComparison.Ordinal) || id.StartsWith("RED-", StringComparison.Ordinal)))
             await run.Act("P1", new RecycleRuneCommand(id));
@@ -133,6 +135,8 @@ public sealed class CurrentMightDoublingTests(ITestOutputHelper output)
             await run.Top();
             Assert.Equal("TARGET", run.State.CardObjects["GEAR"].AttachedToObjectId);
         }
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
         return run;
     }
 

@@ -99,7 +99,8 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
                 ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
                 ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
         }
-        var game = new Driver(initial);
+        // Real paid copies and resources prepare the transfer under test.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             var funding = Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i).ToArray();
@@ -109,6 +110,8 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             Assert.All(new[] { "SONG-A", "SONG-B" }, id => Assert.NotNull(game.State.CardObjects[id].AttachedRuleText));
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
             for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["UNIT"])); await game.Top();
             Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId); Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);

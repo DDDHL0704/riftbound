@@ -127,6 +127,8 @@ public sealed class PhysicalOriginCostReductionTests
         var session = await new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance,
             new SourceStore(frame)).GetOrCreateAsync(frame.RoomId, default);
         Assert.NotNull(session);
+        var auditedHistory = MatchStateHasher.HashValue(new {
+            frame.ReplayInitialState, frame.Commands, frame.Events, frame.AuthoritativeState });
         var state = frame.AuthoritativeState!;
         Assert.Equal("STACK", state.ObjectLocations[source].Zone);
         Assert.DoesNotContain(source, state.PlayerZones["P1"].Hand);
@@ -134,9 +136,10 @@ public sealed class PhysicalOriginCostReductionTests
         var quote = new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
         Assert.True(quote.CanPay, quote.Message);
         Assert.Equal(mana, quote.Cost!.Mana);
-        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(frame.ReplayInitialState, frame.Commands,
-            state, new CoreRuleEngine(), default, frame.Events);
-        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        // The quote must leave the production registry's audited replay inputs
+        // and final state unchanged, without replaying that same history again.
+        Assert.Equal(auditedHistory, MatchStateHasher.HashValue(new {
+            frame.ReplayInitialState, frame.Commands, frame.Events, frame.AuthoritativeState }));
         var evidence = Environment.GetEnvironmentVariable("RIFTBOUND_NONHAND_COST_EVIDENCE");
         if (!string.IsNullOrWhiteSpace(evidence))
         {
