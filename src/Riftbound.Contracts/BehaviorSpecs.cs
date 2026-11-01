@@ -167,6 +167,7 @@ public static class TriggerKinds
     public const string BattlefieldFirstUnitPlayedMoveOtherToBase =
         "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE";
     public const string BattlefieldFirstPermanentPlayedInsight = "BATTLEFIELD_FIRST_PERMANENT_PLAYED_INSIGHT";
+    public const string BattlefieldStandbyHiddenCreateEquipmentToken = "BATTLEFIELD_STANDBY_HIDDEN_CREATE_EQUIPMENT_TOKEN";
     public const string BattlefieldTurnStartDamageAllUnits =
         "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS";
     public const string BattlefieldTurnStartDestroyUnitDraw =
@@ -326,6 +327,7 @@ public static class TriggerTimings
     public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
+    public const string StandbyHidden = "STANDBY_HIDDEN";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
     public const string SourceUnitPlayed = "SOURCE_UNIT_PLAYED";

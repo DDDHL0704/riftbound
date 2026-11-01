@@ -4741,10 +4741,10 @@ public static partial class MatchRecoveryValidator
         if (state.StackItems.Any(item => !StandbyRules.ValidPlayedOrigin(state, item))) errors.Add("invalid played standby origin");
         foreach (var item in state.StackItems)
             if (item.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, item.EffectKind, item.SourceObjectId, item.CardNo)
-                : item.EffectKind == CoreRuleEngine.StandbyPlayedEffect) errors.Add("invalid captured standby play observer");
+                : item.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid captured standby play observer");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, trigger.EffectKind, trigger.SourceObjectId, trigger.SourceCardNo)
-                : trigger.EffectKind == CoreRuleEngine.StandbyPlayedEffect) errors.Add("invalid queued standby play observer");
+                : trigger.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid queued standby play observer");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow is not (CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.TriggerTargetCostWindow)))
             errors.Add("invalid referenced equipment experience cost");

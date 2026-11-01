@@ -1703,6 +1703,16 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        var standbyHiddenToken = Regex.Match(segment,
+            @"当你在此处布置一张\{\{待命\}\}卡牌时，打出([0-9一两二三四五六七八九十]+)个休眠的“([^”]+)”装备指示物",
+            RegexOptions.CultureInvariant);
+        if (standbyHiddenToken.Success)
+            return new TriggerSpec(TriggerKinds.BattlefieldStandbyHiddenCreateEquipmentToken,
+                TriggerTimings.StandbyHidden, segment, "在此处布置待命后，排队装备指示物触发技能。",
+                CreatedTokenCount: ParseChineseNumber(standbyHiddenToken.Groups[1].Value),
+                CreatedTokenName: standbyHiddenToken.Groups[2].Value, CreatedTokenExhausted: true,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
+
         if (Regex.IsMatch(segment,
             @"^当我进攻或防守时[，,]\s*对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
             RegexOptions.CultureInvariant))

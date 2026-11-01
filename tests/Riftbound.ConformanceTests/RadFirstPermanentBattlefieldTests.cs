@@ -8,6 +8,27 @@ namespace Riftbound.ConformanceTests;
 public sealed class RadFirstPermanentBattlefieldTests
 {
     [Theory]
+    [InlineData("RAD·163/167", false)]
+    [InlineData("RAD·165/167", true)]
+    public async Task OpponentTurnReactionConsumesTheFirstPlayAndOnlyRakelstakeTriggers(string battlefield, bool insight)
+    {
+        var state = Put(Position(battlefield), "REACTION", "OGN·241/298", "HAND");
+        state = state with { TurnPlayerId = "P2", ActivePlayerId = "P2",
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["REPLY"] = OfficialGarenConquestBattlefieldCountTests.Printed("REPLY", "OGN·048/298", "P2") } };
+        state = RadUnitEffectTestFixture.Place(state, "REPLY", "P2", "HAND");
+        var game = new Driver(state);
+        await game.Act("P2", new PlayCardCommand("REPLY", "OGN·048/298", []));
+        await game.Act("P2", new PassPriorityCommand());
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·241/298", out var reaction));
+        await game.Act("P1", new PlayCardCommand("REACTION", reaction.CardNo, [], Destination: "BATTLEFIELD:BF"));
+        Assert.Equal(30 - reaction.ManaCost, game.State.RunePools["P1"].Mana);
+        Assert.Equal(insight ? 1 : 0, game.State.StackItems.Count(s => s.InsightContext?.Kind == "FIRST_PERMANENT"));
+        Assert.Contains(game.State.UntilEndOfTurnEffects, e => e.StartsWith("BATTLEFIELD_PERMANENT_PLAY_THIS_TURN:", StringComparison.Ordinal));
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task RakelstakeInsightsOnceForThePlayerWhoPlayedHere(bool recycle)

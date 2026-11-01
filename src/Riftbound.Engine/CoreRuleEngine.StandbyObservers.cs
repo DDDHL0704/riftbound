@@ -3,7 +3,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record StandbyPlayedObserverContext(string CardNo,ObjectBinding Source,
-    RuleTextInstanceBinding? Origin=null);
+    RuleTextInstanceBinding? Origin=null, string? BattlefieldId=null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -42,13 +42,18 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool ValidStandbyObserver(MatchState state,StandbyPlayedObserverContext c,string effect,string source,string? cardNo=null)
-        => effect==StandbyPlayedEffect && c is not null && c.Source is not null && c.Source.Generation>=0
+        => c is not null && c.Source is not null && c.Source.Generation>=0
             && c.Source.ObjectId==source && !string.IsNullOrWhiteSpace(c.CardNo) && (cardNo is null || cardNo==c.CardNo)
-            && StandbyRules.PlayedSelfMight(c.CardNo)>0
-            && AttachedRuleTextRules.ValidCaptured(state,c.Origin,source,c.Source.Generation,c.CardNo);
+            && (effect == StandbyHiddenTokenEffect
+                ? c.Origin is null && c.BattlefieldId == source && StandbyHiddenTokenSpec(c.CardNo) is not null
+                    && BattlefieldLocalRules.Battlefield(state, source) is { } field
+                    && field.CardNo == c.CardNo && field.ObjectGeneration == c.Source.Generation
+                : effect == StandbyPlayedEffect && c.BattlefieldId is null && StandbyRules.PlayedSelfMight(c.CardNo)>0
+                    && AttachedRuleTextRules.ValidCaptured(state,c.Origin,source,c.Source.Generation,c.CardNo));
 
     private static StackResolutionResult ResolveStandbyObserver(MatchState state,StackItemState item)
     {
+        if (item.EffectKind == StandbyHiddenTokenEffect) return ResolveStandbyHiddenTokens(state, item);
         var c=item.StandbyObserver!;
         if(!state.CardObjects.TryGetValue(c.Source.ObjectId,out var source) || source.ObjectGeneration!=c.Source.Generation
             || !IsObjectOnField(state.PlayerZones,source.ObjectId) || !FieldObjectTypeRules.IsVisibleUnit(source))return NoopStackResolutionResult(state);
