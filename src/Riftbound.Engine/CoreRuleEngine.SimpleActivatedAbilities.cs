@@ -53,6 +53,23 @@ public sealed partial class CoreRuleEngine
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
             : ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true ? state.Seats.ContainsKey(id) && id != actor
+            : ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
+                ? state.CardObjects.TryGetValue(id, out var returned)
+                    && !returned.IsFaceDown && returned.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && IsObjectOnField(state.PlayerZones, id)
+                    && SourceObjectControlledByPlayerOrLegacyOwned(returned, actor)
+                    && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.GrantsBoonOrPower == true
+                ? state.CardObjects.TryGetValue(id, out var boonTarget)
+                    && !boonTarget.IsFaceDown && boonTarget.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && IsObjectOnField(state.PlayerZones, id)
+                    && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.StunsTarget == true
+                ? state.CardObjects.TryGetValue(id, out var stunTarget)
+                    && !stunTarget.IsFaceDown && stunTarget.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && IsObjectOnField(state.PlayerZones, id)
+                    && EffectiveFieldControllerId(state.PlayerZones, id, stunTarget) != actor
+                    && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
             : state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
             && IsObjectOnField(state.PlayerZones, id)
             && (ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId && target.Tags.Contains(CardObjectTags.EquipmentCard)
@@ -117,7 +134,11 @@ public sealed partial class CoreRuleEngine
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets);
-        var item = SimpleActivationStackItem(context, intent.PlayerId, source.CardNo!, ability, targets);
+        var targetGenerations = targets
+            .Where(id => cards.ContainsKey(id))
+            .ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
+        var item = SimpleActivationStackItem(context, intent.PlayerId, source.CardNo!, ability, targets)
+            with { TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
@@ -149,7 +170,7 @@ public sealed partial class CoreRuleEngine
                 || ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true)
             && ValidSimpleActivation(state, item);
 
-    internal static bool ValidSimpleActivation(MatchState state, StackItemState item)
+    internal static bool ValidSimpleActivation(MatchState state, StackItemState item, bool allowMissingReturnTarget = false)
     {
         var recognized = P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability) && ability.SimpleEffect is not null;
         if (item.SimpleActivation is not { } context) return !recognized;
@@ -173,12 +194,42 @@ public sealed partial class CoreRuleEngine
                 || (state.CardObjects.TryGetValue(id, out var target)
                     ? item.TargetGenerations![id] > target.ObjectGeneration
                         || context.TargetTokenFactories?.GetValueOrDefault(id) != target.TokenFactoryCardNo
-                    : context.TargetTokenFactories?.ContainsKey(id) != true)))) return false;
+                    : !allowMissingReturnTarget && context.TargetTokenFactories?.ContainsKey(id) != true)))) return false;
         var expected = SimpleActivationStackItem(context, item.ControllerId, item.CardNo!, ability, item.TargetObjectIds)
             with { TargetGenerations = item.TargetGenerations, TokenEntryPlan = item.TokenEntryPlan,
-                DepartedTokenTargets = item.DepartedTokenTargets };
+                DepartedTokenTargets = item.DepartedTokenTargets,
+                EffectPlayCompleted = allowMissingReturnTarget ? item.EffectPlayCompleted : false };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
             && (item.TokenEntryPlan is null || ability.SimpleEffect!.CreatedRobotCount > 0 && ValidTokenEntryPlan(state, item));
+    }
+
+    internal static bool ValidTranspositionMageEffectPlay(MatchState state, PendingEffectPlayState pending)
+    {
+        if (!P4ActivatedAbilityCatalog.TryGetByEffectKind(pending.Parent.EffectKind, out var ability)
+            || ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower != true
+            || pending.RevealedHand is not null || pending.Parent.EffectPlayCompleted
+            || pending.SourceZone != "HAND" || pending.PlayerId != pending.Parent.ControllerId
+            || !pending.Optional || !pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
+            || pending.ManaReduction != 0 || pending.MaximumUnitPower is not >= 0
+            || !ValidSimpleActivation(state, pending.Parent, allowMissingReturnTarget: true)
+            || !state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)) return false;
+
+        var targetId = pending.Parent.TargetObjectIds.SingleOrDefault();
+        if (targetId is null || !state.PlayerZones.Values.Any(player => player.Hand.Contains(targetId, StringComparer.Ordinal))) return false;
+
+        var eligible = zones.Hand
+            .Where(id => state.CardObjects.TryGetValue(id, out var card)
+                && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var behavior)
+                && behavior.PlaysSourceToBaseAsUnit
+                && ResolveCurrentFieldUnitPower(state, card) <= pending.MaximumUnitPower.Value)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var valid = pending.Sources.Keys.Order(StringComparer.Ordinal).SequenceEqual(eligible.Order(StringComparer.Ordinal))
+            && pending.Sources.All(entry => zones.Hand.Contains(entry.Key, StringComparer.Ordinal)
+                && state.CardObjects.TryGetValue(entry.Key, out var card)
+                && card.ObjectGeneration == entry.Value);
+        return valid;
     }
 
     private static CardBehaviorDefinition SimpleActivationTokenBehavior(P4ActivatedAbilityDefinition ability)
@@ -188,8 +239,13 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveSimpleActivationEffect(MatchState state, StackItemState item, P4ActivatedAbilityDefinition ability)
     {
-        if (!ValidSimpleActivation(state, item)) throw new InvalidOperationException("Invalid captured printed activation.");
         var spec = ability.SimpleEffect!;
+        if (!ValidSimpleActivation(state, item,
+                allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
+            throw new InvalidOperationException("Invalid captured printed activation.");
+        if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted
+            && !state.PlayerZones.Values.Any(player => player.Hand.Contains(item.TargetObjectIds.SingleOrDefault() ?? string.Empty, StringComparer.Ordinal)))
+            throw new InvalidOperationException("Invalid completed transposition target.");
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
@@ -241,6 +297,128 @@ public sealed partial class CoreRuleEngine
                         ["reason"] = "NO_LEGAL_OPPONENT_UNIT"
                     }));
             }
+        }
+        if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted)
+            return result;
+        if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && !item.EffectPlayCompleted)
+        {
+            var targetId = item.TargetObjectIds.SingleOrDefault();
+            var targetGeneration = targetId is null ? -1 : item.TargetGenerations?.GetValueOrDefault(targetId, -1) ?? -1;
+            if (targetId is null
+                || targetGeneration < 0
+                || !cards.TryGetValue(targetId, out var target)
+                || target.ObjectGeneration != targetGeneration
+                || !IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
+            {
+                events.Add(new("ABILITY_NO_EFFECT", "易位法师结算时目标已不再合法",
+                    new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                        ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
+                        ["reason"] = "TARGET_NO_LONGER_LEGAL"
+                    }));
+                return result with { Events = events };
+            }
+
+            var capturedPower = ResolveCurrentFieldUnitPower(state, target);
+            if (!TryReturnTargetToHand(zones, cards, targetId, out var ownerPlayerId, out var wasEquipment))
+            {
+                events.Add(new("ABILITY_NO_EFFECT", "易位法师结算时无法返回目标",
+                    new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                        ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
+                        ["reason"] = "TARGET_RETURN_FAILED"
+                    }));
+                return result with { Events = events };
+            }
+            events.Add(BuildReturnedToHandEvent(ability.DisplayName, item, targetId, ownerPlayerId, wasEquipment));
+
+            var eligible = zones[item.ControllerId].Hand
+                .Where(id => cards.TryGetValue(id, out var candidate)
+                    && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && CardBehaviorRegistry.TryGetByCardNo(candidate.CardNo ?? "", out var behavior)
+                    && behavior.PlaysSourceToBaseAsUnit
+                    && ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, candidate) <= capturedPower)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (eligible.Length == 0)
+            {
+                events.Add(new("ABILITY_NO_EFFECT", "易位法师没有符合战力限制的手牌单位",
+                    new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                        ["abilityId"] = ability.AbilityId, ["capturedPower"] = capturedPower,
+                        ["reason"] = "NO_ELIGIBLE_HAND_UNIT"
+                    }));
+                return result with { PlayerZones = zones, CardObjects = cards,
+                    ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };
+            }
+
+            var pending = new PendingEffectPlayState(
+                $"EFFECT-PLAY:{state.Tick + 1}:{item.StackItemId}", item.ControllerId, item, "HAND",
+                eligible.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
+                IgnoreBaseMana: true, IgnoreBasePower: true, ManaReduction: 0,
+                DestinationPolicy: "", Optional: true, IgnoreAllCosts: true,
+                MaximumUnitPower: capturedPower);
+            return result with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(locations, zones), PendingEffectPlay = pending,
+                Events = events };
+        }
+        if (spec.GrantsBoonOrPower)
+        {
+            var targetId = item.TargetObjectIds.SingleOrDefault();
+            if (targetId is not null && item.TargetGenerations?.GetValueOrDefault(targetId, -1) == cards.GetValueOrDefault(targetId)?.ObjectGeneration
+                && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
+            {
+                var target = cards[targetId];
+                if (target.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal))
+                {
+                    var next = ApplyDirectUntilEndPowerModifier(
+                        target, targetId, item.SourceObjectId, item.CardNo, item.EffectKind,
+                        "CoreRuleEngine.ResolveSimpleActivationEffect.PrismwingFlock", spec.ExistingBoonPowerBonus,
+                        target.Power + spec.ExistingBoonPowerBonus);
+                    cards[targetId] = next;
+                    events.Add(new("POWER_MODIFIED_UNTIL_END_OF_TURN", "已有增益的单位本回合战力提高",
+                        new Dictionary<string, object?> {
+                            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                            ["powerDelta"] = spec.ExistingBoonPowerBonus,
+                            ["appliedPowerDelta"] = next.Power - target.Power,
+                            ["minimumPower"] = 0, ["resultingPower"] = next.Power
+                        }));
+                }
+                else
+                    GrantLegendBoon(cards, targetId, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
+            }
+            else
+                events.Add(new("ABILITY_NO_EFFECT", "幻彩飞禽结算时目标已不再合法", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                    ["abilityId"] = ability.AbilityId, ["reason"] = "TARGET_NO_LONGER_LEGAL" }));
+        }
+        if (spec.StunsTarget)
+        {
+            var targetId = item.TargetObjectIds.SingleOrDefault();
+            if (targetId is not null && item.TargetGenerations?.GetValueOrDefault(targetId, -1) == cards.GetValueOrDefault(targetId)?.ObjectGeneration
+                && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
+            {
+                var target = cards[targetId];
+                if (CanExecuteStun(target))
+                {
+                    cards[targetId] = target with {
+                        UntilEndOfTurnEffects = target.UntilEndOfTurnEffects
+                            .Concat(["STUNNED"])
+                            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
+                    var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                        ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
+                    events.Add(CaptureStunObservers(applied, zones, cards, item, targetId));
+                }
+                else
+                    events.Add(new("ABILITY_NO_EFFECT", "无情潜伏者结算时目标已经眩晕", new Dictionary<string, object?> {
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                        ["abilityId"] = ability.AbilityId, ["reason"] = "ALREADY_STUNNED" }));
+            }
+            else
+                events.Add(new("ABILITY_NO_EFFECT", "无情潜伏者结算时目标已不再合法", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                    ["abilityId"] = ability.AbilityId, ["reason"] = "TARGET_NO_LONGER_LEGAL" }));
         }
         if (spec.TransfersSourceToChosenPlayer && cards.TryGetValue(item.SourceObjectId, out var transferred)
             && transferred.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, transferred.ObjectId)) {
