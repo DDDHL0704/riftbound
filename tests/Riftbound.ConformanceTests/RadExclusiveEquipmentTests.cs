@@ -69,6 +69,30 @@ public sealed class RadExclusiveEquipmentTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData("DRAW")] [InlineData("DAMAGE")]
+    public async Task ReturningTheBallInResponsePreservesItsDrawButLeavesNoCurrentHereForDamage(string mode)
+    {
+        var state = LocalDestructionRecallTests.At(Position(Ball), "ENEMY", "P2", "BATTLEFIELD", "BF");
+        state = AttackDamageDistributionTests.Spell(state, "RECALL", "SFD·135/221", "P1");
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("UNIT", Ball, [], Destination: "BATTLEFIELD:BF"));
+        await Choose(game, mode);
+        var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+        await game.Act("P1", new PlayCardCommand("RECALL", "SFD·135/221", ["UNIT"]));
+        await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+        Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > generation);
+        Assert.Single(game.State.StackItems);
+        var firstEvent = game.Events().Length;
+        await game.Top();
+        Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
+        Assert.DoesNotContain(game.Events().Skip(firstEvent), e => e.Event.Kind == "DAMAGE_APPLIED");
+        Assert.Equal(mode == "DRAW", game.State.PlayerZones["P1"].Hand.Contains("P1-DRAW-1"));
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+        await game.Replay();
+    }
+
     [Fact]
     public async Task MovingTheBallAsAUnitCapturesOneModeTriggerAtItsDestination()
     {

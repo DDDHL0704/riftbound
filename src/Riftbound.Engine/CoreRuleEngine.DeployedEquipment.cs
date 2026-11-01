@@ -30,7 +30,10 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveUnitEventAreaDamage(MatchState state, StackItemState item, int amount)
     {
-        var here = item.UnitEvent!.Here!;
+        // CN359.3.f.2: "here" refers to the source's location when this
+        // instruction executes; a departed source has no current location.
+        var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);
+        if (here is null) return NoopStackResolutionResult(state);
         var targets = state.CardObjects.Values.Where(c => IsFaceUpNonStandbyUnit(c) && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
             && state.ObjectLocations.TryGetValue(c.ObjectId, out var at) && at.Zone == here.Zone
