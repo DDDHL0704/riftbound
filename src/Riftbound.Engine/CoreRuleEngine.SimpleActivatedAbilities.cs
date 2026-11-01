@@ -4,14 +4,22 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
-public sealed record CeasedSimpleActivationSource(string TokenFactoryCardNo, long DepartedTick);
+public sealed record CeasedSimpleActivationSource(string TokenFactoryCardNo, long DepartedTick)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long SourceFaceRevision { get; init; }
+}
 
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Source, long AcquiredTick,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    CeasedSimpleActivationSource? CeasedSource = null);
+    CeasedSimpleActivationSource? CeasedSource = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long SourceFaceRevision { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -138,7 +146,8 @@ public sealed partial class CoreRuleEngine
         var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
-            tokenTargets.Count == 0 ? null : tokenTargets);
+            tokenTargets.Count == 0 ? null : tokenTargets) {
+                SourceFaceRevision = source.CopyFaceTransitions?.Count ?? 0 };
         var targetGenerations = targets
             .Where(id => cards.ContainsKey(id))
             .ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
@@ -180,9 +189,10 @@ public sealed partial class CoreRuleEngine
         var recognized = P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability) && ability.SimpleEffect is not null;
         if (item.SimpleActivation is not { } context) return !recognized;
         if (!recognized || context.AbilityId != ability.AbilityId || context.Source is not { Generation: >= 0 }
+            || context.SourceFaceRevision < 0
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
-            || !ValidSimpleActivationSource(state, context, ability)
+            || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
             || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
                 || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
@@ -206,15 +216,15 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool ValidSimpleActivationSource(MatchState state, SimpleActivationContext context,
-        P4ActivatedAbilityDefinition ability)
+        P4ActivatedAbilityDefinition ability, string cardNo)
     {
         if (state.CardObjects.TryGetValue(context.Source.ObjectId, out var source))
             return context.CeasedSource is null && source.ObjectGeneration >= context.Source.Generation
                 && (source.ObjectGeneration != context.Source.Generation
-                    || P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
-                        && source.Tags.Contains(ability.SourceRequiredTag));
+                    || CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) == cardNo);
         return context.CeasedSource is { } ceased && ceased.DepartedTick >= context.AcquiredTick
             && ceased.DepartedTick <= state.Tick
+            && ceased.SourceFaceRevision == context.SourceFaceRevision
             && P6TokenFactoryCatalog.TryGetByCardNo(ceased.TokenFactoryCardNo, out var factory)
             && factory.Tags.Contains(ability.SourceRequiredTag);
     }
