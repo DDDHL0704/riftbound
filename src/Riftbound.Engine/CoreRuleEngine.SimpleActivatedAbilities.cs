@@ -10,11 +10,13 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
 
 public sealed partial class CoreRuleEngine
 {
-    private static string SimpleActivationUse(CardObjectState source, string ability)
-        => $"PRINTED_ACTIVATION_USED:{source.ObjectId}:{source.ObjectGeneration}:{ability}";
-    private static string SimpleActivationUse(CardObjectState source, P4ActivatedAbilityDefinition ability, string actor)
-        => SimpleActivationUse(source, ability.AbilityId)
+    internal const string SimpleActivationUsePrefix = "PRINTED_ACTIVATION_USED:";
+
+    internal static string SimpleActivationUse(ObjectBinding source, P4ActivatedAbilityDefinition ability, string actor)
+        => $"{SimpleActivationUsePrefix}{source.ObjectId}:{source.Generation}:{ability.AbilityId}"
             + (ability.SimpleEffect?.OncePerTurnPerPlayer == true ? ":PLAYER:" + actor : "");
+    private static string SimpleActivationUse(CardObjectState source, P4ActivatedAbilityDefinition ability, string actor)
+        => SimpleActivationUse(new ObjectBinding(source.ObjectId, source.ObjectGeneration), ability, actor);
 
     private static string EnemyUnitTargetMarker(string actor) => "TARGETED_ENEMY_UNIT_THIS_TURN:" + actor;
 
@@ -148,6 +150,8 @@ public sealed partial class CoreRuleEngine
             with { TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
+        if (ability.SimpleEffect.OncePerTurnPerPlayer)
+            payload["sourceGeneration"] = source.ObjectGeneration;
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
         if (ability.ExhaustsSourceAsCost)
             events.Add(new(source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED", "横置来源以支付技能费用", payload));
