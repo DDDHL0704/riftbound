@@ -190,6 +190,27 @@ public sealed class VenDragonPeakTests
     }
 
     [Fact]
+    public async Task AControlledPeakStillRequiresItsFeeToOverrideAnEffectsOriginalBaseLocation()
+    {
+        const string no = "UNL-118/219";
+        var initial = HandDiscardObserverTests.Put(Position("VEN·066", "P1"), "REPLAYED", no, "P1", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·066", ["REPLAYED"])); await game.Top();
+        Assert.Equal("ORIGINAL_LOCATION", game.State.PendingEffectPlay!.DestinationPolicy);
+        Assert.Equal("BASE", game.State.PendingEffectPlay.OriginalLocation!.Zone);
+        var play = new PlayCardCommand("REPLAYED", no, [], Destination: "BATTLEFIELD:BF");
+        await Reject(game.State, "P1", play);
+        Assert.False(Quote(game.State, play).CanPay);
+        var pool = game.State.RunePools["P1"];
+        play = play with { OptionalCosts = [Fee] };
+        var quote = Quote(game.State, play); Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(2, quote.Cost!.GenericPower);
+        await game.Act("P1", play);
+        Assert.Equal("BF", game.State.ObjectLocations["REPLAYED"].BattlefieldObjectId);
+        Assert.Equal(pool.TotalPower - 2, game.State.RunePools["P1"].TotalPower); await game.Replay();
+    }
+
+    [Fact]
     public async Task APlayerCanRefuseThePaidPeakRouteOfAnOtherwiseFreeMandatoryReplay()
     {
         var initial = Position("VEN·066", null);

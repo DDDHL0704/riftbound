@@ -75,7 +75,8 @@ public sealed partial class CoreRuleEngine
 
     private static bool EffectPlayDeclaredDestinationAllowed(MatchState state, string player,
         CardBehaviorDefinition behavior, string destination, IReadOnlyList<string>? costs)
-        => EffectPlayDestinations(state, player, behavior).Contains(destination)
+        => OrdinaryEffectPlayDestinations(state, player).Contains(destination)
+            || EffectPlayAllowsDeployment(state, player) && DeployedEquipmentDestinationAllowed(state, behavior, destination)
             || PaidBattlefieldUnitPlayDestination(costs, destination)
                 && ValidBattlefieldUnitPlayDeclaration(state, player, behavior, destination, costs);
 

@@ -45,6 +45,32 @@ public sealed class RadExclusiveEquipmentTests
         => await Reject(Position(no), new PlayCardCommand("UNIT", no, [], Destination: destination));
 
     [Theory]
+    [InlineData(Ball, "P2")] [InlineData(Ball, null)]
+    [InlineData(Standard, "P2")] [InlineData(Standard, null)]
+    public async Task AnEffectCanDeployOpposingEquipmentToAnEnemyOrOpenBattlefield(string no, string? controller)
+    {
+        var initial = DeckPlaySequenceTests.TopCard(Position(no), "P2-DRAW-1", no);
+        initial = AttackDamageDistributionTests.Spell(initial, "PARENT", DeckPlaySequenceTests.BlindFury, "P1");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["BF"] = initial.CardObjects["BF"] with { ControllerId = controller } } };
+        if (controller is not null) initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "BF");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("PARENT", DeckPlaySequenceTests.BlindFury, [])); await game.Top();
+        await Choose(game, "P2-DRAW-1");
+        Assert.Equal("ANY", game.State.PendingEffectPlay!.DestinationPolicy);
+        var play = new PlayCardCommand("P2-DRAW-1", no, [], Destination: "BATTLEFIELD:BF");
+        await Reject(game.State, play with { Destination = "BASE" });
+        var pool = game.State.RunePools["P1"];
+        await game.Act("P1", play);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), game.State.ObjectLocations["P2-DRAW-1"]);
+        Assert.Equal("P2", game.State.CardObjects["P2-DRAW-1"].OwnerId);
+        Assert.Equal("P1", game.State.CardObjects["P2-DRAW-1"].ControllerId);
+        Assert.Equal(pool, game.State.RunePools["P1"]);
+        if (no == Ball) { await Choose(game, "DRAW"); await game.Top(); }
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData("DRAW")] [InlineData("DAMAGE")]
     public async Task BallChoosesOneModeAfterEntryAndResolvesAfterResponses(string mode)
     {

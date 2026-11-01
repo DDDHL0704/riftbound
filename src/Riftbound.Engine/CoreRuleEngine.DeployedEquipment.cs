@@ -13,6 +13,10 @@ public sealed partial class CoreRuleEngine
         => IsDeployedEquipment(behavior) && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             && BattlefieldLocalRules.Battlefield(state, destination[12..]) is not null;
 
+    private static bool EffectPlayAllowsDeployment(MatchState state, string player)
+        => state.PendingEffectPlay is { DestinationPolicy: "ANY", RevealedHand: null } pending
+            && pending.PlayerId == player && pending.Parent.PlayedFromStandby is null;
+
     private static UnitEventObservation[] CaptureFriendlyAttackHere(MatchState state, IEnumerable<string> attackers)
     {
         var batch = attackers.Distinct(StringComparer.Ordinal).Where(state.CardObjects.ContainsKey).ToArray();
