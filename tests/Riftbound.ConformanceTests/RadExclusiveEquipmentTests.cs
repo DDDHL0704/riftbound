@@ -73,13 +73,19 @@ public sealed class RadExclusiveEquipmentTests
     [InlineData("DRAW")] [InlineData("DAMAGE")]
     public async Task ReturningTheBallInResponsePreservesItsDrawButLeavesNoCurrentHereForDamage(string mode)
     {
-        var state = LocalDestructionRecallTests.At(Position(Ball), "ENEMY", "P2", "BATTLEFIELD", "BF");
-        state = AttackDamageDistributionTests.Spell(state, "RECALL", "SFD·135/221", "P1");
+        var state = LocalDestructionRecallTests.At(Position(Ball), "UNIT", "P1", "BATTLEFIELD", "BF");
+        state = state with { PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+            ["P1"] = state.PlayerZones["P1"] with { Hand = [] } },
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["UNIT"] = state.CardObjects["UNIT"] with { Power = 5,
+                Tags = [..state.CardObjects["UNIT"].Tags, CardObjectTags.UnitCard, CardEquipmentKeywordNames.Deploy, "游走"] } } };
+        state = LocalDestructionRecallTests.At(state, "ENEMY", "P2", "BATTLEFIELD", "OTHER");
+        state = AttackDamageDistributionTests.Spell(state, "RECALL", "OGN·104/298", "P1");
         var game = new Driver(state);
-        await game.Act("P1", new PlayCardCommand("UNIT", Ball, [], Destination: "BATTLEFIELD:BF"));
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BATTLEFIELD:BF", "BATTLEFIELD:OTHER", ["ROAM"]));
         await Choose(game, mode);
         var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-        await game.Act("P1", new PlayCardCommand("RECALL", "SFD·135/221", ["UNIT"]));
+        await game.Act("P1", new PlayCardCommand("RECALL", "OGN·104/298", ["UNIT"]));
         await game.Top();
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
         Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > generation);
