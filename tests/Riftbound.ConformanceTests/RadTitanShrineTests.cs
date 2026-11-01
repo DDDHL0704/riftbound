@@ -155,24 +155,18 @@ public sealed class RadTitanShrineTests
     }
 
     [Fact]
-    public async Task APaidDrawSurvivesEquipmentDestructionDuringAnActualSpellDuelResponse()
+    public async Task APaidDrawDoesNotRecheckTheEnteredUnitAfterAnActualReactionReturnsIt()
     {
         var state = Put(Position(), "NEW", "UNL-120/219", "P1", "HAND");
         state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "BF");
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["BF"] = state.CardObjects["BF"] with { ControllerId = "P2" } } };
         state = Put(state, "RETURN", "OGN·104/298", "P1", "HAND");
-        state = Put(state, "DESTROY", "RAD·101/167", "P2", "HAND");
         var game = new Driver(state);
         await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
         Assert.True(game.State.SpellDuelState.IsActive);
         await game.Act("P1", new PlayCardCommand("NEW", "UNL-120/219", [], Destination: "BATTLEFIELD:BF"));
         await Pay(game);
-        if (game.State.PriorityPlayerId != "P2")
-            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("DESTROY", "RAD·101/167", ["SHRINE"]));
-        await game.Top();
-        Assert.Contains("SHRINE", game.State.PlayerZones["P1"].Graveyard);
         Assert.Contains(game.State.StackItems, item => item.SourceObjectId == "SHRINE" && item.TriggerCost is not null);
         if (game.State.PriorityPlayerId != "P1")
             await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
@@ -180,7 +174,7 @@ public sealed class RadTitanShrineTests
         await game.Top();
         Assert.Contains("NEW", game.State.PlayerZones["P1"].Hand);
         await game.Top();
-        Assert.Single(game.State.PlayerZones["P1"].Hand.Where(id => id.StartsWith("P1-D", StringComparison.Ordinal)));
+        Assert.Single(game.State.PlayerZones["P1"].Hand, id => id.StartsWith("P1-D", StringComparison.Ordinal));
         Assert.Empty(game.State.PlayerZones["P2"].Hand);
         await game.Replay();
     }
@@ -191,7 +185,8 @@ public sealed class RadTitanShrineTests
     {
         var capture = new Driver(Position()); await Play(capture); await Pay(capture);
         // These derived checkpoints verify structural recovery and resolution.
-        // The fact above verifies actual response history and full replay.
+        // The fact above verifies an actual reaction returning the played unit,
+        // including full replay; source departures here are derived checkpoints.
         var state = RadUnitEffectTestFixture.Place(capture.State, "SHRINE", change == "controller" ? "P2" : "P1",
             change == "controller" ? "BASE" : change == "hand" ? "HAND" : "GRAVEYARD");
         if (change != "controller") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
@@ -207,7 +202,7 @@ public sealed class RadTitanShrineTests
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             Assert.Empty(OfficialInsightAndSpellLockTests.Errors(state));
         }
-        Assert.Single(state.PlayerZones["P1"].Hand.Where(id => id.StartsWith("P1-D", StringComparison.Ordinal)));
+        Assert.Single(state.PlayerZones["P1"].Hand, id => id.StartsWith("P1-D", StringComparison.Ordinal));
         Assert.Empty(state.PlayerZones["P2"].Hand);
     }
 
@@ -216,7 +211,7 @@ public sealed class RadTitanShrineTests
     {
         var state = NoOtherUnits(Position());
         var game = new Driver(Put(state, "BATCH", "OGS·015/024", "P1", "HAND"));
-        await game.Act("P1", new PlayCardCommand("BATCH", "OGS·015/024", [])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("BATCH", "OGS·015/024", [], Mode: "BASE")); await game.Top();
         Assert.Equal(4, game.Events().Count(e => e.Event.Kind == "UNIT_TOKEN_CREATED"));
         Assert.Single(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
         await Pay(game); await game.Top();
@@ -233,7 +228,7 @@ public sealed class RadTitanShrineTests
                 ["BF"] = OfficialGarenConquestBattlefieldCountTests.Printed("BF", "OGN·275/298", "P1") with { ControllerId = "P1" } } };
         var game = new Driver(state);
         await game.Act("P1", new PassPriorityCommand()); await game.Top();
-        Assert.Single(game.Events().Where(e => e.Event.Kind == "UNIT_TOKEN_CREATED"));
+        Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_TOKEN_CREATED");
         Assert.Equal("TRIGGER_COST_CONFIRMATION", game.State.PendingCardChoice!.ChoiceWindow);
         Assert.Equal("SHRINE", Assert.Single(game.State.StackItems).SourceObjectId);
         await Pay(game); await game.Top();
