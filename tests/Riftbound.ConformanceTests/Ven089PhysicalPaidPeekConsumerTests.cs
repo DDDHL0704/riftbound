@@ -44,7 +44,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
             Assert.Null(game.State.CardObjects["PEEK-0"].AttachedToObjectId);
             Assert.Equal(12, OwnedRunes(game.State)); Assert.Equal(7, Common.Runes(game.State).Length); Assert.Equal(5, game.State.PlayerZones["P1"].RuneDeck.Count);
             Assert.Empty(game.State.StackItems);
-            // The preceding Act/Top already replayed this unchanged original history.
+            // The preceding driver command already replayed this unchanged original history.
         }
         finally { await Save("actual-selected-" + selectedNo.Replace('·', '-') + "-" + create, initial, game); }
     }
@@ -68,7 +68,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
             await game.Top(); var choice = game.State.PendingCardChoice!;
             await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [])); await Decide(game, false);
             Assert.Empty(game.State.StackItems);
-            // The preceding Act/Top already replayed this unchanged original history.
+            // The preceding driver command already replayed this unchanged original history.
         }
         finally { await Save("actual-six-and-orange-cached-intent", initial, game); }
 
@@ -79,7 +79,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
             await Common.Reject(onlyMana, "P1", new PlayCardCommand("UNIT", No, []), "ven089-seven-without-orange");
             Assert.Equal(ErrorCodes.InsufficientCost, onlyMana.LastRetainedResult!.ErrorCode); Assert.Equal(7, onlyMana.State.RunePools["P1"].Mana);
             Assert.Equal(0, onlyMana.State.RunePools["P1"].TotalPower); Assert.Contains("UNIT", onlyMana.State.PlayerZones["P1"].Hand);
-            // The preceding Act/Top already replayed this unchanged original history.
+            // The preceding driver command already replayed this unchanged original history.
         }
         finally { await Save("actual-seven-without-orange", initial, onlyMana); }
     }
@@ -102,7 +102,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower); Assert.Equal(4, Might(game));
             await game.Top(); Assert.True(game.State.CardObjects["PEEK-0"].IsEmpowered); Assert.Equal(6, Might(game));
             Assert.Equal(12, OwnedRunes(game.State)); Assert.Equal(6, Common.Runes(game.State).Length); Assert.Equal(6, game.State.PlayerZones["P1"].RuneDeck.Count);
-            // The preceding Act/Top already replayed this unchanged original history.
+            // The preceding driver command already replayed this unchanged original history.
         }
         finally { await Save("actual-selected-printed-orange", initial, game); }
     }
@@ -125,7 +125,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.True(game.State.CardObjects["PEEK-0"].IsExhausted);
             await game.Top(); Assert.True(game.State.CardObjects["PEEK-0"].IsEmpowered); Assert.Equal(6, Might(game));
             Assert.Equal(12, OwnedRunes(game.State)); Assert.DoesNotContain(game.Events(), e => e.Event.Kind is "RUNE_CALLED" or "CARD_DRAWN");
-            // The preceding Act/Top already replayed this unchanged original history.
+            // The preceding driver command already replayed this unchanged original history.
         }
         finally { await Save("actual-selected-seven-minus-five", initial, game); }
     }
@@ -145,7 +145,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
             var payment = Assert.Single(game.Events().Skip(before), e => e.Event.Kind == "COST_PAID"); Assert.Equal(0, payment.Event.Payload["totalManaCost"]);
             await game.Top(); Assert.True(game.State.CardObjects["PEEK-0"].IsEmpowered); Assert.Equal(4, Might(game));
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower); Assert.Equal(12, OwnedRunes(game.State));
-            // The preceding Act/Top already replayed this unchanged original history.
+            // The preceding driver command already replayed this unchanged original history.
         }
         finally { await Save("actual-selected-mandatory-equipment-return", initial, game); }
     }
@@ -165,7 +165,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
             Assert.Empty(game.State.StackItems); Assert.DoesNotContain(game.State.CardObjects.Values, c => c.IsEmpowered);
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind is "OBJECT_EMPOWERED" or "CARD_DRAWN" or "BURNOUT_APPLIED" or "UNIT_PLAYED_TO_BASE");
             Assert.Equal(12, OwnedRunes(game.State));
-            // The preceding Act/Top already replayed this unchanged original history.
+            // The preceding driver command already replayed this unchanged original history.
         }
         finally { await Save("actual-decline-five-" + create, initial, game); }
     }
