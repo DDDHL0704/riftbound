@@ -75,18 +75,19 @@ public sealed partial class CoreRuleEngine
 
     private static bool EffectPlayDeclaredDestinationAllowed(MatchState state, string player,
         CardBehaviorDefinition behavior, string destination, IReadOnlyList<string>? costs)
-        => OrdinaryEffectPlayDestinations(state, player).Contains(destination)
+        => EffectPlayDestinations(state, player, behavior).Contains(destination)
             || PaidBattlefieldUnitPlayDestination(costs, destination)
                 && ValidBattlefieldUnitPlayDeclaration(state, player, behavior, destination, costs);
 
     internal static bool UnitPlayLocationRestrictionAllows(MatchState state, string player,
         CardBehaviorDefinition behavior, string destination)
-        => !behavior.PlaysSourceToBaseAsUnit || !CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
+        => (!IsDeployedEquipment(behavior) || DeployedEquipmentDestinationAllowed(state, behavior, destination))
+            && (!behavior.PlaysSourceToBaseAsUnit || !CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
                 ability => ability.Kind == StaticAbilityKinds.UnitPlayOnlyToConqueredBattlefieldThisTurn, out _)
             || destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
                 && state.BattlefieldConquests is { } history && history.TurnNumber == state.TurnNumber
                 && BattlefieldLocalRules.Battlefield(state, destination[12..]) is { } field
-                && history.Entries.Contains(new(player, new(field.ObjectId, field.ObjectGeneration)));
+                && history.Entries.Contains(new(player, new(field.ObjectId, field.ObjectGeneration))));
 
     private static ResolutionResult RecordBattlefieldConquests(ResolutionResult result)
     {

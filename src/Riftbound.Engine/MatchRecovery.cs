@@ -4854,7 +4854,7 @@ public static partial class MatchRecoveryValidator
             if (string.IsNullOrWhiteSpace(context!.CardNo) || string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
                 || context.SourceGeneration < 0 || context.Amount < 0
                 || context.Kind is not ("MINION" or "DRAW" or "RETURN_HERO" or "BOON" or "ACTIVATE_CONQUEST"
-                    or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "RETURN_PERMANENT"
+                    or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "OPTIONAL_RETURN_SELF" or "RETURN_PERMANENT"
                     or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
                     or "VEX" or "IVERN" or "BRUSH_RETURN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
                     or "BURN" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");

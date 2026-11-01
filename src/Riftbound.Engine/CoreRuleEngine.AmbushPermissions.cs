@@ -64,7 +64,8 @@ public sealed partial class CoreRuleEngine
             choices.Add(new("BASE", "基地"));
         foreach (var field in state.CardObjects.Values.Where(c => IsBattlefieldCardObject(c) && IsObjectOnField(state.PlayerZones, c.ObjectId))) {
             var destination = "BATTLEFIELD:" + field.ObjectId;
-            if ((IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
+            if ((DeployedEquipmentDestinationAllowed(state, behavior, destination)
+                    || IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
                     || OpenBattlefieldPlayAllowed(state, behavior, destination)
                     || BattlefieldUnitPlayGrants(state, player, behavior).Any(g => g.Field.ObjectId == field.ObjectId)
                     || AmbushLocationAllowed(state, player, behavior, destination)
@@ -76,7 +77,7 @@ public sealed partial class CoreRuleEngine
                 && CardPermissionKeywordRules.EvaluatePlayTiming(state, player,
                     AmbushTimingBehavior(state, player, behavior, destination)).IsAllowed
                 && UnitPlayLocationRestrictionAllows(state, player, behavior, destination)
-                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, player, destination))
+                && (!behavior.PlaysSourceToBaseAsUnit || !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, player, destination)))
                 choices.Add(new(destination, field.ObjectId));
         }
         // Retain ordinary Base-only development fixtures' existing destination;
@@ -84,7 +85,7 @@ public sealed partial class CoreRuleEngine
         if (state.BattlefieldStates.Count == 0 && CardPermissionKeywordRules.EvaluatePlayTiming(state, player, behavior).IsAllowed) {
             var destination = "BATTLEFIELD:" + player + "-MAIN";
             if (UnitPlayLocationRestrictionAllows(state, player, behavior, destination)
-                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, player, destination)) choices.Add(new(destination, "己方主战场"));
+                && (!behavior.PlaysSourceToBaseAsUnit || !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, player, destination))) choices.Add(new(destination, "己方主战场"));
         }
         return choices;
     }

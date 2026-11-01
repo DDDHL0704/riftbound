@@ -76,15 +76,18 @@ public static class VendettaCardSources
             (Id: 37905L, CardNo: "VEN·195*"), (Id: 37906L, CardNo: "VEN·196"), (Id: 37907L, CardNo: "VEN·196*"),
             (Id: 37908L, CardNo: "VEN·197"), (Id: 37909L, CardNo: "VEN·197*"), (Id: 37916L, CardNo: "VEN·SP1"),
             (Id: 37917L, CardNo: "VEN·SP2"), (Id: 37919L, CardNo: "VEN·SP4"), (Id: 37920L, CardNo: "VEN·SP5"),
-            (Id: 37924L, CardNo: "VEN·T04"), (Id: 37925L, CardNo: "VEN·T05"), (Id: 37926L, CardNo: "VEN·T06") }
+            (Id: 37922L, CardNo: "VEN·T02"), (Id: 37923L, CardNo: "VEN·T03"), (Id: 37924L, CardNo: "VEN·T04"), (Id: 37925L, CardNo: "VEN·T05"), (Id: 37926L, CardNo: "VEN·T06") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
-            // The upstream gallery labels VEN token printings as ordinary units.
+            // The upstream gallery labels VEN token printings as ordinary permanents.
             // CN 187.1 and 187.10 define their actual token category.
             .Select(card => card.CardNo.StartsWith("VEN·T", StringComparison.Ordinal)
                 && card.CardCategory == "unit"
                 ? card with { CardCategory = "indicator_unit", CardCategoryName = "指示物单位",
                     CardCategoryList = ["indicator_unit"], CardCategoryNameList = ["指示物单位"] }
-                : card)
+                : card.CardNo == "VEN·T02" && card.CardCategory == "equipment"
+                    ? card with { CardCategory = "indicator_equipment", CardCategoryName = "指示物装备",
+                        CardCategoryList = ["indicator_equipment"], CardCategoryNameList = ["指示物装备"] }
+                    : card)
             .Select(card => card with {
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),
                 CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),
