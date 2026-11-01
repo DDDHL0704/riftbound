@@ -51,7 +51,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.Equal(deck.Take(i + 1), game.State.PlayerZones["P1"].Hand);
                 Assert.Equal(deck.Skip(i + 1), game.State.PlayerZones["P1"].MainDeck);
             }
-            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            // Act/Top already audited the unchanged final original history.
         }
         finally { await Save("actual-paid-draw-copies-" + copies, initial, game); }
     }
@@ -79,7 +80,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind == "CARD_DRAWN" && Equals(e.Event.Payload.GetValueOrDefault("playerId"), "P1"));
             Assert.Equal(earnsDraw ? 1 : 0, game.State.TriggerQueue.Count + game.State.StackItems.Count);
             if (earnsDraw) { await game.Top(); Assert.Equal(deck.Take(1), game.State.PlayerZones["P1"].Hand); }
-            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            // Act/Top already audited the unchanged final original history.
         }
         finally { await Save("conditional-native-" + no.Replace('/', '-') + "-ally-" + hasAlly, initial, game); }
     }

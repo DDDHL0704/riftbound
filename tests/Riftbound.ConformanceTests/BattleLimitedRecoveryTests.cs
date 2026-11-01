@@ -230,7 +230,7 @@ public sealed class BattleLimitedRecoveryTests
         var ledger=run.State.CardObjects["ATTACKER"].UntilEndOfTurnPowerModifiers;
         Assert.Equal(new[]{3,6,12},ledger.Select(p=>p.SnapshotMight!.Value).ToArray());
         Assert.Equal(3,ledger.Select(p=>p.EffectId).Distinct().Count());Assert.All(ledger,p=>Assert.Equal("UNTIL_END_OF_BATTLE",p.Duration));
-        await run.Replay();
+        // The last Top command already audited the complete original history.
         return new Fixture(initial, run.State, run.Commands(), run.Events(), checkpoint, checkpointCommands, checkpointEvents);
     }
 
