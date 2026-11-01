@@ -7,7 +7,9 @@ public sealed partial class CoreRuleEngine
     internal const string TriggerTargetCostWindow = "TRIGGER_TARGET_COST";
 
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
-        => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
+    {
+        var item = state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId);
+        var result = item is not null
             && (NeedsLastBreathHereTarget(item) && ValidLastBreathBattlefieldDamageStack(state, item)
                 || HasMovementDamage(item) && ValidMovementDamageStack(state, item)
                 || item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
@@ -38,15 +40,21 @@ public sealed partial class CoreRuleEngine
                 : item.FieldContext is { Kind: PaidUnitDestroyKind, PaidUnitTrigger: { CostPaid: false, DiscardCost: not null } }
                     ? payment.ManaCost == 0 && payment.PowerCost > 0
                         && payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _)
-                    : payment.ManaCost == 0 && (item.HighCostPlayObserver is not null ? payment.PowerCost >= 0 : payment.PowerCost > 0 || payment.ExperienceCost > 0))
+                    : item.HighCostPlayObserver is { } highCostPayment
+                        ? payment.ManaCost == (HighCostPlaysSourceFromGraveyard(highCostPayment.CardNo)
+                            ? HighCostPlaySpec(highCostPayment.CardNo)?.ManaCost ?? 0 : 0) && payment.PowerCost >= 0
+                        : payment.ManaCost == 0 && (payment.PowerCost > 0 || payment.ExperienceCost > 0))
             && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasMovementDamage(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.SequenceEqual(item.HighCostPlayObserver is { } highCost
                 && HighCostPlaysSourceFromGraveyard(highCost.CardNo)
-                ? new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Yellow] = 1 }
+                && HighCostPlaySpec(highCost.CardNo) is { PowerCost: > 0, PowerCostTrait: { } trait } spec
+                ? new Dictionary<string, int>(StringComparer.Ordinal) { [trait] = spec.PowerCost.Value }
                 : new Dictionary<string, int>(StringComparer.Ordinal))
             && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
+        return result;
+    }
 
     private static ResolutionResult ResolveTriggerTargetPayment(MatchState state, PlayerIntent intent, PendingPaymentState pending,
         IReadOnlyList<string> choices, int rawCount)

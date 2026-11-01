@@ -9,8 +9,19 @@ public sealed partial class CoreRuleEngine
     internal const string MovementAttachmentWindow = "MOVEMENT_OPTIONAL_ATTACHMENT";
 
     internal static bool IsMovementEquipmentCandidate(MatchState state, CardBehaviorDefinition behavior, string id, int index)
-        => !behavior.OptionalEquipmentAfterMovement || index == 0 || string.IsNullOrEmpty(behavior.OptionalEquipmentRequiredTag)
-            || state.CardObjects.TryGetValue(id, out var gear) && gear.Tags.Contains(behavior.OptionalEquipmentRequiredTag, StringComparer.Ordinal);
+        => behavior.MovesFriendlyEquipmentToChosenBattlefield && index == 0
+            ? IsFriendlyEquipmentMovementCandidate(state, state.PendingEffectPlay?.PlayerId ?? state.TurnPlayerId ?? "", id)
+            : !behavior.OptionalEquipmentAfterMovement || index == 0 || string.IsNullOrEmpty(behavior.OptionalEquipmentRequiredTag)
+                || state.CardObjects.TryGetValue(id, out var gear) && gear.Tags.Contains(behavior.OptionalEquipmentRequiredTag, StringComparer.Ordinal);
+
+    internal static bool IsFriendlyEquipmentMovementCandidate(MatchState state, string playerId, string id)
+        => IsFriendlyEquipmentObject(state, playerId, id)
+            && state.CardObjects.TryGetValue(id, out var equipment)
+                && !equipment.IsFaceDown
+                && equipment.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && equipment.Tags.Contains(CardEquipmentKeywordNames.Deploy, StringComparer.Ordinal)
+                && string.IsNullOrWhiteSpace(equipment.AttachedToObjectId)
+                && IsObjectOnField(state.PlayerZones, id);
 
     internal static bool IsMovementEquipmentRelationAllowed(MatchState state, string player,
         CardBehaviorDefinition behavior, IReadOnlyList<string> targets, int index)

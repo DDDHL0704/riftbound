@@ -4,7 +4,8 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static bool UsesDeclaredMovementDestination(CardBehaviorDefinition behavior)
-        => behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null || behavior.MovesTargetsSequentially;
+        => behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null || behavior.MovesTargetsSequentially
+            || behavior.MovesFriendlyEquipmentToChosenBattlefield;
 
     internal static IReadOnlyList<ActionPromptChoiceDto> SequentialMovementDestinations(MatchState state, string player, int index)
     {
