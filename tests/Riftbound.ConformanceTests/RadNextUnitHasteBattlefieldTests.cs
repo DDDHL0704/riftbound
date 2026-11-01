@@ -168,6 +168,15 @@ public sealed class RadNextUnitHasteBattlefieldTests
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
     }
 
+    [Fact]
+    public void RecoveryRejectsAGrantMarkerWithoutASource()
+    {
+        var marker = GrantPrefix + System.Text.Json.JsonSerializer.Serialize(
+            new NextUnitPlayGrant(5, "P1", null!, "RAD·162/167", 1, "HASTE"));
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(Position() with { UntilEndOfTurnEffects = [marker] }),
+            e => e.Contains("invalid next unit play grant", StringComparison.Ordinal));
+    }
+
     private static async Task Conquer(Driver game, string player = "P1")
     {
         await game.Act(player, new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));

@@ -38,7 +38,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidCurrentNextUnitPlayGrants(MatchState state)
         => state.UntilEndOfTurnEffects.Where(m => m.StartsWith(NextUnitPlayGrantPrefix, StringComparison.Ordinal)).All(m =>
-            ReadNextUnitPlayGrant(m) is { } grant && NextUnitPlayMarker(grant) == m
+            ReadNextUnitPlayGrant(m) is { Source: not null } grant && NextUnitPlayMarker(grant) == m
                 && ValidNextUnitPlayGrant(state, grant, NextUnitPlayGrantEffect, grant.Source.ObjectId, grant.ControllerId, grant.CardNo));
 
     private static string[] ActiveNextUnitPlayGrants(IReadOnlyList<string> effects, string player)
