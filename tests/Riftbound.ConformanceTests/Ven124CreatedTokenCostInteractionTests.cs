@@ -23,12 +23,24 @@ public sealed class Ven124CreatedTokenCostInteractionTests
         {
             Assert.DoesNotContain(game.State.CardObjects.Values, c => c.Tags.Contains(CardObjectTags.MinionTokenFamily));
             var funding = Enumerable.Range(0, 12).Select(i => "TOKEN-COST-RUNE-" + i).ToArray();
-            await game.Act("P1", new TapRuneCommand(funding[0], funding));
-            Assert.Equal(12, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
-            await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
-            Assert.Equal(10, game.State.RunePools["P1"].Mana);
-            await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
-            await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
+            var recover = game.RecoverAfterEveryCommand;
+            game.RecoverAfterEveryCommand = false;
+            try
+            {
+                // The paid carrier and its own empowerment only establish the
+                // source used by the later token-cost choice. Keep duplicate,
+                // privacy and command acceptance checks on each setup command,
+                // then validate the complete prefix once before the dependent
+                // token and earned-text assertions.
+                await game.Act("P1", new TapRuneCommand(funding[0], funding));
+                Assert.Equal(12, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+                await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
+                Assert.Equal(10, game.State.RunePools["P1"].Mana);
+                await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
+                await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
+                await game.ColdCheckpoint();
+            }
+            finally { game.RecoverAfterEveryCommand = recover; }
             Assert.True(game.State.CardObjects["CARRIER"].IsEmpowered); Assert.Equal(9, game.State.RunePools["P1"].Mana);
             await game.Act("P1", new PlayCardCommand("UNIT", "VEN·124", []));
             await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [], OptionalCosts: [CostChoice(game.State, "UNIT", "CARRIER")]));
@@ -180,7 +192,7 @@ public sealed class Ven124CreatedTokenCostInteractionTests
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN124_TOKEN_EVIDENCE") is not { Length: > 0 } folder) return;
         Directory.CreateDirectory(folder); await File.WriteAllTextAsync(Path.Combine(folder, no.Replace('/', '-') + "-copies-" + copies + ".json"), JsonSerializer.Serialize(new {
-            scope = "Explicit midgame copy-source/gear material. Zero pools/exactly12 physical own runes, actual normal No128 play, native typed Empower, first No124 cost earns actual minions, actual paid Shady copy and0/2 paid Song texts. No124 second required cost makes real copied minion cease, independently captured skills finish before parent Empower. Actual native/Shady payments return two yellow runes, with two Song payments returning two more green runes; non-call skills preserve their exact order and Fae independently calls2/2/0 dormant before each draw. No injected token/copy/empower/death/skill/source/result. Original per-command hidden/recovery/dedup/original action replay. No canonical opening, SQL/network, latest complete L2/L3, applicability or whole-card claim.",
+            scope = "Explicit midgame copy-source/gear material. Zero pools/exactly12 physical own runes, actual normal No128 play, native typed Empower, first No124 cost earns actual minions, actual paid Shady copy and0/2 paid Song texts. No124 second required cost makes real copied minion cease, independently captured skills finish before parent Empower. Actual native/Shady payments return two yellow runes, with two Song payments returning two more green runes; non-call skills preserve their exact order and Fae independently calls2/2/0 dormant before each draw. No injected token/copy/empower/death/skill/source/result. Per-command hidden/dedup checks, one carrier setup cold checkpoint, then original per-command recovery and original action replay. No canonical opening, SQL/network, latest complete L2/L3, applicability or whole-card claim.",
             initial, final = game.State, commands = game.Commands(), events = game.Events(), ruleInputs = RuleInputIdentity.Current }, Json));
     }
 }
