@@ -34,8 +34,9 @@ public sealed class Ven159SubmittedBattlefieldConsumerTests
                 walls[player] = game.Hand(player, Arena.WallNo).First(); guards[player] = game.Hand(player, Arena.GuardNo).First();
                 await game.Act(player, new PlayCardCommand(walls[player], Arena.WallNo, [])); Assert.Equal(4, game.State.RunePools[player].Mana);
                 await game.Act(player, new PlayCardCommand(guards[player], Arena.GuardNo, [])); Assert.Equal(0, game.State.RunePools[player].Mana); Assert.Equal(0, game.State.RunePools[player].TotalPower);
-                Assert.Equal(6, game.Might(player, walls[player])); Assert.Equal(6, game.Might(player, guards[player])); Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
+                Assert.Equal(6, game.Might(player, walls[player])); Assert.Equal(6, game.Might(player, guards[player])); Common.AssertTwelveEach(game.State);
             }
+            await game.ColdCheckpoint();
             await game.Act("P2", new EndTurnCommand());
             if (defender == "P2") await game.Act("P1", new EndTurnCommand());
             Assert.Equal(defender, game.State.TurnPlayerId); Assert.False(game.State.CardObjects[walls[defender]].IsExhausted);

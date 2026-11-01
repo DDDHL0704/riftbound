@@ -55,7 +55,10 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool DestroysEquipmentAsCost = false, bool DestroysUnitAsCost = false,
     int CallRuneCount = 0, bool ExhaustsTargetAsCost = false,
     bool ScrutinizesOpponentGuess = false,
-    bool DestroysSourceAsCost = false);
+    bool DestroysSourceAsCost = false,
+    bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
+    bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
+    bool StunsTarget = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -279,6 +282,18 @@ public static class P4ActivatedAbilityCatalog
     public const string RuneBladeAnvilAbilityId = "RAD_012_DESTROY_SELF";
     public const string RuneBladeAnvilAbilityEffectKind = "RAD_012_DESTROY_SELF";
 
+    public const string TranspositionMageCardNo = "RAD·115/167";
+    public const string TranspositionMageAbilityId = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
+    public const string TranspositionMageAbilityEffectKind = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
+
+    public const string PrismwingFlockCardNo = "RAD·027/167";
+    public const string PrismwingFlockAbilityId = "RAD_027_GRANT_BOON_OR_POWER";
+    public const string PrismwingFlockAbilityEffectKind = "RAD_027_GRANT_BOON_OR_POWER";
+
+    public const string RelentlessStalkerCardNo = "RAD·104/167";
+    public const string RelentlessStalkerAbilityId = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
+    public const string RelentlessStalkerAbilityEffectKind = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
         new(RuneBladeAnvilAbilityId, "RAD·012/167", RuneBladeAnvilAbilityEffectKind, "符刃铁砧：摧毁自身", 0, 2, 0,
@@ -329,6 +344,25 @@ public static class P4ActivatedAbilityCatalog
             Reason: "官方中文：横置，选择一名对手；该对手必须将其控制的一名单位移动到提灯亚龙所在战场。",
             SourceRequiredTag: CardObjectTags.UnitCard,
             SimpleEffect: new(CommandsOpponentUnitToSourceBattlefield: true)),
+        new(TranspositionMageAbilityId, TranspositionMageCardNo, TranspositionMageAbilityEffectKind, "易位法师", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：支付1紫色符能并横置，让一名友方单位返回其所属的手牌；你可以选择打出一名战力不高于该单位的单位，无视其费用。",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Purple] = 1 },
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(ReturnsFriendlyUnitThenFreePlayUpToPower: true)),
+        new(PrismwingFlockAbilityId, PrismwingFlockCardNo, PrismwingFlockAbilityEffectKind, "幻彩飞禽", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: true,
+            Reason: "官方中文：横置，给予一名单位增益；如果该单位已拥有增益，则改为给予其本回合内战力+2。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(GrantsBoonOrPower: true, ExistingBoonPowerBonus: 2)),
+        new(RelentlessStalkerAbilityId, RelentlessStalkerCardNo, RelentlessStalkerAbilityEffectKind, "无情潜伏者", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: true,
+            Reason: "官方中文：横置，眩晕一名敌方单位。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(StunsTarget: true)),
         new("GLOWING_STONE_TRANSFER", "VEN·133", "GLOWING_STONE_TRANSFER", "发光石", 0, 0, 1,
             false, true, 0, false, "解除强化并横置：选择一名玩家，该玩家获得此牌的控制权并将其召回。",
             SourceRequiredTag: CardObjectTags.EquipmentCard,

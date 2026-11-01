@@ -18,7 +18,7 @@ public sealed class BattleExpirySpellKillAttributionTests(ITestOutputHelper outp
     {
         BattleLimitedTestSupport.Runtime(output);
         var initial = Opening();
-        var run = new Driver(initial);
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("HOST", "OGN·210/298", [], Destination: "BATTLEFIELD:HOME"));
         await run.Act("P1", new EndTurnCommand());
         var funds = Enumerable.Range(1, 12).Select(i => "P2-FUND-" + i).ToArray();
@@ -39,6 +39,12 @@ public sealed class BattleExpirySpellKillAttributionTests(ITestOutputHelper outp
             await run.Act("P1", new RecycleRuneCommand(id));
         for (var i = 0; run.State.FocusPlayerId is not null; i++)
         { Assert.InRange(i, 0, 3); await run.Act(run.State.FocusPlayerId, new PassFocusCommand()); }
+        // The opening and resource preparation contain no contested choices. Keep
+        // their command and duplicate checks, then recover once before the battle
+        // declaration so the critical attribution and response window still run
+        // with per-command cold recovery.
+        run.RecoverAfterEveryCommand = true;
+        await run.ColdCheckpoint();
         await run.Act("P2", new DeclareBattleCommand("HOME", ["ATTACKER"], ["HOST"], ["COMBAT_ASSIGNMENT"]));
         Assert.Equal("RESULT_TRIGGERS", run.State.PendingBattleResult!.Stage);
         Assert.Equal(0, run.State.CardObjects["ATTACKER"].Damage);
