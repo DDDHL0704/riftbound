@@ -33709,8 +33709,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int damageAmount;
         if (behavior.DamageAmountFromShowcasePower)
         {
+            // A showcase condition must be met before there is a damage
+            // instruction to receive bonuses (CN 832.1.c.1 / 715).
             if (stackItem.Showcase is not { Object.ObjectId: var showcasedId })
-                damageAmount = 0;
+                return 0;
             else if (stackItem.Showcase.CapturedPower is { } capturedPower)
                 damageAmount = capturedPower;
             else

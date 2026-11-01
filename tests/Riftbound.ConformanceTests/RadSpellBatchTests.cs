@@ -329,6 +329,17 @@ public sealed class RadSpellBatchTests
     [Fact]
     public async Task ForbiddenTechniqueReadiesAUnitAndCanReplayItFromTheGraveyardForOneAndTwoRed()
     {
+        var ordinary = SpellPosition("RAD·010/167");
+        ordinary = ordinary with { CardObjects = new Dictionary<string, CardObjectState>(ordinary.CardObjects) {
+            ["ALLY"] = ordinary.CardObjects["ALLY"] with { IsExhausted = true } } };
+        await Reject(ordinary, "P1", new PlayCardCommand("SPELL", "RAD·010/167", ["GEAR"]));
+        var fromHand = new Driver(ordinary);
+        await fromHand.Act("P1", new PlayCardCommand("SPELL", "RAD·010/167", ["ALLY"]));
+        await fromHand.Top();
+        Assert.False(fromHand.State.CardObjects["ALLY"].IsExhausted);
+        Assert.Contains("SPELL", fromHand.State.PlayerZones["P1"].Graveyard);
+        await fromHand.Replay();
+
         var initial = SpellPosition("RAD·010/167");
         var zones = initial.PlayerZones.ToDictionary();
         zones["P1"] = zones["P1"] with { Hand = zones["P1"].Hand.Where(id => id != "SPELL").ToArray(), Graveyard = ["GRAVE", "SPELL"] };
@@ -355,8 +366,7 @@ public sealed class RadSpellBatchTests
         Assert.False(game.State.CardObjects["ALLY"].IsExhausted);
         Assert.Contains("SPELL", game.State.PlayerZones["P1"].Banished);
 
-        var unaffordable = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = RunePool.Empty } };
-        await Reject(unaffordable, "P1", new PlayCardCommand("HIGH", "OGN·041/298", [], Destination: "BASE"));
+        await game.Replay();
     }
 
     [Fact]
@@ -437,6 +447,24 @@ public sealed class RadSpellBatchTests
         await game.Top();
         Assert.Equal(3, game.State.CardObjects["ENEMY"].Damage);
         await Reject(SpellPosition("RAD·082/167"), "P1", new PlayCardCommand("SPELL", "RAD·082/167", ["ENEMY"], OptionalCosts: ["SHOWCASE:GEAR"]));
+    }
+
+    [Theory]
+    [InlineData(false, 0)]
+    [InlineData(true, 1)]
+    public async Task PrimalRoarRequiresShowcaseForDamageBonusesEvenWhenTheShownUnitHasZeroPower(bool showcased, int expectedDamage)
+    {
+        var initial = CurrentControllerDamageBonusTests.Annie(SpellPosition("RAD·082/167"), "P1");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["UNIT"] = initial.CardObjects["UNIT"] with { Power = 0 } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("SPELL", "RAD·082/167", ["ENEMY"],
+            OptionalCosts: showcased ? ["SHOWCASE:UNIT"] : []));
+        await game.Top();
+        Assert.Equal(expectedDamage, game.State.CardObjects["ENEMY"].Damage);
+        Assert.Equal(expectedDamage, game.Events().Count(entry => entry.Event.Kind == "DAMAGE_APPLIED"));
+        Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
+        await game.Replay();
     }
 
     [Fact]
