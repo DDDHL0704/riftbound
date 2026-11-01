@@ -24,7 +24,7 @@ public sealed class RadDeployedGearTests
         Assert.Equal("OTHER", game.State.ObjectLocations["CARD"].BattlefieldObjectId);
         Assert.Contains(CardEquipmentKeywordNames.Deploy, game.State.CardObjects["CARD"].Tags);
         Assert.Equal(30 - mana, game.State.RunePools["P1"].Mana);
-        if (no is Hide or Weapons or Poster) Assert.Single(game.State.StackItems, i => i.SourceObjectId == "CARD" && i.UnitEvent is not null);
+        if (no is Hide or Weapons or Poster) Assert.NotNull(Assert.Single(game.State.StackItems).UnitEvent);
         await game.Replay();
     }
 
@@ -61,8 +61,10 @@ public sealed class RadDeployedGearTests
     {
         var state = Put(Create(), "CARD", Portal, "P1", "BATTLEFIELD", "BF");
         state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "BATTLEFIELD", "BF");
+        var move = new MoveUnitCommand("ALLY", "BATTLEFIELD:BF", "BATTLEFIELD:OTHER", ["ROAM"]);
+        await Reject(RadUnitEffectTestFixture.Place(state, "CARD", "P2", "BATTLEFIELD", "BF"), "P1", move);
         var game = new Driver(state);
-        await game.Act("P1", new MoveUnitCommand("ALLY", "BATTLEFIELD:BF", "BATTLEFIELD:OTHER", ["ROAM"]));
+        await game.Act("P1", move);
         Assert.Equal("OTHER", game.State.ObjectLocations["ALLY"].BattlefieldObjectId);
         await game.Replay();
     }
@@ -139,6 +141,7 @@ public sealed class RadDeployedGearTests
     public async Task FriendlyEquipmentHereObservesConquestWithoutBeingAConqueringUnit(string no)
     {
         var state = Put(ConquestLifecycleRegressionTests.State("OGN·278/298", 1), "CARD", no, "P1", "BATTLEFIELD", "BF");
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(2, 0) } };
         var game = new Driver(state);
         await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
         await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
