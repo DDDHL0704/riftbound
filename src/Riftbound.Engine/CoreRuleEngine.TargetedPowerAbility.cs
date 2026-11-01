@@ -38,6 +38,7 @@ public sealed partial class CoreRuleEngine
         P4ActivatedAbilityDefinition ability)
     {
         if (item.TargetedPowerAbility is not { } context
+            || string.IsNullOrWhiteSpace(context.SourceObjectId)
             || context.SourceObjectId != item.SourceObjectId || context.SourceGeneration < 0
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || context.SourceFaceRevision < 0
             || item.StackItemId != $"STACK-{context.AcquiredTick}-{context.SourceObjectId}-POWER"
