@@ -1188,6 +1188,7 @@ public static partial class MatchRecoveryValidator
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
+            ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
@@ -3634,12 +3635,13 @@ public static partial class MatchRecoveryValidator
             payloadLabel,
             "player id",
             errors);
-        var requiredCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
-            choicePayload,
-            "requiredCount",
-            payloadLabel,
-            "required count",
-            errors);
+        var optionalConquestDiscard = TryReadObjectString(choicePayload, "effectKind", out var effectKind)
+            && effectKind == TriggerKinds.BattlefieldConquerDiscardCallRune
+            && TryReadObjectString(choicePayload, "choiceWindow", out var choiceWindow)
+            && choiceWindow == TriggerKinds.BattlefieldConquerDiscardDraw;
+        var requiredCount = optionalConquestDiscard
+            ? ValidateSnapshotPayloadRequiredNonNegativeIntValue(choicePayload, "requiredCount", payloadLabel, "required count", errors)
+            : ValidateSnapshotPayloadRequiredPositiveIntValue(choicePayload, "requiredCount", payloadLabel, "required count", errors);
         var maxCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
             choicePayload,
             "maxCount",
@@ -4867,7 +4869,7 @@ public static partial class MatchRecoveryValidator
                     or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "OPTIONAL_RETURN_SELF" or "RETURN_PERMANENT"
                     or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
                     or "VEX" or "IVERN" or "BRUSH_RETURN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
-                    or "BURN" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");
+                    or "BURN" or "EMPTY_RUNE_SCORE" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");
         }
         foreach (var item in state.StackItems.Where(x => x.HeldContext is not null))
             if (!CoreRuleEngine.ValidExactOtherFriendlyHeldContext(state, item.HeldContext!, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
