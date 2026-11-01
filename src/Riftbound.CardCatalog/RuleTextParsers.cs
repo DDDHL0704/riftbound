@@ -383,14 +383,33 @@ public static class TriggerParser
                 "When this controller finishes playing a card, optionally set this source's base Might to that card's printed mana cost for this turn.",
                 TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: 0, Optional: true));
         var highCostGraveyardPlay = Regex.Match(text,
-            @"当你打出一张法力费用不低于\{\{(?<mana>[0-9]+)\}\}的卡牌时，你可以选择从你的废牌堆中以\{\{(?<trait>黄色)\}\}的费用将我打出。",
+            @"当你打出一张法力费用不低于\{\{(?<mana>[0-9]+)\}\}的卡牌时，你可以选择从你的废牌堆中以\{\{(?<playMana>[0-9]+)\}\}和(?<traits>(?:\{\{(?:红色|绿色|蓝色|橙色|紫色|黄色)\}\})+)的费用(?:将我打出|打出此牌)。",
             RegexOptions.CultureInvariant);
+        if (!highCostGraveyardPlay.Success)
+        {
+            // Older source snapshots used the single yellow-symbol wording.
+            highCostGraveyardPlay = Regex.Match(text,
+                @"当你打出一张法力费用不低于\{\{(?<mana>[0-9]+)\}\}的卡牌时，你可以选择从你的废牌堆中以\{\{(?<trait>黄色)\}\}的费用(?:将我打出|打出此牌)。",
+                RegexOptions.CultureInvariant);
+        }
         if (highCostGraveyardPlay.Success)
-            triggers.Add(new(TriggerKinds.ControllerHighCostGraveyardPlaySource, "CARD_PLAY_COMPLETED", highCostGraveyardPlay.Value,
-                "When this controller finishes playing a card with the required printed mana cost, optionally pay the colored power cost to play this source from its graveyard.",
-                TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: int.Parse(highCostGraveyardPlay.Groups["mana"].Value),
-                PowerCost: 1, PowerCostTrait: "yellow", PlayCount: 1, PlayOriginZone: TriggerZones.Graveyard,
-                PlayDestinationZone: TriggerZones.Stack, IgnorePlayManaCost: true, PayPlayPowerCosts: true, Optional: true));
+        {
+            var trait = highCostGraveyardPlay.Groups["trait"].Success
+                ? highCostGraveyardPlay.Groups["trait"].Value
+                : Regex.Match(highCostGraveyardPlay.Groups["traits"].Value, @"\{\{(?<trait>红色|绿色|蓝色|橙色|紫色|黄色)\}\}", RegexOptions.CultureInvariant).Groups["trait"].Value;
+            var powerCost = highCostGraveyardPlay.Groups["traits"].Success
+                ? Regex.Matches(highCostGraveyardPlay.Groups["traits"].Value, @"\{\{(?:红色|绿色|蓝色|橙色|紫色|黄色)\}\}", RegexOptions.CultureInvariant).Count
+                : 1;
+            var playMana = highCostGraveyardPlay.Groups["playMana"].Success
+                ? int.Parse(highCostGraveyardPlay.Groups["playMana"].Value, CultureInfo.InvariantCulture)
+                : 0;
+            if (powerCost > 0 && TryParsePowerTrait(trait, out var powerTrait))
+                triggers.Add(new(TriggerKinds.ControllerHighCostGraveyardPlaySource, "CARD_PLAY_COMPLETED", highCostGraveyardPlay.Value,
+                    "When this controller finishes playing a card with the required printed mana cost, optionally pay the printed mana and colored power cost to play this source from its graveyard.",
+                    TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: int.Parse(highCostGraveyardPlay.Groups["mana"].Value, CultureInfo.InvariantCulture),
+                    ManaCost: playMana, PowerCost: powerCost, PowerCostTrait: powerTrait, PlayCount: 1, PlayOriginZone: TriggerZones.Graveyard,
+                    PlayDestinationZone: TriggerZones.Stack, IgnorePlayManaCost: true, PayPlayPowerCosts: true, Optional: true));
+        }
         var highCostRunes = Regex.Match(text,
             @"当你打出一个法力费用不低于\{\{(?<mana>[0-9]+)\}\}的单位、装备或主动技能时，你可以选择让我变为休眠状态，以此让最多(?<runes>[0-9一两二三四五六七八九十]+)枚符文变为活跃状态。",
             RegexOptions.CultureInvariant);

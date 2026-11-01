@@ -341,16 +341,21 @@ public sealed partial class CoreRuleEngine
             ? AttackMightDamageSpec(item.FieldContext.CardNo)!.ExperienceCost!.Value : 0;
         var highCostPowerByTrait = item.HighCostPlayObserver is { } highCostPayment
             && HighCostPlaysSourceFromGraveyard(highCostPayment.CardNo)
-            ? new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Yellow] = 1 }
+            && HighCostPlaySpec(highCostPayment.CardNo) is { PowerCost: > 0, PowerCostTrait: { } trait }
+            ? new Dictionary<string, int>(StringComparer.Ordinal) { [trait] = HighCostPlaySpec(highCostPayment.CardNo)!.PowerCost!.Value }
             : new Dictionary<string, int>(StringComparer.Ordinal);
-        if (tax > 0 || mana > 0 || experience > 0 || item.HighCostPlayObserver is not null)
+        var highCostMana = item.HighCostPlayObserver is { } highCostManaPayment
+            && HighCostPlaysSourceFromGraveyard(highCostManaPayment.CardNo)
+            ? HighCostPlaySpec(highCostManaPayment.CardNo)?.ManaCost ?? 0
+            : 0;
+        if (tax > 0 || mana > 0 || highCostMana > 0 || experience > 0 || item.HighCostPlayObserver is not null)
         {
             // CN 355.10.c.1 / 405.2: choose targets before paying all costs;
             // a player may decline a triggered skill that has any cost.
             var payment = new PendingPaymentState("TRIGGER-WARD:" + item.StackItemId, TriggerTargetCostWindow, item.ControllerId,
-                manaCost: mana, powerCost: tax, powerCostByTrait: highCostPowerByTrait, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: item.HighCostPlayObserver is not null
+                manaCost: checked(mana + highCostMana), powerCost: tax, powerCostByTrait: highCostPowerByTrait, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: item.HighCostPlayObserver is not null
                     ? HighCostPlaysSourceFromGraveyard(item.HighCostPlayObserver.CardNo)
-                        ? "支付 1 黄色符能，或放弃从废牌堆打出此单位。"
+                        ? $"支付 {highCostMana} 法力和 {string.Join("、", highCostPowerByTrait.Select(entry => $"{entry.Value} {RuneTraitLabel(entry.Key)}符能"))}，或放弃从废牌堆打出此牌。"
                         : HighCostSetsSourceBasePower(item.HighCostPlayObserver.CardNo)
                             ? "确认让来源本回合基础战力变为所打出卡牌的法力费用，或放弃。"
                             : $"横置来源并支付 {tax} 任意符能，或放弃此触发技能。"
@@ -362,7 +367,7 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = NeedsLastBreathHereTarget(item) || HasMovementDamage(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind
                     ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
-                ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = mana, ["powerCost"] = tax,
+                ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = checked(mana + highCostMana), ["powerCost"] = tax,
                 ["targetObjectIds"] = selected.ToArray() });
             if (experience > 0) opened = opened with { Payload = new Dictionary<string, object?>(opened.Payload) {
                 ["experienceCost"] = experience } };
