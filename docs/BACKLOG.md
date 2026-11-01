@@ -3,7 +3,7 @@
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
 **当前状态（2026-11-02）**
-- **main**：截至 11 月 2 日 02:35，最新为 `9d9ed7159`（#368 已合入）；对应 main L2 `41336969562` 运行中，旧 main 运行已自动取消。提速 PR [#378](https://github.com/DDDHL0704/riftbound/pull/378) 与最新 main 的本地合并检查无冲突，已开启自动合并，prepare 与 harness 通过、规则分片运行／排队中；下一批 `a/l2-origin-replay-next` 只做本地准备，保持 A 线最多一个 PR 跑 L2。P3-2 的整次 30 分钟目标仍未达到。
+- **main**：截至 11 月 2 日 02:35，最新为 `9d9ed7159`（#368 已合入）；对应 main L2 `41336969562` 运行中，旧 main 运行已自动取消。提速 PR [#378](https://github.com/DDDHL0704/riftbound/pull/378) 与最新 main 的本地合并检查无冲突，已开启自动合并，prepare 与 harness 通过、规则分片运行／排队中；下一批 `a/l2-origin-replay-next` 已完成 11/11 定向验证并推送备份，尚未开 PR，保持 A 线最多一个 PR 跑 L2。P3-2 的整次 30 分钟目标仍未达到。
 - **夜间验收**：此前 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 连续三次全绿；定时夜验 `41242878171` 失败后连续计数归零。最新完整验收 [41286487339](https://github.com/DDDHL0704/riftbound/actions/runs/41286487339) 仅 `restricted-mana-lux` 会话拒绝码断言失败，#366 已修复合入，待管理者安排后续完整验收，详见 P0-2。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
