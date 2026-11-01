@@ -34,7 +34,7 @@ var run=new Driver(initial) { RecoverAfterEveryCommand = false };
  for(var i=0;run.State.FocusPlayerId is not null;i++){Assert.InRange(i,0,3);await run.Act(run.State.FocusPlayerId,new PassFocusCommand());}
  await run.Act("P2",new DeclareBattleCommand("HOME",["ATTACKER"],["HOST"],["COMBAT_ASSIGNMENT"]));
  Assert.Equal("RESULT_TRIGGERS",run.State.PendingBattleResult!.Stage);Assert.Equal(0,run.State.CardObjects["ATTACKER"].Damage);
- await run.ColdCheckpoint();
+ await run.ColdCheckpoint(); run.RecoverAfterEveryCommand = true;
  foreach(var i in Enumerable.Range(1,2)){
   if(run.State.PriorityPlayerId!="P1")await run.Act(run.State.PriorityPlayerId!,new PassPriorityCommand());
   await run.Act("P1",new PlayCardCommand("DAMAGE-"+i,"OGN·127/298",[]));await run.Top();
