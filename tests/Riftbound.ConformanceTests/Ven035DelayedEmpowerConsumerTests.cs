@@ -363,11 +363,18 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
     private static async Task<string> PrepareTarget(Driver game, string owner, bool empower)
     {
         var unit = owner == "P1" ? "UNIT" : "ENEMY35";
-        if (owner == "P1") { await TapRunes(game); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-0")); }
-        await game.Act(owner, new PlayCardCommand(unit, UnitNo, []));
-        if (empower) { await game.Act(owner, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); await game.Top(); }
-        if (owner == "P2") { await game.Act("P2", new EndTurnCommand()); await TapRunes(game); }
-        return unit;
+        var recover = game.RecoverAfterEveryCommand;
+        game.RecoverAfterEveryCommand = false;
+        try
+        {
+            if (owner == "P1") { await TapRunes(game); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-0")); }
+            await game.Act(owner, new PlayCardCommand(unit, UnitNo, []));
+            if (empower) { await game.Act(owner, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); await game.Top(); }
+            if (owner == "P2") { await game.Act("P2", new EndTurnCommand()); await TapRunes(game); }
+            await game.ColdCheckpoint();
+            return unit;
+        }
+        finally { game.RecoverAfterEveryCommand = recover; }
     }
     private static async Task TapRunes(Driver game)
     {
