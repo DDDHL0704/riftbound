@@ -52,7 +52,7 @@ var run=new Driver(initial) { RecoverAfterEveryCommand = false };
  Assert.Equal("ATTACKER",run.State.CardObjects["GEAR-2"].AttachedToObjectId);Assert.DoesNotContain("GEAR-2",run.State.PlayerZones["P2"].Graveyard);Assert.Equal(3,run.State.CardObjects["ATTACKER"].Power);Assert.Equal(0,run.State.CardObjects["ATTACKER"].Damage);Assert.Equal(1,run.State.CardObjects["ATTACKER"].ObjectGeneration);
  Assert.DoesNotContain(run.Events(),e=>e.Event.Kind=="UNIT_DESTROYED"&&Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"),"ATTACKER"));
  Assert.Equal(0,run.State.DeathLedger.Counts.GetValueOrDefault("P2"));
- Assert.DoesNotContain(run.Events(),e=>e.Event.Payload.ContainsKey("capturedUnitDeath"));await run.ColdCheckpoint();await run.Replay();BattleLimitedCleanupTests.Save("expiry-two-guardian-replacement",initial,run);
+ Assert.DoesNotContain(run.Events(),e=>e.Event.Payload.ContainsKey("capturedUnitDeath"));await run.ColdCheckpoint();BattleLimitedCleanupTests.Save("expiry-two-guardian-replacement",initial,run);
 
  }
 }

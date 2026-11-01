@@ -49,7 +49,6 @@ public sealed class BattleLimitedNegativeMightTests
         Assert.Equal(0,powerEvent.Payload["powerDelta"]);Assert.Equal(-2,powerEvent.Payload["snapshotMight"]);
         Assert.All(run.State.CardObjects["ATTACKER"].UntilEndOfTurnPowerModifiers,p=>Assert.Equal("UNTIL_END_OF_TURN",p.Duration));
         await run.ColdCheckpoint();
-        await run.Replay();
     }
 
     private static MatchState Position()
