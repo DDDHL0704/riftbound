@@ -3,7 +3,7 @@
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
 **当前状态（2026-11-02）**
-- **main**：截至 11 月 2 日 00:15，最新为 `11fda064a`（#372 合入，已含 #370）；#372 的九个规则分片与 `L2 required` 全部通过。P3-2 的整次 30 分钟目标仍未达到。
+- **main**：截至 11 月 2 日 02:13，最新为 `2e147e9d3`（#374 已全绿合入）；对应 main L2 `41332519474` 仍排队。提速 PR [#378](https://github.com/DDDHL0704/riftbound/pull/378) 无冲突，已开启自动合并，等待 L2；下一批 `a/l2-origin-replay-next` 只做本地准备，保持 A 线最多一个 PR 跑 L2。P3-2 的整次 30 分钟目标仍未达到。
 - **夜间验收**：此前 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 连续三次全绿；定时夜验 `41242878171` 失败后连续计数归零。最新完整验收 [41286487339](https://github.com/DDDHL0704/riftbound/actions/runs/41286487339) 仅 `restricted-mana-lux` 会话拒绝码断言失败，#366 已修复合入，待管理者安排后续完整验收，详见 P0-2。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
@@ -131,8 +131,10 @@
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
 - [x] **P3-1 拆分巨型文件**：[#283](https://github.com/DDDHL0704/riftbound/pull/283) 已合入。按领域纯搬移为 68 个部分类文件，三个入口分别降至 6,102 / 5,668 / 1,723 行；55 个类型、4,243 个成员正文、16 个完整声明和各类型字段／属性初始化顺序均保持一致。源码守卫读取全部拆分文件。最新 main 定向 34/34、187 项 Python 检查通过；完整 [40958041215](https://github.com/DDDHL0704/riftbound/actions/runs/40958041215) 的 9,453 个方法、19,496 条用例、完整对局及门槛全部通过，零跳过，Counter 与 #281 一致。
-- [ ] **P3-2 L2 提速**（新增 VEN 后重新打开，`a/l2-ven-opening-batch`）：
-  - 后续夹具批次 `a/l2-origin-replay-next`：`BattlefieldPlayRecoveryGuardTests` 最终原始回放后立即通过新生产注册表恢复同一历史；`PhysicalOriginCostReductionTests` 在新注册表完成原始审计后又单独回放相同历史。移除调用方的重复正例回放，保留原参数行、待命目标选择前后及最终冷恢复、物理来源／报价、完整历史、隐私和原有伪造负例。两方法共三条精确定向用例待 Release 验证；本批先本地准备，不与上一批同时开启 A 线 L2。
+- [ ] **P3-2 L2 提速**（新增 VEN 后重新打开，`a/l2-origin-replay-next`）：
+  - 后续夹具批次 `a/l2-origin-replay-next`：`BattlefieldPlayRecoveryGuardTests` 最终原始回放后立即通过新生产注册表恢复同一历史；`PhysicalOriginCostReductionTests` 在新注册表完成原始审计后又单独回放相同历史。移除调用方的重复正例回放，保留原参数行、待命目标选择前后及最终冷恢复、物理来源／报价、完整历史、隐私和原有伪造负例。物理来源报价前后核对完整初始／命令／事件／最终状态摘要不变。固定 `5d14f8133` 的 Release 构建通过，两方法共三条精确定向用例后台执行中；本批先本地准备，不与上一批同时开启 A 线 L2。
+  - 同批战斗结束回放去重：`BattleLimitedNegativeMightTests` 和 `BattleLimitedExpiryReplacementTests` 的末尾 `ColdCheckpoint()` 已完整回放同一原始初始状态／命令／事件／最终状态；`BattleLimitedFirstRoleBoundaryTests` 的四个分支末尾也各自完成相同审计。只移除紧接着的重复 `Replay()`，保留每个实际恢复边界、原参数行、负数战力、替代选择、战斗期限、首次角色及隐私断言。三方法共六条精确定向用例接续前一批验证。
+  - [#378](https://github.com/DDDHL0704/riftbound/pull/378) 已集中提交 Recast、正常生产恢复审计去重、六个 SQL 夹具、权重刷新与验收驱动并发取消；此前 35 条定向用例通过。固定 `39f6e0385` 的 Release 构建及付款／来源／入口七方法 11 条精确定向用例也已全部通过，完整 TRX 参数行 Counter、11/11 成功计数和八份关联源码指纹均核验一致，零失败、零跳过，累计 46 条通过。只在 PR 描述补充验证结果，未追加推送重启 L2；完整九片和 `L2 required` 保留。
   - [x] [#337](https://github.com/DDDHL0704/riftbound/pull/337) 已合入（`94f3e1bcc`）：main 推送仅含明确文档时，或其 Git tree 与已通过 PR `Backend L2` 的测试 tree 完全一致时，跳过 9 个规则分片；scope/API/tree/receipt 任一环节不确定都回退完整套件，PR 代码仍保留完整 L2 与 `L2 required`。
   - [x] [#343](https://github.com/DDDHL0704/riftbound/pull/343) 已合入（`05be7124c`）：合并慢开局的检查点优化：`VenRunePrintingConsumerTests`、`Ven035DelayedEmpowerConsumerTests`、canonical burnout、三类 recast 费用开局及 LastBreath rune-call setup 共享完整历史恢复；响应窗口只在完成边界冷恢复，逐命令接受、重复提交、隐私、规则和最终原始日志回放断言保留。已测 VenRune 节省 5.99 分钟、Ven035 节省 12.31 分钟；完整 [41189973826](https://github.com/DDDHL0704/riftbound/actions/runs/41189973826) 九片及 `L2 required` 全部成功。
   - [x] [#346](https://github.com/DDDHL0704/riftbound/pull/346) 已合入（`635c15642`）：`BattleLimitedCleanupTests` 将无争议的战斗准备阶段、`Ven010PaidCurrentGraveConsumers` 的物理开局改为阶段冷恢复，保留每条命令的重复提交／视图校验、反应边界恢复和最终原始回放；本地 Release 定向回归分别为 2/2（3 分 32 秒）和 4/4（3 分 29 秒）。Backend L2 并发组改为自动运行在新 PR 或 main push 取代时取消旧运行，手动 `workflow_dispatch` 保持稳定以便调查；完整 [41199074067](https://github.com/DDDHL0704/riftbound/actions/runs/41199074067) 九片及 `L2 required` 全部成功。
