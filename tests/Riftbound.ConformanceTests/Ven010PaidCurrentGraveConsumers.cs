@@ -33,7 +33,6 @@ public sealed class Ven010PaidCurrentGraveConsumers
                 command => Ven001PhysicalThresholdConsumerTests.Reject(game, actor, command, "no010-one-mana-short"),
                 game.ColdCheckpoint);
             await game.ColdCheckpoint();
-            await game.Replay();
         }
         finally
         {
