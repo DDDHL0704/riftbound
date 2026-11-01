@@ -97,7 +97,7 @@ public sealed class BombRebuildContextTests
     [Fact]
     public void RecoveryRejectsInvalidCapturedBombRebuildState()
     {
-        var state = BombStackState(0);
+        var state = BombStackState(0) with { UntilEndOfTurnEffects = null! };
         var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(state);
 
         Assert.Contains(errors, error => error.Contains("invalid captured bomb rebuild stack", StringComparison.Ordinal));
