@@ -396,7 +396,8 @@ public sealed record CardBehaviorDefinition(
     bool EffectPlayRequiresUnitOrEquipment = false,
     int EffectPlayMaximumManaCost = 0,
     int EffectPlayMaximumPowerCost = 0,
-    bool StatusEffectUsesTargetCurrentPower = false)
+    bool StatusEffectUsesTargetCurrentPower = false,
+    int BattlefieldWinDrawCount = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -9610,6 +9611,8 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·024/167", "幻梦之根", 2, "DREAM_ROOT_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署", BattlefieldWinDrawCount: 1),
         new("RAD·106/167", "好东西", 3, "THE_GOOD_STUFF_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
             UnitEventAbility: new("PLAY", "DISCARD_DRAW", 3, DiscardCount: 1)),
