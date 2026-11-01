@@ -152,7 +152,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             Assert.Equal(0, State().RunePools[actor].TotalPower);
             Assert.Equal(scores, MatchStateHasher.HashValue(State().PlayerScores));
             Assert.Equal(MatchStatuses.InProgress, State().Status); Assert.Null(State().WinnerPlayerId);
-            await Cold();
+            // The decline command or the paid-play Drain already restored this unchanged history.
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State(), engine, default, Events());
             Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
             Assert.Equal(MatchSession.RoomSeatCommandType, Commands()[0].CommandType);
