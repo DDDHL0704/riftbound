@@ -187,19 +187,21 @@ public sealed class SelectedRecastFeeOpeningTests
         RecoveredEvent[] Events() => journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         string OriginalHistoryHash() => MatchStateHasher.HashValue(new { initial, commands = Commands(), events = Events(), state = State() });
         MatchRecoveryFrame Clone(MatchRecoveryFrame frame) => JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
-        MatchRecoveryFrame Frame(MatchState state)
+        MatchRecoveryFrame Frame(MatchState state, ResolutionResult? result = null)
         {
             var sequence = journal.Entries[^1].CompletedEventSequence;
-            var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+            // Explicit checkpoints and forgery probes still project independently.
+            var snapshots = result?.Snapshots ?? ResolutionResult.BuildSnapshots(state);
+            var prompts = result?.Prompts ?? ResolutionResult.BuildPrompts(state);
             var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, sequence, snapshots[id], state.Tick, sequence, prompts[id]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(room, state.Tick, sequence, [], state);
             var errors = MatchRecoveryValidator.Validate(room, sequence, Commands(), Events(), views, state, state.Tick, spectator);
             return new(room, state.Tick, sequence, Commands(), Events(), views, errors, state, initial, spectator) { OpeningSeed = initial.Seed };
         }
         string WireHash(object? value) => MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(value, Json));
-        async Task Cold()
+        async Task Cold(ResolutionResult? result = null)
         {
-            var frame = Clone(Frame(State())); Assert.Empty(frame.ValidationErrors);
+            var frame = Clone(Frame(State(), result)); Assert.Empty(frame.ValidationErrors);
             session = await new InMemoryMatchSessionRegistry(engine, journal, new Store(frame), NoopMatchPlayerStore.Instance, options).GetOrCreateAsync(room, default);
             foreach (var player in frame.PlayerViews.Keys)
             {
@@ -223,7 +225,7 @@ public sealed class SelectedRecastFeeOpeningTests
             var count = journal.Entries.Count; var duplicate = await Submit();
             Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
             Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
-            if (verifyColdRecoveryAfterEveryCommand) await Cold();
+            if (verifyColdRecoveryAfterEveryCommand) await Cold(result);
         }
         async Task Drain()
         {
