@@ -1170,6 +1170,7 @@ public sealed partial record MatchState
         effects.AddRange(BuildBattlefieldKeywordAuraEffects(state));
         effects.AddRange(BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
+        effects.AddRange(BuildSameBattlefieldFriendlyKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyPowerStaticAuraEffects(state));
         effects.AddRange(BuildPublicFieldFriendlyPowerStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsKeywordAuraEffects(state));

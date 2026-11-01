@@ -5,6 +5,13 @@ namespace Riftbound.Engine;
 
 internal static class StaticAuraSpecRules
 {
+    internal static bool IsSameBattlefieldFriendlyKeywordAura(StaticAuraSpec aura)
+        => aura.Kind == StaticAuraKinds.SameBattlefieldFriendlyUnitsKeyword
+            && aura.Layer == ContinuousEffectLayers.RuleText
+            && aura.TargetScope == StaticAuraTargetScopes.SameBattlefieldFriendlyUnits
+            && aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyPublicUnits
+            && !string.IsNullOrWhiteSpace(aura.GrantedKeyword);
+
     internal static int PowerDeltaForSource(StaticAuraSpec aura, CardObjectState source)
         => source.IsEmpowered ? aura.PowerDeltaIfSourceEmpowered ?? aura.PowerDeltaPerParticipant : aura.PowerDeltaPerParticipant;
     public static bool IsConditionalEnemyPowerAura(StaticAuraSpec aura) => aura.Kind == StaticAuraKinds.SameLocationEnemyFilteredPower

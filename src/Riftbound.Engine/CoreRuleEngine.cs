@@ -20980,6 +20980,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 sourceObjectId,
                 sourceState,
                 MoveUnitRoamKeyword) > 0
+            || ResolveSameBattlefieldFriendlyKeywordBonus(state, sourceState, MoveUnitRoamKeyword) > 0
             || HasBattlefieldStaticRoamPermission(state, playerId, sourceObjectId);
     }
 

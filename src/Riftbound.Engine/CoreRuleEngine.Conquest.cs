@@ -116,7 +116,7 @@ public sealed partial class CoreRuleEngine
         if (conqueredRealBattlefield)
             recastTriggers = recastTriggers.Concat(CaptureConquestUnitEvents(state with { PlayerZones = playerZones,
                 CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
-                conqueringUnitObjectIds, resolutionTick)).ToArray();
+                conqueringUnitObjectIds, resolutionTick, playerId, battlefieldId)).ToArray();
         if (conqueredRealBattlefield)
             recastTriggers = recastTriggers.Concat(CaptureLegendImageTriggers(playerZones, cardObjects,
                 playerId, battlefieldId, resolutionTick)).Concat(CaptureIvernTriggers(playerZones, cardObjects,

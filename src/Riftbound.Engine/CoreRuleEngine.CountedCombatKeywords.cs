@@ -22,7 +22,8 @@ public sealed partial class CoreRuleEngine
             zones, unit.ObjectId, unit, keyword));
         amount = Math.Max(amount, ResolveBattlefieldKeywordStaticAuraBonus(state, zones, field, unit, keyword));
         amount = Math.Max(amount, ResolveFriendlyFilteredUnitsKeywordBonus(state, zones, unit.ObjectId, unit, keyword));
-        return amount + TemporaryCombatKeywordRules.Amount(unit, keyword)
+        return amount + ResolveSameBattlefieldFriendlyKeywordBonus(state, unit, keyword)
+            + TemporaryCombatKeywordRules.Amount(unit, keyword)
             + CopiedRuleTextKeywordAmount(state, unit, keyword);
     }
 }
