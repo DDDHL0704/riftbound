@@ -3767,7 +3767,7 @@ public static partial class MatchRecoveryValidator
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDeckPlayPendingCardViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateFlowPlayViews(view.Snapshot.Stack, authoritativeState, errors);
-            ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
+            ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors, view.PlayerId);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBattlefieldConquestMillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBattlefieldConquestChoiceStackViews(view.Snapshot.Stack, authoritativeState, $"snapshot for {view.PlayerId}", errors);
@@ -4328,6 +4328,8 @@ public static partial class MatchRecoveryValidator
                 || item.CompletedHandExecutions > 0 && !CoreRuleEngine.TryGetRevealedHandChoiceSpec(item, out _))
                 errors.Add("invalid revealed hand execution count");
         if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null, Parent.ObservedPlayPermission: null } handPlay && (handPlay.RevealedHand is not null
+            || P4ActivatedAbilityCatalog.TryGetByEffectKind(handPlay.Parent.EffectKind, out var ability)
+                && ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
                 && handDefinition.EffectPlaySourceZone == "OPPONENT_HAND")
             && !CoreRuleEngine.ValidRevealedHandPlay(state, handPlay)

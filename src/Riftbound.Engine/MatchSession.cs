@@ -1826,8 +1826,10 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.GraveyardPlay is not null) view["graveyardPlay"] = item.GraveyardPlay;
         if (!hiddenSource && item.SourceReplay is not null) view["sourceReplay"] = item.SourceReplay;
         if (!hiddenSource && item.ResolutionDamageChoice is not null) view["resolutionDamageChoice"] = item.ResolutionDamageChoice;
-        if (!hiddenSource && item.TurnUnitPlayBoon is not null) view["turnUnitPlayBoon"] = item.TurnUnitPlayBoon;
-        if (!hiddenSource && item.TurnUnitPlayDraw is not null) view["turnUnitPlayDraw"] = item.TurnUnitPlayDraw;
+        if (!hiddenSource && item.TurnUnitPlayBoon is not null)
+            view["turnUnitPlayBoon"] = PublicTurnUnitPlayBoonContext(state, item.TurnUnitPlayBoon, viewerPlayerId);
+        if (!hiddenSource && item.TurnUnitPlayDraw is not null)
+            view["turnUnitPlayDraw"] = PublicTurnUnitPlayBoonContext(state, item.TurnUnitPlayDraw, viewerPlayerId);
         if (!hiddenSource && item.FlowPlay is not null) view["playedWithFlow"] = true;
         if (!hiddenSource && item.DeckPlayPendingCard is not null) view["deckPlayPendingCard"] = item.DeckPlayPendingCard;
         if (item.DeckPlayReflexive is { } deckReflexive) {
@@ -2024,8 +2026,10 @@ public sealed partial record ResolutionResult(
             ["triggeredByEventKind"] = item.TriggeredByEventKind
         };
         if (item.BeginningRune is not null) view["beginningRune"] = CoreRuleEngine.PublicBeginningRune(item.BeginningRune);
-        if (!hiddenSource && item.TurnUnitPlayBoon is not null) view["turnUnitPlayBoon"] = item.TurnUnitPlayBoon;
-        if (!hiddenSource && item.TurnUnitPlayDraw is not null) view["turnUnitPlayDraw"] = item.TurnUnitPlayDraw;
+        if (!hiddenSource && item.TurnUnitPlayBoon is not null)
+            view["turnUnitPlayBoon"] = PublicTurnUnitPlayBoonContext(state, item.TurnUnitPlayBoon, viewerPlayerId);
+        if (!hiddenSource && item.TurnUnitPlayDraw is not null)
+            view["turnUnitPlayDraw"] = PublicTurnUnitPlayBoonContext(state, item.TurnUnitPlayDraw, viewerPlayerId);
         if (!hiddenSource && item.HandDiscardObserver is { } discard) {
             view["handDiscardObserver"] = CoreRuleEngine.PublicHandDiscardObserver(discard);
             view["abilityLabel"] = CoreRuleEngine.HandDiscardObserverLabel(discard);

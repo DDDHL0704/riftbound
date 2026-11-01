@@ -42,14 +42,14 @@ public sealed class RadBigHornSpellTests
         var initial = TurnUnitPlayGrantsTests.Position(Spell);
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["UNIT"] = initial.CardObjects["UNIT"] with { Power = 3 } } };
-        initial = AttackDamageDistributionTests.Spell(initial, "RETURN", "OGN·169/298", "P1");
+        initial = AttackDamageDistributionTests.Spell(initial, "RETURN", "VEN·052", "P1");
         var driver = new StandbyDefendObserverTests.Driver(initial);
 
         await driver.Act("P1", new PlayCardCommand("GRANT", Spell, []));
         await driver.Top();
         var drawsBefore = Draws(driver);
         await driver.Act("P1", new PlayCardCommand("UNIT", UnitCard, [], Destination: "BASE"));
-        var returned = await driver.Act("P1", new PlayCardCommand("RETURN", "OGN·169/298", ["UNIT"]));
+        var returned = await driver.Act("P1", new PlayCardCommand("RETURN", "VEN·052", ["UNIT"], Mode: "RETURN_FRIENDLY"));
         Assert.True(returned.Accepted, returned.ErrorMessage);
         for (var step = 0; step < 8 && driver.State.ObjectLocations["UNIT"].Zone != "HAND"; step++)
         {

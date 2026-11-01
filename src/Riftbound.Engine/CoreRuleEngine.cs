@@ -22088,9 +22088,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool IsEnemyBattlefieldObject(MatchState state, string playerId, string objectId)
     {
         var location = FindFieldObjectLocation(state.PlayerZones, objectId);
+        var controllerId = location is null ? null : BattlefieldLocalRules.AtObject(state, objectId)?.ControllerId ?? location.Value.PlayerId;
         return location is not null
             && string.Equals(location.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
-            && BattlefieldLocalRules.Battlefield(state, objectId)?.ControllerId is { } controllerId
             && !string.Equals(controllerId, playerId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.Value.PlayerId);
