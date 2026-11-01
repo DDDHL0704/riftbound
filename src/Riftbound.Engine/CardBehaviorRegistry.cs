@@ -6,7 +6,7 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
-    string? CreatedTokenFactoryCardNo = null);
+    string? CreatedTokenFactoryCardNo = null, int DiscardCount = 0);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null);
@@ -9610,6 +9610,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·106/167", "好东西", 3, "THE_GOOD_STUFF_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
+            UnitEventAbility: new("PLAY", "DISCARD_DRAW", 3, DiscardCount: 1)),
         new("RAD·146/167", "魔偶", 5, "THE_BALL_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署|游走",
             UnitEventAbility: new("PLAY_OR_MOVE", "CHOOSE_MODE", Modes: [
