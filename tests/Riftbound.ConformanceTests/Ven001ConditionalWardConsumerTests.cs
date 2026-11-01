@@ -20,7 +20,10 @@ public sealed class Ven001ConditionalWardConsumerTests
         }
         cards["NEGATIVE"] = OfficialGarenConquestBattlefieldCountTests.Printed("NEGATIVE", "UNL-066/219", "P2"); locations["NEGATIVE"] = new("P2", "HAND");
         zones["P2"] = zones["P2"] with { Hand = [..zones["P2"].Hand, "NEGATIVE"] };
-        initial = initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones }; var game = new Driver(initial);
+        initial = initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones };
+        // Keep per-command acceptance and duplicate checks while sharing one recovery
+        // at the boundary where the enemy's paid ward action becomes testable.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Fixture.Prepare(game); var eight = Fixture.Runes(game.State);
@@ -36,6 +39,7 @@ public sealed class Ven001ConditionalWardConsumerTests
             await game.TapRunes("P2", Enumerable.Range(0, 7).Select(i => "WARD-THRESHOLD-RUNE-" + i));
             if (power == 1) await game.Act("P2", new RecycleRuneCommand("WARD-THRESHOLD-RUNE-7"));
             Assert.Equal(7, game.State.RunePools["P2"].Mana); Assert.Equal(power, game.State.RunePools["P2"].TotalPower);
+            await game.ColdCheckpoint();
             var command = new PlayCardCommand("NEGATIVE", "UNL-066/219", ["UNIT"]);
             var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P2", PlayCostPreviewTests.Request(game.State, command));
             Assert.NotNull(quote.Cost); Assert.Equal(7, quote.Cost.Mana); Assert.Equal(empowered ? 1 : 0, quote.Cost.GenericPower);
@@ -52,7 +56,8 @@ public sealed class Ven001ConditionalWardConsumerTests
                 Assert.Equal(7, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
                 Assert.Contains("NEGATIVE", game.State.PlayerZones["P2"].Hand); Assert.Equal(6, game.State.CardObjects["UNIT"].Power);
             }
-            Assert.Equal(empowered, game.State.CardObjects["UNIT"].IsEmpowered); await game.Replay();
+            Assert.Equal(empowered, game.State.CardObjects["UNIT"].IsEmpowered);
+            await game.ColdCheckpoint(); await game.Replay();
         }
         finally { await Fixture.Save("conditional-ward-" + empowered + "-" + power, initial, game); }
     }

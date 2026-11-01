@@ -45,6 +45,7 @@ public sealed class ViRecycleMightTests
         var row = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]),
             r => (string?)r["sourceObjectId"] == "HOST" && (string?)r["abilityId"] == Ability);
         Assert.Equal(1, row["requiredAdditionalCostChoiceCount"]);
+        Assert.Equal(1, row["requiredOptionalCostChoiceCount"]);
         Assert.Equal(new[] { Cost + "C1", Cost + "C2" },
             Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(row["additionalCostChoices"]).Select(c => c.Id).Order());
         var beforeDeck = initial.PlayerZones["P1"].MainDeck.ToArray();

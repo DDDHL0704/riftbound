@@ -24193,7 +24193,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.EphemeralStart is not null) return ResolveEphemeralStart(state, stackItem);
         if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
-        if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var simpleAbility) && simpleAbility.SimpleEffect is not null)
+        if (stackItem.SimpleActivation is not null
+            && P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var simpleAbility)
+            && simpleAbility.SimpleEffect is not null)
             return ResolveSimpleActivationEffect(state, stackItem, simpleAbility);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);

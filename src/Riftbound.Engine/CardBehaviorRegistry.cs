@@ -9658,6 +9658,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantFinalUnits =
     [
+        new("RAD·027/167", "幻彩飞禽", 3, "RAD_027_GRANT_BOON_OR_POWER", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "鸟类"),
+        new("RAD·104/167", "无情潜伏者", 5, "RAD_104_EXHAUST_STUN_ENEMY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "猫科"),
         new("RAD·113/167", "提灯亚龙", 8, "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "龙|法盾"),
         new("RAD·115/167", "易位法师", 6, "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER", 0, 0,
