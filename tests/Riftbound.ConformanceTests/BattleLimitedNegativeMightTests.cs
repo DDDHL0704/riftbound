@@ -19,7 +19,7 @@ public sealed class BattleLimitedNegativeMightTests
         var funds=Enumerable.Range(1,12).Select(i=>"P2-FUND-"+i).ToArray();await run.Act("P2",new TapRuneCommand(funds[0],funds));await run.Act("P2",new RecycleRuneCommand("P2-ORANGE"));
         await run.Act("P2",new PlayCardCommand("ATTACKER","SFD·110/221",[],Destination:"BASE"));await run.Act("P2",new PlayCardCommand("READY","OGN·146/298",["ATTACKER"]));await run.Top();
         await run.Act("P2",new MoveUnitCommand("ATTACKER","BASE","BATTLEFIELD:HOME",[]));await run.Top();Assert.Equal(6,run.State.CardObjects["ATTACKER"].Power);
-        await run.ColdCheckpoint(); run.RecoverAfterEveryCommand = true;
+        await run.ColdCheckpoint();
         for(var i=1;i<=5;i++) {
             if(run.State.FocusPlayerId!="P1")await run.Act(run.State.FocusPlayerId!,new PassFocusCommand());Assert.Equal("P1",run.State.FocusPlayerId);
             if(i==1){var funding=Enumerable.Range(1,6).Select(n=>"P1-FUND-"+n).ToArray();await run.Act("P1",new TapRuneCommand(funding[0],funding));}

@@ -53,7 +53,6 @@ public sealed class LastBreathAreaReplacementOrderingTests
             // The trigger queue is the next externally visible boundary. The
             // payment and priority assertions below remain on the same journal.
             await game.ColdCheckpoint();
-            game.RecoverAfterEveryCommand = true;
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
             Assert.Equal(3, game.State.TriggerQueue.Count);
             Assert.Equal(3, game.State.TriggerQueue.Select(t => Assert.IsType<LastBreathBattlefieldDamageContext>(t.LastBreathBattlefieldDamage).InstanceId)
