@@ -6,6 +6,13 @@ import xml.etree.ElementTree as ET
 SPLIT_MIN_SECONDS = 600
 ESTIMATED_CLASS_WORKERS = 4
 
+# Both classes await BattleLimitedRecoveryTests.Actual. Keeping them together
+# builds that accepted fixture once instead of once in each shard process.
+SHARED_FIXTURE_CLASSES = (
+    frozenset({'Riftbound.ConformanceTests.BattleLimitedRecoveryTests',
+               'Riftbound.ConformanceTests.BattleLimitedRoleMemoMechanismTests'}),
+)
+
 
 def escape(value):
     return ''.join('\\' + char if char in '\\()&|=!~' else char for char in value)
@@ -50,23 +57,43 @@ def partition(units, cases, weights, count):
     # never change selectors or required coverage.
     target = max(sum(weight(unit) for unit in units) / (ESTIMATED_CLASS_WORKERS * count),
                  max(weight(unit) for unit in units))
+    remaining = list(units)
+    bundles = []
+    for classes in SHARED_FIXTURE_CLASSES:
+        together = [unit for unit in remaining if unit['method'].rsplit('.', 1)[0] in classes]
+        loads = defaultdict(float)
+        for unit in together:
+            loads[unit['method'].rsplit('.', 1)[0]] += weight(unit)
+        # Preserve class parallelism when a shared fixture would create a lane
+        # longer than the existing target, and always leave every shard work.
+        if (len(together) > 1 and max(loads.values()) <= target
+                and len(remaining) - len(together) + len(bundles) + 1 >= count):
+            bundles.append(together)
+            remaining = [unit for unit in remaining if unit not in together]
+    bundles.extend([unit] for unit in remaining)
     bins = [dict(name=f'shard-{i + 1}', selectors=[], estimatedSeconds=0.0) for i in range(count)]
     class_loads = {shard['name']: defaultdict(float) for shard in bins}
     class_peaks = {shard['name']: 0.0 for shard in bins}
-    for unit in sorted(units, key=lambda item: (-weight(item), key(item))):
-        seconds = weight(unit)
-        test_class = unit['method'].rsplit('.', 1)[0]
+    for bundle in sorted(bundles, key=lambda items: (-sum(weight(item) for item in items),
+                                                    min(key(item) for item in items))):
+        seconds = sum(weight(unit) for unit in bundle)
+        added = defaultdict(float)
+        for unit in bundle:
+            added[unit['method'].rsplit('.', 1)[0]] += weight(unit)
         def score(shard):
             loads = class_loads[shard['name']]
-            class_seconds = loads.get(test_class, 0) + seconds
+            class_seconds = max(loads.get(test_class, 0) + amount
+                                for test_class, amount in added.items())
             projected = max(target, (shard['estimatedSeconds'] + seconds) / ESTIMATED_CLASS_WORKERS,
                             class_peaks[shard['name']], class_seconds)
             return projected, class_seconds, shard['estimatedSeconds'], len(shard['selectors']), shard['name']
         shard = min(bins, key=score)
-        shard['selectors'].append(unit)
+        shard['selectors'].extend(bundle)
         shard['estimatedSeconds'] += seconds
-        class_loads[shard['name']][test_class] += seconds
-        class_peaks[shard['name']] = max(class_peaks[shard['name']], class_loads[shard['name']][test_class])
+        for test_class, amount in added.items():
+            class_loads[shard['name']][test_class] += amount
+        class_peaks[shard['name']] = max(class_peaks[shard['name']],
+                                       max(class_loads[shard['name']][test_class] for test_class in added))
     for shard in bins:
         shard['selectors'].sort(key=key)
         shard['methods'] = sorted({unit['method'] for unit in shard['selectors']})
