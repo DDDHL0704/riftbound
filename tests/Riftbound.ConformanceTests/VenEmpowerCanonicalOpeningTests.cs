@@ -161,6 +161,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
         internal MatchState State { get; private set; }
 
         private readonly string? phaseTimingsFile;
+        private IReadOnlyDictionary<string, ActionPromptDto>? currentPrompts;
 
         internal CanonicalGame(MatchState initial)
         {
@@ -195,7 +196,10 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var started = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             Session ??= new MatchSession(initial, new CoreRuleEngine(), this);
             var node = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
-            node["promptId"] = Session.PromptFor(player).PromptId;
+            // Accepted results already project the current state for both players.
+            // Restore boundaries clear this cache so the next command queries the new session.
+            var prompt = currentPrompts is null ? Session.PromptFor(player) : currentPrompts[player];
+            node["promptId"] = prompt.PromptId;
             node["snapshotTick"] = State.Tick;
             var raw = JsonSerializer.SerializeToElement(node, Json);
             command = GameCommandJsonMapper.Map(raw);
@@ -204,6 +208,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var result = await Send(player, intent, command, raw);
             Assert.True(result.Accepted, command.GetType().Name + ": " + result.ErrorMessage);
             State = result.State;
+            currentPrompts = result.Prompts;
             foreach (var location in State.ObjectLocations.Where(e => e.Value.Zone is "BASE" or "BATTLEFIELD" or "GRAVEYARD" or "BANISHED" or "LEGEND" or "CHAMPION"))
                 publicObjects.Add(location.Key);
             if (phaseTimingsFile is not null)
@@ -293,7 +298,8 @@ public sealed class VenEmpowerCanonicalOpeningTests
                 failures.Add(failure.Message);
             }
             store.Current = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(original, Json), Json)!;
-            Session = await registry.GetOrCreateAsync(State.RoomId, default); Assert.Equal(3, store.Loads);
+            Session = await registry.GetOrCreateAsync(State.RoomId, default);
+            currentPrompts = null; Assert.Equal(3, store.Loads);
             foreach (var viewer in State.Seats.Keys) {
                 Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Snapshot), MatchStateHasher.HashValue(Session.SnapshotFor(viewer)));
                 Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Prompt), MatchStateHasher.HashValue(Session.PromptFor(viewer)));
@@ -325,6 +331,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var decodedAt = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, new Store(decoded));
             Session = await registry.GetOrCreateAsync(State.RoomId, default);
+            currentPrompts = null;
             var restored = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             foreach (var viewer in State.Seats.Keys)
             {
