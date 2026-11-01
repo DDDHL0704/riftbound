@@ -8,6 +8,51 @@ namespace Riftbound.ConformanceTests;
 public sealed class RadFirstPermanentBattlefieldTests
 {
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RakelstakeInsightsOnceForThePlayerWhoPlayedHere(bool recycle)
+    {
+        var state = Position("RAD·165/167");
+        state = Put(state, "DECK-FIRST", "OGN·219/298", "MAIN_DECK");
+        state = Put(state, "DECK-SECOND", "OGN·219/298", "MAIN_DECK");
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("FIRST", "OGN·219/298", [], Destination: "BATTLEFIELD:BF"));
+        var trigger = Assert.Single(game.State.StackItems);
+        Assert.Equal("P1", trigger.ControllerId);
+        Assert.Equal("FIRST_PERMANENT", trigger.InsightContext!.Kind);
+        await game.Top();
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(["DECK-FIRST"], choice.LegalObjectIds);
+        var illegal = new ChooseCardsCommand(choice.ChoiceId, "INSIGHT", ["DECK-SECOND"]);
+        var hash = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State,
+            new("wrong-insight-card", "P1", illegal.CmdType), illegal, default);
+        Assert.False(rejected.Accepted);
+        Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, "INSIGHT", recycle ? ["DECK-FIRST"] : []));
+        Assert.Equal(recycle ? new[] { "DECK-SECOND", "DECK-FIRST" } : ["DECK-FIRST", "DECK-SECOND"],
+            game.State.PlayerZones["P1"].MainDeck);
+        await game.Act("P1", new PlayCardCommand("SECOND", "OGN·219/298", [], Destination: "BATTLEFIELD:BF"));
+        Assert.Empty(game.State.TriggerQueue);
+        Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task RakelstakeIgnoresBasePlaysAndEmptyDeckInsightDoesNotBurnOut()
+    {
+        var game = new Driver(Position("RAD·165/167"));
+        await game.Act("P1", new PlayCardCommand("FIRST", "OGN·219/298", [], Destination: "BASE"));
+        Assert.Empty(game.State.TriggerQueue);
+        await game.Act("P1", new PlayCardCommand("SECOND", "OGN·219/298", [], Destination: "BATTLEFIELD:BF"));
+        Assert.Equal("FIRST_PERMANENT", Assert.Single(game.State.StackItems).InsightContext!.Kind);
+        await game.Top();
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind.Contains("BURN", StringComparison.Ordinal));
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData("BATTLEFIELD:BF", 1)]
     [InlineData("BASE", 0)]
     public async Task WindsweptPlazaQuotesAndPaysOnlyTheFirstPermanentHere(string destination, int reduction)
@@ -73,7 +118,7 @@ public sealed class RadFirstPermanentBattlefieldTests
         Assert.Contains("battlefield permanent play uses differ from accepted play history", errors);
     }
 
-    private static MatchState Position()
+    private static MatchState Position(string battlefieldCardNo = "RAD·163/167")
     {
         var state = new MatchState("RAD-FIRST-PERMANENT", 0, 5, "P1",
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
@@ -81,7 +126,7 @@ public sealed class RadFirstPermanentBattlefieldTests
             phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
             playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty, ["P2"] = PlayerZones.Empty },
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(30, 30), ["P2"] = new(30, 30) }, seed: 564);
-        state = Put(state, "BF", "RAD·163/167", "BATTLEFIELD", "BF");
+        state = Put(state, "BF", battlefieldCardNo, "BATTLEFIELD", "BF");
         state = Put(state, "ANCHOR", "OGN·219/298", "BATTLEFIELD", "BF");
         state = Put(state, "FIRST", "OGN·219/298", "HAND");
         return Put(state, "SECOND", "OGN·219/298", "HAND");

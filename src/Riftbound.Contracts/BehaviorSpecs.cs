@@ -166,6 +166,7 @@ public static class TriggerKinds
         "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE";
     public const string BattlefieldFirstUnitPlayedMoveOtherToBase =
         "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE";
+    public const string BattlefieldFirstPermanentPlayedInsight = "BATTLEFIELD_FIRST_PERMANENT_PLAYED_INSIGHT";
     public const string BattlefieldTurnStartDamageAllUnits =
         "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS";
     public const string BattlefieldTurnStartDestroyUnitDraw =

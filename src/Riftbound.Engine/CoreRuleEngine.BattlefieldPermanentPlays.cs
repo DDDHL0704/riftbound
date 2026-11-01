@@ -34,17 +34,31 @@ public sealed partial class CoreRuleEngine
         if (!result.Accepted) return result;
         var turn = before.TurnNumber;
         var uses = result.State.UntilEndOfTurnEffects.ToHashSet(StringComparer.Ordinal);
-        foreach (var ev in result.Events)
+        var events = result.Events.ToList();
+        var queue = result.State.TriggerQueue.ToList();
+        foreach (var (ev, index) in result.Events.Select((ev, index) => (ev, index)))
         {
             if (ev.Kind == "TURN_PLAYER_ADVANCED" && ev.Payload.GetValueOrDefault("turnNumber") is int advanced)
                 turn = advanced;
-            if (turn == result.State.TurnNumber && TryBattlefieldPermanentPlay(ev, out var player, out var battlefield))
-                uses.Add(BattlefieldPermanentPlayUse(player, battlefield));
+            if (turn != result.State.TurnNumber || !TryBattlefieldPermanentPlay(ev, out var player, out var battlefield)
+                || !uses.Add(BattlefieldPermanentPlayUse(player, battlefield))) continue;
+            var source = BattlefieldLocalRules.Battlefield(result.State, battlefield);
+            if (result.State.Status != MatchStatuses.InProgress || FirstPermanentInsightSpec(source?.CardNo) is not { } spec) continue;
+            var trigger = new TriggerQueueItemState($"first-permanent-insight-{result.State.Tick}-{index}", player,
+                source!.ObjectId, InsightTriggerEffect, ev.Kind) { SourceCardNo = source.CardNo,
+                InsightContext = new(source.CardNo!, player, spec.RevealCount!.Value, source.ObjectGeneration,
+                    "FIRST_PERMANENT", source.ObjectId) };
+            queue.Add(trigger);
+            events.Add(BuildTriggerQueuedEvent(trigger));
         }
         if (uses.SetEquals(result.State.UntilEndOfTurnEffects)) return result;
-        var next = result.State with { UntilEndOfTurnEffects = uses.Order(StringComparer.Ordinal).ToArray() };
-        return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+        var next = result.State with { UntilEndOfTurnEffects = uses.Order(StringComparer.Ordinal).ToArray(), TriggerQueue = queue };
+        return result with { State = next, Events = events, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
+
+    private static TriggerSpec? FirstPermanentInsightSpec(string? cardNo)
+        => BattlefieldTriggerSpecRules.TriggersForCard(cardNo).SingleOrDefault(t =>
+            t.Kind == TriggerKinds.BattlefieldFirstPermanentPlayedInsight && t.OncePerTurn == true && t.RevealCount is > 0);
 
     internal static int BattlefieldFirstPermanentManaReduction(MatchState state, string player,
         CardBehaviorDefinition behavior, string? destination)

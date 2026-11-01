@@ -455,6 +455,7 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldPlayUnitPayBoon => true,
             TriggerKinds.BattlefieldUnitReturnedPayCallRune => true,
             TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase => true,
+            TriggerKinds.BattlefieldFirstPermanentPlayedInsight => true,
             TriggerKinds.BattlefieldTurnStartDamageAllUnits => true,
             TriggerKinds.BattlefieldTurnStartDestroyUnitDraw => true,
             TriggerKinds.BattlefieldFirstTurnExtraRune => true,

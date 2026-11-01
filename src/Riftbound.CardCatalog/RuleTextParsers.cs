@@ -2417,6 +2417,12 @@ public static class TriggerParser
                 RuneCallCount: 1);
         }
 
+        if (Regex.IsMatch(segment,
+            @"于每名玩家，当其每回合首次在此处打出一个单位或装备时，其\{\{洞察\}\}", RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.BattlefieldFirstPermanentPlayedInsight,
+                TriggerTimings.BattlefieldUnitPlayed, segment, "每名玩家每回合在此处首次打出单位或装备时洞察。",
+                OncePerTurn: true, RevealCount: 1);
+
         var firstUnitPlayedMoveOtherToBaseMatch = Regex.Match(
             segment,
             @"每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地",
