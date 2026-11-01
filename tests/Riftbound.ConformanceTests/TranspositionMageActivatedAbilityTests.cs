@@ -62,6 +62,59 @@ public sealed class TranspositionMageActivatedAbilityTests
         Assert.Equal(["MAGE", "TARGET"], choices["0"].Select(choice => choice.Id).Order().ToArray());
     }
 
+    private static async Task<MatchState> CapturedBeforeSourceChangesFace(bool startsAsCopy)
+    {
+        var initial = Position(eligibleHandUnit: false);
+        if (startsAsCopy)
+            initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["MAGE"] = initial.CardObjects["MAGE"] with {
+                    TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
+                    CopyFaceTransitions = [new(0, 0, P6TokenFactoryCatalog.ImageTokenCardNo, CardNo)] } } };
+        var activated = await new CoreRuleEngine().ResolveAsync(initial,
+            new PlayerIntent("captured-face", "P1", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]), default);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        var state = activated.State;
+        var source = state.CardObjects["MAGE"];
+        var replacement = OfficialGarenConquestBattlefieldCountTests.Printed("MAGE", "OGN·001/298", "P1") with {
+            IsExhausted = true, TokenFactoryCardNo = source.TokenFactoryCardNo,
+            CopyFaceTransitions = [..(source.CopyFaceTransitions ?? []),
+                new(state.Tick + 1, source.ObjectGeneration, CardNo, "OGN·001/298")] };
+        return state with { Tick = state.Tick + 1,
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { ["MAGE"] = replacement } };
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CapturedSkillUsesItsSourceFaceAtActivationAfterTheSourceCopiesAnotherUnit(bool startsAsCopy)
+    {
+        var changed = await CapturedBeforeSourceChangesFace(startsAsCopy);
+        var captured = Assert.Single(changed.StackItems).SimpleActivation!;
+        Assert.Equal(startsAsCopy ? 1L : 0L, captured.SourceFaceRevision);
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(changed));
+        var game = new Driver(changed);
+        await game.Top();
+        Assert.Contains("TARGET", game.State.PlayerZones["P1"].Hand);
+        Assert.Empty(game.State.StackItems);
+        Assert.Null(game.State.PendingEffectPlay);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(2)]
+    public async Task RecoveryRejectsInventedSourceFaceRevisions(long revision)
+    {
+        var changed = await CapturedBeforeSourceChangesFace(startsAsCopy: true);
+        var parent = Assert.Single(changed.StackItems);
+        var forged = changed with { StackItems = [parent with {
+            SimpleActivation = parent.SimpleActivation! with { SourceFaceRevision = revision } }] };
+        Assert.Contains($"stack item {parent.StackItemId} printed activation context is invalid",
+            MatchRecoveryValidator.ValidateComponentStateAndViews(forged));
+    }
+
     [Fact]
     public async Task ReturnsTargetAndOffersEqualPowerHandUnitForFreePlay()
     {
