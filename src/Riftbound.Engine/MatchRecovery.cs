@@ -5365,6 +5365,11 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, stackItem.UnitEvent, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, stackItem.EmpowerInteraction, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.SourceReadied is not null && CoreRuleEngine.ValidSourceReadiedStack(authoritativeState, stackItem))
+                && !(stackItem.SelfMightActivation is { CeasedSource: not null } && SelfMightRules.Valid(authoritativeState, stackItem))
+                && !(stackItem.RecycleMightActivation is { CeasedSource: not null } && RecycleMightRules.Valid(authoritativeState, stackItem))
+                && !(stackItem.EmpowerActivation is { CeasedSource: not null } && EmpowerRules.Valid(authoritativeState, stackItem))
+                && !(stackItem.SelfMovement is { CeasedSource: not null } && CoreRuleEngine.ValidSelfMovement(authoritativeState, stackItem))
+                && !(stackItem.TemporaryActivation is { CeasedSource: not null } && CoreRuleEngine.ValidTemporaryActivation(authoritativeState, stackItem))
                 && !CoreRuleEngine.ValidTargetedPowerAbilitySource(authoritativeState, stackItem)
                 && !(stackItem.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyOtherObjectStack(authoritativeState, stackItem))
                 && !(stackItem.SourceUnitTokens is not null && CoreRuleEngine.ValidSourceUnitTokens(authoritativeState, stackItem.SourceUnitTokens, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
@@ -5614,6 +5619,21 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } battleSkill
                 && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
                 sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SelfMightActivation.CeasedSource: not null } self
+                && SelfMightRules.Valid(authoritativeState, self))
+                sourceReferences = knownObjectIds.Append(self.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { RecycleMightActivation.CeasedSource: not null } recycle
+                && RecycleMightRules.Valid(authoritativeState, recycle))
+                sourceReferences = knownObjectIds.Append(recycle.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { EmpowerActivation.CeasedSource: not null } empower
+                && EmpowerRules.Valid(authoritativeState, empower))
+                sourceReferences = knownObjectIds.Append(empower.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SelfMovement.CeasedSource: not null } movement
+                && CoreRuleEngine.ValidSelfMovement(authoritativeState, movement))
+                sourceReferences = knownObjectIds.Append(movement.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { TemporaryActivation.CeasedSource: not null } temporary
+                && CoreRuleEngine.ValidTemporaryActivation(authoritativeState, temporary))
+                sourceReferences = knownObjectIds.Append(temporary.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { TargetedPowerAbility.CeasedSource: not null } power
                 && CoreRuleEngine.ValidTargetedPowerAbilitySource(authoritativeState, power))
                 sourceReferences = knownObjectIds.Append(power.SourceObjectId).ToHashSet(StringComparer.Ordinal);
