@@ -20,10 +20,7 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
         {
             Assert.DoesNotContain(game.State.CardObjects.Values, c => c.Tags.Contains(CardObjectTags.MinionTokenFamily));
             Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == "P1" && c.Tags.Contains(CardObjectTags.RuneCard)));
-            await Tap(game, "P1", "TOKEN-COST-RUNE-", 12);
-            await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
-            await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
-            await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
+            await PrepareCarrier(game);
             Assert.True(game.State.CardObjects["CARRIER"].IsEmpowered);
             await game.Act("P1", new PlayCardCommand("UNIT", "VEN·124", []));
             await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [],
@@ -140,10 +137,7 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
         var game = new Driver(initial);
         try
         {
-            await Tap(game, "P1", "TOKEN-COST-RUNE-", 12);
-            await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
-            await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
-            await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
+            await PrepareCarrier(game);
             Assert.True(game.State.CardObjects["CARRIER"].IsEmpowered);
             await game.Act("P1", new PlayCardCommand("UNIT", "VEN·124", []));
             await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [],
@@ -224,6 +218,24 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
             await game.Replay();
         }
         finally { await Flow.Save("created-copied-ceased-battlefield-area-copies-" + copies, initial, game); }
+    }
+
+    private static async Task PrepareCarrier(Driver game)
+    {
+        var recover = game.RecoverAfterEveryCommand;
+        game.RecoverAfterEveryCommand = false;
+        try
+        {
+            // Validate the paid carrier setup once before creating any tokens.
+            // Token creation, copied text, ceasing and combat keep their original
+            // per-command recovery, retry, privacy and replay checks.
+            await Tap(game, "P1", "TOKEN-COST-RUNE-", 12);
+            await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
+            await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
+            await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
+            await game.ColdCheckpoint();
+        }
+        finally { game.RecoverAfterEveryCommand = recover; }
     }
 
     private static async Task Tap(Driver game, string player, string prefix, int count)

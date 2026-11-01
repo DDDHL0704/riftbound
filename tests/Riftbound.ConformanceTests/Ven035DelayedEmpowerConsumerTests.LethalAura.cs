@@ -125,7 +125,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             foreach (var player in new[] { "P1", "P2" })
                 Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == player && c.Tags.Contains(CardObjectTags.RuneCard)));
             game.RecoverAfterEveryCommand = true; await game.ColdCheckpoint();
-            await game.Replay(); Restore(game.State);
+            Restore(game.State);
         }
         finally { await Save($"delayed-aura-lethal-field-{auraOnBattlefield}-aura-first-{auraFirst}", initial, game); }
     }

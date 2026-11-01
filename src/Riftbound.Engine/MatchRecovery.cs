@@ -4873,7 +4873,7 @@ public static partial class MatchRecoveryValidator
             if (string.IsNullOrWhiteSpace(context!.CardNo) || string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
                 || context.SourceGeneration < 0 || context.Amount < 0
                 || context.Kind is not ("MINION" or "DRAW" or "RETURN_HERO" or "BOON" or "ACTIVATE_CONQUEST"
-                    or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "RETURN_PERMANENT"
+                    or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "OPTIONAL_RETURN_SELF" or "RETURN_PERMANENT"
                     or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
                     or "VEX" or "IVERN" or "BRUSH_RETURN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
                     or "BURN" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");
@@ -5379,6 +5379,7 @@ public static partial class MatchRecoveryValidator
             // Only validated official contexts permit a missing source.
             if (!HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId,
                     stackItem.SourceObjectId, stackItem.EffectKind)
+                && !(stackItem.SimpleActivation is { CeasedSource: not null } && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
                 && !(stackItem.EndAbility is not null && CoreRuleEngine.ValidEndAbility(authoritativeState, stackItem))
                 && !CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, stackItem.InsightContext,
                     stackItem.SourceObjectId, stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo)
@@ -5656,6 +5657,9 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { FieldContext: { SourceCeasedToExist: true } field } ceased
                 && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, ceased.SourceObjectId, ceased.ControllerId, ceased.EffectKind, ceased.CardNo))
                 sourceReferences = knownObjectIds.Append(ceased.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SimpleActivation.CeasedSource: not null } simple
+                && CoreRuleEngine.ValidSimpleActivation(authoritativeState, simple))
+                sourceReferences = knownObjectIds.Append(simple.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { LastBreathMight: { } captured } earned
                 && CoreRuleEngine.ValidLastBreathMightContext(authoritativeState, captured, earned.EffectKind, earned.SourceObjectId, earned.ControllerId)
                 && MatchStateHasher.HashValue(ReadLastBreathMightView(stackItem)) == MatchStateHasher.HashValue(captured))

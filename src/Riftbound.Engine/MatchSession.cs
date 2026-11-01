@@ -5544,10 +5544,10 @@ internal static partial class ActionPromptBuilder
             return CoreRuleEngine.ChosenMovementDestinations(state, playerId)
                 .Where(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))
                 .ToArray();
-        if (state.PendingEffectPlay is not null && behavior.PlaysSourceToBaseAsUnit)
+        if (state.PendingEffectPlay is not null && (behavior.PlaysSourceToBaseAsUnit || CoreRuleEngine.IsDeployedEquipment(behavior)))
             return CoreRuleEngine.EffectPlayDestinations(state, playerId, behavior).Select(id => new ActionPromptChoiceDto(id, id == "BASE" ? "基地" : state.PendingEffectPlay.RevealedHand is not null ? "效果指定战场" : BattlefieldLocationLabel(state, id["BATTLEFIELD:".Length..]))).ToArray();
 
-        if (!behavior.PlaysSourceToBaseAsUnit)
+        if (!behavior.PlaysSourceToBaseAsUnit && !CoreRuleEngine.IsDeployedEquipment(behavior))
         {
             return null;
         }

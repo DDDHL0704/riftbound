@@ -281,7 +281,7 @@ public static class P4ActivatedAbilityCatalog
         new(TranspositionMageAbilityId, TranspositionMageCardNo, TranspositionMageAbilityEffectKind, "易位法师", 0, 0, 1,
             RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false,
-            Reason: "官方中文：支付1紫色符能并横置，让一名友方单位返回其所属的手牌；你可以选择打出一名战力不高于该单位的单位，无视其费用。",
+            Reason: "官方中文：支付1紫色符能并横置，让一名友方单位返回其所属的手牌；你可以选择打出一名战力低于该单位的单位，无视其费用。",
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Purple] = 1 },
             SourceRequiredTag: CardObjectTags.UnitCard,
             SimpleEffect: new(ReturnsFriendlyUnitThenFreePlayUpToPower: true)),
@@ -754,7 +754,9 @@ public static class P4ActivatedAbilityCatalog
         var sources = SourceCardNosByRepresentativeCardNo.Value.TryGetValue(sourceCardNo, out var sourceCardNos)
             ? sourceCardNos
             : [sourceCardNo];
-        return sources;
+        // CN187.5 defines the same Gold skill despite the gallery's keyword placement.
+        return definition.AbilityId == GoldTokenSfdResourceAbilityId
+            ? sources.Append("VEN·T02").Distinct(StringComparer.Ordinal).ToArray() : sources;
     }
 
     public static string AzirSwiftSwapUsedThisTurnEffectId(string playerId, string sourceObjectId, long generation = 0, string? instanceId = null)
