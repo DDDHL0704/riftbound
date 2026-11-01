@@ -5,6 +5,7 @@ from collections import Counter, defaultdict, deque
 import hashlib
 import importlib.util
 import json
+import math
 import os
 import platform
 from pathlib import Path
@@ -257,6 +258,37 @@ def derived_view(prepared, inputs, commit):
                 execution='DERIVED_FROM_ORIGINAL_SHARD_TRX', planSha256=digest(prepared / 'plan.json'),
                 testAssemblySha256=plan['testAssemblySha256'], selection=plan['targeted'],
                 cases=[row for row in mapping if row['method'] in methods])
+
+
+def timing_weights(prepared, inputs, commit):
+    plan, mapping, _ = checked_results(prepared, inputs, commit)
+    if plan['profile'] != 'l2-distributed':
+        raise ValueError('L2 timing weights require the complete L2 profile.')
+    methods, cases = defaultdict(float), defaultdict(float)
+    for shard in plan['shards']:
+        rows, _ = RULES.report(inputs / shard['name'] / 'results.trx')
+        for row in rows:
+            duration = row.get('duration', '')
+            if not re.fullmatch(r'\d+:[0-5]\d:[0-5]\d(?:\.\d+)?', duration):
+                raise ValueError('Missing or invalid test duration: ' + row.get('testName', ''))
+            try:
+                seconds = RULES.elapsed(duration)
+            except (ValueError, OverflowError) as error:
+                raise ValueError('Missing or invalid test duration: ' + row.get('testName', '')) from error
+            if not math.isfinite(seconds) or seconds < 0:
+                raise ValueError('Invalid test duration: ' + row.get('testName', ''))
+            methods[RULES.method(row.get('testName'))] += seconds
+            cases[row.get('testName')] += seconds
+    return dict(sourceRunId=int(plan['runId']), sourceCommit=commit,
+                sourceTestAssemblySha256=plan['testAssemblySha256'],
+                sourcePlanSha256=digest(prepared / 'plan.json'), configuration=CONFIGURATION,
+                measuredMethods=len(plan['methods']), measuredCases=len(mapping),
+                purpose='Duration balancing only; no membership, result or cross-SHA reuse. '
+                        'Methods under one second and new methods default to one second.',
+                shards=[dict(name=shard['name'], trxSha256=digest(inputs / shard['name'] / 'results.trx'))
+                        for shard in plan['shards']], retainedUnmeasuredMethodEstimates=0,
+                weights={name: round(value, 4) for name, value in sorted(methods.items()) if value >= 1},
+                caseWeights={name: round(value, 4) for name, value in sorted(cases.items()) if value >= 60})
 
 
 def aggregate(prepared, inputs, targeted, quality, commit, jobs):
@@ -554,7 +586,7 @@ def execute_shard(prepared, output, commit, name):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'aggregate', 'aggregate-full'])
+    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'timings', 'aggregate', 'aggregate-full'])
     parser.add_argument('--profile', choices=['l2', 'full'], default='l2', help='Preparation membership; full includes every discovered method')
     parser.add_argument('--commit', required=True)
     parser.add_argument('--prepared', type=Path)
@@ -572,6 +604,8 @@ def main():
         execute_shard(args.prepared.resolve(), args.output.resolve(), args.commit, args.shard)
     elif args.mode == 'targeted':
         write(args.output, derived_view(args.prepared, args.inputs, args.commit))
+    elif args.mode == 'timings':
+        write(args.output, timing_weights(args.prepared, args.inputs, args.commit))
     elif args.mode == 'aggregate-full':
         jobs = {name: os.environ.get('RIFTBOUND_' + name.upper(), '') for name in ['prepare', 'rule_shards']}
         write(args.output, aggregate_full(args.prepared, args.inputs, args.commit, jobs))

@@ -156,6 +156,68 @@ class DistributedL2Tests(unittest.TestCase):
     def verify(self):
         return D.aggregate(self.prepared, self.inputs, self.target, self.quality, self.commit, self.jobs)
 
+    def set_durations(self, durations):
+        for folder in self.inputs.iterdir():
+            path = folder / 'results.trx'
+            tree = ET.parse(path)
+            for row in tree.findall('.//t:UnitTestResult', D.RULES.NS):
+                value = durations.get(row.get('testName'), '00:00:00.25')
+                if value is None:
+                    row.attrib.pop('duration', None)
+                else:
+                    row.set('duration', value)
+            tree.write(path)
+            self.put(folder / 'receipt.json', {**D.read(folder / 'receipt.json'), 'trxSha256': D.digest(path)})
+
+    def test_timing_export_sums_all_rows_before_filtering_and_preserves_inventory(self):
+        self.set_durations({self.fact: '00:00:01', self.theory + '(value: 1)': '00:00:00.6',
+                            self.theory + '(value: 2)': '00:00:00.7',
+                            self.dynamic + '(profile: first)': '00:01:01',
+                            self.dynamic + '(profile: second)': '00:01:02'})
+        result = D.timing_weights(self.prepared, self.inputs, self.commit)
+        self.assertEqual({self.fact: 1.0, self.theory: 1.3, self.dynamic: 123.0}, result['weights'])
+        self.assertEqual({self.dynamic + '(profile: first)': 61.0,
+                          self.dynamic + '(profile: second)': 62.0}, result['caseWeights'])
+        self.assertEqual(len(self.plan['methods']), result['measuredMethods'])
+        self.assertEqual(sum(map(len, self.plan['cases'].values())), result['measuredCases'])
+        self.assertEqual(123, result['sourceRunId'])
+        self.assertEqual(self.commit, result['sourceCommit'])
+        self.assertEqual(self.plan['testAssemblySha256'], result['sourceTestAssemblySha256'])
+        self.assertEqual(D.digest(self.prepared / 'plan.json'), result['sourcePlanSha256'])
+        self.assertEqual([dict(name=shard['name'], trxSha256=D.digest(self.inputs / shard['name'] / 'results.trx'))
+                          for shard in self.plan['shards']], result['shards'])
+        updated = D.make_plan(self.text, self.inventory, self.scope, result['weights'] | result['caseWeights'], 6)
+        self.assertEqual(self.plan['cases'], updated['cases'])
+
+    def test_timing_export_rejects_missing_malformed_negative_and_nonfinite_durations(self):
+        for value in [None, 'invalid', '00:00:-1', '00:-01:10', '00:60:00', '00:00:60',
+                      '00:00:nan', '00:00:inf', '9' * 400 + ':00:00']:
+            with self.subTest(duration=value):
+                self.set_durations({self.fact: value})
+                with self.assertRaisesRegex(ValueError, 'duration'):
+                    D.timing_weights(self.prepared, self.inputs, self.commit)
+
+    def test_timing_export_rejects_full_profile_instead_of_relabeling_it_as_l2(self):
+        self.full_fixture()
+        with self.assertRaisesRegex(ValueError, 'complete L2 profile'):
+            D.timing_weights(self.prepared, self.inputs, self.commit)
+
+    def test_timing_cli_preserves_existing_output_and_requires_every_verified_shard(self):
+        self.set_durations({self.fact: '00:00:02'})
+        output = self.root / 'timings.json'
+        command = [sys.executable, str(ROOT / 'scripts/l2-distributed.py'), 'timings', '--commit', self.commit,
+                   '--prepared', str(self.prepared), '--inputs', str(self.inputs), '--output', str(output)]
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(0, result.returncode, result.stderr)
+        original = output.read_bytes()
+        self.assertEqual({self.fact: 2.0}, D.read(output)['weights'])
+        self.assertNotEqual(0, subprocess.run(command, capture_output=True).returncode)
+        self.assertEqual(original, output.read_bytes())
+        shutil.rmtree(self.inputs / 'shard-1')
+        missing = self.root / 'missing-shard-timings.json'
+        self.assertNotEqual(0, subprocess.run(command[:-1] + [str(missing)], capture_output=True).returncode)
+        self.assertFalse(missing.exists())
+
     def test_exact_once_union_retains_smokes_and_runtime_member_data(self):
         result = self.verify()
         self.assertEqual('L2_REQUIRED_PASSED', result['status'])
