@@ -209,13 +209,18 @@ public sealed partial class CoreRuleEngine
             || ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower != true
             || pending.RevealedHand is not null || pending.Parent.EffectPlayCompleted
             || pending.SourceZone != "HAND" || pending.PlayerId != pending.Parent.ControllerId
+            || pending.DestinationPolicy != "" || pending.SourcePlayerId is not null
+            || pending.SourceReplay is not null || pending.OriginalLocation is not null || pending.OriginalBattlefield is not null
+            || pending.ViewedCardIds is not null || pending.Sources.Count == 0
             || !pending.Optional || !pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
             || pending.ManaReduction != 0 || pending.MaximumUnitPower is not >= 0
             || !ValidSimpleActivation(state, pending.Parent, allowMissingReturnTarget: true)
             || !state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)) return false;
 
         var targetId = pending.Parent.TargetObjectIds.SingleOrDefault();
-        if (targetId is null || !state.PlayerZones.Values.Any(player => player.Hand.Contains(targetId, StringComparer.Ordinal))) return false;
+        if (targetId is null || !state.PlayerZones.Values.Any(player => player.Hand.Contains(targetId, StringComparer.Ordinal))
+            && (state.CardObjects.ContainsKey(targetId)
+                || pending.Parent.SimpleActivation?.TargetTokenFactories?.ContainsKey(targetId) != true)) return false;
 
         var eligible = zones.Hand
             .Where(id => state.CardObjects.TryGetValue(id, out var card)
@@ -243,9 +248,6 @@ public sealed partial class CoreRuleEngine
         if (!ValidSimpleActivation(state, item,
                 allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
             throw new InvalidOperationException("Invalid captured printed activation.");
-        if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted
-            && !state.PlayerZones.Values.Any(player => player.Hand.Contains(item.TargetObjectIds.SingleOrDefault() ?? string.Empty, StringComparer.Ordinal)))
-            throw new InvalidOperationException("Invalid completed transposition target.");
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
@@ -299,6 +301,9 @@ public sealed partial class CoreRuleEngine
             }
         }
         if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted)
+            // A child play can reuse the returned card after its modifiers
+            // reset. A returned token ceases to exist instead (CN186.1).
+            // Neither must remain in a hand when the parent resumes.
             return result;
         if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && !item.EffectPlayCompleted)
         {
@@ -337,7 +342,7 @@ public sealed partial class CoreRuleEngine
                     && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                     && CardBehaviorRegistry.TryGetByCardNo(candidate.CardNo ?? "", out var behavior)
                     && behavior.PlaysSourceToBaseAsUnit
-                    && ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, candidate) <= capturedPower)
+                    && ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, candidate) < capturedPower)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
             if (eligible.Length == 0)
@@ -357,7 +362,7 @@ public sealed partial class CoreRuleEngine
                 eligible.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
                 IgnoreBaseMana: true, IgnoreBasePower: true, ManaReduction: 0,
                 DestinationPolicy: "", Optional: true, IgnoreAllCosts: true,
-                MaximumUnitPower: capturedPower);
+                MaximumUnitPower: capturedPower - 1);
             return result with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(locations, zones), PendingEffectPlay = pending,
                 Events = events };

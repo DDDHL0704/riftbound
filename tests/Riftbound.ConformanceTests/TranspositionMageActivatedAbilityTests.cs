@@ -10,7 +10,8 @@ public sealed class TranspositionMageActivatedAbilityTests
     private const string CardNo = "RAD·115/167";
     private const string AbilityId = P4ActivatedAbilityCatalog.TranspositionMageAbilityId;
 
-    private static MatchState Position(bool eligibleHandUnit = true, int handPower = 4, bool targetOwnedByOpponent = false)
+    private static MatchState Position(bool eligibleHandUnit = true, bool targetOwnedByOpponent = false,
+        int targetPower = 5)
     {
         var targetOwnerId = targetOwnedByOpponent ? "P2" : "P1";
         var cards = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -19,9 +20,9 @@ public sealed class TranspositionMageActivatedAbilityTests
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
             ["MAGE"] = new("MAGE", manaCost: 6, power: 4, cardNo: CardNo, ownerId: "P1", controllerId: "P1",
                 tags: [CardObjectTags.UnitCard]),
-            ["TARGET"] = new("TARGET", manaCost: 2, power: 4, cardNo: "TEST·UNIT", ownerId: targetOwnerId, controllerId: "P1",
-                tags: [CardObjectTags.UnitCard]),
-            ["PLAY"] = new("PLAY", manaCost: 6, power: handPower, cardNo: eligibleHandUnit ? CardNo : "TEST·SPELL",
+            ["TARGET"] = new("TARGET", manaCost: 5, power: targetPower, cardNo: "OGN·001/298", ownerId: targetOwnerId, controllerId: "P1",
+                tags: [CardObjectTags.UnitCard], untilEndOfTurnPowerModifier: targetPower - 5),
+            ["PLAY"] = new("PLAY", manaCost: 6, power: 4, cardNo: eligibleHandUnit ? CardNo : "TEST·SPELL",
                 ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard])
         };
         var locations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
@@ -63,7 +64,7 @@ public sealed class TranspositionMageActivatedAbilityTests
     }
 
     [Fact]
-    public async Task ReturnsTargetAndOffersEqualPowerHandUnitForFreePlay()
+    public async Task ReturnsTargetAndOffersOnlyLowerPowerHandUnitsForFreePlay()
     {
         var game = new Driver(Position());
         await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]));
@@ -73,6 +74,7 @@ public sealed class TranspositionMageActivatedAbilityTests
         var pending = game.State.PendingEffectPlay;
         Assert.NotNull(pending);
         Assert.Equal("P1", pending.PlayerId);
+        Assert.Equal(4, pending.MaximumUnitPower);
         Assert.Equal(["PLAY"], pending.Sources.Keys.ToArray());
         Assert.Contains("TARGET", game.State.PlayerZones["P1"].Hand);
         await game.Act("P1", new PlayCardCommand("PLAY", CardNo, [], Destination: "BASE"));
@@ -113,10 +115,18 @@ public sealed class TranspositionMageActivatedAbilityTests
         await game.Replay();
     }
 
-    [Fact]
-    public async Task HigherPowerHandUnitIsExcluded()
+    [Theory]
+    [InlineData(5, 5)]
+    [InlineData(5, 6)]
+    [InlineData(0, 0)]
+    public async Task EqualOrHigherPowerHandUnitIsExcludedEvenAtZero(int targetPower, int handPower)
     {
-        var game = new Driver(Position(handPower: 5));
+        var initial = Position(targetPower: targetPower);
+        var handCardNo = handPower switch { 0 => "UNL-053/219", 5 => "OGN·001/298", _ => "OGN·075/298" };
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["PLAY"] = OfficialGarenConquestBattlefieldCountTests.Printed("PLAY", handCardNo, "P1") } };
+        Assert.Equal(handPower, initial.CardObjects["PLAY"].Power);
+        var game = new Driver(initial);
         await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]));
         await game.Top();
 
@@ -125,6 +135,97 @@ public sealed class TranspositionMageActivatedAbilityTests
         Assert.Contains(game.Events(), item => item.Event.Kind == "ABILITY_NO_EFFECT"
             && Equals(item.Event.Payload["reason"], "NO_ELIGIBLE_HAND_UNIT"));
         await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AReturnedPrintedUnitCanOnlyReplayItselfIfItsPowerActuallyDecreased(bool buffed)
+    {
+        var initial = Position(eligibleHandUnit: false);
+        var target = OfficialGarenConquestBattlefieldCountTests.Printed("TARGET", CardNo, "P1");
+        if (buffed) target = target with { Power = target.Power + 1, UntilEndOfTurnPowerModifier = 1 };
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["TARGET"] = target } };
+        var originalPower = target.Power;
+        var game = new Driver(initial);
+        await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]));
+        await game.Top();
+        Assert.Contains("TARGET", game.State.PlayerZones["P1"].Hand);
+        if (buffed)
+        {
+            var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+            Assert.Equal(originalPower - 1, pending.MaximumUnitPower);
+            Assert.Equal(["TARGET"], pending.Sources.Keys.ToArray());
+            await game.Act("P1", new PlayCardCommand("TARGET", CardNo, [], Destination: "BASE"));
+            Assert.Contains("TARGET", game.State.PlayerZones["P1"].Base);
+            Assert.Equal(originalPower - 1, game.State.CardObjects["TARGET"].Power);
+        }
+        else Assert.Null(game.State.PendingEffectPlay);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ReturningATokenStillAllowsTheFollowingOptionalPlay(bool decline)
+    {
+        var initial = Position();
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo("SFD·T01", out var robot));
+        var target = robot.CreateObject("TARGET", "P1", "P1") with { Power = 5, UntilEndOfTurnPowerModifier = 2 };
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["TARGET"] = target } };
+        var game = new Driver(initial);
+        await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]));
+        await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey("TARGET"));
+        Assert.DoesNotContain("TARGET", game.State.PlayerZones["P1"].Hand);
+        Assert.Contains(game.Events(), entry => entry.Event.Kind == "TOKEN_CEASED_TO_EXIST");
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        Assert.Equal(4, pending.MaximumUnitPower);
+        Assert.Equal(["PLAY"], pending.Sources.Keys.ToArray());
+        if (decline)
+            await game.Act("P1", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
+        else
+            await game.Act("P1", new PlayCardCommand("PLAY", CardNo, [], Destination: "BASE"));
+        Assert.Null(game.State.PendingEffectPlay);
+        Assert.Equal(!decline, game.State.PlayerZones["P1"].Base.Contains("PLAY"));
+        Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ACompletedParentCannotBeInventedAsAPersistedActivation()
+    {
+        var game = new Driver(Position());
+        await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]));
+        await game.Top();
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        var forged = game.State with { PendingEffectPlay = null,
+            StackItems = [pending.Parent with { EffectPlayCompleted = true }] };
+        Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(forged));
+    }
+
+    [Theory]
+    [InlineData("ANY_BATTLEFIELD")]
+    [InlineData("BASE")]
+    [InlineData("original-location")]
+    [InlineData("original-battlefield")]
+    [InlineData("foreign-source")]
+    [InlineData("viewed-cards")]
+    public async Task RecoveryRejectsChangingTheHandPlayPolicy(string mutation)
+    {
+        var game = new Driver(Position());
+        await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]));
+        await game.Top();
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        var forged = pending with { DestinationPolicy = mutation };
+        if (mutation == "original-location") forged = pending with { OriginalLocation = new("P1", "BASE") };
+        if (mutation == "original-battlefield") forged = pending with { OriginalBattlefield = new("BF", 0) };
+        if (mutation == "foreign-source") forged = pending with { SourcePlayerId = "P2" };
+        if (mutation == "viewed-cards") forged = pending with { ViewedCardIds = ["PLAY"] };
+        Assert.Contains("invalid revealed hand effect-play continuation",
+            MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with { PendingEffectPlay = forged }));
     }
 
     [Fact]
