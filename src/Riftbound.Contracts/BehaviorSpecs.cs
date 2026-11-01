@@ -168,6 +168,7 @@ public static class TriggerKinds
         "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE";
     public const string BattlefieldFirstPermanentPlayedInsight = "BATTLEFIELD_FIRST_PERMANENT_PLAYED_INSIGHT";
     public const string BattlefieldStandbyHiddenCreateEquipmentToken = "BATTLEFIELD_STANDBY_HIDDEN_CREATE_EQUIPMENT_TOKEN";
+    public const string BattlefieldFirstNonTokenDestroyedCreateMinion = "BATTLEFIELD_FIRST_NON_TOKEN_DESTROYED_CREATE_MINION";
     public const string BattlefieldTurnStartDamageAllUnits =
         "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS";
     public const string BattlefieldTurnStartDestroyUnitDraw =

@@ -1703,6 +1703,17 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        var firstLocalDeathToken = Regex.Match(segment,
+            @"^于每名玩家，当每回合首次有其控制的一名非指示物单位在此处被摧毁时，该玩家将([0-9一两二三四五六七八九十]+)名([0-9]+)\{\{S\}\}的“随从”单位指示物打出到其基地[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (firstLocalDeathToken.Success)
+            return new TriggerSpec(TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion,
+                TriggerTimings.UnitDestroyed, segment, "每名玩家分别记录在此处首次摧毁的非指示物单位。",
+                TargetScope: TriggerTargetScopes.EachPlayer, OncePerTurn: true, ExcludesTokens: true,
+                CreatedTokenCount: ParseChineseNumber(firstLocalDeathToken.Groups[1].Value),
+                CreatedTokenPower: int.Parse(firstLocalDeathToken.Groups[2].Value), CreatedTokenName: "随从",
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
+
         var standbyHiddenToken = Regex.Match(segment,
             @"当你在此处布置一张\{\{待命\}\}卡牌时，打出([0-9一两二三四五六七八九十]+)个休眠的“([^”]+)”装备指示物",
             RegexOptions.CultureInvariant);
