@@ -22,6 +22,12 @@ on:
 permissions:
   contents: read
 
+# A newer PR revision replaces the old SQL/restart harness and frees its runner.
+# Preserve explicitly dispatched investigations, as with Backend L2.
+concurrency:
+  group: backend-harness-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
   DOTNET_NOLOGO: '1'

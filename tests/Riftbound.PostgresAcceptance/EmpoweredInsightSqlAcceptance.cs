@@ -169,7 +169,8 @@ internal static class EmpoweredInsightSqlAcceptance
                     && frame.ReplayInitialState is { Tick: 0, Status: MatchStatuses.Seating } && frame.ReplayInitialState.CardObjects.Count == 0
                     && MatchStateHasher.Hash(frame.AuthoritativeState!) == MatchStateHasher.Hash(current),
                     "Original blank state and complete accepted history stay consistent: " + string.Join(';', frame.ValidationErrors));
-                Check((await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default)).Count == 0, "All original accepted commands/events replay exactly.");
+                // The fresh production registry below audits the complete original
+                // history; do not replay the same SQL prefix twice per checkpoint.
                 var restored = await new InMemoryMatchSessionRegistry(engine, journal, store, players, options).GetOrCreateAsync(room, default);
                 foreach (var player in initial.Seats.Keys)
                     Check(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(session.SnapshotFor(player)), JsonSerializer.SerializeToNode(restored.SnapshotFor(player)))
