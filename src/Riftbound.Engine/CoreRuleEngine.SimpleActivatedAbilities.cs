@@ -23,8 +23,14 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
 
 public sealed partial class CoreRuleEngine
 {
-    private static string SimpleActivationUse(CardObjectState source, string ability)
-        => $"PRINTED_ACTIVATION_USED:{source.ObjectId}:{source.ObjectGeneration}:{ability}";
+    internal const string SimpleActivationUsePrefix = "PRINTED_ACTIVATION_USED:";
+
+    internal static string SimpleActivationUse(ObjectBinding source, P4ActivatedAbilityDefinition ability, string actor)
+        => $"{SimpleActivationUsePrefix}{source.ObjectId}:{source.Generation}:{ability.AbilityId}"
+            + (ability.SimpleEffect?.OncePerTurnPerPlayer == true ? ":PLAYER:" + actor : "");
+    private static string SimpleActivationUse(CardObjectState source, P4ActivatedAbilityDefinition ability, string actor)
+        => SimpleActivationUse(new ObjectBinding(source.ObjectId, source.ObjectGeneration), ability, actor);
+
     private static string EnemyUnitTargetMarker(string actor) => "TARGETED_ENEMY_UNIT_THIS_TURN:" + actor;
 
     // Track confirmed targets for every skill/spell through the shared stack;
@@ -52,14 +58,17 @@ public sealed partial class CoreRuleEngine
             && card.Tags.Contains(CardObjectTags.EquipmentCard)).Select(id => "DISCARD_HAND_CARD:" + id).ToArray();
 
     internal static bool IsSimpleAbilitySource(MatchState state, string actor, string id, P4ActivatedAbilityDefinition ability)
-        => state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id && source.ControllerId == actor
+        => state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id
+            && (source.ControllerId == actor || ability.UsableByAnyPlayerOnOwnTurn && state.TurnPlayerId == actor)
             && !source.IsFaceDown && (!ability.ExhaustsSourceAsCost || !source.IsExhausted)
             && source.Tags.Contains(ability.SourceRequiredTag)
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
-            && FindFieldObjectLocation(state.PlayerZones, id) is { } at && at.PlayerId == actor
-            && state.ObjectLocations.TryGetValue(id, out var precise) && precise.PlayerId == actor && precise.Zone == at.Zone
+            && FindFieldObjectLocation(state.PlayerZones, id) is { } at && (at.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn)
+            && state.ObjectLocations.TryGetValue(id, out var precise) && (precise.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn) && precise.Zone == at.Zone
+            && (!ability.RequiresBattlefieldSource || precise.Zone == "BATTLEFIELD" && state.BattlefieldStates.ContainsKey(id))
+            && (!ability.RequiresBaseEquipmentSource || precise.Zone == "BASE")
             && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered)
-            && (ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(SimpleActivationUse(source, ability.AbilityId)))
+            && (ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(SimpleActivationUse(source, ability, actor)))
             && (ability.SimpleEffect?.RequiresEnemyUnitTargetThisTurn != true || state.UntilEndOfTurnEffects.Contains(EnemyUnitTargetMarker(actor)))
             && (ability.SimpleEffect?.DiscardsEquipmentAsCost != true || SimpleActivationDiscardChoices(state, actor).Length > 0);
 
@@ -155,13 +164,15 @@ public sealed partial class CoreRuleEngine
             with { TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
+        if (ability.SimpleEffect.OncePerTurnPerPlayer)
+            payload["sourceGeneration"] = source.ObjectGeneration;
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
         if (ability.ExhaustsSourceAsCost)
             events.Add(new(source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED", "横置来源以支付技能费用", payload));
         events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, paid.RunePools, paid.PlayerExperience, payload)));
         events.Add(new("STACK_ITEM_ADDED", "技能进入结算链", new Dictionary<string, object?>(payload) { ["stackItemId"] = item.StackItemId }));
         var effects = ability.SimpleEffect.OncePerTurn
-            ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability.AbilityId)).ToArray()
+            ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability, intent.PlayerId)).ToArray()
             : state.UntilEndOfTurnEffects;
         if (ability.SimpleEffect.DiscardsEquipmentAsCost)
             effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [extras.Single()["DISCARD_HAND_CARD:".Length..]], zones);
