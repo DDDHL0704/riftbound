@@ -11,6 +11,7 @@ public sealed partial class CoreRuleEngine
             ["OGN·286/298"] = ("ACTIVATE_CONQUEST", 1), ["OGN·288/298"] = ("CHANNEL_OPTIONAL", 1), ["OGN·293/298"] = ("SEVEN_WIN", 7),
             ["OGN·066/298"] = ("SCORE", 1), ["OGN·067/298"] = ("RETURN_SELF", 1),
             ["SFD·058/221"] = ("LOOK_EQUIPMENT", 1),
+            ["RAD·156/167"] = ("OPTIONAL_RETURN_SELF", 1),
             ["SFD·027/221"] = ("DRAW", 2), ["SFD·035/221"] = ("RETURN_PERMANENT", 1),
             ["SFD·089/221"] = ("ROBOT", 1), ["SFD·152/221"] = ("GOLD", 2),
             ["SFD·201/221"] = ("RENATA", 1), ["SFD·214/221"] = ("PAY_POWER_SCORE", 4), ["SFD·219/221"] = ("CHANNEL_ALL", 1),
@@ -79,7 +80,11 @@ public sealed partial class CoreRuleEngine
         {
             var units = HeldUnitsAt(state, field, player);
             var copies = 1 + units.Count(id => HeldDefinition(state.CardObjects[id].CardNo)?.Kind == "BLUE_DELAYED_POWER");
-            var sources = new[] { field }.Concat(units).Concat(state.PlayerZones[player].LegendZone).Distinct().ToArray();
+            var equipment = state.CardObjects.Values.Where(c => !c.IsFaceDown && c.Tags.Contains(CardObjectTags.EquipmentCard)
+                && IsObjectOnField(state.PlayerZones, c.ObjectId) && c.ControllerId == player
+                && state.ObjectLocations.TryGetValue(c.ObjectId, out var at) && at.Zone == "BATTLEFIELD" && at.BattlefieldObjectId == field)
+                .Select(c => c.ObjectId);
+            var sources = new[] { field }.Concat(units).Concat(equipment).Concat(state.PlayerZones[player].LegendZone).Distinct().ToArray();
             foreach (var source in sources)
             {
                 if (!state.CardObjects.TryGetValue(source, out var card) || card.IsFaceDown
@@ -225,6 +230,11 @@ public sealed partial class CoreRuleEngine
             case "BOON": case "BOON_ALL":
                 foreach (var id in context.Kind == "BOON" ? new[] { resolvedTarget! } : HeldUnitsAt(state, field))
                     GrantLegendBoon(cards, id, player, item.SourceObjectId, item.EffectKind, events);
+                break;
+            case "OPTIONAL_RETURN_SELF":
+                if (sourceExists && RuleChoices.Value!.Choose(player, "可以让此牌返回所属手牌。",
+                    [new("RETURN", "返回手牌", [item.SourceObjectId]), new("KEEP", "留在场上")], kind: "HOLD_RETURN") == "RETURN")
+                    ReturnToHand(item.SourceObjectId);
                 break;
             case "RETURN_SELF": if (sourceExists) ReturnToHand(item.SourceObjectId); break;
             case "RETURN_PERMANENT": ReturnToHand(resolvedTarget!); break;

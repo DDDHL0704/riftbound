@@ -85,6 +85,9 @@ public static class P6TokenFactoryCatalog
         Unit("OGN·272/298", "随从（诺克萨斯）", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit(ZaunMinionTokenCardNo, "随从（祖安）", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit("OGN·274/298", "精灵", "精灵", 3, CardObjectTags.Ephemeral, "仙灵"),
+        Equipment("VEN·T02", "金币", "金币", "反应"),
+        // CN187.4 defines the Mech tag; the older VEN gallery says Robot.
+        Unit("VEN·T03", "机器人", "机器人", 3, "机械"),
         Unit("VEN·T04", "随从", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit("VEN·T06", "触手", "触手", 1, "比尔吉沃特")
     ];
