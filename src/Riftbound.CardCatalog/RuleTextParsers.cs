@@ -1761,6 +1761,31 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        if (Regex.IsMatch(segment, @"^当你征服此处时，你在本回合内打出的下一名单位具有\{\{急速\}\}[。.]?(?:（.*）)?$", RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.BattlefieldConquerNextUnitHaste, TriggerTimings.BattlefieldConquered,
+                segment, GrantedKeyword: "急速", Duration: TriggerDurations.UntilEndOfTurn);
+
+        var firstLocalDeathToken = Regex.Match(segment,
+            @"^于每名玩家，当每回合首次有其控制的一名非指示物单位在此处被摧毁时，该玩家将([0-9一两二三四五六七八九十]+)名([0-9]+)\{\{S\}\}的“随从”单位指示物打出到其基地[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (firstLocalDeathToken.Success)
+            return new TriggerSpec(TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion,
+                TriggerTimings.UnitDestroyed, segment, "每名玩家分别记录在此处首次摧毁的非指示物单位。",
+                TargetScope: TriggerTargetScopes.EachPlayer, OncePerTurn: true, ExcludesTokens: true,
+                CreatedTokenCount: ParseChineseNumber(firstLocalDeathToken.Groups[1].Value),
+                CreatedTokenPower: int.Parse(firstLocalDeathToken.Groups[2].Value), CreatedTokenName: "随从",
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
+
+        var standbyHiddenToken = Regex.Match(segment,
+            @"当你在此处布置一张\{\{待命\}\}卡牌时，打出([0-9一两二三四五六七八九十]+)个休眠的“([^”]+)”装备指示物",
+            RegexOptions.CultureInvariant);
+        if (standbyHiddenToken.Success)
+            return new TriggerSpec(TriggerKinds.BattlefieldStandbyHiddenCreateEquipmentToken,
+                TriggerTimings.StandbyHidden, segment, "在此处布置待命后，排队装备指示物触发技能。",
+                CreatedTokenCount: ParseChineseNumber(standbyHiddenToken.Groups[1].Value),
+                CreatedTokenName: standbyHiddenToken.Groups[2].Value, CreatedTokenExhausted: true,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
+
         if (Regex.IsMatch(segment,
             @"^当我进攻或防守时[，,]\s*对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
             RegexOptions.CultureInvariant))
@@ -2505,6 +2530,12 @@ public static class TriggerParser
                 RuneCallCount: 1);
         }
 
+        if (Regex.IsMatch(segment,
+            @"于每名玩家，当其每回合首次在此处打出一个单位或装备时，其\{\{洞察\}\}", RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.BattlefieldFirstPermanentPlayedInsight,
+                TriggerTimings.BattlefieldUnitPlayed, segment, "每名玩家每回合在此处首次打出单位或装备时洞察。",
+                OncePerTurn: true, RevealCount: 1);
+
         var firstUnitPlayedMoveOtherToBaseMatch = Regex.Match(
             segment,
             @"每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地",
@@ -3194,6 +3225,13 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        var firstPermanent = Regex.Match(text,
+            @"于每名玩家，该玩家在其回合内在此处打出的首个单位或装备，其费用减少\{\{(?<amount>[0-9]+)\}\}",
+            RegexOptions.CultureInvariant);
+        if (firstPermanent.Success)
+            staticSpecs.Add(new(StaticAbilityKinds.BattlefieldFirstPermanentPlayManaReduction, firstPermanent.Value,
+                BehaviorImplementationStatuses.Implemented, "每名玩家自己的回合，在此处首次打出单位或装备减费。",
+                int.Parse(firstPermanent.Groups["amount"].Value, CultureInfo.InvariantCulture)));
         if (text.Contains("我拥有等同于你控制装备数量的{{强攻}}数值", StringComparison.Ordinal))
             staticSpecs.Add(new(StaticAbilityKinds.UnitEquipmentCountSelfKeywords, text,
                 BehaviorImplementationStatuses.Unimplemented, "Current equipment count determines the source's Assault amount.",

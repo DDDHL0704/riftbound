@@ -48,6 +48,7 @@ public sealed class BattleLimitedNegativeMightTests
         var powerEvent=run.Events().Last(e=>e.Event.Kind=="UNIT_POWER_CHANGED").Event;
         Assert.Equal(0,powerEvent.Payload["powerDelta"]);Assert.Equal(-2,powerEvent.Payload["snapshotMight"]);
         Assert.All(run.State.CardObjects["ATTACKER"].UntilEndOfTurnPowerModifiers,p=>Assert.Equal("UNTIL_END_OF_TURN",p.Duration));
+        // ColdCheckpoint includes the complete original action/event replay.
         await run.ColdCheckpoint();
     }
 
