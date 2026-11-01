@@ -155,6 +155,113 @@ public sealed class RadTitanShrineTests
     }
 
     [Fact]
+    public async Task APaidDrawSurvivesEquipmentDestructionDuringAnActualSpellDuelResponse()
+    {
+        var state = Put(Position(), "NEW", "UNL-120/219", "P1", "HAND");
+        state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "BF");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["BF"] = state.CardObjects["BF"] with { ControllerId = "P2" } } };
+        state = Put(state, "RETURN", "OGN·104/298", "P1", "HAND");
+        state = Put(state, "DESTROY", "RAD·101/167", "P2", "HAND");
+        var game = new Driver(state);
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
+        Assert.True(game.State.SpellDuelState.IsActive);
+        await game.Act("P1", new PlayCardCommand("NEW", "UNL-120/219", [], Destination: "BATTLEFIELD:BF"));
+        await Pay(game);
+        if (game.State.PriorityPlayerId != "P2")
+            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("DESTROY", "RAD·101/167", ["SHRINE"]));
+        await game.Top();
+        Assert.Contains("SHRINE", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(game.State.StackItems, item => item.SourceObjectId == "SHRINE" && item.TriggerCost is not null);
+        if (game.State.PriorityPlayerId != "P1")
+            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEW"]));
+        await game.Top();
+        Assert.Contains("NEW", game.State.PlayerZones["P1"].Hand);
+        await game.Top();
+        Assert.Single(game.State.PlayerZones["P1"].Hand.Where(id => id.StartsWith("P1-D", StringComparison.Ordinal)));
+        Assert.Empty(game.State.PlayerZones["P2"].Hand);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("hand")] [InlineData("graveyard")] [InlineData("controller")]
+    public async Task PaidDrawCheckpointsRetainTheCapturedControllerAfterSourceChanges(string change)
+    {
+        var capture = new Driver(Position()); await Play(capture); await Pay(capture);
+        // These derived checkpoints verify structural recovery and resolution.
+        // The fact above verifies actual response history and full replay.
+        var state = RadUnitEffectTestFixture.Place(capture.State, "SHRINE", change == "controller" ? "P2" : "P1",
+            change == "controller" ? "BASE" : change == "hand" ? "HAND" : "GRAVEYARD");
+        if (change != "controller") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["SHRINE"] = state.CardObjects["SHRINE"] with { ObjectGeneration = state.CardObjects["SHRINE"].ObjectGeneration + 1 } } };
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(state));
+        var engine = new CoreRuleEngine();
+        for (var passes = 0; state.StackItems.Count > 0; passes++)
+        {
+            Assert.InRange(passes, 0, 3);
+            var result = await engine.ResolveAsync(state, new("paid-shrine-checkpoint-" + passes,
+                state.PriorityPlayerId!, CommandTypes.PassPriority), new PassPriorityCommand(), default);
+            Assert.True(result.Accepted, result.ErrorMessage); state = result.State;
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            Assert.Empty(OfficialInsightAndSpellLockTests.Errors(state));
+        }
+        Assert.Single(state.PlayerZones["P1"].Hand.Where(id => id.StartsWith("P1-D", StringComparison.Ordinal)));
+        Assert.Empty(state.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task ATokenBatchOnlyEarnsTheFirstStrictlyStrongestPlay()
+    {
+        var state = NoOtherUnits(Position());
+        var game = new Driver(Put(state, "BATCH", "OGS·015/024", "P1", "HAND"));
+        await game.Act("P1", new PlayCardCommand("BATCH", "OGS·015/024", [])); await game.Top();
+        Assert.Equal(4, game.Events().Count(e => e.Event.Kind == "UNIT_TOKEN_CREATED"));
+        Assert.Single(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+        await Pay(game); await game.Top();
+        Assert.Single(game.State.PlayerZones["P1"].Hand);
+        Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Fact]
+    public async Task TheLegacyHeldEntryObservesItsFirstMinionAtThePlayInstruction()
+    {
+        var state = NoOtherUnits(Position());
+        state = state with { Phase = MatchPhases.TurnStart, TimingState = TimingStates.NeutralClosed,
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["BF"] = OfficialGarenConquestBattlefieldCountTests.Printed("BF", "OGN·275/298", "P1") with { ControllerId = "P1" } } };
+        var game = new Driver(state);
+        await game.Act("P1", new PassPriorityCommand()); await game.Top();
+        Assert.Single(game.Events().Where(e => e.Event.Kind == "UNIT_TOKEN_CREATED"));
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", game.State.PendingCardChoice!.ChoiceWindow);
+        Assert.Equal("SHRINE", Assert.Single(game.State.StackItems).SourceObjectId);
+        await Pay(game); await game.Top();
+        Assert.True(game.State.CardObjects["SHRINE"].IsExhausted);
+        Assert.Equal(2, game.State.PlayerZones["P1"].Hand.Count); // Trigger draw, then normal turn draw.
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ALastBreathBatchIncludesItsEarlierTokensInTheStrictComparison()
+    {
+        var state = Put(NoOtherUnits(Position()), "DEAD", "VEN·128", "P1", "BASE");
+        state = Put(state, "KILL", "OGN·229/298", "P1", "HAND");
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+            ["P1"] = new(30, 30, new Dictionary<string, int> { [RuneTrait.Yellow] = 10 }) } };
+        var game = new Driver(state);
+        await game.Act("P1", new ActivateAbilityCommand("DEAD", "EMPOWER:0:0", [])); await game.Top();
+        Assert.True(game.State.CardObjects["DEAD"].IsEmpowered);
+        await game.Act("P1", new PlayCardCommand("KILL", "OGN·229/298", ["DEAD"])); await game.Top();
+        Assert.Contains("DEAD", game.State.PlayerZones["P1"].Graveyard);
+        await game.Top();
+        Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "UNIT_TOKEN_CREATED"));
+        Assert.Single(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+        await Pay(game); await game.Top();
+        Assert.Single(game.State.PlayerZones["P1"].Hand); await game.Replay();
+    }
+
+    [Fact]
     public async Task RecoveryRejectsForgedCapturedSourceAndReceiptMetadata()
     {
         var game = new Driver(Position()); await Play(game); await Pay(game);
@@ -173,6 +280,13 @@ public sealed class RadTitanShrineTests
         var state = Put(Create(), "SHRINE", Shrine, owner, "BASE");
         state = RadUnitEffectTestFixture.Place(state, "SHRINE", "P1", "BASE");
         return Put(state, "NEW", Unit, "P1", "HAND");
+    }
+
+    private static MatchState NoOtherUnits(MatchState state)
+    {
+        state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "GRAVEYARD");
+        state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "GRAVEYARD");
+        return RadUnitEffectTestFixture.Place(state, "NEW", "P1", "GRAVEYARD");
     }
 
     private static Task Play(Driver game) => game.Act("P1", new PlayCardCommand("NEW", Unit, []));
