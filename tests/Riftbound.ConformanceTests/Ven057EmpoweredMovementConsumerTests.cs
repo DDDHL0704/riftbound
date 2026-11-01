@@ -56,11 +56,12 @@ public sealed class Ven057EmpoweredMovementConsumerTests
     [Fact]
     public async Task ActualPlaySpendsOneBlueAndTheIndependentEmpowerSpendsOnlyThreeMana()
     {
-        var initial = Position(); var game = new Driver(initial);
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await game.Act("P1", new PlayCardCommand("UNIT", No, []));
             Assert.Equal(17, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             await game.Act("P1", Activate()); Assert.Equal(14, game.State.RunePools["P1"].Mana);
             Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
             var item = Assert.Single(game.State.StackItems); Assert.Empty(item.TargetObjectIds); Assert.Equal(3, item.EmpowerActivation!.PaidMana);
@@ -99,10 +100,11 @@ public sealed class Ven057EmpoweredMovementConsumerTests
     [InlineData("P1", "ALLY", "BF")] [InlineData("P2", "ENEMY", "OTHER")]
     public async Task AnotherFriendlyOrEnemyUnitsActualMoveDoesNotTriggerThisSource(string mover, string unit, string field)
     {
-        var initial = Position(); var game = new Driver(initial);
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate()); await game.Top();
             if (mover == "P2") await game.Act("P1", new EndTurnCommand());
             var draws = Draws(game, "P1"); await game.Act(mover, new MoveUnitCommand(unit, "BASE", "BATTLEFIELD:" + field, []));
             Assert.Equal(0, SourceEffects(game, "UNIT")); await FinishWindow(game); Assert.Equal(draws, Draws(game, "P1"));
@@ -115,10 +117,11 @@ public sealed class Ven057EmpoweredMovementConsumerTests
     [Fact]
     public async Task ActualReturnBeforeEmpowerResolvesDoesNotRefundManaOrEmpowerTheReplayedIncarnation()
     {
-        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate());
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate());
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
@@ -153,10 +156,11 @@ public sealed class Ven057EmpoweredMovementConsumerTests
     [Fact]
     public async Task AnActualReturnToHandIsAFieldDepartureRatherThanAMoveOrADraw()
     {
-        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: "BATTLEFIELD:BF")); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: "BATTLEFIELD:BF")); await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
+            await game.Act("P1", Activate()); await game.Top();
             var draws = Draws(game, "P1"); await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_MOVED"); Assert.Equal(draws, Draws(game, "P1")); Assert.Equal(0, SourceEffects(game, "UNIT"));
@@ -172,12 +176,13 @@ public sealed class Ven057EmpoweredMovementConsumerTests
         var initial = Add(Add(Position(), "TAKEN", No, "P2"), "TAKE", "OGN·203/298") with { TurnPlayerId = "P2", ActivePlayerId = "P2",
             RunePools = new Dictionary<string, RunePool> { ["P1"] = new(0, 0), ["P2"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }) } };
         for (var i = 0; i < 8; i++) initial = Add(initial, "CONTROL-RUNE-" + i, "UNL-R05", "P1", "BASE");
-        var game = new Driver(initial);
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await game.Act("P2", new PlayCardCommand("TAKEN", No, [], Destination: "BATTLEFIELD:OTHER"));
             await game.Act("P2", new ActivateAbilityCommand("TAKEN", "EMPOWER:0:0", [])); await game.Top();
             await game.Act("P2", new EndTurnCommand());
+            await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             await game.TapRunes("P1", Enumerable.Range(0, 8).Select(i => "CONTROL-RUNE-" + i));
             for (var i = 0; i < 3; i++) await game.Act("P1", new RecycleRuneCommand("CONTROL-RUNE-" + i));
             var draws = Draws(game, "P1"); await game.Act("P1", new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();
@@ -194,11 +199,12 @@ public sealed class Ven057EmpoweredMovementConsumerTests
     [InlineData(false)] [InlineData(true)]
     public async Task TwoActualMovesInOneTurnHaveNoOncePerTurnDrawLimit(bool empowered)
     {
-        var initial = Add(Add(Position(), "READY-A", "UNL-009/219"), "READY-B", "UNL-009/219"); var game = new Driver(initial);
+        var initial = Add(Add(Position(), "READY-A", "UNL-009/219"), "READY-B", "UNL-009/219"); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await game.Act("P1", new PlayCardCommand("UNIT", No, []));
             if (empowered) { await game.Act("P1", Activate()); await game.Top(); }
+            await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             var turn = game.State.TurnNumber; var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             var draws = Draws(game, "P1");
             for (var move = 1; move <= 2; move++)
@@ -477,10 +483,14 @@ public sealed class Ven057EmpoweredMovementConsumerTests
         ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
     private static async Task EnterReady(Driver game, bool empowered, string destination)
     {
+        var recover = game.RecoverAfterEveryCommand;
+        game.RecoverAfterEveryCommand = false;
         await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: destination));
         if (empowered) { await game.Act("P1", Activate()); await game.Top(); }
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
         Assert.Equal("P1", game.State.TurnPlayerId); Assert.False(game.State.CardObjects["UNIT"].IsExhausted);
+        await game.ColdCheckpoint();
+        game.RecoverAfterEveryCommand = recover;
     }
     private static async Task FinishWindow(Driver game)
     {
