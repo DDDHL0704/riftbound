@@ -108,6 +108,7 @@ public sealed partial class CoreRuleEngine
         }
         state = RecordCeasedShowcaseTokens(before, state, departed);
         state = RecordCeasedSourceBoonMight(before, state, departed);
+        state = RecordCeasedSelfAbilitySources(before, state, departed);
         var events = result.Events.ToList();
         foreach (var id in departed)
             if (!events.Any(e => e.Kind == "TOKEN_CEASED_TO_EXIST"

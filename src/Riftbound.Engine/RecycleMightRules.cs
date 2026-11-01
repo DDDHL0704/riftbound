@@ -7,7 +7,13 @@ namespace Riftbound.Engine;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record RecycleMightActivationContext(ObjectBinding Source, string CardNo, int AbilityIndex,
     ObjectBinding RecycledCard, long AcquiredTick, long FaceRevision, string RuleTextInstanceId,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceTokenFactoryCardNo { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
+}
 
 internal sealed record RecycleMightAbility(string Id, RuleTextInstance Instance, int Index, ActivatedAbilitySpec Spec)
 {
@@ -42,15 +48,14 @@ internal static class RecycleMightRules
             || item.TargetObjectIds.Count != 0 || item.OptionalCosts.Count != 0 || item.TargetGenerations is not null
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || !state.Seats.ContainsKey(item.ControllerId)
-            || !state.CardObjects.TryGetValue(context.Source.ObjectId, out var source) || source.ObjectGeneration < context.Source.Generation
+            || !SelfAbilitySourceRules.Valid(state, context.Source, context.CardNo, context.FaceRevision, context.AcquiredTick,
+                context.SourceTokenFactoryCardNo, context.CeasedSource, context.Origin is null)
             || !state.CardObjects.TryGetValue(context.RecycledCard.ObjectId, out var paid) || paid.ObjectGeneration < context.RecycledCard.Generation
             || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, item.SourceObjectId, context.Source.Generation, context.CardNo)
             || item.EmpowerActivation is not null || item.TargetedPowerAbility is not null || item.PlayCost is not null
             || item.SpellContext is not null || item.FieldContext is not null) return false;
         return context.Origin is null
             ? context.RuleTextInstanceId == $"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}"
-                && (source.ObjectGeneration != context.Source.Generation
-                    || CopyFaceTimeline.FaceAt(source, context.FaceRevision, context.AcquiredTick) == context.CardNo)
             : context.RuleTextInstanceId == $"ATTACHED:{context.Origin.Equipment.ObjectId}:{context.Origin.Equipment.Generation}:{context.Origin.Revision}";
     }
 }
@@ -84,7 +89,8 @@ public sealed partial class CoreRuleEngine
         var paid = new ObjectBinding(recycledId, cards[recycledId].ObjectGeneration);
         var recycled = RecycleGraveyardCards(state, zones, cards, intent.PlayerId, source.ObjectId, [recycledId], "ACTIVATED_ABILITY_COST");
         var context = new RecycleMightActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
-            ability.Index, paid, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0, ability.Instance.Id, ability.Instance.Origin);
+            ability.Index, paid, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0, ability.Instance.Id, ability.Instance.Origin) {
+                SourceTokenFactoryCardNo = source.TokenFactoryCardNo };
         var item = new StackItemState($"STACK-{state.Tick + 1}-RECYCLE-MIGHT", intent.PlayerId,
             source.ObjectId, RecycleMightRules.Effect, ability.Instance.CardNo, [], 0, 1, []) { RecycleMightActivation = context };
         var events = recycled.Events.Concat(new[] {

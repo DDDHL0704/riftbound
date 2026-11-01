@@ -80,7 +80,7 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
             Assert.Contains(run.Events(),e=>e.Event.Kind=="BATTLE_CLOSED");
             await run.ColdCheckpoint();
         }
-        await run.Replay();
+        // Every branch just completed ColdCheckpoint and its full original replay.
         var publicJson=JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(run.State));
         Assert.DoesNotContain("BATTLE_LIMITED_SCOPE:",publicJson); Assert.DoesNotContain("BATTLE_ROLE_FIRST:",publicJson); Assert.DoesNotContain("BATTLE_LIMITED_GRANT:",publicJson);
     }

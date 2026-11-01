@@ -7,7 +7,11 @@ namespace Riftbound.Engine;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SelfMovementContext(ObjectBinding Source, long CapturedTick, long FaceRevision,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -21,16 +25,14 @@ public sealed partial class CoreRuleEngine
             && item.StackItemId == $"STACK-{c.CapturedTick.ToString(CultureInfo.InvariantCulture)}-{item.SourceObjectId}-SELF-MOVE-BASE"
             && state.Seats.ContainsKey(item.ControllerId) && !item.SourceConfirmed
             && item.CardNo is not null && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
-            && (state.CardObjects.TryGetValue(c.Source.ObjectId, out var physical)
-                ? physical.TokenFactoryCardNo == c.SourceTokenFactoryCardNo
-                : c.SourceTokenFactoryCardNo is not null && P6TokenFactoryCatalog.IsTokenFactory(c.SourceTokenFactoryCardNo))
+            && SelfAbilitySourceRules.Valid(state, c.Source, item.CardNo, c.FaceRevision, c.CapturedTick,
+                c.SourceTokenFactoryCardNo, c.CeasedSource, c.Origin is null)
             && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && item.DamageAmount == 0
             && item.EffectRepeatCount == 1 && item.OptionalCosts.Count == 0 && item.RepeatExecutions is null
             && item.Destination.Length == 0 && !item.PermanentPlayTargetsPending
             && item.FieldContext is null && item.TargetedPowerAbility is null && item.DamageDistribution is null
             && (c.Origin is null
-                ? PredictBindingMatches(state, c.Source, item.CardNo, c.FaceRevision, c.CapturedTick, c.SourceTokenFactoryCardNo)
-                : c.FaceRevision == c.Origin.FaceRevision && c.Origin.CapturedTick <= c.CapturedTick
+                || c.FaceRevision == c.Origin.FaceRevision && c.Origin.CapturedTick <= c.CapturedTick
                     && AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.Generation, item.CardNo));
     }
 }

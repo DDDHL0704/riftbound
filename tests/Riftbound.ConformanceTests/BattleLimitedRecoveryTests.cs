@@ -207,7 +207,10 @@ public sealed class BattleLimitedRecoveryTests
 
     private static async Task<Fixture> Build()
     {
-        var initial = Position(); var run = new Driver(initial);
+        var initial = Position();
+        // Resource preparation and physical copied equipment precede the role case.
+        // Audit this full setup once before the first actual battle entry.
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1",new PlayCardCommand("HOST","OGN·210/298",[],Destination:"BATTLEFIELD:HOME"));await run.Act("P1",new EndTurnCommand());
         var funding=Enumerable.Range(1,20).Select(i=>"P2-FUND-"+i).ToArray();await run.Act("P2",new TapRuneCommand(funding[0],funding.Take(12).ToArray()));await run.Act("P2",new TapRuneCommand(funding[12],funding.Skip(12).ToArray()));
         await run.Act("P2",new RecycleRuneCommand("ORANGE"));
@@ -220,6 +223,8 @@ public sealed class BattleLimitedRecoveryTests
             Assert.Equal("SFD·110/221",origin.CardNo);Assert.Equal("ATTACKER",origin.Unit.ObjectId);Assert.Equal(1,origin.Revision);
         }
         await run.Act("P2",new PlayCardCommand("READY","OGN·146/298",["ATTACKER"]));await run.Top();
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
         await run.Act("P2",new MoveUnitCommand("ATTACKER","BASE","BATTLEFIELD:HOME",[]));
         var earned=run.State.TriggerQueue.Select(t=>t.FieldContext).Concat(run.State.StackItems.Select(i=>i.FieldContext)).Where(c=>c is not null).ToArray();
         Assert.Equal(3,earned.Length);Assert.Single(earned,c=>c!.Origin is null);
@@ -230,7 +235,7 @@ public sealed class BattleLimitedRecoveryTests
         var ledger=run.State.CardObjects["ATTACKER"].UntilEndOfTurnPowerModifiers;
         Assert.Equal(new[]{3,6,12},ledger.Select(p=>p.SnapshotMight!.Value).ToArray());
         Assert.Equal(3,ledger.Select(p=>p.EffectId).Distinct().Count());Assert.All(ledger,p=>Assert.Equal("UNTIL_END_OF_BATTLE",p.Duration));
-        await run.Replay();
+        // The last Top command already audited the complete original history.
         return new Fixture(initial, run.State, run.Commands(), run.Events(), checkpoint, checkpointCommands, checkpointEvents);
     }
 

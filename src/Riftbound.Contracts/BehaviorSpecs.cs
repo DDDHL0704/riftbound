@@ -170,6 +170,10 @@ public static class TriggerKinds
         "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE";
     public const string BattlefieldFirstUnitPlayedMoveOtherToBase =
         "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE";
+    public const string BattlefieldFirstPermanentPlayedInsight = "BATTLEFIELD_FIRST_PERMANENT_PLAYED_INSIGHT";
+    public const string BattlefieldStandbyHiddenCreateEquipmentToken = "BATTLEFIELD_STANDBY_HIDDEN_CREATE_EQUIPMENT_TOKEN";
+    public const string BattlefieldFirstNonTokenDestroyedCreateMinion = "BATTLEFIELD_FIRST_NON_TOKEN_DESTROYED_CREATE_MINION";
+    public const string BattlefieldConquerNextUnitHaste = "BATTLEFIELD_CONQUER_NEXT_UNIT_HASTE";
     public const string BattlefieldTurnStartDamageAllUnits =
         "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS";
     public const string BattlefieldTurnStartDestroyUnitDraw =
@@ -333,6 +337,7 @@ public static class TriggerTimings
     public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
+    public const string StandbyHidden = "STANDBY_HIDDEN";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
     public const string SourceUnitPlayed = "SOURCE_UNIT_PLAYED";
@@ -436,6 +441,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string BattlefieldFirstPermanentPlayManaReduction = "BATTLEFIELD_FIRST_PERMANENT_PLAY_MANA_REDUCTION";
     public const string SourceCostReductionPerConqueredBattlefieldThisTurn = "SOURCE_COST_REDUCTION_PER_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFilteredUnitPlayAdditionalPower = "BATTLEFIELD_FILTERED_UNIT_PLAY_ADDITIONAL_POWER";
     public const string UnitPlayOnlyToConqueredBattlefieldThisTurn = "UNIT_PLAY_ONLY_TO_CONQUERED_BATTLEFIELD_THIS_TURN";

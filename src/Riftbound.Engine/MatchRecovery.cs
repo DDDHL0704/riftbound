@@ -1187,6 +1187,8 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
+            ValidateBattlefieldPermanentPlayUses(authoritativeState, commands, events, errors);
+            ValidateNextUnitPlayGrantHistory(authoritativeState, commands, events, errors);
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
@@ -4581,7 +4583,7 @@ public static partial class MatchRecoveryValidator
         }
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidEndTrigger(state, trigger)) errors.Add("invalid end-step trigger");
-        foreach (var marker in (state.UntilEndOfTurnEffects ?? []).Where(s => s.StartsWith(CoreRuleEngine.DelayedEndReadyPrefix, StringComparison.Ordinal)))
+        foreach (var marker in (state.UntilEndOfTurnEffects ?? []).Where(s => s?.StartsWith(CoreRuleEngine.DelayedEndReadyPrefix, StringComparison.Ordinal) == true))
             if (!CoreRuleEngine.ValidDelayedEndReady(state, marker)) errors.Add("invalid delayed end-step ability");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.EndRuneChoiceWindow } endRuneChoice
             && !CoreRuleEngine.ValidEndRuneChoice(state, endRuneChoice)) errors.Add("invalid end-step rune choice");
@@ -4670,6 +4672,13 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidCurrentConquestGrants(state)) errors.Add("invalid temporary conquest grant");
         if (!CoreRuleEngine.ValidCurrentBoonAmplifiers(state)) errors.Add("invalid temporary friendly Boon amplifier");
         if (!CoreRuleEngine.ValidTurnFlowGrants(state)) errors.Add("invalid temporary flow grant");
+        if (!CoreRuleEngine.ValidCurrentNextUnitPlayGrants(state)) errors.Add("invalid next unit play grant");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidNextUnitPlayGrant(state, item.NextUnitPlayGrant, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
+                errors.Add("invalid captured next unit play grant stack");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidNextUnitPlayGrant(state, item.NextUnitPlayGrant, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo))
+                errors.Add("invalid captured next unit play grant trigger");
         if (!CoreRuleEngine.ValidCurrentTurnUnitPlayGrants(state)) errors.Add("invalid temporary unit play grant");
         foreach (var item in state.StackItems)
             if (item.TurnUnitPlayDraw is null && !CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
@@ -4752,10 +4761,10 @@ public static partial class MatchRecoveryValidator
         if (state.StackItems.Any(item => !StandbyRules.ValidPlayedOrigin(state, item))) errors.Add("invalid played standby origin");
         foreach (var item in state.StackItems)
             if (item.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, item.EffectKind, item.SourceObjectId, item.CardNo)
-                : item.EffectKind == CoreRuleEngine.StandbyPlayedEffect) errors.Add("invalid captured standby play observer");
+                : item.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid captured standby play observer");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, trigger.EffectKind, trigger.SourceObjectId, trigger.SourceCardNo)
-                : trigger.EffectKind == CoreRuleEngine.StandbyPlayedEffect) errors.Add("invalid queued standby play observer");
+                : trigger.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid queued standby play observer");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow is not (CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.TriggerTargetCostWindow)))
             errors.Add("invalid referenced equipment experience cost");
@@ -5359,12 +5368,18 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.HandDiscardObserver is { } discard && CoreRuleEngine.ValidHandDiscardObserver(authoritativeState, discard, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(authoritativeState,movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, stackItem.SourceObjectId, stackItem.ControllerId))
+                && !(stackItem.NextUnitPlayGrant is { } nextUnit && CoreRuleEngine.ValidNextUnitPlayGrant(authoritativeState, nextUnit, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !(stackItem.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, stackItem.UnitEvent, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, stackItem.EmpowerInteraction, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.SourceReadied is not null && CoreRuleEngine.ValidSourceReadiedStack(authoritativeState, stackItem))
+                && !(stackItem.SelfMightActivation is { CeasedSource: not null } && SelfMightRules.Valid(authoritativeState, stackItem))
+                && !(stackItem.RecycleMightActivation is { CeasedSource: not null } && RecycleMightRules.Valid(authoritativeState, stackItem))
+                && !(stackItem.EmpowerActivation is { CeasedSource: not null } && EmpowerRules.Valid(authoritativeState, stackItem))
+                && !(stackItem.SelfMovement is { CeasedSource: not null } && CoreRuleEngine.ValidSelfMovement(authoritativeState, stackItem))
+                && !(stackItem.TemporaryActivation is { CeasedSource: not null } && CoreRuleEngine.ValidTemporaryActivation(authoritativeState, stackItem))
                 && !CoreRuleEngine.ValidTargetedPowerAbilitySource(authoritativeState, stackItem)
                 && !(stackItem.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyOtherObjectStack(authoritativeState, stackItem))
                 && !(stackItem.SourceUnitTokens is not null && CoreRuleEngine.ValidSourceUnitTokens(authoritativeState, stackItem.SourceUnitTokens, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
@@ -5512,6 +5527,7 @@ public static partial class MatchRecoveryValidator
                 && !(trigger.HandDiscardObserver is { } discard && CoreRuleEngine.ValidHandDiscardObserver(authoritativeState, discard, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(authoritativeState,movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, trigger.SourceObjectId, trigger.ControllerId))
+                && !(trigger.NextUnitPlayGrant is { } nextUnit && CoreRuleEngine.ValidNextUnitPlayGrant(authoritativeState, nextUnit, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
@@ -5614,6 +5630,21 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } battleSkill
                 && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
                 sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SelfMightActivation.CeasedSource: not null } self
+                && SelfMightRules.Valid(authoritativeState, self))
+                sourceReferences = knownObjectIds.Append(self.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { RecycleMightActivation.CeasedSource: not null } recycle
+                && RecycleMightRules.Valid(authoritativeState, recycle))
+                sourceReferences = knownObjectIds.Append(recycle.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { EmpowerActivation.CeasedSource: not null } empower
+                && EmpowerRules.Valid(authoritativeState, empower))
+                sourceReferences = knownObjectIds.Append(empower.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SelfMovement.CeasedSource: not null } movement
+                && CoreRuleEngine.ValidSelfMovement(authoritativeState, movement))
+                sourceReferences = knownObjectIds.Append(movement.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { TemporaryActivation.CeasedSource: not null } temporary
+                && CoreRuleEngine.ValidTemporaryActivation(authoritativeState, temporary))
+                sourceReferences = knownObjectIds.Append(temporary.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { TargetedPowerAbility.CeasedSource: not null } power
                 && CoreRuleEngine.ValidTargetedPowerAbilitySource(authoritativeState, power))
                 sourceReferences = knownObjectIds.Append(power.SourceObjectId).ToHashSet(StringComparer.Ordinal);
