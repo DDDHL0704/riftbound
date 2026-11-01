@@ -108,7 +108,11 @@ public sealed class RestrictedManaQaBirthTests
             var id = "restricted-birth-" + journal.Entries.Count;
             var result = await session.SubmitAsync(player, id, command, raw, default);
             Assert.Equal(accepted, result.Accepted);
-            if (!accepted) { Assert.Equal(ErrorCodes.PromptExpired, result.ErrorCode); Assert.Contains("未提供此操作", result.ErrorMessage); Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(result.State)); }
+            // This native conformance command intentionally omits prompt freshness
+            // fields, so it reaches the rule engine and reports the underlying
+            // payment failure. Network/SQL acceptance clients submit the current
+            // prompt envelope and therefore exercise the PromptExpired guard.
+            if (!accepted) { Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode); Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(result.State)); }
             var count = journal.Entries.Count;
             var duplicate = await session.SubmitAsync(player, id, command, raw, default);
             Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(result.ErrorCode, duplicate.ErrorCode); Assert.Equal(count, journal.Entries.Count);
