@@ -4,9 +4,14 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
+public sealed record CeasedSimpleActivationSource(string TokenFactoryCardNo, long DepartedTick);
+
+[System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Source, long AcquiredTick,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyDictionary<string, string>? TargetTokenFactories = null);
+    IReadOnlyDictionary<string, string>? TargetTokenFactories = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    CeasedSimpleActivationSource? CeasedSource = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -177,10 +182,7 @@ public sealed partial class CoreRuleEngine
         if (!recognized || context.AbilityId != ability.AbilityId || context.Source is not { Generation: >= 0 }
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
-            || !state.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
-            || source.ObjectGeneration < context.Source.Generation
-            || source.ObjectGeneration == context.Source.Generation
-                && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo) || !source.Tags.Contains(ability.SourceRequiredTag))
+            || !ValidSimpleActivationSource(state, context, ability)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
             || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
                 || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
@@ -201,6 +203,20 @@ public sealed partial class CoreRuleEngine
                 EffectPlayCompleted = allowMissingReturnTarget ? item.EffectPlayCompleted : false };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
             && (item.TokenEntryPlan is null || ability.SimpleEffect!.CreatedRobotCount > 0 && ValidTokenEntryPlan(state, item));
+    }
+
+    private static bool ValidSimpleActivationSource(MatchState state, SimpleActivationContext context,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (state.CardObjects.TryGetValue(context.Source.ObjectId, out var source))
+            return context.CeasedSource is null && source.ObjectGeneration >= context.Source.Generation
+                && (source.ObjectGeneration != context.Source.Generation
+                    || P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
+                        && source.Tags.Contains(ability.SourceRequiredTag));
+        return context.CeasedSource is { } ceased && ceased.DepartedTick >= context.AcquiredTick
+            && ceased.DepartedTick <= state.Tick
+            && P6TokenFactoryCatalog.TryGetByCardNo(ceased.TokenFactoryCardNo, out var factory)
+            && factory.Tags.Contains(ability.SourceRequiredTag);
     }
 
     internal static bool ValidTranspositionMageEffectPlay(MatchState state, PendingEffectPlayState pending)

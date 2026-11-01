@@ -194,6 +194,63 @@ public sealed class TranspositionMageActivatedAbilityTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task ACopiedMageCanFinishItsSkillAfterCeasingToExist(bool returnsSelf, bool decline)
+    {
+        var initial = Position();
+        var mage = OfficialGarenConquestBattlefieldCountTests.Printed("MAGE", CardNo, "P1") with {
+            TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
+            CopyFaceTransitions = [new(0, 0, P6TokenFactoryCatalog.ImageTokenCardNo, CardNo)],
+            Power = returnsSelf ? 5 : 4, UntilEndOfTurnPowerModifier = returnsSelf ? 1 : 0 };
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["MAGE"] = mage,
+                ["RETURN"] = OfficialGarenConquestBattlefieldCountTests.Printed("RETURN", "OGN·104/298", "P1") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { Hand = ["PLAY", "RETURN"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                ["RETURN"] = new("P1", "HAND") },
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+                ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Purple] = 1 }) } };
+        var game = new Driver(initial);
+        await game.Act("P1", new ActivateAbilityCommand("MAGE", AbilityId, [returnsSelf ? "MAGE" : "TARGET"]));
+        if (!returnsSelf)
+        {
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["MAGE"]));
+            await game.Top();
+            Assert.False(game.State.CardObjects.ContainsKey("MAGE"));
+            Assert.NotNull(Assert.Single(game.State.StackItems).SimpleActivation!.CeasedSource);
+        }
+        await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey("MAGE"));
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        var activation = Assert.IsType<SimpleActivationContext>(pending.Parent.SimpleActivation);
+        var ceased = Assert.IsType<CeasedSimpleActivationSource>(activation.CeasedSource);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, ceased.TokenFactoryCardNo);
+        Assert.Equal(["PLAY"], pending.Sources.Keys.ToArray());
+        foreach (var invalid in new CeasedSimpleActivationSource?[] {
+            null, ceased with { DepartedTick = activation.AcquiredTick - 1 },
+            ceased with { DepartedTick = game.State.Tick + 1 }, ceased with { TokenFactoryCardNo = "UNL·T05" } })
+        {
+            var forged = pending with { Parent = pending.Parent with {
+                SimpleActivation = activation with { CeasedSource = invalid } } };
+            Assert.Contains("invalid revealed hand effect-play continuation",
+                MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with { PendingEffectPlay = forged }));
+        }
+        if (decline)
+            await game.Act("P1", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
+        else
+            await game.Act("P1", new PlayCardCommand("PLAY", CardNo, [], Destination: "BASE"));
+        Assert.Null(game.State.PendingEffectPlay);
+        Assert.Empty(game.State.StackItems);
+        Assert.Equal(!decline, game.State.PlayerZones["P1"].Base.Contains("PLAY"));
+        await game.Replay();
+    }
+
     [Fact]
     public async Task ACompletedParentCannotBeInventedAsAPersistedActivation()
     {
