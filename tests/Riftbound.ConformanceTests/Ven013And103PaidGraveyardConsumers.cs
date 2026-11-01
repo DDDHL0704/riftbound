@@ -36,7 +36,11 @@ public sealed class Ven013And103PaidGraveyardConsumers
             zones[player] = zones[player] with { MainDeck = [..zones[player].MainDeck, id] };
         }
         initial = initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones };
-        var game = new Driver(initial);
+        // The physical opening has no response window until Sequence enters the
+        // paid plays.  Batch the ordinary setup commands and validate the full
+        // action log at the stage boundary and final replay instead of restoring
+        // the growing journal after every resource command.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             if (actor == "P2") await game.Act("P1", new EndTurnCommand());
@@ -49,6 +53,7 @@ public sealed class Ven013And103PaidGraveyardConsumers
                     await Ven001PhysicalThresholdConsumerTests.Reject(game, actor, command, "graveyard-wrong-red");
                     Assert.Equal(1, game.State.RunePools[actor].PowerByTrait[RuneTrait.Red]);
                 });
+            await game.ColdCheckpoint();
             await game.Replay();
         }
         finally

@@ -46,10 +46,7 @@ public sealed partial class CoreRuleEngine
     // CN 170.11.c: an open battlefield is both unoccupied and uncontrolled.
     private static bool OpenBattlefieldPlayAllowed(MatchState state, CardBehaviorDefinition behavior, string destination)
         => behavior.AllowsPlayToOpenBattlefield && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
-            && BattlefieldLocalRules.Battlefield(state, destination[12..]) is { ControllerId: null } field
-            && !state.CardObjects.Values.Any(unit => FieldObjectTypeRules.IsVisibleUnit(unit)
-                && state.ObjectLocations.TryGetValue(unit.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
-                && at.BattlefieldObjectId == field.ObjectId && IsObjectOnField(state.PlayerZones, unit.ObjectId));
+            && IsOpenBattlefield(state, destination[12..]);
 
     internal static IReadOnlyList<ActionPromptChoiceDto> UnitPlayDestinationChoices(MatchState state, string player,
         CardBehaviorDefinition behavior)
