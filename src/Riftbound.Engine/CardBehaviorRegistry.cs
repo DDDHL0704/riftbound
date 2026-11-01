@@ -9604,6 +9604,8 @@ public static class CardBehaviorRegistry
             StandbyReactionMaxTargetCount: 1, StandbyReactionMinTargetCount: 1,
             StandbyReactionTargetScope: CardTargetScopes.FriendlyUnit,
             GrantsRoamIfNoOpenBattlefield: true),
+        new("RAD·022/167", "旋转陀螺机", 4, "RAD_022_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true),
         new("RAD·046/167", "辉映圣坛", 8, "RAD_046_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true,
             UnitEventAbility: new("BECAME_EXHAUSTED", "MIGHT_FRIENDLY", 3)),

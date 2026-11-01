@@ -54,7 +54,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool CommandsOpponentUnitToSourceBattlefield = false,
     bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
-    bool StunsTarget = false, bool OncePerTurnPerPlayer = false, int? RuneCallCount = null);
+    bool StunsTarget = false, bool OncePerTurnPerPlayer = false, int? RuneCallCount = null,
+    string? DestroyFriendlyTagAsCost = null, int CreatedMinionCount = 0, int CreatedGoldCount = 0);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -328,6 +329,18 @@ public static class P4ActivatedAbilityCatalog
             false, true, 0, false, "官方中文：解除强化、支付1并横置，抽一张牌。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
             SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, DrawCount: 1)),
+        new("RAD_022_EXHAUST_CREATE_GOLD", "RAD·022/167", "RAD_022_EXHAUST_CREATE_GOLD", "旋转陀螺机", 0, 0, 0,
+            false, true, 0, false, "官方中文：横置，打出一个休眠的金币装备指示物。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(CreatedGoldCount: 1)),
+        new("RAD_022_DESTROY_EQUIPMENT_EXHAUST_CREATE_MINION", "RAD·022/167", "RAD_022_DESTROY_EQUIPMENT_EXHAUST_CREATE_MINION", "旋转陀螺机", 0, 0, 0,
+            false, true, 0, false, "官方中文：摧毁一件友方装备并横置，打出一名1战力随从。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DestroyFriendlyTagAsCost: CardObjectTags.EquipmentCard, CreatedMinionCount: 1)),
+        new("RAD_022_DESTROY_UNIT_EXHAUST_CREATE_ROBOT", "RAD·022/167", "RAD_022_DESTROY_UNIT_EXHAUST_CREATE_ROBOT", "旋转陀螺机", 0, 0, 0,
+            false, true, 0, false, "官方中文：摧毁一名友方单位并横置，打出一名3战力机器人。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DestroyFriendlyTagAsCost: CardObjectTags.UnitCard, CreatedRobotCount: 1)),
         new("RAD_046_EXHAUST_DRAW_CALL_RUNE", "RAD·046/167", "RAD_046_EXHAUST_DRAW_CALL_RUNE", "辉映圣坛", 0, 0, 0,
             false, true, 0, false, "官方中文：横置，抽一张牌并召出一枚休眠符文。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
