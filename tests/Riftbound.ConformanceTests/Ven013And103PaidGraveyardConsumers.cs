@@ -54,7 +54,6 @@ public sealed class Ven013And103PaidGraveyardConsumers
                     Assert.Equal(1, game.State.RunePools[actor].PowerByTrait[RuneTrait.Red]);
                 });
             await game.ColdCheckpoint();
-            await game.Replay();
         }
         finally
         {

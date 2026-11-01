@@ -57,7 +57,8 @@ public sealed class Ven050PhysicalConditionalWardConsumerTests
                 Assert.Contains("NEGATIVE", game.State.PlayerZones["P2"].Hand); Assert.Equal(4, game.State.CardObjects["UNIT"].Power);
             }
             Assert.Equal(empowered, game.State.CardObjects["UNIT"].IsEmpowered);
-            await game.ColdCheckpoint(); await game.Replay();
+            // ColdCheckpoint already replays the complete original journal.
+            await game.ColdCheckpoint();
         }
         finally { await Fixture.Save("conditional-ward-" + empowered + "-" + power, initial, game); }
     }
