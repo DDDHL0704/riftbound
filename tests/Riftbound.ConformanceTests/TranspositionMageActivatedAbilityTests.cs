@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -93,7 +94,7 @@ public sealed class TranspositionMageActivatedAbilityTests
         var captured = Assert.Single(changed.StackItems).SimpleActivation!;
         Assert.Equal(startsAsCopy ? 1L : 0L, captured.SourceFaceRevision);
         Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(changed));
-        var game = new Driver(changed);
+        var game = new ResponseContinuation(changed);
         await game.Top();
         Assert.Contains("TARGET", game.State.PlayerZones["P1"].Hand);
         Assert.Empty(game.State.StackItems);
@@ -113,6 +114,188 @@ public sealed class TranspositionMageActivatedAbilityTests
             SimpleActivation = parent.SimpleActivation! with { SourceFaceRevision = revision } }] };
         Assert.Contains($"stack item {parent.StackItemId} printed activation context is invalid",
             MatchRecoveryValidator.ValidateComponentStateAndViews(forged));
+    }
+
+    private static async Task<MatchState> CapturedBeforeResponse()
+    {
+        var initial = Position();
+        // Keep the offered hand unit strictly below the returned unit's power.
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["TARGET"] = initial.CardObjects["TARGET"] with { Power = 5 } } };
+        var activated = await new CoreRuleEngine().ResolveAsync(initial,
+            new PlayerIntent("captured-response", "P1", CommandTypes.ActivateAbility),
+            new ActivateAbilityCommand("MAGE", AbilityId, ["TARGET"]), default);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        return activated.State;
+    }
+
+    private static async Task PlayOfferedHandUnit(ResponseContinuation game)
+    {
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        Assert.Equal("P1", pending.PlayerId);
+        Assert.Equal(["PLAY"], pending.Sources.Keys.ToArray());
+        await game.Act("P1", new PlayCardCommand("PLAY", CardNo, [], Destination: "BASE"));
+        Assert.Contains("PLAY", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("TARGET", game.State.PlayerZones["P1"].Hand);
+        Assert.Null(game.State.PendingEffectPlay);
+        Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task SourceChangingControllerKeepsTheOriginalPlayersReturnAndFreePlay()
+    {
+        var captured = await CapturedBeforeResponse();
+        // Isolate a same-object control-change response from the control spell.
+        var changed = LocalDestructionRecallTests.At(captured, "MAGE", "P2", "BASE");
+        Assert.Equal(captured.CardObjects["MAGE"].ObjectGeneration, changed.CardObjects["MAGE"].ObjectGeneration);
+        Assert.Equal("P1", Assert.Single(changed.StackItems).ControllerId);
+        var game = new ResponseContinuation(changed);
+        await game.Top();
+        await PlayOfferedHandUnit(game);
+        Assert.Equal("P2", game.State.CardObjects["MAGE"].ControllerId);
+        Assert.Contains("MAGE", game.State.PlayerZones["P2"].Base);
+        Assert.True(game.State.CardObjects["MAGE"].IsExhausted);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TargetControlIsRecheckedAtResolutionAndMayBecomeFriendlyAgain(bool returnsToOriginalController)
+    {
+        var captured = await CapturedBeforeResponse();
+        var changed = LocalDestructionRecallTests.At(captured, "TARGET", "P2", "BASE");
+        if (returnsToOriginalController)
+            changed = LocalDestructionRecallTests.At(changed, "TARGET", "P1", "BASE");
+        Assert.Equal(captured.CardObjects["TARGET"].ObjectGeneration, changed.CardObjects["TARGET"].ObjectGeneration);
+        var game = new ResponseContinuation(changed);
+        await game.Top();
+        if (returnsToOriginalController)
+            await PlayOfferedHandUnit(game);
+        else
+        {
+            Assert.Contains("TARGET", game.State.PlayerZones["P2"].Base);
+            Assert.Contains("PLAY", game.State.PlayerZones["P1"].Hand);
+            Assert.Null(game.State.PendingEffectPlay);
+            Assert.Empty(game.State.StackItems);
+            Assert.DoesNotContain(game.Events(), item => item.Event.Kind == "UNIT_RETURNED_TO_HAND");
+            Assert.Contains(game.Events(), item => item.Event.Kind == "ABILITY_NO_EFFECT"
+                && Equals(item.Event.Payload["reason"], "TARGET_NO_LONGER_LEGAL"));
+            await game.Replay();
+        }
+        Assert.True(game.State.CardObjects["MAGE"].IsExhausted);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+    }
+
+    [Fact]
+    public async Task TargetLeavingAndReenteringTheFieldCannotReuseItsOldBinding()
+    {
+        var captured = await CapturedBeforeResponse();
+        var target = captured.CardObjects["TARGET"];
+        // Final snapshot of field -> hand -> field: the card ID and location
+        // match, but the two nonfield crossings have advanced its identity.
+        var reentered = captured with { CardObjects = new Dictionary<string, CardObjectState>(captured.CardObjects) {
+            ["TARGET"] = target with { ObjectGeneration = target.ObjectGeneration + 2 } } };
+        var game = new ResponseContinuation(reentered);
+        await game.Top();
+        Assert.Contains("TARGET", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("PLAY", game.State.PlayerZones["P1"].Hand);
+        Assert.Null(game.State.PendingEffectPlay);
+        Assert.Empty(game.State.StackItems);
+        Assert.DoesNotContain(game.Events(), item => item.Event.Kind == "UNIT_RETURNED_TO_HAND");
+        Assert.Contains(game.Events(), item => item.Event.Kind == "ABILITY_NO_EFFECT"
+            && Equals(item.Event.Payload["reason"], "TARGET_NO_LONGER_LEGAL"));
+        Assert.True(game.State.CardObjects["MAGE"].IsExhausted);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TargetMovingWithinTheFieldKeepsItsBinding(bool returnsToBase)
+    {
+        var captured = await CapturedBeforeResponse();
+        var moved = LocalDestructionRecallTests.At(captured, "TARGET", "P1", "BATTLEFIELD", "BF");
+        if (returnsToBase)
+            moved = LocalDestructionRecallTests.At(moved, "TARGET", "P1", "BASE");
+        Assert.Equal(captured.CardObjects["TARGET"].ObjectGeneration, moved.CardObjects["TARGET"].ObjectGeneration);
+        var game = new ResponseContinuation(moved);
+        await game.Top();
+        await PlayOfferedHandUnit(game);
+    }
+
+    // These reconstructed response snapshots start after tick zero. Validate
+    // component round trips and replay the continuation from that boundary;
+    // the ordinary Driver below also validates the complete opening journal.
+    private sealed class ResponseContinuation : IMatchJournal
+    {
+        private readonly MatchState initial;
+        private readonly List<MatchJournalEntry> entries = [];
+        private readonly JsonSerializerOptions json = new(JsonSerializerDefaults.Web);
+        private readonly MatchSession session;
+        internal MatchState State { get; private set; }
+
+        internal ResponseContinuation(MatchState state)
+        {
+            initial = OfficialInsightAndSpellLockTests.Restore(state);
+            State = initial;
+            session = new(initial, new CoreRuleEngine(), this);
+        }
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token)
+        {
+            entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
+
+        private RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(
+            e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand, e.StartedTick, e.CompletedTick,
+            e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) {
+                TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
+
+        internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((item, index) =>
+            new RecoveredEvent(e.StartedEventSequence + index + 1, e.CompletedTick, index, item))).ToArray();
+
+        internal async Task Act(string player, GameCommand command)
+        {
+            var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
+            raw["promptId"] = session.PromptFor(player).PromptId;
+            raw["snapshotTick"] = State.Tick;
+            var wire = JsonSerializer.SerializeToElement(raw, json);
+            command = GameCommandJsonMapper.Map(wire);
+            var intent = "response-" + entries.Count;
+            var result = await session.SubmitAsync(player, intent, command, wire, default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            State = result.State;
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            OfficialInsightAndSpellLockTests.Restore(State);
+            var count = entries.Count;
+            var duplicate = await session.SubmitAsync(player, intent, command, wire, default);
+            Assert.True(duplicate.Accepted);
+            Assert.Equal(count, entries.Count);
+            Assert.Equal(MatchStateHasher.Hash(State), MatchStateHasher.Hash(duplicate.State));
+            await Replay();
+        }
+
+        internal async Task Top()
+        {
+            var top = State.StackItems[^1].StackItemId;
+            for (var passes = 0; State.StackItems.Any(item => item.StackItemId == top)
+                && State.PriorityPlayerId is { } player; passes++)
+            {
+                Assert.True(passes < 4, "The captured skill did not resolve after both players passed.");
+                await Act(player, new PassPriorityCommand());
+            }
+        }
+
+        internal async Task Replay()
+        {
+            var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State,
+                new CoreRuleEngine(), default, Events());
+            Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        }
     }
 
     [Fact]
