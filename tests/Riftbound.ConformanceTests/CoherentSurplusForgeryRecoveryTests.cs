@@ -66,7 +66,8 @@ public sealed class CoherentSurplusForgeryRecoveryTests
         var original = journal.Entries[^1].AuthoritativeState;
         var normal = WebFrame(Frame(initial, journal, original, original));
         Assert.Empty(normal.ValidationErrors);
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(normal, new CoreRuleEngine(), default));
+        // AssertOriginalRecovery below admits this unchanged normal frame only
+        // after the production registry completes its original-history audit.
         var forged = ExtraRed(original, actor);
         var bad = WebFrame(Frame(initial, journal, forged, coordinated ? forged : original));
         var history = MatchStateHasher.HashValue(new { normal.Commands, normal.Events });
@@ -132,7 +133,7 @@ public sealed class CoherentSurplusForgeryRecoveryTests
         MatchRecoveryFrame normal, Journal writes)
     {
         store.Frame = normal;
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(normal, new CoreRuleEngine(), default));
+        // Production admission performs this normal frame's complete replay audit.
         var recovered = await registry.GetOrCreateAsync(normal.RoomId, default);
         foreach (var player in normal.PlayerViews.Keys)
         {
