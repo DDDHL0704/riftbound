@@ -9680,6 +9680,7 @@ public static class CardBehaviorRegistry
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
+            .Concat([RawDefinitions.Single(b => b.CardNo == "VEN·084") with { CardNo = "T1S·001/005" }])
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
             .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits)
