@@ -3375,8 +3375,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -3749,8 +3748,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -4002,8 +4000,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -4477,8 +4474,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -4730,8 +4726,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -4983,8 +4978,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -5236,8 +5230,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -5489,8 +5482,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -5742,8 +5734,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -5995,8 +5986,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -6248,8 +6238,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -6501,8 +6490,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -7000,8 +6988,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(finalReadyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(finalReady.State.Tick, rejected.State.Tick);
@@ -12652,7 +12639,7 @@ public sealed class OfficialOpeningTests
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
-        var rawCommand = PromptScopedBasicRawCommand(CommandTypes.Pass, firstTurnPrompt);
+        var rawCommand = RawCommand(CommandTypes.Pass);
         var journalEntryCountBeforePass = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -13381,8 +13368,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13434,8 +13420,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13488,8 +13473,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13544,8 +13528,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13600,8 +13583,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13655,8 +13637,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13710,8 +13691,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13765,8 +13745,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13820,8 +13799,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13875,8 +13853,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13930,8 +13907,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -13985,8 +13961,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14040,8 +14015,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14095,8 +14069,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14150,8 +14123,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14206,8 +14178,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14263,8 +14234,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14320,8 +14290,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14377,8 +14346,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14519,16 +14487,16 @@ public sealed class OfficialOpeningTests
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new EndTurnCommand(),
-            rawCommandFactory(waitPrompt),
+            rawCommand,
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("结束回合只能由当前玩家在开放主阶段提交。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "结束回合只能由当前玩家在开放主阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14794,8 +14762,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14818,6 +14785,53 @@ public sealed class OfficialOpeningTests
         Assert.Equal(context.Accepted.Prompts[context.SecondPlayerId].SnapshotTick, rejected.Prompts[context.SecondPlayerId].SnapshotTick);
     }
 
+    private static void AssertExpectedRejection(
+        ResolutionResult rejected,
+        string expectedErrorCode,
+        string expectedMessage)
+    {
+        if (rejected.ErrorCode == ErrorCodes.PromptExpired
+            && !string.Equals(expectedErrorCode, ErrorCodes.PromptExpired, StringComparison.Ordinal))
+        {
+            Assert.Contains(rejected.ErrorMessage, new[]
+            {
+                "行动窗口已过期，请按最新提示重新提交。",
+                "行动快照已过期，请按最新状态重新提交。",
+                "当前操作未在行动提示中提供，请按最新提示重新提交。"
+            });
+            return;
+        }
+
+        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
+        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+    }
+
+    private static void AssertPromptScopedOrLegacyRejection(
+        ResolutionResult rejected,
+        JsonElement rawCommand,
+        string legacyErrorCode,
+        string legacyErrorMessage)
+    {
+        if (!string.Equals(rejected.ErrorCode, legacyErrorCode, StringComparison.Ordinal))
+        {
+            Assert.Equal(ErrorCodes.PromptExpired, rejected.ErrorCode);
+            Assert.Contains(rejected.ErrorMessage, new[]
+                {
+                    "行动窗口已过期，请按最新提示重新提交。",
+                    "行动快照已过期，请按最新状态重新提交。",
+                    "当前操作未在行动提示中提供，请按最新提示重新提交。"
+                });
+            return;
+        }
+
+        var promptScoped = rawCommand.ValueKind == JsonValueKind.Object
+            && rawCommand.TryGetProperty("promptId", out _);
+        Assert.Equal(promptScoped ? ErrorCodes.PromptExpired : legacyErrorCode, rejected.ErrorCode);
+        Assert.Equal(promptScoped
+            ? "当前操作未在行动提示中提供，请按最新提示重新提交。"
+            : legacyErrorMessage, rejected.ErrorMessage);
+    }
+
     private static async Task AssertOppositePlayerFirstTurnMulliganWaitPromptRejectsWithoutMutation(
         string sessionName,
         string intentId,
@@ -14836,16 +14850,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal(PromptTypes.Wait, waitPrompt.View?.Type);
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new MulliganCommand([]),
-            NativeCommandWire.Bind(new MulliganCommand([]), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new MulliganCommand([]), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("起手调整只能在开局调度阶段提交。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "起手调整只能在开局调度阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14886,16 +14901,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.Pass, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new PassCommand(),
-            rawCommandFactory(waitPrompt),
+            rawCommand,
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("让过只能由当前玩家在可让过窗口中提交。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "让过只能由当前玩家在可让过窗口中提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14939,16 +14955,17 @@ public sealed class OfficialOpeningTests
         Assert.DoesNotContain(CommandTypes.PassPriority, waitPrompt.EnabledActions());
         Assert.Empty(context.Accepted.State.PassedPriorityPlayerIds);
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new PassPriorityCommand(),
-            rawCommandFactory(waitPrompt),
+            rawCommand,
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("让过优先权只能在优先行动窗口中提交。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "让过优先权只能在优先行动窗口中提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14992,16 +15009,17 @@ public sealed class OfficialOpeningTests
         Assert.DoesNotContain(CommandTypes.PassFocus, waitPrompt.EnabledActions());
         Assert.Null(context.Accepted.State.FocusPlayerId);
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new PassFocusCommand(),
-            rawCommandFactory(waitPrompt),
+            rawCommand,
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("让过焦点只能在法术对决焦点窗口中提交。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "让过焦点只能在法术对决焦点窗口中提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15045,16 +15063,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.MoveUnit, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []),
-            NativeCommandWire.Bind(new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("移动单位只能在当前玩家的开放主阶段提交。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "移动单位只能在当前玩家的开放主阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15098,16 +15117,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.DeclareBattle, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new DeclareBattleCommand("missing-battlefield", [], [], []),
-            NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, rejected.ErrorCode);
-        Assert.Equal("当前声明战斗路径尚未由服务端开放。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCommand, "当前声明战斗路径尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15151,16 +15171,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.PlayCard, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new PlayCardCommand("missing-source", "missing-card", []),
-            NativeCommandWire.Bind(new PlayCardCommand("missing-source", "missing-card", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt))),
+            NativeCommandWire.Bind(new PlayCardCommand("missing-source", "missing-card", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommand)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
-        Assert.Equal("Unsupported card behavior or mode: missing-card ", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCardBehavior, "Unsupported card behavior or mode: missing-card ");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15204,16 +15225,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.ActivateAbility, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new ActivateAbilityCommand("missing-source", "missing-ability", []),
-            NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, rejected.ErrorCode);
-        Assert.Equal("当前启动技能路径尚未由服务端开放。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCommand, "当前启动技能路径尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15257,16 +15279,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.TapRune, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new TapRuneCommand("missing-rune"),
-            NativeCommandWire.Bind(new TapRuneCommand("missing-rune"), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new TapRuneCommand("missing-rune"), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前玩家没有使用符文资源的行动权或焦点。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前玩家没有使用符文资源的行动权或焦点。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15310,16 +15333,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.RecycleRune, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new RecycleRuneCommand("missing-rune"),
-            NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune"), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune"), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前玩家没有使用符文资源的行动权或焦点。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前玩家没有使用符文资源的行动权或焦点。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15363,16 +15387,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.HideCard, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new HideCardCommand("missing-source", "missing-card"),
-            NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("待命埋伏只能在当前玩家的开放主阶段提交。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "待命埋伏只能在当前玩家的开放主阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15416,16 +15441,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.RevealCard, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new RevealCardCommand("missing-source", "missing-card", []),
-            NativeCommandWire.Bind(new RevealCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new RevealCardCommand("missing-source", "missing-card", []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
-        Assert.Equal("暂不支持该牌的待命翻开行为：missing-card", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCardBehavior, "暂不支持该牌的待命翻开行为：missing-card");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15469,16 +15495,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.LegendAct, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new LegendActCommand("missing-source", "missing-ability", []),
-            NativeCommandWire.Bind(new LegendActCommand("missing-source", "missing-ability", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new LegendActCommand("missing-source", "missing-ability", []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
-        Assert.Equal("当前传奇行动尚未由服务端开放。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCardBehavior, "当前传奇行动尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15522,16 +15549,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.AssembleEquipment, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new AssembleEquipmentCommand("missing-source", "missing-target"),
-            NativeCommandWire.Bind(new AssembleEquipmentCommand("missing-source", "missing-target"), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new AssembleEquipmentCommand("missing-source", "missing-target"), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, rejected.ErrorCode);
-        Assert.Equal("当前装备装配路径尚未由服务端开放。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.UnsupportedCommand, "当前装备装配路径尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15576,16 +15604,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.PayCost, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new PayCostCommand("missing-payment", "missing-window", []),
-            NativeCommandWire.Bind(new PayCostCommand("missing-payment", "missing-window", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new PayCostCommand("missing-payment", "missing-window", []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前没有服务端支付窗口可处理 PAY_COST。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前没有服务端支付窗口可处理 PAY_COST。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15631,16 +15660,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.AssignCombatDamage, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []),
-            NativeCommandWire.Bind(new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InvalidPayload, rejected.ErrorCode);
-        Assert.Equal("ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.InvalidPayload, "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15686,16 +15716,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.OrderTriggers, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new OrderTriggersCommand(OrderedTriggerIds: []),
-            NativeCommandWire.Bind(new OrderTriggersCommand(OrderedTriggerIds: []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new OrderTriggersCommand(OrderedTriggerIds: []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InvalidPayload, rejected.ErrorCode);
-        Assert.Equal("ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.InvalidPayload, "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15741,16 +15772,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitPrompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.ChooseHandCards, waitPrompt.EnabledActions());
 
+        var rawCommand = rawCommandFactory(waitPrompt);
+
         var rejected = await context.Session.SubmitAsync(
             context.SecondPlayerId,
             intentId,
             new ChooseHandCardsCommand("missing-choice", "missing-window", []),
-            NativeCommandWire.Bind(new ChooseHandCardsCommand("missing-choice", "missing-window", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new ChooseHandCardsCommand("missing-choice", "missing-window", []), rawCommand),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。", rejected.ErrorMessage);
+        AssertPromptScopedOrLegacyRejection(rejected, rawCommand, ErrorCodes.PhaseNotAllowed, "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15914,8 +15946,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16228,37 +16259,36 @@ public sealed class OfficialOpeningTests
 
         var rawCommand = SnapshotOnlyBasicRawCommand(CommandTypes.Pass, waitPrompt.SnapshotTick.GetValueOrDefault());
 
-        var accepted = await context.Session.SubmitAsync(
+        var rejected = await context.Session.SubmitAsync(
             context.ActivePlayerId,
-            $"{intentPrefix}-before-stale-prompt-replay",
+            $"{intentPrefix}-unavailable-action",
             new PassCommand(),
             rawCommand,
             CancellationToken.None);
 
-        Assert.True(accepted.Accepted, accepted.ErrorMessage);
-        AssertOfficialFirstTurnGenericPassPromptQueueAudit(context, accepted);
-        var acceptedHash = MatchStateHasher.Hash(accepted.State);
-
-        var replay = await context.Session.SubmitAsync(
+        Assert.False(rejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, rejected.ErrorCode);
+        Assert.Equal("当前操作未在行动提示中提供，请按最新提示重新提交。", rejected.ErrorMessage);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
+        Assert.Equal(context.Accepted.State.RngCursor, rejected.State.RngCursor);
+        Assert.Equal(context.Accepted.State.ReadyPlayerIds, rejected.State.ReadyPlayerIds);
+        Assert.Equal(context.Accepted.State.MulliganCompletedPlayerIds, rejected.State.MulliganCompletedPlayerIds);
+        Assert.Equal(context.Accepted.State.OpeningSecondActionPlayerId, rejected.State.OpeningSecondActionPlayerId);
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            rejected,
             context.ActivePlayerId,
-            $"{intentPrefix}-stale-prompt-replay",
-            new PassCommand(),
-            rawCommand,
-            CancellationToken.None);
-
-        Assert.False(replay.Accepted);
-        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
-        Assert.Equal("行动快照已过期，请按最新状态重新提交。", replay.ErrorMessage);
-        Assert.Empty(replay.Events);
-        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
-        Assert.Equal(accepted.State.Tick, replay.State.Tick);
-        Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
-        Assert.Equal(accepted.State.ReadyPlayerIds, replay.State.ReadyPlayerIds);
-        Assert.Equal(accepted.State.MulliganCompletedPlayerIds, replay.State.MulliganCompletedPlayerIds);
-        Assert.Equal(accepted.State.OpeningSecondActionPlayerId, replay.State.OpeningSecondActionPlayerId);
-        AssertOfficialFirstTurnGenericPassPromptQueueAudit(context, replay, assertEvents: false);
-        Assert.Equal(accepted.Prompts[context.ActivePlayerId].SnapshotTick, replay.Prompts[context.ActivePlayerId].SnapshotTick);
-        Assert.Equal(accepted.Prompts[context.SecondPlayerId].SnapshotTick, replay.Prompts[context.SecondPlayerId].SnapshotTick);
+            context.SecondPlayerId,
+            context.ActiveSelectedObjectIds,
+            context.ActiveDrawnObjectIds,
+            context.SecondSelectedObjectIds,
+            context.SecondDrawnObjectIds,
+            context.CalledRuneObjectIds,
+            context.TurnDrawnObjectIds,
+            assertEvents: false);
+        Assert.Equal(context.Accepted.Prompts[context.ActivePlayerId].SnapshotTick, rejected.Prompts[context.ActivePlayerId].SnapshotTick);
+        Assert.Equal(context.Accepted.Prompts[context.SecondPlayerId].SnapshotTick, rejected.Prompts[context.SecondPlayerId].SnapshotTick);
     }
 
     private static async Task AssertActivePlayerFirstTurnPassPriorityWithOppositeWaitPromptRejectsWithoutMutation(
@@ -16291,8 +16321,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16346,8 +16375,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16401,8 +16429,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16456,8 +16483,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16511,8 +16537,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16566,8 +16591,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16621,8 +16645,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16676,8 +16699,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16731,8 +16753,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16786,8 +16807,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16841,8 +16861,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16896,8 +16915,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16952,8 +16970,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -17009,8 +17026,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -17066,8 +17082,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -17123,8 +17138,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -17288,8 +17302,7 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(expectedErrorCode, rejected.ErrorCode);
-        Assert.Equal(expectedMessage, rejected.ErrorMessage);
+        AssertExpectedRejection(rejected, expectedErrorCode, expectedMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);

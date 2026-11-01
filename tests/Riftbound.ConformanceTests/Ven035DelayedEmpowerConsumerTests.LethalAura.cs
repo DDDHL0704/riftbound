@@ -18,10 +18,17 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
         var initial = LethalAuraPosition(auraOnBattlefield); var game = new Driver(initial);
         try
         {
+            // The production driver still validates every command and duplicate
+            // submission. Batch the expensive full-history restore at meaningful
+            // stage boundaries so adjacent resource/setup commands do not replay
+            // the same growing journal repeatedly.
+            game.RecoverAfterEveryCommand = false;
             await TapRunes(game);
             await game.Act("P1", new RecycleRuneCommand("LETHAL-P1-RUNE-0"));
             await game.Act("P1", new AssembleEquipmentCommand("GUARDIAN", "HOST", ["ASSEMBLE_GREEN"])); await game.Top();
             Assert.Equal(12, game.State.RunePools["P1"].Mana);
+            game.RecoverAfterEveryCommand = true; await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = false;
             var hostGeneration = game.State.CardObjects["HOST"].ObjectGeneration;
             var poroGeneration = game.State.CardObjects["UNIT"].ObjectGeneration;
             var targets = new[] { "HOST", "UNIT", "AURA" };
@@ -49,6 +56,8 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             var hand = game.State.PlayerZones["P1"].Hand.ToArray(); var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
             var scores = game.State.PlayerScores.ToDictionary();
+            game.RecoverAfterEveryCommand = true; await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = false;
             await game.Act("P1", new EndTurnCommand());
             Assert.Equal(3, game.State.TriggerQueue.Count);
             var byUnit = game.State.TriggerQueue.ToDictionary(t => Assert.IsType<DelayedEmpowerContext>(t.DelayedEmpower).Unit.ObjectId);
@@ -92,6 +101,8 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
                 Assert.All(game.State.StackItems, i => Assert.NotNull(i.DelayedEmpower));
                 Assert.Equal(hand, game.State.PlayerZones["P1"].Hand); Assert.Equal(deck, game.State.PlayerZones["P1"].MainDeck);
             }
+            game.RecoverAfterEveryCommand = true; await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = false;
             Assert.Equal(2, game.State.StackItems.Count);
             for (var i = 1; i < order.Length; i++)
             {
@@ -113,6 +124,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             Assert.Equal(scores, game.State.PlayerScores);
             foreach (var player in new[] { "P1", "P2" })
                 Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == player && c.Tags.Contains(CardObjectTags.RuneCard)));
+            game.RecoverAfterEveryCommand = true; await game.ColdCheckpoint();
             await game.Replay(); Restore(game.State);
         }
         finally { await Save($"delayed-aura-lethal-field-{auraOnBattlefield}-aura-first-{auraFirst}", initial, game); }

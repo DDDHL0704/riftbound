@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { client, type ClientState } from "../net/client";
 import { cardName, paymentChoiceLabel } from "../game/cards";
-import { enabledCandidate } from "../game/actions";
+import { enabledCandidate, isRecycle, isTap } from "../game/actions";
 import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/types";
 import { Card, EffectText, type HoverHandler } from "./Card";
 import { TEMPO_ACTIONS } from "./Overlay";
@@ -420,30 +420,20 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
   if (md.serverPaymentState === "WAIT") return null;
   const steps = cand.selectionSteps ?? [];
   const spend: Choice[] = md.paymentChoices ?? [];
-  const recycleOptions: Choice[] = steps.length
-    ? (steps.slice(1).flatMap((s) => s.choices) as Choice[]).filter((c, i, all) => all.findIndex((x) => x.id === c.id) === i)
-    : md.paymentResourceChoices ?? [];
+  const resources: Choice[] = steps.length ? steps.slice(1).flatMap((s) => s.choices as Choice[]) : md.paymentResourceChoices ?? [];
+  const recycleOptions = resources.filter((c, i) => isRecycle(c.id) && resources.findIndex((x) => x.id === c.id) === i);
   const cost = md.cost as { mana?: number; power?: number; powerByTrait?: Record<string, number> } | undefined;
   const decline = (id: string) => client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [id] });
-  // Runes may be tapped inside a payment window; when the pool is short, tap first and then pay.
-  const readyRunes = (enabledCandidate(prompt, "TAP_RUNE")?.sources ?? []).map((r) => r.id);
+  // The pay command itself taps runes for mana the pool lacks.
+  const tapChoices = [...resources, ...((md.paymentResourceChoices ?? []) as Choice[])].map((c) => c.id).filter((id, i, all) => isTap(id) && all.indexOf(id) === i);
   const missingMana = Math.max(0, (cost?.mana ?? 0) - (pool?.mana ?? 0));
-  const canTap = missingMana === 0 || readyRunes.length >= missingMana;
+  const canTap = tapChoices.length >= missingMana;
   // Power the pool lacks is covered by recycling runes in the same payment; pick the unpicked ones.
   const missingPower = Math.max(0, (cost?.power ?? 0) - (pool?.power ?? 0) - recycles.length);
   const extraRecycles = recycleOptions.map((c) => c.id).filter((id) => !recycles.includes(id)).slice(0, missingPower);
   const canPay = canTap && extraRecycles.length >= missingPower;
-  const tapThenPay = async (ids: string[]) => {
-    let fresh = md;
-    if (missingMana > 0) {
-      const tap = readyRunes.slice(0, missingMana);
-      const receipt = await client.submit({ cmdType: "TAP_RUNE", sourceObjectId: tap[0], sourceObjectIds: tap });
-      if (!receipt?.accepted) return;
-      // Pay against the fresh prompt the tap produced.
-      fresh = enabledCandidate(client.state.prompt, "PAY_COST")?.metadata ?? md;
-    }
-    await client.submit({ cmdType: "PAY_COST", paymentId: fresh.paymentId, paymentWindow: fresh.paymentWindow, paymentChoiceIds: [...ids, ...recycles, ...extraRecycles] });
-  };
+  const pay = (ids: string[]) =>
+    client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [...tapChoices.slice(0, missingMana), ...ids, ...recycles, ...extraRecycles] });
   const payLabel = (base: string) => {
     const pre = [missingMana > 0 && `横置 ${missingMana} 枚符文`, missingPower > 0 && `回收 ${missingPower} 枚符文`].filter(Boolean).join("、");
     return pre ? `${pre}并${base}` : base;
@@ -481,14 +471,14 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
               key={c.id}
               className={`btn btn--wide${/DECLINE/.test(c.id) ? "" : " btn--primary"}`}
               disabled={!/DECLINE/.test(c.id) && !canPay}
-              onClick={() => void (/DECLINE/.test(c.id) ? decline(c.id) : tapThenPay([c.id]))}
+              onClick={() => void (/DECLINE/.test(c.id) ? decline(c.id) : pay([c.id]))}
             >
               {/DECLINE/.test(c.id) ? c.label : payLabel(c.label)}
             </button>
           ))}
         </div>
       ) : (
-        <button className="btn btn--primary btn--wide" disabled={!canPay} onClick={() => void tapThenPay(spend.map((c) => c.id))}>
+        <button className="btn btn--primary btn--wide" disabled={!canPay} onClick={() => void pay(spend.map((c) => c.id))}>
           {payLabel(spend.length ? spend.map((c) => c.label).join("，") : "确认支付")}
         </button>
       )}

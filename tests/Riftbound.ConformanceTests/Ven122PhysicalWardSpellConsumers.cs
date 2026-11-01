@@ -12,6 +12,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
  [InlineData("P1",false)] [InlineData("P2",false)] [InlineData("P1",true)] [InlineData("P2",true)]
  public async Task ActualEnemyMoonlightUsesZeroOrTwoWardAndTheRejectedOldIntentCannotConsumeFreshPower(string actor,bool empowered) {
   var initial=Position(actor);var game=new Driver(initial);var host=Arena.Host(actor);var enemy=Arena.Other(actor);var spell=enemy+"-MOONLIGHT";
+  game.RecoverAfterEveryCommand=false;
   try {
    if(actor=="P2")await game.Act("P1",new EndTurnCommand());
    var actorRunes=Enumerable.Range(0,3).Select(i=>Arena.Rune(actor,i)).ToArray();await game.Act(actor,new TapRuneCommand(actorRunes[0],actorRunes));
@@ -26,7 +27,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
     var node=JsonSerializer.SerializeToNode(play,Json)!.AsObject();node["promptId"]=game.PromptFor(enemy).PromptId;node["snapshotTick"]=game.State.Tick;
     var bad=new ConformanceCommand(enemy,"paid-ward-one-short-"+actor,JsonSerializer.SerializeToElement(node,Json));
     await game.ActRetained(bad,false);Assert.Equal(7,game.State.RunePools[enemy].Mana);Assert.Equal(1,game.State.RunePools[enemy].TotalPower);Assert.Contains(spell,game.State.PlayerZones[enemy].Hand);
-    await game.Act(enemy,new RecycleRuneCommand(Arena.Rune(enemy,1)));await game.ActRetained(bad,false);
+    await game.Act(enemy,new RecycleRuneCommand(Arena.Rune(enemy,1)));await game.ColdCheckpoint();await game.ActRetained(bad,false);
     Assert.Equal(7,game.State.RunePools[enemy].Mana);Assert.Equal(2,game.State.RunePools[enemy].TotalPower);
    }
    prefix=game.Events().Length;await game.Act(enemy,play);Arena.Cost(game.Events().Skip(prefix),7,empowered?2:0);
@@ -35,6 +36,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
    await game.Top();Assert.Equal(-7,game.State.CardObjects[host].Power);Assert.Equal(0,Arena.Might(game.State,actor,host));
    Assert.Equal("BASE",game.State.ObjectLocations[host].Zone);Assert.Equal(0,game.State.CardObjects[host].Damage);Assert.Equal(generation,game.State.CardObjects[host].ObjectGeneration);
    Assert.Equal(-10,Assert.Single(game.State.CardObjects[host].UntilEndOfTurnPowerModifiers).PowerDelta);
+   await game.ColdCheckpoint();
    await game.Act(enemy,new EndTurnCommand());Assert.Equal(3,game.State.CardObjects[host].Power);Assert.Equal(empowered?4:3,Arena.Might(game.State,actor,host));
    Assert.Equal(empowered,game.State.CardObjects[host].IsEmpowered);Assert.Equal(generation,game.State.CardObjects[host].ObjectGeneration);Common.AssertTwelveEach(game.State);await game.Replay();
   } finally {await Arena.Save("paid-moonlight-"+actor+"-"+empowered,initial,game);}
@@ -44,6 +46,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
  public async Task ActualPaidOrbAbilityCommitsWardBeforeExhaustAndRejectedIntentCannotSpendLaterPower(string actor, bool empowered)
  {
   var initial = Position(actor, ability: true); var game = new Driver(initial);
+  game.RecoverAfterEveryCommand = false;
   var host = Arena.Host(actor); var enemy = Arena.Other(actor); var orb = enemy + "-ORB";
   try
   {
@@ -73,7 +76,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
     await game.ActRetained(bad, false);
     Assert.False(game.State.CardObjects[orb].IsExhausted); Assert.Equal(1, game.State.RunePools[enemy].TotalPower);
     Assert.Equal(4, Arena.Might(game.State, actor, host));
-    await game.Act(enemy, new RecycleRuneCommand(Arena.Rune(enemy, 1))); await game.ActRetained(bad, false);
+    await game.Act(enemy, new RecycleRuneCommand(Arena.Rune(enemy, 1))); await game.ColdCheckpoint(); await game.ActRetained(bad, false);
     Assert.False(game.State.CardObjects[orb].IsExhausted); Assert.Equal(2, game.State.RunePools[enemy].TotalPower);
    }
    prefix = game.Events().Length; await game.Act(enemy, ability);
@@ -84,6 +87,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
    await game.Top(); Assert.Equal(2, game.State.CardObjects[host].Power);
    Assert.Equal(empowered ? 3 : 2, Arena.Might(game.State, actor, host));
    Assert.Equal(-1, Assert.Single(game.State.CardObjects[host].UntilEndOfTurnPowerModifiers).PowerDelta);
+   await game.ColdCheckpoint();
    await game.Act(enemy, new EndTurnCommand()); Assert.Equal(3, game.State.CardObjects[host].Power);
    Assert.Equal(empowered ? 4 : 3, Arena.Might(game.State, actor, host));
    Assert.Equal(generation, game.State.CardObjects[host].ObjectGeneration);

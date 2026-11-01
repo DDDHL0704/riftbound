@@ -18,7 +18,8 @@ public sealed partial class AttachedSelfDestructionReplacementTests
     [InlineData(false)] [InlineData(true)]
     public async Task ActualGuardianAngelOnlyReplacesItsActualAttachedHostsDestruction(bool attached)
     {
-        var initial = Position(); var run = new Driver(initial);
+        var initial = Position();
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("HOST", "OGN·210/298", [], Destination: "BASE"));
         await run.Act("P1", new PlayCardCommand("ANGEL", "SFD·051/221", [], Destination: "BASE"));
         if (attached) {
@@ -32,6 +33,8 @@ public sealed partial class AttachedSelfDestructionReplacementTests
         var runes = Enumerable.Range(1, 9).Select(i => "P2-FUND-" + i).ToArray();
         await run.Act("P2", new TapRuneCommand(runes[0], runes));
         await run.Act("P2", new RecycleRuneCommand(runes[0], runes.Take(2).ToArray()));
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
         await run.Act("P2", new PlayCardCommand("KILL", "OGN·229/298", ["HOST"])); await run.Top();
         Export(initial, run, attached);
         Assert.Null(run.State.PendingRuleChoice);
@@ -53,7 +56,7 @@ public sealed partial class AttachedSelfDestructionReplacementTests
         var initial = Position();
         foreach (var (id, no) in new[] { ("DETACH", "SFD·011/221"), ("RETURN-GEAR", "SFD·135/221"),
             ("RETURN-UNIT", "OGN·104/298"), ("OTHER", "OGN·210/298") }) initial = AddInitial(initial, id, no, "P1");
-        var run = new Driver(initial);
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("HOST", "OGN·210/298", [], Destination: "BASE"));
         await run.Act("P1", new PlayCardCommand("ANGEL", "SFD·051/221", [], Destination: "BASE"));
         await run.Act("P1", new AssembleEquipmentCommand("ANGEL", "HOST", ["ASSEMBLE_GREEN"])); await run.Top();
@@ -70,6 +73,8 @@ public sealed partial class AttachedSelfDestructionReplacementTests
         await run.Act("P1", new EndTurnCommand());
         var runes = Enumerable.Range(1, 9).Select(i => "P2-FUND-" + i).ToArray();
         await run.Act("P2", new TapRuneCommand(runes[0], runes)); await run.Act("P2", new RecycleRuneCommand(runes[0], runes.Take(2).ToArray()));
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
         var target = mode == "other-unit" ? "OTHER" : "HOST";
         await run.Act("P2", new PlayCardCommand("KILL", "OGN·229/298", [target])); await run.Top();
         Assert.Null(run.State.PendingRuleChoice); Assert.Contains(target, run.State.PlayerZones["P1"].Graveyard);

@@ -55,7 +55,7 @@ public sealed class ZeroPrintedPowerPromptTests
         var result = await new CoreRuleEngine().ResolveAsync(initial,
             new("original-empty-allocation-refusal", "P1", CommandTypes.PlayCard), command, default);
         Assert.False(result.Accepted);
-        Assert.Equal("Invalid printed power allocation.", result.ErrorMessage);
+        Assert.Equal("卡面符能分配无效。", result.ErrorMessage);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
         Assert.Empty(result.Events);
     }

@@ -1,0 +1,31 @@
+pr,branch,title,status,src/Riftbound.Engine/CardBehaviorRegistry.cs,src/Riftbound.Engine/CoreRuleEngine.cs,tests/Riftbound.ConformanceTests/ReviewedRuntimeCatalogAdmissionTests.cs,src/Riftbound.CardCatalog/RuleTextParsers.cs,src/Riftbound.CardCatalog/VendettaCardSources.cs,src/Riftbound.CardCatalog/RadiantCardSources.cs,src/Riftbound.Engine/PrintedCardFactory.cs,tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs
+239,b/legend-bulwark,feat(cards): 接入暮光之眼传奇壁垒技能,merged,1,1,1,1,1,0,1,0
+240,b/legend-empower,feat(cards): 接入离群之刺传奇强化与迅捷技能,merged,1,1,1,1,1,0,1,0
+241,b/akali-protection,feat(cards): 接入阿卡丽无形致命,closed,1,1,1,1,1,0,1,0
+242,b/legend-empower-observer,feat(cards): 接入强化联动传奇与阿卡丽无形致命,merged,1,1,1,1,1,0,1,0
+243,b/legend-equipment-ready,feat(cards): 接入未来守护者传奇装备活跃技能,merged,1,1,1,1,1,0,1,0
+244,b/legend-outside-hand,feat(cards): 接入狂暴之心传奇,merged,1,1,1,1,1,0,1,0
+246,b/kennen-stun,feat(cards): 接入凯南御衡之心,merged,1,1,1,1,1,0,1,0
+247,b/legend-banish,feat(cards): 接入传奇影流之主,merged,1,1,1,1,1,0,1,0
+248,b/legend-high-cost,feat(cards): 接入传奇沙漠死神,merged,1,1,1,1,1,0,1,0
+249,b/nasus-conquest-score,feat(cards): 接入征服得分英雄,merged,1,1,1,1,1,0,1,0
+250,b/nasus-death-rune,feat(cards): 接入内瑟斯亘古守知,merged,1,1,1,1,1,0,1,0
+251,b/ambessa-attack-destroy,feat(cards): 接入安蓓萨战狼尊母,merged,1,1,1,1,1,0,1,0
+253,b/riven-weapon-attack,feat(cards): 接入锐雯重铸而归,merged,1,1,1,1,1,0,1,0
+254,b/akali-movement-damage,feat(cards): 接入 13 项 VEN 传奇与英雄效果,merged,1,1,1,1,1,0,0,0
+257,d/ven-keywords,feat(cards): 接入 51 张 VEN 单位、装备与战场,merged,1,1,0,1,1,0,0,1
+260,b/jayce-ready,feat(cards): 接入杰斯进步先锋与举锤待发,merged,1,1,1,1,1,0,0,0
+261,b/jayce-rebuild,feat(cards): 完整接入杰斯推陈出新装备权限,merged,1,1,1,1,1,0,0,0
+262,b/kennen-conquest-flow,feat(cards): 合批接入 VEN 英雄与全部专属法术的36个印次,merged,1,1,1,1,1,0,0,1
+265,d/ven-spells-and-movement,feat(cards): 接入 VEN 30 张法术、移动与强化牌,merged,1,1,1,1,1,0,0,1
+281,b/rad-legend-resources,feat(cards): 接入 RAD 传奇、英雄与专属法术的17个印次,merged,1,1,1,1,0,1,0,0
+284,d/rad-basic-effects,feat(cards): 接入 RAD 普通牌基础效果批次,closed,1,1,1,1,0,1,1,0
+285,b/rad-discard-destroy,feat(cards): 接入莫德凯撒两项 RAD 英雄效果与四个印次,merged,1,1,1,1,0,1,0,0
+287,d/rad-next,feat(cards): 接入 RAD 普通牌汇总批次（35 项）,merged,1,1,1,1,0,1,1,0
+293,b/rad-entry-cost,feat(cards): 接入艾克额外费用与放逐之锋替代装配费用,merged,1,1,1,0,0,1,0,0
+302,e/rad-unit-batch,feat(cards): 接入五张 RAD 缴械单位及共享缴械流程,merged,1,1,1,1,0,1,0,0
+303,e/rad-entry-choices,feat(cards): 接入五张 RAD 打出触发单位,merged,1,1,1,0,0,1,0,0
+305,e/rad-unit-entry-costs,feat(cards): 接入六张 RAD 进场与额外费用单位,merged,1,1,1,1,0,1,0,0
+309,e/rad-conditional-triggers,feat(cards): 接入五张 RAD 移动、征服与高费触发单位,merged,1,1,1,1,0,1,0,0
+313,e/rad-destruction-triggers,feat(cards): 接入五张 RAD 摧毁与据守触发单位,merged,1,1,1,1,0,1,0,0
+315,e/rad-reveal-play,feat(cards): 接入 RAD 亮出与战场条件单位,merged,1,1,1,0,0,1,0,0

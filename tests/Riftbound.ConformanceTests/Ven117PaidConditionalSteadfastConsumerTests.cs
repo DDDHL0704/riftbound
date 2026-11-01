@@ -18,21 +18,23 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
     [InlineData("P1", 1, true, 1)] [InlineData("P2", 1, true, 1)]
     public async Task NormalTwoManaPlayAndRealPaidCompanionsUseTheCurrentCountAndOnlyTheDefendingRole(string actor, int companions, bool attacking, int expected)
     {
-        var initial = Position(); var game = new Driver(initial); var friends = Enumerable.Range(0, companions).Select(i => Friend(actor, i)).ToArray();
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false }; var friends = Enumerable.Range(0, companions).Select(i => Friend(actor, i)).ToArray();
         try
         {
             foreach (var player in new[] { "P1", "P2" })
             {
                 await Pay(game, player, player == actor ? [Host(actor), ..friends] : [Enemy(player)]);
                 await game.Act(player, new EndTurnCommand());
+                await game.ColdCheckpoint();
             }
             var defender = attacking ? Other(actor) : actor;
-            if (defender == "P2") await game.Act("P1", new EndTurnCommand());
+            if (defender == "P2") { await game.Act("P1", new EndTurnCommand()); await game.ColdCheckpoint(); }
             var army = new[] { Host(actor) }.Concat(friends).ToArray();
             var first = defender == actor ? army : [Enemy(defender)];
             Assert.All(first, id => Assert.False(game.State.CardObjects[id].IsExhausted));
             await game.Act(defender, new MoveUnitCommand(first[0], "BASE", "BATTLEFIELD:BF", [], SourceObjectIds: first));
-            await Common.CompleteMovementWindow(() => game.State, game.Act); await game.Act(defender, new EndTurnCommand());
+            await Common.CompleteMovementWindow(() => game.State, game.Act); await game.ColdCheckpoint();
+            await game.Act(defender, new EndTurnCommand()); await game.ColdCheckpoint();
             var attacker = Other(defender); var second = attacker == actor ? army : [Enemy(attacker)];
             await game.Act(attacker, new MoveUnitCommand(second[0], "BASE", "BATTLEFIELD:BF", [], SourceObjectIds: second));
             AssertCondition(game.State, actor, Host(actor), "BF", companions, attacking, expected);
@@ -41,7 +43,7 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
             await FinishBattle(() => game.State, game.Act, game.Events, actor, Host(actor), friends, Enemy(Other(actor)), expected,
                 (p, c, id) => Ven001PhysicalThresholdConsumerTests.Reject(game, p, c, id));
             AssertOutcome(game.State, game.Events().Skip(prefix).ToArray(), Host(actor), expected, attacking, generation);
-            Common.AssertTwelveEach(game.State); await game.Replay();
+            Common.AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
         }
         finally { await Save("actual-two-mana-" + actor + "-" + companions + "-" + attacking, initial, game); }
     }
@@ -50,17 +52,19 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
     [InlineData("P1")] [InlineData("P2")]
     public async Task OneRealRecycledPowerHidesTheNativeCardAndLaterZeroCostReactionJoinsAnActualDefense(string actor)
     {
-        var initial = Position(); var game = new Driver(initial); var friend = Friend(actor, 0); var host = Host(actor); var enemy = Other(actor);
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false }; var friend = Friend(actor, 0); var host = Host(actor); var enemy = Other(actor);
         try
         {
             foreach (var player in new[] { "P1", "P2" })
             {
                 await Pay(game, player, player == actor ? [friend] : [Enemy(player)]);
                 await game.Act(player, new EndTurnCommand());
+                await game.ColdCheckpoint();
             }
-            if (actor == "P2") await game.Act("P1", new EndTurnCommand());
+            if (actor == "P2") { await game.Act("P1", new EndTurnCommand()); await game.ColdCheckpoint(); }
             await game.Act(actor, new MoveUnitCommand(friend, "BASE", "BATTLEFIELD:BF", []));
             await Common.CompleteMovementWindow(() => game.State, game.Act);
+            await game.ColdCheckpoint();
             Assert.Equal(actor, game.State.CardObjects["BF"].ControllerId);
             await game.Act(actor, new RecycleRuneCommand(Rune(actor, 0))); var prefix = game.Events().Length;
             await game.Act(actor, new HideCardCommand(host, No, "BATTLEFIELD:BF", ["STANDBY_A"]));
@@ -73,12 +77,13 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
             Assert.True(game.State.TurnNumber > placement.TurnNumber);
             await game.Act(enemy, new MoveUnitCommand(Enemy(enemy), "BASE", "BATTLEFIELD:BF", []));
             await RevealDuringRealBattle(() => game.State, game.Act, game.Events, actor, host, "BF");
+            await game.ColdCheckpoint();
             AssertCondition(game.State, actor, host, "BF", 1, false, 4);
             prefix = game.Events().Length; generation = game.State.CardObjects[host].ObjectGeneration;
             await FinishBattle(() => game.State, game.Act, game.Events, actor, host, [friend], Enemy(enemy), 4,
                 (p, c, id) => Ven001PhysicalThresholdConsumerTests.Reject(game, p, c, id));
             AssertOutcome(game.State, game.Events().Skip(prefix).ToArray(), host, 4, false, generation);
-            Common.AssertTwelveEach(game.State); await game.Replay();
+            Common.AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
         }
         finally { await Save("actual-one-power-standby-" + actor, initial, game); }
     }

@@ -25,26 +25,34 @@ export type ObjectAction = {
   steps: ActionStep[];
   /** Costs the server marks as required are always sent; the rest are opt-in. */
   requiredCosts: string[];
+  /** Extra costs the player may opt into; rune taps and recycles are listed apart. */
   optionalCosts: Choice[];
-  /** Printed power the pool can't cover yet; rune recycles in optionalCosts can pay it. */
+  /** Runes the command itself may tap for mana. */
+  taps: string[];
+  /** Runes the command itself may recycle for power. */
+  recycles: Choice[];
+  /** Mana the pool can't cover yet; the command taps runes for it. */
+  manaShortfall: number;
+  /** Power the pool can't cover yet; the player picks runes to recycle for it. */
   powerShortfall: number;
-  /** Recycle choices preselected to cover the shortfall (the player may change them). */
+  /** Taps and recycles preselected to cover the shortfalls (the player may change the recycles). */
   presetCosts: string[];
   /** The prompt this action was offered in; a submission after that prompt changed is stale. */
   promptId?: string;
 };
 
-type PowerByChoice = Record<string, { power: number; trait?: string }>;
+type PowerByChoice = Record<string, { power?: number; trait?: string }>;
 
 export const isRecycle = (id: string) => id.startsWith("RECYCLE_RUNE:");
+export const isTap = (id: string) => id.startsWith("TAP_RUNE:");
 
 /** Power gained by the given payment choices that can pay a cost of the given traits. */
 export function powerFrom(req: Record<string, any> | undefined, chosen: string[]) {
   const byChoice: PowerByChoice = req?.paymentResourcePowerByChoice ?? {};
-  const traits: string[] = req?.printedPowerTraits ?? [];
+  const traits: string[] = req?.printedPowerTraits ?? Object.keys(req?.powerCostByTrait ?? {});
   return chosen.reduce((n, id) => {
     const p = byChoice[id];
-    return p && (!traits.length || !p.trait || traits.includes(p.trait)) ? n + p.power : n;
+    return p && (!traits.length || !p.trait || traits.includes(p.trait)) ? n + (p.power ?? 0) : n;
   }, 0);
 }
 
@@ -54,14 +62,23 @@ export function anyPowerFrom(req: Record<string, any> | undefined, chosen: strin
   return chosen.reduce((n, id) => n + (byChoice[id]?.power ?? 0), 0);
 }
 
-function presetRecycles(req: Record<string, any>, shortfall: number) {
-  const byChoice: PowerByChoice = req.paymentResourcePowerByChoice ?? {};
+/** A rune with no tap choice is already tapped, so recycling it first throws no mana away. */
+export function recyclesByLoss(recycles: string[], taps: string[]) {
+  const tappable = new Set(taps.map((id) => id.split(":").pop()));
+  return [...recycles].sort((a, b) => Number(tappable.has(a.split(":").pop())) - Number(tappable.has(b.split(":").pop())));
+}
+
+function presetRecycles(req: Record<string, any>, recycles: Choice[], taps: string[], shortfall: number) {
   const out: string[] = [];
-  for (const id of Object.keys(byChoice)) {
+  for (const id of recyclesByLoss(recycles.map((c) => c.id), taps)) {
     if (powerFrom(req, out) >= shortfall) break;
     if (powerFrom(req, [id]) > 0) out.push(id);
   }
   return out;
+}
+
+function uniqueChoices(choices: Choice[]) {
+  return choices.filter((c, i) => choices.findIndex((x) => x.id === c.id) === i);
 }
 
 export type Selection = {
@@ -151,13 +168,9 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
       if (req.mode && req.modeLabel && req.modeLabel !== "默认") label = `${label} · ${req.modeLabel}`;
       detail = costLabel(req) || "免费";
       break;
-    case "HIDE_CARD": {
-      // Standby takes exactly one of its cost options (server rejects zero or several).
+    case "HIDE_CARD":
       steps = destinationStep(req.destinationChoices, "选择待命位置");
-      const costs: Choice[] = req.optionalCostChoices ?? [];
-      if (costs.length > 1) steps.push({ key: "cost", role: "cost", label: "选择待命费用", required: true, choices: costs });
       break;
-    }
     case "MOVE_UNIT":
       steps = destinationStep(req.destinationChoices, "选择移动目的地");
       label = req.modeLabel ? `移动 · ${req.modeLabel}` : label;
@@ -175,9 +188,22 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
       break;
   }
 
-  const hideCosts: Choice[] = action === "HIDE_CARD" ? req.optionalCostChoices ?? [] : [];
-  const required: string[] = req.requiredOptionalCosts ?? (hideCosts.length === 1 ? [hideCosts[0].id] : []);
-  const shortfall = Math.max(0, Number(req.minimumPrintedPowerShortfall ?? 0));
+  const costChoices: Choice[] = req.optionalCostChoices ?? [];
+  const resources = uniqueChoices([...costChoices, ...(req.paymentResourceChoices ?? [])]);
+  const taps = resources.filter((c) => isTap(c.id)).map((c) => c.id);
+  const recycles = resources.filter((c) => isRecycle(c.id));
+  const extras = costChoices.filter((c) => !isTap(c.id) && !isRecycle(c.id));
+  // Some costs take exactly one option (the server rejects zero or several). Recycling a graveyard
+  // card for an ability is one of them, though the requirement doesn't mark it yet.
+  const pickOne = Number(req.requiredOptionalCostChoiceCount) === 1 || (action === "ACTIVATE_ABILITY" && extras.length > 0 && extras.every((c) => c.id.startsWith("RECYCLE_GRAVEYARD_CARD:")));
+  if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: action === "HIDE_CARD" ? "选择待命费用" : "选择费用", required: true, choices: extras });
+  const required: string[] = pickOne && extras.length === 1 ? [extras[0].id] : req.requiredOptionalCosts ?? [];
+  // With a cost per option the shortfall is only known once the option is chosen.
+  const perOption = Boolean(req.costsByChoice);
+  const manaCost = Number(req.minimumManaCost ?? req.manaCost ?? 0);
+  const manaShortfall = !perOption && typeof req.availableMana === "number" ? Math.min(taps.length, Math.max(0, manaCost - req.availableMana)) : 0;
+  const shortfall = perOption ? 0 : Math.max(0, Number(req.minimumPrintedPowerShortfall ?? (typeof req.availablePower === "number" && req.powerCost ? req.powerCost - req.availablePower : 0)));
+  if (manaShortfall > 0) detail = `${detail ? `${detail} · ` : ""}自动横置 ${manaShortfall} 枚符文`;
   return {
     key: `${action}:${sourceObjectId}:${index}`,
     cmdType: action,
@@ -188,9 +214,12 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
     requirement: req,
     steps,
     requiredCosts: required,
-    optionalCosts: action === "HIDE_CARD" ? [] : (req.optionalCostChoices ?? []).filter((c: Choice) => !required.includes(c.id)),
+    optionalCosts: pickOne ? [] : extras.filter((c) => !required.includes(c.id)),
+    taps,
+    recycles,
+    manaShortfall,
     powerShortfall: shortfall,
-    presetCosts: shortfall > 0 ? presetRecycles(req, shortfall) : [],
+    presetCosts: [...taps.slice(0, manaShortfall), ...(shortfall > 0 ? presetRecycles(req, recycles, taps, shortfall) : [])],
   };
 }
 
@@ -221,6 +250,9 @@ export function objectActions(prompt: Prompt | null): Map<string, ObjectAction[]
           steps: [],
           requiredCosts: [],
           optionalCosts: [],
+          taps: [],
+          recycles: [],
+          manaShortfall: 0,
           powerShortfall: 0,
           presetCosts: [],
         });
@@ -255,9 +287,12 @@ export function buildCommand(action: ObjectAction, sel: Selection): Record<strin
       case "selectedMode":
         value = req.mode ?? undefined;
         break;
-      case "selectedOptionalCosts":
-        value = [...action.requiredCosts, ...sel.optionalCosts];
+      case "selectedOptionalCosts": {
+        // A rune may be tapped and then recycled for one payment, never the other way round.
+        const costs = [...action.requiredCosts, ...sel.optionalCosts];
+        value = [...costs.filter((c) => !isRecycle(c)), ...costs.filter(isRecycle)];
         break;
+      }
       case "requirementMetadata":
       case "candidateMetadata": {
         const bag = b.source === "requirementMetadata" ? req : action.candidate.metadata ?? {};
@@ -290,6 +325,7 @@ export function autoSelection(action: ObjectAction): Selection | null {
     if (!step.required) continue;
     if (step.choices.length !== 1) return null;
     if (step.role === "destination") sel.destination = step.choices[0].id;
+    else if (step.role === "cost") sel.optionalCosts.push(step.choices[0].id);
     else sel.targets.push(step.choices[0].id);
   }
   return action.steps.every((s) => s.required) ? sel : null;

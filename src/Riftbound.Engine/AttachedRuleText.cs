@@ -1,4 +1,5 @@
 using Riftbound.CardCatalog;
+using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
@@ -61,8 +62,26 @@ internal static class AttachedRuleTextRules
 
     internal static IEnumerable<RuleTextInstance> ActivatedInstances(MatchState state, CardObjectState source,
         P4ActivatedAbilityDefinition ability)
-        => Instances(state, source).Where(i => (i.Origin is null || ability.SupportsCopiedRuleText)
-            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, i.CardNo));
+    {
+        if (ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend
+            && source.ControllerId is { Length: > 0 } controllerId
+            && state.PlayerZones.TryGetValue(controllerId, out var zones)
+            && zones.LegendZone.Contains(source.ObjectId, StringComparer.Ordinal)
+            && source.ControllerId == controllerId
+            && (string.IsNullOrWhiteSpace(ability.RequiredControllerCardNoOnField)
+                || state.CardObjects.Values.Any(candidate => candidate.ControllerId == controllerId
+                    && candidate.CardNo == ability.RequiredControllerCardNoOnField
+                    && Field(state.PlayerZones, candidate.ObjectId))))
+        {
+            yield return new($"GRANTED:{ability.AbilityId}:{source.ObjectId}:{source.ObjectGeneration}", ability.SourceCardNo);
+        }
+
+        foreach (var instance in Instances(state, source).Where(i => (i.Origin is null || ability.SupportsCopiedRuleText)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, i.CardNo)))
+        {
+            yield return instance;
+        }
+    }
 
     internal static bool SelectActivatedInstance(MatchState state, CardObjectState source, P4ActivatedAbilityDefinition ability,
         string? id, out RuleTextInstance instance)

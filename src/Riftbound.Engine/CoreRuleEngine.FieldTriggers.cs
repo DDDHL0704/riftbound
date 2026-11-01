@@ -71,7 +71,7 @@ public sealed partial class CoreRuleEngine
         if (context.EmpoweredTransition is not null) return false;
         if (context.Kind != AttackAreaDamageKind && context.AttackConditionFrame is not null) return false;
         return IsBattleLimitedContextShape(context, effect, cardNo) || effect == FieldTriggerEffect && context.SourceGeneration >= 0
-            && (context.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or "RECYCLE_BOON" or AttackAreaDamageKind
+            && (context.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or "RECYCLE_BOON" or AttackAreaDamageKind
                 ? (!context.SourceCeasedToExist || context.SourceTokenFactoryCardNo is not null)
                     && (context.SourceTokenFactoryCardNo is null
                         || P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
@@ -86,7 +86,7 @@ public sealed partial class CoreRuleEngine
                 && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.AffectedUnit is null && !context.AffectedUnitCeasedToExist && (context.Kind == "ATTACK_DECK_PLAY" ? AttackDeckPlaySpec(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind == AttackGraveyardBanishKind ? AttackBanishAssaultAmount(context.CardNo) > 0 && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
-                : context.Kind == "STANDBY_DEFEND" ? StandbyDefendDefinition(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
+                : context.Kind is "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" ? StandbyDefendDefinition(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind is "COMBAT_MIGHT" or CombatMightDamageKind ? CombatMightSpec(context.CardNo, context.Kind) is not null && context.SourceLocation is not null
                 : context.Kind == AttackAreaDamageKind ? AttackAreaDamageSpec(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind is "SECOND_DRAW" or "DEFEND" && HasFieldTrigger(context.CardNo, context.Kind)
@@ -148,7 +148,7 @@ public sealed partial class CoreRuleEngine
                 : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? IsEmpoweredAttackDestroyTarget(state, item, c)
                 : item.FieldContext.Kind is AttackWeaponDamageKind or DisarmKind ? IsAttackWeaponDamageTarget(state, item, c)
                 : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? true
-                : item.FieldContext.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or AttackMightDamageKind ? c.ControllerId != item.ControllerId
+                : item.FieldContext.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" or AttackMightDamageKind ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind is "SECOND_DRAW" or "RECYCLE_BOON" ? c.ControllerId == item.ControllerId
                 : item.FieldContext.Kind == BombDestructionKind
@@ -164,14 +164,14 @@ public sealed partial class CoreRuleEngine
         => NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasMovementDamage(i) && i.TargetGenerations is null ||
             NeedsUnitEventMode(i) || NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
             i.DravenBattleDeathScore is { OpponentId: null } ||
-            i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
+            i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.BombRebuild is not null && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
             || NeedsEmpowerInteractionChoice(i)
             || i.ReadyObjectTrigger is not null && i.TargetGenerations is null || i.SourceReadied is { Mode: null }
             || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.HighCostPlayObserver is not null && !HighCostReadiesSource(i.CardNo) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
-            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend or EquipmentDeathReturnKind } && i.TargetGenerations is null
+            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend or EquipmentDeathReturnKind or "STANDBY_DEFEND_BOMBS" } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)
             || NeedsBattlefieldConquestReadyEquipmentConfirmation(i)
             || NeedsMovementInstructionConfirmation(i);
@@ -195,6 +195,7 @@ public sealed partial class CoreRuleEngine
         if (NeedsBattlefieldConquestReadyEquipmentConfirmation(item)) return PrepareBattlefieldConquestReadyEquipmentConfirmation(result, item);
         if (NeedsMovementDiscardRuneConfirmation(item)) return PrepareMovementDiscardRunes(result, item);
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
+        if (item.BombRebuild is not null) return PrepareBombRebuildTarget(result, item);
         if (item.EmpowerInteraction is not null) return PrepareEmpowerInteraction(result, item);
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);
         if (NeedsUnitEventMode(item)) return PrepareUnitEventMode(result, item);
@@ -296,7 +297,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == FieldTriggerMinimumTargets(context) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidLastBreathHereChoice(state, choice) || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice) || ValidBattlefieldConquestReadyEquipmentTargetChoice(state, choice);
+            || ValidBombRebuildChoice(state, choice) || ValidLastBreathHereChoice(state, choice) || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice) || ValidBattlefieldConquestReadyEquipmentTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {
@@ -470,7 +471,7 @@ public sealed partial class CoreRuleEngine
         if (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" }) return ResolveAttackDeckPlay(state, item);
         if (item.FieldContext is { Kind: AttackGraveyardBanishKind }) return ResolveAttackGraveyardBanish(state, item);
         if (item.FieldContext is { Kind: AttackAreaDamageKind }) return ResolveAttackAreaDamage(state, item);
-        if (item.FieldContext is { Kind: "STANDBY_DEFEND" }) return ResolveStandbyDefendTrigger(state, item);
+        if (item.FieldContext is { Kind: "STANDBY_DEFEND" or "STANDBY_DEFEND_BOMBS" }) return ResolveStandbyDefendTrigger(state, item);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var events = new List<GameEvent>(); var triggers = new List<TriggerQueueItemState>();
         var target = item.TargetObjectIds.SingleOrDefault();

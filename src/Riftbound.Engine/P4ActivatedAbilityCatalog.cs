@@ -41,13 +41,19 @@ public sealed record P4ActivatedAbilityDefinition(
     string SourceRequiredTag = "",
     SimpleActivatedEffectSpec? SimpleEffect = null,
     int? GeneratedManaIfSourceEmpowered = null,
-    int? PowerModifierAmountIfSourceEmpowered = null);
+    int? PowerModifierAmountIfSourceEmpowered = null,
+    string SourceScope = "",
+    string RequiredControllerCardNoOnField = "");
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
     bool ReadiesSource = false, int SourcePowerBonus = 0, bool OncePerTurn = false,
     bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0,
-    bool TransfersSourceToChosenPlayer = false);
+    bool TransfersSourceToChosenPlayer = false,
+    bool CommandsOpponentUnitToSourceBattlefield = false,
+    bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
+    bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
+    bool StunsTarget = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -244,8 +250,53 @@ public static class P4ActivatedAbilityCatalog
     public const string NextSpellEchoAbilityId = "NEXT_SPELL_ECHO";
     public const string NextSpellEchoEffectKind = "GRANT_NEXT_SPELL_BASE_COST_ECHO";
 
+    public const string SoulOfInspirationCardNo = "RAD·040/167";
+    public const string SoulOfInspirationAbilityId = "RAD_040_FRIENDLY_LEGEND_POWER";
+    public const string SoulOfInspirationAbilityEffectKind = "RAD_040_FRIENDLY_LEGEND_POWER";
+
+    public const string LanternDragonCardNo = "RAD·113/167";
+    public const string LanternDragonAbilityId = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
+    public const string LanternDragonAbilityEffectKind = "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE";
+
+    public const string TranspositionMageCardNo = "RAD·115/167";
+    public const string TranspositionMageAbilityId = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
+    public const string TranspositionMageAbilityEffectKind = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
+
+    public const string PrismwingFlockCardNo = "RAD·027/167";
+    public const string PrismwingFlockAbilityId = "RAD_027_GRANT_BOON_OR_POWER";
+    public const string PrismwingFlockAbilityEffectKind = "RAD_027_GRANT_BOON_OR_POWER";
+
+    public const string RelentlessStalkerCardNo = "RAD·104/167";
+    public const string RelentlessStalkerAbilityId = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
+    public const string RelentlessStalkerAbilityEffectKind = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(LanternDragonAbilityId, LanternDragonCardNo, LanternDragonAbilityEffectKind, "提灯亚龙", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：横置，选择一名对手；该对手必须将其控制的一名单位移动到提灯亚龙所在战场。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(CommandsOpponentUnitToSourceBattlefield: true)),
+        new(TranspositionMageAbilityId, TranspositionMageCardNo, TranspositionMageAbilityEffectKind, "易位法师", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：支付1紫色符能并横置，让一名友方单位返回其所属的手牌；你可以选择打出一名战力不高于该单位的单位，无视其费用。",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Purple] = 1 },
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(ReturnsFriendlyUnitThenFreePlayUpToPower: true)),
+        new(PrismwingFlockAbilityId, PrismwingFlockCardNo, PrismwingFlockAbilityEffectKind, "幻彩飞禽", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: true,
+            Reason: "官方中文：横置，给予一名单位增益；如果该单位已拥有增益，则改为给予其本回合内战力+2。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(GrantsBoonOrPower: true, ExistingBoonPowerBonus: 2)),
+        new(RelentlessStalkerAbilityId, RelentlessStalkerCardNo, RelentlessStalkerAbilityEffectKind, "无情潜伏者", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: true,
+            Reason: "官方中文：横置，眩晕一名敌方单位。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(StunsTarget: true)),
         new("GLOWING_STONE_TRANSFER", "VEN·133", "GLOWING_STONE_TRANSFER", "发光石", 0, 0, 1,
             false, true, 0, false, "解除强化并横置：选择一名玩家，该玩家获得此牌的控制权并将其召回。",
             SourceRequiredTag: CardObjectTags.EquipmentCard,
@@ -621,6 +672,24 @@ public static class P4ActivatedAbilityCatalog
             GeneratedPower: GoldTokenGeneratedPower,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
+        new(
+            SoulOfInspirationAbilityId,
+            SoulOfInspirationCardNo,
+            SoulOfInspirationAbilityEffectKind,
+            "鼓舞之魂：传奇技能",
+            0,
+            0,
+            1,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "官方中文：所有友方传奇具有“横置：给予一名单位在本回合内战力+3。”",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn,
+            TargetScope: CardTargetScopes.AnyUnit,
+            PowerModifierAmount: 3,
+            SourceScope: ActivatedAbilitySourceScopes.FriendlyLegend,
+            RequiredControllerCardNoOnField: SoulOfInspirationCardNo),
         .. SigilTypedResourceProfiles.Value.Select(SigilTypedResourceDefinition)
     ];
 
@@ -873,6 +942,12 @@ public static class P4ActivatedAbilityCatalog
                     : IsTargetedPowerModifier(ability)
                     ? TargetedPowerModifierDefinition(spec, ability)
                     : DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(spec, ability)))
+            // Some reviewed cards have a hand-written definition because their shared
+            // ability carries card-specific source constraints. Keep that definition
+            // authoritative and avoid registering the equivalent generated one twice.
+            .Where(definition => !Definitions.Any(existing =>
+                string.Equals(existing.SourceCardNo, definition.SourceCardNo, StringComparison.Ordinal)
+                && string.Equals(existing.Kind, definition.Kind, StringComparison.Ordinal)))
             .OrderBy(definition => definition.SourceCardNo, StringComparer.Ordinal)
             .ToArray();
     }
@@ -900,7 +975,9 @@ public static class P4ActivatedAbilityCatalog
         => ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
             && ability.ExhaustsSourceAsCost == true && ability.RequiredTargetCount == 1
             && ability.TargetScope == CardTargetScopes.AnyUnit
-            && ability.PowerModifierAmount is < 0 && ability.MinimumPowerAfterModifier is > 0
+            && ability.PowerModifierAmount is not null and not 0
+            && (ability.PowerModifierAmount < 0 && ability.MinimumPowerAfterModifier is > 0
+                || ability.PowerModifierAmount > 0 && ability.MinimumPowerAfterModifier.GetValueOrDefault() == 0)
             && ability.ManaCost.GetValueOrDefault() == 0 && ability.PowerCost.GetValueOrDefault() == 0;
 
     private static P4ActivatedAbilityDefinition TargetedPowerModifierDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
@@ -910,9 +987,11 @@ public static class P4ActivatedAbilityCatalog
             "Printed targeted exhaust ability with ordinary timing, Ward payment and captured Might reduction.",
             Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: ability.PowerModifierAmount!.Value,
-            MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier!.Value,
+            MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier.GetValueOrDefault(),
             SourceRequiredTag: spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
-                ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard);
+                ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard,
+            SourceScope: ability.SourceScope ?? string.Empty,
+            RequiredControllerCardNoOnField: ability.RequiredControllerCardNoOnField ?? string.Empty);
     }
 
     private static bool IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(

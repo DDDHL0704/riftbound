@@ -7,7 +7,8 @@ public sealed record PendingEffectPlayState(
     string ChoiceId, string PlayerId, StackItemState Parent, string SourceZone,
     IReadOnlyDictionary<string, long> Sources, bool IgnoreBaseMana, bool IgnoreBasePower,
     int ManaReduction, string DestinationPolicy, bool Optional, IReadOnlyList<string>? ViewedCardIds = null,
-    bool IgnoreAllCosts = false, RevealedHandPlayContext? RevealedHand = null)
+    bool IgnoreAllCosts = false, RevealedHandPlayContext? RevealedHand = null,
+    int? MaximumUnitPower = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SourceReplayContinuation? SourceReplay { get; init; }
@@ -105,7 +106,8 @@ public sealed partial class CoreRuleEngine
         if (state.PendingEffectPlay is not { } pending)
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId))
-                    .Concat(FlowPlaySources(state, playerId)).Concat(NormalGraveyardPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
+                    .Concat(FlowPlaySources(state, playerId)).Concat(NormalGraveyardPlaySources(state, playerId))
+                    .Concat(TimedBanishPlayRules.Sources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
         if (pending.SourcePlayerId is { } sourcePlayer && state.PlayerZones.TryGetValue(sourcePlayer, out var sourceZones)) zones = sourceZones;

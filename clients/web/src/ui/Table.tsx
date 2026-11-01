@@ -7,8 +7,10 @@ import {
   choiceObjectIds,
   enabledCandidate,
   isRecycle,
+  isTap,
   objectActions,
   powerFrom,
+  recyclesByLoss,
   type ActionStep,
   type ObjectAction,
   type Selection,
@@ -44,7 +46,7 @@ function applyChoice(pick: Pick, step: ActionStep, choiceId: string): Pick {
   const sel: Selection = { ...pick.sel, targets: [...pick.sel.targets], movements: [...(pick.sel.movements ?? [])] };
   if (step.role === "destination") sel.destination = choiceId;
   else if (step.role === "move") sel.movements!.push(choiceId);
-  else if (step.role === "cost") sel.optionalCosts = [choiceId];
+  else if (step.role === "cost") sel.optionalCosts = [choiceId, ...sel.optionalCosts.filter((c) => isTap(c) || isRecycle(c))];
   else sel.targets.push(choiceId);
   return { ...pick, sel, step: pick.step + 1 };
 }
@@ -84,7 +86,6 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const [zoneView, setZoneView] = useState<ZoneView>(null);
   const [runeSel, setRuneSel] = useState<string[]>([]);
   const [drag, setDrag] = useState<Drag | null>(null);
-  const [busy, setBusy] = useState(false);
   const [autoPass, setAutoPass] = useState(() => {
     try {
       return localStorage.getItem("riftbound.web.autoPass") !== "off";
@@ -193,95 +194,28 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const tapIds = useMemo(() => new Set((enabledCandidate(prompt, "TAP_RUNE")?.sources ?? []).map((s) => s.id)), [prompt]);
   const recycleIds = useMemo(() => new Set((enabledCandidate(prompt, "RECYCLE_RUNE")?.sources ?? []).map((s) => s.id)), [prompt]);
   const isRune = (id: string) => me.zones.baseRunes.includes(id);
-  const playOffered = Boolean(prompt?.candidates?.some((c) => c.action === "PLAY_CARD"));
 
-  // Which unplayable cards would become playable by tapping runes. The server's cost quote decides:
-  // a timing-illegal card is rejected outright, while one that is only short on mana gets a quote.
-  const [autoPay, setAutoPay] = useState<Map<string, number>>(new Map());
-  // The prompt id the auto-pay map was computed for, so auto-pass never acts on a half-built map.
-  const [autoPayFor, setAutoPayFor] = useState<string | undefined>(undefined);
-  useEffect(() => {
-    let live = true;
-    setAutoPay(new Map());
-    setAutoPayFor(undefined);
-    if (!prompt?.actionable || !playOffered || !tapIds.size) {
-      setAutoPayFor(prompt?.promptId);
-      return;
-    }
-    const candidates = [...me.zones.hand, ...me.zones.championZone].filter((id) => !actions.get(id)?.some((a) => a.cmdType === "PLAY_CARD"));
-    void (async () => {
-      const found = new Map<string, number>();
-      for (const id of candidates) {
-        const o = objects[id];
-        if (!o?.cardNo) continue;
-        const quote = await client.previewPlayCard({ cmdType: "PLAY_CARD", sourceObjectId: id, cardNo: o.cardNo, targetObjectIds: [], destination: "" });
-        if (!live || !quote) return;
-        const mana = quote.isValid
-          ? quote.cost?.missingMana ?? 0
-          : // A card that needs targets can't be quoted without them; trust the printed cost for those.
-            quote.errorCode === "INVALID_TARGET" || quote.errorCode === "INVALID_PAYLOAD"
-            ? Math.max(0, (o.manaCost ?? 0) - (me.runePool.mana ?? 0))
-            : 0;
-        const power = quote.isValid ? quote.cost?.missingPower ?? 0 : 0;
-        if (mana > 0 && mana <= tapIds.size && power <= Math.max(0, recycleIds.size - mana)) found.set(id, mana);
-      }
-      if (live) {
-        setAutoPay(found);
-        setAutoPayFor(prompt?.promptId);
-      }
-    })();
-    return () => {
-      live = false;
-    };
-  }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /** Runes to tap before this card can be played, or null when tapping can't make it playable. */
-  const autoPayNeed = (id: string): number | null => autoPay.get(id) ?? null;
-
-  // The server offers "hide in standby" only once the pool already holds the [A] it costs. When it
-  // is empty but a rune can be recycled and one of this player's battlefields has a free standby
-  // slot, offer the hide anyway: recycle one rune first, then hide from the fresh prompt.
-  const hideViaRecycle = useMemo(() => {
-    const ids = new Set<string>();
-    if (promptType !== "MAIN_ACTION" || (me.runePool.power ?? 0) >= 1 || !recycleIds.size) return ids;
-    const freeField = (snapshot.table?.battlefields ?? []).some((b) => b.controllerId === meId && !b.faceDownStandbyCount);
-    if (!freeField) return ids;
-    for (const id of [...me.zones.hand, ...me.zones.championZone])
-      if (!actions.get(id)?.some((a) => a.cmdType === "HIDE_CARD") && /\{\{待命\}\}/.test(cardInfo(objects[id]?.cardNo)?.effect ?? "")) ids.add(id);
-    return ids;
-  }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const hideAfterRecycle = async (id: string) => {
-    setMenuFor(null);
-    // Recycle an already tapped rune when there is one, so no mana is thrown away.
-    const rune = [...recycleIds].find((r) => !tapIds.has(r)) ?? [...recycleIds][0];
-    setBusy(true);
-    try {
-      const receipt = await runRuneCommand("RECYCLE_RUNE", [rune]);
-      if (!receipt?.accepted) return;
-    } finally {
-      setBusy(false);
-    }
-    const hide = objectActions(client.state.prompt).get(id)?.find((a) => a.cmdType === "HIDE_CARD");
-    if (hide) start(hide);
-    else client.toast("已回收符文（符能保留到本回合结束），但这张牌仍不能布置待命。");
+  // Mana a play would tap runes for; the server already offers every play tapping can afford.
+  const autoTapOf = (id: string): number | null => {
+    const plays = actions.get(id)?.filter((a) => a.cmdType === "PLAY_CARD") ?? [];
+    return plays.length && plays.every((a) => a.manaShortfall > 0) ? Math.min(...plays.map((a) => a.manaShortfall)) : null;
   };
 
   // Auto-pass: in a priority or focus window where this player has nothing at all to respond with,
-  // pass after a short beat. Any playable card, ability or auto-payable card stops it.
+  // pass after a short beat. Any playable card or ability stops it.
   const respondable = [...actions.values()].flat().some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE");
   useEffect(() => {
     if (!autoPass || !prompt?.actionable || pick || menuFor) return;
     const type = prompt.view?.type;
     if (type !== "STACK_PRIORITY" && type !== "SPELL_DUEL_FOCUS") return;
-    if (autoPayFor !== prompt.promptId || autoPay.size || respondable) return;
+    if (respondable) return;
     const passAction = enabledCandidate(prompt, "PASS_PRIORITY") ? "PASS_PRIORITY" : enabledCandidate(prompt, "PASS_FOCUS") ? "PASS_FOCUS" : null;
     if (!passAction) return;
     const t = setTimeout(() => {
       if (client.state.prompt?.promptId === prompt.promptId) void client.submit({ cmdType: passAction });
     }, 700);
     return () => clearTimeout(t);
-  }, [autoPass, prompt, autoPayFor, autoPay, respondable, pick, menuFor]);
+  }, [autoPass, prompt, respondable, pick, menuFor]);
 
   const runRuneCommand = async (cmdType: "TAP_RUNE" | "RECYCLE_RUNE", ids: string[]) => {
     if (!ids.length) return null;
@@ -331,37 +265,54 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       );
       return;
     }
-    const cmd = buildCommand(p.action, p.sel);
     if (p.action.cmdType !== "PLAY_CARD") {
-      void client.submit(cmd, p.action.promptId);
+      void client.submit(buildCommand(p.action, withOptionPayment(p)), p.action.promptId);
       return;
     }
-    // Targets can add costs (e.g. spellshield), so quote the exact play before sending it.
-    void client.previewPlayCard(cmd).then((quote) => {
-      if (!quote || (quote.isValid && quote.canPay)) {
-        void client.submit(cmd, p.action.promptId);
-        return;
-      }
-      const missingPower = quote.cost?.missingPower ?? 0;
-      const recycles = p.action.optionalCosts.filter((c) => isRecycle(c.id));
-      const haveRecycled = anyPowerFrom(p.action.requirement, p.sel.optionalCosts);
-      if (quote.isValid && missingPower > 0 && !quote.cost?.missingMana && recycles.length) {
-        setPick({ ...p, step: p.action.steps.length, powerNeed: haveRecycled + missingPower });
-        return;
-      }
-      const missing = [
-        quote.cost?.missingMana ? `${quote.cost.missingMana} 点法力` : "",
-        missingPower ? `${missingPower} 点符能` : "",
-        quote.cost?.missingExperience ? `${quote.cost.missingExperience} 点经验` : "",
-      ].filter(Boolean);
-      const hint = missingPower ? "可以先点符文选择「回收」获得符能。" : quote.cost?.missingMana ? "可以先横置符文获得法力。" : "";
-      client.toast(missing.length ? `费用不足：还差 ${missing.join("、")}。${hint}` : readableError(quote.errorCode, quote.message));
-    });
+    void submitPlay(p);
+  };
+
+  /** Pays the chosen option's cost from runes in the same command when the pool is short. */
+  const withOptionPayment = ({ action, sel }: Pick): Selection => {
+    const option = [...action.requiredCosts, ...sel.optionalCosts].find((c) => !isTap(c) && !isRecycle(c));
+    const cost = action.requirement?.costsByChoice?.[option ?? ""];
+    if (!cost) return sel;
+    const taps = action.taps.slice(0, Math.max(0, Number(cost.mana ?? 0) - (me.runePool.mana ?? 0)));
+    const recycles = recyclesByLoss(action.recycles.map((c) => c.id), action.taps).slice(0, Math.max(0, Number(cost.power ?? 0) - (me.runePool.power ?? 0)));
+    return { ...sel, optionalCosts: [...sel.optionalCosts, ...taps, ...recycles] };
+  };
+
+  // Targets can add costs (e.g. spellshield), so quote the exact play before sending it.
+  const submitPlay = async (p: Pick) => {
+    let sel = p.sel;
+    let quote = await client.previewPlayCard(buildCommand(p.action, sel));
+    const missingMana = quote?.isValid ? quote.cost?.missingMana ?? 0 : 0;
+    const taps = p.action.taps.filter((t) => !sel.optionalCosts.includes(t)).slice(0, missingMana);
+    if (missingMana > 0 && taps.length === missingMana) {
+      sel = { ...sel, optionalCosts: [...sel.optionalCosts, ...taps] };
+      quote = await client.previewPlayCard(buildCommand(p.action, sel));
+    }
+    if (!quote || (quote.isValid && quote.canPay)) {
+      void client.submit(buildCommand(p.action, sel), p.action.promptId);
+      return;
+    }
+    const missingPower = quote.cost?.missingPower ?? 0;
+    const haveRecycled = anyPowerFrom(p.action.requirement, sel.optionalCosts);
+    if (quote.isValid && missingPower > 0 && !quote.cost?.missingMana && p.action.recycles.length) {
+      setPick({ ...p, sel, step: p.action.steps.length, powerNeed: haveRecycled + missingPower });
+      return;
+    }
+    const missing = [
+      quote.cost?.missingMana ? `${quote.cost.missingMana} 点法力` : "",
+      missingPower ? `${missingPower} 点符能` : "",
+      quote.cost?.missingExperience ? `${quote.cost.missingExperience} 点经验` : "",
+    ].filter(Boolean);
+    client.toast(missing.length ? `费用不足：还差 ${missing.join("、")}。` : readableError(quote.errorCode, quote.message));
   };
 
   const advance = (p: Pick) => {
     if (p.step >= p.action.steps.length) {
-      if (p.action.optionalCosts.length) setPick(p);
+      if (p.action.optionalCosts.length || p.action.powerShortfall > 0) setPick(p);
       else submitPick(p);
       return;
     }
@@ -393,32 +344,13 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       const hit = first.choices.find((c) => choiceObjectIds(c).some((id) => dropIds.includes(id)));
       if (hit) p = applyChoice(p, first, hit.id);
     }
-    if (p.step >= action.steps.length && action.optionalCosts.length === 0) submitPick(p);
-    else advance(p);
+    advance(p);
   };
 
-  /** Plays a hand/champion card, tapping runes first when the pool is short on mana. */
-  const playCard = async (id: string, dropIds: string[] = []) => {
-    let list = actions.get(id)?.filter((a) => a.cmdType === "PLAY_CARD") ?? [];
-    if (!list.length) {
-      const need = autoPayNeed(id);
-      if (need == null) {
-        client.toast("这张牌现在还不能打出。");
-        return;
-      }
-      setBusy(true);
-      try {
-        await runRuneCommand("TAP_RUNE", [...tapIds].slice(0, Math.min(tapIds.size, need)));
-      } finally {
-        setBusy(false);
-      }
-      list = objectActions(client.state.prompt).get(id)?.filter((a) => a.cmdType === "PLAY_CARD") ?? [];
-      if (!list.length) {
-        client.toast("已横置符文（法力保留到本回合结束），但这张牌仍不能打出：可能还缺符能，或当前没有合法目标。");
-        return;
-      }
-    }
-    if (list.length > 1) setMenuFor(id);
+  const playCard = (id: string, dropIds: string[] = []) => {
+    const list = actions.get(id)?.filter((a) => a.cmdType === "PLAY_CARD") ?? [];
+    if (!list.length) client.toast("这张牌现在还不能打出。");
+    else if (list.length > 1) setMenuFor(id);
     else start(list[0], dropIds);
   };
 
@@ -462,7 +394,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       start(move);
       return;
     }
-    if (list.length || autoPayNeed(id) != null || hideViaRecycle.has(id)) setMenuFor(menuFor === id ? null : id);
+    if (list.length) setMenuFor(menuFor === id ? null : id);
     else setMenuFor(null);
   };
 
@@ -479,7 +411,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   };
 
   // ---------- drag ----------
-  const canDragHand = (id: string) => !pick && promptType !== "MULLIGAN" && (Boolean(actions.get(id)?.some((a) => a.cmdType === "PLAY_CARD")) || autoPayNeed(id) != null);
+  const canDragHand = (id: string) => !pick && promptType !== "MULLIGAN" && Boolean(actions.get(id)?.some((a) => a.cmdType === "PLAY_CARD"));
   const canDragUnit = (id: string) => !pick && Boolean(moveOf(id));
   const beginDrag = (id: string, kind: Drag["kind"]) => (e: ReactPointerEvent) => {
     if (e.button !== 0) return;
@@ -536,8 +468,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     if (menuFor === id || pick?.action.sourceObjectId === id || mulligan.includes(id) || pick?.sel.targets.includes(id) || inGroup || runeSel.includes(id))
       marks.push("selected");
     if (pick && legal.has(id) && !inGroup) marks.push("legal");
-    if (!pick && actions.has(id)) marks.push("playable");
-    else if (!pick && (autoPayNeed(id) != null || hideViaRecycle.has(id))) marks.push("autopay");
+    if (!pick && actions.has(id)) marks.push(autoTapOf(id) != null ? "autopay" : "playable");
     if (o?.isAttacking) marks.push("attacking");
     if (o?.isDefending) marks.push("defending");
     if (drag?.active && drag.id === id) marks.push("dragging");
@@ -581,7 +512,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
         ? inHand
         : pick
           ? legal.has(id)
-          : actions.has(id) || autoPayNeed(id) != null || hideViaRecycle.has(id) || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
+          : actions.has(id) || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
     const draggable = inHand ? canDragHand(id) : canDragUnit(id);
     return (
       <div className="obj" key={id} data-oid={id}>
@@ -612,12 +543,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
         {menuFor === id && (
           <ActionMenu
             actions={actions.get(id) ?? []}
-            autoPay={autoPayNeed(id)}
-            onAutoPay={() => {
-              setMenuFor(null);
-              void playCard(id);
-            }}
-            onHideAfterRecycle={hideViaRecycle.has(id) ? () => void hideAfterRecycle(id) : undefined}
+            hideRecycles={(me.runePool.power ?? 0) < 1}
             onPick={(a) => start(a)}
             onClose={() => setMenuFor(null)}
           />
@@ -696,7 +622,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                   selected={runeSel}
                   tapIds={tapIds}
                   recycleIds={recycleIds}
-                  pending={state.pending || busy}
+                  pending={state.pending}
                   onSelectAll={() => setRuneSel([...new Set([...runeSel, ...tapIds])])}
                   onCancel={() => setRuneSel([])}
                   onRun={async (mode) => {
@@ -771,9 +697,9 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
           {!winner && (
             <Dock
               prompt={prompt}
-              pending={state.pending || busy}
+              pending={state.pending}
               autoPass={autoPass}
-              unused={myMainTurn ? [...actions].filter(([id, list]) => !isRune(id) && list.some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE")).length + autoPay.size : 0}
+              unused={myMainTurn ? [...actions].filter(([id, list]) => !isRune(id) && list.some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE")).length : 0}
               onToggleAutoPass={() => {
                 const next = !autoPass;
                 setAutoPass(next);
@@ -802,17 +728,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                 onSkip={skipStep}
                 onToggleCost={(id) => {
                   const on = pick.sel.optionalCosts.includes(id);
-                  let next = on ? pick.sel.optionalCosts.filter((c) => c !== id) : [...pick.sel.optionalCosts, id];
-                  // Without an extra cost ticked, recycles may only cover the missing printed power;
-                  // the server rejects payment actions that aren't needed.
-                  if (!next.some((c) => !isRecycle(c))) {
-                    const kept: string[] = [];
-                    for (const c of next) {
-                      if (!isRecycle(c)) continue;
-                      if (providedPower(pick, kept) < neededPower(pick)) kept.push(c);
-                    }
-                    next = kept;
-                  }
+                  const next = on ? pick.sel.optionalCosts.filter((c) => c !== id) : [...pick.sel.optionalCosts, id];
                   setPick({ ...pick, sel: { ...pick.sel, optionalCosts: next } });
                 }}
                 onConfirm={() => submitPick(pick)}
@@ -884,7 +800,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
         {drag?.active && (
           <div className="dragghost" style={{ left: drag.x - drag.ox, top: drag.y - drag.oy }} aria-hidden>
             <Card object={dragObject} cardNo={dragObject?.cardNo} size={drag.kind === "hand" ? "hand" : "board"} animate={false} />
-            <span className="dragghost__hint">{drag.kind === "hand" ? (autoPayNeed(drag.id) ? `松手打出 · 自动横置 ${autoPayNeed(drag.id)} 枚符文` : "松手打出") : "拖到战场或基地"}</span>
+            <span className="dragghost__hint">{drag.kind === "hand" ? (autoTapOf(drag.id) ? `松手打出 · 自动横置 ${autoTapOf(drag.id)} 枚符文` : "松手打出") : "拖到战场或基地"}</span>
           </div>
         )}
         {state.connectionNote && <div className="conn">{state.connectionNote}</div>}
@@ -934,37 +850,25 @@ function ResultStats({ tally, meId, oppId, turns }: { tally: ClientState["tally"
 
 function ActionMenu({
   actions,
-  autoPay,
-  onAutoPay,
-  onHideAfterRecycle,
+  hideRecycles,
   onPick,
   onClose,
 }: {
   actions: ObjectAction[];
-  autoPay: number | null;
-  onAutoPay: () => void;
-  onHideAfterRecycle?: () => void;
+  hideRecycles: boolean;
   onPick: (a: ObjectAction) => void;
   onClose: () => void;
 }) {
   return (
     <motion.div className="menu" role="menu" onClick={(e) => e.stopPropagation()} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.12 }}>
-      {autoPay != null && (
-        <button role="menuitem" className="menu__item" onClick={onAutoPay}>
-          <span>打出</span>
-          <span className="menu__detail">自动横置 {autoPay} 枚符文</span>
-        </button>
-      )}
-      {onHideAfterRecycle && (
-        <button role="menuitem" className="menu__item" onClick={onHideAfterRecycle}>
-          <span>布置待命</span>
-          <span className="menu__detail">先回收 1 枚符文支付符能</span>
-        </button>
-      )}
       {actions.map((a) => (
         <button key={a.key} role="menuitem" className="menu__item" onClick={() => onPick(a)}>
           <span>{a.label}</span>
-          {a.detail && <span className="menu__detail">{a.detail}</span>}
+          {a.cmdType === "HIDE_CARD" && hideRecycles && a.recycles.length > 0 ? (
+            <span className="menu__detail">回收 1 枚符文支付符能</span>
+          ) : (
+            a.detail && <span className="menu__detail">{a.detail}</span>
+          )}
         </button>
       ))}
       <button className="menu__item menu__item--quiet" onClick={onClose}>
@@ -1136,8 +1040,7 @@ function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extr
               <p className="pickbar__hint">可选附加费用：</p>
             )}
             <div className="pickbar__choices">
-              {pick.action.optionalCosts
-                .filter((c) => !isRecycle(c.id) || neededPower(pick) > 0 || pick.sel.optionalCosts.some((x) => !isRecycle(x)))
+              {[...pick.action.optionalCosts, ...(neededPower(pick) > 0 ? pick.action.recycles : [])]
                 .map((c) => (
                   <label key={c.id} className="chip chip--toggle">
                     <input type="checkbox" checked={pick.sel.optionalCosts.includes(c.id)} onChange={() => onToggleCost(c.id)} />
