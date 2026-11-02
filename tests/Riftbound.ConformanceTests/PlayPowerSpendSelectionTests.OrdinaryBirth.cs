@@ -12,7 +12,8 @@ public sealed partial class PlayPowerSpendSelectionTests
     [Fact]
     public async Task OrdinaryBirthEarnedResourcesChooseTheOtherColorAndSurviveTheActualRegistry()
     {
-        var initial = MatchReplayInitialStateBuilder.FromSeats("ordinary-selected-power", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" });
+        var initial = MatchReplayInitialStateBuilder.FromSeats("ordinary-selected-power", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" })
+            with { SessionOptions = new(AllowLegacyReadyWithoutDeck: false, DeckFormat: OfficialDeckFormat.ChinaStandard20260724) };
         Assert.Equal(0, initial.Tick); Assert.Equal(0, initial.Seed); Assert.Equal(MatchStatuses.Seating, initial.Status);
         Assert.Empty(initial.CardObjects); Assert.Empty(initial.ObjectLocations); Assert.All(initial.RunePools.Values, pool => Assert.Equal(RunePool.Empty, pool));
         var run = new Run(initial, ordinary: true);

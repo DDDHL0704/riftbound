@@ -774,6 +774,10 @@ public interface IMatchSessionRegistry
     ValueTask<IMatchSession?> FindAsync(string roomId, CancellationToken cancellationToken);
 
     ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken);
+
+    ValueTask<IMatchSession> GetOrCreateAsync(string roomId, MatchSessionOptions creationOptions,
+        CancellationToken cancellationToken) =>
+        throw new NotSupportedException("This registry does not support room-specific rule configuration.");
 }
 
 public sealed record MatchSessionOptions(
@@ -781,6 +785,9 @@ public sealed record MatchSessionOptions(
     OfficialDeckFormat DeckFormat = OfficialDeckFormat.CoreRules)
 {
     public static MatchSessionOptions Default { get; } = new();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool HideSubmittedDeckIdentities { get; init; }
 }
 
 public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
@@ -836,14 +843,21 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         finally { gate.Release(); }
     }
 
-    public async ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken)
+    public ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken) =>
+        GetOrCreateAsync(roomId, sessionOptions, cancellationToken);
+
+    public async ValueTask<IMatchSession> GetOrCreateAsync(string roomId, MatchSessionOptions creationOptions,
+        CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(creationOptions);
+        if (!Enum.IsDefined(creationOptions.DeckFormat))
+            throw new ArgumentOutOfRangeException(nameof(creationOptions), "Unknown room deck format.");
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (!sessions.TryGetValue(roomId, out var session))
             {
-                session = await CreateSessionAsync(roomId, cancellationToken).ConfigureAwait(false);
+                session = await CreateSessionAsync(roomId, creationOptions, cancellationToken).ConfigureAwait(false);
                 sessions.Add(roomId, session);
             }
 
@@ -855,12 +869,13 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         }
     }
 
-    private async ValueTask<IMatchSession> CreateSessionAsync(string roomId, CancellationToken cancellationToken)
+    private async ValueTask<IMatchSession> CreateSessionAsync(string roomId, MatchSessionOptions creationOptions,
+        CancellationToken cancellationToken)
     {
         var recovery = await recoveryStore.LoadAsync(roomId, cancellationToken).ConfigureAwait(false);
         if (recovery is null)
         {
-            return new MatchSession(roomId, ruleEngine, journal, playerStore, sessionOptions);
+            return new MatchSession(roomId, ruleEngine, journal, playerStore, creationOptions);
         }
 
         if (!string.Equals(recovery.RoomId, roomId, StringComparison.Ordinal))
@@ -901,7 +916,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
             }
         }
 
-        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore, sessionOptions);
+        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore);
     }
 }
 
