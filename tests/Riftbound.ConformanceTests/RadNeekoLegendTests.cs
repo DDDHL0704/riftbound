@@ -415,6 +415,36 @@ public sealed class RadNeekoLegendTests
         await game.ColdCheckpoint(); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ExistingSandSoldiersKeepTheStaticGrantOnlyWhileTheAddedLegendRemains(bool returnsNeeko)
+    {
+        var position = (await Position("SFD·197/221")).State;
+        position = AttackDamageDistributionTests.Spell(position, "SAND", "SFD·031/221", "P1");
+        var game = new Driver(position) { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new PlayCardCommand("SAND", "SFD·031/221", [])); await game.Top();
+        var soldier = Assert.Single(game.State.CardObjects.Values,
+            card => card.TokenFactoryCardNo == P6TokenFactoryCatalog.SandSoldierTokenCardNo);
+        Assert.Contains(CardEquipmentKeywordNames.Tempered, soldier.Tags);
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.Empty(game.State.StackItems);
+        await game.ColdCheckpoint();
+
+        var returned = returnsNeeko ? "NEEKO" : "UNIT";
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", [returned])); await game.Top();
+        var remainingSoldier = game.State.CardObjects[soldier.ObjectId];
+        Assert.Equal(soldier.ObjectGeneration, remainingSoldier.ObjectGeneration);
+        Assert.Equal(soldier.TokenFactoryCardNo, remainingSoldier.TokenFactoryCardNo);
+        Assert.Equal(!returnsNeeko, remainingSoldier.Tags.Contains(CardEquipmentKeywordNames.Tempered));
+        Assert.Contains(returned, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(!returnsNeeko, game.State.CardObjects.ContainsKey(legend));
+        Assert.Equal(returnsNeeko, Assert.Single(game.State.BoundLegends!).DepartedAtTick is not null);
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
     private static IReadOnlyList<string> HistoryErrors(Driver game, MatchState state, MatchReplayFrame? spectator = null)
     {
         var sequence = game.Events().Last().Sequence;
