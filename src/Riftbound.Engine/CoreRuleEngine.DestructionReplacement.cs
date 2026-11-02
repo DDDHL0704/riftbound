@@ -148,10 +148,10 @@ public sealed partial class CoreRuleEngine
                 }
             }
             frame.CurrentDestructionDrawFrame = remaining.Any(id => cards.TryGetValue(id, out var unit)
-                && AttachedRuleTextRules.Instances(zones, cards, unit).Any(i => UnitDestroyedTriggerSpecRules.SelfDrawTriggers(i.CardNo).Count > 0
+                && (IsBomb(unit) || AttachedRuleTextRules.Instances(zones, cards, unit).Any(i => UnitDestroyedTriggerSpecRules.SelfDrawTriggers(i.CardNo).Count > 0
                     || UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(i.CardNo).Count > 0
                     || UnitDestroyedTriggerSpecRules.BaseTokenCreationTriggers(i.CardNo).Count > 0
-                    || UnitDestroyedTriggerSpecRules.LastBreathBattlefieldDamageTriggers(i.CardNo).Count > 0))
+                    || UnitDestroyedTriggerSpecRules.LastBreathBattlefieldDamageTriggers(i.CardNo).Count > 0)))
                 ? CapturePublicMightFrame(state, zones, cards, locations) : null;
 
             return scope;

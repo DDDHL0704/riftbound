@@ -31918,7 +31918,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var beforeRemovalEvents = scope?.Events;
         var equipmentObservers = before is null ? [] : CaptureEquipmentDestructionObservers(state, zones, cards, before);
-        var bombObserver = before is null ? null : CaptureBombDestructionObserver(state, zones, before);
+        var bombObservers = before is null ? [] : CaptureBombDestructionObservers(state, zones, cards, before);
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
         var equipmentDraws = before is null ? [] : CaptureEquipmentLastBreathDraws(state, zones, cards, before);
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
@@ -31930,7 +31930,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [],
             EquipmentLastBreathDraws = removed && removal.WasDestroyed && !removal.WasUnit ? equipmentDraws : [],
             EquipmentDestructionObservers = removed && removal.WasDestroyed ? equipmentObservers : [],
-            BombDestructionObserver = removed && removal.WasDestroyed ? bombObserver : null };
+            BombDestructionObservers = removed && removal.WasDestroyed ? bombObservers : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
         if (removed && removal.WasDestroyed && before is { IsFaceDown: false }
@@ -32071,8 +32071,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload[EquipmentLastBreathDrawCaptureKey] = removalResult.EquipmentLastBreathDraws;
         if (removalResult.EquipmentDestructionObservers.Count > 0)
             payload[EquipmentDeathCaptureKey] = removalResult.EquipmentDestructionObservers;
-        if (removalResult.BombDestructionObserver is { } bombObserver)
-            payload[BombDestructionCaptureKey] = new[] { bombObserver };
+        if (removalResult.BombDestructionObservers.Count > 0)
+            payload[BombDestructionCaptureKey] = removalResult.BombDestructionObservers;
         if (!string.IsNullOrWhiteSpace(reason))
         {
             payload["reason"] = reason;
@@ -34879,7 +34879,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public DeathRevealContext? DeathRevealContext { get; init; }
         public IReadOnlyList<LastBreathDrawContext> EquipmentLastBreathDraws { get; init; } = [];
         public IReadOnlyList<CapturedEquipmentDestructionObserver> EquipmentDestructionObservers { get; init; } = [];
-        public CapturedBombDestructionObserver? BombDestructionObserver { get; init; }
+        public IReadOnlyList<CapturedBombDestructionObserver> BombDestructionObservers { get; init; } = [];
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 
         public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false, []);
