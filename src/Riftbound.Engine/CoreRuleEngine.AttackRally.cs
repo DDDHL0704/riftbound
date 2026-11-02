@@ -60,7 +60,7 @@ public sealed partial class CoreRuleEngine
         var result = NoopStackResolutionResult(state);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "进攻移动技能结算", new Dictionary<string, object?> {
             ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind,
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") }) };
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) }) };
         // CN 359.3.f.2: the source's battlefield is a reference checked now.
         // A source in base or outside the field supplies no battlefield.
         if (item.TargetObjectIds.SingleOrDefault() is not { } target

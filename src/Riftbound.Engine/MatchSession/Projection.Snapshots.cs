@@ -474,7 +474,7 @@ public sealed partial record ResolutionResult
 
     public static SnapshotDto BuildSpectatorSnapshot(MatchState state)
     {
-        return BuildSnapshotForViewer(state, "__spectator__", includePrivatePool: false);
+        return BuildSnapshotForViewer(state, ProjectionViewers.Spectator, includePrivatePool: false);
     }
 
     private static SnapshotDto BuildSnapshotForViewer(MatchState state, string viewerPlayerId, bool includePrivatePool = true)
@@ -552,7 +552,7 @@ public sealed partial record ResolutionResult
 
         return new SnapshotTableDto(
             "server-snapshot",
-            viewerPlayerId,
+            viewerPlayerId == ProjectionViewers.Spectator ? ProjectionViewers.SpectatorTableId : viewerPlayerId,
             OfficialDeckValidator.RuneDeckCount,
             players,
             battlefields);
@@ -570,7 +570,7 @@ public sealed partial record ResolutionResult
         var isViewer = string.Equals(viewerPlayerId, subjectPlayerId, StringComparison.Ordinal);
         var perspective = isViewer
             ? "self"
-            : string.Equals(viewerPlayerId, "__spectator__", StringComparison.Ordinal)
+            : string.Equals(viewerPlayerId, ProjectionViewers.Spectator, StringComparison.Ordinal)
                 ? "spectator"
                 : "opponent";
         var visibleBattlefields = zones.Battlefields

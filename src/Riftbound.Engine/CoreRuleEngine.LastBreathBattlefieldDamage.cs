@@ -117,7 +117,7 @@ public sealed partial class CoreRuleEngine
         if (NeedsLastBreathHereTarget(item))
         {
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") } };
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) } };
             var target = item.TargetObjectIds.SingleOrDefault();
             if (target is null || !LastBreathHereTargets(state, item).Contains(target)
                 || item.TargetGenerations?.GetValueOrDefault(target, -1) != cards[target].ObjectGeneration)

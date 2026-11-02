@@ -72,7 +72,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidDeploymentHeldStack(state, item)) throw new InvalidOperationException("Invalid captured deployment Hold ability.");
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "部署的对手据守技能结算", new Dictionary<string, object?> {
             ["triggerId"] = item.StackItemId,
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind,
             ["battlefieldObjectId"] = item.HeldContext!.BattlefieldObjectId }) };
         var result = NoopStackResolutionResult(state);

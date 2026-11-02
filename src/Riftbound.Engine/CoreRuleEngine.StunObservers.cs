@@ -93,7 +93,7 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
                 events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, "__spectator__") } });
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, ProjectionViewers.Spectator) } });
             }
         }
         if (!found) return result;
@@ -148,7 +148,7 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid captured stun observer.");
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
-        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         if (context.Kind == StunReadyPowerKind && cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == context.SourceGeneration && IsFaceUpNonStandbyUnit(source)
             && IsObjectOnField(state.PlayerZones, source.ObjectId) && StunReadyBehavior(context.CardNo) is { } behavior) {
