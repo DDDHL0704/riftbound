@@ -215,6 +215,14 @@ public sealed class VenBasicFlowSpellTests
         private (string Player, string Intent, GameCommand Command, JsonElement Raw)? last;
         internal ActionPromptDto PromptFor(string player) => session.PromptFor(player);
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
+        // A few focused fixtures build a validated opening and then alter a
+        // private zone before exercising the rule directly. They do not append
+        // more journal entries through this driver after replacing the state.
+        internal void ReplaceStateForFixture(MatchState state)
+        {
+            State = state;
+            session = new(state, new CoreRuleEngine(), this);
+        }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
