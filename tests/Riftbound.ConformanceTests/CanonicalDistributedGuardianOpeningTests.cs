@@ -107,7 +107,7 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
                 await game.Top(); var allocation = game.State.PendingCardChoice!;
                 Assert.Equal("EFFECT_DAMAGE_DISTRIBUTION", allocation.ChoiceWindow); Assert.Equal("P2", allocation.PlayerId);
                 Assert.Equal(5, Assert.Single(game.State.StackItems).DamageDistribution!.ResolutionDamage); Assert.Equal(9, game.Might("P2", source));
-                await game.ColdCheckpoint();
+                // The forgery probe below restores this unchanged allocation history.
                 await game.RejectCoordinatedForgery("allocation-invented-empower", game.State with {
                     CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
                         [host] = game.State.CardObjects[host] with { IsEmpowered = true } } });
