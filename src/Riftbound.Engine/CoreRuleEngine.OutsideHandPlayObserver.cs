@@ -14,6 +14,10 @@ public sealed partial class CoreRuleEngine
 {
     internal const string OutsideHandPlayObserverEffect = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
     internal const string OpponentTurnPlayTokenEffect = "CONTROLLER_OPPONENT_TURN_PLAY_CREATE_MINION";
+    internal const string CardPlayDrawEffect = TriggerKinds.ControllerCardPlayDraw;
+
+    private static int ControllerCardPlayDrawCount(string cardNo)
+        => CardBehaviorRegistry.TryGetByCardNo(cardNo, out var behavior) ? behavior.ControllerCardPlayDrawCount : 0;
 
     private sealed record OutsideHandPlayObserverCandidate(ObjectBinding Source, string CardNo, string ControllerId,
         long FaceRevision, string RuleTextInstanceId, string? SourceTokenFactoryCardNo, RuleTextInstanceBinding? Origin,
@@ -48,7 +52,8 @@ public sealed partial class CoreRuleEngine
                 .SelectMany(instance => new[] {
                     OutsideHandPlayObserverFaces.Value.Contains(instance.CardNo) ? OutsideHandPlayObserverEffect : null,
                     OpponentTurnPlayObserverFaces.Value.Contains(instance.CardNo) && cards[id].Tags.Contains(CardObjectTags.UnitCard)
-                        && (own.Base.Contains(id) || own.Battlefields.Contains(id)) ? OpponentTurnPlayTokenEffect : null }
+                        && (own.Base.Contains(id) || own.Battlefields.Contains(id)) ? OpponentTurnPlayTokenEffect : null,
+                    ControllerCardPlayDrawCount(instance.CardNo) > 0 ? CardPlayDrawEffect : null }
                     .Where(effect => effect is not null)
                     .Select(effect => new OutsideHandPlayObserverCandidate(new(id, cards[id].ObjectGeneration),
                         instance.CardNo, player, instance.Origin?.FaceRevision ?? cards[id].CopyFaceTransitions?.Count ?? 0,
@@ -59,10 +64,12 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidOutsideHandPlayObserver(MatchState state, OutsideHandPlayObserverContext? context,
         string effect, string sourceId, string controller, string? cardNo)
     {
-        if (context is null) return effect is not (OutsideHandPlayObserverEffect or OpponentTurnPlayTokenEffect);
+        if (context is null) return effect is not (OutsideHandPlayObserverEffect or OpponentTurnPlayTokenEffect or CardPlayDrawEffect);
         var opponentTurn = effect == OpponentTurnPlayTokenEffect;
-        if (effect is not (OutsideHandPlayObserverEffect or OpponentTurnPlayTokenEffect) || context.CardNo != cardNo
-            || !(opponentTurn ? OpponentTurnPlayObserverFaces.Value : OutsideHandPlayObserverFaces.Value).Contains(context.CardNo)
+        var draws = effect == CardPlayDrawEffect;
+        if (effect is not (OutsideHandPlayObserverEffect or OpponentTurnPlayTokenEffect or CardPlayDrawEffect) || context.CardNo != cardNo
+            || (draws ? ControllerCardPlayDrawCount(context.CardNo) <= 0
+                : !(opponentTurn ? OpponentTurnPlayObserverFaces.Value : OutsideHandPlayObserverFaces.Value).Contains(context.CardNo))
             || context.Source is null || context.Played is null || context.Source.ObjectId != sourceId
             || context.Source.Generation < 0 || context.Played.Generation < 0
             || string.IsNullOrWhiteSpace(context.Played.ObjectId) || context.ControllerId != controller
@@ -72,7 +79,7 @@ public sealed partial class CoreRuleEngine
                 : context.TurnPlayerId is not null)
             || !state.CardPlays.Resolved.Any(play => play.PlayId == context.PlayId && play.PlayerId == controller
                 && play.Source == context.Played && play.Tick == context.CapturedTick
-                && (opponentTurn || CompletedPlayFromOutsideHand(state.CardPlays.Finalized.FirstOrDefault(p => p.PlayId == play.PlayId), play)))) return false;
+                && (draws || opponentTurn || CompletedPlayFromOutsideHand(state.CardPlays.Finalized.FirstOrDefault(p => p.PlayId == play.PlayId), play)))) return false;
         return context.Origin is null
             ? context.RuleTextInstanceId == $"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}"
                 && PredictBindingMatches(state, context.Source, context.CardNo, context.FaceRevision,
@@ -101,6 +108,18 @@ public sealed partial class CoreRuleEngine
         if (item.EffectKind == OpponentTurnPlayTokenEffect)
             return CreateUnitTokenBatch(state, item, P6TokenFactoryCatalog.ZaunMinionTokenCardNo,
                 1 + AdditionalUnitTokens(item), false, abilityId: OpponentTurnPlayTokenEffect);
+        if (item.EffectKind == CardPlayDrawEffect)
+        {
+            var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary();
+            var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "打出卡牌触发的抽牌技能结算",
+                new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["sourceCardNo"] = item.CardNo, ["effectKind"] = item.EffectKind }) };
+            var draw = ApplyDrawToPlayer(state, zones, cards, NormalizeScoresForSeats(state), item.ControllerId,
+                ControllerCardPlayDrawCount(item.OutsideHandPlayObserver!.CardNo), state.RngCursor, events, deferNormalVictory: true);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,
+                WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor, Events = events,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
         return ApplyEmpowerAction(state, item.OutsideHandPlayObserver!.Source, item.ControllerId);
     }
 }

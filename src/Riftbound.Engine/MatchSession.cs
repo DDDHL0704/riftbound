@@ -1635,7 +1635,8 @@ public sealed partial record ResolutionResult(
         if (trigger.EmpowerOtherObserver is not null) return trigger.EffectKind == CoreRuleEngine.OwnedBanishEmpowerEffect
             ? "放逐自己的卡牌：强化来源" : "其他物体被强化：强化来源";
         if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
-            ? "对手回合打出卡牌：打出随从" : "从手牌以外打出卡牌：强化来源";
+            ? "对手回合打出卡牌：打出随从" : trigger.EffectKind == CoreRuleEngine.CardPlayDrawEffect
+                ? "打出卡牌：抽牌" : "从手牌以外打出卡牌：强化来源";
         if (trigger.HighCostPlayObserver is not null) return CoreRuleEngine.HighCostReadiesSource(trigger.SourceCardNo)
             ? "打出高费用卡牌：让来源活跃" : "打出高费用单位、装备或主动技能：横置并活跃符文";
         if (trigger.ConquestSource is not null) return "征服效果：获得分数";
@@ -1675,7 +1676,8 @@ public sealed partial record ResolutionResult(
         if (trigger.EmpowerOtherObserver is not null) return trigger.EffectKind == CoreRuleEngine.OwnedBanishEmpowerEffect
             ? "你放逐了属于自己的卡牌；双方响应后强化来源。" : "其他物体被你强化；双方响应后强化来源。";
         if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
-            ? "对手回合打出卡牌；双方响应后打出随从。" : "从手牌以外打出卡牌；双方响应后强化来源。";
+            ? "对手回合打出卡牌；双方响应后打出随从。" : trigger.EffectKind == CoreRuleEngine.CardPlayDrawEffect
+                ? "你成功打出卡牌；双方响应后抽牌。" : "从手牌以外打出卡牌；双方响应后强化来源。";
         if (trigger.HighCostPlayObserver is not null) return CoreRuleEngine.HighCostReadiesSource(trigger.SourceCardNo)
             ? "技能结算时让来源单位变为活跃状态。" : "可横置来源，并让至多两枚符文活跃。";
         if (trigger.ConquestSource is not null) return "双方响应后获得分数。";
