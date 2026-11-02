@@ -87,11 +87,14 @@ public sealed partial class CopiedDestructionReplacementInstanceTests
     {
         var initial = AddInitial(AddInitial(AddInitial(Position(no, false), "GLASSES", "VEN·137", "P1"),
             "DETACH", "SFD·011/221", "P1"), "KILL", "OGN·229/298", "P2");
-        var run = new Driver(initial);
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("FIELD-1", "OGN·210/298", [], Destination: "BATTLEFIELD:HOME"));
         await run.Act("P1", new PlayCardCommand("S", no, [], Destination: "BASE"));
         await run.Act("P1", new PlayCardCommand("FIELD-2", "OGN·210/298", [], Destination: "BATTLEFIELD:HOME"));
         await run.Act("P1", new PlayCardCommand("GLASSES", "VEN·137", [], Destination: "BASE"));
+        // Recover the ordinary pieces before the actual face-copy choice.
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
         await run.Act("P1", new AssembleEquipmentCommand("GLASSES", "FIELD-1", ["ASSEMBLE_YELLOW"])); await run.Top();
         await Select(run, "COPY:S");
         Assert.Equal(no, run.State.CardObjects["FIELD-1"].CardNo); Assert.Equal(4, run.State.CardObjects["FIELD-1"].Power);
