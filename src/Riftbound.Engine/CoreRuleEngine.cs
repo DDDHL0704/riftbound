@@ -7842,16 +7842,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 break;
             }
             case LegendAbilityEffectKinds.MoveFriendlyUnit:
+            {
+                var movementPools = runePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
                 MoveLegendTargetBetweenBaseAndBattlefield(
-                    state,
-                    playerZones,
-                    cardObjects,
-                    targetObjectIds[0],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
+                    state with { RunePools = runePools, PlayerExperience = playerExperience },
+                    playerZones, cardObjects, objectLocations, movementPools, targetObjectIds[0],
+                    intent.PlayerId, command.SourceObjectId, command.AbilityId, events);
+                runePools = movementPools;
                 break;
+            }
             case LegendAbilityEffectKinds.GrantBoon:
                 GrantLegendBoon(
                     cardObjects,
@@ -8620,43 +8619,48 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations,
+        Dictionary<string, RunePool> runePools,
         string targetObjectId,
         string playerId,
         string sourceObjectId,
         string abilityId,
         List<GameEvent> events)
     {
-        var location = FindFieldObjectLocation(playerZones, targetObjectId);
-        if (location is null)
+        if (!TryGetPreciseFieldLocation(playerZones, objectLocations, targetObjectId, out var origin)
+            || !cardObjects.TryGetValue(targetObjectId, out var unit) || !IsFaceUpNonStandbyUnit(unit)
+            || EffectiveFieldControllerId(playerZones, targetObjectId, unit) != playerId) return;
+        var generation = unit.ObjectGeneration;
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = objectLocations, RunePools = runePools };
+        ObjectLocationState destination;
+        if (origin.Zone == "BASE")
         {
-            return;
+            var choices = ChosenMovementDestinations(current, playerId)
+                .Where(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)).ToArray();
+            if (choices.Length == 0) return;
+            var selected = RuleChoices.Value!.Choose(playerId, "选择此单位移动到的战场。",
+                choices.Select(choice => new RuleChoiceOption(choice.Id, choice.Label)).ToArray(),
+                kind: "MOVEMENT_DESTINATION", preview: current);
+            destination = new(playerId, "BATTLEFIELD", selected[12..]);
         }
-
-        var destinationZone = string.Equals(location.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
-            ? MoveUnitBattlefieldZone
-            : MoveUnitBaseZone;
-        var movementObservation = CaptureMovementObservers(state, cardObjects, targetObjectId, playerId, destinationZone);
-        RemoveFieldObjectFromLocation(
-            playerZones,
-            location.Value.PlayerId,
-            location.Value.Zone,
-            targetObjectId);
-        AddFieldObjectToLocation(playerZones, playerId, destinationZone, targetObjectId);
-        events.Add(new GameEvent(
-            string.Equals(destinationZone, MoveUnitBaseZone, StringComparison.Ordinal)
-                ? "UNIT_MOVED_TO_BASE"
-                : "UNIT_MOVED_TO_BATTLEFIELD",
-            $"{targetObjectId} 被传奇技能移动",
-            new Dictionary<string, object?>
+        else destination = new(playerId, "BASE");
+        var item = new StackItemState($"LEGEND-MOVE-{state.Tick + 1}-{sourceObjectId}", playerId, sourceObjectId,
+            LegendAbilityEffectKinds.MoveFriendlyUnit, state.CardObjects[sourceObjectId].CardNo, [targetObjectId]);
+        bool OriginalUnit(MatchState frame) => frame.CardObjects.TryGetValue(targetObjectId, out var mover)
+            && mover.ObjectGeneration == generation && EffectiveFieldControllerId(frame.PlayerZones, targetObjectId, mover) == playerId
+            && TryGetPreciseFieldLocation(frame.PlayerZones, frame.ObjectLocations, targetObjectId, out var at) && at == origin;
+        var firstEvent = events.Count;
+        TryMoveFieldUnitByEffect(current, playerZones, cardObjects, objectLocations, runePools,
+            targetObjectId, destination, playerId, item, events, OriginalUnit);
+        for (var index = firstEvent; index < events.Count; index++)
+            if (events[index].Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD")
             {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = sourceObjectId,
-                ["abilityId"] = abilityId,
-                ["targetObjectId"] = targetObjectId,
-                ["originZone"] = location.Value.Zone,
-                ["destinationZone"] = destinationZone
-            }));
-        events.Add(movementObservation);
+                var payload = new Dictionary<string, object?>(events[index].Payload) {
+                    ["abilityId"] = abilityId, ["originZone"] = origin.Zone, ["destinationZone"] = destination.Zone };
+                payload.Remove("stackItemId");
+                events[index] = events[index] with { Payload = payload };
+            }
     }
 
     private static void GrantLegendBoon(
@@ -18283,7 +18287,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (behavior.MovesTargetsToChosenLocation
-            && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, destination, ChosenMovementTargets(behavior, NormalizeTargetObjectIds(command.TargetObjectIds))))
+            && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, behavior, destination, ChosenMovementTargets(behavior, NormalizeTargetObjectIds(command.TargetObjectIds))))
         {
             rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
             return false;
@@ -26114,7 +26118,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.MovesTargetToBattlefield
+                    if (behavior.MovesTargetsToChosenLocation && behavior.TargetScope == CardTargetScopes.FriendlyBaseUnit
                         && !CanMoveTargetToControllerBattlefield(
                             playerZones,
                             cardObjects,
@@ -26636,27 +26640,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.MovesTargetToBattlefield
-                        && TryMoveTargetToControllerBattlefield(
-                            playerZones,
-                            cardObjects,
-                            stackItem.ControllerId,
-                            targetObjectId))
-                    {
-                        events.Add(new GameEvent(
-                            "UNIT_MOVED_TO_BATTLEFIELD",
-                            $"{behavior.DisplayName}让单位移动到战场",
-                            new Dictionary<string, object?>
-                            {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["controllerId"] = stackItem.ControllerId,
-                                ["destinationZone"] = "BATTLEFIELD"
-                            }));
-                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, cardObjects, targetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
-                        continue;
-                    }
-
                     cardObjects[targetObjectId] = targetState;
                 }
 
@@ -26726,7 +26709,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // finish the movement instruction before lethal cleanup.
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
-                stackItem, ChosenMovementTargets(behavior, stackItem.TargetObjectIds).Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
+                stackItem, ChosenMovementTargets(behavior, stackItem.TargetObjectIds).Where(id => !string.IsNullOrWhiteSpace(id)
+                    && (behavior.TargetScope != CardTargetScopes.FriendlyBaseUnit
+                        || CanMoveTargetToControllerBattlefield(playerZones, cardObjects, stackItem.ControllerId, id))).ToArray(),
+                stackItem.Destination, events);
             // CN359.3.e.14: the following instruction refers to the moved unit;
             // if movement is ignored, its linked ready instruction is ignored.
             if (behavior.ReadiesTargetsAfterChosenMovement)
@@ -32690,32 +32676,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["objectIds"] = damagedObjectIds,
                 ["count"] = damagedObjectIds.Length
             }));
-    }
-
-    private static bool TryMoveTargetToControllerBattlefield(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string controllerId,
-        string targetObjectId)
-    {
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), controllerId) || !CanMoveTargetToControllerBattlefield(
-                playerZones,
-                cardObjects,
-                controllerId,
-                targetObjectId)
-            || !playerZones.TryGetValue(controllerId, out var zones))
-        {
-            return false;
-        }
-
-        playerZones[controllerId] = zones with
-        {
-            Base = RemoveFromZone(zones.Base, targetObjectId),
-            Battlefields = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
-                ? zones.Battlefields
-                : zones.Battlefields.Concat([targetObjectId]).ToArray()
-        };
-        return true;
     }
 
     private static bool CanMoveTargetToControllerBattlefield(

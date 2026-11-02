@@ -11,14 +11,16 @@ public sealed partial class CoreRuleEngine
     internal static bool IsChosenMovementTargetIndex(CardBehaviorDefinition behavior, int index)
         => behavior.ChosenMovementTargetIndex is { } chosen ? index == chosen
             : !behavior.OptionalEquipmentAfterMovement || index == 0;
-    internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinations(MatchState state, string playerId)
+    internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinations(MatchState state, string playerId, CardBehaviorDefinition? movement = null)
         => state.Seats.Keys.Order(StringComparer.Ordinal)
             .Select(id => new ActionPromptChoiceDto("BASE:" + id, $"{state.Seats[id]} 的基地"))
             .Concat(state.CardObjects.Keys.Order(StringComparer.Ordinal)
                 .Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)
                 .Select(id => new ActionPromptChoiceDto("BATTLEFIELD:" + id,
                     CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo ?? "", out var behavior)
-                        ? $"{behavior.DisplayName}（{id}）" : id))).ToArray();
+                        ? $"{behavior.DisplayName}（{id}）" : id)))
+            .Where(choice => string.IsNullOrEmpty(movement?.ChosenMovementDestinationZone)
+                || choice.Id.StartsWith(movement.ChosenMovementDestinationZone + ":", StringComparison.Ordinal)).ToArray();
 
     internal static bool HasChosenMovementDestination(MatchState state, string player, string target)
         => ChosenMovementDestinations(state, player).Any(choice => IsUnitMovementDestination(state, target, choice.Id));
@@ -98,12 +100,12 @@ public sealed partial class CoreRuleEngine
         return [equipmentId];
     }
 
-    private static bool IsChosenMovementDestinationAllowed(MatchState state, string playerId, string destination, IReadOnlyList<string> targets)
+    private static bool IsChosenMovementDestinationAllowed(MatchState state, string playerId, CardBehaviorDefinition behavior, string destination, IReadOnlyList<string> targets)
     {
         // CN 355.4: declare the destination, excluding each unit's current location.
         // Choosing no units requires no movement destination.
         if (targets.Count == 0 && string.IsNullOrEmpty(destination)) return true;
-        return ChosenMovementDestinations(state, playerId).Any(choice => choice.Id == destination)
+        return ChosenMovementDestinations(state, playerId, behavior).Any(choice => choice.Id == destination)
             && targets.All(id => IsUnitMovementDestination(state, id, destination));
     }
 

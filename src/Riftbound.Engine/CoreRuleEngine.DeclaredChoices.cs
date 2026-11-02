@@ -39,7 +39,7 @@ public sealed partial class CoreRuleEngine
             return targets.All(id => RemadeStandbyLocationAllowed(state, behavior, field, id))
                 && OpenBattlefieldModeAllowed(state, spell.ControllerId, behavior, execution.Destination)
                 && (!behavior.MovesTargetsToChosenLocation || IsChosenMovementDestinationAllowed(state,
-                    spell.ControllerId, execution.Destination, ChosenMovementTargets(behavior, targets)));
+                    spell.ControllerId, behavior, execution.Destination, ChosenMovementTargets(behavior, targets)));
         }
         if (!HasLegalDeclaredTargets(state, spell.ControllerId, spell.SourceObjectId, behavior, targets, PlayCardTargetScopeForBehavior(behavior))
             || targets.Any(id => !PermanentPlayHereTargetAllowed(state, spell, behavior, id))) return false;
@@ -49,7 +49,7 @@ public sealed partial class CoreRuleEngine
             && OpenBattlefieldModeAllowed(state, spell.ControllerId, behavior, execution.Destination)
             && (behavior.CommandedMovement is not { } movement || IsCommandedMovementDestinationAllowed(state, spell.ControllerId,
                 execution.Destination, targets, movement))
-            && (!behavior.MovesTargetsToChosenLocation || IsChosenMovementDestinationAllowed(state, spell.ControllerId, execution.Destination, ChosenMovementTargets(behavior, targets)))
+            && (!behavior.MovesTargetsToChosenLocation || IsChosenMovementDestinationAllowed(state, spell.ControllerId, behavior, execution.Destination, ChosenMovementTargets(behavior, targets)))
             && (!behavior.MovesFriendlyEquipmentToChosenBattlefield
                 || IsEquipmentMovementDestinationAllowed(state, spell.ControllerId, execution.Destination, targets));
     }

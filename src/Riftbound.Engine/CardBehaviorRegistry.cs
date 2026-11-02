@@ -186,7 +186,7 @@ public sealed record CardBehaviorDefinition(
     bool DrawsControllerAndOtherPlayers = false,
     bool CallsRuneForControllerAndOtherPlayers = false,
     bool GrantsBoon = false,
-    bool MovesTargetToBattlefield = false,
+    string ChosenMovementDestinationZone = "",
     bool GrantsBoonToAllFriendlyUnits = false,
     bool ConsumesTargetBoonsToReady = false,
     bool SwapsTargetLocations = false,
@@ -1282,7 +1282,7 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.FriendlyBaseUnit,
             GrantsBoon: true,
-            MovesTargetToBattlefield: true),
+            MovesTargetsToChosenLocation: true, ChosenMovementDestinationZone: "BATTLEFIELD"),
         new(
             "OGN·153/298",
             "公开行动",
