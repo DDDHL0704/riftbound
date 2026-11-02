@@ -7,7 +7,7 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
     string? CreatedTokenFactoryCardNo = null, bool RequiresPlayedUnitStrongest = false,
-    bool LeadingSourceExhaust = false, int DiscardCount = 0);
+    bool LeadingSourceExhaust = false, int DiscardCount = 0, int MinimumExhaustedUnits = 0, bool OncePerTurn = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null);
@@ -404,7 +404,8 @@ public sealed record CardBehaviorDefinition(
     int EffectPlayMaximumManaCost = 0,
     int EffectPlayMaximumPowerCost = 0,
     bool StatusEffectUsesTargetCurrentPower = false,
-    int BattlefieldWinDrawCount = 0)
+    int BattlefieldWinDrawCount = 0,
+    SpellModeSetSpec? SpellModes = null)
 {
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
@@ -9471,6 +9472,36 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·091/167", "嘉文四世", 4, "RAD_091_JARVAN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·091a/167", "嘉文四世", 4, "RAD_091A_JARVAN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·068/167", "奥莉安娜", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·068a/167", "奥莉安娜", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068A", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·090/167", "伊芙琳", 5, "RAD_090_EVELYNN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|伏击"),
+        new("RAD·090a/167", "伊芙琳", 5, "RAD_090A_EVELYNN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|伏击"),
+        new("RAD·086/167", "奎桑提", 5, "RAD_086_KSANTE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守2|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Orange),
+        new("RAD·086a/167", "奎桑提", 5, "RAD_086A_KSANTE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守2|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Orange),
+        new("RAD·178*/167", "奎桑提", 5, "RAD_178_STAR_KSANTE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守2|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Orange),
+        new("RAD·178/167", "奎桑提", 5, "RAD_178_KSANTE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守2|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Orange),
+        new("RAD·109/167", "伊芙琳", 4, "RAD_109_EVELYNN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "恶魔|缴械"),
+        new("RAD·109a/167", "伊芙琳", 4, "RAD_109A_EVELYNN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "恶魔|缴械"),
+        new("RAD·SP3/005", "伊芙琳", 4, "RAD_SP3_EVELYNN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "恶魔|缴械"),
         new("RAD·063/167", "卡莎 · 逆天改命", 5, "RAD_063_KAISA_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "缴械"),
         new("RAD·045/167", "奎桑提", 4, "RAD_045_KSANTE_PLAY_UNIT", 0, 0,
@@ -9822,6 +9853,38 @@ public static class CardBehaviorRegistry
             CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy),
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantSeraphineUnits =
+        new[] { "RAD·138/167", "RAD·138a/167", "RAD·SP5/005", "T1S·005/005" }
+            .Select(no => new CardBehaviorDefinition(no, "萨勒芬妮", 5, "SERAPHINE_PLAY_OR_EXHAUST_CREATE_MINION", 0, 0,
+                PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1,
+                UnitEventAbility: new("PLAY_OR_EXHAUST", "CREATE_UNIT_TOKEN", 1,
+                    CreatedTokenFactoryCardNo: "OGN·271/298"))).ToArray();
+
+    private static readonly CardBehaviorDefinition[] RadiantEncoreModes = [
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_DAMAGE", 2, 1,
+            Mode: "DAMAGE", TargetScope: CardTargetScopes.AnyUnit),
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_MINIONS", 0, 0,
+            Mode: "MINIONS", CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenPower: 1,
+            CreatedBaseUnitTokenName: "随从", CreatedBaseUnitTokenTags: CardObjectTags.UnitCard),
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_MIGHT", 0, 2,
+            Mode: "MIGHT", MinTargetCount: 0, TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 1),
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_LOOK", 0, 1,
+            Mode: "LOOK", TargetScope: CardTargetScopes.FriendlyMainDeckCard, MainDeckLookCount: 2,
+            DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true)
+    ];
+    private static readonly CardBehaviorDefinition[] RadiantEncore = [
+        new("RAD·152/167", "炫音返场", 3, "MODAL_SPELL", 0, 3,
+            MinTargetCount: 0, TargetScope: CardTargetScopes.AnyUnit, AllowsRepeatedTargets: true,
+            SpellModes: new("RAD·152/167", 2, RadiantEncoreModes))
+    ];
+
+    private static readonly CardBehaviorDefinition[] RadiantSeraphineHealingUnits =
+        new[] { "RAD·065/167", "RAD·065a/167" }
+            .Select(no => new CardBehaviorDefinition(no, "萨勒芬妮", 4, "SERAPHINE_EXHAUST_TOGETHER_DRAW", 0, 0,
+                PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+                UnitEventAbility: new("FRIENDLY_UNITS_EXHAUSTED_TOGETHER", "DRAW", 1,
+                    Optional: true, MinimumExhaustedUnits: 3, OncePerTurn: true))).ToArray();
+
     private static readonly CardBehaviorDefinition[] RadiantLegendarySupportUnits =
     [
         new("RAD·040/167", "鼓舞之魂", 7, "SOUL_OF_INSPIRATION_PLAY_READY_FRIENDLY_LEGEND", 0, 1,
@@ -9884,7 +9947,8 @@ public static class CardBehaviorRegistry
             .Concat([RawDefinitions.Single(b => b.CardNo == "VEN·084") with { CardNo = "T1S·001/005" }])
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
-            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits)
+            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits).Concat(RadiantSeraphineUnits).Concat(RadiantSeraphineHealingUnits)
+            .Concat(RadiantEncore).Concat(RadiantEncoreModes)
             .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)

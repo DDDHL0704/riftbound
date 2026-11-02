@@ -148,7 +148,7 @@ public sealed partial class CoreRuleEngine
         var behavior = new CardBehaviorDefinition(item.CardNo, "活跃其他物体", 0, item.EffectKind, 0, 1);
         cards[id] = ApplyReadyState(cards[id], behavior, item, id, out var ready, state.PlayerZones, cards);
         if (ready is not null) ready = ready with { Payload = new Dictionary<string, object?>(ready.Payload) {
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") } };
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) } };
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = ready is null ? [] : [ready] };
     }
 }

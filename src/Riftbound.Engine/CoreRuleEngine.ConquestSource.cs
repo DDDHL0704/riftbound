@@ -7,7 +7,8 @@ namespace Riftbound.Engine;
 public sealed record ConquestSourceContext(ObjectBinding Source, string CardNo, string ControllerId, string Kind,
     string BattlefieldId, string Reason, long CapturedTick, int TurnNumber, long FaceRevision, string RuleTextInstanceId,
     bool? SourceWasEmpowered, IReadOnlyList<string>? ConfirmedPlayIds,
-    string? SourceTokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null);
+    string? SourceTokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
+    bool? HadRequiredFriendlyEquipmentHere = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -17,6 +18,7 @@ public sealed partial class CoreRuleEngine
             t.Timing == TriggerTimings.UnitConquest && (t.Kind switch {
                 TriggerKinds.UnitConquestEmpoweredGainScore or TriggerKinds.UnitConquestPlayedUnitEquipmentSpellGainScore => t.ScoreAmount is > 0,
                 TriggerKinds.UnitConquestDrawOne => t.DrawCount is > 0,
+                TriggerKinds.UnitConquestCallRune => t.RuneCallCount is > 0,
                 TriggerKinds.UnitConquestGrantSelfBoon => t.BoonCount is > 0,
                 TriggerKinds.UnitConquestGainResources => t.ManaDelta is >= 0 && t.GeneratedPower is >= 0
                     && (t.ManaDelta > 0 || t.GeneratedPower > 0),
@@ -35,6 +37,8 @@ public sealed partial class CoreRuleEngine
             {
                 var spec = ConquestSourceSpec(instance.CardNo);
                 if (spec is null || spec.RequiresSourceEmpowered == true && !source.IsEmpowered) continue;
+                if (spec.RequiredFriendlyEquipmentKeywordHere is { } keyword
+                    && !HasFriendlyEquipmentKeywordHere(state, player, battlefield, keyword)) continue;
                 string[]? playIds = null;
                 if (spec.Kind == TriggerKinds.UnitConquestPlayedUnitEquipmentSpellGainScore)
                 {
@@ -46,7 +50,8 @@ public sealed partial class CoreRuleEngine
                 }
                 var context = new ConquestSourceContext(new(id, source.ObjectGeneration), instance.CardNo, player, spec.Kind,
                     battlefield, reason, tick, state.TurnNumber, instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
-                    instance.Id, spec.RequiresSourceEmpowered == true ? true : null, playIds, source.TokenFactoryCardNo, instance.Origin);
+                    instance.Id, spec.RequiresSourceEmpowered == true ? true : null, playIds, source.TokenFactoryCardNo, instance.Origin,
+                    spec.RequiredFriendlyEquipmentKeywordHere is not null ? true : null);
                 var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects, state.ObjectLocations,
                     player, battlefield, reason);
                 var binding = MatchStateHasher.HashValue(context);
@@ -68,7 +73,9 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(c.BattlefieldId) || !state.BattlefieldStates.ContainsKey(c.BattlefieldId)
             || c.Reason is not ("BATTLEFIELD_CONQUERED" or "BATTLEFIELD_HELD")
             || c.CapturedTick < 0 || c.CapturedTick > state.Tick || c.TurnNumber != state.TurnNumber || c.FaceRevision < 0
-            || (spec.RequiresSourceEmpowered == true ? c.SourceWasEmpowered != true : c.SourceWasEmpowered is not null)) return false;
+            || (spec.RequiresSourceEmpowered == true ? c.SourceWasEmpowered != true : c.SourceWasEmpowered is not null)
+            || (spec.RequiredFriendlyEquipmentKeywordHere is not null
+                ? c.HadRequiredFriendlyEquipmentHere != true : c.HadRequiredFriendlyEquipmentHere is not null)) return false;
         if (c.Kind == TriggerKinds.UnitConquestPlayedUnitEquipmentSpellGainScore)
         {
             if (c.ConfirmedPlayIds is not { Count: > 0 } ids || ids.Distinct(StringComparer.Ordinal).Count() != ids.Count
@@ -103,10 +110,22 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidConquestSourceStack(state, item)) throw new InvalidOperationException("Invalid captured conquest source action.");
         var context = item.ConquestSource!; var spec = ConquestSourceSpec(context.CardNo)!;
-        var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var events = new List<GameEvent> { new("UNIT_TRIGGER_RESOLVED", "征服触发技能结算", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = publicSource,
             ["battlefieldId"] = context.BattlefieldId, ["trigger"] = context.Kind }) };
+        if (context.Kind == TriggerKinds.UnitConquestCallRune)
+        {
+            var zones = NormalizeZonesForSeats(state);
+            var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            var called = CallRunes(zones, cards, item.ControllerId, spec.RuneCallCount!.Value);
+            events.Add(new("RUNES_CALLED", "征服触发技能召出休眠符文", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = publicSource,
+                ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray(),
+                ["reason"] = context.Kind }));
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
+        }
         if (context.Kind == TriggerKinds.UnitConquestDrawOne)
         {
             var zones = NormalizeZonesForSeats(state);

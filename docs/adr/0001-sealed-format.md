@@ -12,9 +12,14 @@
 | 私有卡池 | 快照顶层 `sealedPool: { setCode, packs: [{ cards: [{ cardNo, slot, foil }] }], pool: [{ cardNo, count }] }`；只向本人返回，对手和观战者为空（序列化可省略空值）。`slot` 为 `common / uncommon / rare_or_better / foil / rune_or_token`；稀有槽、闪卡槽及符文／指示物槽 `foil = true`。 |
 | 提交 | 继续 `SUBMIT_DECK { legendCardNo, championCardNo, mainDeck, runeDeck, battlefields }`；现开传奇／英雄可为 `null` 或空字符串。单局制提交 3 张战场，三局两胜每局提交 1 张。空白战场固定保留编号 `SEALED·BLANK-BATTLEFIELD`，只在现开解释。拒绝返回逐条中文错误。 |
 | 多局 | `series: { bestOf, gameNumber, wins: { 玩家: 数 }, phase, usedBattlefields: { 玩家: [cardNo…] }, playOrderChooserPlayerId }`；`gameNumber` 从 1 起；phase 为 `choosing_play_order / submitting_decks / playing / finished`；已用战场保留重复编号以表达实体数量，本人全部可见，对手仅包含已公开记录，观战者仅包含公开记录。 |
+| 先后手 | 仅 `series.phase = "choosing_play_order"` 时向 `playOrderChooserPlayerId` 提供启用的候选 `CHOOSE_PLAY_ORDER`，另一方只有等待；通过既有 `SubmitIntent` 提交 `{ cmdType: "CHOOSE_PLAY_ORDER", goFirst: true / false }`，表示选择者本人先手／后手。`goFirst` 必须显式为 JSON 布尔值；支持既有 `promptId`／`snapshotTick`。成功后进入 `submitting_decks`，清空 `playOrderChooserPlayerId`；首局双方入座前 `series` 为空，提示等待入座。 |
 | 备牌 | 快照顶层 `sideboardCounts: { 玩家: 数 }` 公开数量（403.6）；牌面、未提交配置和开包结果继续私有。备牌由服务器用卡池减去本局配置计算，客户端无需另交清单。 |
 
 字段变动须同步本 ADR 和 DTO；实际投影、命令可空支持与多局流程在对应实施步骤接入。
+
+私有卡池的入座事务、种子派生、本人投影、卡池校验提交、可空角色／空白战场开局和空房间回放见 ADR 0006；公开现开建房在共享比赛模型及局间卡组／战场约束齐备后开放。
+
+比赛层房间接入见 ADR 0005。现开 `PlayerMatchDto.players[].score` 使用胜局数（如 `2:1`）；构筑继续使用该局游戏内分数。单局结束不写公开战绩，只有达到比赛所需胜局时写一条。公开建房目前仍未开放，待局间卡组／战场约束齐备再开放联调。
 
 ## 规则和流程
 

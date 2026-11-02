@@ -85,7 +85,8 @@ public sealed partial class BattleWinnerPhaseBoundaryTests
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { [id] = new("P2", zone) },
                 PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P2"] = zones } };
         }
-        var run = new Driver(initial);
+        // Restore the paid unit and resource setup before entering the battle.
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("HOST", "OGN·210/298", [], Destination: "BATTLEFIELD:HOME")); await run.Act("P1", new EndTurnCommand());
         foreach (var batch in Enumerable.Range(1, 15).Select(i => "P2-FUND-" + i).Chunk(12)) await run.Act("P2", new TapRuneCommand(batch[0], batch));
         await run.Act("P2", new RecycleRuneCommand("P2-RED-1", ["P2-RED-1", "P2-RED-2"]));
@@ -94,6 +95,7 @@ public sealed partial class BattleWinnerPhaseBoundaryTests
             if (run.State.StackItems.Count > 0) await run.Top();
             await run.Act("P2", new PlayCardCommand(ready, "OGN·146/298", [unit])); await run.Top();
         }
+        await run.ColdCheckpoint(); run.RecoverAfterEveryCommand = true;
         await run.Act("P2", new MoveUnitCommand("ATTACKER", "BASE", "BATTLEFIELD:HOME", [], ["ATTACKER", "ATTACKER-2"])); await PassFocus(run);
         await run.Act("P2", new DeclareBattleCommand("HOME", ["ATTACKER-2", "ATTACKER"], ["HOST"], ["COMBAT_ASSIGNMENT"]));
         await run.Act("P2", new AssignCombatDamageCommand("battle:HOME", "HOME", [new("ATTACKER", "HOST", 3), new("ATTACKER-2", "HOST", 5)]));

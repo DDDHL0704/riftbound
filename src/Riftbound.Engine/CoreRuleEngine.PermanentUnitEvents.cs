@@ -21,7 +21,10 @@ public sealed partial class CoreRuleEngine
         if ((spec.LeadingManaCost > 0 || spec.LeadingPowerCost > 0) && item.TriggerCost is null)
             return NoopStackResolutionResult(state);
         if (spec.Effect == "CREATE_UNIT_TOKEN")
-            return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount, false);
+        {
+            if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
+            return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), false);
+        }
         if (item.TargetObjectIds.SingleOrDefault() is not { } target
             || !StackObjectRules.ReferencesCurrentObject(state, item, target)
             || !UnitEventTargets(state, item).Contains(target)) return NoopStackResolutionResult(state);
@@ -40,7 +43,8 @@ public sealed partial class CoreRuleEngine
                 out var readied, state.PlayerZones, cards);
             if (readied is not null) events.Add(readied);
         }
-        else if (spec.Effect == "MOVE_ENEMY_HERE" && UnitEventHereDestination(state, item) is { } destination)
+        else if ((spec.Effect == "MOVE_ENEMY_HERE" ? UnitEventHereDestination(state, item)
+            : spec.Effect == DeploymentPlayMoveEffect ? DeploymentPlayDestination(state, item.UnitEvent!) : null) is { } destination)
         {
             var zones = NormalizeZonesForSeats(state);
             var locations = state.ObjectLocations.ToDictionary();

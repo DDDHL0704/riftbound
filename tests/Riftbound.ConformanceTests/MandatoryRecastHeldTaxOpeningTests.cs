@@ -68,9 +68,13 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             await Cold();
             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var pirate = Hand(Pirate)!; var host = Hand(Host)!;
             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
+            // Recover the same paid unit preparation once before readiness and conquest.
+            verifyColdRecoveryAfterEveryCommand = false;
             var hostRunes = Runes().Take(2).ToArray();
             await Act(actor, new TapRuneCommand(hostRunes[0], hostRunes));
             await Act(actor, new PlayCardCommand(host, Host, [])); await Drain();
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.Contains(host, State().PlayerZones[actor].Base); Assert.True(State().CardObjects[host].IsExhausted);
             Assert.Equal(0, State().RunePools[actor].Mana);
             await NextOwnTurn(); Assert.False(State().CardObjects[host].IsExhausted);
@@ -89,8 +93,12 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             Assert.Equal(12, Runes().Length); Assert.Equal(2, purple.Length);
             var manaRunes = Runes().Except(purple).ToArray();
+            // Recover both resource-preparation commands before the actual paid spell.
+            verifyColdRecoveryAfterEveryCommand = false;
             await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
             await Act(actor, new RecycleRuneCommand(purple[0], purple));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.Equal(10, State().RunePools[actor].Mana);
             var remainingDeck = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [pirate])); await Drain();
@@ -167,7 +175,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             {
                 Directory.CreateDirectory(output);
                 await File.WriteAllTextAsync(Path.Combine(output, actor + "-" + choice + ".json"), JsonSerializer.Serialize(new {
-                    scope = "Real seats, validated red/purple Pyke40/12/3 decks, seed424242 and independent pre-submission blueprint; no future runtime deck order read or changed. Natural runes, real two-mana Poro play/readiness/movement/conquest, next real held step and tax, then actual ten mana/two purple payment of Gift/Harrowing. Default one-mana versus voluntary discard-to-zero, both seats and all three choices. Every native command checks privacy/dedup. JSON production-registry cold recovery checks the complete natural-channeling prefix and every later conquest/tax/payment command, followed by full original-history replay. No SQL/SignalR/real process restart/full L2/L3/whole-card claim.",
+                    scope = "Real seats, validated red/purple Pyke40/12/3 decks, seed424242 and independent pre-submission blueprint; no future runtime deck order read or changed. Natural runes, real two-mana Poro play/readiness/movement/conquest, next real held step and tax, then actual ten mana/two purple payment of Gift/Harrowing. Default one-mana versus voluntary discard-to-zero, both seats and all three choices. Every native command checks privacy/dedup. JSON production-registry cold recovery checks the complete natural-channeling prefix, paid preparation boundaries and each readiness/movement/conquest/held-tax/recast/payment stage, followed by full original-history replay. No SQL/SignalR/real process restart/full L2/L3/whole-card claim.",
                     initial, deck, actor, choice, final = journal.Entries.LastOrDefault()?.AuthoritativeState, defaultQuote, discountQuote,
                     commands = Commands(), events = Events(), forgery }, Json));
             }

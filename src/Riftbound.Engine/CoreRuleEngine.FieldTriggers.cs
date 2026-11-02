@@ -291,7 +291,7 @@ public sealed partial class CoreRuleEngine
     {
         var state = RestoreAfterTriggerConfirmation(result.State with { StackItems = result.State.StackItems.Where(i => i.StackItemId != item.StackItemId).ToArray() }, item);
         var discarded = result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
-            new Dictionary<string, object?> { ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") })).ToArray(),
+            new Dictionary<string, object?> { ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) })).ToArray(),
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
         return ResumeDuelChainFocus(discarded);
     }
@@ -375,7 +375,7 @@ public sealed partial class CoreRuleEngine
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
             var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付费用或放弃技能", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind
-                    ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
+                    ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = checked(mana + highCostMana), ["powerCost"] = tax,
                 ["targetObjectIds"] = selected.ToArray() });
@@ -411,7 +411,7 @@ public sealed partial class CoreRuleEngine
             if (!HighCostSetsSourceBasePower(highCost.CardNo) && !HighCostPlaysSourceFromGraveyard(highCost.CardNo))
                 events.Add(new("SOURCE_EXHAUSTED", "支付触发技能横置费用", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId,
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, source.ObjectId, "__spectator__") }));
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, source.ObjectId, ProjectionViewers.Spectator) }));
         }
         if (HasLegendConquestTarget(item))
         {
@@ -448,7 +448,7 @@ public sealed partial class CoreRuleEngine
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         var confirmationPayload = new Dictionary<string, object?> {
             ["sourceObjectId"] = NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind || IsStunObserverKind(field.Kind))
-                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() };
+                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() };
         if (item.BattlefieldConquestReadyEquipment is { } equipment)
         {
             confirmationPayload["stackItemId"] = item.StackItemId;

@@ -8,6 +8,8 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class CommandInputNumberIdentityTests
 {
+    private readonly MatchSession session = new("number-identity", new CoreRuleEngine());
+
     [Theory]
     [InlineData("1.230e-5", "0.00001230")]
     [InlineData("1e3", "1000")]
@@ -59,7 +61,7 @@ public sealed class CommandInputNumberIdentityTests
     private static JsonElement Wire(string value) => JsonDocument.Parse(
         "{\"cmdType\":\"MULLIGAN\",\"handObjectIds\":[],\"trace\":" + value + "}").RootElement.Clone();
 
-    private static string Fingerprint(string value) => Assert.IsType<string>(typeof(MatchSession)
-        .GetMethod("InputFingerprint", BindingFlags.NonPublic | BindingFlags.Static)!
-        .Invoke(null, [Wire(value), TypedCommandInput.Capture(new MulliganCommand([]))]));
+    private string Fingerprint(string value) => Assert.IsType<string>(typeof(MatchSession)
+        .GetMethod("InputFingerprint", BindingFlags.NonPublic | BindingFlags.Instance)!
+        .Invoke(session, [Wire(value), TypedCommandInput.Capture(new MulliganCommand([]))]));
 }

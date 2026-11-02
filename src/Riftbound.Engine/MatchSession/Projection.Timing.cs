@@ -795,8 +795,7 @@ public sealed partial record ResolutionResult
 
     private static int ResolveBasePower(CardObjectState cardObject)
     {
-        return TemporaryUnitEffectRules.Number(cardObject, TemporaryUnitEffectRules.BaseMightPrefix)
-            ?? cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+        return TemporaryUnitEffectRules.BaseMight(cardObject);
     }
 
     internal static int SnapshotEffectivePower(MatchState state, CardObjectState card, ObjectLocationState? location)
@@ -879,6 +878,7 @@ public sealed partial record ResolutionResult
 
     public static IReadOnlyDictionary<string, ActionPromptDto> BuildPrompts(MatchState state)
     {
+        if (RoomMatchSeries.ChoosingPrompts(state) is { } seriesPrompts) return seriesPrompts;
         if (state.PendingRuleChoice is not null) return CoreRuleEngine.BuildRuleChoicePrompts(state);
         if (state.Status != MatchStatuses.InProgress)
         {

@@ -11,7 +11,9 @@ public sealed partial class CoreRuleEngine
                 && !gear.IsFaceDown && gear.Tags.Contains(CardObjectTags.EquipmentCard)
                 && OfficialArmamentCatalog.Find(gear.CardNo)?.GrantedKeywords is { Count: > 0 }
                 && IsObjectOnField(state.PlayerZones, gear.ObjectId)
-                && state.CardObjects.TryGetValue(host, out var unit) && IsFaceUpNonStandbyUnit(unit)
+                && state.CardObjects.TryGetValue(host, out var unit) && !unit.IsFaceDown
+                && !unit.Tags.Contains(CardObjectTags.Standby)
+                && (unit.Tags.Contains(CardObjectTags.UnitCard) || unit.Tags.Contains(CardObjectTags.EquipmentCard))
                 && IsObjectOnField(state.PlayerZones, host)
                 && IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host))
             .GroupBy(gear => gear.AttachedToObjectId!, StringComparer.Ordinal)

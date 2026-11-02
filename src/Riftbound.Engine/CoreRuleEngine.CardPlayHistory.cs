@@ -11,7 +11,8 @@ public sealed record CardPlayHistoryEntry(string PlayId, string PlayerId, Object
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? OriginHandPlayerId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool OriginOutsideHands = false,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ReturnedEquipmentManaCost = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ShowcaseReceipt? Showcase = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ShowcaseReceipt? Showcase = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<OptionalPlayCostReductionUse>? OptionalPlayCostReductions = null);
 public sealed record TurnCardPlayHistory(int TurnNumber,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Finalized,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Resolved);
@@ -84,7 +85,10 @@ public sealed partial class CoreRuleEngine
                 && (!IsIdentityFieldZone(oldLocation.Zone) || !IsIdentityFieldZone(observation.Zone)))
                 generation = Math.Max(generation, old.ObjectGeneration + 1);
             var costReceipt = result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.ReturnedEquipmentManaCost;
+            var optionalPlayReductions = result.State.UntilEndOfTurnEffects.Select(ReadPlayCostReductionUse)
+                .OfType<OptionalPlayCostReductionUse>().Where(use => use.PlayId == entry.PlayId).ToArray();
             entry = entry with { ReturnedEquipmentManaCost = costReceipt,
+                OptionalPlayCostReductions = optionalPlayReductions.Length == 0 ? null : optionalPlayReductions,
                 Showcase = entry.Showcase ?? result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.Showcase };
             var limited = entry.PlayId.Length == 0;
             if (limited) entry = entry with { OriginOutsideHands = true };
@@ -123,7 +127,7 @@ public sealed partial class CoreRuleEngine
                         queue.Add(trigger);
                         var queued = BuildTriggerQueuedEvent(trigger);
                         events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, ProjectionViewers.Spectator) } });
                     }
                 }
                 if (result.State.Status == MatchStatuses.InProgress)
@@ -140,7 +144,7 @@ public sealed partial class CoreRuleEngine
                         queue.Add(trigger);
                         var queued = BuildTriggerQueuedEvent(trigger);
                         events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, ProjectionViewers.Spectator) } });
                     }
                 }
             }
