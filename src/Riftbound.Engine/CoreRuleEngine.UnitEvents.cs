@@ -18,14 +18,18 @@ public sealed partial class CoreRuleEngine
     private const string UnitEventCaptureKey = "unitEventObservations";
     private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context);
     private static UnitEventAbilitySpec? UnitEventSpec(string? no)
-        => no is null ? null : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
-            ?? DeploymentPlayLegends.Value.GetValueOrDefault(no);
+        => no is null ? null
+            : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
+                ?? MainPhaseLegendEventSpec(no)
+                ?? DeploymentPlayLegends.Value.GetValueOrDefault(no);
 
     private static UnitEventObservation[] CaptureUnitEvents(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<string> sources, string timing)
         => sources.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
-                && !card.IsFaceDown && (IsFaceUpNonStandbyUnit(card) || card.Tags.Contains(CardObjectTags.EquipmentCard))
-                && IsObjectOnField(zones, id))
+                && !card.IsFaceDown && ((IsFaceUpNonStandbyUnit(card) || card.Tags.Contains(CardObjectTags.EquipmentCard))
+                    && IsObjectOnField(zones, id)
+                    || timing == "MAIN" && MainPhaseLegendEventSpec(card.CardNo) is not null
+                        && card.Tags.Contains("CARD_TYPE:LEGEND") && zones.Values.Any(z => z.LegendZone.Contains(id))))
             .Select(id => cards[id]).SelectMany(card => AttachedRuleTextRules.Instances(zones, cards, card)
                 .Where(i => UnitEventSpec(i.CardNo) is { } spec
                     && (spec.Timing == timing || spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"
@@ -322,7 +326,7 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS"
+        && (SelectedUnitEventSpec(c)?.Effect is DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.TargetGenerations is null || NeedsUnitEventTarget(item) && item.TargetObjectIds.Count > 0
@@ -335,6 +339,8 @@ public sealed partial class CoreRuleEngine
             && (SelectedUnitEventSpec(item.UnitEvent!)!.Effect switch {
                 "STUN_ENEMY" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId,
+                EquipmentUnitTransformationEffect => c.Tags.Contains(CardObjectTags.EquipmentCard)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 DeploymentPlayMoveEffect => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
                     && DeploymentPlayDestination(state, item.UnitEvent!) is { } playedDestination
@@ -409,6 +415,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
         if (spec.Effect is "BOON_SELF" or "READY_SELF" or "STUN_ENEMY")
             return ResolveUnitEventBoonInstruction(state, item, spec);
+        if (spec.Effect == EquipmentUnitTransformationEffect) return ResolveEquipmentUnitTransformation(state, item);
         if (spec.Effect == "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF")
             return ResolveOptionalEquipmentDestructionMight(state, item, spec.Amount);
         if (spec.Effect == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount);

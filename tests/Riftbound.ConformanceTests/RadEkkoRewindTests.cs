@@ -145,9 +145,13 @@ public sealed class RadEkkoRewindTests
                 ["LEGEND"] = new("P1", "LEGEND") } };
         initial = OfficialCopyIdentityTests.AddSpell(initial, "COST", "UNL-009/219");
         initial = OfficialCopyIdentityTests.AddSpell(initial, "DETACH", "SFD·011/221");
+        initial = AnimatedArmamentAttachmentTests.WithMainPhaseResources(initial);
+        initial = RadGearTestPosition.Put(initial, "ORI-POWER-0", "UNL-R06", "P1", "BASE");
+        foreach (var player in new[] { "P1", "P2" })
+            for (var i = 0; i < 4; i++)
+                initial = LastBreathDrawBoundaryTests.Add(initial, player + "-DRAW-" + i, "OGN·219/298", player, "MAIN_DECK");
         var g = new Driver(initial);
-        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
-            ["HOST"], ["SPEND_MANA:1"])); await g.Top();
+        await AnimatedArmamentAttachmentTests.TransformAtNextOwnMain(g, "HOST");
         await g.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await g.Top();
         var copy = g.State.PendingRuleChoice!.Request;
         await g.Act("P1", new PayCostCommand(copy.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
