@@ -38,4 +38,4 @@
 
 真实印次保留到 `pool`；异画／超编规则与平卡相同，开放系列的所有候选印次都有引擎加载和实现状态守卫。符文／指示物槽供开包展示，完全不计卡池数量，基础符文本来不限。确定性使用 SHA-256 计数器，候选按 cardNo 排序；结果携带私有种子、配置版本、配置 SHA-256 和生成器版本。房间接入时将完整结果写日志／恢复帧，禁止任何私有种子或卡池进入对手与观战者投影、提示或公开日志。
 
-全部页面原始快照和等级在 `data/official/upstream/2026-11-02/sealed-products/manifest.json`。售前最后处理：[官方辉耀群星售前公告](https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/)只核实 5 包加英雄卡包（传奇、稀有英雄、战场、辅助卡牌）；辅助数量／卡表待确认，限定黑默丁格不能入现开卡组，不猜卡表。
+全部页面原始快照和等级在 `data/official/upstream/2026-11-02/sealed-products/manifest.json`。原始页面以确定性的 `*-raw.html.gz` 无损保存；清单的 `sha256`／`bytes` 对应解压原文，`archiveSha256`／`archiveBytes` 对应压缩文件。售前最后处理：[官方辉耀群星售前公告](https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/)只核实 5 包加英雄卡包（传奇、稀有英雄、战场、辅助卡牌）；辅助数量／卡表待确认，限定黑默丁格不能入现开卡组，不猜卡表。
