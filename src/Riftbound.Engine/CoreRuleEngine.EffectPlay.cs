@@ -396,7 +396,10 @@ public sealed partial class CoreRuleEngine
         {
             var resumed = state with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
-            var resolved = ResolveStackItemEffect(resumed, parent with { EffectPlayCompleted = true });
+            // A self-banishing token has finished its skill and cannot be replayed.
+            // Its source is already gone, so do not enter source validation again.
+            var resolved = selfReplay ? NoopStackResolutionResult(resumed)
+                : ResolveStackItemEffect(resumed, parent with { EffectPlayCompleted = true });
             return resolved with { Events = events.Concat(resolved.Events).ToArray() };
         }
         if (sources.Count == 0 && events.Count == 0)

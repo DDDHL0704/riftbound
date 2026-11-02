@@ -79,6 +79,27 @@ public sealed class RadEkkoRewindTests
     }
 
     [Fact]
+    public async Task ARealImageCopyCeasesOnSelfBanishmentAndCompletesTheSkillWithoutAReplay()
+    {
+        var initial = OfficialCopyIdentityTests.AddSpell(OfficialCopyIdentityTests.Position("RAD·021/167"), "COST", "UNL-009/219") with { Tick = 0 };
+        var g = new Driver(initial);
+        await g.Act("P1", new PlayCardCommand("C", "UNL-200/219", ["TARGET"]));
+        await g.Top(); await g.Top();
+        var token = Assert.Single(g.State.CardObjects.Values, card => card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo);
+        Assert.Equal("RAD·021/167", token.CardNo);
+        await g.Act("P1", new ActivateAbilityCommand(token.ObjectId, Ability, [], OptionalCosts: ["DISCARD_HAND_CARD:COST"]));
+        await g.Top();
+        Assert.False(g.State.CardObjects.ContainsKey(token.ObjectId));
+        Assert.False(g.State.ObjectLocations.ContainsKey(token.ObjectId));
+        Assert.DoesNotContain(token.ObjectId, g.State.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.Banished)));
+        Assert.Null(g.State.PendingEffectPlay); Assert.Empty(g.State.StackItems);
+        Assert.Contains("COST", g.State.PlayerZones["P1"].Graveyard);
+        Assert.Single(g.Events(), row => row.Event.Kind == "TOKEN_CEASED_TO_EXIST"
+            && Equals(row.Event.Payload.GetValueOrDefault("targetObjectId"), token.ObjectId));
+        await g.Replay();
+    }
+
+    [Fact]
     public async Task ARealCopiedEkkoReplaysThePhysicalUnitAfterItsCopiedFaceEnds()
     {
         var initial = OfficialCopyIdentityTests.AddSpell(ShadySpectaclesTests.Position("RAD·021/167"), "COST", "UNL-009/219");
