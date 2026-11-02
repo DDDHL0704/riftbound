@@ -337,6 +337,9 @@ def workflow_timings(run_path, jobs_path, run_id, run_attempt, shard_names):
             raise ValueError('Invalid UTC workflow timestamp.') from error
 
     created = timestamp(run.get('created_at'))
+    attempt_started = timestamp(run.get('run_started_at'))
+    if created > attempt_started:
+        raise ValueError('Workflow run timestamps are out of order.')
     observed = []
     for job in jobs:
         if (job.get('run_id') != run_id or job.get('run_attempt') != run_attempt
@@ -344,7 +347,7 @@ def workflow_timings(run_path, jobs_path, run_id, run_attempt, shard_names):
                 or job.get('conclusion') != 'success'):
             raise ValueError('Workflow job identity, attempt or successful completion differs.')
         queued, started, completed = [timestamp(job.get(key)) for key in ('created_at', 'started_at', 'completed_at')]
-        if not created <= queued <= started <= completed:
+        if not attempt_started <= queued <= started <= completed:
             raise ValueError('Workflow job timestamps are out of order.')
         observed.append(dict(id=job['id'], name=job['name'], created=queued, started=started, completed=completed,
                              queueSeconds=(started-queued).total_seconds(), jobSeconds=(completed-started).total_seconds()))
@@ -355,7 +358,7 @@ def workflow_timings(run_path, jobs_path, run_id, run_attempt, shard_names):
     if (any(job['created'] < prepare['completed'] for job in rules)
             or gate['created'] < last_rule['completed']):
         raise ValueError('Workflow dependency timestamps are out of order.')
-    if not created <= timestamp(run.get('run_started_at')) <= gate['completed'] <= timestamp(run.get('updated_at')):
+    if gate['completed'] > timestamp(run.get('updated_at')):
         raise ValueError('Workflow run timestamps are out of order.')
 
     def peak(group):
@@ -367,7 +370,7 @@ def workflow_timings(run_path, jobs_path, run_id, run_attempt, shard_names):
             maximum = max(maximum, active)
         return maximum
 
-    critical = dict(initialSchedulingSeconds=(prepare['created']-created).total_seconds(),
+    critical = dict(initialSchedulingSeconds=(prepare['created']-attempt_started).total_seconds(),
                     prepareQueueSeconds=prepare['queueSeconds'], prepareJobSeconds=prepare['jobSeconds'],
                     ruleSchedulingSeconds=(last_rule['created']-prepare['completed']).total_seconds(),
                     ruleQueueSeconds=last_rule['queueSeconds'], ruleJobSeconds=last_rule['jobSeconds'],
@@ -377,7 +380,8 @@ def workflow_timings(run_path, jobs_path, run_id, run_attempt, shard_names):
         raise ValueError('Workflow metadata changed while it was being read.')
     return dict(sourceRunId=run_id, sourceRunAttempt=run_attempt, workflowHeadSha=head,
                 runMetadataSha256=hashes[str(run_path)], jobsMetadataSha256=hashes[str(jobs_path)],
-                createdToCompletionSeconds=(gate['completed']-created).total_seconds(),
+                attemptStartedAt=run['run_started_at'], workflowCreatedAt=run['created_at'],
+                attemptWallSeconds=(gate['completed']-attempt_started).total_seconds(),
                 criticalPath=critical, lastRuleJob=last_rule['name'],
                 ruleStageSeconds=(last_rule['completed']-prepare['completed']).total_seconds(),
                 maxRuleQueueSeconds=max(job['queueSeconds'] for job in rules),
@@ -385,7 +389,7 @@ def workflow_timings(run_path, jobs_path, run_id, run_attempt, shard_names):
                 peakJobs=peak(observed), peakRuleJobs=peak(rules), totalJobSeconds=sum(job['jobSeconds'] for job in observed),
                 jobs=[{key: job[key] for key in ('id', 'name', 'queueSeconds', 'jobSeconds')}
                       for job in sorted(observed, key=lambda job: (job['started'], job['name']))],
-                limitation='Recorded job times include setup and artifact work. Parallel waits overlap; '
+                limitation='Wall time starts at this attempt\'s run_started_at. Job times include setup and artifact work. Parallel waits overlap; '
                            'this observation cannot identify global runner capacity or predict future speedup.')
 
 
