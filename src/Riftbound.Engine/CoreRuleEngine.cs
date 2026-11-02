@@ -5313,7 +5313,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ability = BattlefieldAdjustedAbility(state, intent.PlayerId, command.SourceObjectId, ability);
         if (selectedMana is not null && ability.IsResourceSkill)
             return RejectWithCorePrompts(state, "此资源技能没有可选择的法力费用。", ErrorCodes.InvalidTarget);
-        if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText)
+        if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText && ability.SimpleEffect is null)
             return RejectWithCorePrompts(state, "此技能的复制实例尚未开放。", ErrorCodes.UnsupportedCommand);
 
         if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
