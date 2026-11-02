@@ -293,6 +293,48 @@ public sealed class RadDocksideCageTests
         OfficialInsightAndSpellLockTests.Restore(state);
     }
 
+    [Theory]
+    [InlineData(true)] [InlineData(false)]
+    public async Task AnActuallyCopiedHoldCannotBorrowThePrintedInstancesExiledCard(bool copiedFirst)
+    {
+        var game = new Driver(Put(WithOrianna(Position()), "SONG", "SFD·059/221", "P1", "BASE"));
+        await game.Act("P1", new PlayCardCommand("CARD", Cage, [], Destination: "BATTLEFIELD:BF"));
+        await Choose(game, ["PRISONER"]); await game.Top();
+        var originalLink = Assert.Single(game.State.LinkedExiles);
+        Assert.StartsWith("PRINTED:", originalLink.UnitEventOrigin!.InstanceId);
+        await Animate(game, "CARD");
+        await game.Act("P1", new AssembleEquipmentCommand("SONG", "CARD", ["ASSEMBLE_GREEN"]));
+        await game.Top();
+        Assert.Equal(Cage, game.State.CardObjects["SONG"].AttachedRuleText!.CardNo);
+        await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        Assert.Single(game.State.TriggerQueue, item => item.HeldContext!.Origin is not null);
+        Assert.Equal(2, game.State.TriggerQueue.Select(item => item.HeldContext!.RuleTextInstanceId).Distinct().Count());
+        // Ordering pushes in reverse; shared trigger costs are confirmed from the bottom of the stack.
+        var ordered = game.State.TriggerQueue.OrderBy(item => (item.HeldContext!.Origin is not null) == copiedFirst ? 1 : 0).ToArray();
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: ordered.Select(item => item.TriggerId).ToArray()));
+        var paying = Assert.Single(game.State.StackItems, item => item.StackItemId == game.State.PendingCardChoice!.ResolvingStackItemId);
+        Assert.Equal(copiedFirst, paying.HeldContext!.Origin is not null);
+        await Choose(game, ["CARD"]);
+        Assert.Contains("CARD", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Single(game.State.StackItems);
+        await game.Top();
+        if (copiedFirst)
+        {
+            Assert.Null(game.State.PendingEffectPlay);
+            Assert.Contains("PRISONER", game.State.PlayerZones["P1"].Banished);
+        }
+        else
+        {
+            Assert.NotNull(game.State.PendingEffectPlay);
+            Assert.Equal(originalLink.UnitEventOrigin!.InstanceId, game.State.PendingEffectPlay.Parent.HeldContext!.RuleTextInstanceId);
+            await game.Act("P1", new PlayCardCommand("PRISONER", "OGN·219/298", [], Destination: "BASE"));
+            Assert.Contains("PRISONER", game.State.PlayerZones["P1"].Base);
+        }
+        Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
     private static MatchState WithOrianna(MatchState state)
         => state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
