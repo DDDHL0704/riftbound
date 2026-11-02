@@ -629,6 +629,7 @@ public sealed class GameHub(
             ? ProjectEvents(result.Events, result.State)
             : Array.Empty<GameEvent>();
         if (matchResultStore is not null
+            && result.State.Status == MatchStatuses.Finished
             && result.Events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal)))
         {
             await matchResultStore.RecordMatchResultAsync(
@@ -707,9 +708,9 @@ public sealed class GameHub(
         var players = state.Seats
             .Select(entry =>
             {
-                var score = state.PlayerScores.TryGetValue(entry.Key, out var playerScore)
-                    ? playerScore
-                    : 0;
+                var score = RoomMatchSeries.ViewFor(state) is { } series
+                    ? series.Wins.GetValueOrDefault(entry.Key)
+                    : state.PlayerScores.GetValueOrDefault(entry.Key);
                 return new MatchResultPlayerRecord(
                     entry.Key,
                     entry.Value,
@@ -733,7 +734,7 @@ public sealed class GameHub(
 
     private static IReadOnlyList<GameEvent> ProjectEvents(IReadOnlyList<GameEvent> events, MatchState state)
     {
-        return GameEventObjectRefProjector.ProjectEvents(events, state);
+        return GameEventObjectRefProjector.ProjectEvents(events, RoomMatchSeries.EventState(state));
     }
 
     private string NormalizeRoomPlayerId(string playerId) => playerIdentity is null
