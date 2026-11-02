@@ -54,7 +54,9 @@ public sealed partial class CoreRuleEngine
                 var priorDelta = before.CardObjects.TryGetValue(source.ObjectId, out var oldSource)
                     && oldSource.ObjectGeneration == source.ObjectGeneration
                     ? previous.FirstOrDefault(a => a.SourceId == aura.SourceId && a.Instance.Id == aura.Instance.Id && a.Index == aura.Index)?.Delta ?? 0 : 0;
-                if (aura.Delta >= priorDelta) continue;
+                // Recalculating an already-active negative passive is the same
+                // effect, not a new application (official Ahri FAQ: 3 -> 5).
+                if (priorDelta < 0) continue;
                 var actor = EffectiveFieldControllerId(after.PlayerZones, source.ObjectId, source);
                 var fact = new MightReductionFact(new(target.ObjectId, target.ObjectGeneration), actor, before, after,
                     new(source.ObjectId, source.ObjectGeneration), aura.Instance.Id, aura.Index);

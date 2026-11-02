@@ -25594,9 +25594,15 @@ public sealed partial class FullGameEndToEndTests
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
-                        Assert.Contains(unitEvent.CardNo, new[] { "VEN·044", "VEN·094", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·102", "VEN·108", "VEN·121", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·089/167", "RAD·105/167", "RAD·146/167" });
+                        Assert.Contains(unitEvent.CardNo, new[] { "VEN·044", "VEN·094", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·102", "VEN·108", "VEN·121", "RAD·038/167", "RAD·SP1/005", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·089/167", "RAD·105/167", "RAD·146/167" });
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
+                        if (unitEvent.CardNo is "RAD·038/167" or "RAD·SP1/005")
+                        {
+                            Assert.Equal("ENEMY_MIGHT_REDUCED_HERE", unitEvent.Timing);
+                            Assert.NotNull(unitEvent.MightReduction);
+                            Assert.Equal(item.ControllerId, unitEvent.MightReduction.Actor);
+                        }
                         if (unitEvent.CardNo is "RAD·043/167" or "RAD·043a/167")
                         {
                             Assert.Equal("BECAME_EXHAUSTED", unitEvent.Timing);
