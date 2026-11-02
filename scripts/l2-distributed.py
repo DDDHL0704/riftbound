@@ -256,15 +256,20 @@ def checked_results(prepared, inputs, commit):
     return plan, sorted(case_map, key=lambda row: (row['name'], row['shard'])), seconds
 
 
-def derived_view(prepared, inputs, commit):
-    plan, mapping, _ = checked_results(prepared, inputs, commit)
+def targeted_coverage(plan, mapping, plan_sha256):
+    """Derive coverage from the already verified original shard mapping."""
     if plan['profile'] != 'l2-distributed':
         raise ValueError('Targeted L2 coverage requires the L2 profile.')
     methods = set(plan['targeted']['methods'])
-    return dict(status='TARGETED_COVERAGE_VERIFIED', commit=commit,
-                execution='DERIVED_FROM_ORIGINAL_SHARD_TRX', planSha256=digest(prepared / 'plan.json'),
+    return dict(status='TARGETED_COVERAGE_VERIFIED', commit=plan['commit'],
+                execution='DERIVED_FROM_ORIGINAL_SHARD_TRX', planSha256=plan_sha256,
                 testAssemblySha256=plan['testAssemblySha256'], selection=plan['targeted'],
                 cases=[row for row in mapping if row['method'] in methods])
+
+
+def derived_view(prepared, inputs, commit):
+    plan, mapping, _ = checked_results(prepared, inputs, commit)
+    return targeted_coverage(plan, mapping, digest(prepared / 'plan.json'))
 
 
 def timing_weights(prepared, inputs, commit):
@@ -310,7 +315,7 @@ def aggregate(prepared, inputs, targeted, quality, commit, jobs):
             or q.get('runId') != plan['runId'] or q.get('runAttempt') != plan['runAttempt']
             or q.get('treeSha') != read(prepared / 'checkout.json')['treeSha']):
         raise ValueError('Quality checkout differs from the prepared candidate.')
-    if read(targeted / 'view.json') != derived_view(prepared, inputs, commit):
+    if read(targeted / 'view.json') != targeted_coverage(plan, mapping, digest(prepared / 'plan.json')):
         raise ValueError('Targeted coverage is missing or differs from its original TRX mapping.')
     target_checkout = read(targeted / 'checkout.json')
     if any(target_checkout.get(key) != q.get(key) for key in
