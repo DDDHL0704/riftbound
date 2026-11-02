@@ -5702,6 +5702,7 @@ public sealed partial class MatchSession : IMatchSession
         this.options = options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown room deck format.");
+        SealedRoomPools.RequireOptions(this.options);
         state = MatchState.Create(roomId) with
         {
             Seed = CreatePrivateOpeningSeed(),
@@ -5762,7 +5763,11 @@ public sealed partial class MatchSession : IMatchSession
         this.options = restoredState.SessionOptions ?? options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
+        if (SealedRoomPools.OptionError(this.options) is { } optionsError)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, optionsError);
         state = restoredState with { SessionOptions = this.options == MatchSessionOptions.Default ? null : this.options };
+        if (SealedRoomPools.Validate(state) is { Count: > 0 } poolErrors)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", poolErrors));
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
@@ -5849,6 +5854,8 @@ public sealed partial class MatchSession : IMatchSession
 
     public PlayerSessionDto EnsurePlayer(string playerId)
     {
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            return EnsurePlayerAsync(playerId, CancellationToken.None).AsTask().GetAwaiter().GetResult();
         var normalizedPlayerId = NormalizePlayerId(playerId);
         lock (seatGate)
         {
@@ -5979,6 +5986,8 @@ public sealed partial class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var normalizedScenarioId = NormalizeScenarioId(scenarioId);
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            throw new MatchSessionException(ErrorCodes.UnsupportedCommand, "现开房间不能载入开发测试场景。");
         var commandType = $"DEV_SEED_SCENARIO:{normalizedScenarioId}";
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
         if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)

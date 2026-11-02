@@ -474,10 +474,10 @@ public sealed partial record ResolutionResult
 
     public static SnapshotDto BuildSpectatorSnapshot(MatchState state)
     {
-        return BuildSnapshotForViewer(state, "__spectator__");
+        return BuildSnapshotForViewer(state, "__spectator__", includePrivatePool: false);
     }
 
-    private static SnapshotDto BuildSnapshotForViewer(MatchState state, string viewerPlayerId)
+    private static SnapshotDto BuildSnapshotForViewer(MatchState state, string viewerPlayerId, bool includePrivatePool = true)
     {
         state = CoreRuleEngine.VisibleRuleChoiceState(state);
         var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
@@ -532,7 +532,11 @@ public sealed partial record ResolutionResult
                 ["readyPlayerIds"] = state.ReadyPlayerIds
             },
             state.TimingState,
-            BuildTableSnapshotView(state, viewerPlayerId));
+            BuildTableSnapshotView(state, viewerPlayerId),
+            Format: state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed ? MatchFormats.Sealed : MatchFormats.Constructed,
+            SetCode: state.SessionOptions?.SealedSetCode,
+            BestOf: state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed ? state.SessionOptions.SealedBestOf : 1,
+            SealedPool: includePrivatePool ? SealedRoomPools.ViewFor(state, viewerPlayerId) : null);
     }
 
     private static SnapshotTableDto BuildTableSnapshotView(MatchState state, string viewerPlayerId)

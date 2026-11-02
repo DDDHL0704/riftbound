@@ -63,6 +63,9 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        if (SealedRoomPools.ViewError(authoritativeState, spectatorReplayFrame.SpectatorSnapshot, null) is { } poolViewError)
+            errors.Add(poolViewError);
+
         if (spectatorReplayFrame.SpectatorSnapshot.Timing is null)
         {
             errors.Add("spectator replay frame snapshot timing is required");
