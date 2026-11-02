@@ -57,12 +57,15 @@ public sealed partial class CoreRuleEngine
     private static IReadOnlyList<SpellPowerReductionOption> SpellPlayPowerOptions(
         MatchState state, string player, CardBehaviorDefinition behavior, string? printedChoice,
         int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
-        IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0, IReadOnlyList<string>? targets = null, int optionalPlayReduction = 0)
+        IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0,
+        int optionalPlayReduction = 0, IReadOnlyList<string>? targets = null)
     {
         var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower)
+            + optionalPlayReduction
             + SourceNextSpellCostReductionEffects(state, player)
                 .Where(s => s.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(s => s.GenericPower)
-            + BattlefieldFriendlyTargetSpellPowerReduction(state, player, behavior, targets) + optionalPlayReduction;
+            + (behavior.PlaysSourceToBaseAsUnit ? TimeAssassinNextUnitReductions(state, player).Count : 0)
+            + BattlefieldFriendlyTargetSpellPowerReduction(state, player, behavior, targets);
         extraGeneric += OpponentSpellCostIncreases(state, player, behavior).Power
             + BattlefieldReactionPowerIncrease(state, player, behavior);
         return PrintedPowerCostRules.OptionsForPlay(behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)
@@ -87,7 +90,7 @@ public sealed partial class CoreRuleEngine
         RunePaymentReachability reachability, int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
         IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0, IReadOnlyList<string>? targets = null)
         => SpellPlayPowerOptions(state, player, behavior, null, extraGeneric, extraTyped,
-                additionalPrinted, sacrificeReduction, targets, AvailableOptionalPlayPowerReduction(state, player, behavior))
+                additionalPrinted, sacrificeReduction, optionalPlayReduction: AvailableOptionalPlayPowerReduction(state, player, behavior), targets: targets)
             .Any(option => reachability.CanPay(option.GenericPower, option.TypedPower));
 
     private static IReadOnlyList<ActionPromptChoiceDto> SpellPowerChoices(IReadOnlyList<SpellPowerReductionOption> options)

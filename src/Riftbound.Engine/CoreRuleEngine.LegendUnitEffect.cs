@@ -9,7 +9,9 @@ public sealed record LegendUnitEffectContext(string AbilityId, long SourceGenera
 public sealed partial class CoreRuleEngine
 {
     internal static bool IsLegendUnitEffect(string effect)
-        => effect is LegendAbilityEffectKinds.UnitPowerModifier or LegendAbilityEffectKinds.ReadyUnit;
+        => effect is LegendAbilityEffectKinds.UnitPowerModifier or LegendAbilityEffectKinds.ReadyUnit
+            or LegendAbilityEffectKinds.TimeAssassinNextUnitReduction
+            or LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken;
 
     internal static bool IsLegendUnitEffectTarget(MatchState state, string player, string id, bool battlefieldOnly)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
@@ -19,6 +21,10 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidLegendUnitEffect(MatchState state, StackItemState item)
     {
+        if (item.EffectKind == LegendAbilityEffectKinds.TimeAssassinNextUnitReduction)
+            return ValidTimeAssassinLegendAction(state, item);
+        if (item.EffectKind == LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken)
+            return ValidLegendBattlefieldEquipmentToken(state, item);
         if (item.LegendUnitEffect is not { } context) return !IsLegendUnitEffect(item.EffectKind);
         if (!IsLegendUnitEffect(item.EffectKind) || !TryGetLegendAbility(context.AbilityId, out var ability)
             || ability.EffectKind != item.EffectKind
@@ -61,6 +67,10 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveLegendUnitEffect(MatchState state, StackItemState item)
     {
         if (!ValidLegendUnitEffect(state, item)) throw new InvalidOperationException("Invalid captured legend unit effect.");
+        if (item.EffectKind == LegendAbilityEffectKinds.TimeAssassinNextUnitReduction)
+            return ResolveTimeAssassinLegendAction(state, item);
+        if (item.EffectKind == LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken)
+            return ResolveLegendBattlefieldEquipmentToken(state, item);
         var context = item.LegendUnitEffect!;
         TryGetLegendAbility(context.AbilityId, out var ability);
         var events = new List<GameEvent> { new("LEGEND_ABILITY_RESOLVED", "传奇单位技能结算", new Dictionary<string, object?> {
