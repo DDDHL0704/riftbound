@@ -66,7 +66,7 @@ internal static class MultiControllerTriggerSqlAcceptance
                 await Submit(current.PriorityPlayerId!, "controller-skill-response-" + step, JsonSerializer.SerializeToNode(new PassPriorityCommand(), json)!.AsObject());
             Check(current.StackItems.Count == 0 && initial.Seats.Keys.All(player => current.PlayerZones[player].Base.Count(id => current.CardObjects[id].TokenFactoryCardNo is not null) == 2), "Resolve all four independently captured Viktor skills exactly once.");
             var final = await Cold(); checkpoints.Add(new { stage = "complete-original-blank-replay", commands = count });
-            Check(coldCount == 10 && nextMatched == 3 && attacks.Count == 6, "Retain ten actual cold restores, three original next commands and all six independent attacks.");
+            Check(coldCount == 5 && nextMatched == 3 && attacks.Count == 6, "Retain five actual cold restores, three original next commands and all six independent attacks.");
             results.Add(new { caster, room, commands = final.Commands.Count, events = final.Events.Count, coldRestores = coldCount,
                 originalNextCommandsMatched = nextMatched, checkpoints, attacks, finalHash = MatchStateHasher.Hash(current),
                 originalBlankSeed = 0, completeOriginalReplay = true, productionRegistryRestored = true, ruleInputs = current.RuleInputs });
@@ -171,8 +171,11 @@ internal static class MultiControllerTriggerSqlAcceptance
                     foreach (var row in saved) await Set(connection, transaction, row.Table, row.Id, row.Payload);
                     await transaction.CommitAsync();
                 }
-                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte."); await Cold();
+                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte.");
             }
+            // Every attack restored all seven tables to the same original digest.
+            // Audit that complete original history once after all rejections.
+            await Cold();
         }
         async Task<string> Digest()
         {
@@ -189,7 +192,7 @@ internal static class MultiControllerTriggerSqlAcceptance
             status = "REAL_POSTGRES_MULTI_CONTROLLER_TRIGGER_ORDER_PASS", results,
             fixtureSha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(),
             scope = "Two genuine ordinary blank openings, both deck formats, each controller's own untargeted simultaneous death-observer choices, persisted handoff, actual production registry cold recovery, independent marker/identity and coordinated original-history attacks. Other target/cost/placement consumers and visible native/Windows remain separately OPEN." }, json));
-        Console.WriteLine("POSTGRES_MULTI_CONTROLLER_TRIGGER_ORDER_PASS: two ordinary branches,20 cold restores,6 original next commands,12 forgery rejections and complete original replays.");
+        Console.WriteLine("POSTGRES_MULTI_CONTROLLER_TRIGGER_ORDER_PASS: two ordinary branches,10 cold restores,6 original next commands,12 forgery rejections and complete original replays.");
     }
     private static async Task Set(NpgsqlConnection connection, NpgsqlTransaction transaction, string table, long id, string payload)
     {

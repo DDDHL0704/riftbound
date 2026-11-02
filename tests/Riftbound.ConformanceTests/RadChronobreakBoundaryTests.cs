@@ -73,12 +73,11 @@ public sealed class RadChronobreakBoundaryTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND") } };
         initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P1", "HAND");
+        initial = AnimatedArmamentAttachmentTests.WithMainPhaseResources(initial);
         if (destination != "BASE") initial = LocalDestructionRecallTests.At(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
         var g = new Driver(initial);
         await g.Act("P1", new PlayCardCommand("GEAR", equipmentNo, [], Destination: destination));
-        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
-            ["GEAR"], ["SPEND_MANA:1"]));
-        await g.Top();
+        await AnimatedArmamentAttachmentTests.TransformAtNextOwnMain(g, "GEAR");
         Assert.Contains(CardObjectTags.UnitCard, g.State.CardObjects["GEAR"].Tags);
         Assert.NotNull(g.State.CardObjects["GEAR"].LegendEquipmentUnit);
         await g.Act("P1", Cast(2)); await g.Top(); await Choose(g, "GEAR");
@@ -119,13 +118,12 @@ public sealed class RadChronobreakBoundaryTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND") } };
         initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P1", "HAND");
+        initial = AnimatedArmamentAttachmentTests.WithMainPhaseResources(initial);
         initial = LastBreathDrawBoundaryTests.Add(initial, "ARMAMENT", armamentNo, "P1", "HAND");
         if (destination != "BASE") initial = LocalDestructionRecallTests.At(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
         var g = new Driver(initial);
         await g.Act("P1", new PlayCardCommand("GEAR", equipmentNo, [], Destination: destination));
-        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
-            ["GEAR"], ["SPEND_MANA:1"]));
-        await g.Top();
+        await AnimatedArmamentAttachmentTests.TransformAtNextOwnMain(g, "GEAR");
         await g.Act("P1", new PlayCardCommand("ARMAMENT", armamentNo, ["GEAR"], Destination: "BASE"));
         await g.Top();
         Assert.Equal("GEAR", g.State.CardObjects["ARMAMENT"].AttachedToObjectId);
@@ -173,13 +171,12 @@ public sealed class RadChronobreakBoundaryTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND") } };
         initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P1", "HAND");
+        initial = AnimatedArmamentAttachmentTests.WithMainPhaseResources(initial);
         var g = new Driver(initial);
         await g.Act("P1", new PlayCardCommand("GEAR", equipmentNo, ["ALLY"], Destination: "BASE"));
         await g.Top();
         Assert.Equal("ALLY", g.State.CardObjects["GEAR"].AttachedToObjectId);
-        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
-            ["GEAR"], ["SPEND_MANA:1"]));
-        await g.Top();
+        await AnimatedArmamentAttachmentTests.TransformAtNextOwnMain(g, "GEAR");
         Assert.Contains(CardObjectTags.UnitCard, g.State.CardObjects["GEAR"].Tags);
         Assert.Null(g.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.Equal("GEAR", Assert.Single(g.Events(), e => e.Event.Kind == "EQUIPMENT_DETACHED"

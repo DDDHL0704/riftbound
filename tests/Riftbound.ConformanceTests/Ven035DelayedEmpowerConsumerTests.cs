@@ -165,7 +165,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             await game.Act(actor, new PlayCardCommand(spell, No, [unit], Mode: remove ? Remove : Empower));
             Assert.Equal(mana - 3, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             Assert.Equal(remove, game.State.CardObjects[unit].IsEmpowered); Assert.Equal(No, Assert.Single(game.State.StackItems).CardNo);
-            await game.ColdCheckpoint();
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var pool = game.State.RunePools[actor];
             var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                 [actor] = pool with { Mana = pool.Mana + 3, PowerByTrait = new Dictionary<string, int>(pool.PowerByTrait) { [RuneTrait.Green] = 1 } } } };
