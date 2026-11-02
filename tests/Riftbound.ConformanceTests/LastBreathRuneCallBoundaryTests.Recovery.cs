@@ -103,7 +103,10 @@ public sealed partial class LastBreathRuneCallBoundaryTests
             await game.Act(game.State.ActivePlayerId, new MulliganCommand([])); await game.Act(game.State.OpeningSecondActionPlayerId!, new MulliganCommand([]));
             await game.ColdCheckpoint(); await game.WaitFor("P1", 6, Unit, Kill); await game.Tap("P1");
             var unit = game.Hand("P1", Unit).First(); await game.Act("P1", new PlayCardCommand(unit, Unit, []));
-            for (var i = 0; i < 2; i++) await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First()));
+            // Preserve the first two physical payment runes and their base order.
+            var destructionRunes = game.Runes("P1").Take(2).ToArray();
+            Assert.Equal(2, destructionRunes.Length);
+            await game.Act("P1", new RecycleRuneCommand(destructionRunes[0], destructionRunes));
             await game.Act("P1", new PlayCardCommand(game.Hand("P1", Kill).First(), Kill, [unit])); await game.Top();
             var earned = Assert.Single(game.State.StackItems); var receipt = Assert.IsType<LastBreathRuneCallContext>(earned.LastBreathRuneCall);
             Assert.Equal("P1", receipt.ControllerId); Assert.False(receipt.SourceWasEmpowered);

@@ -24,8 +24,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             await game.Act("P1", new ActivateAbilityCommand("GATE", P4ActivatedAbilityCatalog.NextSpellEchoAbilityId, []));
             Assert.True(game.State.CardObjects["GATE"].IsExhausted); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Top(); Assert.Single(game.State.UntilEndOfTurnEffects, e => EchoCostRules.IsGrant(e, "P1"));
-            await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-2"));
-            await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-3"));
+            await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-2", ["STATUS-RUNE-2", "STATUS-RUNE-3"]));
             var mana = game.State.RunePools["P1"].Mana; var generation = game.State.CardObjects["COPY-TARGET"].ObjectGeneration;
             await game.Act("P1", new PlayCardCommand("SPELL", No, ["COPY-TARGET"], OptionalCosts: ["ECHO"], Mode: remove ? Remove : Empower));
             Assert.Equal(mana - 6, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
@@ -89,9 +88,10 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
         var game = new Driver(initial);
         try
         {
-            foreach (var rune in game.State.PlayerZones["P2"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray())
-                await game.Act("P2", new TapRuneCommand(rune));
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            var controlFundingRunes = game.State.PlayerZones["P2"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray();
+            foreach (var batch in controlFundingRunes.Chunk(12))
+                await game.Act("P2", new TapRuneCommand(batch[0], batch));
+            await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             var generation = game.State.CardObjects["MEL"].ObjectGeneration;
             await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["MEL"]));
             Assert.Equal(1, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
