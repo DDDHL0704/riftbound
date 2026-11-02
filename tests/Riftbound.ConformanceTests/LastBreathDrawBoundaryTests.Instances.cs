@@ -18,7 +18,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             ObjectLocations = initial.ObjectLocations.Where(p => p.Key != "ALLY").ToDictionary(p => p.Key, p => p.Value),
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
                 Base = initial.PlayerZones["P1"].Base.Where(id => id != "ALLY").ToArray() } } };
-        var game = new Driver(initial);
+        // Recover paid setup once before the conditional death under test.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1"); await game.Act("P1", new PlayCardCommand("UNIT", no, []));
@@ -28,6 +29,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             }
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
             await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
             Assert.Empty(game.State.PlayerZones["P1"].Hand); Assert.Equal(3, game.State.TriggerQueue.Count);
@@ -35,7 +38,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             Assert.Equal(3, game.State.TriggerQueue.Select(item => item.LastBreathDraw!.InstanceId).Distinct().Count());
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             for (var i = 0; i < 3; i++) { await game.Top(); Assert.Equal(deck.Take(i + 1), game.State.PlayerZones["P1"].Hand); }
-            Assert.Empty(game.State.StackItems); await game.Replay();
+            // The last accepted resolution already audited the complete journal.
+            Assert.Empty(game.State.StackItems); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("paid-conditional-copies-" + no.Replace('/', '-'), initial, game); }
     }
