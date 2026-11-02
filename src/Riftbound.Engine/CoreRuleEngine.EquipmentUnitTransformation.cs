@@ -47,22 +47,37 @@ public sealed partial class CoreRuleEngine
             || item.TriggerCost is null || item.TargetObjectIds.SingleOrDefault() is not { } selected) return state;
         var source = new ObjectBinding(item.SourceObjectId, context.SourceGeneration);
         var cards = state.CardObjects.ToDictionary();
+        var previousUnits = cards.Values.Where(card => card.ObjectId != selected
+            && card.LegendEquipmentUnit?.SourceLegend == source).ToArray();
+        if (previousUnits.Length == 0) return state;
         var zones = NormalizeZonesForSeats(state);
-        using var instruction = new MightInstructionScope(state, zones, cards, events);
-        foreach (var previous in cards.Values.Where(card => card.ObjectId != selected
-            && card.LegendEquipmentUnit?.SourceLegend == source).ToArray())
+        using (new MightInstructionScope(state, zones, cards, events))
         {
-            var printedUnit = previous.CardNo is not null && P6TokenFactoryCatalog.TryGetByCardNo(previous.CardNo, out var token)
-                ? token.Tags.Contains(CardObjectTags.UnitCard)
-                : PrintedCardFactory.TryCreate(previous.ObjectId, previous.OwnerId ?? "", previous.CardNo, out var printed)
-                    && printed.Tags.Contains(CardObjectTags.UnitCard);
-            cards[previous.ObjectId] = previous with { LegendEquipmentUnit = null,
-                Tags = previous.Tags.Where(tag => tag != CardObjectTags.UnitCard || printedUnit).ToArray() };
-            events.Add(new("LEGEND_EQUIPMENT_UNIT_ENDED", "选择另一件装备，原装备的单位转换结束",
-                new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
-                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = previous.ObjectId }));
+            foreach (var previous in previousUnits)
+            {
+                var printedUnit = previous.CardNo is not null && P6TokenFactoryCatalog.TryGetByCardNo(previous.CardNo, out var token)
+                    ? token.Tags.Contains(CardObjectTags.UnitCard)
+                    : PrintedCardFactory.TryCreate(previous.ObjectId, previous.OwnerId ?? "", previous.CardNo, out var printed)
+                        && printed.Tags.Contains(CardObjectTags.UnitCard);
+                cards[previous.ObjectId] = previous with { LegendEquipmentUnit = null,
+                    Tags = previous.Tags.Where(tag => tag != CardObjectTags.UnitCard || printedUnit).ToArray() };
+                events.Add(new("LEGEND_EQUIPMENT_UNIT_ENDED", "选择另一件装备，原装备的单位转换结束",
+                    new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
+                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = previous.ObjectId }));
+            }
         }
-        return state with { PlayerZones = zones, CardObjects = cards };
+        // CN 137.3.b / 323.6: the old duration ends during confirmation.
+        // Run the same cleanup as a completed instruction before responses,
+        // including equipment recall, dependent lethal damage and observers.
+        var changed = state with { PlayerZones = zones, CardObjects = cards };
+        var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
+        var cleanup = RunStateBasedCleanupLoop(changed, zones, cards, item, state.RunePools,
+            objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
+        events.AddRange(cleanup.Events);
+        return changed with { ObjectLocations = ReconcileObjectLocations(locations, zones),
+            RunePools = cleanup.RunePools, TriggerQueue = state.TriggerQueue.Concat(cleanup.TriggerQueue).ToArray(),
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn,
+                cleanup.DestroyedUnitOwnerIds) };
     }
 
     private static StackResolutionResult ResolveEquipmentUnitTransformation(MatchState state, StackItemState item)

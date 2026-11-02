@@ -62,6 +62,16 @@ public sealed class OriannaLegendEquipmentUnitTests
         await BeginMain(game);
     }
 
+    private static MatchState DeployedOrb(MatchState state)
+    {
+        state = Put(state, "GEAR", "RAD·146/167", "P1", "BATTLEFIELD", "BF");
+        // PrintedCardFactory restores the card's face; battlefield fixtures
+        // also need the Deploy keyword materialized by normal equipment entry.
+        return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["GEAR"] = state.CardObjects["GEAR"] with {
+                Tags = state.CardObjects["GEAR"].Tags.Append(CardEquipmentKeywordNames.Deploy).Order(StringComparer.Ordinal).ToArray() } } };
+    }
+
     [Theory]
     [InlineData("RAD·145/167", 39653)]
     [InlineData("RAD·171*/167", 39682)]
@@ -155,6 +165,68 @@ public sealed class OriannaLegendEquipmentUnitTests
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
         Assert.NotNull(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
         Assert.Equal(2, Might(game.State));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ConfirmingAnotherEquipmentImmediatelyRecallsOnlyTheOrdinaryFormerUnit(bool deployed)
+    {
+        var initial = RadUnitEffectTestFixture.Place(Position(), "ALLY", "P1", "BATTLEFIELD", "BF");
+        if (deployed) initial = DeployedOrb(initial);
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        if (!deployed) await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF"));
+        Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
+        await NextOwnMain(game); await Select(game, "SECOND");
+        Assert.NotNull(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        var generation = game.State.CardObjects["GEAR"].ObjectGeneration;
+        await Pay(game);
+        Assert.Null(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal(new ObjectLocationState("P1", deployed ? "BATTLEFIELD" : "BASE", deployed ? "BF" : null),
+            game.State.ObjectLocations["GEAR"]);
+        Assert.Equal(generation, game.State.CardObjects["GEAR"].ObjectGeneration);
+        Assert.False(game.State.CardObjects["GEAR"].IsExhausted);
+        Assert.Equal(deployed ? 0 : 1, game.Events().Count(e => e.Event.Kind == "EQUIPMENT_RECALLED_TO_BASE"
+            && Equals(e.Event.Payload["equipmentObjectId"], "GEAR")));
+        Assert.Null(game.State.CardObjects["SECOND"].LegendEquipmentUnit);
+        Assert.Single(game.State.StackItems);
+        Assert.Empty(game.State.PendingCleanupTasks);
+        await game.Top(); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ADeployedEquipmentBecomingAUnitStartsTheEnemyOrOpenBattlefieldContestAfterResolution(bool enemy)
+    {
+        var initial = DeployedOrb(Position());
+        if (enemy) {
+            initial = RadUnitEffectTestFixture.Place(initial, "BF", "P2", "BATTLEFIELD", "BF");
+            initial = RadUnitEffectTestFixture.Place(initial, "ENEMY", "P2", "BATTLEFIELD", "BF");
+        } else initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["BF"] = initial.CardObjects["BF"] with { ControllerId = null } } };
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game);
+        Assert.False(game.State.BattlefieldStates["BF"].Contested);
+        Assert.False(game.State.SpellDuelState.IsActive);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "SPELL_DUEL_STARTED");
+        await game.Top();
+        Assert.Empty(game.State.StackItems);
+        Assert.True(game.State.BattlefieldStates["BF"].Contested);
+        Assert.True(game.State.SpellDuelState.IsActive);
+        Assert.Equal("BF", game.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("P1", game.State.SpellDuelState.FocusPlayerId);
+        var contested = Assert.Single(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONTESTED");
+        Assert.Equal("P1", contested.Event.Payload["playerId"]);
+        Assert.Contains(game.State.BattlefieldTasks, task => task.Kind == "START_SPELL_DUEL"
+            && task.BattlefieldObjectId == "BF");
+        await game.Act("P1", new PassFocusCommand());
+        await game.Act("P2", new PassFocusCommand());
+        Assert.False(game.State.SpellDuelState.IsActive);
+        if (enemy) Assert.Contains(game.State.PendingTaskQueue.Tasks, task => task.Kind == "START_BATTLE"
+            && task.BattlefieldObjectId == "BF");
+        else Assert.Equal("P1", game.State.BattlefieldStates["BF"].ControllerId);
         await game.Replay();
     }
 
