@@ -103,7 +103,24 @@ public static class GameCommandJsonMapper
             || moves.ValueKind == JsonValueKind.Array && moves.EnumerateArray().All(m => m.ValueKind == JsonValueKind.String);
         static IReadOnlyList<string>? Moves(JsonElement value) => value.TryGetProperty("movementDestinations", out var moves)
             && moves.ValueKind == JsonValueKind.Array ? TextArray(value, "movementDestinations") : null;
-        if (!ValidMoves(cmd)) return new UnsupportedCommand("MALFORMED_PLAY_CARD");
+        static bool Modes(JsonElement value, out IReadOnlyList<SpellModeChoice>? result)
+        {
+            result = null;
+            if (!value.TryGetProperty("modeChoices", out var modes) || modes.ValueKind == JsonValueKind.Null) return true;
+            if (modes.ValueKind != JsonValueKind.Array) return false;
+            var rows = new List<SpellModeChoice>();
+            foreach (var row in modes.EnumerateArray())
+            {
+                if (row.ValueKind != JsonValueKind.Object
+                    || !row.TryGetProperty("mode", out var id) || id.ValueKind != JsonValueKind.String
+                    || !row.TryGetProperty("targetObjectIds", out var ids) || ids.ValueKind != JsonValueKind.Array
+                    || ids.EnumerateArray().Any(v => v.ValueKind != JsonValueKind.String)) return false;
+                rows.Add(new(id.GetString()!, TextArray(row, "targetObjectIds")));
+            }
+            result = rows.ToArray();
+            return true;
+        }
+        if (!ValidMoves(cmd) || !Modes(cmd, out var modeChoices)) return new UnsupportedCommand("MALFORMED_PLAY_CARD");
         SpellRepeatChoice[]? choices = null;
         if (cmd.TryGetProperty("repeatChoices", out var repeats) && repeats.ValueKind != JsonValueKind.Null)
         {
@@ -115,17 +132,19 @@ public static class GameCommandJsonMapper
                     || repeat.TryGetProperty("mode", out var mode) && mode.ValueKind != JsonValueKind.String
                     || !repeat.TryGetProperty("targetObjectIds", out var targets) || targets.ValueKind != JsonValueKind.Array
                     || targets.EnumerateArray().Any(target => target.ValueKind != JsonValueKind.String) || !ValidMoves(repeat)
-                    || repeat.TryGetProperty("destination", out var destination) && destination.ValueKind is not (JsonValueKind.String or JsonValueKind.Null))
+                    || repeat.TryGetProperty("destination", out var destination) && destination.ValueKind is not (JsonValueKind.String or JsonValueKind.Null)
+                    || !Modes(repeat, out _))
                     return new UnsupportedCommand("MALFORMED_PLAY_CARD");
+                Modes(repeat, out var repeatedModes);
                 list.Add(new(Text(repeat, "mode"), TextArray(repeat, "targetObjectIds"), Moves(repeat),
-                    repeat.TryGetProperty("destination", out var declared) && declared.ValueKind == JsonValueKind.String ? declared.GetString() : null));
+                    repeat.TryGetProperty("destination", out var declared) && declared.ValueKind == JsonValueKind.String ? declared.GetString() : null, repeatedModes));
             }
             choices = list.ToArray();
         }
         var play = new PlayCardCommand(Text(cmd, "sourceObjectId"), Text(cmd, "cardNo"), TextArray(cmd, "targetObjectIds"),
-            Text(cmd, "mode"), TextArray(cmd, "optionalCosts"), Text(cmd, "destination"), choices, Moves(cmd));
+            Text(cmd, "mode"), TextArray(cmd, "optionalCosts"), Text(cmd, "destination"), choices, Moves(cmd), modeChoices);
         return refusePayment ? new RefusePlayPaymentCommand(play.SourceObjectId, play.CardNo, play.TargetObjectIds,
-            play.Mode, play.OptionalCosts, play.Destination, play.RepeatChoices, play.MovementDestinations) : play;
+            play.Mode, play.OptionalCosts, play.Destination, play.RepeatChoices, play.MovementDestinations, play.ModeChoices) : play;
     }
 
     private static string Text(JsonElement cmd, string propertyName)

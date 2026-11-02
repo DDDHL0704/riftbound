@@ -35,7 +35,8 @@ public sealed class ReviewedScopedPrintUniverseTests
     public static IEnumerable<object[]> ResetRows => PhysicalRows.SelectMany(row =>
         new[] { "HAND", "GRAVEYARD" }.Select(zone => row.Append(zone).ToArray()));
     public static IEnumerable<object[]> ResourceCostRows => Sources.Select(row => new[] { row[0], row[1], row[4], row[5] });
-    private static bool Admitted(string no) => no is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·063/167" or "RAD·093/167" or "RAD·097/167";
+    private static bool Admitted(string no) => no is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·063/167"
+        or "RAD·065/167" or "RAD·065a/167" or "RAD·093/167" or "RAD·097/167";
     public static IEnumerable<object[]> PlayRows => Sources.Where(row => !Admitted((string)row[1])).Select(row => new[] { row[0], row[1] });
 
     [Theory]
