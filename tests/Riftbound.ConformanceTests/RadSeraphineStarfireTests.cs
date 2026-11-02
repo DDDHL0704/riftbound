@@ -55,6 +55,18 @@ public sealed class RadSeraphineStarfireTests
     }
 
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task GroupMovementObservesTheRealExhaustionOnlyOnce(bool withAlly)
+    {
+        var game = new Driver(InBase());
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF",
+            SourceObjectIds: withAlly ? ["UNIT", "ALLY"] : ["UNIT"]));
+        Assert.Single(game.State.StackItems); Assert.Empty(Minions(game.State));
+        await game.Top(); Assert.Single(Minions(game.State)); Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData(Card)] [InlineData("RAD·138a/167")]
     [InlineData("RAD·SP5/005")] [InlineData("T1S·005/005")]
     public async Task ARealMovementExhaustionCapturesTheSameAbilityAndWaitsForResponses(string no)

@@ -7,7 +7,7 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
     string? CreatedTokenFactoryCardNo = null, bool RequiresPlayedUnitStrongest = false,
-    bool LeadingSourceExhaust = false, int DiscardCount = 0);
+    bool LeadingSourceExhaust = false, int DiscardCount = 0, int MinimumExhaustedUnits = 0, bool OncePerTurn = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null);
@@ -9818,6 +9818,13 @@ public static class CardBehaviorRegistry
                 UnitEventAbility: new("PLAY_OR_EXHAUST", "CREATE_UNIT_TOKEN", 1,
                     CreatedTokenFactoryCardNo: "OGN·271/298"))).ToArray();
 
+    private static readonly CardBehaviorDefinition[] RadiantSeraphineHealingUnits =
+        new[] { "RAD·065/167", "RAD·065a/167" }
+            .Select(no => new CardBehaviorDefinition(no, "萨勒芬妮", 4, "SERAPHINE_EXHAUST_TOGETHER_DRAW", 0, 0,
+                PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+                UnitEventAbility: new("FRIENDLY_UNITS_EXHAUSTED_TOGETHER", "DRAW", 1,
+                    Optional: true, MinimumExhaustedUnits: 3, OncePerTurn: true))).ToArray();
+
     private static readonly CardBehaviorDefinition[] RadiantLegendarySupportUnits =
     [
         new("RAD·040/167", "鼓舞之魂", 7, "SOUL_OF_INSPIRATION_PLAY_READY_FRIENDLY_LEGEND", 0, 1,
@@ -9880,7 +9887,7 @@ public static class CardBehaviorRegistry
             .Concat([RawDefinitions.Single(b => b.CardNo == "VEN·084") with { CardNo = "T1S·001/005" }])
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
-            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits).Concat(RadiantSeraphineUnits)
+            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits).Concat(RadiantSeraphineUnits).Concat(RadiantSeraphineHealingUnits)
             .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)

@@ -137,6 +137,10 @@ public sealed class RadJarvanLegendTests
     {
         var state = LocalDestructionRecallTests.At(Position(equipment: "RAD·094/167"), "UNIT", "P1", "BATTLEFIELD", "BF");
         state = OfficialCopyIdentityTests.AddSpell(state, "REMOVE", no);
+        // Kai'Sa grants Reaction during this battlefield's duel, so both
+        // printed Swift removal spells can legally respond to the legend.
+        state = LastBreathDrawBoundaryTests.Add(state, "KAISA", "RAD·063/167", "P1", "BASE");
+        state = LocalDestructionRecallTests.At(state, "KAISA", "P1", "BATTLEFIELD", "BF");
         state = state with {
             TurnPlayerId = "P2", ActivePlayerId = "P2",
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
@@ -164,8 +168,24 @@ public sealed class RadJarvanLegendTests
         if (game.State.PriorityPlayerId is { } priority && priority != "P1")
             await game.Act(priority, new PassPriorityCommand());
         await game.Act("P1", new PlayCardCommand("REMOVE", no, [equipment]));
+        var legendItem = Assert.Single(game.State.StackItems, i => i.UnitEvent?.DeploymentBattlefield is not null).StackItemId;
         await game.Top(); Assert.False(game.State.CardObjects.ContainsKey(equipment));
-        await game.Top();
+        // Destruction also triggers the Bomb's printed damage skill. Resolve
+        // that earned skill before the captured movement below it.
+        for (var i = 0; game.State.StackItems.Any(item => item.StackItemId == legendItem); i++) {
+            // Three Bombs can require three target choices, three resolutions,
+            // one ordering command and the legend's final resolution.
+            Assert.InRange(i, 0, 7);
+            var tick = game.State.Tick;
+            if (game.State.PendingCardChoice is { } choice) {
+                Assert.Contains("ENEMY", choice.LegalObjectIds);
+                await Choose(game, "ENEMY");
+            }
+            else if (game.State.TriggerQueue.Count > 0)
+                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            else await game.Top();
+            Assert.True(game.State.Tick > tick, "The Bomb response must advance its pending choice or resolve an item.");
+        }
         Assert.Equal("BF", game.State.ObjectLocations["ALLY"].BattlefieldObjectId); await game.Replay();
     }
 

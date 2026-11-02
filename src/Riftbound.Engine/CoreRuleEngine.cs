@@ -25324,22 +25324,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                foreach (var targetObjectId in GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
-                {
-                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
-                        ? existingTarget
-                        : new CardObjectState(targetObjectId);
-
-                    targetState = ApplyExhaustState(
-                        playerZones, cardObjects,
-                        targetState,
-                        behavior,
-                        stackItem,
-                        targetObjectId,
-                        out var exhaustedEvent);
-                    cardObjects[targetObjectId] = targetState;
-                    events.Add(exhaustedEvent);
-                }
+                ApplyExhaustBatch(state, playerZones, cardObjects, stackItem.ControllerId,
+                    GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId),
+                    behavior, stackItem, events);
             }
 
             if (behavior.DamagesAllBattlefieldUnits)

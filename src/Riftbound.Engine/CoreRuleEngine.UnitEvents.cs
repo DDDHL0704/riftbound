@@ -7,7 +7,7 @@ namespace Riftbound.Engine;
 public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
     string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
     ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null,
-    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, ObjectBinding? DeploymentBattlefield = null);
+    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, ObjectBinding? DeploymentBattlefield = null, IReadOnlyList<UnitEventOtherObject>? ExhaustedUnits = null);
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -285,6 +285,7 @@ public sealed partial class CoreRuleEngine
                         && PredictBindingMatches(state, burned.Binding, burned.CardNo, burned.FaceRevision, reflexive, null)
                     : c.ReflexiveTick is null
                 : c.BurnedUnit is null && c.ReflexiveTick is null)
+            && ValidExhaustionBatchContext(state, c, spec)
             && (spec.Effect == DeploymentPlayMoveEffect ? ValidDeploymentPlayBattlefield(state, c) : c.DeploymentBattlefield is null)
             && (spec.Effect is "BANISH_ENTERED_EQUIPMENT" or DeploymentPlayMoveEffect ? c.Other is { } other
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
