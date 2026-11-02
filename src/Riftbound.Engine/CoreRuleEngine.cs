@@ -25641,35 +25641,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var secondTargetObjectId = stackItem.TargetObjectIds[1];
 
             var canResolveTargets = IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
-                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId)
-                && (!behavior.MovesFirstTargetToSecondTargetLocation
-                || CanMoveFirstTargetToSecondTargetLocation(
-                    playerZones,
-                    cardObjects,
-                    firstTargetObjectId,
-                    secondTargetObjectId));
-            if (canResolveTargets && behavior.MovesFirstTargetToSecondTargetLocation
-                && TryMoveFirstTargetToSecondTargetLocation(
-                    playerZones,
-                    cardObjects,
-                    stackItem.ControllerId,
-                    firstTargetObjectId,
-                    secondTargetObjectId,
-                    out var destinationPlayerId,
-                    out var destinationZone))
-            {
-                events.Add(new GameEvent(
-                    "UNIT_MOVED_TO_UNIT_LOCATION",
-                    $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = firstTargetObjectId,
-                        ["destinationTargetObjectId"] = secondTargetObjectId,
-                        ["destinationPlayerId"] = destinationPlayerId,
-                        ["destinationZone"] = destinationZone
-                    }));
-            }
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId);
 
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
@@ -26010,29 +25982,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 cardObjects[buffedTargetObjectId] = modifiedTargetState;
                 events.Add(powerEvent);
             }
-        }
-        else if (behavior.MovesFirstTargetToSecondTargetLocation
-            && stackItem.TargetObjectIds.Count >= 2
-            && TryMoveFirstTargetToSecondTargetLocation(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.TargetObjectIds[0],
-                stackItem.TargetObjectIds[1],
-                out var destinationPlayerId,
-                out var destinationZone))
-        {
-            events.Add(new GameEvent(
-                "UNIT_MOVED_TO_UNIT_LOCATION",
-                $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = stackItem.TargetObjectIds[0],
-                    ["destinationTargetObjectId"] = stackItem.TargetObjectIds[1],
-                    ["destinationPlayerId"] = destinationPlayerId,
-                    ["destinationZone"] = destinationZone
-                }));
         }
         else if ((behavior.SwapsTargetLocations && stackItem.TargetObjectIds.Count >= 2)
             || (behavior.SwapsSourceWithFirstTargetLocation && stackItem.TargetObjectIds.Count >= 1))
@@ -32649,62 +32598,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return playerZones.TryGetValue(controllerId, out var zones)
             && zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
             && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, controllerId, targetObjectId);
-    }
-
-    private static bool TryMoveFirstTargetToSecondTargetLocation(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movingPlayerId,
-        string movedObjectId,
-        string destinationObjectId,
-        out string destinationPlayerId,
-        out string destinationZone)
-    {
-        destinationPlayerId = string.Empty;
-        destinationZone = string.Empty;
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(movedObjectId), movingPlayerId)) return false;
-
-        if (!CanMoveFirstTargetToSecondTargetLocation(
-                playerZones,
-                cardObjects,
-                movedObjectId,
-                destinationObjectId))
-        {
-            return false;
-        }
-
-        var movedLocation = FindFieldObjectLocation(playerZones, movedObjectId)!.Value;
-        var targetLocation = FindFieldObjectLocation(playerZones, destinationObjectId)!.Value;
-
-        RemoveFieldObjectFromLocation(playerZones, movedLocation.PlayerId, movedLocation.Zone, movedObjectId);
-        AddFieldObjectToLocation(playerZones, targetLocation.PlayerId, targetLocation.Zone, movedObjectId);
-        destinationPlayerId = targetLocation.PlayerId;
-        destinationZone = targetLocation.Zone;
-        return true;
-    }
-
-    private static bool CanMoveFirstTargetToSecondTargetLocation(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movedObjectId,
-        string destinationObjectId)
-    {
-        if (string.Equals(movedObjectId, destinationObjectId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var movedLocation = FindFieldObjectLocation(playerZones, movedObjectId);
-        var targetLocation = FindFieldObjectLocation(playerZones, destinationObjectId);
-        if (movedLocation is null || targetLocation is null)
-        {
-            return false;
-        }
-
-        return (!string.Equals(movedLocation.Value.PlayerId, targetLocation.Value.PlayerId, StringComparison.Ordinal)
-                || !string.Equals(movedLocation.Value.Zone, targetLocation.Value.Zone, StringComparison.Ordinal))
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, movedLocation.Value.PlayerId, movedObjectId)
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, targetLocation.Value.PlayerId, destinationObjectId);
     }
 
     private static bool TryGetPreciseFieldLocation(

@@ -12,12 +12,12 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·129/221 诱饵",
-      "note": "官方卡面：费用 2；回响 2；将一名敌方单位移动到其控制者的其他单位所在的一处位置。当前 fixture 锁定不支付回响，并在 P2 preflight 粗粒度位置模型中让敌方战场单位移动到另一名敌方基地单位所在位置。"
+      "note": "官方卡面：费用 2；回响 2；将一名敌方单位移动到其控制者的其他单位所在的一处位置。仅移动单位是目标，目的地按中国区355.4独立声明。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "基地和战场均为公开区域；单位对象可位于基地或战场；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。回响和多战场精确位置暂缓。"
+      "note": "基地和战场均为公开区域；单位对象可位于基地或战场；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。目的地与目标分别声明，付款与移动由服务端执行。"
     }
   ],
   "roomId": "p2-preflight-bait-room",
@@ -63,18 +63,30 @@
     },
     "cardObjects": {
       "P2-BAIT-DESTINATION-001": {
+        "cardNo": "OGN·219/298",
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 0,
         "power": 3,
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-BAIT-MOVED-001": {
+        "cardNo": "OGN·219/298",
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 1,
         "power": 4,
         "untilEndOfTurnEffects": ["STUNNED"],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-BAIT-KEEPER-001": {
+        "cardNo": "OGN·219/298",
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 0,
         "power": 2,
         "untilEndOfTurnEffects": [],
@@ -90,7 +102,8 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-BAIT",
         "cardNo": "SFD·129/221",
-        "targetObjectIds": ["P2-BAIT-MOVED-001", "P2-BAIT-DESTINATION-001"]
+        "targetObjectIds": ["P2-BAIT-MOVED-001"],
+        "destination": "BASE:P2"
       }
     },
     {
@@ -117,7 +130,7 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_MOVED_TO_UNIT_LOCATION"
+      "UNIT_MOVED_TO_BASE"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -135,7 +148,7 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-BAIT",
           "cardNo": "SFD·129/221",
-          "targetObjectIds": ["P2-BAIT-MOVED-001", "P2-BAIT-DESTINATION-001"],
+          "targetObjectIds": ["P2-BAIT-MOVED-001"],
           "effectKind": "BAIT_MOVE_ENEMY_UNIT_TO_ANOTHER_ENEMY_UNIT_LOCATION_NO_ECHO"
         }
       },
@@ -143,12 +156,11 @@
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "UNIT_MOVED_TO_UNIT_LOCATION",
+        "kind": "UNIT_MOVED_TO_BASE",
         "payload": {
           "sourceObjectId": "P1-SPELL-BAIT",
           "targetObjectId": "P2-BAIT-MOVED-001",
-          "destinationTargetObjectId": "P2-BAIT-DESTINATION-001",
-          "destinationPlayerId": "P2",
+          "destination": "BASE:P2",
           "destinationZone": "BASE"
         }
       }
