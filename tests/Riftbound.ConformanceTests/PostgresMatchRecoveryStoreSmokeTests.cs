@@ -96,6 +96,36 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
             Assert.Equal(recovery.AuthoritativeState.Tick, snapshot.Tick);
             Assert.Equal(recovery.AuthoritativeState.ActivePlayerId, snapshot.ActivePlayerId);
             Assert.Equal(MatchStatuses.InProgress, recovery.AuthoritativeState.Status);
+
+            // Keep the original commands and earlier checkpoints, then replace only
+            // the latest private configuration. Recovery must not manufacture a new
+            // replay origin from that final value.
+            await using (var connection = await dataSource.OpenConnectionAsync())
+            await using (var change = new NpgsqlCommand("""
+                update state_snapshots
+                set payload = jsonb_set(payload, '{sessionOptions}', @options)
+                where id = (
+                    select id from state_snapshots where match_id = @room
+                    order by last_event_sequence desc, state_tick desc, id desc limit 1
+                );
+                """, connection))
+            {
+                change.Parameters.AddWithValue("room", roomId);
+                change.Parameters.AddWithValue("options", NpgsqlTypes.NpgsqlDbType.Jsonb,
+                    JsonSerializer.Serialize(new MatchSessionOptions(true, configured
+                        ? OfficialDeckFormat.CoreRules : OfficialDeckFormat.ChinaStandard20260724),
+                        new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+                Assert.Equal(1, await change.ExecuteNonQueryAsync());
+            }
+            var changed = Assert.IsType<MatchRecoveryFrame>(await recoveryStore.LoadAsync(roomId, default));
+            Assert.False(changed.IsConsistent);
+            Assert.Contains("stored room configuration changed during the recorded game", changed.ValidationErrors);
+            Assert.Equal(initialState.SessionOptions, changed.ReplayInitialState!.SessionOptions);
+            Assert.Equal(JsonSerializer.Serialize(recovery.Commands), JsonSerializer.Serialize(changed.Commands));
+            var rejectedRegistry = new InMemoryMatchSessionRegistry(ruleEngine, NoopMatchJournal.Instance, recoveryStore);
+            var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+                await rejectedRegistry.GetOrCreateAsync(roomId, default));
+            Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
         }
         finally
         {
