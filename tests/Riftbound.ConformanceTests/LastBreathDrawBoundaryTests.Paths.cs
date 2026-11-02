@@ -31,7 +31,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             if (game.State.TriggerQueue.Count > 0)
                 await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             for (var i = 0; i <= copies; i++) { await game.Top(); Assert.Equal(i + 1, game.State.PlayerZones["P1"].Hand.Count); }
-            Assert.Empty(game.State.StackItems); await game.Replay();
+            // The final Top already replays this complete journal through Act.
+            Assert.Empty(game.State.StackItems); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("actual-resource-cost-draw-copies-" + copies, initial, game); }
     }
@@ -62,7 +63,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             if (game.State.TriggerQueue.Count > 0)
                 await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             Assert.Equal(generation, Assert.Single(game.State.StackItems).LastBreathDraw!.Source.Generation);
-            await game.Top(); Assert.Equal(["P1-DRAW-1"], game.State.PlayerZones["P1"].Hand); await game.Replay();
+            await game.Top(); Assert.Equal(["P1-DRAW-1"], game.State.PlayerZones["P1"].Hand);
+            Assert.True(game.RecoverAfterEveryCommand); // Top already audited the final journal.
         }
         finally { await Save("actual-combat-lethal-draw", initial, game); }
     }

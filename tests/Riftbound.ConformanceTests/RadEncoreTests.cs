@@ -94,6 +94,17 @@ public sealed class RadEncoreTests
         var replacement = game.State.PendingCardChoice!;
         Assert.Equal("TOKEN_ENTRY_REPLACEMENT", replacement.ChoiceWindow); Assert.Equal(0, Minions(game.State));
         await game.Act("P1", new ChooseCardsCommand(replacement.ChoiceId, replacement.ChoiceWindow, ["Z"]));
+        // Each unrestricted token now chooses its play location after the
+        // replacement, before this mode commits and the private look opens.
+        for (var i = 0; i < 3; i++)
+        {
+            var location = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
+            Assert.Equal("TOKEN_PLAY_LOCATION", location.Request.Kind);
+            Assert.Contains(location.Request.Options, option => option.Id == "BASE");
+            Assert.Equal(0, Minions(game.State));
+            await game.Act("P1", new PayCostCommand(location.Request.Id, "RULE_REPLACEMENT", ["BASE"]));
+        }
+        Assert.Null(game.State.PendingRuleChoice);
         Assert.Equal(3, Minions(game.State));
         var look = game.State.PendingCardChoice!; Assert.Equal("DECK_EFFECT", look.ChoiceWindow);
         await game.Act("P1", new ChooseCardsCommand(look.ChoiceId, look.ChoiceWindow, [look.LegalObjectIds[0]]));

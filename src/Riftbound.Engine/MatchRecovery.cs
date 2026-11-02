@@ -3710,6 +3710,7 @@ public static partial class MatchRecoveryValidator
 
         ValidateSpellContinuations(authoritativeState, errors);
         ValidateTurnSequenceState(authoritativeState, errors);
+        ValidateOpeningRoleDraw(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);

@@ -555,6 +555,8 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const battlefields: TableBattlefield[] = snapshot.table?.battlefields ?? [];
   const zoneIds = zoneView ? snapshot.players[zoneView.playerId]?.zones[zoneView.zone] ?? [] : [];
   const winner = snapshot.timing.winnerPlayerId;
+  const series = snapshot.series;
+  const matchContinues = Boolean(series && series.bestOf > 1 && series.phase !== "finished");
   // The closing cue plays once, when the result arrives during this visit to the table.
   const seenWinner = useRef(winner);
   useEffect(() => {
@@ -783,10 +785,19 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               <p className="result__score">
                 {me.score} : {opp?.score ?? 0}
               </p>
+              {series && series.bestOf > 1 && (
+                <p className="result__series">
+                  第 {series.gameNumber} 局 · 总比分 {series.wins[meId] ?? 0} : {opp ? (series.wins[opp.id] ?? 0) : 0}
+                </p>
+              )}
               <ResultStats tally={state.tally} meId={meId} oppId={opp?.id} turns={snapshot.turnNumber} />
-              <button className="btn btn--primary" onClick={() => client.leaveRoom()}>
-                返回大厅
-              </button>
+              {matchContinues ? (
+                <p className="muted">等待下一局…</p>
+              ) : (
+                <button className="btn btn--primary" onClick={() => client.leaveRoom()}>
+                  返回大厅
+                </button>
+              )}
             </motion.div>
           )}
         </div>
