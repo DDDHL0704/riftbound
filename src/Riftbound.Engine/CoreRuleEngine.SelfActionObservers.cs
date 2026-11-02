@@ -91,7 +91,7 @@ public sealed partial class CoreRuleEngine
             queue.Add(trigger);
             var queued = BuildTriggerQueuedEvent(trigger);
             events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, "__spectator__") } });
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, ProjectionViewers.Spectator) } });
         }
         foreach (var (ev, index) in result.Events.Select((ev, index) => (ev, index))) {
             if (ev.Payload.GetValueOrDefault(SelfReadyCaptureKey) is not SelfActionCapture[] captures) continue;
@@ -153,7 +153,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo))
             throw new InvalidOperationException("Invalid captured self action observer.");
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        var visible = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var visible = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "被己方选为目标或活跃的技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = visible, ["effectKind"] = SelfActionPowerKind }) };
         if (cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration

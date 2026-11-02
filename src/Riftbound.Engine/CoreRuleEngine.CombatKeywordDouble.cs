@@ -26,12 +26,12 @@ public sealed partial class CoreRuleEngine
                 cards[targetId] = target with { UntilEndOfTurnEffects = target.UntilEndOfTurnEffects.Append(effect)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
                 events.Add(new("STATUS_EFFECT_APPLIED", "本回合数值关键词翻倍", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
                     ["targetObjectId"] = targetId, ["effectId"] = definition, ["keywordBonus"] = amount }));
             }
         }
         events.Add(new("TRIGGER_RESOLVED", "数值关键词翻倍触发技能结算完成", new Dictionary<string, object?> {
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") }));
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) }));
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }
 }

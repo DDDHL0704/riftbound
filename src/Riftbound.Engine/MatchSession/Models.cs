@@ -788,6 +788,24 @@ public sealed record MatchSessionOptions(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool HideSubmittedDeckIdentities { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SealedSetCode { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int SealedBestOf { get; init; }
+
+    public static MatchSessionOptions ForSealed(string setCode, int bestOf = 1)
+    {
+        var options = new MatchSessionOptions(false, OfficialDeckFormat.Sealed)
+        {
+            HideSubmittedDeckIdentities = true,
+            SealedSetCode = setCode?.Trim().ToUpperInvariant(),
+            SealedBestOf = bestOf
+        };
+        SealedRoomPools.RequireOptions(options);
+        return options;
+    }
 }
 
 public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
@@ -852,6 +870,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         ArgumentNullException.ThrowIfNull(creationOptions);
         if (!Enum.IsDefined(creationOptions.DeckFormat))
             throw new ArgumentOutOfRangeException(nameof(creationOptions), "Unknown room deck format.");
+        SealedRoomPools.RequireOptions(creationOptions);
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {

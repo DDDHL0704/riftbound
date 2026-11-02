@@ -5731,6 +5731,7 @@ public sealed partial class MatchSession : IMatchSession
         this.options = options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown room deck format.");
+        SealedRoomPools.RequireOptions(this.options);
         state = MatchState.Create(roomId) with
         {
             Seed = CreatePrivateOpeningSeed(),
@@ -5791,9 +5792,13 @@ public sealed partial class MatchSession : IMatchSession
         this.options = restoredState.SessionOptions ?? options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
+        if (SealedRoomPools.OptionError(this.options) is { } optionsError)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, optionsError);
         var recordedOptions = this.options == MatchSessionOptions.Default ? null : this.options;
         state = restoredState.SessionOptions == recordedOptions
             ? restoredState : restoredState with { SessionOptions = recordedOptions };
+        if (SealedRoomPools.Validate(state) is { Count: > 0 } poolErrors)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", poolErrors));
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
@@ -5880,6 +5885,8 @@ public sealed partial class MatchSession : IMatchSession
 
     public PlayerSessionDto EnsurePlayer(string playerId)
     {
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            return EnsurePlayerAsync(playerId, CancellationToken.None).AsTask().GetAwaiter().GetResult();
         var normalizedPlayerId = NormalizePlayerId(playerId);
         lock (seatGate)
         {
@@ -6010,6 +6017,8 @@ public sealed partial class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var normalizedScenarioId = NormalizeScenarioId(scenarioId);
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            throw new MatchSessionException(ErrorCodes.UnsupportedCommand, "现开房间不能载入开发测试场景。");
         var commandType = $"DEV_SEED_SCENARIO:{normalizedScenarioId}";
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
         if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)
@@ -6184,7 +6193,8 @@ public sealed partial class MatchSession : IMatchSession
                     command.RuneDeck,
                     command.Battlefields));
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat);
+                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat,
+                    SealedContextFor(normalizedPlayerId));
                 if (!validation.IsValid)
                 {
                     result = ResolutionResult.Rejected(
@@ -6353,13 +6363,16 @@ public sealed partial class MatchSession : IMatchSession
             if (options.DeckFormat != OfficialDeckFormat.CoreRules)
             {
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                foreach (var submitted in state.PlayerDecklists.Values)
+                foreach (var (owner, submitted) in state.PlayerDecklists)
                 {
-                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat);
+                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat,
+                        SealedContextFor(owner));
                     if (!validation.IsValid)
                     {
                         var rejected = ResolutionResult.Rejected(state,
-                            $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
+                            options.DeckFormat == OfficialDeckFormat.Sealed && owner != normalizedPlayerId
+                                ? "有玩家的现开卡组需要更新。"
+                                : $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
                         intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                         return rejected;
                     }

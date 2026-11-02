@@ -4,6 +4,11 @@ namespace Riftbound.Engine;
 
 public sealed partial class MatchSession
 {
+    private SealedDeckValidationContext? SealedContextFor(string playerId) =>
+        options.DeckFormat == OfficialDeckFormat.Sealed
+            && state.PlayerSealedPools is { } pools && pools.TryGetValue(playerId, out var pool)
+                ? new(pool.Pool, options.SealedBestOf) : null;
+
     private GameEvent BuildDeckSubmittedEvent(string playerId, OfficialDecklist decklist)
     {
         var payload = new Dictionary<string, object?>
