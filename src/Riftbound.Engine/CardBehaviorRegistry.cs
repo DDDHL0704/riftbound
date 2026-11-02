@@ -179,6 +179,9 @@ public sealed record CardBehaviorDefinition(
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
     bool DamageAmountFromFirstTargetManaCost = false,
     bool DamageAmountFromTargetMarkedDamage = false,
+    string DamageAmountFromFirstTargetCombatKeyword = "",
+    string TargetTokenFactoryCardNo = "",
+    bool RebuildsDestroyedBombsAtEndStep = false,
     bool DrawsControllerAndOtherPlayers = false,
     bool CallsRuneForControllerAndOtherPlayers = false,
     bool GrantsBoon = false,
@@ -9546,6 +9549,16 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
     [
+        new("RAD·142/167", "海克斯爆破雷区", 2, "HEXTECH_MINEFIELD_DESTROY_REBUILD_BOMBS", 0, 0,
+            TargetScope: CardTargetScopes.FriendlyEquipment, AnyNumberOfTargets: true,
+            DestroysTarget: true, TargetTokenFactoryCardNo: P6TokenFactoryCatalog.BombTokenCardNo,
+            RebuildsDestroyedBombsAtEndStep: true, CanPlayDuringSpellDuel: true),
+        new("RAD·148/167", "陀斧打击", 2, "SPINNING_AXE_STRIKE_STEADFAST_DAMAGE", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
+            StatusEffectId: TemporaryCombatKeywordRules.Prefix + CardCombatKeywordNames.Steadfast + "2",
+            StatusEffectTargetIndex: 0, DamageTargetIndex: 1,
+            DamageAmountFromFirstTargetCombatKeyword: CardCombatKeywordNames.Steadfast,
+            CanPlayDuringSpellDuel: true),
         new("RAD·004/167", "乱殴", 3, "RAD_004_ASSAULT_EQUAL_TO_POWER", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, StatusEffectId: "COMBAT_KEYWORD:强攻",
             CanPlayDuringPriority: true, StatusEffectUsesTargetCurrentPower: true),

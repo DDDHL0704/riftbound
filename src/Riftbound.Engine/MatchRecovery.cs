@@ -1555,6 +1555,7 @@ public static partial class MatchRecoveryValidator
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBombSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
             ValidateTriggerQueueVisibleSourceObjectMembership(
@@ -3597,6 +3598,7 @@ public static partial class MatchRecoveryValidator
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBombSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
         ValidateTriggerQueueVisibleSourceObjectMembership(

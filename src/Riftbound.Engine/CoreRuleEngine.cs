@@ -21670,8 +21670,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId,
         CardBehaviorDefinition behavior)
     {
-        return string.IsNullOrWhiteSpace(behavior.TargetRequiredTag)
-            || CardObjectHasTag(state.CardObjects, objectId, behavior.TargetRequiredTag);
+        return (string.IsNullOrWhiteSpace(behavior.TargetRequiredTag)
+                || CardObjectHasTag(state.CardObjects, objectId, behavior.TargetRequiredTag))
+            && (string.IsNullOrEmpty(behavior.TargetTokenFactoryCardNo)
+                || state.CardObjects.GetValueOrDefault(objectId)?.TokenFactoryCardNo == behavior.TargetTokenFactoryCardNo);
     }
 
     private static bool IsVisibleFieldUnitPrimitiveTargetAllowed(
@@ -26133,7 +26135,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var damageAmount = behavior.DamageDistributionAmount > 0
                         ? distributedSpellAmounts.GetValueOrDefault(targetObjectId)
                         : ShouldApplyDamageToTarget(behavior, targetIndex)
-                            ? ResolveDamageAmount(state, stackItem, behavior, targetObjectId) : 0;
+                            ? ResolveDamageAmount(behavior.DamageAmountFromFirstTargetCombatKeyword.Length > 0
+                                ? DamageFrame() with { CardObjects = cardObjects } : state,
+                                stackItem, behavior, targetObjectId) : 0;
                     if (behavior.BanishesIfDestroyedThisTurn)
                     {
                         targetState = targetState with
@@ -26697,6 +26701,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             events.AddRange(recycleResult.Events);
             rngCursor = recycleResult.RngCursor;
         }
+
+        if (behavior.RebuildsDestroyedBombsAtEndStep)
+            TryScheduleBombRebuild(state with { Tick = RuleChoices.Value?.CompletionTick ?? state.Tick },
+                stackItem, destroyedObjectIds.Distinct(StringComparer.Ordinal).Count(),
+                untilEndOfTurnEffects, events);
 
         AddBoonAmplifiers(state, stackItem, behavior, untilEndOfTurnEffects, events);
         AddTurnUnitPlayGrants(state, stackItem, behavior, untilEndOfTurnEffects, events);
@@ -33744,7 +33753,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? targetObjectId = null)
     {
         int damageAmount;
-        if (behavior.DamageAmountFromShowcasePower)
+        if (behavior.DamageAmountFromFirstTargetCombatKeyword.Length > 0)
+        {
+            // An illegal reference supplies no information (CN 359.3.e.12).
+            if (stackItem.TargetObjectIds.Count == 0
+                || !state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var reference)) return 0;
+            damageAmount = ResolveCurrentCountedCombatKeyword(state, reference, behavior.DamageAmountFromFirstTargetCombatKeyword);
+        }
+        else if (behavior.DamageAmountFromShowcasePower)
         {
             // A showcase condition must be met before there is a damage
             // instruction to receive bonuses (CN 832.1.c.1 / 715).
@@ -33796,6 +33812,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // extra damage before prevention (715). A non-damage instruction must
         // not be converted into damage by a numeric bonus.
         if (damageAmount == 0 && !behavior.DamageAmountFromTargetMarkedDamage
+            && behavior.DamageAmountFromFirstTargetCombatKeyword.Length == 0
             && !behavior.DamageAmountFromShowcasePower
             && !behavior.DamageAmountFromFirstTargetManaCost && !behavior.DamageAmountFromOptionalPowerCost
             && behavior.ExtraDamagePerSameNameInControllerGraveyard <= 0
