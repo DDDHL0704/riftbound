@@ -1,0 +1,74 @@
+{
+  "fetchedAt": "2026-11-02",
+  "sources": [
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/origins.html",
+      "url": "https://playriftbound.com/en-us/news/announcements/collectability-in-riftbound-origins/",
+      "sourceLevel": "official",
+      "sha256": "31be0b82147673870f0ea3f1e3571628d50bccd278a91b449781cf9aa37fe7c1",
+      "bytes": 157819
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/spiritforged.html",
+      "url": "https://merch.riotgames.com/en-us/product/riftbound-spiritforged-booster-display/",
+      "sourceLevel": "official",
+      "sha256": "8f47d8b0fdf1bed8999fd6860f367cdfd817795f31de45443ca9546ed51fb9fb",
+      "bytes": 163973
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/radiance-overview.html",
+      "url": "https://riftbound.zone/en/radiance-overview-ultimate-rare-pack-odds/",
+      "sourceLevel": "official_transcription",
+      "sha256": "03abf8030614775ccb144cabab7b0c5b35e68f1b1d63e7a77fe6524b5c3cc4ec",
+      "bytes": 104277
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/turnzero-box-odds.html",
+      "url": "https://turnzerohq.com/riftbound/riftbound-booster-box",
+      "sourceLevel": "official_transcription",
+      "sha256": "0d42aa2276f50e423023afcd4121f7af2e48d9bde6883f11e6de7a760423a3f2",
+      "bytes": 109046
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/tcgtalk-radiance.html",
+      "url": "https://tcgtalk.com/guides/radiance-riftbound-pull-rates-box-opening",
+      "sourceLevel": "community",
+      "sha256": "8fd0d19a22e606504e2d9ed7fb5eca98f1d34eceb25e27bbcce7c7e887f88b78",
+      "bytes": 295262
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/tcgtalk-vendetta.html",
+      "url": "https://tcgtalk.com/guides/vendetta-riftbound-pull-rates-box-opening",
+      "sourceLevel": "community",
+      "sha256": "8457db5d4a68e0ed708a8762fbde9b816d1f89e56f6543a573fef8404c35d08d",
+      "bytes": 160500
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/tcgtalk-unleashed.html",
+      "url": "https://tcgtalk.com/guides/unleashed-riftbound-pull-rates-box-opening",
+      "sourceLevel": "community",
+      "sha256": "054326727413ae8f95309fb06c291511a746a0c25e914fc155dbc519eed2031f",
+      "bytes": 155342
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/iyingdi-product-classification.html",
+      "url": "https://www.iyingdi.com/tz/post/5608629",
+      "sourceLevel": "third_party",
+      "sha256": "ecf77afa692bccb52346ef0cfcf659371d2bd4a1d23581f75359b4e2d5a5877a",
+      "bytes": 26265
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/radiance-pre-rift.html",
+      "url": "https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/",
+      "sourceLevel": "official",
+      "sha256": "2f6af9492e29a4a7e3db5ae3a25ffd9846f43d365a2d150e509f4f2c3721bedd",
+      "bytes": 163190
+    }
+  ],
+  "ruleSource": {
+    "sourceLevel": "official",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+    "localSnapshot": "var/official/tournament-rules-2026-10-16.pdf",
+    "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d"
+  }
+}
