@@ -134,11 +134,12 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             Assert.Equal(field, birth.BattlefieldObjectId);
             // The forgery helper also cold-recovers this unchanged accepted history.
             var other = game.State.CardObjects.Values.First(c => c.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag) && c.ObjectId != field).ObjectId;
-            await game.RejectCoordinatedForgery("area-skill-original-battlefield", game.State with { StackItems = [item with {
-                StackItemId = item.StackItemId.Replace("::BATTLEFIELD::" + field, "::BATTLEFIELD::" + other, StringComparison.Ordinal),
-                LastBreathBattlefieldDamage = birth with { BattlefieldObjectId = other } }] });
-            await game.RejectCoordinatedForgery("area-skill-death-controller", game.State with { StackItems = [item with {
-                ControllerId = "P2", LastBreathBattlefieldDamage = birth with { ControllerId = "P2" } }] });
+            await game.RejectCoordinatedForgeries(
+                ("area-skill-original-battlefield", game.State with { StackItems = [item with {
+                    StackItemId = item.StackItemId.Replace("::BATTLEFIELD::" + field, "::BATTLEFIELD::" + other, StringComparison.Ordinal),
+                    LastBreathBattlefieldDamage = birth with { BattlefieldObjectId = other } }] }),
+                ("area-skill-death-controller", game.State with { StackItems = [item with {
+                    ControllerId = "P2", LastBreathBattlefieldDamage = birth with { ControllerId = "P2" } }] }));
             await game.RejectCoordinatedForgeryTwiceThenRecover("area-skill-birth-tick", game.State with { StackItems = [item with {
                 LastBreathBattlefieldDamage = birth with { CreatedAtTick = birth.CreatedAtTick - 1 } }] });
             await game.Top(); Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.ColdCheckpoint();
