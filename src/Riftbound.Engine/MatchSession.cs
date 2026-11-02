@@ -1199,7 +1199,8 @@ public sealed partial record MatchState
 
     private static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
-        return BattleLimitedMarkers.PrivateMarker(effectId)
+        return effectId.StartsWith(CoreRuleEngine.OptionalPlayCostReductionUsePrefix, StringComparison.Ordinal)
+            || BattleLimitedMarkers.PrivateMarker(effectId)
             || effectId.StartsWith(CoreRuleEngine.SimpleActivationUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
@@ -1620,6 +1621,7 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DravenBattleDeathScore is not null) return "战斗中被摧毁：选择一名对手获得1分；双方响应后结算。";
@@ -1663,6 +1665,10 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.StandbyObserver is not null) return trigger.EffectKind == CoreRuleEngine.StandbyHiddenTokenEffect
+            ? "藏匿卡牌后创建指示物；双方响应后结算。"
+            : "从背面打出卡牌后，活跃原来源并给予战力；双方响应后结算。";
+        if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DravenBattleDeathScore is not null) return "战斗中被摧毁：选择一名对手获得1分；双方响应后结算。";
@@ -1708,7 +1714,8 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind)
+        if (trigger.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)
+            || trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         if (trigger.BombRebuild is not null || trigger.EndAbility is not null || trigger.InsightContext is { Kind: "EXHAUSTED" } || trigger.UnitConquestReturn is not null || trigger.ConquestToken is not null || trigger.SourceUnitTokens is not null || trigger.ReadyObjectTrigger is not null || trigger.SourceReadied is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.OutsideHandPlayObserver is not null || trigger.HighCostPlayObserver is not null || trigger.ConquestSource is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.TurnUnitPlayBoon is not null || trigger.TurnUnitPlayDraw is not null || trigger.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
@@ -1732,8 +1739,9 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.StandbyObserver is not null) return false;
         if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
-        return trigger.EndAbility is null && trigger.BombRebuild is null && trigger.UnitEvent is null && trigger.UnitConquestReturn is null && trigger.ConquestToken is null && trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+        return !CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext) && trigger.EndAbility is null && trigger.BombRebuild is null && trigger.UnitEvent is null && trigger.UnitConquestReturn is null && trigger.ConquestToken is null && trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
 
@@ -1788,7 +1796,7 @@ public sealed partial record ResolutionResult(
         var hiddenSource = IsHiddenStackSourceForViewer(state, item, viewerPlayerId);
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
-        var sourceId = hiddenSource ? "HIDDEN" : item.TargetedPowerAbility is not null || item.BombRebuild is not null || item.EndAbility is not null || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null
+        var sourceId = hiddenSource ? "HIDDEN" : item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.TargetedPowerAbility is not null || item.BombRebuild is not null || item.EndAbility is not null || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null
             || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null || item.RecycleMightActivation is not null || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
             || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
@@ -1978,8 +1986,9 @@ public sealed partial record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
+        if (item.StandbyObserver is not null) return false;
         if (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
-        return item.TargetedPowerAbility is null && item.EndAbility is null && item.BombRebuild is null && item.UnitEvent is null && item.UnitConquestReturn is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return !CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) && item.TargetedPowerAbility is null && item.EndAbility is null && item.BombRebuild is null && item.UnitEvent is null && item.UnitConquestReturn is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
@@ -4163,6 +4172,7 @@ internal static partial class ActionPromptBuilder
                 choices.Add(new(cost, "返回友方装备：" + target.Label, target.Reason));
             }
         choices.AddRange(CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior));
+        choices.AddRange(CoreRuleEngine.OptionalPlayCostReductionChoices(state, playerId, behavior));
         choices.AddRange(TurnEquipmentPlayRules.Choices(state, playerId, behavior, sourceObjectId));
         if (behavior.AppliedFlowCost is { } flow)
             choices.Add(new(CoreRuleEngine.FlowCostChoiceId(flow), $"流转：{flow.Mana} 法力 / {flow.Power} 符能",
@@ -5355,7 +5365,8 @@ internal static partial class ActionPromptBuilder
             minimumManaCost);
 
         CoreRuleEngine.TrySelectPlayPowerCost(state, playerId, behavior, null, runePool, CoreRuleEngine.SourceReplayPowerCost(state, playerId), new Dictionary<string, int>(),
-            out var printedGenericCost, out var printedTypedCost);
+            out var printedGenericCost, out var printedTypedCost,
+            optionalPlayReduction: CoreRuleEngine.AvailableOptionalPlayPowerReduction(state, playerId, behavior));
         if (behavior.MaySacrificeUnitForPrintedCostReduction
             && AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId).MinBy(cost => cost.Mana.Total) is { } sacrifice)
         {
