@@ -40,7 +40,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.Equal(before - (12 - runes), game.State.RunePools[actor].Mana);
             Assert.False(game.State.CardObjects[unit].IsEmpowered);
             Assert.Equal(3, game.Might(actor, unit));
-            await game.ColdCheckpoint();
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var pending = Assert.Single(game.State.StackItems);
             var forgedDiscount = game.State with
             {
