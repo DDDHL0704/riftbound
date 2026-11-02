@@ -6162,7 +6162,8 @@ public sealed partial class MatchSession : IMatchSession
                     command.RuneDeck,
                     command.Battlefields));
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat);
+                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat,
+                    SealedContextFor(normalizedPlayerId));
                 if (!validation.IsValid)
                 {
                     result = ResolutionResult.Rejected(
@@ -6331,13 +6332,16 @@ public sealed partial class MatchSession : IMatchSession
             if (options.DeckFormat != OfficialDeckFormat.CoreRules)
             {
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                foreach (var submitted in state.PlayerDecklists.Values)
+                foreach (var (owner, submitted) in state.PlayerDecklists)
                 {
-                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat);
+                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat,
+                        SealedContextFor(owner));
                     if (!validation.IsValid)
                     {
                         var rejected = ResolutionResult.Rejected(state,
-                            $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
+                            options.DeckFormat == OfficialDeckFormat.Sealed && owner != normalizedPlayerId
+                                ? "有玩家的现开卡组需要更新。"
+                                : $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
                         intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                         return rejected;
                     }

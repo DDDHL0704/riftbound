@@ -273,7 +273,7 @@
 ## 现开赛（F 线）
 
 - [ ] **基础配置、卡包生成器、系列目录和协议 ADR**（`f/sealed-foundation`）：6 包同系列、14 张进阶包结构；OGN、SFD 开放名单统一在 `data/official/sealed-sets.json`，UNL、VEN、RAD 待引擎全部接入。真实印次、slot/foil、私有种子、配置版本和指纹；`GET /sealed/sets` 与 `format/setCode/bestOf/series/sealedPool/sideboardCounts` DTO；依据 602.4.a.1、602.4.b.2.a 和 Riot Origins／SFD 产品页。契约见 `docs/adr/0001-sealed-format.md`。
-- [ ] **现开卡组校验和空白战场**：新增 OfficialDeckFormat；602.1.a.1–3、602.1.b、602.3.d、602.4.a.2–6；主牌至少 25（含英雄）、符文恰好 12、特性并集和实际印次卡池数量由服务端校验。空白编号 `SEALED·BLANK-BATTLEFIELD`。
+- [x] **现开卡组校验和空白战场**：[#393](https://github.com/DDDHL0704/riftbound/pull/393) 已合入，61 项定向测试通过。新增 OfficialDeckFormat；602.1.a.1–3、602.1.b、602.3.d、602.4.a.2–6；主牌至少 25（含英雄）、符文恰好 12、特性并集和实际印次卡池数量由服务端校验。空白编号 `SEALED·BLANK-BATTLEFIELD`；真实房间提交与开局由下一项接入。
 - [ ] **房间格式、卡池持久化、恢复、回放和投影隐藏**：建房 format/setCode/bestOf、私有 sealedPool；种子、配置版本、指纹和完整卡包写日志／恢复帧；对手、观战者不能看到卡池、配置或备牌内容。
 - [ ] **无传奇／无选定英雄开局与“唯我”豁免**：602.4.a.5–6；缺任一者每局首回合开始阶段只额外抽一张；开局、区域、技能、效果、投影和恢复均能处理缺席。
 - [ ] **通用多局模型和先后手选择**：现开 bestOf 1/3；404.1–3、407.1–4；先获 2 胜、平局不计胜，首局随机指定玩家选顺序，其后败方选、平局沿用。比赛结束仅一条含小分战绩；构筑多局暂不开放。线上不做时限／408 超时流程。

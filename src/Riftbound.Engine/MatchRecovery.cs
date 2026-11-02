@@ -1193,7 +1193,8 @@ public static partial class MatchRecoveryValidator
             events,
             commandPlayerIds,
             commandPlayerScopeLabel,
-            errors);
+            errors,
+            allowAbsentDeckRoles: authoritativeState?.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed);
         var visibleState = authoritativeState is null ? null : CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors, visibleState);
         ValidatePlayerViewAgreement(playerViews, errors);
