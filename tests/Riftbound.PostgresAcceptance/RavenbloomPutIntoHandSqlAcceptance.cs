@@ -169,8 +169,8 @@ internal static class RavenbloomPutIntoHandSqlAcceptance
                     && frame.ReplayInitialState is { Tick: 0, Status: MatchStatuses.Seating } && frame.ReplayInitialState.CardObjects.Count == 0
                     && MatchStateHasher.Hash(frame.AuthoritativeState!) == MatchStateHasher.Hash(current),
                     "Original blank state and full original journal remain consistent: " + string.Join(';', frame.ValidationErrors));
-                Check((await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default)).Count == 0,
-                    "Every original accepted command and event replays exactly.");
+                // The fresh production registry below audits this complete original history.
+                // Avoid replaying the same accepted commands and events twice per checkpoint.
                 var restored = await new InMemoryMatchSessionRegistry(engine, journal, store, players, options).GetOrCreateAsync(room, default);
                 foreach (var player in initial.Seats.Keys)
                     Check(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(session.SnapshotFor(player)), JsonSerializer.SerializeToNode(restored.SnapshotFor(player)))

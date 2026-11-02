@@ -160,8 +160,8 @@ internal static class OptionalCostsSqlAcceptance
                     && frame.ReplayInitialState!.Seed == 0 && frame.ReplayInitialState.CardObjects.Count == 0
                     && MatchStateHasher.Hash(frame.AuthoritativeState!) == MatchStateHasher.Hash(current),
                     "Actual SQL frame must preserve seed, exact history and authoritative state: " + string.Join("; ", frame.ValidationErrors));
-                Check((await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default)).Count == 0,
-                    "Complete original action/event/state replay must match.");
+                // The fresh production registry below audits this complete original history.
+                // Avoid replaying the same accepted commands and events twice per checkpoint.
                 session = await new InMemoryMatchSessionRegistry(engine, journal, store, players).GetOrCreateAsync(room, default);
                 var expectedViews = ResolutionResult.BuildSnapshots(current);
                 foreach (var player in initial.Seats.Keys)

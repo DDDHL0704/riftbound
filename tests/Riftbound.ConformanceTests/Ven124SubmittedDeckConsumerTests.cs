@@ -39,7 +39,8 @@ public sealed class Ven124SubmittedDeckConsumerTests
             Assert.Equal(costGeneration + 1, game.State.CardObjects[costUnit].ObjectGeneration);
             Assert.Equal(mana - 5, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(3, game.Might(actor, unit));
-            Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds); await game.ColdCheckpoint();
+            Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
+            // The forgery helper also cold-recovers this unchanged accepted history.
             // Keep the real post-destruction incarnation and original journal.
             // Forge only a coherent refund of that public unit to the base.
             var refunded = game.State with {

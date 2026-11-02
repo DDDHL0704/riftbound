@@ -88,7 +88,8 @@ public sealed partial class LastBreathRuneCallBoundaryTests
             Assert.Equal(generation, game.State.CardObjects["SONG-" + i].AttachedRuleText!.Unit.Generation);
         }
         await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+        // Keep both physical destruction-payment runes in their original order.
+        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
         await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
         game.RecoverAfterEveryCommand = true;
         await game.ColdCheckpoint();

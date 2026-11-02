@@ -508,7 +508,8 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); Assert.Equal(3, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
             await game.ColdCheckpoint(); await game.Top(); Assert.Equal(1, game.State.RunePools[actor].Mana); Assert.Equal(4, game.Might(actor, unit));
             var spell = game.Hand(actor, "OGN·093/298").First(); await game.Act(actor, new PlayCardCommand(spell, "OGN·093/298", [unit]));
-            Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower); await game.ColdCheckpoint();
+            Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            // The forgery helper also cold-recovers this unchanged accepted history.
             await game.RejectCoordinatedForgery("refunded-spell-aura-mana", game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                 [actor] = game.State.RunePools[actor] with { Mana = 1 } } });
             await game.RejectCoordinatedForgery("erased-resolved-aura-source-empower", game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {

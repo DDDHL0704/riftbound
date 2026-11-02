@@ -120,10 +120,10 @@ function PlayOrder({ series, meId, prompt, pending }: { series: MatchSeries; meI
   const first = series.gameNumber === 1;
   return (
     <section className="sealed__order">
-      <h2>第 {series.gameNumber} 局 · 先后手</h2>
+      <h2>{series.bestOf > 1 ? `第 ${series.gameNumber} 局 · 先后手` : "先后手"}</h2>
       {canChoose ? (
         <>
-          <p className="muted">{first ? "你被随机选中来决定先后手。" : "上一局失利的一方决定先后手。"}</p>
+          <p className="muted">{first ? "你被随机选中来决定先后手。" : `第 ${series.gameNumber - 1} 局你落败，由你决定这一局的先后手。`}</p>
           <div className="lobby__row">
             <button className="btn btn--primary" disabled={pending} onClick={() => void client.submit({ cmdType: "CHOOSE_PLAY_ORDER", goFirst: true })}>
               我先手
@@ -134,7 +134,7 @@ function PlayOrder({ series, meId, prompt, pending }: { series: MatchSeries; meI
           </div>
         </>
       ) : (
-        <p className="muted">{chooser && chooser !== meId ? `等待 ${chooser} 决定先后手…` : (prompt?.reason ?? "等待服务器…")}</p>
+        <p className="muted">{chooser && chooser !== meId ? `${first ? "" : `第 ${series.gameNumber - 1} 局你获胜。`}等待 ${chooser} 决定先后手…` : (prompt?.reason ?? "等待服务器…")}</p>
       )}
     </section>
   );
@@ -329,7 +329,7 @@ function SealedBuilder({ pool, bestOf, deck, onChange, prompt, pending, submitte
     ["main", "主牌", `${deck.mainDeck.length}/${SEALED_MAIN_MIN}+`, deck.mainDeck.length >= SEALED_MAIN_MIN],
     ["runes", "符文", `${deck.runeDeck.length}/${RUNES}`, deck.runeDeck.length === RUNES],
     ["fields", "战场", `${deck.battlefields.length}/${fields}`, deck.battlefields.length === fields],
-    ["roles", "传奇 · 英雄", `${(deck.legendCardNo ? 1 : 0) + (deck.championCardNo ? 1 : 0)}/2`, Boolean(deck.legendCardNo && deck.championCardNo)],
+    ["roles", "传奇 · 英雄", `${(deck.legendCardNo ? 1 : 0) + (deck.championCardNo ? 1 : 0)}/2`, true], // both are optional in sealed
   ];
   const missing = (deck.legendCardNo ? 0 : 1) + (deck.championCardNo ? 0 : 1);
 
