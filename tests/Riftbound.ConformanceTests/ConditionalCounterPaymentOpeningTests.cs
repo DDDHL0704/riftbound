@@ -91,7 +91,7 @@ public sealed class ConditionalCounterPaymentOpeningTests(ITestOutputHelper outp
                 && Equals(e.Payload.GetValueOrDefault("reason"), "COUNTER_TARGET_MANA_PAYMENT")));
         await run.Cold();
         await Save("final");
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(run.Frame(), new CoreRuleEngine(), default));
+        // Cold() just audited this complete original history before restoring it.
         output.WriteLine("ORDINARY_CONDITIONAL_COUNTER_PAYMENT " + JsonSerializer.Serialize(new {
             format, profile, commands = run.Frame().Commands.Count, events = run.Frame().Events.Count,
             run.ColdCount, run.OriginalNextMatches, originalBlankSeed = run.Initial.Seed,

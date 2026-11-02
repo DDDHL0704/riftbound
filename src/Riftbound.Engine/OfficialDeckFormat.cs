@@ -6,7 +6,8 @@ public enum OfficialDeckFormat
 {
     // Historical mechanics fixtures are independent of tournament legality.
     CoreRules,
-    ChinaStandard20260724
+    ChinaStandard20260724,
+    Sealed
 }
 
 public static class ChinaStandardBanList
@@ -29,6 +30,7 @@ public static class ChinaStandardBanList
     {
         OfficialDeckFormat.CoreRules => true,
         OfficialDeckFormat.ChinaStandard20260724 => !IsBanned(card),
+        OfficialDeckFormat.Sealed => true,
         _ => throw new ArgumentOutOfRangeException(nameof(format))
     };
 }
