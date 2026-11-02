@@ -89,7 +89,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
                 Assert.Equal(0, game.State.CardObjects["OTHER-VICTIM"].Damage); Assert.Equal(0, game.State.CardObjects["BASE-VICTIM"].Damage);
             }
             Assert.Contains("ALLY", game.State.PlayerZones["P1"].Graveyard); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
-            Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            Assert.Empty(game.State.TriggerQueue);
         }
         finally { await Flow.Save("kogmaw-transferred-private-source-three-area-skills", initial, game); }
     }

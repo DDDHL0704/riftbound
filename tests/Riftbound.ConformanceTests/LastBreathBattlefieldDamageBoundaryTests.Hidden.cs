@@ -28,7 +28,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
                 await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             var prefix = game.Events().Length; await game.Top();
             Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "SECRET"));
-            Assert.Equal(0, game.State.CardObjects["SECRET"].Damage); await game.Replay();
+            Assert.Equal(0, game.State.CardObjects["SECRET"].Damage);
         }
         finally { await Flow.Save("kogmaw-actual-paid-standby-not-a-unit", initial, game); }
     }

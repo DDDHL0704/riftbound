@@ -18,7 +18,7 @@ public sealed record OfficialDeckValidationResult(
     public static OfficialDeckValidationResult Valid { get; } = new(true, []);
 }
 
-public static class OfficialDeckValidator
+public static partial class OfficialDeckValidator
 {
     public const int MinimumMainDeckCount = 40;
     public const int RuneDeckCount = 12;
@@ -42,10 +42,14 @@ public static class OfficialDeckValidator
     public static OfficialDeckValidationResult Validate(
         OfficialDecklist decklist,
         OfficialCardCatalog catalog,
-        OfficialDeckFormat format = OfficialDeckFormat.CoreRules)
+        OfficialDeckFormat format = OfficialDeckFormat.CoreRules,
+        SealedDeckValidationContext? sealedContext = null)
     {
         ArgumentNullException.ThrowIfNull(decklist);
         ArgumentNullException.ThrowIfNull(catalog);
+
+        if (format == OfficialDeckFormat.Sealed)
+            return ValidateSealed(decklist, catalog, sealedContext);
 
         var errors = new List<string>();
         var cardsByNo = catalog.Cards
@@ -156,7 +160,8 @@ public static class OfficialDeckValidator
         IReadOnlyDictionary<string, OfficialCard> cardsByNo,
         IReadOnlyList<string> mainDeck,
         OfficialCard? legend,
-        List<string> errors)
+        List<string> errors,
+        bool enforceConstructionLimits = true)
     {
         var cards = new List<OfficialCard>();
         foreach (var cardNo in mainDeck)
@@ -187,9 +192,9 @@ public static class OfficialDeckValidator
             ValidateLegendTraits(card, legend, $"主牌堆中的 {card.CardNo}", errors);
         }
 
-        ValidateCopyLimits(cards, errors);
+        if (enforceConstructionLimits) ValidateCopyLimits(cards, errors);
 
-        if (legend is not null)
+        if (enforceConstructionLimits && legend is not null)
         {
             var exclusiveCount = cards.Count(card => IsExclusive(card)
                 && string.Equals(card.Hero, legend.Hero, StringComparison.Ordinal));
@@ -227,7 +232,8 @@ public static class OfficialDeckValidator
         IReadOnlyDictionary<string, OfficialCard> cardsByNo,
         IReadOnlyList<string> battlefields,
         OfficialCard? legend,
-        List<string> errors)
+        List<string> errors,
+        bool allowDuplicates = false)
     {
         var battlefieldCards = new List<OfficialCard>();
         foreach (var cardNo in battlefields)
@@ -246,6 +252,8 @@ public static class OfficialDeckValidator
 
             ValidateLegendTraits(card, legend, $"战场牌组中的 {card.CardNo}", errors);
         }
+
+        if (allowDuplicates) return;
 
         var duplicateBattlefields = battlefieldCards
             .GroupBy(card => card.CardName, StringComparer.Ordinal)
