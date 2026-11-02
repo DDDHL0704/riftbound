@@ -14,7 +14,8 @@ public sealed partial class LastBreathDrawBoundaryTests
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "VEN·048", "P2"),
             ["BF"] = initial.CardObjects["BF"] with { ControllerId = "P2" } } };
-        var game = new Driver(initial);
+        // Recover paid units and copied texts before the actual death path.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
@@ -25,6 +26,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
             }
             await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", [], ["UNIT", "ALLY"]));
             await BattleWinnerPhaseBoundaryTests.PassFocus(game);
             await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT", "ALLY"], ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
@@ -51,7 +54,7 @@ public sealed partial class LastBreathDrawBoundaryTests
             }
             Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); Assert.Null(game.State.PendingHandChoice);
             Assert.Null(game.State.PendingBattleResult); Assert.Equal("P1", game.State.CardObjects["BF"].ControllerId);
-            Assert.Equal(1, game.State.PlayerScores["P1"]); await game.Replay();
+            Assert.Equal(1, game.State.PlayerScores["P1"]); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("agent-two-manual-assignments-and-conquest", initial, game); }
     }
@@ -71,7 +74,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                     ["BF"] = initial.CardObjects["BF"] with { ControllerId = "P2" } } };
         }
         else initial = Add(initial, "MALZ", P4ActivatedAbilityCatalog.MalzaharCardNo, "P1", "BASE");
-        var game = new Driver(initial);
+        // Recover paid units and copied texts before the actual death path.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1");
@@ -83,6 +87,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
                 Assert.Equal(agent, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
             }
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             var mana = game.State.RunePools["P1"].Mana;
             if (battle)
@@ -128,7 +134,7 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.Equal(hand.Skip(2).Concat(deck.Take(2)), game.State.PlayerZones["P1"].Hand);
                 Assert.Equal(deck.Skip(2), game.State.PlayerZones["P1"].MainDeck); Assert.Equal(2 - i, game.State.StackItems.Count);
             }
-            Assert.Null(game.State.PendingHandChoice); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            Assert.Null(game.State.PendingHandChoice); Assert.Empty(game.State.TriggerQueue); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("agent-actual-death-path-battle-" + battle, initial, game); }
     }
