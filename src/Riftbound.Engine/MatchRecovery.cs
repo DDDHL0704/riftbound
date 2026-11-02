@@ -1191,6 +1191,7 @@ public static partial class MatchRecoveryValidator
             ValidateNextUnitPlayGrantHistory(authoritativeState, commands, events, errors);
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
+            ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
