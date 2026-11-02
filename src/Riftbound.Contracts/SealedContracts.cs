@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Riftbound.Contracts;
 
 public static class MatchFormats
@@ -32,13 +34,21 @@ public sealed record SealedPoolDto(
     IReadOnlyList<SealedPackDto> Packs,
     IReadOnlyList<SealedPoolCardDto> Pool);
 
+public sealed record SealedLockedDeckDto(
+    string LegendCardNo,
+    string ChampionCardNo,
+    IReadOnlyList<string> MainDeck,
+    IReadOnlyList<string> RuneDeck,
+    IReadOnlyList<string> Battlefields);
+
 public sealed record MatchSeriesDto(
     int BestOf,
     int GameNumber,
     IReadOnlyDictionary<string, int> Wins,
     string Phase,
     IReadOnlyDictionary<string, IReadOnlyList<string>> UsedBattlefields,
-    string? PlayOrderChooserPlayerId = null);
+    string? PlayOrderChooserPlayerId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SealedLockedDeckDto? LockedDeck = null);
 
 public static class MatchSeriesPhases
 {
