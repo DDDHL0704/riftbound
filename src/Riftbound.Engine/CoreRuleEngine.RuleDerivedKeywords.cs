@@ -49,9 +49,14 @@ public sealed partial class CoreRuleEngine
             var basis = card.Tags.Where(t => !removable.Contains(t) || printed.Contains(t) || card.GrantedTags?.Contains(t) == true)
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
             cards[card.ObjectId] = card with { Tags = basis, RuleDerivedTags = null };
-            if ((specs.Length > 0 || EmpowerRules.Keywords(state, card).Length > 0 || armamentKeywords.ContainsKey(id)
-                    || azirKeywords.ContainsKey(id))
-                && IsFaceUpNonStandbyUnit(card) && IsObjectOnField(state.PlayerZones, card.ObjectId)) grants[card.ObjectId] = specs;
+            // CN Radiance FAQ / 137.3.b: losing the unit type leaves the
+            // attachment's text active, while unit-only conditions still end.
+            var isUnit = IsFaceUpNonStandbyUnit(card);
+            if (IsObjectOnField(state.PlayerZones, card.ObjectId)
+                && (isUnit && (specs.Length > 0 || EmpowerRules.Keywords(state, card).Length > 0
+                        || azirKeywords.ContainsKey(id))
+                    || armamentKeywords.ContainsKey(id)))
+                grants[card.ObjectId] = isUnit ? specs : [];
         }
         if (grants.Count == 0 && cards.All(e => e.Value == state.CardObjects[e.Key])) return state;
         var current = state with { CardObjects = cards };
