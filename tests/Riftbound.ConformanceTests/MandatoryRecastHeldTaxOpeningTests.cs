@@ -47,6 +47,10 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
                 }
             await session.EnsurePlayerAsync("alice", default); await Cold();
             await session.EnsurePlayerAsync("bob", default); await Cold();
+            // Recover the accepted submitted-deck opening once after both
+            // mulligans. Seating recovery and each command's duplicate/privacy
+            // checks remain, as do the later conquest, held-tax and payment checks.
+            verifyColdRecoveryAfterEveryCommand = false;
             foreach (var player in new[] { "alice", "bob" })
                 await Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
             await Act("alice", new ReadyCommand()); await Act("bob", new ReadyCommand());
@@ -56,6 +60,8 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             Assert.Equal(Field, State().CardObjects[field].CardNo);
             await Act(State().ActivePlayerId, new MulliganCommand([]));
             await Act(State().OpeningSecondActionPlayerId!, new MulliganCommand([]));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             // Natural channeling is setup. Recover its complete original history once before
             // the first paid play, then retain cold recovery at every conquest/tax/payment step.
             verifyColdRecoveryAfterEveryCommand = false;
