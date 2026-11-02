@@ -6,12 +6,58 @@ using static Riftbound.ConformanceTests.RadGearTestPosition;
 
 namespace Riftbound.ConformanceTests;
 
-// CN 355.2 / 383.3.b / 415.4: paying the leading cost confirms a skill
+// CN 191.5.b / 204.1.c / 383.3.b / 415.4: paying the leading cost confirms a skill
 // controlled independently of the source's later location or controller.
 public sealed class RadTitanShrineSourceContinuityTests
 {
     private const string Shrine = "RAD·089/167";
     private const string Ambush = "UNL-120/219";
+
+    [Theory]
+    [InlineData("P1", "OGN·104/298", "HAND")]
+    [InlineData("P2", "OGN·104/298", "HAND")]
+    [InlineData("P1", "SFD·163/221", "GRAVEYARD")]
+    [InlineData("P2", "SFD·163/221", "GRAVEYARD")]
+    public async Task ActualAnimatedSourceRecallOrDestructionPreservesThePaidDraw(
+        string owner, string response, string destination)
+    {
+        // The source begins as an explicitly controlled printed equipment.
+        // Actual Orianna conversion permits Reaction spells to return or destroy
+        // the source while its paid skill is on the closed stack.
+        var state = Put(Create(), "SHRINE", Shrine, owner, "BASE");
+        state = RadUnitEffectTestFixture.Place(state, "SHRINE", "P1", "BASE");
+        state = Put(state, "NEW", Ambush, "P1", "HAND");
+        state = Put(state, "RESPONSE", response, "P1", "HAND");
+        state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "BF");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["BF"] = state.CardObjects["BF"] with { ControllerId = "P2" } } };
+        var game = new Driver(WithOrianna(state));
+        await OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "SHRINE");
+        await game.TapRunes("P1", ExtraMana);
+        var orange = game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Orange);
+        await game.Act("P1", new RecycleRuneCommand(ExtraOrange));
+        Assert.Contains(ExtraOrange, game.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(orange + 1, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Orange));
+        var paid = await EnterDuelAndPay(game, "P1", "ALLY");
+        Assert.Equal(orange, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Orange));
+
+        await GivePriority(game, "P1");
+        await game.Act("P1", new PlayCardCommand("RESPONSE", response,
+            response == "OGN·104/298" ? ["SHRINE"] : ["SHRINE", "ALLY"]));
+        await game.Top();
+
+        var zones = game.State.PlayerZones[owner];
+        Assert.Contains("SHRINE", destination == "HAND" ? zones.Hand : zones.Graveyard);
+        Assert.True(game.State.CardObjects["SHRINE"].ObjectGeneration > paid.UnitEvent!.SourceGeneration);
+        AssertCapturedSkill(game, paid);
+        var deck = game.State.PlayerZones["P1"].MainDeck.Count;
+        var drawn = DrawnCards(game, "P1");
+        var opponentDeck = game.State.PlayerZones["P2"].MainDeck.Count;
+        await game.Top();
+        AssertDraw(game, "P1", deck, drawn);
+        Assert.Equal(opponentDeck, game.State.PlayerZones["P2"].MainDeck.Count);
+        await game.Replay();
+    }
 
     [Fact]
     public async Task ActualAkshanDepartureReturnsControlWithoutRedirectingThePaidDraw()
@@ -78,6 +124,21 @@ public sealed class RadTitanShrineSourceContinuityTests
         Assert.Empty(OfficialInsightAndSpellLockTests.Errors(game.State));
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
             StackItems = [surviving with { UnitEvent = surviving.UnitEvent! with { CapturedTick = game.State.Tick + 1 } }] }));
+    }
+
+    private const string ExtraOrange = "SHRINE-ORANGE";
+    private static readonly string[] ExtraMana = Enumerable.Range(0, 8).Select(i => "SHRINE-MANA-" + i).ToArray();
+
+    private static MatchState WithOrianna(MatchState state)
+    {
+        state = Put(state, ExtraOrange, "UNL-R04", "P1", "BASE");
+        foreach (var id in ExtraMana) state = Put(state, id, "UNL-R03", "P1", "BASE");
+        return OriannaEquipmentConsumerFixture.WithResources(state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "RAD·145/167", "P1") },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } });
     }
 
     private static int DrawnCards(Driver game, string controller)
