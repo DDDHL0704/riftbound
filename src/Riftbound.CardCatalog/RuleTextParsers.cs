@@ -531,6 +531,14 @@ public static class TriggerParser
         if (endRecycleRunes.Success) triggers.Add(new(TriggerKinds.TurnEndRecycleRunesCall, TriggerTimings.TurnEnd,
             endRecycleRunes.Value, "Recycle all controlled runes in owner-chosen bottom order, then channel exhausted runes.",
             RuneCallCount: ParseChineseNumber(endRecycleRunes.Groups["count"].Value)));
+        var endEquipment = Regex.Match(text,
+            @"在你(?:的)?回合结束时，(?<controlled>如果此战场受你控制，则)?打出(?<count>[0-9一两二三四五六七八九十]+)个休眠的“(?<name>[^”]+)”装备指示物。", RegexOptions.CultureInvariant);
+        if (endEquipment.Success) triggers.Add(new(TriggerKinds.TurnEndCreateEquipmentToken, TriggerTimings.TurnEnd,
+            endEquipment.Value, "Capture the end-step battlefield condition once (CN 383.2.a.1), then create exhausted equipment in base.",
+            CreatedTokenCount: ParseChineseNumber(endEquipment.Groups["count"].Value),
+            CreatedTokenName: endEquipment.Groups["name"].Value, CreatedTokenDestination: TriggerZones.Base,
+            CreatedTokenExhausted: true, RequiresSourceBattlefieldAtTrigger: endEquipment.Groups["controlled"].Success,
+            RequiresControlledSourceBattlefieldAtTrigger: endEquipment.Groups["controlled"].Success));
         var endReady = Regex.Match(text, @"在你(?:的)?回合结束时，(?<here>如果我位于战场上，则)?让最多(?<count>[0-9一两二三四五六七八九十]+)枚(?:友方)?符文变为活跃状态。", RegexOptions.CultureInvariant);
         if (endReady.Success) triggers.Add(new(TriggerKinds.TurnEndReadyRunes, TriggerTimings.TurnEnd, endReady.Value,
             "End-step optional rune target confirmation before ordinary response.", RuneReadyCount: ParseChineseNumber(endReady.Groups["count"].Value),
@@ -3886,6 +3894,16 @@ public static class StaticAuraParser
                 PowerDeltaIfSourceEmpowered: int.Parse(empoweredFriendlyPower.Groups[2].Value)));
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var allFriendlyPower = Regex.Match(segment,
+                @"^\s*你的所有单位具有\{\{S\}\}\+(\d+)。?\s*$", RegexOptions.CultureInvariant);
+            if (allFriendlyPower.Success)
+            {
+                auras.Add(new(StaticAuraKinds.FriendlyUnitsPower, StaticAuraLayer, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.FriendlyUnits, StaticAuraParticipantScopes.FriendlyPublicUnits,
+                    int.Parse(allFriendlyPower.Groups[1].Value), segment, BehaviorImplementationStatuses.Unimplemented,
+                    "All friendly public units receive the printed power bonus while this source remains on the field."));
+                continue;
+            }
             var sameNameCount = Regex.Match(segment,
                 @"你在此处每控制一名和我同名的其他单位，我便获得\{\{S\}\}\+(\d+)", RegexOptions.CultureInvariant);
             if (sameNameCount.Success)

@@ -157,6 +157,8 @@ public sealed partial class CoreRuleEngine
         var queued = new List<TriggerQueueItemState>();
         if (winner is not null) queued.AddRange(CaptureUnitBattleWinDrawObservations(resultState, battlefield, winner,
             attackers, defenders, resultState.Tick).Select(x => x.Trigger with { UnitBattleWinDraw = x.Context }));
+        if (winner is not null) queued.AddRange(CaptureBattlefieldWinDrawObservations(resultState, battlefield, winner,
+            role, resultState.Tick).Select(x => x.Trigger with { UnitBattleWinDraw = x.Context }));
         if (winner is not null) queued.AddRange(CaptureKhazixBattleWinObservations(resultState, battlefield, winner,
             role, resultState.Tick).Select(x => x.Trigger with { KhazixBattleWin = x.Context }));
         if (winner is not null && resultState.PlayerZones.TryGetValue(winner, out var winnerZones))

@@ -57,8 +57,10 @@ internal static class BattleResultRecoveryRules
             || tick != c.ResultTick || role != (actor == c.AttackingPlayerId ? "ATTACKER" : "DEFENDER")) return false;
         return effect switch
         {
-            UnitDraw => unit is not null && number is "UNL-114/219" or "SFD·123/221"
-                && (role == "ATTACKER" ? c.SurvivingAttackerObjectIds : c.SurvivingDefenderObjectIds).Contains(source),
+            UnitDraw => unit is not null && CoreRuleEngine.HasValidUnitBattleWinDrawShape(unit)
+                && AttachedRuleTextRules.ValidCaptured(state, unit.Origin, source, binding.Generation, number)
+                && (unit.ObservesBattlefield
+                    || (role == "ATTACKER" ? c.SurvivingAttackerObjectIds : c.SurvivingDefenderObjectIds).Contains(source)),
             LegendDraw => legend is not null && number is "SFD·185/221" or "SFD·242/221",
             Experience => khazix is not null && number is "UNL-201/219" or "UNL-236/219" or "UNL-236*/219",
             FirstWinScore => score is not null && CoreRuleEngine.HasValidDravenBattleWinScoreShape(score)

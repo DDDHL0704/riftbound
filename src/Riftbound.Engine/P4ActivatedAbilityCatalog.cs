@@ -54,7 +54,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool CommandsOpponentUnitToSourceBattlefield = false,
     bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
-    bool StunsTarget = false, bool OncePerTurnPerPlayer = false);
+    bool StunsTarget = false, bool OncePerTurnPerPlayer = false,
+    int? ExhaustFriendlyUnitMinimumPowerAsCost = null);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -324,6 +325,10 @@ public static class P4ActivatedAbilityCatalog
             false, true, 0, true, "官方中文：横置，单位本回合+2；来源已强化时改为+4。",
             Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: 2, SourceRequiredTag: CardObjectTags.EquipmentCard, PowerModifierAmountIfSourceEmpowered: 4),
+        new("WAKEBLOOM_EXHAUST_POWERFUL_DRAW", "RAD·035/167", "WAKEBLOOM_EXHAUST_POWERFUL_DRAW", "醒神花", 0, 0, 0,
+            false, true, 0, false, "让一名友方强力单位及来源变为休眠状态，以支付抽一张牌的技能费用。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DrawCount: 1, ExhaustFriendlyUnitMinimumPowerAsCost: 5)),
         new("BOOK_REMOVE_EMPOWER_DRAW", "VEN·054", "BOOK_REMOVE_EMPOWER_DRAW", "可疑之书", 1, 0, 0,
             false, true, 0, false, "官方中文：解除强化、支付1并横置，抽一张牌。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,

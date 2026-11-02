@@ -1013,7 +1013,8 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "SKY_STRIDER_DISCARD_DAMAGE",
                 "TUNDRA_HUNTER_READY",
                 "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER",
-                "UNL_001_219_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN"
+                "UNL_001_219_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN",
+                "WAKEBLOOM_EXHAUST_POWERFUL_DRAW"
             ],
             P4ActivatedAbilityCatalog.GetAll()
                 .Select(definition => definition.AbilityId)
