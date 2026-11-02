@@ -106,7 +106,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         await game.Act("P1", new EndTurnCommand());
         Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
         await game.TapRunes("P2", Enumerable.Range(0, 8).Select(i => "TAKE-RUNE-" + i));
-        for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("TAKE-RUNE-" + i));
+        await game.Act("P2", new RecycleRuneCommand("TAKE-RUNE-0", ["TAKE-RUNE-0", "TAKE-RUNE-1", "TAKE-RUNE-2"]));
         await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
         var before = game.State.RunePools["P2"];
         Assert.Equal(8, before.Mana); Assert.Equal(4, before.TotalPower);
@@ -123,8 +123,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         Assert.Contains("坚守3", game.State.CardObjects["UNIT"].Tags);
         await game.Act("P2", new EndTurnCommand());
         Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
-        await game.Act("P1", new TapRuneCommand("RUNE-0"));
-        await game.Act("P1", new TapRuneCommand("RUNE-1"));
+        await game.Act("P1", new TapRuneCommand("RUNE-0", ["RUNE-0", "RUNE-1"]));
         Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
         await Reject(game, "P1", new PlayCardCommand("HOWL", "VEN·072", ["UNIT"]));
         await game.Act("P1", new RecycleRuneCommand("RUNE-2"));

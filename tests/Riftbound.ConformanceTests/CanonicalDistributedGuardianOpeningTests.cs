@@ -63,7 +63,9 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
                 await game.Act("P1", new AssembleEquipmentCommand(id, host, ["ASSEMBLE_GREEN"])); await game.Top();
             }
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
-            Assert.Equal(3, game.Might("P1", host)); await game.ColdCheckpoint();
+            Assert.Equal(3, game.Might("P1", host));
+            // Restore the complete paid setup once below, after both armies are ready.
+            // Battle choices, captured damage, replacements and recall keep their own checkpoints.
             await game.Act("P1", new EndTurnCommand()); await Beginning(game); await game.Tap("P2");
             await Recycle(game, "P2", "UNL-R01"); await Recycle(game, "P2", "UNL-R01");
             var source = game.Hand("P2", "OGN·041/298").First();

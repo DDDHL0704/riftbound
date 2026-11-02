@@ -234,7 +234,7 @@ public sealed class Ven008OptionalDiscardConsumerTests
         for (var i = 0; i < 3; i++) initial = OnBase(initial, "WARD-RUNE-" + i, "UNL-R01", "P1");
         var driver = new Driver(initial); await driver.Act("P2", new ActivateAbilityCommand("ENEMY", "EMPOWER:0:0", [])); await driver.Top();
         await driver.Act("P2", new EndTurnCommand());
-        for (var i = 0; i < 3; i++) await driver.Act("P1", new TapRuneCommand("WARD-RUNE-" + i));
+        await driver.Act("P1", new TapRuneCommand("WARD-RUNE-0", ["WARD-RUNE-0", "WARD-RUNE-1", "WARD-RUNE-2"]));
         var costs = discard ? new[] { "DISCARD_HAND_CARD:FODDER", "RECYCLE_RUNE:WARD-RUNE-0", "RECYCLE_RUNE:WARD-RUNE-1" } : ["RECYCLE_RUNE:WARD-RUNE-0", "RECYCLE_RUNE:WARD-RUNE-1"];
         var command = new PlayCardCommand("SPELL", No, ["ENEMY"], OptionalCosts: costs);
         var quote = new CoreRuleEngine().PreviewPlayCard(driver.State, "P1", PlayCostPreviewTests.Request(driver.State, command));

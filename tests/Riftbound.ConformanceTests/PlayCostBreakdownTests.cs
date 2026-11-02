@@ -17,10 +17,8 @@ public sealed class PlayCostBreakdownTests
         await driver.Act("P1", new HideCardCommand("SHADOW", card, "BATTLEFIELD:F", ["STANDBY_A"]));
         var ended = await driver.Act("P1", new EndTurnCommand());
         await TurnSequenceTestDriver.Complete(ended, async (player, command) => await driver.Act(player, command));
-        foreach (var id in new[] { "SHADOW-P2-RUNE-1", "SHADOW-P2-RUNE-2", "SHADOW-P2-RUNE-3" })
-            await driver.Act("P2", new TapRuneCommand(id));
-        foreach (var id in new[] { "SHADOW-P2-RUNE-4", "SHADOW-P2-RUNE-5" })
-            await driver.Act("P2", new RecycleRuneCommand(id));
+        await driver.Act("P2", new TapRuneCommand("SHADOW-P2-RUNE-1", ["SHADOW-P2-RUNE-1", "SHADOW-P2-RUNE-2", "SHADOW-P2-RUNE-3"]));
+        await driver.Act("P2", new RecycleRuneCommand("SHADOW-P2-RUNE-4", ["SHADOW-P2-RUNE-4", "SHADOW-P2-RUNE-5"]));
         await driver.Act("P2", new PlayCardCommand("REPLY", "OGN·048/298", []));
         await driver.Act("P2", new PassPriorityCommand());
         Assert.True(driver.State.CardObjects["SHADOW"].IsFaceDown);

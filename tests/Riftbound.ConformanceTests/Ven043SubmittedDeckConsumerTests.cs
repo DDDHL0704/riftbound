@@ -32,10 +32,11 @@ public sealed class Ven043SubmittedDeckConsumerTests
             var pool = game.State.RunePools[actor];
             var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                 [actor] = pool with { Mana = pool.Mana + 7 } } };
-            await game.RejectCoordinatedForgery("refunded-steelclaw-seven-mana-" + actor, refunded);
             var premature = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
                 [unit] = game.State.CardObjects[unit] with { IsEmpowered = true } } };
-            await game.RejectCoordinatedForgery("premature-steelclaw-empowered-status-" + actor, premature);
+            await game.RejectCoordinatedForgeries(
+                ("refunded-steelclaw-seven-mana-" + actor, refunded),
+                ("premature-steelclaw-empowered-status-" + actor, premature));
             await game.Top(); Check(game, actor, unit, generation);
             Assert.Equal(mana - 8, game.State.RunePools[actor].Mana); await game.ColdCheckpoint();
             await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());

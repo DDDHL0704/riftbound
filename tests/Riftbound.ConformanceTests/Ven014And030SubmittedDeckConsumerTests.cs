@@ -31,17 +31,19 @@ public sealed class Ven014And030SubmittedDeckConsumerTests
             Assert.Equal(available - mana * 2, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             Assert.Equal(mana, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
             Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(mana, game.Might(actor, unit));
-            // The forgery helper also cold-recovers this unchanged accepted history.
+            // Audit every refund independently, then cold-recover this unchanged history once.
             var pool = game.State.RunePools[actor];
             var refundedMana = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                 [actor] = pool with { Mana = pool.Mana + mana } } };
-            await game.RejectCoordinatedForgery("refunded-native-empower-mana-" + no + "-" + actor, refundedMana);
+            var forgeries = new List<(string Label, MatchState Forged)> {
+                ("refunded-native-empower-mana-" + no + "-" + actor, refundedMana) };
             if (power == 1)
             {
                 var refundedRed = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                     [actor] = pool with { PowerByTrait = new Dictionary<string, int>(pool.PowerByTrait) { [RuneTrait.Red] = pool.PowerByTrait.GetValueOrDefault(RuneTrait.Red) + 1 } } } };
-                await game.RejectCoordinatedForgery("refunded-required-native-red-power-" + actor, refundedRed);
+                forgeries.Add(("refunded-required-native-red-power-" + actor, refundedRed));
             }
+            await game.RejectCoordinatedForgeries(forgeries.ToArray());
             await game.Top(); Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(mana, game.Might(actor, unit));
             Assert.Contains(no == "VEN·014" ? "强攻3" : "坚守3", game.State.CardObjects[unit].Tags);
             Assert.Equal(no == "VEN·030", game.State.CardObjects[unit].Tags.Contains(CardObjectTags.Spellshield)); await game.ColdCheckpoint();
