@@ -167,7 +167,7 @@ public sealed partial class SealedSubmittedOpeningTests
     }
 
     // Build solely from the actual six server packs; never install a replacement pool.
-    private static async Task<OfficialDecklist> Deck(SealedPoolGeneration pool, bool withLegend, bool withChampion, int battlefieldCount = 3)
+    internal static async Task<OfficialDecklist> Deck(SealedPoolGeneration pool, bool withLegend, bool withChampion, int battlefieldCount = 3)
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var cards = catalog.Cards.ToDictionary(card => card.CardNo, StringComparer.Ordinal);
@@ -243,12 +243,13 @@ public sealed partial class SealedSubmittedOpeningTests
                 last.AuthoritativeState, initial) { OpeningSeed = initial.Seed };
             return JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
         }
-        public async Task Cold()
+        public async Task Cold(bool verifyReplay = true)
         {
             var frame = Frame();
             Assert.Empty(MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
                 frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick));
-            Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default));
+            if (verifyReplay)
+                Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default));
             Live = MatchSession.Restore(frame, engine, Journal, players);
             foreach (var player in tokens.Keys.ToArray())
             {

@@ -14,6 +14,8 @@ public sealed record InsightTriggerContext(string CardNo, string ControllerId, i
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public LastBreathRepetitionContext? Repetition { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -89,9 +91,28 @@ public sealed partial class CoreRuleEngine
                 && ValidLastBreathRepetition(state, context.Repetition, new(source, context.SourceGeneration),
                     context.ControllerId, context.CardNo, LastBreathInsightInstanceId(context, source)))
             && (context.Kind != "EXHAUSTED" || context.SourceCapturedTick is > 0 && context.SourceCapturedTick <= state.Tick
-                && context.SourceFaceRevision is >= 0 && (context.Origin is not null || PredictBindingMatches(state,
+                && context.SourceFaceRevision is >= 0 && SelfAbilitySourceRules.Valid(state,
                     new(source, context.SourceGeneration), context.CardNo, context.SourceFaceRevision.Value,
-                    context.SourceCapturedTick.Value, context.SourceTokenFactoryCardNo)));
+                    context.SourceCapturedTick.Value, context.SourceTokenFactoryCardNo, context.CeasedSource,
+                    usesPrintedFace: context.Origin is null, ceasedAsCost: true));
+
+    private static MatchState RecordCeasedExhaustedInsightSources(MatchState before, MatchState state,
+        IReadOnlySet<string> departed)
+    {
+        // An instruction may exhaust and kill the token in the same command
+        // (Overcharged Energy). Its new trigger uses the completed command tick.
+        var captureState = before with { Tick = state.Tick };
+        InsightTriggerContext? Bind(string source, InsightTriggerContext? context)
+            => context is { Kind: "EXHAUSTED", CeasedSource: null }
+                && departed.Contains(source) && ValidInsightRuleTextSource(captureState, context, source)
+                ? context with { CeasedSource = SelfAbilitySourceRules.Capture(before, state.Tick,
+                    new(source, context.SourceGeneration), context.CardNo, context.SourceFaceRevision!.Value,
+                    context.SourceCapturedTick!.Value, context.SourceTokenFactoryCardNo) } : context;
+        return state with {
+            StackItems = state.StackItems.Select(i => i with { InsightContext = Bind(i.SourceObjectId, i.InsightContext) }).ToArray(),
+            TriggerQueue = state.TriggerQueue.Select(t => t with { InsightContext = Bind(t.SourceObjectId, t.InsightContext) }).ToArray()
+        };
+    }
 
     internal static bool ValidCeasedInsightSource(MatchState state, InsightTriggerContext? context,
         string source, string effect, string controller, string? cardNo = null)
@@ -103,7 +124,7 @@ public sealed partial class CoreRuleEngine
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
             && (context.Repetition is null || context.Kind == "LAST_BREATH")
             && (context.Kind == "EXHAUSTED" ? context.SourceFaceRevision is >= 0 && context.SourceCapturedTick is > 0
-                : context.SourceFaceRevision is null && context.SourceCapturedTick is null)
+                : context.SourceFaceRevision is null && context.SourceCapturedTick is null && context.CeasedSource is null)
             && (context.SourceTokenFactoryCardNo is null || IsCapturedInsightKind(context.Kind)
                 && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind) && context.Origin.CardNo == context.CardNo

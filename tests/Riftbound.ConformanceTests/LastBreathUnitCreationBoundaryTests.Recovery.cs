@@ -73,7 +73,8 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             await game.Act("P1", new PlayCardCommand(game.Hand("P1", Kill).First(), Kill, [unit])); await game.Top();
             var earned = Assert.Single(game.State.StackItems); var receipt = Assert.IsType<LastBreathUnitCreationContext>(earned.LastBreathUnitCreation);
             Assert.True(receipt.SourceWasEmpowered); Assert.Equal("P1", receipt.ControllerId);
-            Assert.Contains(unit, game.State.PlayerZones["P1"].Graveyard); await game.ColdCheckpoint();
+            Assert.Contains(unit, game.State.PlayerZones["P1"].Graveyard);
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var wrongController = game.State with { StackItems = [earned with { ControllerId = "P2", LastBreathUnitCreation = receipt with { ControllerId = "P2" } }] };
             await game.RejectCoordinatedForgery("last-breath-death-controller", wrongController);
             var wrongTick = game.State with { StackItems = [earned with { LastBreathUnitCreation = receipt with { CreatedAtTick = receipt.CreatedAtTick - 1 } }] };
@@ -137,7 +138,8 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             await game.Act("P1", new AssembleEquipmentCommand(gear, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
         }
         await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+        // Keep both physical destruction-payment runes in their original order.
+        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
         await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
         Assert.Equal(3, game.State.TriggerQueue.Count); Assert.Empty(game.State.StackItems); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         return (initial, game);
