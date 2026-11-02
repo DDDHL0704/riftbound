@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tarfile
 import time
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('distributed_rules', ROOT / 'scripts/test-rules.py')
@@ -272,6 +273,19 @@ def derived_view(prepared, inputs, commit):
     return targeted_coverage(plan, mapping, digest(prepared / 'plan.json'))
 
 
+def row_seconds(row):
+    duration = row.get('duration', '')
+    if not re.fullmatch(r'\d+:[0-5]\d:[0-5]\d(?:\.\d+)?', duration):
+        raise ValueError('Missing or invalid test duration: ' + row.get('testName', ''))
+    try:
+        seconds = RULES.elapsed(duration)
+    except (ValueError, OverflowError) as error:
+        raise ValueError('Missing or invalid test duration: ' + row.get('testName', '')) from error
+    if not math.isfinite(seconds) or seconds < 0:
+        raise ValueError('Invalid test duration: ' + row.get('testName', ''))
+    return seconds
+
+
 def timing_weights(prepared, inputs, commit):
     plan, mapping, _ = checked_results(prepared, inputs, commit)
     if plan['profile'] != 'l2-distributed':
@@ -280,15 +294,7 @@ def timing_weights(prepared, inputs, commit):
     for shard in plan['shards']:
         rows, _ = RULES.report(inputs / shard['name'] / 'results.trx')
         for row in rows:
-            duration = row.get('duration', '')
-            if not re.fullmatch(r'\d+:[0-5]\d:[0-5]\d(?:\.\d+)?', duration):
-                raise ValueError('Missing or invalid test duration: ' + row.get('testName', ''))
-            try:
-                seconds = RULES.elapsed(duration)
-            except (ValueError, OverflowError) as error:
-                raise ValueError('Missing or invalid test duration: ' + row.get('testName', '')) from error
-            if not math.isfinite(seconds) or seconds < 0:
-                raise ValueError('Invalid test duration: ' + row.get('testName', ''))
+            seconds = row_seconds(row)
             methods[RULES.method(row.get('testName'))] += seconds
             cases[row.get('testName')] += seconds
     return dict(sourceRunId=int(plan['runId']), sourceCommit=commit,
@@ -301,6 +307,65 @@ def timing_weights(prepared, inputs, commit):
                         for shard in plan['shards']], retainedUnmeasuredMethodEstimates=0,
                 weights={name: round(value, 4) for name, value in sorted(methods.items()) if value >= 1},
                 caseWeights={name: round(value, 4) for name, value in sorted(cases.items()) if value >= 60})
+
+
+def local_timings(prepared, inputs, commit, local_trx, methods=(), cases=()):
+    """Compare one local execution with existing CI rows; never run a local baseline."""
+    if bool(methods) == bool(cases):
+        raise ValueError('Select exact --method names or exact --case names, exclusively.')
+    selectors = methods or cases
+    if len(set(selectors)) != len(selectors):
+        raise ValueError('Repeated timing selectors are not allowed.')
+    plan, mapping, _ = checked_results(prepared, inputs, commit)
+    if plan['profile'] != 'l2-distributed':
+        raise ValueError('Local timing comparison requires the complete L2 profile.')
+    inventory = Counter(name for rows in plan['cases'].values() for name in rows)
+    if methods:
+        if not set(methods) <= set(plan['methods']):
+            raise ValueError('Unknown exact timing method.')
+        expected = Counter(name for method in methods for name in plan['cases'][method])
+    else:
+        if not set(cases) <= inventory.keys():
+            raise ValueError('Unknown exact timing case.')
+        expected = Counter({name: inventory[name] for name in cases})
+    local_digest = digest(local_trx)
+    rows, counters = RULES.report(local_trx)
+    RULES.verify(rows, counters, {RULES.method(name) for name in expected})
+    if Counter(row.get('testName') for row in rows) != expected:
+        raise ValueError('Local timing rows are missing, repeated or outside the exact selection.')
+    summary = ET.parse(local_trx).find('.//t:ResultSummary', RULES.NS)
+    raw_counters = summary.find('t:Counters', RULES.NS)
+    if (summary.get('outcome') not in ('Completed', 'Passed')
+            or any(int(value) != (len(rows) if key in ('total', 'executed', 'passed') else 0)
+                   for key, value in raw_counters.attrib.items())):
+        raise ValueError('Local timing run is incomplete or has unsuccessful counters.')
+    local, ci = defaultdict(float), defaultdict(float)
+    for row in rows:
+        local[row.get('testName')] += row_seconds(row)
+    sources = []
+    selected_shards = {row['shard']: row['trxSha256'] for row in mapping if row['name'] in expected}
+    for shard, expected_digest in sorted(selected_shards.items()):
+        path = inputs / shard / 'results.trx'
+        ci_rows, _ = RULES.report(path)
+        if digest(path) != expected_digest:
+            raise ValueError('CI timing input changed after shard verification.')
+        selected = [row for row in ci_rows if row.get('testName') in expected]
+        sources.append(dict(shard=shard, trxSha256=expected_digest))
+        for row in selected:
+            ci[row.get('testName')] += row_seconds(row)
+    if digest(local_trx) != local_digest:
+        raise ValueError('Local timing input changed while it was being read.')
+    compared = [dict(name=name, executions=expected[name], ciSeconds=ci[name], localSeconds=local[name],
+                     localOverCi=local[name] / ci[name] if ci[name] else None) for name in sorted(expected)]
+    return dict(status='LOCAL_CI_TIMINGS_REPORTED',
+                limitation='Different machines, processor counts, builds and rule versions may affect timings. '
+                           'This comparison does not establish CI speedup, equivalent histories or L2 completion.',
+                sourceRunId=int(plan['runId']), sourceRunAttempt=int(plan['runAttempt']), sourceCommit=commit,
+                sourcePlanSha256=digest(prepared / 'plan.json'), sourceTestAssemblySha256=plan['testAssemblySha256'],
+                sourceShards=sources, localTrxSha256=local_digest,
+                localComputers=sorted({row.get('computerName', '') for row in rows}),
+                cases=compared, totals=dict(executions=sum(expected.values()),
+                                           ciSeconds=sum(ci.values()), localSeconds=sum(local.values())))
 
 
 def aggregate(prepared, inputs, targeted, quality, commit, jobs):
@@ -629,7 +694,7 @@ def execute_shard(prepared, output, commit, name):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'timings', 'aggregate', 'aggregate-full'])
+    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'timings', 'local-timings', 'aggregate', 'aggregate-full'])
     parser.add_argument('--profile', choices=['l2', 'full'], default='l2', help='Preparation membership; full includes every discovered method')
     parser.add_argument('--commit', required=True)
     parser.add_argument('--prepared', type=Path)
@@ -640,7 +705,13 @@ def main():
     parser.add_argument('--shards', type=int, default=6)
     parser.add_argument('--shard')
     parser.add_argument('--github-output', type=Path)
+    parser.add_argument('--local-trx', type=Path, help='Existing candidate-only TRX; no tests are executed')
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument('--method', action='append', default=[], help='Exact complete method to compare; repeatable')
+    selection.add_argument('--case', action='append', default=[], help='Exact parameter row to compare; repeatable')
     args = parser.parse_args()
+    if args.mode == 'local-timings' and (args.local_trx is None or not (args.method or args.case)):
+        parser.error('local-timings requires --local-trx and exact --method or --case selections')
     if args.mode == 'prepare':
         prepare(args.commit, args.output.resolve(), args.shards, args.github_output, args.profile)
     elif args.mode == 'shard':
@@ -649,6 +720,9 @@ def main():
         write(args.output, derived_view(args.prepared, args.inputs, args.commit))
     elif args.mode == 'timings':
         write(args.output, timing_weights(args.prepared, args.inputs, args.commit))
+    elif args.mode == 'local-timings':
+        write(args.output, local_timings(args.prepared, args.inputs, args.commit, args.local_trx,
+                                        args.method, args.case))
     elif args.mode == 'aggregate-full':
         jobs = {name: os.environ.get('RIFTBOUND_' + name.upper(), '') for name in ['prepare', 'rule_shards']}
         write(args.output, aggregate_full(args.prepared, args.inputs, args.commit, jobs))
