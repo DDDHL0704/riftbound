@@ -12,6 +12,27 @@ public sealed class MatchSeriesTests
     private static readonly string[] Players = ["alice", "bob"];
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void TrustedGameLossRecordsWhetherCoreOpeningWasSkippedAndRetainsItsOutcomeOnRestore(bool started)
+    {
+        var series = MatchSeries.Create(3, Players, Seed);
+        if (started) series = ChooseAndStart(series, "alice");
+        series = series.AwardGameLoss(1, "bob");
+        Assert.Equal(!started, series.State.Games[0].Skipped);
+        Assert.Equal(started, series.State.Games[0].Started);
+        Assert.Equal(1, series.Wins["alice"]);
+        Assert.Equal("bob", series.PlayOrderChooserPlayerId);
+        Assert.Equal(Persist(series), Persist(Cold(series)));
+        Assert.Same(series, series.AwardGameLoss(1, "bob"));
+        Assert.Throws<InvalidOperationException>(() => series.AwardGameLoss(1, "alice"));
+        var next = Cold(series).AwardGameLoss(2, "bob");
+        Assert.Equal(MatchSeriesPhase.Finished, next.Phase);
+        Assert.Equal("alice", next.WinnerPlayerId);
+        Assert.Equal(2, next.Wins["alice"]);
+    }
+
     [Fact]
     public void SplitWinsAndDrawReachTwoWinsOnlyAfterTheFourthActualGame()
     {

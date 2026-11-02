@@ -5,7 +5,11 @@ namespace Riftbound.Engine;
 public sealed record TurnDrawLedger(int TurnNumber, IReadOnlyDictionary<string, int> Counts);
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record DisarmContribution(ObjectBinding Source, string CardNo, long FaceRevision,
-    string? TokenFactoryCardNo, RuleTextInstanceBinding? Origin, bool FriendlyGrant, int Value);
+    string? TokenFactoryCardNo, RuleTextInstanceBinding? Origin, bool FriendlyGrant, int Value)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
+}
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record DisarmOrigin(long CapturedTick, long FaceRevision, IReadOnlyList<DisarmContribution> Contributions);
 public sealed record FieldTriggerContext(string CardNo, string Kind, long SourceGeneration, string? BattlefieldId = null, string? ReturnFocusPlayerId = null)
