@@ -17,6 +17,7 @@ public sealed class DianaDuelManaOpeningTests
         var room = "DIANA-DUEL-MANA-BIRTH-" + cardNo;
         var initial = MatchState.Create(room) with { Seed = 424242 };
         var journal = new Journal(); var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
+        initial = initial with { SessionOptions = options };
         IMatchSession session = new MatchSession(initial, new CoreRuleEngine(), journal, NoopMatchPlayerStore.Instance, options);
         var forgeries = new List<object>(); OfficialDecklist? deck = null;
         try

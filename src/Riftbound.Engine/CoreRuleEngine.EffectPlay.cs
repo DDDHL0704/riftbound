@@ -98,7 +98,7 @@ public sealed partial class CoreRuleEngine
     private static bool EffectPlaySourceMatches(CardObjectState card, CardBehaviorDefinition definition)
         => CardBehaviorRegistry.GetAll().Any(b => b.CardNo == card.CardNo && (definition.EffectPlayAllowsAnyCard
             ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(b)
-            : definition.DeckPlayKind == "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY"
+            : definition.DeckPlayKind is "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY" or OwnedUnitReplayKind
             ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment
             : b.PlaysSourceToBaseAsUnit));
 
@@ -204,6 +204,14 @@ public sealed partial class CoreRuleEngine
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        if (pending.DestinationPolicy == "ORIGINAL_LOCATION_OR_BASE")
+        {
+            var originalDestinations = new List<string> { "BASE" };
+            var original = "BATTLEFIELD:" + pending.OriginalBattlefield?.ObjectId;
+            if (IsForcedEffectPlayDestination(state, playerId, original)
+                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, original)) originalDestinations.Add(original);
+            return originalDestinations;
+        }
         if (pending.DestinationPolicy == "ORIGINAL_LOCATION")
         {
             if (pending.OriginalLocation is { Zone: "BASE" } at)

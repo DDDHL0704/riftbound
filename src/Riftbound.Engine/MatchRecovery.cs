@@ -139,6 +139,12 @@ public static class MatchActionLogReplayer
         ArgumentNullException.ThrowIfNull(ruleEngine);
 
         var inputErrors = new List<string>();
+        if (recovery.AuthoritativeState?.SessionOptions is { } finalOptions && !Enum.IsDefined(finalOptions.DeckFormat)
+            || recovery.ReplayInitialState?.SessionOptions is { } initialOptions && !Enum.IsDefined(initialOptions.DeckFormat))
+            inputErrors.Add("action-log room deck format is invalid");
+        if (recovery.AuthoritativeState is { } configuredFinal && recovery.ReplayInitialState is { } configuredInitial
+            && (configuredFinal.SessionOptions ?? MatchSessionOptions.Default) != (configuredInitial.SessionOptions ?? MatchSessionOptions.Default))
+            inputErrors.Add("action-log room configuration changed during the recorded game");
         if (recovery.AuthoritativeState is { } final && !RuleInputIdentity.IsCurrentState(final))
             inputErrors.Add("action-log final rule input identity is missing or differs from running inputs");
         if (recovery.ReplayInitialState is { } initial && !RuleInputIdentity.IsCurrentState(initial))
@@ -592,6 +598,11 @@ public static class MatchActionLogReplayer
         ArgumentNullException.ThrowIfNull(ruleEngine);
 
         var errors = new List<string>();
+        if (initialState.SessionOptions is { } initialOptions && !Enum.IsDefined(initialOptions.DeckFormat)
+            || expectedFinalState.SessionOptions is { } finalOptions && !Enum.IsDefined(finalOptions.DeckFormat)
+            || (initialState.SessionOptions ?? MatchSessionOptions.Default) != (expectedFinalState.SessionOptions ?? MatchSessionOptions.Default))
+            return new MatchActionLogReplayResult(false, MatchStateHasher.Hash(initialState),
+                MatchStateHasher.Hash(expectedFinalState), ["action-log room configuration is invalid or changed during the recorded game"]);
         if (!RuleInputIdentity.IsCurrentState(initialState) || !RuleInputIdentity.IsCurrentState(expectedFinalState)
             || commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
             return new MatchActionLogReplayResult(false, MatchStateHasher.Hash(initialState),
@@ -3713,6 +3724,8 @@ public static partial class MatchRecoveryValidator
         ValidateTurnSequenceState(authoritativeState, errors);
         ValidateOpeningRoleDraw(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
+        if (authoritativeState.SessionOptions is { } roomOptions && !Enum.IsDefined(roomOptions.DeckFormat))
+            errors.Add("authoritative state room deck format is invalid");
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerZoneValues(authoritativeState.PlayerZones, errors);

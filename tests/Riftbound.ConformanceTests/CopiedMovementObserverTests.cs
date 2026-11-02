@@ -17,10 +17,13 @@ public sealed partial class CopiedMovementObserverTests
     [MemberData(nameof(SelfCases))]
     public async Task RealAssemblyAndOneActualMoveUseEveryIndependentTextInstance(string no, int copies)
     {
-        var initial = Position(no, copies); var game = new Driver(initial);
+        // Prepare paid copies together, then restore before the movement under test.
+        var initial = Position(no, copies); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Assemble(game, copies);
+            if (copies > 0) await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var before = game.State; var sequence = game.Events().LastOrDefault()?.Sequence ?? 0;
             await game.Act("P2", new MoveUnitCommand("HOST", no == "SFD·137/221" ? "BATTLEFIELD" : "BASE",
                 no == "SFD·137/221" ? "BASE" : "BATTLEFIELD:F2", []));
@@ -62,10 +65,14 @@ public sealed partial class CopiedMovementObserverTests
     [InlineData(0, 2)] [InlineData(1, 2)] [InlineData(2, 2)]
     public async Task OneOpponentGroupMovementEarnsOneDrawPerTextRatherThanPerMovedUnit(int copies, int units)
     {
-        var initial = Position("OGN·158/298", copies); var game = new Driver(initial);
+        // Keep turn progression and the opponent's real group move individually audited.
+        var initial = Position("OGN·158/298", copies); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await Assemble(game, copies); await game.Act("P2", new EndTurnCommand());
+            await Assemble(game, copies);
+            if (copies > 0) await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
+            await game.Act("P2", new EndTurnCommand());
             var hand = game.State.PlayerZones["P2"].Hand.Count;
             var ids = Enumerable.Range(0, units).Select(i => "MOVER" + i).ToArray();
             await game.Act("P1", new MoveUnitCommand(ids[0], Destination: "BATTLEFIELD:F1", SourceObjectIds: ids));

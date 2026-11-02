@@ -27,6 +27,7 @@ public sealed class RavenbloomPutIntoHandOpeningTests(ITestOutputHelper output)
         Assert.Equal(0, initial.Tick); Assert.Equal(0, initial.Seed); Assert.Empty(initial.CardObjects);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false, DeckFormat: format);
+        initial = initial with { SessionOptions = options };
         var engine = new CoreRuleEngine(); var journal = new Journal();
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
         var state = initial; var coldCount = 0; var nextMatched = 0; var afterCold = false;
