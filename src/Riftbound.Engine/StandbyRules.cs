@@ -15,6 +15,9 @@ internal static class StandbyRules
         => cardNo is not null && Cards.Value.TryGetValue(cardNo,out var card) && StandbyParser.HasPrintedKeyword(card.CardEffect);
     internal static int PlayedSelfMight(string? cardNo)
         => cardNo is not null && Cards.Value.TryGetValue(cardNo,out var card) ? StandbyParser.SelfMightWhenControllerPlaysFromFaceDown(card.CardEffect) : 0;
+    internal static StandbyPlayedDrawEffect? PlayedDrawEffect(string? cardNo)
+        => cardNo is not null && Cards.Value.TryGetValue(cardNo, out var card)
+            ? StandbyParser.DrawWhenControllerPlaysFromFaceDown(card.CardEffect) : null;
     internal static bool AttachesSelfOnPlay(string? cardNo)
         => cardNo is not null && Cards.Value.TryGetValue(cardNo, out var card)
             && StandbyParser.AttachesSelfToFriendlyUnitHereWhenPlayedFromFaceDown(card.CardEffect);
