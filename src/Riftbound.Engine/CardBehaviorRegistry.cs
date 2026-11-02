@@ -9746,6 +9746,12 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantBombUnits =
     [
+        new("RAD·112/167", "吉格斯 · 狂轰滥炸", 4, "RAD_112_ZIGGS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人",
+            UnitEventAbility: new("DEFEND", "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF", 2)),
+        new("RAD·112a/167", "吉格斯 · 狂轰滥炸", 4, "RAD_112A_ZIGGS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人",
+            UnitEventAbility: new("DEFEND", "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF", 2)),
         new("RAD·023/167", "吉格斯 · 炸欢天", 5, "RAD_023_ZIGGS_PLAY_BOMB", 0, 1,
             TargetScope: CardTargetScopes.Battlefield,
             CreatedBattlefieldEquipmentTokenCount: 1, CreatedBattlefieldEquipmentTokenName: "炸弹",

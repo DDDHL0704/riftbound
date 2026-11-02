@@ -88,7 +88,9 @@ public sealed partial class CoreRuleEngine
                 || SimpleActivationAdditionalCostChoices(state, actor, id, ability).Length > 0);
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
+        => ability.SimpleEffect?.CreatedBattlefieldEquipmentTokenCardNo is not null
+            ? BattlefieldLocalRules.Battlefield(state, id) is not null
+            : ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
             : ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true ? state.Seats.ContainsKey(id) && id != actor
             : ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
                 ? state.CardObjects.TryGetValue(id, out var returned)
@@ -530,6 +532,18 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.CreatedRobotCount > 0)
             CreateBaseUnitTokens(state, zones, cards, pools, SimpleActivationTokenBehavior(ability), item, events, locations, state.UntilEndOfTurnEffects);
+        if (spec.CreatedBattlefieldEquipmentTokenCardNo is { } factoryNo
+            && item.TargetObjectIds.SingleOrDefault() is { } battlefield
+            && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, battlefield, ability)
+            && item.TargetGenerations![battlefield] == cards[battlefield].ObjectGeneration)
+        {
+            if (!P6TokenFactoryCatalog.TryGetByCardNo(factoryNo, out var factory)
+                || !factory.Tags.Contains(CardObjectTags.EquipmentCard))
+                throw new InvalidOperationException("Invalid activated equipment token factory.");
+            locations = CreateBattlefieldEquipmentTokenBatch(zones, cards, item.ControllerId, item.SourceObjectId,
+                item.CardNo!, ability.DisplayName, factory.TokenFamilyName, factory.Tags, 1, false, battlefield,
+                events, locations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        }
         if (spec.EmpowersOtherEquipment)
         {
             var target = item.TargetObjectIds.Single();
