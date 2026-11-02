@@ -39,7 +39,8 @@ internal static class TemporaryUnitEffectRules
     internal static int BaseMightDelta(CardObjectState card)
     {
         if (Number(card, BaseMightPrefix) is not { } replacement) return 0;
-        var printed = PrintedCardFactory.TryCreate(card.ObjectId, card.OwnerId ?? "", card.CardNo, out var face) ? face.Power
+        var printed = card.LegendEquipmentUnit is not null ? card.ManaCost
+            : PrintedCardFactory.TryCreate(card.ObjectId, card.OwnerId ?? "", card.CardNo, out var face) ? face.Power
             : card.CardNo is { } no && P6TokenFactoryCatalog.TryGetByCardNo(no, out var token) ? token.DefaultPower
             : card.Power - card.UntilEndOfTurnPowerModifier - (card.Tags.Contains("增益") ? 1 : 0);
         return replacement - printed;
