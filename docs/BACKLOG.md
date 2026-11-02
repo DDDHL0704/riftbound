@@ -73,6 +73,8 @@
 
 ## P2 · 卡牌（B 线）
 
+- 2026-11-02 18:16 B 线 #400 L2 修正：首查 #386 已通过六片、其余三片运行，未见新失败；#400 的 `41415146476` 第 3、5 片分别暴露 `DisarmSourceSpecificationTests.SourceMetadataKeepsIncompleteCardsDisabledAndTheOriginalCatalogUnchanged` 和 `ScopedPhysicalPrintTests.PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard` 的旧准入预期。前次 `44e00a8e7` 仅更新 ReviewedScopedPrintUniverse，未覆盖这两处；现将 RAD·109／109a／SP3 精确列为已准入，并补三印次法力 4／战力 4／紫色／恶魔的身份正控，以仍有来源冲突的 SP4 继续验证不可出牌。Release 三个精确方法 10/10 通过、零跳过，含构建共 375.93 秒；日志在妮蔻工作树 `var/b-targeted-20261102-1813/pr400/`。修正推回同一 PR，auto 保持，不轮询新 L2。
+
 - [x] **P2-1 完成 #205**：VEN078 / 089 / 129 的相关工作已在 main，VEN117 / 159 的真实付款与战斗测试由 #237 合入；#205 已随合并自动关闭。
 - [x] **P2-2 合入分支 `codex/cards-ven010-paid-current-grave-20261028`**：VEN010、013、093、103、122 的付款、墓地计数和反应测试由 #237 合入。
 - [ ] **P2-3 VEN 卡牌**，见 [卡牌清单](CARD_BACKLOG.md)：
