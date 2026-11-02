@@ -3712,6 +3712,7 @@ public static partial class MatchRecoveryValidator
         ValidateSpellContinuations(authoritativeState, errors);
         ValidateTurnSequenceState(authoritativeState, errors);
         if (!CoreRuleEngine.ValidBoundLegends(authoritativeState)) errors.Add("invalid bound legend provenance");
+        ValidateOpeningRoleDraw(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);

@@ -256,7 +256,11 @@ public sealed partial class MatchSession
             UntilEndOfTurnEffects = [],
             ExtraTurnPlayerId = null,
             MulliganCompletedPlayerIds = [],
-            OpeningSecondActionPlayerId = secondActionPlayerId
+            OpeningSecondActionPlayerId = secondActionPlayerId,
+            OpeningRoleDrawPendingPlayerIds = seatOrder.Where(playerId =>
+                string.IsNullOrEmpty(readyState.PlayerDecklists[playerId].LegendCardNo)
+                || string.IsNullOrEmpty(readyState.PlayerDecklists[playerId].ChampionCardNo)).ToArray() is { Length: > 0 } pending
+                    ? pending : null
         };
 
         return new OfficialOpeningBuildResult(nextState, events);
@@ -278,12 +282,16 @@ public sealed partial class MatchSession
             mainCardNos.RemoveAt(championIndex);
         }
 
-        var legendObjectId = OfficialObjectId(playerId, "LEGEND", decklist.LegendCardNo, 1);
-        var championObjectId = OfficialObjectId(playerId, "CHAMPION", decklist.ChampionCardNo, 1);
-        cardObjects[legendObjectId] = OfficialCardObject(legendObjectId, playerId, cardsByNo[decklist.LegendCardNo]);
-        cardObjects[championObjectId] = OfficialCardObject(championObjectId, playerId, cardsByNo[decklist.ChampionCardNo]);
-        objectLocations[legendObjectId] = new ObjectLocationState(playerId, "LEGEND");
-        objectLocations[championObjectId] = new ObjectLocationState(playerId, "CHAMPION");
+        string? AddRole(string cardNo, string zone)
+        {
+            if (string.IsNullOrEmpty(cardNo)) return null;
+            var objectId = OfficialObjectId(playerId, zone, cardNo, 1);
+            cardObjects[objectId] = OfficialCardObject(objectId, playerId, cardsByNo[cardNo]);
+            objectLocations[objectId] = new ObjectLocationState(playerId, zone);
+            return objectId;
+        }
+        var legendObjectId = AddRole(decklist.LegendCardNo, "LEGEND");
+        var championObjectId = AddRole(decklist.ChampionCardNo, "CHAMPION");
 
         var mainObjectIds = new List<string>();
         for (var index = 0; index < mainCardNos.Count; index++)
@@ -355,8 +363,8 @@ public sealed partial class MatchSession
             [battlefieldObjectId],
             [],
             [],
-            [legendObjectId],
-            [championObjectId]);
+            legendObjectId is null ? [] : [legendObjectId],
+            championObjectId is null ? [] : [championObjectId]);
 
         var events = new List<GameEvent>
         {
