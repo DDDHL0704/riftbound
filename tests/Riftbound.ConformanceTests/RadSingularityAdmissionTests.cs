@@ -47,6 +47,7 @@ public sealed class RadSingularityAdmissionTests
     {
         var game = new Driver(Put(WithOrianna(Position(image)), "SONG", "SFD·059/221", "P1", "BASE"));
         await Animate(game);
+        var opponentScore = game.State.PlayerScores["P2"];
         await game.Act("P1", new AssembleEquipmentCommand("SONG", "SOURCE", ["ASSEMBLE_GREEN"]));
         await game.Top();
         Assert.Equal(Card, game.State.CardObjects["SONG"].AttachedRuleText!.CardNo);
@@ -76,7 +77,7 @@ public sealed class RadSingularityAdmissionTests
             }
         }
         await game.Top();
-        Assert.Equal(2, game.State.PlayerScores["P2"]);
+        Assert.Equal(opponentScore + 2, game.State.PlayerScores["P2"]);
         Assert.Empty(game.State.PlayerZones["P1"].Hand);
         Assert.Contains("SONG", game.State.PlayerZones["P1"].Base);
         if (image) Assert.DoesNotContain("SOURCE", game.State.CardObjects.Keys);
@@ -90,7 +91,9 @@ public sealed class RadSingularityAdmissionTests
     public async Task ARealRecallResponseHidesTheNewHandIncarnationWithoutCancellingTheEarnedSkills()
     {
         var initial = Put(WithOrianna(Position(handCards: 5)), "RECALL", "OGN·104/298", "P1", "HAND");
-        var game = new Driver(initial); await Animate(game); await CastDraw(game);
+        var game = new Driver(initial); await Animate(game);
+        var opponentScore = game.State.PlayerScores["P2"];
+        await CastDraw(game);
         await OrderThresholdFirst(game); await Confirm(game);
         await game.Act("P1", new PlayCardCommand("RECALL", "OGN·104/298", ["SOURCE"]));
         await game.Top();
@@ -98,7 +101,7 @@ public sealed class RadSingularityAdmissionTests
         var skill = Assert.Single(game.State.StackItems, i => i.EffectKind == Threshold);
         Assert.True(game.State.CardObjects["SOURCE"].ObjectGeneration > skill.DrawHandThreshold!.Source.Generation);
         await game.Top();
-        Assert.Equal(1, game.State.PlayerScores["P2"]);
+        Assert.Equal(opponentScore + 1, game.State.PlayerScores["P2"]);
         Assert.Empty(game.State.PlayerZones["P1"].Hand);
         Assert.Contains("SOURCE", game.State.PlayerZones["P1"].Graveyard);
         await game.Top(); Assert.Equal(2, game.State.PlayerZones["P1"].Hand.Count);
