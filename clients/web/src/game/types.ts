@@ -108,6 +108,24 @@ export type StackItem = Record<string, unknown> & {
   controllerId?: string;
 };
 
+/** Mirrors SealedPoolDto in src/Riftbound.Contracts/SealedContracts.cs; only ever sent to its owner. */
+export type SealedPackCard = { cardNo: string; slot: string; foil: boolean };
+export type SealedPool = {
+  setCode: string;
+  packs: { cards: SealedPackCard[] }[];
+  pool: { cardNo: string; count: number }[];
+};
+
+/** Mirrors MatchSeriesDto. */
+export type MatchSeries = {
+  bestOf: number;
+  gameNumber: number;
+  wins: Record<string, number>;
+  phase: "choosing_play_order" | "submitting_decks" | "playing" | "finished";
+  usedBattlefields: Record<string, string[]>;
+  playOrderChooserPlayerId?: string | null;
+};
+
 export type Snapshot = {
   tick: number;
   turnNumber: number;
@@ -132,6 +150,12 @@ export type Snapshot = {
     players: { playerId: string; seat: string; perspective: string; isViewer: boolean }[];
     battlefields: TableBattlefield[];
   };
+  format?: string;
+  setCode?: string | null;
+  bestOf?: number;
+  series?: MatchSeries | null;
+  sealedPool?: SealedPool | null;
+  sideboardCounts?: Record<string, number> | null;
 };
 
 export type Choice = { id: string; label: string; reason?: string | null; objectIds?: string[] };
@@ -201,6 +225,20 @@ export type CommandReceipt = {
   errorCode?: string;
   serverTick: number;
 };
+
+/** Mirrors PublicMatchDto. */
+export type PublicMatch = {
+  roomId: string;
+  hostPlayerId: string;
+  seatCount: number;
+  capacity: number;
+  status: string;
+  format?: string;
+  setCode?: string | null;
+  bestOf?: number;
+};
+
+export type SealedSet = { setCode: string; name: string };
 
 export type PreconstructedDeck = {
   id: string;

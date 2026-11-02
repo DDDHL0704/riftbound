@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { client } from "./net/client";
 import { useCards } from "./game/cards";
 import { ConnectScreen, LobbyScreen, SetupScreen } from "./ui/Lobby";
+import { SealedScreen, sealedSetupOpen } from "./ui/Sealed";
 import { Table } from "./ui/Table";
 
 let resumed = false;
@@ -25,6 +26,7 @@ export function App() {
   let screen;
   if (state.phase === "offline" || state.phase === "connecting") screen = <ConnectScreen state={state} />;
   else if (state.phase === "lobby" || state.phase === "matchmaking") screen = <LobbyScreen state={state} />;
+  else if (state.snapshot && sealedSetupOpen(state.snapshot)) screen = <SealedScreen state={state} snapshot={state.snapshot} prompt={state.prompt} />;
   else if (!state.snapshot || state.snapshot.timing.roomStatus !== "IN_PROGRESS" && !state.snapshot.timing.winnerPlayerId)
     screen = <SetupScreen state={state} snapshot={state.snapshot} prompt={state.prompt} />;
   else screen = <Table state={state} snapshot={state.snapshot} prompt={state.prompt} />;
