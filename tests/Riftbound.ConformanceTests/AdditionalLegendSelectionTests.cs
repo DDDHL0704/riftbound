@@ -58,6 +58,31 @@ public sealed class AdditionalLegendSelectionTests
         Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
     }
 
+    [Fact]
+    public async Task MultipleCopiesShareOneSelectionPoolAndDoNotIncreaseTheLimit()
+    {
+        var (catalog, deck) = await Position();
+        var main = deck.MainDeck.ToList();
+        for (var copy = 1; copy < 3; copy++)
+            main[main.FindIndex(no => no != deck.ChampionCardNo && no != "RAD·167/167")] = "RAD·167/167";
+        deck = deck with { MainDeck = main, AdditionalLegendCardNos = Choices(catalog, deck, 3) };
+        var valid = OfficialDeckValidator.Validate(deck, catalog);
+        Assert.True(valid.IsValid, string.Join("; ", valid.Errors));
+        var tooMany = OfficialDeckValidator.Validate(deck with { AdditionalLegendCardNos = Choices(catalog, deck, 4) }, catalog);
+        Assert.Contains(tooMany.Errors, error => error.Contains("最多可额外选择 3", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task AnAdditionalLegendMayHaveTraitsOutsideTheStartingLegend()
+    {
+        var (catalog, deck) = await Position();
+        var allowed = catalog.Cards.Single(card => card.CardNo == deck.LegendCardNo).CardColorList;
+        var chosen = catalog.Cards.First(card => card.CardCategoryName == "传奇"
+            && card.CardColorList.Any(trait => !allowed.Contains(trait)));
+        var result = OfficialDeckValidator.Validate(deck with { AdditionalLegendCardNos = [chosen.CardNo] }, catalog);
+        Assert.True(result.IsValid, string.Join("; ", result.Errors));
+    }
+
     [Theory]
     [InlineData("too-many")] [InlineData("same-print")] [InlineData("same-name")]
     [InlineData("starting-legend")] [InlineData("not-legend")] [InlineData("unknown")]
