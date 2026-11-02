@@ -133,8 +133,16 @@ public sealed partial class CoreRuleEngine
             }
             cards[id] = current with {
                 Power = current.ManaCost,
+                AttachedToObjectId = null,
                 Tags = current.Tags.Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
                 LegendEquipmentUnit = new(new(item.SourceObjectId, context.SourceGeneration), current.Power, current.Tags, state.Tick + 1) };
+            // CN143.5/435.1.h/718.6: becoming a unit immediately removes
+            // the object's own attachment, without moving it from its location.
+            if (current.AttachedToObjectId is { } host)
+                events.Add(new("EQUIPMENT_DETACHED", "武装变为单位后从原宿主卸除", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = item.SourceObjectId, ["unitObjectId"] = host,
+                    ["equipmentObjectId"] = id, ["controllerId"] = item.ControllerId,
+                    ["ownerId"] = current.OwnerId, ["reason"] = "BECAME_UNIT" }));
             events.Add(new("LEGEND_EQUIPMENT_UNIT_STARTED", "装备变为单位装备", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = id, ["power"] = current.ManaCost, ["manaCost"] = current.ManaCost,
