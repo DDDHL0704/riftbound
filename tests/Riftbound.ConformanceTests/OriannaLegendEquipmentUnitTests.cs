@@ -182,25 +182,30 @@ public sealed class OriannaLegendEquipmentUnitTests
         await game.Replay();
     }
 
-    [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task IndependentLegendConversionsEndOnlyTheirOwnDuration(bool endLatest)
+    private static MatchState WithSecondLegend(MatchState initial)
     {
-        var initial = RadUnitEffectTestFixture.Place(Position(), "ALLY", "P1", "BATTLEFIELD", "BF");
         var other = OfficialGarenConquestBattlefieldCountTests.Printed("OTHER-LEGEND", "RAD·171/167", "P1");
-        initial = initial with {
+        return initial with {
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { [other.ObjectId] = other },
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
                 ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND", other.ObjectId] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 [other.ObjectId] = new("P1", "LEGEND") } };
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task IndependentLegendConversionsEndOnlyTheirOwnDuration(bool endLatest)
+    {
+        var initial = WithSecondLegend(RadUnitEffectTestFixture.Place(Position(), "ALLY", "P1", "BATTLEFIELD", "BF"));
         var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         await game.Act("P2", new EndTurnCommand());
-        await ResolveMainTriggers(_ => "GEAR");
+        await ResolveMainTriggers(game, _ => "GEAR");
         await game.ColdCheckpoint();
         var latest = game.State.CardObjects["GEAR"].LegendEquipmentUnit!;
         var earlier = Assert.Single(latest.EarlierEffects!);
         Assert.NotEqual(latest.SourceLegend, earlier.SourceLegend);
+        Assert.Empty(HistoryErrors(game, game.State));
         // Rebuilt views cannot authorize deleting an older duration or changing
         // its source or application time; the accepted resolutions bind both.
         foreach (var forged in new[] {
@@ -220,7 +225,7 @@ public sealed class OriannaLegendEquipmentUnitTests
         var retained = endLatest ? earlier : latest with { EarlierEffects = null };
         await game.Act("P1", new EndTurnCommand());
         await game.Act("P2", new EndTurnCommand());
-        await ResolveMainTriggers(source => source == selected ? "SECOND" : null);
+        await ResolveMainTriggers(game, source => source == selected ? "SECOND" : null);
         Assert.Equal(retained, game.State.CardObjects["GEAR"].LegendEquipmentUnit);
         Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
         Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), game.State.ObjectLocations["GEAR"]);
@@ -231,7 +236,7 @@ public sealed class OriannaLegendEquipmentUnitTests
         await game.ColdCheckpoint();
         await game.Act("P1", new EndTurnCommand());
         await game.Act("P2", new EndTurnCommand());
-        await ResolveMainTriggers(source => source == retained.SourceLegend.ObjectId ? "SECOND" : null);
+        await ResolveMainTriggers(game, source => source == retained.SourceLegend.ObjectId ? "SECOND" : null);
         Assert.Null(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
         Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
         Assert.Equal(new ObjectLocationState("P1", "BASE"), game.State.ObjectLocations["GEAR"]);
@@ -239,27 +244,81 @@ public sealed class OriannaLegendEquipmentUnitTests
             && Equals(e.Event.Payload["equipmentObjectId"], "GEAR"));
         Assert.NotNull(game.State.CardObjects["SECOND"].LegendEquipmentUnit!.EarlierEffects);
         await game.ColdCheckpoint(); await game.Replay();
+    }
 
-        async Task ResolveMainTriggers(Func<string, string?> targetForSource)
-        {
-            for (var step = 0; game.State.StackItems.Count > 0 || game.State.TriggerQueue.Count > 0; step++) {
-                Assert.True(step < 12, "Main-phase confirmation did not complete.");
-                if (game.State.PendingCardChoice is { } choice) {
-                    var target = targetForSource(choice.SourceObjectId!);
-                    if (target is null) {
-                        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
-                        continue;
-                    }
-                    await Select(game, target);
-                    if (game.State.RunePools["P1"].Mana == 0)
-                        await game.TapRunes("P1", ["RUNE-0", "RUNE-1"]);
-                    var payment = game.State.PendingPayment!;
-                    await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
-                } else if (game.State.TriggerQueue.Count > 0)
-                    await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
-                else await game.Top();
-            }
+    private static async Task ResolveMainTriggers(Driver game, Func<string, string?> targetForSource)
+    {
+        for (var step = 0; game.State.StackItems.Count > 0 || game.State.TriggerQueue.Count > 0; step++) {
+            Assert.True(step < 12, "Main-phase confirmation did not complete.");
+            if (game.State.PendingCardChoice is { } choice) {
+                var target = targetForSource(choice.SourceObjectId!);
+                if (target is null) {
+                    await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+                    continue;
+                }
+                await Select(game, target);
+                if (game.State.RunePools["P1"].Mana == 0)
+                    await game.TapRunes("P1", ["RUNE-0", "RUNE-1"]);
+                var payment = game.State.PendingPayment!;
+                await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+            } else if (game.State.TriggerQueue.Count > 0)
+                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            else await game.Top();
         }
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ReentryCannotRestoreEitherOldLegendDuration(bool useLatestSource)
+    {
+        var initial = Put(Put(WithSecondLegend(Position()), "RETURN", "OGN·104/298", "P1", "HAND"),
+            "RUNE-4", "UNL-R03", "P1", "BASE");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await game.Act("P2", new EndTurnCommand());
+        await ResolveMainTriggers(game, _ => "GEAR");
+        var old = game.State.CardObjects["GEAR"];
+        var latest = old.LegendEquipmentUnit!;
+        var earlier = Assert.Single(latest.EarlierEffects!);
+        var selected = useLatestSource ? latest.SourceLegend.ObjectId : earlier.SourceLegend.ObjectId;
+        await game.ColdCheckpoint();
+        await game.TapRunes("P1", ["RUNE-2"]);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["GEAR"]));
+        await game.Top();
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
+        Assert.Null(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        Assert.True(game.State.CardObjects["GEAR"].ObjectGeneration > old.ObjectGeneration);
+        await game.ColdCheckpoint();
+        await game.TapRunes("P1", ["RUNE-3", "RUNE-4"]);
+        await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", ["ALLY"],
+            OptionalCosts: ["RECYCLE_RUNE:RED"]));
+        await game.Top();
+        Assert.Null(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal("ALLY", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new EndTurnCommand());
+        await ResolveMainTriggers(game, source => source == selected ? "GEAR" : null);
+        var reentered = game.State.CardObjects["GEAR"];
+        Assert.Null(reentered.AttachedToObjectId);
+        Assert.Equal(selected, reentered.LegendEquipmentUnit!.SourceLegend.ObjectId);
+        Assert.Null(reentered.LegendEquipmentUnit.EarlierEffects);
+        Assert.Equal(reentered.ObjectGeneration, reentered.LegendEquipmentUnit.TargetGeneration);
+        Assert.Empty(HistoryErrors(game, game.State));
+        // Rebuilt views do not make an old generation's otherwise authentic
+        // source records valid for the reentered physical card.
+        foreach (var stale in new[] { earlier, latest with { EarlierEffects = null }, latest }) {
+            var bad = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                ["GEAR"] = reentered with { LegendEquipmentUnit = stale } } };
+            Assert.Contains("invalid legend equipment unit state", HistoryErrors(game, bad));
+        }
+        await game.ColdCheckpoint();
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new EndTurnCommand());
+        await ResolveMainTriggers(game, source => source == selected ? null : "SECOND");
+        Assert.Equal(reentered.LegendEquipmentUnit, game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        Assert.Null(game.State.CardObjects["SECOND"].LegendEquipmentUnit!.EarlierEffects);
+        await game.ColdCheckpoint();
+        await game.Replay();
     }
 
     private static IReadOnlyList<string> HistoryErrors(Driver game, MatchState state)
