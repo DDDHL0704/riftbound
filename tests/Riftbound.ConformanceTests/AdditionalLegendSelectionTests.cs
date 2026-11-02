@@ -107,4 +107,48 @@ public sealed class AdditionalLegendSelectionTests
         Assert.Null(ordinary.AdditionalLegendCardNos);
         Assert.DoesNotContain("AdditionalLegendCardNos", JsonSerializer.Serialize(ordinary));
     }
+
+    [Fact]
+    public async Task RegisteredLegendsStayPrivateAndDoNotExistInAnyGameZoneBeforeTheyEnter()
+    {
+        var (catalog, deck) = await Position();
+        var selected = Choices(catalog, deck, 3);
+        var initial = OfficialHoldSequenceTests.State("OGN·294/298");
+        var state = initial with { PlayerDecklists = new Dictionary<string, OfficialDecklist> {
+            ["P1"] = deck with { AdditionalLegendCardNos = selected } } };
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
+        foreach (var no in selected)
+        {
+            Assert.DoesNotContain(state.CardObjects.Values, card => card.CardNo == no);
+            Assert.DoesNotContain(no, JsonSerializer.Serialize(snapshots));
+            Assert.DoesNotContain(no, JsonSerializer.Serialize(prompts));
+            Assert.DoesNotContain(no, JsonSerializer.Serialize(spectator));
+        }
+        Assert.Equal(MatchStateHasher.HashValue(initial.CardObjects), MatchStateHasher.HashValue(state.CardObjects));
+        Assert.Equal(MatchStateHasher.HashValue(initial.PlayerZones), MatchStateHasher.HashValue(state.PlayerZones));
+        Assert.Equal(selected, state.PlayerDecklists["P1"].AdditionalLegendCardNos);
+    }
+
+    [Theory]
+    [InlineData("HIDDEN")] [InlineData("")] [InlineData("  ")]
+    public async Task RecoveryRejectsRedactedOrBlankAdditionalLegendCardNumbers(string value)
+    {
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        var deck = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "jhin-lowcurve").Decklist;
+        var session = new MatchSession("additional-legend-recovery", new CoreRuleEngine());
+        session.EnsurePlayer("P1"); session.EnsurePlayer("P2");
+        var command = new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo,
+            deck.MainDeck, deck.RuneDeck, deck.Battlefields);
+        var accepted = await session.SubmitDeckAsync("P1", "ordinary-deck", command,
+            NativeCommandWire.Bind(command, JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.SubmitDeck })), default);
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        var state = accepted.State;
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(state));
+        var malformed = state with { PlayerDecklists = new Dictionary<string, OfficialDecklist> {
+            ["P1"] = deck with { AdditionalLegendCardNos = [value] } } };
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(malformed),
+            error => error.Contains("additional legend card", StringComparison.Ordinal));
+    }
 }
