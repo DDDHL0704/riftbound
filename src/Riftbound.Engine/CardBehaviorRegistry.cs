@@ -9696,6 +9696,12 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
     [
+        new("RAD·114/167", "锐雯 · 弃暗投明", 5, "RAD_114_RIVEN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            UnitEventAbility: new("ANOTHER_FRIENDLY_UNIT_EXHAUSTED", "MIGHT_SELF", 1)),
+        new("RAD·114a/167", "锐雯 · 弃暗投明", 5, "RAD_114A_RIVEN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            UnitEventAbility: new("ANOTHER_FRIENDLY_UNIT_EXHAUSTED", "MIGHT_SELF", 1)),
         new("RAD·107/167", "祸心陌客", 2, "MALICIOUS_STRANGER_PLAY_UNIT", 0, 2,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "恶魔|待命",
             MinTargetCount: 1, TargetScope: CardTargetScopes.BattlefieldThenEnemyUnit,

@@ -152,6 +152,14 @@ public sealed partial class CoreRuleEngine
             IReadOnlyDictionary<string, CardObjectState> current = cards.TryGetValue(source.ObjectId, out var old) && ReferenceEquals(old, source)
                 ? cards : new Dictionary<string, CardObjectState>(cards) { [source.ObjectId] = source };
             frame.ExhaustedUnitEvents.AddRange(CaptureUnitEvents(zones, current, [source.ObjectId], "BECAME_EXHAUSTED"));
+            if (IsFaceUpNonStandbyUnit(source))
+            {
+                var controller = EffectiveFieldControllerId(zones, source.ObjectId, source);
+                frame.ExhaustedUnitEvents.AddRange(CaptureUnitEvents(zones, current,
+                    current.Values.Where(card => card.ObjectId != source.ObjectId
+                        && EffectiveFieldControllerId(zones, card.ObjectId, card) == controller).Select(card => card.ObjectId),
+                    "ANOTHER_FRIENDLY_UNIT_EXHAUSTED"));
+            }
         }
         return source with { IsExhausted = true };
     }

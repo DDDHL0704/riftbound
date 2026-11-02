@@ -66,7 +66,7 @@ public sealed partial class CoreRuleEngine
         string sourceId, P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.DiscardsEquipmentAsCost == true ? SimpleActivationDiscardChoices(state, actor)
             : ability.SimpleEffect?.ExhaustFriendlyUnitMinimumPowerAsCost is { } minimum
-                ? state.CardObjects.Values.Where(card => card.ObjectId != sourceId
+                ? state.CardObjects.Values.Where(card => (card.ObjectId != sourceId || ability.SimpleEffect.MayExhaustSourceAsAdditionalCost)
                     && CanExhaustUnitForEquipmentCost(state, actor, card.ObjectId)
                     && ResolveCurrentFieldUnitPower(state, card) >= minimum)
                     .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
@@ -99,7 +99,10 @@ public sealed partial class CoreRuleEngine
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true || SimpleActivationTargetsOpponent(ability);
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
+        => ability.SimpleEffect?.ReadiesUnitTarget == true
+            ? state.CardObjects.TryGetValue(id, out var readyTarget) && IsFaceUpNonStandbyUnit(readyTarget)
+                && IsObjectOnField(state.PlayerZones, id) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
             : SimpleActivationTargetsOpponent(ability) ? state.Seats.ContainsKey(id) && id != actor
             : ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
                 ? state.CardObjects.TryGetValue(id, out var returned)
@@ -175,6 +178,7 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "所选友方单位无法支付休眠费用。", ErrorCodes.InvalidTarget);
             var exhausted = extras.Single()[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
             cards[exhausted] = ExhaustForInstruction(zones, cards, cards[exhausted]);
+            source = cards[source.ObjectId];
             events.Add(new("UNIT_EXHAUSTED", "让友方单位变为休眠状态以支付技能费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = exhausted,
                 ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
@@ -598,6 +602,14 @@ public sealed partial class CoreRuleEngine
                 var changed = ApplyEmpowerStatusAction(state, new(target, cards[target].ObjectGeneration), true, item.ControllerId);
                 cards[target] = changed.CardObjects[target]; events.AddRange(changed.Events);
             }
+        }
+        if (spec.ReadiesUnitTarget && item.TargetObjectIds.SingleOrDefault() is { } readyId
+            && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, readyId, ability)
+            && item.TargetGenerations![readyId] == cards[readyId].ObjectGeneration)
+        {
+            var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 1, ReadiesTarget: true);
+            cards[readyId] = ApplyReadyState(cards[readyId], behavior, item, readyId, out var readied, zones, cards);
+            if (readied is not null) events.Add(readied);
         }
         return result with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };

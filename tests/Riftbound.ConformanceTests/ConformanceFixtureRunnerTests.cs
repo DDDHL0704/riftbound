@@ -1007,6 +1007,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "RAD_104_167_STUN_ENEMY_UNIT",
                 "RAD_104_EXHAUST_STUN_ENEMY_UNIT",
                 "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",
+                "RAD_114_EXHAUST_FRIENDLY_READY_UNIT",
                 "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER",
                 "RAD_158_PAY_TWO_POWER_DRAW",
                 "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER",

@@ -56,7 +56,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
     bool StunsTarget = false, bool OncePerTurnPerPlayer = false, int? RuneCallCount = null,
     string? DestroyFriendlyTagAsCost = null, int CreatedMinionCount = 0, int CreatedGoldCount = 0,
-    bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null);
+    bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null,
+    bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -279,6 +280,11 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "RAD·114/167", "RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "锐雯 · 弃暗投明", 0, 0, 1,
+            false, false, 0, true, "官方中文：让一名友方单位变为休眠状态，让一名单位变为活跃状态；每回合一次。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(OncePerTurn: true, ExhaustFriendlyUnitMinimumPowerAsCost: 0,
+                MayExhaustSourceAsAdditionalCost: true, ReadiesUnitTarget: true)),
         new(BlackMarketAbilityId, BlackMarketCardNo, BlackMarketAbilityEffectKind, "黑市", 0, 2, 0,
             RequiresBattlefieldSource: true, ExhaustsSourceAsCost: false, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false,
@@ -785,6 +791,8 @@ public static class P4ActivatedAbilityCatalog
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
         var sourceCardNo = OfficialCardSourceIdentityGroups.NormalizeCardNo(definition.SourceCardNo);
+        if (definition.AbilityId == "RAD_114_EXHAUST_FRIENDLY_READY_UNIT")
+            return ["RAD·114/167", "RAD·114a/167"];
         // Both exact current CN prints were source-checked. Their punctuation
         // and reminder text differ, so whole-text identity cannot map this skill.
         if (definition.AbilityId == LuxResourceAbilityId && sourceCardNo == LuxCardNo)
