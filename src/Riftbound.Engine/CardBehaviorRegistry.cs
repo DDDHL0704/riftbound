@@ -9465,6 +9465,14 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·091/167", "嘉文四世", 4, "RAD_091_JARVAN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·091a/167", "嘉文四世", 4, "RAD_091A_JARVAN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·068/167", "奥莉安娜", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·068a/167", "奥莉安娜", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068A", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("RAD·090/167", "伊芙琳", 5, "RAD_090_EVELYNN_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|伏击"),
         new("RAD·090a/167", "伊芙琳", 5, "RAD_090A_EVELYNN_PLAY_UNIT", 0, 0,

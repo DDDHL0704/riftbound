@@ -1908,6 +1908,15 @@ public static class TriggerParser
                 GeneratedPower: resources.Count(m => m.Groups["value"].Value == "A"));
         }
 
+        var conquestEquipmentRune = Regex.Match(segment,
+            @"^当我征服一处战场时，如果此处有拥有\{\{(?<keyword>[^{}]+)\}\}的友方装备，则召出(?<count>[0-9一两二三四五六七八九十]+)枚休眠的符文。?$",
+            RegexOptions.CultureInvariant);
+        if (conquestEquipmentRune.Success)
+            return new TriggerSpec(TriggerKinds.UnitConquestCallRune, TriggerTimings.UnitConquest, segment,
+                "Capture the local friendly equipment keyword condition at conquest; call dormant runes after responses.",
+                RuneCallCount: ParseChineseNumber(conquestEquipmentRune.Groups["count"].Value),
+                RequiredFriendlyEquipmentKeywordHere: conquestEquipmentRune.Groups["keyword"].Value);
+
         var unitConquestDrawMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌。?$",
