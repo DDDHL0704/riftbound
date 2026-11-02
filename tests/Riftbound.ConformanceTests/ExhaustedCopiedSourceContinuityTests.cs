@@ -30,11 +30,11 @@ public sealed class ExhaustedCopiedSourceContinuityTests
     {
         var game = await EarnCopiedInsight();
         var captured = Assert.Single(game.State.StackItems);
-        var originalDeck = game.State.PlayerZones["P1"].MainDeck.ToArray();
         if (departure != "stays")
         {
-            var spell = departure == "return" ? "OGN·104/298" : "OGN·229/298";
-            await game.Act("P1", new PlayCardCommand(departure == "return" ? "RETURN" : "DESTROY", spell, [CopiedOracle]));
+            var spell = departure == "return" ? "OGN·104/298" : "SFD·163/221";
+            var targets = departure == "return" ? new[] { CopiedOracle } : new[] { CopiedOracle, "ALLY" };
+            await game.Act("P1", new PlayCardCommand(departure == "return" ? "RETURN" : "DESTROY", spell, targets));
             await game.Top();
             Assert.False(game.State.CardObjects.ContainsKey(CopiedOracle));
             Assert.False(game.State.ObjectLocations.ContainsKey(CopiedOracle));
@@ -43,6 +43,7 @@ public sealed class ExhaustedCopiedSourceContinuityTests
                 && Equals(recovered.Event.Payload.GetValueOrDefault("targetObjectId"), CopiedOracle));
             AssertCeasedSource(game.State);
         }
+        var originalDeck = game.State.PlayerZones["P1"].MainDeck.ToArray();
         await game.ColdCheckpoint();
         await game.Top();
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
@@ -138,7 +139,7 @@ public sealed class ExhaustedCopiedSourceContinuityTests
         };
         initial = OfficialCopyIdentityTests.AddSpell(initial, "COPY", "UNL-200/219");
         initial = OfficialCopyIdentityTests.AddSpell(initial, "RETURN", "OGN·104/298");
-        initial = OfficialCopyIdentityTests.AddSpell(initial, "DESTROY", "OGN·229/298");
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "DESTROY", "SFD·163/221");
         initial = OfficialCopyIdentityTests.AddSpell(initial, "READY", "UNL-009/219");
         initial = OfficialCopyIdentityTests.AddSpell(initial, "OVERLOAD", "OGN·123/298");
         var game = new Driver(initial) { RecoverAfterEveryCommand = false };
