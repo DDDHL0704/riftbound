@@ -39,7 +39,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 await game.Top(); Assert.Equal(2 - i, game.State.StackItems.Count);
                 Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
             }
-            Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            // The final Top already audited the private-source history through Act.
+            Assert.Empty(game.State.TriggerQueue); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("actual-private-source-three-draws", initial, game); }
     }
