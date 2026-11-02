@@ -159,6 +159,154 @@ public sealed class RadDocksideCageTests
                 new Dictionary<string, RecoveredPlayerView>(), current, current.Tick);
     }
 
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task AnActuallyAnimatedEquipmentIsExiledAndReplayedAsItsPrintedEquipment(string owner)
+    {
+        var state = WithOrianna(Put(Position(), "PRISONER", "OGN·077/298", "P1", "BASE"));
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["PRISONER"] = state.CardObjects["PRISONER"] with { OwnerId = owner } } };
+        var game = new Driver(state);
+        await Animate(game, "PRISONER");
+        Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["PRISONER"].Tags);
+        await game.Act("P1", new MoveUnitCommand("PRISONER", "BASE", "BATTLEFIELD:BF", []));
+        await game.Act("P1", new PlayCardCommand("CARD", Cage, [], Destination: "BATTLEFIELD:BF"));
+        await Choose(game, ["PRISONER"]); await game.Top();
+        Assert.Contains("PRISONER", game.State.PlayerZones[owner].Banished);
+        Assert.Null(game.State.CardObjects["PRISONER"].LegendEquipmentUnit);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["PRISONER"].Tags);
+        await Hold(game); await Choose(game, ["CARD"]); await game.Top();
+        Assert.NotNull(game.State.PendingEffectPlay);
+        var pool = game.State.RunePools["P1"];
+        await Reject(game.State, "P1", new PlayCardCommand("PRISONER", "OGN·077/298", [], Destination: "BATTLEFIELD:BF"));
+        await game.Act("P1", new PlayCardCommand("PRISONER", "OGN·077/298", [], Destination: "BASE"));
+        Assert.Equal(pool, game.State.RunePools["P1"]);
+        Assert.Contains("PRISONER", game.State.PlayerZones["P1"].Base);
+        Assert.Equal(owner, game.State.CardObjects["PRISONER"].OwnerId);
+        Assert.Equal("P1", game.State.CardObjects["PRISONER"].ControllerId);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["PRISONER"].Tags);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AReplacementOfTheAnimatedSourcesDestructionStillPaysForItsLinkedPlay()
+    {
+        var game = new Driver(Put(WithOrianna(Position()), "GLASS", "OGN·077/298", "P1", "BASE"));
+        await game.Act("P1", new PlayCardCommand("CARD", Cage, [], Destination: "BATTLEFIELD:BF"));
+        await Choose(game, ["PRISONER"]); await game.Top();
+        await Animate(game, "CARD");
+        await Hold(game); await Choose(game, ["CARD"]);
+        if (game.State.PendingRuleChoice is { } pending)
+        {
+            var replacement = Assert.Single(pending.Request.Options, option => option.Id.StartsWith("GEAR:", StringComparison.Ordinal)
+                && option.ObjectIds?.Contains("GLASS") == true);
+            await game.Act(pending.Request.PlayerId, new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", [replacement.Id]));
+        }
+        Assert.Contains("GLASS", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("CARD", game.State.PlayerZones["P1"].Base);
+        Assert.True(game.State.CardObjects["CARD"].IsExhausted);
+        Assert.NotNull(Assert.Single(game.State.StackItems).TriggerCost);
+        await game.Top();
+        Assert.NotNull(game.State.PendingEffectPlay);
+        await game.Act("P1", new PlayCardCommand("PRISONER", "OGN·219/298", [], Destination: "BASE"));
+        Assert.Contains("PRISONER", game.State.PlayerZones["P1"].Base);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnOpponentsActualHoldDestroysTheDeploymentWithoutPlayingItsLinkedCard()
+    {
+        var game = await Capture();
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BATTLEFIELD", "BASE", []));
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
+        // The move opens a real conquest duel. Both players close it before ending the turn.
+        Assert.True(game.State.SpellDuelState.IsActive);
+        await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        Assert.False(game.State.SpellDuelState.IsActive);
+        await game.Act("P2", new EndTurnCommand());
+        await game.Act("P1", new EndTurnCommand());
+        Assert.DoesNotContain(game.State.StackItems, item => item.HeldContext?.Kind == "PLAY_LINKED_EXILE");
+        await game.Top();
+        Assert.Contains("CARD", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("PRISONER", game.State.PlayerZones["P1"].Banished);
+        Assert.Null(game.State.PendingEffectPlay);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task MultipleActualCagesKeepTheirLinksAndSelfDestructionCostsIndependent()
+    {
+        var game = new Driver(Put(Put(Position(), "CAGE2", Cage, "P1", "HAND"), "PRISONER2", "OGN·219/298", "P1", "BATTLEFIELD", "BF"));
+        foreach (var pair in new[] { (Source: "CARD", Target: "PRISONER"), (Source: "CAGE2", Target: "PRISONER2") })
+        {
+            await game.Act("P1", new PlayCardCommand(pair.Source, Cage, [], Destination: "BATTLEFIELD:BF"));
+            await Choose(game, [pair.Target]); await game.Top();
+        }
+        Assert.Equal(2, game.State.LinkedExiles.Count);
+        await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).Reverse().ToArray()));
+        for (var count = 0; game.State.PendingCardChoice is not null; count++)
+        {
+            Assert.InRange(count, 0, 1);
+            await Choose(game, [Assert.Single(game.State.PendingCardChoice.LegalObjectIds)]);
+        }
+        Assert.Contains("CARD", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("CAGE2", game.State.PlayerZones["P1"].Graveyard);
+        for (var count = 0; game.State.StackItems.Count > 0; count++)
+        {
+            Assert.InRange(count, 0, 1); await game.Top();
+            var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+            var target = Assert.Single(pending.Sources).Key;
+            await game.Act("P1", new PlayCardCommand(target, "OGN·219/298", [], Destination: "BASE"));
+        }
+        Assert.Contains("PRISONER", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("PRISONER2", game.State.PlayerZones["P1"].Base);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("reentered")] [InlineData("controller")]
+    public async Task DerivedSourceCheckpointsUseTheCurrentGenerationAndCapturedHoldController(string branch)
+    {
+        var captured = await Capture(); var state = captured.State;
+        if (branch == "reentered")
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["CARD"] = state.CardObjects["CARD"] with { ObjectGeneration = state.CardObjects["CARD"].ObjectGeneration + 2 } } };
+        else
+        {
+            state = RadUnitEffectTestFixture.Place(state, "ALLY", "P2", "BATTLEFIELD", "BF");
+            state = RadUnitEffectTestFixture.Place(state, "CARD", "P2", "BATTLEFIELD", "BF");
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["BF"] = state.CardObjects["BF"] with { ControllerId = "P2" } } };
+        }
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P1", new EndTurnCommand())).State;
+        if (branch == "reentered") state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new EndTurnCommand())).State;
+        var player = branch == "reentered" ? "P1" : "P2";
+        Assert.Equal(player, state.TurnPlayerId);
+        Assert.Equal("PLAY_LINKED_EXILE", Assert.Single(state.StackItems).HeldContext!.Kind);
+        state = (await OfficialInsightAndSpellLockTests.Act(state, player, Command(state, ["CARD"]))).State;
+        state = (await OfficialGraveyardRecastTests.Top(state)).State;
+        if (branch == "reentered") Assert.Null(state.PendingEffectPlay);
+        else { Assert.NotNull(state.PendingEffectPlay); Assert.Equal("P2", state.PendingEffectPlay.PlayerId); }
+        OfficialInsightAndSpellLockTests.Restore(state);
+    }
+
+    private static MatchState WithOrianna(MatchState state)
+        => state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["LEGEND"] = new("LEGEND", cardNo: "RAD·145/167", ownerId: "P1", controllerId: "P1", tags: ["传奇"]) },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } };
+
+    private static async Task Animate(Driver game, string id)
+    {
+        await game.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId, [id], ["SPEND_MANA:1"]));
+        await game.Top();
+    }
+
     private static MatchState Position(string owner = "P1")
     {
         var state = Put(Create(), "CARD", Cage, "P1", "HAND");

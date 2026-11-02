@@ -76,7 +76,8 @@ public sealed partial class CoreRuleEngine
             && state.CardObjects.TryGetValue(target.ObjectId, out var current)
             && current.ObjectGeneration >= target.Generation + 1 && current.OwnerId == origin.TargetOwnerId
             && !TokenObjectRules.IsToken(current)
-            && CardBehaviorRegistry.TryGetByCardNo(origin.TargetCardNo, out var unit) && unit.PlaysSourceToBaseAsUnit;
+            && CardBehaviorRegistry.TryGetByCardNo(origin.TargetCardNo, out var permanent)
+            && (permanent.PlaysSourceToBaseAsUnit || permanent.PlaysSourceToBaseAsEquipment);
     }
 
     private static bool ValidLinkedExileHeldContext(MatchState state, HeldTriggerContext context,
@@ -121,7 +122,8 @@ public sealed partial class CoreRuleEngine
         if (!ValidLinkedUnitExile(state, group)
             || !state.CardObjects.TryGetValue(binding.Key, out var card) || card.ObjectGeneration != binding.Value
             || !state.PlayerZones[origin.TargetOwnerId].Banished.Contains(binding.Key)
-            || !CardBehaviorRegistry.TryGetByCardNo(card.CardNo!, out var behavior) || !behavior.PlaysSourceToBaseAsUnit)
+            || !CardBehaviorRegistry.TryGetByCardNo(card.CardNo!, out var behavior)
+            || !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment)
             return result;
         // CN204.1.c: self-destruction was paid at confirmation, before responses.
         // The captured controller plays the card, while its owner stays unchanged.
