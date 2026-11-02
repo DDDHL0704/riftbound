@@ -62,7 +62,7 @@ public sealed partial class CoreRuleEngine
             StackItems = state.StackItems.Select(i => i.StackItemId == item.StackItemId ? changed : i).ToArray() }, item);
         return PrepareTriggerConfirmation(new(true, null, next,
             [new("TRIGGER_MODE_CONFIRMED", "已确认单位触发技能的效果", new Dictionary<string, object?> {
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, "__spectator__"),
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator),
                 ["mode"] = selected.Single() })], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)));
     }
 }

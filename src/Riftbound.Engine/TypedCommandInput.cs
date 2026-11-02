@@ -15,6 +15,7 @@ public sealed record TypedCommandInput(
     private static readonly IReadOnlyDictionary<string, Type> CommandTypes = new Dictionary<string, Type>(StringComparer.Ordinal)
     {
         ["READY"] = typeof(ReadyCommand), ["SUBMIT_DECK"] = typeof(SubmitDeckCommand),
+        ["CHOOSE_PLAY_ORDER"] = typeof(ChoosePlayOrderCommand),
         ["MULLIGAN"] = typeof(MulliganCommand), ["PASS_PRIORITY"] = typeof(PassPriorityCommand),
         ["PASS_FOCUS"] = typeof(PassFocusCommand), ["PASS"] = typeof(PassCommand),
         ["END_TURN"] = typeof(EndTurnCommand), ["SURRENDER"] = typeof(SurrenderCommand),
@@ -112,6 +113,7 @@ public sealed record TypedCommandInput(
     {
         GameCommand normalized = command switch
         {
+            SubmitDeckCommand c => c with { LegendCardNo = c.LegendCardNo ?? "", ChampionCardNo = c.ChampionCardNo ?? "" },
             PlayCardCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
             RefusePlayPaymentCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
             ActivateAbilityCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },

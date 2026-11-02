@@ -31,7 +31,7 @@ public sealed class Ven050SubmittedDeckConsumerTests
             var pending = Assert.Single(game.State.StackItems); var paid = pending.EmpowerActivation!;
             Assert.Equal(controlled, paid.ControlledRunes); Assert.Equal(mana, paid.PaidMana); Assert.Null(paid.DestructionCost);
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(4, game.Might(actor, unit));
-            await game.ColdCheckpoint();
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var falseMana = controlled == 8 ? 3 : 0; var pool = game.State.RunePools[actor];
             var forged = game.State with {
                 StackItems = [pending with { EmpowerActivation = paid with { ControlledRunes = controlled + 1, PaidMana = falseMana } }],

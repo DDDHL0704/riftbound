@@ -13,13 +13,18 @@ public sealed class ScopedPhysicalPrintTests
     [InlineData("RAD·054/167", 3, 3, "约德尔人")]
     [InlineData("RAD·055/167", 3, 2, "机械")]
     [InlineData("RAD·050/167", 5, 4, "")]
+    [InlineData("RAD·109/167", 4, 4, "恶魔", "purple")]
+    [InlineData("RAD·109a/167", 4, 4, "恶魔", "purple")]
+    [InlineData("RAD·SP3/005", 4, 4, "恶魔", "purple")]
+    [InlineData("RAD·065/167", 4, 3, "")]
+    [InlineData("RAD·065a/167", 4, 3, "")]
     public void AdmittedPrintKeepsItsExactPhysicalIdentity(
-        string cardNo, int mana, int might, string tag)
+        string cardNo, int mana, int might, string tag, string color = "blue")
     {
         var accepted = TryCreate(cardNo, out var card);
         Evidence("create-" + cardNo, new { cardNo, accepted, card });
         Assert.True(accepted);
-        AssertPrinted(card, cardNo, mana, might, tag);
+        AssertPrinted(card, cardNo, mana, might, tag, color);
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out _));
     }
 
@@ -77,8 +82,8 @@ public sealed class ScopedPhysicalPrintTests
 
     [Theory]
     [InlineData("RAD·038/167")]
-    [InlineData("RAD·065/167")]
-    [InlineData("RAD·109/167")]
+    [InlineData("RAD·SP1/005")]
+    [InlineData("RAD·SP4/005")]
     public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string cardNo)
     {
         var card = new CardObjectState("CARD", power: 3, cardNo: cardNo, ownerId: "P1", controllerId: "P1",
@@ -136,7 +141,7 @@ public sealed class ScopedPhysicalPrintTests
         => typeof(CoreRuleEngine).GetMethod("ResetCardOutsidePlay", BindingFlags.Static | BindingFlags.NonPublic)!
             .Invoke(null, [zones, cards, "CARD", previous, "P1"]);
 
-    private static void AssertPrinted(CardObjectState card, string cardNo, int mana, int might, string tag)
+    private static void AssertPrinted(CardObjectState card, string cardNo, int mana, int might, string tag, string color = "blue")
     {
         Assert.Equal("CARD", card.ObjectId);
         Assert.Equal(cardNo, card.CardNo);
@@ -148,7 +153,7 @@ public sealed class ScopedPhysicalPrintTests
         Assert.False(card.IsExhausted);
         Assert.Null(card.TokenFactoryCardNo);
         Assert.Contains(CardObjectTags.UnitCard, card.Tags);
-        Assert.Contains("COLOR:blue", card.Tags);
+        Assert.Contains("COLOR:" + color, card.Tags);
         Assert.DoesNotContain("COLOR:red", card.Tags);
         if (tag.Length > 0) Assert.Contains(tag, card.Tags);
     }

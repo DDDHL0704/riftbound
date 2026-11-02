@@ -28,13 +28,16 @@ def verify(commit, manifest_path, folder, jobs):
             and all(value == 'success' for value in jobs.values()), 'Every SQL/network child must succeed.')
     manifest_path, folder = Path(manifest_path), Path(folder)
     manifest = json.loads(manifest_path.read_text())
-    require(manifest.get('schemaVersion') == 1 and manifest.get('kind') == 'SQL_EXECUTION_IDENTITIES_NOT_RULE_CERTIFICATION', 'Unknown SQL manifest.')
+    require(manifest.get('schemaVersion') == 2 and manifest.get('kind') == 'SQL_EXECUTION_IDENTITIES_NOT_RULE_CERTIFICATION', 'Unknown SQL manifest.')
     count = manifest.get('defaultPartitionCount')
     rows = manifest.get('cases')
     require(type(count) is int and count > 0 and isinstance(rows, list) and len(rows) >= count, 'Empty SQL partition plan.')
     cases = [row['id'] for row in rows]
     require(all(isinstance(name, str) and re.fullmatch(r'[a-z0-9-]+', name) for name in cases)
             and len(set(cases)) == len(cases) and cases.count('core-opening') == 1, 'Unknown or duplicate SQL identities.')
+    assignments = [row.get('defaultPartition') for row in rows]
+    require(all(type(index) is int and 0 <= index < count for index in assignments)
+            and set(assignments) == set(range(count)), 'Every SQL case needs one valid default partition; no partition may be empty.')
     receipts = sorted(folder.rglob('partition-receipt.json'))
     require(len(receipts) == count, 'Missing or extra SQL partition receipt.')
     seen, completed, results, authority_catalog = set(), [], [], set()
@@ -43,7 +46,7 @@ def verify(commit, manifest_path, folder, jobs):
         index = data.get('partitionIndex')
         require(type(index) is int and 0 <= index < count and index not in seen, 'Wrong or duplicate partition index.')
         seen.add(index)
-        expected = cases[index::count]
+        expected = [case for case, assigned in zip(cases, assignments) if assigned == index]
         require(data.get('status') == 'REAL_POSTGRES_PARTITION_COMPLETE' and data.get('fixedCommit') == commit
                 and data.get('partitionCount') == count and data.get('manifestSha256') == digest(manifest_path), 'Wrong SQL inputs or incomplete partition.')
         require(data.get('orderedDefaultCases') == cases and data.get('expectedCases') == expected
@@ -51,6 +54,7 @@ def verify(commit, manifest_path, folder, jobs):
         executions = data.get('executions')
         require(isinstance(executions, list) and [row.get('id') for row in executions] == expected
                 and all(row.get('status') == 'PASSED' and type(row.get('seconds')) in (int, float)
+                        and type(row.get('ordinal')) is int and row['ordinal'] == cases.index(row['id'])
                         and math.isfinite(row['seconds']) and row['seconds'] >= 0 for row in executions), 'Missing, skipped, failed or duplicated SQL execution.')
         files = data.get('outputFiles')
         require(isinstance(files, list) and files, 'Actual SQL case outputs are required.')

@@ -258,7 +258,8 @@ public sealed class Ven007RequiredDiscardConsumerTests
             Assert.Contains(payment, game.State.PlayerZones[actor].Graveyard); Assert.DoesNotContain(payment, game.State.PlayerZones[actor].Hand);
             Assert.Equal(mana - 2, game.State.RunePools[actor].Mana); Assert.False(game.State.CardObjects[unit].IsEmpowered);
             Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
-            await game.ColdCheckpoint(); await game.RejectCoordinatedForgery("refunded-required-discard", Refund(game.State, before, actor, payment));
+            // The forgery helper also cold-recovers this unchanged accepted history.
+            await game.RejectCoordinatedForgery("refunded-required-discard", Refund(game.State, before, actor, payment));
             var item = Assert.Single(game.State.StackItems); var other = game.State.PlayerZones[actor].Hand.First();
             var invented = game.State with { StackItems = [item with { EmpowerActivation = item.EmpowerActivation! with {
                 DiscardedHandCard = new(other, game.State.CardObjects[other].ObjectGeneration) } }] };

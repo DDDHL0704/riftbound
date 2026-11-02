@@ -109,7 +109,7 @@ public sealed partial class CoreRuleEngine
         var next = RestoreAfterTriggerConfirmation(state with { Tick = state.Tick + 1, PendingCardChoice = null,
             StackItems = state.StackItems.Select(i => i.StackItemId == item.StackItemId ? changed : i).ToArray() }, item);
         return PrepareTriggerConfirmation(new(true, null, next, [new("TRIGGER_MODE_CONFIRMED", "已确认活跃技能模式", new Dictionary<string, object?> {
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, "__spectator__"),
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator),
             ["mode"] = selected.Single() })], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)));
     }
 

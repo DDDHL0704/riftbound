@@ -13,8 +13,10 @@ public sealed record RefusePlayPaymentCommand(
     IReadOnlyList<string>? OptionalCosts = null,
     string Destination = "",
     IReadOnlyList<SpellRepeatChoice>? RepeatChoices = null,
-    IReadOnlyList<string>? MovementDestinations = null) : GameCommand(CommandTypes.RefusePlayPayment)
+    IReadOnlyList<string>? MovementDestinations = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<SpellModeChoice>? ModeChoices = null) : GameCommand(CommandTypes.RefusePlayPayment)
 {
     public PlayCardCommand AsPlayCard() => new(SourceObjectId, CardNo, TargetObjectIds,
-        Mode, OptionalCosts, Destination, RepeatChoices, MovementDestinations);
+        Mode, OptionalCosts, Destination, RepeatChoices, MovementDestinations, ModeChoices);
 }

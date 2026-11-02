@@ -49,7 +49,7 @@ public sealed partial class CoreRuleEngine
         string effect, string controller, string source, string? cardNo)
         => c.Kind == DeploymentHeldKind && effect == "HOLD_" + DeploymentHeldKind && cardNo == c.CardNo
             && c.Amount == 0 && c.SourceGeneration >= 0 && c.RequiredExactOtherFriendlyBattlefieldUnits is null
-            && c.Origin is null && c.RuleTextInstanceId is null
+            && c.Origin is null && c.RuleTextInstanceId is null && c.UnitSource is null
             && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "CHANNEL"
             && c.Deployment is { Source: { Generation: >= 0 } binding, Battlefield: { Generation: >= 0 } field,
                 CapturedTick: > 0, SourceFaceRevision: >= 0 } origin
@@ -72,7 +72,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidDeploymentHeldStack(state, item)) throw new InvalidOperationException("Invalid captured deployment Hold ability.");
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "部署的对手据守技能结算", new Dictionary<string, object?> {
             ["triggerId"] = item.StackItemId,
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind,
             ["battlefieldObjectId"] = item.HeldContext!.BattlefieldObjectId }) };
         var result = NoopStackResolutionResult(state);

@@ -69,11 +69,13 @@ public sealed class DestructionGraveyardOrdinaryTests(ITestOutputHelper output)
         await Intents(run, r.GetProperty("afterSelfTriggerExplicitlyDeclinedIntents"));
         await Intent(run, r.GetProperty("decreeRayIntent")); await Top(run); await run.Cold();
         var state = run.State; var item = Assert.Single(state.StackItems); var c = item.DamageDestruction!;
+        var originalStateHash = MatchStateHasher.Hash(state);
         Assert.True(c.CreatedAtTick > 1);
         var forged = state with { StackItems = [item with { DamageDestruction = c with { CreatedAtTick = c.CreatedAtTick - 1 } }] };
         var frame = run.Frame(forged); Assert.Empty(frame.ValidationErrors);
         Assert.NotEmpty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(run.Frame(), new CoreRuleEngine(), default));
+        // The preceding Cold audited this same accepted history; the forged replay must not mutate its live input.
+        Assert.Equal(originalStateHash, MatchStateHasher.Hash(run.State));
     }
 
     private static async Task<JsonDocument> Recipe() => JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Fixtures", "destruction-graveyard-openings.json")));

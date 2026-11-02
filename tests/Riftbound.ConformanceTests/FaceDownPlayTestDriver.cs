@@ -4,8 +4,9 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-// Keep preparation in the same journal as the face-down play. The underlying
-// driver checks recovery, idempotency, privacy and replay after every command.
+// Keep preparation in the same journal as the face-down play. Preparation
+// takes one cold checkpoint before the scenario; scenario actions retain
+// recovery, idempotency, privacy and replay checks after every command.
 internal sealed class FaceDownPlayTestDriver(MatchState initial)
 {
     private readonly VenBasicFlowSpellTests.Driver journal = new(initial);
@@ -61,6 +62,7 @@ internal sealed class FaceDownPlayTestDriver(MatchState initial)
             zones[player] = zones[player] with { Base = zones[player].Base.Append(id).ToArray() };
         }
         var game = new FaceDownPlayTestDriver(initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones });
+        game.journal.RecoverAfterEveryCommand = false;
         if (second) await game.Act("P1", new HideCardCommand("SECOND", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
         await game.Act("P1", new HideCardCommand("SHADOW", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
         await game.NextTurn();
@@ -83,6 +85,8 @@ internal sealed class FaceDownPlayTestDriver(MatchState initial)
             Assert.Empty(game.State.StackItems);
             await game.NextTurn();
         }
+        await game.journal.ColdCheckpoint();
+        game.journal.RecoverAfterEveryCommand = true;
         game.BeginScenario();
         return game;
     }

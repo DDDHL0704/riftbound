@@ -186,6 +186,7 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
     public const string UnitConquestDrawOne =
         "UNIT_CONQUEST_DRAW_ONE";
+    public const string UnitConquestCallRune = "UNIT_CONQUEST_CALL_RUNE";
     public const string UnitConquestGainResources = "UNIT_CONQUEST_GAIN_RESOURCES";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
@@ -241,6 +242,7 @@ public static class TriggerKinds
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
+    public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -589,6 +591,7 @@ public static class StaticAuraParticipantScopes
     public const string FriendlyPublicUnits = "FRIENDLY_PUBLIC_UNITS";
     public const string OtherFriendlyPublicUnits = "OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string FriendlyFilteredPublicUnits = "FRIENDLY_FILTERED_PUBLIC_UNITS";
+    public const string OtherFriendlyFilteredPublicUnits = "OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS";
     public const string BattlefieldPublicUnits = "BATTLEFIELD_PUBLIC_UNITS";
     public const string AttackingBattlefieldPublicUnits = "ATTACKING_BATTLEFIELD_PUBLIC_UNITS";
     public const string ReadyEnemyBattlefieldPublicUnits = "READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS";
@@ -597,6 +600,7 @@ public static class StaticAuraParticipantScopes
 public static class StaticAuraTargetFilters
 {
     public const string Stunned = "STATUS:STUNNED";
+    public const string Exhausted = "STATUS:EXHAUSTED";
     public const string AnyPrefix = "ANY:";
     public const string CardNamePrefix = "CARD_NAME:";
     public const string Token = "TOKEN";
@@ -772,7 +776,11 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? GeneratedPower = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? BasePowerUntilEndOfTurn = null);
+    int? BasePowerUntilEndOfTurn = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresControlledFaceDownCardHere = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? RequiredFriendlyEquipmentKeywordHere = null);
 
 public sealed record ReplacementSpec(
     string Kind,

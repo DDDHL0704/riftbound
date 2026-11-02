@@ -1138,6 +1138,12 @@ public static class TriggerParser
                 CreatedTokenName: playedOrScoredToken.Groups["name"].Value, CreatedTokenPower: tokenMight,
                 CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true,
                 CreatedTokenKeywords: [playedOrScoredToken.Groups["tag"].Value]);
+        if (segment.TrimEnd('。') == "当我据守一处战场时，召出一枚符文")
+            return new(TriggerKinds.UnitBattlefieldHeldCallRune, TriggerTimings.BattlefieldHeld, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, RuneCallCount: 1);
+        if (segment.TrimEnd('。') == "当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分")
+            return new(TriggerKinds.UnitBattlefieldHeldScore, TriggerTimings.BattlefieldHeld, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, ScoreAmount: 1, RequiresControlledFaceDownCardHere: true);
         var exactOtherFriendlyHeld = Regex.Match(segment,
             @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
             RegexOptions.CultureInvariant);
@@ -1901,6 +1907,15 @@ public static class TriggerParser
                 ManaDelta: resources.Where(m => m.Groups["value"].Value != "A").Sum(m => int.Parse(m.Groups["value"].Value)),
                 GeneratedPower: resources.Count(m => m.Groups["value"].Value == "A"));
         }
+
+        var conquestEquipmentRune = Regex.Match(segment,
+            @"^当我征服一处战场时，如果此处有拥有\{\{(?<keyword>[^{}]+)\}\}的友方装备，则召出(?<count>[0-9一两二三四五六七八九十]+)枚休眠的符文。?$",
+            RegexOptions.CultureInvariant);
+        if (conquestEquipmentRune.Success)
+            return new TriggerSpec(TriggerKinds.UnitConquestCallRune, TriggerTimings.UnitConquest, segment,
+                "Capture the local friendly equipment keyword condition at conquest; call dormant runes after responses.",
+                RuneCallCount: ParseChineseNumber(conquestEquipmentRune.Groups["count"].Value),
+                RequiredFriendlyEquipmentKeywordHere: conquestEquipmentRune.Groups["keyword"].Value);
 
         var unitConquestDrawMatch = Regex.Match(
             segment,
@@ -4594,6 +4609,20 @@ public static class StaticAuraParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                     StaticAuraTargetFilters.TagPrefix + friendlyTaggedUnitsPowerMatch.Groups[1].Value));
+                continue;
+            }
+
+            var otherExhaustedPower = Regex.Match(segment,
+                @"^你每控制一名其他休眠的单位，我便具有\{\{S\}\}\+(?<delta>[1-9][0-9]*)[。.]?$",
+                RegexOptions.CultureInvariant);
+            if (otherExhaustedPower.Success)
+            {
+                auras.Add(new(StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits,
+                    int.Parse(otherExhaustedPower.Groups["delta"].Value, CultureInfo.InvariantCulture), segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Count other controlled public exhausted units across the field.", StaticAuraTargetFilters.Exhausted));
                 continue;
             }
 

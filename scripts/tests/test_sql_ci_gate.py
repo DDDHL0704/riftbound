@@ -28,7 +28,7 @@ class SqlCiGateTests(unittest.TestCase):
         for index in range(4):
             parent = self.root / str(index)
             parent.mkdir()
-            expected = self.ids[index::4]
+            expected = [row['id'] for row in self.manifest['cases'] if row['defaultPartition'] == index]
             files = []
             for case in expected:
                 name = 'result.json' if case == 'core-opening' else case + '/receipt.json'
@@ -39,7 +39,7 @@ class SqlCiGateTests(unittest.TestCase):
             data = {'status': 'REAL_POSTGRES_PARTITION_COMPLETE', 'fixedCommit': self.commit,
                     'partitionIndex': index, 'partitionCount': 4, 'manifestSha256': GATE.digest(MANIFEST),
                     'orderedDefaultCases': self.ids, 'expectedCases': expected, 'completedCases': expected,
-                    'executions': [{'id': case, 'status': 'PASSED', 'seconds': 1} for case in expected],
+                    'executions': [{'id': case, 'ordinal': self.ids.index(case), 'status': 'PASSED', 'seconds': 1} for case in expected],
                     'outputFiles': files,
                     'runtimeAssemblies': [{'file': name, 'sha256': '2' * 64,
                         'mvid': '00000000-0000-0000-0000-000000000000'} for name in
@@ -118,6 +118,7 @@ class SqlCiGateTests(unittest.TestCase):
                    lambda x: x.update(partitionCount=3), lambda x: x.update(partitionIndex=1),
                    lambda x: x['completedCases'].pop(), lambda x: x['executions'].pop(),
                    lambda x: x['executions'][0].update(status='SKIPPED'), lambda x: x['executions'][0].update(seconds=float('nan')),
+                   lambda x: x['executions'][0].update(ordinal=-1),
                    lambda x: x['completedCases'].reverse()]
         raw = self.paths[0].read_bytes()
         for change in changes:
@@ -159,6 +160,27 @@ class SqlCiGateTests(unittest.TestCase):
             if row['id'] != 'core-opening':
                 self.assertIn('() => ' + row['sourceType'] + '.RunAsync(dataSource, Path.Combine(output, "' + row['id'] + '"))', source)
         self.assertIn('await partition.CompleteAsync(output);', source)
+
+    def test_old_modulo_membership_cannot_replace_the_fixed_balanced_assignment(self):
+        self.assertNotEqual(self.ids[::4], json.loads(self.paths[0].read_text())['expectedCases'])
+        self.mutate(lambda data: data.update(expectedCases=self.ids[::4], completedCases=self.ids[::4]))
+        with self.assertRaises(ValueError):
+            self.verify()
+
+    def test_invalid_or_incomplete_assignment_maps_fail_closed(self):
+        alternate = self.root / 'invalid-manifest.json'
+        changes = [lambda data: data.update(schemaVersion=1),
+                   lambda data: data['cases'][0].pop('defaultPartition'),
+                   lambda data: data['cases'][0].update(defaultPartition=True),
+                   lambda data: data['cases'][0].update(defaultPartition=-1),
+                   lambda data: data['cases'][0].update(defaultPartition=4),
+                   lambda data: [row.update(defaultPartition=0) for row in data['cases']]]
+        for change in changes:
+            data = copy.deepcopy(self.manifest)
+            change(data)
+            alternate.write_text(json.dumps(data))
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                GATE.verify(self.commit, alternate, self.root, self.jobs)
 
     def test_workflow_partitions_and_network_start_in_first_wave_with_stable_gates(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()

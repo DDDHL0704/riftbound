@@ -75,6 +75,7 @@ public static class CommandTypes
 {
     public const string Ready = "READY";
     public const string SubmitDeck = "SUBMIT_DECK";
+    public const string ChoosePlayOrder = "CHOOSE_PLAY_ORDER";
     public const string Mulligan = "MULLIGAN";
     public const string PassPriority = "PASS_PRIORITY";
     public const string PassFocus = "PASS_FOCUS";
@@ -169,6 +170,8 @@ public abstract record GameCommand(string CmdType);
 
 public sealed record ReadyCommand() : GameCommand("READY");
 
+public sealed record ChoosePlayOrderCommand(bool GoFirst) : GameCommand(CommandTypes.ChoosePlayOrder);
+
 public sealed record SubmitDeckCommand(
     string LegendCardNo,
     string ChampionCardNo,
@@ -189,7 +192,8 @@ public sealed record EndTurnCommand() : GameCommand("END_TURN");
 
 public sealed record SurrenderCommand() : GameCommand("SURRENDER");
 
-public sealed record SpellRepeatChoice(string Mode, IReadOnlyList<string> TargetObjectIds, IReadOnlyList<string>? MovementDestinations = null, string? Destination = null);
+public sealed record SpellRepeatChoice(string Mode, IReadOnlyList<string> TargetObjectIds, IReadOnlyList<string>? MovementDestinations = null, string? Destination = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SpellModeChoice>? ModeChoices = null);
 
 public sealed record PlayCardCommand(
     string SourceObjectId,
@@ -200,7 +204,9 @@ public sealed record PlayCardCommand(
     IReadOnlyList<string>? OptionalCosts = null,
     string Destination = "",
     IReadOnlyList<SpellRepeatChoice>? RepeatChoices = null,
-    IReadOnlyList<string>? MovementDestinations = null) : GameCommand("PLAY_CARD");
+    IReadOnlyList<string>? MovementDestinations = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<SpellModeChoice>? ModeChoices = null) : GameCommand("PLAY_CARD");
 
 public sealed record ActivateAbilityCommand(
     string SourceObjectId,

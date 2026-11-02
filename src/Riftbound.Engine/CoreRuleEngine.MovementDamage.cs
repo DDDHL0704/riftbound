@@ -48,9 +48,9 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var unit = cards[target];
         var value = spec.BasePowerUntilEndOfTurn!.Value;
-        cards[target] = TemporaryUnitEffectRules.SetNumber(unit, TemporaryUnitEffectRules.BaseMightPrefix, value, retainZero: true);
+        cards[target] = TemporaryUnitEffectRules.SetBaseMight(unit, value, state.Tick + 1);
         events.Add(new("BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["targetObjectId"] = target, ["targetGeneration"] = unit.ObjectGeneration,
             ["baseMight"] = value, ["cardNo"] = item.CardNo }));
         var zones = NormalizeZonesForSeats(state);
@@ -124,7 +124,7 @@ public sealed partial class CoreRuleEngine
         var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target, amount, destroyed,
             state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
         var payload = BuildDamagePayload(item.SourceObjectId, target, damage);
-        payload["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        payload["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         events.Add(new("DAMAGE_APPLIED", "移动技能对目标造成伤害", payload));
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,
             damageTriggeredDestroyTargetObjectIds: destroyed, objectLocations: locations,

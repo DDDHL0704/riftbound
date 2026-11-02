@@ -175,6 +175,16 @@ public sealed partial class PlayPowerSpendSelectionTests
             Assert.Equal(last.ErrorCode, duplicate.ErrorCode);
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
         }
+        public async Task AssertLatestWarmDuplicate(string label, ResolutionResult expected)
+        {
+            var last = Entries[^1]; var count = Entries.Count; var hash = MatchStateHasher.Hash(State);
+            var duplicate = await Dispatch(last.PlayerId, last.ClientIntentId, GameCommandJsonMapper.Map(last.RawCommand!.Value), last.RawCommand.Value);
+            Save(label + "-warm-duplicate", new { originalAccepted = last.Accepted, duplicate });
+            // A live session returns the cached original events; a restored session returns none.
+            Assert.Equal(Hash(expected), Hash(duplicate)); Assert.Equal(count, Entries.Count);
+            Assert.Equal(last.Accepted, duplicate.Accepted); Assert.Equal(last.ErrorCode, duplicate.ErrorCode);
+            Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State)); Assert.Equal(hash, MatchStateHasher.Hash(State));
+        }
         public async Task Registry(string label, MatchRecoveryFrame? forged = null)
         {
             var frame = forged ?? JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(Frame(), Web), Web)!;
