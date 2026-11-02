@@ -98,7 +98,7 @@ public static partial class OfficialDeckValidator
             .Concat(deck.LegendCardNo.Length == 0 ? [] : new[] { deck.LegendCardNo });
         var usedCards = usedCardNos.Where(cardsByNo.ContainsKey).Select(cardNo => cardsByNo[cardNo]).ToArray();
         var traits = usedCards.SelectMany(card => card.CardColorList).Select(RuneTrait.Normalize)
-            .Where(trait => trait.Length > 0 && trait != "colorless").Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+            .Where(trait => trait.Length > 0 && !RuneTrait.IsNeutral(trait)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         if (traits.Length > 3)
             errors.Add($"现开卡组实际使用的特性（含传奇、符文和战场）不能超过三种：{string.Join("、", traits.Select(TraitLabel))}。");
 

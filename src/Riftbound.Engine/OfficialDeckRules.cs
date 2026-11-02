@@ -294,7 +294,7 @@ public static partial class OfficialDeckValidator
         var allowedColors = ColorSet(legend);
         var cardColors = ColorSet(card);
         var illegalColors = cardColors
-            .Where(color => !string.Equals(color, "colorless", StringComparison.Ordinal)
+            .Where(color => !RuneTrait.IsNeutral(color)
                 && !allowedColors.Contains(color))
             .ToArray();
         if (illegalColors.Length > 0)
@@ -333,6 +333,7 @@ public static partial class OfficialDeckValidator
             "mainDeck" => "主牌堆",
             "runeDeck" => "符文牌堆",
             "battlefields" => "战场牌组",
+            "additionalLegendCardNos" => "额外传奇牌组（additionalLegendCardNos）",
             _ => "卡组字段"
         };
     }
