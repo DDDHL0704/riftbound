@@ -89,8 +89,9 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
         var game = new Driver(initial);
         try
         {
-            foreach (var rune in game.State.PlayerZones["P2"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray())
-                await game.Act("P2", new TapRuneCommand(rune));
+            var controlFundingRunes = game.State.PlayerZones["P2"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray();
+            foreach (var batch in controlFundingRunes.Chunk(12))
+                await game.Act("P2", new TapRuneCommand(batch[0], batch));
             await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             var generation = game.State.CardObjects["MEL"].ObjectGeneration;
             await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["MEL"]));

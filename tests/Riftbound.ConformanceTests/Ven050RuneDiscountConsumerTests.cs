@@ -123,8 +123,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         Assert.Contains("坚守3", game.State.CardObjects["UNIT"].Tags);
         await game.Act("P2", new EndTurnCommand());
         Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
-        await game.Act("P1", new TapRuneCommand("RUNE-0"));
-        await game.Act("P1", new TapRuneCommand("RUNE-1"));
+        await game.Act("P1", new TapRuneCommand("RUNE-0", ["RUNE-0", "RUNE-1"]));
         Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
         await Reject(game, "P1", new PlayCardCommand("HOWL", "VEN·072", ["UNIT"]));
         await game.Act("P1", new RecycleRuneCommand("RUNE-2"));

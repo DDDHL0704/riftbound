@@ -502,7 +502,8 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
         try
         {
             await game.WaitFor(actor, 8, No, "OGN·093/298");
-            foreach (var rune in game.Runes(actor).Take(8)) await game.Act(actor, new TapRuneCommand(rune));
+            var fundingRunes = game.Runes(actor).Take(8).ToArray();
+            foreach (var batch in fundingRunes.Chunk(12)) await game.Act(actor, new TapRuneCommand(batch[0], batch));
             Assert.Equal(8, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             var unit = game.Hand(actor, No).First(); await game.Act(actor, new PlayCardCommand(unit, No, []));
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); Assert.Equal(3, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);

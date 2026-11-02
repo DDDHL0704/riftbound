@@ -116,8 +116,9 @@ public sealed class JayceReadyOtherObjectTests
         }
         var game = new Driver(state); await game.Act("P1", new PlayCardCommand("E1", "SFD·016/221", [])); await Confirm(game, null);
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
-        foreach (var id in game.State.PlayerZones["P1"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray())
-            await game.Act("P1", new TapRuneCommand(id));
+        var readyRunes = game.State.PlayerZones["P1"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray();
+        foreach (var batch in readyRunes.Chunk(12))
+            await game.Act("P1", new TapRuneCommand(batch[0], batch));
         await game.Act("P1", new PlayCardCommand("E2", "SFD·016/221", []));
         Assert.Equal("FIRST_EQUIPMENT", Assert.Single(game.State.StackItems).ReadyObjectTrigger!.Timing);
         await Confirm(game, null); await game.Replay();
