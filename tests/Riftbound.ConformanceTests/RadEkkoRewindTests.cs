@@ -157,12 +157,14 @@ public sealed class RadEkkoRewindTests
         await g.Act("P1", new PayCostCommand(copy.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
         Assert.Equal("RAD·021/167", g.State.CardObjects["HOST"].CardNo);
         Assert.Contains(CardObjectTags.EquipmentCard, g.State.CardObjects["HOST"].Tags);
-        Assert.Equal(5, g.State.CardObjects["HOST"].Power);
+        Assert.Equal(3, g.State.CardObjects["HOST"].Power);
+        AssertTransformedMight(5);
         if (detachCopyFirst)
         {
             await g.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await g.Top();
             Assert.Equal(equipmentNo, g.State.CardObjects["HOST"].CardNo);
-            Assert.Equal(2, g.State.CardObjects["HOST"].Power);
+            Assert.Equal(0, g.State.CardObjects["HOST"].Power);
+            AssertTransformedMight(2);
             Assert.Contains(CardObjectTags.UnitCard, g.State.CardObjects["HOST"].Tags);
             Assert.Contains(CardObjectTags.EquipmentCard, g.State.CardObjects["HOST"].Tags);
             Assert.NotNull(g.State.CardObjects["HOST"].LegendEquipmentUnit);
@@ -186,6 +188,14 @@ public sealed class RadEkkoRewindTests
         Assert.Equal(resources, g.State.RunePools["P1"]);
         Assert.Null(g.State.PendingEffectPlay); Assert.Empty(g.State.StackItems);
         await g.Replay();
+
+        void AssertTransformedMight(int expected)
+        {
+            var host = CurrentPowerTargetTests.Snapshot(g.State).GetProperty("players").GetProperty("P1")
+                .GetProperty("objects").GetProperty("HOST");
+            Assert.Equal(expected, host.GetProperty("basePower").GetInt32());
+            Assert.Equal(expected, host.GetProperty("effectivePower").GetInt32());
+        }
     }
 
     [Fact]
