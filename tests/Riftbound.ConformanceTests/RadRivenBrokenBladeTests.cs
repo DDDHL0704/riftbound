@@ -61,8 +61,10 @@ public sealed class RadRivenBrokenBladeTests
         await Choose(g, "CONSUME_BOON_STUN"); await Choose(g, "ENEMY"); await g.Top();
         Assert.DoesNotContain("STUNNED", g.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
         Assert.Equal(3, g.State.RuleTextModeUses!.Uses.Count);
+        await CloseShowdown(g);
         await g.Act("P1", new PlayCardCommand("READY-2", "UNL-009/219", ["UNIT"])); await g.Top();
         await Move(g, false); Assert.Null(g.State.PendingCardChoice); Assert.Empty(g.State.StackItems);
+        await CloseShowdown(g);
         await g.Act("P1", new EndTurnCommand()); Assert.Null(g.State.RuleTextModeUses); await g.Replay();
     }
 
@@ -105,6 +107,15 @@ public sealed class RadRivenBrokenBladeTests
         var uses = g.State.RuleTextModeUses!;
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(g.State with { RuleTextModeUses = uses with { TurnNumber = uses.TurnNumber + 1 } }));
         await g.Top(); await g.Replay();
+    }
+
+    private static async Task CloseShowdown(Driver g)
+    {
+        for (var passes = 0; g.State.FocusPlayerId is { } player; passes++)
+        {
+            Assert.True(passes < 4, "Both players passing should close the empty showdown.");
+            await g.Act(player, new PassFocusCommand());
+        }
     }
 
     private static async Task Reject(MatchState state, GameCommand command)
