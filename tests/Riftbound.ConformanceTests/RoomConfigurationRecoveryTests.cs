@@ -11,6 +11,55 @@ public sealed class RoomConfigurationRecoveryTests
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private static readonly MatchSessionOptions Standard = new(false, OfficialDeckFormat.ChinaStandard20260724);
 
+    [Fact]
+    public async Task OneRegistryCreatesRoomsWithIndependentRulesAndKeepsExistingRoomRules()
+    {
+        var journal = new Journal();
+        IMatchSessionRegistry registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        var configured = await registry.GetOrCreateAsync("configured-room", Standard, default);
+        var legacy = await registry.GetOrCreateAsync("legacy-room", default);
+        await configured.EnsurePlayerAsync("alice", default);
+        await legacy.EnsurePlayerAsync("alice", default);
+        var blocked = await configured.ReadyAsync("alice", "ready", Raw(new ReadyCommand()), default);
+        var ready = await legacy.ReadyAsync("alice", "ready", Raw(new ReadyCommand()), default);
+        Assert.False(blocked.Accepted);
+        Assert.Equal(ErrorCodes.InvalidDeck, blocked.ErrorCode);
+        Assert.Equal(Standard, blocked.State.SessionOptions);
+        Assert.True(ready.Accepted, ready.ErrorMessage);
+        Assert.Null(ready.State.SessionOptions);
+        Assert.Same(configured, await registry.GetOrCreateAsync("configured-room", MatchSessionOptions.Default, default));
+        var retry = await configured.ReadyAsync("alice", "still-configured", Raw(new ReadyCommand()), default);
+        Assert.False(retry.Accepted);
+        Assert.Equal(Standard, retry.State.SessionOptions);
+    }
+
+    [Fact]
+    public async Task CreationParametersCannotReplaceTheConfigurationOfAStoredRoom()
+    {
+        var journal = new Journal();
+        var live = NewSession(journal, Standard);
+        await live.EnsurePlayerAsync("alice", default);
+        var frame = RoundTrip(Frame(journal.Entries));
+        IMatchSessionRegistry registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance,
+            new RecoveryStore(frame));
+        var restored = await registry.GetOrCreateAsync(frame.RoomId, MatchSessionOptions.Default, default);
+        var ready = await restored.ReadyAsync("alice", "stored-rules", Raw(new ReadyCommand()), default);
+        Assert.False(ready.Accepted);
+        Assert.Equal(ErrorCodes.InvalidDeck, ready.ErrorCode);
+        Assert.Equal(Standard, ready.State.SessionOptions);
+    }
+
+    [Fact]
+    public async Task InvalidCreationFormatDoesNotInstallARoom()
+    {
+        var journal = new Journal();
+        IMatchSessionRegistry registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            await registry.GetOrCreateAsync("unknown-format", new(false, (OfficialDeckFormat)999), default));
+        Assert.Null(await registry.FindAsync("unknown-format", default));
+        Assert.Empty(journal.Entries);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

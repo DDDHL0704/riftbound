@@ -4,6 +4,8 @@
 
 `MatchState.SessionOptions` 在私有权威状态中保存 `MatchSessionOptions`。新房间使用创建参数；恢复与动作回放使用已记录的配置，进程级缺省值不能覆盖它。默认 CoreRules／允许无卡组准备的历史测试房间以省略该属性表示，保留其原有序列化形式。非默认配置从首个席位日志开始保存，并进入权威状态哈希。PostgreSQL 重建回放初始状态时带上该配置。
 
+共享 registry 提供 `GetOrCreateAsync(roomId, creationOptions, cancellationToken)`，允许同一进程创建不同规则的房间。`creationOptions` 只用于新房间；已存在或已持久化的房间继续其原配置。原有两参数入口继续使用进程缺省值创建新房间。未实现此能力的 registry 对显式配置调用拒绝，避免丢弃格式参数后创建出错误房间。
+
 权威恢复拒绝未知格式，回放和直接恢复都拒绝初始／最终配置不一致。开发场景重置保留房间配置。玩家快照、行动提示、公开事件和观战回放不序列化内部 `SessionOptions`。
 
 这是现开任务第三步的通用前置改动，可从 main 独立合入。后续仍需接入建房的 format/setCode/bestOf、私有卡池、种子与卡包记录、重连和现开投影；前端字段继续由现开契约 ADR 定义。本改动不开放新的比赛入口。
