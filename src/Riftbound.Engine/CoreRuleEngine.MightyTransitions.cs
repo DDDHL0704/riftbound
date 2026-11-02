@@ -172,6 +172,7 @@ public sealed partial class CoreRuleEngine
     {
         if (current.ObjectGeneration < captured.ObjectGeneration) return false;
         if (current.ObjectGeneration > captured.ObjectGeneration) return true;
+        if (current.TokenFactoryCardNo != captured.TokenFactoryCardNo) return false;
 
         // Copying changes a face without creating a new object. Accept a prior
         // face only when the saved timeline proves the exact historical prefix,

@@ -82,6 +82,7 @@ public sealed partial class CoreRuleEngine
             }
             var current = MightFrameState(fact.After);
             if (!fact.After.CardObjects.TryGetValue(source, out var observer) || observer.ObjectGeneration != context.SourceGeneration
+                || observer.TokenFactoryCardNo != context.TokenFactoryCardNo
                 || (observer.CopyFaceTransitions?.Count ?? 0) != context.FaceRevision
                 || !IsObjectOnField(fact.After.PlayerZones, source)
                 || EffectiveFieldControllerId(fact.After.PlayerZones, source, observer) != fact.Actor

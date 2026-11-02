@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class RadAhriMightReductionTests
 {
-    private static MatchState Position(string no = "RAD·038/167")
+    internal static MatchState Position(string no = "RAD·038/167")
     {
         var s = RadDisarmUnitTests.Board(no);
         s = LocalDestructionRecallTests.At(s, "F", "P2", "BATTLEFIELD", "F");
