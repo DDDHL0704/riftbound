@@ -348,6 +348,7 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertEqual([62, 61, 61], [row['seconds'] for row in result['slowestRows'][:3]])
         repeated = [row for row in result['slowestRows'] if row['name'] == first]
         self.assertEqual(2, len({(row['shard'], row['rowIndex']) for row in repeated}))
+        self.assertEqual(dict(name=self.dynamic, executions=3, seconds=184), result['slowestMethods'][0])
         self.assertEqual(self.fact.rsplit('.', 1)[0], result['slowestClasses'][0]['name'])
         self.assertAlmostEqual(186.3, result['slowestClasses'][0]['seconds'])
 

@@ -314,6 +314,7 @@ def timing_report(prepared, inputs, commit):
     plan, mapping, _ = checked_results(prepared, inputs, commit)
     expected_digests = {row['shard']: row['trxSha256'] for row in mapping}
     executions, shards, classes = [], [], defaultdict(float)
+    method_seconds, method_executions = defaultdict(float), Counter()
     workers = SELECT.ESTIMATED_CLASS_WORKERS
     for shard in plan['shards']:
         path = inputs / shard['name'] / 'results.trx'
@@ -324,7 +325,10 @@ def timing_report(prepared, inputs, commit):
         case_seconds = 0.0
         for index, row in enumerate(rows):
             name, seconds = row.get('testName'), row_seconds(row)
-            test_class = RULES.method(name).rsplit('.', 1)[0]
+            method = RULES.method(name)
+            test_class = method.rsplit('.', 1)[0]
+            method_seconds[method] += seconds
+            method_executions[method] += 1
             class_seconds[test_class] += seconds
             classes[test_class] += seconds
             case_seconds += seconds
@@ -351,6 +355,8 @@ def timing_report(prepared, inputs, commit):
                 fixedPlanLowerBoundSeconds=max(shard['estimatedMinimumSeconds'] for shard in shards),
                 shards=shards,
                 slowestRows=sorted(executions, key=lambda row: (-row['seconds'], row['name'], row['shard'], row['rowIndex']))[:12],
+                slowestMethods=[dict(name=name, executions=method_executions[name], seconds=seconds) for name, seconds in
+                                sorted(method_seconds.items(), key=lambda item: (-item[1], item[0]))[:12]],
                 slowestClasses=[dict(name=name, seconds=seconds) for name, seconds in
                                 sorted(classes.items(), key=lambda item: (-item[1], item[0]))[:12]],
                 limitation='Rule timings exclude queue, preparation and gate time. Bounds assume four workers '
