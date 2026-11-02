@@ -274,15 +274,15 @@
 
 ## 现开赛（F 线）
 
-- [ ] **基础配置、卡包生成器、系列目录和协议 ADR**（`f/sealed-foundation`）：6 包同系列、14 张进阶包结构；OGN、SFD 开放名单统一在 `data/official/sealed-sets.json`，UNL、VEN、RAD 待引擎全部接入。真实印次、slot/foil、私有种子、配置版本和指纹；`GET /sealed/sets` 与 `format/setCode/bestOf/series/sealedPool/sideboardCounts` DTO；依据 602.4.a.1、602.4.b.2.a 和 Riot Origins／SFD 产品页。契约见 `docs/adr/0001-sealed-format.md`。
-- [ ] **现开卡组校验和空白战场**：新增 OfficialDeckFormat；602.1.a.1–3、602.1.b、602.3.d、602.4.a.2–6；主牌至少 25（含英雄）、符文恰好 12、特性并集和实际印次卡池数量由服务端校验。空白编号 `SEALED·BLANK-BATTLEFIELD`。
+- [x] **基础配置、卡包生成器、系列目录和协议 ADR**（`f/sealed-foundation`）：[#392](https://github.com/DDDHL0704/riftbound/pull/392) 已合入。6 包同系列、14 张进阶包结构；OGN、SFD 开放名单统一在 `data/official/sealed-sets.json`，UNL、VEN、RAD 待引擎全部接入。真实印次、slot/foil、私有种子、配置版本和指纹；`GET /sealed/sets` 与 `format/setCode/bestOf/series/sealedPool/sideboardCounts` DTO；依据 602.4.a.1、602.4.b.2.a 和 Riot Origins／SFD 产品页。契约见 `docs/adr/0001-sealed-format.md`。
+- [x] **现开卡组校验和空白战场**：[#393](https://github.com/DDDHL0704/riftbound/pull/393) 已合入，61 项定向测试通过。新增 OfficialDeckFormat；602.1.a.1–3、602.1.b、602.3.d、602.4.a.2–6；主牌至少 25（含英雄）、符文恰好 12、特性并集和实际印次卡池数量由服务端校验。空白编号 `SEALED·BLANK-BATTLEFIELD`；真实房间提交与开局由下一项接入。
 - [ ] **房间格式、卡池持久化、恢复、回放和投影隐藏**：建房 format/setCode/bestOf、私有 sealedPool；种子、配置版本、指纹和完整卡包写日志／恢复帧；对手、观战者不能看到卡池、配置或备牌内容。
-- [ ] **无传奇／无选定英雄开局与“唯我”豁免**：602.4.a.5–6；缺任一者每局首回合开始阶段只额外抽一张；开局、区域、技能、效果、投影和恢复均能处理缺席。
+- [x] **无传奇／无选定英雄开局与“唯我”豁免**：[#398](https://github.com/DDDHL0704/riftbound/pull/398) 已经完整 L2 并合入；602.4.a.5–6；缺任一者每局本人首回合开始阶段只额外抽一张；开局、区域、技能、效果、投影和恢复均能处理缺席。现开“唯我”构组数量豁免由 #393 实现；公开现开房间仍待卡池和比赛流程集成，main 尚未开放。
 - [ ] **通用多局模型和先后手选择**：现开 bestOf 1/3；404.1–3、407.1–4；先获 2 胜、平局不计胜，首局随机指定玩家选顺序，其后败方选、平局沿用。比赛结束仅一条含小分战绩；构筑多局暂不开放。线上不做时限／408 超时流程。
 - [ ] **局间换备牌、战场选择和实体一次性使用**：403.5、403.9–10、406.1.b–c、602.3.e.4、602.3.f–g、602.4.a.7；双暗提交后同时公开，平局保留卡组与战场，完全跳过首局禁止换牌，判负依 406.1.c；卡池内任意合法调整，空白不限；仅公开备牌张数（403.6）。
 - [ ] **完整现开对局与 L2 接入**：单局制和三局两胜各两局完整回归，包含断线重连、局间等待／提交持久化、冷恢复和每局回放；保持构筑与预组原有回归。
 - [ ] **售前套装（最后一步）**：官方仅核实 RAD 5 包＋英雄卡包（传奇、稀有英雄、战场和辅助卡）；辅助卡数量／具体卡表 **待确认**，核实不了不接入；限定黑默丁格不可入组。602.4.a.8.k 打包时限仅建议，不强制。
-  - `f/sealed-product-sources` 已复核[售前公告](https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/)及其链接的[官方中文系列概览](https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/)正文和产品配图；确认九种传奇主题，没有英雄包逐张卡表或辅助卡数量，维持待确认。新概览已以 gzip 快照及原文／压缩哈希归档；它直接核实 RAD 槽位、终极 0.025% 与特殊异画同频关系，相应来源升级为官方。特殊异画绝对 9% 仍来自社区，RAD／VEN 的配置已明确区分数值与同频关系的来源；概率数值与开放名单保持现有配置。卡包生成器定向回归 10/10 通过、零跳过，10 份快照的原文及压缩哈希全部通过；分支尚未开 PR，合入后同步来源状态。
+  - `f/sealed-product-sources` 已复核[售前公告](https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/)及其链接的[官方中文系列概览](https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/)正文和产品配图；确认九种传奇主题，没有英雄包逐张卡表或辅助卡数量，维持待确认。新概览已以 gzip 快照及原文／压缩哈希归档；它直接核实 RAD 槽位、终极 0.025% 与特殊异画同频关系，相应来源升级为官方。特殊异画绝对 9% 仍来自社区，RAD／VEN 的配置已明确区分数值与同频关系的来源；概率数值与开放名单保持现有配置。卡包生成器定向回归 10/10 通过、零跳过，10 份快照的原文及压缩哈希全部通过；以独立 PR 发布，合入后同步来源状态。
 - [ ] **待确认：概率和产品假设**：社区 UNL／VEN／RAD 的史诗、异画、超编、传奇、RAD 异画符文小样本；闪卡升级稀有 8%／史诗 2%；同包同功能牌不重复（含闪卡和异画）、独立稀有槽换算、每包最多一个互斥印次升级、未知系列异画符文率为零、UNL 终极 <0.1% 暂用 0.05%。RAD／VEN 特殊异画和 UNL／RAD 终极印次编号须与完整官方目录核对后开放；来源等级与链接已入配置及 ADR，社区不作规则依据。
 - [ ] **待确认：局间公开顺序**：败方先选先后手，再双方暗提交配置与战场，最后同时公开；参照 406.1.h，官方没有明确先后手和战场谁先公开。
 
