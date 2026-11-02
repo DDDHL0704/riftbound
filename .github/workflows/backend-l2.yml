@@ -1,20 +1,23 @@
 name: Backend L2
+run-name: ${{ inputs.scheduled_main && 'Scheduled main L2' || github.event.pull_request.title || github.workflow }}
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      scheduled_main:
+        description: Dispatched by the hourly idle-main scheduler
+        type: boolean
+        default: false
 
 permissions:
   actions: read
   contents: read
   pull-requests: read
 
-# PR revisions and main pushes replace their predecessors. Keep a manually
-# dispatched run stable for investigation, while releasing runner slots held by
-# an obsolete automatic revision.
+# PR revisions replace their predecessors. Main runs are dispatched separately
+# when PR verification is idle; preserve manual investigations across merges.
 concurrency:
   group: l2-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}

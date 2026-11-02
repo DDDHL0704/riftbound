@@ -264,9 +264,10 @@ public sealed partial class CoreRuleEngine
             PendingCardChoice = null, PendingPayment = null,
             StackItems = state.StackItems.Where(i => paid is not null || i.StackItemId != item.StackItemId)
                 .Select(i => i.StackItemId == item.StackItemId ? paid! : i).ToArray() }, item);
+        if (paid is not null) next = EndPreviousEquipmentUnitTransformation(next, paid, events);
         var confirmation = unitReturnPayment is not null
             ? BuildTriggerPaymentPayload(unitReturnPayment, item.ControllerId)
-            : new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.FieldContext?.Kind == EquipmentDeathReturnKind ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId };
+            : new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.FieldContext?.Kind == EquipmentDeathReturnKind ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId };
         confirmation["stackItemId"] = item.StackItemId;
         if (item.BattlefieldConquestMight is not null && state.PendingPayment is { } conquestPayment) {
             confirmation["trigger"] = item.EffectKind; confirmation["paymentId"] = conquestPayment.PaymentId;
@@ -411,7 +412,7 @@ public sealed partial class CoreRuleEngine
             reason: pending.Reason, sourceObjectId: item.SourceObjectId);
         var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
         if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足，可以先使用符文或反应资源技能，或放弃此技能。", ErrorCodes.InsufficientCost);
-        var details = new Dictionary<string, object?> { ["sourceObjectId"] = item.FieldContext?.Kind == EquipmentDeathReturnKind ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId };
+        var details = new Dictionary<string, object?> { ["sourceObjectId"] = item.FieldContext?.Kind == EquipmentDeathReturnKind ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId };
         if (item.BattlefieldConquestMight is not null || item.UnitConquestReturn is not null) {
             details["reason"] = item.EffectKind; details["paymentChoiceIds"] = choices.ToArray();
             details["mana"] = pending.ManaCost; details["power"] = pending.PowerCost;

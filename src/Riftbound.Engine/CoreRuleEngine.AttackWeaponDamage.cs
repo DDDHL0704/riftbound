@@ -58,7 +58,7 @@ public sealed partial class CoreRuleEngine
         var result = NoopStackResolutionResult(state);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "进攻技能结算", new Dictionary<string, object?> {
             ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind,
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") }) };
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) }) };
         if (item.TargetObjectIds.SingleOrDefault() is not { } target
             || item.TargetGenerations?.GetValueOrDefault(target, -1) != state.CardObjects.GetValueOrDefault(target)?.ObjectGeneration
             || !FieldTriggerTargets(state, item).Contains(target)) return result with { Events = events };

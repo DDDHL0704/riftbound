@@ -124,7 +124,7 @@ public sealed partial class CoreRuleEngine
                         queue.Add(trigger);
                         var queued = BuildTriggerQueuedEvent(trigger);
                         events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, ProjectionViewers.Spectator) } });
                     }
                 }
                 if (result.State.Status == MatchStatuses.InProgress)
@@ -141,7 +141,7 @@ public sealed partial class CoreRuleEngine
                         queue.Add(trigger);
                         var queued = BuildTriggerQueuedEvent(trigger);
                         events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, ProjectionViewers.Spectator) } });
                     }
                 }
             }

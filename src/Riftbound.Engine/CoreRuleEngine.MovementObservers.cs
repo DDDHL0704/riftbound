@@ -250,7 +250,7 @@ public sealed partial class CoreRuleEngine
                 var queued = BuildTriggerQueuedEvent(trigger);
                 if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight)
                     queued = queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                        ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, trigger.SourceObjectId, "__spectator__") } };
+                        ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, trigger.SourceObjectId, ProjectionViewers.Spectator) } };
                 events.Add(queued);
             }
         }
@@ -276,7 +276,7 @@ public sealed partial class CoreRuleEngine
         if (HasTargetedMovementSkill(item))
         {
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") } };
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) } };
             return context.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight
                 ? ResolveMovementBaseMight(state, item, events) : ResolveMovementDamage(state, item, events);
         }

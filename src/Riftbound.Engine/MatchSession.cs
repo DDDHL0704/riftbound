@@ -9,8 +9,12 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record LegendEquipmentUnitState(ObjectBinding SourceLegend, int OriginalPower,
-    IReadOnlyList<string> OriginalTags, long CapturedTick);
+public sealed record LegendEquipmentUnitState(ObjectBinding SourceLegend, string SourceCardNo,
+    long SourceFaceRevision, long CapturedTick, long TargetGeneration, long AppliedTick)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<LegendEquipmentUnitState>? EarlierEffects { get; init; }
+}
 
 public sealed record CardObjectState
 {
@@ -3267,10 +3271,6 @@ internal static partial class ActionPromptBuilder
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId),
                 "未来守护者传奇双装备活跃技能", 1, 0, "SPEND_MANA:1", 2, false, "LEGEND_READY_EQUIPMENT",
                 RequiresEmpoweredSource: true, RequiresAnyEquipmentTarget: true),
-            new(LegendActionAbilityCatalog.OriannaLegendAbilityId,
-                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.OriannaLegendAbilityId),
-                "发条魔灵传奇装备单位技能", 1, 0, "SPEND_MANA:1", 1, false, "LEGEND_EQUIPMENT_AS_UNIT",
-                RequiresAnyEquipmentTarget: true),
             new(LegendActionAbilityCatalog.MelLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
                 "流光镜影传奇减战力技能", 0, 0, string.Empty, 1, false, "LEGEND_UNIT_POWER_MODIFIER",
@@ -3562,9 +3562,7 @@ internal static partial class ActionPromptBuilder
         {
             var choices = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields))
                 .Distinct(StringComparer.Ordinal)
-                .Where(id => CoreRuleEngine.IsLegendEquipmentAsUnitEffect(ability.EffectKind)
-                    ? CoreRuleEngine.IsLegendEquipmentUnitTarget(state, playerId, id)
-                    : CoreRuleEngine.IsLegendEquipmentReadyTarget(state, playerId, id))
+                .Where(id => CoreRuleEngine.IsLegendEquipmentReadyTarget(state, playerId, id))
                 .Select(id => ObjectChoice(state, id, "场上的装备")).ToArray();
             for (var index = 0; index < ability.RequiredTargetCount; index++)
                 result[index.ToString(System.Globalization.CultureInfo.InvariantCulture)] = choices;
@@ -3630,7 +3628,6 @@ internal static partial class ActionPromptBuilder
             LegendActionAbilityCatalog.ZedLegendAbilityId => "迅捷解除强化并横置：弃一张手牌，然后抽一张牌",
             LegendActionAbilityCatalog.JayceLegendReadyOneAbilityId => "支付 1 法力并横置：使一件装备活跃",
             LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId => "已强化时支付 1 法力并横置：使两件装备活跃",
-            LegendActionAbilityCatalog.OriannaLegendAbilityId => "支付 1 法力并横置：使一件友方装备成为单位装备",
             LegendActionAbilityCatalog.MelLegendAbilityId => "解除强化并横置：战场上一名单位本回合战力 -2",
             LegendActionAbilityCatalog.TimeAssassinLegendAbilityId => "解除强化并横置：本回合你打出的下一名单位费用 -2 和 -1 符能，并于回合结束时摧毁",
             LegendActionAbilityCatalog.ZiggsLegendAbilityId => "支付 1 法力和 1 符能并横置：将一个炸弹打出到一处战场",
@@ -5764,6 +5761,7 @@ public sealed partial class MatchSession : IMatchSession
         this.options = options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown room deck format.");
+        SealedRoomPools.RequireOptions(this.options);
         state = MatchState.Create(roomId) with
         {
             Seed = CreatePrivateOpeningSeed(),
@@ -5824,9 +5822,13 @@ public sealed partial class MatchSession : IMatchSession
         this.options = restoredState.SessionOptions ?? options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
+        if (SealedRoomPools.OptionError(this.options) is { } optionsError)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, optionsError);
         var recordedOptions = this.options == MatchSessionOptions.Default ? null : this.options;
         state = restoredState.SessionOptions == recordedOptions
             ? restoredState : restoredState with { SessionOptions = recordedOptions };
+        if (SealedRoomPools.Validate(state) is { Count: > 0 } poolErrors)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", poolErrors));
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
@@ -5913,6 +5915,8 @@ public sealed partial class MatchSession : IMatchSession
 
     public PlayerSessionDto EnsurePlayer(string playerId)
     {
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            return EnsurePlayerAsync(playerId, CancellationToken.None).AsTask().GetAwaiter().GetResult();
         var normalizedPlayerId = NormalizePlayerId(playerId);
         lock (seatGate)
         {
@@ -6043,6 +6047,8 @@ public sealed partial class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var normalizedScenarioId = NormalizeScenarioId(scenarioId);
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            throw new MatchSessionException(ErrorCodes.UnsupportedCommand, "现开房间不能载入开发测试场景。");
         var commandType = $"DEV_SEED_SCENARIO:{normalizedScenarioId}";
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
         if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)
@@ -6217,7 +6223,8 @@ public sealed partial class MatchSession : IMatchSession
                     command.RuneDeck,
                     command.Battlefields));
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat);
+                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat,
+                    SealedContextFor(normalizedPlayerId));
                 if (!validation.IsValid)
                 {
                     result = ResolutionResult.Rejected(
@@ -6386,13 +6393,16 @@ public sealed partial class MatchSession : IMatchSession
             if (options.DeckFormat != OfficialDeckFormat.CoreRules)
             {
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                foreach (var submitted in state.PlayerDecklists.Values)
+                foreach (var (owner, submitted) in state.PlayerDecklists)
                 {
-                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat);
+                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat,
+                        SealedContextFor(owner));
                     if (!validation.IsValid)
                     {
                         var rejected = ResolutionResult.Rejected(state,
-                            $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
+                            options.DeckFormat == OfficialDeckFormat.Sealed && owner != normalizedPlayerId
+                                ? "有玩家的现开卡组需要更新。"
+                                : $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
                         intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                         return rejected;
                     }

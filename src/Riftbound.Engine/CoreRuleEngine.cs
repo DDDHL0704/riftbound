@@ -7590,9 +7590,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && BattlefieldLocalRules.Battlefield(state, targetObjectIds[0]) is null)
             return RejectWithCorePrompts(state, "请选择一处公开战场。", ErrorCodes.InvalidTarget);
         if (ability.RequiresAnyEquipmentTarget && targetObjectIds.Any(id =>
-                !(ability.EffectKind == LegendAbilityEffectKinds.EquipmentAsUnit
-                    ? IsLegendEquipmentUnitTarget(state, intent.PlayerId, id)
-                    : IsLegendEquipmentReadyTarget(state, intent.PlayerId, id))))
+                !IsLegendEquipmentReadyTarget(state, intent.PlayerId, id)))
             return RejectWithCorePrompts(state, "请选择符合范围的公开装备。", ErrorCodes.InvalidTarget);
 
         if (ability.RequiresArmamentSecondTarget
@@ -8131,11 +8129,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId),
                 "未来守护者传奇双装备活跃技能", 1, 0, "SPEND_MANA:1", 2, RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.ReadyEquipment, RequiresAnyEquipmentTarget: true, RequiresSourceEmpowered: true),
-            LegendActionAbilityCatalog.OriannaLegendAbilityId => new LegendAbilityDefinition(
-                LegendActionAbilityCatalog.OriannaLegendAbilityId,
-                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.OriannaLegendAbilityId),
-                "发条魔灵传奇装备单位技能", 1, 0, "SPEND_MANA:1", 1, RequiresFriendlyUnitTarget: false,
-                LegendAbilityEffectKinds.EquipmentAsUnit, RequiresAnyEquipmentTarget: true),
             LegendActionAbilityCatalog.MelLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.MelLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
@@ -14003,6 +13996,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveFieldPowerStaticAuraBonus(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, string id, CardObjectState card, string battlefieldId)
         => ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, zones, id, card)
+            + EquipmentUnitTransformationMightDelta(card)
             + TemporaryUnitEffectRules.BaseMightDelta(card)
             + ResolveSourceParticipantCountPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
@@ -19353,11 +19347,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["controllerId"] = resolvedItem.ControllerId,
                     ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
-                        : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
+                        : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
                     ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
-                        : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, "__spectator__")).ToArray()
+                        : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, ProjectionViewers.Spectator)).ToArray()
                 };
             if (highCostSkillObservers.Length > 0) resolvedPayload[HighCostSkillCaptureKey] = highCostSkillObservers;
             events.Add(new GameEvent(
@@ -26238,7 +26232,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     if (behavior.BasePowerUntilEndOfTurn is { } baseMight)
                     {
-                        targetState = TemporaryUnitEffectRules.SetNumber(targetState, TemporaryUnitEffectRules.BaseMightPrefix, baseMight, retainZero: true);
+                        targetState = TemporaryUnitEffectRules.SetBaseMight(targetState, baseMight, state.Tick + 1);
                         events.Add(new("BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
                             ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
                             ["targetGeneration"] = targetState.ObjectGeneration, ["baseMight"] = baseMight, ["cardNo"] = stackItem.CardNo }));
@@ -27300,7 +27294,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
-        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, "__spectator__");
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, ProjectionViewers.Spectator);
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -27707,7 +27701,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             activatedAbility
                 ? new GameEvent("LEGEND_ABILITY_RESOLVED", "传奇弃牌抽牌技能开始结算", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, "__spectator__"),
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["controllerId"] = stackItem.ControllerId, ["stackItemId"] = stackItem.StackItemId, ["effectKind"] = effectKind })
                 : BuildTriggerResolvedEvent(new TriggerQueueItemState(
                 stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
@@ -32267,7 +32261,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var sourceState = RuleChoices.Value?.ResolutionState ?? RuleChoices.Value?.Origin;
         var visibleSource = (stackItem.FieldContext is not null || NeedsLastBreathHereTarget(stackItem)) && sourceState is not null
-            ? ResolutionResult.VisibleObjectIdForViewer(sourceState, stackItem.SourceObjectId, "__spectator__")
+            ? ResolutionResult.VisibleObjectIdForViewer(sourceState, stackItem.SourceObjectId, ProjectionViewers.Spectator)
             : stackItem.SourceObjectId;
         var payload = new Dictionary<string, object?>
         {
@@ -35197,7 +35191,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string UnitPowerModifier = "LEGEND_UNIT_POWER_MODIFIER";
         public const string ReadyUnit = "LEGEND_READY_UNIT";
         public const string ReadyEquipment = "LEGEND_READY_EQUIPMENT";
-        public const string EquipmentAsUnit = "LEGEND_EQUIPMENT_AS_UNIT";
         public const string DiscardDraw = "LEGEND_DISCARD_DRAW";
         public const string GrantUnitKeyword = "LEGEND_GRANT_UNIT_KEYWORD";
         public const string DrawOne = "DRAW_ONE";

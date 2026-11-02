@@ -89,7 +89,7 @@ public sealed partial class CoreRuleEngine
             item.MovementObserver!, new(id, cards[id].ObjectGeneration), cards[id].CardNo!,
             state.TurnPlayerId == item.ControllerId && state.Phase != MatchPhases.TurnEnd ? state.TurnNumber : null);
         grant = grant with { Id = TimedBanishPlayRules.Id(grant) };
-        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) { ["sourceObjectId"] = source } };
         events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED", "放逐主牌堆顶牌，直到下一个自己的结束阶段可以正常打出", new Dictionary<string, object?> {
             ["sourceObjectId"] = source, ["targetObjectId"] = id, ["cardNo"] = cards[id].CardNo,

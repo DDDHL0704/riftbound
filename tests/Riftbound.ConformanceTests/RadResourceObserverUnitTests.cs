@@ -385,7 +385,11 @@ public sealed class RadResourceObserverUnitTests
         Assert.Empty(payment.PowerCostByTrait);
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [accept ? "PAY" : "DECLINE"]));
         if (accept) await game.Top();
-        Assert.Equal(expectedPower, game.State.CardObjects["UNIT"].Power);
+        Assert.Equal(3, game.State.CardObjects["UNIT"].Power);
+        var unit = CurrentPowerTargetTests.Snapshot(game.State).GetProperty("players").GetProperty("P1")
+            .GetProperty("objects").GetProperty("UNIT");
+        Assert.Equal(expectedPower, unit.GetProperty("basePower").GetInt32());
+        Assert.Equal(expectedPower, unit.GetProperty("effectivePower").GetInt32());
         Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingPayment);
         await game.Act("P1", new EndTurnCommand());
         Assert.Equal(3, game.State.CardObjects["UNIT"].Power);

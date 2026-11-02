@@ -158,7 +158,7 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
                 events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, ProjectionViewers.Spectator) } });
             }
         }
         if (!found) return result;
@@ -355,10 +355,9 @@ public sealed partial class CoreRuleEngine
                 return NoopStackResolutionResult(state);
             var printed = PrintedManaCost(played.CardNo);
             if (printed is not { } basePower) return NoopStackResolutionResult(state);
-            var changed = TemporaryUnitEffectRules.SetNumber(source, TemporaryUnitEffectRules.BaseMightPrefix, basePower, retainZero: true);
-            var recomputed = RecomputePowerAfterTemporaryBaseReplacement(state, changed, basePower);
+            var changed = TemporaryUnitEffectRules.SetBaseMight(source, basePower, state.Tick + 1);
             var baseCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
-            baseCards[source.ObjectId] = recomputed;
+            baseCards[source.ObjectId] = changed;
             return NoopStackResolutionResult(state) with { CardObjects = baseCards, Events = [new(
                 "BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
                     ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = item.SourceObjectId,
@@ -408,7 +407,7 @@ public sealed partial class CoreRuleEngine
             {
                 cards[id] = cards[id] with { IsExhausted = false };
                 events.Add(new("RUNE_READIED", "触发技能让选择的符文变为活跃状态", new Dictionary<string, object?> {
-                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
                     ["objectIds"] = new[] { id }, ["count"] = 1 }));
             }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
@@ -463,12 +462,4 @@ public sealed partial class CoreRuleEngine
             HighCostGraveyardPlayBanishSource: registered?.HighCostGraveyardPlayBanishSource ?? false);
     }
 
-    private static CardObjectState RecomputePowerAfterTemporaryBaseReplacement(MatchState state, CardObjectState card, int basePower)
-    {
-        var printed = PrintedCardFactory.TryCreate(card.ObjectId, card.OwnerId ?? "", card.CardNo, out var face)
-            ? face.Power
-            : card.Power - card.UntilEndOfTurnPowerModifier - TemporaryUnitEffectRules.BaseMightDelta(card);
-        var delta = basePower - printed;
-        return card with { Power = card.Power + delta, UntilEndOfTurnPowerModifier = card.UntilEndOfTurnPowerModifier + delta };
-    }
 }
