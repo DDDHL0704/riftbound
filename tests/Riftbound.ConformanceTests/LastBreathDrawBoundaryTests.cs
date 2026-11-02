@@ -72,12 +72,15 @@ public sealed partial class LastBreathDrawBoundaryTests
             ObjectLocations = initial.ObjectLocations.Where(p => p.Key != "ALLY").ToDictionary(p => p.Key, p => p.Value),
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
                 Base = initial.PlayerZones["P1"].Base.Where(id => id != "ALLY").ToArray() } } };
-        var game = new Driver(initial);
+        // Recover ordinary paid setup before testing the conditional death.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1"); await game.Act("P1", new PlayCardCommand("UNIT", no, []));
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
             await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var prefix = game.Events().Length; var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard); Assert.Empty(game.State.PlayerZones["P1"].Hand);
@@ -85,7 +88,7 @@ public sealed partial class LastBreathDrawBoundaryTests
             Assert.Equal(earnsDraw ? 1 : 0, game.State.TriggerQueue.Count + game.State.StackItems.Count);
             if (earnsDraw) { await game.Top(); Assert.Equal(deck.Take(1), game.State.PlayerZones["P1"].Hand); }
             Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
-            // Act/Top already audited the unchanged final original history.
+            Assert.True(game.RecoverAfterEveryCommand); // Act/Top audited the complete journal.
         }
         finally { await Save("conditional-native-" + no.Replace('/', '-') + "-ally-" + hasAlly, initial, game); }
     }

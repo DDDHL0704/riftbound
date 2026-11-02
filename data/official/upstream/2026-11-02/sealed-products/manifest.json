@@ -81,6 +81,15 @@
       "bytes": 163190,
       "archiveSha256": "434852f3e1ac910c97f3d40489400e45bf8a287defc94c476eaee7ee1a5398e1",
       "archiveBytes": 29199
+    },
+    {
+      "snapshotPath": "data/official/upstream/2026-11-02/sealed-products/radiance-overview-official-raw.html.gz",
+      "url": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+      "sourceLevel": "official",
+      "sha256": "35e640e2e6697a37d35e4bcc8fbe6def33a0ba9e0150d8618798ca0344f38521",
+      "bytes": 173101,
+      "archiveSha256": "2ef53ad65e6f1733f58ebbea16c9ba14571fe0ce6576a10e69e8e9bd70841aca",
+      "archiveBytes": 31108
     }
   ],
   "ruleSource": {

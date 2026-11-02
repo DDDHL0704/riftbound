@@ -201,6 +201,7 @@ public sealed class VenBasicFlowSpellTests
     internal sealed class Driver : IMatchJournal
     {
         private readonly MatchState initial;
+        private string? auditedReplayHash;
         private readonly List<MatchJournalEntry> entries = [];
         private readonly JsonSerializerOptions json = new(JsonSerializerDefaults.Web);
         private MatchSession session;
@@ -210,6 +211,7 @@ public sealed class VenBasicFlowSpellTests
         // openings can temporarily batch ordinary commands and call ColdCheckpoint
         // at an explicit stage boundary; the default remains the original behavior.
         internal bool RecoverAfterEveryCommand { get; set; } = true;
+        internal int ReplayAuditCount { get; private set; }
         private (string Player, string Intent, GameCommand Command, JsonElement Raw)? last;
         internal ActionPromptDto PromptFor(string player) => session.PromptFor(player);
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
@@ -334,10 +336,18 @@ public sealed class VenBasicFlowSpellTests
                 await Act(player, new PassPriorityCommand());
             }
         }
+        private string OriginalHistoryHash() => MatchStateHasher.HashValue(new {
+            initial, commands = Commands(), events = Events(), state = State, ruleInputs = RuleInputIdentity.Current });
         internal async Task Replay()
         {
+            // Only reuse a successful audit of the same complete original inputs.
+            var historyHash = OriginalHistoryHash();
+            if (historyHash == auditedReplayHash) return;
+            ReplayAuditCount++;
             var result = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State, new CoreRuleEngine(), default, Events());
             Assert.True(result.IsMatch, string.Join("; ", result.Errors));
+            Assert.Equal(historyHash, OriginalHistoryHash());
+            auditedReplayHash = historyHash;
         }
     }
 

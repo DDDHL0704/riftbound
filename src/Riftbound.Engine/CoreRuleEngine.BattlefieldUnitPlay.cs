@@ -65,7 +65,7 @@ public sealed partial class CoreRuleEngine
         if (selected.Length == 0 || PaidBattlefieldUnitPlayDestination(selected, destination)) return true;
         if (state.PendingEffectPlay is not { } pending || !(pending.RevealedHand is not null
                 || pending.Parent.PlayedFromStandby is not null && player == pending.Parent.ControllerId
-                || pending.DestinationPolicy is "ORIGINAL_LOCATION" or "BASE" or "CONTROLLED_BATTLEFIELD" or "ANY_BATTLEFIELD")) return false;
+                || pending.DestinationPolicy is "ORIGINAL_LOCATION" or "ORIGINAL_LOCATION_OR_BASE" or "BASE" or "CONTROLLED_BATTLEFIELD" or "ANY_BATTLEFIELD")) return false;
         // CN355.17.a: combine compatible positive instructions. Only genuinely
         // conflicting sets permit choosing the original instruction instead.
         var instructed = OrdinaryEffectPlayDestinations(state, player);
