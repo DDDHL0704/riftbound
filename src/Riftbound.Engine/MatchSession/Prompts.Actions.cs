@@ -1171,6 +1171,8 @@ internal static partial class ActionPromptBuilder
         bool actionable,
         string playerId)
     {
+        if (RoomMatchSeries.Current(state) is { Phase: MatchSeriesPhase.ChoosingPlayOrder } series)
+            return series.PlayOrderChooserPlayerId;
         if (string.Equals(type, PromptTypes.PayCost, StringComparison.Ordinal))
         {
             return EmptyAsNull(state.PendingPayment?.PlayerId);
@@ -1722,6 +1724,7 @@ internal static partial class ActionPromptBuilder
         {
             CommandTypes.Ready => CandidatePresentation("setup", "ready", "primary", 20),
             CommandTypes.SubmitDeck => CandidatePresentation("setup", "submit-deck", "primary", 10),
+            CommandTypes.ChoosePlayOrder => CandidatePresentation("setup", "choose-play-order", "primary", 5),
             CommandTypes.Mulligan => CandidatePresentation("setup", "mulligan", "primary", 30),
             CommandTypes.PayCost => CandidatePresentation("payment", "pay-cost", "payment", 40),
             CommandTypes.AssignCombatDamage => CandidatePresentation("battle", "assign-damage", "battle", 50),

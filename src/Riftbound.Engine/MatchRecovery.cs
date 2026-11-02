@@ -141,6 +141,8 @@ public static class MatchActionLogReplayer
         var inputErrors = new List<string>();
         if (recovery.AuthoritativeState is { } poolFinal) inputErrors.AddRange(SealedRoomPools.Validate(poolFinal));
         if (recovery.ReplayInitialState is { } poolInitial) inputErrors.AddRange(SealedRoomPools.Validate(poolInitial));
+        if (recovery.AuthoritativeState is { } seriesFinal) inputErrors.AddRange(RoomMatchSeries.Validate(seriesFinal));
+        if (recovery.ReplayInitialState is { } seriesInitial) inputErrors.AddRange(RoomMatchSeries.Validate(seriesInitial));
         if (recovery.AuthoritativeState?.SessionOptions is { } finalOptions && !Enum.IsDefined(finalOptions.DeckFormat)
             || recovery.ReplayInitialState?.SessionOptions is { } initialOptions && !Enum.IsDefined(initialOptions.DeckFormat))
             inputErrors.Add("action-log room deck format is invalid");
@@ -3733,6 +3735,7 @@ public static partial class MatchRecoveryValidator
         ValidateOpeningRoleDraw(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         errors.AddRange(SealedRoomPools.Validate(authoritativeState));
+        errors.AddRange(RoomMatchSeries.Validate(authoritativeState));
         if (authoritativeState.SessionOptions is { } roomOptions && !Enum.IsDefined(roomOptions.DeckFormat))
             errors.Add("authoritative state room deck format is invalid");
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
