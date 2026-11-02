@@ -323,6 +323,65 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertNotEqual(0, subprocess.run(command[:-1] + [str(missing)], capture_output=True).returncode)
         self.assertFalse(missing.exists())
 
+    def test_timing_report_preserves_repeated_display_names_and_each_duration(self):
+        first, second = self.plan['cases'][self.dynamic]
+        self.plan['cases'][self.dynamic].append(first)
+        self.put(self.prepared / 'case-inventory.json', self.inventory)
+        self.plan['caseInventorySha256'] = D.digest(self.prepared / 'case-inventory.json')
+        self.materialize()
+        self.set_durations({self.fact: '00:00:01', self.theory + '(value: 1)': '00:00:00.6',
+                            self.theory + '(value: 2)': '00:00:00.7', first: '00:01:01', second: '00:01:02'})
+        with mock.patch.object(D.subprocess, 'run', side_effect=AssertionError('Must only read existing results')):
+            result = D.timing_report(self.prepared, self.inputs, self.commit)
+        count = sum(map(len, self.plan['cases'].values()))
+        total = 186.3 + .25 * (count - 6)
+        self.assertEqual(count, result['executions'])
+        self.assertEqual(count - 1, result['distinctDisplayNames'])
+        self.assertEqual(1, result['repeatedDisplayNameRows'])
+        self.assertAlmostEqual(total, result['totalCaseSeconds'])
+        self.assertEqual(count, sum(shard['executions'] for shard in result['shards']))
+        self.assertAlmostEqual(total, sum(shard['caseSeconds'] for shard in result['shards']))
+        self.assertAlmostEqual(total / 24, result['idealExecutionSeconds'])
+        # Other methods of this class run in separate shards; only this
+        # whole dynamic method's three executions form the longest serial lane.
+        self.assertAlmostEqual(184, result['fixedPlanLowerBoundSeconds'])
+        self.assertEqual([62, 61, 61], [row['seconds'] for row in result['slowestRows'][:3]])
+        repeated = [row for row in result['slowestRows'] if row['name'] == first]
+        self.assertEqual(2, len({(row['shard'], row['rowIndex']) for row in repeated}))
+        self.assertEqual(self.fact.rsplit('.', 1)[0], result['slowestClasses'][0]['name'])
+        self.assertAlmostEqual(186.3, result['slowestClasses'][0]['seconds'])
+
+    def test_timing_report_rejects_invalid_duration_and_inputs_changed_after_verification(self):
+        self.set_durations({self.fact: 'invalid'})
+        with self.assertRaisesRegex(ValueError, 'duration'):
+            D.timing_report(self.prepared, self.inputs, self.commit)
+        self.set_durations({self.fact: '00:00:01'})
+        original = D.checked_results
+        def verify_then_change(*args):
+            result = original(*args)
+            path = self.inputs / self.plan['shards'][0]['name'] / 'results.trx'
+            path.write_bytes(path.read_bytes() + b'\n')
+            return result
+        with mock.patch.object(D, 'checked_results', side_effect=verify_then_change):
+            with self.assertRaisesRegex(ValueError, 'changed after shard verification'):
+                D.timing_report(self.prepared, self.inputs, self.commit)
+
+    def test_timing_report_cli_preserves_outputs_and_refuses_missing_shards(self):
+        self.set_durations({self.fact: '00:00:02'})
+        output = self.root / 'timing-report.json'
+        command = [sys.executable, str(ROOT / 'scripts/l2-distributed.py'), 'timing-report', '--commit', self.commit,
+                   '--prepared', str(self.prepared), '--inputs', str(self.inputs), '--output', str(output)]
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual('VERIFIED_RULE_TIMINGS_REPORTED', D.read(output)['status'])
+        original = output.read_bytes()
+        self.assertNotEqual(0, subprocess.run(command, capture_output=True).returncode)
+        self.assertEqual(original, output.read_bytes())
+        shutil.rmtree(self.inputs / 'shard-1')
+        missing = self.root / 'missing-timing-report.json'
+        self.assertNotEqual(0, subprocess.run(command[:-1] + [str(missing)], capture_output=True).returncode)
+        self.assertFalse(missing.exists())
+
     def local_trx(self, names, outcome='Passed', duration='00:00:02', summary='Completed'):
         path = self.root / 'local.trx'
         self.trx(path, names, outcome)

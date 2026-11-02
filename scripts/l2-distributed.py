@@ -309,6 +309,54 @@ def timing_weights(prepared, inputs, commit):
                 caseWeights={name: round(value, 4) for name, value in sorted(cases.items()) if value >= 60})
 
 
+def timing_report(prepared, inputs, commit):
+    """Summarize every verified execution, including repeated display names."""
+    plan, mapping, _ = checked_results(prepared, inputs, commit)
+    expected_digests = {row['shard']: row['trxSha256'] for row in mapping}
+    executions, shards, classes = [], [], defaultdict(float)
+    workers = SELECT.ESTIMATED_CLASS_WORKERS
+    for shard in plan['shards']:
+        path = inputs / shard['name'] / 'results.trx'
+        if digest(path) != expected_digests[shard['name']]:
+            raise ValueError('Timing input changed after shard verification.')
+        rows, _ = RULES.report(path)
+        class_seconds = defaultdict(float)
+        case_seconds = 0.0
+        for index, row in enumerate(rows):
+            name, seconds = row.get('testName'), row_seconds(row)
+            test_class = RULES.method(name).rsplit('.', 1)[0]
+            class_seconds[test_class] += seconds
+            classes[test_class] += seconds
+            case_seconds += seconds
+            executions.append(dict(name=name, shard=shard['name'], rowIndex=index, seconds=seconds))
+        if digest(path) != expected_digests[shard['name']]:
+            raise ValueError('Timing input changed while it was being read.')
+        execution_seconds = read(path.parent / 'receipt.json')['seconds']
+        if (not isinstance(execution_seconds, (int, float)) or not math.isfinite(execution_seconds)
+                or execution_seconds < 0):
+            raise ValueError('Invalid shard execution duration.')
+        shards.append(dict(name=shard['name'], trxSha256=expected_digests[shard['name']], executions=len(rows),
+                           executionSeconds=execution_seconds, caseSeconds=case_seconds,
+                           estimatedMinimumSeconds=max(case_seconds / workers, max(class_seconds.values()))))
+    counts = Counter(row['name'] for row in executions)
+    if counts != Counter(row['name'] for row in mapping):
+        raise ValueError('Timing executions differ from the verified case inventory.')
+    total = sum(row['seconds'] for row in executions)
+    return dict(status='VERIFIED_RULE_TIMINGS_REPORTED', profile=plan['profile'],
+                sourceRunId=int(plan['runId']), sourceRunAttempt=int(plan['runAttempt']), sourceCommit=commit,
+                sourcePlanSha256=digest(prepared / 'plan.json'), sourceTestAssemblySha256=plan['testAssemblySha256'],
+                methods=len(plan['methods']), executions=len(executions), distinctDisplayNames=len(counts),
+                repeatedDisplayNameRows=len(executions)-len(counts), totalCaseSeconds=total,
+                assumedWorkersPerShard=workers, idealExecutionSeconds=total / (workers * len(shards)),
+                fixedPlanLowerBoundSeconds=max(shard['estimatedMinimumSeconds'] for shard in shards),
+                shards=shards,
+                slowestRows=sorted(executions, key=lambda row: (-row['seconds'], row['name'], row['shard'], row['rowIndex']))[:12],
+                slowestClasses=[dict(name=name, seconds=seconds) for name, seconds in
+                                sorted(classes.items(), key=lambda item: (-item[1], item[0]))[:12]],
+                limitation='Rule timings exclude queue, preparation and gate time. Bounds assume four workers '
+                           'and observed class serialism; they do not establish future CI speedup or full-gate completion.')
+
+
 def local_timings(prepared, inputs, commit, local_trx, methods=(), cases=()):
     """Compare one local execution with existing CI rows; never run a local baseline."""
     if bool(methods) == bool(cases):
@@ -694,7 +742,7 @@ def execute_shard(prepared, output, commit, name):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'timings', 'local-timings', 'aggregate', 'aggregate-full'])
+    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'timings', 'timing-report', 'local-timings', 'aggregate', 'aggregate-full'])
     parser.add_argument('--profile', choices=['l2', 'full'], default='l2', help='Preparation membership; full includes every discovered method')
     parser.add_argument('--commit', required=True)
     parser.add_argument('--prepared', type=Path)
@@ -720,6 +768,8 @@ def main():
         write(args.output, derived_view(args.prepared, args.inputs, args.commit))
     elif args.mode == 'timings':
         write(args.output, timing_weights(args.prepared, args.inputs, args.commit))
+    elif args.mode == 'timing-report':
+        write(args.output, timing_report(args.prepared, args.inputs, args.commit))
     elif args.mode == 'local-timings':
         write(args.output, local_timings(args.prepared, args.inputs, args.commit, args.local_trx,
                                         args.method, args.case))
