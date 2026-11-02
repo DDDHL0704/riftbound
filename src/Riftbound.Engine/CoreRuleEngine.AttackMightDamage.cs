@@ -100,7 +100,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveSourceMightDamage(MatchState state, StackItemState item)
     {
         var context = item.FieldContext!;
-        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var result = NoopStackResolutionResult(state) with { Events = [new("TRIGGER_RESOLVED", "战力伤害技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = visibleSource, ["effectKind"] = context.Kind })] };
         // CN 359.3.e.12: a departed source has no field Might or location.

@@ -34,8 +34,21 @@ public sealed partial class CoreRuleEngine
             var costs = command.OptionalCosts ?? [];
             if (costs.Count == 0 && origin.StartsWith("BATTLEFIELD:", StringComparison.Ordinal) && !toBase
                 && HasRoamPermission(state, intent.PlayerId, id, card)) costs = [MoveUnitRoamOptionalCost];
-            var validation = ResolveMoveUnit(state, intent, new MoveUnitCommand(id,
-                string.IsNullOrWhiteSpace(command.Origin) ? origin : command.Origin, destination, costs));
+            // The single-source resolver is only a legality probe here. Its
+            // hypothetical exhaustions must not become observations of this action.
+            var frame = RuleChoices.Value;
+            var observationCount = frame?.InstructionUnitEvents.Count ?? 0;
+            ResolutionResult validation;
+            try
+            {
+                validation = ResolveMoveUnit(state, intent, new MoveUnitCommand(id,
+                    string.IsNullOrWhiteSpace(command.Origin) ? origin : command.Origin, destination, costs));
+            }
+            finally
+            {
+                if (frame is not null && frame.InstructionUnitEvents.Count > observationCount)
+                    frame.InstructionUnitEvents.RemoveRange(observationCount, frame.InstructionUnitEvents.Count - observationCount);
+            }
             if (!validation.Accepted)
                 return RejectWithCorePrompts(state, validation.ErrorMessage ?? "移动单位不合法。", validation.ErrorCode ?? ErrorCodes.InvalidTarget);
             moves.Add((id, location.Value.Zone, origin));
@@ -92,6 +105,8 @@ public sealed partial class CoreRuleEngine
                 toBase ? MoveUnitBaseZone : MoveUnitBattlefieldZone, destinationBattlefieldId))
             .OfType<MovedUnitFact>().ToArray());
         var destinationZone = toBase ? MoveUnitBaseZone : MoveUnitBattlefieldZone;
+        // CN 144.3.c: the whole group's exhaustion costs are paid simultaneously.
+        CaptureExhaustionBatch(beforeMove, zones, cards, intent.PlayerId, ids);
         foreach (var move in moves)
         {
             RemoveFieldObjectFromLocation(zones, intent.PlayerId, move.OriginZone, move.Id);

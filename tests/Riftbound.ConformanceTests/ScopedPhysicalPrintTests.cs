@@ -13,6 +13,8 @@ public sealed class ScopedPhysicalPrintTests
     [InlineData("RAD·054/167", 3, 3, "约德尔人")]
     [InlineData("RAD·055/167", 3, 2, "机械")]
     [InlineData("RAD·050/167", 5, 4, "")]
+    [InlineData("RAD·065/167", 4, 3, "")]
+    [InlineData("RAD·065a/167", 4, 3, "")]
     public void AdmittedPrintKeepsItsExactPhysicalIdentity(
         string cardNo, int mana, int might, string tag)
     {
@@ -77,7 +79,6 @@ public sealed class ScopedPhysicalPrintTests
 
     [Theory]
     [InlineData("RAD·038/167")]
-    [InlineData("RAD·065/167")]
     [InlineData("RAD·109/167")]
     public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string cardNo)
     {

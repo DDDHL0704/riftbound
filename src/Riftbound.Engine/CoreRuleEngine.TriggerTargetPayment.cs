@@ -91,7 +91,7 @@ public sealed partial class CoreRuleEngine
         var completed = CompleteTriggerTargetConfirmation(next, item, [new("COST_PAID", "支付触发技能费用",
             PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools, committed.PlayerExperience,
                 item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind ? new Dictionary<string, object?> {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, "__spectator__") }
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator) }
                     : new Dictionary<string, object?>()))]);
         return completed.Accepted ? completed : RejectWithCorePrompts(state, completed.ErrorMessage!, ErrorCodes.InvalidTarget);
     }

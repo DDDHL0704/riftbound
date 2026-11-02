@@ -128,7 +128,7 @@ public sealed partial class CoreRuleEngine
                 if (kind == TriggerKinds.BattlefieldFriendlySpellDraw)
                 {
                     if (BattlefieldFriendlySpellDrawUsedThisTurn(state, played.ControllerId, source.ObjectId)
-                        || !(played.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? played.TargetObjectIds).Any(id => state.CardObjects.GetValueOrDefault(id)?.ControllerId == played.ControllerId
+                        || !(played.ModeExecutions?.SelectMany(m => m.Execution.TargetObjectIds) ?? played.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? played.TargetObjectIds).Any(id => state.CardObjects.GetValueOrDefault(id)?.ControllerId == played.ControllerId
                             && BattlefieldLocalRules.AtUnit(state, id)?.ObjectId == source.ObjectId)) continue;
                     effects.Add(BuildBattlefieldFriendlySpellDrawUsedEffectId(played.ControllerId, source.ObjectId));
                 }
