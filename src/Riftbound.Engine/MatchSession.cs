@@ -1833,7 +1833,7 @@ public sealed partial record ResolutionResult(
             view["handDiscardObserver"] = CoreRuleEngine.PublicHandDiscardObserver(discard);
             view["abilityLabel"] = CoreRuleEngine.HandDiscardObserverLabel(discard);
         }
-        if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
+        if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = CoreRuleEngine.PublicLastBreathMight(item.LastBreathMight);
         if (!hiddenSource && item.InsightContext is { Kind: "LAST_BREATH" } lastBreathInsight) view["lastBreathInsight"] = lastBreathInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
@@ -2062,7 +2062,7 @@ public sealed partial record ResolutionResult(
             view["handDiscardObserver"] = CoreRuleEngine.PublicHandDiscardObserver(discard);
             view["abilityLabel"] = CoreRuleEngine.HandDiscardObserverLabel(discard);
         }
-        if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
+        if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = CoreRuleEngine.PublicLastBreathMight(item.LastBreathMight);
         if (!hiddenSource && item.InsightContext is { Kind: "LAST_BREATH" } lastBreathInsight) view["lastBreathInsight"] = lastBreathInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;

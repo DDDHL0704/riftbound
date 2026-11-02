@@ -298,7 +298,7 @@ public static partial class MatchRecoveryValidator
         {
             TryReadObjectString(payload, "stackItemId", out var id);
             var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
-            if (MatchStateHasher.HashValue(ReadLastBreathMightView(payload)) != MatchStateHasher.HashValue(expected?.LastBreathMight))
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(payload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicLastBreathMight(expected?.LastBreathMight)))
                 errors.Add($"{label} captured last-breath Might differs from authoritative state");
         }
     }

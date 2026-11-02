@@ -3104,7 +3104,7 @@ public static partial class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicMightySkill(authoritativeTrigger.MightySkill))) errors.Add("spectator captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMillView(spectatorTrigger)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicBattlefieldConquestMill(authoritativeTrigger.BattlefieldConquestMill))) errors.Add("conquest mill trigger view differs from authoritative state");
-            if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicLastBreathMight(authoritativeTrigger.LastBreathMight))) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             CompareHandDiscardObserverView(spectatorTrigger, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
             CompareMovementObserverView(spectatorTrigger, authoritativeTrigger.MovementObserver, errors, "spectator");
@@ -3250,7 +3250,7 @@ public static partial class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicMightySkill(authoritativeTrigger.MightySkill))) errors.Add("snapshot captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMillView(triggerPayload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicBattlefieldConquestMill(authoritativeTrigger.BattlefieldConquestMill))) errors.Add("conquest mill trigger view differs from authoritative state");
-            if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicLastBreathMight(authoritativeTrigger.LastBreathMight))) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             CompareHandDiscardObserverView(triggerPayload, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
             CompareMovementObserverView(triggerPayload, authoritativeTrigger.MovementObserver, errors, "spectator");
@@ -5692,7 +5692,7 @@ public static partial class MatchRecoveryValidator
                 sourceReferences = knownObjectIds.Append(boon.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { LastBreathMight: { } captured } earned
                 && CoreRuleEngine.ValidLastBreathMightContext(authoritativeState, captured, earned.EffectKind, earned.SourceObjectId, earned.ControllerId)
-                && MatchStateHasher.HashValue(ReadLastBreathMightView(stackItem)) == MatchStateHasher.HashValue(captured))
+                && MatchStateHasher.HashValue(ReadLastBreathMightView(stackItem)) == MatchStateHasher.HashValue(CoreRuleEngine.PublicLastBreathMight(captured)))
                 sourceReferences = knownObjectIds.Append(earned.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } insight
                 && CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, insight.InsightContext,

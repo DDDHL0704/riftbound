@@ -151,6 +151,7 @@ public sealed partial class CoreRuleEngine
                 && (IsBomb(unit) || AttachedRuleTextRules.Instances(zones, cards, unit).Any(i => UnitDestroyedTriggerSpecRules.SelfDrawTriggers(i.CardNo).Count > 0
                     || UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(i.CardNo).Count > 0
                     || UnitDestroyedTriggerSpecRules.BaseTokenCreationTriggers(i.CardNo).Count > 0
+                    || UnitDestroyedTriggerSpecRules.TryGetTrigger(i.CardNo, UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out _)
                     || UnitDestroyedTriggerSpecRules.LastBreathBattlefieldDamageTriggers(i.CardNo).Count > 0)))
                 ? CapturePublicMightFrame(state, zones, cards, locations) : null;
 

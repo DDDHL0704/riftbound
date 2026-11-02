@@ -27143,6 +27143,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var captured = stackItem.LastBreathMight;
         if (captured is null || !ValidLastBreathMightContext(state, captured, stackItem.EffectKind,
                 stackItem.SourceObjectId, stackItem.ControllerId)
+            || !ValidLastBreathMightStackIdentity(stackItem)
             || !UnitDestroyedTriggerSpecRules.TryGetTrigger(captured.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out var spec))
             throw new InvalidOperationException("Invalid captured Powerful Last Breath.");
