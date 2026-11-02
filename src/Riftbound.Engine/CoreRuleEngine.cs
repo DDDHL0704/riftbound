@@ -7555,9 +7555,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (ability.RequiresAnyUnitTarget && !IsLegendUnitEffectTarget(state, intent.PlayerId, targetObjectIds[0], ability.RequiresBattlefieldTarget))
             return RejectWithCorePrompts(state, "请选择符合范围的一名公开单位。", ErrorCodes.InvalidTarget);
         if (ability.RequiresAnyEquipmentTarget && targetObjectIds.Any(id =>
-                !(ability.EffectKind == LegendAbilityEffectKinds.EquipmentAsUnit
-                    ? IsLegendEquipmentUnitTarget(state, intent.PlayerId, id)
-                    : IsLegendEquipmentReadyTarget(state, intent.PlayerId, id))))
+                !IsLegendEquipmentReadyTarget(state, intent.PlayerId, id)))
             return RejectWithCorePrompts(state, "请选择符合范围的公开装备。", ErrorCodes.InvalidTarget);
 
         if (ability.RequiresArmamentSecondTarget
@@ -8077,11 +8075,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId),
                 "未来守护者传奇双装备活跃技能", 1, 0, "SPEND_MANA:1", 2, RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.ReadyEquipment, RequiresAnyEquipmentTarget: true, RequiresSourceEmpowered: true),
-            LegendActionAbilityCatalog.OriannaLegendAbilityId => new LegendAbilityDefinition(
-                LegendActionAbilityCatalog.OriannaLegendAbilityId,
-                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.OriannaLegendAbilityId),
-                "发条魔灵传奇装备单位技能", 1, 0, "SPEND_MANA:1", 1, RequiresFriendlyUnitTarget: false,
-                LegendAbilityEffectKinds.EquipmentAsUnit, RequiresAnyEquipmentTarget: true),
             LegendActionAbilityCatalog.MelLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.MelLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
@@ -13955,6 +13948,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveFieldPowerStaticAuraBonus(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, string id, CardObjectState card, string battlefieldId)
         => ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, zones, id, card)
+            + EquipmentUnitTransformationMightDelta(card)
             + TemporaryUnitEffectRules.BaseMightDelta(card)
             + ResolveSourceParticipantCountPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
@@ -26069,7 +26063,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     if (behavior.BasePowerUntilEndOfTurn is { } baseMight)
                     {
-                        targetState = TemporaryUnitEffectRules.SetNumber(targetState, TemporaryUnitEffectRules.BaseMightPrefix, baseMight, retainZero: true);
+                        targetState = TemporaryUnitEffectRules.SetBaseMight(targetState, baseMight, state.Tick + 1);
                         events.Add(new("BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
                             ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
                             ["targetGeneration"] = targetState.ObjectGeneration, ["baseMight"] = baseMight, ["cardNo"] = stackItem.CardNo }));
@@ -34756,7 +34750,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string UnitPowerModifier = "LEGEND_UNIT_POWER_MODIFIER";
         public const string ReadyUnit = "LEGEND_READY_UNIT";
         public const string ReadyEquipment = "LEGEND_READY_EQUIPMENT";
-        public const string EquipmentAsUnit = "LEGEND_EQUIPMENT_AS_UNIT";
         public const string DiscardDraw = "LEGEND_DISCARD_DRAW";
         public const string GrantUnitKeyword = "LEGEND_GRANT_UNIT_KEYWORD";
         public const string DrawOne = "DRAW_ONE";

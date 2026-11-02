@@ -264,14 +264,12 @@ public sealed class RadGravityFieldLastBreathTests
     private static MatchState WithOrianna(MatchState state)
     {
         state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "BATTLEFIELD", "BF");
-        return state with {
+        return OriannaEquipmentConsumerFixture.WithResources(state with {
         CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["LEGEND"] = new("LEGEND", cardNo: "RAD·145/167", ownerId: "P1", controllerId: "P1", tags: ["传奇"]) },
         ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") },
-        PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } };
+        PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } });
     }
-    private static async Task Animate(Driver game)
-    {
-        await game.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId, ["SOURCE"], ["SPEND_MANA:1"])); await game.Top();
-    }
+    private static Task Animate(Driver game)
+        => OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "SOURCE");
 }

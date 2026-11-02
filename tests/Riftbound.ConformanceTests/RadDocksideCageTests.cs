@@ -331,23 +331,21 @@ public sealed class RadDocksideCageTests
             await game.Act("P1", new PlayCardCommand("PRISONER", "OGN·219/298", [], Destination: "BASE"));
             Assert.Contains("PRISONER", game.State.PlayerZones["P1"].Base);
         }
+        if (game.State.PendingCardChoice is { SourceObjectId: "LEGEND" } mainChoice)
+            await game.Act("P1", new ChooseCardsCommand(mainChoice.ChoiceId, mainChoice.ChoiceWindow, []));
         Assert.Empty(game.State.StackItems);
         await game.Replay();
     }
 
     private static MatchState WithOrianna(MatchState state)
-        => state with {
+        => OriannaEquipmentConsumerFixture.WithResources(state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["LEGEND"] = new("LEGEND", cardNo: "RAD·145/167", ownerId: "P1", controllerId: "P1", tags: ["传奇"]) },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
-                ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } };
-
-    private static async Task Animate(Driver game, string id)
-    {
-        await game.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId, [id], ["SPEND_MANA:1"]));
-        await game.Top();
-    }
+                ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } });
+    private static Task Animate(Driver game, string id)
+        => OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, id);
 
     private static MatchState Position(string owner = "P1")
     {

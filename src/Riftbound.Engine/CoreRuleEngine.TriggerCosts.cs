@@ -272,6 +272,7 @@ public sealed partial class CoreRuleEngine
             PendingCardChoice = null, PendingPayment = null,
             StackItems = state.StackItems.Where(i => paid is not null || i.StackItemId != item.StackItemId)
                 .Select(i => i.StackItemId == item.StackItemId ? paid! : i).ToArray() }, item);
+        if (paid is not null) next = EndPreviousEquipmentUnitTransformation(next, paid, events);
         var confirmation = unitReturnPayment is not null
             ? BuildTriggerPaymentPayload(unitReturnPayment, item.ControllerId)
             : new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.FieldContext?.Kind == EquipmentDeathReturnKind ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId };

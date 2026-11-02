@@ -19,10 +19,11 @@ public sealed partial class RadBlastAmplifierTests
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
                 ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") } };
+        initial = OriannaEquipmentConsumerFixture.WithResources(initial);
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", "OGN·096/298", [], Destination: "BATTLEFIELD:BF"));
         await Deploy(game);
-        await game.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId, ["AMP"], ["SPEND_MANA:1"])); await game.Top();
+        await OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "AMP");
         Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["AMP"].Tags);
         if (copy) { await game.Act("P1", new AssembleEquipmentCommand("SONG", "AMP", ["ASSEMBLE_GREEN"])); await game.Top();
             Assert.Equal(Amplifier, game.State.CardObjects["SONG"].AttachedRuleText!.CardNo); }

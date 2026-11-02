@@ -89,7 +89,7 @@ public sealed class RadSingularityAdmissionTests
     [Fact]
     public async Task ARealRecallResponseHidesTheNewHandIncarnationWithoutCancellingTheEarnedSkills()
     {
-        var initial = Put(WithOrianna(Position()), "RECALL", "OGN·104/298", "P1", "HAND");
+        var initial = Put(WithOrianna(Position(handCards: 7)), "RECALL", "OGN·104/298", "P1", "HAND");
         var game = new Driver(initial); await Animate(game); await CastDraw(game);
         await OrderThresholdFirst(game); await Confirm(game);
         await game.Act("P1", new PlayCardCommand("RECALL", "OGN·104/298", ["SOURCE"]));
@@ -105,26 +105,23 @@ public sealed class RadSingularityAdmissionTests
         await game.Replay();
     }
 
-    private static MatchState Position(bool image = false)
+    private static MatchState Position(bool image = false, int handCards = 8)
     {
         var state = Put(Put(Create(), "SOURCE", Card, "P1", "BASE"), "DRAW", "OGN·048/298", "P1", "HAND");
-        for (var i = 0; i < 9; i++) state = Put(state, "H" + i, "OGN·219/298", "P1", "HAND");
+        for (var i = 0; i < handCards; i++) state = Put(state, "H" + i, "OGN·219/298", "P1", "HAND");
         if (image) state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["SOURCE"] = state.CardObjects["SOURCE"] with { TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
                 CopyFaceTransitions = [new(0, 0, P6TokenFactoryCatalog.ImageTokenCardNo, Card)] } } };
         return state;
     }
     private static MatchState WithOrianna(MatchState state)
-        => state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+        => OriannaEquipmentConsumerFixture.WithResources(state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["LEGEND"] = new("LEGEND", cardNo: "RAD·145/167", ownerId: "P1", controllerId: "P1", tags: ["传奇"]) },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
-                ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } };
-    private static async Task Animate(Driver game)
-    {
-        await game.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId, ["SOURCE"], ["SPEND_MANA:1"]));
-        await game.Top();
-    }
+                ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } });
+    private static Task Animate(Driver game)
+        => OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "SOURCE");
     private static async Task CastDraw(Driver game)
     {
         await game.Act("P1", new PlayCardCommand("DRAW", "OGN·048/298", []));

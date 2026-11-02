@@ -355,10 +355,9 @@ public sealed partial class CoreRuleEngine
                 return NoopStackResolutionResult(state);
             var printed = PrintedManaCost(played.CardNo);
             if (printed is not { } basePower) return NoopStackResolutionResult(state);
-            var changed = TemporaryUnitEffectRules.SetNumber(source, TemporaryUnitEffectRules.BaseMightPrefix, basePower, retainZero: true);
-            var recomputed = RecomputePowerAfterTemporaryBaseReplacement(state, changed, basePower);
+            var changed = TemporaryUnitEffectRules.SetBaseMight(source, basePower, state.Tick + 1);
             var baseCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
-            baseCards[source.ObjectId] = recomputed;
+            baseCards[source.ObjectId] = changed;
             return NoopStackResolutionResult(state) with { CardObjects = baseCards, Events = [new(
                 "BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
                     ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = item.SourceObjectId,
@@ -464,12 +463,4 @@ public sealed partial class CoreRuleEngine
             HighCostGraveyardPlayBanishSource: registered?.HighCostGraveyardPlayBanishSource ?? false);
     }
 
-    private static CardObjectState RecomputePowerAfterTemporaryBaseReplacement(MatchState state, CardObjectState card, int basePower)
-    {
-        var printed = PrintedCardFactory.TryCreate(card.ObjectId, card.OwnerId ?? "", card.CardNo, out var face)
-            ? face.Power
-            : card.Power - card.UntilEndOfTurnPowerModifier - TemporaryUnitEffectRules.BaseMightDelta(card);
-        var delta = basePower - printed;
-        return card with { Power = card.Power + delta, UntilEndOfTurnPowerModifier = card.UntilEndOfTurnPowerModifier + delta };
-    }
 }
