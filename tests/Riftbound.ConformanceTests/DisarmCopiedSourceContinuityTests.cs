@@ -7,6 +7,28 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class DisarmCopiedSourceContinuityTests
 {
+    [Fact]
+    public async Task RecoveryRejectsACopiedGrantWhoseSourceNeverExisted()
+    {
+        var initial = OfficialCopyIdentityTests.AddSpell(RadDisarmUnitTests.Board("RAD·055/167"),
+            "COPY", "UNL-200/219");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["HOST"]));
+        await game.Top();
+        await CloseEmptyDuel(game);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        var item = Assert.Single(game.State.StackItems);
+        var origin = item.FieldContext!.Disarm!;
+        var copied = Assert.Single(origin.Contributions, contribution => contribution.Source.ObjectId == "COPY-TOKEN-001");
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State));
+
+        var forged = origin with { Contributions = origin.Contributions.Select(contribution => contribution == copied
+            ? contribution with { Source = new("NEVER-ENTERED-TOKEN", copied.Source.Generation) } : contribution).ToArray() };
+        Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
+            StackItems = [item with { FieldContext = item.FieldContext with { Disarm = forged } }] }));
+        await game.ColdCheckpoint();
+    }
+
     [Theory]
     [InlineData("stays", 2)]
     [InlineData("return-before-attack", 1)]
@@ -26,7 +48,7 @@ public sealed class DisarmCopiedSourceContinuityTests
         var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["HOST"]));
         await game.Top();
-        await CloseEmptyDuel();
+        await CloseEmptyDuel(game);
         var token = game.State.CardObjects[tokenId];
         Assert.Equal("RAD·055/167", token.CardNo);
         Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, token.TokenFactoryCardNo);
@@ -77,16 +99,16 @@ public sealed class DisarmCopiedSourceContinuityTests
                 Assert.DoesNotContain(tokenId, zones.Base.Concat(zones.Battlefields).Concat(zones.Hand)
                     .Concat(zones.MainDeck).Concat(zones.Graveyard).Concat(zones.Banished));
             await game.ColdCheckpoint();
-            await CloseEmptyDuel();
+            await CloseEmptyDuel(game);
         }
+    }
 
-        async Task CloseEmptyDuel()
+    private static async Task CloseEmptyDuel(Driver game)
+    {
+        for (var passes = 0; game.State.StackItems.Count == 0 && game.State.FocusPlayerId is { } player; passes++)
         {
-            for (var passes = 0; game.State.StackItems.Count == 0 && game.State.FocusPlayerId is { } player; passes++)
-            {
-                Assert.True(passes < 4, "An empty spell duel must close after both players pass focus.");
-                await game.Act(player, new PassFocusCommand());
-            }
+            Assert.True(passes < 4, "An empty spell duel must close after both players pass focus.");
+            await game.Act(player, new PassFocusCommand());
         }
     }
 }
