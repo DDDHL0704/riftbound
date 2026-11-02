@@ -188,6 +188,7 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
     public const string UnitConquestDrawOne =
         "UNIT_CONQUEST_DRAW_ONE";
+    public const string UnitConquestCallRune = "UNIT_CONQUEST_CALL_RUNE";
     public const string UnitConquestGainResources = "UNIT_CONQUEST_GAIN_RESOURCES";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
@@ -243,6 +244,7 @@ public static class TriggerKinds
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
+    public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -785,7 +787,11 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? DiscardsAllControllerHand = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? DestroysSource = null);
+    bool? DestroysSource = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresControlledFaceDownCardHere = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? RequiredFriendlyEquipmentKeywordHere = null);
 
 public sealed record ReplacementSpec(
     string Kind,

@@ -83,8 +83,8 @@ internal static class AttachedPredictSqlAcceptance
             await Command("P1", "original-next-end-turn", new EndTurnCommand());
             Check(current.TurnPlayerId == "P2" && current.Phase == MatchPhases.Main, "Original next EndTurn advances normally.");
             var final = await Cold();
-            Check(count == entries.Length + 8 && coldCount == 17 && nextMatched == 9 && attacks.Count == 7,
-                "Retain every original command, cold checkpoint, next command and independent forgery.");
+            Check(count == entries.Length + 8 && coldCount == 11 && nextMatched == 9 && attacks.Count == 7,
+                "Retain every original command, distinct cold checkpoint, next command and independent forgery.");
             var path = Path.Combine(output, branch + "-" + format + "-" + recycleFirst + "-original-frame.json.gz");
             Check(!File.Exists(path), "Never overwrite an original SQL frame.");
             await using (var file = File.Create(path)) await using (var zip = new GZipStream(file, CompressionLevel.SmallestSize))
@@ -183,8 +183,11 @@ internal static class AttachedPredictSqlAcceptance
                     foreach (var row in saved) await Set(connection, transaction, row.Table, row.Id, row.Payload);
                     await transaction.CommitAsync();
                 }
-                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte."); await Cold();
+                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte.");
             }
+            // Every attack restored all seven tables to the same original digest.
+            // Audit that complete original history once after all rejections.
+            await Cold();
         }
         async Task<string> Digest()
         {
