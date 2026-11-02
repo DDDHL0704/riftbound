@@ -67,6 +67,7 @@ public sealed partial class CoreRuleEngine
         var nextLocations = ReconcileObjectLocations(knownLocations, zones).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         locations = nextLocations;
         if (!cards.TryGetValue(gearId, out var gear) || gear.IsFaceDown || !gear.Tags.Contains(CardObjectTags.EquipmentCard)
+            || gear.Tags.Contains(CardObjectTags.UnitCard)
             || !cards.TryGetValue(unitId, out var unit) || unit.IsFaceDown || !unit.Tags.Contains(CardObjectTags.UnitCard)
             || !IsObjectOnField(zones, gearId) || !IsObjectOnField(zones, unitId)
             || !nextLocations.TryGetValue(unitId, out var target) || !nextLocations.TryGetValue(gearId, out var origin)) return false;

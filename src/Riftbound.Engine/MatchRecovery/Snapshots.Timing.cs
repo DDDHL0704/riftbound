@@ -990,6 +990,18 @@ public static partial class MatchRecoveryValidator
                 effectPayload,
                 $"snapshot for {view.PlayerId} timing continuous effect item",
                 errors);
+            if (expectedEffects is not null && effectValues.EffectId is { } keywordId
+                && keywordId.StartsWith("RULE_TEXT:SAME_BATTLEFIELD_FRIENDLY_UNITS_KEYWORD:", StringComparison.Ordinal)
+                && (!expectedEffects.TryGetValue(keywordId, out var keywordAura)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "sourceObjectId", keywordAura.SourceObjectId)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "sourceCardNo", keywordAura.SourceCardNo)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "targetObjectId", keywordAura.TargetObjectId)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "scope", keywordAura.Scope)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "layer", keywordAura.Layer)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "duration", keywordAura.Duration)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "effectKind", keywordAura.EffectKind)
+                    || !OptionalStringSnapshotValueMatches(effectPayload, "sourcePath", keywordAura.SourcePath)))
+                errors.Add($"snapshot for {view.PlayerId} timing keyword aura differs from authoritative state");
             string? historicalSource = null;
             if (effectValues.EffectId is { } id && expectedEffects?.TryGetValue(id, out var expected) == true
                 && expected.Scope == "OBJECT" && expected.Duration == "UNTIL_END_OF_TURN"
@@ -1034,6 +1046,10 @@ public static partial class MatchRecoveryValidator
             $"snapshot for {view.PlayerId} timing continuous effect item",
             validSequences,
             errors);
+        if (expectedEffects is not null)
+            foreach (var id in expectedEffects.Keys.Where(id => id.StartsWith("RULE_TEXT:SAME_BATTLEFIELD_FRIENDLY_UNITS_KEYWORD:", StringComparison.Ordinal)))
+                if (!seenEffectIds.Contains(id))
+                    errors.Add($"snapshot for {view.PlayerId} timing keyword aura is missing from authoritative set");
     }
 
     private static void ValidateSnapshotTimingMinimumMightProvenance(
