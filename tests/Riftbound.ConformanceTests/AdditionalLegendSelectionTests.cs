@@ -19,11 +19,12 @@ public sealed class AdditionalLegendSelectionTests
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         // Apply the same reviewed full-face correction as the RAD admission path.
-        // Neeko stays outside runtime admission until its complete effect works.
+        // The runtime face and registration permission use the same correction.
         var printed = Assert.Single(VendettaCardSources.GetOfficialCards(), c => c.CardNo == "RAD·167/167");
         var neeko = printed with { CardEffect = EffectiveText(printed.Id, printed.CardNo, printed.CardEffect) };
         var deck = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "jhin-lowcurve").Decklist;
-        catalog = catalog with { Cards = [..catalog.Cards, neeko], Total = catalog.Total + 1 };
+        if (!catalog.Cards.Any(card => card.CardNo == neeko.CardNo))
+            catalog = catalog with { Cards = [..catalog.Cards, neeko], Total = catalog.Total + 1 };
         var main = deck.MainDeck.ToList();
         main[main.FindLastIndex(no => no != deck.ChampionCardNo)] = neeko.CardNo;
         return (catalog, deck with { MainDeck = main });
@@ -52,7 +53,7 @@ public sealed class AdditionalLegendSelectionTests
     }
 
     [Fact]
-    public async Task ReviewedErratumRetainsTheCompletePhysicalFaceWithoutAdmittingAnIncompleteCard()
+    public async Task ReviewedErratumRetainsTheCompletePhysicalFaceAndItsRuntimeInstruction()
     {
         var (catalog, _) = await Position();
         var neeko = Assert.Single(catalog.Cards, card => card.CardNo == "RAD·167/167");
@@ -66,8 +67,9 @@ public sealed class AdditionalLegendSelectionTests
         var printed = neeko.CardEffect.Replace("选择最多三名", "选择三名", StringComparison.Ordinal);
         Assert.Equal(printed, EffectiveText(neeko.Id + 1, neeko.CardNo, printed));
         Assert.Equal(printed, EffectiveText(neeko.Id, "RAD·166/167", printed));
-        Assert.DoesNotContain((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, card => card.CardNo == neeko.CardNo);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(neeko.CardNo, out _));
+        Assert.Contains((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, card => card.CardNo == neeko.CardNo);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(neeko.CardNo, out var behavior));
+        Assert.True(behavior.AddsRegisteredLegendWhileSourceOnField);
     }
 
     [Theory]

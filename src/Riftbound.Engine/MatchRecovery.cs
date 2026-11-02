@@ -1187,6 +1187,7 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
+            ValidateBoundLegendHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldPermanentPlayUses(authoritativeState, commands, events, errors);
             ValidateNextUnitPlayGrantHistory(authoritativeState, commands, events, errors);
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
@@ -3710,6 +3711,7 @@ public static partial class MatchRecoveryValidator
 
         ValidateSpellContinuations(authoritativeState, errors);
         ValidateTurnSequenceState(authoritativeState, errors);
+        if (!CoreRuleEngine.ValidBoundLegends(authoritativeState)) errors.Add("invalid bound legend provenance");
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
@@ -5352,7 +5354,8 @@ public static partial class MatchRecoveryValidator
 
             // Captured triggered abilities survive their source object leaving.
             // Only validated official contexts permit a missing source.
-            if (!HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId,
+            if (!CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, stackItem.SourceObjectId, stackItem.CardNo)
+                && !HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId,
                     stackItem.SourceObjectId, stackItem.EffectKind)
                 && !(stackItem.SimpleActivation is { CeasedSource: not null } && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
                 && !(stackItem.SourceBoonMight is { CeasedSource: not null } && SourceBoonMightRules.Valid(authoritativeState, stackItem))
@@ -5621,6 +5624,9 @@ public static partial class MatchRecoveryValidator
                 ? stackItemId.Trim()
                 : $"#{index + 1}";
             var sourceReferences = knownObjectIds;
+            if (authoritativeState.StackItems.FirstOrDefault(item => item.StackItemId == stackItemId) is { } historicalLegend
+                && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, historicalLegend.SourceObjectId, historicalLegend.CardNo))
+                sourceReferences = knownObjectIds.Append(historicalLegend.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (HasValidatedCeasedLastBreathSource(authoritativeState, stackItemId,
                 ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
                 ReadNormalizedPayloadString(stackItem, "effectKind")))
