@@ -24,7 +24,8 @@ public sealed partial class CoreRuleEngine
         && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior) && behavior.PlayTriggerBanishesGraveyardCardAsCost
         && item.EffectKind == behavior.EffectKind && TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts);
 
-    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.BattlefieldConquestConsumeBoon is { } boon && BattlefieldConquestConsumeBoonDefinition(boon.CardNo) is not null ? new(ConsumeBoon: true) : item.UnitConquestReturn is { } unitReturn && UnitConquestReturnSpec(unitReturn.CardNo) is { } returnSpec ? new(Mana: returnSpec.ManaCost ?? 0) : item.FieldContext?.Kind == EquipmentDeathReturnKind ? new(Mana: EquipmentDeathReturnSpecs.Value[item.FieldContext.CardNo].ManaCost ?? 0) : HasPlayGraveyardBanishCost(item) ? new(BanishGraveyardCard: true) : item.UnitEvent is { } exhausting && SelectedUnitEventSpec(exhausting)?.LeadingSourceExhaust == true ? new(Exhaust: true) : item.UnitEvent is { } sacrifice && SelectedUnitEventSpec(sacrifice) is { LeadingDestroyOtherFriendlyPermanents: > 0 } sacrificeSpec ? new(DestroyOtherFriendlyPermanents: sacrificeSpec.LeadingDestroyOtherFriendlyPermanents) : item.UnitEvent is { } self && SelectedUnitEventSpec(self)?.LeadingSelfBanish == true ? new(BanishSelf: true) : item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { } eventSpec && (eventSpec.LeadingPowerCost > 0 || eventSpec.LeadingManaCost > 0) ? new(Power: eventSpec.LeadingPowerCost, Mana: eventSpec.LeadingManaCost, PowerTrait: eventSpec.LeadingPowerTrait) : item.GraveyardPlay is { } graveyard && GraveyardPlaySpec(graveyard.CardNo) is { } graveyardSpec ? new(Power: graveyardSpec.PowerCost!.Value, Mana: graveyardSpec.ManaCost!.Value, PowerTrait: graveyardSpec.PowerCostTrait) : CreatedTokenReadyHasPayment(item) ? new(Power: 1, PowerTrait: CardBehaviorRegistry.TryGetByCardNo(item.CreatedTokenReady!.CardNo, out var ready) ? ready.CreatedTokenReadyPowerTrait : null) : item.SivirRuneRecycle is not null ? new(Exhaust: true) : item.BattlefieldConquestMight is { } conquestMight ? new(Mana: BattlefieldConquestMightDefinition(conquestMight.CardNo)?.ManaCost ?? 0) : item.AttachmentObserver is { } attached && AttachmentDrawSpec(attached.CardNo) is { } drawSpec ? new(Mana: drawSpec.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
+    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.BattlefieldConquestConsumeBoon is { } boon && BattlefieldConquestConsumeBoonDefinition(boon.CardNo) is not null ? new(ConsumeBoon: true) : item.UnitConquestReturn is { } unitReturn && UnitConquestReturnSpec(unitReturn.CardNo) is { } returnSpec ? new(Mana: returnSpec.ManaCost ?? 0) : item.FieldContext?.Kind == EquipmentDeathReturnKind ? new(Mana: EquipmentDeathReturnSpecs.Value[item.FieldContext.CardNo].ManaCost ?? 0) : HasPlayGraveyardBanishCost(item) ? new(BanishGraveyardCard: true) : item.UnitEvent is { } exhausting && SelectedUnitEventSpec(exhausting) is { LeadingSourceExhaust: true } exhaustSpec ? new(Exhaust: true,
+            Power: exhaustSpec.LeadingPowerCost, Mana: exhaustSpec.LeadingManaCost, PowerTrait: exhaustSpec.LeadingPowerTrait) : item.UnitEvent is { } sacrifice && SelectedUnitEventSpec(sacrifice) is { LeadingDestroyOtherFriendlyPermanents: > 0 } sacrificeSpec ? new(DestroyOtherFriendlyPermanents: sacrificeSpec.LeadingDestroyOtherFriendlyPermanents) : item.UnitEvent is { } self && SelectedUnitEventSpec(self)?.LeadingSelfBanish == true ? new(BanishSelf: true) : item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { } eventSpec && (eventSpec.LeadingPowerCost > 0 || eventSpec.LeadingManaCost > 0) ? new(Power: eventSpec.LeadingPowerCost, Mana: eventSpec.LeadingManaCost, PowerTrait: eventSpec.LeadingPowerTrait) : item.GraveyardPlay is { } graveyard && GraveyardPlaySpec(graveyard.CardNo) is { } graveyardSpec ? new(Power: graveyardSpec.PowerCost!.Value, Mana: graveyardSpec.ManaCost!.Value, PowerTrait: graveyardSpec.PowerCostTrait) : CreatedTokenReadyHasPayment(item) ? new(Power: 1, PowerTrait: CardBehaviorRegistry.TryGetByCardNo(item.CreatedTokenReady!.CardNo, out var ready) ? ready.CreatedTokenReadyPowerTrait : null) : item.SivirRuneRecycle is not null ? new(Exhaust: true) : item.BattlefieldConquestMight is { } conquestMight ? new(Mana: BattlefieldConquestMightDefinition(conquestMight.CardNo)?.ManaCost ?? 0) : item.AttachmentObserver is { } attached && AttachmentDrawSpec(attached.CardNo) is { } drawSpec ? new(Mana: drawSpec.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
         "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
         "EXHAUST_READY_UNIT" or "EXHAUST_DECK_PLAY" => new(Exhaust: true),
         _ => item.HeldContext?.Kind switch {
@@ -96,7 +97,9 @@ public sealed partial class CoreRuleEngine
             return ValidLeadingCostContext(item) && item.TriggerCost is null
                 && state.CardObjects.TryGetValue(item.SourceObjectId, out var permanent)
                 && permanent.ObjectGeneration == unitEvent.SourceGeneration
-                && !permanent.IsFaceDown && !permanent.IsExhausted && IsObjectOnField(state.PlayerZones, permanent.ObjectId)
+                && !permanent.IsFaceDown && !permanent.IsExhausted
+                && (IsObjectOnField(state.PlayerZones, permanent.ObjectId)
+                    || state.PlayerZones[item.ControllerId].LegendZone.Contains(permanent.ObjectId))
                 && EffectiveFieldControllerId(state.PlayerZones, permanent.ObjectId, permanent) == item.ControllerId
                 ? [permanent.ObjectId] : [];
         if (!ValidLeadingCostContext(item) || item.TriggerCost is not null || LeadingTriggerCost(item) is not { Exhaust: true } cost
@@ -140,7 +143,8 @@ public sealed partial class CoreRuleEngine
     {
         var state = result.State;
         var cost = LeadingTriggerCost(item)!;
-        if (!ValidLeadingCostContext(item) || cost.Power + cost.Mana == 0 && TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyOtherFriendlyPermanents))
+        if (!ValidLeadingCostContext(item) || (cost.Exhaust || cost.Power + cost.Mana == 0)
+            && TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyOtherFriendlyPermanents))
             return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
         state = state with { PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null,
             PendingPayment = cost.Power + cost.Mana > 0 ? TriggerCostPayment(item) : null,
@@ -403,9 +407,23 @@ public sealed partial class CoreRuleEngine
             details["mana"] = pending.ManaCost; details["power"] = pending.PowerCost;
             if (item.UnitConquestReturn is not null) details["powerByTrait"] = pending.PowerCostByTrait;
         }
-        return CompleteTriggerCost(state with { RunePools = committed.RunePools, PlayerExperience = committed.PlayerExperience }, item,
-            new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), Power: pending.PowerCost, Mana: pending.ManaCost),
-            [new("COST_PAID", "支付触发技能的基础费用", PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools,
-                committed.PlayerExperience, details))]);
+        var paid = state with { RunePools = committed.RunePools, PlayerExperience = committed.PlayerExperience };
+        var events = new List<GameEvent> { new("COST_PAID", "支付触发技能的基础费用",
+            PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools, committed.PlayerExperience, details)) };
+        if (LeadingTriggerCost(item)!.Exhaust)
+        {
+            if (!TriggerCostChoices(state, item).Contains(item.SourceObjectId, StringComparer.Ordinal))
+                return RejectWithCorePrompts(state, "无法支付来源休眠费用。", ErrorCodes.InvalidTarget);
+            var cards = state.CardObjects.ToDictionary();
+            var source = cards[item.SourceObjectId];
+            cards[source.ObjectId] = ExhaustForInstruction(state.PlayerZones, cards, source);
+            paid = paid with { CardObjects = cards };
+            var kind = state.PlayerZones[item.ControllerId].LegendZone.Contains(source.ObjectId)
+                ? "LEGEND_EXHAUSTED" : source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED";
+            events.Add(new(kind, "支付触发技能的休眠费用", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["reason"] = TriggerCostWindow }));
+        }
+        return CompleteTriggerCost(paid, item,
+            new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), Power: pending.PowerCost, Mana: pending.ManaCost), events);
     }
 }

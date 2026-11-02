@@ -7,7 +7,7 @@ namespace Riftbound.Engine;
 public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
     string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
     ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null,
-    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null);
+    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, ObjectBinding? DeploymentBattlefield = null);
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -18,7 +18,8 @@ public sealed partial class CoreRuleEngine
     private const string UnitEventCaptureKey = "unitEventObservations";
     private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context);
     private static UnitEventAbilitySpec? UnitEventSpec(string? no)
-        => no is not null && CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null;
+        => no is null ? null : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
+            ?? DeploymentPlayLegends.Value.GetValueOrDefault(no);
 
     private static UnitEventObservation[] CaptureUnitEvents(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<string> sources, string timing)
@@ -111,7 +112,8 @@ public sealed partial class CoreRuleEngine
                 entered.CopyFaceTransitions?.Count ?? 0, entered.TokenFactoryCardNo) } }).Concat(
                     CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY").Select(o =>
                         o.Context.Timing == "PLAY_OR_MOVE" ? o with { Context = o.Context with {
-                            Here = new(player, (string)ev.Payload["destinationZone"]!, ev.Payload.GetValueOrDefault("battlefieldObjectId") as string) } } : o)).ToArray());
+                            Here = new(player, (string)ev.Payload["destinationZone"]!, ev.Payload.GetValueOrDefault("battlefieldObjectId") as string) } } : o))
+                .Concat(CaptureDeploymentPlayedLegends(ev, zones, cards, entered, player)).ToArray());
 
     private static void CaptureSelfDiscardEvents(IReadOnlyDictionary<string, CardObjectState> cards, string player,
         string eventKind, IReadOnlyList<string> discarded, List<GameEvent> events)
@@ -280,7 +282,8 @@ public sealed partial class CoreRuleEngine
                         && PredictBindingMatches(state, burned.Binding, burned.CardNo, burned.FaceRevision, reflexive, null)
                     : c.ReflexiveTick is null
                 : c.BurnedUnit is null && c.ReflexiveTick is null)
-            && (spec.Effect == "BANISH_ENTERED_EQUIPMENT" ? c.Other is { } other
+            && (spec.Effect == DeploymentPlayMoveEffect ? ValidDeploymentPlayBattlefield(state, c) : c.DeploymentBattlefield is null)
+            && (spec.Effect is "BANISH_ENTERED_EQUIPMENT" or DeploymentPlayMoveEffect ? c.Other is { } other
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
@@ -303,7 +306,7 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (UnitEventSpec(c.CardNo)?.Effect is "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS"
+        && (UnitEventSpec(c.CardNo)?.Effect is DeploymentPlayMoveEffect or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS"
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.TargetGenerations is null || NeedsUnitEventTarget(item) && item.TargetObjectIds.Count > 0
@@ -314,6 +317,11 @@ public sealed partial class CoreRuleEngine
     private static string[] UnitEventTargets(MatchState state, StackItemState item)
         => state.CardObjects.Values.Where(c => !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && (UnitEventSpec(item.UnitEvent!.CardNo)!.Effect switch {
+                DeploymentPlayMoveEffect => IsFaceUpNonStandbyUnit(c)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
+                    && DeploymentPlayDestination(state, item.UnitEvent!) is { } playedDestination
+                    && IsUnitMovementDestination(state, c.ObjectId, playedDestination)
+                    && MovementRestrictionRules.CanMove(c, item.ControllerId),
                 "BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 "READY_HERE" => IsFaceUpNonStandbyUnit(c) && UnitEventTargetIsHere(state, item, c.ObjectId),
@@ -384,7 +392,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF")
             return ResolveOptionalEquipmentDestructionMight(state, item, spec.Amount);
         if (spec.Effect == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount);
-        if (spec.Effect is "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "CREATE_UNIT_TOKEN")
+        if (spec.Effect is DeploymentPlayMoveEffect or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "CREATE_UNIT_TOKEN")
             return ResolvePermanentUnitEventInstruction(state, item, spec);
         if (spec.Effect == "DAMAGE_ENEMIES_HERE") return ResolveUnitEventAreaDamage(state, item, spec.Amount);
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);

@@ -40,7 +40,8 @@ public sealed partial class CoreRuleEngine
                 out var readied, state.PlayerZones, cards);
             if (readied is not null) events.Add(readied);
         }
-        else if (spec.Effect == "MOVE_ENEMY_HERE" && UnitEventHereDestination(state, item) is { } destination)
+        else if ((spec.Effect == "MOVE_ENEMY_HERE" ? UnitEventHereDestination(state, item)
+            : spec.Effect == DeploymentPlayMoveEffect ? DeploymentPlayDestination(state, item.UnitEvent!) : null) is { } destination)
         {
             var zones = NormalizeZonesForSeats(state);
             var locations = state.ObjectLocations.ToDictionary();
