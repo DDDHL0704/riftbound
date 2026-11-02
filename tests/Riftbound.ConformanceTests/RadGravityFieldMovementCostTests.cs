@@ -6,8 +6,8 @@ using static Riftbound.ConformanceTests.ImposedMovementContinuationTests;
 
 namespace Riftbound.ConformanceTests;
 
-// Staged engine fixtures: the physical printing remains outside player decks
-// until every effect-movement path and equipment Last Breath is implemented.
+// Fee fixtures isolate the movement instruction; actual deployment and destruction
+// are covered by RadGravityFieldLastBreathTests.
 public sealed class RadGravityFieldMovementCostTests
 {
     private const string Card = "RAD·062/167";
@@ -159,8 +159,8 @@ public sealed class RadGravityFieldMovementCostTests
     }
 
     [Fact]
-    public async Task PartialMovementSupportDoesNotAdmitThePrinting()
-        => Assert.DoesNotContain((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == Card);
+    public async Task CompletedMovementAndLastBreathSupportAdmitsThePrinting()
+        => Assert.Contains((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == Card);
 
     private static MoveUnitCommand Move(int units) => units == 1
         ? new("A", "BASE", "BATTLEFIELD:FIELD2")

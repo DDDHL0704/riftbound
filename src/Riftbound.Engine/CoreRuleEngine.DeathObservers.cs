@@ -206,6 +206,7 @@ public sealed partial class CoreRuleEngine
         if (!result.Accepted) return result;
         result = QueueBombDestructionObservers(result);
         result = QueueEquipmentDestructionObservers(result);
+        result = QueueEquipmentLastBreathDraws(result);
         var state=result.State;
         var ledger = RuleChoices.Value?.ResourceDeathLedger ?? before.DeathLedger;
         var counts=(ledger.TurnNumber==state.TurnNumber ? ledger.Counts : new Dictionary<string,int>())

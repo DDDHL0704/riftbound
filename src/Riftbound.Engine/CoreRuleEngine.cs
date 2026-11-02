@@ -31921,6 +31921,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var equipmentObservers = before is null ? [] : CaptureEquipmentDestructionObservers(state, zones, cards, before);
         var bombObserver = before is null ? null : CaptureBombDestructionObserver(state, zones, before);
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
+        var equipmentDraws = before is null ? [] : CaptureEquipmentLastBreathDraws(state, zones, cards, before);
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
@@ -31928,6 +31929,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [], RuneCalls = [] }
                 : null,
             InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [],
+            EquipmentLastBreathDraws = removed && removal.WasDestroyed && !removal.WasUnit ? equipmentDraws : [],
             EquipmentDestructionObservers = removed && removal.WasDestroyed ? equipmentObservers : [],
             BombDestructionObserver = removed && removal.WasDestroyed ? bombObserver : null };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
@@ -32066,6 +32068,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["deathRevealContext"] = removalResult.DeathRevealContext;
         if (removalResult.InsightContexts.Count > 0)
             payload["insightTriggerContexts"] = removalResult.InsightContexts;
+        if (removalResult.EquipmentLastBreathDraws.Count > 0)
+            payload[EquipmentLastBreathDrawCaptureKey] = removalResult.EquipmentLastBreathDraws;
         if (removalResult.EquipmentDestructionObservers.Count > 0)
             payload[EquipmentDeathCaptureKey] = removalResult.EquipmentDestructionObservers;
         if (removalResult.BombDestructionObserver is { } bombObserver)
@@ -34890,6 +34894,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public CapturedUnitDeath? Death { get; init; }
         public IReadOnlyList<InsightTriggerContext> InsightContexts { get; init; } = [];
         public DeathRevealContext? DeathRevealContext { get; init; }
+        public IReadOnlyList<LastBreathDrawContext> EquipmentLastBreathDraws { get; init; } = [];
         public IReadOnlyList<CapturedEquipmentDestructionObserver> EquipmentDestructionObservers { get; init; } = [];
         public CapturedBombDestructionObserver? BombDestructionObserver { get; init; }
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;

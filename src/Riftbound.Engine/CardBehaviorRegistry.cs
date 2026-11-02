@@ -9668,8 +9668,6 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
-        // Shared movement payment is staged first; this printing stays unadmitted
-        // until all effect-movement paths and equipment Last Breath are covered.
         new("RAD·062/167", "重力场", 5, "GRAVITY_FIELD_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
             MovementImposedCost: new(ManaPerMove: 1, PowerPerMove: 1)),

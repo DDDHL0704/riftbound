@@ -20,7 +20,8 @@ public sealed partial class CoreRuleEngine
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
         CardObjectState before, string deathId)
     {
-        if (!IsFaceUpNonStandbyUnit(before)) return [];
+        if (before.IsFaceDown || !IsObjectOnField(zones, before.ObjectId)
+            || !before.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.EquipmentCard)) return [];
         // CN 383.2.c.3: retain the position and text before any unreplaced
         // simultaneous death changes zones. Replacement/resource children finish first.
         var frame = RuleChoices.Value?.CurrentDestructionDrawFrame ?? CapturePublicMightFrame(state, zones, cards);
@@ -78,7 +79,7 @@ public sealed partial class CoreRuleEngine
                 && (context.Origin is not null || current.ObjectGeneration != context.Source.Generation + 1 || current.CardNo == context.CardNo);
         return context.SourceTokenFactoryCardNo is not null
             && P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
-            && token.Tags.Contains(CardObjectTags.UnitCard);
+            && token.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.EquipmentCard);
     }
 
     internal static bool ValidLastBreathDrawStack(MatchState state, StackItemState item)
