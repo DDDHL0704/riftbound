@@ -222,7 +222,8 @@ public sealed partial class CoreRuleEngine
             : cost.DestroyOtherFriendlyPermanents > 0
             ? receipt.DestroyedPermanents is not { } sacrificed || sacrificed.Count != cost.DestroyOtherFriendlyPermanents
                 || sacrificed.Select(b => b.ObjectId).Distinct().Count() != sacrificed.Count
-                || sacrificed.Any(b => b.Generation < 0 || string.IsNullOrWhiteSpace(b.ObjectId) || b.ObjectId == item.SourceObjectId)
+                || sacrificed.Any(b => b.Generation < 0 || string.IsNullOrWhiteSpace(b.ObjectId) || b.ObjectId == item.SourceObjectId
+                    || state.CardObjects.TryGetValue(b.ObjectId, out var current) && current.ObjectGeneration < b.Generation)
             : receipt.DestroyedPermanents is not null) return false;
         if (cost.BanishGraveyardCard ? receipt.Banished is not { } banished
                 || !state.CardObjects.TryGetValue(banished.ObjectId, out var gone) || banished.Generation >= gone.ObjectGeneration

@@ -12,7 +12,7 @@ public sealed class RadLastBreathAmplifierPhysicalTests
     private const string Amplifier = "RAD·017/167";
 
     [Fact]
-    public async Task ReviewedPhysicalIdentityAndPrintedResourcesKeepRuntimeAdmissionSeparate()
+    public async Task ReviewedAndAdmittedIdentityAndPrintedResourcesMatchTheOfficialPrinting()
     {
         var source = Assert.Single(RadiantCardSources.GetReviewedPhysicalPrints(), c => c.CardNo == Amplifier);
         Assert.Equal(39507, source.Id); Assert.Equal(4, source.Energy); Assert.Equal(1, source.ReturnEnergy);
@@ -24,10 +24,10 @@ public sealed class RadLastBreathAmplifierPhysicalTests
         Assert.Contains(CardObjectTags.EquipmentCard, printed.Tags); Assert.Contains("COLOR:red", printed.Tags);
         var cost = PrintedPowerCostRules.ForCard(Amplifier);
         Assert.Equal(1, cost.Amount); Assert.Equal(new[] { RuneTrait.Red }, cost.Traits);
-        Assert.DoesNotContain(RadiantCardSources.GetAdmittedCards(), c => c.CardNo == Amplifier);
+        Assert.Equal(source.Id, Assert.Single(RadiantCardSources.GetAdmittedCards(), c => c.CardNo == Amplifier).Id);
         var runtime = await OfficialCardCatalog.LoadRuntimeAsync();
-        Assert.Equal(1435, runtime.Cards.Count);
-        Assert.DoesNotContain(runtime.Cards, c => c.CardNo == Amplifier);
+        Assert.Equal(1436, runtime.Cards.Count);
+        Assert.Equal(source.Id, Assert.Single(runtime.Cards, c => c.CardNo == Amplifier).Id);
     }
 
     [Theory]
