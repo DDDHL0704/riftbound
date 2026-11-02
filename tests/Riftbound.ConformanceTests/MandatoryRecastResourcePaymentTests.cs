@@ -36,9 +36,8 @@ public sealed class MandatoryRecastResourcePaymentTests
         ResolutionResult? core = null, native = null;
         try
         {
-            foreach (var rune in Enumerable.Range(1, 6)) await game.Act("P1", new TapRuneCommand("R" + rune));
-            await game.Act("P1", new RecycleRuneCommand("R7"));
-            await game.Act("P1", new RecycleRuneCommand("R8"));
+            await game.Act("P1", new TapRuneCommand("R1", ["R1", "R2", "R3", "R4", "R5", "R6"]));
+            await game.Act("P1", new RecycleRuneCommand("R7", ["R7", "R8"]));
             if (fundedBefore) await game.Act("P1", new RecycleRuneCommand("BLUE"));
             await game.Act("P1", new PlayCardCommand("PARENT", Parent, ["UNIT"]));
             await game.Top();

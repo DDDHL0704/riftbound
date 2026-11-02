@@ -29,7 +29,8 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First(id => game.State.CardObjects[id].CardNo == "UNL-R02")));
             var spell = game.Hand("P1", No).First();
             await game.Act("P1", new PlayCardCommand(spell, No, [unit], Mode: remove ? Remove : Empower));
-            await game.Top(); await game.ColdCheckpoint();
+            await game.Top();
+            // The first forgery probe below cold-recovers this unchanged accepted history.
             Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
             Assert.Contains(spell, game.State.PlayerZones["P1"].Graveyard);
             const string prefix = "DELAYED_EMPOWER:";
