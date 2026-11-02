@@ -56,7 +56,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
     bool StunsTarget = false, bool OncePerTurnPerPlayer = false, bool DestroysSourceOnResolution = false, int? RuneCallCount = null,
     string? DestroyFriendlyTagAsCost = null, int CreatedMinionCount = 0, int CreatedGoldCount = 0,
-    bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null);
+    bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null,
+    string? CreatedBattlefieldEquipmentTokenCardNo = null);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -287,6 +288,10 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 },
             SourceRequiredTag: CardObjectTags.EquipmentCard,
             SimpleEffect: new(DestroysSourceOnResolution: true)),
+        new("RAD_112_EXHAUST_PLAY_BOMB", "RAD·112/167", "RAD_112_EXHAUST_PLAY_BOMB", "吉格斯 · 狂轰滥炸", 1, 0, 1,
+            false, true, 0, false, "官方中文：支付1法力并横置，将一个炸弹装备指示物打出到一处战场。",
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(CreatedBattlefieldEquipmentTokenCardNo: P6TokenFactoryCatalog.BombTokenCardNo)),
         new(BlackMarketAbilityId, BlackMarketCardNo, BlackMarketAbilityEffectKind, "黑市", 0, 2, 0,
             RequiresBattlefieldSource: true, ExhaustsSourceAsCost: false, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false,
@@ -793,6 +798,8 @@ public static class P4ActivatedAbilityCatalog
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
         var sourceCardNo = OfficialCardSourceIdentityGroups.NormalizeCardNo(definition.SourceCardNo);
+        if (definition.AbilityId == "RAD_112_EXHAUST_PLAY_BOMB")
+            return ["RAD·112/167", "RAD·112a/167"];
         // Both exact current CN prints were source-checked. Their punctuation
         // and reminder text differ, so whole-text identity cannot map this skill.
         if (definition.AbilityId == LuxResourceAbilityId && sourceCardNo == LuxCardNo)
