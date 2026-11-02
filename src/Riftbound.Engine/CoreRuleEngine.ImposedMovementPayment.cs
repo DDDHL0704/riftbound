@@ -51,7 +51,7 @@ public sealed partial class CoreRuleEngine
             if (canPay) options.Add(new("PAY", $"支付 {costLabel}，执行此次移动"));
             if (multipleAllocations)
                 options.Add(new(AllocateImposedMovementPowerChoice, $"自行分配此次 {amount} 点符能的各特性数量"));
-            options.Add(new("DECLINE", "不支付，放弃此次群体移动"));
+            options.Add(new("DECLINE", "不支付，放弃此次移动"));
             foreach (var id in zones[player].Base.Order(StringComparer.Ordinal))
             {
                 if (!cards.TryGetValue(id, out var rune) || rune.IsFaceDown || !rune.Tags.Contains(CardObjectTags.RuneCard)
@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
                 options, amount, ImposedMovementPaymentKind, context with { PendingPayment = null }, manaCost: mana);
             if (selected == "DECLINE")
             {
-                events.Add(new("MOVEMENT_COST_DECLINED", "未支付施加费用，此次群体移动不执行",
+                events.Add(new("MOVEMENT_COST_DECLINED", "未支付施加费用，此次移动不执行",
                     new Dictionary<string, object?> { ["playerId"] = player, ["sourceObjectId"] = sourceId,
                         ["sourceObjectIds"] = movers, ["battlefieldObjectId"] = battlefield,
                         ["manaCost"] = mana, ["powerCost"] = amount }));
@@ -113,7 +113,7 @@ public sealed partial class CoreRuleEngine
                 var paid = PaymentCostRules.TryCommitPayment(selectedPlan, pools, state: state);
                 if (!paid.Accepted) throw new InvalidOperationException("Invalid imposed movement payment: " + paid.ErrorMessage);
                 ReplaceMovementPaymentState(pools, paid.RunePools);
-                events.Add(new("COST_PAID", "支付群体移动的施加费用",
+                events.Add(new("COST_PAID", "支付此次移动的施加费用",
                     PaymentCostRules.BuildCostPaidPayload(selectedPlan, pools, null, new Dictionary<string, object?> {
                         ["sourceObjectIds"] = movers, ["battlefieldObjectId"] = battlefield,
                         ["manaCost"] = mana, ["powerCost"] = amount })));

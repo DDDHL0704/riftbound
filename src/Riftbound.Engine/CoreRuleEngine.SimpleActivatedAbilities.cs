@@ -397,7 +397,7 @@ public sealed partial class CoreRuleEngine
                         OfficialCardSourceIdentityGroups.DisplayName(card.CardNo ?? "") + "（" + card.ObjectId + "）",
                         [card.ObjectId])).ToArray(),
                     kind: "MOVEMENT_SELECTION", preview: current);
-                TryMoveFieldUnitByEffect(current, zones, cards, locations, selected[5..],
+                TryMoveFieldUnitByEffect(current, zones, cards, locations, pools, selected[5..],
                     new(item.ControllerId, "BATTLEFIELD", battlefieldId), opponent, item, events);
             }
             else

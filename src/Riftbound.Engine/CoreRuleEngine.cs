@@ -27094,6 +27094,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var targetBattlefieldObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
         var events = new List<GameEvent>
         {
@@ -27114,22 +27115,27 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        if (!IsLegalGatekeeperMaduliMoveTarget(state, stackItem.ControllerId, stackItem.SourceObjectId, targetBattlefieldObjectId)
-            || !TryMoveGatekeeperMaduliToBattlefield(
-                playerZones,
-                cardObjects,
-                objectLocations,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                targetBattlefieldObjectId,
-                out var originLocation,
-                out var destinationLocation,
-                out var enemyUnitPowerSum,
-                out var sourcePower))
+        var sourcePower = 0;
+        var enemyUnitPowerSum = 0;
+        bool CurrentMoveAllowed(MatchState current)
         {
+            if (!IsLegalGatekeeperMaduliMoveTarget(current, stackItem.ControllerId, stackItem.SourceObjectId, targetBattlefieldObjectId)
+                || !TryGetEnemyControlledBattlefieldTarget(current, stackItem.ControllerId, targetBattlefieldObjectId, out var enemy))
+                return false;
+            sourcePower = Math.Max(0, current.CardObjects[stackItem.SourceObjectId].Power);
+            enemyUnitPowerSum = EnemyUnitPowerSumAtBattlefield(current, targetBattlefieldObjectId, enemy);
+            return true;
+        }
+        var movementEventStart = events.Count;
+        if (!CurrentMoveAllowed(state)
+            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations, runePools,
+                stackItem.SourceObjectId, new(stackItem.ControllerId, "BATTLEFIELD", targetBattlefieldObjectId),
+                stackItem.ControllerId, stackItem, events, CurrentMoveAllowed))
+        {
+            var paymentDeclined = events.Any(e => e.Kind == "MOVEMENT_COST_DECLINED");
             events.Add(new GameEvent(
                 "ABILITY_NO_EFFECT",
-                "守门者马杜里的移动技能目标不再合法",
+                paymentDeclined ? "未支付施加费用，守门者马杜里的移动不执行" : "守门者马杜里的移动技能目标不再合法",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
@@ -27138,31 +27144,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
                     ["effectKind"] = stackItem.EffectKind,
                     ["stackItemId"] = stackItem.StackItemId,
-                    ["reason"] = "TARGET_NO_LONGER_LEGAL"
+                    ["reason"] = paymentDeclined ? "MOVEMENT_COST_DECLINED" : "TARGET_NO_LONGER_LEGAL"
                 }));
         }
         else
         {
-            events.Add(new GameEvent(
-                "UNIT_MOVED_TO_BATTLEFIELD",
-                "守门者马杜里移动到敌方战场",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = stackItem.SourceObjectId,
-                    ["targetBattlefieldObjectId"] = targetBattlefieldObjectId,
-                    ["battlefieldObjectId"] = targetBattlefieldObjectId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
-                    ["effectKind"] = stackItem.EffectKind,
-                    ["stackItemId"] = stackItem.StackItemId,
-                    ["originLocation"] = BuildLocationPayload(originLocation),
-                    ["destinationLocation"] = BuildLocationPayload(destinationLocation),
-                    ["sourcePower"] = sourcePower,
-                    ["enemyUnitPowerSum"] = enemyUnitPowerSum,
-                    ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE"
-                }));
-            events.Add(CaptureMovementObservers(state, cardObjects, stackItem.SourceObjectId, stackItem.ControllerId, "BATTLEFIELD", targetBattlefieldObjectId));
+            for (var index = movementEventStart; index < events.Count; index++)
+                if (events[index].Kind == "UNIT_MOVED_TO_BATTLEFIELD") events[index] = events[index] with {
+                    Payload = new Dictionary<string, object?>(events[index].Payload) {
+                        ["targetBattlefieldObjectId"] = targetBattlefieldObjectId,
+                        ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+                        ["sourcePower"] = sourcePower, ["enemyUnitPowerSum"] = enemyUnitPowerSum,
+                        ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE" } };
         }
 
         return new StackResolutionResult(
@@ -27170,7 +27163,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),
-            state.RunePools,
+            runePools,
             state.UntilEndOfTurnEffects,
             null,
             events,
@@ -27191,6 +27184,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
         {
             new(
@@ -27215,7 +27209,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || state.CardObjects.GetValueOrDefault(stackItem.SourceObjectId)?.ObjectGeneration != stackItem.SelfMovement!.Source.Generation
             || !state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var currentSource)
             || EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, currentSource) != stackItem.ControllerId
-            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations,
+            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations, runePools,
                 stackItem.SourceObjectId, new(stackItem.ControllerId, "BASE"), stackItem.ControllerId, stackItem, events))
         {
             events.Add(new GameEvent(
@@ -27246,7 +27240,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),
-            state.RunePools,
+            runePools,
             state.UntilEndOfTurnEffects,
             null,
             events,
@@ -32868,68 +32862,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         nextObjectLocations[firstObjectId] = secondOriginLocation;
         nextObjectLocations[secondObjectId] = firstOriginLocation;
         objectLocations = nextObjectLocations;
-        return true;
-    }
-
-    private static bool TryMoveGatekeeperMaduliToBattlefield(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, ObjectLocationState> objectLocations,
-        string controllerId,
-        string sourceObjectId,
-        string targetBattlefieldObjectId,
-        out ObjectLocationState originLocation,
-        out ObjectLocationState destinationLocation,
-        out int enemyUnitPowerSum,
-        out int sourcePower)
-    {
-        originLocation = new ObjectLocationState(string.Empty, string.Empty);
-        destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
-        enemyUnitPowerSum = 0;
-        sourcePower = 0;
-
-        var state = new MatchState(
-            "maduli-resolution-location-check",
-            0,
-            1,
-            controllerId,
-            new Dictionary<string, string>(StringComparer.Ordinal),
-            playerZones: playerZones,
-            cardObjects: cardObjects,
-            objectLocations: objectLocations);
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
-            || !TryGetEnemyControlledBattlefieldTarget(
-                state,
-                controllerId,
-                targetBattlefieldObjectId,
-                out var targetControllerId)
-            || string.Equals(
-                originLocation.BattlefieldObjectId ?? string.Empty,
-                targetBattlefieldObjectId,
-                StringComparison.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId))
-        {
-            return false;
-        }
-
-        sourcePower = Math.Max(0, sourceState.Power);
-        enemyUnitPowerSum = EnemyUnitPowerSumAtBattlefield(
-            state,
-            targetBattlefieldObjectId,
-            targetControllerId);
-        if (sourcePower <= enemyUnitPowerSum)
-        {
-            return false;
-        }
-
-        RemoveFieldObjectFromLocation(playerZones, originLocation.PlayerId, originLocation.Zone, sourceObjectId);
-        AddFieldObjectToLocation(playerZones, controllerId, MoveUnitBattlefieldZone, sourceObjectId);
-        destinationLocation = new ObjectLocationState(
-            controllerId,
-            MoveUnitBattlefieldZone,
-            targetBattlefieldObjectId);
-        objectLocations[sourceObjectId] = destinationLocation;
         return true;
     }
 
