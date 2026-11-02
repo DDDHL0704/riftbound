@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from "react";
 import type { CardInfo, GameObject } from "./types";
 
+/** The server's reserved number for sealed's blank battlefield (602.3.d.1); it has no catalog entry. */
+export const BLANK_BATTLEFIELD = "SEALED·BLANK-BATTLEFIELD";
+
 let cards: Record<string, CardInfo> = {};
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -11,7 +14,7 @@ export function loadCards() {
   fetch(`${import.meta.env.BASE_URL}cards.json`)
     .then((r) => r.json())
     .then((data: Record<string, CardInfo>) => {
-      cards = data;
+      cards = { ...data, [BLANK_BATTLEFIELD]: { name: "空白战场", category: "战场", colors: ["colorless"], effect: "没有规则文字的战场。" } };
       listeners.forEach((fn) => fn());
     })
     .catch(() => {

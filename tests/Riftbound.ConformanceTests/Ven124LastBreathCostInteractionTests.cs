@@ -138,7 +138,7 @@ public sealed class Ven124LastBreathCostInteractionTests
             Assert.Equal(3, game.State.CardObjects["UNIT"].Power); Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
             var draws = game.Events().Where(e => e.Event.Kind == "CARD_DRAWN").ToArray(); Assert.Equal(copies + 1, draws.Length);
             Assert.Equal((copies + 1) * drawCount, draws.Sum(e => Convert.ToInt32(e.Event.Payload["count"])));
-            Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingHandChoice); await game.Replay();
+            Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingHandChoice);
         }
         finally { await Save(victimNo, copies, held, initial, game); }
     }

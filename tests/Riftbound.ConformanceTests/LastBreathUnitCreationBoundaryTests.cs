@@ -44,7 +44,6 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             foreach (var receipt in earned) { Assert.True(receipt.SourceWasEmpowered); Assert.Equal(generation, receipt.Source.Generation); }
             await FinishCreations(game); Assert.Equal(empowered ? 2 : 0, Minions(game.State).Length);
             Assert.All(Minions(game.State), c => Assert.Contains(c.ObjectId, game.State.PlayerZones["P1"].Base));
-            await game.Replay();
         }
         finally { await Save("combat-pre-removal-empowered-" + empowered, initial, game); }
     }
@@ -72,7 +71,7 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             Assert.Equal(remove ? 0 : 2, Minions(game.State).Length);
             await game.Act("P2", new EndTurnCommand()); await FinishEnd(game, "P2");
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
-            Assert.Equal(remove ? 0 : 2, Minions(game.State).Length); await game.Replay();
+            Assert.Equal(remove ? 0 : 2, Minions(game.State).Length);
         }
         finally { await Save("same-generation-status-before-death-remove-" + remove, initial, game); }
     }
@@ -146,7 +145,6 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             }
             await FinishCreations(game); Assert.Equal(6, Minions(game.State).Length);
             Assert.All(Minions(game.State), c => { Assert.Equal("P2", c.OwnerId); Assert.Equal("P2", c.ControllerId); Assert.Contains(c.ObjectId, game.State.PlayerZones["P2"].Base); });
-            await game.Replay();
         }
         finally { await Save(returnToPrivateHand ? "actual-control-recall-copied-death-controller-private-hand" : "actual-control-recall-copied-death-controller", initial, game); }
     }

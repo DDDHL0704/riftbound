@@ -29,6 +29,13 @@ HEX = re.compile(r'[0-9a-f]{64}')
 MODULES = {'Riftbound.ConformanceTests', 'Riftbound.Engine', 'Riftbound.Contracts',
            'Riftbound.CardCatalog', 'Riftbound.Persistence', 'Riftbound.Api'}
 MVID = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+CATALOG_PREFLIGHT = tuple(RULES.PREFIX + method for method in [
+    'ReviewedScopedPrintUniverseTests.EveryExactSourceKeepsItsOwnMetadataAndIndependentKeywordFacts',
+    'ReviewedScopedPrintUniverseTests.EveryUnconflictedPrintCreatesItsOwnReviewedPhysicalIdentity',
+    'ReviewedScopedPrintUniverseTests.SourceAndCostKnowledgeCannotAuthorizeAnIncompleteWholeCard',
+    'DisarmSourceSpecificationTests.SourceMetadataKeepsIncompleteCardsDisabledAndTheOriginalCatalogUnchanged',
+    'ConformanceFixtureRunnerTests.P4ActivatedAbilityCatalogListsRegisteredSkillsAndChecksBlossomText',
+])
 
 
 def digest(path):
@@ -249,15 +256,20 @@ def checked_results(prepared, inputs, commit):
     return plan, sorted(case_map, key=lambda row: (row['name'], row['shard'])), seconds
 
 
-def derived_view(prepared, inputs, commit):
-    plan, mapping, _ = checked_results(prepared, inputs, commit)
+def targeted_coverage(plan, mapping, plan_sha256):
+    """Derive coverage from the already verified original shard mapping."""
     if plan['profile'] != 'l2-distributed':
         raise ValueError('Targeted L2 coverage requires the L2 profile.')
     methods = set(plan['targeted']['methods'])
-    return dict(status='TARGETED_COVERAGE_VERIFIED', commit=commit,
-                execution='DERIVED_FROM_ORIGINAL_SHARD_TRX', planSha256=digest(prepared / 'plan.json'),
+    return dict(status='TARGETED_COVERAGE_VERIFIED', commit=plan['commit'],
+                execution='DERIVED_FROM_ORIGINAL_SHARD_TRX', planSha256=plan_sha256,
                 testAssemblySha256=plan['testAssemblySha256'], selection=plan['targeted'],
                 cases=[row for row in mapping if row['method'] in methods])
+
+
+def derived_view(prepared, inputs, commit):
+    plan, mapping, _ = checked_results(prepared, inputs, commit)
+    return targeted_coverage(plan, mapping, digest(prepared / 'plan.json'))
 
 
 def timing_weights(prepared, inputs, commit):
@@ -303,7 +315,7 @@ def aggregate(prepared, inputs, targeted, quality, commit, jobs):
             or q.get('runId') != plan['runId'] or q.get('runAttempt') != plan['runAttempt']
             or q.get('treeSha') != read(prepared / 'checkout.json')['treeSha']):
         raise ValueError('Quality checkout differs from the prepared candidate.')
-    if read(targeted / 'view.json') != derived_view(prepared, inputs, commit):
+    if read(targeted / 'view.json') != targeted_coverage(plan, mapping, digest(prepared / 'plan.json')):
         raise ValueError('Targeted coverage is missing or differs from its original TRX mapping.')
     target_checkout = read(targeted / 'checkout.json')
     if any(target_checkout.get(key) != q.get(key) for key in
@@ -466,6 +478,35 @@ def validate_probe(probe, commit, sdk, run_id, attempt):
         raise ValueError('Linux row-selection probe split-body union is not exact once.')
 
 
+def catalog_preflight(plan, bundle, output):
+    """Catch cheap catalog drift before dispatching nine complete rule shards."""
+    began = time.monotonic()
+    expected = Counter()
+    for method in CATALOG_PREFLIGHT:
+        if not plan['cases'].get(method):
+            raise ValueError('Missing catalog preflight method: ' + method)
+        expected.update(plan['cases'][method])
+    assembly = bundle / ASSEMBLY
+    if digest(assembly) != plan['testAssemblySha256']:
+        raise ValueError('Catalog preflight assembly differs from the fixed plan.')
+    output.mkdir()
+    SELECT.write_settings(output / 'execution.runsettings', dict(selectors=[
+        dict(kind='method', method=method) for method in CATALOG_PREFLIGHT]))
+    run_logged(['dotnet', 'vstest', str(assembly), '--TestAdapterPath:' + str(bundle),
+                '--Settings:' + str(output / 'execution.runsettings'),
+                '--ResultsDirectory:' + str(output), '--logger:trx;LogFileName=results.trx'], output / 'test.log')
+    rows, counters = RULES.report(output / 'results.trx')
+    RULES.verify(rows, counters, set(CATALOG_PREFLIGHT))
+    if Counter(row.get('testName') for row in rows) != expected:
+        raise ValueError('Catalog preflight lost or repeated fixed parameter rows.')
+    if digest(assembly) != plan['testAssemblySha256']:
+        raise ValueError('Catalog preflight changed the fixed test assembly.')
+    write(output / 'receipt.json', dict(status='CATALOG_PREFLIGHT_PASSED', commit=plan['commit'],
+        testAssemblySha256=plan['testAssemblySha256'], methods=list(CATALOG_PREFLIGHT),
+        counters=counters, trxSha256=digest(output / 'results.trx'), seconds=round(time.monotonic() - began, 3),
+        completeRuleShardsStillRequired=True))
+
+
 def prepare(commit, output, count, github_output, profile='l2'):
     began = time.monotonic()
     checkout = read(output / 'checkout.json')
@@ -510,6 +551,8 @@ def prepare(commit, output, count, github_output, profile='l2'):
                 prepareSeconds=round(time.monotonic() - began, 3))
     write(output / 'plan.json', plan)
     check_prepared(output, commit)
+    if profile == 'l2':
+        catalog_preflight(plan, bundle, output / 'catalog-preflight')
     with tarfile.open(output / 'bundle.tar.gz', 'x:gz') as archive:
         for name in files:
             path = bundle / name

@@ -56,7 +56,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidStandbyDrawUses(MatchState state)
     {
-        var uses = state.UntilEndOfTurnEffects.Where(e => e.StartsWith(StandbyDrawUsePrefix, StringComparison.Ordinal))
+        if (state.UntilEndOfTurnEffects is not { } effects || effects.Any(e => e is null)) return false;
+        var uses = effects.Where(e => e.StartsWith(StandbyDrawUsePrefix, StringComparison.Ordinal))
             .Select(ReadStandbyDrawMarker).ToArray();
         return uses.All(c => c is { Source: not null } && ValidStandbyObserver(state, c, StandbyPlayedDrawEffect, c.Source.ObjectId))
             && uses.Select(c => (c!.Source, c.CardNo, c.Draw!.InstanceId, c.Draw.FaceRevision)).Distinct().Count() == uses.Length;
