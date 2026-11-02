@@ -138,6 +138,7 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
         private readonly CoreRuleEngine engine = new();
         private readonly MatchSessionOptions options;
         private IMatchSession session;
+        private ResolutionResult? lastAcceptedResult;
         private bool afterCold;
         internal MatchState Initial { get; }
         internal MatchState State { get; private set; }
@@ -152,7 +153,7 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
             session = new MatchSession(Initial, engine, this, NoopMatchPlayerStore.Instance, options);
         }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
-        internal ActionPromptDto Prompt(string player) => session.PromptFor(player);
+        internal ActionPromptDto Prompt(string player) => lastAcceptedResult?.Prompts[player] ?? session.PromptFor(player);
         internal async Task Submit(string actor, GameCommand command)
         {
             if (command is SubmitDeckCommand deck)
@@ -165,7 +166,7 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
                 }
             }
             var fields = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
-            fields["promptId"] = session.PromptFor(actor).PromptId; fields["snapshotTick"] = State.Tick;
+            fields["promptId"] = Prompt(actor).PromptId; fields["snapshotTick"] = State.Tick;
             var raw = JsonSerializer.SerializeToElement(fields, Json); var intent = "ordinary-duel-" + entries.Count;
             ResolutionResult? expected = null;
             if (afterCold)
@@ -192,6 +193,7 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
                 OriginalNextMatches++;
             }
             State = result.State; afterCold = false; FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            lastAcceptedResult = result;
         }
         internal async Task Reject(string actor, GameCommand command)
         {
@@ -201,12 +203,16 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
         }
         internal MatchRecoveryFrame Frame(MatchState? target = null)
         {
+            // Only the unchanged live state may reuse the accepted command's views.
+            // Explicit targets, including cold checkpoints and forgeries, project afresh.
+            var result = target is null ? lastAcceptedResult : null;
             target ??= State;
             var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
             var events = entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
             var sequence = entries[^1].CompletedEventSequence;
-            var snapshots = ResolutionResult.BuildSnapshots(target); var prompts = ResolutionResult.BuildPrompts(target);
+            var snapshots = result?.Snapshots ?? ResolutionResult.BuildSnapshots(target);
+            var prompts = result?.Prompts ?? ResolutionResult.BuildPrompts(target);
             var views = Initial.Seats.Keys.ToDictionary(player => player,
                 player => new RecoveredPlayerView(player, target.Tick, sequence, snapshots[player], target.Tick, sequence, prompts[player]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(Initial.RoomId, target.Tick, sequence, [], target);
@@ -215,7 +221,7 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
         }
         internal async Task Cold()
         {
-            var frame = Frame(); Assert.Empty(frame.ValidationErrors);
+            var frame = Frame(State); Assert.Empty(frame.ValidationErrors);
             var restored = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, JournalJson), JournalJson)!;
             Assert.Equal(MatchStateHasher.Hash(State), MatchStateHasher.Hash(restored.AuthoritativeState!));
             var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(restored, engine, default);
@@ -229,6 +235,7 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
             Assert.True(replayErrors.Count == 0, string.Join("; ", replayErrors));
             var previous = session;
             session = MatchSession.Restore(restored, engine, this, NoopMatchPlayerStore.Instance, options);
+            lastAcceptedResult = null;
             foreach (var player in Initial.Seats.Keys)
             {
                 Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(previous.SnapshotFor(player)), JsonSerializer.SerializeToNode(session.SnapshotFor(player))));

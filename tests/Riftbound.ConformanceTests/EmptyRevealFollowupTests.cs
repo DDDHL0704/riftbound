@@ -101,7 +101,7 @@ public sealed class EmptyRevealFollowupTests(ITestOutputHelper output)
         await run.Cold();
         var frame = run.Frame();
         Assert.Empty(frame.ValidationErrors);
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        // Cold() just audited this complete original history before restoring it.
         await Save(run, format, "final");
         output.WriteLine("EMPTY_REVEAL_ORDINARY " + JsonSerializer.Serialize(new {
             format = format.ToString(), originalBlankSeed = run.Initial.Seed,

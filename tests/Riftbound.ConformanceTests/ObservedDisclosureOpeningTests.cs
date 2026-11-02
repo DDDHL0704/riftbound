@@ -118,7 +118,7 @@ public sealed class ObservedDisclosureOpeningTests(ITestOutputHelper output)
         var frame = run.Frame();
         Assert.All(frame.Commands, c => Assert.Equal(run.State.RuleInputs, c.RuleInputs));
         Assert.Empty(frame.ValidationErrors);
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        // Cold() just audited this complete original history before restoring it.
         if (Environment.GetEnvironmentVariable("RIFTBOUND_DISCLOSURE_EVIDENCE") is { Length: > 0 } directory)
         {
             var path = Path.Combine(directory, $"{Mode()}-{format}-{option}-original-frame.json.gz");
