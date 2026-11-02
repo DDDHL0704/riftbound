@@ -1507,6 +1507,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = effectKind
                 })
         };
+        events[2] = CaptureDirectMightReduction(events[2], state with { PlayerZones = playerZones, CardObjects = cardObjects },
+            targetState, cardObjects[targetObjectId], intent.PlayerId);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -30909,6 +30911,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             $"{behavior.DisplayName}临时修正战力",
             payload);
 
+        powerEvent = CaptureDirectMightReduction(powerEvent, powerState, targetState, nextTargetState, stackItem.ControllerId);
         return nextTargetState;
     }
 

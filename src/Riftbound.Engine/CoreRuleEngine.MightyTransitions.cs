@@ -99,7 +99,7 @@ public sealed partial class CoreRuleEngine
         var state = result.State; var queue = state.TriggerQueue.ToList();
         if (steps.Length == 0 && !state.CardObjects.Values.Any(c =>
             (IsObjectOnField(state.PlayerZones, c.ObjectId) || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId)))
-            && AttachedRuleTextRules.Instances(state, c).Any(i => MightySkillDefinition(i.CardNo) is not null)))
+            && AttachedRuleTextRules.Instances(state, c).Any(i => MightySkillDefinition(i.CardNo) is not null || UnitEventSpec(i.CardNo)?.Timing == EnemyMightReducedHere)))
             return result;
         var previous = CapturePublicMightFrame(before, before.PlayerZones, before.CardObjects);
         var index = 0;
@@ -110,6 +110,11 @@ public sealed partial class CoreRuleEngine
                     context.ControllerId, context.Source.ObjectId, context.Kind,
                     context.Kind == MightyEmpowerEffect ? "SOURCE_MIGHT_REACHED" : "UNIT_BECAME_POWERFUL") {
                         SourceCardNo = context.CardNo, MightySkill = context };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+            foreach (var observation in CaptureAuraMightReductions(previous, after)) {
+                var trigger = UnitEventTrigger(observation, state.Tick, 100000 + index++, "STATUS_EFFECT_APPLIED",
+                    before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : before.StackItems.LastOrDefault()?.TimingContext);
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
             previous = after; index++;

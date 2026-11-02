@@ -9706,6 +9706,12 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
     [
+        new("RAD·038/167", "阿狸 · 自信闪耀", 4, "RAD_038_AHRI_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            UnitEventAbility: new("ENEMY_MIGHT_REDUCED_HERE", "MIGHT_SELF", 1)),
+        new("RAD·SP1/005", "阿狸 · 自信闪耀", 4, "RAD_SP1_AHRI_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            UnitEventAbility: new("ENEMY_MIGHT_REDUCED_HERE", "MIGHT_SELF", 1)),
         new("RAD·132/167", "黑默丁格 · 学院导师", 6, "RAD_132_HEIMERDINGER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "约德尔人",
             UnitTokenReplacementFactoryCardNo: "SFD·T01"),

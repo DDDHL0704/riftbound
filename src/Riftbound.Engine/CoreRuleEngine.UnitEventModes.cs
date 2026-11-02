@@ -51,7 +51,7 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
         if (item is null || !NeedsUnitEventMode(item) || item.TriggerCost is not null
-            || !ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)) return false;
+            || !ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)) return false;
         var expected = UnitEventModeChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId

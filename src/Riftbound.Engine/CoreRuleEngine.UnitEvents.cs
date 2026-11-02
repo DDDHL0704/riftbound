@@ -7,7 +7,7 @@ namespace Riftbound.Engine;
 public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
     string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
     ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null,
-    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null);
+    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, MightReductionFact? MightReduction = null);
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -250,7 +250,8 @@ public sealed partial class CoreRuleEngine
                     && !IsObjectOnField(before.PlayerZones, prior.ObjectId))
                     captured = captured with { Context = captured.Context with { Other = other with {
                         Binding = other.Binding with { Generation = Math.Max(other.Binding.Generation, prior.ObjectGeneration + 1) } } } };
-                var trigger = UnitEventTrigger(captured, result.State.Tick, ordinal++, ev.Kind, timing);
+                var trigger = UnitEventTrigger(captured, result.State.Tick, ordinal++,
+                    captured.Context.Timing == EnemyMightReducedHere ? "STATUS_EFFECT_APPLIED" : ev.Kind, timing);
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
@@ -275,13 +276,14 @@ public sealed partial class CoreRuleEngine
         return result with { State = next, Events = events, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
 
-    internal static bool ValidUnitEvent(MatchState state, UnitEventContext? c, string effect, string source, string? no = null)
+    internal static bool ValidUnitEvent(MatchState state, UnitEventContext? c, string effect, string source, string? no = null, string? controller = null)
         => c is null ? effect != UnitEventEffect : effect == UnitEventEffect && (no is null || no == c.CardNo)
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
             && (c.Mode is null || spec.Modes?.Any(m => m.Id == c.Mode) == true)
             && (c.Mode is null || !spec.DistinctModesPerTurn || state.RuleTextModeUses is { } uses
                 && uses.TurnNumber == state.TurnNumber && uses.Uses.Contains(new RuleTextModeUse(new(source, c.SourceGeneration), c.CardNo, c.Mode, c.Origin, c.TokenFactoryCardNo)))
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
+            && (spec.Timing == EnemyMightReducedHere ? ValidMightReduction(state, c, source) && (controller is null || c.MightReduction!.Actor == controller) : c.MightReduction is null)
             && (spec.Effect == "BURN_MIGHT_FRIENDLY"
                 ? c.BurnedUnit is { } burned
                     ? c.ReflexiveTick is { } reflexive && reflexive >= c.CapturedTick && reflexive <= state.Tick && burned.Power >= 0
@@ -375,7 +377,7 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
         if (item is null || !NeedsUnitEventTarget(item) || item.TargetGenerations is not null
-            || !ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)) return false;
+            || !ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)) return false;
         var expected = UnitEventChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow && choice.PlayerId == item.ControllerId
             && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind && choice.RequiredCount == expected.RequiredCount && choice.MaxCount == expected.MaxCount
@@ -389,7 +391,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
     {
         var context = item.UnitEvent!;
-        if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo))
+        if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
