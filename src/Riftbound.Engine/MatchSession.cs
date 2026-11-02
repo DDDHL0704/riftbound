@@ -1919,7 +1919,11 @@ public sealed partial record ResolutionResult(
         }
         if (item.BeginningDraw is not null) {
             view["beginningDraw"] = item.BeginningDraw;
-            view["abilityLabel"] = item.BeginningDraw.Kind == "HAND_BELOW_TWO" ? "开始阶段：手牌少于两张时抽一张" : "开始阶段：抽一张牌";
+            view["abilityLabel"] = item.BeginningDraw.Kind switch {
+                "HAND_BELOW_TWO" => "开始阶段：手牌少于两张时抽一张",
+                "LOWEST_DECK_TOP_MANA" => "开始阶段：展示牌顶并比较法力费用",
+                _ => "开始阶段：抽一张牌"
+            };
         }
         if (item.EphemeralStart is not null) {
             view["ephemeralStart"] = item.EphemeralStart;
@@ -3063,8 +3067,11 @@ internal static partial class ActionPromptBuilder
                         id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)
                             ? new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
                                 "弃置装备以支付技能费用")
-                            : new ActionPromptChoiceDto(id, "让" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "费用").Label + "变为休眠状态",
-                                "让友方单位变为休眠状态以支付技能费用", [id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..]])).ToArray() : null,
+                            : id.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)
+                                ? new ActionPromptChoiceDto(id, "让" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "费用").Label + "变为休眠状态",
+                                "让友方单位变为休眠状态以支付技能费用", [id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..]])
+                            : new ActionPromptChoiceDto(id, "摧毁" + ObjectChoice(state, id[CoreRuleEngine.DestroyFriendlyPermanentAdditionalCostPrefix.Length..], "费用").Label,
+                                "摧毁友方物体以支付技能费用", [id[CoreRuleEngine.DestroyFriendlyPermanentAdditionalCostPrefix.Length..]])).ToArray() : null,
                 RequiredAdditionalCostChoiceCount: CoreRuleEngine.SimpleActivationHasAdditionalCost(ability) ? 1 : 0);
             foreach (var instance in AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability))
             {

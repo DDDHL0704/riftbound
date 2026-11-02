@@ -33,7 +33,8 @@ public sealed partial class CoreRuleEngine
             return TrySourceUnitTokenDestination(state, item, out _)
                 ? SourceUnitTokenSpecs.Value[sourceToken.CardNo].CreatedTokenCount.GetValueOrDefault() : 0;
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var activated)
-            && activated.SimpleEffect is { CreatedRobotCount: > 0 } simple) return simple.CreatedRobotCount;
+            && activated.SimpleEffect is { } simple && SimpleActivationUnitTokenCount(simple) > 0)
+            return SimpleActivationUnitTokenCount(simple);
         if (TryGetLegendUnitToken(item.EffectKind, out _)) return 1;
         if (item.DeathObserver?.Kind is TriggerKinds.UnitDestroyedNonMinionCreateMinion
             or TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion) return 1;
