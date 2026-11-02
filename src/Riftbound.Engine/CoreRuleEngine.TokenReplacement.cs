@@ -12,9 +12,11 @@ public sealed partial class CoreRuleEngine
     private static readonly Lazy<IReadOnlyList<string>> TokenReplacementSources = new(() =>
         OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo(["UNL-086/219"])["UNL-086/219"]);
 
-    private static string? TokenReplacementFactory(CardObjectState source)
-        => CardBehaviorRegistry.TryGetByCardNo(source.CardNo ?? "", out var behavior)
-            ? behavior.UnitTokenReplacementFactoryCardNo : null;
+    private static string? TokenReplacementFactory(MatchState state, CardObjectState source)
+        => AttachedRuleTextRules.Instances(state, source)
+            .Select(instance => CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var behavior)
+                ? behavior.UnitTokenReplacementFactoryCardNo : null)
+            .FirstOrDefault(factory => factory is not null);
 
     private static List<string?> TokenEntryFactories(TokenEntryPlan plan)
     {
@@ -40,7 +42,7 @@ public sealed partial class CoreRuleEngine
             && BattlefieldLocalRules.AtUnit(state, c.ObjectId) is not null
             && (TokenReplacementSources.Value.Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(c.CardNo))
                     && !c.UntilEndOfTurnEffects.Contains(TokenReplacementUsed)
-                || TokenReplacementFactory(c) is { } factory && factories[plan.NextToken] != factory))
+                || TokenReplacementFactory(state, c) is { } factory && factories[plan.NextToken] != factory))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
     }
 
@@ -129,7 +131,7 @@ public sealed partial class CoreRuleEngine
             }
             else
             {
-                if (a.FactoryCardNo != TokenReplacementFactory(source) || factories[a.TokenIndex] == a.FactoryCardNo
+                if (a.FactoryCardNo != TokenReplacementFactory(state, source) || factories[a.TokenIndex] == a.FactoryCardNo
                     || !P6TokenFactoryCatalog.IsUnitTokenFactory(a.FactoryCardNo)) return false;
                 factories[a.TokenIndex] = a.FactoryCardNo;
             }
@@ -161,7 +163,7 @@ public sealed partial class CoreRuleEngine
         else
         {
             var source = cards[selected[0]];
-            var factory = TokenReplacementFactory(source);
+            var factory = TokenReplacementFactory(state, source);
             if (factory is null)
                 cards[source.ObjectId] = source with { UntilEndOfTurnEffects = source.UntilEndOfTurnEffects.Append(TokenReplacementUsed).Order(StringComparer.Ordinal).ToArray() };
             plan = plan with { Applied = plan.Applied.Append(new TokenReplacementApplication(new(source.ObjectId, source.ObjectGeneration), plan.NextToken, factory)).ToArray() };

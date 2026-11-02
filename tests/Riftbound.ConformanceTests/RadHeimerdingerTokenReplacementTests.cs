@@ -27,6 +27,53 @@ public sealed class RadHeimerdingerTokenReplacementTests
     }
     private static CardObjectState[] Tokens(MatchState s) => OfficialTokenReplacementTests.Tokens(s);
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task SongKeepsTheCapturedReplacementAfterSpectaclesChangeTheHostsFace(bool detachSong)
+    {
+        // Core 718.3/719.1: attached effect text remains part of the host's text.
+        var s = AttachedRuleTextTests.AddSong(ShadySpectaclesTests.Position("OGN·096/298"), "SONG");
+        s = s with { Tick = 0, CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["HOST"] = OfficialGarenConquestBattlefieldCountTests.Printed("HOST", "RAD·132/167", "P1") } };
+        s = OfficialCopyIdentityTests.AddSpell(s, "CREATE", "UNL-069/219");
+        s = OfficialCopyIdentityTests.AddSpell(s, "DETACH", "SFD·011/221");
+        var g = new Driver(s);
+        await g.Act("P1", new AssembleEquipmentCommand("SONG", "HOST", ["ASSEMBLE_GREEN"])); await g.Top();
+        Assert.Equal("RAD·132/167", g.State.CardObjects["SONG"].AttachedRuleText!.CardNo);
+        await g.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await g.Top();
+        var copy = Assert.IsType<RuleChoiceContinuation>(g.State.PendingRuleChoice);
+        await g.Act("P1", new PayCostCommand(copy.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+        Assert.Equal("OGN·096/298", g.State.CardObjects["HOST"].CardNo);
+        Assert.Equal("RAD·132/167", g.State.CardObjects["SONG"].AttachedRuleText!.CardNo);
+        if (detachSong)
+        {
+            await g.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "SONG"])); await g.Top();
+            Assert.Null(g.State.CardObjects["SONG"].AttachedRuleText);
+        }
+        await g.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        for (var passes = 0; g.State.SpellDuelState.IsActive; passes++)
+        {
+            Assert.True(passes < 2);
+            await g.Act(g.State.FocusPlayerId!, new PassFocusCommand());
+        }
+        await g.Act("P1", new PlayCardCommand("CREATE", "UNL-069/219", [])); await g.Top();
+        if (detachSong)
+        {
+            Assert.Null(g.State.PendingCardChoice);
+            Assert.Equal(2, Tokens(g.State).Length);
+            Assert.DoesNotContain(Tokens(g.State), t => t.TokenFactoryCardNo == "SFD·T01");
+            await g.Replay(); return;
+        }
+        Assert.Contains("HOST", Assert.IsType<PendingCardChoiceState>(g.State.PendingCardChoice).LegalObjectIds);
+        await Choose(g, "HOST");
+        Assert.Equal("SFD·T01", Assert.Single(g.State.StackItems).TokenEntryPlan!.Applied[0].FactoryCardNo);
+        await Choose(g);
+        Assert.Equal(2, Tokens(g.State).Length);
+        Assert.Single(Tokens(g.State), t => t.TokenFactoryCardNo == "SFD·T01");
+        Assert.Single(Tokens(g.State), t => t.Tags.Contains(CardObjectTags.Ephemeral));
+        await g.Replay();
+    }
+
     [Fact]
     public async Task OfficialHeroPaysSixAndYellowAndDoesNotReplaceFromBase()
     {
