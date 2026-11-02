@@ -37,6 +37,7 @@ public static class LegendActionAbilityCatalog
     public const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     public const string TimeAssassinLegendAbilityId = "LEGEND_REMOVE_EMPOWER_EXHAUST_NEXT_UNIT_DISCOUNT_DESTROY";
     public const string ZiggsLegendAbilityId = "LEGEND_PAY_1_AND_POWER_EXHAUST_CREATE_BOMB";
+    public const string KsanteLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_ASSAULT_EQUAL_TO_STEADFAST";
 
     private static readonly IReadOnlyDictionary<string, string> RepresentativeSourceCardNoByAbilityId =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -118,12 +119,18 @@ public static class LegendActionAbilityCatalog
             .Where(card => card.CardName == "爆破鬼才" && card.Hero == "吉格斯"
                 && card.CardEffect.StartsWith("支付{{1}}和{{A}}，{{T}}：将一个“炸弹”装备指示物打出到一处战场。", StringComparison.Ordinal))
             .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> KsanteSourceCardNos = new(() =>
+        RadiantCardSources.GetAdmittedCards()
+            .Where(card => card.CardName == "纳祖芒荣耀" && card.Hero == "奎桑提"
+                && card.CardEffect.StartsWith("支付{{1}}，{{T}}：给予一名友方单位在本回合内“我具有等同于自身{{坚守}}的{{强攻}}。”", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
         if (string.Equals(abilityId, MordekaiserLegendAbilityId, StringComparison.Ordinal)) return MordekaiserSourceCardNos.Value;
         if (string.Equals(abilityId, TimeAssassinLegendAbilityId, StringComparison.Ordinal)) return TimeAssassinSourceCardNos.Value;
         if (string.Equals(abilityId, ZiggsLegendAbilityId, StringComparison.Ordinal)) return ZiggsSourceCardNos.Value;
+        if (string.Equals(abilityId, KsanteLegendAbilityId, StringComparison.Ordinal)) return KsanteSourceCardNos.Value;
         if (string.Equals(abilityId, ZedLegendAbilityId, StringComparison.Ordinal)) return ZedSourceCardNos.Value;
         if (string.Equals(abilityId, KennenLegendAbilityId, StringComparison.Ordinal)) return KennenSourceCardNos.Value;
         if (abilityId is JayceLegendReadyOneAbilityId or JayceLegendReadyTwoAbilityId) return JayceSourceCardNos.Value;

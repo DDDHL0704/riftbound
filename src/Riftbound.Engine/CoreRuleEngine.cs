@@ -8092,6 +8092,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.KsanteLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.KsanteLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KsanteLegendAbilityId),
+                "纳祖芒荣耀传奇动态强攻技能", 1, 0, "SPEND_MANA:1", 1, RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.GrantUnitKeyword,
+                GrantedCombatKeyword: TemporaryCombatKeywordRules.AssaultEqualToSteadfast),
             LegendActionAbilityCatalog.ZiggsLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.ZiggsLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ZiggsLegendAbilityId),
@@ -14373,7 +14379,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
                 .Where(aura => SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, cardObject)))
             {
-                bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+                bonus += GrantedCombatKeywordAmount(aura, combatKeyword);
             }
         }
 
