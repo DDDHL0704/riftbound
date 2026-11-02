@@ -50,6 +50,8 @@ python3 -m unittest discover -s scripts/tests
 
 本机 10 核 / 24 GB 内存由四条线共用。本地构建和测试必须使用 `-m:1`、`--jobs 1`；只运行按类名或方法名过滤的规则测试，不在本地跑完整规则套件。`dotnet` 的 PATH 包装全机最多放行两个重任务，负载高时排队是正常现象，不要绕过包装或使用 SDK 的绝对路径。完整规则套件、真实 PostgreSQL、SignalR 和进程重启只在 GitHub Actions 里跑。
 
+**A 线本地资源约束（2026-11-02）**：同时最多占一个 `dotnet` 槽位，上一条构建／测试退出后才能启动下一条，优先让卡牌线验证。单个用例预计超过 10 分钟时，只执行候选一次，复用已有 CI 分片耗时，不在本机重跑原版。可用 `scripts/l2-distributed.py local-timings --commit <CI 提交> --prepared <CI 准备产物> --inputs <完整 CI 分片目录> --local-trx <候选 TRX> --case '<完整参数行名称>' --output <新 JSON>` 读取既有结果；`--method <完整方法名>` 则要求该方法的所有原参数行。跨机器的耗时比值仅作观察，实际 CI 收益由后续完整 L2 验证。
+
 ## CI
 
 - **`Backend L2`**（PR 与 main）：构建一次，全部规则测试分 9 个 Linux ARM64 分片并行，外加三局完整对局（含回响选择与回放回归）。检查名 `L2 required` 是合入的唯一门槛。同一 PR 推送新提交会取消旧的运行。
