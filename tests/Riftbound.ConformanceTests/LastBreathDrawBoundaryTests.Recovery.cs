@@ -161,12 +161,14 @@ public sealed partial class LastBreathDrawBoundaryTests
         game.RecoverAfterEveryCommand = true;
         if (transferControl)
         {
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            // Prepare all three physical control-payment runes in their original order.
+            await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["UNIT"])); await game.Top();
             Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
             Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
         }
-        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+        // Keep both physical destruction-payment runes in their original order.
+        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
         await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
         return (initial, game, generation);
     }
