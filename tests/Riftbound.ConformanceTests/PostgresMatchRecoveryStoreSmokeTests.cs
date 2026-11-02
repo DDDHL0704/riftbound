@@ -48,7 +48,13 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
                 {
                     ["alice"] = "P1",
                     ["bob"] = "P2"
-                }) with { SessionOptions = configured ? new(true, OfficialDeckFormat.ChinaStandard20260724) : null };
+                }) with
+                {
+                    SessionOptions = configured ? new(true, OfficialDeckFormat.ChinaStandard20260724)
+                    {
+                        HideSubmittedDeckIdentities = true
+                    } : null
+                };
             var liveSession = new MatchSession(initialState, ruleEngine, journal);
 
             await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);

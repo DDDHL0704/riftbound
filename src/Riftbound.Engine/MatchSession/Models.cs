@@ -785,6 +785,9 @@ public sealed record MatchSessionOptions(
     OfficialDeckFormat DeckFormat = OfficialDeckFormat.CoreRules)
 {
     public static MatchSessionOptions Default { get; } = new();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool HideSubmittedDeckIdentities { get; init; }
 }
 
 public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry

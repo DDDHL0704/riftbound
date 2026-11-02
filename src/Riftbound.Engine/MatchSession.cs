@@ -6178,21 +6178,7 @@ public sealed partial class MatchSession : IMatchSession
                         Tick = state.Tick + 1,
                         PlayerDecklists = decklists
                     };
-                    var events = new[]
-                    {
-                        new GameEvent(
-                            "DECK_SUBMITTED",
-                            $"{normalizedPlayerId} 提交正式卡组",
-                            new Dictionary<string, object?>
-                            {
-                                ["playerId"] = normalizedPlayerId,
-                                ["mainDeckCount"] = decklist.MainDeck.Count,
-                                ["runeDeckCount"] = decklist.RuneDeck.Count,
-                                ["battlefieldCount"] = decklist.Battlefields.Count,
-                                ["legendCardNo"] = decklist.LegendCardNo,
-                                ["championCardNo"] = decklist.ChampionCardNo
-                            })
-                    };
+                    var events = new[] { BuildDeckSubmittedEvent(normalizedPlayerId, decklist) };
                     result = new ResolutionResult(
                         true,
                         null,
