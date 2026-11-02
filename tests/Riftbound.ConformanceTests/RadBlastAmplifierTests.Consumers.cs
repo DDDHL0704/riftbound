@@ -15,7 +15,7 @@ public sealed partial class RadBlastAmplifierTests
         var initial = Put(Put(Put(Position(), "UNIT", "OGN·096/298", "P1", "HAND"), "SONG", "SFD·059/221", "P1", "BASE"),
             "KILL", Kill, "P1", "HAND");
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-            ["LEGEND"] = new("LEGEND", cardNo: "RAD·145/167", ownerId: "P1", controllerId: "P1", tags: ["传奇"]) },
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "RAD·145/167", "P1") },
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
                 ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") } };
