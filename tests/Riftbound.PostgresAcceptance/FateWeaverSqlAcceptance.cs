@@ -194,7 +194,7 @@ internal static class FateWeaverSqlAcceptance
             status = "REAL_POSTGRES_FATE_WEAVER_OPTIONAL_SPELL_CHOICE_PASS", results,
             fixtureSha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(),
             scope = "Two fresh ordinary blank openings with legal decks, off-turn owner ordering, private Weaver spell selection/decline, actual SQL cold recovery, independent wrong-permission/identity and coordinated observation-history attacks. Native and physical Windows remain OPEN." }, json));
-        Console.WriteLine("POSTGRES_FATE_WEAVER_PASS: two original blank branches,66 commands,14 cold restores,4 original next commands,8 forgery rejections and complete original replays.");
+        Console.WriteLine("POSTGRES_FATE_WEAVER_PASS: two original blank branches,66 commands,8 cold restores,4 original next commands,8 forgery rejections and complete original replays.");
     }
     private static async Task Set(NpgsqlConnection connection, NpgsqlTransaction transaction, string table, long id, string payload)
     {

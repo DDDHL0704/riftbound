@@ -192,7 +192,7 @@ internal static class MultiControllerTriggerSqlAcceptance
             status = "REAL_POSTGRES_MULTI_CONTROLLER_TRIGGER_ORDER_PASS", results,
             fixtureSha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant(),
             scope = "Two genuine ordinary blank openings, both deck formats, each controller's own untargeted simultaneous death-observer choices, persisted handoff, actual production registry cold recovery, independent marker/identity and coordinated original-history attacks. Other target/cost/placement consumers and visible native/Windows remain separately OPEN." }, json));
-        Console.WriteLine("POSTGRES_MULTI_CONTROLLER_TRIGGER_ORDER_PASS: two ordinary branches,20 cold restores,6 original next commands,12 forgery rejections and complete original replays.");
+        Console.WriteLine("POSTGRES_MULTI_CONTROLLER_TRIGGER_ORDER_PASS: two ordinary branches,10 cold restores,6 original next commands,12 forgery rejections and complete original replays.");
     }
     private static async Task Set(NpgsqlConnection connection, NpgsqlTransaction transaction, string table, long id, string payload)
     {
