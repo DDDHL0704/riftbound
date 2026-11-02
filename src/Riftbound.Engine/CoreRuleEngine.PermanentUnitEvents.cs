@@ -21,7 +21,10 @@ public sealed partial class CoreRuleEngine
         if ((spec.LeadingManaCost > 0 || spec.LeadingPowerCost > 0) && item.TriggerCost is null)
             return NoopStackResolutionResult(state);
         if (spec.Effect == "CREATE_UNIT_TOKEN")
-            return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount, false);
+        {
+            if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
+            return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), false);
+        }
         if (item.TargetObjectIds.SingleOrDefault() is not { } target
             || !StackObjectRules.ReferencesCurrentObject(state, item, target)
             || !UnitEventTargets(state, item).Contains(target)) return NoopStackResolutionResult(state);

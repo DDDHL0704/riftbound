@@ -9811,6 +9811,13 @@ public static class CardBehaviorRegistry
             CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy),
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantSeraphineUnits =
+        new[] { "RAD·138/167", "RAD·138a/167", "RAD·SP5/005", "T1S·005/005" }
+            .Select(no => new CardBehaviorDefinition(no, "萨勒芬妮", 5, "SERAPHINE_PLAY_OR_EXHAUST_CREATE_MINION", 0, 0,
+                PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1,
+                UnitEventAbility: new("PLAY_OR_EXHAUST", "CREATE_UNIT_TOKEN", 1,
+                    CreatedTokenFactoryCardNo: "OGN·271/298"))).ToArray();
+
     private static readonly CardBehaviorDefinition[] RadiantLegendarySupportUnits =
     [
         new("RAD·040/167", "鼓舞之魂", 7, "SOUL_OF_INSPIRATION_PLAY_READY_FRIENDLY_LEGEND", 0, 1,
@@ -9873,7 +9880,7 @@ public static class CardBehaviorRegistry
             .Concat([RawDefinitions.Single(b => b.CardNo == "VEN·084") with { CardNo = "T1S·001/005" }])
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
-            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits)
+            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits).Concat(RadiantSeraphineUnits)
             .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)

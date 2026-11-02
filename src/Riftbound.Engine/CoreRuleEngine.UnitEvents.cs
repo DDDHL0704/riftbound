@@ -31,7 +31,8 @@ public sealed partial class CoreRuleEngine
                     && (spec.Timing == timing || spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"
                         || spec.Timing == "PLAY_OR_START" && timing is "PLAY" or "START"
                         || spec.Timing == "PLAY_OR_MOVE" && timing is "PLAY" or "MOVE"
-                        || spec.Timing == "PLAY_OR_CONQUEST" && timing is "PLAY" or "CONQUEST")
+                        || spec.Timing == "PLAY_OR_CONQUEST" && timing is "PLAY" or "CONQUEST"
+                        || spec.Timing == "PLAY_OR_EXHAUST" && timing is "PLAY" or "BECAME_EXHAUSTED")
                     && (!spec.RequiresEmpowered || card.IsEmpowered)
                     && (!spec.RequiresNoDamageThisTurn || !card.UntilEndOfTurnEffects.Contains(TookDamageThisTurn)))
                 .Select(i => new UnitEventObservation(card.ObjectId, EffectiveFieldControllerId(zones, card.ObjectId, card),
@@ -80,7 +81,8 @@ public sealed partial class CoreRuleEngine
         var friendly = cards.Values.Where(c => EffectiveFieldControllerId(zones, c.ObjectId, c) == player)
             .Select(c => c.ObjectId).ToArray();
         var observations = CaptureUnitEvents(zones, cards, friendly.Where(id => id != entered.ObjectId), "ANOTHER_UNIT_PLAYED")
-            .Concat(CaptureUnitEvents(zones, cards, friendly, "FRIENDLY_UNIT_PLAYED")).ToArray();
+            .Concat(CaptureUnitEvents(zones, cards, friendly, "FRIENDLY_UNIT_PLAYED"))
+            .Concat(CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")).ToArray();
         if (observations.Any(o => UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest))
         {
             // Compare at the entry instruction, including current auras. Later
@@ -235,7 +237,8 @@ public sealed partial class CoreRuleEngine
                     timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
                 var captured = observation;
                 var enteredId = ev.Payload.GetValueOrDefault("unitObjectId") as string ?? ev.Payload.GetValueOrDefault("tokenObjectId") as string;
-                if ((captured.Context.Timing is "PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST" && ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
+                if ((captured.Context.Timing is "PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST" or "PLAY_OR_EXHAUST"
+                        && (ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD" || captured.Source == enteredId)
                         || captured.Context.Timing == "FRIENDLY_UNIT_PLAYED" && captured.Source == enteredId)
                     && before.CardObjects.TryGetValue(captured.Source, out var entering) && !IsObjectOnField(before.PlayerZones, entering.ObjectId))
                     captured = captured with { Context = captured.Context with {

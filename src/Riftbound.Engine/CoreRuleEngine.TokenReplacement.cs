@@ -29,6 +29,8 @@ public sealed partial class CoreRuleEngine
             ? parent with { EffectKind = executions[parent.CompletedRepeatExecutions].EffectKind, EffectRepeatCount = 1, RepeatExecutions = null }
             : parent;
         if (TryMovementTokenInstruction(state, item, out var movementToken)) return movementToken.Count;
+        if (item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { Effect: "CREATE_UNIT_TOKEN" } unitToken)
+            return unitToken.Amount;
         if (item.SourceUnitTokens is { } sourceToken)
             return TrySourceUnitTokenDestination(state, item, out _)
                 ? SourceUnitTokenSpecs.Value[sourceToken.CardNo].CreatedTokenCount.GetValueOrDefault() : 0;

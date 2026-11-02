@@ -14668,9 +14668,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits)
             return SameLocationOtherFriendlySameNameUnitIds(
                 ReferenceEquals(playerZones, state.PlayerZones) ? state : state with { PlayerZones = playerZones }, objectId).Count;
-        if (aura.ParticipantScope == StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
+        if (aura.ParticipantScope is StaticAuraParticipantScopes.FriendlyFilteredPublicUnits
+            or StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits)
             return playerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal)
-                .Count(id => state.CardObjects.TryGetValue(id, out var unit) && !unit.IsFaceDown
+                .Count(id => (aura.ParticipantScope != StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits || id != objectId)
+                    && state.CardObjects.TryGetValue(id, out var unit) && !unit.IsFaceDown
                     && unit.Tags.Contains(CardObjectTags.UnitCard) && EffectiveFieldControllerId(playerZones, id, unit) == controllerId
                     && StaticAuraSpecRules.TargetMatchesFilter(aura, unit));
         if (string.Equals(
@@ -14724,7 +14726,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment)
             return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1) ? aura.PowerDeltaPerParticipant : 0;
         if (aura.ParticipantScope is StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits
-            or StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
+            or StaticAuraParticipantScopes.FriendlyFilteredPublicUnits or StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits)
             return participantCount * aura.PowerDeltaPerParticipant;
         if (string.Equals(
             aura.ParticipantScope,

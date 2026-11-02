@@ -131,29 +131,41 @@ public sealed class RadJarvanLegendTests
     }
 
     [Theory]
-    [InlineData("OGN·224/298", "GRAVEYARD")]
-    [InlineData("SFD·135/221", "HAND")]
-    public async Task AResponseRemovingTheEquipmentDoesNotChangeTheCapturedBattlefield(string no, string zone)
+    [InlineData("OGN·224/298")]
+    [InlineData("SFD·135/221")]
+    public async Task AResponseRemovingTheEquipmentDoesNotChangeTheCapturedBattlefield(string no)
     {
-        var state = OfficialCopyIdentityTests.AddSpell(Position(), "REMOVE", no);
+        var state = LocalDestructionRecallTests.At(Position(equipment: "RAD·094/167"), "UNIT", "P1", "BATTLEFIELD", "BF");
+        state = OfficialCopyIdentityTests.AddSpell(state, "REMOVE", no);
         state = state with {
+            TurnPlayerId = "P2", ActivePlayerId = "P2",
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
-                ["P1"] = state.PlayerZones["P1"] with { Base = [..state.PlayerZones["P1"].Base, "OPEN-TARGET"] }
-            },
+                ["P1"] = state.PlayerZones["P1"] with { Hand = ["REMOVE"] } },
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["OPEN-TARGET"] = state.CardObjects["ALLY"] with { ObjectId = "OPEN-TARGET" }
-            },
-            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
-                ["OPEN-TARGET"] = new("P1", "BASE")
+                ["UNIT"] = state.CardObjects["UNIT"] with { IsExhausted = true }
             }
         };
-        var game = new Driver(OfficialCopyIdentityTests.AddSpell(state, "OPEN", "OGN·104/298"));
-        await Enter(game); await Choose(game, "ALLY"); await Pay(game);
-        // A reaction opens the duel, where the printed swift removal is legal.
-        await game.Act("P1", new PlayCardCommand("OPEN", "OGN·104/298", ["OPEN-TARGET"]));
-        await game.Act("P1", new PlayCardCommand("REMOVE", no, ["UNIT"]));
-        await game.Top(); await game.Top(); await game.Top();
-        Assert.Equal(zone, game.State.ObjectLocations["UNIT"].Zone);
+        var game = new Driver(state);
+        await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
+        for (var i = 0; game.State.FocusPlayerId is not null; i++) {
+            Assert.InRange(i, 0, 3); await game.Act(game.State.FocusPlayerId, new PassFocusCommand());
+        }
+        await game.Top(); // Defending Bomb Monkey plays three deployment equipment tokens.
+        if (game.State.TriggerQueue.Count > 0)
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        for (var i = 0; game.State.PendingCardChoice is not null || game.State.PendingPayment is not null; i++) {
+            Assert.InRange(i, 0, 6);
+            if (game.State.PendingCardChoice is not null)
+                await Choose(game, game.State.CardObjects["LEGEND"].IsExhausted ? [] : ["ALLY"]);
+            else await Pay(game);
+        }
+        var equipment = Assert.Single(game.State.StackItems).UnitEvent!.Other!.Binding.ObjectId;
+        Assert.True(game.State.SpellDuelState.IsActive);
+        if (game.State.PriorityPlayerId is { } priority && priority != "P1")
+            await game.Act(priority, new PassPriorityCommand());
+        await game.Act("P1", new PlayCardCommand("REMOVE", no, [equipment]));
+        await game.Top(); Assert.False(game.State.CardObjects.ContainsKey(equipment));
+        await game.Top();
         Assert.Equal("BF", game.State.ObjectLocations["ALLY"].BattlefieldObjectId); await game.Replay();
     }
 
