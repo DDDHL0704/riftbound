@@ -128,6 +128,79 @@ public sealed class RadTimeAssassinLegendTests
         await game.Replay();
     }
 
+    [Fact]
+    public async Task RepeatedActivationsOfTheSameLegendGrantIndependentEndSkills()
+    {
+        // Begin with two captured activations whose source costs are already paid.
+        // Resolving both creates distinct reduction instances without changing any
+        // accepted command history or consuming either reduction on another unit.
+        var initial = Position();
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["LEGEND"] = initial.CardObjects["LEGEND"] with { IsExhausted = true, IsEmpowered = false }
+            },
+            TimingState = TimingStates.NeutralClosed, PriorityPlayerId = "P1",
+            StackItems = new[] { "EARLIER-1", "EARLIER-2" }.Select(id => new StackItemState(
+                id, "P1", "LEGEND", "LEGEND_TIME_ASSASSIN_NEXT_UNIT_REDUCTION", "RAD·139/167", [],
+                timingContext: TimingStates.NeutralOpen) {
+                    LegendUnitEffect = new(Ability, initial.CardObjects["LEGEND"].ObjectGeneration, 0),
+                    TargetGenerations = new Dictionary<string, long>()
+                }).ToArray()
+        };
+        var game = new Driver(initial);
+        await game.Top();
+        await game.Top();
+        var ticks = CoreRuleEngine.TimeAssassinNextUnitReductions(game.State, "P1")
+            .Select(reduction => reduction.CreatedTick).Order().ToArray();
+        Assert.Equal(2, ticks.Distinct().Count());
+        var before = game.State.RunePools["P1"];
+        await game.Act("P1", Play());
+        Assert.Equal(before, game.State.RunePools["P1"]);
+        Assert.Empty(CoreRuleEngine.TimeAssassinNextUnitReductions(game.State, "P1"));
+        var markers = game.State.CardObjects["UNIT"].UntilEndOfTurnEffects
+            .Where(effect => effect.StartsWith(CoreRuleEngine.TimeAssassinDestructionPrefix, StringComparison.Ordinal)).ToArray();
+        Assert.Equal(2, markers.Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(ticks, markers.Select(marker =>
+            CoreRuleEngine.ReadTimeAssassinDestructionMarker(marker)!.CreatedTick).Order());
+        await game.Act("P1", new EndTurnCommand());
+        Assert.Equal(2, game.State.TriggerQueue.Select(trigger => trigger.TriggerId).Distinct().Count());
+        await game.ColdCheckpoint();
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            game.State.TriggerQueue.Select(trigger => trigger.TriggerId).Reverse().ToArray()));
+        Assert.Equal(2, game.State.StackItems.Count);
+        Assert.Equal(ticks.Select(tick => (long?)tick), game.State.StackItems.Select(item => item.EndAbility!.CreationTick).Order());
+        var skill = game.State.StackItems[0];
+        Assert.False(CoreRuleEngine.ValidEndAbility(game.State,
+            skill with { EndAbility = skill.EndAbility! with { CreationTick = 0 } }));
+        await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
+        await game.Top();
+        Assert.Empty(game.State.StackItems);
+        Assert.Single(game.Events(), entry => entry.Event.Kind == "UNIT_DESTROYED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("targetObjectId"), "UNIT"));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("future")]
+    [InlineData("duplicate")]
+    public async Task RecoveryRejectsForgedGrantedDestructionInstances(string scenario)
+    {
+        var game = new Driver(Position());
+        await Activate(game);
+        await game.Act("P1", Play());
+        var unit = game.State.CardObjects["UNIT"];
+        var marker = Assert.Single(unit.UntilEndOfTurnEffects,
+            effect => effect.StartsWith(CoreRuleEngine.TimeAssassinDestructionPrefix, StringComparison.Ordinal));
+        var context = CoreRuleEngine.ReadTimeAssassinDestructionMarker(marker)!;
+        var forged = CoreRuleEngine.TimeAssassinDestructionMarker(context.TurnNumber, context.ControllerId,
+            context.Source, context.Target, context.CardNo, game.State.Tick + 1);
+        var altered = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+            ["UNIT"] = unit with { UntilEndOfTurnEffects = scenario == "duplicate" ? [marker, marker] : [forged] }
+        } };
+        Assert.Contains("invalid time assassin destruction marker", MatchRecoveryValidator.ValidateComponentStateAndViews(altered));
+    }
+
     [Theory]
     [InlineData("OGN·048/298")]
     [InlineData("SFD·022/221")]

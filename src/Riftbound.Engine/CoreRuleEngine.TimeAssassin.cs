@@ -16,7 +16,8 @@ public sealed record TimeAssassinDestructionContext(
     string ControllerId,
     ObjectBinding Source,
     ObjectBinding Target,
-    string CardNo);
+    string CardNo,
+    long CreatedTick);
 
 public sealed partial class CoreRuleEngine
 {
@@ -130,17 +131,18 @@ public sealed partial class CoreRuleEngine
             context.Source.Generation.ToString(CultureInfo.InvariantCulture),
             TimeAssassinIdentity(context.Target.ObjectId),
             context.Target.Generation.ToString(CultureInfo.InvariantCulture),
-            TimeAssassinIdentity(context.CardNo));
+            TimeAssassinIdentity(context.CardNo),
+            context.CreatedTick.ToString(CultureInfo.InvariantCulture));
 
     internal static string TimeAssassinDestructionMarker(
-        int turnNumber, string controllerId, ObjectBinding source, ObjectBinding target, string cardNo)
-        => TimeAssassinDestructionMarker(new(turnNumber, controllerId, source, target, cardNo));
+        int turnNumber, string controllerId, ObjectBinding source, ObjectBinding target, string cardNo, long createdTick)
+        => TimeAssassinDestructionMarker(new(turnNumber, controllerId, source, target, cardNo, createdTick));
 
     internal static TimeAssassinDestructionContext? ReadTimeAssassinDestructionMarker(string marker)
     {
         if (!marker.StartsWith(TimeAssassinDestructionPrefix, StringComparison.Ordinal)) return null;
         var fields = marker.Split('|');
-        if (fields.Length != 8
+        if (fields.Length != 9
             || !int.TryParse(fields[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var turn)
             || turn < 1
             || Decode(fields[2]) is not { Length: > 0 } controller
@@ -150,10 +152,12 @@ public sealed partial class CoreRuleEngine
             || Decode(fields[5]) is not { Length: > 0 } targetId
             || !long.TryParse(fields[6], NumberStyles.Integer, CultureInfo.InvariantCulture, out var targetGeneration)
             || targetGeneration < 0
-            || Decode(fields[7]) is not { Length: > 0 } cardNo)
+            || Decode(fields[7]) is not { Length: > 0 } cardNo
+            || !long.TryParse(fields[8], NumberStyles.Integer, CultureInfo.InvariantCulture, out var tick)
+            || tick < 1)
             return null;
         var context = new TimeAssassinDestructionContext(turn, controller,
-            new(sourceId, sourceGeneration), new(targetId, targetGeneration), cardNo);
+            new(sourceId, sourceGeneration), new(targetId, targetGeneration), cardNo, tick);
         return TimeAssassinDestructionMarker(context) == marker ? context : null;
 
         static string? Decode(string value)
@@ -174,6 +178,7 @@ public sealed partial class CoreRuleEngine
         MatchState state, TimeAssassinDestructionContext context, CardObjectState target)
     {
         if (context.TurnNumber != state.TurnNumber
+            || context.CreatedTick < 1 || context.CreatedTick > state.Tick
             || context.Target.ObjectId != target.ObjectId || context.Target.Generation < 0
             || !state.Seats.ContainsKey(context.ControllerId)
             || !LegendActionAbilityCatalog.IsSourceCardNoForAbility(
@@ -219,7 +224,7 @@ public sealed partial class CoreRuleEngine
             {
                 effects.Remove(TimeAssassinMarker(reduction));
                 var marker = TimeAssassinDestructionMarker(result.State.TurnNumber, player,
-                    reduction.Source, new(objectId, unit.ObjectGeneration), reduction.CardNo);
+                    reduction.Source, new(objectId, unit.ObjectGeneration), reduction.CardNo, reduction.CreatedTick);
                 unit = unit with { UntilEndOfTurnEffects = unit.UntilEndOfTurnEffects.Append(marker)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
                 events.Add(new("TIME_ASSASSIN_UNIT_MARKED_FOR_DESTRUCTION", "时间刺客标记单位于回合结束时摧毁", new Dictionary<string, object?> {

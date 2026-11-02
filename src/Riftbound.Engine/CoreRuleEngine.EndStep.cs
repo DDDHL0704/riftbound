@@ -69,10 +69,10 @@ public sealed partial class CoreRuleEngine
                     || target.ControllerId is null || !state.Seats.ContainsKey(target.ControllerId)
                     || !locations.TryGetValue(target.ObjectId, out var location)
                     || location.Zone is not ("BASE" or "BATTLEFIELD")) continue;
-                result.Add(new($"time-assassin-end-{state.Tick + 1}-{target.ObjectId}-{context.Source.ObjectId}",
+                result.Add(new($"time-assassin-end-{state.Tick + 1}-{target.ObjectId}-{context.Source.ObjectId}-{context.CreatedTick}",
                     target.ControllerId, target.ObjectId, EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) {
                     EndAbility = new(target.CardNo!, TimeAssassinEndDestructionKind,
-                        target, location, state.TurnNumber) });
+                        target, location, state.TurnNumber, CreationTick: context.CreatedTick) });
             }
         }
         result.AddRange(CaptureDelayedEmpowerEndAbilities(state));
@@ -246,7 +246,7 @@ public sealed partial class CoreRuleEngine
                 && c.Source.ObjectGeneration >= 0 && c.Source.CardNo == item.CardNo
                 && c.Source.OwnerId is { } capturedOwner && state.Seats.ContainsKey(capturedOwner)
                 && !c.Source.IsFaceDown && c.Source.Tags.Contains(CardObjectTags.UnitCard)
-                && c.Origin is null && c.CreationTick is null && c.RuneCount == 0
+                && c.Origin is null && c.CreationTick is > 0 && c.CreationTick <= state.Tick && c.RuneCount == 0
                 && c.Location.Zone is "BASE" or "BATTLEFIELD"
                 && item.ControllerId == c.Source.ControllerId && item.CardNo == c.CardNo
                 && state.Seats.ContainsKey(item.ControllerId)
@@ -257,6 +257,7 @@ public sealed partial class CoreRuleEngine
                 && c.Source.UntilEndOfTurnEffects.Any(marker =>
                     marker.StartsWith(TimeAssassinDestructionPrefix, StringComparison.Ordinal)
                     && ReadTimeAssassinDestructionMarker(marker) is { } context
+                    && context.CreatedTick == c.CreationTick
                     && context.ControllerId == endStep.PlayerId
                     && context.Target.ObjectId == c.Source.ObjectId
                     && ValidTimeAssassinDestructionContext(state, context, c.Source));
