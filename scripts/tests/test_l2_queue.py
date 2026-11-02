@@ -27,12 +27,15 @@ class L2QueueTests(unittest.TestCase):
                         head_repository=self.repository, pull_requests=[{'number': 7}])
         self.pr = dict(number=7, state='open', head=dict(ref='a/fixture', sha='b' * 40, repo=self.repository),
                        base=dict(ref='main', repo=self.repository))
+        self.commit_prs = []
         self.calls = []
 
     def fetch(self, path, method='GET'):
         self.calls.append((path, method))
         if path.endswith('/pulls/7'):
             return copy.deepcopy(self.pr)
+        if path.endswith('/commits/' + self.run['head_sha'] + '/pulls?per_page=100'):
+            return copy.deepcopy(self.commit_prs)
         if path.endswith('/branches/main'):
             return {'commit': {'sha': 'b' * 40}}
         if path.endswith('/actions/runs/123'):
@@ -88,6 +91,64 @@ class L2QueueTests(unittest.TestCase):
             with self.subTest(change=change):
                 self.pr = dict(original, **change)
                 self.assertFalse(self.assess()['obsolete'])
+
+    def test_cleared_associations_resolve_the_fixed_commit_and_recheck_closed_pr(self):
+        self.run['pull_requests'] = []
+        self.commit_prs = [{'number': 7}]
+        self.pr['state'] = 'closed'
+        self.pr['head']['sha'] = self.run['head_sha']
+        result = Q.cancel_obsolete(self.run, self.repo, self.workflow, self.fetch)
+        self.assertTrue(result['requested'])
+        self.assertEqual([('repos/owner/project/actions/runs/123', 'GET'),
+                          ('repos/owner/project/commits/' + 'a' * 40 + '/pulls?per_page=100', 'GET'),
+                          ('repos/owner/project/pulls/7', 'GET'),
+                          ('repos/owner/project/actions/runs/123/cancel', 'POST')], self.calls)
+
+    def test_cleared_associations_still_preserve_the_current_open_head(self):
+        self.run['pull_requests'] = []
+        self.commit_prs = [{'number': 7}]
+        self.pr['head']['sha'] = self.run['head_sha']
+        self.assertFalse(self.assess()['obsolete'])
+        self.pr['head']['sha'] = 'b' * 40
+        self.assertTrue(self.assess()['obsolete'])
+
+    def test_cleared_associations_cannot_bypass_live_branch_repository_or_base_checks(self):
+        self.run['pull_requests'] = []
+        self.commit_prs = [{'number': 7}]
+        self.pr['state'] = 'closed'
+        original = copy.deepcopy(self.pr)
+        for field, change in [('head', dict(ref='reused-branch')),
+                              ('head', dict(repo={'full_name': 'fork/project'})),
+                              ('base', dict(ref='release')),
+                              ('base', dict(repo={'full_name': 'other/project'}))]:
+            with self.subTest(field=field, change=change):
+                self.pr = copy.deepcopy(original)
+                self.pr[field].update(change)
+                self.assertFalse(Q.cancel_obsolete(self.run, self.repo, self.workflow, self.fetch)['requested'])
+        self.assertFalse(any(method == 'POST' for _, method in self.calls))
+
+    def test_commit_lookup_uncertainty_or_changed_association_never_cancels(self):
+        self.run['pull_requests'] = []
+        self.pr['state'] = 'closed'
+        self.commit_prs = [{'number': 7}]
+        self.assertTrue(self.assess()['obsolete'])
+        for value in [None, [], {}, [None], [{'number': True}], [{'number': '7'}],
+                      [{'number': 7}, {'number': 8}], [{'number': 7}] * 100]:
+            with self.subTest(value=value):
+                self.calls.clear()
+                self.commit_prs = value
+                self.assertFalse(Q.cancel_obsolete(self.run, self.repo, self.workflow, self.fetch)['requested'])
+                self.assertFalse(any(method == 'POST' for _, method in self.calls))
+
+    def test_commit_lookup_failure_cannot_post_a_cancellation(self):
+        self.run['pull_requests'] = []
+        def broken(path, method='GET'):
+            if '/commits/' in path:
+                raise RuntimeError('offline')
+            return self.fetch(path, method)
+        with self.assertRaisesRegex(RuntimeError, 'offline'):
+            Q.cancel_obsolete(self.run, self.repo, self.workflow, broken)
+        self.assertFalse(any(method == 'POST' for _, method in self.calls))
 
     def test_cancellation_rechecks_live_run_and_pr_before_posting(self):
         result = Q.cancel_obsolete(self.run, self.repo, self.workflow, self.fetch)

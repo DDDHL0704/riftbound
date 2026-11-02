@@ -175,7 +175,13 @@ public sealed class GuardianPendingChoiceOpeningRecoveryTests(ITestOutputHelper 
         internal List<MatchJournalEntry> Entries { get; } = [];
         internal MatchState Initial { get; }
         internal MatchState State { get; private set; }
-        internal IMatchSession Session { get; set; }
+        private ResolutionResult? lastResult;
+        private IMatchSession session = null!;
+        internal IMatchSession Session
+        {
+            get => session;
+            set { session = value; lastResult = null; }
+        }
         internal Opening(long seed)
         {
             Initial = MatchReplayInitialStateBuilder.FromSeats("guardian-choice-opening",
@@ -195,7 +201,7 @@ public sealed class GuardianPendingChoiceOpeningRecoveryTests(ITestOutputHelper 
             if (rawPresent)
             {
                 var fields = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
-                fields["promptId"] = Session.PromptFor(player).PromptId;
+                fields["promptId"] = (lastResult?.Prompts[player] ?? Session.PromptFor(player)).PromptId;
                 fields["snapshotTick"] = State.Tick;
                 raw = JsonSerializer.SerializeToElement(fields, Json);
             }
@@ -206,10 +212,14 @@ public sealed class GuardianPendingChoiceOpeningRecoveryTests(ITestOutputHelper 
             Assert.True(result.Accepted, result.ErrorMessage);
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             State = result.State;
+            lastResult = result;
             return result;
         }
         internal MatchRecoveryFrame ColdFrame(MatchState? state = null)
         {
+            // Normal frames project the last accepted command's state. Forged
+            // states and the first frame after replacing Session rebuild views.
+            var result = state is null ? lastResult : null;
             state ??= State;
             var commands = Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId,
                 entry.CommandType, entry.RawCommand, entry.StartedTick, entry.CompletedTick,
@@ -218,8 +228,8 @@ public sealed class GuardianPendingChoiceOpeningRecoveryTests(ITestOutputHelper 
             var events = Entries.SelectMany(entry => entry.Events.Select((ev, i) =>
                 new RecoveredEvent(entry.StartedEventSequence + i + 1, entry.CompletedTick, i, ev))).ToArray();
             var sequence = Entries[^1].CompletedEventSequence;
-            var snapshots = ResolutionResult.BuildSnapshots(state);
-            var prompts = ResolutionResult.BuildPrompts(state);
+            var snapshots = result?.Snapshots ?? ResolutionResult.BuildSnapshots(state);
+            var prompts = result?.Prompts ?? ResolutionResult.BuildPrompts(state);
             var views = Initial.Seats.Keys.ToDictionary(player => player, player =>
                 new RecoveredPlayerView(player, state.Tick, sequence, snapshots[player], state.Tick, sequence, prompts[player]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(Initial.RoomId, state.Tick, sequence, [], state);

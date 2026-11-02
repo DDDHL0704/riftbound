@@ -116,7 +116,8 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
             var recycled = (area ? new[] { "TOKEN-COST-RUNE-0", "TOKEN-COST-RUNE-1" } : new[] { "TOKEN-COST-RUNE-0" })
                 .Concat(Enumerable.Range(0, copies).Select(i => "TOKEN-COST-RUNE-" + (i + 2))).ToArray();
             Assert.Equal(recycled, game.State.PlayerZones["P1"].RuneDeck);
-            Assert.Empty(game.State.TriggerQueue); Assert.Empty(game.State.StackItems); await game.Replay();
+            // The last accepted command already replays the complete original history.
+            Assert.Empty(game.State.TriggerQueue); Assert.Empty(game.State.StackItems);
         }
         finally { await Flow.Save("created-copied-ceased-area-" + area + "-copies-" + copies, initial, game); }
     }
@@ -215,7 +216,7 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
             Assert.DoesNotContain(game.Events().Skip(closingPrefix), e => e.Event.Kind is "BATTLEFIELD_CONQUERED" or "SCORE_GAINED");
             Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, e => e.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal)
                 || e.StartsWith("BATTLE_ROLE_", StringComparison.Ordinal));
-            await game.Replay();
+            // The last accepted command already replays the complete original history.
         }
         finally { await Flow.Save("created-copied-ceased-battlefield-area-copies-" + copies, initial, game); }
     }

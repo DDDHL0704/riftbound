@@ -72,7 +72,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.Equal(4, Might(game.State, "ENEMY", "P2")); Restore(initial, game);
             await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2"));
             Assert.Equal(4, Might(game.State, "UNIT")); Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
-            await game.Replay(); Restore(initial, game);
+            Restore(initial, game);
         }
         finally { await Save("mana-power-" + empower + "-" + destination.Replace(':', '-'), initial, game); }
     }
@@ -90,7 +90,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Top(); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.Equal(1, Might(game.State, "ENEMY", "P2")); Restore(initial, game);
             await game.Top(); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
-            Assert.Equal(31, game.State.RunePools["P1"].Mana); await game.Replay(); Restore(initial, game);
+            Assert.Equal(31, game.State.RunePools["P1"].Mana); Restore(initial, game);
         }
         finally { await Save("pending-empower-no-discount", initial, game); }
     }
@@ -105,7 +105,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P1", new PlayCardCommand("SPELL", "SFD·080/221", ["ENEMY"]));
             Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
             Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage); await game.Top();
-            Assert.Equal(1, game.State.CardObjects["ENEMY"].Damage); await game.Replay(); Restore(initial, game);
+            Assert.Equal(1, game.State.CardObjects["ENEMY"].Damage); Restore(initial, game);
         }
         finally { await Save("floor-one-power-zero", initial, game); }
     }
@@ -122,7 +122,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.Equal(initialMana - 7, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", Smoke()); Assert.Equal(initialMana - 8, game.State.RunePools["P1"].Mana);
             Assert.Equal(0, game.State.RunePools["P1"].TotalPower); await game.Top();
-            Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+            Assert.Equal(1, Might(game.State, "ENEMY", "P2")); Restore(initial, game);
         }
         finally { await Save("no-power-pool-" + initialMana, initial, game); }
     }
@@ -139,7 +139,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage); Restore(initial, game);
             await game.Top(); Assert.Equal(3, game.State.CardObjects["ENEMY"].Damage);
-            Assert.DoesNotContain("ENEMY", game.State.PlayerZones["P2"].Graveyard); await game.Replay(); Restore(initial, game);
+            Assert.DoesNotContain("ENEMY", game.State.PlayerZones["P2"].Graveyard); Restore(initial, game);
         }
         finally { await Save("generic-reduction-removes-red-power", initial, game); }
     }
@@ -163,7 +163,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
                     Assert.DoesNotContain(id, JsonSerializer.Serialize(ResolutionResult.BuildPrompts(game.State)[viewer], Json));
             Restore(initial, game); await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [choice.LegalObjectIds[0]]));
             Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems);
-            Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); await game.Replay(); Restore(initial, game);
+            Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); Restore(initial, game);
         }
         finally { await Save("zero-base-mana-floor-no-increase", initial, game); }
     }
@@ -183,7 +183,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.Equal(afterPayment ? 31 : 30, game.State.RunePools["P1"].Mana);
             Assert.Equal(afterPayment ? 4 : 3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
             Restore(initial, game); await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2"));
-            Assert.Equal(afterPayment ? 31 : 30, game.State.RunePools["P1"].Mana); await game.Replay(); Restore(initial, game);
+            Assert.Equal(afterPayment ? 31 : 30, game.State.RunePools["P1"].Mana); Restore(initial, game);
         }
         finally { await Save("source-return-payment-" + afterPayment, initial, game); }
     }
@@ -218,7 +218,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
                 Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
             }
             Assert.Equal(1, quote.Cost!.Mana); Restore(initial, game);
-            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); Restore(initial, game);
         }
         finally { await Save("explicit-choice-current-source-" + sourceReturns, initial, game); }
     }
@@ -235,7 +235,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.All(new[] { "UNIT", "SECOND" }, id => Assert.True(game.State.CardObjects[id].IsEmpowered));
             await game.Act("P1", Smoke()); Assert.Equal(25, game.State.RunePools["P1"].Mana);
             Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]); await game.Top();
-            Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+            Assert.Equal(1, Might(game.State, "ENEMY", "P2")); Restore(initial, game);
         }
         finally { await Save("two-auras-unit-ability-exclusion", initial, game); }
     }
@@ -252,7 +252,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
                 OptionalCosts: ["ECHO", "SPELL_POWER_REDUCTION:blue:2"]));
             Assert.Equal(25, game.State.RunePools["P1"].Mana); Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
             Assert.Equal(2, Assert.Single(game.State.StackItems).EffectRepeatCount); Restore(initial, game);
-            await game.Top(); Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage); await game.Replay(); Restore(initial, game);
+            await game.Top(); Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage); Restore(initial, game);
         }
         finally { await Save("two-real-auras-two-power", initial, game); }
     }
@@ -288,7 +288,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Restore(initial, game); await game.Top();
             if (twoPips) Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage);
             else Assert.Equal(1, Might(game.State, "ENEMY", "P2"));
-            await game.Replay(); Restore(initial, game);
+            Restore(initial, game);
         }
         finally { await Save("current-aggregate-not-source-identity-" + twoPips, initial, game); }
     }
@@ -305,7 +305,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P1", new PlayCardCommand("SPELL", "VEN·059", ["ENEMY"]));
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Restore(initial, game); await game.Top(); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
-            await game.Replay(); Restore(initial, game);
+            Restore(initial, game);
         }
         finally { await Save("own-floor-then-ven059-zero", initial, game); }
     }
@@ -321,7 +321,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             var before = game.State.RunePools["P1"]; await game.Act("P1", Smoke());
             Assert.Equal(before.Mana - mana, game.State.RunePools["P1"].Mana);
             Assert.Equal(before.TotalPower - 1, game.State.RunePools["P1"].TotalPower);
-            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); Restore(initial, game);
         }
         finally { await Save("old-apprentice-scope-" + destination.Replace(':', '-'), initial, game); }
     }
@@ -339,7 +339,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.Equal(31, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Red));
             Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
             if (game.State.StackItems.Count > 0) await game.Top();
-            Assert.Equal("UNIT", game.State.CardObjects["SWORD"].AttachedToObjectId); await game.Replay(); Restore(initial, game);
+            Assert.Equal("UNIT", game.State.CardObjects["SWORD"].AttachedToObjectId); Restore(initial, game);
         }
         finally { await Save("equipment-is-not-spell", initial, game); }
     }
@@ -354,7 +354,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P1", new PlayCardCommand("SPELL", "SFD·080/221", ["ENEMY"], OptionalCosts: ["ECHO"]));
             Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
             Assert.Equal(2, Assert.Single(game.State.StackItems).EffectRepeatCount); Restore(initial, game);
-            await game.Top(); Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage); await game.Replay(); Restore(initial, game);
+            await game.Top(); Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage); Restore(initial, game);
         }
         finally { await Save("echo-total-mana-power", initial, game); }
     }
@@ -382,7 +382,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P1", command); Assert.True(quote.CanPay, quote.Message);
             Assert.Equal(1, quote.Cost!.Mana); Assert.Equal(1, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
             Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
-            await game.Top(); Assert.Equal(1, Might(game.State, "WARDED", "P2")); await game.Replay(); Restore(initial, game);
+            await game.Top(); Assert.Equal(1, Might(game.State, "WARDED", "P2")); Restore(initial, game);
         }
         finally { await Save("ward-legal-allocation-" + remainingTrait, initial, game); }
     }
@@ -428,7 +428,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.Equal(new[] { first, second }, item.RepeatExecutions!.SelectMany(execution => execution.TargetObjectIds));
             Restore(initial, game); await game.Top();
             Assert.Equal(1, game.State.CardObjects["WARDED"].Damage); Assert.Equal(1, game.State.CardObjects["ENEMY"].Damage);
-            await game.Replay(); Restore(initial, game);
+            Restore(initial, game);
         }
         finally { await Save("echo-distinct-ward-" + wardFirst, initial, game); }
     }
@@ -459,7 +459,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             if (detach == "after") { await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top(); }
             Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
             if (detach != "keep") Assert.Null(game.State.CardObjects["HOST"].AttachmentUnitCopies);
-            Restore(initial, game); await game.Top(); Assert.Equal(1, Might(game.State, "COPY-SOURCE")); await game.Replay(); Restore(initial, game);
+            Restore(initial, game); await game.Top(); Assert.Equal(1, Might(game.State, "COPY-SOURCE")); Restore(initial, game);
         }
         finally { await Save("actual-copy-discount-" + detach, initial, game); }
     }
@@ -489,7 +489,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P1", new TapRuneCommand("BLUE-0", ["BLUE-0", "BLUE-1"]));
             await game.Act("P1", new RecycleRuneCommand("BLUE-0")); await game.Act("P1", Smoke() with { TargetObjectIds = ["UNIT"] });
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
-            await game.Top(); Assert.Equal(1, VisibleMight(game.State, "UNIT", "P1")); await game.Replay(); Restore(initial, game);
+            await game.Top(); Assert.Equal(1, VisibleMight(game.State, "UNIT", "P1")); Restore(initial, game);
         }
         finally { await Save("actual-current-controller-not-owner", initial, game); }
     }

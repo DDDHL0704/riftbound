@@ -335,9 +335,11 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var restored = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             foreach (var viewer in State.Seats.Keys)
             {
-                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Snapshot, Json), JsonSerializer.SerializeToNode(Session.SnapshotFor(viewer), Json)));
-                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Prompt, Json), JsonSerializer.SerializeToNode(Session.PromptFor(viewer), Json)));
-                var visible = JsonSerializer.Serialize(Session.SnapshotFor(viewer), Json) + JsonSerializer.Serialize(Session.PromptFor(viewer), Json);
+                // Compare and inspect the same fresh projection from the restored session.
+                var snapshot = Session.SnapshotFor(viewer); var prompt = Session.PromptFor(viewer);
+                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Snapshot, Json), JsonSerializer.SerializeToNode(snapshot, Json)));
+                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Prompt, Json), JsonSerializer.SerializeToNode(prompt, Json)));
+                var visible = JsonSerializer.Serialize(snapshot, Json) + JsonSerializer.Serialize(prompt, Json);
                 foreach (var other in State.Seats.Keys.Where(p => p != viewer)) foreach (var id in Hidden(other).Where(id => !publicObjects.Contains(id)))
                     Assert.DoesNotContain(id, visible, StringComparison.Ordinal);
             }
