@@ -822,8 +822,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 pendingPayment,
                 out var readyLegendBattlefieldId,
                 out var readyLegendBattlefieldObjectId,
-                out var readyLegendSourceObjectId,
-                out var legendObjectId))
+                out var readyLegendSourceObjectId))
         {
             return ResolveBattlefieldConquerReadyLegendTriggerPayment(
                 state,
@@ -832,8 +831,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 submittedChoices,
                 readyLegendBattlefieldId,
                 readyLegendBattlefieldObjectId,
-                readyLegendSourceObjectId,
-                legendObjectId);
+                readyLegendSourceObjectId);
         }
 
         if (TryReadBattlefieldConquerSandSoldierPaymentContext(
@@ -1010,8 +1008,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> submittedChoices,
         string battlefieldId,
         string battlefieldObjectId,
-        string sourceObjectId,
-        string legendObjectId)
+        string sourceObjectId)
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -1021,16 +1018,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 battlefieldState.CardNo,
                 BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger,
                 out var trigger)
-            || pendingPayment.ManaCost != trigger.ManaCost.GetValueOrDefault()
-            || !playerZones.TryGetValue(intent.PlayerId, out var zones)
-            || !zones.LegendZone.Contains(legendObjectId, StringComparer.Ordinal)
-            || !cardObjects.TryGetValue(legendObjectId, out var legendState)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, intent.PlayerId)
-            || !legendState.IsExhausted)
+            || pendingPayment.ManaCost != trigger.ManaCost.GetValueOrDefault())
         {
             return RejectWithCorePrompts(
                 state,
-                "当前触发支付窗口的传奇殿堂来源或传奇目标已不可用。",
+                "当前触发支付窗口的传奇殿堂来源已不可用。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1048,11 +1040,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        // CN Radiance FAQ / 440.2.a, 440.3.b-c, 355.10.g: “your legend”
+        // is a non-target choice made while resolving, after accepting the cost.
+        var legendObjectId = ChooseControlledLegend(state, intent.PlayerId);
         var runePools = paymentCommit.RunePools;
-        cardObjects[legendObjectId] = legendState with
-        {
-            IsExhausted = false
-        };
+        var wasExhausted = legendObjectId is not null && cardObjects[legendObjectId].IsExhausted;
+        if (legendObjectId is not null)
+            cardObjects[legendObjectId] = cardObjects[legendObjectId] with { IsExhausted = false };
         var events = new List<GameEvent>
         {
             new(
@@ -1084,17 +1078,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["legendObjectId"] = legendObjectId,
                     ["paymentId"] = pendingPayment.PaymentId,
                     ["paymentWindow"] = pendingPayment.PaymentWindow
-                }),
-            new(
-                "LEGEND_READIED",
-                $"{legendObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
+                })
+        };
+        if (wasExhausted)
+            events.Add(new("LEGEND_READIED", $"{legendObjectId} 变为活跃状态",
+                new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = legendObjectId,
                     ["reason"] = trigger.Kind
-                })
-        };
+                }));
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -1604,14 +1596,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                      pendingPayment,
                      out battlefieldId,
                      out battlefieldObjectId,
-                     out sourceObjectId,
-                     out var legendObjectId))
+                     out sourceObjectId))
         {
             payload["trigger"] = TriggerKinds.BattlefieldConquerPayReadyLegend;
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
-            payload["legendObjectId"] = legendObjectId;
         }
         else if (TryReadBattlefieldConquerSandSoldierPaymentContext(
                      pendingPayment,
@@ -1733,29 +1723,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string BuildBattlefieldConquerReadyLegendPaymentReason(
         string battlefieldId,
         string battlefieldObjectId,
-        string sourceObjectId,
-        string legendObjectId)
+        string sourceObjectId)
     {
         return string.Join(
             '|',
             TriggerKinds.BattlefieldConquerPayReadyLegend,
             battlefieldId,
             battlefieldObjectId,
-            sourceObjectId,
-            legendObjectId);
+            sourceObjectId);
     }
 
     private static bool TryReadBattlefieldConquerReadyLegendPaymentContext(
         PendingPaymentState pendingPayment,
         out string battlefieldId,
         out string battlefieldObjectId,
-        out string sourceObjectId,
-        out string legendObjectId)
+        out string sourceObjectId)
     {
         battlefieldId = string.Empty;
         battlefieldObjectId = string.Empty;
         sourceObjectId = string.Empty;
-        legendObjectId = string.Empty;
         if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(pendingPayment.Reason))
         {
@@ -1763,12 +1749,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
-        if (parts.Length != 5
+        if (parts.Length != 4
             || !string.Equals(parts[0], TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
-            || string.IsNullOrWhiteSpace(parts[3])
-            || string.IsNullOrWhiteSpace(parts[4]))
+            || string.IsNullOrWhiteSpace(parts[3]))
         {
             return false;
         }
@@ -1776,7 +1761,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         battlefieldId = parts[1];
         battlefieldObjectId = parts[2];
         sourceObjectId = parts[3];
-        legendObjectId = parts[4];
         return true;
     }
 
@@ -15072,37 +15056,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }), targetState, playerId, playerZones, cardObjects));
     }
 
-    private static bool TryGetFirstExhaustedLegend(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string legendObjectId,
-        out CardObjectState legendState)
-    {
-        legendObjectId = string.Empty;
-        legendState = new CardObjectState();
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !candidate.IsExhausted)
-            {
-                continue;
-            }
-
-            legendObjectId = objectId;
-            legendState = candidate;
-            return true;
-        }
-
-        return false;
-    }
-
     private static bool TryGetActiveVexLegend(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -16787,8 +16740,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
                 BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger,
-                out var trigger)
-            || !TryGetFirstExhaustedLegend(playerZones, cardObjects, playerId, out var legendObjectId, out _))
+                out var trigger))
         {
             return false;
         }
@@ -16810,8 +16762,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: BuildBattlefieldConquerReadyLegendPaymentReason(
                 battlefieldId,
                 battlefieldObjectId,
-                sourceObjectId,
-                legendObjectId));
+                sourceObjectId));
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
             $"{playerId} 征服传奇殿堂后等待支付重置传奇触发费用",
@@ -16825,7 +16776,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
                 ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["legendObjectId"] = legendObjectId,
                 ["mana"] = manaCost,
                 ["power"] = 0,
                 ["cost"] = new Dictionary<string, object?>
