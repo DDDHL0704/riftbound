@@ -9465,6 +9465,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·090/167", "伊芙琳", 5, "RAD_090_EVELYNN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|伏击"),
+        new("RAD·090a/167", "伊芙琳", 5, "RAD_090A_EVELYNN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|伏击"),
         new("RAD·086/167", "奎桑提", 5, "RAD_086_KSANTE_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守2|急速",
             HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Orange),
