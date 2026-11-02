@@ -79,6 +79,36 @@ public sealed class RadEkkoRewindTests
     }
 
     [Fact]
+    public async Task ARealCopiedEkkoReplaysThePhysicalUnitAfterItsCopiedFaceEnds()
+    {
+        var initial = OfficialCopyIdentityTests.AddSpell(ShadySpectaclesTests.Position("RAD·021/167"), "COST", "UNL-009/219");
+        var g = new Driver(initial);
+        await g.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"]));
+        await g.Top();
+        var copy = g.State.PendingRuleChoice!.Request;
+        await g.Act("P1", new PayCostCommand(copy.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+        Assert.Equal("RAD·021/167", g.State.CardObjects["HOST"].CardNo);
+        Assert.NotNull(g.State.CardObjects["HOST"].AttachmentUnitCopies);
+        await g.Act("P1", new ActivateAbilityCommand("HOST", Ability, [], OptionalCosts: ["DISCARD_HAND_CARD:COST"]));
+        await g.Top();
+        Assert.Equal("OGN·096/298", g.State.CardObjects["HOST"].CardNo);
+        Assert.Null(g.State.CardObjects["HOST"].AttachmentUnitCopies);
+        Assert.Null(g.State.CardObjects["GEAR"].AttachedToObjectId);
+        var pending = Assert.IsType<PendingEffectPlayState>(g.State.PendingEffectPlay);
+        Assert.Equal("P1", pending.PlayerId);
+        Assert.Equal("OGN·096/298", pending.Parent.SimpleActivation!.ReplayCardNo);
+        foreach (var forged in new[] { null, "RAD·021/167", "OGN·001/298" })
+            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(g.State with { PendingEffectPlay = pending with {
+                Parent = pending.Parent with { SimpleActivation = pending.Parent.SimpleActivation with { ReplayCardNo = forged } } } }));
+        var resources = g.State.RunePools["P1"];
+        await g.Act("P1", new PlayCardCommand("HOST", "OGN·096/298", []));
+        Assert.Equal(resources, g.State.RunePools["P1"]);
+        Assert.Contains("HOST", g.State.PlayerZones["P1"].Base);
+        Assert.Equal("OGN·096/298", g.State.CardObjects["HOST"].CardNo);
+        await g.Replay();
+    }
+
+    [Fact]
     public async Task ReturningTheSourceInResponseDoesNotBanishTheNewHandObject()
     {
         var s = OfficialCopyIdentityTests.AddSpell(Position(), "RETURN", "OGN·104/298");

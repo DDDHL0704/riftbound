@@ -20,6 +20,8 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public long SourceFaceRevision { get; init; }
     public string ReturnTiming { get; init; } = "";
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? ReplayCardNo { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -232,6 +234,8 @@ public sealed partial class CoreRuleEngine
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets) {
                 SourceFaceRevision = source.CopyFaceTransitions?.Count ?? 0,
+                ReplayCardNo = spec.BanishesSourceThenReplaysToBase
+                    ? source.AttachmentUnitCopies?.Basis.CardNo ?? source.CardNo : null,
                 ReturnTiming = ability.SwiftSpeed && state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : "" };
         var targetGenerations = targets
             .Where(id => cards.ContainsKey(id))
@@ -309,6 +313,9 @@ public sealed partial class CoreRuleEngine
     {
         if (state.CardObjects.TryGetValue(context.Source.ObjectId, out var source))
             return context.CeasedSource is null && source.ObjectGeneration >= context.Source.Generation
+                && (ability.SimpleEffect?.BanishesSourceThenReplaysToBase == true
+                    ? context.ReplayCardNo == (source.AttachmentUnitCopies?.Basis.CardNo ?? source.CardNo)
+                    : context.ReplayCardNo is null)
                 && (source.ObjectGeneration != context.Source.Generation
                     || CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) == cardNo);
         return context.CeasedSource is { } ceased && ceased.DepartedTick >= context.AcquiredTick

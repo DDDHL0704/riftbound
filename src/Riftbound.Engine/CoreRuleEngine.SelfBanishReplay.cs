@@ -20,7 +20,7 @@ public sealed partial class CoreRuleEngine
             || p.Sources.Count != 1 || !p.Sources.TryGetValue(context.Source.ObjectId, out var generation)
             || generation != context.Source.Generation + 1
             || !state.CardObjects.TryGetValue(context.Source.ObjectId, out var card) || card.ObjectGeneration != generation
-            || card.IsFaceDown || TokenObjectRules.IsToken(card) || card.CardNo != parent.CardNo
+            || card.IsFaceDown || TokenObjectRules.IsToken(card) || card.CardNo != context.ReplayCardNo
             || !card.Tags.Contains(CardObjectTags.UnitCard) || card.OwnerId is not { } owner
             || card.ControllerId != owner || p.SourcePlayerId != (owner == p.PlayerId ? null : owner)
             || !state.PlayerZones.TryGetValue(owner, out var zones) || !zones.Banished.Contains(card.ObjectId)
