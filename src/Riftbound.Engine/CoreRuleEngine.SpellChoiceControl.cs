@@ -109,7 +109,7 @@ public sealed partial class CoreRuleEngine
     {
         // Editing one choice at a time represents partial remakes and arbitrary target counts
         // without materializing every combination. Confirmation validates the whole draft.
-        var executions = (spell.RepeatExecutions ?? [new(spell.EffectKind, spell.TargetObjectIds,
+        var executions = (spell.ModeExecutions?.Select(m => m.Execution).ToArray() ?? spell.RepeatExecutions ?? [new(spell.EffectKind, spell.TargetObjectIds,
             spell.TargetGenerations ?? new Dictionary<string, long>(), spell.MovementDestinations, spell.Destination)]).ToArray();
         remade = false;
         if (!executions.Any(e => HasRemakableSpellDeclaration(spell, e, targetsOnly))) return spell;
@@ -118,7 +118,7 @@ public sealed partial class CoreRuleEngine
         {
             var options = new List<RuleChoiceOption> { new("KEEP_ALL", "不做新的选择：保留所有原选择（包括已不合法的选择）") };
             var edits = new Dictionary<string, (int Index, SpellExecutionState Execution)>();
-            if (executions.All(e => HasLegalRemadeExecution(state, spell, e)))
+            if (executions.All(e => HasLegalRemadeExecution(state, spell, e)) && HasDistinctRemadeModes(spell, executions))
                 options.Add(new("CONFIRM", "确认新的选择；所有目标与保留选择均合法"));
             for (var i = 0; i < executions.Length; i++)
             {
@@ -126,7 +126,7 @@ public sealed partial class CoreRuleEngine
                 if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var definition)) continue;
                 definition = definition with { StandbyPlayFrom = spell.PlayedFromStandby };
                 if (!targetsOnly)
-                    foreach (var mode in CardBehaviorRegistry.GetAll().Where(d => d.CardNo == spell.CardNo && d.EffectKind != execution.EffectKind))
+                    foreach (var mode in CardBehaviorRegistry.GetAll().Where(d => d.CardNo == spell.CardNo && d.EffectKind != execution.EffectKind && d.SpellModes is null))
                         Add(execution with { EffectKind = mode.EffectKind }, $"第 {i + 1} 次：模式 {mode.Mode}（{mode.DisplayName}）");
                 var candidates = state.CardObjects.Keys.Concat(state.StackItems.Where(s => s.StackItemId != spell.StackItemId
                     && s.StackItemId != resolvingItemId).Select(s => s.StackItemId))
@@ -236,8 +236,26 @@ public sealed partial class CoreRuleEngine
     private static string ChoiceObjectLabel(MatchState state, string id)
         => state.CardObjects.TryGetValue(id, out var card) ? OfficialCardSourceIdentityGroups.DisplayName(card.CardNo ?? "") + "（" + id + "）" : id;
 
+    private static bool HasDistinctRemadeModes(StackItemState spell, IReadOnlyList<SpellExecutionState> executions)
+        => spell.ModeExecutions is null || CardBehaviorRegistry.TryGetByCardNo(spell.CardNo!, out var root)
+            && root.SpellModes is { } spec && executions.Chunk(spec.RequiredModes).All(group =>
+                group.Length == spec.RequiredModes && group.Select(e => e.EffectKind).Distinct(StringComparer.Ordinal).Count() == spec.RequiredModes
+                    && group.All(e => spec.Modes.Any(mode => mode.EffectKind == e.EffectKind)));
+
     private static StackItemState ApplyRemadeExecutions(MatchState state, StackItemState spell, IReadOnlyList<SpellExecutionState> executions)
     {
+        if (spell.ModeExecutions is not null && CardBehaviorRegistry.TryGetByCardNo(spell.CardNo!, out var root)
+            && root.SpellModes is { } spec)
+        {
+            var modes = executions.Chunk(spec.RequiredModes).SelectMany(group => spec.Modes
+                .Where(mode => group.Any(e => e.EffectKind == mode.EffectKind))
+                .Select(mode => new DeclaredSpellMode(mode.Mode, group.Single(e => e.EffectKind == mode.EffectKind)))).ToArray();
+            var firstGroup = modes.Take(spec.RequiredModes).ToArray();
+            return spell with { EffectKind = root.EffectKind, ModeExecutions = modes, CompletedModeExecutions = 0,
+                TargetObjectIds = firstGroup.SelectMany(m => m.Execution.TargetObjectIds).ToArray(),
+                TargetGenerations = firstGroup.SelectMany(m => m.Execution.TargetGenerations).GroupBy(p => p.Key)
+                    .ToDictionary(g => g.Key, g => g.First().Value), RepeatExecutions = null };
+        }
         var first = executions[0];
         var chosen = executions.SelectMany(e => e.TargetObjectIds).ToHashSet(StringComparer.Ordinal);
         return spell with { EffectKind = first.EffectKind, TargetObjectIds = first.TargetObjectIds,

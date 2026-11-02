@@ -87,7 +87,7 @@ internal static class TemporaryUnitEffectRules
         return state.StackItems.Any(item => !StackObjectRules.IsAbility(item) && item.ControllerId != player
             && state.CardObjects.TryGetValue(item.SourceObjectId, out var spell) && spell.Tags.Contains("COLOR:" + trait)
             && (item.TargetObjectIds.Contains(target) && item.TargetGenerations?.GetValueOrDefault(target, -1) == unit.ObjectGeneration
-                || item.RepeatExecutions?.Any(execution => execution.TargetObjectIds.Contains(target)
+                || (item.ModeExecutions?.Select(m => m.Execution) ?? item.RepeatExecutions)?.Any(execution => execution.TargetObjectIds.Contains(target)
                     && execution.TargetGenerations.GetValueOrDefault(target, -1) == unit.ObjectGeneration) == true));
     }
 }

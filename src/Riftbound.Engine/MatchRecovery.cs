@@ -4233,6 +4233,8 @@ public static partial class MatchRecoveryValidator
         if (!BattleResultRecoveryRules.ValidContinuation(state)) errors.Add("invalid captured battle result continuation");
         if (!TurnEquipmentPlayRules.ValidAll(state)) errors.Add("invalid turn equipment play permission");
         foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidSpellModeExecutions(state, item)) errors.Add("invalid spell mode execution plan");
+        foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidDepartedTokenTargets(state, item)) errors.Add("invalid departed token target");
         foreach (var item in state.StackItems)
             if (!DravenBattleDeathRecoveryRules.Valid(state, item)) errors.Add("invalid stacked Draven battle-death skill");
@@ -4561,7 +4563,7 @@ public static partial class MatchRecoveryValidator
             if (item.InsightCompleted)
                 errors.Add("completed Insight must resume atomically and cannot remain on stack");
             if (item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions > item.EffectRepeatCount
-                || (item.DeckChoiceCompleted && item.CompletedDeckExecutions < item.EffectRepeatCount))
+                || (item.DeckChoiceCompleted && item.CompletedDeckExecutions < (item.ModeExecutions is null ? item.EffectRepeatCount : 1)))
                 errors.Add("invalid deck resolution continuation count");
             if (!CoreRuleEngine.ValidSequentialMovementPlan(state, item.EffectKind, item.TargetObjectIds.Count, item.MovementDestinations))
                 errors.Add("invalid sequential movement plan");
@@ -5455,6 +5457,10 @@ public static partial class MatchRecoveryValidator
                 stackItem.TargetObjectIds,
                 targetReferences,
                 errors);
+            if (stackItem.ModeExecutions is { } modes)
+                foreach (var mode in modes)
+                    ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+                        $"stack item {stackItem.StackItemId} mode target object", mode.Execution.TargetObjectIds, targetReferences, errors);
             if (stackItem.RepeatExecutions is { } executions)
                 foreach (var execution in executions)
                     ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(

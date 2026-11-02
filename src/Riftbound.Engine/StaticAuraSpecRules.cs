@@ -350,6 +350,7 @@ internal static class StaticAuraSpecRules
                 && aura.RequiredParticipantCount is > 0
             || aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment
             || string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, StringComparison.Ordinal)
+            || aura.ParticipantScope == StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits
             || string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
@@ -487,6 +488,7 @@ internal static class StaticAuraSpecRules
 
     private static bool TargetMatchesFilter(string targetFilter, CardObjectState target)
     {
+        if (targetFilter == StaticAuraTargetFilters.Exhausted) return target.IsExhausted;
         if (targetFilter == StaticAuraTargetFilters.Stunned)
             return target.UntilEndOfTurnEffects.Contains("STUNNED", StringComparer.Ordinal);
         if (string.Equals(targetFilter, StaticAuraTargetFilters.Token, StringComparison.Ordinal))
