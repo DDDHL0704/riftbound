@@ -12,6 +12,7 @@ public sealed partial class CoreRuleEngine
             ["OGN·066/298"] = ("SCORE", 1), ["OGN·067/298"] = ("RETURN_SELF", 1),
             ["SFD·058/221"] = ("LOOK_EQUIPMENT", 1),
             ["RAD·156/167"] = ("OPTIONAL_RETURN_SELF", 1),
+            ["RAD·106/167"] = ("RETURN_SELF", 1),
             ["SFD·027/221"] = ("DRAW", 2), ["SFD·035/221"] = ("RETURN_PERMANENT", 1),
             ["SFD·089/221"] = ("ROBOT", 1), ["SFD·152/221"] = ("GOLD", 2),
             ["SFD·201/221"] = ("RENATA", 1), ["SFD·214/221"] = ("PAY_POWER_SCORE", 4), ["SFD·219/221"] = ("CHANNEL_ALL", 1),

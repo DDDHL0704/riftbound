@@ -18,9 +18,16 @@ public sealed partial class CoreRuleEngine
     internal const string CreateEndAbilityEffect = "CREATE_DELAYED_END_ABILITY";
     internal const string DelayedEndReadyPrefix = "DELAYED_END_READY:";
     private static TriggerSpec? EndSpec(string? no) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(no)
-        .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd && t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes or TriggerKinds.TurnEndRecycleRunesCall)
+        .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd
+            && (t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes or TriggerKinds.TurnEndRecycleRunesCall
+                || t.Kind == TriggerKinds.TurnEndCreateEquipmentToken && t.CreatedTokenCount is > 0
+                    && t.CreatedTokenDestination == TriggerZones.Base && EndEquipmentTokenFactory(t) is not null))
         ?? (CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var behavior) && behavior.EndStepSelfDestructionDamage > 0
             ? new("DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS", TriggerTimings.TurnEnd, "摧毁来源并对其控制者的所有单位造成伤害。", DamageAmount: behavior.EndStepSelfDestructionDamage) : null);
+
+    private static P6TokenFactoryDefinition? EndEquipmentTokenFactory(TriggerSpec spec)
+        => P6TokenFactoryCatalog.GetAll().FirstOrDefault(f => f.TokenFamilyName == spec.CreatedTokenName
+            && f.Tags.Contains(CardObjectTags.EquipmentCard) && !f.RequiresCopySource);
 
     private static TriggerQueueItemState[] CaptureEndAbilities(MatchState state)
     {
@@ -34,7 +41,9 @@ public sealed partial class CoreRuleEngine
             foreach (var instance in AttachedRuleTextRules.Instances(state, source))
             {
                 var spec = EndSpec(instance.CardNo);
-                if (spec is null || spec.RequiresSourceBattlefieldAtTrigger == true && location.Zone != "BATTLEFIELD") continue;
+                if (spec is null || spec.RequiresSourceBattlefieldAtTrigger == true && location.Zone != "BATTLEFIELD"
+                    || spec.RequiresControlledSourceBattlefieldAtTrigger == true
+                        && !BattlefieldLocalRules.ControlledBy(state, source.ControllerId!).Any(f => f.ObjectId == location.BattlefieldObjectId)) continue;
                 result.Add(new($"end-{state.Tick + 1}-{source.ObjectId}-{instance.Id}", state.TurnPlayerId, source.ObjectId,
                     EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) {
                     EndAbility = new(instance.CardNo, spec.Kind, source, location, state.TurnNumber,
@@ -125,6 +134,18 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveEndAbility(MatchState state, StackItemState item)
     {
         if (item.EndAbility!.Kind == TriggerKinds.TurnEndRecycleRunesCall) return ResolveEndRuneRecycleCall(state, item);
+        if (item.EndAbility.Kind == TriggerKinds.TurnEndCreateEquipmentToken)
+        {
+            var spec = EndSpec(item.EndAbility.CardNo)!;
+            var factory = EndEquipmentTokenFactory(spec)!;
+            var zones = NormalizeZonesForSeats(state); var tokens = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+            var created = new List<GameEvent>();
+            for (var i = 0; i < spec.CreatedTokenCount!.Value; i++)
+                CreateLegendEquipmentToken(zones, tokens, item.ControllerId, item.SourceObjectId, spec.Kind,
+                    factory.TokenFamilyName, factory.Tags, spec.CreatedTokenExhausted == true, created, item.EndAbility.CardNo);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = tokens,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = created };
+        }
         if (item.EndAbility!.Kind == "DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS") return ResolveEndSelfDestructionDamage(state, item);
         if (item.EndAbility!.Kind == TriggerKinds.TurnEndRevealUntilUnit)
         {
@@ -192,11 +213,13 @@ public sealed partial class CoreRuleEngine
                     && c.Source.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
             && c.Location.PlayerId == item.ControllerId && c.Location.Zone is "BASE" or "BATTLEFIELD" or "LEGEND"
             && (spec.RequiresSourceBattlefieldAtTrigger != true || c.Location.Zone == "BATTLEFIELD")
+            && (spec.RequiresControlledSourceBattlefieldAtTrigger != true
+                || c.Location.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, c.Location.BattlefieldObjectId) is not null)
             && (state.CardObjects.TryGetValue(item.SourceObjectId, out var current) ? current.ObjectGeneration >= c.Source.ObjectGeneration
                 : IsTokenObject(c.Source) && P6TokenFactoryCatalog.TryGetByCardNo(c.Source.TokenFactoryCardNo ?? c.Source.CardNo ?? "", out _))
             && AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.ObjectGeneration, c.CardNo)
             && item.EffectRepeatCount == 1 && item.OptionalCosts.Count == 0 && item.DamageAmount == 0
-            && (creation || c.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndRecycleRunesCall ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+            && (creation || c.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndRecycleRunesCall or TriggerKinds.TurnEndCreateEquipmentToken ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
                 : item.TargetObjectIds.Count <= c.RuneCount && (item.TargetGenerations is null ? item.TargetObjectIds.Count == 0
                     : item.TargetGenerations.Keys.ToHashSet().SetEquals(item.TargetObjectIds)
                         && item.TargetGenerations.All(p => p.Value >= 0 && state.CardObjects.TryGetValue(p.Key,out var rune)
