@@ -61,7 +61,8 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool HasConfirmedTargets(MatchState state, StackItemState item)
-        => item.TargetObjectIds.Count > 0 && !NeedsTriggerConfirmation(item)
+        => (item.TargetObjectIds.Count > 0 || item.ModeExecutions?.Any(m => m.Execution.TargetObjectIds.Count > 0) == true)
+            && !NeedsTriggerConfirmation(item)
             && state.PendingPayment?.ResolvingStackItemId != item.StackItemId
             && state.PendingCardChoice?.ResolvingStackItemId != item.StackItemId;
 
@@ -102,7 +103,7 @@ public sealed partial class CoreRuleEngine
             var remade = result.Events.Any(ev => ev.Kind == "SPELL_CHOICES_REMADE"
                 && Equals(ev.Payload.GetValueOrDefault("stackItemId"), item.StackItemId));
             if (old is not null && HasConfirmedTargets(before, old) && !remade) continue;
-            var executions = item.RepeatExecutions?.Select(e => (Targets: e.TargetObjectIds, Bindings: (IReadOnlyDictionary<string, long>?)e.TargetGenerations))
+            var executions = (item.ModeExecutions?.Select(m => m.Execution) ?? item.RepeatExecutions)?.Select(e => (Targets: e.TargetObjectIds, Bindings: (IReadOnlyDictionary<string, long>?)e.TargetGenerations))
                 ?? [(item.TargetObjectIds, item.TargetGenerations)];
             foreach (var execution in executions)
             foreach (var id in execution.Targets.Distinct(StringComparer.Ordinal))
