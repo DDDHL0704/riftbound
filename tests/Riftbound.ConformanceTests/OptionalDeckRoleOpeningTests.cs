@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class OptionalDeckRoleOpeningTests
+public sealed partial class OptionalDeckRoleOpeningTests
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
