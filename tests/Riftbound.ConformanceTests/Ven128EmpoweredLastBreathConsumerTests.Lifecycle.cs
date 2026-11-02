@@ -64,7 +64,8 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
             await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-1"));
             await game.Act(owner, new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top();
             Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); await game.Act(owner, new EndTurnCommand()); await Tap(game, opponent);
-            await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1")); await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-2"));
+            // Keep both physical rune payments and their order in one production batch.
+            await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1", [opponent + "-RUNE-1", opponent + "-RUNE-2"]));
             await game.Act(opponent, new PlayCardCommand("KILL", Destroy, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones[owner].Graveyard); Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
             var graveGeneration = game.State.CardObjects["UNIT"].ObjectGeneration;

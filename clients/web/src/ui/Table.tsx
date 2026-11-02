@@ -782,12 +782,18 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               <motion.p className="result__title" initial={{ scale: 1.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
                 {winner === meId ? "胜利" : "落败"}
               </motion.p>
-              <p className="result__score">
-                {me.score} : {opp?.score ?? 0}
-              </p>
-              {series && series.bestOf > 1 && (
-                <p className="result__series">
-                  第 {series.gameNumber} 局 · 总比分 {series.wins[meId] ?? 0} : {opp ? (series.wins[opp.id] ?? 0) : 0}
+              {series && series.bestOf > 1 ? (
+                <>
+                  <p className="result__score">
+                    {series.wins[meId] ?? 0} : {opp ? (series.wins[opp.id] ?? 0) : 0}
+                  </p>
+                  <p className="result__series">
+                    三局两胜 · 第 {series.gameNumber} 局 {me.score} : {opp?.score ?? 0}
+                  </p>
+                </>
+              ) : (
+                <p className="result__score">
+                  {me.score} : {opp?.score ?? 0}
                 </p>
               )}
               <ResultStats tally={state.tally} meId={meId} oppId={opp?.id} turns={snapshot.turnNumber} />
