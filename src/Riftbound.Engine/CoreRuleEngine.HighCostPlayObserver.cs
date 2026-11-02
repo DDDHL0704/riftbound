@@ -425,6 +425,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var locations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        CaptureFieldDeparture(zones, cards, item.SourceObjectId);
         DetachEquipmentFromRemovedHost(cards, item.SourceObjectId);
         foreach (var playerId in zones.Keys.ToArray())
         {

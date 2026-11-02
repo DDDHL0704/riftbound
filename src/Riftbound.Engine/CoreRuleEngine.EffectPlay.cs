@@ -362,6 +362,7 @@ public sealed partial class CoreRuleEngine
                         originalBattlefield = new(fieldId, field.ObjectGeneration);
                 }
                 actor = NonFieldDestinationOwner(zones, target, parent.ControllerId);
+                CaptureFieldDeparture(zones, cards, id);
                 DetachEquipmentFromRemovedHost(cards, id);
                 foreach (var owner in zones.Keys.ToArray()) zones[owner] = zones[owner] with {
                     Base = RemoveFromZone(zones[owner].Base, id), Battlefields = RemoveFromZone(zones[owner].Battlefields, id) };

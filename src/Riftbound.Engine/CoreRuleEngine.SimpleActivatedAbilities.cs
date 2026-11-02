@@ -495,6 +495,15 @@ public sealed partial class CoreRuleEngine
                 result = result with { TriggerQueue = cleanup.TriggerQueue, DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds };
             }
         }
+        if (spec.DestroysSourceOnResolution && cards.TryGetValue(item.SourceObjectId, out var destroying)
+            && destroying.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, destroying.ObjectId))
+        {
+            var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(),
+                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(), pools, objectLocations: locations,
+                explicitDestroyObjectIds: new HashSet<string> { item.SourceObjectId }, explicitDestroyReason: "SKILL_EFFECT");
+            events.AddRange(removal.Events); pools = removal.RunePools.ToDictionary(p => p.Key, p => p.Value);
+            result = result with { TriggerQueue = removal.TriggerQueue, DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds };
+        }
         if (spec.DrawCount > 0)
         {
             var drawn = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);

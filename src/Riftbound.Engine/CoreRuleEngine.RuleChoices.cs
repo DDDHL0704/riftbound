@@ -38,7 +38,7 @@ public sealed partial class CoreRuleEngine
         public MatchState? ResolutionState { get; set; }
         public StackItemState? ResolutionItem { get; set; }
         public List<AppliedDamageFact> AppliedDamages { get; } = [];
-        public List<UnitEventObservation> ExhaustedUnitEvents { get; } = [];
+        public List<UnitEventObservation> InstructionUnitEvents { get; } = [];
         public int UnitEventOrdinal { get; set; }
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];

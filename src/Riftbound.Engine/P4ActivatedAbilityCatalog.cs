@@ -54,7 +54,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool CommandsOpponentUnitToSourceBattlefield = false,
     bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
-    bool StunsTarget = false, bool OncePerTurnPerPlayer = false);
+    bool StunsTarget = false, bool OncePerTurnPerPlayer = false, bool DestroysSourceOnResolution = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -275,8 +275,16 @@ public static class P4ActivatedAbilityCatalog
     public const string RelentlessStalkerAbilityId = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
     public const string RelentlessStalkerAbilityEffectKind = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
 
+    public const string RunebladeAnvilAbilityId = "RAD_012_PAY_RED_EXHAUST_DESTROY_SOURCE";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(RunebladeAnvilAbilityId, "RAD·012/167", RunebladeAnvilAbilityId, "符刃铁砧", 2, 0, 0,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "支付2法力与红色符能，休眠：结算时摧毁来源。",
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 },
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DestroysSourceOnResolution: true)),
         new(BlackMarketAbilityId, BlackMarketCardNo, BlackMarketAbilityEffectKind, "黑市", 0, 2, 0,
             RequiresBattlefieldSource: true, ExhaustsSourceAsCost: false, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false,

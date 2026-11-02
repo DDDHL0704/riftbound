@@ -13,7 +13,7 @@ public sealed partial class CoreRuleEngine
                 && PaidUnitTriggerSpec(behavior.CardNo, PaidUnitDestroyKind) is null
                 && !SourceUnitTokenSpecs.Value.ContainsKey(behavior.CardNo)
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
-                && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST")
+                && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST" or "PLAY_OR_LEAVE")
                 && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
                     || ShouldCreateBaseUnitTokens(behavior, item))
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")

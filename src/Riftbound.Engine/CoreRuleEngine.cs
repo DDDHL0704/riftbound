@@ -8889,6 +8889,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
+        CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
         var originZone = zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal)
             ? "CHAMPION"
             : zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
@@ -31443,6 +31444,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 rngCursor++;
             }
 
+            foreach (var id in recycledCardIds) CaptureFieldDeparture(playerZones, cardObjects, id);
             playerZones[playerId] = zones with
             {
                 MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray(),
@@ -32056,6 +32058,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
             var wasUnit = !wasEquipment
                 || targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             var detachedEquipmentObjectIds = DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             var owner = NonFieldDestinationOwner(playerZones, targetState, playerId);
             var goesToBanish = banish || RedirectsGraveyardEntry(playerZones, cardObjects, owner, targetObjectId);
@@ -32258,6 +32261,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var targetState = cardObjects.GetValueOrDefault(targetObjectId) ?? new CardObjectState(targetObjectId);
             ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
             wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
@@ -32304,6 +32308,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             var targetState = cardObjects.GetValueOrDefault(targetObjectId) ?? new CardObjectState(targetObjectId);
             ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
@@ -32358,6 +32363,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? existingTargetState
                 : new CardObjectState(targetObjectId);
             ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {

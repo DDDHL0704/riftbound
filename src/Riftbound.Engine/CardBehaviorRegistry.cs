@@ -9626,6 +9626,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·012/167", "符刃铁砧", 1, "RUNEBLADE_ANVIL_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("PLAY_OR_LEAVE", "BANISH_TOP_TIMED_PLAY")),
         new("RAD·002/167", "征服之旗", 1, "CONQUEST_BANNER_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署"),
         new("RAD·044/167", "狩猎掩体", 4, "HUNTING_HIDE_PLAY_EQUIPMENT", 0, 0,

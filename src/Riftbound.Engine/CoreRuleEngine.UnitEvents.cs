@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
     internal const string UnitEventEffect = "CAPTURED_UNIT_EVENT_ABILITY";
     internal const string TookDamageThisTurn = "TOOK_DAMAGE_THIS_TURN";
     private const string UnitEventCaptureKey = "unitEventObservations";
-    private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context);
+    private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context, string InstructionEventKind = "UNIT_EXHAUSTED");
     private static UnitEventAbilitySpec? UnitEventSpec(string? no)
         => no is not null && CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null;
 
@@ -30,7 +30,8 @@ public sealed partial class CoreRuleEngine
                     && (spec.Timing == timing || spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"
                         || spec.Timing == "PLAY_OR_START" && timing is "PLAY" or "START"
                         || spec.Timing == "PLAY_OR_MOVE" && timing is "PLAY" or "MOVE"
-                        || spec.Timing == "PLAY_OR_CONQUEST" && timing is "PLAY" or "CONQUEST")
+                        || spec.Timing == "PLAY_OR_CONQUEST" && timing is "PLAY" or "CONQUEST"
+                        || spec.Timing == "PLAY_OR_LEAVE" && timing is "PLAY" or "LEAVE")
                     && (!spec.RequiresEmpowered || card.IsEmpowered)
                     && (!spec.RequiresNoDamageThisTurn || !card.UntilEndOfTurnEffects.Contains(TookDamageThisTurn)))
                 .Select(i => new UnitEventObservation(card.ObjectId, EffectiveFieldControllerId(zones, card.ObjectId, card),
@@ -115,9 +116,19 @@ public sealed partial class CoreRuleEngine
         {
             IReadOnlyDictionary<string, CardObjectState> current = cards.TryGetValue(source.ObjectId, out var old) && ReferenceEquals(old, source)
                 ? cards : new Dictionary<string, CardObjectState>(cards) { [source.ObjectId] = source };
-            frame.ExhaustedUnitEvents.AddRange(CaptureUnitEvents(zones, current, [source.ObjectId], "BECAME_EXHAUSTED"));
+            frame.InstructionUnitEvents.AddRange(CaptureUnitEvents(zones, current, [source.ObjectId], "BECAME_EXHAUSTED"));
         }
         return source with { IsExhausted = true };
+    }
+
+    // CN383.2.c.3: capture after replacement selection but before the object
+    // changes zones. Command before/after comparisons lose leave-and-reenter.
+    private static void CaptureFieldDeparture(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, string id)
+    {
+        if (RuleChoices.Value is { } frame)
+            frame.InstructionUnitEvents.AddRange(CaptureUnitEvents(zones, cards, [id], "LEAVE")
+                .Select(o => o with { InstructionEventKind = "OBJECT_LEFT_FIELD" }));
     }
 
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
@@ -196,7 +207,7 @@ public sealed partial class CoreRuleEngine
                 if (timing is not (TimingStates.SpellDuelOpen or TimingStates.NeutralClosed))
                     timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
                 var captured = observation;
-                if (captured.Context.Timing is "PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST" && ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
+                if (captured.Context.Timing is "PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST" or "PLAY_OR_LEAVE" && ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
                     && before.CardObjects.TryGetValue(captured.Source, out var entering) && !IsObjectOnField(before.PlayerZones, entering.ObjectId))
                     captured = captured with { Context = captured.Context with {
                         SourceGeneration = Math.Max(captured.Context.SourceGeneration, entering.ObjectGeneration + 1) } };
@@ -209,22 +220,22 @@ public sealed partial class CoreRuleEngine
             }
         }
         if (RuleChoices.Value is { } frame) frame.UnitEventOrdinal = ordinal;
-        if (events.Count == result.Events.Count) return QueueExhaustedUnitEvents(before, result);
+        if (events.Count == result.Events.Count) return QueueInstructionUnitEvents(before, result);
         var next = result.State with { TriggerQueue = queue };
-        return QueueExhaustedUnitEvents(before, result with { State = next, Events = events,
+        return QueueInstructionUnitEvents(before, result with { State = next, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
     }
 
-    private static ResolutionResult QueueExhaustedUnitEvents(MatchState before, ResolutionResult result, int start = 0)
+    private static ResolutionResult QueueInstructionUnitEvents(MatchState before, ResolutionResult result, int start = 0)
     {
-        if (!result.Accepted || RuleChoices.Value is not { } frame || frame.ExhaustedUnitEvents.Count <= start) return result;
+        if (!result.Accepted || RuleChoices.Value is not { } frame || frame.InstructionUnitEvents.Count <= start) return result;
         var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList();
-        foreach (var observation in frame.ExhaustedUnitEvents.Skip(start)) {
-            var trigger = UnitEventTrigger(observation, result.State.Tick, frame.UnitEventOrdinal++, "UNIT_EXHAUSTED",
+        foreach (var observation in frame.InstructionUnitEvents.Skip(start)) {
+            var trigger = UnitEventTrigger(observation, result.State.Tick, frame.UnitEventOrdinal++, observation.InstructionEventKind,
                 before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : before.StackItems.LastOrDefault()?.TimingContext);
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
-        frame.ExhaustedUnitEvents.RemoveRange(start, frame.ExhaustedUnitEvents.Count - start);
+        frame.InstructionUnitEvents.RemoveRange(start, frame.InstructionUnitEvents.Count - start);
         var next = result.State with { TriggerQueue = queue };
         return result with { State = next, Events = events, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
@@ -343,6 +354,8 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
+        if (spec.Effect == "BANISH_TOP_TIMED_PLAY") return ResolveTimedBanishPlay(state, item,
+            [new("ABILITY_RESOLVED", "触发技能结算", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId })]);
         if (spec.Effect is "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "CREATE_UNIT_TOKEN")
             return ResolvePermanentUnitEventInstruction(state, item, spec);
         if (spec.Effect == "DAMAGE_ENEMIES_HERE") return ResolveUnitEventAreaDamage(state, item, spec.Amount);

@@ -12,7 +12,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CompleteRuleChoiceResourceEffects(MatchState context, ResolutionResult result, int exhaustEventStart)
     {
         if (!result.Events.Any(e => e.Payload.ContainsKey("capturedUnitDeath") || e.Kind == CapturedHandDiscardEvent)
-            && (RuleChoices.Value?.ExhaustedUnitEvents.Count ?? 0) <= exhaustEventStart) return result;
+            && (RuleChoices.Value?.InstructionUnitEvents.Count ?? 0) <= exhaustEventStart) return result;
         var frame = RuleChoices.Value!; var completionTick = frame.CompletionTick;
         try
         {
@@ -22,7 +22,7 @@ public sealed partial class CoreRuleEngine
             var completed = RecordHandDiscardObservers(RecordDeathObservers(context, result));
             completed = StampNewTriggerQueueTimes(context, completed with {
                 State = completed.State with { Tick = frame.AnswerTick } });
-            completed = QueueExhaustedUnitEvents(context, completed, exhaustEventStart);
+            completed = QueueInstructionUnitEvents(context, completed, exhaustEventStart);
             frame.ResourceDeathLedger = completed.State.DeathLedger;
             return completed;
         }

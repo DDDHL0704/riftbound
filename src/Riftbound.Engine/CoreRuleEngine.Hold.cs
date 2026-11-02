@@ -300,6 +300,7 @@ public sealed partial class CoreRuleEngine
         {
             if (!cards.TryGetValue(id, out var card)) return;
             var owner = NonFieldDestinationOwner(zones, card, player);
+            CaptureFieldDeparture(zones, cards, id);
             DetachEquipmentFromRemovedHost(cards, id);
             foreach (var p in zones.Keys.ToArray()) zones[p] = zones[p] with { Base = RemoveFromZone(zones[p].Base, id),
                 Battlefields = RemoveFromZone(zones[p].Battlefields, id), Graveyard = RemoveFromZone(zones[p].Graveyard, id) };
