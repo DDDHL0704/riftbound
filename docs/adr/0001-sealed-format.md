@@ -32,12 +32,12 @@
 
 | 来源等级 | 依据与配置 |
 | --- | --- |
-| 官方 | [Origins](https://playriftbound.com/en-us/news/announcements/collectability-in-riftbound-origins/)：槽位、史诗约每 4 包出现、异画约每 24 包 2 张、超编约每 72 包 1 张、超编中签名约 1/10；[Riot 商城 SFD](https://merch.riotgames.com/en-us/product/riftbound-spiritforged-booster-display/)：相同槽位和每盒 6 张以上史诗。无社区值时回退 OGN。 |
-| 官方转述 | [系列概览](https://riftbound.zone/en/radiance-overview-ultimate-rare-pack-odds/)、[TurnZero](https://turnzerohq.com/riftbound/riftbound-booster-box)：RAD 只有第二稀有槽可升级印次，终极每包 0.025%、最多 1 张；UNL 终极低于 0.1%；RAD／VEN 特殊异画与异画同频。未核实印次编号的系列不开放。 |
-| 社区 | [UNL](https://tcgtalk.com/guides/unleashed-riftbound-pull-rates-box-opening)、[VEN](https://tcgtalk.com/guides/vendetta-riftbound-pull-rates-box-opening)、[RAD](https://tcgtalk.com/guides/radiance-riftbound-pull-rates-box-opening)：史诗出包约 27%；异画 10%／9%／9%；超编 1.7%／2%／1.2%；传奇出包约 50%／50%／31%；RAD 异画符文约 3.5%。全部待确认，仅影响概率。 |
+| 官方 | [Origins](https://playriftbound.com/en-us/news/announcements/collectability-in-riftbound-origins/)：槽位、史诗约每 4 包出现、异画约每 24 包 2 张、超编约每 72 包 1 张、超编中签名约 1/10；[Riot 商城 SFD](https://merch.riotgames.com/en-us/product/riftbound-spiritforged-booster-display/)：相同槽位和每盒 6 张以上史诗。无社区值时回退 OGN。[中文辉耀群星系列概览](https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/)直接确认 RAD 的 14 张槽位、仅第二稀有槽可出异画等印次、终极每包约 0.025% 且最多 1 张，以及特殊异画与异画大致同频；0.025% 按整个印刷批次计算，单包、单盒、单箱均无保证。 |
+| 官方转述 | [TurnZero](https://turnzerohq.com/riftbound/riftbound-booster-box)：UNL／VEN 槽位、UNL 终极低于 0.1%、VEN 特殊异画与异画同频。未核实印次编号的系列不开放。 |
+| 社区 | [UNL](https://tcgtalk.com/guides/unleashed-riftbound-pull-rates-box-opening)、[VEN](https://tcgtalk.com/guides/vendetta-riftbound-pull-rates-box-opening)、[RAD](https://tcgtalk.com/guides/radiance-riftbound-pull-rates-box-opening)：史诗出包约 27%；异画 10%／9%／9%；超编 1.7%／2%／1.2%；传奇出包约 50%／50%／31%；RAD 异画符文约 3.5%。RAD／VEN 特殊异画的绝对数值 9% 沿用本系列社区异画观测值，配置标社区，并分别将同频关系标为官方／官方转述依据。社区值全部待确认，仅影响概率。 |
 | 第三方产品分类 | [营地](https://www.iyingdi.com/tz/post/5608629)：中国区标准包 5 张、进阶包 14 张；不替代官方规则。 |
 | 项目假设 | 闪卡槽稀有 8%、史诗 2%，互斥；同包同功能牌不重复（含闪卡／异画）；未知异画符文率先为 0；UNL 终极暂取 0.05%。史诗按 `1-sqrt(1-每包概率)` 预计算独立双稀有槽概率，允许双史诗；社区传奇率按相同方法换算并条件于非史诗槽（印次替换会改变实际传奇率）。每包最多升级一个稀有槽，印次类型互斥，OGN／SFD／UNL 随机选择一个稀有槽替换。真实相关性未知，均列待确认。 |
 
 真实印次保留到 `pool`；异画／超编规则与平卡相同，开放系列的所有候选印次都有引擎加载和实现状态守卫。符文／指示物槽供开包展示，完全不计卡池数量，基础符文本来不限。确定性使用 SHA-256 计数器，候选按 cardNo 排序；结果携带私有种子、配置版本、配置 SHA-256 和生成器版本。房间接入时将完整结果写日志／恢复帧，禁止任何私有种子或卡池进入对手与观战者投影、提示或公开日志。
 
-全部页面原始快照和等级在 `data/official/upstream/2026-11-02/sealed-products/manifest.json`。原始页面以确定性的 `*-raw.html.gz` 无损保存；清单的 `sha256`／`bytes` 对应解压原文，`archiveSha256`／`archiveBytes` 对应压缩文件。售前最后处理：[官方辉耀群星售前公告](https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/)只核实 5 包加英雄卡包（传奇、稀有英雄、战场、辅助卡牌）；辅助数量／卡表待确认，限定黑默丁格不能入现开卡组，不猜卡表。
+全部页面原始快照和等级在 `data/official/upstream/2026-11-02/sealed-products/manifest.json`。原始页面以确定性的 `*-raw.html.gz` 无损保存；清单的 `sha256`／`bytes` 对应解压原文，`archiveSha256`／`archiveBytes` 对应压缩文件。2026-11-02 复核[官方辉耀群星售前公告](https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/)与上述中文系列概览的正文、产品配图：只确认 5 包加英雄卡包（1 传奇、1 稀有英雄、1 战场、辅助卡牌），以及九位传奇主题；没有逐包完整卡表或辅助卡数量。售前保持“待确认”，取得官方卡表后再接入；限定黑默丁格不能入现开卡组，不从主题、配图或目录猜辅助卡。
