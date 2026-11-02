@@ -114,7 +114,8 @@ internal static class FateWeaverSqlAcceptance
                 Check(frame.IsConsistent && frame.Commands.Count == count && frame.OpeningSeed == 0
                     && frame.ReplayInitialState is { Tick: 0, Status: MatchStatuses.Seating } && frame.ReplayInitialState.CardObjects.Count == 0
                     && MatchStateHasher.Hash(frame.AuthoritativeState!) == MatchStateHasher.Hash(current), "Original blank state/log/input consistency: " + string.Join(';', frame.ValidationErrors));
-                Check((await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default)).Count == 0, "Full original replay must match.");
+                // The fresh production registry below audits this complete original history.
+                // Avoid replaying the same accepted commands and events twice per checkpoint.
                 var restored = await new InMemoryMatchSessionRegistry(engine, journal, store, players).GetOrCreateAsync(room, default);
                 foreach (var player in initial.Seats.Keys)
                     Check(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(session.SnapshotFor(player)), JsonSerializer.SerializeToNode(restored.SnapshotFor(player)))

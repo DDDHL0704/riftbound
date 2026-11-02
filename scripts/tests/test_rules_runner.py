@@ -193,11 +193,15 @@ class RuleRunnerTests(unittest.TestCase):
     def test_check_requires_named_smoke_tests(self):
         with self.assertRaises(ValueError):runner.plan({runner.PREFIX+'A.Test'},'check',4,[],{})
 
-    def test_l2_requires_academy_echo_and_both_original_complete_games(self):
+    def test_l2_requires_original_and_sealed_complete_games(self):
         required = {runner.FULL_CLASS + name for name in [
             'OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts',
             'OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash',
             'OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash',
+            'SealedBestOfOneWithoutRolesScoresToVictoryAndReplaysEveryGame',
+            'SealedBestOfOneWithOptionalRolesScoresToVictoryAndReplaysEveryGame',
+            'SealedBestOfThreeSideboardsAcrossReconnectAndReplaysEveryGame',
+            'SealedBestOfThreeWithRolesScoresTwoWinsAndReplaysEveryGame',
         ]}
         methods = required | {runner.PREFIX + 'Rules.Ordinary', runner.FULL_CLASS + 'OtherFullGame'}
         with patch.object(runner, 'l3_acceptance_methods', return_value=set()):
