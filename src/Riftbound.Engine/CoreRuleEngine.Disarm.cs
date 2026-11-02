@@ -95,7 +95,9 @@ public sealed partial class CoreRuleEngine
                 && (g.FriendlyGrant ? TryPredictEnteredFace(c.CardNo, out var entered)
                     && spec.FriendlyGrants.Any(grant => grant.Value == g.Value && entered.Tags.Contains(grant.RequiredUnitTag))
                     : spec.PrintedValue == g.Value))
-            && d.Contributions.Select(MatchStateHasher.HashValue).Distinct(StringComparer.Ordinal).Count() == d.Contributions.Count
+            // A departure receipt preserves a contribution; it does not give it another identity.
+            && d.Contributions.Select(g => MatchStateHasher.HashValue(g with { CeasedSource = null }))
+                .Distinct(StringComparer.Ordinal).Count() == d.Contributions.Count
             && c.SourceLocation is not null && !string.IsNullOrWhiteSpace(c.BattlefieldId)
             && c.Origin is null && c.PaidUnitTrigger is null && c.StunObserver is null && c.SelfAction is null
             && c.AttackMightDamage is null && c.RecycledBoon is null && c.EmpoweredTransition is null
@@ -117,11 +119,45 @@ public sealed partial class CoreRuleEngine
         foreach (var g in d.Contributions)
         {
             if (!g.FriendlyGrant && (g.Source.ObjectId != source || g.Source.Generation != c.SourceGeneration)) return false;
-            if (g.Origin is { } copy
-                ? !AttachedRuleTextRules.ValidCaptured(state, copy, g.Source.ObjectId, g.Source.Generation, g.CardNo)
-                : !PredictBindingMatches(state, g.Source, g.CardNo, g.FaceRevision, d.CapturedTick, g.TokenFactoryCardNo)) return false;
+            if (!ValidDisarmContributionSource(state, g, d.CapturedTick)) return false;
         }
         return true;
+    }
+
+    private static bool ValidDisarmContributionSource(MatchState state, DisarmContribution contribution, long capturedTick)
+    {
+        if (contribution.Origin is { } copy && !AttachedRuleTextRules.ValidCaptured(state, copy,
+            contribution.Source.ObjectId, contribution.Source.Generation, contribution.CardNo)) return false;
+        if (state.CardObjects.TryGetValue(contribution.Source.ObjectId, out var current))
+            return contribution.CeasedSource is null && current.ObjectGeneration >= contribution.Source.Generation
+                && current.TokenFactoryCardNo == contribution.TokenFactoryCardNo
+                && (contribution.Origin is not null || PredictBindingMatches(state, contribution.Source,
+                    contribution.CardNo, contribution.FaceRevision, capturedTick, contribution.TokenFactoryCardNo));
+        // CN 186.1 / 355.9.c: departure preserves a captured contribution, but
+        // a token factory alone cannot prove that the granting source existed.
+        return P6TokenFactoryCatalog.IsUnitTokenFactory(contribution.TokenFactoryCardNo)
+            && contribution.CeasedSource is { } receipt && receipt.Source == contribution.Source
+            && receipt.CardNo == contribution.CardNo && receipt.FaceRevision == contribution.FaceRevision
+            && receipt.AcquiredTick == capturedTick && receipt.TokenFactoryCardNo == contribution.TokenFactoryCardNo
+            && receipt.DepartedTick > capturedTick && receipt.DepartedTick <= state.Tick;
+    }
+
+    private static MatchState RecordCeasedDisarmContributions(MatchState before, MatchState state, IReadOnlySet<string> departed)
+    {
+        FieldTriggerContext? Capture(FieldTriggerContext? context)
+        {
+            if (context is not { Kind: DisarmKind, Disarm: { } origin }
+                || !origin.Contributions.Any(g => g.CeasedSource is null && departed.Contains(g.Source.ObjectId))) return context;
+            var contributions = origin.Contributions.Select(g => g.CeasedSource is null
+                && departed.Contains(g.Source.ObjectId) && ValidDisarmContributionSource(before, g, origin.CapturedTick)
+                ? g with { CeasedSource = SelfAbilitySourceRules.Capture(before, state.Tick, g.Source,
+                    g.CardNo, g.FaceRevision, origin.CapturedTick, g.TokenFactoryCardNo) } : g).ToArray();
+            return context with { Disarm = origin with { Contributions = contributions } };
+        }
+        return state with {
+            StackItems = state.StackItems.Select(item => item with { FieldContext = Capture(item.FieldContext) }).ToArray(),
+            TriggerQueue = state.TriggerQueue.Select(trigger => trigger with { FieldContext = Capture(trigger.FieldContext) }).ToArray()
+        };
     }
 
     private static bool IsDisarmUnitFace(string face)

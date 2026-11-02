@@ -47,7 +47,8 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
                 Assert.Equal(No, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
             }
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-2"));
+            // Keep both physical rune payments and their order in one production batch.
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1", ["P2-RUNE-1", "P2-RUNE-2"]));
             await game.Act("P2", new PlayCardCommand("KILL", Destroy, ["UNIT"]));
             Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower); await game.Top();
             Assert.Contains("ZHONYA", game.State.PlayerZones["P1"].Graveyard); Assert.DoesNotContain("ZHONYA", game.State.PlayerZones["P1"].Base);

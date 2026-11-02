@@ -19,6 +19,7 @@ public sealed partial class PlayPowerSpendSelectionTests
         var run = new Run(initial, ordinary: true);
         using var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "empty-observed-deck-repeat-openings.json")));
         var recipe = Assert.Single(fixture.RootElement.GetProperty("branches").EnumerateArray(), row => row.GetProperty("cardNo").GetString() == "UNL-032/219");
+        var recoverEachRecipeCommand = false;
         foreach (var row in recipe.GetProperty("acceptedCommands").EnumerateArray())
         {
             var actor = row.GetProperty("playerId").GetString()!;
@@ -34,13 +35,21 @@ public sealed partial class PlayPowerSpendSelectionTests
                     Assert.True(validation.IsValid, string.Join(';', validation.Errors));
                 }
             }
+            // Recover the full room, draw and resource preparation before the actual spell.
+            if (!recoverEachRecipeCommand && command is PlayCardCommand)
+            {
+                await run.Cold("recipe-prepared");
+                recoverEachRecipeCommand = true;
+            }
             // Only the new room's envelope identity is refreshed; all recipe payload fields are retained.
             var current = run.Wire(actor, command);
             node["promptId"] = current.GetProperty("promptId").GetString(); node["snapshotTick"] = run.State.Tick;
             var result = await run.Repeat(actor, "recipe-" + run.Entries.Count, JsonSerializer.SerializeToElement(node));
             Assert.True(result.Accepted, result.ErrorMessage);
-            await run.Cold("recipe-" + run.Entries.Count);
+            if (recoverEachRecipeCommand) await run.Cold("recipe-" + run.Entries.Count);
+            else await run.AssertLatestWarmDuplicate("recipe-" + run.Entries.Count, result);
         }
+        Assert.True(recoverEachRecipeCommand);
         Assert.Equal(25, run.Entries.Count);
         var second = run.State.PendingCardChoice!; Assert.Equal("DECK_EFFECT", second.ChoiceWindow); Assert.Equal(0, second.RequiredCount);
         await run.Act("P1", new ChooseCardsCommand(second.ChoiceId, second.ChoiceWindow, []));

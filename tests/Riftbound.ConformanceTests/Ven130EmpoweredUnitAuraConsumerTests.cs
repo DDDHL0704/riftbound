@@ -260,7 +260,8 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
             Assert.Equal(5, game.Might(actor, unit)); await game.ColdCheckpoint();
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
             Assert.Equal(mana - 8, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
-            Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(5, game.Might(actor, unit)); await game.ColdCheckpoint();
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(5, game.Might(actor, unit));
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var pool = game.State.RunePools[actor];
             var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                 [actor] = pool with { Mana = pool.Mana + 3, PowerByTrait = new Dictionary<string, int>(pool.PowerByTrait) { [RuneTrait.Yellow] = 1 } } } };

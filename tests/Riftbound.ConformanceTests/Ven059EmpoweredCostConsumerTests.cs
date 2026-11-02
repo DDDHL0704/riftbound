@@ -263,7 +263,7 @@ public sealed class Ven059EmpoweredCostConsumerTests
             await game.Act(actor, new PlayCardCommand(spell, No, [unit]));
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             Assert.Equal(0, game.State.CardObjects[unit].Damage); Assert.Equal(spell, Assert.Single(game.State.StackItems).SourceObjectId);
-            await game.ColdCheckpoint();
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                 [actor] = game.State.RunePools[actor] with { Mana = 2 } } };
             await game.RejectCoordinatedForgery("invented-empowered-cost-mana-refund", refunded);

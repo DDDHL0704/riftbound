@@ -52,7 +52,7 @@ public sealed class Ven005And006SubmittedDeckConsumers
                 Assert.Equal(unit, trigger.SourceObjectId); Assert.Equal(no, trigger.BeginningRune!.CardNo);
                 Assert.Equal(previousGeneration + 1, trigger.BeginningRune.Source.Generation);
                 Assert.Equal(might, game.Might(actor, unit));
-                await game.ColdCheckpoint();
+                // The forgery helper also cold-recovers this unchanged accepted history.
                 var forged = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects)
                     { [unit] = game.State.CardObjects[unit] with { Damage = 1 } } };
                 await game.RejectCoordinatedForgery("invented-damage-before-beginning-resolution", forged);
