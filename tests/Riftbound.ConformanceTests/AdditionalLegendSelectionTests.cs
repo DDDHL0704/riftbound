@@ -13,9 +13,10 @@ public sealed class AdditionalLegendSelectionTests
     private static async Task<(OfficialCardCatalog Catalog, OfficialDecklist Deck)> Position()
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
-        var path = Path.Combine(Path.GetDirectoryName(OfficialCardCatalog.DefaultCatalogPath())!, "upstream", "2026-10-16",
-            "source-refresh-20261015T160523Z", "card-catalog.zh-CN.json");
-        var source = await OfficialCardCatalogLoader.LoadFromFileAsync(path, default);
+        using var stream = typeof(OfficialCardCatalog).Assembly.GetManifestResourceStream(
+            "Riftbound.CardCatalog.VendettaSourceSnapshot")
+            ?? throw new InvalidOperationException("The embedded official card snapshot is missing.");
+        var source = await OfficialCardCatalogLoader.LoadFromStreamAsync(stream, VendettaCardSources.SnapshotPath, default);
         // The isolated selection mechanism is tested with the current erratum;
         // Neeko stays outside runtime admission until its complete effect works.
         var neeko = Assert.Single(source.Cards, c => c.CardNo == "RAD·167/167") with { CardEffect = CurrentText };
