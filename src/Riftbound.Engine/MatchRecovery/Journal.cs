@@ -504,6 +504,11 @@ public static partial class MatchRecoveryValidator
 
         switch (normalizedCommandType)
         {
+            case CommandTypes.ChoosePlayOrder:
+                if (!rawCommand.TryGetProperty("goFirst", out var goFirst)
+                    || goFirst.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                    errors.Add($"command {command.ClientIntentId} raw CHOOSE_PLAY_ORDER goFirst must be a boolean");
+                break;
             case CommandTypes.SubmitDeck:
                 if (allowAbsentDeckRoles)
                 {
@@ -880,7 +885,8 @@ public static partial class MatchRecoveryValidator
 
         return recoveredCommandType switch
         {
-            CommandTypes.SubmitDeck
+            CommandTypes.ChoosePlayOrder
+                or CommandTypes.SubmitDeck
                 or CommandTypes.Mulligan
                 or CommandTypes.PlayCard
                 or CommandTypes.RefusePlayPayment

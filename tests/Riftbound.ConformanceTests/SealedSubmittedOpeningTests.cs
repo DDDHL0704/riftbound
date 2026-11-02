@@ -21,6 +21,7 @@ public sealed partial class SealedSubmittedOpeningTests
         var run = new Run();
         await run.Join("alice");
         await run.Join("bob");
+        await run.Choose();
         foreach (var player in new[] { "alice", "bob" })
         {
             var deck = await Deck(run.State.PlayerSealedPools![player], legend, champion);
@@ -64,6 +65,8 @@ public sealed partial class SealedSubmittedOpeningTests
     {
         var run = new Run();
         await run.Join("alice");
+        await run.Join("bob");
+        await run.Choose();
         var pool = run.State.PlayerSealedPools!["alice"];
         var legal = await Deck(pool, false, false);
         var extra = legal.MainDeck[0];
@@ -94,6 +97,8 @@ public sealed partial class SealedSubmittedOpeningTests
     {
         var run = new Run(bestOf);
         await run.Join("alice");
+        await run.Join("bob");
+        await run.Choose();
         var deck = await Deck(run.State.PlayerSealedPools!["alice"], false, false, count);
         await run.Act("alice", Command(deck));
         var invalid = Command(deck with { Battlefields = Enumerable.Repeat(SealedDeckRules.BlankBattlefieldCardNo, count == 3 ? 1 : 3).ToArray() });
@@ -128,6 +133,8 @@ public sealed partial class SealedSubmittedOpeningTests
     {
         var run = new Run();
         await run.Join("alice");
+        await run.Join("bob");
+        await run.Choose();
         var deck = Command(await Deck(run.State.PlayerSealedPools!["alice"], false, false));
         var submitted = await run.Live.SubmitDeckAsync("alice", "typed-deck", deck, null, default);
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -189,7 +196,7 @@ public sealed partial class SealedSubmittedOpeningTests
         throw new Xunit.Sdk.XunitException("The controlled server seed must yield a legal 25-card deck for this role selection.");
     }
 
-    private sealed class Run
+    internal sealed class Run
     {
         public Journal Journal { get; } = new();
         private readonly Players players = new();
@@ -203,6 +210,8 @@ public sealed partial class SealedSubmittedOpeningTests
             Live = new MatchSession(initial, new CoreRuleEngine(), Journal, players);
         }
         public async Task Join(string player) => tokens[player] = (await Live.EnsurePlayerAsync(player, default)).ReconnectToken;
+        public Task<ResolutionResult> Choose(bool goFirst = true) => Act(
+            Live.SnapshotFor("alice").Series!.PlayOrderChooserPlayerId!, new ChoosePlayOrderCommand(goFirst));
         public async Task<ResolutionResult> Act(string player, GameCommand command, JsonElement? raw = null)
         {
             raw ??= Raw(command);
@@ -247,11 +256,15 @@ public sealed partial class SealedSubmittedOpeningTests
         }
     }
 
-    private sealed class Journal : IMatchJournal
+    internal sealed class Journal : IMatchJournal
     {
         public List<MatchJournalEntry> Entries { get; } = [];
+        public bool FailNext { get; set; }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
-        { Entries.Add(entry); return ValueTask.CompletedTask; }
+        {
+            if (FailNext) { FailNext = false; throw new IOException("journal unavailable"); }
+            Entries.Add(entry); return ValueTask.CompletedTask;
+        }
     }
     private sealed class Players : IMatchPlayerStore
     {

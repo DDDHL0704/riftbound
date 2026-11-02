@@ -65,7 +65,7 @@ public sealed class Ven089SubmittedDeckConsumerTests
                 Assert.True(ability.Confirmed); Assert.Equal(new ObjectBinding(selected, generation + 3), ability.Played); Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
             }
             else Assert.Empty(game.State.StackItems);
-            await game.ColdCheckpoint();
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var forged = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
                 [selected] = game.State.CardObjects[selected] with { IsEmpowered = true } } };
             await game.RejectCoordinatedForgery("unearned-empower-after-paid-private-play-" + actor + "-" + create, forged);

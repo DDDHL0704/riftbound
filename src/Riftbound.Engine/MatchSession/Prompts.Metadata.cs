@@ -720,6 +720,7 @@ internal static partial class ActionPromptBuilder
         {
             "READY" => "准备",
             "SUBMIT_DECK" => "提交卡组",
+            CommandTypes.ChoosePlayOrder => "选择先后手",
             "MULLIGAN" => "起手调度",
             "WAIT" => "等待",
             "PLAY_CARD" => "打出卡牌",
