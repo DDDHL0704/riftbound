@@ -110,7 +110,7 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
                 });
             }
             await FinishCreations(game); Assert.Equal(6, Minions(game.State).Length);
-            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); await game.Replay();
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
         }
         finally { await Save("three-earned-instances-private-hand", initial, game); }
     }
