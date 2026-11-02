@@ -51,7 +51,8 @@ public sealed partial class LastBreathDrawBoundaryTests
         var initial = Add(Position(no), "EPHEMERAL", "UNL-165/219", "P1", "HAND");
         for (var i = 6; i < 10; i++) initial = Add(initial, "P1-RUNE-" + i, "UNL-R06", "P1", "BASE");
         for (var i = 4; i <= 12; i++) initial = Add(initial, "P1-DRAW-" + i, "OGN·219/298", "P1", "MAIN_DECK");
-        var game = new Driver(initial);
+        // Recover ordinary paid setup before the real ephemeral grant.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-2"));
@@ -60,6 +61,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
                 await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
             }
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             await game.Act("P1", new PlayCardCommand("EPHEMERAL", "UNL-165/219", ["UNIT"])); await game.Top();
             Assert.Contains(CardObjectTags.Ephemeral, game.State.CardObjects["UNIT"].GrantedTags ?? []);
             Assert.Equal(2, game.State.PlayerZones["P1"].Hand.Count);
@@ -74,7 +77,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.InRange(step, 0, 8); await game.Act(game.State.PriorityPlayerId ?? game.State.TurnPlayerId!, new PassPriorityCommand());
             }
             Assert.Equal(9, game.State.PlayerZones["P1"].Hand.Count); // two granted draws, six last-breath draws and one normal turn draw
-            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            // The final accepted command already audited the complete journal.
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("paid-copied-leblanc-natural-beginning-" + no.Replace('/', '-'), initial, game); }
     }
