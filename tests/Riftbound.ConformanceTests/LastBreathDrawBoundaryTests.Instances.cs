@@ -104,7 +104,7 @@ public sealed partial class LastBreathDrawBoundaryTests
                 await game.Top(); Assert.Equal(2 - i, game.State.StackItems.Count);
                 Assert.Equal(ownerHand, game.State.PlayerZones["P1"].Hand); Assert.Equal(controllerHand + i + 1, game.State.PlayerZones["P2"].Hand.Count);
             }
-            await game.Replay();
+            Assert.True(game.RecoverAfterEveryCommand); // The final Top already audited this journal.
         }
         finally { await Save("actual-transferred-private-source-three-draws", initial, game); }
     }

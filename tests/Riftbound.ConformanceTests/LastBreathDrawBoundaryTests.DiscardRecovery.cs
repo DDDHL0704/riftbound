@@ -53,7 +53,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.All(effects.Where(e => e.Kind is "CARD_DISCARDED" or "CARD_DRAWN"), e => Assert.Equal("P2", e.Payload["playerId"]));
                 Assert.Equal(ownerHand, game.State.PlayerZones["P1"].Hand); Assert.Equal(2 - i, game.State.StackItems.Count);
             }
-            Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            // The final accepted choice already audited the complete original journal.
+            Assert.Empty(game.State.TriggerQueue); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("agent-transferred-private-source-three-choices", initial, game); }
     }
