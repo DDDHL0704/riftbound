@@ -5,20 +5,22 @@ using static Riftbound.ConformanceTests.ImposedMovementContinuationTests;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class ImposedMovementSourceTests
+public sealed partial class ImposedMovementSourceTests
 {
     [Theory]
     [InlineData("bound", 2)]
-    [InlineData("friendly-gear", 1)]
-    [InlineData("friendly-host", 1)]
+    [InlineData("friendly-gear", 2)]
+    [InlineData("friendly-host", 0)]
     [InlineData("both-friendly", 0)]
+    [InlineData("friendly-host-owner", 2)]
+    [InlineData("friendly-gear-owner", 2)]
     [InlineData("detached", 1)]
     [InlineData("wrong-host-generation", 1)]
     [InlineData("wrong-revision", 1)]
     [InlineData("wrong-field", 1)]
     [InlineData("face-down-gear", 1)]
     [InlineData("face-down-host", 0)]
-    public async Task EffectiveImposersUseEachTextInstancesOwnControllerAndCurrentBinding(string boundary, int expected)
+    public async Task EffectiveImposersUseTheHostControllerAndCurrentTextBinding(string boundary, int expected)
     {
         var initial = Position("standard") with { ActivePlayerId = "P2", TurnPlayerId = "P2" };
         initial = initial with {
@@ -59,6 +61,8 @@ public sealed class ImposedMovementSourceTests
         if (boundary == "wrong-host-generation") cards["PATROL"] = cards["PATROL"] with { ObjectGeneration = cards["PATROL"].ObjectGeneration + 1 };
         if (boundary == "wrong-revision") cards["SONG"] = cards["SONG"] with { AttachmentRevision = cards["SONG"].AttachmentRevision + 1 };
         if (boundary == "wrong-field") locations["SONG"] = new("P2", "BATTLEFIELD", "FIELD1");
+        if (boundary == "friendly-host-owner") cards["PATROL"] = cards["PATROL"] with { OwnerId = "P1" };
+        if (boundary == "friendly-gear-owner") cards["SONG"] = cards["SONG"] with { OwnerId = "P1" };
         if (boundary == "face-down-gear") cards["SONG"] = cards["SONG"] with { IsFaceDown = true };
         if (boundary == "face-down-host") cards["PATROL"] = cards["PATROL"] with { IsFaceDown = true };
         current = current with { ActivePlayerId = "P1", TurnPlayerId = "P1", PriorityPlayerId = null,

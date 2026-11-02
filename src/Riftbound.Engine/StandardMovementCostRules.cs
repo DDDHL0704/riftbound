@@ -3,7 +3,8 @@ namespace Riftbound.Engine;
 internal static class StandardMovementCostRules
 {
     // CN 204.4: independent text instances impose independent fees on a move.
-    // Copied weapon text belongs to the weapon's controller (CN 718.5.f).
+    // CN 136.2.c / 435.1.c / 718.3: attached text is added to the host.
+    // The weapon's independent control (718.5.e-f) does not control that text.
     private static IEnumerable<MovementImposedCostSpec> Costs(MatchState state, string playerId, string? battlefieldId)
     {
         if (battlefieldId is null || !state.BattlefieldStates.ContainsKey(battlefieldId)) yield break;
@@ -19,16 +20,14 @@ internal static class StandardMovementCostRules
             {
                 if (!CardBehaviorRegistry.TryGetByCardNo(text.CardNo, out var behavior)
                     || behavior.MovementImposedCost is not { } cost) continue;
-                var source = unit;
                 if (text.Origin is { } origin && state.CardObjects.TryGetValue(origin.Equipment.ObjectId, out var gear)
                     && AttachedRuleTextRules.CopiesPrintedText(gear.CardNo))
                 {
-                    if (gear.ObjectGeneration != origin.Equipment.Generation || !AttachedRuleTextRules.Bound(state, gear)) continue;
-                    source = gear;
+                    if (gear.ObjectGeneration != origin.Equipment.Generation || !AttachedRuleTextRules.Bound(state, gear)
+                        || state.ObjectLocations.GetValueOrDefault(gear.ObjectId) is not { Zone: "BATTLEFIELD" } position
+                        || position.BattlefieldObjectId != battlefieldId) continue;
                 }
-                if (!source.IsFaceDown && state.ObjectLocations.GetValueOrDefault(source.ObjectId) is { Zone: "BATTLEFIELD" } position
-                    && position.BattlefieldObjectId == battlefieldId
-                    && !CardControlRules.IsControlledByPlayerOrLegacyOwned(source, playerId)) yield return cost;
+                if (!CardControlRules.IsControlledByPlayerOrLegacyOwned(unit, playerId)) yield return cost;
             }
         }
     }
