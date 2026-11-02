@@ -365,6 +365,48 @@ public sealed class RadNeekoLegendTests
         await game.ColdCheckpoint(); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ReturningTheLegendSourceEndsItsStaticGrantBeforeTheSameInstructionCreatesAUnit(bool returnsNeeko)
+    {
+        var position = (await Position("SFD·197/221")).State;
+        var game = new Driver(position with {
+            CardObjects = new Dictionary<string, CardObjectState>(position.CardObjects) {
+                ["BF"] = OfficialGarenConquestBattlefieldCountTests.Printed("BF", "SFD·207/221", "P2") }
+        }) { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new PlayCardCommand("READY", "UNL-009/219", ["NEEKO"])); await game.Top();
+        var conqueror = returnsNeeko ? "NEEKO" : "UNIT";
+        await game.Act("P1", new MoveUnitCommand(conqueror, "BASE", "BATTLEFIELD:BF", []));
+        await game.Act("P1", new PassFocusCommand());
+        await game.Act("P2", new PassFocusCommand());
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Contains(legend, game.State.PlayerZones["P1"].LegendZone);
+        await game.ColdCheckpoint();
+        var eventStart = game.Events().Length;
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
+        var events = game.Events().Skip(eventStart).Select(recovered => recovered.Event).ToArray();
+        var created = Assert.Single(events, ev => ev.Kind == "UNIT_TOKEN_CREATED");
+        var token = game.State.CardObjects[Assert.IsType<string>(created.Payload["tokenObjectId"])];
+        Assert.Contains(conqueror, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(!returnsNeeko, token.Tags.Contains(CardEquipmentKeywordNames.Tempered));
+        Assert.Equal(!returnsNeeko, Assert.IsType<bool>(created.Payload["azirTempered"]));
+        Assert.Equal(!returnsNeeko, events.Any(ev => ev.Kind == "TRIGGER_QUEUED"
+            && Equals(ev.Payload.GetValueOrDefault("effectKind"), "PLAYED_UNIT_WEAPONMASTER")));
+        Assert.Equal(!returnsNeeko, game.State.CardObjects.ContainsKey(legend));
+        var binding = Assert.Single(game.State.BoundLegends!);
+        Assert.Equal(returnsNeeko, binding.DepartedAtTick is not null);
+        if (returnsNeeko)
+        {
+            Assert.False(game.State.ObjectLocations.ContainsKey(legend));
+            Assert.Empty(game.State.PlayerZones["P1"].LegendZone);
+            Assert.Equal(game.State.Tick, binding.DepartedAtTick);
+        }
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
     private static IReadOnlyList<string> HistoryErrors(Driver game, MatchState state, MatchReplayFrame? spectator = null)
     {
         var sequence = game.Events().Last().Sequence;

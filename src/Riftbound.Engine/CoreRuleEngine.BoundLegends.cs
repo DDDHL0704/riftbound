@@ -45,6 +45,25 @@ public sealed partial class CoreRuleEngine
             ["cardNo"] = selected, ["boundLegend"] = binding }));
     }
 
+    private static void RemoveLegendsBoundToDepartingSource(Dictionary<string, PlayerZones> zones,
+        Dictionary<string, CardObjectState> cards, CardObjectState source)
+    {
+        var frame = RuleChoices.Value;
+        var bindings = frame?.ResolutionState?.BoundLegends ?? frame?.Origin.BoundLegends;
+        if (bindings is null) return;
+        foreach (var binding in bindings.Where(binding => binding.DepartedAtTick is null
+            && binding.Source.ObjectId == source.ObjectId && binding.Source.Generation == source.ObjectGeneration))
+        {
+            // A quote can remove a card from its own dictionaries too. Change
+            // only those dictionaries here; accepted resolution records the
+            // departure receipt and tick in ReconcileBoundLegends.
+            cards.Remove(binding.LegendObjectId);
+            foreach (var player in zones.Keys.ToArray())
+                zones[player] = zones[player] with { LegendZone = zones[player].LegendZone
+                    .Where(id => id != binding.LegendObjectId).ToArray() };
+        }
+    }
+
     private static ResolutionResult ReconcileBoundLegends(ResolutionResult result)
     {
         if (!result.Accepted) return result;

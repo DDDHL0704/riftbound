@@ -31932,6 +31932,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string objectId, CardObjectState previous, string owner)
     {
+        RemoveLegendsBoundToDepartingSource(playerZones, cardObjects, previous);
         if (IsTokenObject(previous))
         {
             // CN 186.1: zone transition happens, then the token immediately ceases
