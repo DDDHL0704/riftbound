@@ -112,6 +112,7 @@ public static partial class MatchRecoveryValidator
     {
         var acceptedEventOwners = new Dictionary<long, string>();
         var seenCommandIntents = new HashSet<(string PlayerId, string ClientIntentId)>();
+        var seenTournamentDecisions = new HashSet<string>(StringComparer.Ordinal);
         var knownRecoveredPlayerIds = recoveredPlayerIds.ToHashSet(StringComparer.Ordinal);
         var previousFrameStartedEventSequence = 0L;
         var previousFrameCompletedEventSequence = 0L;
@@ -160,6 +161,13 @@ public static partial class MatchRecoveryValidator
             if (command.TypedCommand is { } typedInput
                 && (command.RawCommand is not null || !typedInput.MatchesRecordedType(normalizedCommandType)))
                 errors.Add($"command {normalizedClientIntentId} typed command input is invalid or conflicts with raw input");
+
+            if (normalizedCommandType == TournamentGameLossDecision.CommandType
+                && (command.RawCommand is not null || command.TypedCommand is not { } decisionInput
+                    || !decisionInput.TryGameLoss(out var decision) || decision.LoserPlayerId != normalizedPlayerId))
+                errors.Add($"command {normalizedClientIntentId} trusted tournament decision input is invalid");
+            if (normalizedCommandType == TournamentGameLossDecision.CommandType && !seenTournamentDecisions.Add(normalizedClientIntentId))
+                errors.Add($"tournament decision {normalizedClientIntentId} appears more than once in recovery frame");
 
             if (normalizedPlayerId.Length > 0
                 && knownRecoveredPlayerIds.Count > 0
