@@ -337,7 +337,9 @@ public sealed class Ven050RuneDiscountConsumerTests
     }
     private static async Task Finish(string label, MatchState initial, Driver game)
     {
-        await game.Replay(); JsonRestore(initial, game);
+        // Every command already audited this exact original history.
+        Assert.True(game.RecoverAfterEveryCommand);
+        JsonRestore(initial, game);
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN050_EVIDENCE") is not { Length: > 0 } output) return;
         Directory.CreateDirectory(output);
         var runtime = new[] { typeof(CoreRuleEngine).Assembly, typeof(OfficialCardCatalog).Assembly, typeof(GameCommand).Assembly, Assembly.GetExecutingAssembly() }
