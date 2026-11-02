@@ -129,7 +129,10 @@ public sealed record PublicMatchDto(
     int SeatCount,
     int Capacity,
     string Status,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    string Format = MatchFormats.Constructed,
+    string? SetCode = null,
+    int BestOf = 1);
 
 public sealed record CreatePublicMatchResultDto(
     PublicMatchDto Match,
@@ -395,7 +398,13 @@ public sealed record SnapshotDto(
     IReadOnlyList<object?> Stack,
     IReadOnlyDictionary<string, object?> Timing,
     string TurnState,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SnapshotTableDto? Table = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SnapshotTableDto? Table = null,
+    string Format = MatchFormats.Constructed,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SetCode = null,
+    int BestOf = 1,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] MatchSeriesDto? Series = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SealedPoolDto? SealedPool = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? SideboardCounts = null);
 
 public static class PromptTypes
 {
