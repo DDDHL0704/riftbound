@@ -73,6 +73,8 @@
 
 ## P2 · 卡牌（B 线）
 
+- 2026-11-02 20:18 B 线 #400 L2 修正：首查 main 已合入 #402，随后 #404 也已合入；#400／#406 仍可合并、auto 保持，#406 未见失败。#400 的 `41431375456` 第 5 片仅一项失败：`MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateUntilEndOfTurnEffectValueDrift` 的伪造空效果元素导致新增的可选费用减免校验抛出空引用。沿用相邻校验器做法，空列表／空元素直接判为非法，保留原恢复错误。精确原例先失败、重建 Release Engine 后 **1/1 通过、零跳过**，合计 102.31 秒，构建零警告错误；复用未改动的测试 DLL，SHA256 不变，日志与 TRX 在 `var/b-pr400-l2-20261102-2015/`。三棵 B 工作树与当前 main 的 `merge-tree` 均无冲突；仅修正原 PR，不新增 L2 席位。
+
 - 2026-11-02 18:45 B 线 #400 同步：#386 全绿合入 main `518c001ff` 后，#400 由可合并变为冲突。已合并同一主干，源码自动合并；手工冲突仅为 BACKLOG、两分支各自新增的 FaceDownPlayTestDriver 和目录守卫。保留原驱动的同一准备历史、准备后冷检查点与场景逐命令恢复／幂等／隐私／回放检查；目录同时保留五项英雄十三个印次与最终抚慰，预期 1444。`git diff --check` 通过；当前本轮唯一 dotnet 正在妮蔻工作树运行，没有另起第二个构建，本次合并后的完整验证交新 L2，不记作本地已通过。修正更新同一 PR 并保持 auto。
 
 - 2026-11-02 18:16 B 线 #400 L2 修正：首查 #386 已通过六片、其余三片运行，未见新失败；#400 的 `41415146476` 第 3、5 片分别暴露 `DisarmSourceSpecificationTests.SourceMetadataKeepsIncompleteCardsDisabledAndTheOriginalCatalogUnchanged` 和 `ScopedPhysicalPrintTests.PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard` 的旧准入预期。前次 `44e00a8e7` 仅更新 ReviewedScopedPrintUniverse，未覆盖这两处；现将 RAD·109／109a／SP3 精确列为已准入，并补三印次法力 4／战力 4／紫色／恶魔的身份正控，以仍有来源冲突的 SP4 继续验证不可出牌。Release 三个精确方法 10/10 通过、零跳过，含构建共 375.93 秒；日志在妮蔻工作树 `var/b-targeted-20261102-1813/pr400/`。修正推回同一 PR，auto 保持，不轮询新 L2。

@@ -99,6 +99,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidOptionalPlayCostReductionUses(MatchState state)
     {
+        if (state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(effect => effect is null)) return false;
         var markers = state.UntilEndOfTurnEffects.Where(effect => effect.StartsWith(OptionalPlayCostReductionUsePrefix, StringComparison.Ordinal)).ToArray();
         var uses = markers.Select(ReadPlayCostReductionUse).ToArray();
         var history = state.CardPlays.TurnNumber == state.TurnNumber ? state.CardPlays.Finalized : [];
