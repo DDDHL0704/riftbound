@@ -1664,7 +1664,7 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
-            var legendCardNo = ValidateAuthoritativeStateRequiredText(
+            var legendCardNo = ValidateAuthoritativeStateOptionalTextValue(
                 $"decklist for {playerLabel} legend card no",
                 decklist.LegendCardNo,
                 errors);
@@ -1673,7 +1673,7 @@ public static partial class MatchRecoveryValidator
                 legendCardNo,
                 errors);
 
-            var championCardNo = ValidateAuthoritativeStateRequiredText(
+            var championCardNo = ValidateAuthoritativeStateOptionalTextValue(
                 $"decklist for {playerLabel} champion card no",
                 decklist.ChampionCardNo,
                 errors);

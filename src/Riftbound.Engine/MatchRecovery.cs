@@ -3721,6 +3721,7 @@ public static partial class MatchRecoveryValidator
 
         ValidateSpellContinuations(authoritativeState, errors);
         ValidateTurnSequenceState(authoritativeState, errors);
+        ValidateOpeningRoleDraw(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         errors.AddRange(SealedRoomPools.Validate(authoritativeState));
         if (authoritativeState.SessionOptions is { } roomOptions && !Enum.IsDefined(roomOptions.DeckFormat))
