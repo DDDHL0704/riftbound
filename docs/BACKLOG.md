@@ -299,3 +299,7 @@ git show <分支>:<路径> > <路径>
   - #262 前端需适配：终极统治授予的回合内技能复用 `ACTIVATE_ABILITY` 提示，按返回的 `GRANTED:<hash>` 原样提交 `abilityId`，展示两点任意符能费用及付款候选；结算链的 `grantedAbilityId` 用于对应技能展示。
   - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。
   - `b/rad-discard-destroy` 前端需适配：选择触发目标后，使用 `CHOOSE_CARDS` / `TRIGGER_HAND_DISCARD_COST` 选择一张手牌；空选择放弃技能。若随后出现 `TRIGGER_TARGET_COST`，支付或放弃法盾费用与弃牌一起提交，支付成功后再开放响应。所选手牌在付款前只对操作者可见。
+
+## 现开规则待确认（F 线）
+
+- [ ] **待确认：非专属法术的英雄标签要求**：赛事 602.4.a.3.b 只明确允许符合特性的任意专属法术；核心 103.3.d.2 仍要求其他专属卡牌匹配传奇。当前专属装备／专属单位沿用此要求，数量限制照 602.4.a.6 豁免；需要官方确认是否也意图扩大英雄标签豁免。见 `docs/adr/0002-sealed-deck-validation.md`。
