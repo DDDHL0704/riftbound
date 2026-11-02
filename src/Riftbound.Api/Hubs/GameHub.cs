@@ -200,16 +200,15 @@ public sealed class GameHub(
             return null;
         }
 
-        var normalizedFormat = (options?.Format ?? MatchFormats.Constructed).Trim().ToLowerInvariant();
-        if (!string.Equals(normalizedFormat, MatchFormats.Constructed, StringComparison.Ordinal)
-            || !string.IsNullOrWhiteSpace(options?.SetCode)
-            || (options?.BestOf ?? 1) != 1)
+        CreatePublicMatchOptionsDto normalizedOptions;
+        try { normalizedOptions = PublicMatchCreation.Normalize(options); }
+        catch (ArgumentException exception)
         {
             await SendClientError(
                 string.Empty,
                 normalizedPlayerId,
                 ErrorCodes.InvalidPayload,
-                "当前公开房间仍仅支持构筑赛；现开赛房间将在现开对局流程接入后开放。");
+                exception.Message);
             return null;
         }
 
@@ -229,9 +228,13 @@ public sealed class GameHub(
         PublicMatchDto match;
         try
         {
-            session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
+            session = normalizedOptions.Format == MatchFormats.Sealed
+                ? await sessions.GetOrCreateAsync(roomId, MatchSessionOptions.ForSealed(normalizedOptions.SetCode!, normalizedOptions.BestOf), Context.ConnectionAborted)
+                : await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
-            match = await publicMatches.CreateAsync(roomId, normalizedPlayerId, Context.ConnectionAborted);
+            match = normalizedOptions.Format == MatchFormats.Sealed
+                ? await publicMatches.CreateAsync(roomId, normalizedPlayerId, normalizedOptions, Context.ConnectionAborted)
+                : await publicMatches.CreateAsync(roomId, normalizedPlayerId, Context.ConnectionAborted);
             playerConnections?.EnterRoom(Context.ConnectionId, normalizedPlayerId, roomId);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
@@ -628,12 +631,16 @@ public sealed class GameHub(
         var projectedEvents = result.Events.Count > 0
             ? ProjectEvents(result.Events, result.State)
             : Array.Empty<GameEvent>();
-        if (matchResultStore is not null
+        if (matchResultStore is not null && result.State.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed)
+        {
+            await MatchResultRecords.RecordFinishedSeriesAsync(matchResultStore, result, Context.ConnectionAborted);
+        }
+        else if (matchResultStore is not null
             && result.State.Status == MatchStatuses.Finished
             && result.Events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal)))
         {
             await matchResultStore.RecordMatchResultAsync(
-                BuildMatchResultRecord(result.State),
+                MatchResultRecords.FromFinishedState(result.State, DateTimeOffset.UtcNow),
                 Context.ConnectionAborted);
         }
 
@@ -698,38 +705,6 @@ public sealed class GameHub(
         return result.Events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal))
             ? MessageType.START
             : MessageType.READY;
-    }
-
-    private static MatchResultRecord BuildMatchResultRecord(MatchState state)
-    {
-        var winnerPlayerId = string.IsNullOrWhiteSpace(state.WinnerPlayerId)
-            ? throw new InvalidOperationException("Cannot record a match result without a winner.")
-            : state.WinnerPlayerId;
-        var players = state.Seats
-            .Select(entry =>
-            {
-                var score = RoomMatchSeries.ViewFor(state) is { } series
-                    ? series.Wins.GetValueOrDefault(entry.Key)
-                    : state.PlayerScores.GetValueOrDefault(entry.Key);
-                return new MatchResultPlayerRecord(
-                    entry.Key,
-                    entry.Value,
-                    score,
-                    string.Equals(entry.Key, winnerPlayerId, StringComparison.Ordinal));
-            })
-            .OrderBy(player => string.Equals(player.Seat, "P1", StringComparison.Ordinal)
-                ? "0"
-                : string.Equals(player.Seat, "P2", StringComparison.Ordinal)
-                    ? "1"
-                    : $"2:{player.Seat}", StringComparer.Ordinal)
-            .ThenBy(player => player.PlayerId, StringComparer.Ordinal)
-            .ToArray();
-
-        return new MatchResultRecord(
-            state.RoomId,
-            players,
-            winnerPlayerId,
-            DateTimeOffset.UtcNow);
     }
 
     private static IReadOnlyList<GameEvent> ProjectEvents(IReadOnlyList<GameEvent> events, MatchState state)

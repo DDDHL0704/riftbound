@@ -777,6 +777,14 @@ public static class MatchActionLogReplayer
         if (recovered.Accepted && recovered.CommandType == MatchSession.RoomSeatCommandType)
             return await session.ReplayRoomSeatAsync(recovered, cancellationToken).ConfigureAwait(false);
 
+        if (recovered.CommandType == TournamentGameLossDecision.CommandType)
+        {
+            if (recovered.RawCommand is not null || recovered.TypedCommand is not { } decisionInput
+                || !decisionInput.TryGameLoss(out var decision) || decision.LoserPlayerId != recovered.PlayerId)
+                throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "invalid trusted tournament decision input");
+            return await session.ApplyGameLossAsync(recovered.ClientIntentId, decision, cancellationToken).ConfigureAwait(false);
+        }
+
         if (recovered.CommandType.StartsWith(DevSeedScenarioPrefix, StringComparison.Ordinal))
         {
             return await session.SeedScenarioAsync(

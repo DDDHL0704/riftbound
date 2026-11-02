@@ -201,13 +201,15 @@ public sealed partial class SealedSubmittedOpeningTests
         public Journal Journal { get; } = new();
         private readonly Players players = new();
         private readonly Dictionary<string, string> tokens = [];
+        private readonly IRuleEngine engine;
         public IMatchSession Live { get; private set; }
         public MatchState State => Journal.Entries[^1].AuthoritativeState;
-        public Run(int bestOf = 1, string setCode = "OGN")
+        public Run(int bestOf = 1, IRuleEngine? engine = null, long seed = 424242, string setCode = "OGN")
         {
-            var initial = MatchState.Create("sealed-submitted-opening") with { Seed = 424242,
+            this.engine = engine ?? new CoreRuleEngine();
+            var initial = MatchState.Create("sealed-submitted-opening") with { Seed = seed,
                 SessionOptions = MatchSessionOptions.ForSealed(setCode, bestOf) };
-            Live = new MatchSession(initial, new CoreRuleEngine(), Journal, players);
+            Live = new MatchSession(initial, this.engine, Journal, players);
         }
         public async Task Join(string player) => tokens[player] = (await Live.EnsurePlayerAsync(player, default)).ReconnectToken;
         public Task<ResolutionResult> Choose(bool goFirst = true) => Act(
@@ -246,8 +248,8 @@ public sealed partial class SealedSubmittedOpeningTests
             var frame = Frame();
             Assert.Empty(MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
                 frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick));
-            Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
-            Live = MatchSession.Restore(frame, new CoreRuleEngine(), Journal, players);
+            Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default));
+            Live = MatchSession.Restore(frame, engine, Journal, players);
             foreach (var player in tokens.Keys.ToArray())
             {
                 tokens[player] = (await Live.ReconnectPlayerAsync(player, tokens[player], default)).ReconnectToken;
