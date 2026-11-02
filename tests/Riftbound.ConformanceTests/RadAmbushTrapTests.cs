@@ -141,7 +141,7 @@ public sealed class RadAmbushTrapTests
         await game.Act("P1", Hide(1));
         await game.Act("P1", new MoveUnitCommand("ALLY", "BATTLEFIELD", "BASE"));
         Assert.Null(game.State.PendingRuleChoice);
-        Assert.False(game.State.CardObjects.Values.Any(c => c.IsFaceDown));
+        Assert.DoesNotContain(game.State.CardObjects.Values, c => c.IsFaceDown);
         Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLEFIELD_STANDBY_REMOVED");
         await game.ColdCheckpoint();
     }
