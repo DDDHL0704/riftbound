@@ -102,7 +102,7 @@ public sealed class CanonicalTerminalDamageChoiceOpeningTests
                 Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration); Assert.True(game.State.CardObjects[unit].IsEmpowered);
                 Assert.Equal(0, game.State.CardObjects[unit].Damage);
                 Assert.Equal(new[] { "MATCH_WON" }, game.Events().Skip(before).Select(e => e.Event.Kind));
-                await game.ColdCheckpoint();
+                // The forgery helper cold-recovers this same terminal history.
                 await game.RejectCoordinatedForgery("terminal-pretended-lower-inverse-ran", game.State with {
                     CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
                         [unit] = game.State.CardObjects[unit] with { IsEmpowered = false } } });
@@ -115,9 +115,11 @@ public sealed class CanonicalTerminalDamageChoiceOpeningTests
                     var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("finished-probe-" + type, "P1", type), command, default);
                     Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode); Assert.Empty(rejected.Events);
                     Assert.Equal(hash, MatchStateHasher.Hash(rejected.State)); probes.Add(new { type, directEngineOnly = true, result = rejected });
+                    Assert.Equal(hash, MatchStateHasher.Hash(game.State));
                 }
             }
-            await game.ColdCheckpoint();
+            // Direct engine rejection probes append no accepted game history.
+            if (ending == "CONTINUE") await game.ColdCheckpoint();
         }
         finally
         {
