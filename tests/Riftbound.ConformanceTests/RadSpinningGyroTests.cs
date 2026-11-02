@@ -145,8 +145,12 @@ public sealed class RadSpinningGyroTests
     }
 
     [Theory]
-    [InlineData(MinionSkill, "随从", "COST")] [InlineData(RobotSkill, "机器人", "ALLY")]
-    public async Task TheSharedUnitTokenReplacementRunsBeforeEntry(string skill, string family, string cost)
+    [InlineData(MinionSkill, "随从", "COST", "BASE", "BASE")]
+    [InlineData(RobotSkill, "机器人", "ALLY", "BASE", "BASE")]
+    [InlineData(MinionSkill, "随从", "COST", "BATTLEFIELD:BF", "BASE")]
+    [InlineData(RobotSkill, "机器人", "ALLY", "BASE", "BATTLEFIELD:BF")]
+    public async Task TheSharedUnitTokenReplacementRunsBeforeEntry(string skill, string family, string cost,
+        string firstDestination, string secondDestination)
     {
         var state = Put(Put(Position(), "COST", "OGN·040/298", "P1", "BASE"), "Z", "UNL-086/219", "P1", "BATTLEFIELD", "BF");
         var game = new Driver(state);
@@ -154,7 +158,31 @@ public sealed class RadSpinningGyroTests
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal("TOKEN_ENTRY_REPLACEMENT", choice.ChoiceWindow); Assert.Empty(Tokens(game.State, family));
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["Z"]));
-        Assert.Equal(2, Tokens(game.State, family).Length); await game.Replay();
+        Assert.Empty(Tokens(game.State, family));
+        // CN 355.2.a: unrestricted tokens choose their normal play location.
+        // The replacement runs first; each resulting token then chooses its own
+        // destination before the batch is committed.
+        foreach (var destination in new[] { firstDestination, secondDestination })
+        {
+            var location = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
+            Assert.Equal("TOKEN_PLAY_LOCATION", location.Request.Kind);
+            // The checkpoint retains the original replacement command until all
+            // synchronous choices commit; the preview has already advanced it.
+            Assert.Null(location.Request.Preview!.PendingCardChoice);
+            Assert.Equal(new[] { "BASE", "BATTLEFIELD:BF" }, location.Request.Options.Select(option => option.Id));
+            await game.Act("P1", new PayCostCommand(location.Request.Id, "RULE_REPLACEMENT", [destination]));
+        }
+        Assert.Null(game.State.PendingRuleChoice);
+        Assert.Null(game.State.PendingCardChoice);
+        var tokens = Tokens(game.State, family);
+        Assert.Equal(2, tokens.Length);
+        Assert.Equal(new[] { firstDestination, secondDestination }.Order(StringComparer.Ordinal),
+            tokens.Select(token => game.State.ObjectLocations[token.ObjectId])
+                .Select(location => location.Zone == "BASE" ? "BASE" : "BATTLEFIELD:" + location.BattlefieldObjectId)
+                .Order(StringComparer.Ordinal));
+        Assert.Contains(cost, game.State.PlayerZones["P1"].Graveyard);
+        Assert.True(game.State.CardObjects["GEAR"].IsExhausted);
+        await game.Replay();
     }
 
     [Fact]

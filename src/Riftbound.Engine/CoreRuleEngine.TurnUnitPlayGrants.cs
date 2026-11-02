@@ -1,16 +1,24 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
 public sealed record TurnUnitPlayGrant(string Marker, int TurnNumber, string ControllerId, ObjectBinding Source,
     string CardNo, string StackItemId, int ExecutionIndex, string Kind);
-public sealed record TurnUnitPlayBoonContext(TurnUnitPlayGrant Grant, ObjectBinding Unit, string UnitCardNo, string UnitControllerId);
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record TurnUnitPlayBoonContext(TurnUnitPlayGrant Grant, ObjectBinding Unit, string UnitCardNo,
+    string UnitControllerId, long FaceRevision = -1, long CapturedTick = -1, string? TokenFactoryCardNo = null);
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record TurnUnitPlayGrantUse(TurnUnitPlayGrant Grant, ObjectBinding Unit, string UnitCardNo,
+    long CapturedTick, long FaceRevision = -1, string? TokenFactoryCardNo = null);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string TurnUnitPlayGrantPrefix = "TURN_UNIT_PLAY_GRANT|";
+    internal const string TurnUnitPlayGrantUsePrefix = "TURN_UNIT_PLAY_GRANT_USED|";
     internal const string TurnUnitPlayBoonEffect = "DELAYED_FRIENDLY_UNIT_PLAYED_BOON";
     private const string TurnUnitPlayObservationKey = "turnUnitPlayObservation";
     private sealed record TurnUnitPlayObservation(IReadOnlyList<TurnUnitPlayBoonContext> Boons);
@@ -56,13 +64,52 @@ public sealed partial class CoreRuleEngine
     {
         if (state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(e => e is null)) return false;
         var markers = state.UntilEndOfTurnEffects.Where(e => e.StartsWith(TurnUnitPlayGrantPrefix, StringComparison.Ordinal)).ToArray();
+        var uses = state.UntilEndOfTurnEffects.Where(e => e.StartsWith(TurnUnitPlayGrantUsePrefix, StringComparison.Ordinal))
+            .Select(ReadTurnUnitPlayGrantUse).ToArray();
         return markers.Length == markers.Distinct(StringComparer.Ordinal).Count()
-            && markers.All(m => ReadTurnUnitPlayGrant(m) is { } grant && ValidTurnUnitPlayGrant(state, grant));
+            && markers.All(m => ReadTurnUnitPlayGrant(m) is { } grant && ValidTurnUnitPlayGrant(state, grant))
+            && uses.All(use => use is { Grant: not null, Unit.ObjectId.Length: > 0, Unit.Generation: >= 0,
+                    UnitCardNo.Length: > 0, CapturedTick: > 0, FaceRevision: >= 0 }
+                && use.CapturedTick <= state.Tick && markers.Contains(use.Grant.Marker, StringComparer.Ordinal)
+                && ValidTurnUnitPlayGrant(state, use.Grant)
+                && long.TryParse(use.Grant.StackItemId[6..^(use.Grant.Source.ObjectId.Length + 1)], out var grantTick)
+                && use.CapturedTick > grantTick
+                && CardBehaviorRegistry.TryGetByCardNo(use.Grant.CardNo, out var b) && b.TurnUnitPlayGrantNextOnly
+                && TryPredictEnteredFace(use.UnitCardNo, out var entered) && entered.Tags.Contains(CardObjectTags.UnitCard)
+                && PredictBindingMatches(state, use.Unit, use.UnitCardNo, use.FaceRevision,
+                    use.CapturedTick, use.TokenFactoryCardNo))
+            && uses.Select(use => use!.Grant.Marker).Distinct(StringComparer.Ordinal).Count() == uses.Length;
+    }
+
+    private static string TurnUnitPlayGrantUseMarker(TurnUnitPlayGrantUse use)
+        => TurnUnitPlayGrantUsePrefix + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(use));
+
+    private static TurnUnitPlayGrantUse? ReadTurnUnitPlayGrantUse(string marker)
+    {
+        if (!marker.StartsWith(TurnUnitPlayGrantUsePrefix, StringComparison.Ordinal)) return null;
+        try {
+            var use = JsonSerializer.Deserialize<TurnUnitPlayGrantUse>(Convert.FromBase64String(marker[TurnUnitPlayGrantUsePrefix.Length..]));
+            return use is { Grant: not null, Unit: not null } && marker == TurnUnitPlayGrantUseMarker(use) ? use : null;
+        }
+        catch (Exception error) when (error is JsonException or FormatException or ArgumentException) { return null; }
     }
 
     private static IReadOnlyList<TurnUnitPlayGrant> ActiveUnitPlayGrants(IReadOnlyList<string>? effects, string player, string kind)
         => effects is null ? [] : effects.Where(e => e.StartsWith(TurnUnitPlayGrantPrefix, StringComparison.Ordinal))
-            .Select(ReadTurnUnitPlayGrant).OfType<TurnUnitPlayGrant>().Where(g => g.ControllerId == player && g.Kind == kind).ToArray();
+            .Select(ReadTurnUnitPlayGrant).OfType<TurnUnitPlayGrant>().Where(g => g.ControllerId == player && g.Kind == kind
+                && !effects.Select(ReadTurnUnitPlayGrantUse).OfType<TurnUnitPlayGrantUse>().Any(use => use.Grant.Marker == g.Marker)).ToArray();
+
+    internal static bool GrantedUnitPlayBattlefieldAllowed(MatchState state, string player,
+        CardBehaviorDefinition behavior, string destination)
+        => behavior.PlaysSourceToBaseAsUnit && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && BattlefieldLocalRules.Battlefield(state, destination[12..]) is { } field
+            && !field.IsFaceDown && IsObjectOnField(state.PlayerZones, field.ObjectId)
+            && ActiveUnitPlayGrants(state.UntilEndOfTurnEffects, player, "PLAY_BOON").Any(GrantsAnyUnitPlayBattlefield);
+
+    private static bool GrantsAnyUnitPlayBattlefield(TurnUnitPlayGrant grant)
+        => CardBehaviorRegistry.TryGetByCardNo(grant.CardNo, out var behavior)
+            && behavior.TurnUnitPlayGrantAnyBattlefield && (!behavior.TurnUnitPlayGrantNextOnly
+                || RuleChoices.Value?.ConsumedUnitPlayGrants.Contains(grant.Marker) != true);
 
     private static string UnitPlayDrawGroup(TurnUnitPlayGrant grant)
     {
@@ -107,12 +154,20 @@ public sealed partial class CoreRuleEngine
         }
         var controller = unit.ControllerId ?? player;
         var contexts = ActiveUnitPlayGrants(effects, controller, "PLAY_BOON")
-            .Select(g => new TurnUnitPlayBoonContext(g, new(unit.ObjectId, unit.ObjectGeneration), unit.CardNo ?? "", controller))
+            .Where(grant => !CardBehaviorRegistry.TryGetByCardNo(grant.CardNo, out var behavior)
+                || !behavior.TurnUnitPlayGrantNextOnly
+                || RuleChoices.Value?.ConsumedUnitPlayGrants.Contains(grant.Marker) != true)
+            .Select(g => new TurnUnitPlayBoonContext(g, new(unit.ObjectId, unit.ObjectGeneration), unit.CardNo ?? "",
+                controller, unit.CopyFaceTransitions?.Count ?? 0, TokenFactoryCardNo: unit.TokenFactoryCardNo))
             .Concat(ActiveUnitPlayGrants(effects, controller, "PLAY_DRAW")
                 .GroupBy(UnitPlayDrawGroup, StringComparer.Ordinal)
                 .Select(group => group.OrderBy(g => g.ExecutionIndex).First())
-                .Select(g => new TurnUnitPlayBoonContext(g, new(unit.ObjectId, unit.ObjectGeneration), unit.CardNo ?? "", controller)))
+                .Select(g => new TurnUnitPlayBoonContext(g, new(unit.ObjectId, unit.ObjectGeneration), unit.CardNo ?? "",
+                    controller, unit.CopyFaceTransitions?.Count ?? 0, TokenFactoryCardNo: unit.TokenFactoryCardNo)))
             .ToArray();
+        foreach (var context in contexts)
+            if (CardBehaviorRegistry.TryGetByCardNo(context.Grant.CardNo, out var behavior) && behavior.TurnUnitPlayGrantNextOnly)
+                RuleChoices.Value?.ConsumedUnitPlayGrants.Add(context.Grant.Marker);
         return contexts.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
             [TurnUnitPlayObservationKey] = new TurnUnitPlayObservation(contexts) } };
     }
@@ -132,9 +187,18 @@ public sealed partial class CoreRuleEngine
                 // remaining three opportunities. It is removed when the unit
                 // play is captured, so a response or a counter cannot refund it.
                 if (captured.Grant.Kind == "PLAY_DRAW" && !effects.Remove(captured.Grant.Marker)) continue;
-                var context = captured;
+                var context = captured with { CapturedTick = result.State.Tick };
                 if (before.CardObjects.TryGetValue(context.Unit.ObjectId, out var old) && !IsObjectOnField(before.PlayerZones, old.ObjectId))
                     context = context with { Unit = context.Unit with { Generation = Math.Max(context.Unit.Generation, old.ObjectGeneration + 1) } };
+                if (CardBehaviorRegistry.TryGetByCardNo(context.Grant.CardNo, out var behavior) && behavior.TurnUnitPlayGrantNextOnly)
+                {
+                    // Multiple tokens can enter during one instruction. Each
+                    // one-shot grant observes only the first actual play.
+                    if (effects.Select(ReadTurnUnitPlayGrantUse).OfType<TurnUnitPlayGrantUse>()
+                        .Any(use => use.Grant.Marker == context.Grant.Marker)) continue;
+                    effects.Add(TurnUnitPlayGrantUseMarker(new(context.Grant, context.Unit, context.UnitCardNo,
+                        context.CapturedTick, context.FaceRevision, context.TokenFactoryCardNo)));
+                }
                 var trigger = new TriggerQueueItemState($"turn-unit-boon-{result.State.Tick}-{index}-{context.Grant.ExecutionIndex}-{context.Grant.StackItemId}-{context.Unit.ObjectId}",
                     context.Grant.ControllerId, context.Grant.Source.ObjectId, TurnUnitPlayBoonEffect, ev.Kind) {
                         SourceCardNo = context.Grant.CardNo,
@@ -153,10 +217,10 @@ public sealed partial class CoreRuleEngine
             : effect == TurnUnitPlayBoonEffect && c.Grant is not null && c.Grant.Kind == kind && ValidTurnUnitPlayGrant(state, c.Grant)
                 && c.Grant.Source.ObjectId == sourceId && c.Grant.ControllerId == controller && c.Grant.CardNo == cardNo
                 && c.Unit is { Generation: >= 0 } && !string.IsNullOrWhiteSpace(c.Unit.ObjectId)
+                && c.FaceRevision >= 0 && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
                 && c.UnitControllerId == controller
-                && (state.CardObjects.TryGetValue(c.Unit.ObjectId, out var unit) ? unit.ObjectGeneration >= c.Unit.Generation
-                        && (unit.ObjectGeneration != c.Unit.Generation || (unit.CardNo ?? "") == c.UnitCardNo)
-                    : P6TokenFactoryCatalog.TryGetByCardNo(c.UnitCardNo, out _));
+                && TryPredictEnteredFace(c.UnitCardNo, out var entered) && entered.Tags.Contains(CardObjectTags.UnitCard)
+                && PredictBindingMatches(state, c.Unit, c.UnitCardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo);
 
     internal static bool ValidTurnUnitPlayBoon(MatchState state, TurnUnitPlayBoonContext? c, string effect,
         string sourceId, string controller, string? cardNo)
