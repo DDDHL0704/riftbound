@@ -5386,6 +5386,7 @@ public static partial class MatchRecoveryValidator
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !DrawHandThresholdRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
+                && !(stackItem.OutsideHandPlayObserver is not null && CoreRuleEngine.ValidOutsideHandPlayStack(authoritativeState, stackItem))
                 && !(stackItem.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, stackItem.UnitEvent, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, stackItem.EmpowerInteraction, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.SourceReadied is not null && CoreRuleEngine.ValidSourceReadiedStack(authoritativeState, stackItem))
@@ -5546,6 +5547,7 @@ public static partial class MatchRecoveryValidator
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !DrawHandThresholdRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
+                && !(trigger.OutsideHandPlayObserver is not null && CoreRuleEngine.ValidOutsideHandPlayTrigger(authoritativeState, trigger))
                 && !(trigger.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
                 && !(trigger.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, trigger.EmpowerInteraction, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.SourceReadied is not null && CoreRuleEngine.ValidSourceReadied(authoritativeState, trigger.SourceReadied, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))
@@ -5645,6 +5647,11 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } battleSkill
                 && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
                 sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } drawSkill
+                && (DrawHandThresholdRecoveryRules.IsCapturedSkill(authoritativeState, drawSkill)
+                    || drawSkill.OutsideHandPlayObserver is not null && CoreRuleEngine.ValidOutsideHandPlayStack(authoritativeState, drawSkill))
+                && !CapturedBattleSourceIsPrivate(authoritativeState, drawSkill))
+                sourceReferences = knownObjectIds.Append(drawSkill.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SelfMightActivation.CeasedSource: not null } self
                 && SelfMightRules.Valid(authoritativeState, self))
                 sourceReferences = knownObjectIds.Append(self.SourceObjectId).ToHashSet(StringComparer.Ordinal);

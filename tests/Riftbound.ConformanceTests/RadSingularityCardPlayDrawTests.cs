@@ -7,8 +7,7 @@ using static Riftbound.ConformanceTests.RadGearTestPosition;
 
 namespace Riftbound.ConformanceTests;
 
-// Engine positions exercise the first skill while the independent threshold
-// skill is pending. No submitted deck may include this printing yet.
+// Card play observations use the same admitted printing as the threshold skill.
 public sealed class RadSingularityCardPlayDrawTests
 {
     private const string Card = "RAD·069/167";
@@ -184,8 +183,8 @@ public sealed class RadSingularityCardPlayDrawTests
     }
 
     [Fact]
-    public async Task AStagedEngineObserverDoesNotAdmitTheIncompleteCardToPlayerDecks()
-        => Assert.DoesNotContain((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == Card);
+    public async Task TheImplementedObserverHasAnAdmittedOfficialPrinting()
+        => Assert.Contains((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == Card);
 
     private static MatchState Position() => Source(Put(Create(), "PLAY", "OGN·219/298", "P1", "HAND"), "SOURCE");
     private static MatchState Source(MatchState state, string id)

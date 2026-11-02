@@ -78,6 +78,6 @@ public sealed class RadSingularityParserTests
             t => t.Kind == TriggerKinds.ControllerDrawHandThresholdDiscardDestroyScore);
 
     [Fact]
-    public async Task ParsingAloneDoesNotAdmitTheIncompletePrinting()
-        => Assert.DoesNotContain((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == "RAD·069/167");
+    public async Task ImplementedPrintingUsesTheExactOfficialIdentity()
+        => Assert.Equal(39568, Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == "RAD·069/167").Id);
 }

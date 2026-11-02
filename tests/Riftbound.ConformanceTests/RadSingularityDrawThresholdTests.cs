@@ -60,7 +60,7 @@ public sealed class RadSingularityDrawThresholdTests
         Assert.Equal(1, game.State.PlayerScores["P2"]);
         var events = game.Events().Skip(prefix).Select(e => e.Event).ToArray();
         var discard = Array.FindIndex(events, e => e.Kind == "CARDS_DISCARDED");
-        var leave = Array.FindIndex(events, e => e.Kind == "OBJECT_LEFT_FIELD");
+        var leave = Array.FindIndex(events, e => e.Kind == "EQUIPMENT_DESTROYED");
         var score = Array.FindIndex(events, e => e.Kind == "SCORE_GAINED");
         Assert.True(discard >= 0 && leave > discard && score > leave);
         await game.Top(); // Already-earned play draw survives the equipment's destruction.
@@ -148,7 +148,7 @@ public sealed class RadSingularityDrawThresholdTests
         var initial = Put(Position(9), "DRAW", "OGN·048/298", "P1", "HAND");
         MatchRecoveryFrame Frame() => new(state.RoomId, state.Tick, game.Events()[^1].Sequence, commands, events,
             new Dictionary<string, RecoveredPlayerView>(), [], state, initial) { OpeningSeed = initial.Seed };
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(Frame(), new CoreRuleEngine(), default));
+        Assert.Empty(Audit(Frame()));
         var item = Assert.Single(state.StackItems, i => i.EffectKind == Effect);
         if (branch == "plausible-hand")
         {
@@ -163,7 +163,7 @@ public sealed class RadSingularityDrawThresholdTests
         else if (branch == "missing-choice") events = events.Where(e => e.Event.Kind != "DRAW_HAND_OPPONENT_CONFIRMED").ToArray();
         else commands = commands.Select(c => c.CompletedTick == item.DrawHandThreshold!.CapturedTick
             ? c with { Accepted = false } : c).ToArray();
-        Assert.Contains(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(Frame(), new CoreRuleEngine(), default),
+        Assert.Contains(Audit(Frame()),
             error => error.Contains("draw hand-threshold", StringComparison.Ordinal));
     }
 
@@ -176,6 +176,10 @@ public sealed class RadSingularityDrawThresholdTests
         Assert.Single(result.Events, e => e.Kind == "BURNOUT_APPLIED");
         Assert.Equal(8, Assert.Single(result.State.TriggerQueue, i => i.EffectKind == Effect).DrawHandThreshold!.DrawnCount);
     }
+
+    private static IReadOnlyList<string> Audit(MatchRecoveryFrame frame)
+        => (IReadOnlyList<string>)typeof(CoreRuleEngine).Assembly.GetType("Riftbound.Engine.DrawHandThresholdRecoveryRules")!
+            .GetMethod("ValidateOriginalTriggers", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [frame])!;
 
     private static async Task<Driver> Earn(MatchState? initial = null)
     {
@@ -204,12 +208,7 @@ public sealed class RadSingularityDrawThresholdTests
         return state;
     }
 
-    private static MatchState Source(MatchState state, string id)
-    {
-        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            [id] = new(id, cardNo: Card, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.EquipmentCard]) } };
-        return RadUnitEffectTestFixture.Place(state, id, "P1", "BASE");
-    }
+    private static MatchState Source(MatchState state, string id) => Put(state, id, Card, "P1", "BASE");
 
     private static ResolutionResult Draw(MatchState before, int count)
     {

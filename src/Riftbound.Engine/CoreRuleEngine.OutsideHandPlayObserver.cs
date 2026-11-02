@@ -24,9 +24,16 @@ public sealed partial class CoreRuleEngine
         string Effect)
     {
         internal OutsideHandPlayObserverContext ToContext(CardPlayHistoryEntry play, long tick, string turnPlayer)
-            => new(Source, play.Source, CardNo, ControllerId, play.PlayId, tick, FaceRevision,
-                RuleTextInstanceId, SourceTokenFactoryCardNo, Origin,
+        {
+            // A permanent can observe its own completed play. The entry identity
+            // has already advanced from hand to field when history is committed.
+            var source = Origin is null && Source.ObjectId == play.Source.ObjectId
+                && Source.Generation < play.Source.Generation ? play.Source : Source;
+            var instance = source == Source ? RuleTextInstanceId : $"PRINTED:{source.ObjectId}:{source.Generation}";
+            return new(source, play.Source, CardNo, ControllerId, play.PlayId, tick, FaceRevision,
+                instance, SourceTokenFactoryCardNo, Origin,
                 Effect == OpponentTurnPlayTokenEffect ? turnPlayer : null);
+        }
     }
 
     private static readonly Lazy<HashSet<string>> OutsideHandPlayObserverFaces = new(() =>
