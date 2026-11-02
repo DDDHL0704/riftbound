@@ -9705,6 +9705,12 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
     [
+        new("RAD·021/167", "艾克 · 逆时而行", 5, "RAD_021_EKKO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitIsExhausted: false, SourceUnitTags: "强攻"),
+        new("RAD·021a/167", "艾克 · 逆时而行", 5, "RAD_021A_EKKO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitIsExhausted: false, SourceUnitTags: "强攻"),
+        new("RAD·177/167", "艾克 · 逆时而行", 5, "RAD_177_EKKO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitIsExhausted: false, SourceUnitTags: "强攻"),
         new("RAD·043/167", "锐雯 · 断剑之誓", 4, "RAD_043_RIVEN_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
             UnitEventAbility: RivenBrokenBladeAbility),

@@ -25627,7 +25627,7 @@ public sealed partial class FullGameEndToEndTests
                     {
                         Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(activation.AbilityId, out var ability));
                         Assert.NotNull(ability.SimpleEffect);
-                        Assert.Equal(ability.SourceCardNo, item.CardNo);
+                        Assert.Contains(item.CardNo, P4ActivatedAbilityCatalog.SourceCardNosForAbility(ability));
                         Assert.Equal(ability.EffectKind, item.EffectKind);
                         Assert.Equal(item.SourceObjectId, activation.Source.ObjectId);
                         Assert.InRange(activation.AcquiredTick, 1, result.State.Tick);

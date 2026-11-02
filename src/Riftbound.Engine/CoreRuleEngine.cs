@@ -18221,6 +18221,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId)
                 && !IsForeignGraveyardEffectPlay(state, intent.PlayerId, command.SourceObjectId)
+                && !IsForeignSelfBanishReplay(state, intent.PlayerId, command.SourceObjectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
                 rejection = Reject(
@@ -21117,6 +21118,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (IsForeignGraveyardEffectPlay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } owner)
             playerZones[owner] = playerZones[owner] with { Graveyard = RemoveFromZone(playerZones[owner].Graveyard, sourceObjectId) };
+        if (IsForeignSelfBanishReplay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } banishedOwner)
+            playerZones[banishedOwner] = playerZones[banishedOwner] with { Banished = RemoveFromZone(playerZones[banishedOwner].Banished, sourceObjectId) };
         return playerZones;
     }
 

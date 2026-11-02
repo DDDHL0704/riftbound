@@ -4361,7 +4361,8 @@ public static partial class MatchRecoveryValidator
         if (state.PendingEffectPlay is { } recast && recast.SourceReplay is null && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
             errors.Add("invalid spell effect-play continuation");
 
-        if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay))
+        if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay)
+            && !CoreRuleEngine.ValidSelfBanishReplayEffectPlay(state, foreignPlay))
             errors.Add("invalid foreign graveyard effect-play continuation");
         if (state.PendingEffectPlay is { } graveyard && graveyard.Parent.RecastContext is null
             && graveyard.DestinationPolicy != "STACK"

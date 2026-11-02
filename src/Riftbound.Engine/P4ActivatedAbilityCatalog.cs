@@ -57,7 +57,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool StunsTarget = false, bool OncePerTurnPerPlayer = false, int? RuneCallCount = null,
     string? DestroyFriendlyTagAsCost = null, int CreatedMinionCount = 0, int CreatedGoldCount = 0,
     bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null,
-    bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false);
+    bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false,
+    bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -280,6 +281,11 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("RAD_021_SWIFT_DISCARD_BANISH_REPLAY", "RAD·021/167", "RAD_021_SWIFT_DISCARD_BANISH_REPLAY", "艾克 · 逆时而行", 1, 0, 0,
+            false, false, 0, false, "官方中文：迅捷，弃置一张手牌，支付1和红色符能，放逐我，然后将我打出到你的基地，无视我的费用。",
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 }, SwiftSpeed: true,
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(DiscardsHandCardAsCost: true, BanishesSourceThenReplaysToBase: true)),
         new("RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "RAD·114/167", "RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "锐雯 · 弃暗投明", 0, 0, 1,
             false, false, 0, true, "官方中文：让一名友方单位变为休眠状态，让一名单位变为活跃状态；每回合一次。",
             SourceRequiredTag: CardObjectTags.UnitCard,
@@ -791,6 +797,8 @@ public static class P4ActivatedAbilityCatalog
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
         var sourceCardNo = OfficialCardSourceIdentityGroups.NormalizeCardNo(definition.SourceCardNo);
+        if (definition.AbilityId == "RAD_021_SWIFT_DISCARD_BANISH_REPLAY")
+            return ["RAD·021/167", "RAD·021a/167", "RAD·177/167"];
         if (definition.AbilityId == "RAD_114_EXHAUST_FRIENDLY_READY_UNIT")
             return ["RAD·114/167", "RAD·114a/167"];
         // Both exact current CN prints were source-checked. Their punctuation

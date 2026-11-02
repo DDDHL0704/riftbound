@@ -19,6 +19,7 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public long SourceFaceRevision { get; init; }
+    public string ReturnTiming { get; init; } = "";
 }
 
 public sealed partial class CoreRuleEngine
@@ -53,18 +54,19 @@ public sealed partial class CoreRuleEngine
         return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
 
-    internal static string[] SimpleActivationDiscardChoices(MatchState state, string actor)
+    internal static string[] SimpleActivationDiscardChoices(MatchState state, string actor, bool anyCard = false)
         => state.PlayerZones[actor].Hand.Where(id => state.CardObjects.TryGetValue(id, out var card)
-            && card.Tags.Contains(CardObjectTags.EquipmentCard)).Select(id => "DISCARD_HAND_CARD:" + id).ToArray();
+            && (anyCard || card.Tags.Contains(CardObjectTags.EquipmentCard))).Select(id => "DISCARD_HAND_CARD:" + id).ToArray();
 
     internal static bool SimpleActivationHasAdditionalCost(P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.DiscardsEquipmentAsCost == true
+        => ability.SimpleEffect?.DiscardsEquipmentAsCost == true || ability.SimpleEffect?.DiscardsHandCardAsCost == true
             || ability.SimpleEffect?.ExhaustFriendlyUnitMinimumPowerAsCost is >= 0
             || ability.SimpleEffect?.DestroyFriendlyTagAsCost is not null;
 
     internal static string[] SimpleActivationAdditionalCostChoices(MatchState state, string actor,
         string sourceId, P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.DiscardsEquipmentAsCost == true ? SimpleActivationDiscardChoices(state, actor)
+        => ability.SimpleEffect is { } discard && (discard.DiscardsEquipmentAsCost || discard.DiscardsHandCardAsCost)
+            ? SimpleActivationDiscardChoices(state, actor, discard.DiscardsHandCardAsCost)
             : ability.SimpleEffect?.ExhaustFriendlyUnitMinimumPowerAsCost is { } minimum
                 ? state.CardObjects.Values.Where(card => (card.ObjectId != sourceId || ability.SimpleEffect.MayExhaustSourceAsAdditionalCost)
                     && CanExhaustUnitForEquipmentCost(state, actor, card.ObjectId)
@@ -132,8 +134,8 @@ public sealed partial class CoreRuleEngine
         ActivateAbilityCommand command, P4ActivatedAbilityDefinition ability)
     {
         var spec = ability.SimpleEffect!;
-        if (!CanActivateOrdinaryPowerAbility(state, intent.PlayerId))
-            return RejectWithCorePrompts(state, "此技能只能在你的开放主阶段打出。", ErrorCodes.PhaseNotAllowed);
+        if (!(ability.SwiftSpeed ? CanActivateSwiftAbility(state, intent.PlayerId) : CanActivateOrdinaryPowerAbility(state, intent.PlayerId)))
+            return RejectWithCorePrompts(state, "当前时机不能打出此技能。", ErrorCodes.PhaseNotAllowed);
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targets.Count != command.TargetObjectIds.Count || targets.Count != ability.RequiredTargetCount
             || !IsSimpleAbilitySource(state, intent.PlayerId, command.SourceObjectId, ability)
@@ -183,11 +185,11 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = exhausted,
                 ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
         }
-        if (spec.DiscardsEquipmentAsCost) {
+        if (spec.DiscardsEquipmentAsCost || spec.DiscardsHandCardAsCost) {
             var discarded = extras.Single()["DISCARD_HAND_CARD:".Length..];
             if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))
-                return RejectWithCorePrompts(state, "无法弃置所选装备。", ErrorCodes.InvalidTarget);
-            events.Add(new("CARD_DISCARDED", "弃置装备以支付技能费用", new Dictionary<string, object?> {
+                return RejectWithCorePrompts(state, "无法弃置所选手牌。", ErrorCodes.InvalidTarget);
+            events.Add(new("CARD_DISCARDED", "弃置手牌以支付技能费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = discarded,
                 ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
@@ -227,7 +229,8 @@ public sealed partial class CoreRuleEngine
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets) {
-                SourceFaceRevision = source.CopyFaceTransitions?.Count ?? 0 };
+                SourceFaceRevision = source.CopyFaceTransitions?.Count ?? 0,
+                ReturnTiming = ability.SwiftSpeed && state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : "" };
         var targetGenerations = targets
             .Where(id => cards.ContainsKey(id))
             .ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
@@ -245,10 +248,11 @@ public sealed partial class CoreRuleEngine
         var effects = spec.OncePerTurn
             ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability, intent.PlayerId)).ToArray()
             : state.UntilEndOfTurnEffects;
-        if (spec.DiscardsEquipmentAsCost)
+        if (spec.DiscardsEquipmentAsCost || spec.DiscardsHandCardAsCost)
             effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [extras.Single()["DISCARD_HAND_CARD:".Length..]], zones);
         var next = state with { Tick = state.Tick + 1, ActivePlayerId = intent.PlayerId,
-            TimingState = TimingStates.NeutralClosed, PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
+            TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed,
+            PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = committedPools,
             PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item],
             TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(),
@@ -260,7 +264,7 @@ public sealed partial class CoreRuleEngine
     private static StackItemState SimpleActivationStackItem(SimpleActivationContext context, string actor, string cardNo,
         P4ActivatedAbilityDefinition ability, IReadOnlyList<string> targets)
         => new($"STACK-{context.AcquiredTick}-{context.Source.ObjectId}-PRINTED", actor, context.Source.ObjectId,
-            ability.EffectKind, cardNo, targets, 0, 1, []) { SimpleActivation = context };
+            ability.EffectKind, cardNo, targets, 0, 1, [], timingContext: context.ReturnTiming) { SimpleActivation = context };
 
     internal static bool SimpleActivationTargetsPlayer(MatchState state, StackItemState item)
         => P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability)
@@ -273,6 +277,7 @@ public sealed partial class CoreRuleEngine
         if (item.SimpleActivation is not { } context) return !recognized;
         if (!recognized || context.AbilityId != ability.AbilityId || context.Source is not { Generation: >= 0 }
             || context.SourceFaceRevision < 0
+            || (ability.SwiftSpeed ? context.ReturnTiming is not ("" or TimingStates.SpellDuelOpen) : context.ReturnTiming != "")
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
@@ -292,7 +297,7 @@ public sealed partial class CoreRuleEngine
         var expected = SimpleActivationStackItem(context, item.ControllerId, item.CardNo!, ability, item.TargetObjectIds)
             with { TargetGenerations = item.TargetGenerations, TokenEntryPlan = item.TokenEntryPlan,
                 DepartedTokenTargets = item.DepartedTokenTargets,
-                EffectPlayCompleted = allowMissingReturnTarget ? item.EffectPlayCompleted : false };
+                EffectPlayCompleted = allowMissingReturnTarget || ability.SimpleEffect!.BanishesSourceThenReplaysToBase ? item.EffectPlayCompleted : false };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
             && (item.TokenEntryPlan is null || SimpleActivationUnitTokenCount(ability.SimpleEffect!) > 0 && ValidTokenEntryPlan(state, item));
     }
@@ -361,6 +366,15 @@ public sealed partial class CoreRuleEngine
         if (!ValidSimpleActivation(state, item,
                 allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
             throw new InvalidOperationException("Invalid captured printed activation.");
+        if (spec.BanishesSourceThenReplaysToBase)
+        {
+            if (item.EffectPlayCompleted || !state.CardObjects.TryGetValue(item.SourceObjectId, out var replayed)
+                || replayed.ObjectGeneration != item.SimpleActivation!.Source.Generation
+                || !IsFaceUpNonStandbyUnit(replayed) || !IsObjectOnField(state.PlayerZones, replayed.ObjectId))
+                return NoopStackResolutionResult(state);
+            TryGetEffectPlayDefinition(item, out var replayDefinition);
+            return BeginEffectPlay(state, item, replayDefinition);
+        }
         if (spec.OpponentGuessesDeckTopType) return ResolveGuessedDeckTop(state, item, ability);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);

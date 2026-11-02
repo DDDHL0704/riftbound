@@ -996,6 +996,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
                 "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER",
+                "RAD_021_SWIFT_DISCARD_BANISH_REPLAY",
                 "RAD_022_DESTROY_EQUIPMENT_EXHAUST_CREATE_MINION",
                 "RAD_022_DESTROY_UNIT_EXHAUST_CREATE_ROBOT",
                 "RAD_022_EXHAUST_CREATE_GOLD",
