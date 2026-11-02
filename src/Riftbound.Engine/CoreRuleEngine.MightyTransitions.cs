@@ -166,7 +166,12 @@ public sealed partial class CoreRuleEngine
             && new[] { context.Before, context.After }.All(frame => frame.PlayerZones.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(state.Seats.Keys)
                 && frame.CardObjects.All(p => state.CardObjects.TryGetValue(p.Key, out var current)
                     ? ValidHistoricalMightyFace(state, current, p.Value)
-                    : IsTokenObject(p.Value)));
+                    : ValidCeasedMightyToken(state, p.Value)));
+
+    private static bool ValidCeasedMightyToken(MatchState state, CardObjectState captured)
+        => IsTokenObject(captured)
+            && P6TokenFactoryCatalog.IsTokenFactory(captured.TokenFactoryCardNo ?? captured.CardNo)
+            && CopyFaceTimeline.Valid(state, captured);
 
     private static bool ValidHistoricalMightyFace(MatchState state, CardObjectState current, CardObjectState captured)
     {

@@ -77,7 +77,7 @@ public sealed partial class CoreRuleEngine
                 var ids = frame.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.Graveyard)
                     .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
                 if (frame.CardObjects.Any(p => p.Key != p.Value.ObjectId || p.Value.IsFaceDown || !ids.Contains(p.Key)
-                    || (state.CardObjects.TryGetValue(p.Key, out var now) ? !ValidHistoricalMightyFace(state, now, p.Value) : !IsTokenObject(p.Value)))
+                    || (state.CardObjects.TryGetValue(p.Key, out var now) ? !ValidHistoricalMightyFace(state, now, p.Value) : !ValidCeasedMightyToken(state, p.Value)))
                     || frame.ObjectLocations.Keys.Any(id => !frame.CardObjects.ContainsKey(id))) return false;
             }
             var current = MightFrameState(fact.After);

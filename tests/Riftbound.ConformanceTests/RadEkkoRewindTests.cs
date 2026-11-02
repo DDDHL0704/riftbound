@@ -157,7 +157,7 @@ public sealed class RadEkkoRewindTests
         await g.Act("P1", new PayCostCommand(copy.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
         Assert.Equal("RAD·021/167", g.State.CardObjects["HOST"].CardNo);
         Assert.Contains(CardObjectTags.EquipmentCard, g.State.CardObjects["HOST"].Tags);
-        Assert.Equal(3, g.State.CardObjects["HOST"].Power);
+        Assert.Equal(4, g.State.CardObjects["HOST"].Power);
         AssertTransformedMight(5);
         if (detachCopyFirst)
         {

@@ -35,7 +35,7 @@ internal static class AttachmentUnitCopyRules
         if (transformed) tags = tags.Concat([CardObjectTags.EquipmentCard, CardObjectTags.UnitCard]);
         return CopyFaceTimeline.ChangeFace(card, traits.CardNo, tick) with {
             ManaCost = traits.ManaCost,
-            Power = card.Power - (transformed ? card.ManaCost : previous.Power) + (transformed ? traits.ManaCost : traits.Power),
+            Power = card.Power - previous.Power + traits.Power,
             Tags = tags.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
             RuleDerivedTags = null
         };

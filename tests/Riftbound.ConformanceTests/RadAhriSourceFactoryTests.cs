@@ -7,10 +7,11 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class RadAhriSourceFactoryTests
 {
-    private static async Task<(MatchState State, string Source)> Capture(bool token = false)
+    private static async Task<(MatchState State, string Source)> Capture(bool token = false, bool returning = false)
     {
         var state = AttachedRuleTextTests.AddSong(RadAhriMightReductionTests.Position(), "SONG");
         state = OfficialCopyIdentityTests.AddSpell(state, "REDUCE", "OGN·095/298");
+        if (returning) state = OfficialCopyIdentityTests.AddSpell(state, "RETURN", "OGN·104/298");
         var source = "HOST";
         if (token)
         {
@@ -104,4 +105,48 @@ public sealed class RadAhriSourceFactoryTests
         Assert.Equal(power + 2, state.CardObjects[source].Power);
         Assert.Empty(state.StackItems);
     }
+
+    private static async Task<(MatchState State, string Source)> CaptureDepartedImage()
+    {
+        var (state, source) = await Capture(token: true, returning: true);
+        state = (await Act(state, "P1", new OrderTriggersCommand(
+            OrderedTriggerIds: state.TriggerQueue.Select(item => item.TriggerId).ToArray()))).State;
+        state = Restore(state);
+        state = (await Act(state, "P1", new PlayCardCommand("RETURN", "OGN·104/298", [source]))).State;
+        state = Restore((await ResolveTop(state)).State);
+        Assert.False(state.CardObjects.ContainsKey(source));
+        Assert.False(state.ObjectLocations.ContainsKey(source));
+        Assert.Null(state.CardObjects["SONG"].AttachedToObjectId);
+        Assert.Equal(2, state.StackItems.Count);
+        return (state, source);
+    }
+
+    [Theory]
+    [InlineData(false, false)] [InlineData(true, false)]
+    [InlineData(false, true)] [InlineData(true, true)]
+    public async Task ADepartedImageRejectsForgedFactoriesInItsNativeAndSongSkills(bool copied, bool forgeFrames)
+    {
+        var (state, source) = await CaptureDepartedImage();
+        var item = Assert.Single(state.StackItems, entry => (entry.UnitEvent!.Origin is not null) == copied);
+        var context = item.UnitEvent!;
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, context.TokenFactoryCardNo);
+        foreach (var wrongFactory in new string?[] { null, P6TokenFactoryCatalog.ZaunMinionTokenCardNo })
+        {
+            var forged = context with { TokenFactoryCardNo = wrongFactory };
+            if (forgeFrames)
+            {
+                var fact = context.MightReduction!;
+                LastKnownMightFrame Forge(LastKnownMightFrame frame) => frame with {
+                    CardObjects = new Dictionary<string, CardObjectState>(frame.CardObjects) {
+                        [source] = frame.CardObjects[source] with { TokenFactoryCardNo = wrongFactory } } };
+                forged = forged with { MightReduction = fact with {
+                    Before = Forge(fact.Before), After = Forge(fact.After) } };
+            }
+            var corrupted = state with { StackItems = state.StackItems.Select(other => other.StackItemId == item.StackItemId
+                ? other with { UnitEvent = forged } : other).ToArray() };
+            Assert.Contains(Errors(corrupted), error => error.Contains("invalid captured unit event stack"));
+        }
+        Assert.Empty(Errors(state));
+    }
+
 }
