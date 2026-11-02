@@ -107,7 +107,8 @@ public static partial class MatchRecoveryValidator
         IReadOnlyList<RecoveredEvent> events,
         IEnumerable<string> recoveredPlayerIds,
         string recoveredPlayerScopeLabel,
-        List<string> errors)
+        List<string> errors,
+        bool allowAbsentDeckRoles = false)
     {
         var acceptedEventOwners = new Dictionary<long, string>();
         var seenCommandIntents = new HashSet<(string PlayerId, string ClientIntentId)>();
@@ -195,7 +196,7 @@ public static partial class MatchRecoveryValidator
                     $"command {command.ClientIntentId} raw cmdType {rawCommandType} does not match recovered command type {command.CommandType}");
             }
 
-            ValidateRawCommandPayloadShape(command, normalizedCommandType, errors);
+            ValidateRawCommandPayloadShape(command, normalizedCommandType, errors, allowAbsentDeckRoles);
 
             if (command.StartedTick < 0)
             {
@@ -404,13 +405,13 @@ public static partial class MatchRecoveryValidator
         return normalizedValue;
     }
 
-    internal static bool HasCanonicalRawPayload(string commandType, JsonElement raw)
+    internal static bool HasCanonicalRawPayload(string commandType, JsonElement raw, bool allowAbsentDeckRoles = false)
     {
         // Validation context only; this row is never recorded or replayed.
         var context = new RecoveredCommand("", "input", commandType, raw, 0, 0, 0, 0, false, null);
         var errors = new List<string>();
         ValidateRawCommandShape(context, errors);
-        ValidateRawCommandPayloadShape(context, commandType, errors);
+        ValidateRawCommandPayloadShape(context, commandType, errors, allowAbsentDeckRoles);
         return errors.Count == 0;
     }
 
@@ -487,7 +488,8 @@ public static partial class MatchRecoveryValidator
     private static void ValidateRawCommandPayloadShape(
         RecoveredCommand command,
         string normalizedCommandType,
-        List<string> errors)
+        List<string> errors,
+        bool allowAbsentDeckRoles = false)
     {
         if (command.RawCommand is not { ValueKind: JsonValueKind.Object } rawCommand)
         {
@@ -503,8 +505,16 @@ public static partial class MatchRecoveryValidator
         switch (normalizedCommandType)
         {
             case CommandTypes.SubmitDeck:
-                ValidateRawCommandRequiredString(command, rawCommand, "legendCardNo", errors);
-                ValidateRawCommandRequiredString(command, rawCommand, "championCardNo", errors);
+                if (allowAbsentDeckRoles)
+                {
+                    ValidateRawCommandOptionalString(command, rawCommand, "legendCardNo", errors);
+                    ValidateRawCommandOptionalString(command, rawCommand, "championCardNo", errors);
+                }
+                else
+                {
+                    ValidateRawCommandRequiredString(command, rawCommand, "legendCardNo", errors);
+                    ValidateRawCommandRequiredString(command, rawCommand, "championCardNo", errors);
+                }
                 ValidateRawCommandStringArray(command, rawCommand, "mainDeck", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "runeDeck", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "battlefields", errors);

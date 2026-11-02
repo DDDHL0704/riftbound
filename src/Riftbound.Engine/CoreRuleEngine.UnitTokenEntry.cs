@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         if (!P6TokenFactoryCatalog.TryGetByCardNo(factoryCardNo, out var factory))
             throw new InvalidOperationException($"Missing official unit token factory: {factoryCardNo}");
-        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         for (var i = 0; i < count; i++)
         {
             var id = NextTokenObjectId(zones, cards, visibleSource == "HIDDEN" ? item.ControllerId + "-PUBLIC" : visibleSource, i + 1);

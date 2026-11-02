@@ -1,0 +1,45 @@
+name: Schedule idle main L2
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  workflow_run:
+    workflows: [Backend L2]
+    types: [requested, in_progress]
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  schedule:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.event == 'pull_request' &&
+       (github.event.action == 'requested' || github.event.workflow_run.run_attempt > 1))
+    # Ignored main requests must not replace a pending PR cancellation.
+    concurrency:
+      group: main-l2-scheduler
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # workflow_run executes trusted default-branch code, never a PR checkout.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Give PR verification priority over automatic main L2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python3 scripts/main-l2-scheduler.py --repo "$GITHUB_REPOSITORY"
+          --event "$GITHUB_EVENT_PATH" --event-name "$GITHUB_EVENT_NAME"
+          --apply --output var/qa/main-l2-scheduler/decision.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() }}
+        with:
+          name: main-l2-scheduler
+          path: var/qa/main-l2-scheduler/
+          retention-days: 14

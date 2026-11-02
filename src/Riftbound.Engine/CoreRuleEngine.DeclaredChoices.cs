@@ -41,6 +41,8 @@ public sealed partial class CoreRuleEngine
                 && (!behavior.MovesTargetsToChosenLocation || IsChosenMovementDestinationAllowed(state,
                     spell.ControllerId, execution.Destination, ChosenMovementTargets(behavior, targets)));
         }
+        if (spell.ModeExecutions is not null && IsDeferredDeckChoice(behavior))
+            return targets.Count == 0 && execution.TargetGenerations.Count == 0;
         if (!HasLegalDeclaredTargets(state, spell.ControllerId, spell.SourceObjectId, behavior, targets, PlayCardTargetScopeForBehavior(behavior))
             || targets.Any(id => !PermanentPlayHereTargetAllowed(state, spell, behavior, id))) return false;
         var command = new PlayCardCommand(spell.SourceObjectId, spell.CardNo, targets, behavior.Mode,

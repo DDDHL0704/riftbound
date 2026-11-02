@@ -168,7 +168,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!SourceBoonMightRules.Valid(state, item)) throw new InvalidOperationException("Invalid source boon ability.");
         var c = item.SourceBoonMight!;
-        var visible = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var visible = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", "消耗增益技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = visible, ["effectKind"] = item.EffectKind }) };
         if (!state.CardObjects.TryGetValue(c.Source.ObjectId, out var source) || source.ObjectGeneration != c.Source.Generation

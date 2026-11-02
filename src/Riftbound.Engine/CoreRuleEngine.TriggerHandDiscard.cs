@@ -44,7 +44,7 @@ public sealed partial class CoreRuleEngine
             PendingCardChoice = TriggerHandDiscardChoice(state, item), PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
         return new(true, null, next, [new("TRIGGER_HAND_DISCARD_WINDOW_OPENED", "已选择触发目标，等待选择私有弃牌费用",
             new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["stackItemId"] = item.StackItemId,
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, "__spectator__"),
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator),
                 ["targetObjectIds"] = item.TargetObjectIds, ["choiceWindow"] = TriggerHandDiscardWindow })],
             ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
@@ -88,7 +88,7 @@ public sealed partial class CoreRuleEngine
             StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? item : i).ToArray() };
         return new(true, null, next, [new("PAYMENT_WINDOW_OPENED", "等待原子支付弃牌及法盾费用",
             new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, "__spectator__"),
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator),
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = 0, ["powerCost"] = tax,
                 ["targetObjectIds"] = item.TargetObjectIds })],
@@ -104,7 +104,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         if (!TryDiscardCardFromHand(zones, cards, item.ControllerId, cost.Card.ObjectId)) return false;
-        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         events.Add(new("CARD_DISCARDED", "支付触发技能的弃牌费用", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = source,
             ["targetObjectId"] = cost.Card.ObjectId, ["destinationZone"] = "GRAVEYARD", ["isCost"] = true }));
@@ -150,7 +150,7 @@ public sealed partial class CoreRuleEngine
         if (item.FieldContext?.PaidUnitTrigger is not { CostPaid: true }
             || !ValidFieldContextState(state, item.FieldContext, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo))
             throw new InvalidOperationException("Invalid paid permanent destruction trigger.");
-        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var done = NoopStackResolutionResult(state) with { Events = [new("TRIGGER_RESOLVED", "弃牌摧毁技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = source, ["effectKind"] = PaidUnitDestroyKind })] };
         if (item.TargetObjectIds.SingleOrDefault() is not { } id
