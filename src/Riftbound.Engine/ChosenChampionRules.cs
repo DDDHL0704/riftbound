@@ -14,6 +14,7 @@ internal static class ChosenChampionRules
 
     internal static bool Matches(MatchState state, string player, CardObjectState card)
         => card.Tags.Contains(CardObjectTags.UnitCard) && state.PlayerDecklists.TryGetValue(player, out var deck)
+            && !string.IsNullOrEmpty(deck.ChampionCardNo)
             && HeroNames.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(deck.ChampionCardNo), out var chosen)
             && HeroNames.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(card.CardNo), out var current)
             && chosen == current;

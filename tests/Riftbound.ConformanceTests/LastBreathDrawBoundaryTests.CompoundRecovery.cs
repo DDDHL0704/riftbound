@@ -101,7 +101,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.Equal(ownerHand, game.State.PlayerZones["P1"].Hand); Assert.Equal(ownerRunes, game.State.PlayerZones["P1"].RuneDeck);
                 Assert.Equal(2 - i, game.State.StackItems.Count);
             }
-            Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            // The final Top already audited the complete original journal.
+            Assert.Empty(game.State.TriggerQueue); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("compound-faerie-transferred-private-source", initial, game); }
     }
