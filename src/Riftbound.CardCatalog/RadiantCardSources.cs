@@ -33,6 +33,7 @@ public static class RadiantCardSources
         return new[] {
             (Id: 39507L, CardNo: "RAD·017/167"),
             (Id: 39559L, CardNo: "RAD·062/167"),
+            (Id: 39648L, CardNo: "RAD·140/167"),
             (Id: 39615L, CardNo: "RAD·112/167"),
             (Id: 39616L, CardNo: "RAD·112a/167"),
             (Id: 39515L, CardNo: "RAD·023/167"),
