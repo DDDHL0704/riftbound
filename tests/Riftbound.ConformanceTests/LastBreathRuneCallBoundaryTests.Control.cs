@@ -99,7 +99,8 @@ public sealed partial class LastBreathRuneCallBoundaryTests
             var calls = game.Events().Skip(eventPrefix).Where(e => e.Event.Kind == "RUNES_CALLED").ToArray();
             Assert.Equal(3, calls.Length); Assert.All(calls, e => Assert.Equal("P2", e.Event.Payload["playerId"]));
             Assert.Equal(Enumerable.Range(0, 3).Select(i => i < availableRunes ? 1 : 0), calls.Select(e => Convert.ToInt32(e.Event.Payload["count"])));
-            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            // The last accepted command already replays the complete original history.
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
         }
         finally { await SaveRuneRecovery("actual-death-controller-private-source-runes-" + availableRunes, initial, game); }
     }
