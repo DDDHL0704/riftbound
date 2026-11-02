@@ -933,7 +933,7 @@ class WorkflowTimingTests(unittest.TestCase):
     def test_critical_path_uses_the_last_finishing_shard_and_does_not_sum_parallel_waits(self):
         with mock.patch.object(D.subprocess, 'run', side_effect=AssertionError('Read existing metadata only')):
             result = self.report()
-        self.assertEqual(650, result['createdToCompletionSeconds'])
+        self.assertEqual(650, result['attemptWallSeconds'])
         self.assertEqual(650, sum(result['criticalPath'].values()))
         self.assertEqual('rule_suite (shard-1)', result['lastRuleJob'])
         self.assertEqual(100, result['criticalPath']['ruleQueueSeconds'])
@@ -945,6 +945,21 @@ class WorkflowTimingTests(unittest.TestCase):
         self.assertEqual(4, len(result['jobs']))
         self.assertEqual('a' * 40, result['workflowHeadSha'])
         self.assertEqual(D.digest(self.jobs_path), result['jobsMetadataSha256'])
+
+    def test_rerun_clock_excludes_the_previous_attempt_and_keeps_its_own_queue_time(self):
+        jobs = copy.deepcopy(self.jobs)
+        for job in jobs:
+            for key in ['created_at', 'started_at', 'completed_at']:
+                job[key] = (datetime.fromisoformat(job[key].replace('Z', '+00:00'))
+                            + timedelta(seconds=1000)).isoformat().replace('+00:00', 'Z')
+        run = dict(self.run, run_started_at=self.at(1000), updated_at=self.at(1660))
+        result = self.report(run=run, jobs=jobs)
+        self.assertEqual(650, result['attemptWallSeconds'])
+        self.assertEqual(650, sum(result['criticalPath'].values()))
+        self.assertEqual(5, result['criticalPath']['initialSchedulingSeconds'])
+        self.assertEqual(100, result['criticalPath']['ruleQueueSeconds'])
+        self.assertEqual(self.at(0), result['workflowCreatedAt'])
+        self.assertEqual(self.at(1000), result['attemptStartedAt'])
 
     def test_touching_and_zero_duration_jobs_do_not_create_false_concurrency(self):
         for started, completed in [(600, 610), (400, 400)]:
