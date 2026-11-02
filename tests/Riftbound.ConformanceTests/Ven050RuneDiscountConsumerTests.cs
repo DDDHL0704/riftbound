@@ -106,7 +106,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         await game.Act("P1", new EndTurnCommand());
         Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
         await game.TapRunes("P2", Enumerable.Range(0, 8).Select(i => "TAKE-RUNE-" + i));
-        for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("TAKE-RUNE-" + i));
+        await game.Act("P2", new RecycleRuneCommand("TAKE-RUNE-0", ["TAKE-RUNE-0", "TAKE-RUNE-1", "TAKE-RUNE-2"]));
         await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
         var before = game.State.RunePools["P2"];
         Assert.Equal(8, before.Mana); Assert.Equal(4, before.TotalPower);

@@ -477,7 +477,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P1", new EndTurnCommand()); Assert.Equal(0, game.State.RunePools["P2"].Mana);
             await game.TapRunes("P2", Enumerable.Range(0, 9).Select(i => "PURPLE-" + i));
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("PURPLE-" + i));
+            await game.Act("P2", new RecycleRuneCommand("PURPLE-0", ["PURPLE-0", "PURPLE-1", "PURPLE-2"]));
             await game.Act("P2", new PlayCardCommand("TAKE", "OGN·203/298", ["UNIT"])); await game.Top();
             Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId); Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
             Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);

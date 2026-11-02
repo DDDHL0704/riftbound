@@ -91,7 +91,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
         {
             foreach (var rune in game.State.PlayerZones["P2"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray())
                 await game.Act("P2", new TapRuneCommand(rune));
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             var generation = game.State.CardObjects["MEL"].ObjectGeneration;
             await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["MEL"]));
             Assert.Equal(1, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);

@@ -41,7 +41,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             }
             await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
             await BattleWinnerPhaseBoundaryTests.PassFocus(game); await game.Act("P1", new EndTurnCommand()); await Flow.Tap(game, "P2");
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             // The paid unit, copied texts and physical resources prepare the
             // transfer under test. Recover their complete history once before
             // CONTROL; transfers, private return and captured damage still
