@@ -43,8 +43,10 @@ public sealed partial class CoreRuleEngine
         var previous = RuleChoices.Value; RuleChoices.Value = frame;
         try
         {
+            var command = GameCommandJsonMapper.Map(pending.Command);
+            frame.CommandType = command.CmdType;
             _ = new CoreRuleEngine().ResolveCoreAsync(pending.Origin, pending.Intent,
-                GameCommandJsonMapper.Map(pending.Command), default).GetAwaiter().GetResult();
+                command, default).GetAwaiter().GetResult();
             return false;
         }
         catch (RuleChoiceRequired required)

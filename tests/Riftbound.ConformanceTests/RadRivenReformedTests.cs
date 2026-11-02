@@ -93,6 +93,29 @@ public sealed class RadRivenReformedTests
     }
 
     [Fact]
+    public async Task StandardMovementPaysExhaustionBeforeTheLaterMovementTrigger()
+    {
+        var initial = Position();
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ALLY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ALLY", "SFD·048/221", "P1") } };
+        var drawn = initial.PlayerZones["P1"].MainDeck[0];
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF"));
+        // CN203 / localized Radiance FAQ: the exhaustion fee precedes the move.
+        // Those skills have a fixed insertion order, not a simultaneous choice.
+        Assert.Empty(game.State.TriggerQueue);
+        Assert.Equal(new[] { "UNIT", "ALLY" }, game.State.StackItems.Select(i => i.SourceObjectId));
+        Assert.Equal("ANOTHER_FRIENDLY_UNIT_EXHAUSTED", game.State.StackItems[0].UnitEvent!.Timing);
+        await Reject(game.State, new OrderTriggersCommand(OrderedTriggerIds:
+            game.State.StackItems.Select(i => i.StackItemId).Reverse().ToArray()));
+        await game.Top();
+        Assert.Contains(drawn, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(5, game.State.CardObjects["UNIT"].Power);
+        await game.Top(); Assert.Equal(6, game.State.CardObjects["UNIT"].Power);
+        await game.Replay();
+    }
+
+    [Fact]
     public async Task ExhaustingOnlyEquipmentDoesNotCountAsExhaustingAnotherUnit()
     {
         var s = Position(); s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
