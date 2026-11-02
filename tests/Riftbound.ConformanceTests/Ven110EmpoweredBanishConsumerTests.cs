@@ -284,7 +284,8 @@ public sealed class Ven110EmpoweredBanishConsumerTests
             var beforeMana = game.State.RunePools[actor].Mana; await game.Act(actor, new PlayCardCommand(unit, No, []));
             Assert.Equal(beforeMana - 5, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             var before = game.State; await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:" + spell]));
-            Assert.Contains(spell, game.State.PlayerZones[actor].Graveyard); Assert.False(game.State.CardObjects[unit].IsEmpowered); await game.ColdCheckpoint();
+            Assert.Contains(spell, game.State.PlayerZones[actor].Graveyard); Assert.False(game.State.CardObjects[unit].IsEmpowered);
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var refund = game.State with {
                 CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) { [spell] = before.CardObjects[spell] },
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(game.State.ObjectLocations) { [spell] = before.ObjectLocations[spell] },
