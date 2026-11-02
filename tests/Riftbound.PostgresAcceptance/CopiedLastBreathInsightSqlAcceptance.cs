@@ -200,8 +200,10 @@ internal static class CopiedLastBreathInsightSqlAcceptance
                     foreach (var row in saved) await Set(connection, transaction, row.Table, row.Id, row.Payload);
                     await transaction.CommitAsync();
                 }
-                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte."); await Cold();
+                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte.");
             }
+            // Each attack restores the same seven-table history; audit it once after the batch.
+            await Cold();
         }
         async Task<string> Digest()
         {
