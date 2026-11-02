@@ -55,10 +55,12 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             && !commands.Any(command => command.CommandType == "DEV_SEED_SCENARIO"
                 || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))
             inputErrors.Add("authoritative state seed differs from recorded opening seed");
+        var roomOptions = authoritativeState is null ? null
+            : await LoadRoomOptionsAsync(connection, roomId, inputErrors, cancellationToken).ConfigureAwait(false);
         var replayInitialState = authoritativeState is not null && commands.Count > 0 && openingSeed is not null
             ? (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken,
                 commands[0].Accepted && commands[0].CommandType == MatchSession.RoomSeatCommandType).ConfigureAwait(false))
-                with { RuleInputs = metadata.RuleInputs }
+                with { RuleInputs = metadata.RuleInputs, SessionOptions = roomOptions }
             : null;
         var spectatorReplayFrame = authoritativeState is null
             ? null
@@ -279,6 +281,50 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         }
 
         return MatchReplayInitialStateBuilder.FromSeats(roomId, seats) with { Seed = openingSeed };
+    }
+
+    private static async Task<MatchSessionOptions?> LoadRoomOptionsAsync(
+        NpgsqlConnection connection,
+        string roomId,
+        List<string> errors,
+        CancellationToken cancellationToken)
+    {
+        // Recover the original room rules independently of the latest checkpoint.
+        // Rejected commands may overwrite a checkpoint at the same tick, but cannot
+        // change the configuration; all retained checkpoints must agree.
+        const string sql = """
+            select coalesce(payload->'sessionOptions', 'null'::jsonb)::text
+            from state_snapshots
+            where match_id = @match_id
+            group by coalesce(payload->'sessionOptions', 'null'::jsonb)
+            order by min(id);
+            """;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("match_id", roomId);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+        MatchSessionOptions? original = null;
+        var found = false;
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            try
+            {
+                var recorded = JsonSerializer.Deserialize<MatchSessionOptions>(reader.GetString(0), JsonOptions);
+                if (recorded is not null && !Enum.IsDefined(recorded.DeckFormat))
+                    errors.Add("stored room deck format is invalid");
+                if (found && (recorded ?? MatchSessionOptions.Default) != (original ?? MatchSessionOptions.Default))
+                    errors.Add("stored room configuration changed during the recorded game");
+                if (!found)
+                    original = recorded;
+            }
+            catch (JsonException)
+            {
+                errors.Add("stored room configuration payload is invalid");
+            }
+            found = true;
+        }
+        if (!found)
+            errors.Add("stored room configuration checkpoint is missing");
+        return original;
     }
 
     private static async Task<IReadOnlyDictionary<string, RecoveredPrompt>> LoadLatestPromptsAsync(

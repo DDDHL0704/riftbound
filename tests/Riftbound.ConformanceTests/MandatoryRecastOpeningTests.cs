@@ -24,6 +24,7 @@ public sealed class MandatoryRecastOpeningTests
         var initial = MatchState.Create(room) with { Seed = 424242 };
         var journal = new Journal(); var engine = new CoreRuleEngine();
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
+        initial = initial with { SessionOptions = options };
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
         var verifyColdRecoveryAfterEveryCommand = true;
         string? auditedReplayHash = null;

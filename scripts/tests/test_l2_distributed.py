@@ -323,6 +323,112 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertNotEqual(0, subprocess.run(command[:-1] + [str(missing)], capture_output=True).returncode)
         self.assertFalse(missing.exists())
 
+    def local_trx(self, names, outcome='Passed', duration='00:00:02', summary='Completed'):
+        path = self.root / 'local.trx'
+        self.trx(path, names, outcome)
+        tree = ET.parse(path)
+        tree.find('.//t:ResultSummary', D.RULES.NS).set('outcome', summary)
+        for row in tree.findall('.//t:UnitTestResult', D.RULES.NS):
+            if duration is not None:
+                row.set('duration', duration)
+            row.set('computerName', 'local-fixture')
+        tree.write(path)
+        return path
+
+    def test_local_timings_compare_all_exact_method_rows_without_double_counting_or_running_tests(self):
+        names = self.plan['cases'][self.theory]
+        self.set_durations({names[0]: '00:01:01', names[1]: '00:01:02'})
+        local = self.local_trx(names)
+        original = copy.deepcopy(self.plan)
+        with mock.patch.object(D, 'run_logged') as runner:
+            result = D.local_timings(self.prepared, self.inputs, self.commit, local, methods=[self.theory])
+        runner.assert_not_called()
+        self.assertEqual(original, self.plan)
+        self.assertEqual('LOCAL_CI_TIMINGS_REPORTED', result['status'])
+        self.assertEqual(dict(executions=2, ciSeconds=123.0, localSeconds=4.0), result['totals'])
+        self.assertEqual([61, 62], [row['ciSeconds'] for row in result['cases']])
+        self.assertEqual([2 / 61, 2 / 62], [row['localOverCi'] for row in result['cases']])
+        self.assertEqual(123, result['sourceRunId'])
+        self.assertEqual(1, result['sourceRunAttempt'])
+        self.assertEqual(self.commit, result['sourceCommit'])
+        self.assertEqual(D.digest(self.prepared / 'plan.json'), result['sourcePlanSha256'])
+        self.assertEqual(D.digest(local), result['localTrxSha256'])
+        self.assertEqual(['local-fixture'], result['localComputers'])
+        self.assertIn('does not establish CI speedup', result['limitation'])
+
+    def test_local_timings_can_select_one_parameter_row_and_keep_subminute_or_zero_ci_durations(self):
+        name = self.plan['cases'][self.theory][0]
+        self.set_durations({})
+        result = D.local_timings(self.prepared, self.inputs, self.commit, self.local_trx([name]), cases=[name])
+        self.assertEqual(dict(executions=1, ciSeconds=0.25, localSeconds=2.0), result['totals'])
+        self.assertEqual(8.0, result['cases'][0]['localOverCi'])
+        self.set_durations({name: '00:00:00'})
+        result = D.local_timings(self.prepared, self.inputs, self.commit, self.local_trx([name]), cases=[name])
+        self.assertIsNone(result['cases'][0]['localOverCi'])
+
+    def test_local_timings_reject_partial_repeated_extra_unsuccessful_and_incomplete_local_runs(self):
+        names = self.plan['cases'][self.theory]
+        self.set_durations({})
+        for actual, outcome, summary in [(names[:1], 'Passed', 'Completed'),
+                                         (names + names[:1], 'Passed', 'Completed'),
+                                         (names + [self.fact], 'Passed', 'Completed'),
+                                         (names, 'NotExecuted', 'Completed'),
+                                         (names, 'Failed', 'Completed'),
+                                         (names, 'Passed', 'Aborted')]:
+            with self.subTest(actual=actual, outcome=outcome, summary=summary):
+                local = self.local_trx(actual, outcome, summary=summary)
+                with self.assertRaises(ValueError):
+                    D.local_timings(self.prepared, self.inputs, self.commit, local, methods=[self.theory])
+        local = self.local_trx(names)
+        tree = ET.parse(local)
+        tree.find('.//t:Counters', D.RULES.NS).set('error', '1')
+        tree.write(local)
+        with self.assertRaisesRegex(ValueError, 'unsuccessful counters'):
+            D.local_timings(self.prepared, self.inputs, self.commit, local, methods=[self.theory])
+
+    def test_local_timings_reject_invalid_durations_and_unknown_or_repeated_selections(self):
+        self.set_durations({})
+        for duration in [None, 'invalid', '00:00:nan', '00:00:inf', '00:60:00', '-1:00:00']:
+            with self.subTest(duration=duration), self.assertRaisesRegex(ValueError, 'duration'):
+                D.local_timings(self.prepared, self.inputs, self.commit,
+                                self.local_trx([self.fact], duration=duration), methods=[self.fact])
+        local = self.local_trx([self.fact])
+        for selection in [{}, dict(methods=[self.fact], cases=[self.fact]),
+                          dict(methods=[self.fact, self.fact]), dict(cases=[self.fact, self.fact]),
+                          dict(methods=[self.fact + '*']), dict(cases=[self.theory])]:
+            with self.subTest(selection=selection), self.assertRaises(ValueError):
+                D.local_timings(self.prepared, self.inputs, self.commit, local, **selection)
+
+    def test_local_timing_cli_preserves_output_and_rejects_unverified_ci_artifacts(self):
+        self.set_durations({self.fact: '00:00:03'})
+        local = self.local_trx([self.fact])
+        output = self.root / 'comparison.json'
+        command = [sys.executable, str(ROOT / 'scripts/l2-distributed.py'), 'local-timings',
+                   '--commit', self.commit, '--prepared', str(self.prepared), '--inputs', str(self.inputs),
+                   '--local-trx', str(local), '--case', self.fact, '--output', str(output)]
+        process = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(0, process.returncode, process.stderr)
+        original = output.read_bytes()
+        self.assertEqual(3.0, D.read(output)['totals']['ciSeconds'])
+        self.assertNotEqual(0, subprocess.run(command, capture_output=True).returncode)
+        self.assertEqual(original, output.read_bytes())
+        missing = self.root / 'missing-comparison.json'
+        shutil.rmtree(self.inputs / 'shard-1')
+        self.assertNotEqual(0, subprocess.run(command[:-1] + [str(missing)], capture_output=True).returncode)
+        self.assertFalse(missing.exists())
+
+    def test_local_timings_reject_ci_input_changed_after_verification(self):
+        self.set_durations({})
+        local = self.local_trx([self.fact])
+        verify = D.checked_results
+        def verify_then_change(*args):
+            result = verify(*args)
+            self.set_durations({self.fact: '00:00:59'})
+            return result
+        with mock.patch.object(D, 'checked_results', side_effect=verify_then_change):
+            with self.assertRaisesRegex(ValueError, 'changed after shard verification'):
+                D.local_timings(self.prepared, self.inputs, self.commit, local, cases=[self.fact])
+
     def test_exact_once_union_retains_smokes_and_runtime_member_data(self):
         result = self.verify()
         self.assertEqual('L2_REQUIRED_PASSED', result['status'])
