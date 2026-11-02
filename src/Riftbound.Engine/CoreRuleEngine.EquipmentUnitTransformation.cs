@@ -15,6 +15,17 @@ public sealed partial class CoreRuleEngine
     private static UnitEventAbilitySpec? MainPhaseLegendEventSpec(string? cardNo)
         => cardNo is not null ? MainPhaseLegendEvents.Value.GetValueOrDefault(cardNo) : null;
 
+    internal static IEnumerable<LegendEquipmentUnitState> EquipmentUnitTransformations(CardObjectState card)
+        => card.LegendEquipmentUnit is { } latest
+            ? (latest.EarlierEffects ?? []).Append(latest) : [];
+
+    private static LegendEquipmentUnitState? LatestEquipmentUnitTransformation(IEnumerable<LegendEquipmentUnitState> effects)
+    {
+        var ordered = effects.Select(effect => effect with { EarlierEffects = null }).OrderBy(effect => effect.AppliedTick).ToArray();
+        return ordered.Length == 0 ? null : ordered[^1] with {
+            EarlierEffects = ordered.Length > 1 ? ordered[..^1] : null };
+    }
+
     // Keep the printed/materialized Might intact. The continuous base-Might
     // change composes with boons, temporary modifiers, auras and later setters.
     private static int EquipmentUnitTransformationMightDelta(CardObjectState card)
@@ -27,16 +38,23 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidLegendEquipmentUnit(MatchState state, CardObjectState card)
     {
         if (card.LegendEquipmentUnit is not { } transform) return true;
-        return transform.SourceLegend is { Generation: >= 0, ObjectId.Length: > 0 }
-            && MainPhaseLegendEventSpec(transform.SourceCardNo) is not null
-            && transform.SourceFaceRevision >= 0 && transform.CapturedTick > 0 && transform.CapturedTick <= state.Tick
-            && transform.AppliedTick >= transform.CapturedTick && transform.AppliedTick <= state.Tick
-            && transform.TargetGeneration == card.ObjectGeneration && IsObjectOnField(state.PlayerZones, card.ObjectId)
-            && card.Tags.Contains(CardObjectTags.EquipmentCard) && card.Tags.Contains(CardObjectTags.UnitCard)
-            && PredictBindingMatches(state, transform.SourceLegend, transform.SourceCardNo,
-                transform.SourceFaceRevision, transform.CapturedTick, null)
-            && !state.CardObjects.Values.Any(other => other.ObjectId != card.ObjectId
-                && other.LegendEquipmentUnit?.SourceLegend == transform.SourceLegend);
+        if (!IsObjectOnField(state.PlayerZones, card.ObjectId)
+            || !card.Tags.Contains(CardObjectTags.EquipmentCard) || !card.Tags.Contains(CardObjectTags.UnitCard)
+            || transform.EarlierEffects is { Count: 0 }
+            || transform.EarlierEffects?.Any(earlier => earlier is null || earlier.EarlierEffects is not null
+                || earlier.AppliedTick >= transform.AppliedTick) == true) return false;
+        var effects = EquipmentUnitTransformations(card).ToArray();
+        return effects.Select(effect => effect.SourceLegend).Distinct().Count() == effects.Length
+            && effects.All(effect => effect.SourceLegend is { Generation: >= 0, ObjectId.Length: > 0 }
+                && MainPhaseLegendEventSpec(effect.SourceCardNo) is not null
+                && effect.SourceFaceRevision >= 0 && effect.CapturedTick > 0 && effect.CapturedTick <= state.Tick
+                && effect.AppliedTick >= effect.CapturedTick && effect.AppliedTick <= state.Tick
+                && effect.TargetGeneration == card.ObjectGeneration
+                && PredictBindingMatches(state, effect.SourceLegend, effect.SourceCardNo,
+                    effect.SourceFaceRevision, effect.CapturedTick, null)
+                && !state.CardObjects.Values.Any(other => other.ObjectId != card.ObjectId
+                    && EquipmentUnitTransformations(other).Any(otherEffect => otherEffect is not null
+                        && otherEffect.SourceLegend == effect.SourceLegend)));
     }
 
     // The duration ends when the leading instruction is paid and another
@@ -49,7 +67,7 @@ public sealed partial class CoreRuleEngine
         var source = new ObjectBinding(item.SourceObjectId, context.SourceGeneration);
         var cards = state.CardObjects.ToDictionary();
         var previousUnits = cards.Values.Where(card => card.ObjectId != selected
-            && card.LegendEquipmentUnit?.SourceLegend == source).ToArray();
+            && EquipmentUnitTransformations(card).Any(effect => effect.SourceLegend == source)).ToArray();
         if (previousUnits.Length == 0) return state;
         var zones = NormalizeZonesForSeats(state);
         using (new MightInstructionScope(state, zones, cards, events))
@@ -60,9 +78,11 @@ public sealed partial class CoreRuleEngine
                     ? token.Tags.Contains(CardObjectTags.UnitCard)
                     : PrintedCardFactory.TryCreate(previous.ObjectId, previous.OwnerId ?? "", previous.CardNo, out var printed)
                         && printed.Tags.Contains(CardObjectTags.UnitCard);
-                cards[previous.ObjectId] = previous with { LegendEquipmentUnit = null,
-                    Tags = previous.Tags.Where(tag => tag != CardObjectTags.UnitCard || printedUnit).ToArray() };
-                events.Add(new("LEGEND_EQUIPMENT_UNIT_ENDED", "选择另一件装备，原装备的单位转换结束",
+                var remaining = LatestEquipmentUnitTransformation(EquipmentUnitTransformations(previous)
+                    .Where(effect => effect.SourceLegend != source));
+                cards[previous.ObjectId] = previous with { LegendEquipmentUnit = remaining,
+                    Tags = previous.Tags.Where(tag => tag != CardObjectTags.UnitCard || printedUnit || remaining is not null).ToArray() };
+                events.Add(new("LEGEND_EQUIPMENT_UNIT_ENDED", "选择另一件装备，此传奇对原装备的单位转换结束",
                     new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
                         ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = previous.ObjectId }));
             }
@@ -99,10 +119,13 @@ public sealed partial class CoreRuleEngine
                         ["equipmentObjectId"] = id, ["unitObjectId"] = host,
                         ["controllerId"] = target.ControllerId, ["ownerId"] = target.OwnerId,
                         ["reason"] = "BECAME_UNIT" }));
+            var source = new ObjectBinding(item.SourceObjectId, context.SourceGeneration);
+            var effects = EquipmentUnitTransformations(target).Where(effect => effect.SourceLegend != source)
+                .Append(new(source, context.CardNo, context.FaceRevision, context.CapturedTick,
+                    target.ObjectGeneration, state.Tick + 1));
             cards[id] = target with { AttachedToObjectId = null, AttachedRuleText = null,
                 Tags = target.Tags.Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
-                LegendEquipmentUnit = new(new(item.SourceObjectId, context.SourceGeneration), context.CardNo,
-                    context.FaceRevision, context.CapturedTick, target.ObjectGeneration, state.Tick + 1) };
+                LegendEquipmentUnit = LatestEquipmentUnitTransformation(effects) };
             events.Add(new("LEGEND_EQUIPMENT_UNIT_STARTED", "装备变为单位装备",
                     new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
                         ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,

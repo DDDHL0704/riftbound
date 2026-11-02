@@ -184,6 +184,58 @@ public sealed class OriannaLegendEquipmentUnitTests
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
+    public async Task IndependentLegendConversionsEndOnlyTheirOwnDuration(bool endLatest)
+    {
+        var initial = Position();
+        var other = OfficialGarenConquestBattlefieldCountTests.Printed("OTHER-LEGEND", "RAD·171/167", "P1");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { [other.ObjectId] = other },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND", other.ObjectId] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                [other.ObjectId] = new("P1", "LEGEND") } };
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await game.Act("P2", new EndTurnCommand());
+        await ResolveMainTriggers(_ => "GEAR");
+        await game.ColdCheckpoint();
+        var latest = game.State.CardObjects["GEAR"].LegendEquipmentUnit!;
+        var earlier = Assert.Single(latest.EarlierEffects!);
+        Assert.NotEqual(latest.SourceLegend, earlier.SourceLegend);
+        var selected = endLatest ? latest.SourceLegend.ObjectId : earlier.SourceLegend.ObjectId;
+        var retained = endLatest ? earlier : latest with { EarlierEffects = null };
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new EndTurnCommand());
+        await ResolveMainTriggers(source => source == selected ? "SECOND" : null);
+        Assert.Equal(retained, game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal(selected, game.State.CardObjects["SECOND"].LegendEquipmentUnit!.SourceLegend.ObjectId);
+        AssertMight(game, 2, 2);
+        await game.ColdCheckpoint(); await game.Replay();
+
+        async Task ResolveMainTriggers(Func<string, string?> targetForSource)
+        {
+            for (var step = 0; game.State.StackItems.Count > 0 || game.State.TriggerQueue.Count > 0; step++) {
+                Assert.True(step < 12, "Main-phase confirmation did not complete.");
+                if (game.State.PendingCardChoice is { } choice) {
+                    var target = targetForSource(choice.SourceObjectId!);
+                    if (target is null) {
+                        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+                        continue;
+                    }
+                    await Select(game, target);
+                    if (game.State.RunePools["P1"].Mana == 0)
+                        await game.TapRunes("P1", ["RUNE-0", "RUNE-1"]);
+                    var payment = game.State.PendingPayment!;
+                    await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+                } else if (game.State.TriggerQueue.Count > 0)
+                    await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+                else await game.Top();
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
     public async Task ConfirmingAnotherEquipmentImmediatelyRecallsOnlyTheOrdinaryFormerUnit(bool deployed)
     {
         var initial = RadUnitEffectTestFixture.Place(Position(), "ALLY", "P1", "BATTLEFIELD", "BF");

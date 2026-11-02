@@ -10,18 +10,18 @@ public static partial class MatchRecoveryValidator
     {
         var budgets = new Dictionary<(string Target, long Generation, string Budget), int>();
         var bases = new Dictionary<(string Target, long Generation), (int Value, long Tick)>();
-        var transformations = new Dictionary<string, (long Generation, long Tick, string Source)>();
+        var transformations = new Dictionary<(string Target, string Source), (long Generation, long Tick)>();
         if (historyRequired)
         foreach (var row in events.OrderBy(e => e.Sequence))
         {
             var ev = row.Event;
             if (ev.Kind == "TURN_END_CLEANUP_STARTED") { budgets.Clear(); bases.Clear(); continue; }
             if (ev.Kind is "LEGEND_EQUIPMENT_UNIT_STARTED" or "LEGEND_EQUIPMENT_UNIT_ENDED") {
-                if (TryReadObjectString(ev.Payload, "targetObjectId", out var equipment)) {
-                    if (ev.Kind == "LEGEND_EQUIPMENT_UNIT_ENDED") transformations.Remove(equipment!);
-                    else if (TryReadObjectLong(ev.Payload, "targetGeneration", out var equipmentGeneration)
-                        && TryReadObjectString(ev.Payload, "sourceObjectId", out var legend))
-                        transformations[equipment!] = (equipmentGeneration, row.Tick, legend!);
+                if (TryReadObjectString(ev.Payload, "targetObjectId", out var equipment)
+                    && TryReadObjectString(ev.Payload, "sourceObjectId", out var legend)) {
+                    if (ev.Kind == "LEGEND_EQUIPMENT_UNIT_ENDED") transformations.Remove((equipment!, legend!));
+                    else if (TryReadObjectLong(ev.Payload, "targetGeneration", out var equipmentGeneration))
+                        transformations[(equipment!, legend!)] = (equipmentGeneration, row.Tick);
                 }
                 continue;
             }
@@ -77,10 +77,12 @@ public static partial class MatchRecoveryValidator
 
         foreach (var card in state.CardObjects.Values)
         {
-            if (historyRequired && card.LegendEquipmentUnit is { } transform
-                && (!transformations.TryGetValue(card.ObjectId, out var applied)
-                    || applied.Generation != card.ObjectGeneration || applied.Source != transform.SourceLegend?.ObjectId
-                    || applied.Tick != transform.AppliedTick))
+            var appliedEffects = CoreRuleEngine.EquipmentUnitTransformations(card).ToArray();
+            if (historyRequired && (appliedEffects.Any(transform => transform is null || transform.SourceLegend is null
+                    || !transformations.TryGetValue((card.ObjectId, transform.SourceLegend.ObjectId), out var applied)
+                    || applied.Generation != card.ObjectGeneration || applied.Tick != transform.AppliedTick)
+                || transformations.Count(entry => entry.Key.Target == card.ObjectId
+                    && entry.Value.Generation == card.ObjectGeneration) != appliedEffects.Length))
                 errors.Add("legend equipment unit timestamp differs from accepted history");
             var effects = card.UntilEndOfTurnEffects.Where(e => e.StartsWith(TemporaryUnitEffectRules.BaseMightPrefix, StringComparison.Ordinal)
                 || e.StartsWith(TemporaryUnitEffectRules.BaseMightTickPrefix, StringComparison.Ordinal)

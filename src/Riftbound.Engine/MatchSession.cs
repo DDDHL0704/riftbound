@@ -10,7 +10,11 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record LegendEquipmentUnitState(ObjectBinding SourceLegend, string SourceCardNo,
-    long SourceFaceRevision, long CapturedTick, long TargetGeneration, long AppliedTick);
+    long SourceFaceRevision, long CapturedTick, long TargetGeneration, long AppliedTick)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<LegendEquipmentUnitState>? EarlierEffects { get; init; }
+}
 
 public sealed record CardObjectState
 {
