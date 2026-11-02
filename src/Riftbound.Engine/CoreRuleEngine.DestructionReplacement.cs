@@ -152,6 +152,7 @@ public sealed partial class CoreRuleEngine
                     || UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(i.CardNo).Count > 0
                     || UnitDestroyedTriggerSpecRules.BaseTokenCreationTriggers(i.CardNo).Count > 0
                     || UnitDestroyedTriggerSpecRules.TryGetTrigger(i.CardNo, UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out _)
+                    || IsInsightSource(i.CardNo, "LAST_BREATH")
                     || UnitDestroyedTriggerSpecRules.LastBreathBattlefieldDamageTriggers(i.CardNo).Count > 0)))
                 ? CapturePublicMightFrame(state, zones, cards, locations) : null;
 

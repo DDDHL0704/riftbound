@@ -308,7 +308,7 @@ public static partial class MatchRecoveryValidator
             : context is { Kind: "EXHAUSTED" } ? "captured exhausted Insight" : context is { Kind: "HELD" } ? "captured held Insight" : context is { Kind: "EMPOWERED" } ? "captured empowered Insight" : "captured last-breath Insight";
 
     private static InsightTriggerContext? CapturedInsight(InsightTriggerContext? context)
-        => CoreRuleEngine.IsCapturedInsightKind(context?.Kind) ? context : null;
+        => CoreRuleEngine.IsCapturedInsightKind(context?.Kind) ? CoreRuleEngine.PublicInsightContext(context) : null;
 
     private static InsightTriggerContext? ReadCapturedInsightView(object? payload)
     {
@@ -339,7 +339,7 @@ public static partial class MatchRecoveryValidator
         if (!hasExhausted && !hasHeld && !hasLastBreath && !hasDuel && !hasEmpowered) return false;
         var context = ReadCapturedInsightView(payload);
         if ((hasExhausted ? 1 : 0) + (hasHeld ? 1 : 0) + (hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1
-            || context is null || !CoreRuleEngine.IsCapturedInsightKind(context.Kind) || string.IsNullOrWhiteSpace(source)
+            || context is null || context.Repetition is not null || !CoreRuleEngine.IsCapturedInsightKind(context.Kind) || string.IsNullOrWhiteSpace(source)
             || !CoreRuleEngine.ValidInsightTrigger(context, effect ?? "", controller ?? "")
             || context.Origin is { } origin && (origin.Unit is null || origin.Unit.ObjectId != source))
         {

@@ -31922,7 +31922,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var bombObservers = before is null ? [] : CaptureBombDestructionObservers(state, zones, cards, before);
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
         var equipmentDraws = before is null ? [] : CaptureEquipmentLastBreathDraws(state, zones, cards, before);
-        IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
+        IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(state, zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
             Death = removed && removal.WasDestroyed && removal.WasUnit

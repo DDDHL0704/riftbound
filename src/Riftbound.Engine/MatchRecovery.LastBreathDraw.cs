@@ -12,6 +12,7 @@ public static partial class MatchRecoveryValidator
     private static void ValidateLastBreathDrawState(MatchState state, List<string> errors)
     {
         ValidateLastBreathMightOccurrences(state, errors);
+        ValidateLastBreathInsightOccurrences(state, errors);
         bool MissingDiscardBirth(string id, string kind)
             => kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathDiscardDraw
                 && (id.StartsWith("TRIGGER-death-", StringComparison.Ordinal)

@@ -5710,7 +5710,7 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } insight
                 && CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, insight.InsightContext,
                     insight.SourceObjectId, insight.EffectKind, insight.ControllerId, insight.CardNo)
-                && MatchStateHasher.HashValue(ReadCapturedInsightView(stackItem)) == MatchStateHasher.HashValue(insight.InsightContext))
+                && MatchStateHasher.HashValue(ReadCapturedInsightView(stackItem)) == MatchStateHasher.HashValue(CapturedInsight(insight.InsightContext)))
                 sourceReferences = knownObjectIds.Append(insight.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             ValidateTimingOptionalObjectReferenceWithExpectedDetails(
                 stackItem,
