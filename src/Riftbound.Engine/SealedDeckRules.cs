@@ -59,6 +59,7 @@ public static partial class OfficialDeckValidator
             : RequireCard(cardsByNo, deck.LegendCardNo, "legendCardNo", errors);
         var champion = deck.ChampionCardNo.Length == 0 ? null
             : RequireCard(cardsByNo, deck.ChampionCardNo, "championCardNo", errors);
+        ValidateAdditionalLegends(cardsByNo, deck.MainDeck, deck.AdditionalLegendCardNos ?? [], legend, errors);
         if (legend is not null && (legend.CardCategoryNameList.Count != 1 || legend.CardCategoryNameList[0] != "传奇"))
             errors.Add("传奇牌编号必须指向一张传奇牌。");
         if (champion is not null && (champion.CardCategoryNameList.Count != 1 || champion.CardCategoryNameList[0] != "英雄单位"))

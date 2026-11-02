@@ -173,6 +173,7 @@ public static class RadiantCardSources
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints().Where(card =>
                 card.CardNo is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·093/167" or "RAD·097/167"))
             .Select(card => card with {
+                CardEffect = ReviewedCardErrata.EffectiveText(card.Id, card.CardNo, card.CardEffect),
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),
                 CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),
                 CardColorList = card.CardColorList.ToImmutableArray(),

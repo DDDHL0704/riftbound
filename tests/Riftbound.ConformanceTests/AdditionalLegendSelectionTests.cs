@@ -10,16 +10,18 @@ public sealed class AdditionalLegendSelectionTests
 {
     private const string CurrentText = "如果你的卡组中包含妮蔻，则在起始传奇之外，选择最多三名不同的传奇。（“不同”指的是卡牌名称各不相同。）";
 
+    private static string EffectiveText(long id, string no, string printed)
+        => (string)typeof(OfficialCardCatalog).Assembly.GetType("Riftbound.CardCatalog.ReviewedCardErrata")!
+            .GetMethod("EffectiveText", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+            .Invoke(null, [id, no, printed])!;
+
     private static async Task<(OfficialCardCatalog Catalog, OfficialDecklist Deck)> Position()
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
-        using var stream = typeof(OfficialCardCatalog).Assembly.GetManifestResourceStream(
-            "Riftbound.CardCatalog.VendettaSourceSnapshot")
-            ?? throw new InvalidOperationException("The embedded official card snapshot is missing.");
-        var source = await OfficialCardCatalogLoader.LoadFromStreamAsync(stream, VendettaCardSources.SnapshotPath, default);
-        // The isolated selection mechanism is tested with the current erratum;
+        // Apply the same reviewed full-face correction as the RAD admission path.
         // Neeko stays outside runtime admission until its complete effect works.
-        var neeko = Assert.Single(source.Cards, c => c.CardNo == "RAD·167/167") with { CardEffect = CurrentText };
+        var printed = Assert.Single(VendettaCardSources.GetOfficialCards(), c => c.CardNo == "RAD·167/167");
+        var neeko = printed with { CardEffect = EffectiveText(printed.Id, printed.CardNo, printed.CardEffect) };
         var deck = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "jhin-lowcurve").Decklist;
         catalog = catalog with { Cards = [..catalog.Cards, neeko], Total = catalog.Total + 1 };
         var main = deck.MainDeck.ToList();
@@ -47,6 +49,25 @@ public sealed class AdditionalLegendSelectionTests
         var spec = Assert.IsType<AdditionalLegendSelectionSpec>(AdditionalLegendSelectionParser.Parse(CurrentText));
         Assert.Equal("妮蔻", spec.RequiredCardName); Assert.Equal(3, spec.MaximumCount);
         Assert.Null(AdditionalLegendSelectionParser.Parse(CurrentText.Replace("最多三名", "三名", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task ReviewedErratumRetainsTheCompletePhysicalFaceWithoutAdmittingAnIncompleteCard()
+    {
+        var (catalog, _) = await Position();
+        var neeko = Assert.Single(catalog.Cards, card => card.CardNo == "RAD·167/167");
+        Assert.Equal(39675, neeko.Id);
+        Assert.Equal(6, neeko.Energy); Assert.Equal(1, neeko.ReturnEnergy); Assert.Equal(4, neeko.Power);
+        Assert.Contains(CurrentText, neeko.CardEffect, StringComparison.Ordinal);
+        Assert.Contains("（中立卡牌可放入任意特性的卡组。）", neeko.CardEffect, StringComparison.Ordinal);
+        Assert.Contains("当你打出我时，选择所选传奇中的其中一名，并于我在场上期间，将其加入你的传奇区域。", neeko.CardEffect, StringComparison.Ordinal);
+        Assert.DoesNotContain("选择三名不同的传奇", neeko.CardEffect, StringComparison.Ordinal);
+        Assert.Equal(neeko.CardEffect, EffectiveText(neeko.Id, neeko.CardNo, neeko.CardEffect));
+        var printed = neeko.CardEffect.Replace("选择最多三名", "选择三名", StringComparison.Ordinal);
+        Assert.Equal(printed, EffectiveText(neeko.Id + 1, neeko.CardNo, printed));
+        Assert.Equal(printed, EffectiveText(neeko.Id, "RAD·166/167", printed));
+        Assert.DoesNotContain((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, card => card.CardNo == neeko.CardNo);
+        Assert.False(CardBehaviorRegistry.TryGetByCardNo(neeko.CardNo, out _));
     }
 
     [Theory]
@@ -115,6 +136,20 @@ public sealed class AdditionalLegendSelectionTests
         var main = deck.MainDeck.ToArray(); main[Array.IndexOf(main, "RAD·167/167")] = deck.ChampionCardNo;
         var validation = OfficialDeckValidator.Validate(deck with { MainDeck = main, AdditionalLegendCardNos = Choices(catalog, deck, 1) }, catalog);
         Assert.Contains(validation.Errors, message => message.Contains("最多可额外选择 0", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task SealedValidationAlsoRequiresTheCardTextPermissionForAdditionalLegends()
+    {
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        var deck = new OfficialDecklist("", "", Enumerable.Repeat("OGN·001/298", 25).ToArray(),
+            Enumerable.Repeat("SFD·R01", 12).ToArray(), Enumerable.Repeat(SealedDeckRules.BlankBattlefieldCardNo, 3).ToArray());
+        var context = new SealedDeckValidationContext(new Dictionary<string, int> { ["OGN·001/298"] = 25 });
+        var baseline = OfficialDeckValidator.Validate(deck, catalog, OfficialDeckFormat.Sealed, context);
+        Assert.True(baseline.IsValid, string.Join("; ", baseline.Errors));
+        var result = OfficialDeckValidator.Validate(deck with { AdditionalLegendCardNos = ["OGN·253/298"] },
+            catalog, OfficialDeckFormat.Sealed, context);
+        Assert.Contains(result.Errors, message => message.Contains("最多可额外选择 0", StringComparison.Ordinal));
     }
 
     [Fact]
