@@ -38,13 +38,15 @@ public sealed class RadFaceDownPlayHeroTests
     [Theory, MemberData(nameof(Prints))]
     public async Task AmbushUsesAnOccupiedFriendlyBattlefieldAndTheOrdinaryPaidResponsePath(string no)
     {
-        var s = await AmbushPermissionTests.Response(AmbushPermissionTests.Position(no));
+        var game = new Driver(OfficialCopyIdentityTests.AddSpell(AmbushPermissionTests.Position(no), "SPELL", "OGN·048/298"));
+        await game.Act("P1", new PlayCardCommand("SPELL", "OGN·048/298", []));
+        var s = game.State;
         var command = new PlayCardCommand("AMBUSH", no, [], Destination: "BATTLEFIELD:F");
         var quote = new CoreRuleEngine().PreviewPlayCard(s, "P1", PlayCostPreviewTests.Request(s, command));
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(5, quote.Cost!.Mana);
         Assert.Equal(1, quote.Cost.PowerByTrait[RuneTrait.Orange]);
-        var game = new Driver(s); await game.Act("P1", command);
-        Assert.Equal(15, game.State.RunePools["P1"].Mana);
+        await game.Act("P1", command);
+        Assert.Equal(s.RunePools["P1"].Mana - 5, game.State.RunePools["P1"].Mana);
         Assert.Contains("AMBUSH", game.State.PlayerZones["P1"].Battlefields);
         Assert.Equal("F", game.State.ObjectLocations["AMBUSH"].BattlefieldObjectId);
         Assert.True(game.State.CardObjects["AMBUSH"].IsExhausted); Assert.Equal(5, game.State.CardObjects["AMBUSH"].Power);
@@ -95,10 +97,10 @@ public sealed class RadFaceDownPlayHeroTests
         return await FaceDownPlayTestDriver.Ready(s);
     }
 
-    private static async Task PlayShadow(FaceDownPlayTestDriver game)
+    private static async Task PlayShadow(FaceDownPlayTestDriver game, bool order = true)
     {
         await game.Act("P1", new PlayCardCommand("SHADOW", "OGN·057/298", ["HOST"]));
-        if (game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(
+        if (order && game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(
             OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
     }
 
@@ -133,7 +135,13 @@ public sealed class RadFaceDownPlayHeroTests
     [Theory, MemberData(nameof(Prints))]
     public async Task PrintedAndCopiedTextEarnSeparateBonusesAndOnlyOneActualReadyTransition(string no)
     {
-        var game = await Ready(no, copied: true); await PlayShadow(game);
+        var game = await Ready(no, copied: true); await PlayShadow(game, order: false);
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        var wrongEvent = game.State with { TriggerQueue = game.State.TriggerQueue.Select((trigger, index) =>
+            index == 0 ? trigger with { TriggeredByEventKind = "UNIT_DESTROYED" } : trigger).ToArray() };
+        Assert.Contains("invalid queued standby play observer", OfficialInsightAndSpellLockTests.Errors(wrongEvent));
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            game.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
         Assert.Equal(2, game.State.StackItems.Count(i => i.StandbyObserver is not null));
         await game.Top(); Assert.Equal(6, game.State.CardObjects["HOST"].Power);
         await game.Top(); Assert.Equal(7, game.State.CardObjects["HOST"].Power);

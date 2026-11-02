@@ -1073,7 +1073,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["UNIT_EXHAUSTED", "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "BATTLE_RESULT_DETERMINED"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["UNIT_EXHAUSTED", "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -4770,6 +4770,7 @@ public static partial class MatchRecoveryValidator
                 : item.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid captured standby play observer");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, trigger.EffectKind, trigger.SourceObjectId, trigger.SourceCardNo)
+                    || trigger.TriggeredByEventKind != (trigger.EffectKind == CoreRuleEngine.StandbyPlayedEffect ? "CARD_PLAYED_FROM_FACE_DOWN" : "CARD_HIDDEN")
                 : trigger.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid queued standby play observer");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow is not (CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.TriggerTargetCostWindow)))
