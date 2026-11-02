@@ -299,6 +299,41 @@ public sealed class OriannaLegendEquipmentUnitTests
         await game.Top(); await game.Replay();
     }
 
+    [Theory]
+    [InlineData("RAD·071/167", "坚守2", 0)]
+    [InlineData("RAD·123/167", "壁垒", 1)]
+    public async Task AttachedKeywordsContinueOnTheFormerUnitUntilTheWeaponActuallyReattaches(string no, string keyword, int bonus)
+    {
+        var initial = Put(Put(Position(), "WEAPON", no, "P1", "BASE"), "TAKE", "SFD·011/221", "P1", "HAND");
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        await game.TapRunes("P1", ["RUNE-1"]);
+        await game.Act("P1", new AssembleEquipmentCommand("WEAPON", "GEAR", ["ASSEMBLE_1_MANA"]));
+        await game.Top();
+        Assert.Contains(keyword, game.State.CardObjects["GEAR"].Tags);
+        AssertMight(game, 2, 2 + bonus);
+        await NextOwnMain(game); await Select(game, "SECOND"); await Pay(game);
+        var formerUnit = game.State.CardObjects["GEAR"];
+        Assert.DoesNotContain(CardObjectTags.UnitCard, formerUnit.Tags);
+        Assert.Contains(keyword, formerUnit.Tags);
+        Assert.Contains(keyword, formerUnit.RuleDerivedTags!);
+        Assert.Equal("GEAR", game.State.CardObjects["WEAPON"].AttachedToObjectId);
+        AssertMight(game, 0, 0);
+        await game.Top();
+        // The attached weapon's printed assembly text is inactive (CN 718.2).
+        // Take Up reattaches it through an actual spell instruction instead.
+        await game.TapRunes("P1", ["RUNE-1", "RUNE-2"]);
+        await game.Act("P1", new PlayCardCommand("TAKE", "SFD·011/221", ["ALLY", "WEAPON"]));
+        // Confirmation alone does not remove the existing lower-box text.
+        Assert.Contains(keyword, game.State.CardObjects["GEAR"].Tags);
+        await game.Top();
+        Assert.DoesNotContain(keyword, game.State.CardObjects["GEAR"].Tags);
+        Assert.Null(game.State.CardObjects["GEAR"].RuleDerivedTags);
+        Assert.Contains(keyword, game.State.CardObjects["ALLY"].Tags);
+        Assert.Equal("ALLY", game.State.CardObjects["WEAPON"].AttachedToObjectId);
+        await game.Replay();
+    }
+
     [Fact]
     public async Task TemporaryMightAndBoonComposeWithTheBaseChangeAndDoNotCorruptRecovery()
     {
