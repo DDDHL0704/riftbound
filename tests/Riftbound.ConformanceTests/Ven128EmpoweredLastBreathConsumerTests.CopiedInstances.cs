@@ -56,7 +56,8 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
             }
             Assert.Equal(empower, game.State.CardObjects["UNIT"].IsEmpowered); Assert.Empty(Minions(game.State));
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-2"));
+            // Keep both physical rune payments and their order in one production batch.
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1", ["P2-RUNE-1", "P2-RUNE-2"]));
             await game.Act("P2", new PlayCardCommand("KILL", Destroy, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.Empty(Minions(game.State));

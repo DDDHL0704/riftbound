@@ -244,7 +244,8 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(4, game.Might(actor, unit)); await game.ColdCheckpoint();
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
             Assert.Equal(mana - 6, game.State.RunePools[actor].Mana); Assert.Equal(3, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
-            Assert.False(game.State.CardObjects[unit].IsEmpowered); await game.ColdCheckpoint();
+            Assert.False(game.State.CardObjects[unit].IsEmpowered);
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var pool = game.State.RunePools[actor];
             var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) { [actor] = pool with { Mana = pool.Mana + 3 } } };
             await game.RejectCoordinatedForgery("refunded-three-mana-after-actual-empower-payment", refunded);

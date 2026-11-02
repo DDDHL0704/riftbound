@@ -34,7 +34,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             for (var i = 0; i < 2; i++) await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First()));
             await game.Act("P1", new PlayCardCommand(game.Hand("P1", Kill).First(), Kill, [source])); await game.Top();
             var earned = Assert.Single(game.State.StackItems); var birth = Assert.IsType<LastBreathRuneCallContext>(earned.LastBreathRuneCall);
-            Assert.Equal(TriggerKinds.UnitLastBreathCallRunesThenDraw, earned.EffectKind); await game.ColdCheckpoint();
+            Assert.Equal(TriggerKinds.UnitLastBreathCallRunesThenDraw, earned.EffectKind);
+            // The forgery helper also cold-recovers this unchanged accepted history.
             await game.RejectCoordinatedForgery("faerie-birth-death-controller", game.State with { StackItems = [earned with {
                 ControllerId = "P2", LastBreathRuneCall = birth with { ControllerId = "P2" } }] });
             await game.RejectCoordinatedForgeryTwiceThenRecover("faerie-birth-creation-tick", game.State with { StackItems = [earned with {

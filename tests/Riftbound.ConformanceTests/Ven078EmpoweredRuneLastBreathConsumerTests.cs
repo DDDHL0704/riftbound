@@ -122,7 +122,8 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
     }
     private static async Task Empower(Driver game, string owner)
     {
-        await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-1")); await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-2"));
+        // Spend both physical runes in their original order through the production batch command.
+        await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-1", [owner + "-RUNE-1", owner + "-RUNE-2"]));
         Assert.Equal(1, game.State.RunePools[owner].PowerByTrait[RuneTrait.Green]); Assert.Equal(1, game.State.RunePools[owner].PowerByTrait[RuneTrait.Yellow]);
         await game.Act(owner, new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));
     }
@@ -132,8 +133,8 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
         // other physical runes that this destruction payment does not spend.
         var runes = Enumerable.Range(1, 4).Select(i => opponent + "-RUNE-" + i).ToArray();
         await game.Act(opponent, new TapRuneCommand(runes[0], runes));
-        await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1"));
-        await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-2"));
+        // The resource totals and both per-rune events remain part of the actual paid history.
+        await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1", [opponent + "-RUNE-1", opponent + "-RUNE-2"]));
         Assert.Equal(4, game.State.RunePools[opponent].Mana); Assert.Equal(2, game.State.RunePools[opponent].PowerByTrait[RuneTrait.Yellow]);
         await game.Act(opponent, new PlayCardCommand("KILL", Destroy, ["UNIT"]));
         Assert.Equal(0, game.State.RunePools[opponent].Mana); Assert.Equal(0, game.State.RunePools[opponent].TotalPower); await game.Top();

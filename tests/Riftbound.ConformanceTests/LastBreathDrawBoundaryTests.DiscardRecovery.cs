@@ -90,7 +90,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             for (var i = 0; i < 2; i++) await game.Act("P2", new RecycleRuneCommand(game.Runes("P2").First()));
             await game.Act("P2", new PlayCardCommand(game.Hand("P2", Kill).First(), Kill, [source])); await game.Top(); await game.Top();
             var choice = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
-            var birth = Assert.IsType<LastBreathDrawContext>(choice.LastBreathDraw); await game.ColdCheckpoint();
+            var birth = Assert.IsType<LastBreathDrawContext>(choice.LastBreathDraw);
+            // The forgery helper also cold-recovers this unchanged accepted history.
             Assert.True(game.State.PlayerZones["P2"].Hand.Count >= 2);
             await game.RejectCoordinatedForgery("agent-choice-death-controller", game.State with { PendingHandChoice = choice with {
                 PlayerId = "P2", LegalObjectIds = game.State.PlayerZones["P2"].Hand.ToArray(), LastBreathDraw = birth with { ControllerId = "P2" } } });
