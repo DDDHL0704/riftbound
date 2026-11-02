@@ -29644,7 +29644,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!TryGetFieldControllerId(playerZones, targetId, out var controller) || controller != stackItem.ControllerId
             || !cardObjects.TryGetValue(targetId, out var target) || target.IsFaceDown
             || !target.Tags.Contains(CardObjectTags.UnitCard) || target.IsFaceDown
-            || target.Tags.Contains(CardObjectTags.EquipmentCard) || target.Tags.Contains(CardObjectTags.SpellCard)
+            || target.Tags.Contains(CardObjectTags.SpellCard)
             || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
             || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;
