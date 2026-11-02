@@ -2852,6 +2852,7 @@ button {
   grid-row: 6;
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -2861,8 +2862,11 @@ button {
 }
 .rail__confirm {
   display: flex;
+  flex: 1 0 100%;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .panel {

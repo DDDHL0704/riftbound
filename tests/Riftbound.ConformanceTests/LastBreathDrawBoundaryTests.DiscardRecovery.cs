@@ -87,7 +87,10 @@ public sealed partial class LastBreathDrawBoundaryTests
             await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First()));
             var source = game.Hand("P1", agent).First(); await game.Act("P1", new PlayCardCommand(source, agent, []));
             await game.Act("P1", new EndTurnCommand()); await game.WaitFor("P2", 4, Kill); await game.Tap("P2");
-            for (var i = 0; i < 2; i++) await game.Act("P2", new RecycleRuneCommand(game.Runes("P2").First()));
+            // Preserve the first two physical payment runes and their base order.
+            var destructionRunes = game.Runes("P2").Take(2).ToArray();
+            Assert.Equal(2, destructionRunes.Length);
+            await game.Act("P2", new RecycleRuneCommand(destructionRunes[0], destructionRunes));
             await game.Act("P2", new PlayCardCommand(game.Hand("P2", Kill).First(), Kill, [source])); await game.Top(); await game.Top();
             var choice = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
             var birth = Assert.IsType<LastBreathDrawContext>(choice.LastBreathDraw);

@@ -20,7 +20,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
         {
             await TapRunes(game); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-1"));
             await game.Act("P1", new ActivateAbilityCommand("GATE", P4ActivatedAbilityCatalog.NextSpellEchoAbilityId, [])); await game.Top();
-            await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-2")); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-3"));
+            await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-2", ["STATUS-RUNE-2", "STATUS-RUNE-3"]));
             var mana = game.State.RunePools["P1"].Mana;
             await game.Act("P1", new PlayCardCommand("SPELL", No, ["ORDER-TARGET"], Mode: Remove,
                 OptionalCosts: ["ECHO"], RepeatChoices: [new(Empower, ["ORDER-TARGET"])]));

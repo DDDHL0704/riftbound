@@ -68,6 +68,7 @@ public sealed partial class SealedSubmittedOpeningTests
         var run = new Run(bestOf, new DrawFirstGameEngine());
         await run.Join("alice");
         await run.Join("bob");
+        AssertLockedDeckViews(run, new Dictionary<string, OfficialDecklist>());
         await run.Choose();
         var decks = new Dictionary<string, OfficialDecklist>();
         foreach (var player in new[] { "alice", "bob" })
@@ -77,10 +78,14 @@ public sealed partial class SealedSubmittedOpeningTests
         }
         await run.Act("alice", new ReadyCommand());
         await run.Act("bob", new ReadyCommand());
+        AssertLockedDeckViews(run, new Dictionary<string, OfficialDecklist>());
         var first = run.State.SealedBattlefieldHistory![0];
         await run.Act("bob", new SurrenderCommand());
         Assert.Equal(MatchSeriesPhases.SubmittingDecks, run.Live.SnapshotFor("alice").Series!.Phase);
+        AssertLockedDeckViews(run, decks);
+        AssertLockedDeckRecoveryRejectsLeaks(run);
         await run.Cold();
+        AssertLockedDeckViews(run, decks);
         foreach (var player in decks.Keys)
         {
             var altered = await Deck(run.State.PlayerSealedPools![player], true, false, bestOf == 3 ? 1 : 3);
@@ -97,11 +102,16 @@ public sealed partial class SealedSubmittedOpeningTests
             Assert.False(rejected.Accepted);
             Assert.Contains("平局后不能更换备牌", rejected.ErrorMessage);
             // Configuration compares quantities, so input array order is irrelevant.
-            await run.Act(player, Command(decks[player] with { MainDeck = decks[player].MainDeck.Reverse().ToArray() }));
+            // A new device reconstructs the command entirely from its snapshot.
+            var locked = run.Live.SnapshotFor(player).Series!.LockedDeck!;
+            await run.Act(player, new SubmitDeckCommand(locked.LegendCardNo, locked.ChampionCardNo,
+                locked.MainDeck.Reverse().ToArray(), locked.RuneDeck, locked.Battlefields));
             await run.Cold();
+            AssertLockedDeckViews(run, decks);
         }
         await run.Act("alice", new ReadyCommand());
         await run.Cold();
+        AssertLockedDeckViews(run, decks);
         var cursor = run.State.RngCursor;
         await run.Act("bob", new ReadyCommand());
         // Only main and rune shuffles consume randomness: neither player
@@ -117,6 +127,7 @@ public sealed partial class SealedSubmittedOpeningTests
             Assert.Single(run.Live.SnapshotFor(player).Series!.UsedBattlefields[player]);
         }
         await run.Cold();
+        AssertLockedDeckViews(run, new Dictionary<string, OfficialDecklist>());
     }
 
     [Fact]

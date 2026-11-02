@@ -165,7 +165,7 @@ public sealed class AttackDeckPlayTests
         var copy=driver.State.PendingRuleChoice!;await driver.Act("P1",new PayCostCommand(copy.Request.Id,"RULE_REPLACEMENT",["COPY:COPY-SOURCE"]));
         await driver.Act("P1",new EndTurnCommand());await driver.Act("P2",new EndTurnCommand());
         await Attack(driver,host);await driver.Act("P1",new PassPriorityCommand());
-        for(var i=0;i<4;i++)await driver.Act("P2",new TapRuneCommand("TOKEN-RESPONSE-RUNE-"+i));
+        await driver.Act("P2", new TapRuneCommand("TOKEN-RESPONSE-RUNE-0", ["TOKEN-RESPONSE-RUNE-0", "TOKEN-RESPONSE-RUNE-1", "TOKEN-RESPONSE-RUNE-2", "TOKEN-RESPONSE-RUNE-3"]));
         await driver.Act("P2",new RecycleRuneCommand("TOKEN-RESPONSE-RUNE-0"));
         await driver.Act("P2",new PlayCardCommand("RETURN","UNL-128/219",["ENEMY1",host]));await driver.Top();
         Assert.False(driver.State.CardObjects.ContainsKey(host));var captured=Assert.Single(driver.State.StackItems);Assert.True(captured.FieldContext!.SourceCeasedToExist);
@@ -175,7 +175,7 @@ public sealed class AttackDeckPlayTests
         var selected=choice.LegalObjectIds.First(id=>driver.State.CardObjects[id].CardNo=="OGN·096/298");await DeckPlaySequenceTests.Select(driver,selected);
         var bad=await new CoreRuleEngine().ResolveAsync(driver.State,new("ceased-no-here","P1",CommandTypes.PlayCard),new PlayCardCommand(selected,"OGN·096/298",[],Destination:"BATTLEFIELD:F"),default);
         Assert.False(bad.Accepted);Assert.Equal(MatchStateHasher.Hash(driver.State),MatchStateHasher.Hash(bad.State));
-        for(var i=0;i<2;i++)await driver.Act("P1",new TapRuneCommand("TOKEN-PLAY-RUNE-"+i));
+        await driver.Act("P1", new TapRuneCommand("TOKEN-PLAY-RUNE-0", ["TOKEN-PLAY-RUNE-0", "TOKEN-PLAY-RUNE-1"]));
         await driver.Act("P1",new PlayCardCommand(selected,"OGN·096/298",[]));
         Assert.Contains(selected,driver.State.PlayerZones["P1"].Base);
         Assert.Null(driver.State.PendingEffectPlay);await RideTheWindCurrentMovementTests.Replay(initial,driver);

@@ -104,7 +104,10 @@ public sealed partial class LastBreathDrawBoundaryTests
             await game.Act(game.State.ActivePlayerId, new MulliganCommand([])); await game.Act(game.State.OpeningSecondActionPlayerId!, new MulliganCommand([]));
             await game.ColdCheckpoint(); await game.WaitFor("P1", 6, Unit, Kill); await game.Tap("P1");
             var source = game.Hand("P1", Unit).First(); await game.Act("P1", new PlayCardCommand(source, Unit, []));
-            for (var i = 0; i < 2; i++) await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First()));
+            // Preserve the first two physical payment runes and their base order.
+            var destructionRunes = game.Runes("P1").Take(2).ToArray();
+            Assert.Equal(2, destructionRunes.Length);
+            await game.Act("P1", new RecycleRuneCommand(destructionRunes[0], destructionRunes));
             await game.Act("P1", new PlayCardCommand(game.Hand("P1", Kill).First(), Kill, [source])); await game.Top();
             var earned = Assert.Single(game.State.StackItems); var receipt = Assert.IsType<LastBreathDrawContext>(earned.LastBreathDraw);
             Assert.Equal("P1", receipt.ControllerId);
@@ -161,12 +164,14 @@ public sealed partial class LastBreathDrawBoundaryTests
         game.RecoverAfterEveryCommand = true;
         if (transferControl)
         {
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            // Prepare all three physical control-payment runes in their original order.
+            await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["UNIT"])); await game.Top();
             Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
             Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
         }
-        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+        // Keep both physical destruction-payment runes in their original order.
+        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
         await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
         return (initial, game, generation);
     }

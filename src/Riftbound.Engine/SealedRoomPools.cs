@@ -103,7 +103,7 @@ public static class SealedRoomPools
         return snapshot.Format != (sealedRoom ? MatchFormats.Sealed : MatchFormats.Constructed)
             || snapshot.SetCode != state.SessionOptions?.SealedSetCode
             || snapshot.BestOf != (sealedRoom ? state.SessionOptions!.SealedBestOf : 1)
-            || MatchStateHasher.HashValue(snapshot.Series) != MatchStateHasher.HashValue(RoomMatchSeries.ViewFor(state))
+            || MatchStateHasher.HashValue(snapshot.Series) != MatchStateHasher.HashValue(RoomMatchSeries.ViewFor(state, viewerPlayerId))
             || MatchStateHasher.HashValue(snapshot.SideboardCounts) != MatchStateHasher.HashValue(SideboardCountsFor(state))
             || (snapshot.SealedPool is not null || expectedPool is not null)
                 && MatchStateHasher.HashValue(snapshot.SealedPool) != MatchStateHasher.HashValue(expectedPool)

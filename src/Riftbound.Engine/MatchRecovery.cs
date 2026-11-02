@@ -4138,6 +4138,8 @@ public static partial class MatchRecoveryValidator
             || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))
             errors.Add("invalid battle response declaration");
         if (!CoreRuleEngine.ValidLegendDiscardDrawChoice(state)) errors.Add("invalid legend discard continuation");
+        if (!CoreRuleEngine.ValidStandbyDrawUses(state)) errors.Add("invalid face-down play draw allowance");
+        if (!CoreRuleEngine.ValidStandbyDrawChoice(state)) errors.Add("invalid face-down play draw discard choice");
         foreach (var card in state.CardObjects.Values)
             if (!CoreRuleEngine.ValidBanishReplacementOrigins(state, card)) errors.Add("invalid banish replacement origin");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
@@ -4711,6 +4713,8 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidCurrentBoonAmplifiers(state)) errors.Add("invalid temporary friendly Boon amplifier");
         if (!CoreRuleEngine.ValidTurnFlowGrants(state)) errors.Add("invalid temporary flow grant");
         if (!CoreRuleEngine.ValidCurrentNextUnitPlayGrants(state)) errors.Add("invalid next unit play grant");
+        if (!CoreRuleEngine.ValidCurrentTimeAssassinNextUnitReductions(state)) errors.Add("invalid time assassin next unit reduction");
+        if (!CoreRuleEngine.ValidCurrentTimeAssassinDestructions(state)) errors.Add("invalid time assassin destruction marker");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidNextUnitPlayGrant(state, item.NextUnitPlayGrant, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
                 errors.Add("invalid captured next unit play grant stack");
@@ -4782,7 +4786,8 @@ public static partial class MatchRecoveryValidator
                 || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count
                 || resolution.ResolutionId != $"battle-result:{resolution.Tick}:{resolution.Kind}:{resolution.BattlefieldId}:{resolution.AttackerObjectIds.FirstOrDefault() ?? resolution.AttackingPlayerId}"))
                 errors.Add("invalid captured public battle history reference");
-        if (!CoreRuleEngine.ValidOptionalPlayCostReductionUses(state)) errors.Add("invalid optional play cost reduction use");
+        if (!CoreRuleEngine.ValidOptionalPlayCostReductionUses(state))
+            errors.Add("invalid optional play cost reduction use");
         foreach (var card in state.CardObjects.Values)
         {
             if (!EmpowerRules.ValidCount(card)) errors.Add("invalid empowerment count");
@@ -4799,12 +4804,12 @@ public static partial class MatchRecoveryValidator
         }
         if (state.StackItems.Any(item => !StandbyRules.ValidPlayedOrigin(state, item))) errors.Add("invalid played standby origin");
         foreach (var item in state.StackItems)
-            if (item.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, item.EffectKind, item.SourceObjectId, item.CardNo)
-                : item.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid captured standby play observer");
+            if (item.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)
+                : CoreRuleEngine.IsStandbyObserverEffect(item.EffectKind)) errors.Add("invalid captured standby play observer");
         foreach (var trigger in state.TriggerQueue)
-            if (trigger.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, trigger.EffectKind, trigger.SourceObjectId, trigger.SourceCardNo)
-                    || trigger.TriggeredByEventKind != (trigger.EffectKind == CoreRuleEngine.StandbyPlayedEffect ? "CARD_PLAYED_FROM_FACE_DOWN" : "CARD_HIDDEN")
-                : trigger.EffectKind is CoreRuleEngine.StandbyPlayedEffect or CoreRuleEngine.StandbyHiddenTokenEffect) errors.Add("invalid queued standby play observer");
+            if (trigger.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, trigger.EffectKind, trigger.SourceObjectId, trigger.SourceCardNo, trigger.ControllerId)
+                    || trigger.TriggeredByEventKind != (trigger.EffectKind == CoreRuleEngine.StandbyHiddenTokenEffect ? "CARD_HIDDEN" : "CARD_PLAYED_FROM_FACE_DOWN")
+                : CoreRuleEngine.IsStandbyObserverEffect(trigger.EffectKind)) errors.Add("invalid queued standby play observer");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow is not (CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.TriggerTargetCostWindow)))
             errors.Add("invalid referenced equipment experience cost");

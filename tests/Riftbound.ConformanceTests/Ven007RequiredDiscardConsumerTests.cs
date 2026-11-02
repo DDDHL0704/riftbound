@@ -259,11 +259,12 @@ public sealed class Ven007RequiredDiscardConsumerTests
             Assert.Equal(mana - 2, game.State.RunePools[actor].Mana); Assert.False(game.State.CardObjects[unit].IsEmpowered);
             Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
             // The forgery helper also cold-recovers this unchanged accepted history.
-            await game.RejectCoordinatedForgery("refunded-required-discard", Refund(game.State, before, actor, payment));
             var item = Assert.Single(game.State.StackItems); var other = game.State.PlayerZones[actor].Hand.First();
             var invented = game.State with { StackItems = [item with { EmpowerActivation = item.EmpowerActivation! with {
                 DiscardedHandCard = new(other, game.State.CardObjects[other].ObjectGeneration) } }] };
-            await game.RejectCoordinatedForgery("invented-paid-hand-card-binding", invented);
+            await game.RejectCoordinatedForgeries(
+                ("refunded-required-discard", Refund(game.State, before, actor, payment)),
+                ("invented-paid-hand-card-binding", invented));
             await game.Top(); Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(2, game.State.CardObjects[unit].Power); Assert.Equal(3, game.Might(actor, unit));
             await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration); Assert.Equal(3, game.Might(actor, unit)); Assert.True(game.State.CardObjects[unit].IsEmpowered);

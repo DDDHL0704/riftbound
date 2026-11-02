@@ -45,7 +45,11 @@ public sealed partial class CoreRuleEngine
     internal static string PublicTemporaryActivationEffect(string effect)
         => effect.StartsWith(TemporaryActivationPrefix, StringComparison.Ordinal)
             ? ReadTemporaryActivation(effect) is { } grant ? TemporaryActivationId(grant) : "GRANTED:INVALID"
-            : effect;
+            : effect.StartsWith(TimeAssassinDestructionPrefix, StringComparison.Ordinal)
+                ? ReadTimeAssassinDestructionMarker(effect) is not null
+                    ? "TIME_ASSASSIN_DESTROY_AT_END:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(effect)))
+                    : "TIME_ASSASSIN_DESTROY_INVALID"
+                : effect;
 
     internal static GrantedActivatedAbilitySpec? TemporaryActivationDefinition(TemporaryActivatedAbilityGrant grant)
         => CardBehaviorRegistry.TryGetByCardNo(grant.CardNo, out var behavior)
