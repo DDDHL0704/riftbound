@@ -12,7 +12,11 @@ public sealed partial class CoreRuleEngine
         => state.PendingEffectPlay is { IgnoreAllCosts: true } p && p.PlayerId == playerId;
 
     internal static bool IsForcedEffectPlayDestination(MatchState state, string playerId, string destination)
-        => state.PendingEffectPlay is { SourceZone: "BANISHED", DestinationPolicy: "ORIGINAL_LOCATION", OriginalBattlefield: { } original } same
+        => state.PendingEffectPlay is { SourceZone: "STACK", DestinationPolicy: "ORIGINAL_LOCATION_OR_BASE", OriginalBattlefield: { } replayField } owned
+            && owned.PlayerId == playerId && destination == "BATTLEFIELD:" + replayField.ObjectId
+            && BattlefieldLocalRules.Battlefield(state, replayField.ObjectId) is { } replayBattlefield
+            && replayBattlefield.ObjectGeneration == replayField.Generation
+            || state.PendingEffectPlay is { SourceZone: "BANISHED", DestinationPolicy: "ORIGINAL_LOCATION", OriginalBattlefield: { } original } same
             && same.PlayerId == playerId && destination == "BATTLEFIELD:" + original.ObjectId
             && BattlefieldLocalRules.Battlefield(state, original.ObjectId) is { } originalField
             && originalField.ObjectGeneration == original.Generation

@@ -9556,6 +9556,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
     [
+        new("RAD·140/167", "时空断裂", 2, "CHRONOBREAK_OWNED_UNIT_REPLAY", 0, 0,
+            DeckPlayKind: CoreRuleEngine.OwnedUnitReplayKind, EffectPlayIgnoreBaseMana: true,
+            EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: true,
+            EffectPlayDestination: "ORIGINAL_LOCATION_OR_BASE") { MayPayAnyAdditionalPower = true },
         new("RAD·142/167", "海克斯爆破雷区", 2, "HEXTECH_MINEFIELD_DESTROY_REBUILD_BOMBS", 0, 0,
             TargetScope: CardTargetScopes.FriendlyEquipment, AnyNumberOfTargets: true,
             DestroysTarget: true, TargetTokenFactoryCardNo: P6TokenFactoryCatalog.BombTokenCardNo,
