@@ -708,6 +708,8 @@ public sealed record PendingHandChoiceState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LegendDiscardDrawContext? LegendDiscardDraw { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public StandbyPlayedObserverContext? StandbyObserver { get; init; }
     public BattlefieldConquestDiscardDrawContinuation? BattlefieldConquestDiscardDraw { get; init; }
 
     private static string Normalize(string? value)
@@ -1203,11 +1205,13 @@ public sealed partial record MatchState
 
     private static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
-        return effectId.StartsWith(CoreRuleEngine.OptionalPlayCostReductionUsePrefix, StringComparison.Ordinal)
-            || BattleLimitedMarkers.PrivateMarker(effectId)
+        return BattleLimitedMarkers.PrivateMarker(effectId)
+            || effectId.StartsWith(CoreRuleEngine.OptionalPlayCostReductionUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.SimpleActivationUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.TimeAssassinNextUnitReductionPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.StandbyDrawUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnFlowGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
@@ -1552,7 +1556,7 @@ public sealed partial record MatchState
             pendingHandChoice.Reason,
             pendingHandChoice.SourceObjectId,
             pendingHandChoice.EffectKind,
-            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw, LegendDiscardDraw = pendingHandChoice.LegendDiscardDraw, BattlefieldConquestDiscardDraw = pendingHandChoice.BattlefieldConquestDiscardDraw };
+            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw, LegendDiscardDraw = pendingHandChoice.LegendDiscardDraw, StandbyObserver = pendingHandChoice.StandbyObserver, BattlefieldConquestDiscardDraw = pendingHandChoice.BattlefieldConquestDiscardDraw };
     }
 
     private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)
@@ -1652,6 +1656,7 @@ public sealed partial record ResolutionResult(
         if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
             ? "对手回合打出卡牌：打出随从" : trigger.EffectKind == CoreRuleEngine.CardPlayDrawEffect
                 ? "打出卡牌：抽牌" : "从手牌以外打出卡牌：强化来源";
+        if (trigger.StandbyObserver?.Draw is not null) return "从背面打出卡牌：抽一张牌，对手回合再弃置一张手牌";
         if (trigger.HighCostPlayObserver is not null) return CoreRuleEngine.HighCostReadiesSource(trigger.SourceCardNo)
             ? "打出高费用卡牌：让来源活跃" : "打出高费用单位、装备或主动技能：横置并活跃符文";
         if (trigger.ConquestSource is not null) return "征服效果：获得分数";
@@ -1671,7 +1676,7 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        if (trigger.StandbyObserver is not null) return trigger.EffectKind == CoreRuleEngine.StandbyHiddenTokenEffect
+        if (trigger.StandbyObserver is { Draw: null }) return trigger.EffectKind == CoreRuleEngine.StandbyHiddenTokenEffect
             ? "藏匿卡牌后创建指示物；双方响应后结算。"
             : "从背面打出卡牌后，活跃原来源并给予战力；双方响应后结算。";
         if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
@@ -1698,6 +1703,7 @@ public sealed partial record ResolutionResult(
         if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
             ? "对手回合打出卡牌；双方响应后打出随从。" : trigger.EffectKind == CoreRuleEngine.CardPlayDrawEffect
                 ? "你成功打出卡牌；双方响应后抽牌。" : "从手牌以外打出卡牌；双方响应后强化来源。";
+        if (trigger.StandbyObserver?.Draw is not null) return "双方响应后抽一张牌；如果不是你的回合，则再弃置一张手牌。";
         if (trigger.HighCostPlayObserver is not null) return CoreRuleEngine.HighCostReadiesSource(trigger.SourceCardNo)
             ? "技能结算时让来源单位变为活跃状态。" : "可横置来源，并让至多两枚符文活跃。";
         if (trigger.ConquestSource is not null) return "双方响应后获得分数。";
@@ -2165,7 +2171,7 @@ public sealed partial record ResolutionResult(
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null && choice.LegendDiscardDraw is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null && choice.LegendDiscardDraw is null && choice.StandbyObserver is null ? choice.SourceObjectId
                 : VisibleObjectIdForViewer(state, choice.SourceObjectId, viewerPlayerId),
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE"
@@ -2503,7 +2509,8 @@ internal static partial class ActionPromptBuilder
         bool RequiresAnyUnitTarget = false,
         bool RequiresEmpoweredSource = false,
         bool RequiresAnyEquipmentTarget = false,
-        bool BanishesGraveyardPermanentAsCost = false);
+        bool BanishesGraveyardPermanentAsCost = false,
+        string CreatedBattlefieldEquipmentTokenCardNo = "");
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
@@ -3291,6 +3298,18 @@ internal static partial class ActionPromptBuilder
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
                 "流光镜影传奇减战力技能", 0, 0, string.Empty, 1, false, "LEGEND_UNIT_POWER_MODIFIER",
                 RequiresBattlefieldTarget: true, RequiresAnyUnitTarget: true, RequiresEmpoweredSource: true),
+            new(LegendActionAbilityCatalog.TimeAssassinLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.TimeAssassinLegendAbilityId),
+                "时间刺客传奇下一名单位减费技能", 0, 0, string.Empty, 0, false,
+                "LEGEND_TIME_ASSASSIN_NEXT_UNIT_REDUCTION", RequiresEmpoweredSource: true),
+            new(LegendActionAbilityCatalog.KsanteLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KsanteLegendAbilityId),
+                "纳祖芒荣耀传奇动态强攻技能", 1, 0, "SPEND_MANA:1", 1, true, "LEGEND_GRANT_UNIT_KEYWORD"),
+            new(LegendActionAbilityCatalog.ZiggsLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ZiggsLegendAbilityId),
+                "爆破鬼才传奇炸弹技能", 1, 0, "SPEND_MANA:1", 1, false,
+                "LEGEND_CREATE_BATTLEFIELD_EQUIPMENT_TOKEN", PowerCost: 1,
+                CreatedBattlefieldEquipmentTokenCardNo: P6TokenFactoryCatalog.BombTokenCardNo),
             new(LegendActionAbilityCatalog.AmbessaLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AmbessaLegendAbilityId),
                 "铁血狼母传奇活跃单位技能", 0, 0, string.Empty, 1, false, "LEGEND_READY_UNIT",
@@ -3555,6 +3574,13 @@ internal static partial class ActionPromptBuilder
         }
 
         var result = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        if (ability.CreatedBattlefieldEquipmentTokenCardNo.Length > 0)
+        {
+            result["0"] = state.CardObjects.Keys
+                .Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)
+                .Order(StringComparer.Ordinal).Select(id => ObjectChoice(state, id, "战场")).ToArray();
+            return result;
+        }
         if (ability.RequiresAnyEquipmentTarget)
         {
             var choices = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields))
@@ -3626,6 +3652,9 @@ internal static partial class ActionPromptBuilder
             LegendActionAbilityCatalog.JayceLegendReadyOneAbilityId => "支付 1 法力并横置：使一件装备活跃",
             LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId => "已强化时支付 1 法力并横置：使两件装备活跃",
             LegendActionAbilityCatalog.MelLegendAbilityId => "解除强化并横置：战场上一名单位本回合战力 -2",
+            LegendActionAbilityCatalog.TimeAssassinLegendAbilityId => "解除强化并横置：本回合你打出的下一名单位费用 -2 和 -1 符能，并于回合结束时摧毁",
+            LegendActionAbilityCatalog.ZiggsLegendAbilityId => "支付 1 法力和 1 符能并横置：将一个炸弹打出到一处战场",
+            LegendActionAbilityCatalog.KsanteLegendAbilityId => "支付 1 法力并横置：友方单位本回合具有等同于其坚守的强攻",
             LegendActionAbilityCatalog.AmbessaLegendAbilityId => "解除强化、支付 1 符能并横置：使一名单位活跃",
             LegendActionAbilityCatalog.AkaliLegendAbilityId => "迅捷横置：如果是你的回合，将法术对决中的友方单位移至基地；如果已强化，使其活跃",
             LegendActionAbilityCatalog.ShenLegendAbilityId => "迅捷横置：给予友方单位壁垒",
@@ -5452,6 +5481,7 @@ internal static partial class ActionPromptBuilder
                     i => CoreRuleEngine.SequentialMovementDestinations(state, playerId, i)) : null,
             ["destinationLabel"] = behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null ? "移动目的地" : "入场位置",
             ["optionalCostChoices"] = optionalCostChoices,
+            ["optionalPlayCostReductionGroups"] = CoreRuleEngine.OptionalPlayCostReductionGroups(state, playerId, behavior),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = AvailablePlayMana(state, runePool, behavior),
