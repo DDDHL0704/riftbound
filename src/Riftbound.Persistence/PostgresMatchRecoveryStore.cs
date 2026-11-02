@@ -58,7 +58,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         var replayInitialState = authoritativeState is not null && commands.Count > 0 && openingSeed is not null
             ? (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken,
                 commands[0].Accepted && commands[0].CommandType == MatchSession.RoomSeatCommandType).ConfigureAwait(false))
-                with { RuleInputs = metadata.RuleInputs }
+                with { RuleInputs = metadata.RuleInputs, SessionOptions = authoritativeState.SessionOptions }
             : null;
         var spectatorReplayFrame = authoritativeState is null
             ? null

@@ -9,8 +9,10 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class PostgresMatchRecoveryStoreSmokeTests
 {
-    [Fact]
-    public async Task PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit(bool configured)
     {
         var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
         if (string.IsNullOrWhiteSpace(connectionString))
@@ -46,7 +48,7 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
                 {
                     ["alice"] = "P1",
                     ["bob"] = "P2"
-                });
+                }) with { SessionOptions = configured ? new(true, OfficialDeckFormat.ChinaStandard20260724) : null };
             var liveSession = new MatchSession(initialState, ruleEngine, journal);
 
             await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
@@ -66,6 +68,8 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
             Assert.NotNull(recovery.AuthoritativeState);
             Assert.NotNull(recovery.ReplayInitialState);
             Assert.NotNull(recovery.SpectatorReplayFrame);
+            Assert.Equal(initialState.SessionOptions, recovery.AuthoritativeState.SessionOptions);
+            Assert.Equal(initialState.SessionOptions, recovery.ReplayInitialState.SessionOptions);
             Assert.Equal(roomId, recovery.ReplayInitialState.RoomId);
             Assert.Equal("alice", recovery.ReplayInitialState.ActivePlayerId);
             Assert.Equal(3, recovery.Commands.Count);

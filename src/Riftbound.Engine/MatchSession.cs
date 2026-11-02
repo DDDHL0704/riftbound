@@ -5700,7 +5700,13 @@ public sealed partial class MatchSession : IMatchSession
         this.journal = journal;
         this.playerStore = playerStore;
         this.options = options ?? MatchSessionOptions.Default;
-        state = MatchState.Create(roomId) with { Seed = CreatePrivateOpeningSeed() };
+        if (!Enum.IsDefined(this.options.DeckFormat))
+            throw new ArgumentOutOfRangeException(nameof(options), "Unknown room deck format.");
+        state = MatchState.Create(roomId) with
+        {
+            Seed = CreatePrivateOpeningSeed(),
+            SessionOptions = this.options == MatchSessionOptions.Default ? null : this.options
+        };
         openingSeed = state.Seed;
     }
 
@@ -5753,8 +5759,10 @@ public sealed partial class MatchSession : IMatchSession
         this.ruleEngine = ruleEngine;
         this.journal = journal;
         this.playerStore = playerStore;
-        this.options = options ?? MatchSessionOptions.Default;
-        state = restoredState;
+        this.options = restoredState.SessionOptions ?? options ?? MatchSessionOptions.Default;
+        if (!Enum.IsDefined(this.options.DeckFormat))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
+        state = restoredState with { SessionOptions = this.options == MatchSessionOptions.Default ? null : this.options };
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
@@ -5819,6 +5827,9 @@ public sealed partial class MatchSession : IMatchSession
         }
 
         var state = RestoreState(recovery);
+        if (recovery.ReplayInitialState is { } initialConfiguration
+            && (initialConfiguration.SessionOptions ?? MatchSessionOptions.Default) != (state.SessionOptions ?? MatchSessionOptions.Default))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room configuration changed during the recorded game");
         if (recovery.ReplayInitialState is { } original && original.Seed != recovery.OpeningSeed
             || state.Seed != recovery.OpeningSeed && !recovery.Commands.Any(command => command.CommandType == "DEV_SEED_SCENARIO"
                 || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))
@@ -5833,7 +5844,7 @@ public sealed partial class MatchSession : IMatchSession
             ruleEngine,
             journal,
             playerStore,
-            options);
+            state.SessionOptions ?? MatchSessionOptions.Default);
     }
 
     public PlayerSessionDto EnsurePlayer(string playerId)
@@ -6003,7 +6014,8 @@ public sealed partial class MatchSession : IMatchSession
             var startedEventSequence = lastEventSequence;
             var nextState = BuildDevScenarioState(state, normalizedScenarioId) with
             {
-                Tick = state.Tick + 1
+                Tick = state.Tick + 1,
+                SessionOptions = state.SessionOptions
             };
             IReadOnlyList<GameEvent> preparationEvents = [];
             if (normalizedScenarioId == "standby-reaction")
