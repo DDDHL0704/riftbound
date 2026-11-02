@@ -9463,6 +9463,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·068/167", "奥莉安娜 - 机械奇迹", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·068a/167", "奥莉安娜 - 机械奇迹", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068A", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("RAD·045/167", "奎桑提", 4, "RAD_045_KSANTE_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守"),
         new("RAD·045a/167", "奎桑提", 4, "RAD_045A_KSANTE_PLAY_UNIT", 0, 0,
