@@ -189,7 +189,8 @@ public sealed record EndTurnCommand() : GameCommand("END_TURN");
 
 public sealed record SurrenderCommand() : GameCommand("SURRENDER");
 
-public sealed record SpellRepeatChoice(string Mode, IReadOnlyList<string> TargetObjectIds, IReadOnlyList<string>? MovementDestinations = null, string? Destination = null);
+public sealed record SpellRepeatChoice(string Mode, IReadOnlyList<string> TargetObjectIds, IReadOnlyList<string>? MovementDestinations = null, string? Destination = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SpellModeChoice>? ModeChoices = null);
 
 public sealed record PlayCardCommand(
     string SourceObjectId,
@@ -200,7 +201,9 @@ public sealed record PlayCardCommand(
     IReadOnlyList<string>? OptionalCosts = null,
     string Destination = "",
     IReadOnlyList<SpellRepeatChoice>? RepeatChoices = null,
-    IReadOnlyList<string>? MovementDestinations = null) : GameCommand("PLAY_CARD");
+    IReadOnlyList<string>? MovementDestinations = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<SpellModeChoice>? ModeChoices = null) : GameCommand("PLAY_CARD");
 
 public sealed record ActivateAbilityCommand(
     string SourceObjectId,

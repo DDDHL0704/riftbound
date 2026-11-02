@@ -58,7 +58,8 @@ public sealed partial class CoreRuleEngine
         }
         var legal = viewed.Where(id => DeckChoiceTargetAllowed(state, behavior, id)).ToArray();
         var mandatory = behavior.MinTargetCount != 0 && legal.Length > 0;
-        var choice = new PendingCardChoiceState($"DECK-{item.StackItemId}-{item.CompletedDeckExecutions}", "DECK_EFFECT", item.ControllerId,
+        var modeSuffix = item.CompletedModeExecutions > 0 ? $"-MODE-{item.CompletedModeExecutions}" : "";
+        var choice = new PendingCardChoiceState($"DECK-{item.StackItemId}-{item.CompletedDeckExecutions}{modeSuffix}", "DECK_EFFECT", item.ControllerId,
             mandatory ? 1 : 0, legal.Length > 0 ? 1 : 0, legal, viewed,
             reason: $"查看牌库并选择卡牌（第 {item.CompletedDeckExecutions + 1}/{item.EffectRepeatCount} 次）",
             sourceObjectId: item.SourceObjectId, effectKind: item.EffectKind)
@@ -106,7 +107,7 @@ public sealed partial class CoreRuleEngine
         events.Add(new("CARD_CHOICE_RESOLVED", "已完成本次牌库选择", new Dictionary<string, object?>
         { ["choiceId"] = choice.ChoiceId, ["playerId"] = item.ControllerId, ["chosenCount"] = selected.Count }));
         var nextItem = item with { CompletedDeckExecutions = item.CompletedDeckExecutions + 1,
-            DeckChoiceCompleted = item.CompletedDeckExecutions + 1 >= item.EffectRepeatCount };
+            DeckChoiceCompleted = item.ModeExecutions is not null || item.CompletedDeckExecutions + 1 >= item.EffectRepeatCount };
         var next = state with
         {
             PendingCardChoice = null, PlayerZones = zones, CardObjects=cards, RngCursor = result.RngCursor,

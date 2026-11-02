@@ -3651,7 +3651,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromHand = state.PlayerZones.Values.Any(z => z.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)),
                 Showcase = plan.Showcase,
                 ReturnedEquipmentManaCost = ReturnedEquipmentManaCost(state, plan),
-                PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
+                PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, ModeExecutions = plan.ModeExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
                 FlowPlay = FlowReceipt(state, intent.PlayerId, command.SourceObjectId, behavior),
                 PlayCost = IsSpellPlayBehavior(behavior) ? new(cardObjects.TryGetValue(command.SourceObjectId, out var playedSource) ? EffectiveCardManaCost(playedSource, behavior) : behavior.ManaCost, plan.TotalManaCost) : null,
@@ -18139,6 +18139,32 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var incompleteModes = previewWithoutTargets && behavior.SpellModes is not null && command.ModeChoices is null;
+        IReadOnlyList<DeclaredSpellMode>? initialModes = null;
+        if (CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var modeRoot) && modeRoot.SpellModes is not null
+            && behavior.Mode.Length > 0 || behavior.SpellModes is null && command.ModeChoices is not null)
+        {
+            rejection = Reject(state, "此牌需要使用服务端提供的完整模式声明。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (behavior.SpellModes is { } modeSet && !incompleteModes)
+        {
+            if (!TryCaptureSpellModes(state, intent.PlayerId, command.SourceObjectId, modeSet, command.ModeChoices,
+                    out var modes, out var modeError))
+            {
+                rejection = Reject(state, modeError, ErrorCodes.InvalidTarget);
+                return false;
+            }
+            initialModes = modes;
+            var declaredTargets = modes.SelectMany(m => m.Execution.TargetObjectIds).ToArray();
+            if (command.TargetObjectIds.Count > 0 && !command.TargetObjectIds.SequenceEqual(declaredTargets))
+            {
+                rejection = Reject(state, "模式目标与法术声明不一致。", ErrorCodes.InvalidTarget);
+                return false;
+            }
+            command = command with { TargetObjectIds = declaredTargets };
+        }
+
         if (!TrySelectShowcase(state, intent.PlayerId, command.SourceObjectId, behavior, command.OptionalCosts,
                 out var showcase, out var costsWithoutShowcase))
         {
@@ -18658,13 +18684,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         IReadOnlyList<SpellExecutionState>? repeatExecutions = null;
+        IReadOnlyList<DeclaredSpellMode>? modeExecutions = null;
+        if (!incompleteModes && behavior.SpellModes is not null
+            && !TryBuildModeExecutions(state, intent.PlayerId, command, behavior.SpellModes, initialModes!, effectRepeatCount,
+                out modeExecutions, out var modesError))
+        {
+            rejection = Reject(state, modesError, ErrorCodes.InvalidTarget);
+            return false;
+        }
         if (validateRepeats && !incompleteTargets && !TryBuildRepeatExecutions(state, intent, command, behavior, targetObjectIds,
                 effectRepeatCount, out repeatExecutions, out var repeatError))
         {
             rejection = Reject(state, repeatError, ErrorCodes.InvalidTarget);
             return false;
         }
-        var paymentTargets = repeatExecutions is null ? Enumerable.Range(0, effectRepeatCount).SelectMany(_ => targetObjectIds).ToArray() : repeatExecutions.SelectMany(e => e.TargetObjectIds).ToArray();
+        var paymentTargets = modeExecutions is not null ? modeExecutions.SelectMany(m => m.Execution.TargetObjectIds).ToArray()
+            : repeatExecutions is null ? Enumerable.Range(0, effectRepeatCount).SelectMany(_ => targetObjectIds).ToArray() : repeatExecutions.SelectMany(e => e.TargetObjectIds).ToArray();
         var originalExtraManaCost = extraManaCost;
         var originalOptionalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum()
             + EchoCostRules.PrintedCosts(EchoCostRules.Selected(state, intent.PlayerId, behavior, optionalCosts))
@@ -18865,7 +18900,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentPlan,
             paymentAdjustedPool,
             currentExperience,
-            originalExtraManaCost) { RequiresTargetSelection = incompleteTargets, RepeatExecutions = repeatExecutions,
+            originalExtraManaCost) { RequiresTargetSelection = incompleteTargets || incompleteModes, RepeatExecutions = repeatExecutions,
+                ModeExecutions = modeExecutions,
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = selectedPower.Reduction - battlefieldSpellPowerReduction,
@@ -24206,6 +24242,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.RepeatExecutions is { Count: > 0 }
             && !(CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var deckRepeat) && deckRepeat.DeckPlayKind.Length > 0))
             return ResolveSeparateSpellExecutions(state, stackItem);
+        if (stackItem.ModeExecutions is not null) return ResolveSpellModes(state, stackItem);
         if (stackItem.SourceReplayDecisionCompleted) return CompleteSourceReplayDecision(state, stackItem);
         if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var movementFollowUpBehavior)
             && movementFollowUpBehavior.OptionalEquipmentAfterMovement)
@@ -35137,6 +35174,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         public bool RequiresTargetSelection { get; init; }
         public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
+        public IReadOnlyList<DeclaredSpellMode>? ModeExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
         public int EmpoweredSpellCostReductionMana { get; init; }

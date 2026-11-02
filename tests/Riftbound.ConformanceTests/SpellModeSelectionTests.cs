@@ -7,8 +7,7 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class SpellModeSelectionTests
 {
-    // Declaration prototypes only. RAD 152 is deliberately not admitted before
-    // its resolution, replacement, private choice and recovery paths are wired.
+    // The declaration layer is tested independently of the full play and resolution flow.
     private const string Card = "RAD·152/167";
     private static readonly SpellModeSetSpec Modes = new(Card, 2, [
         new(Card, "炫音返场", 3, "ENCORE_DAMAGE", 2, 1,

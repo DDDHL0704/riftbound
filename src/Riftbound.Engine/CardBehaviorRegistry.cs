@@ -402,7 +402,8 @@ public sealed record CardBehaviorDefinition(
     int EffectPlayMaximumManaCost = 0,
     int EffectPlayMaximumPowerCost = 0,
     bool StatusEffectUsesTargetCurrentPower = false,
-    int BattlefieldWinDrawCount = 0)
+    int BattlefieldWinDrawCount = 0,
+    SpellModeSetSpec? SpellModes = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -9818,6 +9819,24 @@ public static class CardBehaviorRegistry
                 UnitEventAbility: new("PLAY_OR_EXHAUST", "CREATE_UNIT_TOKEN", 1,
                     CreatedTokenFactoryCardNo: "OGN·271/298"))).ToArray();
 
+    private static readonly CardBehaviorDefinition[] RadiantEncoreModes = [
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_DAMAGE", 2, 1,
+            Mode: "DAMAGE", TargetScope: CardTargetScopes.AnyUnit),
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_MINIONS", 0, 0,
+            Mode: "MINIONS", CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenPower: 1,
+            CreatedBaseUnitTokenName: "随从", CreatedBaseUnitTokenTags: CardObjectTags.UnitCard),
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_MIGHT", 0, 2,
+            Mode: "MIGHT", MinTargetCount: 0, TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 1),
+        new("RAD·152/167", "炫音返场", 3, "ENCORE_LOOK", 0, 1,
+            Mode: "LOOK", TargetScope: CardTargetScopes.FriendlyMainDeckCard, MainDeckLookCount: 2,
+            DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true)
+    ];
+    private static readonly CardBehaviorDefinition[] RadiantEncore = [
+        new("RAD·152/167", "炫音返场", 3, "MODAL_SPELL", 0, 3,
+            MinTargetCount: 0, TargetScope: CardTargetScopes.AnyUnit, AllowsRepeatedTargets: true,
+            SpellModes: new("RAD·152/167", 2, RadiantEncoreModes))
+    ];
+
     private static readonly CardBehaviorDefinition[] RadiantSeraphineHealingUnits =
         new[] { "RAD·065/167", "RAD·065a/167" }
             .Select(no => new CardBehaviorDefinition(no, "萨勒芬妮", 4, "SERAPHINE_EXHAUST_TOGETHER_DRAW", 0, 0,
@@ -9888,6 +9907,7 @@ public static class CardBehaviorRegistry
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
             .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
             .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits).Concat(RadiantSeraphineUnits).Concat(RadiantSeraphineHealingUnits)
+            .Concat(RadiantEncore).Concat(RadiantEncoreModes)
             .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
