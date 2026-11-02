@@ -55,7 +55,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
     bool StunsTarget = false, bool OncePerTurnPerPlayer = false, int? RuneCallCount = null,
-    string? DestroyFriendlyTagAsCost = null, int CreatedMinionCount = 0, int CreatedGoldCount = 0);
+    string? DestroyFriendlyTagAsCost = null, int CreatedMinionCount = 0, int CreatedGoldCount = 0,
+    bool OpponentGuessesDeckTopType = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -345,6 +346,10 @@ public static class P4ActivatedAbilityCatalog
             false, true, 0, false, "官方中文：横置，抽一张牌并召出一枚休眠符文。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
             SimpleEffect: new(DrawCount: 1, RuneCallCount: 1)),
+        new("RAD_064_PAY_ONE_EXHAUST_GUESS_DECK_TOP", "RAD·064/167", "RAD_064_PAY_ONE_EXHAUST_GUESS_DECK_TOP", "严审透镜", 1, 0, 1,
+            false, true, 0, false, "官方中文：支付1并横置，选择一名对手猜测卡牌类型；展示顶牌，猜中则回收，否则抽取该牌。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(OpponentGuessesDeckTopType: true)),
         new("HEXTECH_DISC_CREATE_ROBOT", "VEN·087", "HEXTECH_DISC_CREATE_ROBOT", "海克斯圆盘", 1, 0, 0,
             false, true, 0, false, "官方中文：解除强化、支付1并横置，打出3战力机器人。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,

@@ -84,9 +84,15 @@ public sealed partial class CoreRuleEngine
             && (!SimpleActivationHasAdditionalCost(ability)
                 || SimpleActivationAdditionalCostChoices(state, actor, id, ability).Length > 0);
 
+    internal static bool SimpleActivationTargetsOpponent(P4ActivatedAbilityDefinition ability)
+        => ability.SimpleEffect is { } spec && (spec.CommandsOpponentUnitToSourceBattlefield || spec.OpponentGuessesDeckTopType);
+
+    internal static bool SimpleActivationTargetsPlayer(P4ActivatedAbilityDefinition ability)
+        => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true || SimpleActivationTargetsOpponent(ability);
+
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
-            : ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true ? state.Seats.ContainsKey(id) && id != actor
+            : SimpleActivationTargetsOpponent(ability) ? state.Seats.ContainsKey(id) && id != actor
             : ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
                 ? state.CardObjects.TryGetValue(id, out var returned)
                     && !returned.IsFaceDown && returned.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -233,8 +239,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool SimpleActivationTargetsPlayer(MatchState state, StackItemState item)
         => P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability)
-            && (ability.SimpleEffect?.TransfersSourceToChosenPlayer == true
-                || ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true)
+            && SimpleActivationTargetsPlayer(ability)
             && ValidSimpleActivation(state, item);
 
     internal static bool ValidSimpleActivation(MatchState state, StackItemState item, bool allowMissingReturnTarget = false)
@@ -247,14 +252,13 @@ public sealed partial class CoreRuleEngine
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
-            || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
-                || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
+            || (item.TargetGenerations?.Count ?? 0) != (SimpleActivationTargetsPlayer(ability) ? 0 : ability.RequiredTargetCount)
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
                 || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory)
                 || !factory.Tags.Contains(ability.SimpleEffect!.EmpowersOtherEquipment ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard))
-            || (ability.SimpleEffect!.TransfersSourceToChosenPlayer || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+            || (SimpleActivationTargetsPlayer(ability)
                 ? item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id)
-                    || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield && id == item.ControllerId)
+                    || SimpleActivationTargetsOpponent(ability) && id == item.ControllerId)
                 : item.TargetObjectIds.Any(id => item.TargetGenerations!.GetValueOrDefault(id, -1) < 0
                 || (state.CardObjects.TryGetValue(id, out var target)
                     ? item.TargetGenerations![id] > target.ObjectGeneration
@@ -332,6 +336,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidSimpleActivation(state, item,
                 allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
             throw new InvalidOperationException("Invalid captured printed activation.");
+        if (spec.OpponentGuessesDeckTopType) return ResolveGuessedDeckTop(state, item, ability);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);

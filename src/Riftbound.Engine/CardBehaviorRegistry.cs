@@ -9616,6 +9616,8 @@ public static class CardBehaviorRegistry
                 RequiresPlayedUnitStrongest: true, LeadingSourceExhaust: true)),
         new("RAD·111/167", "自走角子机", 4, "RAD_111_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, BeginningDeckTopManaComparison: true),
+        new("RAD·064/167", "严审透镜", 2, "RAD_064_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true),
         new("RAD·127/167", "辉映同心", 5, "RAD_127_SHOW_HIGH_COST_CREATE_MINIONS", 0, 0,
             CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenCountIfShowcase: 4,
             CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "随从",

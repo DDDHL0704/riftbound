@@ -1003,6 +1003,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "RAD_027_GRANT_BOON_OR_POWER",
                 "RAD_040_FRIENDLY_LEGEND_POWER",
                 "RAD_046_EXHAUST_DRAW_CALL_RUNE",
+                "RAD_064_PAY_ONE_EXHAUST_GUESS_DECK_TOP",
                 "RAD_104_167_STUN_ENEMY_UNIT",
                 "RAD_104_EXHAUST_STUN_ENEMY_UNIT",
                 "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",

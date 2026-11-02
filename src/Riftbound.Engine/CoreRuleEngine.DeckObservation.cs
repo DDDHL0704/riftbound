@@ -179,6 +179,7 @@ public sealed partial class CoreRuleEngine
                 : TryGetDeckChoiceBehavior(state,parent,out var choice)?choice.MainDeckLookCount
                 : parent.InsightContext is { } insight?insight.Count
                 : parent.BeginningDraw?.Kind == "LOWEST_DECK_TOP_MANA" ? 1
+                : IsGuessedDeckTopObservation(parent) ? 1
                 : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?1
                 : CardBehaviorRegistry.TryGetByCardNo(parent.CardNo??"",out var printed)
                     ? printed.PerformsInsight?printed.InsightCount:Math.Max(printed.DefendTriggerMainDeckLookCount,printed.StandbyReactionMainDeckLookCount)
@@ -211,6 +212,7 @@ public sealed partial class CoreRuleEngine
     private static bool ValidObservationParent(MatchState state,StackItemState parent)
         => parent.BeginningDraw is { Kind: "LOWEST_DECK_TOP_MANA" } beginning
                 ? ValidBeginningDraw(state, beginning, parent.EffectKind, parent.ControllerId, parent.SourceObjectId, parent.CardNo)
+            : IsGuessedDeckTopObservation(parent) ? ValidSimpleActivation(state,parent)
             : parent.EndAbility is not null ? ValidEndAbility(state,parent)
             : parent.DestroyDeckPlay is not null ? ValidDestroyDeckPlayContext(state,parent)
             : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle} movement
@@ -231,6 +233,7 @@ public sealed partial class CoreRuleEngine
 
     private static string ExpectedObservationKind(StackItemState parent)
         => parent.BeginningDraw?.Kind == "LOWEST_DECK_TOP_MANA" ? "REVEAL"
+            : IsGuessedDeckTopObservation(parent) ? "REVEAL"
             : parent.InsightContext is { } insight ? insight.Kind=="DUEL" && parent.InsightCompleted?"REVEAL":"LOOK"
             : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?"REVEAL"
             : TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0
