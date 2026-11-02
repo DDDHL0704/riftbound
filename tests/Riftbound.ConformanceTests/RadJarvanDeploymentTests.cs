@@ -58,8 +58,8 @@ public sealed class RadJarvanDeploymentTests
         var moved = await new CoreRuleEngine().ResolveAsync(Position(), new("open-jarvan-duel", "P1", CommandTypes.MoveUnit),
             new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []), default);
         Assert.True(moved.Accepted, moved.ErrorMessage); var state = moved.State;
-        if (branch == "enemy-source") state = LocalDestructionRecallTests.At(state, "UNIT", "P2", "BATTLEFIELD", "BF");
-        if (branch == "absent-source") state = LocalDestructionRecallTests.At(state, "UNIT", "P1", "GRAVEYARD");
+        if (branch == "enemy-source") state = RadUnitEffectTestFixture.Place(state, "UNIT", "P2", "BATTLEFIELD", "BF");
+        if (branch == "absent-source") state = RadUnitEffectTestFixture.Place(state, "UNIT", "P1", "GRAVEYARD");
         if (branch == "hidden-source") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["UNIT"] = state.CardObjects["UNIT"] with { IsFaceDown = true } } };
         var no = branch == "ordinary-equipment" ? "SFD·059/221" : Gear;

@@ -3760,6 +3760,7 @@ public static partial class MatchRecoveryValidator
             ValidateHandDiscardObserverStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateCapturedInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateUnitHeldStackViews(view.Snapshot.Stack, authoritativeState, view.PlayerId, errors);
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateTemporaryActivationStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDelayedEmpowerViews(view.Snapshot.Stack, errors);
@@ -5741,6 +5742,7 @@ public static partial class MatchRecoveryValidator
         ValidateHandDiscardObserverStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateCapturedInsightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
+        ValidateUnitHeldStackViews(stackItems, authoritativeState, "__spectator__", errors);
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
         ValidateTemporaryActivationStackViews(stackItems, authoritativeState, errors);
         ValidateDelayedEmpowerViews(stackItems, errors);

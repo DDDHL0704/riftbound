@@ -113,13 +113,14 @@ public sealed class RadUnitHoldTests
         var state = Position(Evelynn, hidden: branch != "missing");
         if (branch == "face-up") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["PRIVATE-STANDBY"] = OfficialGarenConquestBattlefieldCountTests.Printed("PRIVATE-STANDBY", "OGN·219/298", "P1") } };
-        if (branch == "enemy") state = LocalDestructionRecallTests.At(state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["PRIVATE-STANDBY"] = state.CardObjects["PRIVATE-STANDBY"] with { OwnerId = "P2", ControllerId = "P2" } } }, "PRIVATE-STANDBY", "P2", "BATTLEFIELD", "F");
-        if (branch is "other-field" or "base") state = LocalDestructionRecallTests.At(state, "PRIVATE-STANDBY", "P1",
+        if (branch == "enemy") state = RadUnitEffectTestFixture.Place(state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["PRIVATE-STANDBY"] = state.CardObjects["PRIVATE-STANDBY"] with { OwnerId = "P2", ControllerId = "P2" } } }, "PRIVATE-STANDBY", "P2", "BATTLEFIELD", "OTHER");
+        if (branch == "other-field") state = RadUnitEffectTestFixture.Place(state, "OTHER", "P1", "BATTLEFIELD", "OTHER");
+        if (branch is "other-field" or "base") state = RadUnitEffectTestFixture.Place(state, "PRIVATE-STANDBY", "P1",
             branch == "base" ? "BASE" : "BATTLEFIELD", branch == "base" ? null : "OTHER");
         var game = new Driver(state); await game.Act("P2", new EndTurnCommand());
         Assert.DoesNotContain(Holds(game.State), h => h.Kind == "UNIT_HIDDEN_HERE_SCORE");
-        Assert.Equal(1, game.State.PlayerScores["P1"]); await game.Replay();
+        Assert.Equal(branch == "other-field" ? 2 : 1, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
     [Theory]
@@ -128,7 +129,7 @@ public sealed class RadUnitHoldTests
     {
         var state = Position(Ksante);
         foreach (var rune in state.PlayerZones["P1"].RuneDeck.Skip(available).ToArray())
-            state = LocalDestructionRecallTests.At(state, rune, "P1", "BASE");
+            state = RadUnitEffectTestFixture.Place(state, rune, "P1", "BASE");
         var game = new Driver(state); await game.Act("P2", new EndTurnCommand()); await game.Top();
         var call = Assert.Single(game.Events(), e => e.Event.Kind == "RUNES_CALLED" && e.Event.Payload.ContainsKey("sourceObjectId")).Event;
         Assert.Equal(available, Convert.ToInt32(call.Payload["count"]));
@@ -166,7 +167,11 @@ public sealed class RadUnitHoldTests
     [Fact]
     public async Task RemovingTheFaceDownCardDuringResponsesDoesNotRecheckTheCapturedCondition()
     {
-        var game = new Driver(Position(Evelynn, hidden: true)); await game.Act("P2", new EndTurnCommand());
+        var state = Position(Evelynn) with { ActivePlayerId = "P1", TurnPlayerId = "P1" };
+        state = RadGearTestPosition.Put(state, "PRIVATE-STANDBY", "OGN·057/298", "P1", "HAND");
+        var game = new Driver(state);
+        await game.Act("P1", new HideCardCommand("PRIVATE-STANDBY", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
+        await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
         await game.Act("P1", new RevealCardCommand("PRIVATE-STANDBY", "OGN·057/298", ["HOST"],
             "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
         await game.Top(); Assert.Equal("GRAVEYARD", game.State.ObjectLocations["PRIVATE-STANDBY"].Zone);
@@ -207,14 +212,14 @@ public sealed class RadUnitHoldTests
     [InlineData(Ksante)] [InlineData(Evelynn)]
     public async Task AnEquipmentCopiedTokenKeepsItsHoldWhenAResponseMakesItCeaseToExist(string no)
     {
-        var state = LocalDestructionRecallTests.At(Position(no, hidden: true), "HOST", "P1", "BASE")
+        var state = RadUnitEffectTestFixture.Place(Position(no, hidden: true), "HOST", "P1", "BASE")
             with { ActivePlayerId = "P1", TurnPlayerId = "P1" };
         Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.SandSoldierTokenCardNo, out var factory));
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["TOKEN"] = factory.CreateObject("TOKEN", "P1", "P1"),
             ["COPY-GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("COPY-GEAR", "VEN·137", "P1") } };
-        state = LocalDestructionRecallTests.At(state, "TOKEN", "P1", "BATTLEFIELD", "F");
-        state = LocalDestructionRecallTests.At(state, "COPY-GEAR", "P1", "BASE");
+        state = RadUnitEffectTestFixture.Place(state, "TOKEN", "P1", "BATTLEFIELD", "F");
+        state = RadUnitEffectTestFixture.Place(state, "COPY-GEAR", "P1", "BASE");
         state = AddResponseRune(AttackDamageDistributionTests.Spell(state, "RETURN", "OGN·104/298", "P1"));
         var game = new Driver(state);
         await game.Act("P1", new AssembleEquipmentCommand("COPY-GEAR", "TOKEN", ["ASSEMBLE_YELLOW"])); await game.Top();
@@ -291,11 +296,11 @@ public sealed class RadUnitHoldTests
         // Supply P2's next ordinary draw for the copied-text round trip.
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["P2-DECK"] = new("P2-DECK", cardNo: "OGN·219/298", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.UnitCard]) } };
-        state = LocalDestructionRecallTests.At(state, "P2-DECK", "P2", "MAIN_DECK");
+        state = RadUnitEffectTestFixture.Place(state, "P2-DECK", "P2", "MAIN_DECK");
         if (hidden) {
             state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["PRIVATE-STANDBY"] = OfficialGarenConquestBattlefieldCountTests.Printed("PRIVATE-STANDBY", "OGN·057/298", "P1") with { IsFaceDown = true } } };
-            state = LocalDestructionRecallTests.At(state, "PRIVATE-STANDBY", "P1", "BATTLEFIELD", "F");
+            state = RadUnitEffectTestFixture.Place(state, "PRIVATE-STANDBY", "P1", "BATTLEFIELD", "F");
         }
         return state;
     }
@@ -304,7 +309,7 @@ public sealed class RadUnitHoldTests
         => state.StackItems.Select(s => s.HeldContext).Concat(state.TriggerQueue.Select(t => t.HeldContext))
             .Where(h => h?.Kind is "UNIT_CHANNEL" or "UNIT_HIDDEN_HERE_SCORE").Select(h => h!);
     private static MatchState AddResponseRune(MatchState state)
-        => LocalDestructionRecallTests.At(state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+        => RadUnitEffectTestFixture.Place(state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["RESPONSE-RUNE"] = new("RESPONSE-RUNE", cardNo: "OGN·007/298", ownerId: "P1", controllerId: "P1",
                 tags: [CardObjectTags.RuneCard, "COLOR:red"]) } }, "RESPONSE-RUNE", "P1", "BASE");
     private static async Task Drain(Driver game)
