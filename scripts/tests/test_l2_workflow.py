@@ -88,8 +88,12 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertIn('group: l2-${{ github.event.pull_request.number || github.ref }}', text)
         self.assertIn("cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}", text)
         triggers = text.split('permissions:', 1)[0]
-        for name in ['push:', 'pull_request:', 'workflow_dispatch:']:
+        for name in ['pull_request:', 'workflow_dispatch:']:
             self.assertIn(name, triggers)
+        self.assertNotIn('push:', triggers)
+        self.assertNotIn('schedule:', triggers)
+        self.assertIn('scheduled_main:', triggers)
+        self.assertIn("inputs.scheduled_main && 'Scheduled main L2'", text)
         self.assertNotIn('paths:', triggers)
 
     def test_main_reuse_has_read_access_to_the_required_github_records(self):

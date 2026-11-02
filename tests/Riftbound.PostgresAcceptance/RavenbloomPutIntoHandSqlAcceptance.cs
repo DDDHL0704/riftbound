@@ -95,9 +95,9 @@ internal static class RavenbloomPutIntoHandSqlAcceptance
             Check(current.TurnPlayerId == "P2" && current.Phase == MatchPhases.Main && current.TimingState == TimingStates.NeutralOpen,
                 "Original next EndTurn reaches P2 open main after current cold recovery.");
             var final = await Cold();
-            Check(count == 32 && coldCount == 9 && nextMatched == 4 && attacks.Count == 4
+            Check(count == 32 && coldCount == 6 && nextMatched == 4 && attacks.Count == 4
                 && malformedTargetIngressRejections == 15,
-                "Retain every normal command, cold restore, original next command and independent attack.");
+                "Retain every normal command, required cold restore, original next command and independent attack.");
             var fileName = Path.Combine(output, branch + "-" + format + "-original-frame.json.gz");
             Check(!File.Exists(fileName), "Never overwrite an original SQL frame.");
             await using (var file = File.Create(fileName)) await using (var zip = new GZipStream(file, CompressionLevel.SmallestSize))
@@ -230,8 +230,11 @@ internal static class RavenbloomPutIntoHandSqlAcceptance
                     foreach (var row in saved) await Set(connection, transaction, row.Table, row.Id, row.Payload);
                     await transaction.CommitAsync();
                 }
-                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte."); await Cold();
+                Check(await Digest() == originalDigest, "Restore all seven original table contents byte for byte.");
             }
+            // Every attack restored all seven tables to the same original digest.
+            // Audit that complete original history once after all rejections.
+            await Cold();
         }
         async Task<string> Digest()
         {

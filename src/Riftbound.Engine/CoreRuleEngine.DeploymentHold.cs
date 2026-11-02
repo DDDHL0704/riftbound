@@ -49,7 +49,7 @@ public sealed partial class CoreRuleEngine
         string effect, string controller, string source, string? cardNo)
         => c.Kind == DeploymentHeldKind && effect == "HOLD_" + DeploymentHeldKind && cardNo == c.CardNo
             && c.Amount == 0 && c.SourceGeneration >= 0 && c.RequiredExactOtherFriendlyBattlefieldUnits is null
-            && c.Origin is null && c.RuleTextInstanceId is null
+            && c.Origin is null && c.RuleTextInstanceId is null && c.UnitSource is null
             && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "CHANNEL"
             && c.Deployment is { Source: { Generation: >= 0 } binding, Battlefield: { Generation: >= 0 } field,
                 CapturedTick: > 0, SourceFaceRevision: >= 0 } origin
