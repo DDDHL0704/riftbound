@@ -1077,12 +1077,21 @@ public static partial class MatchRecoveryValidator
             && battleEffectId.StartsWith("OBJECT:", StringComparison.Ordinal)
             && (battleEffectId.Contains(":COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal)
                 || battleEffectId.Contains(":COMBAT_KEYWORD:壁垒:", StringComparison.Ordinal));
+        var sameBattlefieldKeywordAura = scope == "OBJECT" && sourceCardNo is not null
+            && TryReadObjectString(effectPayload, "effectId", out var sameBattlefieldEffectId) && sameBattlefieldEffectId is not null
+            && TryReadObjectString(effectPayload, "sourceObjectId", out var keywordSource) && !string.IsNullOrWhiteSpace(keywordSource)
+            && TryReadObjectString(effectPayload, "targetObjectId", out var keywordTarget) && !string.IsNullOrWhiteSpace(keywordTarget)
+            && TryReadObjectString(effectPayload, "duration", out var keywordDuration)
+            && sameBattlefieldEffectId.StartsWith($"RULE_TEXT:SAME_BATTLEFIELD_FRIENDLY_UNITS_KEYWORD:{keywordSource}:", StringComparison.Ordinal)
+            && StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(aura => StaticAuraSpecRules.IsSameBattlefieldFriendlyKeywordAura(aura)
+                && aura.Duration == keywordDuration
+                && sameBattlefieldEffectId.EndsWith($":{keywordTarget}:{aura.GrantedKeyword}", StringComparison.Ordinal));
         if (!battleKeyword && !equipmentKeywordAura && !string.IsNullOrWhiteSpace(effectKind))
         {
             errors.Add($"{effectLabel} RULE_TEXT effect kind must be absent");
         }
 
-        if (!battleKeyword && !equipmentKeywordAura && !string.IsNullOrWhiteSpace(sourceCardNo))
+        if (!battleKeyword && !equipmentKeywordAura && !sameBattlefieldKeywordAura && !string.IsNullOrWhiteSpace(sourceCardNo))
         {
             errors.Add($"{effectLabel} RULE_TEXT source card no must be absent");
         }
