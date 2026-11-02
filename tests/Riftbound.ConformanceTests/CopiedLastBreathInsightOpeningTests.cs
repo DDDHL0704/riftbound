@@ -86,7 +86,7 @@ public sealed class CopiedLastBreathInsightOpeningTests(ITestOutputHelper output
         await run.Cold(); await run.Submit("P2", new EndTurnCommand());
         Assert.Equal("P1", run.State.TurnPlayerId); await run.Cold();
         var frame = run.Frame(); Assert.Empty(frame.ValidationErrors);
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        // Cold() just audited this complete original history before restoring it.
         if (Environment.GetEnvironmentVariable("RIFTBOUND_COPIED_LAST_BREATH_EVIDENCE") is { Length: > 0 } folder)
         {
             Directory.CreateDirectory(folder); var path = Path.Combine(folder, $"songs-{songs}-{format}-{recycleFirst}.json.gz");

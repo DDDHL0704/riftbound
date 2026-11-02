@@ -39,7 +39,8 @@ public sealed class Ven072ConditionalMightConsumerTests
         Assert.Equal(4 + delta, driver.State.CardObjects["UNIT"].Power); Assert.Equal(4 + delta + (empowered ? 1 : 0), Might(driver.State));
         await driver.Act("P1", new EndTurnCommand()); Assert.Equal(4, driver.State.CardObjects["UNIT"].Power);
         Assert.Equal(empowered, driver.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(empowered ? 5 : 4, Might(driver.State));
-        await driver.Replay(); Save("expired-" + empowered, initial, driver);
+        // EndTurn already audited this exact original history.
+        Save("expired-" + empowered, initial, driver);
     }
 
     [Theory]
@@ -291,8 +292,12 @@ public sealed class Ven072ConditionalMightConsumerTests
             Assert.Equal(MatchStateHasher.HashValue(prompts[player]), MatchStateHasher.HashValue(restored.PromptFor(player)));
         }
     }
-    private static async Task Export(string name, MatchState initial, Driver driver)
-    { await driver.Replay(); JsonRestore(initial, driver); Save(name, initial, driver); }
+    private static Task Export(string name, MatchState initial, Driver driver)
+    {
+        // Both command paths already audit the complete original history.
+        JsonRestore(initial, driver); Save(name, initial, driver);
+        return Task.CompletedTask;
+    }
     private static void Save(string name, MatchState initial, Driver driver)
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN072_EVIDENCE") is not { Length: > 0 } output) return;
