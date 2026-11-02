@@ -5842,7 +5842,10 @@ public sealed partial class MatchSession : IMatchSession
                 ResolutionResult.BuildSnapshots(restoredState),
                 ResolutionResult.BuildPrompts(restoredState),
                 command.ErrorCode);
-            intentCache[$"{command.PlayerId}:{command.ClientIntentId}"] = new CachedResolution(
+            var restoredCache = command.CommandType == TournamentGameLossDecision.CommandType ? tournamentDecisions : intentCache;
+            var restoredKey = command.CommandType == TournamentGameLossDecision.CommandType
+                ? command.ClientIntentId : $"{command.PlayerId}:{command.ClientIntentId}";
+            restoredCache[restoredKey] = new CachedResolution(
                 command.CommandType,
                 InputFingerprint(command.RawCommand, command.TypedCommand ?? TypedCommandInput.Parameterless(command.CommandType)),
                 result);
@@ -6225,11 +6228,12 @@ public sealed partial class MatchSession : IMatchSession
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
                 var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat,
                     SealedContextFor(normalizedPlayerId));
-                if (!validation.IsValid)
+                var errors = validation.Errors.Concat(SealedSeriesDecks.SubmissionErrors(state, normalizedPlayerId, decklist)).ToArray();
+                if (errors.Length > 0)
                 {
                     result = ResolutionResult.Rejected(
                         state,
-                        $"卡组不合法：{string.Join("；", validation.Errors)}",
+                        $"卡组不合法：{string.Join("；", errors)}",
                         ErrorCodes.InvalidDeck);
                 }
                 else if (state.PlayerDecklists.TryGetValue(normalizedPlayerId, out var existingDecklist)
@@ -6405,12 +6409,13 @@ public sealed partial class MatchSession : IMatchSession
                 {
                     var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat,
                         SealedContextFor(owner));
-                    if (!validation.IsValid)
+                    var errors = validation.Errors.Concat(SealedSeriesDecks.SubmissionErrors(state, owner, submitted)).ToArray();
+                    if (errors.Length > 0)
                     {
                         var rejected = ResolutionResult.Rejected(state,
                             options.DeckFormat == OfficialDeckFormat.Sealed && owner != normalizedPlayerId
                                 ? "有玩家的现开卡组需要更新。"
-                                : $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
+                                : $"卡组需要更新：{string.Join("；", errors)}", ErrorCodes.InvalidDeck);
                         intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                         return rejected;
                     }
@@ -6535,6 +6540,8 @@ public sealed partial class MatchSession : IMatchSession
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            if (command.CmdType == TournamentGameLossDecision.CommandType)
+                return ResolutionResult.Rejected(state, "单局判负只能由服务端可信裁定入口执行。", ErrorCodes.UnsupportedCommand);
             if (intentCache.TryGetValue(cacheKey, out var cached))
             {
                 if (IntentConflicts(cached, command.CmdType, rawCommandHash))
@@ -6661,7 +6668,8 @@ public sealed partial class MatchSession : IMatchSession
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
         IReadOnlyDictionary<string, ObjectLocationState> ObjectLocations,
         IReadOnlyList<GameEvent> Events,
-        long RngCursor);
+        long RngCursor,
+        string SelectedBattlefieldCardNo);
 
     private sealed record DevScenarioSeed(string P1, string P2);
 }

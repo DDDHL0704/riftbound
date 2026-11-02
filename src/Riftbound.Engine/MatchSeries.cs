@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Riftbound.Engine;
 
@@ -20,7 +21,8 @@ public sealed record MatchSeriesGameState(
     string? FirstPlayerId = null,
     bool Started = false,
     bool Completed = false,
-    string? WinnerPlayerId = null);
+    string? WinnerPlayerId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Skipped = false);
 
 public sealed record MatchSeriesState(
     int BestOf,
@@ -103,6 +105,18 @@ public sealed class MatchSeries
     // A null winner means a draw. Game number makes a repeated result harmless
     // even after a later game has begun; a conflicting result is always rejected.
     public MatchSeries CompleteGame(int gameNumber, string? winnerPlayerId)
+        => CompleteGameResult(gameNumber, winnerPlayerId, allowUnstarted: false);
+
+    // Trusted tournament orchestration may award a loss before core 110 or
+    // during a game. Player commands do not call this entry point.
+    public MatchSeries AwardGameLoss(int gameNumber, string loserPlayerId)
+    {
+        if (!State.PlayerIds.Contains(loserPlayerId, StringComparer.Ordinal))
+            throw new InvalidOperationException("单局判负对象必须是本场比赛的玩家。");
+        return CompleteGameResult(gameNumber, Opponent(loserPlayerId), allowUnstarted: true);
+    }
+
+    private MatchSeries CompleteGameResult(int gameNumber, string? winnerPlayerId, bool allowUnstarted)
     {
         if (winnerPlayerId is not null && !State.PlayerIds.Contains(winnerPlayerId, StringComparer.Ordinal))
             throw new InvalidOperationException("单局胜者必须是本场比赛的玩家；平局请留空。");
@@ -114,11 +128,11 @@ public sealed class MatchSeries
             if (recorded.WinnerPlayerId == winnerPlayerId) return this;
             throw new InvalidOperationException("已记录的单局结果不能更改。");
         }
-        if (gameNumber != GameNumber || Phase != MatchSeriesPhase.Playing)
+        if (gameNumber != GameNumber || Phase != MatchSeriesPhase.Playing && !allowUnstarted)
             throw new InvalidOperationException("只有正在进行的对局可以结算结果。");
 
         var games = State.Games.ToArray();
-        games[^1] = Current with { Completed = true, WinnerPlayerId = winnerPlayerId };
+        games[^1] = Current with { Completed = true, WinnerPlayerId = winnerPlayerId, Skipped = !Current.Started };
         var finished = winnerPlayerId is not null && Wins[winnerPlayerId] + 1 >= RequiredWins;
         if (!finished)
         {
@@ -170,7 +184,8 @@ public sealed class MatchSeries
             if (game is null || game.GameNumber != index + 1
                 || (game.FirstPlayerId is not null && !wins.ContainsKey(game.FirstPlayerId))
                 || (game.Started && game.FirstPlayerId is null)
-                || (game.Completed && !game.Started)
+                || (game.Completed && !game.Started && !game.Skipped)
+                || (game.Skipped && (game.Started || !game.Completed || game.WinnerPlayerId is null))
                 || (game.WinnerPlayerId is not null && (!game.Completed || !wins.ContainsKey(game.WinnerPlayerId)))
                 || (index < state.Games.Count - 1 && !game.Completed))
                 throw new ArgumentException("多局比赛的单局记录不一致。");
