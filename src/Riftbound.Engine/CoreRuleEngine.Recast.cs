@@ -31,7 +31,7 @@ public sealed partial class CoreRuleEngine
         => state.PendingEffectPlay is { } p && p.PlayerId == player
             && (TryGetEffectPlayDefinition(p.Parent, out var definition) && definition.EffectPlayAllowsAnyCard
                 ? behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(behavior)
-                : definition is { DeckPlayKind: "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY" }
+                : definition is { DeckPlayKind: "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY" or OwnedUnitReplayKind }
                 ? behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment
                 : p.DestinationPolicy == "STACK" ? IsSpellPlayBehavior(behavior) : behavior.PlaysSourceToBaseAsUnit);
 

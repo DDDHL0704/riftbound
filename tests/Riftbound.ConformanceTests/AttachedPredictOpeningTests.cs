@@ -108,10 +108,11 @@ public sealed class AttachedPredictOpeningTests(ITestOutputHelper output)
         internal int OriginalNextMatches { get; private set; }
         internal Opening(string host, OfficialDeckFormat format)
         {
+            options = new(AllowLegacyReadyWithoutDeck: false, DeckFormat: format);
             Initial = MatchReplayInitialStateBuilder.FromSeats("ordinary-copied-predict-" + (host.StartsWith("SFD", StringComparison.Ordinal) ? "mechanical" : "other-friendly") + "-" + format,
-                new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" });
+                new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { SessionOptions = options };
             Assert.Equal(0, Initial.Tick); Assert.Equal(0, Initial.Seed); Assert.Empty(Initial.CardObjects);
-            State = Initial; options = new(AllowLegacyReadyWithoutDeck: false, DeckFormat: format);
+            State = Initial;
             session = new MatchSession(Initial, engine, this, NoopMatchPlayerStore.Instance, options);
         }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken) { entries.Add(entry); return ValueTask.CompletedTask; }
