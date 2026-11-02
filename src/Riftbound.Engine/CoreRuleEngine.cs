@@ -5050,29 +5050,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
 
-    private static string? ResolveHonestBrokerLastBreathGoldPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !IsFaceUpNonStandbyUnit(destroyedState)
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger,
-                out var triggerSpec))
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-
-
     private static bool HasOtherFriendlyUnitAtSamePosition(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -25244,7 +25221,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.DestroysAllEquipment)
         {
-            foreach (var targetObjectId in GetFieldEquipmentObjectIds(playerZones, cardObjects))
+            var targets = GetFieldEquipmentObjectIds(playerZones, cardObjects);
+            using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience },
+                playerZones, cardObjects, runePools, targets, stackItem);
+            events.AddRange(replacements.Events);
+            foreach (var targetObjectId in targets.Where(id => !replacements.Replaced.Contains(id)))
             {
                 if (!TryDestroyTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                 {
@@ -25256,7 +25237,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     stackItem,
                     targetObjectId,
                     removalResult));
+                if (!removalResult.WasDestroyed) continue;
                 destroyedObjectIds.Add(targetObjectId);
+                if (removalResult.WasUnit) destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
             }
         }
         else if (behavior.ReturnsAllUnitsToHand)
@@ -26328,23 +26311,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             }
 
 
-                            var honestBrokerGoldPlayerId = ResolveHonestBrokerLastBreathGoldPlayerId(
-                                targetState,
-                                removalResult);
-                            if (honestBrokerGoldPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    honestBrokerGoldPlayerId,
-                                    TriggerKinds.UnitLastBreathCreateDormantGold);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
-
-
-
-
                             var conditionalEquipmentTokenCount = ConditionalEquipmentTokenCountForDestroyedUnit(
                                 behavior,
                                 stackItem.ControllerId,
@@ -27247,7 +27213,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem.EffectKind,
                 "UNIT_DESTROYED"))
         };
-        if (TryGetLastBreathCreateDormantGoldTrigger(stackItem, out var trigger))
+        var hasTrigger = TryGetLastBreathCreateDormantGoldTrigger(stackItem, out var trigger);
+        if (stackItem.LastBreathUnitCreation is { } captured)
+        {
+            if (!ValidLastBreathUnitCreationStack(state, stackItem)
+                || !TryGetLastBreathUnitCreationSpec(captured, out trigger))
+                throw new InvalidOperationException("Invalid captured last-breath equipment creation.");
+            hasTrigger = true;
+        }
+        if (hasTrigger)
         {
             CreateBaseEquipmentTokensFromTrigger(
                 playerZones,
@@ -33185,22 +33159,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
             }
-
-            var honestBrokerControllerId = ResolveHonestBrokerLastBreathGoldPlayerId(
-                destroyedState,
-                removalResult);
-            if (honestBrokerControllerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    honestBrokerControllerId,
-                    TriggerKinds.UnitLastBreathCreateDormantGold);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-
 
         }
 

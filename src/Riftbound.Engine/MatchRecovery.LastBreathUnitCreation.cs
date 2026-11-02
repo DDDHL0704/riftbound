@@ -11,15 +11,17 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateLastBreathUnitCreationState(MatchState state, List<string> errors)
     {
-        bool NeedsCapturedCondition(string? cardNo, string kind)
-            => UnitDestroyedTriggerSpecRules.BaseUnitCreationTriggers(cardNo).Any(t => t.Kind == kind && t.RequiresSourceEmpowered is not null);
+        bool NeedsCapturedCondition(string? cardNo, string kind, string id)
+            => UnitDestroyedTriggerSpecRules.BaseUnitCreationTriggers(cardNo).Any(t => t.Kind == kind && t.RequiresSourceEmpowered is not null)
+                || kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathCreateDormantGold
+                    && (id.StartsWith("TRIGGER-death-", StringComparison.Ordinal) || id.StartsWith("ordered-TRIGGER-death-", StringComparison.Ordinal));
         foreach (var item in state.StackItems)
             if (item.LastBreathUnitCreation is not null ? !CoreRuleEngine.ValidLastBreathUnitCreationStack(state, item)
-                : NeedsCapturedCondition(item.CardNo, item.EffectKind))
+                : NeedsCapturedCondition(item.CardNo, item.EffectKind, item.StackItemId))
                 errors.Add("invalid captured last-breath unit creation stack");
         foreach (var item in state.TriggerQueue)
             if (item.LastBreathUnitCreation is not null ? !CoreRuleEngine.ValidLastBreathUnitCreationTrigger(state, item)
-                : NeedsCapturedCondition(item.SourceCardNo ?? (string.IsNullOrWhiteSpace(item.SourceObjectId) ? null : state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo), item.EffectKind))
+                : NeedsCapturedCondition(item.SourceCardNo ?? (string.IsNullOrWhiteSpace(item.SourceObjectId) ? null : state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo), item.EffectKind, item.TriggerId))
                 errors.Add("invalid captured last-breath unit creation trigger");
         var contexts = state.StackItems.Select(i => i.LastBreathUnitCreation)
             .Concat(state.TriggerQueue.Select(i => i.LastBreathUnitCreation)).OfType<LastBreathUnitCreationContext>().ToArray();

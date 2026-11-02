@@ -1494,7 +1494,8 @@ public static partial class MatchRecoveryValidator
                 sourceVisibility,
                 effectKind,
                 triggeredEventKind,
-                errors);
+                errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
             ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
                 triggerLabel,
                 triggerId,
@@ -3542,7 +3543,8 @@ public static partial class MatchRecoveryValidator
             sourceVisibility,
             effectKind,
             triggeredEventKind,
-            errors);
+            errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
         ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
             payloadLabel,
             triggerId,

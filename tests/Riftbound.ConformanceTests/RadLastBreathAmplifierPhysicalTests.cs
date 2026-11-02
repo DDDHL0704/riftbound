@@ -41,9 +41,15 @@ public sealed class RadLastBreathAmplifierPhysicalTests
         initial = initial with { CardObjects = initial.CardObjects.ToDictionary(p => p.Key,
             p => p.Key == "GEAR" || p.Key == amplifierId
                 ? p.Value with { Tags = [..p.Value.Tags, CardEquipmentKeywordNames.Deploy] } : p.Value) };
+        var removalOrder = amplifierId == "A-AMP" ? new[] { amplifierId, "GEAR" } : new[] { "GEAR", amplifierId };
+        initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+            ["P1"] = initial.PlayerZones["P1"] with { Battlefields = initial.PlayerZones["P1"].Battlefields
+                .Where(id => id != "GEAR" && id != amplifierId).Concat(removalOrder).ToArray() } } };
         var generation = initial.CardObjects[amplifierId].ObjectGeneration;
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("MASS", "OGN·022/298", [])); await game.Top();
+        Assert.Equal(removalOrder, game.Events().Where(e => e.Event.Kind == "EQUIPMENT_DESTROYED")
+            .Select(e => (string)e.Event.Payload["targetObjectId"]!).ToArray());
         Assert.Contains(amplifierId, game.State.PlayerZones["P1"].Graveyard);
         var physical = game.State.CardObjects[amplifierId];
         Assert.Equal(Amplifier, physical.CardNo); Assert.Equal(generation + 1, physical.ObjectGeneration);

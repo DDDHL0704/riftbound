@@ -35,7 +35,7 @@ public sealed partial class CoreRuleEngine
         var controller = EffectiveFieldControllerId(zones, before.ObjectId, before);
         foreach (var instance in AttachedRuleTextRules.Instances(zones, cards, before))
         {
-            var specs = UnitDestroyedTriggerSpecRules.BaseUnitCreationTriggers(instance.CardNo);
+            var specs = UnitDestroyedTriggerSpecRules.BaseTokenCreationTriggers(instance.CardNo);
             for (var index = 0; index < specs.Count; index++)
             {
                 var spec = specs[index];
@@ -52,7 +52,7 @@ public sealed partial class CoreRuleEngine
     private static bool TryGetLastBreathUnitCreationSpec(LastBreathUnitCreationContext context, out TriggerSpec spec)
     {
         spec = default!;
-        var specs = UnitDestroyedTriggerSpecRules.BaseUnitCreationTriggers(context.CardNo);
+        var specs = UnitDestroyedTriggerSpecRules.BaseTokenCreationTriggers(context.CardNo);
         if (context.TriggerIndex < 0 || context.TriggerIndex >= specs.Count) return false;
         spec = specs[context.TriggerIndex];
         return spec.Kind == context.Kind

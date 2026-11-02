@@ -92,7 +92,8 @@ public static partial class MatchRecoveryValidator
         string? sourceVisibility,
         string? effectKind,
         string? triggeredEventKind,
-        List<string> errors)
+        List<string> errors,
+        bool hasValidatedCapturedSource = false)
     {
         ValidateTriggerQueueStandardLastBreathContext(
             payloadLabel,
@@ -102,7 +103,8 @@ public static partial class MatchRecoveryValidator
             triggeredEventKind,
             HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
             "honest broker last-breath create gold",
-            errors);
+            errors,
+            hasValidatedCapturedSource);
     }
 
     private static void ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
