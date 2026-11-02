@@ -5,20 +5,20 @@ namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record UnitBattleWinDrawContext(ObjectBinding Source, string CardNo, string ControllerId,
-    string BattlefieldId, long ResultTick, string Role);
+    string BattlefieldId, long ResultTick, string Role, bool ObservesBattlefield = false,
+    int DrawCount = 1, RuleTextInstanceBinding? Origin = null);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string UnitBattleWinDrawEffect = "CAPTURED_UNIT_BATTLE_WIN_DRAW";
 
-    // A finite reviewed family, not all printed battle-win abilities. Draven's
-    // legend, experience, score, equipment and granted abilities remain separate.
+    // Participating units inherit the actual result. Permanent observers instead
+    // watch their current battlefield; they do not have to be combatants.
     private static bool IsUnitBattleWinDrawPrinting(string? cardNo)
         => cardNo is "UNL-114/219" or "SFD·123/221";
 
-    // The shared battle-result continuation owns queue admission. Keep its
-    // context alongside the ordinary queue item until that contract is wired;
-    // this helper by itself does not enable the two card abilities.
+    // The shared battle-result continuation owns queue admission and preserves
+    // each earned skill's source binding until result skills finish resolving.
     private sealed record CapturedUnitBattleWinDraw(TriggerQueueItemState Trigger, UnitBattleWinDrawContext Context);
 
     private static IReadOnlyList<CapturedUnitBattleWinDraw> CaptureUnitBattleWinDrawObservations(
@@ -54,11 +54,42 @@ public sealed partial class CoreRuleEngine
         return result;
     }
 
+    private static IReadOnlyList<CapturedUnitBattleWinDraw> CaptureBattlefieldWinDrawObservations(
+        MatchState state, string battlefieldId, string winner, string role, long tick)
+    {
+        var result = new List<CapturedUnitBattleWinDraw>();
+        foreach (var card in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
+        {
+            if (card.IsFaceDown || EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) != winner
+                || !IsObjectOnField(state.PlayerZones, card.ObjectId)
+                || !(IsVisibleFieldUnitObject(state.CardObjects, card.ObjectId) || card.Tags.Contains(CardObjectTags.EquipmentCard))
+                || !state.ObjectLocations.TryGetValue(card.ObjectId, out var location)
+                || location.Zone != "BATTLEFIELD" || location.BattlefieldObjectId != battlefieldId) continue;
+            foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+            {
+                if (!CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var definition)
+                    || definition.BattlefieldWinDrawCount <= 0) continue;
+                var context = new UnitBattleWinDrawContext(new(card.ObjectId, card.ObjectGeneration), instance.CardNo,
+                    winner, battlefieldId, tick, role, ObservesBattlefield: true,
+                    DrawCount: definition.BattlefieldWinDrawCount, Origin: instance.Origin);
+                var trigger = new TriggerQueueItemState($"battlefield-win-draw-{tick}-{battlefieldId}-{instance.Id}",
+                    winner, card.ObjectId, UnitBattleWinDrawEffect, "BATTLE_RESULT_DETERMINED")
+                    { SourceCardNo = instance.CardNo, EnqueuedAtTick = tick };
+                result.Add(new(trigger, context));
+            }
+        }
+        return result;
+    }
+
     // Structural validation only. The shared recovery pipeline must separately
     // authenticate the captured result, participant binding and original journal.
     internal static bool HasValidUnitBattleWinDrawShape(UnitBattleWinDrawContext? context)
         => context is not null && context.Source is not null && context.Source.Generation >= 0
-            && !string.IsNullOrWhiteSpace(context.Source.ObjectId) && IsUnitBattleWinDrawPrinting(context.CardNo)
+            && !string.IsNullOrWhiteSpace(context.Source.ObjectId)
+            && (context.ObservesBattlefield
+                ? CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var definition)
+                    && definition.BattlefieldWinDrawCount > 0 && context.DrawCount == definition.BattlefieldWinDrawCount
+                : IsUnitBattleWinDrawPrinting(context.CardNo) && context.DrawCount == 1 && context.Origin is null)
             && !string.IsNullOrWhiteSpace(context.ControllerId) && !string.IsNullOrWhiteSpace(context.BattlefieldId)
             && context.ResultTick > 0 && context.Role is "ATTACKER" or "DEFENDER";
 
@@ -78,11 +109,11 @@ public sealed partial class CoreRuleEngine
             {
                 ["playerId"] = context.ControllerId, ["sourceObjectId"] = context.Source.ObjectId,
                 ["sourceCardNo"] = context.CardNo, ["battlefieldId"] = context.BattlefieldId,
-                ["trigger"] = UnitBattleWinDrawEffect, ["drawCount"] = 1
+                ["trigger"] = UnitBattleWinDrawEffect, ["drawCount"] = context.DrawCount
             }) };
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, context.ControllerId,
-            1, state.RngCursor, events, deferNormalVictory: true);
+            context.DrawCount, state.RngCursor, events, deferNormalVictory: true);
         return NoopStackResolutionResult(state) with
         {
             PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId,

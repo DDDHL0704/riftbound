@@ -7,7 +7,7 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
     string? CreatedTokenFactoryCardNo = null, bool RequiresPlayedUnitStrongest = false,
-    bool LeadingSourceExhaust = false);
+    bool LeadingSourceExhaust = false, int DiscardCount = 0);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null);
@@ -398,7 +398,8 @@ public sealed record CardBehaviorDefinition(
     bool EffectPlayRequiresUnitOrEquipment = false,
     int EffectPlayMaximumManaCost = 0,
     int EffectPlayMaximumPowerCost = 0,
-    bool StatusEffectUsesTargetCurrentPower = false)
+    bool StatusEffectUsesTargetCurrentPower = false,
+    int BattlefieldWinDrawCount = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -9641,6 +9642,17 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·035/167", "醒神花", 3, "WAKEBLOOM_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("PLAY", "MIGHT_FRIENDLY", 3)),
+        new("RAD·052/167", "资源开采器", 1, "RESOURCE_EXTRACTOR_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署"),
+        new("RAD·039/167", "除灵结界", 4, "PURIFICATION_WARD_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("ANOTHER_UNIT_PLAYED", "DESTROY_SELF")),
+        new("RAD·024/167", "幻梦之根", 2, "DREAM_ROOT_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署", BattlefieldWinDrawCount: 1),
+        new("RAD·106/167", "好东西", 3, "THE_GOOD_STUFF_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
+            UnitEventAbility: new("PLAY", "DISCARD_DRAW", 3, DiscardCount: 1)),
         new("RAD·002/167", "征服之旗", 1, "CONQUEST_BANNER_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署"),
         new("RAD·044/167", "狩猎掩体", 4, "HUNTING_HIDE_PLAY_EQUIPMENT", 0, 0,

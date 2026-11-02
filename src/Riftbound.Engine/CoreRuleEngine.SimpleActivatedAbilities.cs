@@ -58,11 +58,19 @@ public sealed partial class CoreRuleEngine
             && card.Tags.Contains(CardObjectTags.EquipmentCard)).Select(id => "DISCARD_HAND_CARD:" + id).ToArray();
 
     internal static bool SimpleActivationHasAdditionalCost(P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.DiscardsEquipmentAsCost == true || ability.SimpleEffect?.DestroyFriendlyTagAsCost is not null;
+        => ability.SimpleEffect?.DiscardsEquipmentAsCost == true
+            || ability.SimpleEffect?.ExhaustFriendlyUnitMinimumPowerAsCost is >= 0
+            || ability.SimpleEffect?.DestroyFriendlyTagAsCost is not null;
 
     internal static string[] SimpleActivationAdditionalCostChoices(MatchState state, string actor,
         string sourceId, P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.DiscardsEquipmentAsCost == true ? SimpleActivationDiscardChoices(state, actor)
+            : ability.SimpleEffect?.ExhaustFriendlyUnitMinimumPowerAsCost is { } minimum
+                ? state.CardObjects.Values.Where(card => card.ObjectId != sourceId
+                    && CanExhaustUnitForEquipmentCost(state, actor, card.ObjectId)
+                    && ResolveCurrentFieldUnitPower(state, card) >= minimum)
+                    .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+                    .Select(card => ExhaustFriendlyUnitOptionalCostPrefix + card.ObjectId).ToArray()
             : ability.SimpleEffect?.DestroyFriendlyTagAsCost is { } tag
                 ? state.CardObjects.Values.Where(card => CanDestroyFriendlyPermanentAsAdditionalCost(state, actor, card.ObjectId)
                     && card.Tags.Contains(tag)).OrderBy(card => card.ObjectId, StringComparer.Ordinal)
@@ -158,6 +166,19 @@ public sealed partial class CoreRuleEngine
         if (!IsSimpleAbilitySource(afterResources, intent.PlayerId, command.SourceObjectId, ability))
             return RejectWithCorePrompts(state, "资源动作后无法支付技能来源费用。", ErrorCodes.InvalidTarget);
         var source = cards[command.SourceObjectId];
+        if (spec.ExhaustFriendlyUnitMinimumPowerAsCost is not null)
+        {
+            // Resource actions settle first. A unit exhausted by one of those
+            // actions cannot also pay this cost (CN 415.4).
+            var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+            if (!SimpleActivationAdditionalCostChoices(current, intent.PlayerId, source.ObjectId, ability).Contains(extras.Single()))
+                return RejectWithCorePrompts(state, "所选友方单位无法支付休眠费用。", ErrorCodes.InvalidTarget);
+            var exhausted = extras.Single()[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
+            cards[exhausted] = ExhaustForInstruction(zones, cards, cards[exhausted]);
+            events.Add(new("UNIT_EXHAUSTED", "让友方单位变为休眠状态以支付技能费用", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = exhausted,
+                ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
+        }
         if (spec.DiscardsEquipmentAsCost) {
             var discarded = extras.Single()["DISCARD_HAND_CARD:".Length..];
             if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))

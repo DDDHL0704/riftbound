@@ -92,6 +92,7 @@ public static class TriggerKinds
     public const string TurnEndRevealUntilUnit = "TURN_END_REVEAL_UNTIL_UNIT";
     public const string TurnEndReadyRunes = "TURN_END_READY_RUNES";
     public const string TurnEndRecycleRunesCall = "TURN_END_RECYCLE_RUNES_CALL";
+    public const string TurnEndCreateEquipmentToken = "TURN_END_CREATE_EQUIPMENT_TOKEN";
     public const string BattlefieldUnitMovedAwayPowerModifier =
         "BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER";
     public const string BattlefieldHeldNextSpellEcho =
@@ -749,6 +750,8 @@ public sealed record TriggerSpec(
     bool? PlayUnitAtSourceLocation = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? RequiresSourceBattlefieldAtTrigger = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresControlledSourceBattlefieldAtTrigger = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? RequiredOtherControlledEquipment = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
