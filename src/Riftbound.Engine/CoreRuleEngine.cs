@@ -8507,8 +8507,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool ControllerHasAzirLegend(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId)
     {
         return playerZones.TryGetValue(playerId, out var zones)
@@ -8571,8 +8571,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static IReadOnlyList<string> ApplyAzirSandSoldierTemperedTags(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         IReadOnlyList<string> tokenTags)
     {
@@ -30504,6 +30504,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out StaticAbilitySpec entryStaticAbility,
         string? entryBattlefieldId = null)
     {
+        // Use the factory's complete face before applying static keywords.
+        // A spell's optional tag list need not repeat the token family tag.
+        tokenState = tokenState with { Tags = ApplyAzirSandSoldierTemperedTags(
+            playerZones, cardObjects, controllerId, tokenState.Tags) };
         return ApplyTokenEntryStaticAbility(
             playerZones,
             cardObjects,

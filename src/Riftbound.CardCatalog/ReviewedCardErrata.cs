@@ -36,8 +36,9 @@ internal static class ReviewedCardErrata
         // CN356.4.c quotes the same mandatory component reduction.
         : (id == 33242 && cardNo == "SFD·149/221" || id == 33243 && cardNo == "SFD·149a/221")
             ? "当你打出我时，弃置一张手牌，然后抽两张牌。\n你支付的可选额外费用，其费用减少{{1}}或{{A}}。"
-        // Current CN Radiance erratum, acquired 2026-10-28:
-        // radiance-rule-authorities/source-snapshot.json, sources[3].localizedBodyHtml.
+        // Official Radiance erratum and its localized text, acquired 2026-10-28:
+        // radiance-rule-authorities/source-snapshot.json, sources[3].localizedBodyHtml
+        // (GLOBAL-SUPPLEMENT-14; supplemental to the prevailing CN rules).
         // Preserve the rest of the face, including the on-play legend instruction.
         : id == 39675 && cardNo == "RAD·167/167"
             ? printedText.Replace("选择三名不同的传奇", "选择最多三名不同的传奇", StringComparison.Ordinal)
