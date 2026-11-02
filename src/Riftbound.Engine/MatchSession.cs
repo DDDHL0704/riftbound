@@ -5762,7 +5762,9 @@ public sealed partial class MatchSession : IMatchSession
         this.options = restoredState.SessionOptions ?? options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
-        state = restoredState with { SessionOptions = this.options == MatchSessionOptions.Default ? null : this.options };
+        var recordedOptions = this.options == MatchSessionOptions.Default ? null : this.options;
+        state = restoredState.SessionOptions == recordedOptions
+            ? restoredState : restoredState with { SessionOptions = recordedOptions };
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
