@@ -408,7 +408,8 @@ public sealed record CardBehaviorDefinition(
     int BattlefieldWinDrawCount = 0,
     int ControllerCardPlayDrawCount = 0,
     DrawHandThresholdSpec? ControllerDrawHandThreshold = null,
-    MovementImposedCostSpec? MovementImposedCost = null)
+    MovementImposedCostSpec? MovementImposedCost = null,
+    int FriendlyLastBreathAdditionalTriggersHere = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -9668,6 +9669,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·017/167", "爆破增幅器", 4, "BLAST_AMPLIFIER_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
+            UnitEventAbility: new("PLAY", "DRAW", 1, LeadingDestroyOtherFriendlyPermanents: 1),
+            FriendlyLastBreathAdditionalTriggersHere: 1),
         new("RAD·062/167", "重力场", 5, "GRAVITY_FIELD_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
             MovementImposedCost: new(ManaPerMove: 1, PowerPerMove: 1)),
