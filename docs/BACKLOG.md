@@ -272,6 +272,19 @@
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 - [x] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`）：[#359](https://github.com/DDDHL0704/riftbound/pull/359) 记录统计结论；#287 已于 2026-10-31 合入；数据见 [`docs/registration-hotspots.csv`](registration-hotspots.csv)，覆盖最近 30 个 `feat(cards)` PR（含已关闭的 #241/#284）。`scripts/registration-hotspots.py` 按每个批次的文件命中标记推导计数，不能由手工汇总替代。当前数据推导为：`CardBehaviorRegistry.cs` 30/30、逻辑 `CoreRuleEngine` 30/30、`RuleTextParsers.cs` 27/30、`VendettaCardSources.cs` 19/30、`RadiantCardSources.cs` 11/30、`PrintedCardFactory.cs` 15/30、`CardCatalogBaselineTests.cs` 3/30；`ReviewedRuntimeCatalogAdmissionTests.cs` 为 29/30（#257 未修改该文件），与旧记录的 30/30 不一致。登记脚本及现有 `scripts/tests` 共 209 项测试已通过；30 条账本的 GitHub 分支、标题和状态元数据逐条一致；#287 的 61 个变更文件与账本逐项一致。当前账本状态为 28 个 merged、2 个 closed，脚本测试 4/4 通过。
 
+## 现开赛（F 线）
+
+- [ ] **基础配置、卡包生成器、系列目录和协议 ADR**（`f/sealed-foundation`）：6 包同系列、14 张进阶包结构；OGN、SFD 开放名单统一在 `data/official/sealed-sets.json`，UNL、VEN、RAD 待引擎全部接入。真实印次、slot/foil、私有种子、配置版本和指纹；`GET /sealed/sets` 与 `format/setCode/bestOf/series/sealedPool/sideboardCounts` DTO；依据 602.4.a.1、602.4.b.2.a 和 Riot Origins／SFD 产品页。契约见 `docs/adr/0001-sealed-format.md`。
+- [ ] **现开卡组校验和空白战场**：新增 OfficialDeckFormat；602.1.a.1–3、602.1.b、602.3.d、602.4.a.2–6；主牌至少 25（含英雄）、符文恰好 12、特性并集和实际印次卡池数量由服务端校验。空白编号 `SEALED·BLANK-BATTLEFIELD`。
+- [ ] **房间格式、卡池持久化、恢复、回放和投影隐藏**：建房 format/setCode/bestOf、私有 sealedPool；种子、配置版本、指纹和完整卡包写日志／恢复帧；对手、观战者不能看到卡池、配置或备牌内容。
+- [ ] **无传奇／无选定英雄开局与“唯我”豁免**：602.4.a.5–6；缺任一者每局首回合开始阶段只额外抽一张；开局、区域、技能、效果、投影和恢复均能处理缺席。
+- [ ] **通用多局模型和先后手选择**：现开 bestOf 1/3；404.1–3、407.1–4；先获 2 胜、平局不计胜，首局随机指定玩家选顺序，其后败方选、平局沿用。比赛结束仅一条含小分战绩；构筑多局暂不开放。线上不做时限／408 超时流程。
+- [ ] **局间换备牌、战场选择和实体一次性使用**：403.5、403.9–10、406.1.b–c、602.3.e.4、602.3.f–g、602.4.a.7；双暗提交后同时公开，平局保留卡组与战场，完全跳过首局禁止换牌，判负依 406.1.c；卡池内任意合法调整，空白不限；仅公开备牌张数（403.6）。
+- [ ] **完整现开对局与 L2 接入**：单局制和三局两胜各两局完整回归，包含断线重连、局间等待／提交持久化、冷恢复和每局回放；保持构筑与预组原有回归。
+- [ ] **售前套装（最后一步）**：官方仅核实 RAD 5 包＋英雄卡包（传奇、稀有英雄、战场和辅助卡）；辅助卡数量／具体卡表 **待确认**，核实不了不接入；限定黑默丁格不可入组。602.4.a.8.k 打包时限仅建议，不强制。
+- [ ] **待确认：概率和产品假设**：社区 UNL／VEN／RAD 的史诗、异画、超编、传奇、RAD 异画符文小样本；闪卡升级稀有 8%／史诗 2%；同包同功能牌不重复（含闪卡和异画）、独立稀有槽换算、每包最多一个互斥印次升级、未知系列异画符文率为零、UNL 终极 <0.1% 暂用 0.05%。RAD／VEN 特殊异画和 UNL／RAD 终极印次编号须与完整官方目录核对后开放；来源等级与链接已入配置及 ADR，社区不作规则依据。
+- [ ] **待确认：局间公开顺序**：败方先选先后手，再双方暗提交配置与战场，最后同时公开；参照 406.1.h，官方没有明确先后手和战场谁先公开。
+
 ## 接手旧分支
 
 旧的四条线已暂停，交接位置如下：
