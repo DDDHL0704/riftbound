@@ -189,6 +189,8 @@ app.MapGet("/catalog/keyword-coverage", async (CancellationToken cancellationTok
     return Results.Ok(KeywordCoverageReporter.Build(specs));
 });
 
+app.MapGet("/sealed/sets", () => Results.Ok(SealedEndpoints.ListSets()));
+
 app.MapGet("/decks/preconstructed", async (CancellationToken cancellationToken) =>
 {
     var catalog = await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken);

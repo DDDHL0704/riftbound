@@ -1007,6 +1007,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "RAD_064_PAY_ONE_EXHAUST_GUESS_DECK_TOP",
                 "RAD_104_167_STUN_ENEMY_UNIT",
                 "RAD_104_EXHAUST_STUN_ENEMY_UNIT",
+                "RAD_112_EXHAUST_PLAY_BOMB",
                 "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",
                 "RAD_114_EXHAUST_FRIENDLY_READY_UNIT",
                 "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER",

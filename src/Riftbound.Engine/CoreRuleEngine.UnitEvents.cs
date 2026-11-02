@@ -171,9 +171,9 @@ public sealed partial class CoreRuleEngine
             .Select((o, i) => UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static TriggerQueueItemState[] CaptureRoleUnitEvents(MatchState state, IEnumerable<string> units,
-        string role, string timing, string eventKind)
+        string role, string timing, string eventKind, long? capturedTick = null)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role).Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) =>
-            UnitEventTrigger(o, state.Tick + 1, i, eventKind, timing)).ToArray();
+            UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static UnitEventObservation CaptureUnitEventFacts(MatchState state, UnitEventObservation o)
         => UnitEventSpec(o.Context.CardNo)?.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE"
@@ -397,6 +397,8 @@ public sealed partial class CoreRuleEngine
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
         if (spec.Effect is "BOON_SELF" or "READY_SELF" or "STUN_ENEMY")
             return ResolveUnitEventBoonInstruction(state, item, spec);
+        if (spec.Effect == "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF")
+            return ResolveOptionalEquipmentDestructionMight(state, item, spec.Amount);
         if (spec.Effect == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount);
         if (spec.Effect is "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "CREATE_UNIT_TOKEN")
             return ResolvePermanentUnitEventInstruction(state, item, spec);

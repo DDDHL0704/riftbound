@@ -104,6 +104,8 @@ public sealed partial class CoreRuleEngine
         => ability.SimpleEffect?.ReadiesUnitTarget == true
             ? state.CardObjects.TryGetValue(id, out var readyTarget) && IsFaceUpNonStandbyUnit(readyTarget)
                 && IsObjectOnField(state.PlayerZones, id) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.CreatedBattlefieldEquipmentTokenCardNo is not null
+            ? BattlefieldLocalRules.Battlefield(state, id) is not null
             : ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
             : SimpleActivationTargetsOpponent(ability) ? state.Seats.ContainsKey(id) && id != actor
             : ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
@@ -576,7 +578,7 @@ public sealed partial class CoreRuleEngine
             if (IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, target, ability)
                 && item.TargetGenerations![target] == cards[target].ObjectGeneration) {
                 var destroyed = new HashSet<string>(StringComparer.Ordinal);
-                var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, spec.BattlefieldUnitDamage);
+                var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, spec.BattlefieldUnitDamage, item);
                 var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target, amount, destroyed,
                     state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new("DAMAGE_APPLIED", "主动技能造成伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));
@@ -602,6 +604,18 @@ public sealed partial class CoreRuleEngine
         }
         if (SimpleActivationUnitTokenCount(spec) > 0)
             CreateBaseUnitTokens(state, zones, cards, pools, SimpleActivationTokenBehavior(ability), item, events, locations, state.UntilEndOfTurnEffects);
+        if (spec.CreatedBattlefieldEquipmentTokenCardNo is { } factoryNo
+            && item.TargetObjectIds.SingleOrDefault() is { } battlefield
+            && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, battlefield, ability)
+            && item.TargetGenerations![battlefield] == cards[battlefield].ObjectGeneration)
+        {
+            if (!P6TokenFactoryCatalog.TryGetByCardNo(factoryNo, out var factory)
+                || !factory.Tags.Contains(CardObjectTags.EquipmentCard))
+                throw new InvalidOperationException("Invalid activated equipment token factory.");
+            locations = CreateBattlefieldEquipmentTokenBatch(zones, cards, item.ControllerId, item.SourceObjectId,
+                item.CardNo!, ability.DisplayName, factory.TokenFamilyName, factory.Tags, 1, false, battlefield,
+                events, locations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        }
         if (spec.CreatedGoldCount > 0)
             CreateBaseEquipmentTokens(zones, cards,
                 new(ability.SourceCardNo, ability.DisplayName, 0, ability.EffectKind, 0, 0,

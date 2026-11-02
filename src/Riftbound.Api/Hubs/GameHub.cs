@@ -184,12 +184,32 @@ public sealed class GameHub(
         return callerStatus;
     }
 
-    public async Task<CreatePublicMatchResultDto?> CreatePublicMatch(string playerId)
+    // SignalR binds argument counts exactly; C# optional parameters do not make
+    // additional wire arguments optional for existing one-argument clients.
+    public Task<CreatePublicMatchResultDto?> CreatePublicMatch(string playerId) =>
+        CreatePublicMatchWithOptions(playerId, new CreatePublicMatchOptionsDto());
+
+    public async Task<CreatePublicMatchResultDto?> CreatePublicMatchWithOptions(
+        string playerId,
+        CreatePublicMatchOptionsDto options)
     {
         var normalizedPlayerId = PlayerIdentityService.NormalizeHandle(playerId);
         if (TryRejectPublicMatchIdentity(normalizedPlayerId, out var rejection))
         {
             await rejection;
+            return null;
+        }
+
+        var normalizedFormat = (options?.Format ?? MatchFormats.Constructed).Trim().ToLowerInvariant();
+        if (!string.Equals(normalizedFormat, MatchFormats.Constructed, StringComparison.Ordinal)
+            || !string.IsNullOrWhiteSpace(options?.SetCode)
+            || (options?.BestOf ?? 1) != 1)
+        {
+            await SendClientError(
+                string.Empty,
+                normalizedPlayerId,
+                ErrorCodes.InvalidPayload,
+                "当前公开房间仍仅支持构筑赛；现开赛房间将在现开对局流程接入后开放。");
             return null;
         }
 
