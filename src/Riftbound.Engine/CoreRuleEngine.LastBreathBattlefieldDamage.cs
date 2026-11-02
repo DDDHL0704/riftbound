@@ -12,12 +12,16 @@ public sealed record LastBreathBattlefieldDamageContext(string DeathId, string C
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceBasePlayerId = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? BanishedDeckTop = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? BanishedDeckTop = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LastBreathRepetitionContext? Repetition { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
     private static string LastBreathBattlefieldDamageTriggerId(LastBreathBattlefieldDamageContext c)
-        => $"TRIGGER-{c.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(c.InstanceId))}:{c.TriggerIndex}-{c.Source.ObjectId}-{c.Kind}"
+        => $"TRIGGER-{c.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(c.InstanceId))}:{c.TriggerIndex}{LastBreathOccurrenceSuffix(c.Repetition)}-{c.Source.ObjectId}-{c.Kind}"
             + (c.BattlefieldObjectId is { } field ? SourceBattlefieldTriggerContextMarker + field : "");
 
     private static LastBreathBattlefieldDamageContext[] CaptureLastBreathBattlefieldDamage(MatchState state,
@@ -40,15 +44,17 @@ public sealed partial class CoreRuleEngine
         }
         var controller = EffectiveFieldControllerId(frame.PlayerZones, source.ObjectId, source);
         var result = new List<LastBreathBattlefieldDamageContext>();
+        var repetitions = CaptureLastBreathRepetitions(state, zones, cards, before);
         foreach (var instance in AttachedRuleTextRules.Instances(frame.PlayerZones, frame.CardObjects, source))
         {
             var specs = UnitDestroyedTriggerSpecRules.LastBreathBattlefieldDamageTriggers(instance.CardNo);
             for (var index = 0; index < specs.Count; index++)
+                foreach (var repetition in repetitions)
                 result.Add(new(deathId, instance.CardNo, before.CardNo, specs[index].Kind, controller,
                     new(source.ObjectId, source.ObjectGeneration), instance.Id, index, sourceZone, battlefield,
                     state.TurnNumber, state.Tick + 1, source.TokenFactoryCardNo, instance.Origin,
                     specs[index].Kind == TriggerKinds.UnitLastBreathDestroyPermanentHere && sourceZone == "BASE"
-                        ? frame.PlayerZones.Single(p => p.Value.Base.Contains(source.ObjectId)).Key : null));
+                        ? frame.PlayerZones.Single(p => p.Value.Base.Contains(source.ObjectId)).Key : null) { Repetition = repetition });
         }
         return result.ToArray();
     }
@@ -70,7 +76,9 @@ public sealed partial class CoreRuleEngine
             || (c.BanishedDeckTop is not null && (c.Kind != TriggerKinds.UnitLastBreathBanishDeckTopPlay
                 || c.BanishedDeckTop.Generation < 1 || !state.CardObjects.TryGetValue(c.BanishedDeckTop.ObjectId, out var banished)
                 || banished.ObjectGeneration < c.BanishedDeckTop.Generation))
-            || !TryGetLastBreathBattlefieldDamageSpec(c, out _) || c.SourceZone is not ("BASE" or "BATTLEFIELD")
+            || !TryGetLastBreathBattlefieldDamageSpec(c, out _)
+            || !ValidLastBreathRepetition(state, c.Repetition, c.Source, c.ControllerId, c.CardNo, c.InstanceId)
+            || !LastBreathRepetitionLocationMatches(c) || c.SourceZone is not ("BASE" or "BATTLEFIELD")
             || (c.Kind == TriggerKinds.UnitLastBreathDestroyPermanentHere && c.SourceZone == "BASE"
                 ? c.SourceBasePlayerId is null || !state.Seats.ContainsKey(c.SourceBasePlayerId) : c.SourceBasePlayerId is not null)
             || (c.SourceZone == "BASE" ? c.BattlefieldObjectId is not null
@@ -87,6 +95,14 @@ public sealed partial class CoreRuleEngine
         return c.SourceTokenFactoryCardNo is not null && P6TokenFactoryCatalog.TryGetByCardNo(c.SourceTokenFactoryCardNo, out var token)
             && token.Tags.Contains(CardObjectTags.UnitCard);
     }
+
+    private static bool LastBreathRepetitionLocationMatches(LastBreathBattlefieldDamageContext context)
+        => context.Repetition is null
+            || TryGetPreciseFieldLocation(context.Repetition.Frame.PlayerZones, context.Repetition.Frame.ObjectLocations,
+                context.Source.ObjectId, out var location) && location.Zone == context.SourceZone
+                && (location.Zone == "BATTLEFIELD" ? location.BattlefieldObjectId == context.BattlefieldObjectId
+                    : context.Kind != TriggerKinds.UnitLastBreathDestroyPermanentHere
+                        || location.PlayerId == context.SourceBasePlayerId);
 
     internal static bool ValidLastBreathBattlefieldDamageStack(MatchState state, StackItemState item)
         => item.LastBreathBattlefieldDamage is { } c && ValidLastBreathBattlefieldDamage(state, c)

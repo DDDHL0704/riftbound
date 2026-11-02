@@ -138,7 +138,7 @@ public sealed class LastBreathRepetitionTests
         return state;
     }
 
-    private static MatchState AddAmplifier(MatchState state, string id, string controller, string location, bool hidden = false)
+    internal static MatchState AddAmplifier(MatchState state, string id, string controller, string location, bool hidden = false)
     {
         var zone = location is "HAND" or "BASE" ? location : "BATTLEFIELD";
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
