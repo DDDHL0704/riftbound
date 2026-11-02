@@ -540,6 +540,8 @@ public static partial class MatchRecoveryValidator
         List<string> errors)
     {
         var authoritativePayment = CoreRuleEngine.VisiblePendingPayment(authoritativeState);
+        if (authoritativeState.PendingRuleChoice is not null && authoritativePayment is not null)
+            authoritativePayment = authoritativePayment with { LegalPaymentChoiceIds = [], PaymentResourceActionIds = [] };
         if (!timing.TryGetValue("pendingPayment", out var paymentPayload))
         {
             errors.Add("spectator replay frame timing pending payment is required");
@@ -870,6 +872,7 @@ public static partial class MatchRecoveryValidator
         MatchState authoritativeState,
         PendingPaymentState payment)
     {
+        if (authoritativeState.PendingRuleChoice is not null) return [];
         return payment.PaymentResourceActionIds
             .Concat(payment.LegalPaymentChoiceIds.Where(choiceId =>
                 choiceId.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)))

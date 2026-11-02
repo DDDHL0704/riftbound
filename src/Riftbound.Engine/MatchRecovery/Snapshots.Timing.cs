@@ -421,7 +421,8 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateSnapshotTimingPendingPaymentListPayloadValues(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (view.Snapshot.Timing is null
             || !TryReadObjectValue(view.Snapshot.Timing, "pendingPayment", out var pendingPaymentPayload)
@@ -448,6 +449,11 @@ public static partial class MatchRecoveryValidator
             $"snapshot for {view.PlayerId} timing pending payment",
             "payment resource action",
             errors);
+        if (authoritativeState is { PendingRuleChoice: { } pending } && authoritativeState.Tick == view.SnapshotTick
+            && pending.Request.PlayerId != view.PlayerId)
+            foreach (var key in new[] { "paymentChoices", "paymentResourceActions" })
+                if (TryReadObjectStringList(pendingPaymentPayload, key, out var values) && values.Count != 0)
+                    errors.Add($"snapshot for {view.PlayerId} private resolution choice exposes {key}");
         ValidateSnapshotPayloadStringListValues(
             pendingPaymentPayload,
             "paymentResourceActions",
