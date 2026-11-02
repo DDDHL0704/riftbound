@@ -138,7 +138,8 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             await game.Act("P1", new AssembleEquipmentCommand(gear, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
         }
         await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+        // Keep both physical destruction-payment runes in their original order.
+        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
         await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
         Assert.Equal(3, game.State.TriggerQueue.Count); Assert.Empty(game.State.StackItems); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         return (initial, game);
