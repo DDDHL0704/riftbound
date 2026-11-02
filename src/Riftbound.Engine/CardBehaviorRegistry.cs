@@ -401,7 +401,8 @@ public sealed record CardBehaviorDefinition(
     int EffectPlayMaximumPowerCost = 0,
     bool StatusEffectUsesTargetCurrentPower = false,
     int BattlefieldWinDrawCount = 0,
-    int ControllerCardPlayDrawCount = 0)
+    int ControllerCardPlayDrawCount = 0,
+    DrawHandThresholdSpec? ControllerDrawHandThreshold = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -9620,7 +9621,8 @@ public static class CardBehaviorRegistry
         // The draw observer is staged here; this printing remains excluded from
         // RadiantCardSources until its independent draw-threshold skill is ready.
         new("RAD·069/167", "临界零点", 9, "RAD_069_PLAY_EQUIPMENT", 0, 0,
-            PlaysSourceToBaseAsEquipment: true, ControllerCardPlayDrawCount: 2),
+            PlaysSourceToBaseAsEquipment: true, ControllerCardPlayDrawCount: 2,
+            ControllerDrawHandThreshold: new(1, 9, 1)),
         new("RAD·111/167", "自走角子机", 4, "RAD_111_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, BeginningDeckTopManaComparison: true),
         new("RAD·064/167", "严审透镜", 2, "RAD_064_PLAY_EQUIPMENT", 0, 0,

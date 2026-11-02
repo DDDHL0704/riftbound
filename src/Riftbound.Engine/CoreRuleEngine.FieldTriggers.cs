@@ -123,6 +123,20 @@ public sealed partial class CoreRuleEngine
             if (ev.Kind != "CARD_DRAWN" || !ev.Payload.TryGetValue("playerId", out var p) || p is not string player
                 || !ev.Payload.TryGetValue("count", out var n) || n is not int amount || amount <= 0) continue;
             var instruction = CapturedDraw(ev, player, amount);
+            if (instruction is { ThresholdSources.Count: > 0 } && state.Status == MatchStatuses.InProgress)
+            {
+                var drawId = $"{state.Tick}-{index}";
+                events[index] = events[index] with { Payload = new Dictionary<string, object?>(events[index].Payload)
+                    { ["drawInstructionId"] = drawId } };
+                foreach (var captured in instruction.ThresholdSources)
+                {
+                    var context = captured with { CapturedTick = state.Tick, DrawId = drawId };
+                    var threshold = new TriggerQueueItemState(DrawHandThresholdTriggerId(context), context.ControllerId,
+                        context.Source.ObjectId, DrawHandThresholdEffect, "CARD_DRAWN")
+                        { DrawHandThreshold = context, SourceCardNo = context.CardNo, EnqueuedAtTick = state.Tick };
+                    queue.Add(threshold); events.Add(BuildTriggerQueuedEvent(threshold));
+                }
+            }
             var prior = counts.GetValueOrDefault(player); counts[player] = checked(prior + amount);
             if (prior >= 2 || counts[player] < 2 || state.Status != MatchStatuses.InProgress) continue;
             var sources = instruction?.Sources ?? CaptureDrawTriggerSources(before, player);
@@ -173,7 +187,7 @@ public sealed partial class CoreRuleEngine
     private static bool NeedsTriggerConfirmation(StackItemState i)
         => NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasTargetedMovementSkill(i) && i.TargetGenerations is null ||
             NeedsUnitEventMode(i) || NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
-            i.DravenBattleDeathScore is { OpponentId: null } ||
+            i.DravenBattleDeathScore is { OpponentId: null } || i.DrawHandThreshold is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.BombRebuild is not null && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
             || NeedsEmpowerInteractionChoice(i)
             || i.ReadyObjectTrigger is not null && i.TargetGenerations is null || i.SourceReadied is { Mode: null }
@@ -201,6 +215,8 @@ public sealed partial class CoreRuleEngine
         if (NeedsMovementInstructionConfirmation(item)) return PrepareMovementInstruction(result, item);
         if (HasTargetedMovementSkill(item)) return PrepareTargetedMovement(result, item);
         if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
+        if (item.DrawHandThreshold is not null) return PrepareCapturedOpponentChoice(result, item,
+            DrawHandThresholdOpponentWindow, "DRAW-HAND:", "选择一名对手；双方响应后弃置手牌、摧毁来源并令该对手得分。");
         if (item.HighCostPlayObserver is not null) return PrepareHighCostRuneChoice(result, item);
         if (NeedsBattlefieldConquestReadyEquipmentConfirmation(item)) return PrepareBattlefieldConquestReadyEquipmentConfirmation(result, item);
         if (NeedsMovementDiscardRuneConfirmation(item)) return PrepareMovementDiscardRunes(result, item);

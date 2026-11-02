@@ -5,7 +5,10 @@ namespace Riftbound.Engine;
 // An instruction-local observation. It is consumed before publishing events,
 // and contains counts rather than identities of newly drawn or existing hand cards.
 internal sealed record CapturedDrawInstruction(string PlayerId, int DrawnCount, int OtherHandCount,
-    IReadOnlyList<CapturedDrawSource> Sources);
+    IReadOnlyList<CapturedDrawSource> Sources)
+{
+    internal IReadOnlyList<DrawHandThresholdContext> ThresholdSources { get; init; } = [];
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -16,7 +19,8 @@ public sealed partial class CoreRuleEngine
     {
         if (drawnCount < 0 || otherHandCount < 0)
             throw new InvalidOperationException("Invalid draw instruction counts.");
-        return new(player, drawnCount, otherHandCount, CaptureDrawTriggerSources(state, player));
+        return new(player, drawnCount, otherHandCount, CaptureDrawTriggerSources(state, player))
+        { ThresholdSources = CaptureDrawHandThresholdSources(state, player, drawnCount, otherHandCount) };
     }
 
     private static CapturedDrawInstruction? CapturedDraw(GameEvent ev, string player, int amount)

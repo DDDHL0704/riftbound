@@ -54,15 +54,8 @@ public sealed partial class CoreRuleEngine
     internal const string DravenDeathOpponentWindow = "DRAVEN_BATTLE_DEATH_OPPONENT";
 
     private static ResolutionResult PrepareDravenDeathOpponent(ResolutionResult result, StackItemState item)
-    {
-        var state = result.State;
-        var legal = SeatPlayerIds(state).Where(id => id != item.ControllerId).ToArray();
-        var choice = new PendingCardChoiceState("DRAVEN-DEATH:" + item.StackItemId, DravenDeathOpponentWindow,
-            item.ControllerId, 1, 1, legal, [item.SourceObjectId], "选择一名对手获得1分；确认后双方可响应。",
-            item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
-        state = state with { PendingCardChoice = choice, PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
-        return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
-    }
+        => PrepareCapturedOpponentChoice(result, item, DravenDeathOpponentWindow, "DRAVEN-DEATH:",
+            "选择一名对手获得1分；确认后双方可响应。");
 
     private static ResolutionResult ResolveDravenDeathOpponentChoice(MatchState state,
         PendingCardChoiceState choice, IReadOnlyList<string> selected)
