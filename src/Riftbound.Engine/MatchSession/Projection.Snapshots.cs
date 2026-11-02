@@ -537,7 +537,8 @@ public sealed partial record ResolutionResult
             SetCode: state.SessionOptions?.SealedSetCode,
             BestOf: state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed ? state.SessionOptions.SealedBestOf : 1,
             Series: RoomMatchSeries.ViewFor(state),
-            SealedPool: includePrivatePool ? SealedRoomPools.ViewFor(state, viewerPlayerId) : null);
+            SealedPool: includePrivatePool ? SealedRoomPools.ViewFor(state, viewerPlayerId) : null,
+            SideboardCounts: SealedRoomPools.SideboardCountsFor(state));
     }
 
     private static SnapshotTableDto BuildTableSnapshotView(MatchState state, string viewerPlayerId)

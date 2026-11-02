@@ -48,8 +48,7 @@ public static class RoomMatchSeries
                 MatchSeriesPhase.Playing => MatchSeriesPhases.Playing,
                 _ => MatchSeriesPhases.Finished
             },
-            series.State.PlayerIds.ToDictionary(player => player,
-                _ => (IReadOnlyList<string>)Array.Empty<string>(), StringComparer.Ordinal),
+            SealedSeriesDecks.UsedBattlefields(state),
             series.PlayOrderChooserPlayerId);
     }
 
@@ -82,9 +81,10 @@ public static class RoomMatchSeries
     public static IReadOnlyList<string> Validate(MatchState state)
     {
         if (state.SessionOptions?.DeckFormat != OfficialDeckFormat.Sealed)
-            return state.SeriesState is null && state.LastCompletedSeriesGame is null ? [] : ["non-sealed room contains a match series"];
+            return state.SeriesState is null && state.LastCompletedSeriesGame is null
+                ? SealedSeriesDecks.Validate(state) : ["non-sealed room contains a match series"];
         if (state.Seats.Count != 2)
-            return state.SeriesState is null ? [] : ["match series requires both room seats"];
+            return state.SeriesState is null ? SealedSeriesDecks.Validate(state) : ["match series requires both room seats"];
         if (state.SeriesState is null) return ["sealed room is missing its match series"];
         try
         {
@@ -99,6 +99,7 @@ public static class RoomMatchSeries
                 return ["match series phase disagrees with its core game"];
             if (series.Phase == MatchSeriesPhase.ChoosingPlayOrder && state.ReadyPlayerIds.Count > 0)
                 return ["players cannot be ready before play order selection"];
+            if (SealedSeriesDecks.Validate(state) is { Count: > 0 } battlefieldErrors) return battlefieldErrors;
             var last = series.State.Games.LastOrDefault(game => game.Completed);
             var archive = state.LastCompletedSeriesGame;
             if (last is null && archive is not null || last is not null && archive is null)
@@ -110,6 +111,7 @@ public static class RoomMatchSeries
                     || core.WinnerPlayerId != last.WinnerPlayerId || core.RoomId != state.RoomId || core.Seed != state.Seed
                     || core.Tick > state.Tick || core.RngCursor > state.RngCursor || core.SeriesState is not null
                     || core.LastCompletedSeriesGame is not null || core.PlayerSealedPools is not null || core.SessionOptions is not null
+                    || core.SealedBattlefieldHistory is not null
                     || !core.Seats.OrderBy(pair => pair.Key).SequenceEqual(state.Seats.OrderBy(pair => pair.Key)))
                     return ["invalid completed core game frame"];
                 return MatchRecoveryValidator.ValidateCompletedCoreGame(core);
@@ -142,9 +144,15 @@ public sealed partial class MatchSession
             || RoomMatchSeries.Current(result.State) is not { Phase: MatchSeriesPhase.Playing } series)
             return result;
         var completed = series.CompleteGame(series.GameNumber, result.State.WinnerPlayerId);
+        return FinalizeSeriesGame(result, series, completed);
+    }
+
+    private static ResolutionResult FinalizeSeriesGame(ResolutionResult result, MatchSeries series, MatchSeries completed)
+    {
         var terminal = new CompletedSeriesGame(series.GameNumber, result.State with
         {
-            SeriesState = null, LastCompletedSeriesGame = null, PlayerSealedPools = null, SessionOptions = null
+            SeriesState = null, LastCompletedSeriesGame = null, PlayerSealedPools = null, SessionOptions = null,
+            SealedBattlefieldHistory = null
         });
         var next = result.State with { SeriesState = completed.State, LastCompletedSeriesGame = terminal };
         if (completed.Phase != MatchSeriesPhase.Finished)
@@ -155,7 +163,8 @@ public sealed partial class MatchSession
             {
                 Tick = next.Tick, Seed = next.Seed, RngCursor = next.RngCursor,
                 SessionOptions = next.SessionOptions, PlayerSealedPools = next.PlayerSealedPools,
-                SeriesState = completed.State, LastCompletedSeriesGame = terminal
+                SeriesState = completed.State, LastCompletedSeriesGame = terminal,
+                SealedBattlefieldHistory = next.SealedBattlefieldHistory
             };
             next = StateWithRoomSeats(fresh, next.Seats, next.ActivePlayerId);
         }

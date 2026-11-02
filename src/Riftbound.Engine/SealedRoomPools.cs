@@ -72,6 +72,30 @@ public static class SealedRoomPools
                 .Select(entry => new SealedPoolCardDto(entry.Key, entry.Value)).ToArray());
     }
 
+    // CN tournament 403.6 / 602.4.a.7: only the number of unallocated pool
+    // cards is public. The selected champion is already in the main deck.
+    public static IReadOnlyDictionary<string, int>? SideboardCountsFor(MatchState state)
+    {
+        if (state.SessionOptions?.DeckFormat != OfficialDeckFormat.Sealed || state.PlayerSealedPools is not { } pools)
+            return null;
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var player in state.Seats.Keys)
+        {
+            if (!state.PlayerDecklists.TryGetValue(player, out var deck)
+                && state.LastCompletedSeriesGame?.State.PlayerDecklists.TryGetValue(player, out deck) != true)
+                continue;
+            if (deck is null || !pools.TryGetValue(player, out var pool)) continue;
+            var configured = deck.MainDeck.Concat(deck.RuneDeck).Concat(deck.Battlefields)
+                .Concat(string.IsNullOrEmpty(deck.LegendCardNo) ? [] : new[] { deck.LegendCardNo })
+                .GroupBy(cardNo => cardNo, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+            // Unlimited external runes/blank battlefields and the display-only
+            // rune/token slot do not add cards to the authoritative usable pool.
+            counts[player] = pool.Pool.Sum(entry => Math.Max(0, entry.Value - configured.GetValueOrDefault(entry.Key)));
+        }
+        return counts.Count == 0 ? null : counts;
+    }
+
     internal static string? ViewError(MatchState state, SnapshotDto snapshot, string? viewerPlayerId)
     {
         var sealedRoom = state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed;
@@ -80,9 +104,10 @@ public static class SealedRoomPools
             || snapshot.SetCode != state.SessionOptions?.SealedSetCode
             || snapshot.BestOf != (sealedRoom ? state.SessionOptions!.SealedBestOf : 1)
             || MatchStateHasher.HashValue(snapshot.Series) != MatchStateHasher.HashValue(RoomMatchSeries.ViewFor(state))
+            || MatchStateHasher.HashValue(snapshot.SideboardCounts) != MatchStateHasher.HashValue(SideboardCountsFor(state))
             || (snapshot.SealedPool is not null || expectedPool is not null)
                 && MatchStateHasher.HashValue(snapshot.SealedPool) != MatchStateHasher.HashValue(expectedPool)
-            ? "snapshot room format or private sealed pool disagrees with its viewer" : null;
+            ? "snapshot room format, sideboard counts or private sealed pool disagrees with its viewer" : null;
     }
 
     // Structural validation is also used by synchronous checkpoint restore.

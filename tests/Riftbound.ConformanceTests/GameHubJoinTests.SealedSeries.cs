@@ -7,6 +7,43 @@ namespace Riftbound.ConformanceTests;
 
 public sealed partial class GameHubJoinTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SealedHubRepairsFinalResultWriteOnRestoredIntentRetry(bool failAfterWrite)
+    {
+        var run = new SealedSubmittedOpeningTests.Run(1);
+        await run.Join("alice");
+        await run.Join("bob");
+        await run.Choose();
+        await SealedSubmittedOpeningTests.OpenCurrentGame(run, 1);
+        var store = new SealedTournamentResultTests.Results { FailNext = true, FailAfterWrite = failAfterWrite };
+        var hub = CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "before-result-restart",
+            new FixedMatchSessionRegistry(run.Live), matchResultStore: store, authenticatedHandle: "bob");
+        var command = JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.Surrender });
+        await Assert.ThrowsAsync<IOException>(() => hub.SubmitIntent(run.State.RoomId, "bob", "final-result-retry", command));
+        Assert.Equal(MatchSeriesPhases.Finished, run.Live.SnapshotFor("alice").Series!.Phase);
+        var count = run.Journal.Entries.Count;
+        var prior = await store.GetMatchResultAsync(run.State.RoomId, default);
+        Assert.Equal(failAfterWrite, prior is not null);
+        await run.Cold();
+        var clients = new RecordingHubClients();
+        hub = CreateHub(clients, new RecordingGroupManager(), "after-result-restart",
+            new FixedMatchSessionRegistry(run.Live), matchResultStore: store, authenticatedHandle: "bob");
+        var retry = await hub.SubmitIntent(run.State.RoomId, "bob", "final-result-retry", command);
+        Assert.True(retry.Accepted, retry.Message);
+        Assert.Equal(count, run.Journal.Entries.Count);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Equal(1, store.Writes);
+        var recorded = await store.GetMatchResultAsync(run.State.RoomId, default);
+        Assert.NotNull(recorded);
+        Assert.Equal("alice", recorded.WinnerPlayerId);
+        Assert.Equal(new[] { 1, 0 }, recorded.Players.Select(player => player.Score));
+        if (prior is not null) Assert.Equal(prior, recorded);
+        Assert.Single(await store.ListMatchResultsForPlayerAsync("alice", 10, default));
+        Assert.Single(await store.ListMatchResultsForPlayerAsync("bob", 10, default));
+    }
+
     [Fact]
     public async Task SealedHubRecordsOnlyTheCompletedSeriesWithGameWinsAsThePublicScore()
     {

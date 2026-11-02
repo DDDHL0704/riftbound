@@ -30,7 +30,8 @@ public sealed class Ven014And030SubmittedDeckConsumerTests
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
             Assert.Equal(available - mana * 2, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             Assert.Equal(mana, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
-            Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(mana, game.Might(actor, unit)); await game.ColdCheckpoint();
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(mana, game.Might(actor, unit));
+            // The forgery helper also cold-recovers this unchanged accepted history.
             var pool = game.State.RunePools[actor];
             var refundedMana = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
                 [actor] = pool with { Mana = pool.Mana + mana } } };

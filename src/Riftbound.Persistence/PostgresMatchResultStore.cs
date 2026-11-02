@@ -5,6 +5,44 @@ namespace Riftbound.Persistence;
 
 public sealed class PostgresMatchResultStore(NpgsqlDataSource dataSource) : IMatchResultStore
 {
+    public async ValueTask RecordFinalMatchResultAsync(MatchResultRecord result, CancellationToken cancellationToken)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        // Lock a stable parent row, including when no result exists yet. This
+        // serializes independent store instances and API processes as well as
+        // two connections retrying the same accepted final command.
+        const string createSql = """
+            insert into matches (match_id, status, winner_player_id, updated_at)
+            values (@match_id, 'FINISHED', @winner_player_id, now())
+            on conflict (match_id) do nothing;
+            """;
+        await using (var create = new NpgsqlCommand(createSql, connection, transaction))
+        {
+            create.Parameters.AddWithValue("match_id", NormalizeRequired(result.RoomId, nameof(result.RoomId)));
+            create.Parameters.AddWithValue("winner_player_id", NormalizeRequired(result.WinnerPlayerId, nameof(result.WinnerPlayerId)));
+            await create.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+        await using (var gate = new NpgsqlCommand("select match_id from matches where match_id=@match_id for update", connection, transaction))
+        {
+            gate.Parameters.AddWithValue("match_id", NormalizeRequired(result.RoomId, nameof(result.RoomId)));
+            await gate.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        }
+        var existing = await LoadResultAsync(connection, result.RoomId, cancellationToken, transaction).ConfigureAwait(false);
+        if (existing is not null)
+        {
+            existing = existing with { Players = await LoadPlayersAsync(connection, result.RoomId, cancellationToken, transaction).ConfigureAwait(false) };
+            MatchResultRecords.RequireSameFinalResult(existing, result);
+        }
+        else
+        {
+            await UpsertMatchAsync(connection, transaction, result, cancellationToken).ConfigureAwait(false);
+            await UpsertResultAsync(connection, transaction, result, cancellationToken).ConfigureAwait(false);
+            await ReplaceResultPlayersAsync(connection, transaction, result, cancellationToken).ConfigureAwait(false);
+        }
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public async ValueTask RecordMatchResultAsync(MatchResultRecord result, CancellationToken cancellationToken)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -213,14 +251,15 @@ public sealed class PostgresMatchResultStore(NpgsqlDataSource dataSource) : IMat
     private static async Task<MatchResultRecord?> LoadResultAsync(
         NpgsqlConnection connection,
         string roomId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        NpgsqlTransaction? transaction = null)
     {
         const string sql = """
             select match_id, winner_player_id, finished_at
             from match_results
             where match_id = @match_id;
             """;
-        await using var command = new NpgsqlCommand(sql, connection);
+        await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", NormalizeRequired(roomId, nameof(roomId)));
         await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
         return await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
@@ -231,7 +270,8 @@ public sealed class PostgresMatchResultStore(NpgsqlDataSource dataSource) : IMat
     private static async Task<IReadOnlyList<MatchResultPlayerRecord>> LoadPlayersAsync(
         NpgsqlConnection connection,
         string roomId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        NpgsqlTransaction? transaction = null)
     {
         const string sql = """
             select player_id, seat, score, won
@@ -239,7 +279,7 @@ public sealed class PostgresMatchResultStore(NpgsqlDataSource dataSource) : IMat
             where match_id = @match_id
             order by case seat when 'P1' then 0 when 'P2' then 1 else 2 end, player_id;
             """;
-        await using var command = new NpgsqlCommand(sql, connection);
+        await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", NormalizeRequired(roomId, nameof(roomId)));
         await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
         var players = new List<MatchResultPlayerRecord>();
