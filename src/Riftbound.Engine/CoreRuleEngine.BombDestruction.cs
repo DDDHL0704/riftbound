@@ -197,7 +197,7 @@ public sealed partial class CoreRuleEngine
             cards,
             item.ControllerId,
             target,
-            2,
+            ApplySpellSkillDamageBonuses(state, item.ControllerId, target, 2, item),
             damageTriggered,
             state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId),
             PreventSpellAndSkillDamageThisTurnEffectId);
