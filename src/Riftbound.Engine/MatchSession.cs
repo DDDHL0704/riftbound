@@ -5799,6 +5799,8 @@ public sealed partial class MatchSession : IMatchSession
             ? restoredState : restoredState with { SessionOptions = recordedOptions };
         if (SealedRoomPools.Validate(state) is { Count: > 0 } poolErrors)
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", poolErrors));
+        if (RoomMatchSeries.Validate(state) is { Count: > 0 } seriesErrors)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", seriesErrors));
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
@@ -6177,6 +6179,11 @@ public sealed partial class MatchSession : IMatchSession
                     "对局开始后不能更改卡组。",
                     ErrorCodes.PhaseNotAllowed);
             }
+            else if (options.DeckFormat == OfficialDeckFormat.Sealed
+                && RoomMatchSeries.Current(state)?.Phase != MatchSeriesPhase.SubmittingDecks)
+            {
+                result = ResolutionResult.Rejected(state, "请先等待双方入座并完成先后手选择。", ErrorCodes.PhaseNotAllowed);
+            }
             else if (state.ReadyPlayerIds.Contains(normalizedPlayerId, StringComparer.Ordinal))
             {
                 result = ResolutionResult.Rejected(
@@ -6360,6 +6367,14 @@ public sealed partial class MatchSession : IMatchSession
                 return rejected;
             }
 
+            if (options.DeckFormat == OfficialDeckFormat.Sealed
+                && RoomMatchSeries.Current(state)?.Phase != MatchSeriesPhase.SubmittingDecks)
+            {
+                var rejected = ResolutionResult.Rejected(state, "请先完成先后手选择。", ErrorCodes.PhaseNotAllowed);
+                intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
+                return rejected;
+            }
+
             if (options.DeckFormat != OfficialDeckFormat.CoreRules)
             {
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
@@ -6417,6 +6432,8 @@ public sealed partial class MatchSession : IMatchSession
             if (nextStatus == MatchStatuses.InProgress
                 && HasOfficialDecklistsForAllSeats(nextState))
             {
+                if (RoomMatchSeries.Current(nextState) is { } series)
+                    nextState = nextState with { SeriesState = series.StartGame().State };
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
                 var officialOpening = BuildOfficialOpeningState(nextState, catalog);
                 nextState = officialOpening.State;
@@ -6537,7 +6554,15 @@ public sealed partial class MatchSession : IMatchSession
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
             ResolutionResult result;
-            if (state.Status == MatchStatuses.Finished)
+            if (command is ChoosePlayOrderCommand choice)
+            {
+                if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var staleChoice))
+                    result = staleChoice;
+                else if (TryRejectUnavailablePromptAction(state, normalizedPlayerId, command, rawCommand, out var unavailableChoice))
+                    result = unavailableChoice;
+                else result = RoomMatchSeries.Choose(state, normalizedPlayerId, choice);
+            }
+            else if (state.Status == MatchStatuses.Finished)
             {
                 if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
                 {
@@ -6565,6 +6590,7 @@ public sealed partial class MatchSession : IMatchSession
                 var intent = new PlayerIntent(normalizedIntentId, normalizedPlayerId, command.CmdType);
                 result = await ruleEngine.ResolveAsync(state, intent, command, cancellationToken)
                     .ConfigureAwait(false);
+                result = CompleteSeriesGame(result);
             }
             var completedEventSequence = startedEventSequence + result.Events.Count;
             await journal.RecordAsync(new MatchJournalEntry(

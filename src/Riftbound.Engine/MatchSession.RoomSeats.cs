@@ -48,6 +48,7 @@ public sealed partial class MatchSession
             {
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
                 nextState = SealedRoomPools.AddPlayer(nextState, player.PlayerId, catalog);
+                nextState = RoomMatchSeries.SeatPlayers(nextState);
             }
 
             var raw = JsonSerializer.SerializeToElement(new { cmdType = RoomSeatCommandType, playerId = player.PlayerId, seat = player.Seat });

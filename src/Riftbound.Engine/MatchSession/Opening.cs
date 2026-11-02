@@ -177,8 +177,10 @@ public sealed partial class MatchSession
             .OrderBy(entry => entry.Value, StringComparer.Ordinal)
             .Select(entry => entry.Key)
             .ToArray();
-        var turnOrder = RandomizeStable(seatOrder, seed, rngCursor, "TURN_ORDER");
-        if (seatOrder.Length > 1)
+        var firstPlayer = RoomMatchSeries.Current(readyState)?.FirstPlayerId;
+        var turnOrder = firstPlayer is null ? RandomizeStable(seatOrder, seed, rngCursor, "TURN_ORDER")
+            : new[] { firstPlayer }.Concat(seatOrder.Where(player => player != firstPlayer)).ToArray();
+        if (firstPlayer is null && seatOrder.Length > 1)
         {
             rngCursor++;
         }
