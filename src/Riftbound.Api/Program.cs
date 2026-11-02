@@ -68,6 +68,7 @@ builder.Services.TryAddSingleton<IPlayerIdentityStore, InMemoryPlayerIdentitySto
 builder.Services.AddSingleton<PlayerIdentityService>();
 builder.Services.AddSingleton<PlayerConnections>();
 builder.Services.AddSingleton<IRuleEngine, CoreRuleEngine>();
+builder.Services.AddSingleton<MatchTournamentAdjudicationService>();
 builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMatchSessionRegistry(
     services.GetRequiredService<IRuleEngine>(),
     services.GetRequiredService<IMatchJournal>(),
