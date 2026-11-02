@@ -112,6 +112,7 @@ public sealed record TypedCommandInput(
     {
         GameCommand normalized = command switch
         {
+            SubmitDeckCommand c => c with { LegendCardNo = c.LegendCardNo ?? "", ChampionCardNo = c.ChampionCardNo ?? "" },
             PlayCardCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
             RefusePlayPaymentCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
             ActivateAbilityCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },

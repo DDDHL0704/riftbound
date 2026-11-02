@@ -58,12 +58,15 @@ public sealed partial class CoreRuleEngine
     // objects, spend a replacement's once-per-turn use, or finish the parent.
     private static int TokenEntryCount(MatchState state, StackItemState parent)
     {
+        parent = ActiveSpellMode(parent);
         if (parent.CompletedRepeatExecutions < 0 || parent.RepeatExecutions is { } repeats
             && parent.CompletedRepeatExecutions >= repeats.Count) return 0;
         var item = parent.RepeatExecutions is { } executions && parent.CompletedRepeatExecutions < executions.Count
             ? parent with { EffectKind = executions[parent.CompletedRepeatExecutions].EffectKind, EffectRepeatCount = 1, RepeatExecutions = null }
             : parent;
         if (TryMovementTokenInstruction(state, item, out var movementToken)) return movementToken.Count;
+        if (item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { Effect: "CREATE_UNIT_TOKEN" } unitToken)
+            return unitToken.Amount;
         if (item.SourceUnitTokens is { } sourceToken)
             return TrySourceUnitTokenDestination(state, item, out _)
                 ? SourceUnitTokenSpecs.Value[sourceToken.CardNo].CreatedTokenCount.GetValueOrDefault() : 0;
@@ -90,7 +93,8 @@ public sealed partial class CoreRuleEngine
     private static PendingCardChoiceState TokenReplacementChoice(MatchState state, StackItemState parent, TokenEntryPlan plan)
     {
         var sources = EligibleTokenReplacements(state, parent.ControllerId, plan);
-        return new($"token-replacement:{parent.StackItemId}:{parent.CompletedRepeatExecutions}:{plan.NextToken}:{plan.Applied.Count}", TokenReplacementWindow,
+        var modeSuffix = parent.CompletedModeExecutions > 0 ? $":mode:{parent.CompletedModeExecutions}" : "";
+        return new($"token-replacement:{parent.StackItemId}:{parent.CompletedRepeatExecutions}:{plan.NextToken}:{plan.Applied.Count}{modeSuffix}", TokenReplacementWindow,
             parent.ControllerId, 0, 1, sources, sources,
             $"第 {plan.NextToken + 1}/{TokenEntryFactories(plan).Count} 名单位指示物：选择基兰增加复制体，或选择黑默丁格将它替换为机器人；不选则保留该指示物及未使用的替换。",
             parent.SourceObjectId, parent.EffectKind) { ResolvingStackItemId = parent.StackItemId };

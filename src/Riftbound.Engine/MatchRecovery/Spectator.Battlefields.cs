@@ -819,11 +819,7 @@ public static partial class MatchRecoveryValidator
             return false;
         }
 
-        return !string.Equals(cardObject.OwnerId, "__spectator__", StringComparison.Ordinal)
-            && !string.Equals(
-                EffectiveFieldControllerIdForRecovery(authoritativeState, objectId, cardObject),
-                "__spectator__",
-                StringComparison.Ordinal);
+        return true;
     }
 
     private static string EffectiveFieldControllerIdForRecovery(

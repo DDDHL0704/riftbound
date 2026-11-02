@@ -4,6 +4,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs" Link="Harness/SqlAcceptancePartition.cs" />
+    <Content Include="../Riftbound.PostgresAcceptance/SqlAcceptanceCases.json" Link="SqlAcceptanceCases.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="../Riftbound.PostgresAcceptance/PaymentReconnectEvidence.cs" Link="PaymentReconnectEvidence.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionOrdinaryOpening.cs" Link="OptionalCostReductionOrdinaryOpening.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionCopiedOrdinaryOpening.cs" Link="OptionalCostReductionCopiedOrdinaryOpening.cs" />

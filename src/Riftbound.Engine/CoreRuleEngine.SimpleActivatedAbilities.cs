@@ -22,6 +22,8 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
     public string RuleTextInstanceId { get; init; } = "";
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RuleTextInstanceBinding? Origin { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceTokenFactoryCardNo { get; init; }
     public string ReturnTiming { get; init; } = "";
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? ReplayCardNo { get; init; }
@@ -256,6 +258,7 @@ public sealed partial class CoreRuleEngine
             tokenTargets.Count == 0 ? null : tokenTargets) {
                 SourceFaceRevision = instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
                 RuleTextInstanceId = instance.Id, Origin = instance.Origin,
+                SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
                 ReplayCardNo = spec.BanishesSourceThenReplaysToBase
                     ? source.AttachmentUnitCopies?.Basis.CardNo ?? source.CardNo : null,
                 ReturnTiming = ability.SwiftSpeed && state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : "" };
@@ -345,6 +348,7 @@ public sealed partial class CoreRuleEngine
         else if (context.RuleTextInstanceId != $"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}") return false;
         if (state.CardObjects.TryGetValue(context.Source.ObjectId, out var source))
             return context.CeasedSource is null && source.ObjectGeneration >= context.Source.Generation
+                && source.TokenFactoryCardNo == context.SourceTokenFactoryCardNo
                 && (ability.SimpleEffect?.BanishesSourceThenReplaysToBase == true
                     ? context.ReplayCardNo == (source.AttachmentUnitCopies?.Basis.CardNo ?? source.CardNo)
                     : context.ReplayCardNo is null)
@@ -352,6 +356,7 @@ public sealed partial class CoreRuleEngine
                     || CopyFaceTimeline.FaceAt(source, context.SourceFaceRevision, context.AcquiredTick) == cardNo);
         return context.CeasedSource is { } ceased && ceased.DepartedTick >= context.AcquiredTick
             && ceased.DepartedTick <= state.Tick
+            && ceased.TokenFactoryCardNo == context.SourceTokenFactoryCardNo
             && ceased.SourceFaceRevision == context.SourceFaceRevision
             && P6TokenFactoryCatalog.TryGetByCardNo(ceased.TokenFactoryCardNo, out var factory)
             && factory.Tags.Contains(ability.SourceRequiredTag);
