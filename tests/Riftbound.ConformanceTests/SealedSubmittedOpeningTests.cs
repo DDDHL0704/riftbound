@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class SealedSubmittedOpeningTests
+public sealed partial class SealedSubmittedOpeningTests
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -196,10 +196,10 @@ public sealed class SealedSubmittedOpeningTests
         private readonly Dictionary<string, string> tokens = [];
         public IMatchSession Live { get; private set; }
         public MatchState State => Journal.Entries[^1].AuthoritativeState;
-        public Run(int bestOf = 1)
+        public Run(int bestOf = 1, string setCode = "OGN")
         {
             var initial = MatchState.Create("sealed-submitted-opening") with { Seed = 424242,
-                SessionOptions = MatchSessionOptions.ForSealed("OGN", bestOf) };
+                SessionOptions = MatchSessionOptions.ForSealed(setCode, bestOf) };
             Live = new MatchSession(initial, new CoreRuleEngine(), Journal, players);
         }
         public async Task Join(string player) => tokens[player] = (await Live.EnsurePlayerAsync(player, default)).ReconnectToken;
@@ -216,7 +216,7 @@ public sealed class SealedSubmittedOpeningTests
             Assert.True(result.Accepted, result.ErrorMessage);
             return result;
         }
-        public async Task Cold()
+        public MatchRecoveryFrame Frame()
         {
             var last = Journal.Entries[^1];
             var commands = Journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId, entry.CommandType,
@@ -230,7 +230,11 @@ public sealed class SealedSubmittedOpeningTests
                 SessionOptions = Journal.Entries[0].AuthoritativeState.SessionOptions };
             var frame = new MatchRecoveryFrame(last.RoomId, last.CompletedTick, last.CompletedEventSequence, commands, events, views, [],
                 last.AuthoritativeState, initial) { OpeningSeed = initial.Seed };
-            frame = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+            return JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+        }
+        public async Task Cold()
+        {
+            var frame = Frame();
             Assert.Empty(MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
                 frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick));
             Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
