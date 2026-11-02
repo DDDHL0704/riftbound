@@ -59,7 +59,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool SimpleActivationHasAdditionalCost(P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.DiscardsEquipmentAsCost == true
-            || ability.SimpleEffect?.ExhaustFriendlyUnitMinimumPowerAsCost is >= 0;
+            || ability.SimpleEffect?.ExhaustFriendlyUnitMinimumPowerAsCost is >= 0
+            || ability.SimpleEffect?.DestroyFriendlyTagAsCost is not null;
 
     internal static string[] SimpleActivationAdditionalCostChoices(MatchState state, string actor,
         string sourceId, P4ActivatedAbilityDefinition ability)
@@ -69,7 +70,11 @@ public sealed partial class CoreRuleEngine
                     && CanExhaustUnitForEquipmentCost(state, actor, card.ObjectId)
                     && ResolveCurrentFieldUnitPower(state, card) >= minimum)
                     .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
-                    .Select(card => ExhaustFriendlyUnitOptionalCostPrefix + card.ObjectId).ToArray() : [];
+                    .Select(card => ExhaustFriendlyUnitOptionalCostPrefix + card.ObjectId).ToArray()
+            : ability.SimpleEffect?.DestroyFriendlyTagAsCost is { } tag
+                ? state.CardObjects.Values.Where(card => CanDestroyFriendlyPermanentAsAdditionalCost(state, actor, card.ObjectId)
+                    && card.Tags.Contains(tag)).OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+                    .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray() : [];
 
     internal static bool IsSimpleAbilitySource(MatchState state, string actor, string id, P4ActivatedAbilityDefinition ability)
         => state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id
@@ -87,9 +92,15 @@ public sealed partial class CoreRuleEngine
             && (!SimpleActivationHasAdditionalCost(ability)
                 || SimpleActivationAdditionalCostChoices(state, actor, id, ability).Length > 0);
 
+    internal static bool SimpleActivationTargetsOpponent(P4ActivatedAbilityDefinition ability)
+        => ability.SimpleEffect is { } spec && (spec.CommandsOpponentUnitToSourceBattlefield || spec.OpponentGuessesDeckTopType);
+
+    internal static bool SimpleActivationTargetsPlayer(P4ActivatedAbilityDefinition ability)
+        => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true || SimpleActivationTargetsOpponent(ability);
+
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
-            : ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true ? state.Seats.ContainsKey(id) && id != actor
+            : SimpleActivationTargetsOpponent(ability) ? state.Seats.ContainsKey(id) && id != actor
             : ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
                 ? state.CardObjects.TryGetValue(id, out var returned)
                     && !returned.IsFaceDown && returned.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -117,6 +128,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult ResolveSimpleActivation(MatchState state, PlayerIntent intent,
         ActivateAbilityCommand command, P4ActivatedAbilityDefinition ability)
     {
+        var spec = ability.SimpleEffect!;
         if (!CanActivateOrdinaryPowerAbility(state, intent.PlayerId))
             return RejectWithCorePrompts(state, "此技能只能在你的开放主阶段打出。", ErrorCodes.PhaseNotAllowed);
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
@@ -150,8 +162,11 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "支付资源动作顺序或来源无效。", ErrorCodes.InvalidTarget);
         var paid = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!paid.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置或解除来源的强化。", ErrorCodes.InsufficientCost);
+        var afterResources = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = paid.RunePools };
+        if (!IsSimpleAbilitySource(afterResources, intent.PlayerId, command.SourceObjectId, ability))
+            return RejectWithCorePrompts(state, "资源动作后无法支付技能来源费用。", ErrorCodes.InvalidTarget);
         var source = cards[command.SourceObjectId];
-        if (ability.SimpleEffect!.ExhaustFriendlyUnitMinimumPowerAsCost is not null)
+        if (spec.ExhaustFriendlyUnitMinimumPowerAsCost is not null)
         {
             // Resource actions settle first. A unit exhausted by one of those
             // actions cannot also pay this cost (CN 415.4).
@@ -164,7 +179,7 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = exhausted,
                 ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
         }
-        if (ability.SimpleEffect.DiscardsEquipmentAsCost) {
+        if (spec.DiscardsEquipmentAsCost) {
             var discarded = extras.Single()["DISCARD_HAND_CARD:".Length..];
             if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))
                 return RejectWithCorePrompts(state, "无法弃置所选装备。", ErrorCodes.InvalidTarget);
@@ -173,13 +188,37 @@ public sealed partial class CoreRuleEngine
                 ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
         }
-        if (ability.SimpleEffect!.RemovesSourceEmpowermentAsCost)
+        if (spec.RemovesSourceEmpowermentAsCost)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(source.ObjectId, source.ObjectGeneration), false, intent.PlayerId);
             source = changed.CardObjects[source.ObjectId];
             events.AddRange(changed.Events);
         }
         cards[source.ObjectId] = ability.ExhaustsSourceAsCost ? ExhaustForInstruction(zones, cards, source) : source;
+        IReadOnlyList<TriggerQueueItemState> destructionTriggers = [];
+        IReadOnlyList<string> destroyedOwners = [];
+        var committedPools = paid.RunePools;
+        if (spec.DestroyFriendlyTagAsCost is not null)
+        {
+            // CN357.2 permits either nonstandard-cost order. Exhaust first so
+            // this very equipment can pay the destruction without being restored.
+            if (!SimpleActivationAdditionalCostChoices(afterResources, intent.PlayerId, source.ObjectId, ability).Contains(extras.Single()))
+                return RejectWithCorePrompts(state, "所选物体无法支付摧毁费用。", ErrorCodes.InvalidTarget);
+            var destroyedId = extras.Single()[DestroyFriendlyPermanentAdditionalCostPrefix.Length..];
+            var cause = new StackItemState($"cost-{state.Tick + 1}-{source.ObjectId}", intent.PlayerId,
+                source.ObjectId, ability.EffectKind, source.CardNo, []);
+            var removal = ResolveFieldDestructions(afterResources, zones, cards, cause, new HashSet<string>(),
+                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), committedPools,
+                objectLocations: locations, explicitDestroyObjectIds: new HashSet<string> { destroyedId });
+            // A replacement still pays the cost (CN357.2.a); it need not leave
+            // the originally selected object in a graveyard.
+            if (removal.Events.Count == 0)
+                return RejectWithCorePrompts(state, "无法支付所选摧毁费用。", ErrorCodes.InvalidTarget);
+            events.AddRange(removal.Events);
+            committedPools = removal.RunePools;
+            destructionTriggers = removal.TriggerQueue;
+            destroyedOwners = removal.DestroyedUnitOwnerIds;
+        }
         var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
@@ -192,22 +231,24 @@ public sealed partial class CoreRuleEngine
             with { TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
-        if (ability.SimpleEffect.OncePerTurnPerPlayer)
+        if (spec.OncePerTurnPerPlayer)
             payload["sourceGeneration"] = source.ObjectGeneration;
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
         if (ability.ExhaustsSourceAsCost)
             events.Add(new(source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED", "横置来源以支付技能费用", payload));
-        events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, paid.RunePools, paid.PlayerExperience, payload)));
+        events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, committedPools, paid.PlayerExperience, payload)));
         events.Add(new("STACK_ITEM_ADDED", "技能进入结算链", new Dictionary<string, object?>(payload) { ["stackItemId"] = item.StackItemId }));
-        var effects = ability.SimpleEffect.OncePerTurn
+        var effects = spec.OncePerTurn
             ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability, intent.PlayerId)).ToArray()
             : state.UntilEndOfTurnEffects;
-        if (ability.SimpleEffect.DiscardsEquipmentAsCost)
+        if (spec.DiscardsEquipmentAsCost)
             effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [extras.Single()["DISCARD_HAND_CARD:".Length..]], zones);
         var next = state with { Tick = state.Tick + 1, ActivePlayerId = intent.PlayerId,
             TimingState = TimingStates.NeutralClosed, PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
-            PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = paid.RunePools,
+            PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = committedPools,
             PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item],
+            TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(),
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners),
             UntilEndOfTurnEffects = effects };
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
@@ -219,8 +260,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool SimpleActivationTargetsPlayer(MatchState state, StackItemState item)
         => P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability)
-            && (ability.SimpleEffect?.TransfersSourceToChosenPlayer == true
-                || ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true)
+            && SimpleActivationTargetsPlayer(ability)
             && ValidSimpleActivation(state, item);
 
     internal static bool ValidSimpleActivation(MatchState state, StackItemState item, bool allowMissingReturnTarget = false)
@@ -233,14 +273,13 @@ public sealed partial class CoreRuleEngine
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
-            || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer
-                || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? 0 : ability.RequiredTargetCount)
+            || (item.TargetGenerations?.Count ?? 0) != (SimpleActivationTargetsPlayer(ability) ? 0 : ability.RequiredTargetCount)
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
                 || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory)
                 || !factory.Tags.Contains(ability.SimpleEffect!.EmpowersOtherEquipment ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard))
-            || (ability.SimpleEffect!.TransfersSourceToChosenPlayer || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+            || (SimpleActivationTargetsPlayer(ability)
                 ? item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id)
-                    || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield && id == item.ControllerId)
+                    || SimpleActivationTargetsOpponent(ability) && id == item.ControllerId)
                 : item.TargetObjectIds.Any(id => item.TargetGenerations!.GetValueOrDefault(id, -1) < 0
                 || (state.CardObjects.TryGetValue(id, out var target)
                     ? item.TargetGenerations![id] > target.ObjectGeneration
@@ -251,7 +290,7 @@ public sealed partial class CoreRuleEngine
                 DepartedTokenTargets = item.DepartedTokenTargets,
                 EffectPlayCompleted = allowMissingReturnTarget ? item.EffectPlayCompleted : false };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
-            && (item.TokenEntryPlan is null || ability.SimpleEffect!.CreatedRobotCount > 0 && ValidTokenEntryPlan(state, item));
+            && (item.TokenEntryPlan is null || SimpleActivationUnitTokenCount(ability.SimpleEffect!) > 0 && ValidTokenEntryPlan(state, item));
     }
 
     private static bool ValidSimpleActivationSource(MatchState state, SimpleActivationContext context,
@@ -302,10 +341,15 @@ public sealed partial class CoreRuleEngine
         return valid;
     }
 
+    private static int SimpleActivationUnitTokenCount(SimpleActivatedEffectSpec spec)
+        => spec.CreatedRobotCount + spec.CreatedMinionCount;
+
     private static CardBehaviorDefinition SimpleActivationTokenBehavior(P4ActivatedAbilityDefinition ability)
         => new(ability.SourceCardNo, ability.DisplayName, 0, ability.EffectKind, 0, 0,
-            CreatedBaseUnitTokenCount: ability.SimpleEffect!.CreatedRobotCount,
-            CreatedBaseUnitTokenName: "机器人", CreatedBaseUnitTokenPower: 3, CreatedBaseUnitTokenTags: "机械");
+            CreatedBaseUnitTokenCount: SimpleActivationUnitTokenCount(ability.SimpleEffect!),
+            CreatedBaseUnitTokenName: ability.SimpleEffect!.CreatedMinionCount > 0 ? "随从" : "机器人",
+            CreatedBaseUnitTokenPower: ability.SimpleEffect.CreatedMinionCount > 0 ? 1 : 3,
+            CreatedBaseUnitTokenTags: ability.SimpleEffect.CreatedMinionCount > 0 ? "随从" : "机械");
 
     private static StackResolutionResult ResolveSimpleActivationEffect(MatchState state, StackItemState item, P4ActivatedAbilityDefinition ability)
     {
@@ -313,6 +357,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidSimpleActivation(state, item,
                 allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
             throw new InvalidOperationException("Invalid captured printed activation.");
+        if (spec.OpponentGuessesDeckTopType) return ResolveGuessedDeckTop(state, item, ability);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
@@ -528,8 +573,22 @@ public sealed partial class CoreRuleEngine
             var drawn = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);
             result = result with { PlayerScores = drawn.PlayerScores, WinnerPlayerId = drawn.WinnerPlayerId, RngCursor = drawn.RngCursor };
         }
-        if (spec.CreatedRobotCount > 0)
+        if (spec.RuneCallCount is > 0 && result.WinnerPlayerId is null)
+        {
+            var called = CallRunes(zones, cards, item.ControllerId, spec.RuneCallCount.Value);
+            events.Add(new("RUNES_CALLED", $"{item.ControllerId} 召出 {called.CalledRuneObjectIds.Count} 枚休眠符文",
+                new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray(),
+                    ["reason"] = item.EffectKind }));
+        }
+        if (SimpleActivationUnitTokenCount(spec) > 0)
             CreateBaseUnitTokens(state, zones, cards, pools, SimpleActivationTokenBehavior(ability), item, events, locations, state.UntilEndOfTurnEffects);
+        if (spec.CreatedGoldCount > 0)
+            CreateBaseEquipmentTokens(zones, cards,
+                new(ability.SourceCardNo, ability.DisplayName, 0, ability.EffectKind, 0, 0,
+                    CreatedBaseEquipmentTokenCount: spec.CreatedGoldCount, CreatedBaseEquipmentTokenName: "金币",
+                    CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard, CreatedBaseEquipmentTokenIsExhausted: true), item, events);
         if (spec.EmpowersOtherEquipment)
         {
             var target = item.TargetObjectIds.Single();
