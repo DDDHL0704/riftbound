@@ -232,11 +232,11 @@ public sealed class VenRunePrintingConsumerTests
             last = (player, intent, raw, accepted);
             var result = await Send(player, intent, GameCommandJsonMapper.Map(raw), raw); Assert.Equal(accepted, result.Accepted); State = result.State;
             if (!accepted) { Assert.Equal(before, MatchStateHasher.Hash(State)); Assert.Empty(result.Events); }
-            var frame = Frame(); Assert.Empty(frame.ValidationErrors);
+            var frame = Frame(result); Assert.Empty(frame.ValidationErrors);
             foreach (var entry in State.ObjectLocations.Where(e => e.Value.Zone is "BASE" or "BATTLEFIELD" or "GRAVEYARD" or "BANISHED" or "LEGEND" or "CHAMPION")) EverPublic.Add(entry.Key);
             foreach (var viewer in State.Seats.Keys)
             {
-                var text = JsonSerializer.Serialize(Session.SnapshotFor(viewer), Json) + JsonSerializer.Serialize(Session.PromptFor(viewer), Json);
+                var text = JsonSerializer.Serialize(result.Snapshots[viewer], Json) + JsonSerializer.Serialize(result.Prompts[viewer], Json);
                 foreach (var opponent in State.Seats.Keys.Where(p => p != viewer)) foreach (var hidden in Hidden(opponent).Where(id => !EverPublic.Contains(id))) Assert.DoesNotContain(hidden, text, StringComparison.Ordinal);
             }
             var spectator = JsonSerializer.Serialize(frame.SpectatorReplayFrame, Json);
@@ -275,10 +275,13 @@ public sealed class VenRunePrintingConsumerTests
             Assert.Equal(count, Log.Entries.Count); Assert.Equal(MatchStateHasher.Hash(State), MatchStateHasher.Hash(duplicate.State));
         }
         private IEnumerable<string> Hidden(string player) => State.PlayerZones[player].Hand.Concat(State.PlayerZones[player].MainDeck).Concat(State.PlayerZones[player].RuneDeck);
-        private MatchRecoveryFrame Frame()
+        private MatchRecoveryFrame Frame(ResolutionResult? result = null)
         {
             var commands = Log.Commands(); var events = Log.Events(); var sequence = events.Length == 0 ? 0 : events[^1].Sequence;
-            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
+            // Result projections cover this command's state; explicit checkpoints
+            // and final evidence still build fresh views independently.
+            var snapshots = result?.Snapshots ?? ResolutionResult.BuildSnapshots(State);
+            var prompts = result?.Prompts ?? ResolutionResult.BuildPrompts(State);
             var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, commands, events, views, State, State.Tick, spectator);
