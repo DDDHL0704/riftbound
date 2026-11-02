@@ -58,6 +58,11 @@ def assess(run, repository, workflow_id, fetch):
     api = 'repos/' + repository
     if run.get('event') == 'pull_request':
         associated = run.get('pull_requests')
+        if associated == []:
+            # GitHub can clear the run's associations after a PR merges. Resolve
+            # its fixed head commit, then apply the same live PR identity checks.
+            # Reused commits or any other ambiguity preserve the run.
+            associated = fetch(api + '/commits/' + run['head_sha'] + '/pulls?per_page=100')
         if not isinstance(associated, list) or len(associated) != 1 or not isinstance(associated[0], dict):
             return keep('Run does not identify exactly one pull request')
         number = associated[0].get('number')
