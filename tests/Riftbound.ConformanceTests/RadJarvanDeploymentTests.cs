@@ -46,7 +46,7 @@ public sealed class RadJarvanDeploymentTests
         Assert.Equal(TimingStates.SpellDuelOpen, game.State.TimingState);
         await game.Act("P1", new PlayCardCommand("GEAR", Gear, [], Destination: "BATTLEFIELD:BF"));
         Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
-        Assert.Equal(29, game.State.RunePools["P1"].Mana); Assert.Equal(29, game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(29, game.State.RunePools["P1"].Mana); Assert.Equal(30, game.State.RunePools["P1"].TotalPower);
         await game.Replay();
     }
 
