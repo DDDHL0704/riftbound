@@ -133,13 +133,14 @@ public sealed class RadSeraphineHealingTests
     public async Task ANewTurnRestoresTheOptionalUse()
     {
         var state = AddCard(Position(), "SECOND", Exhaust);
-        var runes = Enumerable.Range(0, 7).Select(i => "PAY-" + i).ToArray();
+        var runes = Enumerable.Range(0, 9).Select(i => "PAY-" + i).ToArray();
         foreach (var id in runes)
-            state = LastBreathDrawBoundaryTests.Add(state, id, "OGN·007/298", "P1", "BASE");
+            state = LastBreathDrawBoundaryTests.Add(state, id, "UNL-R03", "P1", "BASE");
         var game = new Driver(state);
         await Cast(game); await Confirm(game, true); await game.Top();
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
         await game.Act("P1", new TapRuneCommand(runes[0], runes));
+        await game.Act("P1", new RecycleRuneCommand(runes[0], runes.Take(2).ToArray()));
         await Cast(game, "SECOND"); await Confirm(game, true); await game.Top();
         Assert.Empty(game.State.StackItems); await game.Replay();
     }
