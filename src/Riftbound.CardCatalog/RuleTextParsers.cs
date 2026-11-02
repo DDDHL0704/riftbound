@@ -323,6 +323,26 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var cardPlayDraw = Regex.Match(text,
+            @"(?:^|\n)\s*当你打出一张卡牌时，抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。(?=\s*(?:\n|$))",
+            RegexOptions.CultureInvariant);
+        if (cardPlayDraw.Success && ParseChineseNumber(cardPlayDraw.Groups["draw"].Value) is > 0 and var playDrawCount)
+            triggers.Add(new(TriggerKinds.ControllerCardPlayDraw, "CARD_PLAY_COMPLETED", cardPlayDraw.Value.Trim(),
+                "Draw after this controller successfully completes a card play, regardless of its origin zone.",
+                DrawCount: playDrawCount));
+        var drawHandThreshold = Regex.Match(text,
+            @"(?:^|\n)\s*当你抽至少(?<draw>[0-9一两二三四五六七八九十]+)张牌且有至少(?<hand>[0-9一两二三四五六七八九十]+)张其他手牌时，弃置你的手牌、摧毁此牌、并选择一名对手。该对手获得(?<score>[0-9一两二三四五六七八九十]+)分。(?=\s*(?:\n|$))",
+            RegexOptions.CultureInvariant);
+        if (drawHandThreshold.Success
+            && ParseChineseNumber(drawHandThreshold.Groups["draw"].Value) is > 0 and var minimumDraw
+            && ParseChineseNumber(drawHandThreshold.Groups["hand"].Value) is > 0 and var minimumOtherHand
+            && ParseChineseNumber(drawHandThreshold.Groups["score"].Value) is > 0 and var opponentScore)
+            triggers.Add(new(TriggerKinds.ControllerDrawHandThresholdDiscardDestroyScore, "CARDS_DRAWN", drawHandThreshold.Value.Trim(),
+                "Capture the draw and other-hand condition at the draw instruction; resolve discard, source destruction and opponent scoring later.",
+                TargetScope: TriggerTargetScopes.OpponentPlayer, DiscardSourceZone: TriggerZones.Hand,
+                DiscardDestinationZone: TriggerZones.Graveyard, DestroyCount: 1, ScoreAmount: opponentScore,
+                MinimumDrawCount: minimumDraw, MinimumOtherHandCount: minimumOtherHand,
+                DiscardsAllControllerHand: true, DestroysSource: true));
         var defendBulwark = Regex.Match(text,
             @"当你在此处防守时，选择此处你控制的一名单位。在本次战斗中给予其\{\{壁垒\}\}",
             RegexOptions.CultureInvariant);

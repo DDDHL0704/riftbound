@@ -31841,7 +31841,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state with { PlayerZones = playerZones }, playerId),
+                    [DrawInstructionCaptureKey] = CaptureDrawInstruction(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                        playerId, selectedCardIds.Length, zones.Hand.Count),
                     ["count"] = selectedCardIds.Length
                 }));
         }
@@ -33654,6 +33655,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             DrawnCards = drawnCards.ToArray(),
             Burnouts = burnouts.ToArray(),
+            OtherHandCount = zones.Hand.Count,
             WinnerPlayerId = result.WinnerPlayerId
                 ?? (deferNormalVictory ? null : WinningPlayerId(result.PlayerScores, result.WinningScore))
         };
@@ -33728,7 +33730,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["count"] = drawResult.DrawnCards.Count,
-                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state, playerId)
+                    [DrawInstructionCaptureKey] = CaptureDrawInstruction(state, playerId,
+                        drawResult.DrawnCards.Count, drawResult.OtherHandCount)
                 }));
         }
 
@@ -34930,7 +34933,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = state.TurnPlayerId,
-                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state, state.TurnPlayerId),
+                    [DrawInstructionCaptureKey] = CaptureDrawInstruction(state, state.TurnPlayerId,
+                        drawResult.DrawnCards.Count, drawResult.OtherHandCount),
                     ["count"] = drawResult.DrawnCards.Count
                 }));
         }
@@ -34978,7 +34982,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? WinnerPlayerId,
         IReadOnlyDictionary<string, int> PlayerScores,
         long RngCursor,
-        int WinningScore);
+        int WinningScore,
+        int OtherHandCount = 0);
 
 
     private sealed record TurnStartReadyResult(IReadOnlyList<GameEvent> Events)

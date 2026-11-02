@@ -106,23 +106,26 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult RecordDrawTriggers(MatchState before, ResolutionResult result)
     {
-        if (!result.Accepted || result.State.Phase is not (MatchPhases.Main or MatchPhases.TurnStart or MatchPhases.TurnEnd)) return result;
+        if (!result.Accepted) return result;
+        // Capture data must never survive into public events, even outside phases
+        // where the per-turn draw ledger applies.
+        var events = result.Events.Select(e => e.Payload.ContainsKey(DrawInstructionCaptureKey)
+            ? e with { Payload = e.Payload.Where(p => p.Key != DrawInstructionCaptureKey).ToDictionary(p => p.Key, p => p.Value) } : e).ToList();
+        if (result.State.Phase is not (MatchPhases.Main or MatchPhases.TurnStart or MatchPhases.TurnEnd))
+            return result with { Events = events };
         var state = result.State;
         var counts = (state.DrawLedger.TurnNumber == state.TurnNumber ? state.DrawLedger.Counts : new Dictionary<string, int>())
             .ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        // The source snapshot is internal to this resolution, never part of the public event log.
-        var events = result.Events.Select(e => e.Payload.ContainsKey("drawTriggerSources")
-            ? e with { Payload = e.Payload.Where(p => p.Key != "drawTriggerSources").ToDictionary(p => p.Key, p => p.Value) } : e).ToList();
         var queue = state.TriggerQueue.ToList();
         for (var index = 0; index < result.Events.Count; index++)
         {
             var ev = result.Events[index];
             if (ev.Kind != "CARD_DRAWN" || !ev.Payload.TryGetValue("playerId", out var p) || p is not string player
                 || !ev.Payload.TryGetValue("count", out var n) || n is not int amount || amount <= 0) continue;
+            var instruction = CapturedDraw(ev, player, amount);
             var prior = counts.GetValueOrDefault(player); counts[player] = checked(prior + amount);
             if (prior >= 2 || counts[player] < 2 || state.Status != MatchStatuses.InProgress) continue;
-            var sources = ev.Payload.TryGetValue("drawTriggerSources", out var captured) && captured is CapturedDrawSource[] recorded
-                ? recorded : CaptureDrawTriggerSources(before, player);
+            var sources = instruction?.Sources ?? CaptureDrawTriggerSources(before, player);
             foreach (var source in sources)
             {
                 var trigger = new TriggerQueueItemState($"draw-{state.TurnNumber}-{state.Tick}-{index}-{source.SourceId}", source.ControllerId,
