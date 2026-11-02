@@ -86,7 +86,11 @@ public sealed partial class CoreRuleEngine
                 && (context.Origin is not null || current.ObjectGeneration != context.Source.Generation + 1 || current.CardNo == context.CardNo);
         return context.SourceTokenFactoryCardNo is not null
             && P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
-            && token.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.EquipmentCard);
+            && (token.Tags.Contains(CardObjectTags.UnitCard)
+                // Equipment factories have fixed printed text. Borrowed unit text
+                // needs its captured attachment origin even after the token ceases.
+                || token.Tags.Contains(CardObjectTags.EquipmentCard)
+                    && (context.CardNo == token.CardNo || context.Origin is not null));
     }
 
     internal static bool ValidLastBreathDrawStack(MatchState state, StackItemState item)

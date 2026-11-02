@@ -120,7 +120,12 @@ public sealed class RadGravityFieldLastBreathTests
         Assert.Empty(game.State.DeathLedger.Counts);
         if (game.State.TriggerQueue.Count > 0) await Order(game);
         for (var step = 0; game.State.StackItems.Count > 0; step++)
-        { Assert.InRange(step, 0, 3); await game.Top(); }
+        {
+            Assert.InRange(step, 0, 3); await game.Top();
+            if (game.State.PendingRuleChoice is { Request.Kind: "TOKEN_PLAY_LOCATION" } location)
+                await game.Act(location.Request.PlayerId, new PayCostCommand(location.Request.Id, "RULE_REPLACEMENT", ["BASE"]));
+        }
+        Assert.Null(game.State.PendingRuleChoice);
         Assert.Single(game.State.CardObjects.Values, card => card.TokenFactoryCardNo is { } no
             && P6TokenFactoryCatalog.TryGetByCardNo(no, out var factory) && factory.TokenFamilyName == "随从");
         Assert.Equal(hand + (replaced ? 0 : 1), game.State.PlayerZones["P1"].Hand.Count);
@@ -157,6 +162,35 @@ public sealed class RadGravityFieldLastBreathTests
         var birth = Assert.Single(Births(game.State)); Assert.NotNull(birth.SourceTokenFactoryCardNo);
         var forged = WithBirth(game.State, birth with { SourceTokenFactoryCardNo = null });
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), e => e.Contains("captured last-breath draw", StringComparison.Ordinal));
+        await ResolveDraws(game, 1); await game.Replay();
+    }
+
+    [Fact]
+    public async Task StagedAnimatedGoldKeepsItsBorrowedDrawAfterActualCopyAndDestruction()
+    {
+        // Established unit characteristics are explicit fixture setup. The copy,
+        // destruction, captured origin and recovery use the actual command history.
+        var initial = Put(Put(Put(Put(Create(), "SOURCE", P4ActivatedAbilityCatalog.GoldTokenUnlCardNo, "P1", "BASE"),
+            "COPY-SOURCE", "OGN·096/298", "P1", "BASE"), "SPECS", "VEN·137", "P1", "BASE"),
+            "FINISH", "OGN·229/298", "P1", "HAND");
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(P4ActivatedAbilityCatalog.GoldTokenUnlCardNo, out var factory));
+        var gold = factory.CreateObject("SOURCE", "P1", "P1");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            [gold.ObjectId] = gold with { Tags = gold.Tags.Append(CardObjectTags.UnitCard).Order(StringComparer.Ordinal).ToArray() } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new AssembleEquipmentCommand("SPECS", gold.ObjectId, ["ASSEMBLE_YELLOW"])); await game.Top();
+        var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
+        await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+        Assert.Equal("OGN·096/298", game.State.CardObjects[gold.ObjectId].CardNo);
+        await game.Act("P1", new PlayCardCommand("FINISH", "OGN·229/298", [gold.ObjectId])); await game.Top();
+        Assert.DoesNotContain(gold.ObjectId, game.State.CardObjects.Keys);
+        var birth = Assert.Single(Births(game.State));
+        Assert.Equal(gold.TokenFactoryCardNo, birth.SourceTokenFactoryCardNo);
+        Assert.Equal("SPECS", Assert.IsType<RuleTextInstanceBinding>(birth.Origin).Equipment.ObjectId);
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(game.State));
+        foreach (var invalidFactory in new[] { null, "UNKNOWN-FACTORY", P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo })
+            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(WithBirth(game.State,
+                birth with { SourceTokenFactoryCardNo = invalidFactory })), e => e.Contains("captured last-breath draw", StringComparison.Ordinal));
         await ResolveDraws(game, 1); await game.Replay();
     }
 
