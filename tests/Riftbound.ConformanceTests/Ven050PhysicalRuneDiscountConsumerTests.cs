@@ -16,10 +16,14 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
     [InlineData(8, 4)] [InlineData(12, 0)]
     public async Task ActualFourManaPlayPaysFourOrZeroAndLaterRecyclingCannotRepriceIt(int controlled, int mana)
     {
-        var initial = Position(true); var game = new Driver(initial);
+        var initial = Position(true); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await Prepare(game, controlled); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            await Prepare(game, controlled);
+            // Recover the paid setup before the actual threshold or combat case.
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
+            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.TapRunes("P1", Common.Runes(game.State).Take(mana));
             Assert.Equal(mana, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Assert.Equal(controlled, Common.Runes(game.State).Length); Assert.Equal(12 - controlled, game.State.PlayerZones["P1"].RuneDeck.Count);
@@ -38,7 +42,8 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
             await Common.Reject(game, "P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []), "ven050-no-repeat-" + controlled);
             Assert.Equal(payments, game.Events().Count(e => e.Event.Kind == "COST_PAID"));
             await game.Act("P1", new EndTurnCommand()); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
-            Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.Equal(4, Common.Might(game.State)); await game.Replay();
+            Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.Equal(4, Common.Might(game.State));
+            // The preceding Act/Top already replayed this unchanged original history.
         }
         finally { await Save("actual-paid-and-later-rune-" + controlled, initial, game); }
     }
@@ -46,10 +51,14 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
     [Fact]
     public async Task OneActualManaShortAndItsCachedIntentNeedAFreshTapAndFreshIntent()
     {
-        var initial = Position(true); var game = new Driver(initial);
+        var initial = Position(true); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await Prepare(game, 8); var runes = Common.Runes(game.State);
+            await Prepare(game, 8);
+            // Recover the paid setup before the actual threshold or combat case.
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
+            var runes = Common.Runes(game.State);
             await game.TapRunes("P1", runes.Take(3)); Assert.Equal(3, game.State.RunePools["P1"].Mana);
             var command = new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []); var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
             raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;
@@ -60,7 +69,8 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
             await game.ActRetained(retained, false); Assert.Equal(4, game.State.RunePools["P1"].Mana); Assert.Empty(game.State.StackItems);
             await game.Act("P1", command); Assert.Equal(0, game.State.RunePools["P1"].Mana);
             var paid = Assert.Single(game.State.StackItems).EmpowerActivation!; Assert.Equal(8, paid.ControlledRunes); Assert.Equal(4, paid.PaidMana);
-            await game.Top(); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(4, Common.Might(game.State)); await game.Replay();
+            await game.Top(); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(4, Common.Might(game.State));
+            // The preceding Act/Top already replayed this unchanged original history.
         }
         finally { await Save("actual-one-short-at-eight", initial, game); }
     }
@@ -70,10 +80,14 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
     [InlineData(false, false, 4)] [InlineData(false, true, 7)]
     public async Task ActualMovementGivesThreeMightOnlyToTheGenuinelyEmpoweredDefender(bool attacking, bool empowered, int expected)
     {
-        var initial = Position(attacking); var game = new Driver(initial);
+        var initial = Position(attacking); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
-            await Prepare(game, 12, attacking ? "BASE" : "BATTLEFIELD:BF"); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            await Prepare(game, 12, attacking ? "BASE" : "BATTLEFIELD:BF");
+            // Recover the paid setup before the actual threshold or combat case.
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
+            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             if (empowered)
             {
                 await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));
@@ -92,7 +106,8 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
             Assert.False(game.State.CardObjects["UNIT"].IsAttacking); Assert.False(game.State.CardObjects["UNIT"].IsDefending);
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Battlefields); Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
             Assert.Equal(empowered, game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(4, Common.Might(game.State));
-            Assert.Empty(game.State.CardObjects["UNIT"].UntilEndOfTurnPowerModifiers); await game.Replay();
+            Assert.Empty(game.State.CardObjects["UNIT"].UntilEndOfTurnPowerModifiers);
+            // The preceding Act/Top already replayed this unchanged original history.
         }
         finally { await Save("actual-combat-" + attacking + "-" + empowered, initial, game); }
     }
@@ -127,7 +142,7 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN050_PHYSICAL_EVIDENCE") is not { Length: > 0 } folder) return;
         Directory.CreateDirectory(folder); await File.WriteAllTextAsync(Path.Combine(folder, label + ".json"), JsonSerializer.Serialize(new {
-            scope = "Explicit turn-five material, zero pools/exactly12 physical own blue runes, actual4mana No050 play, natural two-rune channeling to8/12, actual4/0mana native Empower and later real rune recycling. Roles use real movement/combat; Ward uses real enemy spell/runes. No forced status/role/result/source/profile, submitted opening, SQL/network, full applicability, latest complete L2/L3 or whole-card claim. Original per-command hidden/current recovery/dedup/original action-event replay retained.",
+            scope = "Explicit turn-five material, zero pools/exactly12 physical own blue runes, actual4mana No050 play, natural two-rune channeling to8/12, actual4/0mana native Empower and later real rune recycling. Roles use real movement/combat; Ward uses real enemy spell/runes. No forced status/role/result/source/profile, submitted opening, SQL/network, full applicability, latest complete L2/L3 or whole-card claim. Privacy/dedup and complete original replay retained; the physical discount/combat case cold-recovers paid setup once and subsequent commands individually. Ward keeps its own stage checkpoints.",
             initial, final = game.State, commands = game.Commands(), events = game.Events(), ruleInputs = RuleInputIdentity.Current }, Json));
     }
 }

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -159,8 +160,22 @@ public sealed class VenEmpowerCanonicalOpeningTests
         private readonly MatchState initial;
         internal MatchState State { get; private set; }
 
+        private readonly string? phaseTimingsFile;
+        private IReadOnlyDictionary<string, ActionPromptDto>? currentPrompts;
+
         internal CanonicalGame(MatchState initial)
-        { this.initial = initial; State = initial; }
+        {
+            this.initial = initial; State = initial;
+            var directory = Environment.GetEnvironmentVariable("RIFTBOUND_CANONICAL_PHASE_TIMINGS");
+            if (!string.IsNullOrWhiteSpace(directory))
+                phaseTimingsFile = Path.Combine(directory, Environment.ProcessId + "-" + Guid.NewGuid().ToString("N") + ".jsonl");
+        }
+
+        private async Task WritePhase(object value)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(phaseTimingsFile!)!);
+            await File.AppendAllTextAsync(phaseTimingsFile!, JsonSerializer.Serialize(value) + Environment.NewLine);
+        }
 
         private IMatchSession Session { get; set; } = null!;
         private readonly List<MatchJournalEntry> entries = [];
@@ -178,9 +193,13 @@ public sealed class VenEmpowerCanonicalOpeningTests
 
         internal async Task Act(string player, GameCommand command)
         {
+            var started = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             Session ??= new MatchSession(initial, new CoreRuleEngine(), this);
             var node = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
-            node["promptId"] = Session.PromptFor(player).PromptId;
+            // Accepted results already project the current state for both players.
+            // Restore boundaries clear this cache so the next command queries the new session.
+            var prompt = currentPrompts is null ? Session.PromptFor(player) : currentPrompts[player];
+            node["promptId"] = prompt.PromptId;
             node["snapshotTick"] = State.Tick;
             var raw = JsonSerializer.SerializeToElement(node, Json);
             command = GameCommandJsonMapper.Map(raw);
@@ -189,8 +208,13 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var result = await Send(player, intent, command, raw);
             Assert.True(result.Accepted, command.GetType().Name + ": " + result.ErrorMessage);
             State = result.State;
+            currentPrompts = result.Prompts;
             foreach (var location in State.ObjectLocations.Where(e => e.Value.Zone is "BASE" or "BATTLEFIELD" or "GRAVEYARD" or "BANISHED" or "LEGEND" or "CHAMPION"))
                 publicObjects.Add(location.Key);
+            if (phaseTimingsFile is not null)
+                await WritePhase(new { phase = "command", room = State.RoomId, command = command.CmdType,
+                    commandCount = entries.Count, tick = State.Tick,
+                    totalMilliseconds = Stopwatch.GetElapsedTime(started).TotalMilliseconds });
         }
 
         internal string[] Runes(string player) => State.PlayerZones[player].Base
@@ -274,7 +298,8 @@ public sealed class VenEmpowerCanonicalOpeningTests
                 failures.Add(failure.Message);
             }
             store.Current = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(original, Json), Json)!;
-            Session = await registry.GetOrCreateAsync(State.RoomId, default); Assert.Equal(3, store.Loads);
+            Session = await registry.GetOrCreateAsync(State.RoomId, default);
+            currentPrompts = null; Assert.Equal(3, store.Loads);
             foreach (var viewer in State.Seats.Keys) {
                 Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Snapshot), MatchStateHasher.HashValue(Session.SnapshotFor(viewer)));
                 Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Prompt), MatchStateHasher.HashValue(Session.PromptFor(viewer)));
@@ -298,11 +323,16 @@ public sealed class VenEmpowerCanonicalOpeningTests
 
         internal async Task ColdCheckpoint()
         {
+            var started = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             var frame = Frame(); Assert.Empty(frame.ValidationErrors);
             Assert.DoesNotContain(frame.Commands, command => command.CommandType.Contains("SCENARIO", StringComparison.Ordinal));
+            var framed = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+            var decodedAt = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, new Store(decoded));
             Session = await registry.GetOrCreateAsync(State.RoomId, default);
+            currentPrompts = null;
+            var restored = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             foreach (var viewer in State.Seats.Keys)
             {
                 Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Snapshot, Json), JsonSerializer.SerializeToNode(Session.SnapshotFor(viewer), Json)));
@@ -313,10 +343,23 @@ public sealed class VenEmpowerCanonicalOpeningTests
             }
             var publicReplay = JsonSerializer.Serialize(frame.SpectatorReplayFrame, Json);
             foreach (var id in State.Seats.Keys.SelectMany(Hidden).Where(id => !publicObjects.Contains(id))) Assert.DoesNotContain(id, publicReplay, StringComparison.Ordinal);
+            var checkedViews = phaseTimingsFile is null ? 0 : Stopwatch.GetTimestamp();
             var previous = last!.Value; var count = entries.Count; var hash = MatchStateHasher.Hash(State);
             var duplicate = await Send(previous.Player, previous.Intent, previous.Command, previous.Raw);
             Assert.True(duplicate.Accepted); Assert.Empty(duplicate.Events); Assert.Equal(count, entries.Count);
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
+            if (phaseTimingsFile is not null)
+            {
+                var completed = Stopwatch.GetTimestamp();
+                await WritePhase(new { phase = "cold-recovery", room = State.RoomId,
+                    commandCount = entries.Count, tick = State.Tick,
+                    frameMilliseconds = Stopwatch.GetElapsedTime(started, framed).TotalMilliseconds,
+                    jsonMilliseconds = Stopwatch.GetElapsedTime(framed, decodedAt).TotalMilliseconds,
+                    registryMilliseconds = Stopwatch.GetElapsedTime(decodedAt, restored).TotalMilliseconds,
+                    viewsMilliseconds = Stopwatch.GetElapsedTime(restored, checkedViews).TotalMilliseconds,
+                    duplicateMilliseconds = Stopwatch.GetElapsedTime(checkedViews, completed).TotalMilliseconds,
+                    totalMilliseconds = Stopwatch.GetElapsedTime(started, completed).TotalMilliseconds });
+            }
         }
 
         private IEnumerable<string> Hidden(string player)
