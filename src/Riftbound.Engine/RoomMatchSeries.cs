@@ -34,7 +34,7 @@ public static class RoomMatchSeries
     public static MatchState EventState(MatchState state)
         => state.Status == MatchStatuses.InProgress ? state : state.LastCompletedSeriesGame?.State ?? state;
 
-    public static MatchSeriesDto? ViewFor(MatchState state)
+    public static MatchSeriesDto? ViewFor(MatchState state, string? viewerPlayerId = null)
     {
         MatchSeries? series;
         try { series = Current(state); }
@@ -49,7 +49,9 @@ public static class RoomMatchSeries
                 _ => MatchSeriesPhases.Finished
             },
             SealedSeriesDecks.UsedBattlefields(state),
-            series.PlayOrderChooserPlayerId);
+            series.PlayOrderChooserPlayerId,
+            series.Phase is MatchSeriesPhase.ChoosingPlayOrder or MatchSeriesPhase.SubmittingDecks
+                ? SealedSeriesDecks.LockedDeckFor(state, viewerPlayerId) : null);
     }
 
     internal static IReadOnlyDictionary<string, ActionPromptDto>? ChoosingPrompts(MatchState state)

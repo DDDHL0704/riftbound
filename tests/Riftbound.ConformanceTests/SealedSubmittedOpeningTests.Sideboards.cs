@@ -51,9 +51,11 @@ public sealed partial class SealedSubmittedOpeningTests
         var before = run.Live.SnapshotFor("alice").SideboardCounts!;
         await run.Act("bob", new SurrenderCommand());
         Assert.Empty(run.State.PlayerDecklists);
+        AssertLockedDeckViews(run, new Dictionary<string, OfficialDecklist>());
         Assert.Equal(before, run.Live.SnapshotFor("alice").SideboardCounts!);
         await run.Cold();
         await run.Choose();
+        AssertLockedDeckViews(run, new Dictionary<string, OfficialDecklist>());
         var replacement = await Deck(run.State.PlayerSealedPools!["alice"], true, false, 1);
         await run.Act("alice", Command(replacement));
         var after = run.Live.SnapshotFor("bob").SideboardCounts!;
@@ -69,5 +71,6 @@ public sealed partial class SealedSubmittedOpeningTests
         var live = new MatchSession("constructed-without-sealed-sideboard-count", new CoreRuleEngine());
         await live.EnsurePlayerAsync("alice", default);
         Assert.Null(live.SnapshotFor("alice").SideboardCounts);
+        Assert.Null(live.SnapshotFor("alice").Series);
     }
 }
