@@ -186,7 +186,7 @@ public sealed class OriannaLegendEquipmentUnitTests
     [InlineData(false)] [InlineData(true)]
     public async Task IndependentLegendConversionsEndOnlyTheirOwnDuration(bool endLatest)
     {
-        var initial = Position();
+        var initial = RadUnitEffectTestFixture.Place(Position(), "ALLY", "P1", "BATTLEFIELD", "BF");
         var other = OfficialGarenConquestBattlefieldCountTests.Printed("OTHER-LEGEND", "RAD·171/167", "P1");
         initial = initial with {
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { [other.ObjectId] = other },
@@ -201,6 +201,21 @@ public sealed class OriannaLegendEquipmentUnitTests
         var latest = game.State.CardObjects["GEAR"].LegendEquipmentUnit!;
         var earlier = Assert.Single(latest.EarlierEffects!);
         Assert.NotEqual(latest.SourceLegend, earlier.SourceLegend);
+        // Rebuilt views cannot authorize deleting an older duration or changing
+        // its source or application time; the accepted resolutions bind both.
+        foreach (var forged in new[] {
+            latest with { EarlierEffects = null },
+            latest with { EarlierEffects = [] },
+            latest with { EarlierEffects = [earlier with { AppliedTick = earlier.CapturedTick }] },
+            latest with { EarlierEffects = [earlier with { SourceLegend = latest.SourceLegend }] },
+            latest with { EarlierEffects = [earlier with { EarlierEffects = [earlier] }] },
+            latest with { EarlierEffects = [null!] } })
+        {
+            var bad = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                ["GEAR"] = game.State.CardObjects["GEAR"] with { LegendEquipmentUnit = forged } } };
+            Assert.NotEmpty(HistoryErrors(game, bad));
+        }
+        await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF"));
         var selected = endLatest ? latest.SourceLegend.ObjectId : earlier.SourceLegend.ObjectId;
         var retained = endLatest ? earlier : latest with { EarlierEffects = null };
         await game.Act("P1", new EndTurnCommand());
@@ -208,8 +223,21 @@ public sealed class OriannaLegendEquipmentUnitTests
         await ResolveMainTriggers(source => source == selected ? "SECOND" : null);
         Assert.Equal(retained, game.State.CardObjects["GEAR"].LegendEquipmentUnit);
         Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), game.State.ObjectLocations["GEAR"]);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "EQUIPMENT_RECALLED_TO_BASE"
+            && Equals(e.Event.Payload["equipmentObjectId"], "GEAR"));
         Assert.Equal(selected, game.State.CardObjects["SECOND"].LegendEquipmentUnit!.SourceLegend.ObjectId);
         AssertMight(game, 2, 2);
+        await game.ColdCheckpoint();
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new EndTurnCommand());
+        await ResolveMainTriggers(source => source == retained.SourceLegend.ObjectId ? "SECOND" : null);
+        Assert.Null(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), game.State.ObjectLocations["GEAR"]);
+        Assert.Single(game.Events(), e => e.Event.Kind == "EQUIPMENT_RECALLED_TO_BASE"
+            && Equals(e.Event.Payload["equipmentObjectId"], "GEAR"));
+        Assert.NotNull(game.State.CardObjects["SECOND"].LegendEquipmentUnit!.EarlierEffects);
         await game.ColdCheckpoint(); await game.Replay();
 
         async Task ResolveMainTriggers(Func<string, string?> targetForSource)
@@ -232,6 +260,18 @@ public sealed class OriannaLegendEquipmentUnitTests
                 else await game.Top();
             }
         }
+    }
+
+    private static IReadOnlyList<string> HistoryErrors(Driver game, MatchState state)
+    {
+        var sequence = game.Events()[^1].Sequence;
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(player,
+            state.Tick, sequence, snapshots[player], state.Tick, sequence, prompts[player]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        return MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views,
+            state, state.Tick, spectator);
     }
 
     [Theory]
