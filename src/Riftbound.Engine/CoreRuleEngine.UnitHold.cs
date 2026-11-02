@@ -47,7 +47,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidParsedUnitHeld(MatchState state, HeldTriggerContext context, string effect,
         string controller, string sourceId, string? cardNo)
     {
-        if (!IsParsedUnitHeldContext(context) || UnitHeldSpec(context.CardNo) is not { } spec
+        if (!IsParsedUnitHeldContext(context) || context.Deployment is not null || UnitHeldSpec(context.CardNo) is not { } spec
             || context.Kind != (spec.RuneCallCount is > 0 ? UnitHeldRuneKind : UnitHeldHiddenScoreKind)
             || context.Amount != (spec.RuneCallCount ?? spec.ScoreAmount) || context.RequiredExactOtherFriendlyBattlefieldUnits is not null
             || effect != "HOLD_" + context.Kind || cardNo != context.CardNo || controller != state.TurnPlayerId

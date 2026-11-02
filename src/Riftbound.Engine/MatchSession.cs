@@ -1612,6 +1612,7 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DravenBattleDeathScore is not null) return "战斗中被摧毁：选择一名对手获得1分；双方响应后结算。";
@@ -1655,6 +1656,7 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DravenBattleDeathScore is not null) return "战斗中被摧毁：选择一名对手获得1分；双方响应后结算。";
@@ -1964,7 +1966,7 @@ public sealed partial record ResolutionResult(
         string viewerPlayerId)
     {
         if (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
-        return !CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) && item.TargetedPowerAbility is null && item.EndAbility is null && item.BombRebuild is null && item.UnitEvent is null && item.UnitConquestReturn is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return !CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) && item.TargetedPowerAbility is null && item.EndAbility is null && item.BombRebuild is null && item.UnitEvent is null && item.UnitConquestReturn is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 

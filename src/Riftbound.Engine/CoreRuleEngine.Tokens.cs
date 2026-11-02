@@ -85,9 +85,9 @@ public sealed partial class CoreRuleEngine
                 ? context with { AffectedUnitCeasedToExist = true } : context;
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
             .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
-            StackItems = result.State.StackItems.Select(i => i with {
+            StackItems = result.State.StackItems.Select(i => BindSimpleSource(i with {
                 FieldContext = Invalidate(i.SourceObjectId, i.FieldContext),
-                HeldContext = MarkCeasedUnitHeld(before, departed, i.SourceObjectId, i.HeldContext) }).ToArray(),
+                HeldContext = MarkCeasedUnitHeld(before, departed, i.SourceObjectId, i.HeldContext) })).ToArray(),
             PendingEffectPlay = result.State.PendingEffectPlay is { } pending
                 ? pending with { Parent = BindSimpleSource(pending.Parent) } : null,
             TriggerQueue = result.State.TriggerQueue.Select(t => t with {
