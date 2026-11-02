@@ -190,6 +190,7 @@ public sealed record CardBehaviorDefinition(
     bool GrantsBoonToAllFriendlyUnits = false,
     bool ConsumesTargetBoonsToReady = false,
     bool SwapsTargetLocations = false,
+    string PairedMovementRequiredAnyTargetTag = "",
     bool SwapsSourceWithFirstTargetLocation = false,
     bool GainsControlOfTargetToBase = false,
     bool GainsControlOfTargetToBattlefield = false,
@@ -8388,7 +8389,7 @@ public static class CardBehaviorRegistry
             2,
             DrawCount: 1,
             TargetScope: CardTargetScopes.FriendlyUnitThenFriendlyUnit,
-            AnyTargetRequiredTag: CardObjectTags.Ephemeral,
+            PairedMovementRequiredAnyTargetTag: CardObjectTags.Ephemeral,
             SwapsTargetLocations: true),
         new(
             "OGN·046/298",

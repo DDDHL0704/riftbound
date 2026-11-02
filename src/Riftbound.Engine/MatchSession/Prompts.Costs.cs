@@ -245,15 +245,7 @@ internal static partial class ActionPromptBuilder
             return true;
         }
 
-        if (string.Equals(targetObjectIds[0], targetObjectIds[1], StringComparison.Ordinal)
-            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectIds[0], out var firstLocation)
-            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectIds[1], out var secondLocation))
-        {
-            return false;
-        }
-
-        return !string.Equals(firstLocation.PlayerId, secondLocation.PlayerId, StringComparison.Ordinal)
-            || !string.Equals(firstLocation.Zone, secondLocation.Zone, StringComparison.Ordinal);
+        return CoreRuleEngine.CanSwapTargetLocations(state, targetObjectIds[0], targetObjectIds[1]);
     }
 
     private static IEnumerable<string> PromptTargetCandidateIds(

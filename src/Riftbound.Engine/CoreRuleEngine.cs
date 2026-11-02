@@ -18122,7 +18122,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && IsTargetTagAllowed(state, targetObjectId, behavior)
                 && IsTargetPowerAllowed(state, targetObjectId, behavior)
                 && (!behavior.SwapsSourceWithFirstTargetLocation
-                    || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, sourceObjectId, targetObjectId));
+                    || CanSwapTargetLocations(state, sourceObjectId, targetObjectId));
         }
 
         return false;
@@ -22122,8 +22122,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return CanSwapTargetLocations(
-            state.PlayerZones,
-            state.CardObjects,
+            state,
             targetObjectIds[0],
             targetObjectIds[1]);
     }
@@ -26033,62 +26032,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["destinationZone"] = destinationZone
                 }));
         }
-        else if (behavior.SwapsTargetLocations
-            && stackItem.TargetObjectIds.Count >= 2
-            && TrySwapTargetLocations(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.TargetObjectIds[0],
-                stackItem.TargetObjectIds[1],
-                out var firstDestinationPlayerId,
-                out var firstDestinationZone,
-                out var secondDestinationPlayerId,
-                out var secondDestinationZone))
+        else if ((behavior.SwapsTargetLocations && stackItem.TargetObjectIds.Count >= 2)
+            || (behavior.SwapsSourceWithFirstTargetLocation && stackItem.TargetObjectIds.Count >= 1))
         {
-            events.Add(new GameEvent(
-                "UNIT_LOCATIONS_SWAPPED",
-                $"{behavior.DisplayName}交换两名单位位置",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["firstTargetObjectId"] = stackItem.TargetObjectIds[0],
-                    ["secondTargetObjectId"] = stackItem.TargetObjectIds[1],
-                    ["firstDestinationPlayerId"] = firstDestinationPlayerId,
-                    ["firstDestinationZone"] = firstDestinationZone,
-                    ["secondDestinationPlayerId"] = secondDestinationPlayerId,
-                    ["secondDestinationZone"] = secondDestinationZone
-                }));
-        }
-        else if (behavior.SwapsSourceWithFirstTargetLocation
-            && stackItem.TargetObjectIds.Count >= 1
-            && TrySwapTargetLocationsWithPreciseObjectLocations(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                state.ObjectLocations,
-                stackItem.SourceObjectId,
-                stackItem.TargetObjectIds[0],
-                out var sourceDestinationPlayerId,
-                out var sourceDestinationZone,
-                out var targetDestinationPlayerId,
-                out var targetDestinationZone,
-                out var sourceSwapObjectLocations))
-        {
-            resolvedObjectLocations = sourceSwapObjectLocations;
-            events.Add(new GameEvent(
-                "UNIT_LOCATIONS_SWAPPED",
-                $"{behavior.DisplayName}交换自身与目标单位位置",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["firstTargetObjectId"] = stackItem.SourceObjectId,
-                    ["secondTargetObjectId"] = stackItem.TargetObjectIds[0],
-                    ["firstDestinationPlayerId"] = sourceDestinationPlayerId,
-                    ["firstDestinationZone"] = sourceDestinationZone,
-                    ["secondDestinationPlayerId"] = targetDestinationPlayerId,
-                    ["secondDestinationZone"] = targetDestinationZone
-                }));
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations)
+                .ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            MoveFieldUnitsToEachOthersLocations(state, playerZones, cardObjects, movementLocations, runePools,
+                stackItem, behavior, behavior.SwapsSourceWithFirstTargetLocation
+                    ? stackItem.SourceObjectId : stackItem.TargetObjectIds[0],
+                behavior.SwapsSourceWithFirstTargetLocation ? stackItem.TargetObjectIds[0] : stackItem.TargetObjectIds[1], events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
         else if (behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
             || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
@@ -32745,86 +32698,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, targetLocation.Value.PlayerId, destinationObjectId);
     }
 
-    private static bool TrySwapTargetLocations(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movingPlayerId,
-        string firstObjectId,
-        string secondObjectId,
-        out string firstDestinationPlayerId,
-        out string firstDestinationZone,
-        out string secondDestinationPlayerId,
-        out string secondDestinationZone)
-    {
-        firstDestinationPlayerId = string.Empty;
-        firstDestinationZone = string.Empty;
-        secondDestinationPlayerId = string.Empty;
-        secondDestinationZone = string.Empty;
-
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(firstObjectId), movingPlayerId)
-            || !MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(secondObjectId), movingPlayerId)) return false;
-        if (!CanSwapTargetLocations(playerZones, cardObjects, firstObjectId, secondObjectId))
-        {
-            return false;
-        }
-
-        var firstLocation = FindFieldObjectLocation(playerZones, firstObjectId)!.Value;
-        var secondLocation = FindFieldObjectLocation(playerZones, secondObjectId)!.Value;
-
-        RemoveFieldObjectFromLocation(playerZones, firstLocation.PlayerId, firstLocation.Zone, firstObjectId);
-        RemoveFieldObjectFromLocation(playerZones, secondLocation.PlayerId, secondLocation.Zone, secondObjectId);
-        AddFieldObjectToLocation(playerZones, secondLocation.PlayerId, secondLocation.Zone, firstObjectId);
-        AddFieldObjectToLocation(playerZones, firstLocation.PlayerId, firstLocation.Zone, secondObjectId);
-
-        firstDestinationPlayerId = secondLocation.PlayerId;
-        firstDestinationZone = secondLocation.Zone;
-        secondDestinationPlayerId = firstLocation.PlayerId;
-        secondDestinationZone = firstLocation.Zone;
-        return true;
-    }
-
-    private static bool TrySwapTargetLocationsWithPreciseObjectLocations(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movingPlayerId,
-        IReadOnlyDictionary<string, ObjectLocationState> currentObjectLocations,
-        string firstObjectId,
-        string secondObjectId,
-        out string firstDestinationPlayerId,
-        out string firstDestinationZone,
-        out string secondDestinationPlayerId,
-        out string secondDestinationZone,
-        out IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
-    {
-        firstDestinationPlayerId = string.Empty;
-        firstDestinationZone = string.Empty;
-        secondDestinationPlayerId = string.Empty;
-        secondDestinationZone = string.Empty;
-        objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
-
-        if (!TryGetPreciseFieldLocation(playerZones, currentObjectLocations, firstObjectId, out var firstOriginLocation)
-            || !TryGetPreciseFieldLocation(playerZones, currentObjectLocations, secondObjectId, out var secondOriginLocation)
-            || !TrySwapTargetLocations(
-                playerZones,
-                cardObjects,
-                movingPlayerId,
-                firstObjectId,
-                secondObjectId,
-                out firstDestinationPlayerId,
-                out firstDestinationZone,
-                out secondDestinationPlayerId,
-                out secondDestinationZone))
-        {
-            return false;
-        }
-
-        var nextObjectLocations = ReconcileObjectLocations(currentObjectLocations, playerZones);
-        nextObjectLocations[firstObjectId] = secondOriginLocation;
-        nextObjectLocations[secondObjectId] = firstOriginLocation;
-        objectLocations = nextObjectLocations;
-        return true;
-    }
-
     private static bool TryGetPreciseFieldLocation(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
@@ -32861,28 +32734,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
     }
 
-    private static bool CanSwapTargetLocations(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string firstObjectId,
-        string secondObjectId)
+    internal static bool CanSwapTargetLocations(MatchState state, string firstObjectId, string secondObjectId)
     {
-        if (string.Equals(firstObjectId, secondObjectId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var firstLocation = FindFieldObjectLocation(playerZones, firstObjectId);
-        var secondLocation = FindFieldObjectLocation(playerZones, secondObjectId);
-        if (firstLocation is null || secondLocation is null)
-        {
-            return false;
-        }
-
-        return (!string.Equals(firstLocation.Value.PlayerId, secondLocation.Value.PlayerId, StringComparison.Ordinal)
-                || !string.Equals(firstLocation.Value.Zone, secondLocation.Value.Zone, StringComparison.Ordinal))
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, firstLocation.Value.PlayerId, firstObjectId)
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, secondLocation.Value.PlayerId, secondObjectId);
+        if (firstObjectId == secondObjectId
+            || !TryGetPreciseFieldLocation(state.PlayerZones, state.ObjectLocations, firstObjectId, out var first)
+            || !TryGetPreciseFieldLocation(state.PlayerZones, state.ObjectLocations, secondObjectId, out var second)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, first.PlayerId, firstObjectId)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, second.PlayerId, secondObjectId)) return false;
+        return first.Zone != second.Zone || (first.Zone == "BASE"
+            ? first.PlayerId != second.PlayerId : first.BattlefieldObjectId != second.BattlefieldObjectId);
     }
 
     private static (string PlayerId, string Zone)? FindFieldObjectLocation(

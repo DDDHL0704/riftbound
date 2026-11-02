@@ -23,7 +23,7 @@ public sealed partial class CoreRuleEngine
         return state.CardObjects.Keys.Where(id => (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || id != item.SourceObjectId)
             && PermanentPlayHereTargetAllowed(state, item, behavior, id)
             && (!behavior.TargetRequiredTag.Split('|').Contains(CardObjectTags.UnitCard) || !state.CardObjects[id].IsFaceDown)
-            && (!behavior.SwapsSourceWithFirstTargetLocation || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id))
+            && (!behavior.SwapsSourceWithFirstTargetLocation || CanSwapTargetLocations(state, item.SourceObjectId, id))
             && Enumerable.Range(0, maximum)
                 .Any(index => behavior.SelectedBattlefieldEffect is { BattlefieldTargetIndex: 0, PrimaryEnemyTargetIndex: { } enemyIndex }
                     && index == enemyIndex
@@ -52,7 +52,7 @@ public sealed partial class CoreRuleEngine
             && selected.All(id => PermanentPlayHereTargetAllowed(state, item, behavior, id))
             && selected.All(id => !behavior.TargetRequiredTag.Split('|').Contains(CardObjectTags.UnitCard)
                 || state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown)
-            && (!behavior.SwapsSourceWithFirstTargetLocation || selected.All(id => CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id)))
+            && (!behavior.SwapsSourceWithFirstTargetLocation || selected.All(id => CanSwapTargetLocations(state, item.SourceObjectId, id)))
             && selected.Select((id, index) => IsLegalChosenCardTarget(state, item.ControllerId, id, index,
                 selected, PlayCardTargetScopeForBehavior(behavior), behavior)).All(legal => legal);
     }

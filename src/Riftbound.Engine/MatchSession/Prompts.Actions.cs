@@ -2252,19 +2252,7 @@ internal static partial class ActionPromptBuilder
         string sourceObjectId,
         string targetObjectId)
     {
-        if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
-            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, sourceObjectId, out var sourceLocation)
-            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectId, out var targetLocation)
-            || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState))
-        {
-            return false;
-        }
-
-        return (!string.Equals(sourceLocation.PlayerId, targetLocation.PlayerId, StringComparison.Ordinal)
-                || !string.Equals(sourceLocation.Zone, targetLocation.Zone, StringComparison.Ordinal))
-            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, sourceLocation.PlayerId)
-            && SourceObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId);
+        return CoreRuleEngine.CanSwapTargetLocations(state, sourceObjectId, targetObjectId);
     }
 
     private static bool CanRevealStandbyInBase(MatchState state, string playerId)
