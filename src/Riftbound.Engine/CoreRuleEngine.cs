@@ -8089,6 +8089,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.TimeAssassinLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.TimeAssassinLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.TimeAssassinLegendAbilityId),
+                "时间刺客传奇下一名单位减费技能", 0, 0, string.Empty, 0, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.TimeAssassinNextUnitReduction,
+                RemovesSourceEmpowerAsCost: true),
             LegendActionAbilityCatalog.ZedLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.ZedLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ZedLegendAbilityId),
@@ -18736,6 +18742,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battlefieldEquipmentCostReductionMana = manaCost.EquipmentReduction;
         var dragonUnitCostReductionMana = manaCost.UnitReduction;
         var nextSpellCostReductionMana = manaCost.NextSpellReduction;
+        var timeAssassinCostReductionMana = manaCost.TimeAssassinReduction;
         var battlefieldSpellCostReductionMana = manaCost.BattlefieldSpellReduction;
         var battlefieldHeldUnitCostIncreaseMana = manaCost.Increase;
         var spellshieldTaxPower = ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, behavior, paymentTargets, out var spellshieldTaxTargetObjectIds);
@@ -18825,7 +18832,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             spellshieldTaxTargetObjectIds, recycledPaymentRuneObjectIds, tappedPaymentRuneObjectIds,
             luxSpellOnlyResourceActions,
             luxSpellOnlyResourceSourceObjectIds, luxSpellOnlyGeneratedMana, luxSpellOnlyConsumedMana,
-            luxSpellOnlyRemainingMana, optionalReductions));
+            luxSpellOnlyRemainingMana, optionalReductions, timeAssassinCostReductionMana));
         var spellIncreases = OpponentSpellCostIncreases(state, intent.PlayerId, behavior);
         if (spellIncreases.Mana > 0 || spellIncreases.Power > 0) {
             paymentAudit["opponentSpellCostIncreaseMana"] = spellIncreases.Mana;
@@ -18963,7 +18970,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int luxSpellOnlyGeneratedMana = 0,
         int luxSpellOnlyConsumedMana = 0,
         int luxSpellOnlyRemainingMana = 0,
-        OptionalCostReductionResult? optionalReductions = null)
+        OptionalCostReductionResult? optionalReductions = null,
+        int timeAssassinCostReductionMana = 0)
     {
         var metadata = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
@@ -18975,6 +18983,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
             ["battlefieldSpellCostReductionMana"] = battlefieldSpellCostReductionMana,
             ["battlefieldHeldUnitCostIncreaseMana"] = battlefieldHeldUnitCostIncreaseMana,
+            ["timeAssassinCostReductionMana"] = timeAssassinCostReductionMana,
             ["spellshieldTaxPower"] = spellshieldTaxPower,
             ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
             ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -35122,6 +35131,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string CreateSandSoldier = "CREATE_SAND_SOLDIER";
         public const string CreateMinion = "CREATE_MINION";
         public const string CreateFaerie = "CREATE_FAERIE";
+        public const string TimeAssassinNextUnitReduction = "LEGEND_TIME_ASSASSIN_NEXT_UNIT_REDUCTION";
     }
 
     private static class LegendAbilityTimingKinds

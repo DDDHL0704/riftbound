@@ -35,6 +35,7 @@ public static class LegendActionAbilityCatalog
     public const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
     public const string AzirLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT";
     public const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
+    public const string TimeAssassinLegendAbilityId = "LEGEND_REMOVE_EMPOWER_EXHAUST_NEXT_UNIT_DISCOUNT_DESTROY";
 
     private static readonly IReadOnlyDictionary<string, string> RepresentativeSourceCardNoByAbilityId =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -106,10 +107,16 @@ public static class LegendActionAbilityCatalog
         RadiantCardSources.GetAdmittedCards().Where(card => card.CardName == "铁铠冥魂" && card.Hero == "莫德凯撒"
             && card.CardEffect.StartsWith("{{反应>}} 从你的废牌堆中放逐一个单位或装备，{{T}}：{{获得}}{{A}}。此符能仅可用于打出单位或装备。", StringComparison.Ordinal))
             .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> TimeAssassinSourceCardNos = new(() =>
+        RadiantCardSources.GetAdmittedCards()
+            .Where(card => card.CardName == "时间刺客" && card.Hero == "艾克"
+                && card.CardEffect.Contains("你在本回合内打出的下一名单位的费用减少{{2}}和{{A}}", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
         if (string.Equals(abilityId, MordekaiserLegendAbilityId, StringComparison.Ordinal)) return MordekaiserSourceCardNos.Value;
+        if (string.Equals(abilityId, TimeAssassinLegendAbilityId, StringComparison.Ordinal)) return TimeAssassinSourceCardNos.Value;
         if (string.Equals(abilityId, ZedLegendAbilityId, StringComparison.Ordinal)) return ZedSourceCardNos.Value;
         if (string.Equals(abilityId, KennenLegendAbilityId, StringComparison.Ordinal)) return KennenSourceCardNos.Value;
         if (abilityId is JayceLegendReadyOneAbilityId or JayceLegendReadyTwoAbilityId) return JayceSourceCardNos.Value;

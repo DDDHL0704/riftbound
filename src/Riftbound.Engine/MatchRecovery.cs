@@ -4675,6 +4675,8 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidCurrentBoonAmplifiers(state)) errors.Add("invalid temporary friendly Boon amplifier");
         if (!CoreRuleEngine.ValidTurnFlowGrants(state)) errors.Add("invalid temporary flow grant");
         if (!CoreRuleEngine.ValidCurrentNextUnitPlayGrants(state)) errors.Add("invalid next unit play grant");
+        if (!CoreRuleEngine.ValidCurrentTimeAssassinNextUnitReductions(state)) errors.Add("invalid time assassin next unit reduction");
+        if (!CoreRuleEngine.ValidCurrentTimeAssassinDestructions(state)) errors.Add("invalid time assassin destruction marker");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidNextUnitPlayGrant(state, item.NextUnitPlayGrant, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
                 errors.Add("invalid captured next unit play grant stack");

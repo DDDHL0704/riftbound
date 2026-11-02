@@ -64,6 +64,7 @@ public sealed partial class CoreRuleEngine
             + optionalPlayReduction
             + SourceNextSpellCostReductionEffects(state, player)
                 .Where(s => s.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(s => s.GenericPower)
+            + (behavior.PlaysSourceToBaseAsUnit ? TimeAssassinNextUnitReductions(state, player).Count : 0)
             + BattlefieldFriendlyTargetSpellPowerReduction(state, player, behavior, targets);
         extraGeneric += OpponentSpellCostIncreases(state, player, behavior).Power
             + BattlefieldReactionPowerIncrease(state, player, behavior);
