@@ -64,6 +64,6 @@ public sealed partial class CoreRuleEngine
                     before, state.Tick, temporary.Grant.Unit, temporary.CardNo, temporary.FaceRevision, temporary.ActivatedTick, temporary.SourceTokenFactoryCardNo) } };
             return item;
         }).ToArray();
-        return state with { StackItems = stack };
+        return RecordCeasedExhaustedInsightSources(before, state with { StackItems = stack }, departed);
     }
 }
