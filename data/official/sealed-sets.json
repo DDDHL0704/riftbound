@@ -323,9 +323,10 @@
         },
         "specialAltArtPerPack": {
           "value": 0.09,
-          "sourceLevel": "official_transcription",
-          "sourceUrl": "https://turnzerohq.com/riftbound/riftbound-booster-box",
-          "note": "RAD、VEN 与异画同频；无此类别的系列为零。"
+          "sourceLevel": "community",
+          "sourceUrl": "https://tcgtalk.com/guides/vendetta-riftbound-pull-rates-box-opening",
+          "note": "与同系列异画大致同频的关系来自 https://turnzerohq.com/riftbound/riftbound-booster-box；绝对数值 9% 沿用该系列社区异画观测值，待确认。",
+          "basisSourceLevel": "official_transcription"
         },
         "ultimatePerPack": {
           "value": 0,
@@ -387,8 +388,8 @@
         "rareSlots": 2,
         "foilSlots": 1,
         "runeOrTokenSlots": 1,
-        "sourceLevel": "official_transcription",
-        "sourceUrl": "https://turnzerohq.com/riftbound/riftbound-booster-box",
+        "sourceLevel": "official",
+        "sourceUrl": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
         "noSameRarityDuplicates": {
           "value": 1,
           "sourceLevel": "project_assumption",
@@ -422,15 +423,16 @@
         },
         "specialAltArtPerPack": {
           "value": 0.09,
-          "sourceLevel": "official_transcription",
-          "sourceUrl": "https://turnzerohq.com/riftbound/riftbound-booster-box",
-          "note": "RAD、VEN 与异画同频；无此类别的系列为零。"
+          "sourceLevel": "community",
+          "sourceUrl": "https://tcgtalk.com/guides/radiance-riftbound-pull-rates-box-opening",
+          "note": "与同系列异画大致同频的关系来自 https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/；绝对数值 9% 沿用该系列社区异画观测值，待确认。",
+          "basisSourceLevel": "official"
         },
         "ultimatePerPack": {
           "value": 0.00025,
-          "sourceLevel": "official_transcription",
-          "sourceUrl": "https://riftbound.zone/en/radiance-overview-ultimate-rare-pack-odds/",
-          "note": "UNL 官方转述仅给 <0.1%，暂取 0.05%，待确认；未完整接入的追逐印次保持关闭。"
+          "sourceLevel": "official",
+          "sourceUrl": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+          "note": "官方按整个印刷批次公布每包约 0.025%，每包最多一张；单包、单盒或单箱均无保证。"
         },
         "foilRare": {
           "value": 0.08,
