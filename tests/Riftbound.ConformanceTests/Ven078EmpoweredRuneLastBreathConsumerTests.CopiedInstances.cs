@@ -31,7 +31,7 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
             Assert.Equal(4, game.State.RunePools["P1"].Mana); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             if (empower)
             {
-                await game.Act("P1", new RecycleRuneCommand("P1-RUNE-3")); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-4"));
+                await game.Act("P1", new RecycleRuneCommand("P1-RUNE-3", ["P1-RUNE-3", "P1-RUNE-4"]));
                 Assert.Equal(2, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
                 await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));
                 Assert.Equal(3, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
