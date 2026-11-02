@@ -7586,6 +7586,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (ability.RequiresAnyUnitTarget && !IsLegendUnitEffectTarget(state, intent.PlayerId, targetObjectIds[0], ability.RequiresBattlefieldTarget))
             return RejectWithCorePrompts(state, "请选择符合范围的一名公开单位。", ErrorCodes.InvalidTarget);
+        if (ability.CreatedBattlefieldEquipmentTokenCardNo.Length > 0
+            && BattlefieldLocalRules.Battlefield(state, targetObjectIds[0]) is null)
+            return RejectWithCorePrompts(state, "请选择一处公开战场。", ErrorCodes.InvalidTarget);
         if (ability.RequiresAnyEquipmentTarget && targetObjectIds.Any(id =>
                 !(ability.EffectKind == LegendAbilityEffectKinds.EquipmentAsUnit
                     ? IsLegendEquipmentUnitTarget(state, intent.PlayerId, id)
@@ -8089,6 +8092,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.ZiggsLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.ZiggsLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ZiggsLegendAbilityId),
+                "爆破鬼才传奇炸弹技能", 1, 0, "SPEND_MANA:1", 1, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken, PowerCost: 1,
+                CreatedBattlefieldEquipmentTokenCardNo: P6TokenFactoryCatalog.BombTokenCardNo),
             LegendActionAbilityCatalog.TimeAssassinLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.TimeAssassinLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.TimeAssassinLegendAbilityId),
@@ -35123,7 +35132,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool RequiresAnyEquipmentTarget = false,
         bool RequiresSourceEmpowered = false,
         bool BanishesGraveyardPermanentAsCost = false,
-        bool GrantsUnitOrEquipmentPlayOnlyPower = false);
+        bool GrantsUnitOrEquipmentPlayOnlyPower = false,
+        string CreatedBattlefieldEquipmentTokenCardNo = "");
 
     private static class LegendAbilityEffectKinds
     {
@@ -35151,6 +35161,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string CreateMinion = "CREATE_MINION";
         public const string CreateFaerie = "CREATE_FAERIE";
         public const string TimeAssassinNextUnitReduction = "LEGEND_TIME_ASSASSIN_NEXT_UNIT_REDUCTION";
+        public const string CreateBattlefieldEquipmentToken = "LEGEND_CREATE_BATTLEFIELD_EQUIPMENT_TOKEN";
     }
 
     private static class LegendAbilityTimingKinds

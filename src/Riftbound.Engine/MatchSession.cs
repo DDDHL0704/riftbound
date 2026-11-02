@@ -2470,7 +2470,8 @@ internal static partial class ActionPromptBuilder
         bool RequiresAnyUnitTarget = false,
         bool RequiresEmpoweredSource = false,
         bool RequiresAnyEquipmentTarget = false,
-        bool BanishesGraveyardPermanentAsCost = false);
+        bool BanishesGraveyardPermanentAsCost = false,
+        string CreatedBattlefieldEquipmentTokenCardNo = "");
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
@@ -3266,6 +3267,11 @@ internal static partial class ActionPromptBuilder
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.TimeAssassinLegendAbilityId),
                 "时间刺客传奇下一名单位减费技能", 0, 0, string.Empty, 0, false,
                 "LEGEND_TIME_ASSASSIN_NEXT_UNIT_REDUCTION", RequiresEmpoweredSource: true),
+            new(LegendActionAbilityCatalog.ZiggsLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ZiggsLegendAbilityId),
+                "爆破鬼才传奇炸弹技能", 1, 0, "SPEND_MANA:1", 1, false,
+                "LEGEND_CREATE_BATTLEFIELD_EQUIPMENT_TOKEN", PowerCost: 1,
+                CreatedBattlefieldEquipmentTokenCardNo: P6TokenFactoryCatalog.BombTokenCardNo),
             new(LegendActionAbilityCatalog.AmbessaLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AmbessaLegendAbilityId),
                 "铁血狼母传奇活跃单位技能", 0, 0, string.Empty, 1, false, "LEGEND_READY_UNIT",
@@ -3530,6 +3536,13 @@ internal static partial class ActionPromptBuilder
         }
 
         var result = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        if (ability.CreatedBattlefieldEquipmentTokenCardNo.Length > 0)
+        {
+            result["0"] = state.CardObjects.Keys
+                .Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)
+                .Order(StringComparer.Ordinal).Select(id => ObjectChoice(state, id, "战场")).ToArray();
+            return result;
+        }
         if (ability.RequiresAnyEquipmentTarget)
         {
             var choices = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields))
@@ -3605,6 +3618,7 @@ internal static partial class ActionPromptBuilder
             LegendActionAbilityCatalog.OriannaLegendAbilityId => "支付 1 法力并横置：使一件友方装备成为单位装备",
             LegendActionAbilityCatalog.MelLegendAbilityId => "解除强化并横置：战场上一名单位本回合战力 -2",
             LegendActionAbilityCatalog.TimeAssassinLegendAbilityId => "解除强化并横置：本回合你打出的下一名单位费用 -2 和 -1 符能，并于回合结束时摧毁",
+            LegendActionAbilityCatalog.ZiggsLegendAbilityId => "支付 1 法力和 1 符能并横置：将一个炸弹打出到一处战场",
             LegendActionAbilityCatalog.AmbessaLegendAbilityId => "解除强化、支付 1 符能并横置：使一名单位活跃",
             LegendActionAbilityCatalog.AkaliLegendAbilityId => "迅捷横置：如果是你的回合，将法术对决中的友方单位移至基地；如果已强化，使其活跃",
             LegendActionAbilityCatalog.ShenLegendAbilityId => "迅捷横置：给予友方单位壁垒",
