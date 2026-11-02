@@ -28,9 +28,15 @@ internal static class AttachmentUnitCopyRules
         var previous = Traits(AttachedRuleTextRules.Face(card)!);
         var preserved = card.Tags.Where(tag => !previous.Tags.Contains(tag) && !(card.RuleDerivedTags ?? []).Contains(tag))
             .Concat(card.GrantedTags ?? []);
+        // Core 479.1/479.2: the equipment-unit transformation applies after
+        // the copied face, including its new mana cost and printed types.
+        var transformed = card.LegendEquipmentUnit is not null;
+        var tags = preserved.Concat(traits.Tags);
+        if (transformed) tags = tags.Concat([CardObjectTags.EquipmentCard, CardObjectTags.UnitCard]);
         return CopyFaceTimeline.ChangeFace(card, traits.CardNo, tick) with {
-            ManaCost = traits.ManaCost, Power = card.Power - previous.Power + traits.Power,
-            Tags = preserved.Concat(traits.Tags).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
+            ManaCost = traits.ManaCost,
+            Power = card.Power - previous.Power + traits.Power,
+            Tags = tags.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
             RuleDerivedTags = null
         };
     }

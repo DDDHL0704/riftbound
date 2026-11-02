@@ -3108,10 +3108,12 @@ internal static partial class ActionPromptBuilder
             foreach (var instance in AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability))
             {
                 var copyId = instance.Origin is null ? null : instance.Id;
+                if (ability.SimpleEffect is not null
+                    && !CoreRuleEngine.SimpleActivationInstanceAvailable(state, cardObject, ability, playerId, instance)) continue;
                 if (ability.AbilityId == P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId
                     && state.UntilEndOfTurnEffects.Contains(P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(
                         playerId, sourceObjectId, cardObject.ObjectGeneration, copyId), StringComparer.Ordinal)) continue;
-                requirements.Add(requirement with { AbilityInstanceId = copyId, CopyEquipmentObjectId = instance.Origin?.Equipment.ObjectId,
+                requirements.Add(requirement with { CardNo = instance.CardNo, AbilityInstanceId = copyId, CopyEquipmentObjectId = instance.Origin?.Equipment.ObjectId,
                     AbilityLabel = copyId is null ? requirement.AbilityLabel
                         : $"{requirement.AbilityLabel}（{ObjectChoice(state, instance.Origin!.Equipment.ObjectId, "copied printed rules text").Label}复制技能）" });
             }
