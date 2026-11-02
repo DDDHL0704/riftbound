@@ -354,6 +354,7 @@ public sealed record CardBehaviorDefinition(
     int DamageConditionRuneCount = 0,
     GrantedActivatedAbilitySpec? GrantsActivatedAbilityUntilEndOfTurn = null,
     OptionalPowerModifierSpec? OptionalPowerModifier = null,
+    string? UnitTokenReplacementFactoryCardNo = null,
     bool CounterRequiresOpponentOtherSpellThisTurn = false,
     int? BasePowerUntilEndOfTurn = null,
     int PreventDamageUntilEndOfTurn = 0,
@@ -9705,6 +9706,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
     [
+        new("RAD·132/167", "黑默丁格 · 学院导师", 6, "RAD_132_HEIMERDINGER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "约德尔人",
+            UnitTokenReplacementFactoryCardNo: "SFD·T01"),
         new("RAD·021/167", "艾克 · 逆时而行", 5, "RAD_021_EKKO_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitIsExhausted: false, SourceUnitTags: "强攻"),
         new("RAD·021a/167", "艾克 · 逆时而行", 5, "RAD_021A_EKKO_PLAY_UNIT", 0, 0,

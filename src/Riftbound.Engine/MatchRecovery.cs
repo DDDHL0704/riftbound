@@ -4207,7 +4207,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidSelfCopyTokenPlay(state, item)) errors.Add("invalid self copy token instruction");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidTokenEntryPlan(state, item)
-                || item.TokenEntryPlan is { } tokenPlan && tokenPlan.NextToken < tokenPlan.OriginalCount
+                || item.TokenEntryPlan is { } tokenPlan && CoreRuleEngine.TokenEntryPlanPending(tokenPlan)
                     && (state.PendingCardChoice?.ChoiceWindow != CoreRuleEngine.TokenReplacementWindow
                         || state.PendingCardChoice.ResolvingStackItemId != item.StackItemId)
                 || item.CompletedRepeatExecutions < 0

@@ -16250,7 +16250,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int tokenCount,
         string abilityId,
         List<GameEvent> events,
-        IReadOnlyList<string> turnEffects)
+        IReadOnlyList<string> turnEffects, StackItemState? tokenEntryItem = null)
     {
         if (!playerZones.ContainsKey(playerId)
             || tokenCount <= 0
@@ -16266,6 +16266,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 tokenObjectId,
                 playerId,
                 playerId, isExhausted: true);
+            if (tokenEntryItem is not null) tokenState = ApplyUnitTokenFactoryReplacement(tokenEntryItem, tokenIndex, tokenState);
+            var entryDefinition = P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var actualDefinition)
+                ? actualDefinition : tokenDefinition;
             tokenState = ApplyUnitTokenEntryStaticAbility(
                 playerZones,
                 cardObjects,
@@ -16289,8 +16292,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["abilityId"] = abilityId,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenCardNo"] = tokenDefinition.CardNo,
-                ["tokenName"] = tokenDefinition.TokenFamilyName,
+                ["tokenCardNo"] = entryDefinition.CardNo,
+                ["tokenName"] = entryDefinition.TokenFamilyName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = tokenState.Tags.ToArray()
@@ -16302,7 +16305,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entryStaticAbilitySourceState.CardNo);
             events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
-                $"{battlefieldObjectId} 打出{tokenDefinition.TokenFamilyName}",
+                $"{battlefieldObjectId} 打出{entryDefinition.TokenFamilyName}",
                 payload), playerZones, cardObjects, turnEffects));
         }
     }
@@ -27784,11 +27787,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 };
             }
 
+            var beforeReplacement = tokenState;
+            tokenState = ApplyUnitTokenFactoryReplacement(stackItem, tokenIndex, tokenState);
+            var replacedFactory = !ReferenceEquals(beforeReplacement, tokenState);
+            var entryDefinition = replacedFactory && P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var replacementDefinition)
+                ? replacementDefinition : tokenDefinition;
+            var entryHasDefinition = hasTokenDefinition || replacedFactory;
             var entersReadyFromStaticAbility = false;
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
             StaticAbilitySpec entryStaticAbility = default!;
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
                     playerZones,
@@ -27812,15 +27821,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["abilityId"] = trigger.Kind,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = tokenName,
+                ["tokenName"] = entryHasDefinition ? entryDefinition.TokenFamilyName : tokenName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = tokenState.Tags.ToArray(),
                 ["reason"] = trigger.Kind
             };
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
+                payload["tokenCardNo"] = entryDefinition.CardNo;
                 AddEntryStaticAbilityPayload(
                     payload,
                     entersReadyFromStaticAbility ? entryStaticAbility : null,
@@ -29205,6 +29214,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 };
             }
 
+            var beforeReplacement = tokenState;
+            tokenState = ApplyUnitTokenFactoryReplacement(stackItem, tokenIndex, tokenState);
+            var replacedFactory = !ReferenceEquals(beforeReplacement, tokenState);
+            var entryDefinition = replacedFactory && P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var replacementDefinition)
+                ? replacementDefinition : tokenDefinition;
+            var entryHasDefinition = hasTokenDefinition || replacedFactory;
             var entersReadyFromStaticAbility = false;
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
@@ -29212,7 +29227,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var hastePaid = ChooseTokenHaste(state, stackItem.ControllerId, stackItem.SourceObjectId, tokenState,
                 playerZones, cardObjects, runePools, events);
             if (hastePaid) tokenState = tokenState with { IsExhausted = false };
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
                     playerZones,
@@ -29235,7 +29250,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["playerId"] = stackItem.ControllerId,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = behavior.CreatedBaseUnitTokenName,
+                ["tokenName"] = entryHasDefinition ? entryDefinition.TokenFamilyName : behavior.CreatedBaseUnitTokenName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = shadowField is null ? "BASE" : "BATTLEFIELD"
             };
@@ -29250,14 +29265,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload["copiedCardNo"] = copiedTargetState!.CardNo;
             }
 
-            if (isImageCopyToken)
+            if (isImageCopyToken && !replacedFactory)
             {
                 payload["tokenFactoryCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
                 payload["tokenCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
             }
-            else if (hasTokenDefinition)
+            else if (entryHasDefinition)
             {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
+                payload["tokenCardNo"] = entryDefinition.CardNo;
                 AddEntryStaticAbilityPayload(
                     payload,
                     entersReadyFromStaticAbility ? entryStaticAbility : null,
