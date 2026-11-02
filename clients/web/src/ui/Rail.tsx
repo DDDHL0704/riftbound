@@ -66,7 +66,10 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
       <Log entries={state.log} objects={objects} meId={state.handle} />
 
       <footer className="rail__foot">
-        <span className="muted">房间 {state.roomId}</span>
+        <span className="muted">
+          房间 {state.roomId}
+          {snapshot.series && snapshot.series.bestOf > 1 && ` · 第 ${snapshot.series.gameNumber} 局 ${snapshot.series.wins[meId] ?? 0}:${Object.entries(snapshot.series.wins).find(([id]) => id !== meId)?.[1] ?? 0}`}
+        </span>
         <button className="btn btn--ghost btn--small" onClick={() => setPanel(panel === "settings" ? null : "settings")} aria-expanded={panel === "settings"}>
           设置
         </button>

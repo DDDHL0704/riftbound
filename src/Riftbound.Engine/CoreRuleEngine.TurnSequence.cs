@@ -58,6 +58,8 @@ public sealed partial class CoreRuleEngine
                     break;
                 case "START":
                     state = state with { PlayerScores = NormalizeScoresForSeats(state), TurnStartStep = "SCORE" };
+                    state = ApplyOpeningRoleDraw(state, events);
+                    if (state.Status == MatchStatuses.Finished) break;
                     state = QueueEphemeralStartAbilities(state, events);
                     state = QueueBattlefieldStartAbilities(state, events);
                     state = QueueBeginningDrawAbilities(state, events);
