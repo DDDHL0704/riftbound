@@ -14,7 +14,8 @@ public sealed partial class LastBreathDrawBoundaryTests
     {
         const string agent = "OGN·178/298";
         var initial = AgentPosition();
-        var game = new Driver(initial);
+        // Audit ordinary paid preparation once before destruction opens a choice.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
@@ -29,6 +30,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
             await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0"));
             await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var prefix = game.Events().Length;
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
@@ -69,7 +72,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.True(Array.LastIndexOf(events, "CARD_DISCARDED") < Array.IndexOf(events, "CARD_DRAWN"));
                 Assert.Equal(copies - i, game.State.StackItems.Count);
             }
-            Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            // The final accepted choice already audited the complete journal.
+            Assert.Empty(game.State.TriggerQueue); Assert.True(game.RecoverAfterEveryCommand);
         }
         finally { await Save("actual-paid-agent-discard-draw-" + copies, initial, game); }
     }

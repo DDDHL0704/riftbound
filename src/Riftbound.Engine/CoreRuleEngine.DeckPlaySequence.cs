@@ -6,11 +6,16 @@ public sealed record DeckPlaySequenceContext(string Kind, ObjectBinding Source, 
     IReadOnlyList<string> Players, IReadOnlyDictionary<string,IReadOnlyList<ObjectBinding>> Viewed,
     IReadOnlyDictionary<string,ObjectBinding> Selected, int SelectionIndex, int PlayIndex, bool ParentCompleted = false)
 {
+    public OwnedUnitReplayContext? OwnedReplay { get; init; }
     public int ExecutionIndex { get; init; }
     public IReadOnlyList<DeckPlayQueuedCard> Queue { get; init; } = [];
     public IReadOnlyList<string> ObservedPlayers { get; init; } = [];
 }
-public sealed record DeckPlayQueuedCard(string OwnerId, ObjectBinding Card, string CardNo, long BeforeBanishGeneration, int ExecutionIndex);
+public sealed record DeckPlayQueuedCard(string OwnerId, ObjectBinding Card, string CardNo, long BeforeBanishGeneration, int ExecutionIndex)
+{
+    public ObjectLocationState? OriginalLocation { get; init; }
+    public ObjectBinding? OriginalBattlefield { get; init; }
+}
 public sealed record DeckPlayPendingCardContext(string ParentStackItemId, string Kind, string OwnerId, string PlayerId,
     ObjectBinding Card, string CardNo, int OrderIndex);
 
@@ -58,11 +63,14 @@ public sealed partial class CoreRuleEngine
             c.Kind is "OPPONENT_REVEAL_PLAY" or "EACH_PLAYER_LOOK_PLAY" || definition.EffectPlayIgnoreBaseMana,
             c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreBasePower,
             definition.EffectPlayManaReduction, definition.EffectPlayDestination, false,
-            IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreAllCosts);
+            IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreAllCosts) {
+                OriginalLocation = chosen.OriginalLocation, OriginalBattlefield = chosen.OriginalBattlefield };
     }
 
     private static StackResolutionResult BeginDeckPlaySequence(MatchState state, StackItemState item, CardBehaviorDefinition definition)
     {
+        if (definition.DeckPlayKind == OwnedUnitReplayKind && item.DeckPlaySequence is null)
+            return BeginOwnedUnitReplay(state, item, definition);
         // Declared deck identities are never valid targets for these effects.
         if (item.TargetObjectIds.Count != 0 && item.DestroyDeckPlay is not { Prepared: true }) return ResolveStackItemEffect(state, item with { EffectPlayCompleted = true });
         var events = new List<GameEvent>();
@@ -164,7 +172,7 @@ public sealed partial class CoreRuleEngine
             state = created.State;
             events.AddRange(created.Events);
         }
-        if (c.ExecutionIndex + 1 < item.EffectRepeatCount)
+        if (c.Kind != OwnedUnitReplayKind && c.ExecutionIndex + 1 < item.EffectRepeatCount)
         {
             var count = DeckPlayLookCount(definition);
             c = c with { ExecutionIndex = c.ExecutionIndex + 1, SelectionIndex = 0,
@@ -344,6 +352,8 @@ public sealed partial class CoreRuleEngine
             || !c.ParentCompleted && (!state.StackItems.Any(s => s.StackItemId == item.StackItemId)
                 || state.StackItems.TakeWhile(s => s.StackItemId != item.StackItemId)
                     .Any(s => s.DeckPlayPendingCard?.ParentStackItemId == item.StackItemId))) return false;
+        if (c.Kind == OwnedUnitReplayKind) return ValidOwnedUnitReplay(state, item, c, b);
+        if (c.OwnedReplay is not null || c.Queue.Any(q => q.OriginalLocation is not null || q.OriginalBattlefield is not null)) return false;
         for (var i=0;i<players.Length;i++)
         {
             var player=players[i];var viewed=c.Viewed[player];
@@ -428,7 +438,8 @@ public sealed partial class CoreRuleEngine
             && pending.Sources.Count == 1 && expected.Sources.All(s => pending.Sources.GetValueOrDefault(s.Key, -1) == s.Value)
             && pending.IgnoreBaseMana == expected.IgnoreBaseMana && pending.IgnoreBasePower == expected.IgnoreBasePower
             && pending.IgnoreAllCosts == expected.IgnoreAllCosts && pending.ManaReduction == expected.ManaReduction
-            && pending.DestinationPolicy == expected.DestinationPolicy && !pending.Optional && pending.ViewedCardIds is null && pending.RevealedHand is null;
+            && pending.DestinationPolicy == expected.DestinationPolicy && !pending.Optional && pending.ViewedCardIds is null && pending.RevealedHand is null
+            && pending.OriginalLocation == expected.OriginalLocation && pending.OriginalBattlefield == expected.OriginalBattlefield;
     }
 
     private static ResolutionResult FinishDeckPlaySequence(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> events)
@@ -452,9 +463,7 @@ public sealed partial class CoreRuleEngine
         if (c.PlayIndex < c.Queue.Count)
         {
             var player = c.Queue[c.PlayIndex].OwnerId; var card = c.Queue[c.PlayIndex].Card;
-            nextPending = pending with { ChoiceId = $"DECK-PLAY-EFFECT-{pending.Parent.StackItemId}-{c.PlayIndex}",
-                PlayerId = c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : player,
-                Parent = pending.Parent with { DeckPlaySequence = c }, Sources = new Dictionary<string,long> { [card.ObjectId] = card.Generation } };
+            nextPending = DeckPlayPending(pending.Parent with { DeckPlaySequence = c }, c);
         }
         var next = state with { PendingEffectPlay = nextPending, PriorityPlayerId = nextPending is not null ? null : state.StackItems.LastOrDefault()?.ControllerId,
             PassedPriorityPlayerIds = [], ActivePlayerId = nextPending?.PlayerId ?? state.StackItems.LastOrDefault()?.ControllerId ?? state.TurnPlayerId,
