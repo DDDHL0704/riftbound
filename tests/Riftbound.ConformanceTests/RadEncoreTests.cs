@@ -139,6 +139,82 @@ public sealed class RadEncoreTests
     }
 
     [Fact]
+    public void CostPreviewRequiresModesAndPricesEveryChosenWardTargetWithoutChangingState()
+    {
+        var initial = Position();
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ENEMY"] = initial.CardObjects["ENEMY"] with { Tags = initial.CardObjects["ENEMY"].Tags.Append("法盾2").ToArray() } } };
+        var before = MatchStateHasher.Hash(initial);
+        var engine = new CoreRuleEngine();
+        var incomplete = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial,
+            new PlayCardCommand("UNIT", Card, [])));
+        Assert.True(incomplete.RequiresTargetSelection); Assert.False(incomplete.CanPay);
+        Assert.Equal(3, incomplete.Cost!.Mana);
+        var quote = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial,
+            Cast(new("DAMAGE", ["ENEMY"]), new("MIGHT", ["ENEMY"]))));
+        Assert.True(quote.CanPay, quote.Message); Assert.False(quote.RequiresTargetSelection);
+        Assert.Equal(3, quote.Cost!.Mana);
+        Assert.Equal(5, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+        Assert.Equal(4, Assert.Single(quote.Cost.Adjustments, adjustment => adjustment.Label == "法盾费用").Power);
+        Assert.Equal(before, MatchStateHasher.Hash(initial));
+    }
+
+    [Theory]
+    [InlineData("missing")] [InlineData("count")] [InlineData("duplicate")] [InlineData("unknown")]
+    [InlineData("private")] [InlineData("target")] [InlineData("child")]
+    public async Task InvalidModeDeclarationsCannotPayOrChangeTheAuthoritativeState(string branch)
+    {
+        var initial = Position();
+        var command = branch switch {
+            "missing" => new PlayCardCommand("UNIT", Card, []),
+            "count" => Cast(new SpellModeChoice("MINIONS", [])),
+            "duplicate" => Cast(new("MINIONS", []), new("MINIONS", [])),
+            "unknown" => Cast(new("MINIONS", []), new("OTHER", [])),
+            "private" => Cast(new("MINIONS", []), new("LOOK", ["P1-DRAW-1"])),
+            "target" => Cast(new("MINIONS", []), new("DAMAGE", ["GEAR"])),
+            _ => new PlayCardCommand("UNIT", Card, [], Mode: "MINIONS")
+        };
+        var before = MatchStateHasher.Hash(initial);
+        var result = await new CoreRuleEngine().ResolveAsync(initial, new("bad-mode", "P1", CommandTypes.PlayCard), command, default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
+    }
+
+    [Fact]
+    public async Task EchoLookChoicesHaveDifferentIdsAndEarlierModesNeverRunTwice()
+    {
+        var initial = Position();
+        initial = initial with { UntilEndOfTurnEffects = EchoCostRules.AddBaseCostGrant(initial.UntilEndOfTurnEffects, "P1") };
+        var game = new Driver(initial);
+        await game.Act("P1", Cast(new("MINIONS", []), new("LOOK", [])) with { OptionalCosts = ["ECHO"] });
+        await game.Top();
+        Assert.Equal(2, Minions(game.State));
+        var first = game.State.PendingCardChoice!;
+        await game.Act("P1", new ChooseCardsCommand(first.ChoiceId, first.ChoiceWindow, [first.LegalObjectIds[0]]));
+        Assert.Equal(4, Minions(game.State));
+        var second = game.State.PendingCardChoice!;
+        Assert.NotEqual(first.ChoiceId, second.ChoiceId);
+        await game.Act("P1", new ChooseCardsCommand(second.ChoiceId, second.ChoiceWindow, [second.LegalObjectIds[0]]));
+        Assert.Equal(4, Minions(game.State)); Assert.Empty(game.State.StackItems);
+        Assert.Equal(2, game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Single(game.State.CardPlays.Finalized, play => play.Source.ObjectId == "UNIT");
+    }
+
+    [Fact]
+    public async Task TargetsInLaterEchoModesAreObservedEvenWhenTheFirstPairHasNoTargets()
+    {
+        var initial = Position();
+        initial = initial with { UntilEndOfTurnEffects = EchoCostRules.AddBaseCostGrant(initial.UntilEndOfTurnEffects, "P1"),
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["ALLY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ALLY", "VEN·174", "P1") } };
+        var game = new Driver(initial);
+        await game.Act("P1", Cast(new("MINIONS", []), new("LOOK", [])) with { OptionalCosts = ["ECHO"],
+            RepeatChoices = [new("", [], ModeChoices: [new("DAMAGE", ["ENEMY"]), new("MIGHT", ["ALLY"])])] });
+        Assert.Single(game.State.StackItems, item => item.FieldContext?.Kind == "CONTROLLER_TARGETED_OR_READIED_SELF_POWER");
+        Assert.Empty(game.State.StackItems.Single(item => item.SourceObjectId == "UNIT").TargetObjectIds);
+    }
+
+    [Fact]
     public async Task RecoveryRejectsDuplicateModesFutureBindingsAndWrongProgress()
     {
         var game = new Driver(Position());
