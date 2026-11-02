@@ -18,6 +18,10 @@ public static class GameCommandJsonMapper
         return cmdType switch
         {
             "READY" => new ReadyCommand(),
+            CommandTypes.ChoosePlayOrder => cmd.TryGetProperty("goFirst", out var goFirst)
+                && goFirst.ValueKind is JsonValueKind.True or JsonValueKind.False
+                    ? new ChoosePlayOrderCommand(goFirst.GetBoolean())
+                    : new UnsupportedCommand(CommandTypes.ChoosePlayOrder, cmd.Clone()),
             "SUBMIT_DECK" => new SubmitDeckCommand(
                 Text(cmd, "legendCardNo"),
                 Text(cmd, "championCardNo"),
