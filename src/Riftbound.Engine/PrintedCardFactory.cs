@@ -15,6 +15,7 @@ internal static class PrintedCardFactory
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints())
             .Concat(ReviewedRuneCardSources.GetPhysicalPrints())
             .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
+            .Append(SealedDeckRules.BlankBattlefield)
             .DistinctBy(card => card.CardNo, StringComparer.Ordinal)
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
     });
