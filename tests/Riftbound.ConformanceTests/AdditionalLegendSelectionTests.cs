@@ -139,6 +139,31 @@ public sealed class AdditionalLegendSelectionTests
     }
 
     [Fact]
+    public async Task SessionRejectsAnUnauthorizedPoolAndPreservesThePreviouslySubmittedDeck()
+    {
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        var deck = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "jhin-lowcurve").Decklist;
+        var session = new MatchSession("additional-legend-submission", new CoreRuleEngine());
+        session.EnsurePlayer("P1"); session.EnsurePlayer("P2");
+        var original = new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo,
+            deck.MainDeck, deck.RuneDeck, deck.Battlefields);
+        var accepted = await session.SubmitDeckAsync("P1", "ordinary-deck", original,
+            NativeCommandWire.Bind(original, JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.SubmitDeck })), default);
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+
+        var changed = original with { AdditionalLegendCardNos = Choices(catalog, deck, 3) };
+        var rejected = await session.SubmitDeckAsync("P1", "unauthorized-pool", changed,
+            NativeCommandWire.Bind(changed, JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.SubmitDeck })), default);
+        Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.InvalidDeck, rejected.ErrorCode);
+        Assert.Contains("最多可额外选择 0", rejected.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(accepted.State), MatchStateHasher.Hash(rejected.State));
+        Assert.Null(rejected.State.PlayerDecklists["P1"].AdditionalLegendCardNos);
+        Assert.Equal(JsonSerializer.Serialize(accepted.Snapshots), JsonSerializer.Serialize(rejected.Snapshots));
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(rejected.State));
+    }
+
+    [Fact]
     public async Task SealedValidationAlsoRequiresTheCardTextPermissionForAdditionalLegends()
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
