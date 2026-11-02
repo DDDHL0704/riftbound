@@ -71,11 +71,8 @@ public sealed partial class CoreRuleEngine
                         && state.CardObjects[id].Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)).ToArray() : [];
         if (LeadingTriggerCost(item) is { DestroyOtherFriendlyPermanents: > 0 })
             return ValidLeadingCostContext(item) && item.TriggerCost is null
-                ? state.CardObjects.Values.Where(c => c.ObjectId != item.SourceObjectId && !c.IsFaceDown
-                    && IsObjectOnField(state.PlayerZones, c.ObjectId)
-                    && (c.Tags.Contains(CardObjectTags.UnitCard) || c.Tags.Contains(CardObjectTags.EquipmentCard))
-                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId)
-                    .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray() : [];
+                ? FriendlyDestructionChoices(state, item.ControllerId, excludedObjectId: item.SourceObjectId)
+                    .Select(card => card.ObjectId).ToArray() : [];
         if (LeadingTriggerCost(item) is { DestroySelf: true })
             return ValidLeadingCostContext(item) && item.TriggerCost is null
                 && state.CardObjects.TryGetValue(item.SourceObjectId, out var destroyedSelf)

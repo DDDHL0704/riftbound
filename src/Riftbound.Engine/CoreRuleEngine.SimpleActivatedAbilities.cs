@@ -72,8 +72,7 @@ public sealed partial class CoreRuleEngine
                     .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
                     .Select(card => ExhaustFriendlyUnitOptionalCostPrefix + card.ObjectId).ToArray()
             : ability.SimpleEffect?.DestroyFriendlyTagAsCost is { } tag
-                ? state.CardObjects.Values.Where(card => CanDestroyFriendlyPermanentAsAdditionalCost(state, actor, card.ObjectId)
-                    && card.Tags.Contains(tag)).OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+                ? FriendlyDestructionChoices(state, actor, requiredTag: tag)
                     .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray() : [];
 
     internal static bool IsSimpleAbilitySource(MatchState state, string actor, string id, P4ActivatedAbilityDefinition ability)
