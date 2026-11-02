@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
     internal const string TriggerCostWindow = "TRIGGER_COST_CONFIRMATION";
     internal const string OptionalTriggerWindow = "TRIGGER_OPTIONAL_CONFIRMATION";
     private sealed record LeadingCost(bool Exhaust = false, bool Discard = false, int Power = 0, int Mana = 0, bool DestroyLocalUnit = false, string? PowerTrait = null, bool BanishSelf = false,
-        int DestroyOtherFriendlyPermanents = 0, bool BanishGraveyardCard = false, bool ConsumeBoon = false);
+        int DestroyOtherFriendlyPermanents = 0, bool BanishGraveyardCard = false, bool ConsumeBoon = false, bool DestroySelf = false);
 
     // CN 204.1.c: leading instruction costs are paid while confirming a trigger,
     // before responses. A paid receipt follows the captured stack item, not its live source.
@@ -28,6 +28,7 @@ public sealed partial class CoreRuleEngine
         "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
         "EXHAUST_READY_UNIT" or "EXHAUST_DECK_PLAY" => new(Exhaust: true),
         _ => item.HeldContext?.Kind switch {
+        LinkedExileHeldKind => new(DestroySelf: true),
         "LEBLANC_DISCARD" => new(Exhaust: true, Discard: true),
         "VEX" or "RENATA" or "IVERN" => new(Exhaust: true),
         "BRUSH_RETURN" or "CHANNEL_OPTIONAL" => new(),
@@ -75,6 +76,13 @@ public sealed partial class CoreRuleEngine
                     && (c.Tags.Contains(CardObjectTags.UnitCard) || c.Tags.Contains(CardObjectTags.EquipmentCard))
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId)
                     .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray() : [];
+        if (LeadingTriggerCost(item) is { DestroySelf: true })
+            return ValidLeadingCostContext(item) && item.TriggerCost is null
+                && state.CardObjects.TryGetValue(item.SourceObjectId, out var destroyedSelf)
+                && destroyedSelf.ObjectGeneration == TriggerCostSourceGeneration(item)
+                && !destroyedSelf.IsFaceDown && IsObjectOnField(state.PlayerZones, destroyedSelf.ObjectId)
+                && EffectiveFieldControllerId(state.PlayerZones, destroyedSelf.ObjectId, destroyedSelf) == item.ControllerId
+                    ? [destroyedSelf.ObjectId] : [];
         if (LeadingTriggerCost(item) is { BanishSelf: true })
             return ValidLeadingCostContext(item) && item.TriggerCost is null
                 && state.CardObjects.TryGetValue(item.SourceObjectId, out var self) && self.ObjectGeneration == TriggerCostSourceGeneration(item)
@@ -102,9 +110,9 @@ public sealed partial class CoreRuleEngine
     }
 
     private static PendingCardChoiceState TriggerCostChoice(MatchState state, StackItemState item)
-        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false, BanishSelf: false, DestroyOtherFriendlyPermanents: 0, BanishGraveyardCard: false, ConsumeBoon: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, Math.Max(1, LeadingTriggerCost(item)!.DestroyOtherFriendlyPermanents),
+        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false, BanishSelf: false, DestroyOtherFriendlyPermanents: 0, BanishGraveyardCard: false, ConsumeBoon: false, DestroySelf: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, Math.Max(1, LeadingTriggerCost(item)!.DestroyOtherFriendlyPermanents),
             TriggerCostChoices(state, item), [item.BattlefieldConquestConsumeBoon?.Source.ObjectId ?? item.BattlefieldStart?.BattlefieldObjectId ?? item.LegendConquest?.BattlefieldId ?? item.HeldContext?.BattlefieldObjectId ?? item.SourceObjectId],
-            LeadingTriggerCost(item) is { ConsumeBoon: true } ? "选择消耗一名友方单位的增益以确认技能；不选则放弃。费用支付后双方可响应，随后才抽牌。" : LeadingTriggerCost(item) is { BanishGraveyardCard: true } ? "选择从任意废牌堆放逐一张牌作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyOtherFriendlyPermanents: > 0 } sacrifice
+            LeadingTriggerCost(item) is { DestroySelf: true } ? "摧毁来源以确认技能；确认后双方可以响应，随后打出关联的放逐卡牌。" : LeadingTriggerCost(item) is { ConsumeBoon: true } ? "选择消耗一名友方单位的增益以确认技能；不选则放弃。费用支付后双方可响应，随后才抽牌。" : LeadingTriggerCost(item) is { BanishGraveyardCard: true } ? "选择从任意废牌堆放逐一张牌作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyOtherFriendlyPermanents: > 0 } sacrifice
                 ? $"选择摧毁另外 {sacrifice.DestroyOtherFriendlyPermanents} 个友方单位或装备作为费用；不选则放弃。支付后双方可以响应。"
                 : LeadingTriggerCost(item) is { BanishSelf: true } ? "选择放逐此单位作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyLocalUnit: true } ? "选择摧毁此战场的一名友方单位以确认技能；不选则放弃。费用支付后双方可响应，随后才抽牌。" : item.HeldContext?.Kind == "CHANNEL_OPTIONAL" ? "确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。" : item.HeldContext?.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
                 ? "选择弃置一张手牌并横置乐芙兰以确认技能；不选则放弃。确认后双方响应，结算时在此战场打出活跃映像，再选择复制对象。"
@@ -204,7 +212,9 @@ public sealed partial class CoreRuleEngine
             || receipt.Source.Generation != TriggerCostSourceGeneration(item)) return false;
         var cost = LeadingTriggerCost(item)!;
         if (receipt.SourceWasBanished != cost.BanishSelf) return false;
-        if (cost.DestroyOtherFriendlyPermanents > 0
+        if (cost.DestroySelf
+            ? receipt.DestroyedPermanents is not { Count: 1 } selfCost || selfCost[0] != receipt.Source
+            : cost.DestroyOtherFriendlyPermanents > 0
             ? receipt.DestroyedPermanents is not { } sacrificed || sacrificed.Count != cost.DestroyOtherFriendlyPermanents
                 || sacrificed.Select(b => b.ObjectId).Distinct().Count() != sacrificed.Count
                 || sacrificed.Any(b => b.Generation < 0 || string.IsNullOrWhiteSpace(b.ObjectId) || b.ObjectId == item.SourceObjectId)
@@ -263,6 +273,8 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "触发技能的费用选择已失效。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
         if (selected.Count == 0) return CompleteTriggerCost(state, item, null, []);
+        if (LeadingTriggerCost(item) is { DestroySelf: true })
+            return PayTriggerDestructionCost(state, item, selected);
         if (LeadingTriggerCost(item) is { DestroyOtherFriendlyPermanents: > 0 } sacrifice) {
             if (selected.Count != sacrifice.DestroyOtherFriendlyPermanents)
                 return RejectWithCorePrompts(state, "必须选择完整的摧毁费用，或不选以放弃技能。", ErrorCodes.InvalidTarget);
@@ -341,7 +353,7 @@ public sealed partial class CoreRuleEngine
             TriggerQueue = state.TriggerQueue.Concat(removal.TriggerQueue).ToArray(),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, removal.DestroyedUnitOwnerIds) };
         return CompleteTriggerCost(next, item, new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), DestructionTarget: LeadingTriggerCost(item)!.DestroyLocalUnit ? paid.Single() : null,
-            DestroyedPermanents: LeadingTriggerCost(item)!.DestroyOtherFriendlyPermanents > 0 ? paid : null), events);
+            DestroyedPermanents: LeadingTriggerCost(item) is { DestroySelf: true } or { DestroyOtherFriendlyPermanents: > 0 } ? paid : null), events);
     }
 
     private static ResolutionResult PayTriggerBoonCost(MatchState state, StackItemState item, string id)

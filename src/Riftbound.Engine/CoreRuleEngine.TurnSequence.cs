@@ -15,6 +15,8 @@ public sealed record HeldTriggerContext(string CardNo, string BattlefieldObjectI
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public DeploymentHoldOrigin? Deployment { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LinkedExileHeldOrigin? LinkedExile { get; init; }
 }
 public sealed record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
     string SourceCardNo, string BattlefieldObjectId, int DueTurn, int Power);

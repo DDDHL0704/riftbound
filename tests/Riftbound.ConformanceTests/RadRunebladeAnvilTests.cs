@@ -181,6 +181,12 @@ public sealed class RadRunebladeAnvilTests
         var game = new Driver(state);
         await game.Act("P1", new PlayCardCommand("RETURN", "SFD·147/221", [])); await game.Top();
         Assert.Equal(2, game.State.TriggerQueue.Count(t => t.UnitEvent is not null));
+        Assert.All(ResolutionResult.OrderTriggerViews(game.State, "P2"), row => {
+            Assert.Equal("HIDDEN", row["sourceObjectId"]);
+            Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", row["effectKind"]);
+        });
+        Assert.All(ResolutionResult.OrderTriggerViews(game.State, "P1"), row =>
+            Assert.Contains(row["sourceObjectId"], new object[] { "ANVIL", "SECOND" }));
         await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).Reverse().ToArray()));
         await game.Top(); await game.Top();
         var grants = game.State.TimedBanishPlayGrants!;

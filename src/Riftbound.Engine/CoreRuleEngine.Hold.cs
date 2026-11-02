@@ -28,6 +28,7 @@ public sealed partial class CoreRuleEngine
     private static (string Kind, int Amount)? HeldDefinition(string? cardNo) =>
         BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldBurnTrigger, out var burn) ? ("BURN", burn.MillCount!.Value) :
         BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldEmptyRuneScoreTrigger, out var emptyRune) ? ("EMPTY_RUNE_SCORE", emptyRune.ScoreAmount!.Value) :
+        CardBehaviorRegistry.TryGetByCardNo(cardNo ?? "", out var linked) && linked.HeldPlaysLinkedExile ? (LinkedExileHeldKind, 0) :
         HeldCards.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), out var definition) ? definition : null;
 
     private static TriggerSpec? ExactOtherFriendlyHeldSpec(string cardNo)
@@ -40,6 +41,9 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidExactOtherFriendlyHeldContext(MatchState state, HeldTriggerContext context,
         string effect, string controller, string source, string? cardNo)
     {
+        if (context.Kind == LinkedExileHeldKind)
+            return ValidLinkedExileHeldContext(state, context, effect, controller, source, cardNo);
+        if (context.LinkedExile is not null) return false;
         if (context.Kind == DeploymentHeldKind)
             return ValidDeploymentHeldContext(state, context, effect, controller, source, cardNo);
         if (context.Deployment is not null) return false;
@@ -93,9 +97,13 @@ public sealed partial class CoreRuleEngine
                     || (source != field && card.ControllerId != player)) continue;
                 var abilities = new List<(string Kind, int Amount, RuleTextInstance? Instance, int? ExactCount)>();
                 if (HeldDefinition(card.CardNo) is { } definition
+                    && definition.Kind != LinkedExileHeldKind
                     && (definition.Kind != "SEVEN_WIN" || units.Length >= definition.Amount)
                     && (definition.Kind != "EMPTY_RUNE_SCORE" || state.PlayerZones[player].RuneDeck.Count == 0)
                     && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player))) abilities.Add((definition.Kind, definition.Amount, null, null));
+                foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                    if (CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var linkedBehavior) && linkedBehavior.HeldPlaysLinkedExile)
+                        abilities.Add((LinkedExileHeldKind, 0, instance, null));
                 if (units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
                     abilities.Add(("EXPERIENCE", hunt, null, null));
                 if (units.Contains(source))
@@ -130,7 +138,10 @@ public sealed partial class CoreRuleEngine
                         else
                         {
                             var trigger = new TriggerQueueItemState(id, player, source, "HOLD_" + ability.Kind, "BATTLEFIELD_HELD") {
-                                HeldContext = new(ability.Instance?.CardNo ?? card.CardNo ?? "", field, ability.Kind, ability.Amount, card.ObjectGeneration, ability.ExactCount, ability.Instance?.Origin, ability.Instance?.Id),
+                                HeldContext = new(ability.Instance?.CardNo ?? card.CardNo ?? "", field, ability.Kind, ability.Amount, card.ObjectGeneration, ability.ExactCount, ability.Instance?.Origin, ability.Instance?.Id) {
+                                    LinkedExile = ability.Kind == LinkedExileHeldKind ? new(
+                                        new(new(source, card.ObjectGeneration), card.CardNo!, card.CopyFaceTransitions?.Count ?? 0, card.TokenFactoryCardNo),
+                                        new(field, state.CardObjects[field].ObjectGeneration), player, state.Tick) : null },
                                 SourceCardNo = ability.Instance?.CardNo };
                             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
                         }
@@ -143,6 +154,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item)
     {
         var context = item.HeldContext!;
+        if (context.Kind == LinkedExileHeldKind) return ResolveLinkedExileHeld(state, item);
         if (context.Kind == DeploymentHeldKind) return ResolveDeploymentHeld(state, item);
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);

@@ -41,6 +41,7 @@ public sealed record CardBehaviorDefinition(
     EmpowerInteractionSpec? EmpowerInteraction = null,
     MovementScoreSpec? MovementScore = null,
     UnitEventAbilitySpec? UnitEventAbility = null,
+    bool HeldPlaysLinkedExile = false,
     bool GrantsNormalGraveyardPlay = false, bool SkipsDrawPhase = false, bool BanishesNonDeckGraveyardEntries = false,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
@@ -9626,6 +9627,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·136/167", "码头囚笼", 6, "DOCKSIDE_CAGE_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署", HeldPlaysLinkedExile: true,
+            UnitEventAbility: new("PLAY", "BANISH_LINKED_UNIT_HERE")),
         new("RAD·012/167", "符刃铁砧", 1, "RUNEBLADE_ANVIL_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true,
             UnitEventAbility: new("PLAY_OR_LEAVE", "BANISH_TOP_TIMED_PLAY")),
