@@ -87,7 +87,11 @@ public sealed class RadFaceDownPlayHeroTests
     {
         var s = Board(no, exhausted, copied);
         if (withReturn) s = OfficialCopyIdentityTests.AddSpell(s, "RETURN", "OGN·104/298");
-        if (withCounter) s = AttackDamageDistributionTests.Spell(s, "COUNTER", "SFD·045/221", "P2");
+        if (withCounter)
+        {
+            s = AttackDamageDistributionTests.Spell(s, "COUNTER", "SFD·045/221", "P2");
+            s = RadGearTestPosition.Put(s, "COUNTER-GREEN", "UNL-R02", "P2", "BASE");
+        }
         return await FaceDownPlayTestDriver.Ready(s);
     }
 
@@ -155,6 +159,7 @@ public sealed class RadFaceDownPlayHeroTests
         var game = await Ready(no, withCounter: true); await PlayShadow(game);
         var observer = Assert.Single(game.State.StackItems, i => i.StandbyObserver is not null);
         await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new RecycleRuneCommand("COUNTER-GREEN"));
         await RadGearTestPosition.Reject(game.State, "P2",
             new PlayCardCommand("COUNTER", "SFD·045/221", [observer.StackItemId]));
         Assert.Contains(game.State.StackItems, i => i.StandbyObserver is not null);
