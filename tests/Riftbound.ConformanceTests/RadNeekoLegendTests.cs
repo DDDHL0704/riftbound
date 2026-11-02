@@ -35,6 +35,27 @@ public sealed class RadNeekoLegendTests
                 game.Events().Last().Sequence, [], game.State);
             Assert.DoesNotContain(no, Strings(JsonSerializer.SerializeToElement(spectator)));
         }
+        var leaked = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick,
+            game.Events().Last().Sequence, [], game.State);
+        var leakedPayment = Assert.IsType<Dictionary<string, object?>>(leaked.SpectatorSnapshot.Timing["pendingPayment"]);
+        leakedPayment["paymentChoices"] = new[] { Viktor };
+        Assert.NotEmpty(HistoryErrors(game, game.State, leaked));
+        var sequence = game.Events().Last().Sequence;
+        var prompts = ResolutionResult.BuildPrompts(game.State);
+        var recoveredViews = game.State.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(player,
+            game.State.Tick, sequence, views[player], game.State.Tick, sequence, prompts[player]));
+        var cleanSpectator = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick, sequence, [], game.State);
+        Assert.Empty(MatchRecoveryValidator.Validate(game.State.RoomId, sequence, game.Commands(), game.Events(),
+            recoveredViews, game.State, game.State.Tick, cleanSpectator));
+        var opponentPayment = Assert.IsType<Dictionary<string, object?>>(views["P2"].Timing["pendingPayment"]);
+        foreach (var key in new[] { "paymentChoices", "paymentResourceActions" })
+        {
+            var original = opponentPayment[key]; opponentPayment[key] = new[] { Viktor };
+            Assert.Contains(MatchRecoveryValidator.Validate(game.State.RoomId, sequence, game.Commands(), game.Events(),
+                recoveredViews, game.State, game.State.Tick, cleanSpectator),
+                error => error.Contains("private resolution choice exposes", StringComparison.Ordinal));
+            opponentPayment[key] = original;
+        }
         await game.ColdCheckpoint();
         await game.Act("P1", new PayCostCommand(choice.Id, "RULE_REPLACEMENT", [Viktor]));
         var id = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
@@ -173,6 +194,18 @@ public sealed class RadNeekoLegendTests
             Assert.NotEmpty(HistoryErrors(game, game.State with {
                 CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
                     ["UNIT"] = unit with { UntilEndOfTurnPowerModifiers = [forged] } } }));
+        foreach (var (key, value) in new[] {
+            ("sourceObjectId", legend + "-invented"), ("sourceCardNo", Darius),
+            ("sourcePath", "invented"), ("targetObjectId", legend) })
+        {
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick,
+                game.Events().Last().Sequence, [], game.State);
+            var effects = Assert.IsAssignableFrom<IEnumerable<Dictionary<string, object?>>>(
+                spectator.SpectatorSnapshot.Timing["continuousEffects"]);
+            var effect = Assert.Single(effects, effect => Equals(effect.GetValueOrDefault("sourceObjectId"), legend));
+            effect[key] = value;
+            Assert.NotEmpty(HistoryErrors(game, game.State, spectator));
+        }
         await game.ColdCheckpoint(); await game.Replay();
     }
 
@@ -246,6 +279,77 @@ public sealed class RadNeekoLegendTests
         await game.ColdCheckpoint(); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ActualControlChangePreservesTheOriginalSkillControllerAndItsRegisteredLegend(bool beforeResolution)
+    {
+        // Explicit midgame position; standby preparation, replaying Neeko onto
+        // the battlefield, and the control change all use ordinary commands.
+        var deck = (await Position(Viktor)).State.PlayerDecklists["P1"];
+        var initial = BanishEffectPlayTests.Position(unit: Neeko);
+        initial = OfficialHoldSequenceTests.AddUnit(initial, "ENEMY", "OGN·049/298", "F", "P2");
+        initial = initial with {
+            ActivePlayerId = "P2", TurnPlayerId = "P2",
+            PlayerDecklists = new Dictionary<string, OfficialDecklist> {
+                ["P1"] = deck, ["P2"] = deck with { AdditionalLegendCardNos = [Darius] } },
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["F"] = initial.CardObjects["F"] with { ControllerId = "P2" },
+                ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "OGN·049/298", "P2"),
+                ["BAIT"] = OfficialGarenConquestBattlefieldCountTests.Printed("BAIT", "OGN·012/298", "P1") },
+            PlayerZones = initial.PlayerZones.ToDictionary(pair => pair.Key, pair => pair.Key == "P1"
+                ? pair.Value with { Base = [..pair.Value.Base, "BAIT"] } : pair.Value),
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                ["BAIT"] = new("P1", "BASE") }
+        };
+        initial = AttackDamageDistributionTests.Spell(initial, "TAKE", "SFD·202/221", "P2");
+        initial = AttackDamageDistributionTests.Spell(initial, "RETURN", "OGN·104/298", "P1");
+        var runes = Enumerable.Range(0, 4).Select(copy => "FUND-" + copy).ToArray();
+        foreach (var id in runes)
+            initial = initial with {
+                CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                    [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, "OGN·007/298", "P1") },
+                PlayerZones = initial.PlayerZones.ToDictionary(pair => pair.Key, pair => pair.Key == "P1"
+                    ? pair.Value with { Base = [..pair.Value.Base, id] } : pair.Value),
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                    [id] = new("P1", "BASE") }
+            };
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await game.Act("P2", new HideCardCommand("TAKE", "SFD·202/221", "BATTLEFIELD:F", ["STANDBY_A"]));
+        await game.Act("P2", new EndTurnCommand());
+        await game.TapRunes("P1", runes);
+        await game.Act("P1", new RecycleRuneCommand(runes[0]));
+        await game.Act("P1", new PlayCardCommand("HUNT", "UNL-184/219", ["HOST"])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("HOST", Neeko, [], Destination: "BATTLEFIELD:F"));
+        var source = Assert.Single(game.State.StackItems).PermanentPlaySource!;
+        string? originalLegend = null;
+        if (!beforeResolution)
+        {
+            await game.Top();
+            originalLegend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["BAIT"]));
+        }
+        await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("TAKE", "SFD·202/221", ["HOST"])); await game.Top();
+        Assert.Equal("P1", game.State.CardObjects["HOST"].OwnerId);
+        Assert.Equal("P2", game.State.CardObjects["HOST"].ControllerId);
+        Assert.Equal(source.Generation, game.State.CardObjects["HOST"].ObjectGeneration);
+        Assert.Equal("P1", Assert.Single(game.State.StackItems).ControllerId);
+        if (beforeResolution)
+            Assert.Equal(source, Assert.Single(game.State.StackItems).PermanentPlaySource);
+        await game.ColdCheckpoint(); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        if (originalLegend is not null) Assert.Equal(originalLegend, legend);
+        Assert.Equal(Viktor, game.State.CardObjects[legend].CardNo);
+        Assert.Equal("P1", game.State.CardObjects[legend].ControllerId);
+        Assert.Empty(game.State.PlayerZones["P2"].LegendZone);
+        Assert.DoesNotContain(game.State.CardObjects.Values, card => card.CardNo == Darius);
+        var duration = Assert.Single(game.State.BoundLegends!);
+        Assert.Equal(source, duration.Source); Assert.Equal("P1", duration.PlayerId);
+        Assert.Null(duration.DepartedAtTick);
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
     [Fact]
     public async Task MovingTheSameFieldObjectPreservesItsAddedLegend()
     {
@@ -261,14 +365,14 @@ public sealed class RadNeekoLegendTests
         await game.ColdCheckpoint(); await game.Replay();
     }
 
-    private static IReadOnlyList<string> HistoryErrors(Driver game, MatchState state)
+    private static IReadOnlyList<string> HistoryErrors(Driver game, MatchState state, MatchReplayFrame? spectator = null)
     {
         var sequence = game.Events().Last().Sequence;
         var snapshots = ResolutionResult.BuildSnapshots(state);
         var prompts = ResolutionResult.BuildPrompts(state);
         var views = state.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(player,
             state.Tick, sequence, snapshots[player], state.Tick, sequence, prompts[player]));
-        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        spectator ??= MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
         return MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views, state, state.Tick, spectator);
     }
 

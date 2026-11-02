@@ -2070,13 +2070,16 @@ public sealed partial record ResolutionResult(
 
     private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(
         MatchState state,
-        PendingPaymentState? payment)
+        PendingPaymentState? payment,
+        string viewerPlayerId)
     {
         if (payment is null)
         {
             return null;
         }
 
+        // Resolution options can identify private registered cards or observed deck cards.
+        var privateChoice = state.PendingRuleChoice is not null && payment.PlayerId != viewerPlayerId;
         var view = new Dictionary<string, object?>
         {
             ["paymentId"] = payment.PaymentId,
@@ -2084,8 +2087,8 @@ public sealed partial record ResolutionResult(
             ["paymentWindow"] = payment.PaymentWindow,
             ["playerId"] = payment.PlayerId,
             ["cost"] = BuildPaymentCostView(payment),
-            ["paymentChoices"] = payment.LegalPaymentChoiceIds,
-            ["paymentResourceActions"] = PendingPaymentResourceActionIds(state, payment)
+            ["paymentChoices"] = privateChoice ? Array.Empty<string>() : payment.LegalPaymentChoiceIds,
+            ["paymentResourceActions"] = privateChoice ? Array.Empty<string>() : PendingPaymentResourceActionIds(state, payment)
         };
         if (state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" && state.DeckObservationView is { } observation)
             view["deckObservationKind"] = observation.Public ? "REVEAL" : "LOOK";
