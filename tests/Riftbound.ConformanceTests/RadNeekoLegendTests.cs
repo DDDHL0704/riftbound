@@ -134,6 +134,64 @@ public sealed class RadNeekoLegendTests
     }
 
     [Fact]
+    public async Task APassiveLegendTriggerSurvivesItsDepartureAndCannotBorrowAnInventedReceipt()
+    {
+        var position = (await Position("UNL-183/219")).State;
+        var game = new Driver(position with {
+            CardObjects = new Dictionary<string, CardObjectState>(position.CardObjects) {
+                ["RECRUIT"] = OfficialGarenConquestBattlefieldCountTests.Printed("RECRUIT", "OGN·012/298", "P1") },
+            PlayerZones = position.PlayerZones.ToDictionary(pair => pair.Key, pair => pair.Key == "P1"
+                ? pair.Value with { Hand = [..pair.Value.Hand, "RECRUIT"] } : pair.Value),
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(position.ObjectLocations) {
+                ["RECRUIT"] = new("P1", "HAND") }
+        }) { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new PlayCardCommand("RECRUIT", "OGN·012/298", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(legend, choice.SourceObjectId);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["UNIT"]));
+        var power = game.State.CardObjects["UNIT"].Power;
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEEKO"])); await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey(legend));
+        var item = Assert.Single(game.State.StackItems);
+        Assert.Equal(legend, item.SourceObjectId);
+        foreach (var context in new[] {
+            item.UnitPlayMight! with { SourceGeneration = 1 },
+            item.UnitPlayMight! with { CapturedTick = game.State.Tick + 1 } })
+            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
+                StackItems = [item with { UnitPlayMight = context }] }));
+        Assert.Contains(HistoryErrors(game, game.State with {
+            StackItems = [item with { StackItemId = item.StackItemId + "-invented" }] }),
+            error => error.Contains("accepted activation receipt", StringComparison.Ordinal));
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.Equal(power + 1, game.State.CardObjects["UNIT"].Power);
+        var unit = game.State.CardObjects["UNIT"];
+        var modifier = Assert.Single(unit.UntilEndOfTurnPowerModifiers);
+        foreach (var forged in new[] { modifier with { SourceObjectId = legend + "-invented" },
+            modifier with { SourceCardNo = Darius }, modifier with { PowerDelta = 2 } })
+            Assert.NotEmpty(HistoryErrors(game, game.State with {
+                CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                    ["UNIT"] = unit with { UntilEndOfTurnPowerModifiers = [forged] } } }));
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnAlreadyGrantedTurnEffectRemainsAfterTheAddedLegendDeparts()
+    {
+        var game = await Position("OGN·267/298");
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new LegendActCommand(legend,
+            LegendActionAbilityCatalog.MissFortuneLegendAbilityId, ["UNIT"], []));
+        Assert.Contains("ROAM", game.State.CardObjects["UNIT"].UntilEndOfTurnEffects);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEEKO"])); await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey(legend));
+        Assert.Contains("ROAM", game.State.CardObjects["UNIT"].UntilEndOfTurnEffects);
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
+    [Fact]
     public async Task ForgedChoicesAreAtomicAndForgedDurationBindingsFailRecovery()
     {
         var game = await Position(Viktor, Darius);
@@ -157,7 +215,11 @@ public sealed class RadNeekoLegendTests
             binding with { PlayerId = "P2" },
             binding with { Source = binding.Source with { Generation = binding.Source.Generation + 1 } },
             binding with { LegendCardNo = Darius }, binding with { DepartedAtTick = game.State.Tick } })
-            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { BoundLegends = [forged] }));
+        {
+            var invalid = game.State with { BoundLegends = [forged] };
+            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(invalid));
+            Assert.NotEmpty(HistoryErrors(game, invalid));
+        }
         await game.Replay();
     }
 

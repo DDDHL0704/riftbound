@@ -40,19 +40,50 @@ public static partial class MatchRecoveryValidator
         }
         var actual = state.BoundLegends ?? [];
         if (ledger.Count != actual.Count || actual.Any(binding => binding is null
+            || string.IsNullOrWhiteSpace(binding.LegendObjectId)
             || !ledger.TryGetValue(binding.LegendObjectId, out var recorded) || binding != recorded))
             errors.Add("bound legend provenance differs from accepted history");
+        if (ledger.Count == 0 && actual.Count == 0) return;
         foreach (var item in state.StackItems.Where(item =>
             CoreRuleEngine.IsDepartedBoundLegendSource(state, item.SourceObjectId, item.CardNo)))
         {
             var binding = actual.Single(binding => binding.LegendObjectId == item.SourceObjectId);
-            if (!events.Any(recovered => recovered.Tick >= binding.EnteredAtTick && recovered.Tick <= binding.DepartedAtTick
-                && recovered.Event.Kind == "STACK_ITEM_ADDED"
+            var lifetime = events.Where(recovered => recovered.Tick >= binding.EnteredAtTick
+                && recovered.Tick <= binding.DepartedAtTick).ToArray();
+            var activation = lifetime.Any(recovered => recovered.Event.Kind == "STACK_ITEM_ADDED"
                 && ReadNormalizedPayloadString(recovered.Event.Payload, "stackItemId") == item.StackItemId
                 && ReadNormalizedPayloadString(recovered.Event.Payload, "sourceObjectId") == item.SourceObjectId
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "controllerId") == item.ControllerId
                 && ReadNormalizedPayloadString(recovered.Event.Payload, "cardNo") == item.CardNo
-                && ReadNormalizedPayloadString(recovered.Event.Payload, "effectKind") == item.EffectKind))
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "effectKind") == item.EffectKind);
+            var trigger = lifetime.FirstOrDefault(recovered => recovered.Event.Kind == "TRIGGER_QUEUED"
+                && "ordered-" + ReadNormalizedPayloadString(recovered.Event.Payload, "triggerId") == item.StackItemId
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "sourceObjectId") == item.SourceObjectId
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "controllerId") == item.ControllerId
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "effectKind") == item.EffectKind);
+            var published = trigger is not null && lifetime.Any(recovered => recovered.Sequence > trigger.Sequence
+                && recovered.Event.Kind == "TRIGGERS_MOVED_TO_STACK"
+                && TryReadObjectStringList(recovered.Event.Payload, "stackItemIds", out var ids)
+                && ids.Contains(item.StackItemId, StringComparer.Ordinal));
+            if (!activation && !published)
                 errors.Add("departed legend skill lacks its accepted activation receipt");
+        }
+        foreach (var modifier in state.CardObjects.Values.Where(card => card is not null)
+            .SelectMany(card => card.UntilEndOfTurnPowerModifiers ?? [])
+            .Where(modifier => modifier is not null && modifier.SourceObjectId is { } source && modifier.SourceCardNo is { } no
+                && CoreRuleEngine.IsDepartedBoundLegendSource(state, source, no)))
+        {
+            var binding = actual.Single(binding => binding.LegendObjectId == modifier.SourceObjectId);
+            if (!events.Any(recovered => recovered.Tick >= binding.EnteredAtTick && recovered.Tick <= state.Tick
+                && recovered.Event.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN"
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "sourceObjectId") == modifier.SourceObjectId
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "targetObjectId") == modifier.TargetObjectId
+                && ReadNormalizedPayloadString(recovered.Event.Payload, "reason") == modifier.EffectKind
+                && TryReadObjectInt(recovered.Event.Payload, "appliedPowerDelta", out var delta) && delta == modifier.PowerDelta
+                && TryReadObjectInt(recovered.Event.Payload, "resultingPower", out var power) && power == modifier.ResultingPower
+                && commands.Any(command => command.Accepted && recovered.Sequence > command.StartedEventSequence
+                    && recovered.Sequence <= command.CompletedEventSequence)))
+                errors.Add("departed legend modifier lacks its accepted resolution receipt");
         }
     }
 }

@@ -5167,7 +5167,7 @@ public static partial class MatchRecoveryValidator
                 objectId,
                 cardObject.UntilEndOfTurnPowerModifiers,
                 knownObjectIds,
-                errors);
+                errors, authoritativeState);
         }
 
         foreach (var (objectId, location) in authoritativeState.ObjectLocations
@@ -5456,7 +5456,7 @@ public static partial class MatchRecoveryValidator
         string objectId,
         IReadOnlyList<PowerModifierLedgerEntry>? powerModifiers,
         IReadOnlySet<string> knownObjectIds,
-        List<string> errors)
+        List<string> errors, MatchState authoritativeState)
     {
         if (powerModifiers is null)
         {
@@ -5478,6 +5478,11 @@ public static partial class MatchRecoveryValidator
             {
                 continue;
             }
+
+            // A resolved modifier retains its public provenance after an added
+            // legend ceases to exist. This exception does not make it a live object.
+            if (modifier.Duration == "UNTIL_END_OF_TURN" && modifier.SourceCardNo is { } no
+                && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, sourceObjectId, no)) continue;
 
             var modifierLabel = string.IsNullOrWhiteSpace(modifier.EffectId)
                 ? "<unknown>"

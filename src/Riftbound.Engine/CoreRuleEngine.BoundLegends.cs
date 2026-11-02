@@ -129,8 +129,10 @@ public sealed partial class CoreRuleEngine
         => ValidBoundLegends(state) && (state.BoundLegends ?? []).Any(binding => binding.LegendObjectId == source
             && binding.DepartedAtTick is not null && (no is null || no == binding.LegendCardNo));
 
-    private static bool DepartedLegendBindingMatches(MatchState state, ObjectBinding source, string no, long revision, long tick)
+    internal static bool DepartedLegendBindingMatches(MatchState state, ObjectBinding source, string no, long revision, long tick,
+        string? controller = null)
         => source.Generation == 0 && revision == 0 && IsDepartedBoundLegendSource(state, source.ObjectId, no)
             && state.BoundLegends!.Any(binding => binding.LegendObjectId == source.ObjectId
+                && (controller is null || binding.PlayerId == controller)
                 && tick >= binding.EnteredAtTick && tick <= binding.DepartedAtTick);
 }
