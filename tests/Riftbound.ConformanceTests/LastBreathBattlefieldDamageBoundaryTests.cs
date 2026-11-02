@@ -82,7 +82,8 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
                 Assert.Equal(0, game.State.CardObjects["OTHER-VICTIM"].Damage); Assert.Equal(0, game.State.CardObjects["BASE-VICTIM"].Damage);
                 Assert.Equal(copies - i, game.State.StackItems.Count);
             }
-            Assert.Empty(game.State.TriggerQueue); await game.Replay();
+            // The final accepted Top already replays the complete original history.
+            Assert.Empty(game.State.TriggerQueue);
         }
         finally { await Flow.Save("kogmaw-paid-" + copies + "-battlefield-" + battlefield, initial, game); }
     }
