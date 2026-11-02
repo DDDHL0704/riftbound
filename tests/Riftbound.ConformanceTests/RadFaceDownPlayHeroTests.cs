@@ -156,6 +156,26 @@ public sealed class RadFaceDownPlayHeroTests
         var game = await Ready(no, withReturn: true); await PlayShadow(game);
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top();
         Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        var snapshots = ResolutionResult.BuildSnapshots(game.State);
+        var prompts = ResolutionResult.BuildPrompts(game.State);
+        var views = snapshots.ToDictionary(p => p.Key, p => new RecoveredPlayerView(p.Key,
+            game.State.Tick, 0, p.Value, game.State.Tick, 0, prompts[p.Key]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick, 0, [], game.State);
+        Assert.Equal("HOST", Assert.IsType<Dictionary<string, object?>>(Assert.Single(
+            snapshots["P1"].Stack.Where(row => row is Dictionary<string, object?> view && Equals(view["cardNo"], no))))["sourceObjectId"]);
+        foreach (var snapshot in new[] { snapshots["P2"], spectator.SpectatorSnapshot })
+        {
+            var row = Assert.IsType<Dictionary<string, object?>>(Assert.Single(
+                snapshot.Stack.Where(row => row is Dictionary<string, object?> view && Equals(view["cardNo"], no))));
+            Assert.Equal("HIDDEN", row["sourceObjectId"]);
+            Assert.Equal("HIDDEN", row["sourceVisibility"]);
+            Assert.Equal("STANDBY_PLAYED_SELF_MIGHT", row["effectKind"]);
+            Assert.DoesNotContain("\"HOST\"", JsonSerializer.Serialize(snapshot.Stack));
+            row["sourceObjectId"] = "HOST";
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State, views, spectator));
+            row["sourceObjectId"] = "HIDDEN";
+        }
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State, views, spectator));
         await game.Top(); Assert.Equal(5, game.State.CardObjects["HOST"].Power);
         Assert.Empty(game.State.CardObjects["HOST"].UntilEndOfTurnPowerModifiers);
         Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_READIED"); await game.Top(); await game.Replay();
