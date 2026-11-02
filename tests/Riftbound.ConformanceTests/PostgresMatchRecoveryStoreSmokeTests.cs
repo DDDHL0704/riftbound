@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class PostgresMatchRecoveryStoreSmokeTests
+public sealed partial class PostgresMatchRecoveryStoreSmokeTests
 {
     [Theory]
     [InlineData(false)]

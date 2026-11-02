@@ -63,7 +63,7 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
                 events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, "__spectator__") } });
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, ProjectionViewers.Spectator) } });
             }
         }
         var state = result.State with { TriggerQueue = queue };
@@ -116,7 +116,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
             || !ValidEquipmentDeathStack(item) || item.TriggerCost is null) throw new InvalidOperationException("Invalid captured equipment destruction skill.");
         var birth = context.EquipmentDestruction!; var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary();
-        var visible = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var visible = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "装备被摧毁后的返回技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = visible, ["effectKind"] = context.Kind, ["controllerId"] = item.ControllerId }) };
         if (birth.EquipmentTokenFactoryCardNo is null && cards.TryGetValue(birth.Equipment.ObjectId, out var gear)

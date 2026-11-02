@@ -1033,7 +1033,7 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
-        IReadOnlyList<ContinuousEffectState> authoritativeEffects = authoritativeState.ContinuousEffects.Select(effect => CoreRuleEngine.PublicPlayInstructionEffect(authoritativeState, effect, "__spectator__")).ToArray();
+        IReadOnlyList<ContinuousEffectState> authoritativeEffects = authoritativeState.ContinuousEffects.Select(effect => CoreRuleEngine.PublicPlayInstructionEffect(authoritativeState, effect, ProjectionViewers.Spectator)).ToArray();
         var validateAuthoritativeParity = spectatorEffects.Count == authoritativeEffects.Count;
         if (!validateAuthoritativeParity)
         {

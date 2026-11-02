@@ -126,7 +126,7 @@ public sealed partial class CoreRuleEngine
             if (ganking) GrantLegendRoam(cards, source.ObjectId, item.ControllerId, item.SourceObjectId, item.StackItemId, events);
         }
         events.Add(new("TRIGGER_RESOLVED", "开始阶段符文数量技能结算", new Dictionary<string, object?> {
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["controllerId"] = item.ControllerId, ["stackItemId"] = item.StackItemId }));
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }

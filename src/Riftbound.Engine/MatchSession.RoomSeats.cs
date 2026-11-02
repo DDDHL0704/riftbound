@@ -44,6 +44,12 @@ public sealed partial class MatchSession
                 return (player, null);
             }
 
+            if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            {
+                var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
+                nextState = SealedRoomPools.AddPlayer(nextState, player.PlayerId, catalog);
+            }
+
             var raw = JsonSerializer.SerializeToElement(new { cmdType = RoomSeatCommandType, playerId = player.PlayerId, seat = player.Seat });
             var events = new[] { new GameEvent("PLAYER_SEATED", "玩家加入房间", new Dictionary<string, object?> { ["playerId"] = player.PlayerId, ["seat"] = player.Seat }) };
             var result = new ResolutionResult(true, null, nextState, events, ResolutionResult.BuildSnapshots(nextState), ResolutionResult.BuildPrompts(nextState));

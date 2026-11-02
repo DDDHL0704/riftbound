@@ -460,9 +460,8 @@ public static partial class MatchRecoveryValidator
     }
 
     private static void ValidateTurnUnitPlayBoonViews(SnapshotDto snapshot, MatchState state, List<string> errors,
-        string? viewerPlayerId = null)
+        string viewerPlayerId)
     {
-        viewerPlayerId ??= snapshot.Table?.ViewerPlayerId ?? "__spectator__";
         void Check(IReadOnlyList<object?> payloads, bool queue)
         {
             foreach (var payload in payloads)

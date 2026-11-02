@@ -158,7 +158,7 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
                 events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, ProjectionViewers.Spectator) } });
             }
         }
         if (!found) return result;
@@ -408,7 +408,7 @@ public sealed partial class CoreRuleEngine
             {
                 cards[id] = cards[id] with { IsExhausted = false };
                 events.Add(new("RUNE_READIED", "触发技能让选择的符文变为活跃状态", new Dictionary<string, object?> {
-                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
                     ["objectIds"] = new[] { id }, ["count"] = 1 }));
             }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };

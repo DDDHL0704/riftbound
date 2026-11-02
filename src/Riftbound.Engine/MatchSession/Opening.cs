@@ -203,6 +203,8 @@ public sealed partial class MatchSession
         };
 
         var cardsByNo = catalog.Cards.ToDictionary(card => card.CardNo, StringComparer.Ordinal);
+        if (readyState.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed)
+            cardsByNo[SealedDeckRules.BlankBattlefieldCardNo] = SealedDeckRules.BlankBattlefield;
         foreach (var playerId in seatOrder)
         {
             var decklist = readyState.PlayerDecklists[playerId];

@@ -10,6 +10,7 @@ public sealed partial class CoreRuleEngine
     {
         executions = null;
         error = "回响的逐次选择数量、模式或目标不合法。";
+        if (behavior.SpellModes is not null) return true;
         if (count < 2 || !SupportsSeparateExecution(behavior))
             return command.RepeatChoices is not { Count: > 0 };
         var choices = command.RepeatChoices is { Count: > 0 } supplied ? supplied
@@ -23,7 +24,7 @@ public sealed partial class CoreRuleEngine
         foreach (var choice in choices)
         {
             if (choice is null || choice.TargetObjectIds is null) return false;
-            var repeatCommand = command with { Mode = choice.Mode, TargetObjectIds = choice.TargetObjectIds, Destination = choice.Destination ?? command.Destination, MovementDestinations = choice.MovementDestinations ?? command.MovementDestinations, RepeatChoices = null };
+            var repeatCommand = command with { Mode = choice.Mode, TargetObjectIds = choice.TargetObjectIds, Destination = choice.Destination ?? command.Destination, MovementDestinations = choice.MovementDestinations ?? command.MovementDestinations, RepeatChoices = null, ModeChoices = choice.ModeChoices };
             // Validate with the same authoritative target rules as the initial play.
             // A quote may be short of resources; resource authorization belongs to
             // the combined plan after all target taxes have been counted.

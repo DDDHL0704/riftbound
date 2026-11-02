@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
         ResetCardOutsidePlay(zones, cards, id, before, player);
         var parent = item with { LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage! with { BanishedDeckTop = new(id, cards[id].ObjectGeneration) } };
         var ev = CaptureOwnedBanishObservers(new("CARD_BANISHED", "绝念放逐主牌堆顶部的一张牌", new Dictionary<string, object?> {
-            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["targetObjectId"] = id, ["cardNo"] = cards[id].CardNo, ["playerId"] = player, ["destinationZone"] = "BANISHED" }),
             zones, cards, player, [id]);
         TryGetEffectPlayDefinition(parent, out var definition);

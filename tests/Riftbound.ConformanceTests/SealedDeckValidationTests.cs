@@ -192,26 +192,15 @@ public sealed class SealedDeckValidationTests
     }
 
     [Fact]
-    public async Task ExistingSubmissionEntryCannotAcceptASealedDeckWithoutAnAuthoritativePool()
+    public void ExistingSubmissionEntryCannotAcceptASealedDeckWithoutAnAuthoritativePool()
     {
-        var session = new MatchSession("sealed-no-pool", new CoreRuleEngine(), NoopMatchJournal.Instance,
-            NoopMatchPlayerStore.Instance, new MatchSessionOptions(false, OfficialDeckFormat.Sealed));
-        await session.EnsurePlayerAsync("p1", default);
-        var before = session.SnapshotFor("p1");
-        var deck = Deck() with
-        {
-            LegendCardNo = Legend,
-            ChampionCardNo = Champion,
-            MainDeck = Deck(24).MainDeck.Append(Champion).ToArray()
-        };
-        var command = new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields);
-        var result = await session.SubmitDeckAsync("p1", "deck-without-pool", command,
-            JsonSerializer.SerializeToElement(command, new JsonSerializerOptions(JsonSerializerDefaults.Web)), default);
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
-        Assert.Contains("缺少服务端卡池", result.ErrorMessage);
-        Assert.Equal(before.Tick, session.SnapshotFor("p1").Tick);
-        Assert.Empty(result.State.PlayerDecklists);
+        // Sealed seats now always receive server-generated packs. The old incomplete
+        // options must fail before seating instead of admitting a pool-less session.
+        var error = Assert.Throws<ArgumentException>(() => new MatchSession("sealed-no-pool",
+            new CoreRuleEngine(), NoopMatchJournal.Instance, NoopMatchPlayerStore.Instance,
+            new MatchSessionOptions(false, OfficialDeckFormat.Sealed)));
+        Assert.Equal("options", error.ParamName);
+        Assert.Contains("隐藏提交内容", error.Message);
     }
 
     [Theory]
