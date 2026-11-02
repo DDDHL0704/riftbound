@@ -36,7 +36,8 @@ public sealed partial class LastBreathDrawBoundaryTests
         initial = initial with { CardObjects = cards, ObjectLocations = locations,
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
                 ["P1"] = initial.PlayerZones["P1"] with { RuneDeck = runeIds } } };
-        var game = new Driver(initial);
+        // Audit ordinary paid preparation once before the destructive command.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             await Tap(game, "P1");
@@ -54,6 +55,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
             await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0"));
             await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.ColdCheckpoint();
+            game.RecoverAfterEveryCommand = true;
             var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
             var runes = game.State.PlayerZones["P1"].RuneDeck.ToArray(); var prefix = game.Events().Length;
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();

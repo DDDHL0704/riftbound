@@ -412,6 +412,7 @@ public sealed record CardBehaviorDefinition(
     int FriendlyLastBreathAdditionalTriggersHere = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
+    public bool MayPayAnyAdditionalPower { get; init; }
 }
 
 public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);

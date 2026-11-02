@@ -5,6 +5,8 @@ import type {
   PlayCostQuote,
   PlayerSession,
   Prompt,
+  PublicMatch,
+  SealedSet,
   ServerMessage,
   Snapshot,
 } from "../game/types";
@@ -220,6 +222,8 @@ export class GameClient {
     connection.on("Error", (m: ServerMessage<{ code: string; message: string }>) => {
       const text = readableError(m.payload?.code, m.payload?.message);
       this.pushLog([{ tick: m.serverTick, kind: m.payload?.code || "ERROR", text, tone: "error" }]);
+      // The lobby has no log to read, so a refused room request has to say so here.
+      if (this.state.phase !== "room") this.toast(text);
       if (m.payload?.code === "INVALID_RECONNECT_TOKEN" || m.payload?.code === "PLAYER_NOT_IN_ROOM") {
         this.leaveRoom();
       }
@@ -302,11 +306,29 @@ export class GameClient {
     return result?.match.roomId ?? null;
   }
 
+  async createSealedRoom(setCode: string, bestOf: 1 | 3) {
+    this.set({ snapshot: null, prompt: null, log: [], tally: {} });
+    const result = await this.connection!.invoke<{ match: { roomId: string } } | null>(
+      "CreatePublicMatchWithOptions",
+      this.state.handle,
+      { format: "sealed", setCode, bestOf },
+    );
+    return result?.match.roomId ?? null;
+  }
+
+  /** The sets the server currently opens for sealed; empty when it cannot say. */
+  async listSealedSets(): Promise<SealedSet[]> {
+    try {
+      const response = await fetch(`${this.state.server.replace(/\/$/, "")}/sealed/sets`);
+      return response.ok ? ((await response.json()) as SealedSet[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
   async listRooms() {
     return (
-      (await this.connection?.invoke<{ roomId: string; hostPlayerId: string; seatCount: number; capacity: number; status: string }[]>(
-        "ListPublicMatches",
-      )) ?? []
+      (await this.connection?.invoke<PublicMatch[]>("ListPublicMatches")) ?? []
     );
   }
 

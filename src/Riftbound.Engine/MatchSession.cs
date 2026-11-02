@@ -5438,6 +5438,8 @@ internal static partial class ActionPromptBuilder
             ["composable"] = true,
             ["unsupportedReason"] = string.Empty
         };
+        if (behavior.MayPayAnyAdditionalPower && !CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId))
+            requirement["variableAdditionalPowerCost"] = VariableAdditionalPowerCostRules.Metadata;
         var requiredAdditionalCosts = CoreRuleEngine.MandatoryPlayAdditionalCostCount(behavior);
         if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) && requiredAdditionalCosts > 0)
         {

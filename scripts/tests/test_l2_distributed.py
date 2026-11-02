@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,6 +48,110 @@ class RunLoggedTests(unittest.TestCase):
                 D.run_logged(command, log)
             self.assertEqual(['build succeeded', 'warning'], log.read_text().splitlines())
             self.assertEqual('', console.getvalue())
+
+
+class CatalogPreflightTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.bundle = self.root / 'bundle'
+        self.bundle.mkdir()
+        self.assembly = self.bundle / D.ASSEMBLY
+        self.assembly.write_bytes(b'fixed test assembly')
+        self.output = self.root / 'preflight'
+        self.cases = {method: [method + '(value: 1)', method + '(value: 2)']
+                      for method in D.CATALOG_PREFLIGHT}
+        self.names = [name for rows in self.cases.values() for name in rows]
+        self.plan = dict(commit='1' * 40, testAssemblySha256=D.digest(self.assembly),
+                         cases={**self.cases, 'Unrelated.Method': ['Unrelated.Method']})
+
+    def execute(self, names=None, outcome='Passed', fail=False, change_assembly=False):
+        def run(command, log):
+            self.command = command
+            log.write_text('preflight output\n')
+            if fail:
+                raise subprocess.CalledProcessError(17, command)
+            actual = self.names if names is None else names
+            tree = ET.Element('TestRun', xmlns=D.RULES.NS['t'])
+            results = ET.SubElement(tree, 'Results')
+            for name in actual:
+                ET.SubElement(results, 'UnitTestResult', testName=name, outcome=outcome)
+            summary = ET.SubElement(tree, 'ResultSummary')
+            ET.SubElement(summary, 'Counters', total=str(len(actual)),
+                          passed=str(len(actual) if outcome == 'Passed' else 0),
+                          failed=str(len(actual) if outcome == 'Failed' else 0),
+                          notExecuted=str(len(actual) if outcome == 'NotExecuted' else 0))
+            ET.ElementTree(tree).write(self.output / 'results.trx')
+            if change_assembly:
+                self.assembly.write_bytes(b'changed assembly')
+        with mock.patch.object(D, 'run_logged', side_effect=run) as runner:
+            D.catalog_preflight(self.plan, self.bundle, self.output)
+        return runner
+
+    def test_success_checks_every_planned_row_and_preserves_the_complete_rule_plan(self):
+        original = copy.deepcopy(self.plan)
+        runner = self.execute()
+        self.assertEqual(original, self.plan)
+        runner.assert_called_once()
+        self.assertEqual(['dotnet', 'vstest', str(self.assembly)], self.command[:3])
+        settings = ET.parse(self.output / 'execution.runsettings')
+        expression = settings.findtext('.//TestCaseFilter')
+        self.assertEqual({f'FullyQualifiedName={method}' for method in D.CATALOG_PREFLIGHT},
+                         set(expression.split('|')))
+        self.assertEqual('true', settings.findtext('.//TreatNoTestsAsError'))
+        receipt = D.read(self.output / 'receipt.json')
+        self.assertEqual('CATALOG_PREFLIGHT_PASSED', receipt['status'])
+        self.assertEqual(len(self.names), receipt['counters']['passed'])
+        self.assertTrue(receipt['completeRuleShardsStillRequired'])
+
+    def test_missing_method_stops_before_execution(self):
+        del self.plan['cases'][D.CATALOG_PREFLIGHT[0]]
+        with mock.patch.object(D, 'run_logged') as runner:
+            with self.assertRaisesRegex(ValueError, 'Missing catalog preflight method'):
+                D.catalog_preflight(self.plan, self.bundle, self.output)
+        runner.assert_not_called()
+        self.assertFalse((self.output / 'receipt.json').exists())
+
+    def test_wrong_assembly_stops_before_execution(self):
+        self.assembly.write_bytes(b'wrong build')
+        with mock.patch.object(D, 'run_logged') as runner:
+            with self.assertRaisesRegex(ValueError, 'assembly differs'):
+                D.catalog_preflight(self.plan, self.bundle, self.output)
+        runner.assert_not_called()
+        self.assertFalse((self.output / 'receipt.json').exists())
+
+    def test_failed_process_keeps_its_log_without_a_success_receipt(self):
+        with self.assertRaises(subprocess.CalledProcessError) as error:
+            self.execute(fail=True)
+        self.assertEqual(17, error.exception.returncode)
+        self.assertTrue((self.output / 'test.log').exists())
+        self.assertFalse((self.output / 'receipt.json').exists())
+
+    def test_empty_missing_repeated_extra_and_foreign_rows_cannot_pass(self):
+        variants = dict(empty=[], missing=self.names[1:], repeated=self.names + self.names[:1],
+                        substituted=self.names[1:] + self.names[1:2],
+                        extra=self.names + [D.CATALOG_PREFLIGHT[0] + '(value: 3)'],
+                        foreign=self.names + ['Unrelated.Method'])
+        for label, names in variants.items():
+            with self.subTest(label=label):
+                self.output = self.root / label
+                with self.assertRaises(ValueError):
+                    self.execute(names=names)
+                self.assertFalse((self.output / 'receipt.json').exists())
+
+    def test_failed_and_skipped_results_cannot_pass(self):
+        for outcome in ['Failed', 'NotExecuted']:
+            with self.subTest(outcome=outcome):
+                self.output = self.root / outcome
+                with self.assertRaises(ValueError):
+                    self.execute(outcome=outcome)
+                self.assertFalse((self.output / 'receipt.json').exists())
+
+    def test_assembly_change_during_execution_cannot_pass(self):
+        with self.assertRaisesRegex(ValueError, 'changed the fixed test assembly'):
+            self.execute(change_assembly=True)
+        self.assertFalse((self.output / 'receipt.json').exists())
 
 
 class DistributedL2Tests(unittest.TestCase):
