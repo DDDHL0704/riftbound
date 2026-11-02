@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { client, type ClientState } from "../net/client";
 import { cardInfo, cardName, COLOR_HEX, useCards } from "../game/cards";
-import type { PreconstructedDeck, Snapshot, Prompt } from "../game/types";
+import type { PreconstructedDeck, PublicMatch, SealedSet, Snapshot, Prompt } from "../game/types";
 import { deckProblems, newDeckFrom, parseDeck, saveDeck, useCustomDecks, type CustomDeck } from "../game/decks";
 import { DeckBuilder } from "./DeckBuilder";
 import { enabledCandidate } from "../game/actions";
@@ -49,11 +49,12 @@ export function ConnectScreen({ state }: { state: ClientState }) {
   );
 }
 
-type Room = { roomId: string; hostPlayerId: string; seatCount: number; capacity: number; status: string };
-
 export function LobbyScreen({ state }: { state: ClientState }) {
   const [code, setCode] = useState("");
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [rooms, setRooms] = useState<PublicMatch[]>([]);
+  const [sets, setSets] = useState<SealedSet[]>([]);
+  const [sealedSet, setSealedSet] = useState("");
+  const [bestOf, setBestOf] = useState<1 | 3>(1);
 
   useEffect(() => {
     let alive = true;
@@ -70,7 +71,20 @@ export function LobbyScreen({ state }: { state: ClientState }) {
     };
   }, [state.handle]);
 
+  useEffect(() => {
+    let alive = true;
+    void client.listSealedSets().then((list) => {
+      if (!alive) return;
+      setSets(list);
+      setSealedSet((current) => current || list[0]?.setCode || "");
+    });
+    return () => {
+      alive = false;
+    };
+  }, [state.server]);
+
   const matching = state.phase === "matchmaking";
+  const roomRules = (r: PublicMatch) => (r.format === "sealed" ? `现开 · ${sets.find((s) => s.setCode === r.setCode)?.name ?? r.setCode} · ${r.bestOf === 3 ? "三局两胜" : "单局"}` : null);
 
   return (
     <main className="gate gate--lobby">
@@ -124,6 +138,38 @@ export function LobbyScreen({ state }: { state: ClientState }) {
             </button>
           </form>
         </div>
+        {sets.length > 0 && (
+          <div className="lobby__block lobby__block--wide">
+            <h2>现开赛</h2>
+            <p>每人开 6 包同系列卡包，只用开出的牌组一副至少 25 张的卡组。没开到传奇或英雄也能打，缺任何一个都会在首回合多抽一张。</p>
+            <div className="lobby__options">
+              <div className="lobby__option" role="radiogroup" aria-label="系列">
+                <span className="muted small">系列</span>
+                {sets.map((s) => (
+                  <button key={s.setCode} role="radio" aria-checked={s.setCode === sealedSet} className={`chip${s.setCode === sealedSet ? " chip--on" : ""}`} onClick={() => setSealedSet(s.setCode)}>
+                    {s.name}
+                  </button>
+                ))}
+              </div>
+              <div className="lobby__option" role="radiogroup" aria-label="赛制">
+                <span className="muted small">赛制</span>
+                {(
+                  [
+                    [1, "单局"],
+                    [3, "三局两胜"],
+                  ] as const
+                ).map(([n, label]) => (
+                  <button key={n} role="radio" aria-checked={n === bestOf} className={`chip${n === bestOf ? " chip--on" : ""}`} onClick={() => setBestOf(n)}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <button className="btn btn--primary" disabled={matching || !sealedSet} onClick={() => void client.createSealedRoom(sealedSet, bestOf)}>
+                创建现开房间
+              </button>
+            </div>
+          </div>
+        )}
         <div className="lobby__block lobby__block--wide">
           <h2>等待中的房间</h2>
           {rooms.length === 0 ? (
@@ -136,6 +182,7 @@ export function LobbyScreen({ state }: { state: ClientState }) {
                   <span className="muted">
                     {r.hostPlayerId}，{r.seatCount}/{r.capacity} 人
                   </span>
+                  {roomRules(r) && <span className="rooms__rules">{roomRules(r)}</span>}
                   <button className="btn btn--small" disabled={matching} onClick={() => void client.joinRoom(r.roomId)}>
                     加入
                   </button>
@@ -512,7 +559,7 @@ function DeckPreview({ deck }: { deck: PreconstructedDeck }) {
   );
 }
 
-function Seat({ name, deck, ready, self }: { name?: string; deck?: boolean; ready?: boolean; self?: boolean }) {
+export function Seat({ name, deck, ready, self }: { name?: string; deck?: boolean; ready?: boolean; self?: boolean }) {
   return (
     <div className={`seat${self ? " seat--self" : " seat--opp"}`}>
       <span className="seat__name">{name ?? "等待对手加入"}</span>
