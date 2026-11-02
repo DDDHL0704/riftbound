@@ -7,12 +7,31 @@ public static class PublicMatchStatuses
     public const string Waiting = "WAITING";
 }
 
+public static class PublicMatchCreation
+{
+    public static CreatePublicMatchOptionsDto Normalize(CreatePublicMatchOptionsDto? options)
+    {
+        var format = (options?.Format ?? MatchFormats.Constructed).Trim().ToLowerInvariant();
+        if (format == MatchFormats.Constructed && string.IsNullOrWhiteSpace(options?.SetCode) && (options?.BestOf ?? 1) == 1)
+            return new();
+        if (format == MatchFormats.Sealed && !string.IsNullOrWhiteSpace(options?.SetCode))
+        {
+            var room = MatchSessionOptions.ForSealed(options.SetCode, options.BestOf);
+            return new(MatchFormats.Sealed, room.SealedSetCode, room.SealedBestOf);
+        }
+        throw new ArgumentException("建房参数无效：构筑赛只支持单局制；现开赛须指定已开放系列及 1 或 3 局制。");
+    }
+}
+
 public interface IPublicMatchDirectory
 {
     ValueTask<PublicMatchDto> CreateAsync(
         string roomId,
         string hostPlayerId,
         CancellationToken cancellationToken);
+
+    ValueTask<PublicMatchDto> CreateAsync(string roomId, string hostPlayerId, CreatePublicMatchOptionsDto options,
+        CancellationToken cancellationToken) => throw new NotSupportedException("This directory does not support room format options.");
 
     ValueTask<IReadOnlyList<PublicMatchDto>> ListOpenAsync(CancellationToken cancellationToken);
 
@@ -40,15 +59,19 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
         this.connections = connections;
     }
 
-    public async ValueTask<PublicMatchDto> CreateAsync(
+    public ValueTask<PublicMatchDto> CreateAsync(
         string roomId,
         string hostPlayerId,
+        CancellationToken cancellationToken) => CreateAsync(roomId, hostPlayerId, new(), cancellationToken);
+
+    public async ValueTask<PublicMatchDto> CreateAsync(string roomId, string hostPlayerId, CreatePublicMatchOptionsDto options,
         CancellationToken cancellationToken)
     {
+        var normalizedOptions = PublicMatchCreation.Normalize(options);
         var normalizedRoomId = NormalizeRoomId(roomId);
         var normalizedHostPlayerId = NormalizePlayerId(hostPlayerId);
         var createdAt = clock();
-        var entry = new PublicMatchEntry(normalizedRoomId, normalizedHostPlayerId, createdAt);
+        var entry = new PublicMatchEntry(normalizedRoomId, normalizedHostPlayerId, createdAt, normalizedOptions);
 
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -132,7 +155,8 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
     private sealed record PublicMatchEntry(
         string RoomId,
         string HostPlayerId,
-        DateTimeOffset CreatedAt)
+        DateTimeOffset CreatedAt,
+        CreatePublicMatchOptionsDto Options)
     {
         public PublicMatchDto ToDto()
         {
@@ -142,7 +166,8 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
                 SeatCount: 1,
                 Capacity: 2,
                 PublicMatchStatuses.Waiting,
-                CreatedAt);
+                CreatedAt,
+                Options.Format, Options.SetCode, Options.BestOf);
         }
     }
 }
