@@ -20,6 +20,7 @@ public static partial class MatchRecoveryValidator
             if (i.LastBreathBattlefieldDamage is not null ? !CoreRuleEngine.ValidLastBreathBattlefieldDamageTrigger(state, i) : MissingBirth(i.TriggerId, i.EffectKind))
                 errors.Add("invalid captured last-breath battlefield damage trigger");
         var all = state.StackItems.Select(i => i.LastBreathBattlefieldDamage).Concat(state.TriggerQueue.Select(i => i.LastBreathBattlefieldDamage))
+            .Append(state.PendingEffectPlay?.Parent.LastBreathBattlefieldDamage)
             .OfType<LastBreathBattlefieldDamageContext>().ToArray();
         if (all.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex, c.Repetition?.Occurrence ?? 0)).Distinct().Count() != all.Length)
             errors.Add("duplicate captured last-breath battlefield damage instance");

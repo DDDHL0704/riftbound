@@ -58,6 +58,7 @@ public sealed class LastBreathLocalRepetitionTests
     {
         var game = await Destroy("RAD·067/167", 1);
         var top = game.State.PlayerZones["P1"].MainDeck.Take(2).ToArray();
+        var queued = game.State.TriggerQueue.ToArray();
         Assert.Equal(2, Births(game.State).Length); await Order(game);
         var occurrences = new HashSet<int>();
         for (var i = 0; i < 2; i++)
@@ -66,6 +67,13 @@ public sealed class LastBreathLocalRepetitionTests
             var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
             Assert.Equal(new[] { top[i] }, pending.Sources.Keys);
             Assert.True(occurrences.Add(pending.Parent.LastBreathBattlefieldDamage!.Repetition!.Occurrence));
+            var original = queued.Single(t => t.LastBreathBattlefieldDamage!.Repetition!.Occurrence
+                == pending.Parent.LastBreathBattlefieldDamage.Repetition.Occurrence);
+            foreach (var duplicate in new[] {
+                game.State with { StackItems = [..game.State.StackItems, pending.Parent] },
+                game.State with { TriggerQueue = [..game.State.TriggerQueue, original] } })
+                Assert.Contains(OfficialInsightAndSpellLockTests.Errors(duplicate), e =>
+                    e.Contains("duplicate captured last-breath battlefield damage", StringComparison.Ordinal));
             var mana = game.State.RunePools["P1"].Mana;
             if (play) await game.Act("P1", new PlayCardCommand(top[i], "OGN·219/298", [], Destination: "BASE"));
             else await game.Act("P1", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));

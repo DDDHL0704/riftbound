@@ -6,8 +6,22 @@ public static class RadiantCardSources
 {
     public const string SnapshotPath = VendettaCardSources.SnapshotPath;
     private static readonly Lazy<ImmutableArray<OfficialCard>> Cards = new(Load);
+    private static readonly Lazy<ImmutableArray<OfficialCard>> ReviewedPhysicalResourcePrints = new(() =>
+        new[] { (Id: 39507L, CardNo: "RAD·017/167") }
+            .Select(identity => VendettaCardSources.GetOfficialCards().Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
+            .Select(card => card with {
+                CardCategoryList = card.CardCategoryList.ToImmutableArray(),
+                CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),
+                CardColorList = card.CardColorList.ToImmutableArray(),
+                ProductCodeList = card.ProductCodeList.ToImmutableArray(),
+                ProductNameList = card.ProductNameList.ToImmutableArray() })
+            .ToImmutableArray());
 
     public static IReadOnlyList<OfficialCard> GetAdmittedCards() => Cards.Value;
+    // Reviewed physical identity and printed costs do not admit an incomplete
+    // behavior to the runtime catalog. CN 124.1 still preserves its real card.
+    public static IReadOnlyList<OfficialCard> GetReviewedPhysicalPrints() => ReviewedPhysicalResourcePrints.Value;
+    public static IReadOnlyList<OfficialCard> GetReviewedPrintedResourceCostPrints() => ReviewedPhysicalResourcePrints.Value;
 
     private static ImmutableArray<OfficialCard> Load()
     {
