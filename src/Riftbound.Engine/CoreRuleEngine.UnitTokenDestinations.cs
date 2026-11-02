@@ -28,10 +28,17 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, RunePool> pools, IReadOnlyList<string> effects, CardBehaviorDefinition? behavior = null)
     {
         if (!UnitTokenInstructionAllowsLocationChoice(cardNo, family)) return false;
+        // A conquest haste receipt is consumed by the first actual token entry.
+        // It must not leave a later replacement token waiting on an unrelated
+        // location choice in the same resolution.
+        if (effects.Any(effect => effect.StartsWith(NextUnitPlayGrantPrefix, StringComparison.Ordinal)
+                && ReadNextUnitPlayGrant(effect) is { ControllerId: var controller } && controller == player))
+            return false;
         // Entry-trigger tokens and Rengar's unit-play window consume the token
         // immediately; their follow-up choice must stay ahead of a destination
         // menu. Ordinary token plays retain the normal base/battlefield choice.
-        if (behavior is { CreatedTokenReadyCount: > 0 } || behavior?.CreatedBaseUnitTokenPerEquipment == true
+        if (behavior is { CreatedTokenReadyCount: > 0 } || behavior?.CreatedBaseUnitTokenEntersReady == true
+            || behavior?.CreatedBaseUnitTokenPerEquipment == true
             || ControllerHasRengarLegend(state, player)) return false;
         // An outside-hand haste grant has its own pre-entry payment window. Do
         // not interleave an ordinary destination choice before that payment,

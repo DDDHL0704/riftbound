@@ -25,7 +25,10 @@ public sealed partial class CoreRuleEngine
             var hastePaid = ChooseTokenHaste(state, item.ControllerId, item.SourceObjectId, token, zones, cards, pools, events);
             if (hastePaid) token = token with { IsExhausted = false };
             var entryField = battlefieldId;
-            if (entryField is null && ShouldOfferUnitTokenLocationChoice(state, item.ControllerId, item.CardNo,
+            if (entryField is null
+                && (item.SourceUnitTokens is null
+                    || UnitTokenLocationChoiceGranted(state.UntilEndOfTurnEffects, item.ControllerId))
+                && ShouldOfferUnitTokenLocationChoice(state, item.ControllerId, item.CardNo,
                     factory.TokenFamilyName, zones, cards, pools, state.UntilEndOfTurnEffects))
                 entryField = ChooseUnitTokenBattlefield(state, item.ControllerId, factory.TokenFamilyName,
                     zones, cards, locations, pools, state.UntilEndOfTurnEffects);
