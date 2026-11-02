@@ -72,7 +72,7 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
                 events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, source.SourceId, "__spectator__") } });
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, source.SourceId, ProjectionViewers.Spectator) } });
             }
         }
         if (!found) return result;
@@ -151,7 +151,7 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid paid unit trigger context.");
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>(); var target = item.TargetObjectIds.SingleOrDefault();
-        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         if (target is not null && item.TargetGenerations?.GetValueOrDefault(target, -1) == cards.GetValueOrDefault(target)?.ObjectGeneration
             && FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal) && CanExecuteStun(cards[target])) {
             cards[target] = cards[target] with { UntilEndOfTurnEffects = cards[target].UntilEndOfTurnEffects

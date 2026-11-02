@@ -23,12 +23,15 @@ public sealed partial class CoreRuleEngine
     // objects, spend a replacement's once-per-turn use, or finish the parent.
     private static int TokenEntryCount(MatchState state, StackItemState parent)
     {
+        parent = ActiveSpellMode(parent);
         if (parent.CompletedRepeatExecutions < 0 || parent.RepeatExecutions is { } repeats
             && parent.CompletedRepeatExecutions >= repeats.Count) return 0;
         var item = parent.RepeatExecutions is { } executions && parent.CompletedRepeatExecutions < executions.Count
             ? parent with { EffectKind = executions[parent.CompletedRepeatExecutions].EffectKind, EffectRepeatCount = 1, RepeatExecutions = null }
             : parent;
         if (TryMovementTokenInstruction(state, item, out var movementToken)) return movementToken.Count;
+        if (item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { Effect: "CREATE_UNIT_TOKEN" } unitToken)
+            return unitToken.Amount;
         if (item.SourceUnitTokens is { } sourceToken)
             return TrySourceUnitTokenDestination(state, item, out _)
                 ? SourceUnitTokenSpecs.Value[sourceToken.CardNo].CreatedTokenCount.GetValueOrDefault() : 0;
@@ -55,7 +58,8 @@ public sealed partial class CoreRuleEngine
     private static PendingCardChoiceState TokenReplacementChoice(MatchState state, StackItemState parent, TokenEntryPlan plan)
     {
         var sources = EligibleTokenReplacements(state, parent.ControllerId);
-        return new($"token-replacement:{parent.StackItemId}:{parent.CompletedRepeatExecutions}:{plan.NextToken}:{plan.Applied.Count}", TokenReplacementWindow,
+        var modeSuffix = parent.CompletedModeExecutions > 0 ? $":mode:{parent.CompletedModeExecutions}" : "";
+        return new($"token-replacement:{parent.StackItemId}:{parent.CompletedRepeatExecutions}:{plan.NextToken}:{plan.Applied.Count}{modeSuffix}", TokenReplacementWindow,
             parent.ControllerId, 0, 1, sources, sources,
             $"第 {plan.NextToken + 1}/{plan.OriginalCount} 名单位指示物：选择一名基兰，多打出一个复制体；不选则跳过此指示物的剩余替换，保留未使用的回合次数。已增加 {plan.Applied.Count} 名。",
             parent.SourceObjectId, parent.EffectKind) { ResolvingStackItemId = parent.StackItemId };

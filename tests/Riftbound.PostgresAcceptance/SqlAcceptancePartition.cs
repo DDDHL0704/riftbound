@@ -8,10 +8,11 @@ using Riftbound.Persistence;
 
 internal sealed class SqlAcceptancePartition
 {
-    private sealed record Case(string Id, string SourceType);
+    private sealed record Case(string Id, string SourceType, int? DefaultPartition);
     private sealed record Manifest(int SchemaVersion, string Kind, int DefaultPartitionCount, IReadOnlyList<Case> Cases);
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
-    private static readonly string ManifestPath = Path.Combine(AppContext.BaseDirectory, "SqlAcceptanceCases.json");
+    private static readonly string DefaultManifestPath = Path.Combine(AppContext.BaseDirectory, "SqlAcceptanceCases.json");
+    private readonly string manifestPath;
     private readonly Manifest manifest;
     private readonly int? index;
     private readonly int count;
@@ -19,44 +20,53 @@ internal sealed class SqlAcceptancePartition
     private readonly List<string> completed = [];
     private readonly HashSet<string> started = new(StringComparer.Ordinal);
 
-    private SqlAcceptancePartition(Manifest manifest, int? index, int count)
+    private SqlAcceptancePartition(Manifest manifest, int? index, int count, string manifestPath)
     {
-        this.manifest = manifest; this.index = index; this.count = count;
+        this.manifest = manifest; this.index = index; this.count = count; this.manifestPath = manifestPath;
     }
 
     internal bool IsPartition => index is not null;
-    private static Manifest ReadManifest()
+    private static Manifest ReadManifest(string path)
     {
-        var value = JsonSerializer.Deserialize<Manifest>(File.ReadAllText(ManifestPath), Json)
+        var value = JsonSerializer.Deserialize<Manifest>(File.ReadAllText(path), Json)
             ?? throw new InvalidOperationException("SQL case identity manifest is required.");
-        if (value.SchemaVersion != 1 || value.Kind != "SQL_EXECUTION_IDENTITIES_NOT_RULE_CERTIFICATION"
-            || value.DefaultPartitionCount <= 0 || value.Cases.Count == 0
+        if (value.SchemaVersion != 2 || value.Kind != "SQL_EXECUTION_IDENTITIES_NOT_RULE_CERTIFICATION"
+            || value.DefaultPartitionCount <= 0 || value.Cases.Count < value.DefaultPartitionCount
             || value.Cases.Any(c => string.IsNullOrWhiteSpace(c.Id) || string.IsNullOrWhiteSpace(c.SourceType))
+            || value.Cases.Any(c => c.DefaultPartition is not int p || p < 0 || p >= value.DefaultPartitionCount)
+            || value.Cases.Select(c => c.DefaultPartition).Distinct().Count() != value.DefaultPartitionCount
             || value.Cases.Select(c => c.Id).Distinct(StringComparer.Ordinal).Count() != value.Cases.Count
             || value.Cases.Count(c => c.Id == "core-opening" && c.SourceType == "PROGRAM_CORE_OPENING") != 1)
             throw new InvalidOperationException("Invalid or duplicated SQL execution identities.");
         return value;
     }
 
-    internal static string PlanJson()
+    internal static string PlanJson(string? manifestPath = null)
     {
-        var value = ReadManifest();
+        manifestPath ??= DefaultManifestPath;
+        var value = ReadManifest(manifestPath);
         return JsonSerializer.Serialize(new { status = "PLAN_ONLY_NOT_DATABASE_ACCEPTANCE", value.SchemaVersion,
             value.Kind, value.DefaultPartitionCount, value.Cases,
-            manifestSha256 = FileHash(ManifestPath) }, Json);
+            manifestSha256 = FileHash(manifestPath) }, Json);
     }
 
-    internal static SqlAcceptancePartition Parse(string[] args)
+    internal static SqlAcceptancePartition Parse(string[] args, string? manifestPath = null)
     {
-        var value = ReadManifest();
-        if (args.FirstOrDefault() != "--ci-partition") return new(value, null, 1);
+        manifestPath ??= DefaultManifestPath;
+        var value = ReadManifest(manifestPath);
+        if (args.FirstOrDefault() != "--ci-partition") return new(value, null, 1, manifestPath);
         if (args.Length != 3 || !int.TryParse(args[1], out var index) || !int.TryParse(args[2], out var count)
             || count < 1 || count > value.Cases.Count || index < 0 || index >= count || index >= value.Cases.Count)
             throw new ArgumentException("Use --ci-partition INDEX COUNT with a nonempty valid partition.");
-        return new(value, index, count);
+        return new(value, index, count, manifestPath);
     }
 
-    private string[] Expected() => manifest.Cases.Where((_, i) => index is null || i % count == index)
+    // Preserve the source order for every mode. Only the default partition
+    // count uses the measured assignment; custom counts retain modulo routing.
+    private bool Selected(Case entry, int ordinal) => index is null
+        || (count == manifest.DefaultPartitionCount ? entry.DefaultPartition == index : ordinal % count == index);
+
+    internal string[] Expected() => manifest.Cases.Where((entry, ordinal) => Selected(entry, ordinal))
         .Select(c => c.Id).ToArray();
 
     internal async Task RunAsync(string id, Func<Task> run)
@@ -65,7 +75,7 @@ internal sealed class SqlAcceptancePartition
         // from the fixed execution identity list or from aggregate coverage.
         var ordinal = manifest.Cases.Select(c => c.Id).ToList().IndexOf(id);
         if (ordinal < 0 || !started.Add(id)) throw new InvalidOperationException("Unknown or duplicated default SQL case: " + id);
-        if (index is not null && ordinal % count != index) return;
+        if (!Selected(manifest.Cases[ordinal], ordinal)) return;
         var startedAt = DateTimeOffset.UtcNow; var watch = Stopwatch.StartNew();
         Console.WriteLine("SQL_CASE_STARTED " + id);
         await run();
@@ -95,7 +105,7 @@ internal sealed class SqlAcceptancePartition
         var receipt = new {
             status = IsPartition ? "REAL_POSTGRES_PARTITION_COMPLETE" : "REAL_POSTGRES_ALL_DEFAULT_CASES_COMPLETE",
             fixedCommit = Environment.GetEnvironmentVariable("RIFTBOUND_FIXED_COMMIT") ?? Environment.GetEnvironmentVariable("GITHUB_SHA"), partitionIndex = index, partitionCount = count,
-            manifestSha256 = FileHash(ManifestPath), orderedDefaultCases = manifest.Cases.Select(c => c.Id),
+            manifestSha256 = FileHash(manifestPath), orderedDefaultCases = manifest.Cases.Select(c => c.Id),
             expectedCases = expected, completedCases = completed, executions,
             executionRuntime = new { processorCount = Environment.ProcessorCount,
                 serverGC = System.Runtime.GCSettings.IsServerGC,

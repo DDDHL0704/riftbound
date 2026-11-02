@@ -37,7 +37,7 @@ public sealed partial class CoreRuleEngine
         foreach (var id in item.TargetObjectIds ?? [])
             if (item.TargetGenerations?.TryGetValue(id, out var generation) == true)
                 yield return new(id, generation);
-        foreach (var execution in item.RepeatExecutions ?? [])
+        foreach (var execution in (item.RepeatExecutions ?? []).Concat(item.ModeExecutions?.Select(m => m.Execution) ?? []))
             foreach (var id in execution?.TargetObjectIds ?? [])
                 if (execution?.TargetGenerations?.TryGetValue(id, out var generation) == true)
                     yield return new(id, generation);

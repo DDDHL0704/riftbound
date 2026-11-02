@@ -4612,6 +4612,20 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var otherExhaustedPower = Regex.Match(segment,
+                @"^你每控制一名其他休眠的单位，我便具有\{\{S\}\}\+(?<delta>[1-9][0-9]*)[。.]?$",
+                RegexOptions.CultureInvariant);
+            if (otherExhaustedPower.Success)
+            {
+                auras.Add(new(StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits,
+                    int.Parse(otherExhaustedPower.Groups["delta"].Value, CultureInfo.InvariantCulture), segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Count other controlled public exhausted units across the field.", StaticAuraTargetFilters.Exhausted));
+                continue;
+            }
+
             var controlledTokenCount = Regex.Match(segment,
                 @"^你每控制一[名个]指示物单位，我便获得\{\{S\}\}\+(?<delta>[1-9][0-9]*)。?$",
                 RegexOptions.CultureInvariant);

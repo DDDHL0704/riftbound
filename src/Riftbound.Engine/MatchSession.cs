@@ -187,6 +187,9 @@ public sealed record CardObjectState
 public sealed record StackItemState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<DeclaredSpellMode>? ModeExecutions { get; init; }
+    public int CompletedModeExecutions { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FlowPlayReceipt? FlowPlay { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ShowcaseReceipt? Showcase { get; init; }
@@ -1475,7 +1478,7 @@ public sealed partial record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { EffectPlayCount = item.EffectPlayCount, Showcase=item.Showcase, ReturnedEquipmentManaCost=item.ReturnedEquipmentManaCost, FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, BombRebuild = item.BombRebuild, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, NextUnitPlayGrant = item.NextUnitPlayGrant, TurnUnitPlayBoon = item.TurnUnitPlayBoon, TurnUnitPlayDraw = item.TurnUnitPlayDraw, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TemporaryActivation = item.TemporaryActivation, SelfMovement = item.SelfMovement, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, LegendDuelMovement = item.LegendDuelMovement, LegendUnitKeyword = item.LegendUnitKeyword, LegendUnitEffect = item.LegendUnitEffect, LegendEquipmentReady = item.LegendEquipmentReady, LegendDiscardDraw = item.LegendDiscardDraw, AzirMovement = item.AzirMovement, NamedUnitSwap = item.NamedUnitSwap, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, SourceUnitTokens = item.SourceUnitTokens, ReadyObjectTrigger = item.ReadyObjectTrigger, SourceReadied = item.SourceReadied, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, ConquestFlow = item.ConquestFlow, ConquestSource = item.ConquestSource, SourceBoonMight = item.SourceBoonMight, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, HighCostPlayObserver = item.HighCostPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, BattlefieldConquestMill = item.BattlefieldConquestMill, UnitConquestReturn = item.UnitConquestReturn, BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = item.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = item.BattlefieldConquestReadyEquipment, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost, DepartedTokenTargets = item.DepartedTokenTargets, EmpowerInteraction = item.EmpowerInteraction, RecycleMightActivation = item.RecycleMightActivation, SelfMightActivation = item.SelfMightActivation, UnitEvent = item.UnitEvent, SimpleActivation = item.SimpleActivation })
+                item.EffectPlayCompleted) { EffectPlayCount = item.EffectPlayCount, Showcase=item.Showcase, ReturnedEquipmentManaCost=item.ReturnedEquipmentManaCost, FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, BombRebuild = item.BombRebuild, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, NextUnitPlayGrant = item.NextUnitPlayGrant, TurnUnitPlayBoon = item.TurnUnitPlayBoon, TurnUnitPlayDraw = item.TurnUnitPlayDraw, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TemporaryActivation = item.TemporaryActivation, SelfMovement = item.SelfMovement, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, LegendDuelMovement = item.LegendDuelMovement, LegendUnitKeyword = item.LegendUnitKeyword, LegendUnitEffect = item.LegendUnitEffect, LegendEquipmentReady = item.LegendEquipmentReady, LegendDiscardDraw = item.LegendDiscardDraw, AzirMovement = item.AzirMovement, NamedUnitSwap = item.NamedUnitSwap, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, SourceUnitTokens = item.SourceUnitTokens, ReadyObjectTrigger = item.ReadyObjectTrigger, SourceReadied = item.SourceReadied, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, ModeExecutions = item.ModeExecutions, CompletedModeExecutions = item.CompletedModeExecutions, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, ConquestFlow = item.ConquestFlow, ConquestSource = item.ConquestSource, SourceBoonMight = item.SourceBoonMight, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, HighCostPlayObserver = item.HighCostPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, BattlefieldConquestMill = item.BattlefieldConquestMill, UnitConquestReturn = item.UnitConquestReturn, BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = item.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = item.BattlefieldConquestReadyEquipment, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost, DepartedTokenTargets = item.DepartedTokenTargets, EmpowerInteraction = item.EmpowerInteraction, RecycleMightActivation = item.RecycleMightActivation, SelfMightActivation = item.SelfMightActivation, UnitEvent = item.UnitEvent, SimpleActivation = item.SimpleActivation })
 
             .ToArray();
     }
@@ -1809,6 +1812,14 @@ public sealed partial record ResolutionResult(
             view["sourceObjectId"] = VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId);
             view["sourceVisibility"] = Equals(view["sourceObjectId"], "HIDDEN") ? "HIDDEN" : "VISIBLE";
             view["abilityLabel"] = "部署：对手据守时摧毁此牌";
+        }
+        if (item.ModeExecutions is { } modes && !hiddenSource)
+        {
+            view["completedModeExecutions"] = item.CompletedModeExecutions;
+            view["modeExecutions"] = modes.Select((mode, index) => new Dictionary<string, object?> {
+                ["index"] = index, ["mode"] = mode.Mode, ["effectKind"] = mode.Execution.EffectKind,
+                ["targetObjectIds"] = VisibleObjectIdsForViewer(state, mode.Execution.TargetObjectIds, viewerPlayerId)
+            }).ToArray();
         }
         if (item.RepeatExecutions is { } executions && !hiddenSource)
             view["repeatExecutions"] = executions.Select((execution, index) =>
@@ -3793,6 +3804,7 @@ internal static partial class ActionPromptBuilder
 
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
+            .Where(behavior => !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var root) || root.SpellModes is null || behavior.SpellModes is not null)
             .Select(behavior => CoreRuleEngine.StandbyPlayBehavior(state, playerId, objectId, CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior)))
             .SelectMany(behavior => CoreRuleEngine.FlowPlayBehaviors(state, playerId, objectId, behavior))
             .SelectMany(behavior => CoreRuleEngine.NormalGraveyardPlayBehaviors(state, playerId, objectId, behavior))
@@ -5410,6 +5422,16 @@ internal static partial class ActionPromptBuilder
             ["targetScopeLabel"] = PromptTargetScopeLabel(targetScope),
             ["allowsRepeatedTargets"] = behavior.AllowsRepeatedTargets,
             ["supportsSeparateExecutions"] = CoreRuleEngine.SupportsSeparateExecution(behavior),
+            ["requiredModeCount"] = behavior.SpellModes?.RequiredModes,
+            ["modeChoices"] = behavior.SpellModes?.Modes.Select(mode => new Dictionary<string, object?> {
+                ["mode"] = mode.Mode, ["effectKind"] = mode.EffectKind,
+                ["minTargetCount"] = CoreRuleEngine.IsDeferredDeckChoice(mode) ? 0 : PromptMinTargetCount(mode, false),
+                ["maxTargetCount"] = CoreRuleEngine.IsDeferredDeckChoice(mode) ? 0 : PromptMaxTargetCount(state, playerId, mode, false),
+                ["deferredDeckChoice"] = CoreRuleEngine.IsDeferredDeckChoice(mode),
+                ["targetChoicesByIndex"] = CoreRuleEngine.IsDeferredDeckChoice(mode) ? null : Enumerable.Range(0,
+                    PromptMaxTargetCount(state, playerId, mode, false)).ToDictionary(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        i => (object?)PromptTargetChoicesForIndex(state, playerId, mode, i))
+            }).ToArray(),
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
@@ -5720,6 +5742,7 @@ public sealed partial class MatchSession : IMatchSession
         this.options = options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown room deck format.");
+        SealedRoomPools.RequireOptions(this.options);
         state = MatchState.Create(roomId) with
         {
             Seed = CreatePrivateOpeningSeed(),
@@ -5780,9 +5803,13 @@ public sealed partial class MatchSession : IMatchSession
         this.options = restoredState.SessionOptions ?? options ?? MatchSessionOptions.Default;
         if (!Enum.IsDefined(this.options.DeckFormat))
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
+        if (SealedRoomPools.OptionError(this.options) is { } optionsError)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, optionsError);
         var recordedOptions = this.options == MatchSessionOptions.Default ? null : this.options;
         state = restoredState.SessionOptions == recordedOptions
             ? restoredState : restoredState with { SessionOptions = recordedOptions };
+        if (SealedRoomPools.Validate(state) is { Count: > 0 } poolErrors)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", poolErrors));
         this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
@@ -5869,6 +5896,8 @@ public sealed partial class MatchSession : IMatchSession
 
     public PlayerSessionDto EnsurePlayer(string playerId)
     {
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            return EnsurePlayerAsync(playerId, CancellationToken.None).AsTask().GetAwaiter().GetResult();
         var normalizedPlayerId = NormalizePlayerId(playerId);
         lock (seatGate)
         {
@@ -5999,6 +6028,8 @@ public sealed partial class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var normalizedScenarioId = NormalizeScenarioId(scenarioId);
+        if (options.DeckFormat == OfficialDeckFormat.Sealed)
+            throw new MatchSessionException(ErrorCodes.UnsupportedCommand, "现开房间不能载入开发测试场景。");
         var commandType = $"DEV_SEED_SCENARIO:{normalizedScenarioId}";
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
         if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)
@@ -6173,7 +6204,8 @@ public sealed partial class MatchSession : IMatchSession
                     command.RuneDeck,
                     command.Battlefields));
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat);
+                var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat,
+                    SealedContextFor(normalizedPlayerId));
                 if (!validation.IsValid)
                 {
                     result = ResolutionResult.Rejected(
@@ -6342,13 +6374,16 @@ public sealed partial class MatchSession : IMatchSession
             if (options.DeckFormat != OfficialDeckFormat.CoreRules)
             {
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
-                foreach (var submitted in state.PlayerDecklists.Values)
+                foreach (var (owner, submitted) in state.PlayerDecklists)
                 {
-                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat);
+                    var validation = OfficialDeckValidator.Validate(submitted, catalog, options.DeckFormat,
+                        SealedContextFor(owner));
                     if (!validation.IsValid)
                     {
                         var rejected = ResolutionResult.Rejected(state,
-                            $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
+                            options.DeckFormat == OfficialDeckFormat.Sealed && owner != normalizedPlayerId
+                                ? "有玩家的现开卡组需要更新。"
+                                : $"卡组需要更新：{string.Join("；", validation.Errors)}", ErrorCodes.InvalidDeck);
                         intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                         return rejected;
                     }

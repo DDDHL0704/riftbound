@@ -591,6 +591,7 @@ public static class StaticAuraParticipantScopes
     public const string FriendlyPublicUnits = "FRIENDLY_PUBLIC_UNITS";
     public const string OtherFriendlyPublicUnits = "OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string FriendlyFilteredPublicUnits = "FRIENDLY_FILTERED_PUBLIC_UNITS";
+    public const string OtherFriendlyFilteredPublicUnits = "OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS";
     public const string BattlefieldPublicUnits = "BATTLEFIELD_PUBLIC_UNITS";
     public const string AttackingBattlefieldPublicUnits = "ATTACKING_BATTLEFIELD_PUBLIC_UNITS";
     public const string ReadyEnemyBattlefieldPublicUnits = "READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS";
@@ -599,6 +600,7 @@ public static class StaticAuraParticipantScopes
 public static class StaticAuraTargetFilters
 {
     public const string Stunned = "STATUS:STUNNED";
+    public const string Exhausted = "STATUS:EXHAUSTED";
     public const string AnyPrefix = "ANY:";
     public const string CardNamePrefix = "CARD_NAME:";
     public const string Token = "TOKEN";

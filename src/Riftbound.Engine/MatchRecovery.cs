@@ -139,6 +139,8 @@ public static class MatchActionLogReplayer
         ArgumentNullException.ThrowIfNull(ruleEngine);
 
         var inputErrors = new List<string>();
+        if (recovery.AuthoritativeState is { } poolFinal) inputErrors.AddRange(SealedRoomPools.Validate(poolFinal));
+        if (recovery.ReplayInitialState is { } poolInitial) inputErrors.AddRange(SealedRoomPools.Validate(poolInitial));
         if (recovery.AuthoritativeState?.SessionOptions is { } finalOptions && !Enum.IsDefined(finalOptions.DeckFormat)
             || recovery.ReplayInitialState?.SessionOptions is { } initialOptions && !Enum.IsDefined(initialOptions.DeckFormat))
             inputErrors.Add("action-log room deck format is invalid");
@@ -1191,7 +1193,8 @@ public static partial class MatchRecoveryValidator
             events,
             commandPlayerIds,
             commandPlayerScopeLabel,
-            errors);
+            errors,
+            allowAbsentDeckRoles: authoritativeState?.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed);
         var visibleState = authoritativeState is null ? null : CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors, visibleState);
         ValidatePlayerViewAgreement(playerViews, errors);
@@ -3725,6 +3728,7 @@ public static partial class MatchRecoveryValidator
         ValidateTurnSequenceState(authoritativeState, errors);
         ValidateOpeningRoleDraw(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
+        errors.AddRange(SealedRoomPools.Validate(authoritativeState));
         if (authoritativeState.SessionOptions is { } roomOptions && !Enum.IsDefined(roomOptions.DeckFormat))
             errors.Add("authoritative state room deck format is invalid");
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
@@ -3755,6 +3759,9 @@ public static partial class MatchRecoveryValidator
             {
                 continue;
             }
+
+            if (SealedRoomPools.ViewError(authoritativeState, view.Snapshot, view.PlayerId) is { } poolViewError)
+                errors.Add(poolViewError);
 
             ValidateResourcePoolViews(view, authoritativeState, errors, paymentPromptState);
             if (view.Snapshot.Stack is null)
@@ -4237,6 +4244,8 @@ public static partial class MatchRecoveryValidator
         if (!BattleResultRecoveryRules.ValidContinuation(state)) errors.Add("invalid captured battle result continuation");
         if (!TurnEquipmentPlayRules.ValidAll(state)) errors.Add("invalid turn equipment play permission");
         foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidSpellModeExecutions(state, item)) errors.Add("invalid spell mode execution plan");
+        foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidDepartedTokenTargets(state, item)) errors.Add("invalid departed token target");
         foreach (var item in state.StackItems)
             if (!DravenBattleDeathRecoveryRules.Valid(state, item)) errors.Add("invalid stacked Draven battle-death skill");
@@ -4565,7 +4574,7 @@ public static partial class MatchRecoveryValidator
             if (item.InsightCompleted)
                 errors.Add("completed Insight must resume atomically and cannot remain on stack");
             if (item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions > item.EffectRepeatCount
-                || (item.DeckChoiceCompleted && item.CompletedDeckExecutions < item.EffectRepeatCount))
+                || (item.DeckChoiceCompleted && item.CompletedDeckExecutions < (item.ModeExecutions is null ? item.EffectRepeatCount : 1)))
                 errors.Add("invalid deck resolution continuation count");
             if (!CoreRuleEngine.ValidSequentialMovementPlan(state, item.EffectKind, item.TargetObjectIds.Count, item.MovementDestinations))
                 errors.Add("invalid sequential movement plan");
@@ -5462,6 +5471,10 @@ public static partial class MatchRecoveryValidator
                 stackItem.TargetObjectIds,
                 targetReferences,
                 errors);
+            if (stackItem.ModeExecutions is { } modes)
+                foreach (var mode in modes)
+                    ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+                        $"stack item {stackItem.StackItemId} mode target object", mode.Execution.TargetObjectIds, targetReferences, errors);
             if (stackItem.RepeatExecutions is { } executions)
                 foreach (var execution in executions)
                     ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(

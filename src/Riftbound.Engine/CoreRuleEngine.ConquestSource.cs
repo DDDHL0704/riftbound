@@ -110,7 +110,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidConquestSourceStack(state, item)) throw new InvalidOperationException("Invalid captured conquest source action.");
         var context = item.ConquestSource!; var spec = ConquestSourceSpec(context.CardNo)!;
-        var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+        var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var events = new List<GameEvent> { new("UNIT_TRIGGER_RESOLVED", "征服触发技能结算", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = publicSource,
             ["battlefieldId"] = context.BattlefieldId, ["trigger"] = context.Kind }) };

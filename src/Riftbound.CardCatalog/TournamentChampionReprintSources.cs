@@ -7,7 +7,7 @@ namespace Riftbound.CardCatalog;
 public static class TournamentChampionReprintSources
 {
     private static readonly Lazy<ImmutableArray<OfficialCard>> Cards = new(() =>
-        new[] { (Id: 38003L, CardNo: "T1S·001/005") }
+        new[] { (Id: 38003L, CardNo: "T1S·001/005"), (Id: 38007L, CardNo: "T1S·005/005") }
             .Select(identity => VendettaCardSources.GetOfficialCards().Single(card =>
                 card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Select(card => card with {
