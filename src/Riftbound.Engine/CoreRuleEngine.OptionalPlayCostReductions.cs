@@ -10,7 +10,7 @@ namespace Riftbound.Engine;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record OptionalPlayCostReductionUse(ObjectBinding Source, string CardNo, string InstanceId,
     long FaceRevision, long CapturedTick, int TurnNumber, string ControllerId,
-    RuleTextInstanceBinding? Origin = null, string? TokenFactoryCardNo = null);
+    RuleTextInstanceBinding? Origin = null, string? TokenFactoryCardNo = null, string? PlayId = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -38,7 +38,7 @@ public sealed partial class CoreRuleEngine
         {
             var use = JsonSerializer.Deserialize<OptionalPlayCostReductionUse>(Encoding.UTF8.GetString(
                 Convert.FromBase64String(marker[OptionalPlayCostReductionUsePrefix.Length..])));
-            return use is { Source.ObjectId.Length: > 0, CardNo.Length: > 0, InstanceId.Length: > 0, ControllerId.Length: > 0 }
+            return use is { Source: not null, Source.ObjectId.Length: > 0, CardNo.Length: > 0, InstanceId.Length: > 0, ControllerId.Length: > 0 }
                 && marker == PlayCostReductionMarker(use) ? use : null;
         }
         catch (Exception error) when (error is JsonException or FormatException or ArgumentException) { return null; }
@@ -172,7 +172,14 @@ public sealed partial class CoreRuleEngine
         if (state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(effect => effect is null)) return false;
         var markers = state.UntilEndOfTurnEffects.Where(effect => effect.StartsWith(OptionalPlayCostReductionUsePrefix, StringComparison.Ordinal)).ToArray();
         var uses = markers.Select(ReadPlayCostReductionUse).ToArray();
-        return uses.All(use => use is { Source.Generation: >= 0, FaceRevision: >= 0, CapturedTick: > 0 }
+        var history = state.CardPlays.TurnNumber == state.TurnNumber ? state.CardPlays.Finalized : [];
+        var recorded = history.SelectMany(play => play.OptionalPlayCostReductions ?? []).ToArray();
+        return history.All(play => (play.OptionalPlayCostReductions ?? []).All(use => use is not null
+                && use.PlayId == play.PlayId && use.ControllerId == play.PlayerId && use.CapturedTick <= play.Tick))
+            && recorded.All(use => use is not null)
+            && recorded.Select(PlayCostReductionMarker).Order(StringComparer.Ordinal)
+                .SequenceEqual(markers.Order(StringComparer.Ordinal))
+            && uses.All(use => use is { Source.Generation: >= 0, FaceRevision: >= 0, CapturedTick: > 0, PlayId.Length: > 0 }
             && use.CapturedTick <= state.Tick && use.TurnNumber == state.TurnNumber && state.Seats.ContainsKey(use.ControllerId)
             && OptionalPlayCostReductionSpecs.Value.TryGetValue(use.CardNo, out var spec) && spec.OncePerTurn
             && (use.Origin is null ? use.InstanceId == $"PRINTED:{use.Source.ObjectId}:{use.Source.Generation}"

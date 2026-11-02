@@ -3700,8 +3700,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(untilEndOfTurnEffects, effect.EffectId);
         }
-        untilEndOfTurnEffects = untilEndOfTurnEffects
-            .Concat(plan.OptionalPlayCostReductionUses.Select(PlayCostReductionMarker)).ToArray();
+        untilEndOfTurnEffects = untilEndOfTurnEffects.Concat(plan.OptionalPlayCostReductionUses
+            .Select(use => PlayCostReductionMarker(use with { PlayId = stackItem.StackItemId }))).ToArray();
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -18845,7 +18845,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
         var empoweredPowerReduction = Math.Min(selectedPower.Reduction,
             EmpoweredSpellCostReducers(state, intent.PlayerId, behavior).Sum(source => source.GenericPower));
-        var playCostPowerReduction = selectedPower.Reduction - empoweredPowerReduction;
+        var ordinaryPowerReduction = EmpoweredSpellCostReducers(state, intent.PlayerId, behavior).Sum(source => source.GenericPower)
+            + SourceNextSpellCostReductionEffects(state, intent.PlayerId)
+                .Where(source => source.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(source => source.GenericPower)
+            + (behavior.PlaysSourceToBaseAsUnit ? TimeAssassinNextUnitReductions(state, intent.PlayerId).Count : 0)
+            + BattlefieldFriendlyTargetSpellPowerReduction(state, intent.PlayerId, behavior, paymentTargets);
+        var playCostPowerReduction = selectedPower.Reduction - Math.Min(selectedPower.Reduction, ordinaryPowerReduction);
         var battlefieldReactionPowerIncrease = BattlefieldReactionPowerIncrease(state, intent.PlayerId, behavior);
         var battlefieldSpellPowerReduction = Math.Min(selectedPower.Reduction, BattlefieldFriendlyTargetSpellPowerReduction(state, intent.PlayerId, behavior, paymentTargets));
         var optionalCostPowerReduction = extraGenericPower + battlefieldReactionPowerIncrease + extraPowerCostByTrait.Values.Sum()
@@ -19345,7 +19350,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -35267,11 +35272,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int AvailableExperience,
         int AdditionalManaCost)
     {
+        public bool RequiresTargetSelection { get; init; }
+        public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
         public IReadOnlyList<OptionalPlayCostReductionUse> OptionalPlayCostReductionUses { get; init; } = [];
         public int OptionalPlayCostReductionMana { get; init; }
         public int OptionalPlayCostReductionPower { get; init; }
-        public bool RequiresTargetSelection { get; init; }
-        public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
         public IReadOnlyList<DeclaredSpellMode>? ModeExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
