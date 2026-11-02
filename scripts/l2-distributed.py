@@ -2,6 +2,7 @@
 """One fixed build, duration-balanced rule execution, and exact case coverage."""
 import argparse
 from collections import Counter, defaultdict, deque
+from datetime import datetime, timezone
 import hashlib
 import importlib.util
 import json
@@ -309,8 +310,89 @@ def timing_weights(prepared, inputs, commit):
                 caseWeights={name: round(value, 4) for name, value in sorted(cases.items()) if value >= 60})
 
 
-def timing_report(prepared, inputs, commit):
+def workflow_timings(run_path, jobs_path, run_id, run_attempt, shard_names):
+    """Describe one complete successful GitHub attempt without summing parallel waits."""
+    hashes = {str(path): digest(path) for path in (run_path, jobs_path)}
+    run, payload = read(run_path), read(jobs_path)
+    if (run.get('id') != run_id or run.get('run_attempt') != run_attempt
+            or run.get('status') != 'completed' or run.get('conclusion') != 'success'):
+        raise ValueError('Workflow metadata must match the complete successful run and attempt.')
+    head = run.get('head_sha', '')
+    if not re.fullmatch(r'[0-9a-f]{40}', head):
+        raise ValueError('Invalid workflow head SHA.')
+    jobs = payload.get('jobs', [])
+    expected = {'prepare', 'L2 required'} | {'rule_suite (' + name + ')' for name in shard_names}
+    if (payload.get('total_count') != len(jobs) or len(jobs) != len(expected)
+            or {job.get('name') for job in jobs} != expected
+            or len({job.get('id') for job in jobs}) != len(jobs)):
+        raise ValueError('Workflow jobs must contain the exact complete job set; check pagination and attempts.')
+
+    def timestamp(value):
+        try:
+            parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+                raise ValueError()
+            return parsed
+        except (AttributeError, TypeError, ValueError) as error:
+            raise ValueError('Invalid UTC workflow timestamp.') from error
+
+    created = timestamp(run.get('created_at'))
+    observed = []
+    for job in jobs:
+        if (job.get('run_id') != run_id or job.get('run_attempt') != run_attempt
+                or job.get('head_sha') != head or job.get('status') != 'completed'
+                or job.get('conclusion') != 'success'):
+            raise ValueError('Workflow job identity, attempt or successful completion differs.')
+        queued, started, completed = [timestamp(job.get(key)) for key in ('created_at', 'started_at', 'completed_at')]
+        if not created <= queued <= started <= completed:
+            raise ValueError('Workflow job timestamps are out of order.')
+        observed.append(dict(id=job['id'], name=job['name'], created=queued, started=started, completed=completed,
+                             queueSeconds=(started-queued).total_seconds(), jobSeconds=(completed-started).total_seconds()))
+    by_name = {job['name']: job for job in observed}
+    prepare, gate = by_name['prepare'], by_name['L2 required']
+    rules = [by_name['rule_suite (' + name + ')'] for name in shard_names]
+    last_rule = max(rules, key=lambda job: (job['completed'], job['name']))
+    if (any(job['created'] < prepare['completed'] for job in rules)
+            or gate['created'] < last_rule['completed']):
+        raise ValueError('Workflow dependency timestamps are out of order.')
+    if not created <= timestamp(run.get('run_started_at')) <= gate['completed'] <= timestamp(run.get('updated_at')):
+        raise ValueError('Workflow run timestamps are out of order.')
+
+    def peak(group):
+        events = sorted((when, delta) for job in group if job['started'] < job['completed']
+                        for when, delta in [(job['started'], 1), (job['completed'], -1)])
+        active, maximum = 0, 0
+        for _, delta in events:
+            active += delta
+            maximum = max(maximum, active)
+        return maximum
+
+    critical = dict(initialSchedulingSeconds=(prepare['created']-created).total_seconds(),
+                    prepareQueueSeconds=prepare['queueSeconds'], prepareJobSeconds=prepare['jobSeconds'],
+                    ruleSchedulingSeconds=(last_rule['created']-prepare['completed']).total_seconds(),
+                    ruleQueueSeconds=last_rule['queueSeconds'], ruleJobSeconds=last_rule['jobSeconds'],
+                    gateSchedulingSeconds=(gate['created']-last_rule['completed']).total_seconds(),
+                    gateQueueSeconds=gate['queueSeconds'], gateJobSeconds=gate['jobSeconds'])
+    if hashes != {str(path): digest(path) for path in (run_path, jobs_path)}:
+        raise ValueError('Workflow metadata changed while it was being read.')
+    return dict(sourceRunId=run_id, sourceRunAttempt=run_attempt, workflowHeadSha=head,
+                runMetadataSha256=hashes[str(run_path)], jobsMetadataSha256=hashes[str(jobs_path)],
+                createdToCompletionSeconds=(gate['completed']-created).total_seconds(),
+                criticalPath=critical, lastRuleJob=last_rule['name'],
+                ruleStageSeconds=(last_rule['completed']-prepare['completed']).total_seconds(),
+                maxRuleQueueSeconds=max(job['queueSeconds'] for job in rules),
+                ruleStartSpreadSeconds=(max(job['started'] for job in rules)-min(job['started'] for job in rules)).total_seconds(),
+                peakJobs=peak(observed), peakRuleJobs=peak(rules), totalJobSeconds=sum(job['jobSeconds'] for job in observed),
+                jobs=[{key: job[key] for key in ('id', 'name', 'queueSeconds', 'jobSeconds')}
+                      for job in sorted(observed, key=lambda job: (job['started'], job['name']))],
+                limitation='Recorded job times include setup and artifact work. Parallel waits overlap; '
+                           'this observation cannot identify global runner capacity or predict future speedup.')
+
+
+def timing_report(prepared, inputs, commit, workflow_run=None, workflow_jobs=None):
     """Summarize every verified execution, including repeated display names."""
+    if (workflow_run is None) != (workflow_jobs is None):
+        raise ValueError('Provide both workflow run and complete jobs metadata.')
     plan, mapping, _ = checked_results(prepared, inputs, commit)
     expected_digests = {row['shard']: row['trxSha256'] for row in mapping}
     executions, shards, classes = [], [], defaultdict(float)
@@ -346,7 +428,7 @@ def timing_report(prepared, inputs, commit):
     if counts != Counter(row['name'] for row in mapping):
         raise ValueError('Timing executions differ from the verified case inventory.')
     total = sum(row['seconds'] for row in executions)
-    return dict(status='VERIFIED_RULE_TIMINGS_REPORTED', profile=plan['profile'],
+    result = dict(status='VERIFIED_RULE_TIMINGS_REPORTED', profile=plan['profile'],
                 sourceRunId=int(plan['runId']), sourceRunAttempt=int(plan['runAttempt']), sourceCommit=commit,
                 sourcePlanSha256=digest(prepared / 'plan.json'), sourceTestAssemblySha256=plan['testAssemblySha256'],
                 methods=len(plan['methods']), executions=len(executions), distinctDisplayNames=len(counts),
@@ -361,6 +443,10 @@ def timing_report(prepared, inputs, commit):
                                 sorted(classes.items(), key=lambda item: (-item[1], item[0]))[:12]],
                 limitation='Rule timings exclude queue, preparation and gate time. Bounds assume four workers '
                            'and observed class serialism; they do not establish future CI speedup or full-gate completion.')
+    if workflow_run is not None:
+        result['workflowTiming'] = workflow_timings(workflow_run, workflow_jobs, int(plan['runId']),
+                                                    int(plan['runAttempt']), [shard['name'] for shard in plan['shards']])
+    return result
 
 
 def local_timings(prepared, inputs, commit, local_trx, methods=(), cases=()):
@@ -760,10 +846,15 @@ def main():
     parser.add_argument('--shard')
     parser.add_argument('--github-output', type=Path)
     parser.add_argument('--local-trx', type=Path, help='Existing candidate-only TRX; no tests are executed')
+    parser.add_argument('--workflow-run', type=Path, help='Existing GitHub run JSON for timing-report')
+    parser.add_argument('--workflow-jobs', type=Path, help='Existing complete GitHub jobs JSON for the same attempt')
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument('--method', action='append', default=[], help='Exact complete method to compare; repeatable')
     selection.add_argument('--case', action='append', default=[], help='Exact parameter row to compare; repeatable')
     args = parser.parse_args()
+    if ((args.workflow_run is None) != (args.workflow_jobs is None)
+            or (args.mode != 'timing-report' and args.workflow_run is not None)):
+        parser.error('--workflow-run and --workflow-jobs must be provided together for timing-report')
     if args.mode == 'local-timings' and (args.local_trx is None or not (args.method or args.case)):
         parser.error('local-timings requires --local-trx and exact --method or --case selections')
     if args.mode == 'prepare':
@@ -775,7 +866,7 @@ def main():
     elif args.mode == 'timings':
         write(args.output, timing_weights(args.prepared, args.inputs, args.commit))
     elif args.mode == 'timing-report':
-        write(args.output, timing_report(args.prepared, args.inputs, args.commit))
+        write(args.output, timing_report(args.prepared, args.inputs, args.commit, args.workflow_run, args.workflow_jobs))
     elif args.mode == 'local-timings':
         write(args.output, local_timings(args.prepared, args.inputs, args.commit, args.local_trx,
                                         args.method, args.case))

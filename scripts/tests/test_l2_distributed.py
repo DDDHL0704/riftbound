@@ -1,5 +1,6 @@
 import copy
 from contextlib import redirect_stdout
+from datetime import datetime, timedelta, timezone
 import hashlib
 import importlib.util
 import io
@@ -898,3 +899,107 @@ class DistributedL2Tests(unittest.TestCase):
         receipt['runtimeReceiptSha256'] = D.digest(runtime_path)
         self.put(folder / 'receipt.json', receipt)
         with self.assertRaisesRegex(ValueError, 'Runtime resource'): self.verify()
+
+
+class WorkflowTimingTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.run_path, self.jobs_path = self.root / 'run.json', self.root / 'jobs.json'
+        self.run = dict(id=123, run_attempt=2, head_sha='a' * 40, status='completed', conclusion='success',
+                        created_at=self.at(0), run_started_at=self.at(0), updated_at=self.at(660))
+        self.jobs = [self.job(1, 'prepare', 5, 10, 100),
+                     self.job(2, 'rule_suite (shard-1)', 100, 200, 600),
+                     self.job(3, 'rule_suite (shard-2)', 105, 400, 500),
+                     self.job(4, 'L2 required', 610, 620, 650)]
+
+    @staticmethod
+    def at(seconds):
+        return (datetime(2026, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)).isoformat().replace('+00:00', 'Z')
+
+    def job(self, identity, name, created, started, completed):
+        return dict(id=identity, run_id=123, run_attempt=2, head_sha='a' * 40, name=name,
+                    status='completed', conclusion='success', created_at=self.at(created),
+                    started_at=self.at(started), completed_at=self.at(completed))
+
+    def report(self, run=None, jobs=None, total=None):
+        run = self.run if run is None else run
+        jobs = self.jobs if jobs is None else jobs
+        self.run_path.write_text(json.dumps(run))
+        self.jobs_path.write_text(json.dumps(dict(total_count=len(jobs) if total is None else total, jobs=jobs)))
+        return D.workflow_timings(self.run_path, self.jobs_path, 123, 2, ['shard-1', 'shard-2'])
+
+    def test_critical_path_uses_the_last_finishing_shard_and_does_not_sum_parallel_waits(self):
+        with mock.patch.object(D.subprocess, 'run', side_effect=AssertionError('Read existing metadata only')):
+            result = self.report()
+        self.assertEqual(650, result['createdToCompletionSeconds'])
+        self.assertEqual(650, sum(result['criticalPath'].values()))
+        self.assertEqual('rule_suite (shard-1)', result['lastRuleJob'])
+        self.assertEqual(100, result['criticalPath']['ruleQueueSeconds'])
+        self.assertEqual(295, result['maxRuleQueueSeconds'])
+        self.assertEqual(200, result['ruleStartSpreadSeconds'])
+        self.assertEqual(620, result['totalJobSeconds'])
+        self.assertEqual(2, result['peakJobs'])
+        self.assertEqual(2, result['peakRuleJobs'])
+        self.assertEqual(4, len(result['jobs']))
+        self.assertEqual('a' * 40, result['workflowHeadSha'])
+        self.assertEqual(D.digest(self.jobs_path), result['jobsMetadataSha256'])
+
+    def test_touching_and_zero_duration_jobs_do_not_create_false_concurrency(self):
+        for started, completed in [(600, 610), (400, 400)]:
+            with self.subTest(started=started, completed=completed):
+                jobs = copy.deepcopy(self.jobs)
+                jobs[2].update(started_at=self.at(started), completed_at=self.at(completed))
+                self.assertEqual(1, self.report(jobs=jobs)['peakRuleJobs'])
+
+    def test_rejects_incomplete_duplicate_or_extra_jobs_and_wrong_run_attempts(self):
+        candidates = [self.jobs[:-1], self.jobs + [self.jobs[0]],
+                      [dict(job, id=1) for job in self.jobs],
+                      [dict(job, name='unexpected') if index == 0 else job for index, job in enumerate(self.jobs)]]
+        for jobs in candidates:
+            with self.subTest(jobs=jobs), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        with self.assertRaises(ValueError):
+            self.report(total=100)
+        for key, value in [('run_id', 124), ('run_attempt', 1), ('head_sha', 'b' * 40),
+                           ('status', 'in_progress'), ('conclusion', 'cancelled')]:
+            jobs = copy.deepcopy(self.jobs)
+            jobs[1][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        for key, value in [('id', 124), ('run_attempt', 1), ('status', 'in_progress'), ('conclusion', 'failure')]:
+            with self.subTest(run_key=key), self.assertRaises(ValueError):
+                self.report(run=dict(self.run, **{key: value}))
+
+    def test_rejects_missing_non_utc_reversed_and_inconsistent_dependency_timestamps(self):
+        for value in [None, 'invalid', '2026-01-01T00:02:00', '2026-01-01T00:02:00+01:00', self.at(99)]:
+            jobs = copy.deepcopy(self.jobs)
+            jobs[1]['started_at'] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        for index, key, value in [(0, 'completed_at', self.at(101)), (3, 'created_at', self.at(599))]:
+            jobs = copy.deepcopy(self.jobs)
+            jobs[index][key] = value
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        with self.assertRaises(ValueError):
+            self.report(run=dict(self.run, updated_at=self.at(649)))
+
+    def test_rejects_metadata_changed_during_read_and_cli_with_only_one_metadata_file(self):
+        read = D.read
+        def read_and_change(path):
+            value = read(path)
+            if path == self.jobs_path:
+                self.jobs_path.write_bytes(self.jobs_path.read_bytes() + b'\n')
+            return value
+        with mock.patch.object(D, 'read', side_effect=read_and_change), self.assertRaisesRegex(ValueError, 'changed'):
+            self.report()
+        for mode, extra in [('timing-report', []), ('timings', ['--workflow-jobs', str(self.jobs_path)])]:
+            output = self.root / (mode + '.json')
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/l2-distributed.py'), mode,
+                                     '--commit', 'a' * 40, '--output', str(output),
+                                     '--workflow-run', str(self.run_path), *extra], capture_output=True, text=True)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn('must be provided together for timing-report', result.stderr)
+            self.assertFalse(output.exists())
