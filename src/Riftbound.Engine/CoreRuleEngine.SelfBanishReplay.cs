@@ -21,7 +21,8 @@ public sealed partial class CoreRuleEngine
             || generation != context.Source.Generation + 1
             || !state.CardObjects.TryGetValue(context.Source.ObjectId, out var card) || card.ObjectGeneration != generation
             || card.IsFaceDown || TokenObjectRules.IsToken(card) || card.CardNo != context.ReplayCardNo
-            || !card.Tags.Contains(CardObjectTags.UnitCard) || card.OwnerId is not { } owner
+            || (!card.Tags.Contains(CardObjectTags.UnitCard) && !card.Tags.Contains(CardObjectTags.EquipmentCard))
+            || card.OwnerId is not { } owner
             || card.ControllerId != owner || p.SourcePlayerId != (owner == p.PlayerId ? null : owner)
             || !state.PlayerZones.TryGetValue(owner, out var zones) || !zones.Banished.Contains(card.ObjectId)
             || state.ObjectLocations.GetValueOrDefault(card.ObjectId) is not { Zone: "BANISHED" } at

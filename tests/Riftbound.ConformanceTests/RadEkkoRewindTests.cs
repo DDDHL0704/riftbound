@@ -129,6 +129,61 @@ public sealed class RadEkkoRewindTests
         await g.Replay();
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ARealAnimatedArmamentThatCopiesEkkoCanReplayAsItsPhysicalEquipment(bool detachCopyFirst)
+    {
+        const string equipmentNo = "SFD·016/221";
+        var initial = ShadySpectaclesTests.Position("RAD·021/167");
+        initial = initial with { Tick = 0,
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["HOST"] = OfficialGarenConquestBattlefieldCountTests.Printed("HOST", equipmentNo, "P1"),
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "RAD·145/167", "P1") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                ["LEGEND"] = new("P1", "LEGEND") } };
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "COST", "UNL-009/219");
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "DETACH", "SFD·011/221");
+        var g = new Driver(initial);
+        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
+            ["HOST"], ["SPEND_MANA:1"])); await g.Top();
+        await g.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await g.Top();
+        var copy = g.State.PendingRuleChoice!.Request;
+        await g.Act("P1", new PayCostCommand(copy.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+        Assert.Equal("RAD·021/167", g.State.CardObjects["HOST"].CardNo);
+        Assert.Contains(CardObjectTags.EquipmentCard, g.State.CardObjects["HOST"].Tags);
+        Assert.Equal(5, g.State.CardObjects["HOST"].Power);
+        if (detachCopyFirst)
+        {
+            await g.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await g.Top();
+            Assert.Equal(equipmentNo, g.State.CardObjects["HOST"].CardNo);
+            Assert.Equal(2, g.State.CardObjects["HOST"].Power);
+            Assert.Contains(CardObjectTags.UnitCard, g.State.CardObjects["HOST"].Tags);
+            Assert.Contains(CardObjectTags.EquipmentCard, g.State.CardObjects["HOST"].Tags);
+            Assert.NotNull(g.State.CardObjects["HOST"].LegendEquipmentUnit);
+            Assert.Null(g.State.CardObjects["HOST"].AttachmentUnitCopies);
+            await g.Replay(); return;
+        }
+        await g.Act("P1", new ActivateAbilityCommand("HOST", Ability, [], OptionalCosts: ["DISCARD_HAND_CARD:COST"]));
+        await g.Top();
+        Assert.Equal(equipmentNo, g.State.CardObjects["HOST"].CardNo);
+        Assert.Null(g.State.CardObjects["HOST"].LegendEquipmentUnit);
+        Assert.Null(g.State.CardObjects["HOST"].AttachmentUnitCopies);
+        Assert.Null(g.State.CardObjects["GEAR"].AttachedToObjectId);
+        var pending = Assert.IsType<PendingEffectPlayState>(g.State.PendingEffectPlay);
+        Assert.Equal(equipmentNo, pending.Parent.SimpleActivation!.ReplayCardNo);
+        Assert.Equal("HOST", Assert.Single(pending.Sources).Key);
+        await Reject(g.State, "P1", new PlayCardCommand("GEAR", "VEN·137", []));
+        var resources = g.State.RunePools["P1"];
+        await g.Act("P1", new PlayCardCommand("HOST", equipmentNo, []));
+        Assert.Contains("HOST", g.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, g.State.CardObjects["HOST"].Tags);
+        Assert.Equal(resources, g.State.RunePools["P1"]);
+        Assert.Null(g.State.PendingEffectPlay); Assert.Empty(g.State.StackItems);
+        await g.Replay();
+    }
+
     [Fact]
     public async Task ReturningTheSourceInResponseDoesNotBanishTheNewHandObject()
     {

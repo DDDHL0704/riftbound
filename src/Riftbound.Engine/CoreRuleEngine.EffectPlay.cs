@@ -29,7 +29,7 @@ public sealed partial class CoreRuleEngine
         {
             definition = new(parent.CardNo, activation.DisplayName, 0, parent.EffectKind, 0, 0,
                 EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true,
-                EffectPlayIgnoreBasePower: true, EffectPlayDestination: "BASE");
+                EffectPlayIgnoreBasePower: true, EffectPlayDestination: "BASE", EffectPlayAllowsAnyCard: true);
             return true;
         }
         if (parent.LastBreathBattlefieldDamage is { Kind: TriggerKinds.UnitLastBreathBanishDeckTopPlay })
