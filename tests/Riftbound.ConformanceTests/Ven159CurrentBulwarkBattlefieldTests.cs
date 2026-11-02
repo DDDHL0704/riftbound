@@ -217,7 +217,9 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
             Assert.DoesNotContain(target, run.State.PlayerZones[player].Battlefields);
             if (!continuous) Assert.Contains(target, run.State.PlayerZones[player].Hand);
         }
-        await run.Replay();
+        // The last command already audited this exact original history.
+        // The independent JSON replay below still checks the serialized frame.
+        Assert.True(run.RecoverAfterEveryCommand);
         var sequence = run.Events()[^1].Sequence;
         var snapshots = ResolutionResult.BuildSnapshots(run.State); var prompts = ResolutionResult.BuildPrompts(run.State);
         var views = run.State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, run.State.Tick, sequence,

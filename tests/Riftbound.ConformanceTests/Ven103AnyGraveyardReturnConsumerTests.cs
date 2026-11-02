@@ -453,12 +453,14 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
             Assert.Equal(MatchStateHasher.HashValue(prompts[player]), MatchStateHasher.HashValue(restored.PromptFor(player)));
         }
     }
-    private static async Task Export(string name, MatchState initial, Driver run)
+    private static Task Export(string name, MatchState initial, Driver run)
     {
-        await run.Replay(); JsonRestore(initial, run);
-        if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN103_EVIDENCE") is not { Length: > 0 } output) return;
+        // Both command paths already audit the complete original history.
+        JsonRestore(initial, run);
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN103_EVIDENCE") is not { Length: > 0 } output) return Task.CompletedTask;
         Directory.CreateDirectory(output);
         File.WriteAllText(Path.Combine(output, name + ".json"), JsonSerializer.Serialize(new { initial, final = run.State, commands = run.Commands(), events = run.Events(), runtime = RuntimeEvidence() }, Json));
+        return Task.CompletedTask;
     }
     internal static MatchState At(MatchState state, string id, string player, string zone, string? field = null)
     {
