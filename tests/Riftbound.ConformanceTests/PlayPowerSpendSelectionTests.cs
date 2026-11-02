@@ -85,9 +85,11 @@ public sealed partial class PlayPowerSpendSelectionTests
         public List<MatchJournalEntry> Entries { get; } = [];
         public Run(MatchState initial, bool ordinary = false)
         {
-            Initial = initial; State = initial; this.ordinary = ordinary;
+            this.ordinary = ordinary;
             options = ordinary ? new(AllowLegacyReadyWithoutDeck: false, DeckFormat: OfficialDeckFormat.ChinaStandard20260724) : new();
-            session = new MatchSession(initial, new CoreRuleEngine(), this, players, options);
+            Initial = ordinary ? initial with { SessionOptions = options } : initial;
+            State = Initial;
+            session = new MatchSession(Initial, new CoreRuleEngine(), this, players, options);
         }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { Entries.Add(entry); return ValueTask.CompletedTask; }
         public JsonElement Wire(string actor, GameCommand command)
