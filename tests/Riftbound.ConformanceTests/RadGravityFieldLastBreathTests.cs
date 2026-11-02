@@ -72,6 +72,11 @@ public sealed class RadGravityFieldLastBreathTests
         var initial = Put(Put(WithOrianna(Position()), "SONG", "SFD·059/221", "P1", "BASE"),
             "FINISH", simultaneous ? "OGN·022/298" : "OGN·229/298", "P1", "HAND");
         var game = new Driver(initial); await Deploy(game); await Animate(game);
+        Assert.True(game.State.Phase == MatchPhases.Main && game.State.TimingState == TimingStates.NeutralOpen
+            && game.State.ActivePlayerId == "P1" && game.State.CardObjects["SOURCE"].Tags.Contains(CardObjectTags.UnitCard)
+            && game.State.PlayerZones["P1"].Base.Contains("SONG"),
+            $"phase={game.State.Phase}; timing={game.State.TimingState}; active={game.State.ActivePlayerId}; focus={game.State.FocusPlayerId}; "
+                + $"sourceTags={string.Join(',', game.State.CardObjects["SOURCE"].Tags)}; song={game.State.ObjectLocations["SONG"]}");
         await game.Act("P1", new AssembleEquipmentCommand("SONG", "SOURCE", ["ASSEMBLE_GREEN"])); await game.Top();
         Assert.Equal(Card, game.State.CardObjects["SONG"].AttachedRuleText!.CardNo);
         await game.Act("P1", new PlayCardCommand("FINISH", simultaneous ? "OGN·022/298" : "OGN·229/298",
@@ -80,6 +85,62 @@ public sealed class RadGravityFieldLastBreathTests
         Assert.Equal(2, game.State.TriggerQueue.Select(t => t.LastBreathDraw!.InstanceId).Distinct().Count());
         if (simultaneous) Assert.Contains("SONG", game.State.PlayerZones["P1"].Graveyard);
         await ResolveDraws(game, 2); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AnActualEquipmentDestructionCostEarnsTheMinionAndOnlyAnUnreplacedDeathDraws(bool replaced)
+    {
+        var initial = Put(replaced ? WithOrianna(Position()) : Position(), "GYRO", "RAD·022/167", "P1", "BASE");
+        if (replaced) initial = Put(initial, "GLASS", "OGN·077/298", "P1", "BASE");
+        var game = new Driver(initial); await Deploy(game);
+        if (replaced) await Animate(game);
+        var hand = game.State.PlayerZones["P1"].Hand.Count;
+        var generation = game.State.CardObjects["SOURCE"].ObjectGeneration;
+        await game.Act("P1", new ActivateAbilityCommand("GYRO", "RAD_022_DESTROY_EQUIPMENT_EXHAUST_CREATE_MINION", [],
+            OptionalCosts: ["DESTROY_FRIENDLY_PERMANENT:SOURCE"]));
+        if (replaced)
+        {
+            if (game.State.PendingRuleChoice is { } pending)
+            {
+                var replacement = Assert.Single(pending.Request.Options, option => option.Id.StartsWith("GEAR:", StringComparison.Ordinal)
+                    && option.ObjectIds?.Contains("GLASS") == true);
+                await game.Act(pending.Request.PlayerId, new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", [replacement.Id]));
+            }
+            Assert.Contains("GLASS", game.State.PlayerZones["P1"].Graveyard);
+            Assert.Contains("SOURCE", game.State.PlayerZones["P1"].Base);
+            Assert.True(game.State.CardObjects["SOURCE"].IsExhausted);
+            Assert.Empty(Births(game.State));
+        }
+        else
+        {
+            Assert.Contains("SOURCE", game.State.PlayerZones["P1"].Graveyard);
+            Assert.Equal(generation, Assert.Single(Births(game.State)).Source.Generation);
+        }
+        Assert.Empty(game.State.DeathLedger.Counts);
+        if (game.State.TriggerQueue.Count > 0) await Order(game);
+        for (var step = 0; game.State.StackItems.Count > 0; step++)
+        { Assert.InRange(step, 0, 3); await game.Top(); }
+        Assert.Single(game.State.CardObjects.Values, card => card.TokenFactoryCardNo is { } no
+            && P6TokenFactoryCatalog.TryGetByCardNo(no, out var factory) && factory.TokenFamilyName == "随从");
+        Assert.Equal(hand + (replaced ? 0 : 1), game.State.PlayerZones["P1"].Hand.Count);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnActualResourceActionDestroysTheAnimatedEquipmentAndKeepsItsPowerAndDraw()
+    {
+        var game = new Driver(Put(WithOrianna(Position()), "MALZ", P4ActivatedAbilityCatalog.MalzaharCardNo, "P1", "BASE"));
+        await Deploy(game); await Animate(game);
+        var pool = game.State.RunePools["P1"];
+        var generation = game.State.CardObjects["SOURCE"].ObjectGeneration;
+        await game.Act("P1", new ActivateAbilityCommand("MALZ", P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, ["SOURCE"]));
+        Assert.True(game.State.CardObjects["MALZ"].IsExhausted);
+        Assert.Equal(pool.Mana, game.State.RunePools["P1"].Mana);
+        Assert.Equal(pool.TotalPower + 2, game.State.RunePools["P1"].TotalPower);
+        Assert.Contains("SOURCE", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(generation, Assert.Single(Births(game.State)).Source.Generation);
+        await ResolveDraws(game, 1); await game.Replay();
     }
 
     [Fact]
