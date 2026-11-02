@@ -22,25 +22,14 @@ public sealed class AnimatedArmamentAttachmentTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND") } };
         if (route == "SPELL") initial = AttackDamageDistributionTests.Spell(initial, "ATTACH", "SFD·011/221", "P1");
-        foreach (var id in new[] { "MAIN-RUNE", "SPELL-RUNE-1", "SPELL-RUNE-2" })
-            initial = RadGearTestPosition.Put(initial, id, "UNL-R03", "P1", "BASE");
-        initial = RadGearTestPosition.Put(initial, "EQUIP-RUNE", "UNL-R01", "P1", "BASE");
+        initial = WithMainPhaseResources(initial);
         var g = new Driver(initial);
         await g.Act("P1", new PlayCardCommand("UNIT", gearNo, ["ALLY"], Destination: "BASE"));
         await g.Top();
         Assert.Equal("ALLY", g.State.CardObjects["UNIT"].AttachedToObjectId);
-        await g.Act("P1", new EndTurnCommand());
-        await g.Act("P2", new EndTurnCommand());
-        var selection = Assert.IsType<PendingCardChoiceState>(g.State.PendingCardChoice);
-        Assert.Equal("MAIN", Assert.Single(g.State.StackItems).UnitEvent!.Timing);
-        await g.Act("P1", new ChooseCardsCommand(selection.ChoiceId, selection.ChoiceWindow, ["UNIT"]));
-        await g.TapRunes("P1", ["MAIN-RUNE", "SPELL-RUNE-1", "SPELL-RUNE-2"]);
-        var payment = Assert.IsType<PendingPaymentState>(g.State.PendingPayment);
-        await g.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
-        await g.Top();
+        await TransformAtNextOwnMain(g, "UNIT");
         Assert.Contains(CardObjectTags.UnitCard, g.State.CardObjects["UNIT"].Tags);
         Assert.Null(g.State.CardObjects["UNIT"].AttachedToObjectId);
-        await g.Act("P1", new RecycleRuneCommand("EQUIP-RUNE"));
         var at = g.State.ObjectLocations["UNIT"];
         var before = g.State.RunePools["P1"];
         var attachments = g.Events().Count(e => e.Event.Kind == "EQUIPMENT_ATTACHED");
@@ -66,5 +55,29 @@ public sealed class AnimatedArmamentAttachmentTests
         Assert.Equal(attachments, g.Events().Count(e => e.Event.Kind == "EQUIPMENT_ATTACHED"));
         Assert.Equal(draws + (route == "SPELL" ? 1 : 0), g.Events().Count(e => e.Event.Kind == "CARD_DRAWN"));
         Assert.Empty(g.State.StackItems);
+    }
+
+    internal static MatchState WithMainPhaseResources(MatchState initial)
+    {
+        for (var i = 0; i < 6; i++)
+            initial = RadGearTestPosition.Put(initial, "ORI-MANA-" + i, "UNL-R03", "P1", "BASE");
+        for (var i = 0; i < 4; i++)
+            initial = RadGearTestPosition.Put(initial, "ORI-POWER-" + i, "UNL-R01", "P1", "BASE");
+        return initial;
+    }
+
+    internal static async Task TransformAtNextOwnMain(Driver game, string equipment)
+    {
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new EndTurnCommand());
+        var selection = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("MAIN", Assert.Single(game.State.StackItems).UnitEvent!.Timing);
+        await game.Act("P1", new ChooseCardsCommand(selection.ChoiceId, selection.ChoiceWindow, [equipment]));
+        await game.TapRunes("P1", Enumerable.Range(0, 6).Select(i => "ORI-MANA-" + i));
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        await game.Top();
+        var runes = Enumerable.Range(0, 4).Select(i => "ORI-POWER-" + i).ToArray();
+        await game.Act("P1", new RecycleRuneCommand(runes[0], runes));
     }
 }
