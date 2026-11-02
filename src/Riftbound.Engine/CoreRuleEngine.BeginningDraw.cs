@@ -2,7 +2,12 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record BeginningDrawContext(string CardNo, string Kind, long SourceGeneration);
+public sealed record BeginningDeckComparisonCapture(ObjectBinding Source, string ControllerId, int TurnNumber, long AcquiredTick);
+public sealed record BeginningDrawContext(string CardNo, string Kind, long SourceGeneration)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BeginningDeckComparisonCapture? Comparison { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -15,6 +20,8 @@ public sealed partial class CoreRuleEngine
         var normalized = OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo);
         if (LegendCardHasIdentity(cardNo, LegendIdentityCatalog.JinxLegendIdentityId)) return "HAND_BELOW_TWO";
         if (BeginningDrawFamilies.Value["OGN·101/298"].Contains(normalized, StringComparer.Ordinal)) return "FACEDOWN_AT_START";
+        if (CardBehaviorRegistry.TryGetByCardNo(cardNo ?? "", out var behavior) && behavior.BeginningDeckTopManaComparison)
+            return "LOWEST_DECK_TOP_MANA";
         return null;
     }
 
@@ -41,10 +48,13 @@ public sealed partial class CoreRuleEngine
             else if (!IsObjectOnField(state.PlayerZones, source.ObjectId)
                 || !IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, source.ObjectId)
                 || !source.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(source.AttachedToObjectId)
-                || !ControlsFacedownBattlefieldCard(state, player)) continue;
+                || kind == "FACEDOWN_AT_START" && !ControlsFacedownBattlefieldCard(state, player)) continue;
+            var context = new BeginningDrawContext(source.CardNo!, kind, source.ObjectGeneration) {
+                Comparison = kind == "LOWEST_DECK_TOP_MANA"
+                    ? new(new(source.ObjectId, source.ObjectGeneration), player, state.TurnNumber, state.Tick) : null };
             var trigger = new TriggerQueueItemState($"beginning-draw-{state.TurnNumber}-{state.Tick}-{source.ObjectId}",
                 player, source.ObjectId, BeginningDrawEffect, "TURN_START_BEGAN")
-                { BeginningDraw = new(source.CardNo!, kind, source.ObjectGeneration), SourceCardNo = source.CardNo };
+                { BeginningDraw = context, SourceCardNo = source.CardNo };
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
         return state with { TriggerQueue = queue };
@@ -54,13 +64,21 @@ public sealed partial class CoreRuleEngine
         string controller, string source, string? cardNo = null)
         => context is null ? effect != BeginningDrawEffect
             : effect == BeginningDrawEffect && context.SourceGeneration >= 0 && !string.IsNullOrWhiteSpace(source)
-                && context.Kind is "HAND_BELOW_TWO" or "FACEDOWN_AT_START"
+                && context.Kind is "HAND_BELOW_TWO" or "FACEDOWN_AT_START" or "LOWEST_DECK_TOP_MANA"
                 && BeginningDrawKind(context.CardNo) == context.Kind && (cardNo is null || context.CardNo == cardNo)
+                && (context.Kind == "LOWEST_DECK_TOP_MANA"
+                    ? context.Comparison is { Source: not null } capture && capture.Source.ObjectId == source
+                        && capture.Source.Generation == context.SourceGeneration && capture.ControllerId == controller
+                        && capture.TurnNumber == state.TurnNumber && capture.AcquiredTick >= 0 && capture.AcquiredTick <= state.Tick
+                        && state.CardObjects.TryGetValue(source, out var current) && current.ObjectGeneration >= context.SourceGeneration
+                        && (current.ObjectGeneration != context.SourceGeneration || current.CardNo == context.CardNo)
+                    : context.Comparison is null)
                 && controller == state.TurnPlayerId && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "SCORE";
 
     private static StackResolutionResult ResolveBeginningDraw(MatchState state, StackItemState item)
     {
         var context = item.BeginningDraw!;
+        if (context.Kind == "LOWEST_DECK_TOP_MANA") return ResolveBeginningDeckComparison(state, item);
         if (context.Kind == "HAND_BELOW_TWO" && state.PlayerZones[item.ControllerId].Hand.Count >= 2)
             return NoopStackResolutionResult(state);
         // A condition in the trigger clause was checked at capture. It is not

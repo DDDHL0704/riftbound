@@ -776,14 +776,15 @@ internal static partial class ActionPromptBuilder
 
         if (ability.SimpleEffect is not null)
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
-                ["0"] = ability.SimpleEffect.TransfersSourceToChosenPlayer || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+                ["0"] = CoreRuleEngine.SimpleActivationTargetsPlayer(ability)
                     ? state.Seats.Keys
                         .Where(id => !string.Equals(id, playerId, StringComparison.Ordinal))
                         .Order(StringComparer.Ordinal)
                         .Select(id => new ActionPromptChoiceDto(
                             id,
                             state.Seats[id],
-                            ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+                            ability.SimpleEffect.OpponentGuessesDeckTopType ? "选择对手猜测牌顶类型"
+                                : ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
                                 ? "选择对手执行移动"
                                 : "获得来源控制权并召回"))
                         .ToArray()
@@ -1478,7 +1479,7 @@ internal static partial class ActionPromptBuilder
     private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
     {
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn) return "任意公开单位";
-        if (ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true) return "一名对手";
+        if (CoreRuleEngine.SimpleActivationTargetsOpponent(ability)) return "一名对手";
         if (ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true) return "一名友方单位";
         if (ability.SimpleEffect?.StunsTarget == true) return "一名敌方单位";
         if (ability.SimpleEffect?.GrantsBoonOrPower == true) return "一名单位";

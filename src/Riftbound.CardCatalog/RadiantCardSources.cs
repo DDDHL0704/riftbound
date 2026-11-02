@@ -17,6 +17,11 @@ public static class RadiantCardSources
             ?? throw new InvalidOperationException("The official card gallery snapshot is missing.");
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
         return new[] {
+            (Id: 39514L, CardNo: "RAD·022/167"),
+            (Id: 39614L, CardNo: "RAD·111/167"),
+            (Id: 39561L, CardNo: "RAD·064/167"),
+            (Id: 39542L, CardNo: "RAD·046/167"),
+            (Id: 39589L, CardNo: "RAD·089/167"),
             (Id: 39528L, CardNo: "RAD·035/167"),
             (Id: 39492L, CardNo: "RAD·002/167"),
             (Id: 39535L, CardNo: "RAD·042/167"),

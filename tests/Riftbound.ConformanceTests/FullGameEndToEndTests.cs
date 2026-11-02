@@ -25487,7 +25487,9 @@ public sealed partial class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    internal static void AssertNoHiddenZoneLeak(ResolutionResult result)
+    internal static void AssertNoHiddenZoneLeak(ResolutionResult result) => AssertNoHiddenZoneLeak(result, []);
+
+    internal static void AssertNoHiddenZoneLeak(ResolutionResult result, IReadOnlyList<StackItemState> capturedUnitEvents)
     {
         if(result.State.PendingRuleChoice is {Request.Preview:{ } preview} pending)
             result=result with {State=preview with {Tick=result.State.Tick,PendingRuleChoice=pending}};
@@ -25500,6 +25502,7 @@ public sealed partial class FullGameEndToEndTests
             CheckHistoricalBattleReferences(snapshot, result.State);
             CheckHistoricalBoonAmplifierSources(snapshot, result.State);
             OrdinaryPlayPrivacyAssertions.CheckHistoricalModifiers(snapshot, result.State);
+            UnitEventPrivacyAssertions.CheckHistoricalModifiers(snapshot, result.State, capturedUnitEvents);
             BattleLimitedPrivacyAssertions.Check(snapshot, result.State, viewerId);
             CheckHistoricalTurnUnitPlayBoons(snapshot, result.State);
             DestructionFamilyPrivacyAssertions.Check(snapshot, result.State);
@@ -25591,7 +25594,7 @@ public sealed partial class FullGameEndToEndTests
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
-                        Assert.Contains(unitEvent.CardNo, new[] { "VEN·044", "VEN·094", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·102", "VEN·108", "VEN·121", "RAD·053/167", "RAD·105/167", "RAD·146/167" });
+                        Assert.Contains(unitEvent.CardNo, new[] { "VEN·044", "VEN·094", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·102", "VEN·108", "VEN·121", "RAD·046/167", "RAD·053/167", "RAD·089/167", "RAD·105/167", "RAD·146/167" });
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
                         if (unitEvent.CardNo == "RAD·146/167")
