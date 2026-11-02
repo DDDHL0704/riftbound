@@ -76,7 +76,7 @@ public sealed class ScopedPhysicalPrintTests
         => Assert.False(TryCreate(cardNo, out _));
 
     [Theory]
-    [InlineData("RAD·038/167")]
+    [InlineData("RAD·065a/167")]
     [InlineData("RAD·065/167")]
     [InlineData("RAD·109/167")]
     public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string cardNo)
