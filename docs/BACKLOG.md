@@ -83,6 +83,9 @@
 
 ## P2 · 卡牌（B 线）
 
+- 2026-11-03 05:10 B 线 #406 L2 夹具修正：首查 main 仍为 `e9846e2cd`，#406 与 #421 均无冲突且 auto 开启。#406 的 [41514106596](https://github.com/DDDHL0704/riftbound/actions/runs/41514106596) 第 7 片 2634 条中仅 `OptionalManaTriggerPromptTests` 的传奇付款分支失败：旧夹具手造 `UNL-197/219` 时未带 `CARD_TYPE:LEGEND`，无法进入共享传奇结算候选。现复用官方完整牌面工厂建立该传奇，保留原横置状态、付款／放弃、活跃、冷恢复和完整回放断言；生产过滤不变。
+  - 完整 Release 测试项目重新构建后，精确执行 `OptionalManaTriggerPromptTests` 16 条及 `ControlledLegendResolutionTests` 8 条，合计 **24/24 通过、零失败、零跳过，含构建 300.61 秒**。四份直接相关源码与 PDB 校验一致，验证前后源码未变；`RunAnalyzers=false`，分析器与完整规则交 L2。日志、原失败分片与完整 TRX 在 `var/b-pr406-l2-20261103-0510/`。修正集中一次推回原 PR 并保持 auto；#421 首查无失败，保持现有提交。B 线保留项已实现，下一轮优先复核这两个 PR 的完整 L2／合入结果。
+
 - 2026-11-03 03:48 B 线：共享缴械 [#417](https://github.com/DDDHL0704/riftbound/pull/417) 九片规则及 `L2 required` 全绿，已合入 main `e9846e2cd`（含 #416）。#406 随后出现 BACKLOG／CARD_BACKLOG 两处实际文档冲突，本轮只解决这两处并同步该主干；生产代码自动合并，保留妮蔻及双方全部记录，目录仍为 1456、RAD 清单 18 项。共享休眠使用已释放的席位独立发布。
   - #406 原提交 `e4bd1f165` 的完整 `RadNeekoLegendTests` 已于 02:56 单次 **19/19 通过、零失败、零跳过，108.02 秒**，源码／PDB 与运行 DLL 指纹已核对，日志及 TRX 在 `var/b-neeko-retained-main-20261103-0256/`。本轮只解决文档冲突，不新增第二个构建；此次整合后的完整规则交 L2，不把原 19 条写成新主干实测。
 
