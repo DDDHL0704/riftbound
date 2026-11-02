@@ -1,283 +1,352 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "kind": "SQL_EXECUTION_IDENTITIES_NOT_RULE_CERTIFICATION",
   "defaultPartitionCount": 4,
   "cases": [
     {
       "id": "private-opening",
-      "sourceType": "OpeningRandomnessSqlAcceptance"
+      "sourceType": "OpeningRandomnessSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "created-token-ready",
-      "sourceType": "CreatedTokenReadySqlAcceptance"
+      "sourceType": "CreatedTokenReadySqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "core-opening",
-      "sourceType": "PROGRAM_CORE_OPENING"
+      "sourceType": "PROGRAM_CORE_OPENING",
+      "defaultPartition": 3
     },
     {
       "id": "battle-history",
-      "sourceType": "BattleHistorySqlAcceptance"
+      "sourceType": "BattleHistorySqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "masked-attendant",
-      "sourceType": "MaskedAttendantSqlAcceptance"
+      "sourceType": "MaskedAttendantSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "granted-predict",
-      "sourceType": "GrantedPredictSqlAcceptance"
+      "sourceType": "GrantedPredictSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "printed-predict",
-      "sourceType": "PrintedPredictSqlAcceptance"
+      "sourceType": "PrintedPredictSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "sivir-optional",
-      "sourceType": "SivirOptionalSqlAcceptance"
+      "sourceType": "SivirOptionalSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "rune-destination",
-      "sourceType": "RuneRecycleDestinationSqlAcceptance"
+      "sourceType": "RuneRecycleDestinationSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "sivir-payment",
-      "sourceType": "SivirPaymentSqlAcceptance"
+      "sourceType": "SivirPaymentSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "conquest-token",
-      "sourceType": "ConquestTokenSqlAcceptance"
+      "sourceType": "ConquestTokenSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "recycled-card-boon",
-      "sourceType": "RecycledCardBoonSqlAcceptance"
+      "sourceType": "RecycledCardBoonSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "recycle-boon-lifecycle",
-      "sourceType": "RecycleBoonLifecycleSqlAcceptance"
+      "sourceType": "RecycleBoonLifecycleSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "attached-recycle-lifecycle",
-      "sourceType": "AttachedRecycleLifecycleSqlAcceptance"
+      "sourceType": "AttachedRecycleLifecycleSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "typed-play-history",
-      "sourceType": "CardPlayHistorySqlAcceptance"
+      "sourceType": "CardPlayHistorySqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "porobot",
-      "sourceType": "PatchedPorobotSqlAcceptance"
+      "sourceType": "PatchedPorobotSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "typed-play-history-causal",
-      "sourceType": "CardPlayHistoryCausalSqlAcceptance"
+      "sourceType": "CardPlayHistoryCausalSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "clairvoyance",
-      "sourceType": "ClairvoyanceSqlAcceptance"
+      "sourceType": "ClairvoyanceSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "insight-repeat",
-      "sourceType": "InsightRepeatSqlAcceptance"
+      "sourceType": "InsightRepeatSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "combat-assignment",
-      "sourceType": "CombatAssignmentSqlAcceptance"
+      "sourceType": "CombatAssignmentSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "confirmed-play-origin",
-      "sourceType": "ConfirmedPlayOriginSqlAcceptance"
+      "sourceType": "ConfirmedPlayOriginSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "physical-origin-cost",
-      "sourceType": "PhysicalOriginCostSqlAcceptance"
+      "sourceType": "PhysicalOriginCostSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "granted-origin-haste",
-      "sourceType": "GrantedOriginHasteSqlAcceptance"
+      "sourceType": "GrantedOriginHasteSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "opponent-battlefield-control",
-      "sourceType": "OpponentBattlefieldControlSqlAcceptance"
+      "sourceType": "OpponentBattlefieldControlSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "optional-sacrifice",
-      "sourceType": "OptionalSacrificeSqlAcceptance"
+      "sourceType": "OptionalSacrificeSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "granted-token-haste",
-      "sourceType": "GrantedTokenHasteSqlAcceptance"
+      "sourceType": "GrantedTokenHasteSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "optional-costs",
-      "sourceType": "OptionalCostsSqlAcceptance"
+      "sourceType": "OptionalCostsSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "battlefield-play-recovery",
-      "sourceType": "BattlefieldPlayRecoverySqlAcceptance"
+      "sourceType": "BattlefieldPlayRecoverySqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "battlefield-play-damage",
-      "sourceType": "BattlefieldPlayDamageSqlAcceptance"
+      "sourceType": "BattlefieldPlayDamageSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "banish-effect-play",
-      "sourceType": "BanishEffectPlaySqlAcceptance"
+      "sourceType": "BanishEffectPlaySqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "here-location-control",
-      "sourceType": "HereLocationSqlAcceptance"
+      "sourceType": "HereLocationSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "fate-weaver",
-      "sourceType": "FateWeaverSqlAcceptance"
+      "sourceType": "FateWeaverSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "multi-controller-trigger-order",
-      "sourceType": "MultiControllerTriggerSqlAcceptance"
+      "sourceType": "MultiControllerTriggerSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "empty-observed-repeat",
-      "sourceType": "EmptyObservedDeckRepeatSqlAcceptance"
+      "sourceType": "EmptyObservedDeckRepeatSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "observed-play-window",
-      "sourceType": "ObservedDeckPlayWindowSqlAcceptance"
+      "sourceType": "ObservedDeckPlayWindowSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "ravenbloom-put-hand",
-      "sourceType": "RavenbloomPutIntoHandSqlAcceptance"
+      "sourceType": "RavenbloomPutIntoHandSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "attached-predict",
-      "sourceType": "AttachedPredictSqlAcceptance"
+      "sourceType": "AttachedPredictSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "copied-last-breath-insight",
-      "sourceType": "CopiedLastBreathInsightSqlAcceptance"
+      "sourceType": "CopiedLastBreathInsightSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "copied-duel-insight",
-      "sourceType": "CopiedDuelInsightSqlAcceptance"
+      "sourceType": "CopiedDuelInsightSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "empowered-insight",
-      "sourceType": "EmpoweredInsightSqlAcceptance"
+      "sourceType": "EmpoweredInsightSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "paka-move-reveal",
-      "sourceType": "PakaaProtectorSqlAcceptance"
+      "sourceType": "PakaaProtectorSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "empty-reveal-followup",
-      "sourceType": "EmptyRevealSqlAcceptance"
+      "sourceType": "EmptyRevealSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "paka-dual-type-reveal",
-      "sourceType": "PakaaDualTypeRevealSqlAcceptance"
+      "sourceType": "PakaaDualTypeRevealSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "hwei-move-discard-types",
-      "sourceType": "HweiMoveDiscardTypesSqlAcceptance"
+      "sourceType": "HweiMoveDiscardTypesSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "destruction-graveyard",
-      "sourceType": "DestructionGraveyardSqlAcceptance"
+      "sourceType": "DestructionGraveyardSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "conditional-counter-payment",
-      "sourceType": "ConditionalCounterPaymentSqlAcceptance"
+      "sourceType": "ConditionalCounterPaymentSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "reversal-target-choice",
-      "sourceType": "ReversalTargetChoiceSqlAcceptance"
+      "sourceType": "ReversalTargetChoiceSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "spell-remake-declaration",
-      "sourceType": "SpellRemakeDeclarationSqlAcceptance"
+      "sourceType": "SpellRemakeDeclarationSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "candlelit-private-look",
-      "sourceType": "CandlelitPrivateLookSqlAcceptance"
+      "sourceType": "CandlelitPrivateLookSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "candlelit-legend-pending",
-      "sourceType": "CandlelitLegendPendingSqlAcceptance"
+      "sourceType": "CandlelitLegendPendingSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "revealed-hand-prompt-order",
-      "sourceType": "RevealedHandPromptOrderSqlAcceptance"
+      "sourceType": "RevealedHandPromptOrderSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "battlefield-spell-damage",
-      "sourceType": "BattlefieldSpellDamageSqlAcceptance"
+      "sourceType": "BattlefieldSpellDamageSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "exhausted-legend-confirmation",
-      "sourceType": "ExhaustedLegendConfirmationSqlAcceptance"
+      "sourceType": "ExhaustedLegendConfirmationSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "teemo-counted-damage",
-      "sourceType": "TeemoCountedDamageSqlAcceptance"
+      "sourceType": "TeemoCountedDamageSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "controller-damage-bonus",
-      "sourceType": "ControllerDamageBonusSqlAcceptance"
+      "sourceType": "ControllerDamageBonusSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "special-trigger-damage-bonus",
-      "sourceType": "SpecialTriggerDamageBonusSqlAcceptance"
+      "sourceType": "SpecialTriggerDamageBonusSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "room-seat-journal",
-      "sourceType": "RoomSeatJournalSqlAcceptance"
+      "sourceType": "RoomSeatJournalSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "battlefield-start-controller",
-      "sourceType": "BattlefieldStartControllerSqlAcceptance"
+      "sourceType": "BattlefieldStartControllerSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "battlefield-start-lab-you",
-      "sourceType": "BattlefieldStartLabYouSqlAcceptance"
+      "sourceType": "BattlefieldStartLabYouSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "deck-pending-parent",
-      "sourceType": "DeckPendingParentSqlAcceptance"
+      "sourceType": "DeckPendingParentSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "wild-claw-reflexive",
-      "sourceType": "WildClawReflexiveSqlAcceptance"
+      "sourceType": "WildClawReflexiveSqlAcceptance",
+      "defaultPartition": 2
     },
     {
       "id": "lightning-rush-flow",
-      "sourceType": "LightningRushFlowSqlAcceptance"
+      "sourceType": "LightningRushFlowSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "final-conquest-score",
-      "sourceType": "FinalConquestScoreSqlAcceptance"
+      "sourceType": "FinalConquestScoreSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "burnout-action-completion",
-      "sourceType": "BurnoutActionCompletionSqlAcceptance"
+      "sourceType": "BurnoutActionCompletionSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "victory-cleanup-garen",
-      "sourceType": "VictoryCleanupGarenSqlAcceptance"
+      "sourceType": "VictoryCleanupGarenSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "battle-result-continuation",
-      "sourceType": "BattleResultContinuationSqlAcceptance"
+      "sourceType": "BattleResultContinuationSqlAcceptance",
+      "defaultPartition": 3
     },
     {
       "id": "draven-first-win-score",
-      "sourceType": "DravenBattleWinScoreSqlAcceptance"
+      "sourceType": "DravenBattleWinScoreSqlAcceptance",
+      "defaultPartition": 1
     },
     {
       "id": "selected-field-damage",
-      "sourceType": "SelectedBattlefieldDamageSqlAcceptance"
+      "sourceType": "SelectedBattlefieldDamageSqlAcceptance",
+      "defaultPartition": 0
     },
     {
       "id": "draven-battle-death",
-      "sourceType": "DravenBattleDeathSqlAcceptance"
+      "sourceType": "DravenBattleDeathSqlAcceptance",
+      "defaultPartition": 3
     }
   ]
 }
