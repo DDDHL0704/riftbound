@@ -18347,6 +18347,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
             return false;
         }
+        if (!VariableAdditionalPowerCostRules.TryExtract(costsWithoutPowerSpend,
+                behavior.MayPayAnyAdditionalPower, out _, out var declaredAdditionalPower, out _)
+            || EffectPlayIgnoresAllCosts(state, intent.PlayerId) && declaredAdditionalPower != 0)
+        {
+            rejection = Reject(state, "额外符能数量无效或被重复声明。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         if (behavior.DamageAmountFromOptionalPowerCost
             && normalizedCommandOptionalCosts.Any(cost => cost.StartsWith("SPEND_POWER:", StringComparison.Ordinal)))
@@ -22338,6 +22345,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         destroyedAdditionalCostTargetObjectIds = [];
         returnedAdditionalCostTargetObjectIds = [];
         discardedOptionalCostTargetObjectIds = [];
+
+        if (!VariableAdditionalPowerCostRules.TryExtract(optionalCosts ?? [], behavior.MayPayAnyAdditionalPower,
+                out var remainingVariableCosts, out var variablePower, out var variablePowerDeclared)
+            || EffectPlayIgnoresAllCosts(state, playerId) && variablePower != 0) return false;
+        if (variablePowerDeclared)
+        {
+            if (!TryBuildOptionalCostPlan(state, playerId, remainingVariableCosts,
+                    behavior with { MayPayAnyAdditionalPower = false }, out _, out extraManaCost,
+                    out extraPowerCost, out extraPowerCostByTrait, out experienceCost, out optionalCostManaReduction,
+                    out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds, out destroyedAdditionalCostTargetObjectIds,
+                    out returnedAdditionalCostTargetObjectIds, out discardedOptionalCostTargetObjectIds)
+                || (long)extraPowerCost + variablePower + extraPowerCostByTrait.Values.Sum(value => (long)value) > int.MaxValue) return false;
+            extraPowerCost += variablePower;
+            return true;
+        }
 
         if (normalizedOptionalCosts.Any(cost => cost.StartsWith(TurnEquipmentPlayRules.ChoicePrefix, StringComparison.Ordinal)))
         {
