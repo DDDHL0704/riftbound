@@ -56,7 +56,9 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
         var game = new Driver(initial);
         try
         {
-            await Tap(game, "P2"); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await Tap(game, "P2");
+            // Keep both physical destruction-payment runes in their original order.
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"]));
             if (game.State.PriorityPlayerId != "P1") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
@@ -104,11 +106,13 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
         {
             var funding = Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i).ToArray();
             await game.Act("P1", new TapRuneCommand(funding[0], funding));
-            await game.Act("P1", new RecycleRuneCommand("P1-RUNE-0")); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-1"));
+            // Prepare both real equip-payment runes in their original order.
+            await game.Act("P1", new RecycleRuneCommand("P1-RUNE-0", ["P1-RUNE-0", "P1-RUNE-1"]));
             foreach (var gear in new[] { "SONG-A", "SONG-B" }) { await game.Act("P1", new AssembleEquipmentCommand(gear, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top(); }
             Assert.All(new[] { "SONG-A", "SONG-B" }, id => Assert.NotNull(game.State.CardObjects[id].AttachedRuleText));
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            // Prepare all three physical control-payment runes in their original order.
+            await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             await game.ColdCheckpoint();
             game.RecoverAfterEveryCommand = true;
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
@@ -116,7 +120,8 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId); Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
             Assert.Contains("UNIT", game.State.PlayerZones["P2"].Base); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            // Keep both physical destruction-payment runes in their original order.
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
             await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
             var earned = Creations(game.State); Assert.Equal(3, earned.Length);
