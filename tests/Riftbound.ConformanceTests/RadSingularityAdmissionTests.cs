@@ -89,7 +89,7 @@ public sealed class RadSingularityAdmissionTests
     [Fact]
     public async Task ARealRecallResponseHidesTheNewHandIncarnationWithoutCancellingTheEarnedSkills()
     {
-        var initial = Put(WithOrianna(Position(handCards: 7)), "RECALL", "OGN·104/298", "P1", "HAND");
+        var initial = Put(WithOrianna(Position(handCards: 5)), "RECALL", "OGN·104/298", "P1", "HAND");
         var game = new Driver(initial); await Animate(game); await CastDraw(game);
         await OrderThresholdFirst(game); await Confirm(game);
         await game.Act("P1", new PlayCardCommand("RECALL", "OGN·104/298", ["SOURCE"]));
@@ -105,9 +105,10 @@ public sealed class RadSingularityAdmissionTests
         await game.Replay();
     }
 
-    private static MatchState Position(bool image = false, int handCards = 8)
+    private static MatchState Position(bool image = false, int handCards = 6)
     {
         var state = Put(Put(Create(), "SOURCE", Card, "P1", "BASE"), "DRAW", "OGN·048/298", "P1", "HAND");
+        state = Put(state, "SETUP", "OGN·219/298", "P1", "HAND");
         for (var i = 0; i < handCards; i++) state = Put(state, "H" + i, "OGN·219/298", "P1", "HAND");
         if (image) state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["SOURCE"] = state.CardObjects["SOURCE"] with { TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
@@ -120,8 +121,22 @@ public sealed class RadSingularityAdmissionTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
                 ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } } });
-    private static Task Animate(Driver game)
-        => OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "SOURCE");
+    private static async Task Animate(Driver game)
+    {
+        // Start with eight cards: the normal turn draw must not meet the
+        // nine-other-card condition before the actual main-phase conversion.
+        await OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "SOURCE");
+        Assert.Equal(9, game.State.PlayerZones["P1"].Hand.Count);
+        // One real play spends a card, then the printed skill draws two while
+        // only eight other cards remain. This reaches ten without an early
+        // threshold, before Song copies the text or the tested spell is cast.
+        await game.Act("P1", new PlayCardCommand("SETUP", "OGN·219/298", [], Destination: "BASE"));
+        Assert.Equal(TriggerKinds.ControllerCardPlayDraw, Assert.Single(game.State.StackItems).EffectKind);
+        await game.Top();
+        Assert.Equal(10, game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Empty(game.State.StackItems);
+        Assert.Empty(game.State.TriggerQueue);
+    }
     private static async Task CastDraw(Driver game)
     {
         await game.Act("P1", new PlayCardCommand("DRAW", "OGN·048/298", []));
