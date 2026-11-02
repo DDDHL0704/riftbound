@@ -5765,7 +5765,9 @@ public sealed partial class MatchSession : IMatchSession
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "match recovery room deck format is invalid");
         if (SealedRoomPools.OptionError(this.options) is { } optionsError)
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, optionsError);
-        state = restoredState with { SessionOptions = this.options == MatchSessionOptions.Default ? null : this.options };
+        var recordedOptions = this.options == MatchSessionOptions.Default ? null : this.options;
+        state = restoredState.SessionOptions == recordedOptions
+            ? restoredState : restoredState with { SessionOptions = recordedOptions };
         if (SealedRoomPools.Validate(state) is { Count: > 0 } poolErrors)
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, string.Join("; ", poolErrors));
         this.openingSeed = openingSeed;
