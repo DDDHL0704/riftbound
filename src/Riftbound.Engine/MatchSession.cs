@@ -10,7 +10,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record LegendEquipmentUnitState(ObjectBinding SourceLegend, string SourceCardNo,
-    long SourceFaceRevision, long CapturedTick, long TargetGeneration);
+    long SourceFaceRevision, long CapturedTick, long TargetGeneration, long AppliedTick);
 
 public sealed record CardObjectState
 {

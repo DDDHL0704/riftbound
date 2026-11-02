@@ -9,6 +9,7 @@ internal static class TemporaryUnitEffectRules
     internal sealed record PreventionBudget(string Id, int Remaining);
     internal const string EnemyTargetProtection = "ENEMY_SPELL_SKILL_TARGET_PROTECTION_THIS_TURN";
     internal const string BaseMightPrefix = "BASE_MIGHT_THIS_TURN:";
+    internal const string BaseMightTickPrefix = "BASE_MIGHT_APPLIED_TICK_THIS_TURN:";
     internal const string DamagePreventionPrefix = "DAMAGE_PREVENTION_THIS_TURN:";
 
     internal static PreventionBudget[] PreventionBudgets(CardObjectState card)
@@ -36,9 +37,31 @@ internal static class TemporaryUnitEffectRules
             .Concat(value > 0 || retainZero ? [prefix + value.ToString(CultureInfo.InvariantCulture)] : [])
             .Order(StringComparer.Ordinal).ToArray() };
 
+    internal static long? BaseMightAppliedTick(CardObjectState card)
+        => card.UntilEndOfTurnEffects.Where(e => e.StartsWith(BaseMightTickPrefix, StringComparison.Ordinal))
+            .Select(e => long.TryParse(e.AsSpan(BaseMightTickPrefix.Length), NumberStyles.None, CultureInfo.InvariantCulture,
+                out var tick) ? (long?)tick : null).FirstOrDefault();
+
+    internal static CardObjectState SetBaseMight(CardObjectState card, int value, long appliedTick)
+        => card with {
+            UntilEndOfTurnEffects = card.UntilEndOfTurnEffects.Where(e => !e.StartsWith(BaseMightPrefix, StringComparison.Ordinal)
+                    && !e.StartsWith(BaseMightTickPrefix, StringComparison.Ordinal))
+                .Concat([BaseMightPrefix + value.ToString(CultureInfo.InvariantCulture),
+                    BaseMightTickPrefix + appliedTick.ToString(CultureInfo.InvariantCulture)]).Order(StringComparer.Ordinal).ToArray() };
+
+    // Both effects change characteristics in CN 479.2. With no dependency,
+    // the later application supplies the base Might (482.1 / 482.3).
+    private static int? ActiveBaseMightReplacement(CardObjectState card)
+        => card.LegendEquipmentUnit is { } transform && transform.AppliedTick > (BaseMightAppliedTick(card) ?? 0)
+            ? null : Number(card, BaseMightPrefix);
+
+    internal static int BaseMight(CardObjectState card)
+        => ActiveBaseMightReplacement(card) ?? (card.LegendEquipmentUnit is not null
+            ? card.ManaCost : card.Power - card.UntilEndOfTurnPowerModifier);
+
     internal static int BaseMightDelta(CardObjectState card)
     {
-        if (Number(card, BaseMightPrefix) is not { } replacement) return 0;
+        if (ActiveBaseMightReplacement(card) is not { } replacement) return 0;
         var printed = card.LegendEquipmentUnit is not null ? card.ManaCost
             : PrintedCardFactory.TryCreate(card.ObjectId, card.OwnerId ?? "", card.CardNo, out var face) ? face.Power
             : card.CardNo is { } no && P6TokenFactoryCatalog.TryGetByCardNo(no, out var token) ? token.DefaultPower

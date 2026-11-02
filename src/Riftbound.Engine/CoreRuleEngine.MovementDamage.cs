@@ -48,7 +48,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var unit = cards[target];
         var value = spec.BasePowerUntilEndOfTurn!.Value;
-        cards[target] = TemporaryUnitEffectRules.SetNumber(unit, TemporaryUnitEffectRules.BaseMightPrefix, value, retainZero: true);
+        cards[target] = TemporaryUnitEffectRules.SetBaseMight(unit, value, state.Tick + 1);
         events.Add(new("BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
             ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
             ["targetObjectId"] = target, ["targetGeneration"] = unit.ObjectGeneration,

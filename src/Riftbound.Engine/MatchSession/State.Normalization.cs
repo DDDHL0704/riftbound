@@ -153,8 +153,7 @@ public sealed partial record MatchState
 
     private static int ResolveBasePower(CardObjectState cardObject)
     {
-        return TemporaryUnitEffectRules.Number(cardObject, TemporaryUnitEffectRules.BaseMightPrefix)
-            ?? cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+        return TemporaryUnitEffectRules.BaseMight(cardObject);
     }
 
     private static IReadOnlyList<string> LayerEngineFoundationResiduals()

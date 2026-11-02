@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -54,6 +55,19 @@ public sealed class OriannaLegendEquipmentUnitTests
     private static int Might(MatchState state, string id = "GEAR")
         => CurrentPowerTargetTests.Snapshot(state).GetProperty("players").GetProperty("P1")
             .GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32();
+
+    private static void AssertMight(Driver game, int expectedBase, int expectedMight)
+    {
+        foreach (var snapshot in ResolutionResult.BuildSnapshots(game.State).Values.Append(
+            MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick, 0, [], game.State).SpectatorSnapshot))
+        {
+            var gear = JsonSerializer.SerializeToElement(snapshot, new JsonSerializerOptions(JsonSerializerDefaults.Web))
+                .GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty("GEAR");
+            Assert.Equal(expectedBase, gear.GetProperty("basePower").GetInt32());
+            Assert.Equal(expectedMight, gear.GetProperty("effectivePower").GetInt32());
+        }
+        ArmamentMightTests.PublicRecovery(game.State);
+    }
 
     private static async Task NextOwnMain(Driver game)
     {
@@ -303,15 +317,75 @@ public sealed class OriannaLegendEquipmentUnitTests
     }
 
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task TheLaterCharacteristicChangeWinsEvenWhenTheLegendTriggeredEarlier(bool replacementFirst)
+    {
+        var initial = Put(Position(), "LULU", "RAD·110/167", "P1", "BASE");
+        initial = Put(initial, "MOVE", "VEN·034", "P1", "HAND");
+        initial = RadUnitEffectTestFixture.Place(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
+        // The imported position retains a boon and a weapon from the unit's
+        // previous transformation. Neither additive effect replaces base Might.
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = initial.CardObjects["GEAR"] with { Power = 1,
+                Tags = initial.CardObjects["GEAR"].Tags.Append(CardObjectTags.Boon).Order(StringComparer.Ordinal).ToArray() },
+            ["SECOND"] = initial.CardObjects["SECOND"] with { AttachedToObjectId = "GEAR" } } };
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        AssertMight(game, 2, 4);
+        await NextOwnMain(game); await Select(game, "GEAR"); await Pay(game);
+        if (!replacementFirst) await game.Top();
+        await game.TapRunes("P1", ["RUNE-1", "RUNE-2", "RUNE-3"]);
+        // A real reaction moves Lulu while the confirmed legend ability can
+        // remain lower in the chain. Her movement skill sets this unit to 4.
+        await game.Act("P1", new PlayCardCommand("MOVE", "VEN·034", ["BF", "LULU"],
+            OptionalCosts: ["RECYCLE_RUNE:GREEN"]));
+        await game.Top();
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
+        await game.Top();
+        AssertMight(game, 4, 6);
+        if (replacementFirst) {
+            Assert.Single(game.State.StackItems);
+            var transformation = game.State.StackItems[0].UnitEvent!;
+            Assert.True(transformation.CapturedTick < game.State.Tick);
+            await game.Top();
+        }
+        AssertMight(game, replacementFirst ? 2 : 4, replacementFirst ? 4 : 6);
+        Assert.Equal("GEAR", game.State.CardObjects["SECOND"].AttachedToObjectId);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["GEAR"].Tags);
+        var gear = game.State.CardObjects["GEAR"];
+        foreach (var corruptTransformation in new[] { false, true }) {
+            var badGear = corruptTransformation
+                ? gear with { LegendEquipmentUnit = gear.LegendEquipmentUnit! with { AppliedTick = gear.LegendEquipmentUnit.CapturedTick } }
+                : gear with { UntilEndOfTurnEffects = gear.UntilEndOfTurnEffects.Select(effect =>
+                    effect.StartsWith("BASE_MIGHT_APPLIED_TICK_THIS_TURN:", StringComparison.Ordinal)
+                        ? "BASE_MIGHT_APPLIED_TICK_THIS_TURN:1" : effect).Order(StringComparer.Ordinal).ToArray() };
+            var bad = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) { ["GEAR"] = badGear } };
+            var seq = game.Events()[^1].Sequence;
+            var snapshots = ResolutionResult.BuildSnapshots(bad); var prompts = ResolutionResult.BuildPrompts(bad);
+            var views = bad.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(player, bad.Tick,
+                seq, snapshots[player], bad.Tick, seq, prompts[player]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(bad.RoomId, bad.Tick, seq, [], bad);
+            Assert.Contains(MatchRecoveryValidator.Validate(bad.RoomId, seq, game.Commands(), game.Events(), views,
+                bad, bad.Tick, spectator), error => error.Contains(corruptTransformation
+                    ? "legend equipment unit timestamp differs" : "base Might replacement differs"));
+        }
+        await game.Act("P1", new EndTurnCommand());
+        Assert.Empty(game.State.CardObjects["GEAR"].UntilEndOfTurnEffects);
+        AssertMight(game, 2, 4);
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData("source")] [InlineData("face")] [InlineData("tick")]
-    [InlineData("target-generation")] [InlineData("card-no")]
+    [InlineData("target-generation")] [InlineData("card-no")] [InlineData("source-null")]
     public async Task RecoveryRejectsForgedTransformationProvenance(string change)
     {
         var game = new Driver(Position()); await BeginMain(game);
         await Select(game, "GEAR"); await Pay(game); await game.Top();
         var gear = game.State.CardObjects["GEAR"]; var captured = gear.LegendEquipmentUnit!;
         var forged = captured with {
-            SourceLegend = change == "source" ? new("MISSING", 0) : captured.SourceLegend,
+            SourceLegend = change == "source-null" ? null! : change == "source" ? new("MISSING", 0) : captured.SourceLegend,
             SourceFaceRevision = change == "face" ? 999 : captured.SourceFaceRevision,
             CapturedTick = change == "tick" ? game.State.Tick + 1 : captured.CapturedTick,
             TargetGeneration = change == "target-generation" ? gear.ObjectGeneration + 1 : captured.TargetGeneration,
@@ -319,6 +393,15 @@ public sealed class OriannaLegendEquipmentUnitTests
         var bad = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
             ["GEAR"] = gear with { LegendEquipmentUnit = forged } } };
         Assert.Contains("invalid legend equipment unit state", OfficialInsightAndSpellLockTests.Errors(bad));
+        if (change == "source-null") {
+            var seq = game.Events()[^1].Sequence;
+            var snapshots = ResolutionResult.BuildSnapshots(bad); var prompts = ResolutionResult.BuildPrompts(bad);
+            var views = bad.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(player, bad.Tick,
+                seq, snapshots[player], bad.Tick, seq, prompts[player]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(bad.RoomId, bad.Tick, seq, [], bad);
+            Assert.Contains("invalid legend equipment unit state", MatchRecoveryValidator.Validate(bad.RoomId, seq,
+                game.Commands(), game.Events(), views, bad, bad.Tick, spectator));
+        }
         await game.Replay();
     }
 }

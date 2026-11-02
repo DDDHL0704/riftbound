@@ -26132,7 +26132,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     if (behavior.BasePowerUntilEndOfTurn is { } baseMight)
                     {
-                        targetState = TemporaryUnitEffectRules.SetNumber(targetState, TemporaryUnitEffectRules.BaseMightPrefix, baseMight, retainZero: true);
+                        targetState = TemporaryUnitEffectRules.SetBaseMight(targetState, baseMight, state.Tick + 1);
                         events.Add(new("BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
                             ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
                             ["targetGeneration"] = targetState.ObjectGeneration, ["baseMight"] = baseMight, ["cardNo"] = stackItem.CardNo }));

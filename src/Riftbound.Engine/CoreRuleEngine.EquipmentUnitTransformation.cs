@@ -30,6 +30,7 @@ public sealed partial class CoreRuleEngine
         return transform.SourceLegend is { Generation: >= 0, ObjectId.Length: > 0 }
             && MainPhaseLegendEventSpec(transform.SourceCardNo) is not null
             && transform.SourceFaceRevision >= 0 && transform.CapturedTick > 0 && transform.CapturedTick <= state.Tick
+            && transform.AppliedTick >= transform.CapturedTick && transform.AppliedTick <= state.Tick
             && transform.TargetGeneration == card.ObjectGeneration && IsObjectOnField(state.PlayerZones, card.ObjectId)
             && card.Tags.Contains(CardObjectTags.EquipmentCard) && card.Tags.Contains(CardObjectTags.UnitCard)
             && PredictBindingMatches(state, transform.SourceLegend, transform.SourceCardNo,
@@ -101,10 +102,11 @@ public sealed partial class CoreRuleEngine
             cards[id] = target with { AttachedToObjectId = null, AttachedRuleText = null,
                 Tags = target.Tags.Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
                 LegendEquipmentUnit = new(new(item.SourceObjectId, context.SourceGeneration), context.CardNo,
-                    context.FaceRevision, context.CapturedTick, target.ObjectGeneration) };
+                    context.FaceRevision, context.CapturedTick, target.ObjectGeneration, state.Tick + 1) };
             events.Add(new("LEGEND_EQUIPMENT_UNIT_STARTED", "装备变为单位装备",
                     new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
                         ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
+                        ["targetGeneration"] = target.ObjectGeneration,
                         ["power"] = target.ManaCost, ["manaCost"] = target.ManaCost }));
         }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
