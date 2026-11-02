@@ -94,7 +94,7 @@ public sealed class RadHeroReprintTests
         Assert.Equal(CardNumbers().Concat(RadEntryCostHeroTests.CardNumbers()).Select(row => (string)row[0])
                 .Concat(["RAD·015/167", "RAD·SP2/005", "RAD·020/167", "RAD·020a/167", "RAD·137/167", "RAD·137a/167",
                     "RAD·042/167", "RAD·042a/167", "RAD·045/167", "RAD·045a/167", "RAD·085/167", "RAD·110/167",
-                    "RAD·133/167", "RAD·133a/167"]).Order(),
+                    "RAD·133/167", "RAD·133a/167", "RAD·023/167", "RAD·023a/167", "RAD·063/167"]).Order(),
             printings.Where(card => card.CardCategoryName == "英雄单位").Select(card => card.CardNo).Order());
         Assert.Throws<NotSupportedException>(() => ((IList<OfficialCard>)printings)[0] = printings[0] with { CardEffect = "forged" });
         var play = CardBehaviorRegistry.GetAll().Select(definition => new ImplementedCardBehavior(

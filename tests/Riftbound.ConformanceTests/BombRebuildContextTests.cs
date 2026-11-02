@@ -94,6 +94,25 @@ public sealed class BombRebuildContextTests
         Assert.Empty(resolved.State.StackItems);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SchedulingAfterEndStepCreatesNoDelayedInstruction(bool capturedEndStep)
+    {
+        // CN 359.3.e.16: a duration already ended at creation produces no
+        // delayed ability, including an effect played after the end step began.
+        var state = Position() with { Tick = 4 };
+        state = capturedEndStep
+            ? state with { EndStep = new(state.TurnPlayerId, state.TurnNumber) }
+            : state with { Phase = MatchPhases.TurnEnd };
+        var source = state.CardObjects["UNIT"];
+        var item = new StackItemState("bomb-after-end-stack", "P1", source.ObjectId,
+            "TEST_BOMB_COST", source.CardNo);
+        var effects = new List<string>(); var events = new List<GameEvent>();
+        Assert.False(CoreRuleEngine.TryScheduleBombRebuild(state, item, 2, effects, events));
+        Assert.Empty(effects); Assert.Empty(events);
+    }
+
     [Fact]
     public void RecoveryRejectsInvalidCapturedBombRebuildState()
     {

@@ -9466,6 +9466,8 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·063/167", "卡莎 · 逆天改命", 5, "RAD_063_KAISA_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "缴械"),
         new("RAD·045/167", "奎桑提", 4, "RAD_045_KSANTE_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守"),
         new("RAD·045a/167", "奎桑提", 4, "RAD_045A_KSANTE_PLAY_UNIT", 0, 0,
@@ -9744,6 +9746,16 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantBombUnits =
     [
+        new("RAD·023/167", "吉格斯 · 炸欢天", 5, "RAD_023_ZIGGS_PLAY_BOMB", 0, 1,
+            TargetScope: CardTargetScopes.Battlefield,
+            CreatedBattlefieldEquipmentTokenCount: 1, CreatedBattlefieldEquipmentTokenName: "炸弹",
+            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "约德尔人"),
+        new("RAD·023a/167", "吉格斯 · 炸欢天", 5, "RAD_023A_ZIGGS_PLAY_BOMB", 0, 1,
+            TargetScope: CardTargetScopes.Battlefield,
+            CreatedBattlefieldEquipmentTokenCount: 1, CreatedBattlefieldEquipmentTokenName: "炸弹",
+            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "约德尔人"),
         new("RAD·001/167", "业余爆破狂", 2, "RAD_001_PLAY_BOMB", 0, 1,
             TargetScope: CardTargetScopes.Battlefield,
             CreatedBattlefieldEquipmentTokenCount: 1,

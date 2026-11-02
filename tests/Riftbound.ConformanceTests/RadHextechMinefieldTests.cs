@@ -85,11 +85,36 @@ public sealed class RadHextechMinefieldTests
     }
 
     [Fact]
-    public async Task ASelectedBombDestroyedInResponseIsNotCountedAgain()
+    public async Task CounteredMinefieldDoesNotDestroyOrScheduleBombs()
     {
-        var game = new Driver(OfficialCopyIdentityTests.AddSpell(Board(), "DESTROY", "RAD·013/167"));
+        var game = new Driver(OfficialCopyIdentityTests.AddSpell(Board(), "COUNTER", "OGN·064/298"));
         await game.Act("P1", new PlayCardCommand("UNIT", Card, ["B1", "B2"]));
-        await game.Act("P1", new PlayCardCommand("DESTROY", "RAD·013/167", ["B1"], Mode: "DESTROY_EQUIPMENT")); await game.Top(); await game.Top();
+        var spell = Assert.Single(game.State.StackItems);
+        await game.Act("P1", new PlayCardCommand("COUNTER", "OGN·064/298", [spell.StackItemId])); await game.Top();
+        Assert.True(game.State.CardObjects.ContainsKey("B1")); Assert.True(game.State.CardObjects.ContainsKey("B2"));
+        Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, e => e.StartsWith("BOMB_REBUILD:"));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task OnlyBombsStillLegalAtResolutionCountAfterAReactionGrantedByKaisa()
+    {
+        var s = ArmamentMightTests.Position(unit: "RAD·063/167", power: 5);
+        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["F"] = s.CardObjects["F"] with { ControllerId = "P2" } } };
+        s = AttackDamageDistributionTests.Spell(s, "MINEFIELD", Card, "P1");
+        s = AttackDamageDistributionTests.Spell(s, "DESTROY", "OGN·224/298", "P1");
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.BombTokenCardNo, out var factory));
+        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+                ["B1"] = factory.CreateObject("B1", "P1", "P1"), ["B2"] = factory.CreateObject("B2", "P1", "P1") },
+            PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P1"] = s.PlayerZones["P1"] with {
+                Battlefields = [..s.PlayerZones["P1"].Battlefields, "B1", "B2"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) {
+                ["B1"] = new("P1", "BATTLEFIELD", "F"), ["B2"] = new("P1", "BATTLEFIELD", "F") } };
+        var game = new Driver(s);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        await game.Act("P1", new PlayCardCommand("MINEFIELD", Card, ["B1", "B2"]));
+        await game.Act("P1", new PlayCardCommand("DESTROY", "OGN·224/298", ["B1"])); await game.Top(); await game.Top();
         var marker = Assert.Single(game.State.UntilEndOfTurnEffects, e => e.StartsWith("BOMB_REBUILD:"));
         Assert.Equal(1, CoreRuleEngine.ReadBombRebuild(marker)!.BombCount);
         await game.Replay();

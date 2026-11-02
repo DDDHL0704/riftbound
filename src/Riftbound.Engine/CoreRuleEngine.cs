@@ -33823,15 +33823,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state,
             stackItem.ControllerId,
             targetObjectId,
-            damageAmount);
+            damageAmount, stackItem);
     }
 
-    private static int ApplySpellSkillDamageBonuses(MatchState state, string controllerId, string? targetObjectId, int damageAmount)
+    private static int ApplySpellSkillDamageBonuses(MatchState state, string controllerId, string? targetObjectId,
+        int damageAmount, StackItemState? sourceItem = null)
     {
         if (damageAmount < 0) return damageAmount;
         // Reuse the current controlled field sources already read for a
         // distributed pool. That pool applies its bonuses separately, once.
-        var controllerBonus = DistributionBonuses(state, controllerId, null).Sum(b => b.Amount);
+        var controllerBonus = DistributionBonuses(state, controllerId, null).Sum(b => b.Amount)
+            + EquipmentSkillDamageBonus(state, controllerId, sourceItem);
         return ApplyBattlefieldTargetSpellSkillDamageBonus(state, targetObjectId, checked(damageAmount + controllerBonus));
     }
 

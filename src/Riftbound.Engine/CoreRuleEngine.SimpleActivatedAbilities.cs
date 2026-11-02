@@ -513,7 +513,7 @@ public sealed partial class CoreRuleEngine
             if (IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, target, ability)
                 && item.TargetGenerations![target] == cards[target].ObjectGeneration) {
                 var destroyed = new HashSet<string>(StringComparer.Ordinal);
-                var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, spec.BattlefieldUnitDamage);
+                var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, spec.BattlefieldUnitDamage, item);
                 var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target, amount, destroyed,
                     state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new("DAMAGE_APPLIED", "主动技能造成伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));

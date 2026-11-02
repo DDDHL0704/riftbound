@@ -3258,6 +3258,21 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (Regex.IsMatch(segment, @"^只要我处于法术对决中[，,]\s*你的法术便具有\{\{反应\}\}[。.]?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitInSpellDuelFriendlySpellsReaction,
+                    segment, BehaviorImplementationStatuses.Implemented,
+                    "此单位位于当前法术对决的战场时，控制者的法术获得反应。"));
+                continue;
+            }
+            var equipmentDamageBonus = Regex.Match(segment, @"^友方装备的技能造成([0-9]+)点额外伤害[。.]?$", RegexOptions.CultureInvariant);
+            if (equipmentDamageBonus.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.FriendlyEquipmentSkillDamageBonus,
+                    segment, BehaviorImplementationStatuses.Implemented, "友方装备技能的伤害加成。",
+                    int.Parse(equipmentDamageBonus.Groups[1].Value, CultureInfo.InvariantCulture)));
+                continue;
+            }
             if (segment.Contains("如果你将召出符文，则改为召出同等数量的符文，外加一枚休眠的符文", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.ControllerRuneCallExtraExhausted,
