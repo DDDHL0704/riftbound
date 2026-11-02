@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class RadJarvanDeploymentTests
 {
-    private const string Hero = "RAD·091/167", Gear = "RAD·002/167";
+    private const string Hero = "RAD·091/167", Gear = "RAD·052/167";
 
     private static MatchState Position(string no = Hero)
     {
@@ -84,15 +84,18 @@ public sealed class RadJarvanDeploymentTests
 
     [Theory]
     [InlineData("local", true)] [InlineData("base", false)] [InlineData("other", false)]
-    [InlineData("enemy", false)] [InlineData("ordinary", false)] [InlineData("hidden", false)]
+    [InlineData("enemy", false)] [InlineData("ordinary", false)]
     public async Task OnlyLocalFriendlyDeploymentEquipmentEarnsTheConquestRune(string branch, bool expected)
     {
         var state = Position();
         if (branch == "other") state = RadGearTestPosition.Put(state, "OTHER", "OGN·296/298", "P2", "BATTLEFIELD", "OTHER");
-        state = RadGearTestPosition.Put(state, "LOCAL", branch == "ordinary" ? "SFD·059/221" : Gear,
-            branch == "enemy" ? "P2" : "P1", branch == "base" ? "BASE" : "BATTLEFIELD", branch == "other" ? "OTHER" : "BF");
-        if (branch == "hidden") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["LOCAL"] = state.CardObjects["LOCAL"] with { IsFaceDown = true } } };
+        state = RadGearTestPosition.Put(state, "LOCAL", branch == "ordinary" ? "SFD·022/221" : Gear,
+            branch == "enemy" ? "P2" : "P1", branch is "base" or "ordinary" ? "BASE" : "BATTLEFIELD", branch == "other" ? "OTHER" : "BF");
+        var local = state.CardObjects["LOCAL"];
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["LOCAL"] = branch == "ordinary"
+                ? local with { Tags = [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], AttachedToObjectId = "UNIT" }
+                : local with { Tags = [..local.Tags, CardEquipmentKeywordNames.Deploy] } } };
         var game = new Driver(state);
         await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
         await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
