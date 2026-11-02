@@ -6139,7 +6139,8 @@ public sealed partial class MatchSession : IMatchSession
                     command.ChampionCardNo,
                     command.MainDeck,
                     command.RuneDeck,
-                    command.Battlefields));
+                    command.Battlefields,
+                    command.AdditionalLegendCardNos));
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
                 var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat);
                 if (!validation.IsValid)

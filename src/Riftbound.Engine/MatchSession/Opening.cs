@@ -164,7 +164,8 @@ public sealed partial class MatchSession
             && string.Equals(left.ChampionCardNo, right.ChampionCardNo, StringComparison.Ordinal)
             && left.MainDeck.SequenceEqual(right.MainDeck, StringComparer.Ordinal)
             && left.RuneDeck.SequenceEqual(right.RuneDeck, StringComparer.Ordinal)
-            && left.Battlefields.SequenceEqual(right.Battlefields, StringComparer.Ordinal);
+            && left.Battlefields.SequenceEqual(right.Battlefields, StringComparer.Ordinal)
+            && (left.AdditionalLegendCardNos ?? []).SequenceEqual(right.AdditionalLegendCardNos ?? [], StringComparer.Ordinal);
     }
 
     private static OfficialOpeningBuildResult BuildOfficialOpeningState(

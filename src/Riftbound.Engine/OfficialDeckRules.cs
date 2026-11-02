@@ -7,7 +7,9 @@ public sealed record OfficialDecklist(
     string ChampionCardNo,
     IReadOnlyList<string> MainDeck,
     IReadOnlyList<string> RuneDeck,
-    IReadOnlyList<string> Battlefields);
+    IReadOnlyList<string> Battlefields,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? AdditionalLegendCardNos = null);
 
 public sealed record OfficialDeckValidationResult(
     bool IsValid,
@@ -55,8 +57,10 @@ public static class OfficialDeckValidator
         var mainDeck = NormalizeList(decklist.MainDeck);
         var runeDeck = NormalizeList(decklist.RuneDeck);
         var battlefields = NormalizeList(decklist.Battlefields);
+        var additionalLegends = NormalizeList(decklist.AdditionalLegendCardNos);
 
         foreach (var cardNo in mainDeck.Concat(runeDeck).Concat(battlefields)
+            .Concat(additionalLegends)
             .Append(legendCardNo).Append(championCardNo).Distinct(StringComparer.Ordinal))
         {
             if (cardsByNo.TryGetValue(cardNo, out var card) && !ChinaStandardBanList.IsAllowed(card, format))
@@ -68,6 +72,7 @@ public static class OfficialDeckValidator
 
         var legend = RequireCard(cardsByNo, legendCardNo, "legendCardNo", errors);
         var champion = RequireCard(cardsByNo, championCardNo, "championCardNo", errors);
+        ValidateAdditionalLegends(cardsByNo, mainDeck, additionalLegends, legend, errors);
 
         if (legend is not null && !string.Equals(legend.CardCategoryName, "传奇", StringComparison.Ordinal))
         {
@@ -123,7 +128,28 @@ public static class OfficialDeckValidator
             Normalize(decklist.ChampionCardNo),
             NormalizeList(decklist.MainDeck),
             NormalizeList(decklist.RuneDeck),
-            NormalizeList(decklist.Battlefields));
+            NormalizeList(decklist.Battlefields),
+            NormalizeList(decklist.AdditionalLegendCardNos) is { Count: > 0 } choices ? choices : null);
+    }
+
+    private static void ValidateAdditionalLegends(IReadOnlyDictionary<string, OfficialCard> cardsByNo,
+        IReadOnlyList<string> mainDeck, IReadOnlyList<string> choices, OfficialCard? startingLegend, List<string> errors)
+    {
+        var cards = mainDeck.Where(cardsByNo.ContainsKey).Select(no => cardsByNo[no]).ToArray();
+        var names = cards.Select(card => card.CardName).ToHashSet(StringComparer.Ordinal);
+        var maximum = cards.Select(card => AdditionalLegendSelectionParser.Parse(card.CardEffect))
+            .OfType<AdditionalLegendSelectionSpec>().Where(spec => names.Contains(spec.RequiredCardName))
+            .Select(spec => spec.MaximumCount).DefaultIfEmpty(0).Max();
+        if (choices.Count > maximum) errors.Add($"此卡组最多可额外选择 {maximum} 名传奇。");
+        var selectedNames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var no in choices)
+        {
+            var card = RequireCard(cardsByNo, no, "additionalLegendCardNos", errors);
+            if (card is null) continue;
+            if (card.CardCategoryName != "传奇") errors.Add($"额外传奇 {no} 必须是一张传奇牌。");
+            if (!selectedNames.Add(card.CardName)) errors.Add("额外选择的传奇必须具有不同的卡牌名称。");
+            if (card.CardName == startingLegend?.CardName) errors.Add("额外传奇不能与起始传奇具有相同的卡牌名称。");
+        }
     }
 
     private static void ValidateMainDeck(
