@@ -90,6 +90,13 @@ public sealed class DisarmCopiedSourceContinuityTests
                 Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
                     StackItems = [remaining with { FieldContext = remaining.FieldContext! with { Disarm = forged } }] }));
             }
+            // Both receipts are in the past, but they still describe the same
+            // captured grant and must not let recovery count it twice.
+            Assert.True(receipt.DepartedTick > captured.CapturedTick + 1);
+            var repeated = copied with { CeasedSource = receipt with { DepartedTick = captured.CapturedTick + 1 } };
+            var duplicated = captured with { Contributions = [..captured.Contributions, repeated] };
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
+                StackItems = [remaining with { FieldContext = remaining.FieldContext! with { Disarm = duplicated } }] }));
         }
 
         await game.Top();

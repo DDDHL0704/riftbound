@@ -95,7 +95,9 @@ public sealed partial class CoreRuleEngine
                 && (g.FriendlyGrant ? TryPredictEnteredFace(c.CardNo, out var entered)
                     && spec.FriendlyGrants.Any(grant => grant.Value == g.Value && entered.Tags.Contains(grant.RequiredUnitTag))
                     : spec.PrintedValue == g.Value))
-            && d.Contributions.Select(MatchStateHasher.HashValue).Distinct(StringComparer.Ordinal).Count() == d.Contributions.Count
+            // A departure receipt preserves a contribution; it does not give it another identity.
+            && d.Contributions.Select(g => MatchStateHasher.HashValue(g with { CeasedSource = null }))
+                .Distinct(StringComparer.Ordinal).Count() == d.Contributions.Count
             && c.SourceLocation is not null && !string.IsNullOrWhiteSpace(c.BattlefieldId)
             && c.Origin is null && c.PaidUnitTrigger is null && c.StunObserver is null && c.SelfAction is null
             && c.AttackMightDamage is null && c.RecycledBoon is null && c.EmpoweredTransition is null
