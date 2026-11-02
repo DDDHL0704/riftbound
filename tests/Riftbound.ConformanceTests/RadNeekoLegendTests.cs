@@ -321,7 +321,12 @@ public sealed class RadNeekoLegendTests
         await game.Act("P1", new RecycleRuneCommand(runes[0]));
         await game.Act("P1", new PlayCardCommand("HUNT", "UNL-184/219", ["HOST"])); await game.Top();
         await game.Act("P1", new PlayCardCommand("HOST", Neeko, [], Destination: "BATTLEFIELD:F"));
-        var source = Assert.Single(game.State.StackItems).PermanentPlaySource!;
+        var playSkill = Assert.Single(game.State.StackItems);
+        var playReceipt = Assert.Single(game.State.CardPlays.Resolved, play => play.PlayId == playSkill.StackItemId);
+        Assert.Equal(Neeko, playReceipt.CardNo);
+        Assert.Equal("P1", playReceipt.PlayerId);
+        Assert.Equal("HOST", playReceipt.Source.ObjectId);
+        var source = playReceipt.Source;
         string? originalLegend = null;
         if (!beforeResolution)
         {
@@ -336,7 +341,10 @@ public sealed class RadNeekoLegendTests
         Assert.Equal(source.Generation, game.State.CardObjects["HOST"].ObjectGeneration);
         Assert.Equal("P1", Assert.Single(game.State.StackItems).ControllerId);
         if (beforeResolution)
-            Assert.Equal(source, Assert.Single(game.State.StackItems).PermanentPlaySource);
+        {
+            Assert.Equal(playSkill.StackItemId, Assert.Single(game.State.StackItems).StackItemId);
+            Assert.Equal(playReceipt, Assert.Single(game.State.CardPlays.Resolved, play => play.PlayId == playSkill.StackItemId));
+        }
         await game.ColdCheckpoint(); await game.Top();
         var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
         if (originalLegend is not null) Assert.Equal(originalLegend, legend);
