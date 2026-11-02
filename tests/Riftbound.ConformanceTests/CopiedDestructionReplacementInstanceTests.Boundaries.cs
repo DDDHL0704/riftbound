@@ -143,6 +143,10 @@ public sealed partial class CopiedDestructionReplacementInstanceTests
 
     private static async Task SetUp(Driver run, string no, IReadOnlyList<string> songs, bool zhonya = true)
     {
+        // Audit the ordinary unit and paid-copy preparation once as a complete
+        // history. Subsequent detach, generation, control and replacement actions
+        // retain their per-command cold recovery.
+        run.RecoverAfterEveryCommand = false;
         await run.Act("P1", new PlayCardCommand("S", no, [], Destination: "BATTLEFIELD:HOME"));
         foreach (var id in new[] { "FIELD-1", "FIELD-2", "BASE-1", "BASE-2" })
             await run.Act("P1", new PlayCardCommand(id, "OGN·210/298", [], Destination: id.StartsWith("FIELD", StringComparison.Ordinal) ? "BATTLEFIELD:HOME" : "BASE"));
@@ -152,6 +156,8 @@ public sealed partial class CopiedDestructionReplacementInstanceTests
             await run.Act("P1", new AssembleEquipmentCommand(gear, "S", ["ASSEMBLE_GREEN"])); await run.Top();
             Assert.Equal(no, run.State.CardObjects[gear].AttachedRuleText!.CardNo);
         }
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
     }
     private static async Task FundOpponent(Driver run)
     {
