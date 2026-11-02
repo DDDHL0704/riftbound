@@ -162,11 +162,11 @@ public sealed class RadFaceDownPlayHeroTests
             game.State.Tick, 0, p.Value, game.State.Tick, 0, prompts[p.Key]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick, 0, [], game.State);
         Assert.Equal("HOST", Assert.IsType<Dictionary<string, object?>>(Assert.Single(
-            snapshots["P1"].Stack.Where(row => row is Dictionary<string, object?> view && Equals(view["cardNo"], no))))["sourceObjectId"]);
+            snapshots["P1"].Stack, row => row is Dictionary<string, object?> view && Equals(view["cardNo"], no)))["sourceObjectId"]);
         foreach (var snapshot in new[] { snapshots["P2"], spectator.SpectatorSnapshot })
         {
             var row = Assert.IsType<Dictionary<string, object?>>(Assert.Single(
-                snapshot.Stack.Where(row => row is Dictionary<string, object?> view && Equals(view["cardNo"], no))));
+                snapshot.Stack, row => row is Dictionary<string, object?> view && Equals(view["cardNo"], no)));
             Assert.Equal("HIDDEN", row["sourceObjectId"]);
             Assert.Equal("HIDDEN", row["sourceVisibility"]);
             Assert.Equal("STANDBY_PLAYED_SELF_MIGHT", row["effectKind"]);
