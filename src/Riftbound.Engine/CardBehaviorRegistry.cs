@@ -13,6 +13,7 @@ public sealed record UnitEventModeSpec(string Id, string Label, string Effect, i
     string? CreatedTokenFactoryCardNo = null);
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
+public sealed record MovementImposedCostSpec(int ManaPerMove = 0, int PowerPerMove = 0, int PowerPerExtraUnit = 0);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -402,7 +403,8 @@ public sealed record CardBehaviorDefinition(
     bool StatusEffectUsesTargetCurrentPower = false,
     int BattlefieldWinDrawCount = 0,
     int ControllerCardPlayDrawCount = 0,
-    DrawHandThresholdSpec? ControllerDrawHandThreshold = null)
+    DrawHandThresholdSpec? ControllerDrawHandThreshold = null,
+    MovementImposedCostSpec? MovementImposedCost = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -7969,7 +7971,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4, MovementImposedCost: new(PowerPerExtraUnit: 1)),
         new(
             "UNL-169/219",
             "艾希",
@@ -9648,6 +9650,11 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        // Shared movement payment is staged first; this printing stays unadmitted
+        // until all effect-movement paths and equipment Last Breath are covered.
+        new("RAD·062/167", "重力场", 5, "GRAVITY_FIELD_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
+            MovementImposedCost: new(ManaPerMove: 1, PowerPerMove: 1)),
         new("RAD·136/167", "码头囚笼", 6, "DOCKSIDE_CAGE_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署", HeldPlaysLinkedExile: true,
             UnitEventAbility: new("PLAY", "BANISH_LINKED_UNIT_HERE")),

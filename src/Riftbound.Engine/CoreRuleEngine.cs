@@ -335,6 +335,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (command is MoveUnitCommand moveUnitCommand)
         {
+            // One standard mover pays the same instruction-level fees as a
+            // group. The per-unit validator itself remains payment-free.
+            if (moveUnitCommand.SourceObjectIds is not { Count: > 0 }
+                && moveUnitCommand.Destination is { } imposedDestination
+                && imposedDestination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                && (!StandardMovementCostRules.TryCost(state, intent.PlayerId, imposedDestination[12..], 1,
+                        out var imposedMana, out var imposedPower) || imposedMana > 0 || imposedPower > 0))
+                return Complete(ResolveStandardMoveGroup(state, intent,
+                    moveUnitCommand with { SourceObjectIds = [moveUnitCommand.SourceObjectId] }));
             return Complete(moveUnitCommand.SourceObjectIds is { Count: > 0 }
                 ? ResolveStandardMoveGroup(state, intent, moveUnitCommand)
                 : ResolveMoveUnit(state, intent, moveUnitCommand));
