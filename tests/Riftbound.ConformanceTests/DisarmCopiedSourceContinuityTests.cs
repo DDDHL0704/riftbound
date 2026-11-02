@@ -15,6 +15,7 @@ public sealed class DisarmCopiedSourceContinuityTests
         var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["HOST"]));
         await game.Top();
+        await game.Top(); // The copied unit enters through its own pending play.
         await CloseEmptyDuel(game);
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         var item = Assert.Single(game.State.StackItems);
@@ -48,6 +49,7 @@ public sealed class DisarmCopiedSourceContinuityTests
         var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["HOST"]));
         await game.Top();
+        await game.Top(); // The copied unit enters through its own pending play.
         await CloseEmptyDuel(game);
         var token = game.State.CardObjects[tokenId];
         Assert.Equal("RAD·055/167", token.CardNo);
@@ -74,6 +76,20 @@ public sealed class DisarmCopiedSourceContinuityTests
             var remaining = Assert.Single(game.State.StackItems);
             Assert.Equal(skill.StackItemId, remaining.StackItemId);
             Assert.Equal(expectedAmount, remaining.FieldContext!.Disarm!.Contributions.Sum(contribution => contribution.Value));
+            var captured = remaining.FieldContext!.Disarm!;
+            var copied = Assert.Single(captured.Contributions, contribution => contribution.Source.ObjectId == tokenId);
+            var receipt = Assert.IsType<CeasedSelfAbilitySource>(copied.CeasedSource);
+            foreach (var invalidReceipt in new CeasedSelfAbilitySource?[] {
+                null,
+                receipt with { Source = new("NEVER-ENTERED-TOKEN", receipt.Source.Generation) },
+                receipt with { DepartedTick = game.State.Tick + 1 }
+            })
+            {
+                var forged = captured with { Contributions = captured.Contributions.Select(contribution => contribution == copied
+                    ? contribution with { CeasedSource = invalidReceipt } : contribution).ToArray() };
+                Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
+                    StackItems = [remaining with { FieldContext = remaining.FieldContext! with { Disarm = forged } }] }));
+            }
         }
 
         await game.Top();
