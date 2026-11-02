@@ -145,7 +145,8 @@ public sealed partial class LastBreathDrawBoundaryTests
                     initial = Add(initial, id, "OGN·219/298", "P1", "GRAVEYARD");
             }
         }
-        var game = new Driver(initial);
+        // Recover the complete preparation once before control transfer or death.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         // Reserve the two reaction-draw runes until P2's turn.
         await game.TapRunes("P1", Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i));
         if (!transferControl) await game.Act("P1", new PlayCardCommand("UNIT", sourceCardNo, []));
@@ -155,6 +156,8 @@ public sealed partial class LastBreathDrawBoundaryTests
             await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
         }
         await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
+        await game.ColdCheckpoint();
+        game.RecoverAfterEveryCommand = true;
         if (transferControl)
         {
             for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
