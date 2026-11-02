@@ -11,12 +11,14 @@ public sealed class BattleLimitedExpiryDamageTests
     [InlineData(false)] [InlineData(true)]
     public async Task ActualResultAndControlResponsesKeepNewDamageUntilExpiryRunsNormalLethalCleanup(bool duringControl)
     {
-        var initial=Position(duringControl); var run=new Driver(initial);
+        // Restore the paid setup once before the actual battle begins.
+        var initial=Position(duringControl); var run=new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1",new PlayCardCommand("HOST","OGN·210/298",[],Destination:"BATTLEFIELD:HOME")); await run.Act("P1",new EndTurnCommand());
         var funds=Enumerable.Range(1,12).Select(i=>"P2-FUND-"+i).ToArray(); await run.Act("P2",new TapRuneCommand(funds[0],funds));
         await run.Act("P2",new RecycleRuneCommand("P2-ORANGE"));
         await run.Act("P2",new PlayCardCommand("ATTACKER","SFD·110/221",[],Destination:"BASE"));
         await run.Act("P2",new PlayCardCommand("READY","OGN·146/298",["ATTACKER"])); await run.Top();
+        await run.ColdCheckpoint(); run.RecoverAfterEveryCommand = true;
         await run.Act("P2",new MoveUnitCommand("ATTACKER","BASE","BATTLEFIELD:HOME",[])); await run.Top();
         Assert.Equal(6,run.State.CardObjects["ATTACKER"].Power);
         if(run.State.FocusPlayerId!="P1") await run.Act(run.State.FocusPlayerId!,new PassFocusCommand());

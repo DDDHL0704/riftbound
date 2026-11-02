@@ -88,8 +88,12 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             Assert.Equal(12, Runes().Length); Assert.Equal(2, purple.Length);
             var manaRunes = Runes().Except(purple).ToArray();
+            // Recover both resource-preparation commands before the actual paid spell.
+            verifyColdRecoveryAfterEveryCommand = false;
             await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
             await Act(actor, new RecycleRuneCommand(purple[0], purple));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.Equal(10, State().RunePools[actor].Mana);
             var remainingDeck = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [pirate])); await Drain();
