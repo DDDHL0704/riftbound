@@ -77,7 +77,7 @@ internal static class AttachedRuleTextRules
             yield return new($"GRANTED:{ability.AbilityId}:{source.ObjectId}:{source.ObjectGeneration}", ability.SourceCardNo);
         }
 
-        foreach (var instance in Instances(state, source).Where(i => (i.Origin is null || ability.SupportsCopiedRuleText)
+        foreach (var instance in Instances(state, source).Where(i => (i.Origin is null || ability.SupportsCopiedRuleText || ability.SimpleEffect is not null)
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, i.CardNo)))
         {
             yield return instance;

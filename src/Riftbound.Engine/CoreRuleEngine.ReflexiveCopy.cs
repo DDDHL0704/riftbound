@@ -34,7 +34,8 @@ public sealed partial class CoreRuleEngine
             || source.Generation <= target.ObjectGeneration)
             && context.Recipients.All(r => !state.CardObjects.TryGetValue(r.ObjectId, out var card)
             || r.Generation <= card.ObjectGeneration && (r.Generation != card.ObjectGeneration
-                || card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo && card.CardNo == P6TokenFactoryCatalog.ImageTokenCardNo));
+                || (card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo || card.TokenFactoryCardNo == "SFD·T01")
+                    && card.CardNo == card.TokenFactoryCardNo));
 
     internal static bool ValidReflexiveCopyStack(MatchState state, StackItemState item)
         => (item.ReflexiveCopy is not { CopySourceIsSelf: true } self
@@ -130,10 +131,12 @@ public sealed partial class CoreRuleEngine
             var transformed = copied?.CardNo is { } face ? CopyFaceTimeline.ChangeFace(image, face, state.Tick + 1) : image;
             cards[image.ObjectId] = transformed with {
                 ManaCost = copied?.ManaCost ?? image.ManaCost,
-                Power = image.Power + (copied?.Power ?? 0),
+                Power = copied is null ? image.Power : image.Power + copied.Power
+                    - (P6TokenFactoryCatalog.TryGetByCardNo(image.TokenFactoryCardNo ?? "", out var factory) ? factory.DefaultPower : 0),
                 GrantedTags = context.CopySourceIsSelf ? image.GrantedTags
                     : (image.GrantedTags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
-                Tags = image.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag)
+                Tags = image.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag
+                    && (copied is null || image.TokenFactoryCardNo != "SFD·T01" || t != "机械" || (image.GrantedTags ?? []).Contains(t)))
                     .Concat(copied?.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag) ?? [])
                     .Concat(context.CopySourceIsSelf ? [] : [CardObjectTags.Ephemeral]).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
             };

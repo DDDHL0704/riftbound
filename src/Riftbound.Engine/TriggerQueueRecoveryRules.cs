@@ -11,13 +11,17 @@ internal static class TriggerQueueRecoveryRules
         var ticks = state.TriggerQueue.Where(t => t.EnqueuedAtTick is not null)
             .Select(t => t.EnqueuedAtTick!.Value).ToArray();
         return ticks.All(t => t > 0 && t <= state.Tick)
-            && ticks.SequenceEqual(ticks.Order());
+            && ticks.SequenceEqual(ticks.Order())
+            && state.TriggerQueue.Where(t => t.TriggeredByEventKind == CoreRuleEngine.StandardMovementExhaustionCostEvent)
+                .All(t => t.EnqueuedAtTick is not null
+                    && (t.UnitEvent?.Timing is "BECAME_EXHAUSTED" or "ANOTHER_FRIENDLY_UNIT_EXHAUSTED"
+                        || t.InsightContext is { Kind: "EXHAUSTED" }));
     }
 
     internal static bool ValidControllerOrderConfirmations(MatchState state)
     {
         if (!state.TriggerQueue.Any(t => t.ControllerOrderConfirmed)) return true;
-        var choices = state.TriggerQueue.GroupBy(t => (t.EnqueuedAtTick, t.ControllerId, ResultInstruction: t.TriggeredByEventKind == "BATTLE_RESULT_DETERMINED"))
+        var choices = state.TriggerQueue.GroupBy(t => (t.EnqueuedAtTick, t.ControllerId, Instruction: CoreRuleEngine.TriggerInstructionOrder(t)))
             .Where(group => group.Count() > 1).Select(group => group.Key.ControllerId).Distinct(StringComparer.Ordinal).ToHashSet();
         var confirmed = state.TriggerQueue.Where(t => t.ControllerOrderConfirmed)
             .Select(t => t.ControllerId).Distinct(StringComparer.Ordinal).ToHashSet();

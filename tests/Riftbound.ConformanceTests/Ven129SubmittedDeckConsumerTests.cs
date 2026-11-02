@@ -46,7 +46,8 @@ public sealed class Ven129SubmittedDeckConsumerTests
             Assert.All(damage, e => { Assert.Equal(6, e.Event.Payload["basePower"]); Assert.Equal(6, e.Event.Payload["combatPower"]); Assert.Equal(0, e.Event.Payload["keywordBonus"]); });
             Assert.Equal(6, game.Might(actor, unit)); Assert.Equal(6, game.State.CardObjects[unit].Power); Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
             Assert.False(game.State.CardObjects[unit].IsAttacking); Assert.False(game.State.CardObjects[unit].IsDefending); Assert.False(game.State.CardObjects[unit].IsEmpowered);
-            Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
+            // FinishCombat cold-recovers every accepted command, including battle closure.
+            Common.AssertTwelveEach(game.State);
         }
         finally { await game.Save("ven129-submitted-real-one-ally-" + actor); }
     }

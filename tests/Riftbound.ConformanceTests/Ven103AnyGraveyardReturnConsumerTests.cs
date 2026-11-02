@@ -310,7 +310,7 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
         for (var i = 0; i < 3; i++) initial = Put(initial, "REPLAY-RUNE-" + i, "UNL-R06", "P2", "BASE");
         var run = new Driver(initial); await run.Act("P2", new ActivateAbilityCommand("ENEMY", "EMPOWER:0:0", [])); await run.Top();
         Assert.True(run.State.CardObjects["ENEMY"].IsEmpowered); await run.Act("P2", new EndTurnCommand());
-        for (var i = 0; i < 6; i++) await run.Act("P1", new TapRuneCommand("DEATH-RUNE-" + i));
+        await run.Act("P1", new TapRuneCommand("DEATH-RUNE-0", ["DEATH-RUNE-0", "DEATH-RUNE-1", "DEATH-RUNE-2", "DEATH-RUNE-3", "DEATH-RUNE-4", "DEATH-RUNE-5"]));
         await run.Act("P1", new PlayCardCommand("STRIKE", "VEN·008", ["ENEMY"],
             OptionalCosts: ["DISCARD_HAND_CARD:UNIT", "RECYCLE_RUNE:DEATH-RUNE-0", "RECYCLE_RUNE:DEATH-RUNE-1"]));
         Assert.Equal(2, run.Events().Last(e => e.Event.Kind == "COST_PAID").Event.Payload["spellshieldTaxPower"]); await run.Top();
@@ -325,7 +325,7 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
         Assert.Equal(2, run.State.CardObjects["ENEMY"].ObjectGeneration); HiddenFromOtherPlayerAndSpectator(run.State, "P2", "ENEMY");
         Assert.Equal("P2", Assert.Single(Returns(run)).Event.Payload["playerId"]);
         await run.Act("P1", new EndTurnCommand());
-        for (var i = 0; i < 3; i++) await run.Act("P2", new TapRuneCommand("REPLAY-RUNE-" + i));
+        await run.Act("P2", new TapRuneCommand("REPLAY-RUNE-0", ["REPLAY-RUNE-0", "REPLAY-RUNE-1", "REPLAY-RUNE-2"]));
         await run.Act("P2", new PlayCardCommand("ENEMY", "VEN·122", [], Destination: "BASE"));
         if (run.State.StackItems.Count > 0) await run.Top();
         var replayed = run.State.CardObjects["ENEMY"]; Assert.Equal(3, replayed.ObjectGeneration); Assert.Equal(3, replayed.Power);

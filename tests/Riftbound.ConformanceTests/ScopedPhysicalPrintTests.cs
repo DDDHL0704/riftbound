@@ -81,20 +81,23 @@ public sealed class ScopedPhysicalPrintTests
         => Assert.False(TryCreate(cardNo, out _));
 
     [Theory]
-    [InlineData("RAD·038/167")]
-    [InlineData("RAD·SP1/005")]
-    [InlineData("RAD·SP4/005")]
-    public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string cardNo)
+    [InlineData("HAND")]
+    [InlineData("CHAMPION")]
+    [InlineData("BANISHED")]
+    public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string zone)
     {
+        const string cardNo = "RAD·SP4/005";
         var card = new CardObjectState("CARD", power: 3, cardNo: cardNo, ownerId: "P1", controllerId: "P1",
             tags: [CardObjectTags.UnitCard]);
         var state = new MatchState("SCOPED-PRINT-PLAY-BLOCKED", 0, 3, "P1",
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(100, 100), ["P2"] = RunePool.Empty },
-            playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty with { Hand = ["CARD"] }, ["P2"] = PlayerZones.Empty },
+            playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty with {
+                Hand = zone == "HAND" ? ["CARD"] : [], ChampionZone = zone == "CHAMPION" ? ["CARD"] : [],
+                Banished = zone == "BANISHED" ? ["CARD"] : [] }, ["P2"] = PlayerZones.Empty },
             cardObjects: new Dictionary<string, CardObjectState> { ["CARD"] = card },
-            objectLocations: new Dictionary<string, ObjectLocationState> { ["CARD"] = new("P1", "HAND") });
+            objectLocations: new Dictionary<string, ObjectLocationState> { ["CARD"] = new("P1", zone) });
         var before = MatchStateHasher.Hash(state);
         var result = await new CoreRuleEngine().ResolveAsync(state,
             new("scoped-print-play-blocked", "P1", CommandTypes.PlayCard), new PlayCardCommand("CARD", cardNo, []), default);

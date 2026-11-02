@@ -68,7 +68,9 @@ public sealed class CanonicalAreaGuardianOpeningTests
                 await game.Act("P1", new PlayCardCommand(id, "SFD·051/221", [])); await Recycle(game, "P1", "UNL-R02");
                 await game.Act("P1", new AssembleEquipmentCommand(id, host, ["ASSEMBLE_GREEN"])); await game.Top();
             }
-            Assert.Equal(4, game.State.RunePools["P1"].Mana); Assert.Equal(3, game.Might("P1", host)); await game.ColdCheckpoint();
+            Assert.Equal(4, game.State.RunePools["P1"].Mana); Assert.Equal(3, game.Might("P1", host));
+            // Restore both paid armies together below, before moving to the battlefield.
+            // Area-skill, replacement and nested-draw boundaries keep their own checkpoints.
             await game.Act("P1", new EndTurnCommand()); Assert.Equal("P2", game.State.TurnPlayerId);
             Assert.Equal(0, game.State.RunePools["P2"].Mana); await game.Tap("P2"); Assert.Equal(12, game.State.RunePools["P2"].Mana);
             var source = game.Hand("P2", "OGN·190/298").First(); await Recycle(game, "P2", "UNL-R05");
