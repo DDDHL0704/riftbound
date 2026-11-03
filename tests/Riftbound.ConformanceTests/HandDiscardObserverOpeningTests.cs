@@ -86,7 +86,7 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         var spell = run.State.PlayerZones[actor].Hand.First(id => run.State.CardObjects[id].CardNo == Spell);
         var discarded = run.State.PlayerZones[actor].Hand.First(id => id != spell);
         Assert.Equal(5, EffectivePower(run.State, actor, source));
-        var before = run.State; var start = run.Frame().Events.Last().Sequence;
+        var before = run.State; var start = run.Events().Last().Sequence;
         var command = new PlayCardCommand(spell, Spell, [source], OptionalCosts: ["DISCARD_HAND_CARD:" + discarded]);
         await run.Cold(); await Save(run, actor, format, "before-cost");
         await run.Reject(opponent, command);
@@ -104,7 +104,7 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         Assert.Equal(spell, ability.HandDiscardObserver.DiscardSourceObjectId);
         Assert.Equal(ability.StackItemId, run.State.StackItems.Last().StackItemId);
         Assert.Single(run.State.StackItems, i => i.SourceObjectId == spell);
-        Assert.DoesNotContain(run.Frame().Events.Where(e => e.Sequence > start), e => e.Event.Kind == "TRIGGER_RESOLVED");
+        Assert.DoesNotContain(run.Events().Where(e => e.Sequence > start), e => e.Event.Kind == "TRIGGER_RESOLVED");
         await run.Cold(); await Save(run, actor, format, "pending-skill");
         var persisted = Persist(run.Frame());
         // Loading this exact frame through the fresh production registry below
@@ -148,7 +148,7 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         Assert.Equal(6, run.State.CardObjects[source].Power); Assert.Equal(5, run.State.CardObjects[source].Damage);
         Assert.Equal(6, EffectivePower(run.State, actor, source));
         Assert.Contains(spell, run.State.PlayerZones[actor].Graveyard);
-        var events = run.Frame().Events.Where(e => e.Sequence > start).ToArray();
+        var events = run.Events().Where(e => e.Sequence > start).ToArray();
         Assert.Single(events, e => e.Event.Kind == "CARD_DISCARDED");
         var resolved = Assert.Single(events, e => e.Event.Kind == "TRIGGER_RESOLVED"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), source));

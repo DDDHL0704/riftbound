@@ -48,11 +48,16 @@ public sealed class MandatoryRecastOpeningTests
             Assert.Empty(initial.Seats); Assert.Empty(initial.CardObjects); Assert.Equal(0, initial.Tick);
             await session.EnsurePlayerAsync("P1", default); await Cold();
             await session.EnsurePlayerAsync("P2", default); await Cold();
+            // Recover the accepted deck submissions, readiness and mulligans at
+            // the completed opening. Payment/refusal stages keep their recovery.
+            verifyColdRecoveryAfterEveryCommand = false;
             foreach (var player in new[] { "P1", "P2" })
                 await Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
             await Act("P1", new ReadyCommand()); await Act("P2", new ReadyCommand());
             await Act(State().ActivePlayerId, new MulliganCommand([]));
             await Act(State().OpeningSecondActionPlayerId!, new MulliganCommand([]));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             var unitNo = mode == "zero" ? FreeUnit : PaidUnit;
             // Natural draws and rune channeling are setup for the payment assertion. Replaying the
             // entire accepted action log after every EndTurn makes this fixture quadratic in the

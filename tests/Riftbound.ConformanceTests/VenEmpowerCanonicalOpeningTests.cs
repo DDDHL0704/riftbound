@@ -266,7 +266,17 @@ public sealed class VenEmpowerCanonicalOpeningTests
         internal Task RejectCoordinatedForgery(string label, MatchState forged)
             => RejectCoordinatedForgeries((label, forged));
 
-        internal async Task RejectCoordinatedForgeries(params (string Label, MatchState Forged)[] attempts)
+        internal Task RejectCoordinatedForgeries(params (string Label, MatchState Forged)[] attempts)
+            => RejectCoordinatedForgeriesThenRecover(attempts, ColdCheckpoint);
+
+        internal Task RejectCoordinatedForgeriesThenRepair((string Label, MatchState Forged)[] attempts,
+            string repairLabel, MatchState repairForgery)
+            // The repair test recovers this same accepted history and checks views and duplicates.
+            => RejectCoordinatedForgeriesThenRecover(attempts,
+                () => RejectCoordinatedForgeryTwiceThenRecover(repairLabel, repairForgery, verifyCheckpointPrivacy: true));
+
+        private async Task RejectCoordinatedForgeriesThenRecover((string Label, MatchState Forged)[] attempts,
+            Func<Task> recover)
         {
             Assert.NotEmpty(attempts);
             // Each forged frame gets an independent registry and full rejection audit.
@@ -289,10 +299,11 @@ public sealed class VenEmpowerCanonicalOpeningTests
                     originalStateHash = originalHash, forgedStateHash = MatchStateHasher.Hash(forged),
                     commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events), frame = decoded });
             }
-            await ColdCheckpoint();
+            await recover();
         }
 
-        internal async Task RejectCoordinatedForgeryTwiceThenRecover(string label, MatchState forged)
+        internal async Task RejectCoordinatedForgeryTwiceThenRecover(string label, MatchState forged,
+            bool verifyCheckpointPrivacy = false)
         {
             var original = Frame(); var attempted = Frame(forged);
             Assert.Empty(original.ValidationErrors); Assert.Empty(attempted.ValidationErrors);
@@ -313,13 +324,30 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Session = await registry.GetOrCreateAsync(State.RoomId, default);
             currentResult = null; Assert.Equal(3, store.Loads);
             foreach (var viewer in State.Seats.Keys) {
-                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Snapshot), MatchStateHasher.HashValue(Session.SnapshotFor(viewer)));
-                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Prompt), MatchStateHasher.HashValue(Session.PromptFor(viewer)));
+                var snapshot = Session.SnapshotFor(viewer); var prompt = Session.PromptFor(viewer);
+                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Snapshot), MatchStateHasher.HashValue(snapshot));
+                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Prompt), MatchStateHasher.HashValue(prompt));
+                if (verifyCheckpointPrivacy)
+                {
+                    Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(original.PlayerViews[viewer].Snapshot, Json), JsonSerializer.SerializeToNode(snapshot, Json)));
+                    Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(original.PlayerViews[viewer].Prompt, Json), JsonSerializer.SerializeToNode(prompt, Json)));
+                    var visible = JsonSerializer.Serialize(snapshot, Json) + JsonSerializer.Serialize(prompt, Json);
+                    foreach (var other in State.Seats.Keys.Where(p => p != viewer)) foreach (var id in Hidden(other).Where(id => !publicObjects.Contains(id)))
+                        Assert.DoesNotContain(id, visible, StringComparison.Ordinal);
+                }
+            }
+            if (verifyCheckpointPrivacy)
+            {
+                // This repaired load replaces the normal checkpoint for the same history.
+                Assert.DoesNotContain(original.Commands, command => command.CommandType.Contains("SCENARIO", StringComparison.Ordinal));
+                var publicReplay = JsonSerializer.Serialize(original.SpectatorReplayFrame, Json);
+                foreach (var id in State.Seats.Keys.SelectMany(Hidden).Where(id => !publicObjects.Contains(id))) Assert.DoesNotContain(id, publicReplay, StringComparison.Ordinal);
             }
             var previous = last!.Value; var duplicate = await Send(previous.Player, previous.Intent, previous.Command, previous.Raw);
             Assert.True(duplicate.Accepted); Assert.Empty(duplicate.Events); Assert.Equal(count, entries.Count);
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
             recoveryRejections.Add(new { label, failures, loadsAfterRepair = store.Loads, structuralErrors = attempted.ValidationErrors,
+                checkpointPrivacyVerified = verifyCheckpointPrivacy,
                 originalStateHash = hash, forgedStateHash = MatchStateHasher.Hash(forged),
                 commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events),
                 rejectedFrame = decoded, repairedFrame = store.Current });

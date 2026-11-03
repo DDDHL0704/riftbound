@@ -76,6 +76,11 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
         {peek && <span className="card__ribbon">待命</span>}
         {showStats && !hidden && <span className={`card__power${buffed ? " card__power--changed" : ""}`}>{power}</span>}
         {object && object.damage > 0 && <span className="card__damage">{object.damage}</span>}
+        {object?.isEmpowered && !hidden && (
+          <span className="card__empower" title={`强化 ${object.empowermentCount ?? 1} 层`}>
+            强{(object.empowermentCount ?? 1) > 1 ? `×${object.empowermentCount}` : ""}
+          </span>
+        )}
       </button>
     </motion.div>
   );
@@ -148,7 +153,7 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
       aria-hidden
     >
       {info.image ? <img src={info.image} alt="" /> : <div className="hoverpreview__fallback">{info.name}</div>}
-      {object && (unit || object.damage > 0 || object.isExhausted) && (
+      {object && (unit || object.damage > 0 || object.isExhausted || object.isEmpowered) && (
         <p className="hoverpreview__state">
           {unit && (
             <span>
@@ -158,6 +163,7 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
           )}
           {object.damage > 0 && <span className="hoverpreview__dmg">已受 {object.damage} 点伤害</span>}
           {object.isExhausted && <span>已横置</span>}
+          {object.isEmpowered && <span>强化 {object.empowermentCount ?? 1} 层</span>}
         </p>
       )}
       {keywords.length > 0 && glossSide && (

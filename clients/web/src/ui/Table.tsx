@@ -38,6 +38,8 @@ type HoverState = { cardNo: string; object?: GameObject; rect?: DOMRect } | null
 
 const GROUP = "__unit:";
 const DRAG_THRESHOLD = 6;
+/** Optional costs of which a play takes at most one. */
+const EXCLUSIVE_COST_PREFIXES = ["SHOWCASE:"];
 
 export type Hover = HoverState;
 
@@ -46,7 +48,10 @@ function applyChoice(pick: Pick, step: ActionStep, choiceId: string): Pick {
   const sel: Selection = { ...pick.sel, targets: [...pick.sel.targets], movements: [...(pick.sel.movements ?? [])] };
   if (step.role === "destination") sel.destination = choiceId;
   else if (step.role === "move") sel.movements!.push(choiceId);
-  else if (step.role === "cost") sel.optionalCosts = [choiceId, ...sel.optionalCosts.filter((c) => isTap(c) || isRecycle(c))];
+  // Cost steps add up when a cost takes several options; rune payments stay last.
+  else if (step.role === "cost")
+    sel.optionalCosts = [...sel.optionalCosts.filter((c) => !isTap(c) && !isRecycle(c)), choiceId, ...sel.optionalCosts.filter((c) => isTap(c) || isRecycle(c))];
+  else if (step.mode) sel.modeTargets = { ...sel.modeTargets, [step.mode]: [...(sel.modeTargets?.[step.mode] ?? []), choiceId] };
   else sel.targets.push(choiceId);
   return { ...pick, sel, step: pick.step + 1 };
 }
@@ -243,7 +248,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const legal = useMemo(() => {
     const map = new Map<string, string>();
     for (const choice of stepChoices) {
-      if (pick?.sel.targets.includes(choice.id)) continue;
+      if (pick?.sel.targets.includes(choice.id) || pick?.sel.optionalCosts.includes(choice.id)) continue;
       for (const id of choiceObjectIds(choice)) map.set(id, choice.id);
     }
     for (const id of peers) map.set(id, GROUP + id);
@@ -312,7 +317,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
   const advance = (p: Pick) => {
     if (p.step >= p.action.steps.length) {
-      if (p.action.optionalCosts.length || p.action.powerShortfall > 0) setPick(p);
+      if (p.action.optionalCosts.length || p.action.powerShortfall > 0 || p.action.variablePower) setPick(p);
       else submitPick(p);
       return;
     }
@@ -730,9 +735,13 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                 onSkip={skipStep}
                 onToggleCost={(id) => {
                   const on = pick.sel.optionalCosts.includes(id);
-                  const next = on ? pick.sel.optionalCosts.filter((c) => c !== id) : [...pick.sel.optionalCosts, id];
+                  // At most one card may be showcased (shown) per play.
+                  const exclusive = EXCLUSIVE_COST_PREFIXES.find((p) => id.startsWith(p));
+                  const kept = exclusive ? pick.sel.optionalCosts.filter((c) => !c.startsWith(exclusive)) : pick.sel.optionalCosts;
+                  const next = on ? pick.sel.optionalCosts.filter((c) => c !== id) : [...kept, id];
                   setPick({ ...pick, sel: { ...pick.sel, optionalCosts: next } });
                 }}
+                onSetCosts={(costs) => setPick({ ...pick, sel: { ...pick.sel, optionalCosts: costs } })}
                 onConfirm={() => submitPick(pick)}
                 onCancel={() => setPick(null)}
               />
@@ -968,6 +977,7 @@ type PickBarProps = {
   onChoose: (id: string) => void;
   onSkip: () => void;
   onToggleCost: (id: string) => void;
+  onSetCosts: (costs: string[]) => void;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -988,7 +998,26 @@ function providedPower(pick: Pick, chosen: string[]) {
   return pick.powerNeed != null ? anyPowerFrom(pick.action.requirement, chosen) : powerFrom(pick.action.requirement, chosen);
 }
 
-function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extraPower, objects, onChoose, onSkip, onToggleCost, onConfirm, onCancel }: PickBarProps) {
+/** Declares how much extra power to pay; the play's cost quote then asks for runes if the pool is short. */
+function VariablePower({ prefix, chosen, onChange }: { prefix: string; chosen: string[]; onChange: (costs: string[]) => void }) {
+  const current = chosen.find((c) => c.startsWith(prefix));
+  const amount = current ? Number(current.slice(prefix.length)) : 0;
+  const set = (n: number) => onChange([...chosen.filter((c) => !c.startsWith(prefix)), ...(n > 0 ? [prefix + n] : [])]);
+  return (
+    <p className="pickbar__hint pickbar__stepper">
+      额外支付符能：
+      <button className="chip" onClick={() => set(Math.max(0, amount - 1))} disabled={amount === 0} aria-label="减少">
+        −
+      </button>
+      <b>{amount}</b>
+      <button className="chip" onClick={() => set(amount + 1)} aria-label="增加">
+        +
+      </button>
+    </p>
+  );
+}
+
+function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extraPower, objects, onChoose, onSkip, onToggleCost, onSetCosts, onConfirm, onCancel }: PickBarProps) {
   const src = objects[pick.action.sourceObjectId];
   const info = cardInfo(src?.cardNo);
   const moving = pick.action.cmdType === "MOVE_UNIT";
@@ -1021,7 +1050,7 @@ function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extr
             )}
             <div className="pickbar__choices">
               {choices
-                .filter((c) => !pick.sel.targets.includes(c.id))
+                .filter((c) => !pick.sel.targets.includes(c.id) && !(step.role === "cost" && pick.sel.optionalCosts.includes(c.id)))
                 .map((c) => (
                   <button key={c.id} className="chip" onClick={() => onChoose(c.id)}>
                     {choiceName(c.id, c.label, objects)}
@@ -1055,6 +1084,9 @@ function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extr
               </p>
             ) : (
               <p className="pickbar__hint">可选附加费用：</p>
+            )}
+            {pick.action.variablePower && (
+              <VariablePower prefix={pick.action.variablePower} chosen={pick.sel.optionalCosts} onChange={onSetCosts} />
             )}
             <div className="pickbar__choices">
               {[...pick.action.optionalCosts, ...(neededPower(pick) > 0 ? pick.action.recycles : [])]
