@@ -59,6 +59,11 @@ internal static class BorrowedExhaustRules
     internal static BorrowedTextSource Capture(CardObjectState card, RuleTextInstance text)
         => new(new(card.ObjectId, card.ObjectGeneration), text.CardNo, AttachedRuleTextRules.Face(card)!, card.CopyFaceTransitions?.Count ?? 0,
             card.TokenFactoryCardNo, text.Origin);
+    internal static BorrowedExhaustSpec? InsightSpec(MatchState state, StackItemState item)
+        => item.BorrowedExhaust is { } context
+            && Valid(state, item)
+            && Spec(context.Donor.CardNo, context.AbilityIndex) is { Kind: "INSIGHT_DRAW_EXPERIENCE" } spec
+            ? spec : null;
     private static bool ValidSource(MatchState state, BorrowedTextSource source, long tick, bool ceasedAsCost = false)
         => source is { Object: not null } && SelfAbilitySourceRules.Valid(state, source.Object, source.PhysicalCardNo,
             source.FaceRevision, tick, source.TokenFactoryCardNo, source.CeasedSource,
@@ -80,6 +85,7 @@ internal static class BorrowedExhaustRules
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
             || spec.EmpoweredMight.HasValue != c.LastKnownSourceEmpowered.HasValue
+            || item.InsightContext is not null || item.InsightCompleted && spec.Kind != "INSIGHT_DRAW_EXPERIENCE"
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds.Count != spec.Targets || item.TargetObjectIds.Distinct().Count() != spec.Targets

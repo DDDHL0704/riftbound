@@ -162,6 +162,9 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind == "INSIGHT_DRAW_EXPERIENCE")
+            return item.InsightCompleted ? FinishInsight(state, item)
+                : BeginInsight(state, item, NoopStackResolutionResult(state), spec.InsightCount);
         if (spec.Kind == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, 1, spec.DrawCount);
         if (spec.Kind == "SCORE")
             return ResolveSkillScoreStack(state, item, spec.ScoreAmount, BorrowedExhaustRules.Effect, "获得的得分技能结算");

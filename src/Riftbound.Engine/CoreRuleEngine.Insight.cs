@@ -78,7 +78,9 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult FinishInsight(MatchState state, StackItemState item)
     {
-        if (item.InsightContext is { } context)
+        var borrowed = BorrowedExhaustRules.InsightSpec(state, item);
+        var context = item.InsightContext;
+        if (context is not null || borrowed is not null)
         {
             var triggerZones = NormalizeZonesForSeats(state);
             var triggerCards = state.CardObjects.ToDictionary();
@@ -87,7 +89,7 @@ public sealed partial class CoreRuleEngine
             var experience = state.PlayerExperience;
             var rng = state.RngCursor;
             string? winner = null;
-            var shouldDraw = context.Kind == "ACTIVATED";
+            var shouldDraw = context?.Kind == "ACTIVATED" || borrowed is not null;
             if (context is { Kind: "DUEL", PaymentAccepted: true }
                 && triggerZones[item.ControllerId].MainDeck.FirstOrDefault() is { } top)
             {
@@ -100,12 +102,14 @@ public sealed partial class CoreRuleEngine
             }
             if (shouldDraw)
             {
-                var draw = ApplyDrawToPlayer(state, triggerZones, triggerCards, scores, item.ControllerId, 1, rng, triggerEvents, deferNormalVictory: true);
+                var draw = ApplyDrawToPlayer(state, triggerZones, triggerCards, scores, item.ControllerId,
+                    borrowed?.DrawCount ?? 1, rng, triggerEvents, deferNormalVictory: true);
                 scores = draw.PlayerScores; rng = draw.RngCursor; winner = draw.WinnerPlayerId;
             }
-            if (context.Kind == "ACTIVATED" && winner is null)
-                experience = GainExperience(experience, item.ControllerId, 1, item, triggerEvents, item.SourceObjectId, context.CardNo);
-            triggerEvents.Add(new("TRIGGER_RESOLVED", "洞察技能结算完成", new Dictionary<string, object?> {
+            if ((context?.Kind == "ACTIVATED" || borrowed is not null) && winner is null)
+                experience = GainExperience(experience, item.ControllerId, borrowed?.ExperienceGain ?? 1,
+                    item, triggerEvents, item.SourceObjectId, context?.CardNo ?? item.CardNo!);
+            triggerEvents.Add(new(borrowed is null ? "TRIGGER_RESOLVED" : "ABILITY_RESOLVED", "洞察技能结算完成", new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId, ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind }));
             return NoopStackResolutionResult(state) with { PlayerZones = triggerZones, PlayerScores = scores,
                 CardObjects=triggerCards,
@@ -201,7 +205,8 @@ public sealed partial class CoreRuleEngine
             || choice.PlayerId != item.ControllerId || choice.SourceObjectId != item.SourceObjectId || choice.EffectKind != item.EffectKind
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)) return false;
         var count = item.InsightContext is { } captured && ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
-            ? captured.Count : CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) ? ShowcaseDefinition(behavior, item).InsightCount : 0;
+            ? captured.Count : BorrowedExhaustRules.InsightSpec(state, item) is { } borrowed ? borrowed.InsightCount
+            : CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) ? ShowcaseDefinition(behavior, item).InsightCount : 0;
         var viewedCount = choice.ContextObjectIds.Count;
         if (count == 0 || viewedCount == 0 || !zones.MainDeck.Take(viewedCount).SequenceEqual(choice.ContextObjectIds)
             || !choice.ContextObjectIds.SequenceEqual(choice.LegalObjectIds)) return false;

@@ -46,6 +46,7 @@ internal static partial class ActionPromptBuilder
                 "DESTROY_SELF" => "摧毁此牌",
                 "CREATE_GOLD" => "打出一个休眠的金币装备指示物",
                 "SCORE" => $"获得 {ability.Spec.ScoreAmount} 分",
+                "INSIGHT_DRAW_EXPERIENCE" => $"洞察 {ability.Spec.InsightCount}，然后抽 {ability.Spec.DrawCount} 张牌并获得 {ability.Spec.ExperienceGain} 经验",
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
                 _ => $"让一名单位在本回合内战力 {ability.Spec.Might:+0;-0}"
                     + (ability.Spec.EmpoweredMight is { } stronger ? $"；此牌已强化时改为 +{stronger}" : "") };

@@ -5300,8 +5300,10 @@ public static partial class MatchRecoveryValidator
                 && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, parent.SourceObjectId, parent.ControllerId, parent.EffectKind, parent.CardNo);
             var capturedInsightSource = parent is not null && choice.SourceObjectId == parent.SourceObjectId
                 && CoreRuleEngine.ValidInsightChoice(authoritativeState, choice, parent)
-                && CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, parent.InsightContext,
-                    parent.SourceObjectId, parent.EffectKind, parent.ControllerId, parent.CardNo);
+                && (CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, parent.InsightContext,
+                    parent.SourceObjectId, parent.EffectKind, parent.ControllerId, parent.CardNo)
+                    || parent.BorrowedExhaust is { Borrower.CeasedSource: not null }
+                        && BorrowedExhaustRules.InsightSpec(authoritativeState, parent) is not null);
             var capturedEmpoweredSource = authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { Kind: CoreRuleEngine.EmpoweredBanishKind, SourceCeasedToExist: true } empowered } captured
                 && captured.SourceObjectId == choice.SourceObjectId && CoreRuleEngine.ValidTriggerChoice(authoritativeState, choice)
                 && CoreRuleEngine.ValidFieldContextState(authoritativeState, empowered, captured.SourceObjectId, captured.ControllerId, captured.EffectKind, captured.CardNo);

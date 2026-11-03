@@ -27,6 +27,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public int DrawCount { get; init; }
     public int RuneCallCount { get; init; }
     public int ScoreAmount { get; init; }
+    public int InsightCount { get; init; }
+    public int ExperienceGain { get; init; }
     public int? EmpoweredMight { get; init; }
     public int ExistingBoonMight { get; init; }
 }
@@ -111,6 +113,13 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            var insight = Regex.Match(effect, @"^\{\{洞察(?<count>[1-9][0-9]*)\}\}，然后抽一张牌。获得(?<experience>[1-9][0-9]*)经验$");
+            if (insight.Success)
+            {
+                result.Add(Skill("INSIGHT_DRAW_EXPERIENCE", 0) with { InsightCount = int.Parse(insight.Groups["count"].Value),
+                    DrawCount = 1, ExperienceGain = int.Parse(insight.Groups["experience"].Value) });
+                continue;
+            }
             if (effect == "打出一个休眠的“金币”装备指示物")
             {
                 result.Add(Skill("CREATE_GOLD", 0));
