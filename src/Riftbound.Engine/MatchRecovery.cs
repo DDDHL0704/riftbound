@@ -5541,6 +5541,8 @@ public static partial class MatchRecoveryValidator
             entry => entry?.EffectId ?? string.Empty,
             StringComparer.Ordinal))
         {
+            if (modifier?.CeasedSource is not null && !SelfAbilitySourceRules.ValidResolvedModifier(authoritativeState, modifier))
+                errors.Add($"card object {objectId} power modifier has invalid ceased source");
             if (modifier is null
                 || string.IsNullOrWhiteSpace(modifier.SourceObjectId))
             {
@@ -5557,6 +5559,7 @@ public static partial class MatchRecoveryValidator
             // legend ceases to exist. This exception does not make it a live object.
             if (modifier.Duration == "UNTIL_END_OF_TURN" && modifier.SourceCardNo is { } no
                 && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, sourceObjectId, no)) continue;
+            if (SelfAbilitySourceRules.ValidResolvedModifier(authoritativeState, modifier)) continue;
 
             var modifierLabel = string.IsNullOrWhiteSpace(modifier.EffectId)
                 ? "<unknown>"

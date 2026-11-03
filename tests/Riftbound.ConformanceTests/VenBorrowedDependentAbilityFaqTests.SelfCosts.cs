@@ -117,6 +117,20 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
                 StackItems = [item with { BorrowedExhaust = context with { Borrower = context.Borrower with { CeasedSource = forged } } }] }));
         await game.Top();
         Assert.Empty(game.State.StackItems);
+        if (donor == "UNL-161/219")
+        {
+            Assert.Equal(2, game.State.CardObjects["ALLY"].UntilEndOfTurnPowerModifier);
+            var modifier = Assert.Single(game.State.CardObjects["ALLY"].UntilEndOfTurnPowerModifiers);
+            Assert.Equal(receipt, modifier.CeasedSource);
+            foreach (var invalid in new CeasedSelfAbilitySource?[] { null,
+                receipt with { DepartedTick = game.State.Tick + 1 },
+                receipt with { Source = receipt.Source with { ObjectId = "FORGED" } } })
+                Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
+                    CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                        ["ALLY"] = game.State.CardObjects["ALLY"] with {
+                            UntilEndOfTurnPowerModifiers = [modifier with { CeasedSource = invalid }] } } }));
+        }
+        else Assert.Equal(initial.PlayerZones["P1"].Hand.Count + 1, game.State.PlayerZones["P1"].Hand.Count);
         await game.Replay();
     }
 

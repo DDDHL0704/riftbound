@@ -8,6 +8,12 @@ public sealed record CeasedSelfAbilitySource(ObjectBinding Source, string CardNo
 
 internal static class SelfAbilitySourceRules
 {
+    internal static bool ValidResolvedModifier(MatchState state, PowerModifierLedgerEntry modifier)
+        => modifier.CeasedSource is { } source && modifier.Duration == "UNTIL_END_OF_TURN"
+            && modifier.SourceObjectId == source.Source.ObjectId && modifier.SourceCardNo == source.CardNo
+            && Valid(state, source.Source, source.CardNo, source.FaceRevision, source.AcquiredTick,
+                source.TokenFactoryCardNo, source, usesPrintedFace: true, ceasedAsCost: true);
+
     internal static bool Valid(MatchState state, ObjectBinding source, string cardNo, long revision,
         long acquiredTick, string? tokenFactory, CeasedSelfAbilitySource? ceased, bool usesPrintedFace,
         bool ceasedAsCost = false)

@@ -30871,7 +30871,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     minimumPower,
                     resultingPower,
                     appliedOrder,
-                    snapshotMight) { ChosenNegativeMight = replacement })
+                    snapshotMight) { ChosenNegativeMight = replacement,
+                        CeasedSource = stackItem.BorrowedExhaust?.Borrower.CeasedSource })
                 .ToArray();
         var nextTargetState = targetState with
         {
