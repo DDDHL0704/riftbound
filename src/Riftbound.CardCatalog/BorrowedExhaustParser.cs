@@ -146,6 +146,13 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            var attachment = Regex.Match(effect, "^将你控制的一件(?<state>未贴附|已贴附)的武装贴附到你控制的一名单位上$");
+            if (attachment.Success)
+            {
+                result.Add(Skill(attachment.Groups["state"].Value == "未贴附" ? "ATTACH_ARMAMENT" : "REATTACH_ARMAMENT",
+                    2, scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             if (effect == "让一名友方单位返回其所属的手牌。你可以选择打出一名战力低于该单位的单位，无视其费用")
             {
                 result.Add(Skill("RETURN_UNIT_FREE_PLAY", scope: "FRIENDLY_UNIT"));
