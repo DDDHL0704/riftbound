@@ -12,15 +12,23 @@ internal static class ResourceQuantityRules
     internal static bool TryConversionMaximum(RunePool pool, string ability, out int maximum, MatchState? state = null)
     {
         maximum = 0;
+        return (ability is P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId or P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
+            && TryConversionMaximum(pool, ability == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId,
+                ManaPaymentPurpose.Other, PowerPaymentPurpose.Equipment, out maximum, state);
+    }
+
+    internal static bool TryConversionMaximum(RunePool pool, bool manaToPower, ManaPaymentPurpose manaPurpose,
+        PowerPaymentPurpose powerPurpose, out int maximum, MatchState? state = null)
+    {
+        maximum = 0;
         if (!pool.HasSupportedAmounts) return false;
         long amount;
-        if (ability == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
-            amount = Math.Min((long)PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state),
+        if (manaToPower)
+            amount = Math.Min((long)PaymentCostRules.AvailableMana(pool, manaPurpose, state),
                 (long)int.MaxValue - pool.TotalStoredPower);
-        else if (ability == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
-            amount = Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower,
+        else
+            amount = Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, powerPurpose).TotalPower,
                 (long)int.MaxValue - pool.TotalStoredMana);
-        else return false;
         maximum = (int)amount;
         return true;
     }

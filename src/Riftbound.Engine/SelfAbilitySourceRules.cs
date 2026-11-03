@@ -8,6 +8,12 @@ public sealed record CeasedSelfAbilitySource(ObjectBinding Source, string CardNo
 
 internal static class SelfAbilitySourceRules
 {
+    internal static bool ValidResolvedModifier(MatchState state, PowerModifierLedgerEntry modifier)
+        => modifier.CeasedSource is { } source && modifier.Duration == "UNTIL_END_OF_TURN"
+            && modifier.SourceObjectId == source.Source.ObjectId && modifier.SourceCardNo == source.CardNo
+            && Valid(state, source.Source, source.CardNo, source.FaceRevision, source.AcquiredTick,
+                source.TokenFactoryCardNo, source, usesPrintedFace: true, ceasedAsCost: true);
+
     internal static bool Valid(MatchState state, ObjectBinding source, string cardNo, long revision,
         long acquiredTick, string? tokenFactory, CeasedSelfAbilitySource? ceased, bool usesPrintedFace,
         bool ceasedAsCost = false)
@@ -42,6 +48,16 @@ public sealed partial class CoreRuleEngine
     private static MatchState RecordCeasedSelfAbilitySources(MatchState before, MatchState state, IReadOnlySet<string> departed)
     {
         var stack = state.StackItems.Select(item => {
+            // A borrowed skill may destroy its token source while paying the
+            // activation cost, on the same tick on which the skill is captured.
+            if (item.BorrowedExhaust is { } borrowed && BorrowedExhaustRules.Valid(before with { Tick = state.Tick }, item))
+            {
+                BorrowedTextSource CaptureBorrowed(BorrowedTextSource text) => text.CeasedSource is null && departed.Contains(text.Object.ObjectId)
+                    ? text with { CeasedSource = SelfAbilitySourceRules.Capture(before, state.Tick, text.Object,
+                        text.PhysicalCardNo, text.FaceRevision, borrowed.AcquiredTick, text.TokenFactoryCardNo) } : text;
+                return item with { BorrowedExhaust = borrowed with {
+                    Borrower = CaptureBorrowed(borrowed.Borrower), Donor = CaptureBorrowed(borrowed.Donor) } };
+            }
             if (item.SelfMightActivation is { CeasedSource: null } self
                 && departed.Contains(self.Source.ObjectId) && SelfMightRules.Valid(before, item))
                 return item with { SelfMightActivation = self with { CeasedSource = SelfAbilitySourceRules.Capture(

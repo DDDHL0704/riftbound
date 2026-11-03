@@ -1070,7 +1070,10 @@ public static partial class MatchRecoveryValidator
                 && expected.Scope == "OBJECT" && expected.Duration == "UNTIL_END_OF_TURN"
                 && expected.Layer == ContinuousEffectLayers.PowerModifier
                 && expected.SourceObjectId is { } source
-                && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, source, expected.SourceCardNo)
+                && (CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, source, expected.SourceCardNo)
+                    || authoritativeState.CardObjects.TryGetValue(expected.TargetObjectId ?? "", out var target)
+                        && target.UntilEndOfTurnPowerModifiers.Any(modifier => modifier.EffectId == id
+                            && SelfAbilitySourceRules.ValidResolvedModifier(authoritativeState, modifier)))
                 && OptionalStringSnapshotValueMatches(spectatorEffect, "sourceObjectId", source)
                 && OptionalStringSnapshotValueMatches(spectatorEffect, "sourceCardNo", expected.SourceCardNo)
                 && OptionalStringSnapshotValueMatches(spectatorEffect, "sourcePath", expected.SourcePath)

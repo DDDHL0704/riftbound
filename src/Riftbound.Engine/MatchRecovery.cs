@@ -4872,6 +4872,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidLegendDuelMovement(state, item)) errors.Add("invalid captured legend duel movement");
             if (!CoreRuleEngine.ValidLegendUnitKeyword(state, item)) errors.Add("invalid captured legend unit keyword");
             if (!CoreRuleEngine.ValidLegendUnitEffect(state, item)) errors.Add("invalid captured legend unit effect");
+            if (!BorrowedExhaustRules.Valid(state, item)) errors.Add("invalid captured borrowed skill");
             if (!CoreRuleEngine.ValidLegendEquipmentReady(state, item)) errors.Add("invalid captured legend equipment effect");
             if (!CoreRuleEngine.ValidLegendDiscardDraw(state, item)) errors.Add("invalid captured legend discard effect");
         }
@@ -5449,6 +5450,7 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.RecycleMightActivation is { CeasedSource: not null } && RecycleMightRules.Valid(authoritativeState, stackItem))
                 && !(stackItem.EmpowerActivation is { CeasedSource: not null } && EmpowerRules.Valid(authoritativeState, stackItem))
                 && !(stackItem.SelfMovement is { CeasedSource: not null } && CoreRuleEngine.ValidSelfMovement(authoritativeState, stackItem))
+                && !(stackItem.BorrowedExhaust is { Borrower.CeasedSource: not null } && BorrowedExhaustRules.Valid(authoritativeState, stackItem))
                 && !(stackItem.TemporaryActivation is { CeasedSource: not null } && CoreRuleEngine.ValidTemporaryActivation(authoritativeState, stackItem))
                 && !CoreRuleEngine.ValidTargetedPowerAbilitySource(authoritativeState, stackItem)
                 && !(stackItem.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyOtherObjectStack(authoritativeState, stackItem))
@@ -5484,6 +5486,9 @@ public static partial class MatchRecoveryValidator
             if (stackItem.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, stackItem))
                 foreach (var unit in ready.Units)
                     targetReferences.Add(unit.ObjectId);
+            if (stackItem.BorrowedExhaust is { TargetTokenFactories: { } borrowedTokens }
+                && BorrowedExhaustRules.Valid(authoritativeState, stackItem))
+                foreach (var id in borrowedTokens.Keys) targetReferences.Add(id);
             if (stackItem.LegendEquipmentReady is { TargetTokenFactories: { } equipmentTokens }
                 && CoreRuleEngine.ValidLegendEquipmentReady(authoritativeState, stackItem))
                 foreach (var id in equipmentTokens.Keys) targetReferences.Add(id);
@@ -5536,6 +5541,8 @@ public static partial class MatchRecoveryValidator
             entry => entry?.EffectId ?? string.Empty,
             StringComparer.Ordinal))
         {
+            if (modifier?.CeasedSource is not null && !SelfAbilitySourceRules.ValidResolvedModifier(authoritativeState, modifier))
+                errors.Add($"card object {objectId} power modifier has invalid ceased source");
             if (modifier is null
                 || string.IsNullOrWhiteSpace(modifier.SourceObjectId))
             {
@@ -5552,6 +5559,7 @@ public static partial class MatchRecoveryValidator
             // legend ceases to exist. This exception does not make it a live object.
             if (modifier.Duration == "UNTIL_END_OF_TURN" && modifier.SourceCardNo is { } no
                 && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, sourceObjectId, no)) continue;
+            if (SelfAbilitySourceRules.ValidResolvedModifier(authoritativeState, modifier)) continue;
 
             var modifierLabel = string.IsNullOrWhiteSpace(modifier.EffectId)
                 ? "<unknown>"
@@ -5736,6 +5744,9 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SelfMovement.CeasedSource: not null } movement
                 && CoreRuleEngine.ValidSelfMovement(authoritativeState, movement))
                 sourceReferences = knownObjectIds.Append(movement.SourceObjectId).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { BorrowedExhaust.Borrower.CeasedSource: not null } borrowed
+                && BorrowedExhaustRules.Valid(authoritativeState, borrowed))
+                sourceReferences = knownObjectIds.Append(borrowed.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { TemporaryActivation.CeasedSource: not null } temporary
                 && CoreRuleEngine.ValidTemporaryActivation(authoritativeState, temporary))
                 sourceReferences = knownObjectIds.Append(temporary.SourceObjectId).ToHashSet(StringComparer.Ordinal);
@@ -5794,6 +5805,9 @@ public static partial class MatchRecoveryValidator
                 if (original.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, original))
                     foreach (var unit in ready.Units)
                         targetReferences.Add(unit.ObjectId);
+                if (original.BorrowedExhaust is { TargetTokenFactories: { } borrowedTokens }
+                    && BorrowedExhaustRules.Valid(authoritativeState, original))
+                    foreach (var id in borrowedTokens.Keys) targetReferences.Add(id);
                 if (original.LegendEquipmentReady is { TargetTokenFactories: { } equipmentTokens }
                     && CoreRuleEngine.ValidLegendEquipmentReady(authoritativeState, original))
                     foreach (var id in equipmentTokens.Keys) targetReferences.Add(id);
@@ -6002,7 +6016,7 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
-        => (item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.TargetedPowerAbility is not null || item.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind || item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.BombRebuild is not null && CoreRuleEngine.ValidBombRebuildStack(state, item) || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || DrawHandThresholdRecoveryRules.IsCapturedSkill(state, item) || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
+        => (item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.TargetedPowerAbility is not null || item.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind || item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.BombRebuild is not null && CoreRuleEngine.ValidBombRebuildStack(state, item) || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || DrawHandThresholdRecoveryRules.IsCapturedSkill(state, item) || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.BorrowedExhaust is not null && BorrowedExhaustRules.Valid(state, item) || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 

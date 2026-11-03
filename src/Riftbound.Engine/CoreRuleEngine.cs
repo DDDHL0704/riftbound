@@ -217,8 +217,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
                 return Complete(ResolveLegendAct(state, intent, legendResource));
             if (command is ActivateAbilityCommand resource
-                && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
-                && definition.IsResourceSkill && definition.ReactionSpeed)
+                && (IsBorrowedReactionResource(state, intent.PlayerId, resource)
+                    || P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
+                        && definition.IsResourceSkill && definition.ReactionSpeed))
                 return Complete(ResolveActivateAbility(state, intent, resource));
             if (command is TapRuneCommand tap) return Complete(ResolveTapRune(state, intent, tap));
             if (command is RecycleRuneCommand recycle) return Complete(ResolveRecycleRune(state, intent, recycle));
@@ -245,8 +246,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && TryGetLegendAbility(legendResource.AbilityId, out var legendDefinition)
                     && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
                     return Complete(ResolveLegendAct(state, intent, legendResource));
-                if (command is ActivateAbilityCommand resource && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
-                    && definition.IsResourceSkill && definition.ReactionSpeed) return Complete(ResolveActivateAbility(state, intent, resource));
+                if (command is ActivateAbilityCommand resource && (IsBorrowedReactionResource(state, intent.PlayerId, resource)
+                    || P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
+                        && definition.IsResourceSkill && definition.ReactionSpeed)) return Complete(ResolveActivateAbility(state, intent, resource));
                 if (command is TapRuneCommand tap) return Complete(ResolveTapRune(state, intent, tap));
                 if (command is RecycleRuneCommand recycle) return Complete(ResolveRecycleRune(state, intent, recycle));
             }
@@ -5274,6 +5276,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Never trust a caller-supplied in-process derived property. The raw
         // OptionalCosts are the only source of this selection on every replay.
         command = command with { OptionalCosts = costsWithoutManaSelection, ServerManaSourceSelection = selectedMana };
+        if (command.AbilityId.StartsWith("BORROWED:", StringComparison.Ordinal))
+            return ResolveBorrowedExhaust(state, intent, command);
         if (command.AbilityId.StartsWith("GRANTED:", StringComparison.Ordinal))
             return ResolveTemporaryActivation(state, intent, command);
         if (command.AbilityId.StartsWith("SOURCE-BOON-MIGHT:", StringComparison.Ordinal))
@@ -19286,12 +19290,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.BorrowedExhaust is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.BorrowedExhaust is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, ProjectionViewers.Spectator)).ToArray()
                 };
             if (highCostSkillObservers.Length > 0) resolvedPayload[HighCostSkillCaptureKey] = highCostSkillObservers;
@@ -24234,6 +24238,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.LegendDuelMovement is not null) return ResolveLegendDuelMovement(state, stackItem);
         if (stackItem.LegendUnitKeyword is not null) return ResolveLegendUnitKeyword(state, stackItem);
         if (stackItem.LegendUnitEffect is not null) return ResolveLegendUnitEffect(state, stackItem);
+        if (stackItem.EffectKind == BorrowedExhaustRules.Effect) return ResolveBorrowedExhaustStack(state, stackItem);
         if (stackItem.LegendEquipmentReady is not null) return ResolveLegendEquipmentReady(state, stackItem);
         if (stackItem.LegendDiscardDraw is not null) return ResolveLegendDiscardDraw(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
@@ -30866,7 +30871,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     minimumPower,
                     resultingPower,
                     appliedOrder,
-                    snapshotMight) { ChosenNegativeMight = replacement })
+                    snapshotMight) { ChosenNegativeMight = replacement,
+                        CeasedSource = stackItem.BorrowedExhaust?.Borrower.CeasedSource })
                 .ToArray();
         var nextTargetState = targetState with
         {
