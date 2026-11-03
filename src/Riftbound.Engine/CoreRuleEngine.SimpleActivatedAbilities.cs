@@ -95,8 +95,7 @@ public sealed partial class CoreRuleEngine
                     .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
                     .Select(card => ExhaustFriendlyUnitOptionalCostPrefix + card.ObjectId).ToArray()
             : ability.SimpleEffect?.DestroyFriendlyTagAsCost is { } tag
-                ? state.CardObjects.Values.Where(card => CanDestroyFriendlyPermanentAsAdditionalCost(state, actor, card.ObjectId)
-                    && card.Tags.Contains(tag)).OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+                ? FriendlyDestructionChoices(state, actor, requiredTag: tag)
                     .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray() : [];
 
     internal static bool IsSimpleAbilitySource(MatchState state, string actor, string id, P4ActivatedAbilityDefinition ability)
@@ -461,7 +460,7 @@ public sealed partial class CoreRuleEngine
                         OfficialCardSourceIdentityGroups.DisplayName(card.CardNo ?? "") + "（" + card.ObjectId + "）",
                         [card.ObjectId])).ToArray(),
                     kind: "MOVEMENT_SELECTION", preview: current);
-                TryMoveFieldUnitByEffect(current, zones, cards, locations, selected[5..],
+                TryMoveFieldUnitByEffect(current, zones, cards, locations, pools, selected[5..],
                     new(item.ControllerId, "BATTLEFIELD", battlefieldId), opponent, item, events);
             }
             else
@@ -631,6 +630,15 @@ public sealed partial class CoreRuleEngine
                 events.AddRange(cleanup.Events); pools = cleanup.RunePools.ToDictionary(p => p.Key, p => p.Value);
                 result = result with { TriggerQueue = cleanup.TriggerQueue, DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds };
             }
+        }
+        if (spec.DestroysSourceOnResolution && cards.TryGetValue(item.SourceObjectId, out var destroying)
+            && destroying.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, destroying.ObjectId))
+        {
+            var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(),
+                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(), pools, objectLocations: locations,
+                explicitDestroyObjectIds: new HashSet<string> { item.SourceObjectId }, explicitDestroyReason: "SKILL_EFFECT");
+            events.AddRange(removal.Events); pools = removal.RunePools.ToDictionary(p => p.Key, p => p.Value);
+            result = result with { TriggerQueue = removal.TriggerQueue, DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds };
         }
         if (spec.DrawCount > 0)
         {

@@ -15,7 +15,11 @@ public sealed record LastKnownMightFrame(
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record LastBreathMightContext(string SourceObjectId, string CardNo, long SourceGeneration,
-    string ControllerId, int Might, LastKnownMightFrame Frame, string InstanceId, RuleTextInstanceBinding? Origin = null);
+    string ControllerId, int Might, LastKnownMightFrame Frame, string InstanceId, RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LastBreathRepetitionContext? Repetition { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -66,14 +70,39 @@ public sealed partial class CoreRuleEngine
         var frame = RuleChoices.Value?.CurrentDestructionMightFrame ?? CapturePublicMightFrame(state, zones, cards);
         if (!frame.CardObjects.TryGetValue(unit.ObjectId, out var captured)) return [];
         var might = ResolveCurrentFieldUnitPower(MightFrameState(frame), captured);
-        return instances.Select(i => new LastBreathMightContext(unit.ObjectId, i.CardNo, captured.ObjectGeneration,
-            EffectiveFieldControllerId(frame.PlayerZones, unit.ObjectId, captured), might, frame, i.Id, i.Origin)).ToArray();
+        var repetitions = CaptureLastBreathRepetitions(state, zones, cards, unit);
+        return instances.SelectMany(i => repetitions.Select(repetition => new LastBreathMightContext(unit.ObjectId,
+            i.CardNo, captured.ObjectGeneration, EffectiveFieldControllerId(frame.PlayerZones, unit.ObjectId, captured),
+            might, frame, i.Id, i.Origin) { Repetition = repetition })).ToArray();
     }
+
+    internal static LastBreathMightContext? PublicLastBreathMight(LastBreathMightContext? context)
+        => context is null ? null : context with { Repetition = null };
+
+    private static string LastBreathMightTriggerSuffix(LastBreathMightContext context)
+        => $"{(context.Origin is null ? "" : ":" + context.InstanceId)}{LastBreathOccurrenceSuffix(context.Repetition)}-{context.SourceObjectId}-{TriggerKinds.UnitLastBreathPowerfulDraw}";
+
+    internal static bool ValidLastBreathMightTriggerIdentity(TriggerQueueItemState item)
+        => item.LastBreathMight is not { } context || item.SourceCardNo == context.CardNo
+            && item.TriggeredByEventKind == "UNIT_DESTROYED"
+            && item.TriggerId.StartsWith("TRIGGER-death-", StringComparison.Ordinal)
+            && item.TriggerId.EndsWith(LastBreathMightTriggerSuffix(context), StringComparison.Ordinal)
+            && (context.Repetition is not null || !item.TriggerId.Contains(":occurrence-", StringComparison.Ordinal));
+
+    internal static bool ValidLastBreathMightStackIdentity(StackItemState item)
+        => item.LastBreathMight is not { } context || item.CardNo == context.CardNo
+            && item.StackItemId.StartsWith("ordered-TRIGGER-death-", StringComparison.Ordinal)
+            && item.StackItemId.EndsWith(LastBreathMightTriggerSuffix(context), StringComparison.Ordinal)
+            && (context.Repetition is not null || !item.StackItemId.Contains(":occurrence-", StringComparison.Ordinal))
+            && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null;
 
     internal static bool ValidLastBreathMightFrame(LastBreathMightContext context)
     {
         try {
-            var state = MightFrameState(context.Frame);
+            if (context.Repetition is not null) return false;
+            // The standalone public frame has no match clock. Its captured
+            // copy receipt still needs its actual attachment tick to validate.
+            var state = MightFrameState(context.Frame) with { Tick = context.Origin?.CapturedTick ?? 0 };
             if (!state.CardObjects.TryGetValue(context.SourceObjectId, out var before)) return false;
             var cards = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal);
             if (IsTokenObject(before)) cards.Remove(before.ObjectId);
@@ -107,6 +136,8 @@ public sealed partial class CoreRuleEngine
             || unit.ObjectGeneration != context.SourceGeneration
             || !AttachedRuleTextRules.Instances(frame.PlayerZones, frame.CardObjects, unit).Any(i => i.Id == context.InstanceId && i.CardNo == context.CardNo)
             || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo)
+            || !ValidLastBreathRepetition(state, context.Repetition, new(source, context.SourceGeneration),
+                controller, context.CardNo, context.InstanceId)
             || !IsFaceUpNonStandbyUnit(unit) || !IsObjectOnField(frame.PlayerZones, source)
             || EffectiveFieldControllerId(frame.PlayerZones, source, unit) != controller
             || !UnitDestroyedTriggerSpecRules.TryGetTrigger(context.CardNo,

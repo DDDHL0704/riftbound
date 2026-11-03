@@ -9,7 +9,11 @@ public sealed record SpellTriggerContext(string CardNo, string Kind, long Source
     CardPlayCostReceipt Cost, string PlayedObjectId, long PlayedGeneration, string PlayedOwnerId, string PlayedCardNo,
     string InstanceId, string? BattlefieldId = null, RuleTextInstanceBinding? Origin = null);
 public sealed record LinkedExileGroup(string SourceObjectId, long SourceGeneration, string ControllerId,
-    IReadOnlyDictionary<string, long> Objects);
+    IReadOnlyDictionary<string, long> Objects)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LinkedUnitExileOrigin? UnitEventOrigin { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {

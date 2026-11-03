@@ -50,7 +50,7 @@ public sealed partial class CoreRuleEngine
         {
             var sources = cards.Values.Where(c => EffectiveFieldControllerId(zones, c.ObjectId, c) == player)
                 .Select(c => c.ObjectId);
-            frame.ExhaustedUnitEvents.AddRange(CaptureUnitEvents(zones, cards, sources, "FRIENDLY_UNITS_EXHAUSTED_TOGETHER")
+            frame.InstructionUnitEvents.AddRange(CaptureUnitEvents(zones, cards, sources, "FRIENDLY_UNITS_EXHAUSTED_TOGETHER")
                 .Where(o => UnitEventSpec(o.Context.CardNo) is { MinimumExhaustedUnits: > 0 } spec
                     && changed.Length >= spec.MinimumExhaustedUnits && !UnitEventOnceUsed(state, o.Source, o.Context))
                 .Select(o => o with { Context = o.Context with { ExhaustedUnits = changed } }));

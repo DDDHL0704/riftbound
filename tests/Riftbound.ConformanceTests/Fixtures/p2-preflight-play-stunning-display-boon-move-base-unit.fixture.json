@@ -52,7 +52,7 @@
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-SPELL-STUNNING-DISPLAY"],
         "base": ["P1-BASE-BOON-UNIT-001"],
-        "battlefields": [],
+        "battlefields": ["BF"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P1-LEGEND-001"],
@@ -70,7 +70,14 @@
         "championZone": ["P2-CHAMPION-001"]
       }
     },
+    "objectLocations": {
+      "BF": { "playerId": "P1", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" }
+    },
     "cardObjects": {
+      "BF": {
+        "cardNo": "OGN·296/298", "ownerId": "P1", "controllerId": "P1",
+        "tags": ["CARD_TYPE:BATTLEFIELD"]
+      },
       "P1-BASE-BOON-UNIT-001": {
         "power": 2,
         "untilEndOfTurnPowerModifier": 0,
@@ -87,6 +94,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-STUNNING-DISPLAY",
         "cardNo": "OGN·270/298",
+        "destination": "BATTLEFIELD:BF",
         "targetObjectIds": ["P1-BASE-BOON-UNIT-001"],
         "optionalCosts": []
       }
@@ -165,7 +173,7 @@
         "payload": {
           "sourceObjectId": "P1-SPELL-STUNNING-DISPLAY",
           "targetObjectId": "P1-BASE-BOON-UNIT-001",
-          "controllerId": "P1",
+          "battlefieldObjectId": "BF",
           "destinationZone": "BATTLEFIELD"
         }
       }
@@ -193,7 +201,7 @@
           "mainDeck": ["P1-MAIN-001"],
           "hand": [],
           "base": [],
-          "battlefields": ["P1-BASE-BOON-UNIT-001"],
+          "battlefields": ["BF", "P1-BASE-BOON-UNIT-001"],
           "graveyard": ["P1-SPELL-STUNNING-DISPLAY"]
         }
       },

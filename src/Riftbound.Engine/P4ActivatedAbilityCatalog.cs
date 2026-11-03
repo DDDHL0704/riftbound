@@ -54,7 +54,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool CommandsOpponentUnitToSourceBattlefield = false,
     bool ReturnsFriendlyUnitThenFreePlayUpToPower = false,
     bool GrantsBoonOrPower = false, int ExistingBoonPowerBonus = 0,
-    bool StunsTarget = false, bool OncePerTurnPerPlayer = false, int? RuneCallCount = null,
+    bool StunsTarget = false, bool OncePerTurnPerPlayer = false, bool DestroysSourceOnResolution = false, int? RuneCallCount = null,
     string? DestroyFriendlyTagAsCost = null, int CreatedMinionCount = 0, int CreatedGoldCount = 0,
     bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null,
     bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false,
@@ -280,8 +280,16 @@ public static class P4ActivatedAbilityCatalog
     public const string RelentlessStalkerAbilityId = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
     public const string RelentlessStalkerAbilityEffectKind = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
 
+    public const string RunebladeAnvilAbilityId = "RAD_012_PAY_RED_EXHAUST_DESTROY_SOURCE";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(RunebladeAnvilAbilityId, "RAD·012/167", RunebladeAnvilAbilityId, "符刃铁砧", 2, 0, 0,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false, Reason: "支付2法力与红色符能，休眠：结算时摧毁来源。",
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 },
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DestroysSourceOnResolution: true)),
         new("RAD_021_SWIFT_DISCARD_BANISH_REPLAY", "RAD·021/167", "RAD_021_SWIFT_DISCARD_BANISH_REPLAY", "艾克 · 逆时而行", 1, 0, 0,
             false, false, 0, false, "官方中文：迅捷，弃置一张手牌，支付1和红色符能，放逐我，然后将我打出到你的基地，无视我的费用。",
             PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 }, SwiftSpeed: true,

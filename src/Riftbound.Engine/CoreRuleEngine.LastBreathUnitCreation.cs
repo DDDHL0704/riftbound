@@ -9,12 +9,16 @@ public sealed record LastBreathUnitCreationContext(string DeathId, string CardNo
     string ControllerId, ObjectBinding Source, string InstanceId, int TriggerIndex,
     bool SourceWasEmpowered, int TurnNumber, long CreatedAtTick,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LastBreathRepetitionContext? Repetition { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
     private static string LastBreathUnitCreationTriggerId(LastBreathUnitCreationContext context)
-        => $"TRIGGER-{context.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(context.InstanceId))}:{context.TriggerIndex}-{context.Source.ObjectId}-{context.Kind}";
+        => $"TRIGGER-{context.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(context.InstanceId))}:{context.TriggerIndex}{LastBreathOccurrenceSuffix(context.Repetition)}-{context.Source.ObjectId}-{context.Kind}";
 
     private static string? CapturedLastBreathControllerId(CardObjectState before,
         TriggerSpec spec, string fieldController)
@@ -27,17 +31,19 @@ public sealed partial class CoreRuleEngine
     {
         if (!IsFaceUpNonStandbyUnit(before)) return [];
         var result = new List<LastBreathUnitCreationContext>();
+        var repetitions = CaptureLastBreathRepetitions(state, zones, cards, before);
         var controller = EffectiveFieldControllerId(zones, before.ObjectId, before);
         foreach (var instance in AttachedRuleTextRules.Instances(zones, cards, before))
         {
-            var specs = UnitDestroyedTriggerSpecRules.BaseUnitCreationTriggers(instance.CardNo);
+            var specs = UnitDestroyedTriggerSpecRules.BaseTokenCreationTriggers(instance.CardNo);
             for (var index = 0; index < specs.Count; index++)
             {
                 var spec = specs[index];
                 if (CapturedLastBreathControllerId(before, spec, controller) is null) continue;
-                result.Add(new(deathId, instance.CardNo, spec.Kind, controller,
+                foreach (var repetition in repetitions)
+                    result.Add(new(deathId, instance.CardNo, spec.Kind, controller,
                     new(before.ObjectId, before.ObjectGeneration), instance.Id, index, before.IsEmpowered,
-                    state.TurnNumber, state.Tick + 1, before.TokenFactoryCardNo, instance.Origin));
+                    state.TurnNumber, state.Tick + 1, before.TokenFactoryCardNo, instance.Origin) { Repetition = repetition });
             }
         }
         return result.ToArray();
@@ -46,7 +52,7 @@ public sealed partial class CoreRuleEngine
     private static bool TryGetLastBreathUnitCreationSpec(LastBreathUnitCreationContext context, out TriggerSpec spec)
     {
         spec = default!;
-        var specs = UnitDestroyedTriggerSpecRules.BaseUnitCreationTriggers(context.CardNo);
+        var specs = UnitDestroyedTriggerSpecRules.BaseTokenCreationTriggers(context.CardNo);
         if (context.TriggerIndex < 0 || context.TriggerIndex >= specs.Count) return false;
         spec = specs[context.TriggerIndex];
         return spec.Kind == context.Kind
@@ -60,7 +66,8 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(context.DeathId) || !context.DeathId.StartsWith("death-", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(context.InstanceId) || context.TurnNumber != state.TurnNumber
             || context.CreatedAtTick <= 0 || context.CreatedAtTick > state.Tick
-            || !TryGetLastBreathUnitCreationSpec(context, out _)) return false;
+            || !TryGetLastBreathUnitCreationSpec(context, out _)
+            || !ValidLastBreathRepetition(state, context.Repetition, context.Source, context.ControllerId, context.CardNo, context.InstanceId)) return false;
         if (context.Origin is { } binding && (binding.Unit is null || binding.Equipment is null
             || string.IsNullOrWhiteSpace(binding.Unit.ObjectId) || string.IsNullOrWhiteSpace(binding.Equipment.ObjectId))) return false;
         var expectedInstance = context.Origin is { Unit: not null, Equipment: not null } origin
