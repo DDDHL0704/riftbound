@@ -87,6 +87,7 @@ internal static partial class ActionPromptBuilder
                 "DAMAGE_UNIT" => ability.Spec.DamageFromSourceMight ? "对任意战场中的一名敌方单位造成等同于我战力的伤害"
                     : $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
+                "MOVE_TO_EXHAUSTED_COST_UNIT" => "将另一名友方单位移动到因此技能而休眠的单位所在位置",
                 "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌"
                     + (ability.Spec.RequiredEnemyTargetEvents > 0 ? "；本回合须已两次将敌方单位或装备选为法术或单位技能目标" : "")
                     + (ability.Spec.RuneCallCount > 0 ? $"并召出 {ability.Spec.RuneCallCount} 枚休眠符文" : ""),
@@ -107,7 +108,7 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : ability.Spec.DiscardsHandCardAsCost ? "弃置一张手牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : ability.Spec.DiscardsHandCardAsCost ? "弃置一张手牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? ability.Spec.ExhaustedUnitMinimumMightAsCost >= 5 ? "休眠一名友方强力单位；" : "休眠一名友方单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
                 CoreRuleEngine.BorrowedExhaustManaCost(state, player, ability.Spec), ability.Spec.Power, ability.Spec.Experience,
                 ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),

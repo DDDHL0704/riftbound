@@ -50,6 +50,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool ReadyTargetIfSourceEmpowered { get; init; }
     public bool EffectRequiresEncouraged { get; init; }
     public bool DamageFromSourceMight { get; init; }
+    public bool MovesToExhaustedCostUnit { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -80,6 +81,8 @@ public static class BorrowedExhaustParser
             var recycleCount = recycle.Success ? recycle.Groups["count"].Value switch {
                 "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) } : 0;
             if (recycle.Success) cost = cost.Remove(recycle.Index, recycle.Length);
+            var exhaustsFriendly = cost.Contains("将你控制的一名单位变为休眠状态", StringComparison.Ordinal);
+            cost = cost.Replace("将你控制的一名单位变为休眠状态", "", StringComparison.Ordinal);
             var exhaustsPowerful = cost.Contains("让一名友方{{强力}}单位变为休眠状态", StringComparison.Ordinal);
             cost = cost.Replace("让一名友方{{强力}}单位变为休眠状态", "", StringComparison.Ordinal);
             var destroyedFriend = Regex.Match(cost, "摧毁(?<kind>一件友方装备|一名友方单位|一个友方单位或装备)");
@@ -121,7 +124,7 @@ public static class BorrowedExhaustParser
                     DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
                     BanishesGraveyardPermanentAsCost = banishesGraveyardPermanent,
                     RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位",
-                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : null,
+                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : exhaustsFriendly ? 0 : null,
                     DestroyedFriendlyCardTypeAsCost = destroyedFriend.Success
                         ? destroyedFriend.Groups["kind"].Value.Contains("或", StringComparison.Ordinal) ? "PERMANENT"
                             : destroyedFriend.Groups["kind"].Value.Contains("装备", StringComparison.Ordinal) ? "EQUIPMENT" : "UNIT" : "" };
@@ -157,6 +160,11 @@ public static class BorrowedExhaustParser
             if (effect == "{{反应}} — 抽一张牌。只有当你在本回合内，两次将敌方单位或装备选为法术或单位技能的目标后，才能使用此技能")
             {
                 result.Add(Skill("DRAW", 0) with { Reaction = true, DrawCount = 1, RequiredEnemyTargetEvents = 2 });
+                continue;
+            }
+            if (effect == "将你控制的另一名单位移动到你因此技能而休眠的单位的所在位置" && exhaustsFriendly)
+            {
+                result.Add(Skill("MOVE_TO_EXHAUSTED_COST_UNIT", scope: "FRIENDLY_UNIT") with { MovesToExhaustedCostUnit = true });
                 continue;
             }
             // Reaction non-resource effects need their own timing and templates.

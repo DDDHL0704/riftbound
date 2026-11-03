@@ -12,7 +12,7 @@ public sealed record BorrowedTextSource(ObjectBinding Object, string CardNo, str
 public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, BorrowedTextSource Donor,
     int AbilityIndex, long AcquiredTick, bool BorrowerWasEmpowered,
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false,
-    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null);
+    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null, PaidUnitReference? ExhaustedCostUnit = null);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
     RuleTextInstance DonorText, BorrowedExhaustSpec Spec);
 
@@ -93,6 +93,8 @@ internal static class BorrowedExhaustRules
                 || !state.CardObjects.TryGetValue(field.ObjectId, out var battlefield)
                 || battlefield.ObjectGeneration < field.Generation
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
+            || !CoreRuleEngine.ValidExhaustedCostUnit(state, c.ExhaustedCostUnit, spec.MovesToExhaustedCostUnit,
+                item.SourceObjectId, item.TargetObjectIds)
             || item.InsightContext is not null || item.InsightCompleted && spec.Kind != "INSIGHT_DRAW_EXPERIENCE"
             || item.EffectPlayCompleted && spec.Kind != "RETURN_UNIT_FREE_PLAY"
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0

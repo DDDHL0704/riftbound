@@ -107,7 +107,9 @@ public sealed partial class CoreRuleEngine
         var unitExhaustCosts = extras.Where(id => id.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
         if (unitExhaustCosts.Length != (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
             || unitExhaustCosts.Any(id => !BorrowedUnitExhaustCostChoices(state, intent.PlayerId, source.ObjectId, ability.Spec).Contains(id)))
-            return RejectWithCorePrompts(state, "请选择合法的活跃强力友方单位支付休眠费用。", ErrorCodes.InvalidTarget);
+            return RejectWithCorePrompts(state, "请选择合法的活跃友方单位支付休眠费用。", ErrorCodes.InvalidTarget);
+        if (ability.Spec.MovesToExhaustedCostUnit && targets.Contains(unitExhaustCosts.Single()[ExhaustFriendlyUnitOptionalCostPrefix.Length..]))
+            return RejectWithCorePrompts(state, "移动目标必须是另一名友方单位。", ErrorCodes.InvalidTarget);
         var recycled = extras.Where(id => TryParseRecycleGraveyardCardAdditionalCost(id, out _))
             .Select(id => { TryParseRecycleGraveyardCardAdditionalCost(id, out var card); return card; }).ToArray();
         if (recycled.Length != ability.Spec.RecycledCardCostCount
@@ -182,6 +184,10 @@ public sealed partial class CoreRuleEngine
             events.Add(new("UNIT_EXHAUSTED", "让友方单位休眠以支付获得的技能费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = id,
                 ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
+        }
+        if (ability.Spec.MovesToExhaustedCostUnit) {
+            var costUnit = cards[unitExhaustCosts.Single()[ExhaustFriendlyUnitOptionalCostPrefix.Length..]];
+            context = context with { ExhaustedCostUnit = new(new(costUnit.ObjectId, costUnit.ObjectGeneration), costUnit.TokenFactoryCardNo) };
         }
         if (ability.Spec.RemovesSourceEmpowerment)
         {
@@ -292,6 +298,9 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.MovesToExhaustedCostUnit)
+            return ResolveMovementToExhaustedCostUnit(state, item, c.ExhaustedCostUnit!,
+                (frame, id) => IsBorrowedExhaustTarget(frame, item.ControllerId, id, spec, item.SourceObjectId));
         if (spec.Kind == "RETURN_UNIT_FREE_PLAY")
             return ResolveReturnUnitThenFreePlay(state, item, "获得的返手后打出技能", BorrowedExhaustRules.Effect,
                 id => IsBorrowedExhaustTarget(state, item.ControllerId, id, spec, item.SourceObjectId));

@@ -60,7 +60,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false,
     bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false,
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
-    string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0);
+    string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -296,6 +296,11 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 }, SwiftSpeed: true,
             SourceRequiredTag: CardObjectTags.UnitCard,
             SimpleEffect: new(DiscardsHandCardAsCost: true, BanishesSourceThenReplaysToBase: true)),
+        new("FORGOTTEN_SIGNPOST_EXHAUST_MOVE_FRIENDLY_UNIT", "UNL-045/219", "FORGOTTEN_SIGNPOST_EXHAUST_MOVE_FRIENDLY_UNIT",
+            "被遗忘的路标", 0, 0, 1, false, true, 0, true,
+            "官方中文：迅捷；让一名友方单位休眠并横置，将另一名友方单位移动到该单位所在位置。",
+            SwiftSpeed: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(ExhaustFriendlyUnitMinimumPowerAsCost: 0, MovesToExhaustedCostUnit: true)),
         new("RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "RAD·114/167", "RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "锐雯 · 弃暗投明", 0, 0, 1,
             false, false, 0, true, "官方中文：让一名友方单位变为休眠状态，让一名单位变为活跃状态；每回合一次。",
             SourceRequiredTag: CardObjectTags.UnitCard,

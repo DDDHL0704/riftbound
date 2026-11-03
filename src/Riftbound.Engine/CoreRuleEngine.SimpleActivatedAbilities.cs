@@ -24,6 +24,8 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
     public RuleTextInstanceBinding? Origin { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? SourceTokenFactoryCardNo { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PaidUnitReference? ExhaustedCostUnit { get; init; }
     public string ReturnTiming { get; init; } = "";
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? ReplayCardNo { get; init; }
@@ -121,7 +123,11 @@ public sealed partial class CoreRuleEngine
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true || SimpleActivationTargetsOpponent(ability);
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.ReadiesUnitTarget == true
+        => ability.SimpleEffect?.MovesToExhaustedCostUnit == true
+            ? state.CardObjects.TryGetValue(id, out var moved) && IsFaceUpNonStandbyUnit(moved)
+                && IsObjectOnField(state.PlayerZones, id) && EffectiveFieldControllerId(state.PlayerZones, id, moved) == actor
+                && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.ReadiesUnitTarget == true
             ? state.CardObjects.TryGetValue(id, out var readyTarget) && IsFaceUpNonStandbyUnit(readyTarget)
                 && IsObjectOnField(state.PlayerZones, id) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
             : ability.SimpleEffect?.CreatedBattlefieldEquipmentTokenCardNo is not null
@@ -197,6 +203,7 @@ public sealed partial class CoreRuleEngine
             || afterInstance != instance)
             return RejectWithCorePrompts(state, "资源动作后无法支付技能来源费用。", ErrorCodes.InvalidTarget);
         var source = cards[command.SourceObjectId];
+        PaidUnitReference? exhaustedCostUnit = null;
         if (spec.ExhaustFriendlyUnitMinimumPowerAsCost is not null)
         {
             // Resource actions settle first. A unit exhausted by one of those
@@ -205,6 +212,11 @@ public sealed partial class CoreRuleEngine
             if (!SimpleActivationAdditionalCostChoices(current, intent.PlayerId, source.ObjectId, ability).Contains(extras.Single()))
                 return RejectWithCorePrompts(state, "所选友方单位无法支付休眠费用。", ErrorCodes.InvalidTarget);
             var exhausted = extras.Single()[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
+            if (spec.MovesToExhaustedCostUnit) {
+                if (targets.Contains(exhausted))
+                    return RejectWithCorePrompts(state, "移动目标必须是另一名友方单位。", ErrorCodes.InvalidTarget);
+                exhaustedCostUnit = new(new(exhausted, cards[exhausted].ObjectGeneration), cards[exhausted].TokenFactoryCardNo);
+            }
             cards[exhausted] = ExhaustForInstruction(zones, cards, cards[exhausted]);
             source = cards[source.ObjectId];
             events.Add(new("UNIT_EXHAUSTED", "让友方单位变为休眠状态以支付技能费用", new Dictionary<string, object?> {
@@ -255,6 +267,7 @@ public sealed partial class CoreRuleEngine
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets) {
+                ExhaustedCostUnit = exhaustedCostUnit,
                 SourceFaceRevision = instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
                 RuleTextInstanceId = instance.Id, Origin = instance.Origin,
                 SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
@@ -316,6 +329,8 @@ public sealed partial class CoreRuleEngine
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
+            || !ValidExhaustedCostUnit(state, context.ExhaustedCostUnit, ability.SimpleEffect!.MovesToExhaustedCostUnit,
+                item.SourceObjectId, item.TargetObjectIds)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
             || (item.TargetGenerations?.Count ?? 0) != (SimpleActivationTargetsPlayer(ability) ? 0 : ability.RequiredTargetCount)
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
@@ -418,6 +433,9 @@ public sealed partial class CoreRuleEngine
         if (!ValidSimpleActivation(state, item,
                 allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
             throw new InvalidOperationException("Invalid captured printed activation.");
+        if (spec.MovesToExhaustedCostUnit)
+            return ResolveMovementToExhaustedCostUnit(state, item, item.SimpleActivation!.ExhaustedCostUnit!,
+                (frame, id) => IsSimpleAbilityTarget(frame, item.ControllerId, item.SourceObjectId, id, ability));
         if (spec.GrantsNextUnitReady) return ResolveActivatedNextUnitReady(state, item);
         if (spec.GrantsNextSpellDamage) return ResolveActivatedNextSpellDamage(state, item);
         if (spec.CreatedUnitTokenCardNo is { } unitFactory)
