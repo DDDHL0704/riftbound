@@ -124,7 +124,11 @@ export type MatchSeries = {
   phase: "choosing_play_order" | "submitting_decks" | "playing" | "finished";
   usedBattlefields: Record<string, string[]>;
   playOrderChooserPlayerId?: string | null;
+  /** This player's own configuration when the next game must reuse it; never the opponent's. */
+  lockedDeck?: SealedLockedDeck | null;
 };
+
+export type SealedLockedDeck = { legendCardNo: string; championCardNo: string; mainDeck: string[]; runeDeck: string[]; battlefields: string[] };
 
 export type Snapshot = {
   tick: number;
