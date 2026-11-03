@@ -266,7 +266,17 @@ public sealed class VenEmpowerCanonicalOpeningTests
         internal Task RejectCoordinatedForgery(string label, MatchState forged)
             => RejectCoordinatedForgeries((label, forged));
 
-        internal async Task RejectCoordinatedForgeries(params (string Label, MatchState Forged)[] attempts)
+        internal Task RejectCoordinatedForgeries(params (string Label, MatchState Forged)[] attempts)
+            => RejectCoordinatedForgeriesThenRecover(attempts, ColdCheckpoint);
+
+        internal Task RejectCoordinatedForgeriesThenRepair((string Label, MatchState Forged)[] attempts,
+            string repairLabel, MatchState repairForgery)
+            // The repair test recovers this same accepted history and checks views and duplicates.
+            => RejectCoordinatedForgeriesThenRecover(attempts,
+                () => RejectCoordinatedForgeryTwiceThenRecover(repairLabel, repairForgery));
+
+        private async Task RejectCoordinatedForgeriesThenRecover((string Label, MatchState Forged)[] attempts,
+            Func<Task> recover)
         {
             Assert.NotEmpty(attempts);
             // Each forged frame gets an independent registry and full rejection audit.
@@ -289,7 +299,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
                     originalStateHash = originalHash, forgedStateHash = MatchStateHasher.Hash(forged),
                     commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events), frame = decoded });
             }
-            await ColdCheckpoint();
+            await recover();
         }
 
         internal async Task RejectCoordinatedForgeryTwiceThenRecover(string label, MatchState forged)
