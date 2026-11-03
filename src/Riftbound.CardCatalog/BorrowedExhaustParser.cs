@@ -146,6 +146,11 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "让你本回合打出的下一个法术获得等同于其费用的{{回响}}")
+            {
+                result.Add(Skill("GRANT_NEXT_SPELL_ECHO", 0));
+                continue;
+            }
             if (effect == "选择一名玩家。该玩家获得此牌的控制权，并将其召回")
             {
                 result.Add(Skill("TRANSFER_SOURCE_AND_RECALL", scope: "PLAYER"));

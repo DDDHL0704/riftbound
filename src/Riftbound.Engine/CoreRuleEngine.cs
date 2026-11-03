@@ -24260,11 +24260,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.ConquestSource is not null) return ResolveConquestSource(state, stackItem);
         if (stackItem.ConquestFlow is not null) return ResolveConquestFlow(state, stackItem);
         if (stackItem.EffectKind == P4ActivatedAbilityCatalog.NextSpellEchoEffectKind)
-            return new(state.PlayerZones, state.CardObjects, state.PlayerScores, state.PlayerExperience, state.RunePools,
-                EchoCostRules.AddBaseCostGrant(state.UntilEndOfTurnEffects, stackItem.ControllerId), null,
-                [new("NEXT_SPELL_ECHO_GRANTED", "下一个法术获得等同基础费用的回响", new Dictionary<string, object?>
-                    { ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId })],
-                [], null, [], null, [], state.RngCursor);
+            return ResolveNextSpellEchoGrant(state, stackItem);
         if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior)
             && (insightBehavior.PerformsInsight || insightBehavior.Showcase is { InsightFromPowerCost: true } && stackItem.Showcase is not null)
             && (IsSpellPlayBehavior(insightBehavior) || stackItem.SourceConfirmed))

@@ -266,6 +266,7 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
         if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")
             return ResolveCommandOpponentMovement(state, item, c.Borrower.Object, "获得的移动技能", BorrowedExhaustRules.Effect);
         if (spec.Kind == "TRANSFER_SOURCE_AND_RECALL")
