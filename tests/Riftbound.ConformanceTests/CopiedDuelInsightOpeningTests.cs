@@ -234,13 +234,14 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
                 await JsonSerializer.SerializeAsync(zip, restored, JournalJson);
             }
             Assert.True(replayErrors.Count == 0, string.Join("; ", replayErrors));
-            var previous = session;
             session = MatchSession.Restore(restored, engine, this, NoopMatchPlayerStore.Instance, options);
             lastAcceptedResult = null;
+            // Frame(State) already built fresh expected views before the JSON round trip.
+            // Compare those originals with fresh projections from the restored session.
             foreach (var player in Initial.Seats.Keys)
             {
-                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(previous.SnapshotFor(player)), JsonSerializer.SerializeToNode(session.SnapshotFor(player))));
-                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(previous.PromptFor(player)), JsonSerializer.SerializeToNode(session.PromptFor(player))));
+                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[player].Snapshot), JsonSerializer.SerializeToNode(session.SnapshotFor(player))));
+                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[player].Prompt), JsonSerializer.SerializeToNode(session.PromptFor(player))));
             }
             ColdCount++; afterCold = true;
         }
