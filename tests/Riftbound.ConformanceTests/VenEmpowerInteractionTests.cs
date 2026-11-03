@@ -65,6 +65,32 @@ public sealed class VenEmpowerInteractionTests
         Assert.True(game.State.CardObjects[target].IsEmpowered); await game.Replay();
     }
 
+    // CN VEN official FAQ p. 18: players control their own legends.
+    [Fact]
+    public async Task MerchantCanPayByRemovingEmpowerFromItsControllersLegend()
+    {
+        var initial = VenUnitEntryBasicTests.Position("VEN·082");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "VEN·151", "P1") with { IsEmpowered = true } },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·082", []));
+        var cost = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("EMPOWER_REMOVAL_COST", cost.ChoiceWindow);
+        Assert.Equal(new[] { "LEGEND" }, cost.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(cost.ChoiceId, cost.ChoiceWindow, ["LEGEND"]));
+        Assert.False(game.State.CardObjects["LEGEND"].IsEmpowered);
+        var target = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(target.ChoiceId, target.ChoiceWindow, ["UNIT"]));
+        Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+        await game.Top();
+        Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("ALLY")] [InlineData("ENEMY")]
     public async Task MerchantUsesItsControllerForEmpowerObserversOnEitherSidesUnits(string target)

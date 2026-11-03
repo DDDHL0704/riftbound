@@ -265,20 +265,27 @@ public sealed class VenUnitEventTests
     }
 
     [Theory]
-    [InlineData(false, 7, false)] [InlineData(true, 5, false)] [InlineData(true, 7, true)]
-    public async Task DameOnlyConfirmsAGreaterUnitHereAfterAnEmpoweredAttack(bool empowered, int enemyPower, bool triggers)
+    [InlineData(false, 7, "ENEMY")]
+    [InlineData(true, 1, "ENEMY")] [InlineData(true, 5, "ENEMY")] [InlineData(true, 7, "ENEMY")]
+    [InlineData(true, 7, "UNIT")] [InlineData(true, 7, "ALLY")]
+    public async Task DameErratumAllowsAnyUnitHereAndOnlyRaisesPowerBeforeAddingOne(bool empowered, int enemyPower, string target)
     {
         var initial = BattlePosition("VEN·079", true);
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["UNIT"] = initial.CardObjects["UNIT"] with { IsEmpowered = empowered },
             ["ENEMY"] = initial.CardObjects["ENEMY"] with { Power = enemyPower },
             ["ALLY"] = initial.CardObjects["ALLY"] with { Power = 10 } } };
+        if (target == "ALLY") initial = LocalDestructionRecallTests.At(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
         var game = new Driver(initial); await Fight(game);
-        if (!triggers) { Assert.Null(game.State.PendingCardChoice); Assert.DoesNotContain(game.State.StackItems, i => i.UnitEvent is not null); return; }
-        var choice = game.State.PendingCardChoice!; Assert.Equal(new[] { "ENEMY" }, choice.LegalObjectIds);
-        await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
-        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
-        Assert.Equal(5, Might(game.State)); await game.Top(); Assert.Equal(enemyPower + 1, Might(game.State)); await game.Replay();
+        if (!empowered) { Assert.Null(game.State.PendingCardChoice); Assert.DoesNotContain(game.State.StackItems, i => i.UnitEvent is not null); return; }
+        var choice = game.State.PendingCardChoice!;
+        Assert.Equal(target == "ALLY" ? new[] { "ALLY", "ENEMY", "UNIT" } : new[] { "ENEMY", "UNIT" }, choice.LegalObjectIds);
+        foreach (var invalid in target == "ALLY" ? new[] { "GEAR", "GRAVE" } : new[] { "ALLY", "GEAR", "GRAVE" })
+            await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [invalid]));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+        Assert.Equal(5, Might(game.State)); await game.Top();
+        Assert.Equal(Math.Max(5, target == "UNIT" ? 5 : target == "ALLY" ? 10 : enemyPower) + 1, Might(game.State));
+        await game.Replay();
     }
 
     [Fact]
@@ -290,7 +297,7 @@ public sealed class VenUnitEventTests
             ["ENEMY"] = initial.CardObjects["ENEMY"] with { Power = 7 } } };
         var game = new Driver(initial);
         await game.Act("P2", new DeclareBattleCommand("BF", ["ENEMY"], ["UNIT"], ["COMBAT_ASSIGNMENT"]));
-        var choice = game.State.PendingCardChoice!; Assert.Equal(new[] { "ENEMY" }, choice.LegalObjectIds);
+        var choice = game.State.PendingCardChoice!; Assert.Equal(new[] { "ENEMY", "UNIT" }, choice.LegalObjectIds);
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
         await game.Top(); Assert.Equal(8, Might(game.State)); await game.Replay();
     }

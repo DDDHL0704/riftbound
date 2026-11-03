@@ -156,6 +156,31 @@ public sealed class VenCombatAndHandSpellTests
         await game.Replay();
     }
 
+    [Fact]
+    public async Task SandsCanCounterTheFirstSpellAfterTheLaterConfirmedSpellWasCountered()
+    {
+        var initial = AttackDamageDistributionTests.Spell(CounterPosition(), "DENY", "OGN·045/298", "P1");
+        initial = AttackDamageDistributionTests.Spell(initial, "SECOND", "OGN·048/298", "P2");
+        var game = new Driver(initial);
+        await game.Act("P2", new PlayCardCommand("FIRST", "OGN·048/298", []));
+        var first = Assert.Single(game.State.StackItems).StackItemId;
+        await game.Act("P2", new PlayCardCommand("SECOND", "OGN·048/298", []));
+        var second = game.State.StackItems.Single(item => item.SourceObjectId == "SECOND").StackItemId;
+        await game.Act("P2", new PassPriorityCommand());
+        await game.Act("P1", new PlayCardCommand("DENY", "OGN·045/298", [second]));
+        await game.Top();
+        Assert.Equal(first, Assert.Single(game.State.StackItems).StackItemId);
+        if (game.State.PriorityPlayerId == "P2") await game.Act("P2", new PassPriorityCommand());
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·039", [first]));
+        await game.Top();
+        Assert.Empty(game.State.StackItems);
+        Assert.Contains("FIRST", game.State.PlayerZones["P2"].Graveyard);
+        Assert.Contains("SECOND", game.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(initial.PlayerZones["P2"].MainDeck, game.State.PlayerZones["P2"].MainDeck);
+        Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "STACK_ITEM_COUNTERED"));
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("VEN·039")] [InlineData("VEN·083")] [InlineData("VEN·085")]
     public async Task InsufficientManaNeverChangesTheStateOrDisclosesTheHand(string no)

@@ -1,11 +1,69 @@
 import importlib.util
+from contextlib import redirect_stdout
+import io
+import os
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('process_restart', ROOT / 'scripts/run-process-restart-ci.py')
 RUNNER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RUNNER)
+
+
+class RunLoggedTests(unittest.TestCase):
+    def test_failed_driver_prints_its_error_and_keeps_the_full_log_and_exit_code(self):
+        with tempfile.TemporaryDirectory() as folder:
+            log = Path(folder) / 'driver-prepare.log'
+            command = [sys.executable, '-c',
+                       'import sys\nfor i in range(100): print(f"driver line {i}", flush=True)\n'
+                       'print("original driver assertion", file=sys.stderr)\nsys.exit(17)']
+            console = io.StringIO()
+            with redirect_stdout(console), self.assertRaises(subprocess.CalledProcessError) as failed:
+                RUNNER.run_logged(command, log, dict(os.environ))
+            expected = [f'driver line {i}' for i in range(100)] + ['original driver assertion']
+            self.assertEqual(expected, log.read_text().splitlines())
+            self.assertEqual([f'Command failed; last 80 lines of {log}:'] + expected[-80:],
+                             console.getvalue().splitlines())
+            self.assertEqual(17, failed.exception.returncode)
+            self.assertEqual(command, failed.exception.cmd)
+
+    def test_success_uses_the_given_environment_and_keeps_output_in_the_log(self):
+        with tempfile.TemporaryDirectory() as folder:
+            log = Path(folder) / 'driver.log'
+            command = [sys.executable, '-c',
+                       'import os,sys; print(os.environ["RIFTBOUND_TEST_DRIVER_ENV"], flush=True); '
+                       'print("driver warning", file=sys.stderr)']
+            console = io.StringIO()
+            with redirect_stdout(console):
+                RUNNER.run_logged(command, log, dict(os.environ, RIFTBOUND_TEST_DRIVER_ENV='configured'))
+            self.assertEqual(['configured', 'driver warning'], log.read_text().splitlines())
+            self.assertEqual('', console.getvalue())
+
+    def test_invalid_utf8_cannot_hide_the_original_failure_or_change_its_log(self):
+        with tempfile.TemporaryDirectory() as folder:
+            log = Path(folder) / 'driver.log'
+            command = [sys.executable, '-c',
+                       'import sys; sys.stderr.buffer.write(b"driver error: \\xff"); sys.exit(23)']
+            console = io.StringIO()
+            with redirect_stdout(console), self.assertRaises(subprocess.CalledProcessError) as failed:
+                RUNNER.run_logged(command, log, dict(os.environ))
+            self.assertEqual(b'driver error: \xff', log.read_bytes())
+            self.assertIn('driver error: \ufffd\n', console.getvalue())
+            self.assertEqual(23, failed.exception.returncode)
+
+    def test_existing_log_is_preserved_without_starting_the_command(self):
+        with tempfile.TemporaryDirectory() as folder:
+            log, marker = Path(folder) / 'driver.log', Path(folder) / 'started'
+            log.write_bytes(b'previous original output')
+            command = [sys.executable, '-c', 'from pathlib import Path; import sys; Path(sys.argv[1]).touch()', str(marker)]
+            with self.assertRaises(FileExistsError):
+                RUNNER.run_logged(command, log, dict(os.environ))
+            self.assertEqual(b'previous original output', log.read_bytes())
+            self.assertFalse(marker.exists())
 
 
 class RestartSequenceTests(unittest.TestCase):

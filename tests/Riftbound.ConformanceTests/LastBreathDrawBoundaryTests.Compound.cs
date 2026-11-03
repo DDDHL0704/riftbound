@@ -53,8 +53,7 @@ public sealed partial class LastBreathDrawBoundaryTests
                 Assert.Equal(faerie, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
             }
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0"));
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
             await game.ColdCheckpoint();
             game.RecoverAfterEveryCommand = true;
             var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();

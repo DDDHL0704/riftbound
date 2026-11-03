@@ -165,7 +165,8 @@ internal static class CreatedTokenReadySqlAcceptance
             }
             else if (ResolutionResult.BuildPrompts(state).FirstOrDefault(pair =>
                 pair.Value.Actions.Contains(CommandTypes.OrderTriggers)).Key is { } actor)
-                state = await submit(actor, new OrderTriggersCommand(state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
+                state = await submit(actor, new OrderTriggersCommand(
+                    OrderedTriggerIds: state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
             else if (state.StackItems.Count > 0 && state.PriorityPlayerId is { } priorityPlayer)
                 state = await submit(priorityPlayer, new PassPriorityCommand());
             else throw new InvalidOperationException("Missing original created-token confirmation or trigger ordering prompt.");

@@ -26,6 +26,33 @@ public sealed class VenBattlefieldCostTests
         await game.Top(); await game.Replay();
     }
 
+    // CN VEN official FAQ pp. 20–21: Haisu's exception belongs to one payment.
+    [Fact]
+    public async Task HaisuWardExceptionDoesNotCarryOverToTheNextSpellTargetingOnlyElsewhere()
+    {
+        var initial = LocalDestructionRecallTests.At(Field("VEN·158", "OGN·248/298"), "ALLY", "P1", "BATTLEFIELD", "BF");
+        initial = AttackDamageDistributionTests.Spell(initial, "SECOND", "OGN·248/298", "P1");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ENEMY"] = initial.CardObjects["ENEMY"] with { Power = 30, Tags = [..initial.CardObjects["ENEMY"].Tags, "法盾2"] } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", "OGN·248/298", ["ALLY", "ENEMY", "ENEMY", "ENEMY", "ENEMY", "ENEMY"]));
+        Assert.Equal(17, game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(0, Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID").Event.Payload["spellshieldTaxPower"]);
+        await game.Top(); Assert.Equal(10, game.State.CardObjects["ENEMY"].Damage);
+
+        var command = new PlayCardCommand("SECOND", "OGN·248/298", Enumerable.Repeat("ENEMY", 6).ToArray());
+        var quote = Quote(game.State, command); Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(15, quote.Cost!.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+        await Reject(game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+            ["P1"] = new(13, 14) } }, "P1", command);
+        await game.Act("P1", command);
+        Assert.Equal(2, game.State.RunePools["P1"].TotalPower);
+        var payments = game.Events().Where(e => e.Event.Kind == "COST_PAID").ToArray();
+        Assert.Equal(2, payments.Length); Assert.Equal(12, payments[1].Event.Payload["spellshieldTaxPower"]);
+        await game.Top(); Assert.Equal(22, game.State.CardObjects["ENEMY"].Damage);
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData(true)] [InlineData(false)]
     public async Task MysticVortexAddsPowerForReactionCardsDuringItsDuelButNotForSwiftCards(bool reaction)

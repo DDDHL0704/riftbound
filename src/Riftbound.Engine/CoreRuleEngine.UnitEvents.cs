@@ -195,11 +195,11 @@ public sealed partial class CoreRuleEngine
             UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static UnitEventObservation CaptureUnitEventFacts(MatchState state, UnitEventObservation o)
-        => UnitEventSpec(o.Context.CardNo)?.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE"
+        => UnitEventSpec(o.Context.CardNo)?.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE"
             ? o with { Context = o.Context with {
                 LastKnownPower = UnitEventSpec(o.Context.CardNo)!.Effect == "MOVE_ENEMIES_TO_BASE" ? null
                     : ResolveCurrentFieldUnitPower(state, state.CardObjects[o.Source]),
-                Here = UnitEventSpec(o.Context.CardNo)!.Effect is "MATCH_GREATER_POWER" or "MOVE_ENEMIES_TO_BASE" ? state.ObjectLocations[o.Source] : null } } : o;
+                Here = UnitEventSpec(o.Context.CardNo)!.Effect is "MATCH_POWER_THEN_BUFF" or "MOVE_ENEMIES_TO_BASE" ? state.ObjectLocations[o.Source] : null } } : o;
 
     private static TriggerQueueItemState[] CaptureConquestUnitEvents(MatchState state, IEnumerable<string> units, long tick,
         string player, string battlefield)
@@ -319,14 +319,14 @@ public sealed partial class CoreRuleEngine
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
                 : c.Other is null)
-            && (spec.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
+            && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect == "MIGHT_ATTACKERS" ? c.Attackers is { Count: > 0 }
                 && c.Attackers.All(a => a is not null && a.Binding is { Generation: >= 0 }
                     && !string.IsNullOrWhiteSpace(a.Binding.ObjectId)
                     && PredictBindingMatches(state, a.Binding, a.CardNo, a.FaceRevision, c.CapturedTick, a.TokenFactoryCardNo))
                 && c.Attackers.Select(a => a.Binding.ObjectId).Distinct(StringComparer.Ordinal).Count() == c.Attackers.Count
                 : c.Attackers is null)
-            && (spec.Effect is "MATCH_GREATER_POWER" or "MOVE_ENEMIES_TO_BASE" || spec.Timing == "PLAY_OR_MOVE" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
+            && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "MOVE_ENEMIES_TO_BASE" || spec.Timing == "PLAY_OR_MOVE" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
                 && (here.Zone == "BASE" && here.BattlefieldObjectId is null
                     || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is not null)
                 : c.Here is null)
@@ -337,7 +337,7 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
+        && (SelectedUnitEventSpec(c)?.Effect is "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.TargetGenerations is null || NeedsUnitEventTarget(item) && item.TargetObjectIds.Count > 0
@@ -372,10 +372,9 @@ public sealed partial class CoreRuleEngine
                 "MIGHT_ATTACKERS" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
                     && item.UnitEvent!.Attackers!.Any(a => a.Binding.ObjectId == c.ObjectId && a.Binding.Generation == c.ObjectGeneration),
-                "MATCH_GREATER_POWER" => IsFaceUpNonStandbyUnit(c) && c.ObjectId != item.SourceObjectId
+                "MATCH_POWER_THEN_BUFF" => IsFaceUpNonStandbyUnit(c)
                     && state.ObjectLocations.TryGetValue(c.ObjectId, out var loc) && loc.Zone == item.UnitEvent!.Here!.Zone
-                    && (loc.Zone == "BASE" ? loc.PlayerId == item.UnitEvent.Here.PlayerId : loc.BattlefieldObjectId == item.UnitEvent.Here.BattlefieldObjectId)
-                    && ResolveCurrentFieldUnitPower(state, c) > UnitEventSourcePower(state, item),
+                    && (loc.Zone == "BASE" ? loc.PlayerId == item.UnitEvent.Here.PlayerId : loc.BattlefieldObjectId == item.UnitEvent.Here.BattlefieldObjectId),
                 "DESTROY_CHEAPER_EQUIPMENT" => c.Tags.Contains(CardObjectTags.EquipmentCard) && c.ManaCost <= UnitEventSourcePower(state, item),
                 "MOVE_ENEMIES_TO_BASE" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
@@ -517,11 +516,12 @@ public sealed partial class CoreRuleEngine
             events.Add(new("UNIT_STATUS_APPLIED", "单位在本回合内获得强攻", new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = assaulter.ObjectId, ["statusEffectId"] = effect }));
         }
-        if (spec.Effect == "MATCH_GREATER_POWER" && item.TargetObjectIds.SingleOrDefault() is { } greater
-            && StackObjectRules.ReferencesCurrentObject(state, item, greater) && UnitEventTargets(state, item).Contains(greater)
+        if (spec.Effect == "MATCH_POWER_THEN_BUFF" && item.TargetObjectIds.SingleOrDefault() is { } matchedTarget
+            && StackObjectRules.ReferencesCurrentObject(state, item, matchedTarget) && UnitEventTargets(state, item).Contains(matchedTarget)
             && cards.TryGetValue(item.SourceObjectId, out var matching) && matching.ObjectGeneration == context.SourceGeneration
             && IsObjectOnField(zones, matching.ObjectId)) {
-            var delta = ResolveCurrentFieldUnitPower(state, cards[greater]) - UnitEventSourcePower(state, item) + 1;
+            // Raising to a lower or equal value does nothing; the subsequent +1 still applies.
+            var delta = Math.Max(0, ResolveCurrentFieldUnitPower(state, cards[matchedTarget]) - UnitEventSourcePower(state, item)) + 1;
             var behavior = new CardBehaviorDefinition(context.CardNo, "追平战力后获得+1", 0, item.EffectKind, 0, 1, PowerModifierAmount: delta);
             cards[matching.ObjectId] = ApplyPowerModifier(state, matching, behavior, item, matching.ObjectId, delta, out var power);
             events.Add(power);

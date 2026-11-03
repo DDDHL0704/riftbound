@@ -74,7 +74,8 @@ public sealed class CreatedTokenReadyJsonbRecoveryTests
                 await Act(remainingPayment.PlayerId, new PayCostCommand(remainingPayment.PaymentId, remainingPayment.PaymentWindow, ["DECLINE"]));
             else if (ResolutionResult.BuildPrompts(state).FirstOrDefault(pair =>
                 pair.Value.EnabledActions().Contains(CommandTypes.OrderTriggers)).Key is { } actor)
-                await Act(actor, new OrderTriggersCommand(state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
+                await Act(actor, new OrderTriggersCommand(
+                    OrderedTriggerIds: state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
             else await Act(state.PriorityPlayerId!, new PassPriorityCommand());
         }
         Assert.Empty(state.StackItems);
