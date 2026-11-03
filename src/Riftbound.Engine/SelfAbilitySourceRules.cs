@@ -19,9 +19,9 @@ internal static class SelfAbilitySourceRules
                 && current.TokenFactoryCardNo == tokenFactory
                 && (!usesPrintedFace || current.ObjectGeneration > source.Generation
                     || CopyFaceTimeline.FaceAt(current, revision, acquiredTick) == cardNo);
-        // CN 186.1 and 355.9.c: the token ceases, while its already captured
-        // skill still resolves. Only a receipt captured before departure can
-        // authorize the missing source during recovery.
+        // CN 186.1: the token ceases. CN 355.9.c treats the skill and its
+        // source as distinct objects. Only a receipt captured before departure
+        // can authorize the missing source during recovery.
         return P6TokenFactoryCatalog.IsUnitTokenFactory(tokenFactory) && ceased is not null
             && ceased.Source == source && ceased.CardNo == cardNo && ceased.FaceRevision == revision
             && ceased.AcquiredTick == acquiredTick && ceased.TokenFactoryCardNo == tokenFactory
@@ -62,6 +62,11 @@ public sealed partial class CoreRuleEngine
                 && departed.Contains(temporary.Grant.Unit.ObjectId) && ValidTemporaryActivation(before, item))
                 return item with { TemporaryActivation = temporary with { CeasedSource = SelfAbilitySourceRules.Capture(
                     before, state.Tick, temporary.Grant.Unit, temporary.CardNo, temporary.FaceRevision, temporary.ActivatedTick, temporary.SourceTokenFactoryCardNo) } };
+            if (item.EndAbility is { Kind: TimeAssassinEndDestructionKind, CeasedSource: null, CapturedTick: { } captured } ending
+                && departed.Contains(item.SourceObjectId) && ValidEndAbility(before, item))
+                return item with { EndAbility = ending with { CeasedSource = SelfAbilitySourceRules.Capture(
+                    before, state.Tick, new(ending.Source.ObjectId, ending.Source.ObjectGeneration), ending.Source.CardNo!,
+                    ending.Source.CopyFaceTransitions?.Count ?? 0, captured, ending.Source.TokenFactoryCardNo) } };
             return item;
         }).ToArray();
         return RecordCeasedExhaustedInsightSources(before, state with { StackItems = stack }, departed);
