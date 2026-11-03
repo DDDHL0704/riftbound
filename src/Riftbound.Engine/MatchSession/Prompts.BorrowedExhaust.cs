@@ -47,15 +47,19 @@ internal static partial class ActionPromptBuilder
                 if (!CoreRuleEngine.TryBorrowedConversionMaximum(state, player, source, ability.Spec, out var maximum)) continue;
                 optional = ResourceConversionChoices(BorrowedExhaustRules.ConversionChoicePrefix, maximum, "选择资源转换数量");
             }
-            var targets = ability.Spec.Targets == 0 ? [] : (BorrowedExhaustRules.TargetsPlayer(ability.Spec)
-                ? state.Seats.Keys : state.CardObjects.Keys).Order(StringComparer.Ordinal)
-                .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec, source.ObjectId))
-                .Select(id => BorrowedExhaustRules.TargetsPlayer(ability.Spec)
-                    ? new ActionPromptChoiceDto(id, id, "所选玩家") : ObjectChoice(state, id, "技能目标")).ToArray();
-            if (targets.Length < ability.Spec.Targets) continue;
             var choices = Enumerable.Range(0, ability.Spec.Targets).ToDictionary(i => i.ToString(),
-                _ => (IReadOnlyList<ActionPromptChoiceDto>)targets);
+                i => (IReadOnlyList<ActionPromptChoiceDto>)(BorrowedExhaustRules.TargetsPlayer(ability.Spec)
+                    ? state.Seats.Keys : state.CardObjects.Keys).Order(StringComparer.Ordinal)
+                    .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec, source.ObjectId, i))
+                    .Select(id => BorrowedExhaustRules.TargetsPlayer(ability.Spec)
+                        ? new ActionPromptChoiceDto(id, id, "所选玩家") : ObjectChoice(state, id,
+                            ability.Spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT"
+                                ? i == 0 ? "单位" : "武装" : "技能目标")).ToArray());
+            var targets = choices.Values.SelectMany(c => c).DistinctBy(c => c.Id).ToArray();
+            if (choices.Values.Any(c => c.Count == 0) || targets.Length < ability.Spec.Targets) continue;
             var effect = ability.Spec.Kind switch {
+                "ATTACH_ARMAMENT" => "将你控制的一件未贴附的武装贴附到你控制的一名单位上",
+                "REATTACH_ARMAMENT" => "将你控制的一件已贴附的武装贴附到你控制的一名单位上",
                 "RETURN_UNIT_FREE_PLAY" => "让一名友方单位返回手牌，然后可免费打出战力更低的单位",
                 "RETURN_TO_HAND" => ability.Spec.TargetScope == "OWNED_TEEMO_UNIT"
                     ? "将你拥有的英雄区域或场上提莫单位放入手牌" : "让另一张友方装备、单位或正面朝下的卡牌返回手牌",

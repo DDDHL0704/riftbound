@@ -8486,9 +8486,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string unitObjectId,
         string equipmentObjectId,
         LegendAbilityDefinition ability)
+        => unitObjectId != equipmentObjectId && IsControlledArmamentTarget(state, playerId, equipmentObjectId,
+            ability.RequiresUnattachedArmamentSecondTarget, ability.RequiresAttachedArmamentSecondTarget);
+
+    private static bool IsControlledArmamentTarget(MatchState state, string playerId, string equipmentObjectId,
+        bool requiresUnattached, bool requiresAttached)
     {
-        if (string.Equals(unitObjectId, equipmentObjectId, StringComparison.Ordinal)
-            || !IsControlledFieldObject(state, playerId, equipmentObjectId)
+        if (!IsControlledFieldObject(state, playerId, equipmentObjectId)
             || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
             || string.IsNullOrWhiteSpace(equipmentState.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
@@ -8500,12 +8504,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var isAttached = !string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId);
-        if (ability.RequiresUnattachedArmamentSecondTarget && isAttached)
+        if (requiresUnattached && isAttached)
         {
             return false;
         }
 
-        if (ability.RequiresAttachedArmamentSecondTarget && !isAttached)
+        if (requiresAttached && !isAttached)
         {
             return false;
         }

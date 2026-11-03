@@ -39,8 +39,11 @@ public sealed partial class CoreRuleEngine
                 "UNIT" => CardObjectTags.UnitCard, "EQUIPMENT" => CardObjectTags.EquipmentCard, _ => null })
             .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray();
 
-    internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
-        => BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
+    internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId,
+        int index = 0)
+        => spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
+            ? IsControlledArmamentTarget(state, player, id, spec.Kind == "ATTACH_ARMAMENT", spec.Kind == "REATTACH_ARMAMENT")
+            : BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
             : spec.TargetScope == "OWNED_TEEMO_UNIT" ? IsValidOwnedTeemoUnitTarget(state, player, id)
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id)
             : spec.TargetScope == "OTHER_FRIENDLY_PERMANENT_OR_FACEDOWN" ? id != sourceId
@@ -74,7 +77,7 @@ public sealed partial class CoreRuleEngine
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targets.Count != ability.Spec.Targets || command.TargetObjectIds.Count != targets.Count
             || targets.Distinct(StringComparer.Ordinal).Count() != targets.Count
-            || targets.Any(id => !IsBorrowedExhaustTarget(state, intent.PlayerId, id, ability.Spec, source.ObjectId)))
+            || targets.Where((id, index) => !IsBorrowedExhaustTarget(state, intent.PlayerId, id, ability.Spec, source.ObjectId, index)).Any())
             return RejectWithCorePrompts(state, "请选择技能要求的不同合法目标。", ErrorCodes.InvalidTarget);
         var requested = NormalizeOptionalCosts(command.OptionalCosts);
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
@@ -284,6 +287,8 @@ public sealed partial class CoreRuleEngine
                 id => IsBorrowedExhaustTarget(state, item.ControllerId, id, spec, item.SourceObjectId));
         if (spec.Kind is "RETURN_TO_HAND" or "RETURN_AND_CREATE_GOLD")
             return ResolveBorrowedReturnSkill(state, item, spec);
+        if (spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT")
+            return ResolveBorrowedArmamentSkill(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
         if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")
             return ResolveCommandOpponentMovement(state, item, c.Borrower.Object, "获得的移动技能", BorrowedExhaustRules.Effect);
