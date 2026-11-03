@@ -178,6 +178,11 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("RETURN_AND_CREATE_GOLD", scope: "FRIENDLY_BATTLEFIELD_UNIT"));
                 continue;
             }
+            if (effect == "{{鼓舞}}—你在本回合内打出的下一名单位以活跃状态进场")
+            {
+                result.Add(Skill("GRANT_NEXT_UNIT_READY", 0) with { EffectRequiresEncouraged = true });
+                continue;
+            }
             if (effect == "让你本回合打出的下一个法术获得等同于其费用的{{回响}}")
             {
                 result.Add(Skill("GRANT_NEXT_SPELL_ECHO", 0));

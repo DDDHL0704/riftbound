@@ -62,6 +62,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!result.Accepted) return result;
         result = RecordNextUnitPlayGrants(result);
+        result = RecordActivatedNextUnitReady(result);
         result = RecordTimeAssassinNextUnitReductions(result);
         var history = result.State.CardPlays;
         var finalized = (history.TurnNumber == before.TurnNumber ? history.Finalized : []).ToList();

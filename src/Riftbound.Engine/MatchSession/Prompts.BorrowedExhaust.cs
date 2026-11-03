@@ -67,6 +67,7 @@ internal static partial class ActionPromptBuilder
                 "READY_EQUIPMENT" => $"让 {ability.Spec.Targets} 件装备活跃",
                 "READY_UNIT" => "让一名单位活跃",
                 "GRANT_NEXT_SPELL_ECHO" => "本回合打出的下一个法术获得等同于其费用的回响",
+                "GRANT_NEXT_UNIT_READY" => "鼓舞时，本回合打出的下一名单位以活跃状态进场",
                 "TRANSFER_SOURCE_AND_RECALL" => "选择一名玩家，令其获得此牌控制权并召回",
                 "COMMAND_OPPONENT_MOVEMENT" => "选择一名对手，让其将一名单位移动到此牌所在战场",
                 "GUESS_DECK_TOP" => "选择一名对手猜测牌库顶类型，展示后回收或抽取",

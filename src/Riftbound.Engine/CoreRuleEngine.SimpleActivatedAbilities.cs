@@ -418,6 +418,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidSimpleActivation(state, item,
                 allowMissingReturnTarget: spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted))
             throw new InvalidOperationException("Invalid captured printed activation.");
+        if (spec.GrantsNextUnitReady) return ResolveActivatedNextUnitReady(state, item);
         if (spec.BanishesSourceThenReplaysToBase)
         {
             if (item.EffectPlayCompleted || !state.CardObjects.TryGetValue(item.SourceObjectId, out var replayed)

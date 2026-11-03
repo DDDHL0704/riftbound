@@ -85,6 +85,7 @@ public sealed partial class CoreRuleEngine
                     ending.Source.CopyFaceTransitions?.Count ?? 0, captured, ending.Source.TokenFactoryCardNo) } };
             return item;
         }).ToArray();
-        return RecordCeasedExhaustedInsightSources(before, state with { StackItems = stack }, departed);
+        state = RecordCeasedActivatedPlayGrantSources(before, state with { StackItems = stack }, departed);
+        return RecordCeasedExhaustedInsightSources(before, state, departed);
     }
 }

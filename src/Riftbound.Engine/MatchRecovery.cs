@@ -4734,6 +4734,7 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidCurrentBoonAmplifiers(state)) errors.Add("invalid temporary friendly Boon amplifier");
         if (!CoreRuleEngine.ValidTurnFlowGrants(state)) errors.Add("invalid temporary flow grant");
         if (!CoreRuleEngine.ValidCurrentNextUnitPlayGrants(state)) errors.Add("invalid next unit play grant");
+        if (!CoreRuleEngine.ValidActivatedPlayGrants(state)) errors.Add("invalid activated next play grant");
         if (!CoreRuleEngine.ValidCurrentTimeAssassinNextUnitReductions(state)) errors.Add("invalid time assassin next unit reduction");
         if (!CoreRuleEngine.ValidCurrentTimeAssassinDestructions(state)) errors.Add("invalid time assassin destruction marker");
         foreach (var item in state.StackItems)
