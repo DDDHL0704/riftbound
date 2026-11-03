@@ -42,6 +42,14 @@ public sealed partial class CoreRuleEngine
     private static MatchState RecordCeasedSelfAbilitySources(MatchState before, MatchState state, IReadOnlySet<string> departed)
     {
         var stack = state.StackItems.Select(item => {
+            if (item.BorrowedExhaust is { } borrowed && BorrowedExhaustRules.Valid(before, item))
+            {
+                BorrowedTextSource CaptureBorrowed(BorrowedTextSource text) => text.CeasedSource is null && departed.Contains(text.Object.ObjectId)
+                    ? text with { CeasedSource = SelfAbilitySourceRules.Capture(before, state.Tick, text.Object,
+                        text.PhysicalCardNo, text.FaceRevision, borrowed.AcquiredTick, text.TokenFactoryCardNo) } : text;
+                return item with { BorrowedExhaust = borrowed with {
+                    Borrower = CaptureBorrowed(borrowed.Borrower), Donor = CaptureBorrowed(borrowed.Donor) } };
+            }
             if (item.SelfMightActivation is { CeasedSource: null } self
                 && departed.Contains(self.Source.ObjectId) && SelfMightRules.Valid(before, item))
                 return item with { SelfMightActivation = self with { CeasedSource = SelfAbilitySourceRules.Capture(

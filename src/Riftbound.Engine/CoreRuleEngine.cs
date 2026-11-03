@@ -5274,6 +5274,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Never trust a caller-supplied in-process derived property. The raw
         // OptionalCosts are the only source of this selection on every replay.
         command = command with { OptionalCosts = costsWithoutManaSelection, ServerManaSourceSelection = selectedMana };
+        if (command.AbilityId.StartsWith("BORROWED:", StringComparison.Ordinal))
+            return ResolveBorrowedExhaust(state, intent, command);
         if (command.AbilityId.StartsWith("GRANTED:", StringComparison.Ordinal))
             return ResolveTemporaryActivation(state, intent, command);
         if (command.AbilityId.StartsWith("SOURCE-BOON-MIGHT:", StringComparison.Ordinal))
@@ -24427,6 +24429,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveEzrealBlueSwiftMoveAbilityStackItem(state, stackItem);
         }
 
+        if (stackItem.EffectKind == BorrowedExhaustRules.Effect) return ResolveBorrowedExhaustStack(state, stackItem);
         if (stackItem.EffectKind == TemporaryActivationEffect) return ResolveTemporaryActivationStack(state, stackItem);
         if (stackItem.EndAbility is not null) return stackItem.EffectKind == CreateEndAbilityEffect ? ResolveDelayedEndCreation(state, stackItem) : ResolveEndAbility(state, stackItem);
         if (stackItem.EffectKind == SourceBoonMightRules.Effect) return ResolveSourceBoonMightStack(state, stackItem);
