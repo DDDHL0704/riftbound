@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Restart an actual PostgreSQL-backed API and restore both original SignalR players."""
 import argparse
+from collections import deque
 import hashlib
 import importlib.util
 import json
@@ -24,6 +25,18 @@ try:
     SPEC.loader.exec_module(CANDIDATE)
 finally:
     sys.dont_write_bytecode = previous_bytecode_setting
+
+
+def run_logged(command, output, env):
+    try:
+        with Path(output).open('xb') as stream:
+            subprocess.run(command, cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    except subprocess.CalledProcessError:
+        print(f'Command failed; last 80 lines of {output}:', flush=True)
+        with Path(output).open(encoding='utf-8', errors='replace') as stream:
+            tail = ''.join(deque(stream, maxlen=80))
+        print(tail, end='' if tail.endswith('\n') else '\n', flush=True)
+        raise
 
 
 def stop_api(process):
@@ -89,8 +102,7 @@ def main():
            '--dbname=riftbound_acceptance', '--set=ON_ERROR_STOP=1']
 
     def checked(command, name):
-        with (output / name).open('xb') as stream:
-            subprocess.run(command, cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT, check=True)
+        run_logged(command, output / name, env)
 
     try:
         for migration in sorted((ROOT / 'src/Riftbound.Persistence/Sql').glob('*.sql')):
