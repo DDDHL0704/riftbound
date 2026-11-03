@@ -1,4 +1,4 @@
-import { BLANK_BATTLEFIELD, cardInfo } from "./cards";
+import { BLANK_BATTLEFIELD, cardInfo, isNeutralColor } from "./cards";
 import { MAIN_CATEGORIES, RUNES } from "./decks";
 import type { CardInfo, MatchSeries, SealedPool } from "./types";
 
@@ -51,14 +51,14 @@ const unlimited = (no: string) => no === BLANK_BATTLEFIELD || isBasicRune(cardIn
 export function deckTraits(deck: SealedDeck) {
   const traits = new Set<string>();
   for (const no of [...deck.mainDeck, ...deck.runeDeck, ...deck.battlefields, ...(deck.legendCardNo ? [deck.legendCardNo] : [])])
-    for (const color of cardInfo(no)?.colors ?? []) if (color !== "colorless") traits.add(color);
+    for (const color of cardInfo(no)?.colors ?? []) if (!isNeutralColor(color)) traits.add(color);
   return [...traits];
 }
 
 /** Whether adding this card would take the deck past the trait limit. */
 export function breaksTraits(no: string, traits: string[]) {
   const next = new Set(traits);
-  for (const color of cardInfo(no)?.colors ?? []) if (color !== "colorless") next.add(color);
+  for (const color of cardInfo(no)?.colors ?? []) if (!isNeutralColor(color)) next.add(color);
   return next.size > MAX_TRAITS;
 }
 

@@ -6,7 +6,7 @@
 - **main**：11 月 3 日 11:43 首查仍为 `04c5afbe1`；已合入 #428 的完整 L2 全绿，22,763 次执行通过、零跳过，总墙钟 86 分 50 秒，30 分钟目标仍未达。后续集中分支 `a/l2-catalog-preflight-followup` 的 113 条不同原参数行和最终 27 类／1,302 行固定守卫已核验通过。夜验快照顺序修复由 F #432 覆盖，A 的重复 #433 已关闭并请求取消其 L2；本轮集中发布提速批次并立即设置 auto，仍最多一个 A 线 L2 PR、一个本地 dotnet 槽位。
 - **夜间验收**：此前 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 连续三次全绿，P0-2 的连续验收目标已达标。11 月 2 日定时验收 [41354373563](https://github.com/DDDHL0704/riftbound/actions/runs/41354373563) 已于北京时间 10:11 全部通过，包含八个规则分片、四个 PostgreSQL 分区、SQL SignalR 重启、网络、双桌面及最终门槛，实际验证 #366 的拒绝码修正。管理者手动验收 [41376612504](https://github.com/DDDHL0704/riftbound/actions/runs/41376612504) 固定 `9321b6a2b`，已全部成功；后续 [41398666643](https://github.com/DDDHL0704/riftbound/actions/runs/41398666643) 固定 `15fbe5fba`，11 月 2 日 18:40 首查最终 **success**，全部 21 个任务（八个规则片、四个 PostgreSQL 分区、SQL SignalR、网络、双桌面及汇总）成功。管理者的新验收 `41427633441` 固定 `8adf09fed`，本轮复核已取消，未新增验收失败；A 线未补触发。后续按既定夜验跟踪，不重复手动触发。11 月 3 日 11:22 首查，既定 schedule 验收 `41555573034` 固定 `86d726f70` 的规则分片 2 已失败：现开赛 OGN/1、SFD/3 两行的完整快照字符串断言首次差异为 `players` 属性顺序。F [#432](https://github.com/DDDHL0704/riftbound/pull/432) 修正确定性共享投影并保留原字符串断言，A 的重复 #433 已关闭；真实 SQL 效果仍待既定夜验。11:43 首查另确认 SQL 分区 2 被 runner shutdown 中断，退出 143，产物未上传；见下方 P0-2。其他任务继续执行，A 线未补触发手动验收。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
-- **B 线**：RAD 分工内卡牌及共享缴械／休眠已全部合入。VEN 官方 FAQ 首批 #435 已全绿合入；强化／目标确认后续五条在 #440，已启用 auto，本地 Release 构建及 181 条直接相关用例通过。关联指示／原位置重放另五条已在 WSL 验证 29 条不同用例，保存在 `b/ven-faq-linked-instructions`，等 #440 合入后发布；继续核对剩余 VEN 判例，完成后转中国区 RAD 裁判 FAQ DOC-17。
+- **B 线**：RAD 分工内卡牌及共享缴械／休眠已全部合入。VEN FAQ #435、#440 已全绿合入；关联指示／原位置重放五条已同步 main，Release 构建零错误、直接三类 29/29 通过，发布后启用 auto。普朗克目标替换五条已验证并推送，下一批继续修复黑默丁格借用依赖性技能；VEN 完成后转 RAD 中国区裁判 FAQ DOC-17。
 - **C 线**：七名 RAD 传奇、萨勒芬妮两项英雄效果、炫音返场及 T1S·005/005 共 11 个指派条目已全部合入。最后一批五名传奇及 P1-11 已于北京时间 11 月 3 日 06:27 随 [#401](https://github.com/DDDHL0704/riftbound/pull/401) 合入 main `8bb3ec491`；[L2 41514816882](https://github.com/DDDHL0704/riftbound/actions/runs/41514816882) 的九个规则分片与 `L2 required` 全部通过。其余条目已由 #403／#413 合入；P1 无未完成条目，妮蔻／发条联动回归待 #406 合入后接入正式 L2（见 P1-12）。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
 
@@ -105,15 +105,15 @@
   - FAQ 第 20 页：真实洪荒巨力使雷克顿到 11 战力并强化，再由黑心商人支付解除强化；分别由对手“敲”诈降至 10 或自身主动升至 12，全程不跌破 10 时不能再强化。两条参数行保留真实选择、响应与恢复回放。
   - FAQ 第 20–21 页：艾卡西亚暴雨选择一个亥宿处目标和五次基地法盾目标时整次免税；下一张只选择基地目标的法术重新收取六次法盾费用，预览、实付与资源不足拒绝一致。
   - WSL 复验（2026-11-03）：默认分析器 Release 构建零警告、零错误；KayleCountedEmpowerTests、RenektonMightEmpowerTests、VenBattlefieldCostTests、VenCombatAndHandSpellTests、VenTemporaryEffectSpellTests 五类 143/143 通过，普通 EmpowerTests 38/38 通过，均零跳过。已验证上轮复制凯尔上限及雷克顿对手牌库夹具修正，保留逐命令冷恢复、拒绝不变、隐私和完整回放；完整规则由本批 L2 判定。
-  - 前批 #435 已合入，本批 #440 已启用 auto；共享关联指示缺陷及暗刃判例在下一分支单独验证，不追加到已发布分支。梅尔相关判例已有 MelRulesTests 专项覆盖。
+  - 前批 #435 与本批 #440 已全绿合入；共享关联指示缺陷及暗刃判例在下一分支单独验证，不追加到已发布分支。梅尔相关判例已有 MelRulesTests 专项覆盖。
 
-- [ ] **VEN FAQ 关联指示与原位置重放（B 线，`b/ven-faq-linked-instructions`，五条候选）**。从远端准备分支 `origin/b/ven-faq-empower-confirmation` 的 `511ba8939` 新建工作树，保持前批稳定；前批未完成复验及合入前，本批不开 PR。来源为下方中国区 VEN 官方 FAQ 及[10 月 10 日核心规则](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf) 359.3.e.6、359.3.e.14.a–b（SHA256 `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`）。
+- [ ] **VEN FAQ 关联指示与原位置重放（B 线，`b/ven-faq-linked-instructions`，五条候选）**。前批 #440 已合入，本批已同步 main 并完成发布前复验。来源为下方中国区 VEN 官方 FAQ 及[10 月 10 日核心规则](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf) 359.3.e.6、359.3.e.14.a–b（SHA256 `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`）。
   - ① FAQ 第 21–22 页：驭风而行的移动被卑鄙之喉或临时移动限制禁止时，后续活跃仍执行。共享流程改为对结算时仍合法的当前代际目标执行关联活跃，不再只遍历实际移动成功的单位；旧 `MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady` 改为 `MovementProhibitionKeepsTheDeclaredBaseLegalAndStillExecutesLinkedReady`，保留两条参数行及原目标离场、正常移动与回响负控。
   - ② FAQ 第 22 页例 2：暗刃响应闪现移动至基地后，目标指定失效，摧毁及控制者抽两张均跳过；补真实双方响应、牌库不变和恢复回放。 同页回响边界另以真实重复执行验证：相同目标只抽两张，不同合法目标共抽四张。
   - ③ FAQ 第 22 页例 3：中娅沙漏将摧毁替换为移除伤害、休眠召回后，单位仍在场，可继续引用控制者并抽两张；补沙漏替换与抽牌联测。
   - ④ FAQ 第 22 页例 4：惩戒的独立效果将暗刃的摧毁替换为放逐后，已无法引用其当前控制者，不抽牌。共享摧毁替换分派不再为已经离场的对象无条件登记后续控制者抽牌；保留仍在场的召回替换路径。
   - ⑤ FAQ 第 19 页：真实恶意收购取得单位后闪现到另一玩家基地，再用时空裂隙；原拥有者不能将其打到该基地，也不能改到自己的基地或任意战场。补三种目的地拒绝、原生继续结算选择、留在放逐区及完整回放；现有共享原位置许可已经检查基地玩家身份，无单卡特判。
-  - WSL 复验（2026-11-03）：默认分析器 Release 重建零警告、零错误。RideTheWindCurrentMovementTests 14 条、VenTimeFissureTests 10 条、VenLinkedInstructionFaqTests 5 条分次全部通过，共 29 条不同用例、零跳过；包含同目标回响只抽两张／不同目标抽四张，以及原位置重放的非法目的地拒绝。首次两项新断言分别误将批量抽牌事件数当作牌数、将禁用入口视作可执行候选，已按真实事件和提示修正并完整复验对应类。移动冲突保留 main 的基地／控制权检查，未改历史守卫；本批等 #440 合入后再开 PR。
+  - WSL 复验（2026-11-03）：默认分析器 Release 重建零警告、零错误。RideTheWindCurrentMovementTests 14 条、VenTimeFissureTests 10 条、VenLinkedInstructionFaqTests 5 条分次全部通过，共 29 条不同用例、零跳过；包含同目标回响只抽两张／不同目标抽四张，以及原位置重放的非法目的地拒绝。首次两项新断言分别误将批量抽牌事件数当作牌数、将禁用入口视作可执行候选，已按真实事件和提示修正并完整复验对应类。移动冲突保留 main 的基地／控制权检查，未改历史守卫；#440 合入后已同步 main，Release 重建及三类 29/29 再次通过，本批发布并启用 auto。
 
 - [ ] **VEN FAQ 目标替换后续批次（B 线，`b/ven-faq-targeted-replacements`，开发中）**。官方 VEN FAQ 第 12–14 页及普朗克完整卡面明确：已强化单位被法术或技能选作目标，且将实际发生减战力、眩晕或返手时，改为本回合战力 +3；固定战力差及没有可替换事件的边界仍须保留。
   - 已修复两印次缺失的替换：按官方文本解析适用事件，统一覆盖法术、主动／触发技能及即时传奇技能；仅在合法目标确有减战力、眩晕或返手事件时替换为本回合 +3。交换先固定双方差值；最低战力快照为零、已眩晕、没有选择单位的群体返手均不替换；复制同段规则不会重复替换同一个事件。派克传奇返手被替换后仍生成金币，易位法师继续执行后续指示。
@@ -727,11 +727,8 @@ git show <分支>:<路径> > <路径>
 
 - 网页对战前端在 `clients/web`，PR #233 / #234 及分支 `web/battle-polish-2-20261028` 已覆盖桌面、卡组编辑器、战绩、音效、导览等。
 - 服务端规则改了提示或命令格式时，在这里追加一条"前端需适配"，写明 PR 号。
-  - `e/rad-reveal-play` 前端需适配：亮出候选位于打出提示的 `optionalCostChoices`，原样通过 `PLAY_CARD.optionalCosts` 提交最多一个 `SHOWCASE:<objectId>`；可以不选。此选择不支付费用，确认时锁定信息，手牌执行展示，场上卡牌只作挑选。
-  - #262 前端需适配：凯尔的强化层数通过 `empowermentCount` 显示，最多三层。凯南征服授予流转新增可选费用：提示 `flowCostChoiceId` / `flowCostChoices`，通过 `PLAY_CARD.optionalCosts` 提交对应的 `FLOW_COST:<mana>:<power>:<traits>`。
-  - #262 前端需适配：终极统治授予的回合内技能复用 `ACTIVATE_ABILITY` 提示，按返回的 `GRANTED:<hash>` 原样提交 `abilityId`，展示两点任意符能费用及付款候选；结算链的 `grantedAbilityId` 用于对应技能展示。
-  - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。
-  - `b/rad-discard-destroy` 前端需适配：选择触发目标后，使用 `CHOOSE_CARDS` / `TRIGGER_HAND_DISCARD_COST` 选择一张手牌；空选择放弃技能。若随后出现 `TRIGGER_TARGET_COST`，支付或放弃法盾费用与弃牌一起提交，支付成功后再开放响应。所选手牌在付款前只对操作者可见。
+- [x] 2026-11-03 `web/server-adapt-20261103` 已适配以下各项：亮出（`SHOWCASE:` 至多选一）、凯尔强化层数（`empowermentCount` 角标）、流转费用与废牌堆普通打出（按 `flowCostChoiceId` / `normalGraveyardPlayChoiceId` 分别列为打出方式）、授予技能（沿用 `ACTIVATE_ABILITY`）、铁铠冥魂等必选附加费用（`additionalCostChoices` + `requiredAdditionalCostChoiceCount`）、触发弃牌费用（通用 `CHOOSE_CARDS` 面板）；另补炫音返场的 `modeChoices`、任意额外符能（`variableAdditionalPowerCost`）、妮蔻额外登记传奇（`SUBMIT_DECK.additionalLegendCardNos`）、中立卡色，以及网页卡牌数据补入服务端已接入的 VEN/RAD/T1S 印次。
+- [ ] 网页只显示印刷文本：`ReviewedCardErrata` 的中国区勘误写在 C# 里，前端暂未同步（规则以服务端为准）。
 
 ## 现开规则待确认（F 线）
 

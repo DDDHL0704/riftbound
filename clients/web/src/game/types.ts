@@ -37,6 +37,9 @@ export type GameObject = {
   controllerId?: string | null;
   location: Location;
   untilEndOfTurnEffects?: unknown[];
+  /** Present only while the card is empowered; the count is how many times (at most three). */
+  isEmpowered?: boolean;
+  empowermentCount?: number;
 };
 
 export type Zones = {
@@ -253,6 +256,8 @@ export type PreconstructedDeck = {
   mainDeck: string[];
   runeDeck: string[];
   battlefields: string[];
+  /** Legends registered besides the starting one, when a main-deck card allows it (e.g. 妮蔻·完美伪装). */
+  additionalLegendCardNos?: string[];
 };
 
 export type CardInfo = {
