@@ -54,14 +54,19 @@
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["BF"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
       }
     },
+    "objectLocations": {
+      "BF": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
+      "P1-REFLECTIONS-BATTLEFIELD-001": { "playerId": "P1", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" }
+    },
     "cardObjects": {
+      "BF": { "cardNo": "OGN·296/298", "ownerId": "P2", "controllerId": "P1", "tags": ["CARD_TYPE:BATTLEFIELD"] },
       "P1-REFLECTIONS-BASE-001": {
         "power": 2,
         "untilEndOfTurnPowerModifier": 0,
@@ -112,6 +117,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
+      "UNIT_MOVED_TO_BATTLEFIELD",
+      "UNIT_MOVED_TO_BASE",
       "UNIT_LOCATIONS_SWAPPED",
       "CARD_DRAWN"
     ],
@@ -139,6 +146,8 @@
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
+      { "kind": "UNIT_MOVED_TO_BATTLEFIELD" },
+      { "kind": "UNIT_MOVED_TO_BASE" },
       {
         "kind": "UNIT_LOCATIONS_SWAPPED",
         "payload": {

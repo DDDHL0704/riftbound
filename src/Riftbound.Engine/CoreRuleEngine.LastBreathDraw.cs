@@ -9,18 +9,23 @@ public sealed record LastBreathDrawContext(string DeathId, string CardNo, string
     string ControllerId, ObjectBinding Source, string InstanceId, int TriggerIndex,
     bool SourceWasEmpowered, bool SourceWasAlone, int TurnNumber, long CreatedAtTick,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LastBreathRepetitionContext? Repetition { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
     private static string LastBreathDrawTriggerId(LastBreathDrawContext context)
-        => $"TRIGGER-{context.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(context.InstanceId))}:{context.TriggerIndex}-{context.Source.ObjectId}-{context.Kind}";
+        => $"TRIGGER-{context.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(context.InstanceId))}:{context.TriggerIndex}{LastBreathOccurrenceSuffix(context.Repetition)}-{context.Source.ObjectId}-{context.Kind}";
 
     private static LastBreathDrawContext[] CaptureLastBreathDraws(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
         CardObjectState before, string deathId)
     {
-        if (!IsFaceUpNonStandbyUnit(before)) return [];
+        if (before.IsFaceDown || !IsObjectOnField(zones, before.ObjectId)
+            || !before.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.EquipmentCard)) return [];
         // CN 383.2.c.3: retain the position and text before any unreplaced
         // simultaneous death changes zones. Replacement/resource children finish first.
         var frame = RuleChoices.Value?.CurrentDestructionDrawFrame ?? CapturePublicMightFrame(state, zones, cards);
@@ -30,6 +35,7 @@ public sealed partial class CoreRuleEngine
         var alone = !HasOtherFriendlyUnitAtSamePosition(frame.PlayerZones, frame.CardObjects,
             frame.ObjectLocations, source.ObjectId, controller);
         var result = new List<LastBreathDrawContext>();
+        var repetitions = CaptureLastBreathRepetitions(state, zones, cards, before);
         foreach (var instance in AttachedRuleTextRules.Instances(frame.PlayerZones, frame.CardObjects, source))
         {
             var specs = UnitDestroyedTriggerSpecRules.SelfDrawTriggers(instance.CardNo);
@@ -38,7 +44,8 @@ public sealed partial class CoreRuleEngine
                 var context = new LastBreathDrawContext(deathId, instance.CardNo, specs[index].Kind, controller,
                     new(source.ObjectId, source.ObjectGeneration), instance.Id, index, source.IsEmpowered, alone,
                     state.TurnNumber, state.Tick + 1, source.TokenFactoryCardNo, instance.Origin);
-                if (TryGetLastBreathDrawSpec(context, out _)) result.Add(context);
+                if (TryGetLastBreathDrawSpec(context, out _))
+                    foreach (var repetition in repetitions) result.Add(context with { Repetition = repetition });
             }
         }
         return result.ToArray();
@@ -63,7 +70,8 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(context.DeathId) || !context.DeathId.StartsWith("death-", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(context.InstanceId) || context.TurnNumber != state.TurnNumber
             || context.CreatedAtTick <= 0 || context.CreatedAtTick > state.Tick
-            || !TryGetLastBreathDrawSpec(context, out _)) return false;
+            || !TryGetLastBreathDrawSpec(context, out _)
+            || !ValidLastBreathRepetition(state, context.Repetition, context.Source, context.ControllerId, context.CardNo, context.InstanceId)) return false;
         if (context.Origin is { } binding && (binding.Unit is null || binding.Equipment is null
             || string.IsNullOrWhiteSpace(binding.Unit.ObjectId) || string.IsNullOrWhiteSpace(binding.Equipment.ObjectId))) return false;
         var expectedInstance = context.Origin is { Unit: not null, Equipment: not null } origin
@@ -78,7 +86,11 @@ public sealed partial class CoreRuleEngine
                 && (context.Origin is not null || current.ObjectGeneration != context.Source.Generation + 1 || current.CardNo == context.CardNo);
         return context.SourceTokenFactoryCardNo is not null
             && P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
-            && token.Tags.Contains(CardObjectTags.UnitCard);
+            && (token.Tags.Contains(CardObjectTags.UnitCard)
+                // Equipment factories have fixed printed text. Borrowed unit text
+                // needs its captured attachment origin even after the token ceases.
+                || token.Tags.Contains(CardObjectTags.EquipmentCard)
+                    && (context.CardNo == token.CardNo || context.Origin is not null));
     }
 
     internal static bool ValidLastBreathDrawStack(MatchState state, StackItemState item)

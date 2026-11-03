@@ -6,8 +6,22 @@ public static class RadiantCardSources
 {
     public const string SnapshotPath = VendettaCardSources.SnapshotPath;
     private static readonly Lazy<ImmutableArray<OfficialCard>> Cards = new(Load);
+    private static readonly Lazy<ImmutableArray<OfficialCard>> ReviewedPhysicalResourcePrints = new(() =>
+        new[] { (Id: 39507L, CardNo: "RAD·017/167") }
+            .Select(identity => VendettaCardSources.GetOfficialCards().Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
+            .Select(card => card with {
+                CardCategoryList = card.CardCategoryList.ToImmutableArray(),
+                CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),
+                CardColorList = card.CardColorList.ToImmutableArray(),
+                ProductCodeList = card.ProductCodeList.ToImmutableArray(),
+                ProductNameList = card.ProductNameList.ToImmutableArray() })
+            .ToImmutableArray());
 
     public static IReadOnlyList<OfficialCard> GetAdmittedCards() => Cards.Value;
+    // Reviewed physical identity and printed costs do not admit an incomplete
+    // behavior to the runtime catalog. CN 124.1 still preserves its real card.
+    public static IReadOnlyList<OfficialCard> GetReviewedPhysicalPrints() => ReviewedPhysicalResourcePrints.Value;
+    public static IReadOnlyList<OfficialCard> GetReviewedPrintedResourceCostPrints() => ReviewedPhysicalResourcePrints.Value;
 
     private static ImmutableArray<OfficialCard> Load()
     {
@@ -17,21 +31,23 @@ public static class RadiantCardSources
             ?? throw new InvalidOperationException("The official card gallery snapshot is missing.");
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
         return new[] {
+            (Id: 39507L, CardNo: "RAD·017/167"),
             (Id: 39610L, CardNo: "RAD·108/167"),
-            (Id: 39637L, CardNo: "RAD·132/167"),
             (Id: 39512L, CardNo: "RAD·021/167"),
             (Id: 39513L, CardNo: "RAD·021a/167"),
-            (Id: 39694L, CardNo: "RAD·177/167"),
             (Id: 39537L, CardNo: "RAD·043/167"),
             (Id: 39538L, CardNo: "RAD·043a/167"),
-            (Id: 39618L, CardNo: "RAD·114/167"),
-            (Id: 39619L, CardNo: "RAD·114a/167"),
-            (Id: 39592L, CardNo: "RAD·091/167"),
-            (Id: 39593L, CardNo: "RAD·091a/167"),
+            (Id: 39559L, CardNo: "RAD·062/167"),
             (Id: 39566L, CardNo: "RAD·068/167"),
             (Id: 39567L, CardNo: "RAD·068a/167"),
             (Id: 39590L, CardNo: "RAD·090/167"),
             (Id: 39591L, CardNo: "RAD·090a/167"),
+            (Id: 39592L, CardNo: "RAD·091/167"),
+            (Id: 39593L, CardNo: "RAD·091a/167"),
+            (Id: 39618L, CardNo: "RAD·114/167"),
+            (Id: 39619L, CardNo: "RAD·114a/167"),
+            (Id: 39637L, CardNo: "RAD·132/167"),
+            (Id: 39694L, CardNo: "RAD·177/167"),
             (Id: 39659L, CardNo: "RAD·151/167"),
             (Id: 39688L, CardNo: "RAD·174*/167"),
             (Id: 39689L, CardNo: "RAD·174/167"),
@@ -51,6 +67,7 @@ public static class RadiantCardSources
             (Id: 39514L, CardNo: "RAD·022/167"),
             (Id: 39614L, CardNo: "RAD·111/167"),
             (Id: 39561L, CardNo: "RAD·064/167"),
+            (Id: 39568L, CardNo: "RAD·069/167"),
             (Id: 39542L, CardNo: "RAD·046/167"),
             (Id: 39589L, CardNo: "RAD·089/167"),
             (Id: 39661L, CardNo: "RAD·153/167"),
@@ -58,6 +75,8 @@ public static class RadiantCardSources
             (Id: 39691L, CardNo: "RAD·175/167"),
             (Id: 39528L, CardNo: "RAD·035/167"),
             (Id: 39492L, CardNo: "RAD·002/167"),
+            (Id: 39502L, CardNo: "RAD·012/167"),
+            (Id: 39642L, CardNo: "RAD·136/167"),
             (Id: 39535L, CardNo: "RAD·042/167"),
             (Id: 39536L, CardNo: "RAD·042a/167"),
             (Id: 39539L, CardNo: "RAD·044/167"),

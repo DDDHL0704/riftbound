@@ -196,6 +196,10 @@ internal static class UnitDestroyedTriggerSpecRules
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
             ? triggers.Where(IsLastBreathCreateBaseUnitTrigger).ToArray() : [];
 
+    internal static IReadOnlyList<TriggerSpec> BaseTokenCreationTriggers(string? cardNo)
+        => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(t => IsLastBreathCreateBaseUnitTrigger(t) || IsLastBreathCreateDormantGoldTrigger(t)).ToArray() : [];
+
     internal static IReadOnlyList<TriggerSpec> LastBreathRuneCallTriggers(string? cardNo)
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
             ? triggers.Where(t => IsLastBreathCallRuneOneTrigger(t) || IsLastBreathCallRunesThenDrawTrigger(t)).ToArray() : [];

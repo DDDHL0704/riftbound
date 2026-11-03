@@ -37,7 +37,7 @@ public sealed partial class CoreRuleEngine
             // The single-source resolver is only a legality probe here. Its
             // hypothetical exhaustions must not become observations of this action.
             var frame = RuleChoices.Value;
-            var observationCount = frame?.ExhaustedUnitEvents.Count ?? 0;
+            var observationCount = frame?.InstructionUnitEvents.Count ?? 0;
             ResolutionResult validation;
             try
             {
@@ -46,8 +46,8 @@ public sealed partial class CoreRuleEngine
             }
             finally
             {
-                if (frame is not null && frame.ExhaustedUnitEvents.Count > observationCount)
-                    frame.ExhaustedUnitEvents.RemoveRange(observationCount, frame.ExhaustedUnitEvents.Count - observationCount);
+                if (frame is not null && frame.InstructionUnitEvents.Count > observationCount)
+                    frame.InstructionUnitEvents.RemoveRange(observationCount, frame.InstructionUnitEvents.Count - observationCount);
             }
             if (!validation.Accepted)
                 return RejectWithCorePrompts(state, validation.ErrorMessage ?? "移动单位不合法。", validation.ErrorCode ?? ErrorCodes.InvalidTarget);

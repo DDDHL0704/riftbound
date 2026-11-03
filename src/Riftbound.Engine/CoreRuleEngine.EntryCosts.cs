@@ -10,12 +10,11 @@ public sealed partial class CoreRuleEngine
     internal const string DestroyFriendlyPermanentAdditionalCostPrefix = "DESTROY_FRIENDLY_PERMANENT:";
 
     private static bool CanDestroyFriendlyPermanentAsAdditionalCost(MatchState state, string player, string id)
-        => IsPlayerControlledFieldObject(state, player, id) && state.CardObjects.TryGetValue(id, out var card)
-            && !card.IsFaceDown && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard));
+        => IsFriendlyDestructionChoice(state, player, id);
 
     internal static IReadOnlyList<string> OptionalPermanentDestructionChoices(MatchState state, string player)
-        => state.CardObjects.Keys.Order(StringComparer.Ordinal).Where(id => CanDestroyFriendlyPermanentAsAdditionalCost(state, player, id))
-            .Select(id => DestroyFriendlyPermanentAdditionalCostPrefix + id).ToArray();
+        => FriendlyDestructionChoices(state, player)
+            .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray();
 
     internal static bool OptionalPermanentDestructionWasPaid(StackItemState item)
         => item.OptionalCosts.Count(cost => cost.StartsWith(DestroyFriendlyPermanentAdditionalCostPrefix, StringComparison.Ordinal)

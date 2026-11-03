@@ -335,6 +335,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (command is MoveUnitCommand moveUnitCommand)
         {
+            // One standard mover pays the same instruction-level fees as a
+            // group. The per-unit validator itself remains payment-free.
+            if (moveUnitCommand.SourceObjectIds is not { Count: > 0 }
+                && moveUnitCommand.Destination is { } imposedDestination
+                && imposedDestination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                && (!StandardMovementCostRules.TryCost(state, intent.PlayerId, imposedDestination[12..], 1,
+                        out var imposedMana, out var imposedPower) || imposedMana > 0 || imposedPower > 0))
+                return Complete(ResolveStandardMoveGroup(state, intent,
+                    moveUnitCommand with { SourceObjectIds = [moveUnitCommand.SourceObjectId] }));
             return Complete(moveUnitCommand.SourceObjectIds is { Count: > 0 }
                 ? ResolveStandardMoveGroup(state, intent, moveUnitCommand)
                 : ResolveMoveUnit(state, intent, moveUnitCommand));
@@ -3248,6 +3257,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow is EmpowerRemovalCostWindow or EmpowerOpponentWindow) return ResolveEmpowerInteractionChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == UnitEventModeWindow) return ResolveUnitEventMode(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == ReadiedModeWindow) return ResolveReadiedMode(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == DrawHandThresholdOpponentWindow) return ResolveDrawHandThresholdOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DravenDeathOpponentWindow) return ResolveDravenDeathOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == MovementAttachmentWindow) return ResolveMovementAttachmentChoice(state, pendingChoice, submittedObjectIds);
@@ -3297,7 +3307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { NextUnitPlayGrant = trigger.NextUnitPlayGrant, TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, TurnUnitPlayDraw = trigger.TurnUnitPlayDraw, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, BombRebuild = trigger.BombRebuild, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, UnitEvent = trigger.UnitEvent };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { NextUnitPlayGrant = trigger.NextUnitPlayGrant, TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, TurnUnitPlayDraw = trigger.TurnUnitPlayDraw, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, BombRebuild = trigger.BombRebuild, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, DrawHandThreshold = trigger.DrawHandThreshold, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, UnitEvent = trigger.UnitEvent };
     }
 
     private sealed record TriggerControllerBlock(
@@ -5046,29 +5056,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
 
-    private static string? ResolveHonestBrokerLastBreathGoldPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !IsFaceUpNonStandbyUnit(destroyedState)
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathCreateDormantGoldTrigger,
-                out var triggerSpec))
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-
-
     private static bool HasOtherFriendlyUnitAtSamePosition(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -5231,6 +5218,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.DrawHandThreshold is { } threshold) payload["drawHandThreshold"] = threshold;
         if (trigger.BattlefieldConquestMill is { } conquestMill)
             payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
         if (trigger.BattlefieldConquestDiscardDraw is { } conquestDiscard)
@@ -7838,16 +7826,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 break;
             }
             case LegendAbilityEffectKinds.MoveFriendlyUnit:
+            {
+                var movementPools = runePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
                 MoveLegendTargetBetweenBaseAndBattlefield(
-                    state,
-                    playerZones,
-                    cardObjects,
-                    targetObjectIds[0],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
+                    state with { RunePools = runePools, PlayerExperience = playerExperience },
+                    playerZones, cardObjects, objectLocations, movementPools, targetObjectIds[0],
+                    intent.PlayerId, command.SourceObjectId, command.AbilityId, events);
+                runePools = movementPools;
                 break;
+            }
             case LegendAbilityEffectKinds.GrantBoon:
                 GrantLegendBoon(
                     cardObjects,
@@ -8629,43 +8616,48 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations,
+        Dictionary<string, RunePool> runePools,
         string targetObjectId,
         string playerId,
         string sourceObjectId,
         string abilityId,
         List<GameEvent> events)
     {
-        var location = FindFieldObjectLocation(playerZones, targetObjectId);
-        if (location is null)
+        if (!TryGetPreciseFieldLocation(playerZones, objectLocations, targetObjectId, out var origin)
+            || !cardObjects.TryGetValue(targetObjectId, out var unit) || !IsFaceUpNonStandbyUnit(unit)
+            || EffectiveFieldControllerId(playerZones, targetObjectId, unit) != playerId) return;
+        var generation = unit.ObjectGeneration;
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = objectLocations, RunePools = runePools };
+        ObjectLocationState destination;
+        if (origin.Zone == "BASE")
         {
-            return;
+            var choices = ChosenMovementDestinations(current, playerId)
+                .Where(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)).ToArray();
+            if (choices.Length == 0) return;
+            var selected = RuleChoices.Value!.Choose(playerId, "选择此单位移动到的战场。",
+                choices.Select(choice => new RuleChoiceOption(choice.Id, choice.Label)).ToArray(),
+                kind: "MOVEMENT_DESTINATION", preview: current);
+            destination = new(playerId, "BATTLEFIELD", selected[12..]);
         }
-
-        var destinationZone = string.Equals(location.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
-            ? MoveUnitBattlefieldZone
-            : MoveUnitBaseZone;
-        var movementObservation = CaptureMovementObservers(state, cardObjects, targetObjectId, playerId, destinationZone);
-        RemoveFieldObjectFromLocation(
-            playerZones,
-            location.Value.PlayerId,
-            location.Value.Zone,
-            targetObjectId);
-        AddFieldObjectToLocation(playerZones, playerId, destinationZone, targetObjectId);
-        events.Add(new GameEvent(
-            string.Equals(destinationZone, MoveUnitBaseZone, StringComparison.Ordinal)
-                ? "UNIT_MOVED_TO_BASE"
-                : "UNIT_MOVED_TO_BATTLEFIELD",
-            $"{targetObjectId} 被传奇技能移动",
-            new Dictionary<string, object?>
+        else destination = new(playerId, "BASE");
+        var item = new StackItemState($"LEGEND-MOVE-{state.Tick + 1}-{sourceObjectId}", playerId, sourceObjectId,
+            LegendAbilityEffectKinds.MoveFriendlyUnit, state.CardObjects[sourceObjectId].CardNo, [targetObjectId]);
+        bool OriginalUnit(MatchState frame) => frame.CardObjects.TryGetValue(targetObjectId, out var mover)
+            && mover.ObjectGeneration == generation && EffectiveFieldControllerId(frame.PlayerZones, targetObjectId, mover) == playerId
+            && TryGetPreciseFieldLocation(frame.PlayerZones, frame.ObjectLocations, targetObjectId, out var at) && at == origin;
+        var firstEvent = events.Count;
+        TryMoveFieldUnitByEffect(current, playerZones, cardObjects, objectLocations, runePools,
+            targetObjectId, destination, playerId, item, events, OriginalUnit);
+        for (var index = firstEvent; index < events.Count; index++)
+            if (events[index].Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD")
             {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = sourceObjectId,
-                ["abilityId"] = abilityId,
-                ["targetObjectId"] = targetObjectId,
-                ["originZone"] = location.Value.Zone,
-                ["destinationZone"] = destinationZone
-            }));
-        events.Add(movementObservation);
+                var payload = new Dictionary<string, object?>(events[index].Payload) {
+                    ["abilityId"] = abilityId, ["originZone"] = origin.Zone, ["destinationZone"] = destination.Zone };
+                payload.Remove("stackItemId");
+                events[index] = events[index] with { Payload = payload };
+            }
     }
 
     private static void GrantLegendBoon(
@@ -8909,6 +8901,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
+        CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
         var originZone = zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal)
             ? "CHAMPION"
             : zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
@@ -18074,7 +18067,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && IsTargetTagAllowed(state, targetObjectId, behavior)
                 && IsTargetPowerAllowed(state, targetObjectId, behavior)
                 && (!behavior.SwapsSourceWithFirstTargetLocation
-                    || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, sourceObjectId, targetObjectId));
+                    || CanSwapTargetLocations(state, sourceObjectId, targetObjectId));
         }
 
         return false;
@@ -18215,6 +18208,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId)
                 && !IsForeignGraveyardEffectPlay(state, intent.PlayerId, command.SourceObjectId)
+                && !IsLinkedExileEffectPlaySource(state, intent.PlayerId, command.SourceObjectId)
                 && !IsForeignSelfBanishReplay(state, intent.PlayerId, command.SourceObjectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
@@ -18266,7 +18260,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (behavior.MovesTargetsToChosenLocation
-            && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, destination, ChosenMovementTargets(behavior, NormalizeTargetObjectIds(command.TargetObjectIds))))
+            && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, behavior, destination, ChosenMovementTargets(behavior, NormalizeTargetObjectIds(command.TargetObjectIds))))
         {
             rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
             return false;
@@ -21169,6 +21163,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (IsForeignGraveyardEffectPlay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } owner)
             playerZones[owner] = playerZones[owner] with { Graveyard = RemoveFromZone(playerZones[owner].Graveyard, sourceObjectId) };
+        if (IsLinkedExileEffectPlaySource(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } exileOwner)
+            playerZones[exileOwner] = playerZones[exileOwner] with { Banished = RemoveFromZone(playerZones[exileOwner].Banished, sourceObjectId) };
         if (IsForeignSelfBanishReplay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } banishedOwner)
             playerZones[banishedOwner] = playerZones[banishedOwner] with { Banished = RemoveFromZone(playerZones[banishedOwner].Banished, sourceObjectId) };
         return playerZones;
@@ -22159,8 +22155,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return CanSwapTargetLocations(
-            state.PlayerZones,
-            state.CardObjects,
+            state,
             targetObjectIds[0],
             targetObjectIds[1]);
     }
@@ -24241,6 +24236,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.UnitBattleWinDraw is { } unitBattleWin) return ResolveUnitBattleWinDraw(state, stackItem, unitBattleWin);
         if (stackItem.LegendBattleWinDraw is { } legendBattleWin) return ResolveLegendBattleWinDraw(state, stackItem, legendBattleWin);
         if (stackItem.KhazixBattleWin is { } khazixBattleWin) return ResolveKhazixBattleWin(state, stackItem, khazixBattleWin);
+        if (stackItem.DrawHandThreshold is not null) return ResolveDrawHandThreshold(state, stackItem);
         if (stackItem.DravenBattleDeathScore is { OpponentId: { } opponent } dravenDeath)
             return ResolveDravenBattleDeathScore(state, stackItem, dravenDeath, opponent);
         if (stackItem.DravenBattleWinScore is { } dravenScore) return ResolveDravenBattleWinScore(state, stackItem, dravenScore);
@@ -25273,7 +25269,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.DestroysAllEquipment)
         {
-            foreach (var targetObjectId in GetFieldEquipmentObjectIds(playerZones, cardObjects))
+            var targets = GetFieldEquipmentObjectIds(playerZones, cardObjects);
+            using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience },
+                playerZones, cardObjects, runePools, targets, stackItem);
+            events.AddRange(replacements.Events);
+            foreach (var targetObjectId in targets.Where(id => !replacements.Replaced.Contains(id)))
             {
                 if (!TryDestroyTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                 {
@@ -25285,7 +25285,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     stackItem,
                     targetObjectId,
                     removalResult));
+                if (!removalResult.WasDestroyed) continue;
                 destroyedObjectIds.Add(targetObjectId);
+                if (removalResult.WasUnit) destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
             }
         }
         else if (behavior.ReturnsAllUnitsToHand)
@@ -25677,35 +25679,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var secondTargetObjectId = stackItem.TargetObjectIds[1];
 
             var canResolveTargets = IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
-                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId)
-                && (!behavior.MovesFirstTargetToSecondTargetLocation
-                || CanMoveFirstTargetToSecondTargetLocation(
-                    playerZones,
-                    cardObjects,
-                    firstTargetObjectId,
-                    secondTargetObjectId));
-            if (canResolveTargets && behavior.MovesFirstTargetToSecondTargetLocation
-                && TryMoveFirstTargetToSecondTargetLocation(
-                    playerZones,
-                    cardObjects,
-                    stackItem.ControllerId,
-                    firstTargetObjectId,
-                    secondTargetObjectId,
-                    out var destinationPlayerId,
-                    out var destinationZone))
-            {
-                events.Add(new GameEvent(
-                    "UNIT_MOVED_TO_UNIT_LOCATION",
-                    $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = firstTargetObjectId,
-                        ["destinationTargetObjectId"] = secondTargetObjectId,
-                        ["destinationPlayerId"] = destinationPlayerId,
-                        ["destinationZone"] = destinationZone
-                    }));
-            }
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId);
 
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
@@ -26047,85 +26021,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 events.Add(powerEvent);
             }
         }
-        else if (behavior.MovesFirstTargetToSecondTargetLocation
-            && stackItem.TargetObjectIds.Count >= 2
-            && TryMoveFirstTargetToSecondTargetLocation(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.TargetObjectIds[0],
-                stackItem.TargetObjectIds[1],
-                out var destinationPlayerId,
-                out var destinationZone))
+        else if ((behavior.SwapsTargetLocations && stackItem.TargetObjectIds.Count >= 2)
+            || (behavior.SwapsSourceWithFirstTargetLocation && stackItem.TargetObjectIds.Count >= 1))
         {
-            events.Add(new GameEvent(
-                "UNIT_MOVED_TO_UNIT_LOCATION",
-                $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = stackItem.TargetObjectIds[0],
-                    ["destinationTargetObjectId"] = stackItem.TargetObjectIds[1],
-                    ["destinationPlayerId"] = destinationPlayerId,
-                    ["destinationZone"] = destinationZone
-                }));
-        }
-        else if (behavior.SwapsTargetLocations
-            && stackItem.TargetObjectIds.Count >= 2
-            && TrySwapTargetLocations(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.TargetObjectIds[0],
-                stackItem.TargetObjectIds[1],
-                out var firstDestinationPlayerId,
-                out var firstDestinationZone,
-                out var secondDestinationPlayerId,
-                out var secondDestinationZone))
-        {
-            events.Add(new GameEvent(
-                "UNIT_LOCATIONS_SWAPPED",
-                $"{behavior.DisplayName}交换两名单位位置",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["firstTargetObjectId"] = stackItem.TargetObjectIds[0],
-                    ["secondTargetObjectId"] = stackItem.TargetObjectIds[1],
-                    ["firstDestinationPlayerId"] = firstDestinationPlayerId,
-                    ["firstDestinationZone"] = firstDestinationZone,
-                    ["secondDestinationPlayerId"] = secondDestinationPlayerId,
-                    ["secondDestinationZone"] = secondDestinationZone
-                }));
-        }
-        else if (behavior.SwapsSourceWithFirstTargetLocation
-            && stackItem.TargetObjectIds.Count >= 1
-            && TrySwapTargetLocationsWithPreciseObjectLocations(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                state.ObjectLocations,
-                stackItem.SourceObjectId,
-                stackItem.TargetObjectIds[0],
-                out var sourceDestinationPlayerId,
-                out var sourceDestinationZone,
-                out var targetDestinationPlayerId,
-                out var targetDestinationZone,
-                out var sourceSwapObjectLocations))
-        {
-            resolvedObjectLocations = sourceSwapObjectLocations;
-            events.Add(new GameEvent(
-                "UNIT_LOCATIONS_SWAPPED",
-                $"{behavior.DisplayName}交换自身与目标单位位置",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["firstTargetObjectId"] = stackItem.SourceObjectId,
-                    ["secondTargetObjectId"] = stackItem.TargetObjectIds[0],
-                    ["firstDestinationPlayerId"] = sourceDestinationPlayerId,
-                    ["firstDestinationZone"] = sourceDestinationZone,
-                    ["secondDestinationPlayerId"] = targetDestinationPlayerId,
-                    ["secondDestinationZone"] = targetDestinationZone
-                }));
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations)
+                .ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            MoveFieldUnitsToEachOthersLocations(state, playerZones, cardObjects, movementLocations, runePools,
+                stackItem, behavior, behavior.SwapsSourceWithFirstTargetLocation
+                    ? stackItem.SourceObjectId : stackItem.TargetObjectIds[0],
+                behavior.SwapsSourceWithFirstTargetLocation ? stackItem.TargetObjectIds[0] : stackItem.TargetObjectIds[1], events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
         else if (behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
             || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
@@ -26155,7 +26060,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.MovesTargetToBattlefield
+                    if (behavior.MovesTargetsToChosenLocation && behavior.TargetScope == CardTargetScopes.FriendlyBaseUnit
                         && !CanMoveTargetToControllerBattlefield(
                             playerZones,
                             cardObjects,
@@ -26439,23 +26344,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             }
 
 
-                            var honestBrokerGoldPlayerId = ResolveHonestBrokerLastBreathGoldPlayerId(
-                                targetState,
-                                removalResult);
-                            if (honestBrokerGoldPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    honestBrokerGoldPlayerId,
-                                    TriggerKinds.UnitLastBreathCreateDormantGold);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
-
-
-
-
                             var conditionalEquipmentTokenCount = ConditionalEquipmentTokenCountForDestroyedUnit(
                                 behavior,
                                 stackItem.ControllerId,
@@ -26679,27 +26567,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.MovesTargetToBattlefield
-                        && TryMoveTargetToControllerBattlefield(
-                            playerZones,
-                            cardObjects,
-                            stackItem.ControllerId,
-                            targetObjectId))
-                    {
-                        events.Add(new GameEvent(
-                            "UNIT_MOVED_TO_BATTLEFIELD",
-                            $"{behavior.DisplayName}让单位移动到战场",
-                            new Dictionary<string, object?>
-                            {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["controllerId"] = stackItem.ControllerId,
-                                ["destinationZone"] = "BATTLEFIELD"
-                            }));
-                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, cardObjects, targetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
-                        continue;
-                    }
-
                     cardObjects[targetObjectId] = targetState;
                 }
 
@@ -26772,7 +26639,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // finish the movement instruction before lethal cleanup.
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
-                stackItem, ChosenMovementTargets(behavior, stackItem.TargetObjectIds).Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
+                stackItem, ChosenMovementTargets(behavior, stackItem.TargetObjectIds).Where(id => !string.IsNullOrWhiteSpace(id)
+                    && (behavior.TargetScope != CardTargetScopes.FriendlyBaseUnit
+                        || CanMoveTargetToControllerBattlefield(playerZones, cardObjects, stackItem.ControllerId, id))).ToArray(),
+                stackItem.Destination, events);
             // CN359.3.e.14: the following instruction refers to the moved unit;
             // if movement is ignored, its linked ready instruction is ignored.
             if (behavior.ReadiesTargetsAfterChosenMovement)
@@ -27140,6 +27010,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var targetBattlefieldObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
         var events = new List<GameEvent>
         {
@@ -27160,22 +27031,27 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        if (!IsLegalGatekeeperMaduliMoveTarget(state, stackItem.ControllerId, stackItem.SourceObjectId, targetBattlefieldObjectId)
-            || !TryMoveGatekeeperMaduliToBattlefield(
-                playerZones,
-                cardObjects,
-                objectLocations,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                targetBattlefieldObjectId,
-                out var originLocation,
-                out var destinationLocation,
-                out var enemyUnitPowerSum,
-                out var sourcePower))
+        var sourcePower = 0;
+        var enemyUnitPowerSum = 0;
+        bool CurrentMoveAllowed(MatchState current)
         {
+            if (!IsLegalGatekeeperMaduliMoveTarget(current, stackItem.ControllerId, stackItem.SourceObjectId, targetBattlefieldObjectId)
+                || !TryGetEnemyControlledBattlefieldTarget(current, stackItem.ControllerId, targetBattlefieldObjectId, out var enemy))
+                return false;
+            sourcePower = Math.Max(0, current.CardObjects[stackItem.SourceObjectId].Power);
+            enemyUnitPowerSum = EnemyUnitPowerSumAtBattlefield(current, targetBattlefieldObjectId, enemy);
+            return true;
+        }
+        var movementEventStart = events.Count;
+        if (!CurrentMoveAllowed(state)
+            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations, runePools,
+                stackItem.SourceObjectId, new(stackItem.ControllerId, "BATTLEFIELD", targetBattlefieldObjectId),
+                stackItem.ControllerId, stackItem, events, CurrentMoveAllowed))
+        {
+            var paymentDeclined = events.Any(e => e.Kind == "MOVEMENT_COST_DECLINED");
             events.Add(new GameEvent(
                 "ABILITY_NO_EFFECT",
-                "守门者马杜里的移动技能目标不再合法",
+                paymentDeclined ? "未支付施加费用，守门者马杜里的移动不执行" : "守门者马杜里的移动技能目标不再合法",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
@@ -27184,31 +27060,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
                     ["effectKind"] = stackItem.EffectKind,
                     ["stackItemId"] = stackItem.StackItemId,
-                    ["reason"] = "TARGET_NO_LONGER_LEGAL"
+                    ["reason"] = paymentDeclined ? "MOVEMENT_COST_DECLINED" : "TARGET_NO_LONGER_LEGAL"
                 }));
         }
         else
         {
-            events.Add(new GameEvent(
-                "UNIT_MOVED_TO_BATTLEFIELD",
-                "守门者马杜里移动到敌方战场",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = stackItem.SourceObjectId,
-                    ["targetBattlefieldObjectId"] = targetBattlefieldObjectId,
-                    ["battlefieldObjectId"] = targetBattlefieldObjectId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
-                    ["effectKind"] = stackItem.EffectKind,
-                    ["stackItemId"] = stackItem.StackItemId,
-                    ["originLocation"] = BuildLocationPayload(originLocation),
-                    ["destinationLocation"] = BuildLocationPayload(destinationLocation),
-                    ["sourcePower"] = sourcePower,
-                    ["enemyUnitPowerSum"] = enemyUnitPowerSum,
-                    ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE"
-                }));
-            events.Add(CaptureMovementObservers(state, cardObjects, stackItem.SourceObjectId, stackItem.ControllerId, "BATTLEFIELD", targetBattlefieldObjectId));
+            for (var index = movementEventStart; index < events.Count; index++)
+                if (events[index].Kind == "UNIT_MOVED_TO_BATTLEFIELD") events[index] = events[index] with {
+                    Payload = new Dictionary<string, object?>(events[index].Payload) {
+                        ["targetBattlefieldObjectId"] = targetBattlefieldObjectId,
+                        ["abilityId"] = P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+                        ["sourcePower"] = sourcePower, ["enemyUnitPowerSum"] = enemyUnitPowerSum,
+                        ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE" } };
         }
 
         return new StackResolutionResult(
@@ -27216,7 +27079,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),
-            state.RunePools,
+            runePools,
             state.UntilEndOfTurnEffects,
             null,
             events,
@@ -27237,6 +27100,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
         {
             new(
@@ -27261,7 +27125,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || state.CardObjects.GetValueOrDefault(stackItem.SourceObjectId)?.ObjectGeneration != stackItem.SelfMovement!.Source.Generation
             || !state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var currentSource)
             || EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, currentSource) != stackItem.ControllerId
-            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations,
+            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations, runePools,
                 stackItem.SourceObjectId, new(stackItem.ControllerId, "BASE"), stackItem.ControllerId, stackItem, events))
         {
             events.Add(new GameEvent(
@@ -27292,7 +27156,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),
-            state.RunePools,
+            runePools,
             state.UntilEndOfTurnEffects,
             null,
             events,
@@ -27312,6 +27176,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var captured = stackItem.LastBreathMight;
         if (captured is null || !ValidLastBreathMightContext(state, captured, stackItem.EffectKind,
                 stackItem.SourceObjectId, stackItem.ControllerId)
+            || !ValidLastBreathMightStackIdentity(stackItem)
             || !UnitDestroyedTriggerSpecRules.TryGetTrigger(captured.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out var spec))
             throw new InvalidOperationException("Invalid captured Powerful Last Breath.");
@@ -27380,7 +27245,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem.EffectKind,
                 "UNIT_DESTROYED"))
         };
-        if (TryGetLastBreathCreateDormantGoldTrigger(stackItem, out var trigger))
+        var hasTrigger = TryGetLastBreathCreateDormantGoldTrigger(stackItem, out var trigger);
+        if (stackItem.LastBreathUnitCreation is { } captured)
+        {
+            if (!ValidLastBreathUnitCreationStack(state, stackItem)
+                || !TryGetLastBreathUnitCreationSpec(captured, out trigger))
+                throw new InvalidOperationException("Invalid captured last-breath equipment creation.");
+            hasTrigger = true;
+        }
+        if (hasTrigger)
         {
             CreateBaseEquipmentTokensFromTrigger(
                 playerZones,
@@ -31523,6 +31396,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 rngCursor++;
             }
 
+            foreach (var id in recycledCardIds) CaptureFieldDeparture(playerZones, cardObjects, id);
             playerZones[playerId] = zones with
             {
                 MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray(),
@@ -31916,7 +31790,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state with { PlayerZones = playerZones }, playerId),
+                    [DrawInstructionCaptureKey] = CaptureDrawInstruction(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                        playerId, selectedCardIds.Length, zones.Hand.Count),
                     ["count"] = selectedCardIds.Length
                 }));
         }
@@ -32095,17 +31970,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var beforeRemovalEvents = scope?.Events;
         var equipmentObservers = before is null ? [] : CaptureEquipmentDestructionObservers(state, zones, cards, before);
-        var bombObserver = before is null ? null : CaptureBombDestructionObserver(state, zones, before);
+        var bombObservers = before is null ? [] : CaptureBombDestructionObservers(state, zones, cards, before);
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
-        IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
+        var equipmentDraws = before is null ? [] : CaptureEquipmentLastBreathDraws(state, zones, cards, before);
+        IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(state, zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
             Death = removed && removal.WasDestroyed && removal.WasUnit
                 ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [], RuneCalls = [] }
                 : null,
             InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [],
+            EquipmentLastBreathDraws = removed && removal.WasDestroyed && !removal.WasUnit ? equipmentDraws : [],
             EquipmentDestructionObservers = removed && removal.WasDestroyed ? equipmentObservers : [],
-            BombDestructionObserver = removed && removal.WasDestroyed ? bombObserver : null };
+            BombDestructionObservers = removed && removal.WasDestroyed ? bombObservers : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
         if (removed && removal.WasDestroyed && before is { IsFaceDown: false }
@@ -32137,6 +32014,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
             var wasUnit = !wasEquipment
                 || targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             var detachedEquipmentObjectIds = DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             var owner = NonFieldDestinationOwner(playerZones, targetState, playerId);
             var goesToBanish = banish || RedirectsGraveyardEntry(playerZones, cardObjects, owner, targetObjectId);
@@ -32241,10 +32119,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["deathRevealContext"] = removalResult.DeathRevealContext;
         if (removalResult.InsightContexts.Count > 0)
             payload["insightTriggerContexts"] = removalResult.InsightContexts;
+        if (removalResult.EquipmentLastBreathDraws.Count > 0)
+            payload[EquipmentLastBreathDrawCaptureKey] = removalResult.EquipmentLastBreathDraws;
         if (removalResult.EquipmentDestructionObservers.Count > 0)
             payload[EquipmentDeathCaptureKey] = removalResult.EquipmentDestructionObservers;
-        if (removalResult.BombDestructionObserver is { } bombObserver)
-            payload[BombDestructionCaptureKey] = new[] { bombObserver };
+        if (removalResult.BombDestructionObservers.Count > 0)
+            payload[BombDestructionCaptureKey] = removalResult.BombDestructionObservers;
         if (!string.IsNullOrWhiteSpace(reason))
         {
             payload["reason"] = reason;
@@ -32339,6 +32219,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var targetState = cardObjects.GetValueOrDefault(targetObjectId) ?? new CardObjectState(targetObjectId);
             ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
             wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
@@ -32385,6 +32266,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             var targetState = cardObjects.GetValueOrDefault(targetObjectId) ?? new CardObjectState(targetObjectId);
             ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
@@ -32439,6 +32321,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? existingTargetState
                 : new CardObjectState(targetObjectId);
             ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
@@ -32761,32 +32644,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
     }
 
-    private static bool TryMoveTargetToControllerBattlefield(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string controllerId,
-        string targetObjectId)
-    {
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), controllerId) || !CanMoveTargetToControllerBattlefield(
-                playerZones,
-                cardObjects,
-                controllerId,
-                targetObjectId)
-            || !playerZones.TryGetValue(controllerId, out var zones))
-        {
-            return false;
-        }
-
-        playerZones[controllerId] = zones with
-        {
-            Base = RemoveFromZone(zones.Base, targetObjectId),
-            Battlefields = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
-                ? zones.Battlefields
-                : zones.Battlefields.Concat([targetObjectId]).ToArray()
-        };
-        return true;
-    }
-
     private static bool CanMoveTargetToControllerBattlefield(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -32796,204 +32653,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return playerZones.TryGetValue(controllerId, out var zones)
             && zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
             && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, controllerId, targetObjectId);
-    }
-
-    private static bool TryMoveFirstTargetToSecondTargetLocation(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movingPlayerId,
-        string movedObjectId,
-        string destinationObjectId,
-        out string destinationPlayerId,
-        out string destinationZone)
-    {
-        destinationPlayerId = string.Empty;
-        destinationZone = string.Empty;
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(movedObjectId), movingPlayerId)) return false;
-
-        if (!CanMoveFirstTargetToSecondTargetLocation(
-                playerZones,
-                cardObjects,
-                movedObjectId,
-                destinationObjectId))
-        {
-            return false;
-        }
-
-        var movedLocation = FindFieldObjectLocation(playerZones, movedObjectId)!.Value;
-        var targetLocation = FindFieldObjectLocation(playerZones, destinationObjectId)!.Value;
-
-        RemoveFieldObjectFromLocation(playerZones, movedLocation.PlayerId, movedLocation.Zone, movedObjectId);
-        AddFieldObjectToLocation(playerZones, targetLocation.PlayerId, targetLocation.Zone, movedObjectId);
-        destinationPlayerId = targetLocation.PlayerId;
-        destinationZone = targetLocation.Zone;
-        return true;
-    }
-
-    private static bool CanMoveFirstTargetToSecondTargetLocation(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movedObjectId,
-        string destinationObjectId)
-    {
-        if (string.Equals(movedObjectId, destinationObjectId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var movedLocation = FindFieldObjectLocation(playerZones, movedObjectId);
-        var targetLocation = FindFieldObjectLocation(playerZones, destinationObjectId);
-        if (movedLocation is null || targetLocation is null)
-        {
-            return false;
-        }
-
-        return (!string.Equals(movedLocation.Value.PlayerId, targetLocation.Value.PlayerId, StringComparison.Ordinal)
-                || !string.Equals(movedLocation.Value.Zone, targetLocation.Value.Zone, StringComparison.Ordinal))
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, movedLocation.Value.PlayerId, movedObjectId)
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, targetLocation.Value.PlayerId, destinationObjectId);
-    }
-
-    private static bool TrySwapTargetLocations(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movingPlayerId,
-        string firstObjectId,
-        string secondObjectId,
-        out string firstDestinationPlayerId,
-        out string firstDestinationZone,
-        out string secondDestinationPlayerId,
-        out string secondDestinationZone)
-    {
-        firstDestinationPlayerId = string.Empty;
-        firstDestinationZone = string.Empty;
-        secondDestinationPlayerId = string.Empty;
-        secondDestinationZone = string.Empty;
-
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(firstObjectId), movingPlayerId)
-            || !MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(secondObjectId), movingPlayerId)) return false;
-        if (!CanSwapTargetLocations(playerZones, cardObjects, firstObjectId, secondObjectId))
-        {
-            return false;
-        }
-
-        var firstLocation = FindFieldObjectLocation(playerZones, firstObjectId)!.Value;
-        var secondLocation = FindFieldObjectLocation(playerZones, secondObjectId)!.Value;
-
-        RemoveFieldObjectFromLocation(playerZones, firstLocation.PlayerId, firstLocation.Zone, firstObjectId);
-        RemoveFieldObjectFromLocation(playerZones, secondLocation.PlayerId, secondLocation.Zone, secondObjectId);
-        AddFieldObjectToLocation(playerZones, secondLocation.PlayerId, secondLocation.Zone, firstObjectId);
-        AddFieldObjectToLocation(playerZones, firstLocation.PlayerId, firstLocation.Zone, secondObjectId);
-
-        firstDestinationPlayerId = secondLocation.PlayerId;
-        firstDestinationZone = secondLocation.Zone;
-        secondDestinationPlayerId = firstLocation.PlayerId;
-        secondDestinationZone = firstLocation.Zone;
-        return true;
-    }
-
-    private static bool TrySwapTargetLocationsWithPreciseObjectLocations(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movingPlayerId,
-        IReadOnlyDictionary<string, ObjectLocationState> currentObjectLocations,
-        string firstObjectId,
-        string secondObjectId,
-        out string firstDestinationPlayerId,
-        out string firstDestinationZone,
-        out string secondDestinationPlayerId,
-        out string secondDestinationZone,
-        out IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
-    {
-        firstDestinationPlayerId = string.Empty;
-        firstDestinationZone = string.Empty;
-        secondDestinationPlayerId = string.Empty;
-        secondDestinationZone = string.Empty;
-        objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
-
-        if (!TryGetPreciseFieldLocation(playerZones, currentObjectLocations, firstObjectId, out var firstOriginLocation)
-            || !TryGetPreciseFieldLocation(playerZones, currentObjectLocations, secondObjectId, out var secondOriginLocation)
-            || !TrySwapTargetLocations(
-                playerZones,
-                cardObjects,
-                movingPlayerId,
-                firstObjectId,
-                secondObjectId,
-                out firstDestinationPlayerId,
-                out firstDestinationZone,
-                out secondDestinationPlayerId,
-                out secondDestinationZone))
-        {
-            return false;
-        }
-
-        var nextObjectLocations = ReconcileObjectLocations(currentObjectLocations, playerZones);
-        nextObjectLocations[firstObjectId] = secondOriginLocation;
-        nextObjectLocations[secondObjectId] = firstOriginLocation;
-        objectLocations = nextObjectLocations;
-        return true;
-    }
-
-    private static bool TryMoveGatekeeperMaduliToBattlefield(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, ObjectLocationState> objectLocations,
-        string controllerId,
-        string sourceObjectId,
-        string targetBattlefieldObjectId,
-        out ObjectLocationState originLocation,
-        out ObjectLocationState destinationLocation,
-        out int enemyUnitPowerSum,
-        out int sourcePower)
-    {
-        originLocation = new ObjectLocationState(string.Empty, string.Empty);
-        destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
-        enemyUnitPowerSum = 0;
-        sourcePower = 0;
-
-        var state = new MatchState(
-            "maduli-resolution-location-check",
-            0,
-            1,
-            controllerId,
-            new Dictionary<string, string>(StringComparer.Ordinal),
-            playerZones: playerZones,
-            cardObjects: cardObjects,
-            objectLocations: objectLocations);
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
-            || !TryGetEnemyControlledBattlefieldTarget(
-                state,
-                controllerId,
-                targetBattlefieldObjectId,
-                out var targetControllerId)
-            || string.Equals(
-                originLocation.BattlefieldObjectId ?? string.Empty,
-                targetBattlefieldObjectId,
-                StringComparison.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId))
-        {
-            return false;
-        }
-
-        sourcePower = Math.Max(0, sourceState.Power);
-        enemyUnitPowerSum = EnemyUnitPowerSumAtBattlefield(
-            state,
-            targetBattlefieldObjectId,
-            targetControllerId);
-        if (sourcePower <= enemyUnitPowerSum)
-        {
-            return false;
-        }
-
-        RemoveFieldObjectFromLocation(playerZones, originLocation.PlayerId, originLocation.Zone, sourceObjectId);
-        AddFieldObjectToLocation(playerZones, controllerId, MoveUnitBattlefieldZone, sourceObjectId);
-        destinationLocation = new ObjectLocationState(
-            controllerId,
-            MoveUnitBattlefieldZone,
-            targetBattlefieldObjectId);
-        objectLocations[sourceObjectId] = destinationLocation;
-        return true;
     }
 
     private static bool TryGetPreciseFieldLocation(
@@ -33032,28 +32691,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
     }
 
-    private static bool CanSwapTargetLocations(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string firstObjectId,
-        string secondObjectId)
+    internal static bool CanSwapTargetLocations(MatchState state, string firstObjectId, string secondObjectId)
     {
-        if (string.Equals(firstObjectId, secondObjectId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var firstLocation = FindFieldObjectLocation(playerZones, firstObjectId);
-        var secondLocation = FindFieldObjectLocation(playerZones, secondObjectId);
-        if (firstLocation is null || secondLocation is null)
-        {
-            return false;
-        }
-
-        return (!string.Equals(firstLocation.Value.PlayerId, secondLocation.Value.PlayerId, StringComparison.Ordinal)
-                || !string.Equals(firstLocation.Value.Zone, secondLocation.Value.Zone, StringComparison.Ordinal))
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, firstLocation.Value.PlayerId, firstObjectId)
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, secondLocation.Value.PlayerId, secondObjectId);
+        if (firstObjectId == secondObjectId
+            || !TryGetPreciseFieldLocation(state.PlayerZones, state.ObjectLocations, firstObjectId, out var first)
+            || !TryGetPreciseFieldLocation(state.PlayerZones, state.ObjectLocations, secondObjectId, out var second)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, first.PlayerId, firstObjectId)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, second.PlayerId, secondObjectId)) return false;
+        return first.Zone != second.Zone || (first.Zone == "BASE"
+            ? first.PlayerId != second.PlayerId : first.BattlefieldObjectId != second.BattlefieldObjectId);
     }
 
     private static (string PlayerId, string Zone)? FindFieldObjectLocation(
@@ -33569,22 +33215,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
             }
 
-            var honestBrokerControllerId = ResolveHonestBrokerLastBreathGoldPlayerId(
-                destroyedState,
-                removalResult);
-            if (honestBrokerControllerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    honestBrokerControllerId,
-                    TriggerKinds.UnitLastBreathCreateDormantGold);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-
-
         }
 
         return new LethalDamageCleanupResult(
@@ -33726,6 +33356,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             DrawnCards = drawnCards.ToArray(),
             Burnouts = burnouts.ToArray(),
+            OtherHandCount = zones.Hand.Count,
             WinnerPlayerId = result.WinnerPlayerId
                 ?? (deferNormalVictory ? null : WinningPlayerId(result.PlayerScores, result.WinningScore))
         };
@@ -33766,7 +33397,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             Graveyard = drawResult.Graveyard
         };
         playerZones[playerId] = drawPlayerZones;
-        events.AddRange(BuildCardDrawEvents(playerId, drawResult, state with { PlayerZones = playerZones }));
+        events.AddRange(BuildCardDrawEvents(playerId, drawResult, state with { PlayerZones = playerZones, CardObjects = cardObjects }));
 
         return new DrawApplicationResult(
             drawResult.PlayerScores,
@@ -33800,7 +33431,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["count"] = drawResult.DrawnCards.Count,
-                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state, playerId)
+                    [DrawInstructionCaptureKey] = CaptureDrawInstruction(state, playerId,
+                        drawResult.DrawnCards.Count, drawResult.OtherHandCount)
                 }));
         }
 
@@ -35012,7 +34644,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = state.TurnPlayerId,
-                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state, state.TurnPlayerId),
+                    [DrawInstructionCaptureKey] = CaptureDrawInstruction(state, state.TurnPlayerId,
+                        drawResult.DrawnCards.Count, drawResult.OtherHandCount),
                     ["count"] = drawResult.DrawnCards.Count
                 }));
         }
@@ -35060,7 +34693,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? WinnerPlayerId,
         IReadOnlyDictionary<string, int> PlayerScores,
         long RngCursor,
-        int WinningScore);
+        int WinningScore,
+        int OtherHandCount = 0);
 
 
     private sealed record TurnStartReadyResult(IReadOnlyList<GameEvent> Events)
@@ -35301,8 +34935,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public CapturedUnitDeath? Death { get; init; }
         public IReadOnlyList<InsightTriggerContext> InsightContexts { get; init; } = [];
         public DeathRevealContext? DeathRevealContext { get; init; }
+        public IReadOnlyList<LastBreathDrawContext> EquipmentLastBreathDraws { get; init; } = [];
         public IReadOnlyList<CapturedEquipmentDestructionObserver> EquipmentDestructionObservers { get; init; } = [];
-        public CapturedBombDestructionObserver? BombDestructionObserver { get; init; }
+        public IReadOnlyList<CapturedBombDestructionObserver> BombDestructionObservers { get; init; } = [];
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 
         public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false, []);

@@ -62,6 +62,13 @@ public sealed class RadFaceDownPlayLegendTests
         if (game.State.PriorityPlayerId is { } priority && priority != "P1")
             await game.Act(priority, new PassPriorityCommand());
         await game.Act("P1", new PlayCardCommand(source, "OGN·057/298", ["HOST"]));
+        foreach (var draw in game.State.TriggerQueue.Where(trigger => trigger.EffectKind == Effect))
+        {
+            Assert.Contains("抽一张牌", ResolutionResult.OrderTriggerSummary(game.State, draw, "P1"));
+            var text = ResolutionResult.OrderTriggerVisibleText(game.State, draw, "P1");
+            Assert.Contains("抽一张牌", text);
+            Assert.DoesNotContain("给予战力", text);
+        }
         if (game.State.TriggerQueue.Count > 0)
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
     }

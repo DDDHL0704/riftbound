@@ -15,6 +15,7 @@ public sealed record UnitEventModeSpec(string Id, string Label, string Effect, i
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
+public sealed record MovementImposedCostSpec(int ManaPerMove = 0, int PowerPerMove = 0, int PowerPerExtraUnit = 0);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -45,6 +46,7 @@ public sealed record CardBehaviorDefinition(
     MovementScoreSpec? MovementScore = null,
     bool BeginningDeckTopManaComparison = false,
     UnitEventAbilitySpec? UnitEventAbility = null,
+    bool HeldPlaysLinkedExile = false,
     bool GrantsNormalGraveyardPlay = false, bool SkipsDrawPhase = false, bool BanishesNonDeckGraveyardEntries = false,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
@@ -166,7 +168,6 @@ public sealed record CardBehaviorDefinition(
     CommandedMovementSpec? CommandedMovement = null,
     TargetReferencedMovementSpec? TargetReferencedMovement = null,
     bool AppliesStatusEffectToAllUnits = false,
-    bool MovesFirstTargetToSecondTargetLocation = false,
     string TargetRequiredTag = "",
     string AnyTargetRequiredTag = "",
     string TargetAddedTag = "",
@@ -192,10 +193,12 @@ public sealed record CardBehaviorDefinition(
     bool DrawsControllerAndOtherPlayers = false,
     bool CallsRuneForControllerAndOtherPlayers = false,
     bool GrantsBoon = false,
-    bool MovesTargetToBattlefield = false,
+    string ChosenMovementDestinationZone = "",
+    bool ChosenMovementDestinationRequiresOtherUnitOfTargetController = false,
     bool GrantsBoonToAllFriendlyUnits = false,
     bool ConsumesTargetBoonsToReady = false,
     bool SwapsTargetLocations = false,
+    string PairedMovementRequiredAnyTargetTag = "",
     bool SwapsSourceWithFirstTargetLocation = false,
     bool GainsControlOfTargetToBase = false,
     bool GainsControlOfTargetToBattlefield = false,
@@ -409,6 +412,10 @@ public sealed record CardBehaviorDefinition(
     int EffectPlayMaximumPowerCost = 0,
     bool StatusEffectUsesTargetCurrentPower = false,
     int BattlefieldWinDrawCount = 0,
+    int ControllerCardPlayDrawCount = 0,
+    DrawHandThresholdSpec? ControllerDrawHandThreshold = null,
+    MovementImposedCostSpec? MovementImposedCost = null,
+    int FriendlyLastBreathAdditionalTriggersHere = 0,
     SpellModeSetSpec? SpellModes = null)
 {
     public bool PerformsInsight => InsightCount > 0;
@@ -1288,7 +1295,7 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.FriendlyBaseUnit,
             GrantsBoon: true,
-            MovesTargetToBattlefield: true),
+            MovesTargetsToChosenLocation: true, ChosenMovementDestinationZone: "BATTLEFIELD"),
         new(
             "OGN·153/298",
             "公开行动",
@@ -7977,7 +7984,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4, MovementImposedCost: new(PowerPerExtraUnit: 1)),
         new(
             "UNL-169/219",
             "艾希",
@@ -8394,7 +8401,7 @@ public static class CardBehaviorRegistry
             2,
             DrawCount: 1,
             TargetScope: CardTargetScopes.FriendlyUnitThenFriendlyUnit,
-            AnyTargetRequiredTag: CardObjectTags.Ephemeral,
+            PairedMovementRequiredAnyTargetTag: CardObjectTags.Ephemeral,
             SwapsTargetLocations: true),
         new(
             "OGN·046/298",
@@ -8978,9 +8985,11 @@ public static class CardBehaviorRegistry
             2,
             "BAIT_MOVE_ENEMY_UNIT_TO_ANOTHER_ENEMY_UNIT_LOCATION_NO_ECHO",
             0,
-            2,
-            TargetScope: CardTargetScopes.EnemyUnitThenEnemyUnit,
-            MovesFirstTargetToSecondTargetLocation: true),
+            1,
+            TargetScope: CardTargetScopes.EnemyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            MovesTargetsToChosenLocation: true,
+            ChosenMovementDestinationRequiresOtherUnitOfTargetController: true),
         new(
             "OGN·258/298",
             "猛龙摆尾",
@@ -9675,6 +9684,9 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsEquipment: true,
             UnitEventAbility: new("FRIENDLY_UNIT_PLAYED", "DRAW", 1,
                 RequiresPlayedUnitStrongest: true, LeadingSourceExhaust: true)),
+        new("RAD·069/167", "临界零点", 9, "RAD_069_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, ControllerCardPlayDrawCount: 2,
+            ControllerDrawHandThreshold: new(1, 9, 1)),
         new("RAD·111/167", "自走角子机", 4, "RAD_111_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, BeginningDeckTopManaComparison: true),
         new("RAD·064/167", "严审透镜", 2, "RAD_064_PLAY_EQUIPMENT", 0, 0,
@@ -9706,6 +9718,19 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEquipment =
     [
+        new("RAD·017/167", "爆破增幅器", 4, "BLAST_AMPLIFIER_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
+            UnitEventAbility: new("PLAY", "DRAW", 1, LeadingDestroyOtherFriendlyPermanents: 1),
+            FriendlyLastBreathAdditionalTriggersHere: 1),
+        new("RAD·062/167", "重力场", 5, "GRAVITY_FIELD_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署",
+            MovementImposedCost: new(ManaPerMove: 1, PowerPerMove: 1)),
+        new("RAD·136/167", "码头囚笼", 6, "DOCKSIDE_CAGE_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署", HeldPlaysLinkedExile: true,
+            UnitEventAbility: new("PLAY", "BANISH_LINKED_UNIT_HERE")),
+        new("RAD·012/167", "符刃铁砧", 1, "RUNEBLADE_ANVIL_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("PLAY_OR_LEAVE", "BANISH_TOP_TIMED_PLAY")),
         new("RAD·108/167", "伏击陷阱", 1, "AMBUSH_TRAP_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署"),
         new("RAD·035/167", "醒神花", 3, "WAKEBLOOM_PLAY_EQUIPMENT", 0, 0,
