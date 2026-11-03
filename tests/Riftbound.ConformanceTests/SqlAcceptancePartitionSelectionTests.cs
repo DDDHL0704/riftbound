@@ -134,13 +134,14 @@ public sealed class SqlAcceptancePartitionSelectionTests : IDisposable
     }
 
     [Fact]
-    public void CommittedPlanKeepsAllSixtyNineIdentitiesAcrossFourNonemptyPartitions()
+    public void CommittedPlanKeepsAllSeventyIdentitiesAcrossFourNonemptyPartitions()
     {
         using var plan = JsonDocument.Parse(SqlAcceptancePartition.PlanJson());
         var rows = plan.RootElement.GetProperty("cases").EnumerateArray().ToArray();
         var ids = rows.Select(row => row.GetProperty("id").GetString()!).ToArray();
-        Assert.Equal(69, ids.Length);
-        Assert.Equal(69, ids.Distinct().Count());
+        Assert.Equal(70, ids.Length);
+        Assert.Equal(70, ids.Distinct().Count());
+        Assert.Equal("sealed-series-recovery", ids[69]);
         Assert.Equal(4, plan.RootElement.GetProperty("defaultPartitionCount").GetInt32());
         var all = new List<string>();
         for (var index = 0; index < 4; index++)

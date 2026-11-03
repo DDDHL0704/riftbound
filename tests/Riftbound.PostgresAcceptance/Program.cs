@@ -20,6 +20,7 @@ if (settings.Database != "riftbound_acceptance" || settings.Host is not ("127.0.
     throw new InvalidOperationException("Use the dedicated loopback riftbound_acceptance database; no shared application database is allowed.");
 var output = Environment.GetEnvironmentVariable("RIFTBOUND_POSTGRES_EVIDENCE") ?? "var/qa/postgres-acceptance";
 Directory.CreateDirectory(output);
+var sealedSeriesOnly = args.SequenceEqual(new[] { "--sealed-series-only" });
 var openingRandomnessOnly = args.SequenceEqual(new[] { "--opening-randomness-only" });
 var optionalCostsOnly = args.SequenceEqual(new[] { "--optional-costs-only" });
 var battlefieldPlayRecoveryOnly = args.SequenceEqual(new[] { "--battlefield-play-recovery-only" });
@@ -66,7 +67,7 @@ var selectedFieldDamageOnly = args.SequenceEqual(new[] { "--selected-field-damag
 var dravenFirstWinScoreOnly = args.SequenceEqual(new[] { "--draven-first-win-score-only" });
 var victoryCleanupGarenOnly = args.SequenceEqual(new[] { "--victory-cleanup-garen-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !battlefieldStartLabYouOnly && !deckPendingParentOnly && !wildClawReflexiveOnly && !lightningRushFlowOnly && !finalConquestScoreOnly && !burnoutActionCompletionOnly && !victoryCleanupGarenOnly && !battleResultContinuationOnly && !dravenFirstWinScoreOnly && !selectedFieldDamageOnly && !dravenBattleDeathOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !sealedSeriesOnly && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !battlefieldStartLabYouOnly && !deckPendingParentOnly && !wildClawReflexiveOnly && !lightningRushFlowOnly && !finalConquestScoreOnly && !burnoutActionCompletionOnly && !victoryCleanupGarenOnly && !battleResultContinuationOnly && !dravenFirstWinScoreOnly && !selectedFieldDamageOnly && !dravenBattleDeathOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -74,6 +75,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (sealedSeriesOnly)
+{
+    await SealedSeriesSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "sealed-series-recovery"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: sealed-series-recovery; original complete SQL suite not selected.");
+    return;
 }
 if (dravenBattleDeathOnly)
 {
@@ -544,5 +551,7 @@ await partition.RunAsync("battle-result-continuation", () => BattleResultContinu
 await partition.RunAsync("draven-first-win-score", () => DravenBattleWinScoreSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "draven-first-win-score")));
 await partition.RunAsync("selected-field-damage", () => SelectedBattlefieldDamageSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "selected-field-damage")));
 await partition.RunAsync("draven-battle-death", () => DravenBattleDeathSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "draven-battle-death")));
+
+await partition.RunAsync("sealed-series-recovery", () => SealedSeriesSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "sealed-series-recovery")));
 
 await partition.CompleteAsync(output);
