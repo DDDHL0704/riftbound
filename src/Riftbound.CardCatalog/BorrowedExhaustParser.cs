@@ -15,6 +15,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public string Keyword { get; init; } = "";
     public int MinimumExperience { get; init; }
     public bool Reaction { get; init; }
+    public int RequiredEnemyTargetEvents { get; init; }
     public int GeneratedMana { get; init; }
     public int? EmpoweredMana { get; init; }
     public int GeneratedPower { get; init; }
@@ -151,6 +152,11 @@ public static class BorrowedExhaustParser
                         : restriction.Contains("单位", StringComparison.Ordinal) ? "UNIT"
                         : restriction.Contains("装备", StringComparison.Ordinal) ? "EQUIPMENT"
                         : restriction.Contains("法术", StringComparison.Ordinal) ? "SPELL" : "" });
+                continue;
+            }
+            if (effect == "{{反应}} — 抽一张牌。只有当你在本回合内，两次将敌方单位或装备选为法术或单位技能的目标后，才能使用此技能")
+            {
+                result.Add(Skill("DRAW", 0) with { Reaction = true, DrawCount = 1, RequiredEnemyTargetEvents = 2 });
                 continue;
             }
             // Reaction non-resource effects need their own timing and templates.

@@ -88,6 +88,7 @@ internal static partial class ActionPromptBuilder
                     : $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
                 "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌"
+                    + (ability.Spec.RequiredEnemyTargetEvents > 0 ? "；本回合须已两次将敌方单位或装备选为法术或单位技能目标" : "")
                     + (ability.Spec.RuneCallCount > 0 ? $"并召出 {ability.Spec.RuneCallCount} 枚休眠符文" : ""),
                 "DISCARD_DRAW" => $"弃置一张手牌，然后抽 {ability.Spec.DrawCount} 张牌",
                 "DESTROY_SELF" => "摧毁此牌",

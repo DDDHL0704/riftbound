@@ -11,8 +11,14 @@ public sealed partial class CoreRuleEngine
 
     internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec)
         => (!spec.RequiresPlayedArmamentThisTurn || ControllerPlayedArmamentThisTurn(state, player))
-            && (spec.Reaction ? CanActivateReactionResourceSkill(state, player)
+            && BorrowedEnemyTargetRequirementMet(state, player, spec)
+            && (spec.Reaction ? (spec.Kind == "RESOURCE" || state.PendingPayment is null && state.PendingEffectPlay is null)
+                    && CanActivateReactionResourceSkill(state, player)
                 : spec.Swift ? CanActivateSwiftAbility(state, player) : CanActivateOrdinaryPowerAbility(state, player));
+
+    internal static bool BorrowedEnemyTargetRequirementMet(MatchState state, string player, BorrowedExhaustSpec spec)
+        => spec.RequiredEnemyTargetEvents == 0
+            || EzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, player) >= spec.RequiredEnemyTargetEvents;
 
     private static bool IsBorrowedReactionResource(MatchState state, string player, ActivateAbilityCommand command)
         => state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
