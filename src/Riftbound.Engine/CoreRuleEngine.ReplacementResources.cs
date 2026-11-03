@@ -100,13 +100,18 @@ public sealed partial class CoreRuleEngine
             }
         }
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
-        foreach (var borrowed in BorrowedExhaustRules.Abilities(state, player, source).Where(a => a.Spec.Kind == "RESOURCE"))
+        foreach (var borrowed in BorrowedExhaustRules.Abilities(state, player, source).Where(a => a.Spec.Kind == "RESOURCE" && a.Spec.Reaction))
         {
             var spec = borrowed.Spec;
             if (!CanActivateBorrowedExhaust(state, player, spec) || !BorrowedResourceGainSupported(pool, spec, source)
                 || PaymentCostRules.AvailableMana(pool, ManaPurposeForActivatedAbility(state, source.ObjectId), state) < spec.Mana
                 || !PaymentCostRules.CanPayPowerCost(pool, spec.Power, spec.TypedPower, BorrowedPowerPurpose(source))
                 || state.PlayerExperience.GetValueOrDefault(player) < spec.Experience) continue;
+            if (spec.BanishesGraveyardPermanentAsCost)
+            {
+                foreach (var cost in LegendGraveyardBanishCostRules.Choices(state, player)) AddBorrowed([cost]);
+                continue;
+            }
             if (spec.Conversion.Length > 0)
             {
                 if (!TryBorrowedConversionMaximum(state, player, source, spec, out var maximum)) continue;
@@ -120,9 +125,11 @@ public sealed partial class CoreRuleEngine
             void AddBorrowed(string[] choices)
             {
                 var suffix = choices.Length == 0 ? "" : ":" + string.Join(',', choices);
-                var quantity = choices.Length == 0 ? "" : choices[0].EndsWith(ResourceQuantityRules.ChooseAmountSuffix, StringComparison.Ordinal)
+                var quantity = spec.Conversion.Length == 0 ? "" : choices[0].EndsWith(ResourceQuantityRules.ChooseAmountSuffix, StringComparison.Ordinal)
                     ? "选择资源转换数量；" : "转换 " + choices[0][BorrowedExhaustRules.ConversionChoicePrefix.Length..] + " 点资源；";
-                actions.Add(new(new($"RESOURCE:{source.ObjectId}:{borrowed.Id}{suffix}", "横置：" + quantity + "发动获得的资源技能，之后继续选择", [source.ObjectId]),
+                var costId = spec.BanishesGraveyardPermanentAsCost ? choices[0][LegendGraveyardBanishCostRules.Prefix.Length..] : null;
+                var label = costId is null ? quantity + "发动获得的资源技能" : "放逐废牌堆中的单位或装备，获得 1 点单位或装备打出专用符能";
+                actions.Add(new(new($"RESOURCE:{source.ObjectId}:{borrowed.Id}{suffix}", "横置：" + label + "，之后继续选择", costId is null ? [source.ObjectId] : [source.ObjectId, costId]),
                     new ActivateAbilityCommand(source.ObjectId, borrowed.Id, [], choices)));
             }
         }

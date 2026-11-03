@@ -12,12 +12,35 @@ internal static partial class ActionPromptBuilder
         foreach (var ability in BorrowedExhaustRules.Abilities(state, player, source))
         {
             if (!CoreRuleEngine.CanActivateBorrowedExhaust(state, player, ability.Spec)) continue;
-            if (ability.Spec.Kind == "RESOURCE" && !CoreRuleEngine.BorrowedResourceGainSupported(pool, ability.Spec, source)) continue;
+            if (ability.Spec.Kind == "RESOURCE" && !CoreRuleEngine.BorrowedResourceGainSupported(state, player, ability.Spec, source)) continue;
             var discardChoices = ability.Spec.DiscardsEquipmentAsCost
                 ? CoreRuleEngine.SimpleActivationDiscardChoices(state, player).Select(id =>
                     new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
                         "弃置装备以支付获得的技能费用")).ToArray() : [];
             if (ability.Spec.DiscardsEquipmentAsCost && discardChoices.Length == 0) continue;
+            var banishChoices = ability.Spec.BanishesGraveyardPermanentAsCost
+                ? LegendGraveyardBanishCostRules.Choices(state, player).Select(id => new ActionPromptChoiceDto(id,
+                    "放逐" + ObjectChoice(state, id[LegendGraveyardBanishCostRules.Prefix.Length..], "费用").Label,
+                    "放逐废牌堆中的单位或装备以支付技能费用")).ToArray() : [];
+            if (ability.Spec.BanishesGraveyardPermanentAsCost && banishChoices.Length == 0) continue;
+            var recycleChoices = ability.Spec.RecycledCardCostCount == 0 ? [] : state.CardObjects.Keys
+                .Where(id => CoreRuleEngine.CanRecycleBorrowedAbilityCost(state, player, id, ability.Spec))
+                .Order(StringComparer.Ordinal).Select(id => new ActionPromptChoiceDto("RECYCLE_GRAVEYARD_CARD:" + id,
+                    "回收" + ObjectChoice(state, id, "费用").Label, "回收废牌堆中的牌以支付技能费用")).ToArray();
+            if (recycleChoices.Length < ability.Spec.RecycledCardCostCount) continue;
+            var unitExhaustChoices = CoreRuleEngine.BorrowedUnitExhaustCostChoices(state, player, source.ObjectId, ability.Spec)
+                .Select(id => new ActionPromptChoiceDto(id,
+                    "休眠" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "费用").Label,
+                    "让友方强力单位休眠以支付技能费用")).ToArray();
+            if (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue && unitExhaustChoices.Length == 0) continue;
+            var destructionChoices = CoreRuleEngine.BorrowedDestructionCostChoices(state, player, ability.Spec)
+                .Where(id => ability.Spec.Kind != "RESOURCE" || CoreRuleEngine.CanStartDestructionResourceGain(state, player,
+                    source.ObjectId, id[CoreRuleEngine.DestroyFriendlyPermanentAdditionalCostPrefix.Length..],
+                    ability.Spec.GeneratedPower + ability.Spec.GeneratedTraits.Values.Sum(), BorrowedExhaustRules.Effect))
+                .Select(id => new ActionPromptChoiceDto(id,
+                    "摧毁" + ObjectChoice(state, id[CoreRuleEngine.DestroyFriendlyPermanentAdditionalCostPrefix.Length..], "费用").Label,
+                    "摧毁友方物体以支付技能费用")).ToArray();
+            if (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 && destructionChoices.Length == 0) continue;
             IReadOnlyList<ActionPromptChoiceDto> optional = [];
             if (ability.Spec.Conversion.Length > 0)
             {
@@ -62,13 +85,17 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
                 ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
                 powerPool.TotalPower, PlayCardAvailablePowerByTrait(powerPool, new Dictionary<string, int>()),
                 new RunePaymentReachability(powerPool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(powerPool, byTrait),
                 [], true, ability.Spec.Kind == "RESOURCE", true, null, SpellshieldTaxPowerByTargetObjectId: taxes,
-                AdditionalCostChoices: discardChoices, RequiredAdditionalCostChoiceCount: ability.Spec.DiscardsEquipmentAsCost ? 1 : 0);
+                AdditionalCostChoices: discardChoices.Concat(banishChoices).Concat(recycleChoices).Concat(unitExhaustChoices).Concat(destructionChoices).ToArray(),
+                RequiredAdditionalCostChoiceCount: (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
+                    + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
+                    + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
+                    + (ability.Spec.BanishesGraveyardPermanentAsCost ? 1 : 0));
         }
     }
 
@@ -82,7 +109,8 @@ internal static partial class ActionPromptBuilder
         gains.AddRange(spec.GeneratedTraits.Select(p => $"{p.Value} 点{RuneTraitLabel(p.Key)}符能"));
         var restriction = spec.ResourceRestriction switch {
             "SPELL" => "；仅可用于打出法术", "UNIT" => "；仅可用于打出单位或使用单位技能",
-            "EQUIPMENT" => "；仅可用于打出装备或使用装备技能", "DUEL" => "；仅可在法术对决中消耗", _ => "" };
+            "EQUIPMENT" => "；仅可用于打出装备或使用装备技能", "DUEL" => "；仅可在法术对决中消耗",
+            "PERMANENT_PLAY" => "；仅可用于打出单位或装备", _ => "" };
         return "获得费用资源：" + string.Join("和", gains) + restriction;
     }
 }

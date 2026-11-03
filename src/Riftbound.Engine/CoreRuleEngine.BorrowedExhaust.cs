@@ -12,10 +12,28 @@ public sealed partial class CoreRuleEngine
 
     private static bool IsBorrowedReactionResource(MatchState state, string player, ActivateAbilityCommand command)
         => state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
-            && BorrowedExhaustRules.Abilities(state, player, source).Any(a => a.Id == command.AbilityId && a.Spec.Kind == "RESOURCE");
+            && BorrowedExhaustRules.Abilities(state, player, source).Any(a => a.Id == command.AbilityId
+                && a.Spec.Kind == "RESOURCE" && a.Spec.Reaction);
 
     internal static PowerPaymentPurpose BorrowedPowerPurpose(CardObjectState source)
         => source.Tags.Contains(CardObjectTags.EquipmentCard) ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+
+    internal static bool CanRecycleBorrowedAbilityCost(MatchState state, string player, string id, BorrowedExhaustSpec spec)
+        => CanRecycleGraveyardCardAsAdditionalCost(state, player, id)
+            && (!spec.RecyclesOnlyUnitsAsCost || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard));
+
+    internal static string[] BorrowedUnitExhaustCostChoices(MatchState state, string player, string sourceId, BorrowedExhaustSpec spec)
+        => spec.ExhaustedUnitMinimumMightAsCost is { } minimum ? state.CardObjects.Values
+            .Where(card => card.ObjectId != sourceId && CanExhaustUnitForEquipmentCost(state, player, card.ObjectId)
+                && ResolveCurrentFieldUnitPower(state, card) >= minimum)
+            .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+            .Select(card => ExhaustFriendlyUnitOptionalCostPrefix + card.ObjectId).ToArray() : [];
+
+    internal static string[] BorrowedDestructionCostChoices(MatchState state, string player, BorrowedExhaustSpec spec)
+        => spec.DestroyedFriendlyCardTypeAsCost.Length == 0 ? [] : FriendlyDestructionChoices(state, player,
+            requiredTag: spec.DestroyedFriendlyCardTypeAsCost switch {
+                "UNIT" => CardObjectTags.UnitCard, "EQUIPMENT" => CardObjectTags.EquipmentCard, _ => null })
+            .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray();
 
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
         => spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
@@ -47,8 +65,30 @@ public sealed partial class CoreRuleEngine
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
             || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
                 out var extras, out var resources, out _) || extras.Count != (ability.Spec.Conversion.Length > 0 ? 1 : 0)
-                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0))
+                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
+                    + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
+                    + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
+                    + (ability.Spec.BanishesGraveyardPermanentAsCost ? 1 : 0))
             return RejectWithCorePrompts(state, "所选支付资源行动无效。", ErrorCodes.InvalidTarget);
+        var banishCosts = extras.Where(id => id.StartsWith(LegendGraveyardBanishCostRules.Prefix, StringComparison.Ordinal)).ToArray();
+        if (ability.Spec.BanishesGraveyardPermanentAsCost
+            ? !LegendGraveyardBanishCostRules.TryRead(state, intent.PlayerId, banishCosts, out _)
+            : banishCosts.Length != 0)
+            return RejectWithCorePrompts(state, "请选择自己废牌堆中的单位或装备支付放逐费用。", ErrorCodes.InvalidTarget);
+        var destructionCosts = extras.Where(id => id.StartsWith(DestroyFriendlyPermanentAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
+        if (destructionCosts.Length != (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
+            || destructionCosts.Any(id => !BorrowedDestructionCostChoices(state, intent.PlayerId, ability.Spec).Contains(id)))
+            return RejectWithCorePrompts(state, "请选择合法友方物体支付摧毁费用。", ErrorCodes.InvalidTarget);
+        var unitExhaustCosts = extras.Where(id => id.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
+        if (unitExhaustCosts.Length != (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
+            || unitExhaustCosts.Any(id => !BorrowedUnitExhaustCostChoices(state, intent.PlayerId, source.ObjectId, ability.Spec).Contains(id)))
+            return RejectWithCorePrompts(state, "请选择合法的活跃强力友方单位支付休眠费用。", ErrorCodes.InvalidTarget);
+        var recycled = extras.Where(id => TryParseRecycleGraveyardCardAdditionalCost(id, out _))
+            .Select(id => { TryParseRecycleGraveyardCardAdditionalCost(id, out var card); return card; }).ToArray();
+        if (recycled.Length != ability.Spec.RecycledCardCostCount
+            || recycled.Distinct(StringComparer.Ordinal).Count() != recycled.Length
+            || recycled.Any(id => !CanRecycleBorrowedAbilityCost(state, intent.PlayerId, id, ability.Spec)))
+            return RejectWithCorePrompts(state, "请选择自己废牌堆中足够且不同的合法牌支付回收费用。", ErrorCodes.InvalidTarget);
         var discard = extras.Where(id => id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)).ToArray();
         if (ability.Spec.DiscardsEquipmentAsCost
             && (discard.Length != 1 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(discard[0])))
@@ -74,11 +114,27 @@ public sealed partial class CoreRuleEngine
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置来源。", ErrorCodes.InsufficientCost);
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
+        if (ability.Spec.BanishesGraveyardPermanentAsCost
+            && !LegendGraveyardBanishCostRules.TryRead(paidState, intent.PlayerId, banishCosts, out _))
+            return RejectWithCorePrompts(state, "支付资源行动后所选牌无法支付放逐费用。", ErrorCodes.InvalidTarget);
+        if (destructionCosts.Any(id => !BorrowedDestructionCostChoices(paidState, intent.PlayerId, ability.Spec).Contains(id)))
+            return RejectWithCorePrompts(state, "支付资源行动后所选物体无法支付摧毁费用。", ErrorCodes.InvalidTarget);
+        if (ability.Spec.Kind == "RESOURCE" && destructionCosts.Any(id => !CanStartDestructionResourceGain(
+            paidState with { RunePools = payment.RunePools }, intent.PlayerId, source.ObjectId,
+            id[DestroyFriendlyPermanentAdditionalCostPrefix.Length..],
+            ability.Spec.GeneratedPower + ability.Spec.GeneratedTraits.Values.Sum(), BorrowedExhaustRules.Effect)))
+            return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付摧毁费用。", ErrorCodes.UnsupportedCardBehavior);
+        if (unitExhaustCosts.Any(id => !BorrowedUnitExhaustCostChoices(paidState, intent.PlayerId, source.ObjectId, ability.Spec).Contains(id)))
+            return RejectWithCorePrompts(state, "支付资源行动后所选单位无法支付休眠费用。", ErrorCodes.InvalidTarget);
+        if (recycled.Any(id => !CanRecycleBorrowedAbilityCost(paidState, intent.PlayerId, id, ability.Spec)))
+            return RejectWithCorePrompts(state, "所选牌已无法支付回收费用。", ErrorCodes.InvalidTarget);
         if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
             return RejectWithCorePrompts(state, "支付资源行动后来源已无法使用该技能。", ErrorCodes.InvalidTarget);
         source = cards[source.ObjectId];
         var destructionTriggers = new List<TriggerQueueItemState>();
         var destroyedOwners = new List<string>();
+        var rngCursor = state.RngCursor;
+        var borrowerDestroyedAsCost = false;
         // All targets bind before nonstandard costs can change their zones.
         var targetGenerations = targets.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
         var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
@@ -89,6 +145,14 @@ public sealed partial class CoreRuleEngine
             state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories, borrowerWasOnBattlefield,
             ability.Spec.EmpoweredMight.HasValue ? source.IsEmpowered : null,
             ability.Spec.RequiresPlayedArmamentThisTurn);
+        foreach (var cost in unitExhaustCosts)
+        {
+            var id = cost[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
+            cards[id] = ExhaustForInstruction(zones, cards, cards[id]);
+            events.Add(new("UNIT_EXHAUSTED", "让友方单位休眠以支付获得的技能费用", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = id,
+                ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
+        }
         if (ability.Spec.RemovesSourceEmpowerment)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
@@ -117,6 +181,26 @@ public sealed partial class CoreRuleEngine
             destroyedOwners.AddRange(removal.DestroyedUnitOwnerIds);
             payment = payment with { RunePools = removal.RunePools };
         }
+        foreach (var cost in destructionCosts)
+        {
+            var id = cost[DestroyFriendlyPermanentAdditionalCostPrefix.Length..];
+            // Exhaust first: a source sacrificed as another printed cost must
+            // never be restored from its pre-destruction object afterwards.
+            source = ExhaustForInstruction(zones, cards, source);
+            cards[source.ObjectId] = source;
+            borrowerDestroyedAsCost = id == source.ObjectId;
+            var costItem = new StackItemState($"cost-{state.Tick + 1}-{source.ObjectId}-BORROWED-FRIEND",
+                intent.PlayerId, source.ObjectId, BorrowedExhaustRules.Effect, context.Borrower.PhysicalCardNo, []);
+            var removal = ResolveFieldDestructions(state, zones, cards, costItem, new HashSet<string>(),
+                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), payment.RunePools,
+                objectLocations: locations, explicitDestroyObjectIds: new HashSet<string> { id });
+            if (removal.Events.Count == 0)
+                return RejectWithCorePrompts(state, "无法支付所选摧毁费用。", ErrorCodes.InvalidTarget);
+            events.AddRange(removal.Events);
+            destructionTriggers.AddRange(removal.TriggerQueue);
+            destroyedOwners.AddRange(removal.DestroyedUnitOwnerIds);
+            payment = payment with { RunePools = removal.RunePools };
+        }
         if (ability.Spec.DiscardsEquipmentAsCost)
         {
             if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId).Contains(discard[0]))
@@ -129,10 +213,20 @@ public sealed partial class CoreRuleEngine
                 ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
         }
+        if (recycled.Length > 0)
+        {
+            var recycling = RecycleGraveyardCards(paidState, zones, cards, intent.PlayerId,
+                source.ObjectId, recycled, "ABILITY_COST");
+            events.AddRange(recycling.Events);
+            rngCursor = recycling.RngCursor;
+        }
+        if (ability.Spec.BanishesGraveyardPermanentAsCost)
+            PayGraveyardPermanentBanishCost(zones, cards, intent.PlayerId, source.ObjectId, ability.Id,
+                banishCosts[0][LegendGraveyardBanishCostRules.Prefix.Length..], events, "支付获得的技能的放逐费用");
         if (ability.Spec.Kind == "RESOURCE")
             return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events, extras,
-                source, destructionTriggers, destroyedOwners);
-        if (!ability.Spec.DestroysSourceAsCost && cards.ContainsKey(source.ObjectId))
+                source, destructionTriggers, destroyedOwners, borrowerDestroyedAsCost);
+        if (!ability.Spec.DestroysSourceAsCost && !borrowerDestroyedAsCost && cards.ContainsKey(source.ObjectId))
             cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-BORROWED", intent.PlayerId,
             source.ObjectId, BorrowedExhaustRules.Effect, context.Borrower.PhysicalCardNo, targets,
@@ -152,7 +246,7 @@ public sealed partial class CoreRuleEngine
             PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones),
             RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience, StackItems = [..state.StackItems, item],
-            TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(),
+            TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners),
             UntilEndOfTurnEffects = source.Tags.Contains(CardObjectTags.UnitCard)
                 ? MarkEzrealEnemyTargetsThisTurnForUnitAbility(state, state.UntilEndOfTurnEffects, intent.PlayerId, targets)

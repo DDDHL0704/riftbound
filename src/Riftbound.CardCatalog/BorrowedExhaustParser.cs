@@ -24,6 +24,11 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public string Conversion { get; init; } = "";
     public bool DiscardsEquipmentAsCost { get; init; }
     public bool DestroysSourceAsCost { get; init; }
+    public int RecycledCardCostCount { get; init; }
+    public bool RecyclesOnlyUnitsAsCost { get; init; }
+    public int? ExhaustedUnitMinimumMightAsCost { get; init; }
+    public string DestroyedFriendlyCardTypeAsCost { get; init; } = "";
+    public bool BanishesGraveyardPermanentAsCost { get; init; }
     public int DrawCount { get; init; }
     public int RuneCallCount { get; init; }
     public int ScoreAmount { get; init; }
@@ -59,6 +64,16 @@ public static class BorrowedExhaustParser
             cost = Regex.Replace(cost, "解除(?:我的|此牌的)强化", "");
             var discardsEquipment = cost.Contains("弃置一张装备牌", StringComparison.Ordinal);
             cost = cost.Replace("弃置一张装备牌", "", StringComparison.Ordinal);
+            var banishesGraveyardPermanent = cost.Contains("从你的废牌堆中放逐一个单位或装备", StringComparison.Ordinal);
+            cost = cost.Replace("从你的废牌堆中放逐一个单位或装备", "", StringComparison.Ordinal);
+            var recycle = Regex.Match(cost, @"从(?:你的)?废牌堆中回收(?<count>一|二|两|三|[1-9][0-9]*)(?<type>张牌|名单位)");
+            var recycleCount = recycle.Success ? recycle.Groups["count"].Value switch {
+                "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) } : 0;
+            if (recycle.Success) cost = cost.Remove(recycle.Index, recycle.Length);
+            var exhaustsPowerful = cost.Contains("让一名友方{{强力}}单位变为休眠状态", StringComparison.Ordinal);
+            cost = cost.Replace("让一名友方{{强力}}单位变为休眠状态", "", StringComparison.Ordinal);
+            var destroyedFriend = Regex.Match(cost, "摧毁(?<kind>一件友方装备|一名友方单位|一个友方单位或装备)");
+            if (destroyedFriend.Success) cost = cost.Remove(destroyedFriend.Index, destroyedFriend.Length);
             var destroysSource = cost.Contains("摧毁此牌", StringComparison.Ordinal)
                 || cost.Contains("摧毁我", StringComparison.Ordinal);
             cost = cost.Replace("摧毁此牌", "", StringComparison.Ordinal)
@@ -92,7 +107,13 @@ public static class BorrowedExhaustParser
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
                     RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
-                    DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament };
+                    DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
+                    BanishesGraveyardPermanentAsCost = banishesGraveyardPermanent,
+                    RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位",
+                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : null,
+                    DestroyedFriendlyCardTypeAsCost = destroyedFriend.Success
+                        ? destroyedFriend.Groups["kind"].Value.Contains("或", StringComparison.Ordinal) ? "PERMANENT"
+                            : destroyedFriend.Groups["kind"].Value.Contains("装备", StringComparison.Ordinal) ? "EQUIPMENT" : "UNIT" : "" };
             var conversion = Regex.Match(effect, @"^\{\{反应\}\}\s*[—-]\s*支付任意数量的(?<input>法力|\{\{A\}\})来\{\{获得\}\}等量的(?<output>法力|\{\{A\}\})$");
             if (conversion.Success && conversion.Groups["input"].Value != conversion.Groups["output"].Value)
             {
@@ -100,19 +121,22 @@ public static class BorrowedExhaustParser
                     Conversion = conversion.Groups["input"].Value == "法力" ? "MANA_TO_POWER" : "POWER_TO_MANA" });
                 continue;
             }
-            var resource = Regex.Match(effect, @"^(?:\{\{反应\}\}\s*[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付符能费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
-            if (resource.Success && (reaction || effect.StartsWith("{{反应}}", StringComparison.Ordinal)))
+            var resource = Regex.Match(effect, @"^(?:\{\{(?:反应|迅捷)\}\}\s*[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此符能仅可用于打出单位或装备|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付符能费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
+            if (resource.Success && (reaction || swift || effect.StartsWith("{{反应}}", StringComparison.Ordinal)
+                || effect.StartsWith("{{迅捷}}", StringComparison.Ordinal)))
             {
                 var gain = resource.Groups["gain"].Value;
                 var restriction = resource.Groups["restriction"].Value;
                 result.Add(Skill("RESOURCE", 0) with {
-                    Reaction = true,
+                    Reaction = reaction || effect.StartsWith("{{反应}}", StringComparison.Ordinal),
+                    Swift = swift || effect.StartsWith("{{迅捷}}", StringComparison.Ordinal),
                     GeneratedMana = Regex.Matches(gain, @"\{\{(?<n>[0-9]+)\}\}").Sum(m => int.Parse(m.Groups["n"].Value)),
                     GeneratedPower = Regex.Matches(gain, @"\{\{A\}\}").Count,
                     GeneratedTraits = colors.Select(pair => (pair.Value, Count: Regex.Matches(gain, Regex.Escape("{{" + pair.Key + "}}")).Count))
                         .Where(pair => pair.Count > 0).ToDictionary(pair => pair.Value, pair => pair.Count),
                     EmpoweredMana = resource.Groups["empowered"].Success ? int.Parse(resource.Groups["empowered"].Value) : null,
                     ResourceRestriction = restriction.Contains("法术对决", StringComparison.Ordinal) ? "DUEL"
+                        : restriction.Contains("打出单位或装备", StringComparison.Ordinal) ? "PERMANENT_PLAY"
                         : restriction.Contains("单位", StringComparison.Ordinal) ? "UNIT"
                         : restriction.Contains("装备", StringComparison.Ordinal) ? "EQUIPMENT"
                         : restriction.Contains("法术", StringComparison.Ordinal) ? "SPELL" : "" });
@@ -120,7 +144,7 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
-            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
+            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?:单位指示物)?(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
             if (unitToken.Success)
             {
                 var count = unitToken.Groups["count"].Value switch { "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) };

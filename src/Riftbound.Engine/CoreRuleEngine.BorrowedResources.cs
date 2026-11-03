@@ -5,6 +5,17 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static bool BorrowedResourceGainSupported(MatchState state, string player,
+        BorrowedExhaustSpec spec, CardObjectState source)
+    {
+        var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
+        return BorrowedResourceGainSupported(pool, spec, source)
+            || spec.GeneratedMana == 0 && spec.GeneratedTraits.Count == 0 && spec.GeneratedPower > 0
+                && BorrowedDestructionCostChoices(state, player, spec).Any(cost =>
+                    CanStartDestructionResourceGain(state, player, source.ObjectId,
+                        cost[DestroyFriendlyPermanentAdditionalCostPrefix.Length..], spec.GeneratedPower, BorrowedExhaustRules.Effect));
+    }
+
     internal static bool TryBorrowedConversionMaximum(MatchState state, string player, CardObjectState source,
         BorrowedExhaustSpec spec, out int maximum)
         => ResourceQuantityRules.TryConversionMaximum(state.RunePools.GetValueOrDefault(player, RunePool.Empty),
@@ -25,7 +36,7 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         Dictionary<string, ObjectLocationState> locations, List<GameEvent> events, IReadOnlyList<string> extraCosts,
         CardObjectState activationSource, IReadOnlyList<TriggerQueueItemState> destructionTriggers,
-        IReadOnlyList<string> destroyedOwners)
+        IReadOnlyList<string> destroyedOwners, bool borrowerDestroyedAsCost)
     {
         var source = activationSource;
         var spec = ability.Spec;
@@ -81,8 +92,9 @@ public sealed partial class CoreRuleEngine
             Power = pool.Power + (spec.ResourceRestriction == "" ? power : 0),
             SpellOnlyPower = pool.SpellOnlyPower + (spec.ResourceRestriction == "SPELL" ? power : 0),
             EquipmentOnlyPower = pool.EquipmentOnlyPower + (spec.ResourceRestriction == "EQUIPMENT" ? power : 0),
+            UnitOrEquipmentPlayOnlyPower = pool.UnitOrEquipmentPlayOnlyPower + (spec.ResourceRestriction == "PERMANENT_PLAY" ? power : 0),
             PowerByTrait = traits };
-        if (cards.ContainsKey(source.ObjectId) && !spec.DestroysSourceAsCost)
+        if (cards.ContainsKey(source.ObjectId) && !spec.DestroysSourceAsCost && !borrowerDestroyedAsCost)
             cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         var payload = new Dictionary<string, object?> {
             ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
@@ -91,7 +103,8 @@ public sealed partial class CoreRuleEngine
             ["generatedMana"] = mana, ["generatedPower"] = power,
             ["conversionAmount"] = converted, ["conversionKind"] = spec.Conversion,
             ["generatedPowerByTrait"] = spec.GeneratedTraits, ["resourceRestriction"] = spec.ResourceRestriction,
-            ["resourceSkill"] = true, ["reactionSpeed"] = true, ["resourceLifecycle"] = "rune-pool",
+            ["resourceSkill"] = true, ["reactionSpeed"] = spec.Reaction, ["swiftSpeed"] = spec.Swift,
+            ["resourceLifecycle"] = "rune-pool",
             ["stackPolicy"] = "no-ordinary-stack-item", ["timingContext"] = state.TimingState,
             ["wasExhausted"] = false, ["isExhausted"] = true };
         events.Add(new("ABILITY_ACTIVATED", "激活获得的资源技能", payload));
