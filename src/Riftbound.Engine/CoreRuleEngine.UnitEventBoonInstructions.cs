@@ -45,7 +45,8 @@ public sealed partial class CoreRuleEngine
                 source.ObjectId, out var readied, zones, cards);
             if (readied is not null) events.Add(readied);
         }
-        else if (target is not null && CanExecuteStun(cards[target]))
+        else if (target is not null && CanExecuteStun(cards[target])
+            && !TryReplaceEmpoweredStun(state, item, cards, target, events))
         {
             cards[target] = cards[target] with { UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(cards[target].UntilEndOfTurnEffects, "STUNNED") };
             events.Add(CaptureStunObservers(new("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
