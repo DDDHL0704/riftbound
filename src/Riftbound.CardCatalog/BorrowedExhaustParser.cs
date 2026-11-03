@@ -27,6 +27,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public int DrawCount { get; init; }
     public int RuneCallCount { get; init; }
     public int ScoreAmount { get; init; }
+    public int InsightCount { get; init; }
+    public int ExperienceGain { get; init; }
     public int? EmpoweredMight { get; init; }
     public int ExistingBoonMight { get; init; }
 }
@@ -111,6 +113,13 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            var insight = Regex.Match(effect, @"^\{\{洞察(?<count>[1-9][0-9]*)\}\}，然后抽一张牌。获得(?<experience>[1-9][0-9]*)经验$");
+            if (insight.Success)
+            {
+                result.Add(Skill("INSIGHT_DRAW_EXPERIENCE", 0) with { InsightCount = int.Parse(insight.Groups["count"].Value),
+                    DrawCount = 1, ExperienceGain = int.Parse(insight.Groups["experience"].Value) });
+                continue;
+            }
             if (effect == "打出一个休眠的“金币”装备指示物")
             {
                 result.Add(Skill("CREATE_GOLD", 0));
@@ -171,6 +180,19 @@ public static class BorrowedExhaustParser
                 continue;
             }
             if (effect == "让一名单位变为活跃状态") { result.Add(Skill("READY_UNIT")); continue; }
+            if (effect == "让一名单位本回合内获得{{游走}}") { result.Add(Skill("ROAM_UNIT")); continue; }
+            var moveToBase = Regex.Match(effect, @"^将战场上(?:的)?一名(?<exhausted>处于休眠状态的)?友方单位移动到其(?:所属的)?基地$");
+            if (moveToBase.Success)
+            {
+                result.Add(Skill("MOVE_TO_BASE", scope: moveToBase.Groups["exhausted"].Success
+                    ? "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT" : "FRIENDLY_BATTLEFIELD_UNIT"));
+                continue;
+            }
+            if (effect == "在战场和其所属基地之间移动一名友方单位")
+            {
+                result.Add(Skill("MOVE_BETWEEN_BASE_AND_BATTLEFIELD", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             var damage = Regex.Match(effect, @"^对(?<field>战场上的)?一名单位造成(?<n>[1-9][0-9]*)点伤害$");
             if (damage.Success) {
                 result.Add(Skill("DAMAGE_UNIT", scope: damage.Groups["field"].Success ? "BATTLEFIELD_UNIT" : "ANY_UNIT",
