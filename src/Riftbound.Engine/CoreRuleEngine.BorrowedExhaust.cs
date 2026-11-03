@@ -160,6 +160,7 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, 1, spec.DrawCount);
         var cards = state.CardObjects.ToDictionary();
         var zones = NormalizeZonesForSeats(state);
         var destroyed = new HashSet<string>(StringComparer.Ordinal);

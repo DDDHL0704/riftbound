@@ -105,6 +105,11 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "弃置一张手牌，然后抽一张牌")
+            {
+                result.Add(Skill("DISCARD_DRAW", 0) with { DrawCount = 1 });
+                continue;
+            }
             var draw = Regex.Match(effect, @"^抽(?<n>一|二|两|[1-9][0-9]*)张牌$");
             if (draw.Success)
             {
