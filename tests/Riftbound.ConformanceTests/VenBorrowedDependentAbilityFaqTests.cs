@@ -5,7 +5,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class VenBorrowedDependentAbilityFaqTests
+public sealed partial class VenBorrowedDependentAbilityFaqTests
 {
     // CN VEN FAQ p. 15, core 727.1.b.1: the borrowed dependency
     // checks the borrowing source, even when the legend is not empowered.
@@ -55,7 +55,8 @@ public sealed class VenBorrowedDependentAbilityFaqTests
         await game.Replay();
     }
 
-    private static async Task<Driver> Ready(string printing, bool empower, string secondEquipment = "SFD·022/221")
+    private static async Task<Driver> Ready(string printing, bool empower, string secondEquipment = "SFD·022/221",
+        Func<MatchState, MatchState>? adjust = null)
     {
         var initial = AttackDamageDistributionTests.Spell(EmpowerTests.Position(printing), "READY", "OGN·146/298", "P1");
         initial = AttackDamageDistributionTests.Spell(initial, "STATUS", "VEN·035", "P1");
@@ -71,6 +72,7 @@ public sealed class VenBorrowedDependentAbilityFaqTests
                 ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["JAYCE"], Base = [..initial.PlayerZones["P1"].Base, "GEAR2"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["JAYCE"] = new("P1", "LEGEND"), ["GEAR2"] = new("P1", "BASE") } };
+        initial = adjust?.Invoke(initial) ?? initial;
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("HOST", printing, []));
         if (empower) {
@@ -150,6 +152,9 @@ public sealed class VenBorrowedDependentAbilityFaqTests
         await game.Top();
         Assert.False(game.State.CardObjects["GEAR"].IsExhausted);
         Assert.False(game.State.CardObjects["GEAR2"].IsExhausted);
+        var resolved = game.Events().Last(e => e.Event.Kind == "STACK_ITEM_RESOLVED"
+            && Equals(e.Event.Payload.GetValueOrDefault("effectKind"), "BORROWED_EXHAUST_ACTIVATION"));
+        Assert.Equal(leave ? "HIDDEN" : "HOST", resolved.Event.Payload.GetValueOrDefault("sourceObjectId"));
         await game.Replay();
     }
 

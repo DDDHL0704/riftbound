@@ -11,7 +11,7 @@ public sealed record BorrowedTextSource(ObjectBinding Object, string CardNo, str
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, BorrowedTextSource Donor,
     int AbilityIndex, long AcquiredTick, bool BorrowerWasEmpowered,
-    IReadOnlyDictionary<string, string>? TargetTokenFactories = null);
+    IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
     RuleTextInstance DonorText, BorrowedExhaustSpec Spec);
 
@@ -45,6 +45,7 @@ internal static class BorrowedExhaustRules
                 // 727.1.b.1: enumerate the entire skill before checking its
                 // dependency on the borrowing source, never the donor.
                 if (spec.RequiresEmpowered && !source.IsEmpowered) continue;
+                if (spec.RequiresSourceBattlefield && !state.PlayerZones.Values.Any(z => z.Battlefields.Contains(source.ObjectId))) continue;
                 var identity = $"{borrower.Id}|{borrower.CardNo}|{text.Id}|{text.CardNo}|{spec.Index}";
                 yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
                     donor, borrower, text, spec);
@@ -71,6 +72,7 @@ internal static class BorrowedExhaustRules
             || !ValidSource(state, c.Borrower, c.AcquiredTick) || !ValidSource(state, c.Donor, c.AcquiredTick)
             || Spec(c.Donor.CardNo, c.AbilityIndex) is not { } spec
             || spec.RequiresEmpowered && !c.BorrowerWasEmpowered
+            || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds.Count != spec.Targets || item.TargetObjectIds.Distinct().Count() != spec.Targets
@@ -86,7 +88,8 @@ internal static class BorrowedExhaustRules
                     || factory != (token.TokenFactoryCardNo ?? token.CardNo)))
             || item.TargetObjectIds.Any(id => !state.CardObjects.ContainsKey(id)
                 && (c.TargetTokenFactories is null || !c.TargetTokenFactories.ContainsKey(id)))
-            || item.TimingContext != TimingStates.NeutralOpen) return false;
+            || (spec.Swift ? item.TimingContext is not (TimingStates.NeutralOpen or TimingStates.SpellDuelOpen)
+                : item.TimingContext != TimingStates.NeutralOpen)) return false;
         return true;
     }
 }
