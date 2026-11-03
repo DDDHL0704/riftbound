@@ -26,7 +26,7 @@ public sealed class RadLastBreathAmplifierPhysicalTests
         Assert.Equal(1, cost.Amount); Assert.Equal(new[] { RuneTrait.Red }, cost.Traits);
         Assert.Equal(source.Id, Assert.Single(RadiantCardSources.GetAdmittedCards(), c => c.CardNo == Amplifier).Id);
         var runtime = await OfficialCardCatalog.LoadRuntimeAsync();
-        Assert.Equal(1488, runtime.Cards.Count);
+        Assert.Equal(1489, runtime.Cards.Count);
         Assert.Equal(source.Id, Assert.Single(runtime.Cards, c => c.CardNo == Amplifier).Id);
     }
 
