@@ -6577,7 +6577,11 @@ public sealed partial class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal));
         Assert.Equal(battlefieldObjectId, openedEvent.Payload["battlefieldObjectId"]);
         Assert.Equal(HallOfLegendsBattlefieldConquerReadyLegendCardNo, openedEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(legendObjectId, openedEvent.Payload["legendObjectId"]);
+        // CN 440.2.a / 440.3.b-c / 355.10.g: choose “your legend” only
+        // when the paid effect resolves, without declaring a target now.
+        Assert.False(openedEvent.Payload.ContainsKey("legendObjectId"));
+        Assert.DoesNotContain(legendObjectId, payment.Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind == "TARGETS_CONFIRMED");
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal));

@@ -51,6 +51,8 @@ internal static class CreatedTokenReadySqlAcceptance
                 }
                 var prefix = await Cold("unconfirmed-created-token-trigger");
                 Check(prefix.Commands.Count == fixture.GetProperty("acceptedCommands").GetArrayLength(), "Original ordinary command prefix retained.");
+                state = await PrepareConfirmationAsync(state, async (actor, command) =>
+                { await Act(actor, command); return state; });
                 var captured = state.StackItems.Single(i => i.CreatedTokenReady is not null).CreatedTokenReady!;
                 Check(captured.CardNo == card && captured.Source.ObjectId == source && captured.Units.Select(u => u.ObjectId).SequenceEqual(expectedTokens), "Captured source and newly created tokens match independent expectations.");
                 Check(state.PlayerZones["P1"].Graveyard.Contains(source) && expectedTokens.All(id => state.CardObjects[id].IsExhausted), "Parent completed and tokens entered before this confirmation.");
@@ -140,5 +142,36 @@ internal static class CreatedTokenReadySqlAcceptance
             { await using var cleanup = new NpgsqlCommand("delete from matches where match_id=@room", connection); cleanup.Parameters.AddWithValue("room", room); await cleanup.ExecuteNonQueryAsync(); }
         }
     }
+    // Keep the durable original prefix before choosing the order of its earned
+    // triggers. Azir now grants Tempered to these tokens, so the ready trigger
+    // can still be queued, with optional equipment confirmations ahead of it.
+    internal static async Task<MatchState> PrepareConfirmationAsync(MatchState state,
+        Func<string, GameCommand, Task<MatchState>> submit)
+    {
+        for (var step = 0; step < 64; step++)
+        {
+            if (state.StackItems.Any(item => item.CreatedTokenReady is not null
+                && (state.PendingPayment?.ResolvingStackItemId == item.StackItemId
+                    || state.PendingCardChoice?.ResolvingStackItemId == item.StackItemId
+                    || state.PendingPayment is null && state.PendingCardChoice is null
+                        && state.TriggerQueue.Count == 0 && state.StackItems[^1].StackItemId == item.StackItemId)))
+                return state;
+            if (state.PendingCardChoice is { } choice)
+            {
+                Check(choice.RequiredCount == 0 && choice.EffectKind != "CREATED_TOKEN_READY",
+                    "Only unrelated optional confirmations precede the created-token trigger.");
+                state = await submit(choice.PlayerId,
+                    new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+            }
+            else if (ResolutionResult.BuildPrompts(state).FirstOrDefault(pair =>
+                pair.Value.Actions.Contains(CommandTypes.OrderTriggers)).Key is { } actor)
+                state = await submit(actor, new OrderTriggersCommand(state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
+            else if (state.StackItems.Count > 0 && state.PriorityPlayerId is { } priorityPlayer)
+                state = await submit(priorityPlayer, new PassPriorityCommand());
+            else throw new InvalidOperationException("Missing original created-token confirmation or trigger ordering prompt.");
+        }
+        throw new InvalidOperationException("Created-token trigger confirmation exceeded its finite bound.");
+    }
+
     private static void Check(bool value, string? reason) { if (!value) throw new InvalidOperationException(reason); }
 }

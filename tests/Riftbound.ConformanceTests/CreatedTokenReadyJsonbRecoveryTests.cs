@@ -42,6 +42,59 @@ public sealed class CreatedTokenReadyJsonbRecoveryTests
         }
         Assert.Contains(state.TriggerQueue.Select(item => item.CreatedTokenReady)
             .Concat(state.StackItems.Select(item => item.CreatedTokenReady)), context => context is not null);
+        session = await AssertColdRecoveryAsync(Frame(initial, journal, state), engine, journal);
+        var prefixCommands = journal.Entries.Count;
+        state = await CreatedTokenReadySqlAcceptance.PrepareConfirmationAsync(state, Act);
+        var ready = Assert.Single(state.StackItems, item => item.CreatedTokenReady is not null);
+        Assert.Equal(input.GetProperty("expectedSourceObjectId").GetString(), ready.CreatedTokenReady!.Source.ObjectId);
+        var tokens = input.GetProperty("expectedTokenObjectIds").EnumerateArray().Select(value => value.GetString()!).ToArray();
+        var recipients = input.GetProperty("expectedReadyObjectIds").EnumerateArray().Select(value => value.GetString()!).ToArray();
+        Assert.Equal(tokens, ready.CreatedTokenReady.Units.Select(binding => binding.ObjectId));
+        Assert.All(tokens, id => Assert.True(state.CardObjects[id].IsExhausted));
+        if (tokens.Length > 0) Assert.True(journal.Entries.Count > prefixCommands, "Azir's simultaneous triggers must be ordered through an accepted command.");
+        if (state.PendingPayment is { } payment)
+            await Act(payment.PlayerId, new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
+                [input.GetProperty("expectedPayYellow").GetBoolean() ? "PAY" : "DECLINE"]));
+        else if (state.PendingCardChoice is { } readyChoice)
+        {
+            Assert.Equal("CREATED_TOKEN_READY", readyChoice.EffectKind);
+            await Act(readyChoice.PlayerId, new ChooseCardsCommand(readyChoice.ChoiceId, readyChoice.ChoiceWindow, recipients));
+        }
+        Assert.All(tokens, id => Assert.True(state.CardObjects[id].IsExhausted));
+        session = await AssertColdRecoveryAsync(Frame(initial, journal, state), engine, journal);
+        for (var step = 0; step < 64 && (state.StackItems.Count > 0 || state.TriggerQueue.Count > 0); step++)
+        {
+            if (state.PendingCardChoice is { } remainingChoice)
+            {
+                Assert.Equal(0, remainingChoice.RequiredCount);
+                Assert.NotEqual("CREATED_TOKEN_READY", remainingChoice.EffectKind);
+                await Act(remainingChoice.PlayerId, new ChooseCardsCommand(remainingChoice.ChoiceId, remainingChoice.ChoiceWindow, []));
+            }
+            else if (state.PendingPayment is { } remainingPayment)
+                await Act(remainingPayment.PlayerId, new PayCostCommand(remainingPayment.PaymentId, remainingPayment.PaymentWindow, ["DECLINE"]));
+            else if (ResolutionResult.BuildPrompts(state).FirstOrDefault(pair =>
+                pair.Value.EnabledActions().Contains(CommandTypes.OrderTriggers)).Key is { } actor)
+                await Act(actor, new OrderTriggersCommand(state.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
+            else await Act(state.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        Assert.Empty(state.StackItems);
+        Assert.Empty(state.TriggerQueue);
+        Assert.All(tokens, id => Assert.Equal(!recipients.Contains(id), state.CardObjects[id].IsExhausted));
+        await AssertColdRecoveryAsync(Frame(initial, journal, state), engine, journal);
+
+        async Task<MatchState> Act(string actor, GameCommand command)
+        {
+            var raw = JsonSerializer.SerializeToElement(command, command.GetType(), Json);
+            var result = await session.SubmitAsync(actor, "created-ready-jsonb-" + journal.Entries.Count,
+                command, raw, default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            state = result.State;
+            return state;
+        }
+    }
+
+    private static MatchRecoveryFrame Frame(MatchState initial, Journal journal, MatchState state)
+    {
         var last = journal.Entries[^1];
         var commands = journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId,
             entry.CommandType, entry.RawCommand, entry.StartedTick, entry.CompletedTick,
@@ -52,12 +105,11 @@ public sealed class CreatedTokenReadyJsonbRecoveryTests
         var views = last.Snapshots.ToDictionary(pair => pair.Key, pair => new RecoveredPlayerView(pair.Key,
             last.CompletedTick, last.CompletedEventSequence, pair.Value, last.CompletedTick,
             last.CompletedEventSequence, last.Prompts[pair.Key]));
-        var original = new MatchRecoveryFrame(room, state.Tick, last.CompletedEventSequence, commands, events,
+        return new MatchRecoveryFrame(state.RoomId, state.Tick, last.CompletedEventSequence, commands, events,
             views, [], state, initial, MatchReplayRedactor.BuildSpectatorFrame(last)) { OpeningSeed = initial.Seed };
-        await AssertColdRecoveryAsync(original, engine, journal);
     }
 
-    internal static async Task AssertColdRecoveryAsync(MatchRecoveryFrame original, CoreRuleEngine engine, IMatchJournal journal)
+    internal static async Task<IMatchSession> AssertColdRecoveryAsync(MatchRecoveryFrame original, CoreRuleEngine engine, IMatchJournal journal)
     {
         var state = original.AuthoritativeState!;
         var room = original.RoomId;
@@ -75,7 +127,7 @@ public sealed class CreatedTokenReadyJsonbRecoveryTests
         Assert.True(errors.Count == 0, string.Join("; ", errors));
         Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default));
         frame = frame with { ValidationErrors = errors };
-        Assert.NotNull(await new InMemoryMatchSessionRegistry(engine, journal, new Store(frame)).GetOrCreateAsync(room, default));
+        return await new InMemoryMatchSessionRegistry(engine, journal, new Store(frame)).GetOrCreateAsync(room, default);
     }
 
     private static object Reorder(JsonElement value) => value.ValueKind switch {
