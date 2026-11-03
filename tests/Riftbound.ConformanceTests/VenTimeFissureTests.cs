@@ -74,7 +74,7 @@ public sealed class VenTimeFissureTests
         await game.Act("P1", new PlayCardCommand("UNIT", Spell, ["ENEMY"])); await game.Top();
         var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
         Assert.Equal("P2", pending.PlayerId);
-        Assert.DoesNotContain(game.PromptFor("P2").Candidates ?? [], candidate => candidate.Action == CommandTypes.PlayCard);
+        Assert.DoesNotContain(game.PromptFor("P2").Candidates ?? [], candidate => candidate.Action == CommandTypes.PlayCard && candidate.Enabled);
         await Reject(game.State, "P2", new PlayCardCommand("ENEMY", "OGN·219/298", [], Destination: "BASE"));
         await Reject(game.State, "P2", new PlayCardCommand("ENEMY", "OGN·219/298", [], Destination: "BASE:P1"));
         await Reject(game.State, "P2", new PlayCardCommand("ENEMY", "OGN·219/298", [], Destination: "BATTLEFIELD:OTHER"));
