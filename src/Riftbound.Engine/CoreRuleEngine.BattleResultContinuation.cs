@@ -64,6 +64,7 @@ public sealed partial class CoreRuleEngine
             collected = ReconcileBoundLegends(ApplyObjectContinuity(state, collected));
             collected = TimedBanishPlayRules.Prune(collected);
             collected = RecordTargetedPowerSourceStatus(state, collected);
+            collected = RecordBorrowedSourceStatus(state, collected);
             collected = RecordDepartedTokenTargets(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
             collected = AdvanceDeckPlayReflexives(collected);

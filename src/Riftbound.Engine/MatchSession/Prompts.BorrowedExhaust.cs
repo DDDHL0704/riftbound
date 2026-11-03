@@ -25,7 +25,7 @@ internal static partial class ActionPromptBuilder
                 optional = ResourceConversionChoices(BorrowedExhaustRules.ConversionChoicePrefix, maximum, "选择资源转换数量");
             }
             var targets = ability.Spec.Targets == 0 ? [] : state.CardObjects.Keys.Order(StringComparer.Ordinal)
-                .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec))
+                .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec, source.ObjectId))
                 .Select(id => ObjectChoice(state, id, "技能目标")).ToArray();
             if (targets.Length < ability.Spec.Targets) continue;
             var choices = Enumerable.Range(0, ability.Spec.Targets).ToDictionary(i => i.ToString(),
@@ -34,13 +34,17 @@ internal static partial class ActionPromptBuilder
                 "READY_EQUIPMENT" => $"让 {ability.Spec.Targets} 件装备活跃",
                 "READY_UNIT" => "让一名单位活跃",
                 "BOON_UNIT" => "给予一名单位增益",
+                "BOON_SELF" => "给予我增益",
+                "BOON_OR_MIGHT" => $"给予一名单位增益；已有增益时改为本回合战力 +{ability.Spec.ExistingBoonMight}",
+                "EMPOWER_EQUIPMENT" => "强化另一件装备",
                 "KEYWORD_UNIT" => $"给予一名{(ability.Spec.TargetScope == "FRIENDLY_UNIT" ? "友方" : "")}单位本回合内{ability.Spec.Keyword}",
                 "DAMAGE_UNIT" => $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
                 "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌",
                 "DISCARD_DRAW" => $"弃置一张手牌，然后抽 {ability.Spec.DrawCount} 张牌",
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
-                _ => $"让一名单位在本回合内战力 {ability.Spec.Might:+0;-0}" };
+                _ => $"让一名单位在本回合内战力 {ability.Spec.Might:+0;-0}"
+                    + (ability.Spec.EmpoweredMight is { } stronger ? $"；此牌已强化时改为 +{stronger}" : "") };
             var taxes = targets.ToDictionary(t => t.Id, t => CoreRuleEngine.SpellshieldPowerCostForTarget(state, player, t.Id), StringComparer.Ordinal);
             var payments = ability.Spec.Power + ability.Spec.TypedPower.Values.Sum() > 0 || taxes.Values.Any(tax => tax > 0)
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];

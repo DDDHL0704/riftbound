@@ -15,10 +15,11 @@ public sealed partial class CoreRuleEngine
     {
         // Keep the full provenance in the authoritative ledger. A recycled
         // source's new deck object is not disclosed by its resolved modifier.
-        if (effect.SourceCardNo is not { } no || effect.SourceObjectId is not { } id
-            || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
-            || !behavior.RecyclesSourceIfPlayedFromStandby
+        if (effect.SourceObjectId is not { } id
             || ResolutionResult.VisibleObjectIdForViewer(state, id, viewer) != "HIDDEN") return effect;
+        if (effect.EffectKind != BorrowedExhaustRules.Effect
+            && (effect.SourceCardNo is not { } no || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
+                || !behavior.RecyclesSourceIfPlayedFromStandby)) return effect;
         return effect with { SourceObjectId = "HIDDEN" };
     }
 

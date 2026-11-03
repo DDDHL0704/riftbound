@@ -11,7 +11,8 @@ public sealed record BorrowedTextSource(ObjectBinding Object, string CardNo, str
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, BorrowedTextSource Donor,
     int AbilityIndex, long AcquiredTick, bool BorrowerWasEmpowered,
-    IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false);
+    IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false,
+    bool? LastKnownSourceEmpowered = null);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
     RuleTextInstance DonorText, BorrowedExhaustSpec Spec);
 
@@ -78,6 +79,7 @@ internal static class BorrowedExhaustRules
             || spec.Kind == "RESOURCE"
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
+            || spec.EmpoweredMight.HasValue != c.LastKnownSourceEmpowered.HasValue
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds.Count != spec.Targets || item.TargetObjectIds.Distinct().Count() != spec.Targets

@@ -25,6 +25,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool DiscardsEquipmentAsCost { get; init; }
     public bool DestroysSourceAsCost { get; init; }
     public int DrawCount { get; init; }
+    public int? EmpoweredMight { get; init; }
+    public int ExistingBoonMight { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -105,6 +107,29 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect is "给予我增益" or "给予我{{增益}}")
+            {
+                result.Add(Skill("BOON_SELF", 0));
+                continue;
+            }
+            if (effect == "强化另一件装备")
+            {
+                result.Add(Skill("EMPOWER_EQUIPMENT"));
+                continue;
+            }
+            var empoweredMight = Regex.Match(effect, @"^给予一名单位在本回合内\{\{S\}\}(?<base>\+[1-9][0-9]*)。如果此牌\{\{已强化\}\}，则改为给予该单位在本回合内\{\{S\}\}(?<empowered>\+[1-9][0-9]*)$");
+            if (empoweredMight.Success)
+            {
+                result.Add(Skill("MIGHT_UNIT", might: int.Parse(empoweredMight.Groups["base"].Value)) with {
+                    EmpoweredMight = int.Parse(empoweredMight.Groups["empowered"].Value) });
+                continue;
+            }
+            var boonMight = Regex.Match(effect, @"^给予一名单位\{\{增益\}\}。如果该单位已拥有增益，则改为给予其在本回合内\{\{S\}\}(?<might>\+[1-9][0-9]*)$");
+            if (boonMight.Success)
+            {
+                result.Add(Skill("BOON_OR_MIGHT") with { ExistingBoonMight = int.Parse(boonMight.Groups["might"].Value) });
+                continue;
+            }
             if (effect == "弃置一张手牌，然后抽一张牌")
             {
                 result.Add(Skill("DISCARD_DRAW", 0) with { DrawCount = 1 });

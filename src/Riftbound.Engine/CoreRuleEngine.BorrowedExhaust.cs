@@ -16,8 +16,9 @@ public sealed partial class CoreRuleEngine
     internal static PowerPaymentPurpose BorrowedPowerPurpose(CardObjectState source)
         => source.Tags.Contains(CardObjectTags.EquipmentCard) ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
 
-    internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec)
-        => spec.Kind == "READY_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
+    internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
+        => spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
+                && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
             : state.CardObjects.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)
                 && IsObjectOnField(state.PlayerZones, id)
                 && (spec.TargetScope != "BATTLEFIELD_UNIT" || state.PlayerZones.Values.Any(z => z.Battlefields.Contains(id)))
@@ -38,7 +39,7 @@ public sealed partial class CoreRuleEngine
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targets.Count != ability.Spec.Targets || command.TargetObjectIds.Count != targets.Count
             || targets.Distinct(StringComparer.Ordinal).Count() != targets.Count
-            || targets.Any(id => !IsBorrowedExhaustTarget(state, intent.PlayerId, id, ability.Spec)))
+            || targets.Any(id => !IsBorrowedExhaustTarget(state, intent.PlayerId, id, ability.Spec, source.ObjectId)))
             return RejectWithCorePrompts(state, "请选择技能要求的不同合法目标。", ErrorCodes.InvalidTarget);
         var requested = NormalizeOptionalCosts(command.OptionalCosts);
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
@@ -83,7 +84,8 @@ public sealed partial class CoreRuleEngine
         var borrowerWasOnBattlefield = zones.Values.Any(z => z.Battlefields.Contains(source.ObjectId, StringComparer.Ordinal));
         var context = new BorrowedExhaustContext(BorrowedExhaustRules.Capture(source, ability.BorrowerText),
             BorrowedExhaustRules.Capture(cards[ability.Donor.ObjectId], ability.DonorText), ability.Spec.Index,
-            state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories, borrowerWasOnBattlefield);
+            state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories, borrowerWasOnBattlefield,
+            ability.Spec.EmpoweredMight.HasValue ? source.IsEmpowered : null);
         if (ability.Spec.RemovesSourceEmpowerment)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
@@ -167,11 +169,16 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", "获得的技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId }) };
         using (new MightInstructionScope(state, zones, cards, events))
-        foreach (var id in item.TargetObjectIds)
+        foreach (var id in spec.Kind == "BOON_SELF" ? new[] { c.Borrower.Object.ObjectId } : item.TargetObjectIds)
         {
             var current = state with { CardObjects = cards };
-            if (!StackObjectRules.ReferencesCurrentObject(current, item, id)
-                || !IsBorrowedExhaustTarget(current, item.ControllerId, id, spec)) continue;
+            if (spec.Kind == "BOON_SELF")
+            {
+                if (!cards.TryGetValue(id, out var self) || self.ObjectGeneration != c.Borrower.Object.Generation
+                    || !IsFaceUpNonStandbyUnit(self) || !IsObjectOnField(zones, id)) continue;
+            }
+            else if (!StackObjectRules.ReferencesCurrentObject(current, item, id)
+                || !IsBorrowedExhaustTarget(current, item.ControllerId, id, spec, item.SourceObjectId)) continue;
             var target = cards[id];
             if (spec.Kind == "READY_EQUIPMENT")
             {
@@ -194,12 +201,19 @@ public sealed partial class CoreRuleEngine
                 cards[id] = ApplyReadyState(target, behavior, item, id, out var readied, zones, cards);
                 if (readied is not null) events.Add(readied);
             }
-            else if (spec.Kind == "BOON_UNIT")
+            else if (spec.Kind is "BOON_UNIT" or "BOON_SELF"
+                || spec.Kind == "BOON_OR_MIGHT" && !target.Tags.Contains(CardObjectTags.Boon))
             {
                 var behavior = new CardBehaviorDefinition(c.Donor.CardNo, "获得的增益技能", 0, item.EffectKind, 0, 1,
                     TargetScope: CardTargetScopes.AnyUnit, GrantsBoon: true);
                 cards[id] = ApplyBoon(target, behavior, item, id, out var applied, zones, cards);
                 events.AddRange(applied);
+            }
+            else if (spec.Kind == "EMPOWER_EQUIPMENT")
+            {
+                var empowered = ApplyEmpowerStatusAction(current, new(id, target.ObjectGeneration), true, item.ControllerId);
+                cards[id] = empowered.CardObjects[id];
+                events.AddRange(empowered.Events);
             }
             else if (spec.Kind == "KEYWORD_UNIT")
             {
@@ -218,9 +232,14 @@ public sealed partial class CoreRuleEngine
             }
             else
             {
+                var sourceEmpowered = cards.TryGetValue(item.SourceObjectId, out var source)
+                    && source.ObjectGeneration == c.Borrower.Object.Generation && IsObjectOnField(zones, source.ObjectId)
+                        ? source.IsEmpowered : c.LastKnownSourceEmpowered;
+                var amount = spec.Kind == "BOON_OR_MIGHT" ? spec.ExistingBoonMight
+                    : sourceEmpowered == true && spec.EmpoweredMight is { } stronger ? stronger : spec.Might;
                 var behavior = new CardBehaviorDefinition(c.Donor.CardNo, "获得的战力技能", 0, item.EffectKind, 0, 1,
-                    PowerModifierAmount: spec.Might, MinimumPowerAfterModifier: spec.MinimumMight);
-                cards[id] = ApplyPowerModifier(current, target, behavior, item, id, spec.Might, out var modified);
+                    PowerModifierAmount: amount, MinimumPowerAfterModifier: spec.MinimumMight);
+                cards[id] = ApplyPowerModifier(current, target, behavior, item, id, amount, out var modified);
                 events.Add(modified);
             }
         }
@@ -243,5 +262,41 @@ public sealed partial class CoreRuleEngine
         return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones, Events = events,
             RunePools = cleanup.RunePools, TriggerQueue = cleanup.TriggerQueue, DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds,
             ObjectLocations = ReconcileObjectLocations(locations, zones) };
+    }
+
+    private static ResolutionResult RecordBorrowedSourceStatus(MatchState before, ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var events = result.Events.ToList();
+        var changed = false;
+        var stack = result.State.StackItems.Select(item => {
+            if (item.BorrowedExhaust is not { LastKnownSourceEmpowered: not null } context) return item;
+            var binding = context.Borrower.Object;
+            var empowered = context.LastKnownSourceEmpowered;
+            if (result.State.CardObjects.TryGetValue(binding.ObjectId, out var current)
+                && current.ObjectGeneration == binding.Generation && IsObjectOnField(result.State.PlayerZones, binding.ObjectId))
+                empowered = current.IsEmpowered;
+            else if (before.CardObjects.TryGetValue(binding.ObjectId, out var previous)
+                && previous.ObjectGeneration == binding.Generation && IsObjectOnField(before.PlayerZones, binding.ObjectId))
+            {
+                empowered = previous.IsEmpowered;
+                foreach (var ev in result.Events)
+                    if (ev.Kind is "OBJECT_EMPOWERED" or "OBJECT_EMPOWER_REMOVED"
+                        && EventPayloadString(ev, "sourceObjectId") == binding.ObjectId
+                        && ev.Payload.TryGetValue("objectGeneration", out var generation)
+                        && Convert.ToInt64(generation, System.Globalization.CultureInfo.InvariantCulture) == binding.Generation)
+                        empowered = ev.Kind == "OBJECT_EMPOWERED";
+            }
+            if (empowered == context.LastKnownSourceEmpowered) return item;
+            changed = true;
+            events.Add(new("ABILITY_SOURCE_STATUS_CAPTURED", "保留获得的技能来源状态", new Dictionary<string, object?> {
+                ["stackItemId"] = item.StackItemId,
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, binding.ObjectId, ProjectionViewers.Spectator),
+                ["sourceGeneration"] = binding.Generation, ["isEmpowered"] = empowered }));
+            return item with { BorrowedExhaust = context with { LastKnownSourceEmpowered = empowered } };
+        }).ToArray();
+        if (!changed) return result;
+        var state = result.State with { StackItems = stack };
+        return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 }
