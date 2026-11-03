@@ -33,6 +33,7 @@ internal static partial class ActionPromptBuilder
             var effect = ability.Spec.Kind switch {
                 "READY_EQUIPMENT" => $"让 {ability.Spec.Targets} 件装备活跃",
                 "READY_UNIT" => "让一名单位活跃",
+                "ROAM_UNIT" => "让一名单位本回合内获得游走",
                 "BOON_UNIT" => "给予一名单位增益",
                 "BOON_SELF" => "给予我增益",
                 "BOON_OR_MIGHT" => $"给予一名单位增益；已有增益时改为本回合战力 +{ability.Spec.ExistingBoonMight}",

@@ -180,6 +180,7 @@ public static class BorrowedExhaustParser
                 continue;
             }
             if (effect == "让一名单位变为活跃状态") { result.Add(Skill("READY_UNIT")); continue; }
+            if (effect == "让一名单位本回合内获得{{游走}}") { result.Add(Skill("ROAM_UNIT")); continue; }
             var damage = Regex.Match(effect, @"^对(?<field>战场上的)?一名单位造成(?<n>[1-9][0-9]*)点伤害$");
             if (damage.Success) {
                 result.Add(Skill("DAMAGE_UNIT", scope: damage.Groups["field"].Success ? "BATTLEFIELD_UNIT" : "ANY_UNIT",

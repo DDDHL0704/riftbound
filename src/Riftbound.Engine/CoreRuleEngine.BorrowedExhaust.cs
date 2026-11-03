@@ -244,6 +244,9 @@ public sealed partial class CoreRuleEngine
                 cards[id] = empowered.CardObjects[id];
                 events.AddRange(empowered.Events);
             }
+            else if (spec.Kind == "ROAM_UNIT")
+                GrantLegendRoam(cards, id, item.ControllerId, item.SourceObjectId,
+                    item.EffectKind, events);
             else if (spec.Kind == "KEYWORD_UNIT")
             {
                 var definition = TemporaryCombatKeywordRules.Prefix + spec.Keyword;
