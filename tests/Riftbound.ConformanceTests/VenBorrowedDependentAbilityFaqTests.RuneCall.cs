@@ -32,7 +32,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         await game.Top();
         Assert.Equal(initial.PlayerZones["P1"].MainDeck.Skip(1), game.State.PlayerZones["P1"].MainDeck);
         Assert.Contains(initial.PlayerZones["P1"].MainDeck[0], game.State.PlayerZones["P1"].Hand);
-        Assert.Equal(initial.PlayerZones["P1"].RuneDeck.Skip(1), game.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(initial.PlayerZones["P1"].RuneDeck.Skip(returns ? 2 : 1), game.State.PlayerZones["P1"].RuneDeck);
         if (runes > 0)
         {
             Assert.Contains("BORROWED-RUNE-0", game.State.PlayerZones["P1"].Base);
