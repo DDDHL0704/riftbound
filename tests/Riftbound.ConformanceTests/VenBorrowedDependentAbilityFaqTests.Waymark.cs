@@ -73,8 +73,9 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         await game.Act("P1", new MoveUnitCommand("STARTER", "BASE", "BATTLEFIELD:OTHER", []));
         Assert.Equal(TimingStates.SpellDuelOpen, game.State.TimingState);
         Assert.Equal("P1", game.State.FocusPlayerId);
-        await game.Act("P1", Waymark(game.State, borrowed));
-        await RadGearTestPosition.Reject(game.State, "P1", Waymark(game.State, borrowed));
+        var command = Waymark(game.State, borrowed);
+        await game.Act("P1", command);
+        await RadGearTestPosition.Reject(game.State, "P1", command);
         await game.Top();
         Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), game.State.ObjectLocations["HOST"]);
         await game.Replay();
