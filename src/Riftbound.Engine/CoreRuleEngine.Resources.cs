@@ -5,10 +5,15 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static bool CanStartMalzaharResourceCost(MatchState state, string player, string sourceId, string targetId)
+        => CanStartDestructionResourceGain(state, player, sourceId, targetId,
+            P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, P4ActivatedAbilityCatalog.MalzaharResourceAbilityEffectKind);
+
+    internal static bool CanStartDestructionResourceGain(MatchState state, string player, string sourceId,
+        string targetId, int generatedPower, string effectKind)
     {
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
         if (!pool.HasSupportedAmounts) return false;
-        if ((long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower <= int.MaxValue) return true;
+        if ((long)pool.TotalStoredPower + generatedPower <= int.MaxValue) return true;
 
         // The destruction cost may pause before the gain. A replacement can
         // spend power, or its resource window can convert power first. Read the
@@ -18,7 +23,7 @@ public sealed partial class CoreRuleEngine
         cards[sourceId] = cards[sourceId] with { IsExhausted = true };
         var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var cause = new StackItemState($"cost-{state.Tick + 1}-{sourceId}", player, sourceId,
-            P4ActivatedAbilityCatalog.MalzaharResourceAbilityEffectKind, cards[sourceId].CardNo, [targetId]);
+            effectKind, cards[sourceId].CardNo, [targetId]);
         var options = DestructionOptions(state, zones, cards, pools, targetId, player, cause, null,
             state.ObjectLocations, false, out var optionalAvailable, new HashSet<string>(StringComparer.Ordinal));
         // DestructionOptions exposes paid replacements only for units. A pure
@@ -40,7 +45,7 @@ public sealed partial class CoreRuleEngine
             released += Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower,
                 (long)int.MaxValue - pool.TotalStoredMana);
         }
-        return (long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
+        return (long)pool.TotalStoredPower + generatedPower - released <= int.MaxValue;
     }
 
     private static ResolutionResult ResolveMalzaharResourceSkill(MatchState state, PlayerIntent intent,

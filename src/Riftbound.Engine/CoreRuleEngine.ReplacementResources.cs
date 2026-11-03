@@ -100,7 +100,7 @@ public sealed partial class CoreRuleEngine
             }
         }
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
-        foreach (var borrowed in BorrowedExhaustRules.Abilities(state, player, source).Where(a => a.Spec.Kind == "RESOURCE"))
+        foreach (var borrowed in BorrowedExhaustRules.Abilities(state, player, source).Where(a => a.Spec.Kind == "RESOURCE" && a.Spec.Reaction))
         {
             var spec = borrowed.Spec;
             if (!CanActivateBorrowedExhaust(state, player, spec) || !BorrowedResourceGainSupported(pool, spec, source)
