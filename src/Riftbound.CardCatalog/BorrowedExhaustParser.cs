@@ -167,6 +167,11 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("MOVE_TO_EXHAUSTED_COST_UNIT", scope: "FRIENDLY_UNIT") with { MovesToExhaustedCostUnit = true });
                 continue;
             }
+            if (effect == "选择一名友方单位。在本回合内，当它下次被摧毁时，你可以选择支付{{红色}}，改为以休眠状态将其召回")
+            {
+                result.Add(Skill("GRANT_PAID_RECALL", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
             var attachment = Regex.Match(effect, "^将你控制的一件(?<state>未贴附|已贴附)的武装贴附到你控制的一名单位上$");

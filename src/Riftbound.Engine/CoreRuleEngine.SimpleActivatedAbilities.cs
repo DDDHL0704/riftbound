@@ -123,7 +123,7 @@ public sealed partial class CoreRuleEngine
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true || SimpleActivationTargetsOpponent(ability);
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.MovesToExhaustedCostUnit == true
+        => ability.SimpleEffect is { } friendly && (friendly.MovesToExhaustedCostUnit || friendly.GrantsPaidRecall)
             ? state.CardObjects.TryGetValue(id, out var moved) && IsFaceUpNonStandbyUnit(moved)
                 && IsObjectOnField(state.PlayerZones, id) && EffectiveFieldControllerId(state.PlayerZones, id, moved) == actor
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
@@ -438,6 +438,7 @@ public sealed partial class CoreRuleEngine
                 (frame, id) => IsSimpleAbilityTarget(frame, item.ControllerId, item.SourceObjectId, id, ability));
         if (spec.GrantsNextUnitReady) return ResolveActivatedNextUnitReady(state, item);
         if (spec.GrantsNextSpellDamage) return ResolveActivatedNextSpellDamage(state, item);
+        if (spec.GrantsPaidRecall) return ResolveActivatedPaidRecall(state, item);
         if (spec.CreatedUnitTokenCardNo is { } unitFactory)
         {
             if (BeginTokenReplacement(state, item) is { } replacement) return replacement;

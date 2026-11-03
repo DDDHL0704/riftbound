@@ -70,6 +70,7 @@ internal static partial class ActionPromptBuilder
                 "GRANT_NEXT_SPELL_ECHO" => "本回合打出的下一个法术获得等同于其费用的回响",
                 "GRANT_NEXT_SPELL_DAMAGE" => "本回合打出的下一个法术每段伤害+1",
                 "GRANT_NEXT_UNIT_READY" => "鼓舞时，本回合打出的下一名单位以活跃状态进场",
+                "GRANT_PAID_RECALL" => "本回合友方单位下次被摧毁时，可支付红色符能改为休眠召回（保留伤害）",
                 "TRANSFER_SOURCE_AND_RECALL" => "选择一名玩家，令其获得此牌控制权并召回",
                 "COMMAND_OPPONENT_MOVEMENT" => "选择一名对手，让其将一名单位移动到此牌所在战场",
                 "GUESS_DECK_TOP" => "选择一名对手猜测牌库顶类型，展示后回收或抽取",
