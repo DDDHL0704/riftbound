@@ -1049,6 +1049,7 @@ public static partial class MatchRecoveryValidator
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState).ToHashSet(StringComparer.Ordinal);
         if (authoritativeEffects.Any(effect => effect.SourceObjectId == "HIDDEN"))
             knownObjectIds.Add("HIDDEN");
+        var expectedEffects = BuildAuthoritativeContinuousEffectsById(authoritativeEffects);
         foreach (var spectatorEffect in spectatorEffects)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
@@ -1061,10 +1062,26 @@ public static partial class MatchRecoveryValidator
                 spectatorEffect,
                 "spectator replay frame timing continuous effect item",
                 errors);
+            // A vanished legend remains the provenance of its resolved modifier;
+            // it cannot become a current target or another effect's source.
+            string? historicalSource = null;
+            if (ReadNormalizedPayloadString(spectatorEffect, "effectId") is { } id
+                && expectedEffects.TryGetValue(id, out var expected)
+                && expected.Scope == "OBJECT" && expected.Duration == "UNTIL_END_OF_TURN"
+                && expected.Layer == ContinuousEffectLayers.PowerModifier
+                && expected.SourceObjectId is { } source
+                && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, source, expected.SourceCardNo)
+                && OptionalStringSnapshotValueMatches(spectatorEffect, "sourceObjectId", source)
+                && OptionalStringSnapshotValueMatches(spectatorEffect, "sourceCardNo", expected.SourceCardNo)
+                && OptionalStringSnapshotValueMatches(spectatorEffect, "sourcePath", expected.SourcePath)
+                && OptionalStringSnapshotValueMatches(spectatorEffect, "targetObjectId", expected.TargetObjectId)
+                && knownObjectIds.Contains(expected.TargetObjectId ?? string.Empty))
+                historicalSource = source;
             var effectValues = ValidateSpectatorContinuousEffectPayloadValues(
                 spectatorEffect,
                 knownObjectIds,
-                errors);
+                errors,
+                historicalSource);
             if (effectValues.EffectId is not null && !seenEffectIds.Add(effectValues.EffectId))
             {
                 errors.Add(

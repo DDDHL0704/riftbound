@@ -32,6 +32,8 @@ public sealed partial class CoreRuleEngine
             || !cards.TryGetValue(source.ObjectId, out var card)
             || card.ObjectGeneration != source.Generation || !IsFaceUpNonStandbyUnit(card)
             || !IsObjectOnField(zones, source.ObjectId)) return;
+        if (behavior.AddsRegisteredLegendWhileSourceOnField)
+            AddRegisteredLegend(state, item, source, zones, cards, events);
         if (behavior.GrantsSourceEphemeralIfOpponentTurn && state.TurnPlayerId != item.ControllerId)
         {
             cards[source.ObjectId] = card with {

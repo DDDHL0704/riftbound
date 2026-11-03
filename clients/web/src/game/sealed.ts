@@ -114,6 +114,18 @@ export function seriesScore(series: MatchSeries, meId: string) {
   return { mine, theirs };
 }
 
+export type DeckLock = "none" | "deck" | "all";
+
+/**
+ * What the next game lets this player change. After a draw nothing can change, the battlefield included;
+ * after a skipped opening only the battlefield can. The snapshot does not name the case, but a draw follows
+ * a game that recorded this player's battlefield and a skipped opening recorded none.
+ */
+export function deckLock(series: MatchSeries | null, meId: string): DeckLock {
+  if (!series?.lockedDeck) return "none";
+  return series.usedBattlefields[meId]?.length ? "all" : "deck";
+}
+
 // The draft stays in this browser, per room and player, so a reload or the next game of a match starts
 // from the last deck rather than an empty one. It is never sent until the player submits it.
 const key = (roomId: string, handle: string) => `riftbound.web.sealed.${roomId}.${handle}`;

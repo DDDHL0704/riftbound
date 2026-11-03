@@ -61,8 +61,12 @@ public sealed partial class OptionalDeckRoleOpeningTests
         await run.Cold();
     }
 
-    [Fact]
-    public async Task HallOfLegendsConquestWithoutALegendDoesNotOpenImpossiblePayment()
+    // CN 055 / 055.1 / 355.10.g: the mana cost can be paid even when the
+    // subsequent non-target instruction has no controlled legend to ready.
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task HallOfLegendsConquestWithoutALegendCanDeclineOrPayWithoutReadyingACard(bool pay)
     {
         var initial = ConquestLifecycleRegressionTests.State("SFD·210/221", 0) with
         {
@@ -76,9 +80,20 @@ public sealed partial class OptionalDeckRoleOpeningTests
         Assert.Equal("P1", conquered.State.CardObjects["BF"].ControllerId);
         Assert.Equal(1, conquered.State.PlayerScores["P1"]);
         Assert.Equal(1, conquered.State.RunePools["P1"].Mana);
-        Assert.Null(conquered.State.PendingPayment);
-        Assert.DoesNotContain(conquered.Events, item => item.Kind == "PAYMENT_WINDOW_OPENED");
-        Assert.DoesNotContain(conquered.Prompts["P1"].Candidates ?? [], candidate => candidate.Action == CommandTypes.PayCost && candidate.Enabled);
+        var payment = Assert.IsType<PendingPaymentState>(conquered.State.PendingPayment);
+        Assert.Contains(conquered.Events, item => item.Kind == "PAYMENT_WINDOW_OPENED");
+        Assert.Contains(conquered.Prompts["P1"].Candidates ?? [], candidate => candidate.Action == CommandTypes.PayCost && candidate.Enabled);
+        Assert.DoesNotContain(conquered.Prompts["P2"].Candidates ?? [], candidate => candidate.Action == CommandTypes.PayCost && candidate.Enabled);
+        await run.Cold();
+
+        var resolved = await run.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
+            [pay ? "SPEND_MANA:1" : "DECLINE"]));
+        Assert.Null(resolved.State.PendingPayment);
+        Assert.Null(resolved.State.PendingRuleChoice);
+        Assert.Equal(pay ? 0 : 1, resolved.State.RunePools["P1"].Mana);
+        Assert.Empty(resolved.State.PlayerZones["P1"].LegendZone);
+        Assert.Equal(pay, resolved.Events.Any(item => item.Kind == "COST_PAID"));
+        Assert.DoesNotContain(resolved.Events, item => item.Kind is "LEGEND_READIED" or "TARGETS_CONFIRMED" or "RULE_CHOICE_REQUESTED");
         await run.Cold();
     }
 
