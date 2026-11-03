@@ -317,6 +317,7 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
       mainDeck: deck.mainDeck,
       runeDeck: deck.runeDeck,
       battlefields: deck.battlefields,
+      ...(deck.additionalLegendCardNos?.length ? { additionalLegendCardNos: deck.additionalLegendCardNos } : {}),
     });
   };
 

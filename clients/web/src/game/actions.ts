@@ -11,6 +11,8 @@ export type ActionStep = {
   label: string;
   required: boolean;
   choices: Choice[];
+  /** For a modal spell, the chosen mode this target belongs to. */
+  mode?: string;
 };
 
 /** An action anchored to a source object (a hand card, unit, rune, legend…). */
@@ -37,11 +39,17 @@ export type ObjectAction = {
   powerShortfall: number;
   /** Taps and recycles preselected to cover the shortfalls (the player may change the recycles). */
   presetCosts: string[];
+  /** Modes chosen for a modal spell, each with its own targets (sent as `modeChoices`). */
+  modes?: string[];
+  /** Prefix of a declared extra power amount the player may add (e.g. "ADDITIONAL_POWER:"). */
+  variablePower?: string;
   /** The prompt this action was offered in; a submission after that prompt changed is stale. */
   promptId?: string;
 };
 
 type PowerByChoice = Record<string, { power?: number; trait?: string }>;
+
+const NORMAL_GRAVEYARD_PLAY = "NORMAL_GRAVEYARD_PLAY";
 
 export const isRecycle = (id: string) => id.startsWith("RECYCLE_RUNE:");
 export const isTap = (id: string) => id.startsWith("TAP_RUNE:");
@@ -87,6 +95,8 @@ export type Selection = {
   /** One destination per target, in target order (BASE:<player> or BATTLEFIELD:<id>). */
   movements?: string[];
   optionalCosts: string[];
+  /** Targets per chosen mode of a modal spell. */
+  modeTargets?: Record<string, string[]>;
 };
 
 const ANCHORED = new Set([
@@ -188,16 +198,42 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
       break;
   }
 
-  const costChoices: Choice[] = req.optionalCostChoices ?? [];
+  // A card playable several ways (flow cost, or its normal cost from the graveyard) comes as one
+  // requirement per way; the command names the way, or the server falls back to the cheapest.
+  const variant: string[] = [req.flowCostChoiceId, req.normalGraveyardPlayChoiceId].filter(Boolean);
+  if (req.flowCostChoiceId) label = `${label} · 流转`;
+  else if (req.normalGraveyardPlayChoiceId) label = `${label} · 普通费用`;
+  const costChoices: Choice[] = (req.optionalCostChoices ?? []).filter((c: Choice) => !variant.includes(c.id) && c.id !== NORMAL_GRAVEYARD_PLAY);
   const resources = uniqueChoices([...costChoices, ...(req.paymentResourceChoices ?? [])]);
   const taps = resources.filter((c) => isTap(c.id)).map((c) => c.id);
   const recycles = resources.filter((c) => isRecycle(c.id));
   const extras = costChoices.filter((c) => !isTap(c.id) && !isRecycle(c.id));
-  // Some costs take exactly one option (the server rejects zero or several). Recycling a graveyard
-  // card for an ability is one of them, though the requirement doesn't mark it yet.
-  const pickOne = Number(req.requiredOptionalCostChoiceCount) === 1 || (action === "ACTIVATE_ABILITY" && extras.length > 0 && extras.every((c) => c.id.startsWith("RECYCLE_GRAVEYARD_CARD:")));
-  if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: action === "HIDE_CARD" ? "选择待命费用" : "选择费用", required: true, choices: extras });
-  const required: string[] = pickOne && extras.length === 1 ? [extras[0].id] : req.requiredOptionalCosts ?? [];
+  // Mandatory additional costs: the player picks exactly this many of the listed options.
+  const mandatory: Choice[] = uniqueChoices(req.additionalCostChoices ?? []);
+  const mandatoryCount = Number(req.requiredAdditionalCostChoiceCount ?? 0);
+  const costLabelText = action === "HIDE_CARD" ? "选择待命费用" : "选择费用";
+  let required: string[];
+  let optional: Choice[];
+  if (mandatoryCount > 0 && mandatory.length > 0) {
+    if (mandatory.length <= mandatoryCount) {
+      // The only legal way to pay: taken automatically, but named so it's never a surprise.
+      required = mandatory.map((c) => c.id);
+      detail = `${detail ? `${detail} · ` : ""}需${mandatory.map((c) => c.label).join("、")}`;
+    } else {
+      required = [];
+      for (let i = 0; i < mandatoryCount; i++)
+        steps.push({ key: `cost-${i}`, role: "cost", label: mandatoryCount > 1 ? `${costLabelText} ${i + 1}` : costLabelText, required: true, choices: mandatory });
+    }
+    optional = extras.filter((c) => !mandatory.some((m) => m.id === c.id));
+  } else {
+    // Some costs take exactly one option (the server rejects zero or several). Recycling a graveyard
+    // card for an ability is one of them, though older requirements don't mark it.
+    const pickOne = Number(req.requiredOptionalCostChoiceCount) === 1 || (action === "ACTIVATE_ABILITY" && extras.length > 0 && extras.every((c) => c.id.startsWith("RECYCLE_GRAVEYARD_CARD:")));
+    if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: costLabelText, required: true, choices: extras });
+    required = pickOne && extras.length === 1 ? [extras[0].id] : req.requiredOptionalCosts ?? [];
+    optional = pickOne ? [] : extras;
+  }
+  required = [...variant, ...required];
   // With a cost per option the shortfall is only known once the option is chosen.
   const perOption = Boolean(req.costsByChoice);
   const manaCost = Number(req.minimumManaCost ?? req.manaCost ?? 0);
@@ -214,13 +250,38 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
     requirement: req,
     steps,
     requiredCosts: required,
-    optionalCosts: pickOne ? [] : extras.filter((c) => !required.includes(c.id)),
+    optionalCosts: optional.filter((c) => !required.includes(c.id)),
     taps,
     recycles,
     manaShortfall,
     powerShortfall: shortfall,
     presetCosts: [...taps.slice(0, manaShortfall), ...(shortfall > 0 ? presetRecycles(req, recycles, taps, shortfall) : [])],
+    variablePower: req.variableAdditionalPowerCost?.choicePrefix,
   };
+}
+
+const MODE_NAMES: Record<string, string> = { DAMAGE: "伤害", MINIONS: "随从", MIGHT: "战力", LOOK: "查看" };
+
+function combinations<T>(items: T[], k: number): T[][] {
+  if (k === 0) return [[]];
+  return items.flatMap((x, i) => combinations(items.slice(i + 1), k - 1).map((rest) => [x, ...rest]));
+}
+
+/**
+ * A modal spell ("choose two") becomes one action per combination of modes, so the menu reads like
+ * the card; each chosen mode then asks for its own targets.
+ */
+function fromModalRequirement(candidate: Candidate, req: Record<string, any>, index: number): ObjectAction[] {
+  const modes: Record<string, any>[] = req.modeChoices;
+  const base = fromRequirement(candidate, { ...req, targetChoicesByIndex: {}, maxTargetCount: 0, minTargetCount: 0 }, index);
+  if (!base) return [];
+  return combinations(modes, Number(req.requiredModeCount)).map((combo) => {
+    const names = combo.map((m) => MODE_NAMES[m.mode] ?? m.mode);
+    const steps = combo.flatMap((m, j) =>
+      targetSteps(m, `${names[j]}：选择目标`).map((step) => ({ ...step, key: `${m.mode}-${step.key}`, mode: m.mode })),
+    );
+    return { ...base, key: `${base.key}:${combo.map((m) => m.mode).join("+")}`, label: `${base.label} · ${names.join("＋")}`, modes: combo.map((m) => m.mode), steps: [...steps, ...base.steps] };
+  });
 }
 
 /** Every enabled, object-anchored action in the prompt, grouped by source object id. */
@@ -236,8 +297,11 @@ export function objectActions(prompt: Prompt | null): Map<string, ObjectAction[]
     const reqs: Record<string, any>[] | undefined = candidate.metadata?.sourceRequirements;
     if (reqs?.length) {
       reqs.forEach((req, i) => {
-        const a = fromRequirement(candidate, req, i);
-        if (a) add(a);
+        if (req.modeChoices?.length && Number(req.requiredModeCount) > 0) fromModalRequirement(candidate, req, i).forEach(add);
+        else {
+          const a = fromRequirement(candidate, req, i);
+          if (a) add(a);
+        }
       });
     } else {
       for (const source of candidate.sources ?? []) {
@@ -310,6 +374,11 @@ export function buildCommand(action: ObjectAction, sel: Selection): Record<strin
     if (Array.isArray(value) && value.length === 0 && b.omitEmpty && !b.required) continue;
     cmd[b.field] = value;
   }
+  if (action.modes) {
+    cmd.modeChoices = action.modes.map((mode) => ({ mode, targetObjectIds: sel.modeTargets?.[mode] ?? [] }));
+    delete cmd.targetObjectIds;
+    delete cmd.targetObjectId;
+  }
   // Sequential-movement spells name a destination per target instead of one shared destination.
   if (req.movementDestinationChoicesByIndex && sel.movements?.length) {
     delete cmd.destination;
@@ -326,6 +395,7 @@ export function autoSelection(action: ObjectAction): Selection | null {
     if (step.choices.length !== 1) return null;
     if (step.role === "destination") sel.destination = step.choices[0].id;
     else if (step.role === "cost") sel.optionalCosts.push(step.choices[0].id);
+    else if (step.mode) (sel.modeTargets ??= {})[step.mode] = [...(sel.modeTargets?.[step.mode] ?? []), step.choices[0].id];
     else sel.targets.push(step.choices[0].id);
   }
   return action.steps.every((s) => s.required) ? sel : null;

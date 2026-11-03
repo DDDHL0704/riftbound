@@ -39,6 +39,9 @@ export function cardName(cardNo: string | null | undefined) {
   return cardInfo(cardNo)?.name ?? cardNo ?? "未知卡牌";
 }
 
+/** Colourless and neutral cards fit any legend and add no trait (server: MatchSession/Models.cs IsNeutral). */
+export const isNeutralColor = (c: string) => c === "colorless" || c === "neutral";
+
 export const COLOR_HEX: Record<string, string> = {
   red: "#d9503f",
   blue: "#4f8fdc",
@@ -47,6 +50,7 @@ export const COLOR_HEX: Record<string, string> = {
   purple: "#9a68d0",
   yellow: "#e2c044",
   colorless: "#9d97a6",
+  neutral: "#9d97a6",
 };
 
 export const COLOR_ZH: Record<string, string> = {
@@ -128,7 +132,7 @@ export function isUnit(tags: string[] | undefined) {
 }
 
 export function colorOf(tags: string[] | undefined) {
-  const tag = tags?.find((t) => t.startsWith("COLOR:") && t !== "COLOR:colorless");
+  const tag = tags?.find((t) => t.startsWith("COLOR:") && !isNeutralColor(t.slice(6)));
   return tag ? tag.slice(6) : "colorless";
 }
 

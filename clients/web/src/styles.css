@@ -1478,6 +1478,23 @@ button {
   font-size: 16px;
   box-shadow: 0 0 10px rgba(255, 94, 87, 0.6);
 }
+/* Empowered: how many times, top-left so it never covers power or damage. */
+.card__empower {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  padding: 0 6px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--brass);
+  color: #1b1405;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(240, 181, 74, 0.55);
+  pointer-events: none;
+}
 /* Own face-down standby: dimmed art and a ribbon so it reads as "set, not in play". */
 .card--peek .card__art {
   filter: brightness(0.55) saturate(0.6);
@@ -3256,4 +3273,15 @@ button {
     opacity: 0;
     transform: translate(-50%, -140%) scale(1);
   }
+}
+
+.pickbar__stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pickbar__stepper b {
+  min-width: 1.5em;
+  text-align: center;
+  font-family: var(--font-num);
 }

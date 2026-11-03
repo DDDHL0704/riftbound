@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { cardInfo } from "./cards";
+import { cardInfo, isNeutralColor } from "./cards";
 import type { CardInfo, PreconstructedDeck } from "./types";
 
 // Custom decks live in this browser only. The server validates every submitted deck against the
@@ -66,6 +66,7 @@ export function newDeckFrom(base?: PreconstructedDeck): CustomDeck {
     mainDeck: [...(base?.mainDeck ?? [])],
     runeDeck: [...(base?.runeDeck ?? [])],
     battlefields: [...(base?.battlefields ?? [])],
+    additionalLegendCardNos: [...(base?.additionalLegendCardNos ?? [])],
     custom: true,
     updatedAt: Date.now(),
   };
@@ -84,7 +85,7 @@ export function isBanned(cardNo: string) {
 
 const isExclusive = (c?: CardInfo) => Boolean(c?.category?.startsWith("专属"));
 const isUnique = (c?: CardInfo) => c?.limit === 1 || Boolean(c?.effect?.includes("{{唯我}}"));
-export const MAIN_CATEGORIES = new Set(["单位", "英雄单位", "装备", "法术", "专属单位", "专属装备", "专属法术"]);
+export const MAIN_CATEGORIES = new Set(["单位", "英雄单位", "装备", "法术", "专属单位", "专属装备", "专属法术", "单位 / 装备"]);
 
 /** How many copies of this card's name the main deck may hold. */
 export function copyLimit(cardNo: string) {
@@ -95,7 +96,23 @@ export function copyLimit(cardNo: string) {
 export function fitsLegend(cardNo: string, legendNo: string) {
   const legend = cardInfo(legendNo);
   if (!legend) return true;
-  return (cardInfo(cardNo)?.colors ?? []).every((c) => c === "colorless" || legend.colors.includes(c));
+  return (cardInfo(cardNo)?.colors ?? []).every((c) => isNeutralColor(c) || legend.colors.includes(c));
+}
+
+// "如果你的卡组中包含妮蔻，则在起始传奇之外，选择最多三名不同的传奇。" — the server reads the CN erratum
+// (AdditionalLegendSelectionParser); the catalog may still print the older "选择三名", which grants the same count.
+const EXTRA_LEGENDS = /如果你的卡组中包含([^，。\r\n]+)，则在起始传奇之外，选择(?:最多)?([0-9]+|[一二三四五六七八九])名不同的传奇/;
+
+/** How many legends this deck may register besides its starting legend. */
+export function extraLegendAllowance(deck: PreconstructedDeck) {
+  const names = new Set(deck.mainDeck.map((no) => cardInfo(no)?.name));
+  let max = 0;
+  for (const no of new Set(deck.mainDeck)) {
+    const m = EXTRA_LEGENDS.exec(cardInfo(no)?.effect ?? "");
+    if (!m || !names.has(m[1])) continue;
+    max = Math.max(max, /^\d+$/.test(m[2]) ? Number(m[2]) : "一二三四五六七八九".indexOf(m[2]) + 1);
+  }
+  return max;
 }
 
 /** Problems that would make the server reject this deck; empty when it is ready to submit. */
@@ -133,6 +150,12 @@ export function deckProblems(deck: PreconstructedDeck): string[] {
   }
   const banned = [...new Set([deck.legendCardNo, deck.championCardNo, ...deck.mainDeck, ...deck.runeDeck, ...deck.battlefields].filter((no) => no && isBanned(no)))];
   for (const no of banned) out.push(`《${cardInfo(no)?.name}》是中国区标准赛制禁卡。`);
+  const extra = deck.additionalLegendCardNos ?? [];
+  const allowance = extraLegendAllowance(deck);
+  if (extra.length > allowance) out.push(allowance ? `最多额外登记 ${allowance} 名传奇。` : "卡组里没有允许额外登记传奇的牌，请清空额外传奇。");
+  const extraNames = extra.map((no) => cardInfo(no)?.name);
+  if (new Set(extraNames).size !== extraNames.length) out.push("额外传奇的名称不能相同。");
+  if (legend && extraNames.includes(legend.name)) out.push("额外传奇不能与起始传奇同名。");
   const fieldNames = deck.battlefields.map((no) => cardInfo(no)?.name);
   if (new Set(fieldNames).size !== fieldNames.length) out.push("战场不能重名。");
   return out;
@@ -144,7 +167,7 @@ export function deckProblems(deck: PreconstructedDeck): string[] {
 //   符文 6 OGN·007/298 红色符文
 //   主牌 3 UNL-001/219 某张牌
 // The card number decides; the trailing name is only for people reading the list.
-const SECTIONS = { 传奇: "legend", 英雄: "champion", 战场: "battlefields", 符文: "runeDeck", 主牌: "mainDeck" } as const;
+const SECTIONS = { 传奇: "legend", 英雄: "champion", 战场: "battlefields", 符文: "runeDeck", 主牌: "mainDeck", 额外传奇: "additionalLegendCardNos" } as const;
 
 export function exportDeck(deck: PreconstructedDeck): string {
   const counted = (list: string[]) => {
@@ -160,6 +183,7 @@ export function exportDeck(deck: PreconstructedDeck): string {
     ...deck.battlefields.map((no) => `战场 ${no} ${name(no)}`),
     ...counted(deck.runeDeck).map(([no, n]) => `符文 ${n} ${no} ${name(no)}`),
     ...counted(deck.mainDeck).map(([no, n]) => `主牌 ${n} ${no} ${name(no)}`),
+    ...(deck.additionalLegendCardNos ?? []).map((no) => `额外传奇 ${no} ${name(no)}`),
   ].join("\n");
 }
 
@@ -174,7 +198,7 @@ export function parseDeck(text: string): { deck: CustomDeck; errors: string[] } 
       deck.name = line.slice(1).trim().slice(0, 30) || deck.name;
       continue;
     }
-    const m = /^(传奇|英雄|战场|符文|主牌)[\s:：]+(?:(\d+)\s*[x×]?\s+)?(\S+)/.exec(line);
+    const m = /^(额外传奇|传奇|英雄|战场|符文|主牌)[\s:：]+(?:(\d+)\s*[x×]?\s+)?(\S+)/.exec(line);
     if (!m) {
       errors.push(`第 ${i + 1} 行看不懂：${line.slice(0, 30)}`);
       continue;
@@ -188,6 +212,7 @@ export function parseDeck(text: string): { deck: CustomDeck; errors: string[] } 
     const n = Math.min(Number(count ?? 1), 60);
     if (field === "legend") deck.legendCardNo = no;
     else if (field === "champion") deck.championCardNo = no;
+    else if (field === "additionalLegendCardNos") deck.additionalLegendCardNos = [...(deck.additionalLegendCardNos ?? []), no];
     else for (let k = 0; k < n; k++) deck[field].push(no);
   }
   return { deck, errors };
