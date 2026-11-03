@@ -705,11 +705,8 @@ git show <分支>:<路径> > <路径>
 
 - 网页对战前端在 `clients/web`，PR #233 / #234 及分支 `web/battle-polish-2-20261028` 已覆盖桌面、卡组编辑器、战绩、音效、导览等。
 - 服务端规则改了提示或命令格式时，在这里追加一条"前端需适配"，写明 PR 号。
-  - `e/rad-reveal-play` 前端需适配：亮出候选位于打出提示的 `optionalCostChoices`，原样通过 `PLAY_CARD.optionalCosts` 提交最多一个 `SHOWCASE:<objectId>`；可以不选。此选择不支付费用，确认时锁定信息，手牌执行展示，场上卡牌只作挑选。
-  - #262 前端需适配：凯尔的强化层数通过 `empowermentCount` 显示，最多三层。凯南征服授予流转新增可选费用：提示 `flowCostChoiceId` / `flowCostChoices`，通过 `PLAY_CARD.optionalCosts` 提交对应的 `FLOW_COST:<mana>:<power>:<traits>`。
-  - #262 前端需适配：终极统治授予的回合内技能复用 `ACTIVATE_ABILITY` 提示，按返回的 `GRANTED:<hash>` 原样提交 `abilityId`，展示两点任意符能费用及付款候选；结算链的 `grantedAbilityId` 用于对应技能展示。
-  - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。
-  - `b/rad-discard-destroy` 前端需适配：选择触发目标后，使用 `CHOOSE_CARDS` / `TRIGGER_HAND_DISCARD_COST` 选择一张手牌；空选择放弃技能。若随后出现 `TRIGGER_TARGET_COST`，支付或放弃法盾费用与弃牌一起提交，支付成功后再开放响应。所选手牌在付款前只对操作者可见。
+- [x] 2026-11-03 `web/server-adapt-20261103` 已适配以下各项：亮出（`SHOWCASE:` 至多选一）、凯尔强化层数（`empowermentCount` 角标）、流转费用与废牌堆普通打出（按 `flowCostChoiceId` / `normalGraveyardPlayChoiceId` 分别列为打出方式）、授予技能（沿用 `ACTIVATE_ABILITY`）、铁铠冥魂等必选附加费用（`additionalCostChoices` + `requiredAdditionalCostChoiceCount`）、触发弃牌费用（通用 `CHOOSE_CARDS` 面板）；另补炫音返场的 `modeChoices`、任意额外符能（`variableAdditionalPowerCost`）、妮蔻额外登记传奇（`SUBMIT_DECK.additionalLegendCardNos`）、中立卡色，以及网页卡牌数据补入服务端已接入的 VEN/RAD/T1S 印次。
+- [ ] 网页只显示印刷文本：`ReviewedCardErrata` 的中国区勘误写在 C# 里，前端暂未同步（规则以服务端为准）。
 
 ## 现开规则待确认（F 线）
 

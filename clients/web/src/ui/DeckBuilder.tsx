@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cardInfo, cardName, COLOR_HEX, useCards } from "../game/cards";
-import { copyLimit, deckProblems, deleteDeck, exportDeck, isBanned, FIELDS, fitsLegend, MAIN_CATEGORIES, MAIN_MIN, RUNES, saveDeck, type CustomDeck } from "../game/decks";
+import { copyLimit, deckProblems, deleteDeck, exportDeck, extraLegendAllowance, isBanned, FIELDS, fitsLegend, MAIN_CATEGORIES, MAIN_MIN, RUNES, saveDeck, type CustomDeck } from "../game/decks";
 import type { CardInfo } from "../game/types";
 
 type Tab = "legend" | "champion" | "fields" | "runes" | "main";
@@ -115,6 +115,13 @@ export function DeckBuilder({ initial, onClose }: { initial: CustomDeck; onClose
     update({ ...deck, championCardNo: no, mainDeck: [no, ...main] });
     setTab(deck.battlefields.length < FIELDS ? "fields" : "main");
   };
+  const extraLegends = deck.additionalLegendCardNos ?? [];
+  const extraAllowance = extraLegendAllowance(deck);
+  const toggleExtraLegend = (no: string) => {
+    const has = extraLegends.includes(no);
+    if (!has && (extraLegends.length >= extraAllowance || extraLegends.some((x) => cardName(x) === cardName(no)))) return;
+    update({ ...deck, additionalLegendCardNos: has ? extraLegends.filter((x) => x !== no) : [...extraLegends, no] });
+  };
   const toggleField = (no: string) => {
     const has = deck.battlefields.includes(no);
     if (!has && deck.battlefields.length >= FIELDS) return;
@@ -199,6 +206,24 @@ export function DeckBuilder({ initial, onClose }: { initial: CustomDeck; onClose
           </nav>
 
           {tab === "legend" && <div className="db__grid db__grid--wide">{legends.map((no) => tile(no, { on: no === deck.legendCardNo, onClick: () => chooseLegend(no) }))}</div>}
+          {tab === "legend" && (extraAllowance > 0 || extraLegends.length > 0) && (
+            <>
+              <p className="muted small">
+                额外登记的传奇（最多 {extraAllowance} 名，名称各不相同，可不选）：已选 {extraLegends.length} 名。点击切换。
+              </p>
+              <div className="db__grid db__grid--wide">
+                {legends
+                  .filter((no) => cardName(no) !== cardName(deck.legendCardNo))
+                  .map((no) =>
+                    tile(no, {
+                      on: extraLegends.includes(no),
+                      dim: !extraLegends.includes(no) && (extraLegends.length >= extraAllowance || extraLegends.some((x) => cardName(x) === cardName(no))),
+                      onClick: () => toggleExtraLegend(no),
+                    }),
+                  )}
+              </div>
+            </>
+          )}
           {tab === "champion" && (
             <div className="db__grid db__grid--wide">
               {champions.length ? champions.map((no) => tile(no, { on: no === deck.championCardNo, onClick: () => chooseChampion(no) })) : <p className="muted">先选择传奇。</p>}
@@ -285,7 +310,7 @@ function DeckList({ deck, onPeek, onAdd, onRemove }: { deck: CustomDeck; onPeek:
   return (
     <div className="db__list">
       <p className="small">
-        <span className="muted">传奇</span> {cardName(deck.legendCardNo) || "—"} · <span className="muted">英雄</span> {deck.championCardNo ? cardName(deck.championCardNo) : "—"}
+        <span className="muted">传奇</span> {cardName(deck.legendCardNo) || "—"}{deck.additionalLegendCardNos?.length ? ` ＋ ${deck.additionalLegendCardNos.map((no) => cardName(no)).join("、")}` : ""} · <span className="muted">英雄</span> {deck.championCardNo ? cardName(deck.championCardNo) : "—"}
       </p>
       <p className="small">
         <span className="muted">战场</span> {deck.battlefields.map((no) => cardName(no)).join("、") || "—"}
