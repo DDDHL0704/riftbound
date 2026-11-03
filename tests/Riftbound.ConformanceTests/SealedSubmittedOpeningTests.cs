@@ -202,11 +202,14 @@ public sealed partial class SealedSubmittedOpeningTests
         private readonly Players players = new();
         private readonly Dictionary<string, string> tokens = [];
         private readonly IRuleEngine engine;
+        private readonly bool reorderRecoveryObjects;
         public IMatchSession Live { get; private set; }
         public MatchState State => Journal.Entries[^1].AuthoritativeState;
-        public Run(int bestOf = 1, IRuleEngine? engine = null, long seed = 424242, string setCode = "OGN")
+        public Run(int bestOf = 1, IRuleEngine? engine = null, long seed = 424242, string setCode = "OGN",
+            bool reorderRecoveryObjects = false)
         {
             this.engine = engine ?? new CoreRuleEngine();
+            this.reorderRecoveryObjects = reorderRecoveryObjects;
             var initial = MatchState.Create("sealed-submitted-opening") with { Seed = seed,
                 SessionOptions = MatchSessionOptions.ForSealed(setCode, bestOf) };
             Live = new MatchSession(initial, this.engine, Journal, players);
@@ -245,7 +248,13 @@ public sealed partial class SealedSubmittedOpeningTests
         }
         public async Task Cold(bool verifyReplay = true)
         {
-            var frame = Frame();
+            var original = Frame();
+            var frame = reorderRecoveryObjects ? ReorderRecoveryFrameObjects(original) : original;
+            if (reorderRecoveryObjects)
+            {
+                Assert.Equal(["bob", "alice"], frame.AuthoritativeState!.Seats.Keys);
+                Assert.Equal(MatchStateHasher.Hash(original.AuthoritativeState!), MatchStateHasher.Hash(frame.AuthoritativeState));
+            }
             Assert.Empty(MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
                 frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick));
             if (verifyReplay)
@@ -255,7 +264,17 @@ public sealed partial class SealedSubmittedOpeningTests
             {
                 tokens[player] = (await Live.ReconnectPlayerAsync(player, tokens[player], default)).ReconnectToken;
                 Assert.Equal(MatchStateHasher.HashValue(frame.PlayerViews[player].Snapshot), MatchStateHasher.HashValue(Live.SnapshotFor(player)));
+                if (reorderRecoveryObjects)
+                {
+                    Assert.Equal(JsonSerializer.Serialize(original.PlayerViews[player].Snapshot, Json),
+                        JsonSerializer.Serialize(Live.SnapshotFor(player), Json));
+                    Assert.Equal(JsonSerializer.Serialize(original.PlayerViews[player].Prompt, Json),
+                        JsonSerializer.Serialize(Live.PromptFor(player), Json));
+                }
             }
+            if (reorderRecoveryObjects)
+                Assert.Equal(JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(original.AuthoritativeState!), Json),
+                    JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(frame.AuthoritativeState!), Json));
         }
     }
 
