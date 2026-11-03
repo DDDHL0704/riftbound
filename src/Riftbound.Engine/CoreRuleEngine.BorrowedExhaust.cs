@@ -21,10 +21,11 @@ public sealed partial class CoreRuleEngine
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
             : state.CardObjects.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)
                 && IsObjectOnField(state.PlayerZones, id)
-                && (spec.TargetScope != "BATTLEFIELD_UNIT" || state.PlayerZones.Values.Any(z => z.Battlefields.Contains(id)))
-                && (spec.TargetScope is not ("FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_UNIT")
+                && (spec.TargetScope is not ("BATTLEFIELD_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT")
+                    || state.PlayerZones.Values.Any(z => z.Battlefields.Contains(id)))
+                && (spec.TargetScope is not ("FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT")
                     || EffectiveFieldControllerId(state.PlayerZones, id, card) == player)
-                && (spec.TargetScope != "EXHAUSTED_FRIENDLY_UNIT" || card.IsExhausted)
+                && (spec.TargetScope is not ("EXHAUSTED_FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT") || card.IsExhausted)
                 && (spec.TargetScope != "ENEMY_UNIT" || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
 
@@ -162,6 +163,7 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind is "MOVE_TO_BASE" or "MOVE_BETWEEN_BASE_AND_BATTLEFIELD") return ResolveBorrowedMovement(state, item, spec);
         if (spec.Kind == "INSIGHT_DRAW_EXPERIENCE")
             return item.InsightCompleted ? FinishInsight(state, item)
                 : BeginInsight(state, item, NoopStackResolutionResult(state), spec.InsightCount);

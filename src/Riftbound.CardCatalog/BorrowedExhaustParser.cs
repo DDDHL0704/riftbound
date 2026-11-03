@@ -181,6 +181,18 @@ public static class BorrowedExhaustParser
             }
             if (effect == "让一名单位变为活跃状态") { result.Add(Skill("READY_UNIT")); continue; }
             if (effect == "让一名单位本回合内获得{{游走}}") { result.Add(Skill("ROAM_UNIT")); continue; }
+            var moveToBase = Regex.Match(effect, @"^将战场上(?:的)?一名(?<exhausted>处于休眠状态的)?友方单位移动到其(?:所属的)?基地$");
+            if (moveToBase.Success)
+            {
+                result.Add(Skill("MOVE_TO_BASE", scope: moveToBase.Groups["exhausted"].Success
+                    ? "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT" : "FRIENDLY_BATTLEFIELD_UNIT"));
+                continue;
+            }
+            if (effect == "在战场和其所属基地之间移动一名友方单位")
+            {
+                result.Add(Skill("MOVE_BETWEEN_BASE_AND_BATTLEFIELD", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             var damage = Regex.Match(effect, @"^对(?<field>战场上的)?一名单位造成(?<n>[1-9][0-9]*)点伤害$");
             if (damage.Success) {
                 result.Add(Skill("DAMAGE_UNIT", scope: damage.Groups["field"].Success ? "BATTLEFIELD_UNIT" : "ANY_UNIT",

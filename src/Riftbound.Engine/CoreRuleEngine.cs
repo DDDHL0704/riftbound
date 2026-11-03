@@ -8187,8 +8187,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 0,
                 string.Empty,
                 1,
-                RequiresFriendlyUnitTarget: true,
-                LegendAbilityEffectKinds.GrantRoam),
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.GrantRoam, RequiresAnyUnitTarget: true),
             KhazixLegendBoonAbilityId => new LegendAbilityDefinition(
                 KhazixLegendBoonAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(KhazixLegendBoonAbilityId),

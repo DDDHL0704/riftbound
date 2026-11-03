@@ -3379,8 +3379,8 @@ internal static partial class ActionPromptBuilder
                 0,
                 string.Empty,
                 1,
-                true,
-                "GRANT_ROAM"),
+                false,
+                "GRANT_ROAM", RequiresAnyUnitTarget: true),
             new(
                 KhazixLegendBoonAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(KhazixLegendBoonAbilityId),
