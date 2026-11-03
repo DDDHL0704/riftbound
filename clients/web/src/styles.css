@@ -578,6 +578,38 @@ button {
 .sealed__traits b.is-over {
   color: var(--ember);
 }
+.sealed__rematch {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 14px;
+}
+.sealed__rematch h2,
+.sealed__rematch p {
+  margin: 0;
+}
+.sealed__rematch-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.sealed__rematch-fields figure {
+  width: min(260px, 100%);
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.sealed__rematch-fields img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+.sealed__lock-note {
+  margin: 0 0 10px;
+  color: var(--brass-hi);
+  font-size: 13px;
+}
 .sealed__side-counts {
   display: flex;
   justify-content: space-between;

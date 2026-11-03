@@ -73,7 +73,7 @@ public sealed partial class AttachedSelfDestructionReplacementTests
     {
         var initial = AddInitial(AddInitial(AddInitial(Position("SFD·173/221", battlefield: true, richOpponent: true),
             "TAKE", "OGN·203/298", "P2"), "SONG", "SFD·059/221", "P1"), "BASE-UNIT", "OGN·210/298", "P1");
-        var run = new Driver(initial);
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("HOST", "SFD·173/221", [], Destination: "BATTLEFIELD:HOME"));
         await run.Act("P1", new PlayCardCommand("BASE-UNIT", "OGN·210/298", [], Destination: "BASE"));
         var group = new List<string> { "HOST" };
@@ -88,6 +88,9 @@ public sealed partial class AttachedSelfDestructionReplacementTests
         await run.Act("P1", new EndTurnCommand()); await Tap(run, run.State.PlayerZones["P2"].Base);
         var purple = Enumerable.Range(1, 3).Select(i => "P2-PURPLE-" + i).ToArray();
         await run.Act("P2", new RecycleRuneCommand(purple[0], purple));
+        // Recover the full paid group setup before control refusals and transfer.
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
         foreach (var target in new[] { "BASE-UNIT", "HOME", "P2-FUND-5" }) {
             var before = MatchStateHasher.Hash(run.State);
             var rejected = await new CoreRuleEngine().ResolveAsync(run.State, new("c9-invalid-control-" + target, "P2", CommandTypes.PlayCard),

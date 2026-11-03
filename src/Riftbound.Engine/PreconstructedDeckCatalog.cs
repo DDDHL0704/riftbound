@@ -387,7 +387,7 @@ public static class PreconstructedDeckCatalog
 
     private static bool TraitsAllowed(OfficialCard card, HashSet<string> allowedColors)
     {
-        return card.CardColorList.All(color => string.Equals(color, "colorless", StringComparison.Ordinal)
+        return card.CardColorList.All(color => RuneTrait.IsNeutral(color)
             || allowedColors.Contains(color));
     }
 

@@ -24,7 +24,7 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
             if (branch == "controller")
             {
                 await game.Act(owner, new EndTurnCommand()); actor = Other(owner); await Tap(game, actor);
-                await game.Act(actor, new RecycleRuneCommand(actor + "-RUNE-1")); await game.Act(actor, new RecycleRuneCommand(actor + "-RUNE-2"));
+                await game.Act(actor, new RecycleRuneCommand(actor + "-RUNE-1", [actor + "-RUNE-1", actor + "-RUNE-2"]));
             }
             else
             {
@@ -33,7 +33,7 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
                 if (branch == "repeated")
                 {
                     await game.Act(owner, new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top();
-                    await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-3")); await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-4"));
+                    await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-3", [owner + "-RUNE-3", owner + "-RUNE-4"]));
                 }
             }
             var pool = game.State.RunePools[actor]; Assert.Equal(branch == "repeated", game.State.CardObjects["UNIT"].IsEmpowered);

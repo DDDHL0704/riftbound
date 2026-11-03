@@ -107,9 +107,19 @@ public sealed partial class AttachedSelfDestructionReplacementTests
 
     private static async Task HostAndAngel(Driver run, string hostNo = "OGN·210/298", string destination = "BASE")
     {
-        await run.Act("P1", new PlayCardCommand("HOST", hostNo, [], Destination: destination));
-        await run.Act("P1", new PlayCardCommand("ANGEL", "SFD·051/221", [], Destination: "BASE"));
-        await run.Act("P1", new AssembleEquipmentCommand("ANGEL", "HOST", ["ASSEMBLE_GREEN"])); await run.Top();
+        var recover = run.RecoverAfterEveryCommand;
+        run.RecoverAfterEveryCommand = false;
+        try
+        {
+            await run.Act("P1", new PlayCardCommand("HOST", hostNo, [], Destination: destination));
+            await run.Act("P1", new PlayCardCommand("ANGEL", "SFD·051/221", [], Destination: "BASE"));
+            await run.Act("P1", new AssembleEquipmentCommand("ANGEL", "HOST", ["ASSEMBLE_GREEN"])); await run.Top();
+            // A larger preparation stage owns its checkpoint when recovery was
+            // already disabled. Direct callers recover the completed attachment
+            // before their actual damage, control or replacement commands.
+            if (recover) await run.ColdCheckpoint();
+        }
+        finally { run.RecoverAfterEveryCommand = recover; }
     }
     private static async Task FundYellow(Driver run, int power)
     {

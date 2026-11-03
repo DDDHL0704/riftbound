@@ -41,7 +41,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             }
             else
             {
-                await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+                await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
                 await game.Act("P2", new PlayCardCommand("KILL", "OGN·229/298", ["UNIT"])); await game.Top();
             }
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);

@@ -2116,13 +2116,16 @@ public sealed partial record ResolutionResult(
 
     private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(
         MatchState state,
-        PendingPaymentState? payment)
+        PendingPaymentState? payment,
+        string viewerPlayerId)
     {
         if (payment is null)
         {
             return null;
         }
 
+        // Resolution options can identify private registered cards or observed deck cards.
+        var privateChoice = state.PendingRuleChoice is not null && payment.PlayerId != viewerPlayerId;
         var view = new Dictionary<string, object?>
         {
             ["paymentId"] = payment.PaymentId,
@@ -2130,8 +2133,8 @@ public sealed partial record ResolutionResult(
             ["paymentWindow"] = payment.PaymentWindow,
             ["playerId"] = payment.PlayerId,
             ["cost"] = BuildPaymentCostView(payment),
-            ["paymentChoices"] = payment.LegalPaymentChoiceIds,
-            ["paymentResourceActions"] = PendingPaymentResourceActionIds(state, payment)
+            ["paymentChoices"] = privateChoice ? Array.Empty<string>() : payment.LegalPaymentChoiceIds,
+            ["paymentResourceActions"] = privateChoice ? Array.Empty<string>() : PendingPaymentResourceActionIds(state, payment)
         };
         if (state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" && state.DeckObservationView is { } observation)
             view["deckObservationKind"] = observation.Public ? "REVEAL" : "LOOK";
@@ -2630,7 +2633,7 @@ internal static partial class ActionPromptBuilder
             && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
-            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "TOKEN_HASTE_PAYMENT" ? "为即将打出的单位支付急速费用，或不支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ResourceConversionAmountKind ? "选择本次资源转换的数量，确认前不横置或支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ImposedMovementPaymentKind ? "支付此次移动的施加费用；可先获得资源或放弃此次移动" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.InstructionPowerPaymentKind ? "结算时选择符能数量；可先获得资源或支付 0" : state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "COUNTER_TARGET_MANA_PAYMENT" ? "支付法力保留法术，或不支付" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" ? state.DeckObservationView?.Public == true ? "选择是否放逐当前展示的牌" : "选择是否放逐当前查看的牌" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_DESTINATION" ? "选择要移动到的战场" : state.PendingRuleChoice?.Request.Kind == "DECK_REFLEXIVE_CREATE" ? "创建强化技能，或跳过": state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.RegisteredLegendChoiceKind ? "选择加入传奇区域的传奇" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ControlledLegendChoiceKind ? "选择你控制的一名传奇，使其变为活跃状态" : state.PendingRuleChoice?.Request.Kind == "TOKEN_HASTE_PAYMENT" ? "为即将打出的单位支付急速费用，或不支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ResourceConversionAmountKind ? "选择本次资源转换的数量，确认前不横置或支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ImposedMovementPaymentKind ? "支付此次移动的施加费用；可先获得资源或放弃此次移动" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.InstructionPowerPaymentKind ? "结算时选择符能数量；可先获得资源或支付 0" : state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "COUNTER_TARGET_MANA_PAYMENT" ? "支付法力保留法术，或不支付" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" ? state.DeckObservationView?.Public == true ? "选择是否放逐当前展示的牌" : "选择是否放逐当前查看的牌" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_DESTINATION" ? "选择要移动到的战场" : state.PendingRuleChoice?.Request.Kind == "DECK_REFLEXIVE_CREATE" ? "创建强化技能，或跳过": state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
                 payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             if (payment.PaymentWindow == CoreRuleEngine.MightyCostWindow) {
                 var resources = PendingPaymentResourceChoiceDtos(state, payment);
@@ -2645,7 +2648,7 @@ internal static partial class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "DECK_REFLEXIVE_CREATE" => "决定是否创建强化技能", "DECK_OBSERVATION_BANISH" => "选择是否放逐", "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "MOVEMENT_DESTINATION" => "选择移动目的地", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", "TOKEN_HASTE_PAYMENT" => "指示物急速支付", CoreRuleEngine.UnitTokenDestinationChoiceKind => "选择指示物打出位置", "COUNTER_TARGET_MANA_PAYMENT" => "决定是否支付法力", "OPTIONAL_SPELL_CONTROL_PAYMENT" => "支付符能或无效化", CoreRuleEngine.ResourceConversionAmountKind => "选择资源转换数量", CoreRuleEngine.ImposedMovementPaymentKind => "支付此次移动费用", CoreRuleEngine.InstructionPowerPaymentKind => "支付结算指令费用", "SPELL_CHOICE_REMAKE" => "为法术做出新的选择", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerHandDiscardWindow ? "确认触发技能的弃牌费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { CoreRuleEngine.ControlledLegendChoiceKind => "选择变为活跃的传奇", CoreRuleEngine.RegisteredLegendChoiceKind => "选择登记的传奇", "DECK_REFLEXIVE_CREATE" => "决定是否创建强化技能", "DECK_OBSERVATION_BANISH" => "选择是否放逐", "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "MOVEMENT_DESTINATION" => "选择移动目的地", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", "TOKEN_HASTE_PAYMENT" => "指示物急速支付", CoreRuleEngine.UnitTokenDestinationChoiceKind => "选择指示物打出位置", "COUNTER_TARGET_MANA_PAYMENT" => "决定是否支付法力", "OPTIONAL_SPELL_CONTROL_PAYMENT" => "支付符能或无效化", CoreRuleEngine.ResourceConversionAmountKind => "选择资源转换数量", CoreRuleEngine.ImposedMovementPaymentKind => "支付此次移动费用", CoreRuleEngine.InstructionPowerPaymentKind => "支付结算指令费用", "SPELL_CHOICE_REMAKE" => "为法术做出新的选择", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerHandDiscardWindow ? "确认触发技能的弃牌费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -6256,7 +6259,8 @@ public sealed partial class MatchSession : IMatchSession
                     command.ChampionCardNo,
                     command.MainDeck,
                     command.RuneDeck,
-                    command.Battlefields));
+                    command.Battlefields,
+                    command.AdditionalLegendCardNos));
                 var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
                 var validation = OfficialDeckValidator.Validate(decklist, catalog, options.DeckFormat,
                     SealedContextFor(normalizedPlayerId));

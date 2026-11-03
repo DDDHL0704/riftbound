@@ -26,6 +26,7 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
+            result = ReconcileBoundLegends(result);
             result = RecordBattlefieldConquests(result);
             result = RecordEquipmentAbilityPlays(state, result);
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
@@ -60,7 +61,7 @@ public sealed partial class CoreRuleEngine
             // New field objects need their current incarnation before role and
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
-            collected = ApplyObjectContinuity(state, collected);
+            collected = ReconcileBoundLegends(ApplyObjectContinuity(state, collected));
             collected = TimedBanishPlayRules.Prune(collected);
             collected = RecordTargetedPowerSourceStatus(state, collected);
             collected = RecordDepartedTokenTargets(state, collected);
