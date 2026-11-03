@@ -12,7 +12,7 @@ public sealed record BorrowedTextSource(ObjectBinding Object, string CardNo, str
 public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, BorrowedTextSource Donor,
     int AbilityIndex, long AcquiredTick, bool BorrowerWasEmpowered,
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false,
-    bool? LastKnownSourceEmpowered = null);
+    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
     RuleTextInstance DonorText, BorrowedExhaustSpec Spec);
 
@@ -84,6 +84,7 @@ internal static class BorrowedExhaustRules
             || spec.Kind == "RESOURCE"
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
+            || spec.RequiresPlayedArmamentThisTurn != c.ArmamentWasPlayedThisTurn
             || spec.EmpoweredMight.HasValue != c.LastKnownSourceEmpowered.HasValue
             || item.InsightContext is not null || item.InsightCompleted && spec.Kind != "INSIGHT_DRAW_EXPERIENCE"
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0

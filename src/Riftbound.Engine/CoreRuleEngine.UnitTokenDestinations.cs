@@ -25,9 +25,10 @@ public sealed partial class CoreRuleEngine
 
     private static bool ShouldOfferUnitTokenLocationChoice(MatchState state, string player, string? cardNo,
         string family, Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
-        Dictionary<string, RunePool> pools, IReadOnlyList<string> effects, CardBehaviorDefinition? behavior = null)
+        Dictionary<string, RunePool> pools, IReadOnlyList<string> effects, CardBehaviorDefinition? behavior = null,
+        bool? instructionAllowsLocationChoice = null)
     {
-        if (!UnitTokenInstructionAllowsLocationChoice(cardNo, family)) return false;
+        if (!(instructionAllowsLocationChoice ?? UnitTokenInstructionAllowsLocationChoice(cardNo, family))) return false;
         // A conquest haste receipt is consumed by the first actual token entry.
         // It must not leave a later replacement token waiting on an unrelated
         // location choice in the same resolution.
