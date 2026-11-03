@@ -69,6 +69,52 @@ public sealed class RenektonMightEmpowerTests
         return game;
     }
 
+    // CN VEN official FAQ p. 20: remaining at ten or above is not a new crossing.
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task RemovingEmpowerAtElevenThenChangingMightAboveTenDoesNotTriggerAgain(bool extort)
+    {
+        var initial = ArmamentMightTests.Position(unit: "VEN·092", power: 4);
+        initial = AttackDamageDistributionTests.Spell(initial, "BUFF", "OGN·154/298", "P1");
+        initial = HandDiscardObserverTests.Put(initial, "MERCHANT", "VEN·082", "P1", "HAND");
+        initial = AttackDamageDistributionTests.Spell(initial, "EXTORT", "OGN·095/298", "P2");
+        initial = initial with {
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = new(20, 20) },
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["P2-DRAW"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-DRAW", "OGN·219/298", "P2") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P2"] = initial.PlayerZones["P2"] with { MainDeck = ["P2-DRAW"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["P2-DRAW"] = new("P2", "MAIN_DECK") } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("BUFF", "OGN·154/298", ["HOST"])); await game.Top();
+        Assert.Equal(11, ArmamentMightTests.Might(game.State));
+        Assert.NotNull(Assert.Single(game.State.StackItems).MightySkill);
+        await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+
+        await game.Act("P1", new PlayCardCommand("MERCHANT", "VEN·082", []));
+        var cost = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("EMPOWER_REMOVAL_COST", cost.ChoiceWindow);
+        await game.Act("P1", new ChooseCardsCommand(cost.ChoiceId, cost.ChoiceWindow, ["HOST"]));
+        Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
+        Assert.Equal(11, ArmamentMightTests.Might(game.State));
+        var target = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(target.ChoiceId, target.ChoiceWindow, ["MERCHANT"]));
+        if (extort) {
+            await game.Act("P1", new PassPriorityCommand());
+            await game.Act("P2", new PlayCardCommand("EXTORT", "OGN·095/298", ["HOST"])); await game.Top();
+            Assert.Equal(10, ArmamentMightTests.Might(game.State));
+            Assert.Null(Assert.Single(game.State.StackItems).MightySkill);
+        }
+        await game.Top(); Assert.True(game.State.CardObjects["MERCHANT"].IsEmpowered);
+        if (!extort) { await game.Act("P1", Activate()); await game.Top(); }
+        Assert.Equal(extort ? 10 : 12, ArmamentMightTests.Might(game.State));
+        Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
+        Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); Assert.Null(game.State.PendingPayment);
+        Assert.Single(game.Events(), e => e.Event.Kind == "OBJECT_EMPOWERED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "HOST"));
+        await game.Replay();
+    }
+
     public static IEnumerable<object[]> Illegal() => new[] { "VEN·092", "VEN·092a", "VEN·177" }.SelectMany(no =>
         new[] { "mana", "target", "cost", "opponent", "hidden", "hand", "instance", "spell-only" }
             .Select(branch => new object[] { no, branch }));

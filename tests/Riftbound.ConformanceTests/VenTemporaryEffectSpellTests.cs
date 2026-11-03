@@ -72,6 +72,38 @@ public sealed class VenTemporaryEffectSpellTests
         await game.Act("P1", new EndTurnCommand()); Assert.Equal(4, Might(game.State, "ALLY")); await game.Replay();
     }
 
+    // CN VEN official FAQ pp. 18–19: layers never expose an intermediate 5 Might.
+    [Fact]
+    public async Task DragonFormAfterExtortDoesNotBrieflyBecomeMightyOrTriggerFiora()
+    {
+        var initial = AttackDamageDistributionTests.Spell(Position("VEN·116"), "EXTORT", "OGN·095/298", "P1");
+        initial = AttackDamageDistributionTests.Spell(initial, "BUFF", "OGN·154/298", "P1");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["ALLY"] = initial.CardObjects["ALLY"] with { IsExhausted = true },
+                ["FIORA"] = OfficialGarenConquestBattlefieldCountTests.Printed("FIORA", "SFD·180/221", "P1") },
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+                ["P1"] = new(20, 20, new Dictionary<string, int> { [RuneTrait.Yellow] = 1 }) } };
+        initial = LocalDestructionRecallTests.At(initial, "FIORA", "P1", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("EXTORT", "OGN·095/298", ["ALLY"])); await game.Top();
+        Assert.Equal(3, Might(game.State, "ALLY"));
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·116", ["ALLY"])); await game.Top();
+        Assert.Equal(5, SnapshotObject(game.State, "P1", "ALLY").GetProperty("basePower").GetInt32());
+        Assert.Equal(4, Might(game.State, "ALLY")); Assert.True(game.State.CardObjects["ALLY"].IsExhausted);
+        Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); Assert.Null(game.State.PendingPayment);
+
+        // The same observer must still see an actual transition across five.
+        await game.Act("P1", new PlayCardCommand("BUFF", "OGN·154/298", ["ALLY"])); await game.Top();
+        var skill = Assert.Single(game.State.StackItems).MightySkill!;
+        Assert.Equal("FIORA", skill.Source.ObjectId); Assert.Equal("ALLY", skill.Unit.ObjectId);
+        Assert.Equal(4, skill.BeforeMight); Assert.Equal(11, skill.AfterMight);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_POWER:yellow:1"]));
+        await game.Top(); Assert.False(game.State.CardObjects["ALLY"].IsExhausted);
+        await game.Replay();
+    }
+
     [Fact]
     public async Task ShroudBlocksEnemySpellsAndSkillsAndStillAllowsFriendlyTargets()
     {

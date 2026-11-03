@@ -163,7 +163,17 @@ public sealed class KayleCountedEmpowerTests
             ArmamentMightTests.PublicRecovery(state); Restore(state);
         }
         Assert.Contains("法盾6", state.CardObjects["HOST"].Tags);
-        await Reject(state, "P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []));
+        foreach (var instance in new string?[] { null, "ATTACHED:GEAR:0:1:EMPOWER:0:0" }) {
+            var mana = state.RunePools["P1"].Mana;
+            var activated = await Act(state, "P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []) { AbilityInstanceId = instance });
+            Assert.Equal(mana - 3, activated.State.RunePools["P1"].Mana);
+            var resolved = await Top(activated.State); state = resolved.State;
+            Assert.Equal(3, state.CardObjects["HOST"].EmpowermentCount);
+            Assert.Equal(15, View(state).GetProperty("effectivePower").GetInt32());
+            Assert.Contains("法盾6", state.CardObjects["HOST"].Tags);
+            Assert.DoesNotContain(resolved.Events, e => e.Kind == "OBJECT_EMPOWERED");
+            ArmamentMightTests.PublicRecovery(state); Restore(state);
+        }
     }
 
     [Theory]
