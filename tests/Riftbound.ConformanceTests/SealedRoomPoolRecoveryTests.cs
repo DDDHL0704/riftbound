@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
@@ -9,6 +10,52 @@ namespace Riftbound.ConformanceTests;
 public sealed class SealedRoomPoolRecoveryTests
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+
+    [Theory]
+    [InlineData(null, 1, false)]
+    [InlineData(null, 1, true)]
+    [InlineData("OGN", 1, false)]
+    [InlineData("OGN", 1, true)]
+    [InlineData("SFD", 3, false)]
+    [InlineData("SFD", 3, true)]
+    public async Task ColdReconnectAfterJsonObjectKeyReorderingPreservesSeatSnapshots(
+        string? setCode, int bestOf, bool bobSeatsFirst)
+    {
+        var engine = new CoreRuleEngine();
+        var journal = new Journal();
+        var players = new PlayerStore();
+        var options = setCode is null ? new MatchSessionOptions(false, OfficialDeckFormat.ChinaStandard20260724)
+            : MatchSessionOptions.ForSealed(setCode, bestOf);
+        var live = new MatchSession("reordered-seat-snapshots", engine, journal, players, options);
+        var firstId = bobSeatsFirst ? "bob" : "alice";
+        var secondId = bobSeatsFirst ? "alice" : "bob";
+        var first = await live.EnsurePlayerAsync(firstId, default);
+        live = MatchSession.Restore(RoundTripWithReorderedObjectKeys(Frame(journal.Entries)), engine, journal, players);
+        await live.ReconnectPlayerAsync(firstId, first.ReconnectToken, default);
+        var second = await live.EnsurePlayerAsync(secondId, default);
+
+        var original = Frame(journal.Entries);
+        var frame = RoundTripWithReorderedObjectKeys(original);
+        // PostgreSQL JSONB may enumerate "bob" before "alice", independently of their seats.
+        Assert.Equal(["bob", "alice"], frame.AuthoritativeState!.Seats.Keys);
+        Assert.Equal(MatchStateHasher.Hash(original.AuthoritativeState!), MatchStateHasher.Hash(frame.AuthoritativeState));
+        Assert.Empty(Validate(frame));
+        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default));
+
+        var cold = MatchSession.Restore(frame, engine, NoopMatchJournal.Instance, players);
+        await cold.ReconnectPlayerAsync(secondId, second.ReconnectToken, default);
+        Assert.Equal([firstId, secondId], ResolutionResult.BuildSnapshots(frame.AuthoritativeState).Keys);
+        foreach (var player in new[] { firstId, secondId })
+        {
+            Assert.Equal(JsonSerializer.Serialize(live.SnapshotFor(player), Json),
+                JsonSerializer.Serialize(cold.SnapshotFor(player), Json));
+            Assert.Equal(JsonSerializer.Serialize(live.PromptFor(player), Json),
+                JsonSerializer.Serialize(cold.PromptFor(player), Json));
+            Assert.Equal([firstId, secondId], cold.SnapshotFor(player).Players.Keys);
+        }
+        Assert.Equal(JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(original.AuthoritativeState!), Json),
+            JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(frame.AuthoritativeState), Json));
+    }
 
     [Theory]
     [InlineData("OGN", 1)]
@@ -221,6 +268,23 @@ public sealed class SealedRoomPoolRecoveryTests
 
     private static MatchRecoveryFrame RoundTrip(MatchRecoveryFrame frame) =>
         JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+
+    private static MatchRecoveryFrame RoundTripWithReorderedObjectKeys(MatchRecoveryFrame frame)
+    {
+        // Reorder object properties recursively as JSONB does, while retaining every value and array order.
+        var payload = Reorder(JsonSerializer.SerializeToElement(frame, Json));
+        return JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(payload, Json), Json)!;
+
+        static object Reorder(JsonElement value) => value.ValueKind switch
+        {
+            JsonValueKind.Object => value.EnumerateObject()
+                .OrderBy(property => Encoding.UTF8.GetByteCount(property.Name))
+                .ThenBy(property => property.Name, StringComparer.Ordinal)
+                .ToDictionary(property => property.Name, property => Reorder(property.Value), StringComparer.Ordinal),
+            JsonValueKind.Array => value.EnumerateArray().Select(Reorder).ToArray(),
+            _ => value.Clone()
+        };
+    }
 
     private static MatchRecoveryFrame Frame(IReadOnlyList<MatchJournalEntry> entries)
     {

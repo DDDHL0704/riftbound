@@ -198,8 +198,7 @@ public static class CardBasicActionRules
     {
         return behavior is not null
             && (behavior.MovesTargetToBase
-                || behavior.MovesTargetToBattlefield
-                || behavior.MovesFirstTargetToSecondTargetLocation
+                || behavior.MovesTargetsToChosenLocation
                 || behavior.MovesTargetsSequentially
                 || behavior.CommandedMovement is not null
                 || behavior.SwapsTargetLocations);

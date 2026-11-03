@@ -25,6 +25,7 @@ public sealed partial class CoreRuleEngine
             }
             ordered.AddRange(remaining);
             var ids = ordered.ToHashSet(StringComparer.Ordinal);
+            foreach (var id in ordered) CaptureFieldDeparture(zones, cards, id);
             foreach (var seat in zones.Keys.ToArray())
                 zones[seat] = zones[seat] with { Base = zones[seat].Base.Where(id => !ids.Contains(id)).ToArray(),
                     Battlefields = zones[seat].Battlefields.Where(id => !ids.Contains(id)).ToArray(),

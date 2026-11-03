@@ -11,14 +11,31 @@ public sealed partial class CoreRuleEngine
     internal static bool IsChosenMovementTargetIndex(CardBehaviorDefinition behavior, int index)
         => behavior.ChosenMovementTargetIndex is { } chosen ? index == chosen
             : !behavior.OptionalEquipmentAfterMovement || index == 0;
-    internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinations(MatchState state, string playerId)
+    internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinations(MatchState state, string playerId, CardBehaviorDefinition? movement = null, IReadOnlyList<string>? targets = null)
         => state.Seats.Keys.Order(StringComparer.Ordinal)
             .Select(id => new ActionPromptChoiceDto("BASE:" + id, $"{state.Seats[id]} 的基地"))
             .Concat(state.CardObjects.Keys.Order(StringComparer.Ordinal)
                 .Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)
                 .Select(id => new ActionPromptChoiceDto("BATTLEFIELD:" + id,
                     CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo ?? "", out var behavior)
-                        ? $"{behavior.DisplayName}（{id}）" : id))).ToArray();
+                        ? $"{behavior.DisplayName}（{id}）" : id)))
+            .Where(choice => string.IsNullOrEmpty(movement?.ChosenMovementDestinationZone)
+                || choice.Id.StartsWith(movement.ChosenMovementDestinationZone + ":", StringComparison.Ordinal))
+            .Where(choice => movement?.ChosenMovementDestinationRequiresOtherUnitOfTargetController != true
+                || (targets ?? state.CardObjects.Keys.Where(id => IsLegalChosenCardTarget(state, playerId, id, 0, [id],
+                    PlayCardTargetScopeForBehavior(movement), movement)).ToArray()).Any(id =>
+                        IsUnitMovementDestination(state, id, choice.Id)
+                        && ChosenMovementDestinationHasRequiredUnits(state, movement, id, choice.Id))).ToArray();
+
+    private static bool ChosenMovementDestinationHasRequiredUnits(MatchState state,
+        CardBehaviorDefinition behavior, string moving, string destination)
+        => !behavior.ChosenMovementDestinationRequiresOtherUnitOfTargetController
+            || state.CardObjects.TryGetValue(moving, out var unit) && state.CardObjects.Values.Any(other =>
+                other.ObjectId != moving && other.ControllerId == unit.ControllerId
+                && FieldObjectTypeRules.IsVisibleUnit(other)
+                && TryGetPreciseFieldLocation(state.PlayerZones, state.ObjectLocations, other.ObjectId, out var at)
+                && (at.Zone == "BASE" ? destination == "BASE:" + at.PlayerId
+                    : at.BattlefieldObjectId is { } field && destination == "BATTLEFIELD:" + field));
 
     internal static bool HasChosenMovementDestination(MatchState state, string player, string target)
         => ChosenMovementDestinations(state, player).Any(choice => IsUnitMovementDestination(state, target, choice.Id));
@@ -98,13 +115,14 @@ public sealed partial class CoreRuleEngine
         return [equipmentId];
     }
 
-    private static bool IsChosenMovementDestinationAllowed(MatchState state, string playerId, string destination, IReadOnlyList<string> targets)
+    private static bool IsChosenMovementDestinationAllowed(MatchState state, string playerId, CardBehaviorDefinition behavior, string destination, IReadOnlyList<string> targets)
     {
         // CN 355.4: declare the destination, excluding each unit's current location.
         // Choosing no units requires no movement destination.
         if (targets.Count == 0 && string.IsNullOrEmpty(destination)) return true;
-        return ChosenMovementDestinations(state, playerId).Any(choice => choice.Id == destination)
-            && targets.All(id => IsUnitMovementDestination(state, id, destination));
+        return ChosenMovementDestinations(state, playerId, behavior, targets).Any(choice => choice.Id == destination)
+            && targets.All(id => IsUnitMovementDestination(state, id, destination)
+                && ChosenMovementDestinationHasRequiredUnits(state, behavior, id, destination));
     }
 
     private static bool IsUnitMovementDestination(MatchState state, string id, string destination)
@@ -140,6 +158,8 @@ public sealed partial class CoreRuleEngine
             && (unit.ObjectGeneration, unit.ControllerId) == bindings[id]
             && (item.TargetGenerations?.ContainsKey(id) != true || MovementTargetIsCurrent(current, item, id))
             && IsUnitMovementDestination(current, id, destination)
+            && (!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var movement)
+                || ChosenMovementDestinationHasRequiredUnits(current, movement, id, destination))
             && MovementRestrictionRules.CanMove(unit, item.ControllerId)
             && !(toBase && BattlefieldLocalRules.PreventsMoveToBase(current, id))).ToArray();
         var payment = PayImposedMovementCost(state, item.ControllerId, item.SourceObjectId, field, false,

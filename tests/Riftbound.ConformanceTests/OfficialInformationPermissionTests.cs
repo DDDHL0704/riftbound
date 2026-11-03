@@ -42,11 +42,14 @@ public sealed class OfficialInformationPermissionTests
     {
         var done = await Complete();
         var state = done.State with { CardObjects = new Dictionary<string, CardObjectState>(done.State.CardObjects) {
+            // Bandle Tree keeps both standby cards within the battlefield's capacity.
+            ["BF2"] = done.State.CardObjects["BF2"] with { CardNo = "OGN·278/298" },
             ["LATER"] = done.State.CardObjects["STANDBY-X"] with { ObjectId = "LATER", CardNo = "UNL-139/219" } },
             PlayerZones = new Dictionary<string, PlayerZones>(done.State.PlayerZones) { ["P2"] = done.State.PlayerZones["P2"] with { Battlefields = ["BF2", "KEEPER", "STANDBY-X", "LATER"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(done.State.ObjectLocations) { ["LATER"] = new("P2", "BATTLEFIELD", "BF2") } };
         Assert.Contains("LATER", View(state, "P1"));
         var next = await Act(state, "P1", new EndTurnCommand());
+        Assert.Null(next.State.PendingRuleChoice);
         Assert.True(next.State.TurnNumber > state.TurnNumber);
         Assert.Empty(next.State.FaceDownLookPermissions); Assert.DoesNotContain("LATER", View(next.State, "P1"));
         Assert.DoesNotContain("UNL-013/219", View(next.State, "P1")); Restore(next.State);

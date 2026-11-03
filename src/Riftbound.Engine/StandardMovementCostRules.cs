@@ -2,38 +2,53 @@ namespace Riftbound.Engine;
 
 internal static class StandardMovementCostRules
 {
-    // CN 204.4 / UNL-163/219: independent text instances impose independent
-    // costs. Copied weapon text belongs to the weapon's controller (CN 718.5.f).
-    public static int PowerPerExtraUnit(MatchState state, string playerId, string? battlefieldId)
+    // CN 204.4: independent text instances impose independent fees on a move.
+    // CN 136.2.c / 435.1.c / 718.3: attached text is added to the host.
+    // The weapon's independent control (718.5.e-f) does not control that text.
+    private static IEnumerable<MovementImposedCostSpec> Costs(MatchState state, string playerId, string? battlefieldId)
     {
-        if (battlefieldId is null || !state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield)) return 0;
-        var count = 0;
-        foreach (var id in battlefield.OccupantObjectIds)
+        if (battlefieldId is null || !state.BattlefieldStates.ContainsKey(battlefieldId)) yield break;
+        // Battlefield occupants list units. Passive fees can also belong to
+        // non-unit equipment, so enumerate every public field permanent.
+        foreach (var id in state.PlayerZones.Values.SelectMany(z => z.Battlefields).Distinct(StringComparer.Ordinal))
         {
-            if (!state.CardObjects.TryGetValue(id, out var unit) || !FieldObjectTypeRules.IsVisibleUnit(unit)) continue;
+            if (state.ObjectLocations.GetValueOrDefault(id) is not { Zone: "BATTLEFIELD" } location
+                || location.BattlefieldObjectId != battlefieldId) continue;
+            if (!state.CardObjects.TryGetValue(id, out var unit) || unit.IsFaceDown
+                || !(FieldObjectTypeRules.IsVisibleUnit(unit) || unit.Tags.Contains(CardObjectTags.EquipmentCard))) continue;
             foreach (var text in AttachedRuleTextRules.Instances(state, unit))
             {
                 if (!CardBehaviorRegistry.TryGetByCardNo(text.CardNo, out var behavior)
-                    || behavior.EffectKind != "MAGESEEKER_PATROL_MOVE_TAX_STATIC") continue;
-                var source = unit;
+                    || behavior.MovementImposedCost is not { } cost) continue;
                 if (text.Origin is { } origin && state.CardObjects.TryGetValue(origin.Equipment.ObjectId, out var gear)
                     && AttachedRuleTextRules.CopiesPrintedText(gear.CardNo))
                 {
                     if (gear.ObjectGeneration != origin.Equipment.Generation || !AttachedRuleTextRules.Bound(state, gear)
                         || state.ObjectLocations.GetValueOrDefault(gear.ObjectId) is not { Zone: "BATTLEFIELD" } position
                         || position.BattlefieldObjectId != battlefieldId) continue;
-                    source = gear;
                 }
-                if (!source.IsFaceDown && !CardControlRules.IsControlledByPlayerOrLegacyOwned(source, playerId)) count++;
+                if (!CardControlRules.IsControlledByPlayerOrLegacyOwned(unit, playerId)) yield return cost;
             }
         }
-        return count;
     }
 
-    public static bool TryPowerCost(MatchState state, string playerId, string? battlefieldId, int unitCount, out int cost)
+    public static int PowerPerExtraUnit(MatchState state, string playerId, string? battlefieldId)
+        => (int)Math.Min(int.MaxValue, Costs(state, playerId, battlefieldId).Sum(c => (long)Math.Max(0, c.PowerPerExtraUnit)));
+    public static int ManaPerMove(MatchState state, string playerId, string? battlefieldId)
+        => (int)Math.Min(int.MaxValue, Costs(state, playerId, battlefieldId).Sum(c => (long)Math.Max(0, c.ManaPerMove)));
+    public static int PowerPerMove(MatchState state, string playerId, string? battlefieldId)
+        => (int)Math.Min(int.MaxValue, Costs(state, playerId, battlefieldId).Sum(c => (long)Math.Max(0, c.PowerPerMove)));
+
+    public static bool TryCost(MatchState state, string playerId, string? battlefieldId, int unitCount, out int mana, out int power)
     {
-        var amount = (long)PowerPerExtraUnit(state, playerId, battlefieldId) * Math.Max(0, unitCount - 1);
-        cost = amount <= int.MaxValue ? (int)amount : 0;
-        return amount <= int.MaxValue;
+        long totalMana = 0, totalPower = 0;
+        if (unitCount > 0)
+            foreach (var cost in Costs(state, playerId, battlefieldId))
+            {
+                totalMana += Math.Max(0, cost.ManaPerMove);
+                totalPower += Math.Max(0, cost.PowerPerMove) + (long)Math.Max(0, cost.PowerPerExtraUnit) * (unitCount - 1);
+                if (totalMana > int.MaxValue || totalPower > int.MaxValue) { mana = power = 0; return false; }
+            }
+        mana = (int)totalMana; power = (int)totalPower; return true;
     }
 }

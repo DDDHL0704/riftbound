@@ -33,6 +33,8 @@ internal static class BanishPlayRecoveryRules
 
     internal static bool Valid(MatchState state, PendingEffectPlayState pending)
     {
+        if (pending.Parent.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind)
+            return CoreRuleEngine.ValidLinkedExileEffectPlay(state, pending);
         if (pending.Parent.LastBreathBattlefieldDamage?.Kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathBanishDeckTopPlay)
             return CoreRuleEngine.ValidLastBreathDeckTopPlay(state, pending);
         if (pending.Parent.SimpleActivation is not null)

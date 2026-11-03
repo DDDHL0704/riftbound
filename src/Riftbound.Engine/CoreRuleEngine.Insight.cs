@@ -191,7 +191,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidInsightChoice(MatchState state, PendingCardChoiceState choice, StackItemState? item)
     {
-        if (item is null || item.InsightCompleted || item.EffectRepeatCount < 1
+        if (item is null || !ValidLastBreathInsightStackIdentity(item) || item.InsightCompleted || item.EffectRepeatCount < 1
             || item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions >= item.EffectRepeatCount
             || !ValidInsightRepeatPlan(item) || item.DeckChoiceCompleted
             || item.InsightContext is { Kind: "DUEL", PaymentAccepted: false }

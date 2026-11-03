@@ -88,7 +88,8 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var locations = state.ObjectLocations.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        TryMoveFieldUnitByEffect(state, zones, cards, locations, id, new(item.ControllerId, "BASE"),
+        var pools = state.RunePools.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, id, new(item.ControllerId, "BASE"),
             item.ControllerId, item, events);
         if (ability.ReadyTargetIfSourceEmpowered && cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == context.SourceGeneration
@@ -98,6 +99,6 @@ public sealed partial class CoreRuleEngine
                 .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)))
             ReadyLegendFriendlyUnit(zones, cards, id, item.ControllerId, item.SourceObjectId, context.AbilityId, events);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
-            ObjectLocations = locations, Events = events };
+            ObjectLocations = locations, RunePools = pools, Events = events };
     }
 }
