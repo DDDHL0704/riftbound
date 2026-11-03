@@ -57,12 +57,12 @@ public sealed partial class CoreRuleEngine
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
             : state.CardObjects.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)
                 && IsObjectOnField(state.PlayerZones, id)
-                && (spec.TargetScope is not ("BATTLEFIELD_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT")
+                && (spec.TargetScope is not ("BATTLEFIELD_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT" or "ENEMY_BATTLEFIELD_UNIT")
                     || state.PlayerZones.Values.Any(z => z.Battlefields.Contains(id)))
                 && (spec.TargetScope is not ("FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT")
                     || EffectiveFieldControllerId(state.PlayerZones, id, card) == player)
                 && (spec.TargetScope is not ("EXHAUSTED_FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT") || card.IsExhausted)
-                && (spec.TargetScope != "ENEMY_UNIT" || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
+                && (spec.TargetScope is not ("ENEMY_UNIT" or "ENEMY_BATTLEFIELD_UNIT") || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
                 && (spec.TargetScope != "FRIENDLY_DUEL_UNIT" || IsLegendDuelUnit(state, player, id))
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
 
@@ -404,7 +404,17 @@ public sealed partial class CoreRuleEngine
             }
             else if (spec.Kind == "DAMAGE_UNIT")
             {
-                var amount = ApplySpellSkillDamageBonuses(current, item.ControllerId, id, spec.Damage, item);
+                // CN 359.3.e.12: a source removed by a different response has
+                // no available Might. Ignore the instruction, including bonuses.
+                var baseDamage = spec.Damage;
+                if (spec.DamageFromSourceMight)
+                {
+                    if (!cards.TryGetValue(item.SourceObjectId, out var damageSource)
+                        || damageSource.ObjectGeneration != c.Borrower.Object.Generation
+                        || !IsFaceUpNonStandbyUnit(damageSource) || !IsObjectOnField(zones, damageSource.ObjectId)) continue;
+                    baseDamage = ResolveCurrentFieldUnitPower(current, damageSource);
+                }
+                var amount = ApplySpellSkillDamageBonuses(current, item.ControllerId, id, baseDamage, item);
                 var damage = ApplyDamageToCardObject(current, cards, item.ControllerId, id, amount, destroyed,
                     state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new("DAMAGE_APPLIED", "获得的技能造成伤害", BuildDamagePayload(item.SourceObjectId, id, damage)));

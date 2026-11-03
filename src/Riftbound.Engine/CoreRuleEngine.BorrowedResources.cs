@@ -9,7 +9,7 @@ public sealed partial class CoreRuleEngine
         BorrowedExhaustSpec spec, CardObjectState source)
     {
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
-        return BorrowedResourceGainSupported(pool, spec, source)
+        return BorrowedResourceGainSupported(pool, EffectiveBorrowedResourceSpec(state, player, source, spec), source)
             || spec.GeneratedMana == 0 && spec.GeneratedTraits.Count == 0 && spec.GeneratedPower > 0
                 && BorrowedDestructionCostChoices(state, player, spec).Any(cost =>
                     CanStartDestructionResourceGain(state, player, source.ObjectId,
@@ -21,6 +21,16 @@ public sealed partial class CoreRuleEngine
         => ResourceQuantityRules.TryConversionMaximum(state.RunePools.GetValueOrDefault(player, RunePool.Empty),
             spec.Conversion == "MANA_TO_POWER", ManaPurposeForActivatedAbility(state, source.ObjectId),
             BorrowedPowerPurpose(source), out maximum, state);
+
+    private static BorrowedExhaustSpec EffectiveBorrowedResourceSpec(MatchState state, string player,
+        CardObjectState source, BorrowedExhaustSpec spec)
+        => !spec.EffectRequiresEncouraged || BorrowedEncourageActive(state, player, source.ObjectId) ? spec
+            : spec with { GeneratedMana = 0, EmpoweredMana = null, GeneratedPower = 0,
+                GeneratedTraits = new Dictionary<string, int>() };
+
+    private static bool BorrowedEncourageActive(MatchState state, string player, string source)
+        => state.CardPlays.TurnNumber == state.TurnNumber && state.CardPlays.Finalized
+            .Any(play => play.PlayerId == player && play.Source.ObjectId != source);
 
     internal static bool BorrowedResourceGainSupported(RunePool pool, BorrowedExhaustSpec spec, CardObjectState source)
     {
@@ -39,7 +49,7 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string> destroyedOwners, bool borrowerDestroyedAsCost)
     {
         var source = activationSource;
-        var spec = ability.Spec;
+        var spec = EffectiveBorrowedResourceSpec(state, intent.PlayerId, source, ability.Spec);
         var pool = payment.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
         var mana = source.IsEmpowered ? spec.EmpoweredMana ?? spec.GeneratedMana : spec.GeneratedMana;
         var power = spec.GeneratedPower;

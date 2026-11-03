@@ -46,6 +46,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool RequiresPlayedArmamentThisTurn { get; init; }
     public bool ResolveOnlyOnControllerTurn { get; init; }
     public bool ReadyTargetIfSourceEmpowered { get; init; }
+    public bool EffectRequiresEncouraged { get; init; }
+    public bool DamageFromSourceMight { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -125,7 +127,7 @@ public static class BorrowedExhaustParser
                     Conversion = conversion.Groups["input"].Value == "法力" ? "MANA_TO_POWER" : "POWER_TO_MANA" });
                 continue;
             }
-            var resource = Regex.Match(effect, @"^(?:\{\{(?:反应|迅捷)\}\}\s*[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此符能仅可用于打出单位或装备|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付符能费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
+            var resource = Regex.Match(effect, @"^(?:\{\{(?:反应|迅捷)\}\}\s*(?:[，,]\s*\{\{(?<encourage>鼓舞)\}\}\s*)?[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此符能仅可用于打出单位或装备|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付(?:符能|法力)费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
             if (resource.Success && (reaction || swift || effect.StartsWith("{{反应}}", StringComparison.Ordinal)
                 || effect.StartsWith("{{迅捷}}", StringComparison.Ordinal)))
             {
@@ -134,6 +136,7 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("RESOURCE", 0) with {
                     Reaction = reaction || effect.StartsWith("{{反应}}", StringComparison.Ordinal),
                     Swift = swift || effect.StartsWith("{{迅捷}}", StringComparison.Ordinal),
+                    EffectRequiresEncouraged = resource.Groups["encourage"].Success,
                     GeneratedMana = Regex.Matches(gain, @"\{\{(?<n>[0-9]+)\}\}").Sum(m => int.Parse(m.Groups["n"].Value)),
                     GeneratedPower = Regex.Matches(gain, @"\{\{A\}\}").Count,
                     GeneratedTraits = colors.Select(pair => (pair.Value, Count: Regex.Matches(gain, Regex.Escape("{{" + pair.Key + "}}")).Count))
@@ -304,6 +307,11 @@ public static class BorrowedExhaustParser
             if (damage.Success) {
                 result.Add(Skill("DAMAGE_UNIT", scope: damage.Groups["field"].Success ? "BATTLEFIELD_UNIT" : "ANY_UNIT",
                     damage: int.Parse(damage.Groups["n"].Value))); continue;
+            }
+            if (effect == "对任意战场中的一个敌方单位造成等同于我战力的伤害")
+            {
+                result.Add(Skill("DAMAGE_UNIT", scope: "ENEMY_BATTLEFIELD_UNIT") with { DamageFromSourceMight = true });
+                continue;
             }
             var boon = Regex.Match(effect, @"^给予一名(?<friend>友方|休眠的友方)?单位(?:\{\{增益\}\}|增益)$");
             if (boon.Success) {

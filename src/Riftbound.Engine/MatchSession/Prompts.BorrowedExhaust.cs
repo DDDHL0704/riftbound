@@ -81,7 +81,8 @@ internal static partial class ActionPromptBuilder
                 "BOON_OR_MIGHT" => $"给予一名单位增益；已有增益时改为本回合战力 +{ability.Spec.ExistingBoonMight}",
                 "EMPOWER_EQUIPMENT" => "强化另一件装备",
                 "KEYWORD_UNIT" => $"给予一名{(ability.Spec.TargetScope == "FRIENDLY_UNIT" ? "友方" : "")}单位本回合内{ability.Spec.Keyword}",
-                "DAMAGE_UNIT" => $"对一名单位造成 {ability.Spec.Damage} 点伤害",
+                "DAMAGE_UNIT" => ability.Spec.DamageFromSourceMight ? "对任意战场中的一名敌方单位造成等同于我战力的伤害"
+                    : $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
                 "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌"
                     + (ability.Spec.RuneCallCount > 0 ? $"并召出 {ability.Spec.RuneCallCount} 枚休眠符文" : ""),
@@ -128,6 +129,6 @@ internal static partial class ActionPromptBuilder
             "SPELL" => "；仅可用于打出法术", "UNIT" => "；仅可用于打出单位或使用单位技能",
             "EQUIPMENT" => "；仅可用于打出装备或使用装备技能", "DUEL" => "；仅可在法术对决中消耗",
             "PERMANENT_PLAY" => "；仅可用于打出单位或装备", _ => "" };
-        return "获得费用资源：" + string.Join("和", gains) + restriction;
+        return "获得费用资源：" + (spec.EffectRequiresEncouraged ? "鼓舞时" : "") + string.Join("和", gains) + restriction;
     }
 }
