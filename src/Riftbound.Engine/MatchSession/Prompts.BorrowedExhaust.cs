@@ -56,6 +56,7 @@ internal static partial class ActionPromptBuilder
             var choices = Enumerable.Range(0, ability.Spec.Targets).ToDictionary(i => i.ToString(),
                 _ => (IReadOnlyList<ActionPromptChoiceDto>)targets);
             var effect = ability.Spec.Kind switch {
+                "RETURN_UNIT_FREE_PLAY" => "让一名友方单位返回手牌，然后可免费打出战力更低的单位",
                 "RETURN_TO_HAND" => ability.Spec.TargetScope == "OWNED_TEEMO_UNIT"
                     ? "将你拥有的英雄区域或场上提莫单位放入手牌" : "让另一张友方装备、单位或正面朝下的卡牌返回手牌",
                 "RETURN_AND_CREATE_GOLD" => "让战场上的一名友方单位返回手牌，然后打出一个休眠的金币装备指示物",

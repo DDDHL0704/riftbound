@@ -146,6 +146,11 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "让一名友方单位返回其所属的手牌。你可以选择打出一名战力低于该单位的单位，无视其费用")
+            {
+                result.Add(Skill("RETURN_UNIT_FREE_PLAY", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             if (effect == "让另一张友方装备、单位或正面朝下的卡牌返回其所属的手牌")
             {
                 result.Add(Skill("RETURN_TO_HAND", scope: "OTHER_FRIENDLY_PERMANENT_OR_FACEDOWN"));

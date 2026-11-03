@@ -274,6 +274,9 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind == "RETURN_UNIT_FREE_PLAY")
+            return ResolveReturnUnitThenFreePlay(state, item, "获得的返手后打出技能", BorrowedExhaustRules.Effect,
+                id => IsBorrowedExhaustTarget(state, item.ControllerId, id, spec, item.SourceObjectId));
         if (spec.Kind is "RETURN_TO_HAND" or "RETURN_AND_CREATE_GOLD")
             return ResolveBorrowedReturnSkill(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
