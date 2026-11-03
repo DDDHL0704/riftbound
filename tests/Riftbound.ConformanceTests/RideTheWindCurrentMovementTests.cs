@@ -33,7 +33,7 @@ public sealed class RideTheWindCurrentMovementTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady(bool temporary)
+    public async Task MovementProhibitionKeepsTheDeclaredBaseLegalAndStillExecutesLinkedReady(bool temporary)
     {
         var initial = Position("BATTLEFIELD:F");
         initial = initial with { CardObjects = new Dictionary<string,CardObjectState>(initial.CardObjects)
@@ -47,8 +47,9 @@ public sealed class RideTheWindCurrentMovementTests
         await driver.Act("P1", command);
         var resolved = await driver.Top();
         Assert.Equal("F", driver.State.ObjectLocations["HOST"].BattlefieldObjectId);
-        Assert.True(driver.State.CardObjects["HOST"].IsExhausted);
-        Assert.DoesNotContain(resolved.Events, e => e.Kind is "UNIT_MOVED_TO_BASE" or "UNIT_READIED");
+        Assert.False(driver.State.CardObjects["HOST"].IsExhausted);
+        Assert.DoesNotContain(resolved.Events, e => e.Kind == "UNIT_MOVED_TO_BASE");
+        Assert.Single(resolved.Events, e => e.Kind == "UNIT_READIED");
         await Replay(initial, driver);
     }
 

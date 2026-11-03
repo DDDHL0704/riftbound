@@ -26049,7 +26049,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var targetObjectId = stackItem.TargetObjectIds[targetIndex];
                     if (replacements.Replaced.Contains(targetObjectId))
                     {
-                        targetControllerDrawRecipientIds.Add(replacements.Controllers[targetObjectId]);
+                        // CN 359.3.e.14.b / VEN FAQ p. 22: a cancelled
+                        // destruction still permits linked instructions, but a
+                        // different effect banishing the unit makes its current
+                        // controller unavailable to those instructions.
+                        if (IsObjectOnField(playerZones, targetObjectId))
+                            targetControllerDrawRecipientIds.Add(replacements.Controllers[targetObjectId]);
                         continue;
                     }
                     var targetIsLegend = behavior.TargetScope is CardTargetScopes.Legend or CardTargetScopes.FriendlyLegend
@@ -26638,17 +26643,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // CN 359.3.e / 323 and the official Shuriken Flip ruling:
             // finish the movement instruction before lethal cleanup.
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
-                stackItem, ChosenMovementTargets(behavior, stackItem.TargetObjectIds).Where(id => !string.IsNullOrWhiteSpace(id)
-                    && (behavior.TargetScope != CardTargetScopes.FriendlyBaseUnit
-                        || CanMoveTargetToControllerBattlefield(playerZones, cardObjects, stackItem.ControllerId, id))).ToArray(),
+            var movementTargets = ChosenMovementTargets(behavior, stackItem.TargetObjectIds)
+                .Where(id => !string.IsNullOrWhiteSpace(id)).ToArray();
+            MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
+                stackItem, movementTargets.Where(id => behavior.TargetScope != CardTargetScopes.FriendlyBaseUnit
+                    || CanMoveTargetToControllerBattlefield(playerZones, cardObjects, stackItem.ControllerId, id)).ToArray(),
                 stackItem.Destination, events);
-            // CN359.3.e.14: the following instruction refers to the moved unit;
-            // if movement is ignored, its linked ready instruction is ignored.
+            // CN 359.3.e.6 / 359.3.e.14.b: an illegal target was masked
+            // before resolution. Prohibiting its movement merely cancels that
+            // instruction; the linked ready instruction still applies.
             if (behavior.ReadiesTargetsAfterChosenMovement)
-                foreach (var id in movedTargets)
+                foreach (var id in movementTargets)
                 {
-                    if (!cardObjects.TryGetValue(id, out var unit)) continue;
+                    if (!cardObjects.TryGetValue(id, out var unit) || !FieldObjectTypeRules.IsVisibleUnit(unit)
+                        || !IsObjectOnField(playerZones, id)
+                        || !MovementTargetIsCurrent(state with { CardObjects = cardObjects }, stackItem, id)) continue;
                     cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent, playerZones, cardObjects);
                     if (readyEvent is not null) events.Add(readyEvent);
                 }
