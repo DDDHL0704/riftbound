@@ -83,4 +83,42 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData("SFD·199/221")]
+    [InlineData("SFD·248/221")]
+    public async Task NativeExplorerReactionRespondsInsideTheSameDuelWithoutCollapsingItsTiming(string donor)
+    {
+        var initial = ExplorerReactionPosition(donor);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["UNIT"] = initial.CardObjects["UNIT"] with { IsExhausted = false } } };
+        initial = AttackDamageDistributionTests.Spell(initial, "DUEL-SPELL", "OGN·004/298", "P1");
+        var game = new Driver(initial);
+        foreach (var spell in new[] { "EXPLORER-TARGET-1", "EXPLORER-TARGET-2" }) {
+            await game.Act("P1", new PlayCardCommand(spell, "OGN·004/298", ["ENEMY"]));
+            await game.Top();
+            await CloseExplorerDuel(game);
+        }
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:OTHER", []));
+        Assert.Equal(TimingStates.SpellDuelOpen, game.State.TimingState);
+        await game.Act("P1", new PlayCardCommand("DUEL-SPELL", "OGN·004/298", ["ENEMY"]));
+        Assert.Equal(TimingStates.SpellDuelClosed, game.State.TimingState);
+        var duel = game.State.SpellDuelState;
+        var deck = game.State.PlayerZones["P1"].MainDeck;
+        await game.Act("P1", new LegendActCommand("UNIT", LegendActionAbilityCatalog.EzrealLegendAbilityId, [], []));
+        Assert.Equal(TimingStates.SpellDuelClosed, game.State.TimingState);
+        Assert.Equal(duel.SpellDuelId, game.State.SpellDuelState.SpellDuelId);
+        Assert.Equal(duel.BattlefieldObjectId, game.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal(duel.FocusPlayerId, game.State.SpellDuelState.FocusPlayerId);
+        Assert.Equal(duel.PassedFocusPlayerIds, game.State.SpellDuelState.PassedFocusPlayerIds);
+        Assert.Equal([..duel.StackItemIds, game.State.StackItems[^1].StackItemId], game.State.SpellDuelState.StackItemIds);
+        Assert.Equal(duel.StackControllerIds, game.State.SpellDuelState.StackControllerIds);
+        Assert.Equal(TimingStates.SpellDuelOpen, game.State.StackItems[^1].TimingContext);
+        Assert.Equal(deck, game.State.PlayerZones["P1"].MainDeck);
+        await game.Top();
+        Assert.Contains(deck[0], game.State.PlayerZones["P1"].Hand);
+        await game.Top();
+        Assert.Equal(TimingStates.SpellDuelOpen, game.State.TimingState);
+        await game.Replay();
+    }
+
 }
