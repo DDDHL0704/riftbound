@@ -40,8 +40,12 @@ internal static partial class ActionPromptBuilder
                 "KEYWORD_UNIT" => $"给予一名{(ability.Spec.TargetScope == "FRIENDLY_UNIT" ? "友方" : "")}单位本回合内{ability.Spec.Keyword}",
                 "DAMAGE_UNIT" => $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
-                "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌",
+                "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌"
+                    + (ability.Spec.RuneCallCount > 0 ? $"并召出 {ability.Spec.RuneCallCount} 枚休眠符文" : ""),
                 "DISCARD_DRAW" => $"弃置一张手牌，然后抽 {ability.Spec.DrawCount} 张牌",
+                "DESTROY_SELF" => "摧毁此牌",
+                "CREATE_GOLD" => "打出一个休眠的金币装备指示物",
+                "SCORE" => $"获得 {ability.Spec.ScoreAmount} 分",
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
                 _ => $"让一名单位在本回合内战力 {ability.Spec.Might:+0;-0}"
                     + (ability.Spec.EmpoweredMight is { } stronger ? $"；此牌已强化时改为 +{stronger}" : "") };

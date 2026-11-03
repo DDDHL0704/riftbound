@@ -25,6 +25,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool DiscardsEquipmentAsCost { get; init; }
     public bool DestroysSourceAsCost { get; init; }
     public int DrawCount { get; init; }
+    public int RuneCallCount { get; init; }
+    public int ScoreAmount { get; init; }
     public int? EmpoweredMight { get; init; }
     public int ExistingBoonMight { get; init; }
 }
@@ -38,6 +40,7 @@ public static class BorrowedExhaustParser
     {
         var result = new List<BorrowedExhaustSpec>();
         var index = 0;
+        var allAbilitiesRequireBattlefield = text.Contains("只有我位于战场时，才能使用我的技能", StringComparison.Ordinal);
         foreach (var line in text.Replace(@"\n", "\n", StringComparison.Ordinal).Split('\n'))
         {
             var parts = Regex.Replace(line, @"（[^）]*）|\([^)]*\)", "").Trim().Split(['：', ':'], 2);
@@ -70,7 +73,8 @@ public static class BorrowedExhaustParser
             var experience = Regex.Match(cost, @"消耗(?<n>[0-9]+)经验");
             var remainder = Regex.Replace(cost, @"\{\{(?:[0-9]+|横置|T|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|消耗[0-9]+经验|支付|[\s，,、和]", "");
             if (remainder.Length != 0) continue;
-            var battlefield = parts[1].Contains("我必须位于战场中才能使用此技能", StringComparison.Ordinal);
+            var battlefield = allAbilitiesRequireBattlefield
+                || parts[1].Contains("我必须位于战场中才能使用此技能", StringComparison.Ordinal);
             var effect = parts[1].Replace("我必须位于战场中才能使用此技能。", "", StringComparison.Ordinal).Trim().TrimEnd('。', '.');
             BorrowedExhaustSpec Skill(string kind, int targets = 1, int might = 0, int floor = 0,
                 string scope = "ANY_UNIT", int damage = 0, string keyword = "")
@@ -107,6 +111,22 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "打出一个休眠的“金币”装备指示物")
+            {
+                result.Add(Skill("CREATE_GOLD", 0));
+                continue;
+            }
+            var score = Regex.Match(effect, @"^获得(?<n>[1-9][0-9]*)分$");
+            if (score.Success)
+            {
+                result.Add(Skill("SCORE", 0) with { ScoreAmount = int.Parse(score.Groups["n"].Value) });
+                continue;
+            }
+            if (effect is "摧毁此牌" or "摧毁我")
+            {
+                result.Add(Skill("DESTROY_SELF", 0));
+                continue;
+            }
             if (effect is "给予我增益" or "给予我{{增益}}")
             {
                 result.Add(Skill("BOON_SELF", 0));
@@ -135,11 +155,12 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("DISCARD_DRAW", 0) with { DrawCount = 1 });
                 continue;
             }
-            var draw = Regex.Match(effect, @"^抽(?<n>一|二|两|[1-9][0-9]*)张牌$");
+            var draw = Regex.Match(effect, @"^抽(?<n>一|二|两|[1-9][0-9]*)张牌(?:并召出(?<runes>一|二|两|[1-9][0-9]*)枚休眠的符文)?$");
             if (draw.Success)
             {
                 var count = draw.Groups["n"].Value switch { "一" => 1, "二" or "两" => 2, _ => int.Parse(draw.Groups["n"].Value) };
-                result.Add(Skill("DRAW", 0) with { DrawCount = count });
+                var runes = draw.Groups["runes"].Value switch { "" => 0, "一" => 1, "二" or "两" => 2, var value => int.Parse(value) };
+                result.Add(Skill("DRAW", 0) with { DrawCount = count, RuneCallCount = runes });
                 continue;
             }
             var ready = Regex.Match(effect, @"^让(?<n>[1-9][0-9]*|一|两|二)件装备变为活跃状态$");

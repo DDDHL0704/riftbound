@@ -26987,18 +26987,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static StackResolutionResult ResolveRenataGlascScoreAbilityStackItem(
         MatchState state,
         StackItemState stackItem)
+        => ResolveSkillScoreStack(state, stackItem, 1, P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId,
+            "烈娜塔·戈拉斯克的得分技能结算");
+
+    private static StackResolutionResult ResolveSkillScoreStack(
+        MatchState state, StackItemState stackItem, int amount, string abilityId, string description)
     {
         var playerZones = NormalizeZonesForSeats(state);
         var playerScores = NormalizeScoresForSeats(state);
         playerScores[stackItem.ControllerId] = playerScores.TryGetValue(stackItem.ControllerId, out var score)
-            ? score + 1
-            : 1;
+            ? score + amount
+            : amount;
         var winnerPlayerId = WinningPlayerId(playerScores, EffectiveWinningScore(state));
         var events = new List<GameEvent>
         {
             new(
                 "ABILITY_RESOLVED",
-                "烈娜塔·戈拉斯克的得分技能结算",
+                description,
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
@@ -27006,22 +27011,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["cardNo"] = stackItem.CardNo,
                     ["stackItemId"] = stackItem.StackItemId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId,
+                    ["abilityId"] = abilityId,
                     ["effectKind"] = stackItem.EffectKind,
-                    ["scoreAmount"] = 1
+                    ["scoreAmount"] = amount
                 }),
             new(
                 "SCORE_GAINED",
-                $"{stackItem.ControllerId} 获得 1 分",
+                $"{stackItem.ControllerId} 获得 {amount} 分",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
-                    ["amount"] = 1,
+                    ["amount"] = amount,
                     ["score"] = playerScores[stackItem.ControllerId],
-                    ["reason"] = P4ActivatedAbilityCatalog.RenataGlascScoreAbilityEffectKind,
+                    ["reason"] = stackItem.EffectKind,
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["stackItemId"] = stackItem.StackItemId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId
+                    ["abilityId"] = abilityId
                 })
         };
         if (winnerPlayerId is not null)
