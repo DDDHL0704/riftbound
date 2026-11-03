@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Npgsql;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -50,7 +51,12 @@ public sealed partial class PostgresMatchRecoveryStoreSmokeTests
 
             var cold = await new InMemoryMatchSessionRegistry(engine, journal, store, players).GetOrCreateAsync(roomId, default);
             await cold.ReconnectPlayerAsync("bob", bob.ReconnectToken, default);
-            Assert.Equal(JsonSerializer.Serialize(live.SnapshotFor("bob"), json), JsonSerializer.Serialize(cold.SnapshotFor("bob"), json));
+            // PostgreSQL jsonb may reorder object properties, including player keys.
+            // Compare every snapshot value while preserving array order.
+            Assert.True(JsonNode.DeepEquals(
+                JsonSerializer.SerializeToNode(live.SnapshotFor("bob"), json),
+                JsonSerializer.SerializeToNode(cold.SnapshotFor("bob"), json)),
+                "The cold reconnect snapshot differs from the live snapshot.");
         }
         finally { await DeleteRoomAsync(dataSource, roomId); }
     }
