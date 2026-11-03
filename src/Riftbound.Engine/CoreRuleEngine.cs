@@ -7860,14 +7860,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     targetObjectIds[0],
                     out var battlefieldReturnPlayerId);
-                ReturnLegendTargetToOwnerHand(
-                    playerZones,
-                    cardObjects,
-                    targetObjectIds[0],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
+                var returnReplaced = TryReplaceEmpoweredChosenEvent(
+                    state with { PlayerZones = playerZones, CardObjects = cardObjects }, cardObjects[targetObjectIds[0]],
+                    "RETURN_TO_HAND", command.SourceObjectId, sourceState.CardNo, null,
+                    out var returnReplacement, out var returnReplacementEvent);
+                if (returnReplaced)
+                {
+                    cardObjects[targetObjectIds[0]] = returnReplacement;
+                    events.Add(returnReplacementEvent);
+                }
+                else
+                    ReturnLegendTargetToOwnerHand(
+                        playerZones,
+                        cardObjects,
+                        targetObjectIds[0],
+                        intent.PlayerId,
+                        command.SourceObjectId,
+                        command.AbilityId,
+                        events);
                 CreateLegendEquipmentToken(
                     playerZones,
                     cardObjects,
@@ -7878,7 +7888,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     [CardObjectTags.EquipmentCard, "反应"],
                     isExhausted: true,
                     events);
-                if (canResolveBattlefieldReturnTrigger
+                if (!returnReplaced && canResolveBattlefieldReturnTrigger
                     && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
@@ -26168,6 +26178,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         var primaryStatusEffectId = statusEffectIds[0];
                         if (behavior.ReturnsTargetToHandIfAlreadyHasStatusEffect
                             && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
+                            && TryReplaceEmpoweredTargetEvent(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                                stackItem, targetState, "RETURN_TO_HAND", out var statusReturnReplacement, out var statusReturnReplacementEvent))
+                        {
+                            cardObjects[targetObjectId] = statusReturnReplacement;
+                            events.Add(statusReturnReplacementEvent);
+                            continue;
+                        }
+                        if (behavior.ReturnsTargetToHandIfAlreadyHasStatusEffect
+                            && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
                             && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var statusReturnOwnerPlayerId, out _))
                         {
                             events.Add(new GameEvent(
@@ -26214,6 +26233,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         foreach (var statusEffectId in statusEffectIds)
                         {
                             if (statusEffectId == "STUNNED" && !CanExecuteStun(targetState)) continue;
+                            if (statusEffectId == "STUNNED" && TryReplaceEmpoweredTargetEvent(
+                                state with { PlayerZones = playerZones, CardObjects = cardObjects }, stackItem, targetState,
+                                "STUN", out var stunReplacement, out var stunReplacementEvent))
+                            {
+                                targetState = stunReplacement;
+                                events.Add(stunReplacementEvent);
+                                continue;
+                            }
                             var appliedStatusEffectId = TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId);
                             targetState = targetState with
                             {
@@ -26365,6 +26392,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             }
                         }
 
+                        continue;
+                    }
+
+                    if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
+                        && TryReplaceEmpoweredTargetEvent(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                            stackItem, cardObjects[targetObjectId], "RETURN_TO_HAND", out var returnReplacement, out var returnReplacementEvent))
+                    {
+                        cardObjects[targetObjectId] = returnReplacement;
+                        events.Add(returnReplacementEvent);
                         continue;
                     }
 
@@ -28033,7 +28069,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = "TARGET_NO_LONGER_LEGAL"
                 }));
         }
-        else if (CanExecuteStun(targetState))
+        else if (CanExecuteStun(targetState) && !TryReplaceEmpoweredStun(state, stackItem, cardObjects, targetObjectId, events))
         {
             var nextEffects = targetState.UntilEndOfTurnEffects
                 .Concat(["STUNNED"])
@@ -30802,6 +30838,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // modifier if the unit later leaves the aura (Spiritforged FAQ).
             appliedPowerDelta = Math.Max(powerModifierAmount, -Math.Max(0, might - minimumPower));
         }
+        if (appliedPowerDelta < 0 && TryReplaceEmpoweredTargetEvent(powerState, stackItem, targetState,
+            "NEGATIVE_MIGHT", out var replacedTarget, out powerEvent)) return replacedTarget;
         var replacement = appliedPowerDelta < 0 ? EmpoweredSpellRules.Replace(powerState, stackItem, targetState, powerModifierAmount) : null;
         if (replacement is not null) {
             powerModifierAmount = EmpoweredSpellRules.Delta(replacement);

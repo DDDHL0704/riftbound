@@ -9,6 +9,7 @@ public sealed record EmpowerSpec(int Index, IReadOnlyList<EmpowerCostSpec> Alter
 public sealed record EmpoweredSelfSpec(int Might, IReadOnlyList<string> Keywords, int MaximumCount = 1,
     int MightPerCount = 0, int? KeywordCount = null, IReadOnlyList<string>? KeywordsAtCount = null);
 public sealed record EmpoweredSpellSpec(bool PreventsCounter, int AdditionalChosenNegativeMight);
+public sealed record EmpoweredTargetReplacementSpec(int Might, bool Stun, bool NegativeMight, bool ReturnToHand);
 public sealed record EmpoweredSpellCostReductionSpec(int Mana, int GenericPower, int MinimumMana);
 public sealed record EmpoweredUnitAuraSpec(int Might);
 
@@ -108,6 +109,14 @@ public static class EmpowerParser
                 @"(?m)^\s*\{\{已强化>\}\}\s*你的法术费用减少\{\{(?<mana>[0-9]+)\}\}和\{\{A\}\}，不得低于\{\{(?<floor>[0-9]+)\}\}。\s*$")
             .Select(match => new EmpoweredSpellCostReductionSpec(
                 int.Parse(match.Groups["mana"].Value), 1, int.Parse(match.Groups["floor"].Value))).ToArray();
+
+    public static IReadOnlyList<EmpoweredTargetReplacementSpec> TargetReplacements(string text)
+        => Regex.Matches(text,
+                @"\{\{已强化>\}\}\s*如果一个将我选作目标的法术或技能将(?<events>[^。\r\n]+)，则改为给予我在本回合内\{\{S\}\}\+(?<might>[1-9][0-9]*)。")
+            .Select(match => new EmpoweredTargetReplacementSpec(int.Parse(match.Groups["might"].Value),
+                match.Groups["events"].Value.Contains("眩晕我", StringComparison.Ordinal),
+                match.Groups["events"].Value.Contains("给予我-{{S}}", StringComparison.Ordinal),
+                match.Groups["events"].Value.Contains("把我送回手牌", StringComparison.Ordinal))).ToArray();
 
     private static int Integer(string value) => int.TryParse(value, out var n) ? n : value switch {
         "零" => 0, "一" => 1, "二" => 2, "三" => 3, "四" => 4, "五" => 5, "六" => 6, "七" => 7, "八" => 8, "九" => 9,

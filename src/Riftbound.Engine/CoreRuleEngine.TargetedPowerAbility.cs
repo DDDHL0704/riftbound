@@ -176,7 +176,7 @@ public sealed partial class CoreRuleEngine
                 ? upgraded : ability.PowerModifierAmount;
             if (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit)
             {
-                if (CanExecuteStun(cards[id]))
+                if (CanExecuteStun(cards[id]) && !TryReplaceEmpoweredStun(state, item, cards, id, events))
                 {
                     cards[id] = cards[id] with { UntilEndOfTurnEffects = cards[id].UntilEndOfTurnEffects
                         .Append("STUNNED").Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };

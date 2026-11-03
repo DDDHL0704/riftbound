@@ -498,17 +498,27 @@ public sealed partial class CoreRuleEngine
             }
 
             var capturedPower = ResolveCurrentFieldUnitPower(state, target);
-            if (!TryReturnTargetToHand(zones, cards, targetId, out var ownerPlayerId, out var wasEquipment))
+            if (TryReplaceEmpoweredTargetEvent(state with { PlayerZones = zones, CardObjects = cards }, item, target,
+                "RETURN_TO_HAND", out var returnReplacement, out var returnReplacementEvent))
             {
-                events.Add(new("ABILITY_NO_EFFECT", "易位法师结算时无法返回目标",
-                    new Dictionary<string, object?> {
-                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
-                        ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
-                        ["reason"] = "TARGET_RETURN_FAILED"
-                    }));
-                return result with { Events = events };
+                cards[targetId] = returnReplacement;
+                events.Add(returnReplacementEvent);
+                capturedPower = ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, returnReplacement);
             }
-            events.Add(BuildReturnedToHandEvent(ability.DisplayName, item, targetId, ownerPlayerId, wasEquipment));
+            else
+            {
+                if (!TryReturnTargetToHand(zones, cards, targetId, out var ownerPlayerId, out var wasEquipment))
+                {
+                    events.Add(new("ABILITY_NO_EFFECT", "易位法师结算时无法返回目标",
+                        new Dictionary<string, object?> {
+                            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                            ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
+                            ["reason"] = "TARGET_RETURN_FAILED"
+                        }));
+                    return result with { Events = events };
+                }
+                events.Add(BuildReturnedToHandEvent(ability.DisplayName, item, targetId, ownerPlayerId, wasEquipment));
+            }
 
             var eligible = zones[item.ControllerId].Hand
                 .Where(id => cards.TryGetValue(id, out var candidate)
@@ -577,7 +587,7 @@ public sealed partial class CoreRuleEngine
                 && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
             {
                 var target = cards[targetId];
-                if (CanExecuteStun(target))
+                if (CanExecuteStun(target) && !TryReplaceEmpoweredStun(state, item, cards, targetId, events))
                 {
                     cards[targetId] = target with {
                         UntilEndOfTurnEffects = target.UntilEndOfTurnEffects
@@ -588,7 +598,7 @@ public sealed partial class CoreRuleEngine
                         ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
                     events.Add(CaptureStunObservers(applied, zones, cards, item, targetId));
                 }
-                else
+                else if (!CanExecuteStun(target))
                     events.Add(new("ABILITY_NO_EFFECT", "无情潜伏者结算时目标已经眩晕", new Dictionary<string, object?> {
                         ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
                         ["abilityId"] = ability.AbilityId, ["reason"] = "ALREADY_STUNNED" }));

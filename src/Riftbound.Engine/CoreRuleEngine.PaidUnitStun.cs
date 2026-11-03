@@ -153,7 +153,8 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>(); var target = item.TargetObjectIds.SingleOrDefault();
         var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         if (target is not null && item.TargetGenerations?.GetValueOrDefault(target, -1) == cards.GetValueOrDefault(target)?.ObjectGeneration
-            && FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal) && CanExecuteStun(cards[target])) {
+            && FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal) && CanExecuteStun(cards[target])
+            && !TryReplaceEmpoweredStun(state, item, cards, target, events)) {
             cards[target] = cards[target] with { UntilEndOfTurnEffects = cards[target].UntilEndOfTurnEffects
                 .Append("STUNNED").Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
             var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
