@@ -212,7 +212,8 @@ public sealed partial class CoreRuleEngine
     private static bool ValidObservationParent(MatchState state,StackItemState parent)
         => parent.BeginningDraw is { Kind: "LOWEST_DECK_TOP_MANA" } beginning
                 ? ValidBeginningDraw(state, beginning, parent.EffectKind, parent.ControllerId, parent.SourceObjectId, parent.CardNo)
-            : IsGuessedDeckTopObservation(parent) ? ValidSimpleActivation(state,parent)
+            : IsGuessedDeckTopObservation(parent) ? parent.BorrowedExhaust is not null
+                ? BorrowedExhaustRules.Valid(state, parent) : ValidSimpleActivation(state,parent)
             : parent.EndAbility is not null ? ValidEndAbility(state,parent)
             : parent.DestroyDeckPlay is not null ? ValidDestroyDeckPlayContext(state,parent)
             : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle} movement

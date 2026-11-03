@@ -28,6 +28,7 @@ internal static class BorrowedExhaustRules
         && BorrowedExhaustParser.InheritsFriendlyExhaustAbilities(card.CardEffect);
     internal static BorrowedExhaustSpec? Spec(string cardNo, int index)
         => Specs.Value.GetValueOrDefault(cardNo, []).FirstOrDefault(s => s.Index == index);
+    internal static bool TargetsPlayer(BorrowedExhaustSpec spec) => spec.TargetScope is "PLAYER" or "OPPONENT";
 
     internal static IEnumerable<BorrowedExhaustAbility> Abilities(MatchState state, string player, CardObjectState source)
     {
@@ -95,17 +96,19 @@ internal static class BorrowedExhaustRules
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds.Count != spec.Targets || item.TargetObjectIds.Distinct().Count() != spec.Targets
-            || item.TargetGenerations is not { } bindings || bindings.Count != spec.Targets
-            || item.TargetObjectIds.Any(id => !bindings.TryGetValue(id, out var generation) || generation < 0
+            || item.TargetGenerations is not { } bindings || bindings.Count != (TargetsPlayer(spec) ? 0 : spec.Targets)
+            || TargetsPlayer(spec) && (c.TargetTokenFactories is not null
+                || item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id) || spec.TargetScope == "OPPONENT" && id == item.ControllerId))
+            || !TargetsPlayer(spec) && item.TargetObjectIds.Any(id => !bindings.TryGetValue(id, out var generation) || generation < 0
                 || state.CardObjects.TryGetValue(id, out var target) && generation > target.ObjectGeneration)
             || c.TargetTokenFactories is { } factories && factories.Any(pair => !item.TargetObjectIds.Contains(pair.Key, StringComparer.Ordinal)
                 || !P6TokenFactoryCatalog.IsTokenFactory(pair.Value)
                 || state.CardObjects.TryGetValue(pair.Key, out var token) && (token.TokenFactoryCardNo ?? token.CardNo) != pair.Value)
-            || item.TargetObjectIds.Any(id => state.CardObjects.TryGetValue(id, out var token)
+            || !TargetsPlayer(spec) && item.TargetObjectIds.Any(id => state.CardObjects.TryGetValue(id, out var token)
                 && token.ObjectGeneration == bindings[id] && TokenObjectRules.IsToken(token)
                 && (c.TargetTokenFactories is null || !c.TargetTokenFactories.TryGetValue(id, out var factory)
                     || factory != (token.TokenFactoryCardNo ?? token.CardNo)))
-            || item.TargetObjectIds.Any(id => !state.CardObjects.ContainsKey(id)
+            || !TargetsPlayer(spec) && item.TargetObjectIds.Any(id => !state.CardObjects.ContainsKey(id)
                 && (c.TargetTokenFactories is null || !c.TargetTokenFactories.ContainsKey(id)))
             || (spec.Swift ? item.TimingContext is not (TimingStates.NeutralOpen or TimingStates.SpellDuelOpen)
                 : item.TimingContext != TimingStates.NeutralOpen)) return false;

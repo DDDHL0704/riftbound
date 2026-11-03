@@ -47,15 +47,20 @@ internal static partial class ActionPromptBuilder
                 if (!CoreRuleEngine.TryBorrowedConversionMaximum(state, player, source, ability.Spec, out var maximum)) continue;
                 optional = ResourceConversionChoices(BorrowedExhaustRules.ConversionChoicePrefix, maximum, "选择资源转换数量");
             }
-            var targets = ability.Spec.Targets == 0 ? [] : state.CardObjects.Keys.Order(StringComparer.Ordinal)
+            var targets = ability.Spec.Targets == 0 ? [] : (BorrowedExhaustRules.TargetsPlayer(ability.Spec)
+                ? state.Seats.Keys : state.CardObjects.Keys).Order(StringComparer.Ordinal)
                 .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec, source.ObjectId))
-                .Select(id => ObjectChoice(state, id, "技能目标")).ToArray();
+                .Select(id => BorrowedExhaustRules.TargetsPlayer(ability.Spec)
+                    ? new ActionPromptChoiceDto(id, id, "所选玩家") : ObjectChoice(state, id, "技能目标")).ToArray();
             if (targets.Length < ability.Spec.Targets) continue;
             var choices = Enumerable.Range(0, ability.Spec.Targets).ToDictionary(i => i.ToString(),
                 _ => (IReadOnlyList<ActionPromptChoiceDto>)targets);
             var effect = ability.Spec.Kind switch {
                 "READY_EQUIPMENT" => $"让 {ability.Spec.Targets} 件装备活跃",
                 "READY_UNIT" => "让一名单位活跃",
+                "TRANSFER_SOURCE_AND_RECALL" => "选择一名玩家，令其获得此牌控制权并召回",
+                "COMMAND_OPPONENT_MOVEMENT" => "选择一名对手，让其将一名单位移动到此牌所在战场",
+                "GUESS_DECK_TOP" => "选择一名对手猜测牌库顶类型，展示后回收或抽取",
                 "ROAM_UNIT" => "让一名单位本回合内获得游走",
                 "MOVE_TO_BASE" => "将战场上的一名" + (ability.Spec.TargetScope == "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT" ? "休眠的" : "")
                     + "友方单位移动到基地",
@@ -82,7 +87,7 @@ internal static partial class ActionPromptBuilder
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
                 _ => $"让一名单位在本回合内战力 {ability.Spec.Might:+0;-0}"
                     + (ability.Spec.EmpoweredMight is { } stronger ? $"；此牌已强化时改为 +{stronger}" : "") };
-            var taxes = targets.ToDictionary(t => t.Id, t => CoreRuleEngine.SpellshieldPowerCostForTarget(state, player, t.Id), StringComparer.Ordinal);
+            var taxes = targets.ToDictionary(t => t.Id, t => BorrowedExhaustRules.TargetsPlayer(ability.Spec) ? 0 : CoreRuleEngine.SpellshieldPowerCostForTarget(state, player, t.Id), StringComparer.Ordinal);
             var payments = ability.Spec.Power + ability.Spec.TypedPower.Values.Sum() > 0 || taxes.Values.Any(tax => tax > 0)
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
