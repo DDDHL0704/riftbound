@@ -7754,20 +7754,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
 
         if (graveyardBanishCostId is not null)
-        {
-            var own = playerZones[intent.PlayerId];
-            playerZones[intent.PlayerId] = own with {
-                Graveyard = own.Graveyard.Where(id => id != graveyardBanishCostId).ToArray(),
-                Banished = own.Banished.Append(graveyardBanishCostId).ToArray()
-            };
-            ResetCardOutsidePlay(playerZones, cardObjects, graveyardBanishCostId,
-                cardObjects[graveyardBanishCostId], intent.PlayerId);
-            events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED", "支付传奇技能的放逐费用", new Dictionary<string, object?> {
-                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = command.SourceObjectId,
-                ["targetObjectId"] = graveyardBanishCostId, ["fromZone"] = "GRAVEYARD",
-                ["destinationZone"] = "BANISHED", ["isCost"] = true, ["abilityId"] = command.AbilityId
-            }), playerZones, cardObjects, intent.PlayerId, [graveyardBanishCostId]));
-        }
+            PayGraveyardPermanentBanishCost(playerZones, cardObjects, intent.PlayerId, command.SourceObjectId,
+                command.AbilityId, graveyardBanishCostId, events, "支付传奇技能的放逐费用");
 
         if (TryGetLegendUnitToken(ability.EffectKind, out _))
             return QueueLegendUnitToken(state with { RunePools = runePools, PlayerExperience = playerExperience,

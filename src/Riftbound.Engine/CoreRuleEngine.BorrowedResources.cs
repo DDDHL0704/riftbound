@@ -81,6 +81,7 @@ public sealed partial class CoreRuleEngine
             Power = pool.Power + (spec.ResourceRestriction == "" ? power : 0),
             SpellOnlyPower = pool.SpellOnlyPower + (spec.ResourceRestriction == "SPELL" ? power : 0),
             EquipmentOnlyPower = pool.EquipmentOnlyPower + (spec.ResourceRestriction == "EQUIPMENT" ? power : 0),
+            UnitOrEquipmentPlayOnlyPower = pool.UnitOrEquipmentPlayOnlyPower + (spec.ResourceRestriction == "PERMANENT_PLAY" ? power : 0),
             PowerByTrait = traits };
         if (cards.ContainsKey(source.ObjectId) && !spec.DestroysSourceAsCost)
             cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);

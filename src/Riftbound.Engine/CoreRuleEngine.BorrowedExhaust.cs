@@ -65,8 +65,14 @@ public sealed partial class CoreRuleEngine
                 out var extras, out var resources, out _) || extras.Count != (ability.Spec.Conversion.Length > 0 ? 1 : 0)
                     + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
                     + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
-                    + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0))
+                    + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
+                    + (ability.Spec.BanishesGraveyardPermanentAsCost ? 1 : 0))
             return RejectWithCorePrompts(state, "所选支付资源行动无效。", ErrorCodes.InvalidTarget);
+        var banishCosts = extras.Where(id => id.StartsWith(LegendGraveyardBanishCostRules.Prefix, StringComparison.Ordinal)).ToArray();
+        if (ability.Spec.BanishesGraveyardPermanentAsCost
+            ? !LegendGraveyardBanishCostRules.TryRead(state, intent.PlayerId, banishCosts, out _)
+            : banishCosts.Length != 0)
+            return RejectWithCorePrompts(state, "请选择自己废牌堆中的单位或装备支付放逐费用。", ErrorCodes.InvalidTarget);
         var destructionCosts = extras.Where(id => id.StartsWith(DestroyFriendlyPermanentAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
         if (destructionCosts.Length != (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
             || destructionCosts.Any(id => !BorrowedDestructionCostChoices(state, intent.PlayerId, ability.Spec).Contains(id)))
@@ -106,6 +112,9 @@ public sealed partial class CoreRuleEngine
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置来源。", ErrorCodes.InsufficientCost);
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
+        if (ability.Spec.BanishesGraveyardPermanentAsCost
+            && !LegendGraveyardBanishCostRules.TryRead(paidState, intent.PlayerId, banishCosts, out _))
+            return RejectWithCorePrompts(state, "支付资源行动后所选牌无法支付放逐费用。", ErrorCodes.InvalidTarget);
         if (destructionCosts.Any(id => !BorrowedDestructionCostChoices(paidState, intent.PlayerId, ability.Spec).Contains(id)))
             return RejectWithCorePrompts(state, "支付资源行动后所选物体无法支付摧毁费用。", ErrorCodes.InvalidTarget);
         if (unitExhaustCosts.Any(id => !BorrowedUnitExhaustCostChoices(paidState, intent.PlayerId, source.ObjectId, ability.Spec).Contains(id)))
@@ -204,6 +213,9 @@ public sealed partial class CoreRuleEngine
             events.AddRange(recycling.Events);
             rngCursor = recycling.RngCursor;
         }
+        if (ability.Spec.BanishesGraveyardPermanentAsCost)
+            PayGraveyardPermanentBanishCost(zones, cards, intent.PlayerId, source.ObjectId, ability.Id,
+                banishCosts[0][LegendGraveyardBanishCostRules.Prefix.Length..], events, "支付获得的技能的放逐费用");
         if (ability.Spec.Kind == "RESOURCE")
             return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events, extras,
                 source, destructionTriggers, destroyedOwners);
