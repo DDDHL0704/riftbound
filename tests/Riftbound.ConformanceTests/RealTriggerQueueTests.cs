@@ -796,7 +796,10 @@ public sealed class RealTriggerQueueTests
             new PassPriorityCommand(),
             CancellationToken.None);
 
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.Null(p1Pass.State.PendingRuleChoice);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Null(p2Pass.State.PendingRuleChoice);
         Assert.Empty(p2Pass.State.TriggerQueue);
         Assert.Empty(p2Pass.State.StackItems);
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
@@ -4103,7 +4106,8 @@ public sealed class RealTriggerQueueTests
             {
                 ["P1-BATTLEFIELD-KOGMAW"] = new(
                     "P1-BATTLEFIELD-KOGMAW",
-                    cardNo: "OGN·275/298",
+                    // Bandle Tree provides legal capacity for both face-down cards.
+                    cardNo: "OGN·278/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1"),

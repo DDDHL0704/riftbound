@@ -7,6 +7,10 @@ public sealed record StandbyPlayedSelfEffect(int Might, bool ReadiesSelf = false
 
 public static class StandbyParser
 {
+    public static int ExtraCapacityForBattlefieldController(string? text)
+        => text is not null && text.Contains("只要此战场受你或一名盟友控制，该玩家便可以选择在此处额外布置一张{{待命}}卡牌。", StringComparison.Ordinal)
+            ? 1 : 0;
+
     // Keyword instances stand alone at the start of an instruction line.
     // References to standby in a trigger or a permission do not grant the keyword.
     public static bool HasPrintedKeyword(string? text)

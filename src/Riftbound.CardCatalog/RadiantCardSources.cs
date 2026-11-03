@@ -32,6 +32,7 @@ public static class RadiantCardSources
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
         return new[] {
             (Id: 39507L, CardNo: "RAD·017/167"),
+            (Id: 39610L, CardNo: "RAD·108/167"),
             (Id: 39512L, CardNo: "RAD·021/167"),
             (Id: 39513L, CardNo: "RAD·021a/167"),
             (Id: 39537L, CardNo: "RAD·043/167"),

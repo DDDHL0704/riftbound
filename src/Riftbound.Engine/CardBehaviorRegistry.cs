@@ -9731,6 +9731,8 @@ public static class CardBehaviorRegistry
         new("RAD·012/167", "符刃铁砧", 1, "RUNEBLADE_ANVIL_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true,
             UnitEventAbility: new("PLAY_OR_LEAVE", "BANISH_TOP_TIMED_PLAY")),
+        new("RAD·108/167", "伏击陷阱", 1, "AMBUSH_TRAP_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "部署"),
         new("RAD·035/167", "醒神花", 3, "WAKEBLOOM_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("PLAY", "MIGHT_FRIENDLY", 3)),
         new("RAD·052/167", "资源开采器", 1, "RESOURCE_EXTRACTOR_PLAY_EQUIPMENT", 0, 0,

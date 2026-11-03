@@ -41,7 +41,7 @@ def stop_api(process):
     return code
 
 
-def restart_sequence(launch, driver, capture, shutdown):
+def restart_sequence(launch, driver, capture, shutdown, resume=None):
     phases, snapshots = [], []
     for phase in ('restart-prepare', 'restart-recover'):
         process = launch(phase)
@@ -51,6 +51,11 @@ def restart_sequence(launch, driver, capture, shutdown):
                 raise ValueError('Recovery must use a new actual API process.')
             driver(phase)
             snapshots.append(capture(process.pid))
+            if phase == 'restart-recover':
+                if snapshots[0] != snapshots[1]:
+                    raise ValueError('Process restart or reconnect changed the original SQL command/event/state history.')
+                if resume is not None:
+                    resume()
         except BaseException as error:
             failure = error
             raise
@@ -62,8 +67,6 @@ def restart_sequence(launch, driver, capture, shutdown):
                     raise
                 failure.riftbound_cleanup_errors = [repr(cleanup)]
         phases.append(dict(phase=phase, processId=process.pid, normalExitCode=code))
-    if snapshots[0] != snapshots[1]:
-        raise ValueError('Process restart or reconnect changed the original SQL command/event/state history.')
     return phases
 
 
@@ -131,6 +134,15 @@ def main():
             receipt = json.loads((output / (phase + '.json')).read_text())
             if receipt['status'] != 'PASSED' or receipt['actualJoinedPlayers'] != 2:
                 raise ValueError('Both actual SignalR players must complete this phase.')
+            sealed = json.loads((output / 'sealed' / (phase.removeprefix('restart-') + '.json')).read_text())
+            if sealed['status'] != 'PASSED_REAL_SEALED_SIGNALR' or sealed['cases'] != 2:
+                raise ValueError('Both sealed formats must complete the actual SignalR restart phase.')
+
+        def resume_sealed():
+            checked([dotnet, str(driver), 'restart-sealed-resume', str(output)], 'driver-sealed-resume.log')
+            receipt = json.loads((output / 'sealed/resume.json').read_text())
+            if receipt['status'] != 'PASSED_REAL_SEALED_SIGNALR' or receipt['cases'] != 2:
+                raise ValueError('Both original sealed rooms must resume and finish after the SQL history comparison.')
 
         def capture(pid):
             room = json.loads((output / 'restart-input.json').read_text())['room']
@@ -140,21 +152,31 @@ def main():
             if str(api.parent / 'Riftbound.Engine.dll') not in maps:
                 raise ValueError('Actual API process did not load the fixed Engine path.')
             (output / ('process-' + str(pid) + '-maps.txt')).write_text(maps)
+            rooms = [room]
+            for set_code in ('OGN', 'SFD'):
+                sealed = json.loads((output / 'sealed' / set_code / 'input.json').read_text())
+                sealed_room = sealed['room']
+                if not re.fullmatch(r'RB-[A-HJ-NP-Z2-9]{6}', sealed_room):
+                    raise ValueError('Unexpected server-generated sealed room code.')
+                rooms.append(sealed_room)
             result = {}
-            for table in ('command_log', 'game_events', 'snapshots', 'state_snapshots', 'action_prompts'):
-                query = "select coalesce(jsonb_agg(to_jsonb(t) order by id), '[]'::jsonb) from " + table + " t where match_id='" + room + "'"
-                rows = json.loads(subprocess.check_output(sql + ['--tuples-only', '--no-align', '--command', query], env=env))
-                if not rows:
-                    raise ValueError('Actual original SQL history is empty: ' + table)
-                result[table] = rows
+            for selected_room in rooms:
+                result[selected_room] = {}
+                for table in ('command_log', 'game_events', 'snapshots', 'state_snapshots', 'action_prompts'):
+                    query = "select coalesce(jsonb_agg(to_jsonb(t) order by id), '[]'::jsonb) from " + table + " t where match_id='" + selected_room + "'"
+                    rows = json.loads(subprocess.check_output(sql + ['--tuples-only', '--no-align', '--command', query], env=env))
+                    if not rows:
+                        raise ValueError('Actual original SQL history is empty: ' + table)
+                    result[selected_room][table] = rows
             (output / ('sql-process-' + str(pid) + '.json')).write_text(json.dumps(result, indent=2) + '\n')
             return result
 
-        proof['processes'] = restart_sequence(launch, run_driver, capture, stop_api)
+        proof['processes'] = restart_sequence(launch, run_driver, capture, stop_api, resume_sealed)
         if any(hashlib.sha256(Path(path).read_bytes()).hexdigest() != sha for path, sha in runtime.items()):
             raise ValueError('Runtime changed during process restart acceptance.')
         CANDIDATE.verify(ROOT, a.expected)
-        proof.update(status='ACTUAL_SQL_SIGNALR_PROCESS_RESTART_PASSED', originalSqlHistoryEqual=True)
+        proof.update(status='ACTUAL_SQL_SIGNALR_PROCESS_RESTART_PASSED', originalSqlHistoryEqual=True,
+                     sealedFormatsRestored=2, sealedOriginalSubmissionsResumed=True)
     except BaseException as error:
         proof.update(status='PROCESS_RESTART_FAILURE_OR_INCOMPLETE', error=repr(error),
                      cleanupErrors=getattr(error, 'riftbound_cleanup_errors', []))
