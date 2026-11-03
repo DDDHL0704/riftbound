@@ -35,6 +35,7 @@ internal static class ProcessRestartAcceptance
                 catch (InvalidOperationException) { rejected = true; }
                 if (!rejected) throw new InvalidOperationException("Changed tick or private players must fail snapshot parity.");
             }
+            await SealedSeriesNetworkAcceptance.VerifyRefreshContractAsync();
             Console.WriteLine("Restart JSON contract passed: retained indented checkpoint, compact wire, changed tick/player negatives.");
             return;
         }
@@ -359,15 +360,13 @@ internal static class SealedSeriesNetworkAcceptance
             {
                 foreach (var peer in peers)
                 {
-                    await clients[peer.Actor].InvokeAsync("RequestSnapshot", room, peer.Actor, ct);
                     JsonElement snapshot = default, prompt = default;
-                    while (snapshot.ValueKind == JsonValueKind.Undefined || prompt.ValueKind == JsonValueKind.Undefined
-                        || snapshot.GetProperty("tick").GetInt64() != prompt.GetProperty("snapshotTick").GetInt64()
-                        || expectedTick is not null && snapshot.GetProperty("tick").GetInt64() != expectedTick)
+                    await ReadCurrentView(messages[peer.Actor].Reader,
+                        () => clients[peer.Actor].InvokeAsync("RequestSnapshot", room, peer.Actor, ct),
+                        message =>
                     {
-                        var message = await messages[peer.Actor].Reader.ReadAsync(ct);
                         Check(message.Type != MessageType.ERROR, "A sealed wire input produced an unexpected server error.");
-                        if (message.Payload is not JsonElement payload) continue;
+                        if (message.Payload is not JsonElement payload) return;
                         if (message.Type == MessageType.EVENTS)
                         {
                             Check(CountProperty(payload, "sealedPool") == 0 && !ContainsPrivateState(payload),
@@ -376,7 +375,7 @@ internal static class SealedSeriesNetworkAcceptance
                                 Check(item.GetProperty("payload").EnumerateObject().All(p => p.Name is "playerId" or "mainDeckCount" or "runeDeckCount" or "battlefieldCount"),
                                     "Shared submission events exposed private deck identities.");
                         }
-                        if (message.Type is not (MessageType.SNAPSHOT or MessageType.PROMPT)) continue;
+                        if (message.Type is not (MessageType.SNAPSHOT or MessageType.PROMPT)) return;
                         Check(message.RoomId == room && message.PlayerId == peer.Actor, "A sealed private view crossed wire recipients.");
                         Check(CountProperty(payload, "sealedPool") == (message.Type == MessageType.SNAPSHOT ? 1 : 0)
                             && (message.Type == MessageType.SNAPSHOT ? payload.GetProperty("tick").GetInt64()
@@ -388,7 +387,9 @@ internal static class SealedSeriesNetworkAcceptance
                             "A sealed public projection exposed server-only state or credentials.");
                         if (message.Type == MessageType.SNAPSHOT) snapshot = payload.Clone();
                         else prompt = payload.Clone();
-                    }
+                    }, () => snapshot.ValueKind != JsonValueKind.Undefined && prompt.ValueKind != JsonValueKind.Undefined
+                        && snapshot.GetProperty("tick").GetInt64() == prompt.GetProperty("snapshotTick").GetInt64()
+                        && (expectedTick is null || snapshot.GetProperty("tick").GetInt64() == expectedTick), ct);
                     Check(snapshot.GetProperty("format").GetString() == "sealed" && snapshot.GetProperty("setCode").GetString() == setCode
                         && snapshot.GetProperty("bestOf").GetInt32() == bestOf, "A real sealed snapshot lost room options.");
                     var pool = snapshot.GetProperty("sealedPool");
@@ -403,6 +404,50 @@ internal static class SealedSeriesNetworkAcceptance
                 }
             }
         }
+    }
+
+    private static async Task ReadCurrentView(ChannelReader<WsServerMessage> reader, Func<Task> request,
+        Action<WsServerMessage> receive, Func<bool> complete, CancellationToken ct)
+    {
+        await request();
+        // RequestSnapshot sends both views before its invocation completes.
+        // Consume that whole queue: READY may change a view without advancing tick.
+        do { receive(await reader.ReadAsync(ct)); }
+        while (reader.TryPeek(out _) || !complete());
+    }
+
+    public static async Task VerifyRefreshContractAsync()
+    {
+        foreach (var currentTick in new long[] { 7, 8 })
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var channel = Channel.CreateUnbounded<WsServerMessage>();
+            JsonElement snapshot = default, prompt = default;
+            void Queue(long tick, bool ready)
+            {
+                channel.Writer.TryWrite(new(MessageType.SNAPSHOT, "fixture", "alice", tick,
+                    JsonSerializer.SerializeToElement(new { tick, timing = new { readyPlayerIds = ready ? new[] { "alice" } : Array.Empty<string>() } })));
+                channel.Writer.TryWrite(new(MessageType.PROMPT, "fixture", "alice", tick,
+                    JsonSerializer.SerializeToElement(new { snapshotTick = tick, promptId = ready ? "after-ready" : "before-ready" })));
+            }
+            Queue(7, false);
+            await ReadCurrentView(channel.Reader, () =>
+            {
+                Queue(currentTick, true);
+                return Task.CompletedTask;
+            }, message =>
+            {
+                if (message.Type == MessageType.SNAPSHOT) snapshot = (JsonElement)message.Payload!;
+                else if (message.Type == MessageType.PROMPT) prompt = (JsonElement)message.Payload!;
+            }, () => snapshot.ValueKind != JsonValueKind.Undefined && prompt.ValueKind != JsonValueKind.Undefined
+                && snapshot.GetProperty("tick").GetInt64() == currentTick
+                && prompt.GetProperty("snapshotTick").GetInt64() == currentTick, timeout.Token);
+            var ready = snapshot.GetProperty("timing").GetProperty("readyPlayerIds");
+            Check(ready.GetArrayLength() == 1 && ready[0].GetString() == "alice"
+                && prompt.GetProperty("promptId").GetString() == "after-ready",
+                "Snapshot refresh reused a stale same-tick view before the accepted READY command.");
+        }
+        Console.WriteLine("Sealed refresh contract passed: queued old views, same-tick READY, advanced ticks and current prompts.");
     }
 
     private static bool ContainsPrivateState(JsonElement value) => value.ValueKind switch
