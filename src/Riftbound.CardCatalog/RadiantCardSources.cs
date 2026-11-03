@@ -17,12 +17,20 @@ public static class RadiantCardSources
             ?? throw new InvalidOperationException("The official card gallery snapshot is missing.");
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
         return new[] {
-            (Id: 39590L, CardNo: "RAD·090/167"),
-            (Id: 39591L, CardNo: "RAD·090a/167"),
+            (Id: 39637L, CardNo: "RAD·132/167"),
+            (Id: 39512L, CardNo: "RAD·021/167"),
+            (Id: 39513L, CardNo: "RAD·021a/167"),
+            (Id: 39694L, CardNo: "RAD·177/167"),
+            (Id: 39537L, CardNo: "RAD·043/167"),
+            (Id: 39538L, CardNo: "RAD·043a/167"),
+            (Id: 39618L, CardNo: "RAD·114/167"),
+            (Id: 39619L, CardNo: "RAD·114a/167"),
             (Id: 39592L, CardNo: "RAD·091/167"),
             (Id: 39593L, CardNo: "RAD·091a/167"),
             (Id: 39566L, CardNo: "RAD·068/167"),
             (Id: 39567L, CardNo: "RAD·068a/167"),
+            (Id: 39590L, CardNo: "RAD·090/167"),
+            (Id: 39591L, CardNo: "RAD·090a/167"),
             (Id: 39659L, CardNo: "RAD·151/167"),
             (Id: 39688L, CardNo: "RAD·174*/167"),
             (Id: 39689L, CardNo: "RAD·174/167"),
@@ -215,12 +223,14 @@ public static class RadiantCardSources
             (Id: 39707L, CardNo: "RAD·184/167"),
             (Id: 39653L, CardNo: "RAD·145/167"),
             (Id: 39682L, CardNo: "RAD·171*/167"),
-            (Id: 39683L, CardNo: "RAD·171/167")
+            (Id: 39683L, CardNo: "RAD·171/167"),
+            (Id: 39675L, CardNo: "RAD·167/167")
         }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints().Where(card =>
-                card.CardNo is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·093/167" or "RAD·097/167"))
+                card.CardNo is "RAD·038/167" or "RAD·SP1/005" or "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·093/167" or "RAD·097/167"))
             .Select(card => card with {
+                CardEffect = ReviewedCardErrata.EffectiveText(card.Id, card.CardNo, card.CardEffect),
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),
                 CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),
                 CardColorList = card.CardColorList.ToImmutableArray(),

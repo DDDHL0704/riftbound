@@ -2,7 +2,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record TokenReplacementApplication(ObjectBinding Source, int TokenIndex);
+public sealed record TokenReplacementApplication(ObjectBinding Source, int TokenIndex, string? FactoryCardNo = null);
 public sealed record TokenEntryPlan(int OriginalCount, int NextToken, IReadOnlyList<TokenReplacementApplication> Applied);
 
 public sealed partial class CoreRuleEngine
@@ -12,12 +12,47 @@ public sealed partial class CoreRuleEngine
     private static readonly Lazy<IReadOnlyList<string>> TokenReplacementSources = new(() =>
         OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo(["UNL-086/219"])["UNL-086/219"]);
 
-    private static string[] EligibleTokenReplacements(MatchState state, string player) => state.CardObjects.Values
-        .Where(c => c.ControllerId == player && IsFaceUpNonStandbyUnit(c)
-            && TokenReplacementSources.Value.Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(c.CardNo))
+    private static string? TokenReplacementFactory(MatchState state, CardObjectState source)
+        => AttachedRuleTextRules.Instances(state, source)
+            .Select(instance => CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var behavior)
+                ? behavior.UnitTokenReplacementFactoryCardNo : null)
+            .FirstOrDefault(factory => factory is not null);
+
+    private static List<string?> TokenEntryFactories(TokenEntryPlan plan)
+    {
+        var factories = Enumerable.Repeat<string?>(null, plan.OriginalCount).ToList();
+        foreach (var application in plan.Applied)
+        {
+            if (application.TokenIndex < 0 || application.TokenIndex >= factories.Count)
+                throw new InvalidOperationException("Invalid token replacement index.");
+            if (application.FactoryCardNo is null) factories.Add(factories[application.TokenIndex]);
+            else factories[application.TokenIndex] = application.FactoryCardNo;
+        }
+        return factories;
+    }
+
+    internal static bool TokenEntryPlanPending(TokenEntryPlan plan)
+        => plan.NextToken < plan.OriginalCount + plan.Applied.Count(a => a.FactoryCardNo is null);
+
+    private static string[] EligibleTokenReplacements(MatchState state, string player, TokenEntryPlan plan)
+    {
+        var factories = TokenEntryFactories(plan);
+        if (plan.NextToken >= factories.Count) return [];
+        return state.CardObjects.Values.Where(c => c.ControllerId == player && IsFaceUpNonStandbyUnit(c)
             && BattlefieldLocalRules.AtUnit(state, c.ObjectId) is not null
-            && !c.UntilEndOfTurnEffects.Contains(TokenReplacementUsed))
-        .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
+            && (TokenReplacementSources.Value.Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(c.CardNo))
+                    && !c.UntilEndOfTurnEffects.Contains(TokenReplacementUsed)
+                || TokenReplacementFactory(state, c) is { } factory && factories[plan.NextToken] != factory))
+            .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
+    }
+
+    private static CardObjectState ApplyUnitTokenFactoryReplacement(StackItemState item, int index, CardObjectState original)
+    {
+        if (item.TokenEntryPlan is not { } plan || TokenEntryFactories(plan)[index] is not { } cardNo) return original;
+        if (!P6TokenFactoryCatalog.TryGetByCardNo(cardNo, out var factory))
+            throw new InvalidOperationException("Missing token replacement factory.");
+        return factory.CreateObject(original.ObjectId, original.OwnerId!, original.ControllerId!, isExhausted: true);
+    }
 
     // This describes the next token-producing instruction. It does not create
     // objects, spend a replacement's once-per-turn use, or finish the parent.
@@ -57,20 +92,20 @@ public sealed partial class CoreRuleEngine
 
     private static PendingCardChoiceState TokenReplacementChoice(MatchState state, StackItemState parent, TokenEntryPlan plan)
     {
-        var sources = EligibleTokenReplacements(state, parent.ControllerId);
+        var sources = EligibleTokenReplacements(state, parent.ControllerId, plan);
         var modeSuffix = parent.CompletedModeExecutions > 0 ? $":mode:{parent.CompletedModeExecutions}" : "";
         return new($"token-replacement:{parent.StackItemId}:{parent.CompletedRepeatExecutions}:{plan.NextToken}:{plan.Applied.Count}{modeSuffix}", TokenReplacementWindow,
             parent.ControllerId, 0, 1, sources, sources,
-            $"第 {plan.NextToken + 1}/{plan.OriginalCount} 名单位指示物：选择一名基兰，多打出一个复制体；不选则跳过此指示物的剩余替换，保留未使用的回合次数。已增加 {plan.Applied.Count} 名。",
+            $"第 {plan.NextToken + 1}/{TokenEntryFactories(plan).Count} 名单位指示物：选择基兰增加复制体，或选择黑默丁格将它替换为机器人；不选则保留该指示物及未使用的替换。",
             parent.SourceObjectId, parent.EffectKind) { ResolvingStackItemId = parent.StackItemId };
     }
 
     private static StackResolutionResult? BeginTokenReplacement(MatchState state, StackItemState item)
     {
         var count = TokenEntryCount(state, item);
-        if (count <= 0 || item.TokenEntryPlan is { } existing && existing.NextToken >= existing.OriginalCount
-            || EligibleTokenReplacements(state, item.ControllerId).Length == 0) return null;
+        if (count <= 0 || item.TokenEntryPlan is { } existing && !TokenEntryPlanPending(existing)) return null;
         var plan = item.TokenEntryPlan ?? new TokenEntryPlan(count, 0, []);
+        if (EligibleTokenReplacements(state, item.ControllerId, plan).Length == 0) return null;
         var parent = item with { TokenEntryPlan = plan };
         return NoopStackResolutionResult(state) with {
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(parent).ToArray(),
@@ -81,19 +116,38 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTokenEntryPlan(MatchState state, StackItemState item)
     {
         if (item.TokenEntryPlan is not { } p) return true;
-        return p.OriginalCount > 0 && p.OriginalCount == TokenEntryCount(state, item) && p.NextToken >= 0 && p.NextToken <= p.OriginalCount
-            && p.Applied is not null && p.Applied.All(a => a is not null && a.Source is not null
-                && a.TokenIndex >= 0 && a.TokenIndex < p.OriginalCount && a.TokenIndex <= p.NextToken
-                && state.CardObjects.TryGetValue(a.Source.ObjectId, out var source) && source.ObjectGeneration == a.Source.Generation
-                && source.ControllerId == item.ControllerId && source.UntilEndOfTurnEffects.Contains(TokenReplacementUsed)
-                && TokenReplacementSources.Value.Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(source.CardNo)))
-            && p.Applied.Select(a => a.Source.ObjectId).Distinct().Count() == p.Applied.Count;
+        if (p.OriginalCount <= 0 || p.OriginalCount != TokenEntryCount(state, item) || p.Applied is null || p.Applied.Any(a => a is null)
+            || p.NextToken < 0 || p.NextToken > p.OriginalCount + p.Applied.Count(a => a.FactoryCardNo is null)) return false;
+        var count = p.OriginalCount; var lastIndex = 0;
+        var duplicates = new HashSet<string>(StringComparer.Ordinal);
+        var factories = Enumerable.Repeat<string?>(null, count).ToList();
+        foreach (var a in p.Applied)
+        {
+            if (a is null || a.Source is null || a.TokenIndex < lastIndex || a.TokenIndex >= count || a.TokenIndex > p.NextToken
+                || !state.CardObjects.TryGetValue(a.Source.ObjectId, out var source) || source.ObjectGeneration != a.Source.Generation
+                || source.ControllerId != item.ControllerId || !IsFaceUpNonStandbyUnit(source)
+                || BattlefieldLocalRules.AtUnit(state, source.ObjectId) is null) return false;
+            if (a.FactoryCardNo is null)
+            {
+                if (!source.UntilEndOfTurnEffects.Contains(TokenReplacementUsed) || !duplicates.Add(source.ObjectId)
+                    || !TokenReplacementSources.Value.Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(source.CardNo))) return false;
+                factories.Add(factories[a.TokenIndex]); count++;
+            }
+            else
+            {
+                if (a.FactoryCardNo != TokenReplacementFactory(state, source) || factories[a.TokenIndex] == a.FactoryCardNo
+                    || !P6TokenFactoryCatalog.IsUnitTokenFactory(a.FactoryCardNo)) return false;
+                factories[a.TokenIndex] = a.FactoryCardNo;
+            }
+            lastIndex = a.TokenIndex;
+        }
+        return true;
     }
 
     internal static bool ValidTokenReplacementChoice(MatchState state, PendingCardChoiceState choice)
     {
         var parent = state.StackItems.LastOrDefault();
-        if (parent?.TokenEntryPlan is not { } p || p.NextToken >= p.OriginalCount || !ValidTokenEntryPlan(state, parent)) return false;
+        if (parent?.TokenEntryPlan is not { } p || !ValidTokenEntryPlan(state, parent) || !TokenEntryPlanPending(p)) return false;
         var expected = TokenReplacementChoice(state, parent, p);
         return choice.ChoiceWindow == TokenReplacementWindow && choice.ChoiceId == expected.ChoiceId
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
@@ -113,18 +167,21 @@ public sealed partial class CoreRuleEngine
         else
         {
             var source = cards[selected[0]];
-            cards[source.ObjectId] = source with { UntilEndOfTurnEffects = source.UntilEndOfTurnEffects.Append(TokenReplacementUsed).Order(StringComparer.Ordinal).ToArray() };
-            plan = plan with { Applied = plan.Applied.Append(new TokenReplacementApplication(new(source.ObjectId, source.ObjectGeneration), plan.NextToken)).ToArray() };
+            var factory = TokenReplacementFactory(state, source);
+            if (factory is null)
+                cards[source.ObjectId] = source with { UntilEndOfTurnEffects = source.UntilEndOfTurnEffects.Append(TokenReplacementUsed).Order(StringComparer.Ordinal).ToArray() };
+            plan = plan with { Applied = plan.Applied.Append(new TokenReplacementApplication(new(source.ObjectId, source.ObjectGeneration), plan.NextToken, factory)).ToArray() };
         }
         var next = state with { CardObjects = cards, PendingCardChoice = null };
-        if (EligibleTokenReplacements(next, parent.ControllerId).Length == 0) plan = plan with { NextToken = plan.OriginalCount };
+        while (TokenEntryPlanPending(plan) && EligibleTokenReplacements(next, parent.ControllerId, plan).Length == 0)
+            plan = plan with { NextToken = plan.NextToken + 1 };
         parent = parent with { TokenEntryPlan = plan };
         next = next with { StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(parent).ToArray() };
-        var events = new[] { new GameEvent("TOKEN_REPLACEMENT_CHOSEN", selected.Count == 0 ? "保留未使用的替换次数" : "本次指示物进场增加一个复制体",
+        var events = new[] { new GameEvent("TOKEN_REPLACEMENT_CHOSEN", selected.Count == 0 ? "保留未使用的替换次数" : "应用所选指示物替换",
             new Dictionary<string,object?> { ["playerId"] = choice.PlayerId, ["sourceObjectId"] = selected.FirstOrDefault(),
                 ["parentSourceObjectId"] = parent.SourceObjectId, ["tokenIndex"] = state.StackItems[^1].TokenEntryPlan!.NextToken,
-                ["applied"] = selected.Count != 0, ["extraCount"] = plan.Applied.Count }) };
-        if (plan.NextToken < plan.OriginalCount)
+                ["applied"] = selected.Count != 0, ["extraCount"] = plan.Applied.Count(a => a.FactoryCardNo is null) }) };
+        if (TokenEntryPlanPending(plan))
         {
             next = next with { Tick = state.Tick + 1, PendingCardChoice = TokenReplacementChoice(next, parent, plan) };
             return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
@@ -133,5 +190,5 @@ public sealed partial class CoreRuleEngine
         return resumed with { Events = events.Concat(resumed.Events).ToArray() };
     }
 
-    private static int AdditionalUnitTokens(StackItemState item) => item.TokenEntryPlan?.Applied.Count ?? 0;
+    private static int AdditionalUnitTokens(StackItemState item) => item.TokenEntryPlan?.Applied.Count(a => a.FactoryCardNo is null) ?? 0;
 }

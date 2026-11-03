@@ -1,5 +1,6 @@
 import copy
 from contextlib import redirect_stdout
+from datetime import datetime, timedelta, timezone
 import hashlib
 import importlib.util
 import io
@@ -320,6 +321,66 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertEqual(original, output.read_bytes())
         shutil.rmtree(self.inputs / 'shard-1')
         missing = self.root / 'missing-shard-timings.json'
+        self.assertNotEqual(0, subprocess.run(command[:-1] + [str(missing)], capture_output=True).returncode)
+        self.assertFalse(missing.exists())
+
+    def test_timing_report_preserves_repeated_display_names_and_each_duration(self):
+        first, second = self.plan['cases'][self.dynamic]
+        self.plan['cases'][self.dynamic].append(first)
+        self.put(self.prepared / 'case-inventory.json', self.inventory)
+        self.plan['caseInventorySha256'] = D.digest(self.prepared / 'case-inventory.json')
+        self.materialize()
+        self.set_durations({self.fact: '00:00:01', self.theory + '(value: 1)': '00:00:00.6',
+                            self.theory + '(value: 2)': '00:00:00.7', first: '00:01:01', second: '00:01:02'})
+        with mock.patch.object(D.subprocess, 'run', side_effect=AssertionError('Must only read existing results')):
+            result = D.timing_report(self.prepared, self.inputs, self.commit)
+        count = sum(map(len, self.plan['cases'].values()))
+        total = 186.3 + .25 * (count - 6)
+        self.assertEqual(count, result['executions'])
+        self.assertEqual(count - 1, result['distinctDisplayNames'])
+        self.assertEqual(1, result['repeatedDisplayNameRows'])
+        self.assertAlmostEqual(total, result['totalCaseSeconds'])
+        self.assertEqual(count, sum(shard['executions'] for shard in result['shards']))
+        self.assertAlmostEqual(total, sum(shard['caseSeconds'] for shard in result['shards']))
+        self.assertAlmostEqual(total / 24, result['idealExecutionSeconds'])
+        # Other methods of this class run in separate shards; only this
+        # whole dynamic method's three executions form the longest serial lane.
+        self.assertAlmostEqual(184, result['fixedPlanLowerBoundSeconds'])
+        self.assertEqual([62, 61, 61], [row['seconds'] for row in result['slowestRows'][:3]])
+        repeated = [row for row in result['slowestRows'] if row['name'] == first]
+        self.assertEqual(2, len({(row['shard'], row['rowIndex']) for row in repeated}))
+        self.assertEqual(dict(name=self.dynamic, executions=3, seconds=184), result['slowestMethods'][0])
+        self.assertEqual(self.fact.rsplit('.', 1)[0], result['slowestClasses'][0]['name'])
+        self.assertAlmostEqual(186.3, result['slowestClasses'][0]['seconds'])
+
+    def test_timing_report_rejects_invalid_duration_and_inputs_changed_after_verification(self):
+        self.set_durations({self.fact: 'invalid'})
+        with self.assertRaisesRegex(ValueError, 'duration'):
+            D.timing_report(self.prepared, self.inputs, self.commit)
+        self.set_durations({self.fact: '00:00:01'})
+        original = D.checked_results
+        def verify_then_change(*args):
+            result = original(*args)
+            path = self.inputs / self.plan['shards'][0]['name'] / 'results.trx'
+            path.write_bytes(path.read_bytes() + b'\n')
+            return result
+        with mock.patch.object(D, 'checked_results', side_effect=verify_then_change):
+            with self.assertRaisesRegex(ValueError, 'changed after shard verification'):
+                D.timing_report(self.prepared, self.inputs, self.commit)
+
+    def test_timing_report_cli_preserves_outputs_and_refuses_missing_shards(self):
+        self.set_durations({self.fact: '00:00:02'})
+        output = self.root / 'timing-report.json'
+        command = [sys.executable, str(ROOT / 'scripts/l2-distributed.py'), 'timing-report', '--commit', self.commit,
+                   '--prepared', str(self.prepared), '--inputs', str(self.inputs), '--output', str(output)]
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual('VERIFIED_RULE_TIMINGS_REPORTED', D.read(output)['status'])
+        original = output.read_bytes()
+        self.assertNotEqual(0, subprocess.run(command, capture_output=True).returncode)
+        self.assertEqual(original, output.read_bytes())
+        shutil.rmtree(self.inputs / 'shard-1')
+        missing = self.root / 'missing-timing-report.json'
         self.assertNotEqual(0, subprocess.run(command[:-1] + [str(missing)], capture_output=True).returncode)
         self.assertFalse(missing.exists())
 
@@ -838,3 +899,122 @@ class DistributedL2Tests(unittest.TestCase):
         receipt['runtimeReceiptSha256'] = D.digest(runtime_path)
         self.put(folder / 'receipt.json', receipt)
         with self.assertRaisesRegex(ValueError, 'Runtime resource'): self.verify()
+
+
+class WorkflowTimingTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.run_path, self.jobs_path = self.root / 'run.json', self.root / 'jobs.json'
+        self.run = dict(id=123, run_attempt=2, head_sha='a' * 40, status='completed', conclusion='success',
+                        created_at=self.at(0), run_started_at=self.at(0), updated_at=self.at(660))
+        self.jobs = [self.job(1, 'prepare', 5, 10, 100),
+                     self.job(2, 'rule_suite (shard-1)', 100, 200, 600),
+                     self.job(3, 'rule_suite (shard-2)', 105, 400, 500),
+                     self.job(4, 'L2 required', 610, 620, 650)]
+
+    @staticmethod
+    def at(seconds):
+        return (datetime(2026, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)).isoformat().replace('+00:00', 'Z')
+
+    def job(self, identity, name, created, started, completed):
+        return dict(id=identity, run_id=123, run_attempt=2, head_sha='a' * 40, name=name,
+                    status='completed', conclusion='success', created_at=self.at(created),
+                    started_at=self.at(started), completed_at=self.at(completed))
+
+    def report(self, run=None, jobs=None, total=None):
+        run = self.run if run is None else run
+        jobs = self.jobs if jobs is None else jobs
+        self.run_path.write_text(json.dumps(run))
+        self.jobs_path.write_text(json.dumps(dict(total_count=len(jobs) if total is None else total, jobs=jobs)))
+        return D.workflow_timings(self.run_path, self.jobs_path, 123, 2, ['shard-1', 'shard-2'])
+
+    def test_critical_path_uses_the_last_finishing_shard_and_does_not_sum_parallel_waits(self):
+        with mock.patch.object(D.subprocess, 'run', side_effect=AssertionError('Read existing metadata only')):
+            result = self.report()
+        self.assertEqual(650, result['attemptWallSeconds'])
+        self.assertEqual(650, sum(result['criticalPath'].values()))
+        self.assertEqual('rule_suite (shard-1)', result['lastRuleJob'])
+        self.assertEqual(100, result['criticalPath']['ruleQueueSeconds'])
+        self.assertEqual(295, result['maxRuleQueueSeconds'])
+        self.assertEqual(200, result['ruleStartSpreadSeconds'])
+        self.assertEqual(620, result['totalJobSeconds'])
+        self.assertEqual(2, result['peakJobs'])
+        self.assertEqual(2, result['peakRuleJobs'])
+        self.assertEqual(4, len(result['jobs']))
+        self.assertEqual('a' * 40, result['workflowHeadSha'])
+        self.assertEqual(D.digest(self.jobs_path), result['jobsMetadataSha256'])
+
+    def test_rerun_clock_excludes_the_previous_attempt_and_keeps_its_own_queue_time(self):
+        jobs = copy.deepcopy(self.jobs)
+        for job in jobs:
+            for key in ['created_at', 'started_at', 'completed_at']:
+                job[key] = (datetime.fromisoformat(job[key].replace('Z', '+00:00'))
+                            + timedelta(seconds=1000)).isoformat().replace('+00:00', 'Z')
+        run = dict(self.run, run_started_at=self.at(1000), updated_at=self.at(1660))
+        result = self.report(run=run, jobs=jobs)
+        self.assertEqual(650, result['attemptWallSeconds'])
+        self.assertEqual(650, sum(result['criticalPath'].values()))
+        self.assertEqual(5, result['criticalPath']['initialSchedulingSeconds'])
+        self.assertEqual(100, result['criticalPath']['ruleQueueSeconds'])
+        self.assertEqual(self.at(0), result['workflowCreatedAt'])
+        self.assertEqual(self.at(1000), result['attemptStartedAt'])
+
+    def test_touching_and_zero_duration_jobs_do_not_create_false_concurrency(self):
+        for started, completed in [(600, 610), (400, 400)]:
+            with self.subTest(started=started, completed=completed):
+                jobs = copy.deepcopy(self.jobs)
+                jobs[2].update(started_at=self.at(started), completed_at=self.at(completed))
+                self.assertEqual(1, self.report(jobs=jobs)['peakRuleJobs'])
+
+    def test_rejects_incomplete_duplicate_or_extra_jobs_and_wrong_run_attempts(self):
+        candidates = [self.jobs[:-1], self.jobs + [self.jobs[0]],
+                      [dict(job, id=1) for job in self.jobs],
+                      [dict(job, name='unexpected') if index == 0 else job for index, job in enumerate(self.jobs)]]
+        for jobs in candidates:
+            with self.subTest(jobs=jobs), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        with self.assertRaises(ValueError):
+            self.report(total=100)
+        for key, value in [('run_id', 124), ('run_attempt', 1), ('head_sha', 'b' * 40),
+                           ('status', 'in_progress'), ('conclusion', 'cancelled')]:
+            jobs = copy.deepcopy(self.jobs)
+            jobs[1][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        for key, value in [('id', 124), ('run_attempt', 1), ('status', 'in_progress'), ('conclusion', 'failure')]:
+            with self.subTest(run_key=key), self.assertRaises(ValueError):
+                self.report(run=dict(self.run, **{key: value}))
+
+    def test_rejects_missing_non_utc_reversed_and_inconsistent_dependency_timestamps(self):
+        for value in [None, 'invalid', '2026-01-01T00:02:00', '2026-01-01T00:02:00+01:00', self.at(99)]:
+            jobs = copy.deepcopy(self.jobs)
+            jobs[1]['started_at'] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        for index, key, value in [(0, 'completed_at', self.at(101)), (3, 'created_at', self.at(599))]:
+            jobs = copy.deepcopy(self.jobs)
+            jobs[index][key] = value
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                self.report(jobs=jobs)
+        with self.assertRaises(ValueError):
+            self.report(run=dict(self.run, updated_at=self.at(649)))
+
+    def test_rejects_metadata_changed_during_read_and_cli_with_only_one_metadata_file(self):
+        read = D.read
+        def read_and_change(path):
+            value = read(path)
+            if path == self.jobs_path:
+                self.jobs_path.write_bytes(self.jobs_path.read_bytes() + b'\n')
+            return value
+        with mock.patch.object(D, 'read', side_effect=read_and_change), self.assertRaisesRegex(ValueError, 'changed'):
+            self.report()
+        for mode, extra in [('timing-report', []), ('timings', ['--workflow-jobs', str(self.jobs_path)])]:
+            output = self.root / (mode + '.json')
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/l2-distributed.py'), mode,
+                                     '--commit', 'a' * 40, '--output', str(output),
+                                     '--workflow-run', str(self.run_path), *extra], capture_output=True, text=True)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn('must be provided together for timing-report', result.stderr)
+            self.assertFalse(output.exists())

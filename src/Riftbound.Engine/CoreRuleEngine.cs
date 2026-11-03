@@ -822,8 +822,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 pendingPayment,
                 out var readyLegendBattlefieldId,
                 out var readyLegendBattlefieldObjectId,
-                out var readyLegendSourceObjectId,
-                out var legendObjectId))
+                out var readyLegendSourceObjectId))
         {
             return ResolveBattlefieldConquerReadyLegendTriggerPayment(
                 state,
@@ -832,8 +831,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 submittedChoices,
                 readyLegendBattlefieldId,
                 readyLegendBattlefieldObjectId,
-                readyLegendSourceObjectId,
-                legendObjectId);
+                readyLegendSourceObjectId);
         }
 
         if (TryReadBattlefieldConquerSandSoldierPaymentContext(
@@ -1010,8 +1008,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> submittedChoices,
         string battlefieldId,
         string battlefieldObjectId,
-        string sourceObjectId,
-        string legendObjectId)
+        string sourceObjectId)
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -1021,16 +1018,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 battlefieldState.CardNo,
                 BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger,
                 out var trigger)
-            || pendingPayment.ManaCost != trigger.ManaCost.GetValueOrDefault()
-            || !playerZones.TryGetValue(intent.PlayerId, out var zones)
-            || !zones.LegendZone.Contains(legendObjectId, StringComparer.Ordinal)
-            || !cardObjects.TryGetValue(legendObjectId, out var legendState)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, intent.PlayerId)
-            || !legendState.IsExhausted)
+            || pendingPayment.ManaCost != trigger.ManaCost.GetValueOrDefault())
         {
             return RejectWithCorePrompts(
                 state,
-                "当前触发支付窗口的传奇殿堂来源或传奇目标已不可用。",
+                "当前触发支付窗口的传奇殿堂来源已不可用。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1048,11 +1040,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        // CN Radiance FAQ / 440.2.a, 440.3.b-c, 355.10.g: “your legend”
+        // is a non-target choice made while resolving, after accepting the cost.
+        var legendObjectId = ChooseControlledLegend(state, intent.PlayerId);
         var runePools = paymentCommit.RunePools;
-        cardObjects[legendObjectId] = legendState with
-        {
-            IsExhausted = false
-        };
+        var wasExhausted = legendObjectId is not null && cardObjects[legendObjectId].IsExhausted;
+        if (legendObjectId is not null)
+            cardObjects[legendObjectId] = cardObjects[legendObjectId] with { IsExhausted = false };
         var events = new List<GameEvent>
         {
             new(
@@ -1084,17 +1078,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["legendObjectId"] = legendObjectId,
                     ["paymentId"] = pendingPayment.PaymentId,
                     ["paymentWindow"] = pendingPayment.PaymentWindow
-                }),
-            new(
-                "LEGEND_READIED",
-                $"{legendObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
+                })
+        };
+        if (wasExhausted)
+            events.Add(new("LEGEND_READIED", $"{legendObjectId} 变为活跃状态",
+                new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = legendObjectId,
                     ["reason"] = trigger.Kind
-                })
-        };
+                }));
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -1507,6 +1499,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = effectKind
                 })
         };
+        events[2] = CaptureDirectMightReduction(events[2], state with { PlayerZones = playerZones, CardObjects = cardObjects },
+            targetState, cardObjects[targetObjectId], intent.PlayerId);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -1604,14 +1598,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                      pendingPayment,
                      out battlefieldId,
                      out battlefieldObjectId,
-                     out sourceObjectId,
-                     out var legendObjectId))
+                     out sourceObjectId))
         {
             payload["trigger"] = TriggerKinds.BattlefieldConquerPayReadyLegend;
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
-            payload["legendObjectId"] = legendObjectId;
         }
         else if (TryReadBattlefieldConquerSandSoldierPaymentContext(
                      pendingPayment,
@@ -1733,29 +1725,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string BuildBattlefieldConquerReadyLegendPaymentReason(
         string battlefieldId,
         string battlefieldObjectId,
-        string sourceObjectId,
-        string legendObjectId)
+        string sourceObjectId)
     {
         return string.Join(
             '|',
             TriggerKinds.BattlefieldConquerPayReadyLegend,
             battlefieldId,
             battlefieldObjectId,
-            sourceObjectId,
-            legendObjectId);
+            sourceObjectId);
     }
 
     private static bool TryReadBattlefieldConquerReadyLegendPaymentContext(
         PendingPaymentState pendingPayment,
         out string battlefieldId,
         out string battlefieldObjectId,
-        out string sourceObjectId,
-        out string legendObjectId)
+        out string sourceObjectId)
     {
         battlefieldId = string.Empty;
         battlefieldObjectId = string.Empty;
         sourceObjectId = string.Empty;
-        legendObjectId = string.Empty;
         if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(pendingPayment.Reason))
         {
@@ -1763,12 +1751,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
-        if (parts.Length != 5
+        if (parts.Length != 4
             || !string.Equals(parts[0], TriggerKinds.BattlefieldConquerPayReadyLegend, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
-            || string.IsNullOrWhiteSpace(parts[3])
-            || string.IsNullOrWhiteSpace(parts[4]))
+            || string.IsNullOrWhiteSpace(parts[3]))
         {
             return false;
         }
@@ -1776,7 +1763,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         battlefieldId = parts[1];
         battlefieldObjectId = parts[2];
         sourceObjectId = parts[3];
-        legendObjectId = parts[4];
         return true;
     }
 
@@ -5331,7 +5317,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ability = BattlefieldAdjustedAbility(state, intent.PlayerId, command.SourceObjectId, ability);
         if (selectedMana is not null && ability.IsResourceSkill)
             return RejectWithCorePrompts(state, "此资源技能没有可选择的法力费用。", ErrorCodes.InvalidTarget);
-        if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText)
+        if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText && ability.SimpleEffect is null)
             return RejectWithCorePrompts(state, "此技能的复制实例尚未开放。", ErrorCodes.UnsupportedCommand);
 
         if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
@@ -8557,8 +8543,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool ControllerHasAzirLegend(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId)
     {
         return playerZones.TryGetValue(playerId, out var zones)
@@ -8621,8 +8607,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static IReadOnlyList<string> ApplyAzirSandSoldierTemperedTags(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         IReadOnlyList<string> tokenTags)
     {
@@ -15109,37 +15095,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }), targetState, playerId, playerZones, cardObjects));
     }
 
-    private static bool TryGetFirstExhaustedLegend(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string legendObjectId,
-        out CardObjectState legendState)
-    {
-        legendObjectId = string.Empty;
-        legendState = new CardObjectState();
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !candidate.IsExhausted)
-            {
-                continue;
-            }
-
-            legendObjectId = objectId;
-            legendState = candidate;
-            return true;
-        }
-
-        return false;
-    }
-
     private static bool TryGetActiveVexLegend(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -16287,7 +16242,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int tokenCount,
         string abilityId,
         List<GameEvent> events,
-        IReadOnlyList<string> turnEffects)
+        IReadOnlyList<string> turnEffects, StackItemState? tokenEntryItem = null)
     {
         if (!playerZones.ContainsKey(playerId)
             || tokenCount <= 0
@@ -16303,6 +16258,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 tokenObjectId,
                 playerId,
                 playerId, isExhausted: true);
+            if (tokenEntryItem is not null) tokenState = ApplyUnitTokenFactoryReplacement(tokenEntryItem, tokenIndex, tokenState);
+            var entryDefinition = P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var actualDefinition)
+                ? actualDefinition : tokenDefinition;
             tokenState = ApplyUnitTokenEntryStaticAbility(
                 playerZones,
                 cardObjects,
@@ -16326,8 +16284,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["abilityId"] = abilityId,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenCardNo"] = tokenDefinition.CardNo,
-                ["tokenName"] = tokenDefinition.TokenFamilyName,
+                ["tokenCardNo"] = entryDefinition.CardNo,
+                ["tokenName"] = entryDefinition.TokenFamilyName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = tokenState.Tags.ToArray()
@@ -16339,7 +16297,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entryStaticAbilitySourceState.CardNo);
             events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
-                $"{battlefieldObjectId} 打出{tokenDefinition.TokenFamilyName}",
+                $"{battlefieldObjectId} 打出{entryDefinition.TokenFamilyName}",
                 payload), playerZones, cardObjects, turnEffects));
         }
     }
@@ -16824,8 +16782,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
                 BattlefieldTriggerSpecRules.IsBattlefieldConquerPayReadyLegendTrigger,
-                out var trigger)
-            || !TryGetFirstExhaustedLegend(playerZones, cardObjects, playerId, out var legendObjectId, out _))
+                out var trigger))
         {
             return false;
         }
@@ -16847,8 +16804,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: BuildBattlefieldConquerReadyLegendPaymentReason(
                 battlefieldId,
                 battlefieldObjectId,
-                sourceObjectId,
-                legendObjectId));
+                sourceObjectId));
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
             $"{playerId} 征服传奇殿堂后等待支付重置传奇触发费用",
@@ -16862,7 +16818,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
                 ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["legendObjectId"] = legendObjectId,
                 ["mana"] = manaCost,
                 ["power"] = 0,
                 ["cost"] = new Dictionary<string, object?>
@@ -18284,6 +18239,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId)
                 && !IsForeignGraveyardEffectPlay(state, intent.PlayerId, command.SourceObjectId)
+                && !IsForeignSelfBanishReplay(state, intent.PlayerId, command.SourceObjectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
                 rejection = Reject(
@@ -21237,6 +21193,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (IsForeignGraveyardEffectPlay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } owner)
             playerZones[owner] = playerZones[owner] with { Graveyard = RemoveFromZone(playerZones[owner].Graveyard, sourceObjectId) };
+        if (IsForeignSelfBanishReplay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } banishedOwner)
+            playerZones[banishedOwner] = playerZones[banishedOwner] with { Banished = RemoveFromZone(playerZones[banishedOwner].Banished, sourceObjectId) };
         return playerZones;
     }
 
@@ -27909,11 +27867,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 };
             }
 
+            var beforeReplacement = tokenState;
+            tokenState = ApplyUnitTokenFactoryReplacement(stackItem, tokenIndex, tokenState);
+            var replacedFactory = !ReferenceEquals(beforeReplacement, tokenState);
+            var entryDefinition = replacedFactory && P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var replacementDefinition)
+                ? replacementDefinition : tokenDefinition;
+            var entryHasDefinition = hasTokenDefinition || replacedFactory;
             var entersReadyFromStaticAbility = false;
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
             StaticAbilitySpec entryStaticAbility = default!;
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
                     playerZones,
@@ -27937,15 +27901,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["abilityId"] = trigger.Kind,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = tokenName,
+                ["tokenName"] = entryHasDefinition ? entryDefinition.TokenFamilyName : tokenName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = tokenState.Tags.ToArray(),
                 ["reason"] = trigger.Kind
             };
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
+                payload["tokenCardNo"] = entryDefinition.CardNo;
                 AddEntryStaticAbilityPayload(
                     payload,
                     entersReadyFromStaticAbility ? entryStaticAbility : null,
@@ -29330,6 +29294,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 };
             }
 
+            var beforeReplacement = tokenState;
+            tokenState = ApplyUnitTokenFactoryReplacement(stackItem, tokenIndex, tokenState);
+            var replacedFactory = !ReferenceEquals(beforeReplacement, tokenState);
+            var entryDefinition = replacedFactory && P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var replacementDefinition)
+                ? replacementDefinition : tokenDefinition;
+            var entryHasDefinition = hasTokenDefinition || replacedFactory;
             var entersReadyFromStaticAbility = false;
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
@@ -29342,7 +29312,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     behavior.CreatedBaseUnitTokenName, playerZones, cardObjects, runePools, turnEffects, behavior))
                 entryField = ChooseUnitTokenBattlefield(state, stackItem.ControllerId, behavior.CreatedBaseUnitTokenName,
                     playerZones, cardObjects, objectLocations ?? state.ObjectLocations, runePools, turnEffects);
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
                     playerZones,
@@ -29365,7 +29335,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["playerId"] = stackItem.ControllerId,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = behavior.CreatedBaseUnitTokenName,
+                ["tokenName"] = entryHasDefinition ? entryDefinition.TokenFamilyName : behavior.CreatedBaseUnitTokenName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = entryField is null ? "BASE" : "BATTLEFIELD"
             };
@@ -29380,14 +29350,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload["copiedCardNo"] = copiedTargetState!.CardNo;
             }
 
-            if (isImageCopyToken)
+            if (isImageCopyToken && !replacedFactory)
             {
                 payload["tokenFactoryCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
                 payload["tokenCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
             }
-            else if (hasTokenDefinition)
+            else if (entryHasDefinition)
             {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
+                payload["tokenCardNo"] = entryDefinition.CardNo;
                 AddEntryStaticAbilityPayload(
                     payload,
                     entersReadyFromStaticAbility ? entryStaticAbility : null,
@@ -30653,6 +30623,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out StaticAbilitySpec entryStaticAbility,
         string? entryBattlefieldId = null)
     {
+        // Use the factory's complete face before applying static keywords.
+        // A spell's optional tag list need not repeat the token family tag.
+        tokenState = tokenState with { Tags = ApplyAzirSandSoldierTemperedTags(
+            playerZones, cardObjects, controllerId, tokenState.Tags) };
         return ApplyTokenEntryStaticAbility(
             playerZones,
             cardObjects,
@@ -31024,6 +30998,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             $"{behavior.DisplayName}临时修正战力",
             payload);
 
+        powerEvent = CaptureDirectMightReduction(powerEvent, powerState, targetState, nextTargetState, stackItem.ControllerId);
         return nextTargetState;
     }
 
@@ -32106,6 +32081,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string objectId, CardObjectState previous, string owner)
     {
+        RemoveLegendsBoundToDepartingSource(playerZones, cardObjects, previous);
         if (IsTokenObject(previous))
         {
             // CN 186.1: zone transition happens, then the token immediately ceases
