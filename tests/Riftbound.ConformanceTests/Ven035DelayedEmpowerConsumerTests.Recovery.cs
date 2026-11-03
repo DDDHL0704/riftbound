@@ -45,7 +45,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             MatchState Replace(DelayedEmpowerContext replacement) => game.State with {
                 UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(e => e == marker
                     ? prefix + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(replacement)) : e).ToArray() };
-            await game.RejectCoordinatedForgeries(
+            await game.RejectCoordinatedForgeriesThenRepair([
                 ("deleted-delayed-inverse", game.State with {
                     UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Where(e => e != marker).ToArray() }),
                 ("opposite-delayed-inverse", Replace(context with {
@@ -53,8 +53,8 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
                 ("different-old-unit-generation", Replace(context with {
                     Unit = context.Unit with { Generation = context.Unit.Generation - 1 } })),
                 ("different-old-source-generation", Replace(context with {
-                    Source = context.Source with { Generation = context.Source.Generation - 1 } })));
-            await game.RejectCoordinatedForgeryTwiceThenRecover("different-delay-birth-tick", Replace(context with {
+                    Source = context.Source with { Generation = context.Source.Generation - 1 } }))],
+                "different-delay-birth-tick", Replace(context with {
                 CreatedAtTick = context.CreatedAtTick - 1 }));
 
             foreach (var malformed in new[] {

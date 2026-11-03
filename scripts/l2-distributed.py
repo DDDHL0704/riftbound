@@ -38,6 +38,10 @@ CATALOG_PREFLIGHT = tuple(RULES.PREFIX + method for method in [
     'DisarmSourceSpecificationTests.SourceMetadataKeepsIncompleteCardsDisabledAndTheOriginalCatalogUnchanged',
     'ConformanceFixtureRunnerTests.P4ActivatedAbilityCatalogListsRegisteredSkillsAndChecksBlossomText',
 ])
+# These newer guards are absent from older branches and prepared assemblies.
+OPTIONAL_CATALOG_PREFLIGHT = tuple(RULES.PREFIX + method for method in [
+    'RadLastBreathAmplifierPhysicalTests.ReviewedAndAdmittedIdentityAndPrintedResourcesMatchTheOfficialPrinting',
+])
 
 
 def digest(path):
@@ -691,7 +695,8 @@ def catalog_preflight(plan, bundle, output):
     """Catch cheap catalog drift before dispatching nine complete rule shards."""
     began = time.monotonic()
     expected = Counter()
-    for method in CATALOG_PREFLIGHT:
+    methods = CATALOG_PREFLIGHT + tuple(method for method in OPTIONAL_CATALOG_PREFLIGHT if method in plan['cases'])
+    for method in methods:
         if not plan['cases'].get(method):
             raise ValueError('Missing catalog preflight method: ' + method)
         expected.update(plan['cases'][method])
@@ -700,18 +705,18 @@ def catalog_preflight(plan, bundle, output):
         raise ValueError('Catalog preflight assembly differs from the fixed plan.')
     output.mkdir()
     SELECT.write_settings(output / 'execution.runsettings', dict(selectors=[
-        dict(kind='method', method=method) for method in CATALOG_PREFLIGHT]))
+        dict(kind='method', method=method) for method in methods]))
     run_logged(['dotnet', 'vstest', str(assembly), '--TestAdapterPath:' + str(bundle),
                 '--Settings:' + str(output / 'execution.runsettings'),
                 '--ResultsDirectory:' + str(output), '--logger:trx;LogFileName=results.trx'], output / 'test.log')
     rows, counters = RULES.report(output / 'results.trx')
-    RULES.verify(rows, counters, set(CATALOG_PREFLIGHT))
+    RULES.verify(rows, counters, set(methods))
     if Counter(row.get('testName') for row in rows) != expected:
         raise ValueError('Catalog preflight lost or repeated fixed parameter rows.')
     if digest(assembly) != plan['testAssemblySha256']:
         raise ValueError('Catalog preflight changed the fixed test assembly.')
     write(output / 'receipt.json', dict(status='CATALOG_PREFLIGHT_PASSED', commit=plan['commit'],
-        testAssemblySha256=plan['testAssemblySha256'], methods=list(CATALOG_PREFLIGHT),
+        testAssemblySha256=plan['testAssemblySha256'], methods=list(methods),
         counters=counters, trxSha256=digest(output / 'results.trx'), seconds=round(time.monotonic() - began, 3),
         completeRuleShardsStillRequired=True))
 
