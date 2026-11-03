@@ -6,11 +6,7 @@
 - **main**：11 月 3 日 07:17 首查，main 为 `c6ee848f2`，新增 #422（A 线批量符文准备／恢复去重）与 #423（现开赛卡组锁定）。[#422](https://github.com/DDDHL0704/riftbound/pull/422) 保持原 HEAD 自动合入，完整 L2 的 10,680 方法／22,599 次执行及 `L2 required` 全绿，零跳过；包含 11 次重复显示名，按 Counter 保留全部执行。A 线首查没有开放 PR。后续集中批次 `a/l2-workflow-timing-followup` 的五次固定构建累计覆盖 92 条不同原参数行，含 13 条嵌套路径复验；税费合法开局六行已于 07:30 完成 6/6、零跳过，同批加入规则／排队耗时诊断与 #422 完整实测调度权重。再后续重施开局 18 行已在前批退出后串行启动独立构建，不并占第二个 dotnet 槽位。#412 的 main 空闲调度继续让位于 PR，P3-2 的 30 分钟目标保持未完成。
 - **夜间验收**：此前 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 连续三次全绿，P0-2 的连续验收目标已达标。11 月 2 日定时验收 [41354373563](https://github.com/DDDHL0704/riftbound/actions/runs/41354373563) 已于北京时间 10:11 全部通过，包含八个规则分片、四个 PostgreSQL 分区、SQL SignalR 重启、网络、双桌面及最终门槛，实际验证 #366 的拒绝码修正。管理者手动验收 [41376612504](https://github.com/DDDHL0704/riftbound/actions/runs/41376612504) 固定 `9321b6a2b`，已全部成功；后续 [41398666643](https://github.com/DDDHL0704/riftbound/actions/runs/41398666643) 固定 `15fbe5fba`，11 月 2 日 18:40 首查最终 **success**，全部 21 个任务（八个规则片、四个 PostgreSQL 分区、SQL SignalR、网络、双桌面及汇总）成功。管理者的新验收 `41427633441` 固定 `8adf09fed`，本轮复核已取消，未新增验收失败；A 线未补触发。后续按既定夜验跟踪，不重复手动触发。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
-<<<<<<< HEAD
 - **B 线**：RAD 分工内卡牌及共享缴械／休眠已全部合入。VEN 官方 FAQ 首批 #435 已全绿合入；强化／目标确认后续五条在 #440，已启用 auto，本地 Release 构建及 181 条直接相关用例通过。关联指示／原位置重放另五条已在 WSL 验证 29 条不同用例，保存在 `b/ven-faq-linked-instructions`，等 #440 合入后发布；继续核对剩余 VEN 判例，完成后转中国区 RAD 裁判 FAQ DOC-17。
-=======
-- **B 线**：RAD 分工内卡牌及共享缴械／休眠已全部合入。VEN 官方 FAQ 首批 #435 已全绿合入；强化／目标确认后续五条在 #440，已启用 auto，本地 Release 构建及 181 条直接相关用例通过。关联指示／原位置重放另五条已在 WSL 验证 29 条不同用例，保存在 `b/ven-faq-linked-instructions`，等 #440 合入后发布；继续核对剩余 VEN 判例，完成后转中国区 RAD 裁判 FAQ DOC-17。
->>>>>>> b/ven-faq-empower-confirmation
 - **C 线**：七名 RAD 传奇、萨勒芬妮两项英雄效果、炫音返场及 T1S·005/005 共 11 个指派条目已全部合入。最后一批五名传奇及 P1-11 已于北京时间 11 月 3 日 06:27 随 [#401](https://github.com/DDDHL0704/riftbound/pull/401) 合入 main `8bb3ec491`；[L2 41514816882](https://github.com/DDDHL0704/riftbound/actions/runs/41514816882) 的九个规则分片与 `L2 required` 全部通过。其余条目已由 #403／#413 合入；P1 无未完成条目，妮蔻／发条联动回归待 #406 合入后接入正式 L2（见 P1-12）。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
 
@@ -104,9 +100,8 @@
   - FAQ 第 18–19 页：真实“敲”诈后龙之形直接得到 4 战力，不产生中间 5 战力或菲奥娜触发；同一回归随后真实洪荒巨力跨到 11 战力，验证菲奥娜观察者仍能触发、付费并让单位活跃。
   - FAQ 第 20 页：真实洪荒巨力使雷克顿到 11 战力并强化，再由黑心商人支付解除强化；分别由对手“敲”诈降至 10 或自身主动升至 12，全程不跌破 10 时不能再强化。两条参数行保留真实选择、响应与恢复回放。
   - FAQ 第 20–21 页：艾卡西亚暴雨选择一个亥宿处目标和五次基地法盾目标时整次免税；下一张只选择基地目标的法术重新收取六次法盾费用，预览、实付与资源不足拒绝一致。
-<<<<<<< HEAD
-  - **验证状态（11 月 3 日 19:02）**：Release 构建零警告、零错误，耗时 443.21 秒；十二个精确方法的串行测试在累计 590.07 秒预算处停止（退出 124，未产生完整 TRX），不记作通过。日志暴露雷克顿“敲”诈分支的空牌库导致提前结束，以及复制凯尔旧测试仍禁止上限激活；已分别补对手牌库，并将原生／复制技能都改为上限仍付费、三层／15 战力／法盾6 保持且无新增强化事件。上述两项修正尚未重新构建或执行；本轮不再占用 dotnet，下一轮优先复验本批五条及普通强化负控。构建前后的八份相关源码摘要一致；原始日志与摘要保存在 `var/ven-faq-empower-confirmation/`。#435 的前轮 25/25 和管理者在 `036d769c0` 的 87/87 不计入本批。
-  - **后续进度**：本批已集中推送 `511ba8939`，没有开依赖 PR，也没有改动 #435。共享关联指示缺陷及三条暗刃判例已在下一分支准备，见下条。梅尔的月之降临、敲诈下限和遗弃仍洞察已有 `MelRulesTests` 专项覆盖，不重复增加同义用例。
+  - WSL 复验（2026-11-03）：默认分析器 Release 构建零警告、零错误；KayleCountedEmpowerTests、RenektonMightEmpowerTests、VenBattlefieldCostTests、VenCombatAndHandSpellTests、VenTemporaryEffectSpellTests 五类 143/143 通过，普通 EmpowerTests 38/38 通过，均零跳过。已验证上轮复制凯尔上限及雷克顿对手牌库夹具修正，保留逐命令冷恢复、拒绝不变、隐私和完整回放；完整规则由本批 L2 判定。
+  - 前批 #435 已合入，本批 #440 已启用 auto；共享关联指示缺陷及暗刃判例在下一分支单独验证，不追加到已发布分支。梅尔相关判例已有 MelRulesTests 专项覆盖。
 
 - [ ] **VEN FAQ 关联指示与原位置重放（B 线，`b/ven-faq-linked-instructions`，五条候选）**。从远端准备分支 `origin/b/ven-faq-empower-confirmation` 的 `511ba8939` 新建工作树，保持前批稳定；前批未完成复验及合入前，本批不开 PR。来源为下方中国区 VEN 官方 FAQ 及[10 月 10 日核心规则](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf) 359.3.e.6、359.3.e.14.a–b（SHA256 `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`）。
   - ① FAQ 第 21–22 页：驭风而行的移动被卑鄙之喉或临时移动限制禁止时，后续活跃仍执行。共享流程改为对结算时仍合法的当前代际目标执行关联活跃，不再只遍历实际移动成功的单位；旧 `MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady` 改为 `MovementProhibitionKeepsTheDeclaredBaseLegalAndStillExecutesLinkedReady`，保留两条参数行及原目标离场、正常移动与回响负控。
@@ -115,10 +110,6 @@
   - ④ FAQ 第 22 页例 4：惩戒的独立效果将暗刃的摧毁替换为放逐后，已无法引用其当前控制者，不抽牌。共享摧毁替换分派不再为已经离场的对象无条件登记后续控制者抽牌；保留仍在场的召回替换路径。
   - ⑤ FAQ 第 19 页：真实恶意收购取得单位后闪现到另一玩家基地，再用时空裂隙；原拥有者不能将其打到该基地，也不能改到自己的基地或任意战场。补三种目的地拒绝、原生继续结算选择、留在放逐区及完整回放；现有共享原位置许可已经检查基地玩家身份，无单卡特判。
   - WSL 复验（2026-11-03）：默认分析器 Release 重建零警告、零错误。RideTheWindCurrentMovementTests 14 条、VenTimeFissureTests 10 条、VenLinkedInstructionFaqTests 5 条分次全部通过，共 29 条不同用例、零跳过；包含同目标回响只抽两张／不同目标抽四张，以及原位置重放的非法目的地拒绝。首次两项新断言分别误将批量抽牌事件数当作牌数、将禁用入口视作可执行候选，已按真实事件和提示修正并完整复验对应类。移动冲突保留 main 的基地／控制权检查，未改历史守卫；本批等 #440 合入后再开 PR。
-=======
-  - WSL 复验（2026-11-03）：默认分析器 Release 构建零警告、零错误；KayleCountedEmpowerTests、RenektonMightEmpowerTests、VenBattlefieldCostTests、VenCombatAndHandSpellTests、VenTemporaryEffectSpellTests 五类 143/143 通过，普通 EmpowerTests 38/38 通过，均零跳过。已验证上轮复制凯尔上限及雷克顿对手牌库夹具修正，保留逐命令冷恢复、拒绝不变、隐私和完整回放；完整规则由本批 L2 判定。
-  - **下一批已确认缺陷**：FAQ 第 21–22 页与 10 月 10 日核心 359.3.e.6、359.3.e.14.b 均明确，驭风而行的移动被卑鄙之喉禁止时仍须让单位活跃；现有 `RideTheWindCurrentMovementTests.MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady` 与裁定相反。下一批从共享移动／关联指示修复，并继续核查暗刃的保护、失效目标、沙漏替换和惩戒判例，凑五条后发布。梅尔的月之降临、敲诈下限和遗弃仍洞察已有 `MelRulesTests` 专项覆盖，不重复增加同义用例。
->>>>>>> b/ven-faq-empower-confirmation
 
 - [x] **VEN 官方 FAQ／勘误逐条核对（B 线，`b/ven-faq-flow-choices`，首批 5 条，#435 已全绿合入）**。来源：[中国区化神争锋官方 FAQ](https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf)（SHA256 `59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742`），[勘误汇总](https://cdn.playloltcg.com/lol/2026/07/2026-07-24/9fe1f19110dd4678a6ad7bd96e791bba.pdf)（SHA256 `425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b`）。
   - ①妲姆勘误（第 7–8 页）：删除旧版“战力大于我的”限制及实现中排除自身的条件；共享单位事件目标／结算允许同处自身、友军、等战力和低战力单位，依据核心 479.4.c，提升不降低已有战力，随后仍 +1，保留离场目标失效和防守触发回归。
