@@ -13,6 +13,9 @@ public sealed partial class CoreRuleEngine
         => state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
             && BorrowedExhaustRules.Abilities(state, player, source).Any(a => a.Id == command.AbilityId && a.Spec.Kind == "RESOURCE");
 
+    internal static PowerPaymentPurpose BorrowedPowerPurpose(CardObjectState source)
+        => source.Tags.Contains(CardObjectTags.EquipmentCard) ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec)
         => spec.Kind == "READY_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
             : state.CardObjects.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)
@@ -40,17 +43,22 @@ public sealed partial class CoreRuleEngine
         var requested = NormalizeOptionalCosts(command.OptionalCosts);
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
             || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
-                out var extras, out var resources, out _) || extras.Count != 0)
+                out var extras, out var resources, out _) || extras.Count != (ability.Spec.Conversion.Length > 0 ? 1 : 0)
+                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0))
             return RejectWithCorePrompts(state, "所选支付资源行动无效。", ErrorCodes.InvalidTarget);
+        var discard = extras.Where(id => id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)).ToArray();
+        if (ability.Spec.DiscardsEquipmentAsCost
+            && (discard.Length != 1 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(discard[0])))
+            return RejectWithCorePrompts(state, "请选择自己手中的装备牌支付弃置费用。", ErrorCodes.InvalidTarget);
         var ordered = renekton is null ? resources : OrderedRenektonPaymentResources(requested, resources, renekton);
         var tax = ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out _);
         var paymentId = PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId, source.ObjectId, ability.Id);
         var plan = new PaymentCostRules.PaymentPlan(paymentId, "ACTIVATE_ABILITY", intent.PlayerId,
             ability.Spec.Mana, ability.Spec.Mana, ability.Spec.Power + tax,
             ability.Spec.Power + tax + ability.Spec.TypedPower.Values.Sum(), ability.Spec.TypedPower,
-            experienceCost: ability.Spec.Experience, paymentResourceActionIds: ordered,
+            experienceCost: ability.Spec.Experience, optionalCostIds: extras, paymentResourceActionIds: ordered,
             sourceObjectId: source.ObjectId, abilityId: ability.Id, reason: BorrowedExhaustRules.Effect,
-            manaPurpose: ManaPurposeForActivatedAbility(state, source.ObjectId), powerPurpose: PowerPaymentPurpose.Other,
+            manaPurpose: ManaPurposeForActivatedAbility(state, source.ObjectId), powerPurpose: BorrowedPowerPurpose(source),
             manaSourceSelection: command.ServerManaSourceSelection);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary();
@@ -65,8 +73,20 @@ public sealed partial class CoreRuleEngine
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
         if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
             return RejectWithCorePrompts(state, "支付资源行动后来源已无法使用该技能。", ErrorCodes.InvalidTarget);
+        if (ability.Spec.DiscardsEquipmentAsCost)
+        {
+            if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId).Contains(discard[0]))
+                return RejectWithCorePrompts(state, "所选装备已无法支付弃置费用。", ErrorCodes.InvalidTarget);
+            var discarded = discard[0]["DISCARD_HAND_CARD:".Length..];
+            if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))
+                return RejectWithCorePrompts(state, "无法弃置所选装备手牌。", ErrorCodes.InvalidTarget);
+            events.Add(new("CARD_DISCARDED", "弃置装备以支付获得的技能费用", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = discarded,
+                ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
+            ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
+        }
         if (ability.Spec.Kind == "RESOURCE")
-            return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events);
+            return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events, extras);
         source = cards[source.ObjectId];
         var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);

@@ -12,6 +12,17 @@ internal static partial class ActionPromptBuilder
         {
             if (!CoreRuleEngine.CanActivateBorrowedExhaust(state, player, ability.Spec)) continue;
             if (ability.Spec.Kind == "RESOURCE" && !CoreRuleEngine.BorrowedResourceGainSupported(pool, ability.Spec, source)) continue;
+            var discardChoices = ability.Spec.DiscardsEquipmentAsCost
+                ? CoreRuleEngine.SimpleActivationDiscardChoices(state, player).Select(id =>
+                    new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
+                        "弃置装备以支付获得的技能费用")).ToArray() : [];
+            if (ability.Spec.DiscardsEquipmentAsCost && discardChoices.Length == 0) continue;
+            IReadOnlyList<ActionPromptChoiceDto> optional = [];
+            if (ability.Spec.Conversion.Length > 0)
+            {
+                if (!CoreRuleEngine.TryBorrowedConversionMaximum(state, player, source, ability.Spec, out var maximum)) continue;
+                optional = ResourceConversionChoices(BorrowedExhaustRules.ConversionChoicePrefix, maximum, "选择资源转换数量");
+            }
             var targets = ability.Spec.Targets == 0 ? [] : state.CardObjects.Keys.Order(StringComparer.Ordinal)
                 .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec))
                 .Select(id => ObjectChoice(state, id, "技能目标")).ToArray();
@@ -32,17 +43,19 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}横置：{effect}",
                 ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
-                "技能目标", choices, [], payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
+                "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
                 pool.TotalPower, PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()),
                 new RunePaymentReachability(pool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(pool, byTrait),
-                [], true, false, true, null, SpellshieldTaxPowerByTargetObjectId: taxes);
+                [], true, ability.Spec.Kind == "RESOURCE", true, null, SpellshieldTaxPowerByTargetObjectId: taxes,
+                AdditionalCostChoices: discardChoices, RequiredAdditionalCostChoiceCount: ability.Spec.DiscardsEquipmentAsCost ? 1 : 0);
         }
     }
 
     private static string BorrowedResourceLabel(Riftbound.CardCatalog.BorrowedExhaustSpec spec, bool empowered)
     {
+        if (spec.Conversion.Length > 0) return "转换费用资源：" + (spec.Conversion == "MANA_TO_POWER" ? "支付法力获得等量任意符能" : "支付任意特性符能获得等量法力");
         var gains = new List<string>();
         var mana = empowered ? spec.EmpoweredMana ?? spec.GeneratedMana : spec.GeneratedMana;
         if (mana > 0) gains.Add($"{mana} 点法力");

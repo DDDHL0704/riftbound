@@ -21,6 +21,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public IReadOnlyDictionary<string, int> GeneratedTraits { get; init; } = new Dictionary<string, int>();
     public string ResourceRestriction { get; init; } = "";
     public bool RemovesSourceEmpowerment { get; init; }
+    public string Conversion { get; init; } = "";
+    public bool DiscardsEquipmentAsCost { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -40,6 +42,8 @@ public static class BorrowedExhaustParser
             var cost = parts[0].Trim();
             var removesEmpowerment = Regex.IsMatch(cost, "解除(?:我的|此牌的)强化");
             cost = Regex.Replace(cost, "解除(?:我的|此牌的)强化", "");
+            var discardsEquipment = cost.Contains("弃置一张装备牌", StringComparison.Ordinal);
+            cost = cost.Replace("弃置一张装备牌", "", StringComparison.Ordinal);
             var level = Regex.Match(cost, @"\{\{等级(?<n>[0-9]+)>\}\}");
             cost = Regex.Replace(cost, @"\{\{等级[0-9]+>\}\}|\{\{>>\}\}", "");
             var reaction = cost.Contains("{{反应>}}", StringComparison.Ordinal);
@@ -66,7 +70,14 @@ public static class BorrowedExhaustParser
                     Power = power, TypedPower = typed, Experience = experience.Success ? int.Parse(experience.Groups["n"].Value) : 0,
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
-                    RemovesSourceEmpowerment = removesEmpowerment };
+                    RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment };
+            var conversion = Regex.Match(effect, @"^\{\{反应\}\}\s*[—-]\s*支付任意数量的(?<input>法力|\{\{A\}\})来\{\{获得\}\}等量的(?<output>法力|\{\{A\}\})$");
+            if (conversion.Success && conversion.Groups["input"].Value != conversion.Groups["output"].Value)
+            {
+                result.Add(Skill("RESOURCE", 0) with { Reaction = true,
+                    Conversion = conversion.Groups["input"].Value == "法力" ? "MANA_TO_POWER" : "POWER_TO_MANA" });
+                continue;
+            }
             var resource = Regex.Match(effect, @"^(?:\{\{反应\}\}\s*[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付符能费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
             if (resource.Success && (reaction || effect.StartsWith("{{反应}}", StringComparison.Ordinal)))
             {

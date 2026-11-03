@@ -3783,6 +3783,7 @@ internal static partial class ActionPromptBuilder
             var supportsLegend = requirement.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal)
                 || requirement.AbilityId.StartsWith("SELF-MIGHT:", StringComparison.Ordinal)
                 || requirement.AbilityId.StartsWith("NAMED-UNIT-SWAP:", StringComparison.Ordinal)
+                || requirement.AbilityId.StartsWith("BORROWED:", StringComparison.Ordinal)
                 || hasAbility && SupportsInlineRenektonAbilityPayment(ability);
             if (manaPurpose != ManaPaymentPurpose.UnitAbility || !supportsLegend) return false;
             return PromptRenektonPaymentChoices(state, playerId).Any(choice =>
@@ -3796,7 +3797,9 @@ internal static partial class ActionPromptBuilder
                         .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
             });
         }
-        var powerPool = hasAbility
+        var powerPool = requirement.AbilityId.StartsWith("BORROWED:", StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(requirement.SourceObjectId, out var borrower)
+            ? PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.BorrowedPowerPurpose(borrower)) : hasAbility
             ? PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability)) : requirement.AbilityId.StartsWith("GRANTED:", StringComparison.Ordinal)
                 ? PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Other) : runePool;
         return new RunePaymentReachability(powerPool, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice))

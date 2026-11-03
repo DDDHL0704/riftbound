@@ -129,10 +129,12 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
     }
 
-    [Fact]
-    public async Task BorrowedResourcePaysANestedReplacementOnceAndSurvivesColdReplay()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task BorrowedResourcePaysANestedReplacementOnceAndSurvivesColdReplay(bool conversion)
     {
-        var initial = ReplacementResourceTests.AddResource(OfficialSettReplacementTests.Position(power: 0), "OGN·040/298", exhausted: true);
+        var initial = ReplacementResourceTests.AddResource(OfficialSettReplacementTests.Position(power: 0), conversion ? "SFD·117/221" : "OGN·040/298", exhausted: true);
         initial = initial with {
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                 ["BORROWER"] = new("BORROWER", cardNo: "OGN·111/298", power: 3, ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.UnitCard]) },
@@ -144,16 +146,19 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         await game.Act("P1", new PassPriorityCommand());
         await game.Act("P2", new PassPriorityCommand());
         var request = game.State.PendingRuleChoice!.Request;
-        var resource = Assert.Single(request.Options, o => o.Id.StartsWith("RESOURCE:BORROWER:BORROWED:", StringComparison.Ordinal));
+        Assert.Equal(request.Options.Count, request.Options.Select(o => o.Id).Distinct().Count());
+        var resource = Assert.Single(request.Options, o => o.Id.StartsWith("RESOURCE:BORROWER:BORROWED:", StringComparison.Ordinal)
+            && (!conversion || o.Id.EndsWith(":BORROWED_CONVERSION:1", StringComparison.Ordinal)));
         await game.Act("P2", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [resource.Id]));
         Assert.NotNull(game.State.PendingRuleChoice);
         Assert.True(game.State.CardObjects["BORROWER"].IsExhausted);
         Assert.True(game.State.CardObjects["RESOURCE"].IsExhausted);
-        Assert.Equal(1, game.State.RunePools["P2"].PowerByTrait.GetValueOrDefault("red"));
+        Assert.Equal(1, conversion ? game.State.RunePools["P2"].Power : game.State.RunePools["P2"].PowerByTrait.GetValueOrDefault("red"));
+        Assert.Equal(conversion ? 6 : 7, game.State.RunePools["P2"].Mana);
         Assert.Equal(0, game.State.PendingRuleChoice.Origin.RunePools["P2"].TotalPower);
         var next = game.State.PendingRuleChoice.Request;
         Assert.DoesNotContain(next.Options, o => o.Id.StartsWith("RESOURCE:BORROWER:", StringComparison.Ordinal));
-        await game.Act("P2", new PayCostCommand(next.Id, "RULE_REPLACEMENT", ["SETT:D:LEGEND:TRAIT:red"]));
+        await game.Act("P2", new PayCostCommand(next.Id, "RULE_REPLACEMENT", [conversion ? "SETT:D:LEGEND:ANY" : "SETT:D:LEGEND:TRAIT:red"]));
         Assert.Null(game.State.PendingRuleChoice);
         Assert.Contains("D", game.State.PlayerZones["P2"].Base);
         Assert.Equal(0, game.State.RunePools["P2"].TotalPower);

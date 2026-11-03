@@ -116,7 +116,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
     }
 
     private static async Task<Driver> WithTemplate(string donor, string category, int allyPower = 7,
-        bool empower = false, int experience = 5)
+        bool empower = false, int experience = 5, RunePool? pool = null, Func<MatchState, MatchState>? adjust = null)
     {
         var game = await Ready("OGN·111/298", empower, adjust: initial => {
             initial = AttackDamageDistributionTests.Spell(initial, "READY2", "OGN·146/298", "P1");
@@ -127,7 +127,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
                 : category == "EQUIPMENT" ? new[] { CardObjectTags.EquipmentCard } : Array.Empty<string>();
             initial = initial with {
                 RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
-                    ["P1"] = new(20, 20, new Dictionary<string, int> { ["red"] = 20 }) },
+                    ["P1"] = pool ?? new(20, 20, new Dictionary<string, int> { ["red"] = 20 }) },
                 PlayerExperience = new Dictionary<string, int>(initial.PlayerExperience) { ["P1"] = experience },
                 CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                     ["ALLY"] = initial.CardObjects["ALLY"] with { Power = allyPower, IsExhausted = true },
@@ -141,7 +141,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
             // Keep a single legend in this fixture; the default Jayce is replaced.
             if (category == "LEGEND") initial = initial with { CardObjects = initial.CardObjects.Where(p => p.Key != "JAYCE").ToDictionary(),
                 ObjectLocations = initial.ObjectLocations.Where(p => p.Key != "JAYCE").ToDictionary() };
-            return initial;
+            return adjust?.Invoke(initial) ?? initial;
         });
         if (donor == "UNL-026/219") {
             await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));

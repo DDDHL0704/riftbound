@@ -105,10 +105,26 @@ public sealed partial class CoreRuleEngine
             var spec = borrowed.Spec;
             if (!CanActivateBorrowedExhaust(state, player, spec) || !BorrowedResourceGainSupported(pool, spec, source)
                 || PaymentCostRules.AvailableMana(pool, ManaPurposeForActivatedAbility(state, source.ObjectId), state) < spec.Mana
-                || !PaymentCostRules.CanPayPowerCost(pool, spec.Power, spec.TypedPower)
+                || !PaymentCostRules.CanPayPowerCost(pool, spec.Power, spec.TypedPower, BorrowedPowerPurpose(source))
                 || state.PlayerExperience.GetValueOrDefault(player) < spec.Experience) continue;
-            actions.Add(new(new($"RESOURCE:{source.ObjectId}:{borrowed.Id}", "横置：发动获得的资源技能，之后继续选择", [source.ObjectId]),
-                new ActivateAbilityCommand(source.ObjectId, borrowed.Id, [], [])));
+            if (spec.Conversion.Length > 0)
+            {
+                if (!TryBorrowedConversionMaximum(state, player, source, spec, out var maximum)) continue;
+                if ((long)maximum + 1 > ResourceQuantityRules.DirectChoiceLimit)
+                    AddBorrowed([BorrowedExhaustRules.ConversionChoicePrefix + ResourceQuantityRules.ChooseAmountSuffix]);
+                else for (var amount = 0; amount <= maximum; amount++)
+                    AddBorrowed([BorrowedExhaustRules.ConversionChoicePrefix + amount.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
+                continue;
+            }
+            AddBorrowed([]);
+            void AddBorrowed(string[] choices)
+            {
+                var suffix = choices.Length == 0 ? "" : ":" + string.Join(',', choices);
+                var quantity = choices.Length == 0 ? "" : choices[0].EndsWith(ResourceQuantityRules.ChooseAmountSuffix, StringComparison.Ordinal)
+                    ? "选择资源转换数量；" : "转换 " + choices[0][BorrowedExhaustRules.ConversionChoicePrefix.Length..] + " 点资源；";
+                actions.Add(new(new($"RESOURCE:{source.ObjectId}:{borrowed.Id}{suffix}", "横置：" + quantity + "发动获得的资源技能，之后继续选择", [source.ObjectId]),
+                    new ActivateAbilityCommand(source.ObjectId, borrowed.Id, [], choices)));
+            }
         }
         return actions;
     }

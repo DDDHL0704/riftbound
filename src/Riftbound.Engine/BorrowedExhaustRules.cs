@@ -18,6 +18,7 @@ internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, 
 internal static class BorrowedExhaustRules
 {
     internal const string Effect = "BORROWED_EXHAUST_ACTIVATION";
+    internal const string ConversionChoicePrefix = "BORROWED_CONVERSION:";
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo));
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<BorrowedExhaustSpec>>> Specs = new(() =>
