@@ -217,8 +217,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
                 return Complete(ResolveLegendAct(state, intent, legendResource));
             if (command is ActivateAbilityCommand resource
-                && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
-                && definition.IsResourceSkill && definition.ReactionSpeed)
+                && (IsBorrowedReactionResource(state, intent.PlayerId, resource)
+                    || P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
+                        && definition.IsResourceSkill && definition.ReactionSpeed))
                 return Complete(ResolveActivateAbility(state, intent, resource));
             if (command is TapRuneCommand tap) return Complete(ResolveTapRune(state, intent, tap));
             if (command is RecycleRuneCommand recycle) return Complete(ResolveRecycleRune(state, intent, recycle));
@@ -245,8 +246,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && TryGetLegendAbility(legendResource.AbilityId, out var legendDefinition)
                     && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
                     return Complete(ResolveLegendAct(state, intent, legendResource));
-                if (command is ActivateAbilityCommand resource && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
-                    && definition.IsResourceSkill && definition.ReactionSpeed) return Complete(ResolveActivateAbility(state, intent, resource));
+                if (command is ActivateAbilityCommand resource && (IsBorrowedReactionResource(state, intent.PlayerId, resource)
+                    || P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
+                        && definition.IsResourceSkill && definition.ReactionSpeed)) return Complete(ResolveActivateAbility(state, intent, resource));
                 if (command is TapRuneCommand tap) return Complete(ResolveTapRune(state, intent, tap));
                 if (command is RecycleRuneCommand recycle) return Complete(ResolveRecycleRune(state, intent, recycle));
             }

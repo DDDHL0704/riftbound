@@ -495,8 +495,9 @@ public sealed partial class CoreRuleEngine
         if (command is TapRuneCommand tap) return ResolveTapRune(state, intent, tap);
         if (command is RecycleRuneCommand recycle) return ResolveRecycleRune(state, intent, recycle);
         if (command is ActivateAbilityCommand resource
-            && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var ability)
-            && ability.IsResourceSkill && ability.ReactionSpeed)
+            && (IsBorrowedReactionResource(state, intent.PlayerId, resource)
+                || P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var ability)
+                    && ability.IsResourceSkill && ability.ReactionSpeed))
             return ResolveActivateAbility(state, intent, resource);
         return RejectWithCorePrompts(state, "请先完成效果要求的再次打出。", ErrorCodes.PhaseNotAllowed);
     }

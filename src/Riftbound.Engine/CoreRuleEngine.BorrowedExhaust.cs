@@ -6,7 +6,12 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec)
-        => spec.Swift ? CanActivateSwiftAbility(state, player) : CanActivateOrdinaryPowerAbility(state, player);
+        => spec.Reaction ? CanActivateReactionResourceSkill(state, player)
+            : spec.Swift ? CanActivateSwiftAbility(state, player) : CanActivateOrdinaryPowerAbility(state, player);
+
+    private static bool IsBorrowedReactionResource(MatchState state, string player, ActivateAbilityCommand command)
+        => state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
+            && BorrowedExhaustRules.Abilities(state, player, source).Any(a => a.Id == command.AbilityId && a.Spec.Kind == "RESOURCE");
 
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec)
         => spec.Kind == "READY_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
@@ -60,6 +65,8 @@ public sealed partial class CoreRuleEngine
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
         if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
             return RejectWithCorePrompts(state, "支付资源行动后来源已无法使用该技能。", ErrorCodes.InvalidTarget);
+        if (ability.Spec.Kind == "RESOURCE")
+            return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events);
         source = cards[source.ObjectId];
         var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);

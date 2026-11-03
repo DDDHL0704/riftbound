@@ -45,6 +45,7 @@ internal static class BorrowedExhaustRules
                 // 727.1.b.1: enumerate the entire skill before checking its
                 // dependency on the borrowing source, never the donor.
                 if (spec.RequiresEmpowered && !source.IsEmpowered) continue;
+                if (state.PlayerExperience.GetValueOrDefault(player) < spec.MinimumExperience) continue;
                 if (spec.RequiresSourceBattlefield && !state.PlayerZones.Values.Any(z => z.Battlefields.Contains(source.ObjectId))) continue;
                 var identity = $"{borrower.Id}|{borrower.CardNo}|{text.Id}|{text.CardNo}|{spec.Index}";
                 yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
@@ -71,6 +72,7 @@ internal static class BorrowedExhaustRules
             || c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || item.CardNo != c.Borrower.PhysicalCardNo || !Inherits(c.Borrower.CardNo)
             || !ValidSource(state, c.Borrower, c.AcquiredTick) || !ValidSource(state, c.Donor, c.AcquiredTick)
             || Spec(c.Donor.CardNo, c.AbilityIndex) is not { } spec
+            || spec.Kind == "RESOURCE"
             || spec.RequiresEmpowered && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0

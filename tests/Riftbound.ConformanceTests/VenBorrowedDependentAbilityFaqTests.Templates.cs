@@ -115,9 +115,10 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         await game.Replay();
     }
 
-    private static async Task<Driver> WithTemplate(string donor, string category, int allyPower = 7)
+    private static async Task<Driver> WithTemplate(string donor, string category, int allyPower = 7,
+        bool empower = false, int experience = 5)
     {
-        var game = await Ready("OGN·111/298", false, adjust: initial => {
+        var game = await Ready("OGN·111/298", empower, adjust: initial => {
             initial = AttackDamageDistributionTests.Spell(initial, "READY2", "OGN·146/298", "P1");
             initial = OfficialHoldSequenceTests.AddUnit(initial, "ALLY", "OGN·001/298", "F", "P1");
             initial = OfficialHoldSequenceTests.AddUnit(initial, "ENEMY", "OGN·001/298", "P2-BASE", "P2");
@@ -127,7 +128,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
             initial = initial with {
                 RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
                     ["P1"] = new(20, 20, new Dictionary<string, int> { ["red"] = 20 }) },
-                PlayerExperience = new Dictionary<string, int>(initial.PlayerExperience) { ["P1"] = 5 },
+                PlayerExperience = new Dictionary<string, int>(initial.PlayerExperience) { ["P1"] = experience },
                 CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                     ["ALLY"] = initial.CardObjects["ALLY"] with { Power = allyPower, IsExhausted = true },
                     ["DONOR"] = new("DONOR", cardNo: donor, power: category == "UNIT" ? 5 : 0,

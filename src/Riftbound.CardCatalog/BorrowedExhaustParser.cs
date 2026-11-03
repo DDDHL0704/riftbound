@@ -13,6 +13,13 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public string TargetScope { get; init; } = "ANY_UNIT";
     public int Damage { get; init; }
     public string Keyword { get; init; } = "";
+    public int MinimumExperience { get; init; }
+    public bool Reaction { get; init; }
+    public int GeneratedMana { get; init; }
+    public int? EmpoweredMana { get; init; }
+    public int GeneratedPower { get; init; }
+    public IReadOnlyDictionary<string, int> GeneratedTraits { get; init; } = new Dictionary<string, int>();
+    public string ResourceRestriction { get; init; } = "";
 }
 
 public static class BorrowedExhaustParser
@@ -30,6 +37,10 @@ public static class BorrowedExhaustParser
             if (parts.Length != 2) continue;
             var ordinal = index++;
             var cost = parts[0].Trim();
+            var level = Regex.Match(cost, @"\{\{等级(?<n>[0-9]+)>\}\}");
+            cost = Regex.Replace(cost, @"\{\{等级[0-9]+>\}\}|\{\{>>\}\}", "");
+            var reaction = cost.Contains("{{反应>}}", StringComparison.Ordinal);
+            cost = cost.Replace("{{反应>}}", "", StringComparison.Ordinal);
             var empowered = cost.Contains("{{已强化>}}", StringComparison.Ordinal);
             cost = cost.Replace("{{已强化>}}", "", StringComparison.Ordinal);
             var swift = cost.Contains("{{迅捷>}}", StringComparison.Ordinal);
@@ -50,7 +61,28 @@ public static class BorrowedExhaustParser
                 string scope = "ANY_UNIT", int damage = 0, string keyword = "")
                 => new(ordinal, kind, mana, targets, empowered, might, floor) {
                     Power = power, TypedPower = typed, Experience = experience.Success ? int.Parse(experience.Groups["n"].Value) : 0,
-                    Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword };
+                    Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
+                    MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction };
+            var resource = Regex.Match(effect, @"^(?:\{\{反应\}\}\s*[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付符能费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
+            if (resource.Success && (reaction || effect.StartsWith("{{反应}}", StringComparison.Ordinal)))
+            {
+                var gain = resource.Groups["gain"].Value;
+                var restriction = resource.Groups["restriction"].Value;
+                result.Add(Skill("RESOURCE", 0) with {
+                    Reaction = true,
+                    GeneratedMana = Regex.Matches(gain, @"\{\{(?<n>[0-9]+)\}\}").Sum(m => int.Parse(m.Groups["n"].Value)),
+                    GeneratedPower = Regex.Matches(gain, @"\{\{A\}\}").Count,
+                    GeneratedTraits = colors.Select(pair => (pair.Value, Count: Regex.Matches(gain, Regex.Escape("{{" + pair.Key + "}}")).Count))
+                        .Where(pair => pair.Count > 0).ToDictionary(pair => pair.Value, pair => pair.Count),
+                    EmpoweredMana = resource.Groups["empowered"].Success ? int.Parse(resource.Groups["empowered"].Value) : null,
+                    ResourceRestriction = restriction.Contains("法术对决", StringComparison.Ordinal) ? "DUEL"
+                        : restriction.Contains("单位", StringComparison.Ordinal) ? "UNIT"
+                        : restriction.Contains("装备", StringComparison.Ordinal) ? "EQUIPMENT"
+                        : restriction.Contains("法术", StringComparison.Ordinal) ? "SPELL" : "" });
+                continue;
+            }
+            // Reaction non-resource effects need their own timing and templates.
+            if (reaction) continue;
             var ready = Regex.Match(effect, @"^让(?<n>[1-9][0-9]*|一|两|二)件装备变为活跃状态$");
             if (ready.Success)
             {

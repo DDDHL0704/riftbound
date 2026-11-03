@@ -99,6 +99,17 @@ public sealed partial class CoreRuleEngine
                 actions.Add(new(new(key, $"{name}：{label}，之后继续选择支付或放弃", [id]), new ActivateAbilityCommand(id, ability.AbilityId, [], costs), ability));
             }
         }
+        foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
+        foreach (var borrowed in BorrowedExhaustRules.Abilities(state, player, source).Where(a => a.Spec.Kind == "RESOURCE"))
+        {
+            var spec = borrowed.Spec;
+            if (!CanActivateBorrowedExhaust(state, player, spec) || !BorrowedResourceGainSupported(pool, spec, source)
+                || PaymentCostRules.AvailableMana(pool, ManaPurposeForActivatedAbility(state, source.ObjectId), state) < spec.Mana
+                || !PaymentCostRules.CanPayPowerCost(pool, spec.Power, spec.TypedPower)
+                || state.PlayerExperience.GetValueOrDefault(player) < spec.Experience) continue;
+            actions.Add(new(new($"RESOURCE:{source.ObjectId}:{borrowed.Id}", "横置：发动获得的资源技能，之后继续选择", [source.ObjectId]),
+                new ActivateAbilityCommand(source.ObjectId, borrowed.Id, [], [])));
+        }
         return actions;
     }
 
@@ -171,6 +182,8 @@ public sealed partial class CoreRuleEngine
         var result = action.Command switch
         {
             LegendActCommand legend => ResolveLegendAct(context, intent, legend),
+            ActivateAbilityCommand activated when activated.AbilityId.StartsWith("BORROWED:", StringComparison.Ordinal)
+                => ResolveActivateAbility(context, intent, activated),
             ActivateAbilityCommand activated when action.Ability is { } ability
                 => P4ActivatedAbilityCatalog.IsLuxResourceAbility(ability.AbilityId)
                     ? ResolveLuxRestrictedMana(context, intent, activated)
