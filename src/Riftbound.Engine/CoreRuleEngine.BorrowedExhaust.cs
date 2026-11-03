@@ -21,6 +21,13 @@ public sealed partial class CoreRuleEngine
         => CanRecycleGraveyardCardAsAdditionalCost(state, player, id)
             && (!spec.RecyclesOnlyUnitsAsCost || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard));
 
+    internal static string[] BorrowedUnitExhaustCostChoices(MatchState state, string player, string sourceId, BorrowedExhaustSpec spec)
+        => spec.ExhaustedUnitMinimumMightAsCost is { } minimum ? state.CardObjects.Values
+            .Where(card => card.ObjectId != sourceId && CanExhaustUnitForEquipmentCost(state, player, card.ObjectId)
+                && ResolveCurrentFieldUnitPower(state, card) >= minimum)
+            .OrderBy(card => card.ObjectId, StringComparer.Ordinal)
+            .Select(card => ExhaustFriendlyUnitOptionalCostPrefix + card.ObjectId).ToArray() : [];
+
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
         => spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
@@ -51,8 +58,13 @@ public sealed partial class CoreRuleEngine
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
             || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
                 out var extras, out var resources, out _) || extras.Count != (ability.Spec.Conversion.Length > 0 ? 1 : 0)
-                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount)
+                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
+                    + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0))
             return RejectWithCorePrompts(state, "所选支付资源行动无效。", ErrorCodes.InvalidTarget);
+        var unitExhaustCosts = extras.Where(id => id.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
+        if (unitExhaustCosts.Length != (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
+            || unitExhaustCosts.Any(id => !BorrowedUnitExhaustCostChoices(state, intent.PlayerId, source.ObjectId, ability.Spec).Contains(id)))
+            return RejectWithCorePrompts(state, "请选择合法的活跃强力友方单位支付休眠费用。", ErrorCodes.InvalidTarget);
         var recycled = extras.Where(id => TryParseRecycleGraveyardCardAdditionalCost(id, out _))
             .Select(id => { TryParseRecycleGraveyardCardAdditionalCost(id, out var card); return card; }).ToArray();
         if (recycled.Length != ability.Spec.RecycledCardCostCount
@@ -84,6 +96,8 @@ public sealed partial class CoreRuleEngine
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置来源。", ErrorCodes.InsufficientCost);
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
+        if (unitExhaustCosts.Any(id => !BorrowedUnitExhaustCostChoices(paidState, intent.PlayerId, source.ObjectId, ability.Spec).Contains(id)))
+            return RejectWithCorePrompts(state, "支付资源行动后所选单位无法支付休眠费用。", ErrorCodes.InvalidTarget);
         if (recycled.Any(id => !CanRecycleBorrowedAbilityCost(paidState, intent.PlayerId, id, ability.Spec)))
             return RejectWithCorePrompts(state, "所选牌已无法支付回收费用。", ErrorCodes.InvalidTarget);
         if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
@@ -102,6 +116,14 @@ public sealed partial class CoreRuleEngine
             state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories, borrowerWasOnBattlefield,
             ability.Spec.EmpoweredMight.HasValue ? source.IsEmpowered : null,
             ability.Spec.RequiresPlayedArmamentThisTurn);
+        foreach (var cost in unitExhaustCosts)
+        {
+            var id = cost[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
+            cards[id] = ExhaustForInstruction(zones, cards, cards[id]);
+            events.Add(new("UNIT_EXHAUSTED", "让友方单位休眠以支付获得的技能费用", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = id,
+                ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
+        }
         if (ability.Spec.RemovesSourceEmpowerment)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },

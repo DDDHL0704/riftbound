@@ -26,6 +26,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool DestroysSourceAsCost { get; init; }
     public int RecycledCardCostCount { get; init; }
     public bool RecyclesOnlyUnitsAsCost { get; init; }
+    public int? ExhaustedUnitMinimumMightAsCost { get; init; }
     public int DrawCount { get; init; }
     public int RuneCallCount { get; init; }
     public int ScoreAmount { get; init; }
@@ -65,6 +66,8 @@ public static class BorrowedExhaustParser
             var recycleCount = recycle.Success ? recycle.Groups["count"].Value switch {
                 "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) } : 0;
             if (recycle.Success) cost = cost.Remove(recycle.Index, recycle.Length);
+            var exhaustsPowerful = cost.Contains("让一名友方{{强力}}单位变为休眠状态", StringComparison.Ordinal);
+            cost = cost.Replace("让一名友方{{强力}}单位变为休眠状态", "", StringComparison.Ordinal);
             var destroysSource = cost.Contains("摧毁此牌", StringComparison.Ordinal)
                 || cost.Contains("摧毁我", StringComparison.Ordinal);
             cost = cost.Replace("摧毁此牌", "", StringComparison.Ordinal)
@@ -99,7 +102,8 @@ public static class BorrowedExhaustParser
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
                     RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
                     DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
-                    RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位" };
+                    RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位",
+                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : null };
             var conversion = Regex.Match(effect, @"^\{\{反应\}\}\s*[—-]\s*支付任意数量的(?<input>法力|\{\{A\}\})来\{\{获得\}\}等量的(?<output>法力|\{\{A\}\})$");
             if (conversion.Success && conversion.Groups["input"].Value != conversion.Groups["output"].Value)
             {

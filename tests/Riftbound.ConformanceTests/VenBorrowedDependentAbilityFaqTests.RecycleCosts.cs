@@ -119,5 +119,10 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         var exhausted = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["HOST"] = initial.CardObjects["HOST"] with { IsExhausted = true } } };
         await Reject(exhausted, "P1", good);
+        var insufficient = initial;
+        foreach (var card in draw ? new[] { "G1", "G2" } : ["G1", "G4"])
+            insufficient = RadUnitEffectTestFixture.Place(insufficient, card, "P1", "HAND");
+        Assert.DoesNotContain(id, System.Text.Json.JsonSerializer.Serialize(ResolutionResult.BuildPrompts(insufficient)));
+        await Reject(insufficient, "P1", good);
     }
 }
