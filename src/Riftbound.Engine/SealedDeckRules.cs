@@ -59,6 +59,7 @@ public static partial class OfficialDeckValidator
             : RequireCard(cardsByNo, deck.LegendCardNo, "legendCardNo", errors);
         var champion = deck.ChampionCardNo.Length == 0 ? null
             : RequireCard(cardsByNo, deck.ChampionCardNo, "championCardNo", errors);
+        ValidateAdditionalLegends(cardsByNo, deck.MainDeck, deck.AdditionalLegendCardNos ?? [], legend, errors);
         if (legend is not null && (legend.CardCategoryNameList.Count != 1 || legend.CardCategoryNameList[0] != "传奇"))
             errors.Add("传奇牌编号必须指向一张传奇牌。");
         if (champion is not null && (champion.CardCategoryNameList.Count != 1 || champion.CardCategoryNameList[0] != "英雄单位"))
@@ -97,7 +98,7 @@ public static partial class OfficialDeckValidator
             .Concat(deck.LegendCardNo.Length == 0 ? [] : new[] { deck.LegendCardNo });
         var usedCards = usedCardNos.Where(cardsByNo.ContainsKey).Select(cardNo => cardsByNo[cardNo]).ToArray();
         var traits = usedCards.SelectMany(card => card.CardColorList).Select(RuneTrait.Normalize)
-            .Where(trait => trait.Length > 0 && trait != "colorless").Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+            .Where(trait => trait.Length > 0 && !RuneTrait.IsNeutral(trait)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         if (traits.Length > 3)
             errors.Add($"现开卡组实际使用的特性（含传奇、符文和战场）不能超过三种：{string.Join("、", traits.Select(TraitLabel))}。");
 

@@ -518,7 +518,7 @@ public sealed partial record ResolutionResult
                     .Select(resolution => BuildBattlefieldResolutionSnapshotView(state, resolution, viewerPlayerId))
                     .ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
-                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, CoreRuleEngine.VisiblePendingPayment(state)),
+                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, CoreRuleEngine.VisiblePendingPayment(state), viewerPlayerId),
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state, state.PendingHandChoice, viewerPlayerId),
                 ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state, viewerPlayerId),

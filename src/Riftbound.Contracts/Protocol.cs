@@ -177,7 +177,9 @@ public sealed record SubmitDeckCommand(
     string ChampionCardNo,
     IReadOnlyList<string> MainDeck,
     IReadOnlyList<string> RuneDeck,
-    IReadOnlyList<string> Battlefields) : GameCommand("SUBMIT_DECK");
+    IReadOnlyList<string> Battlefields,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? AdditionalLegendCardNos = null) : GameCommand("SUBMIT_DECK");
 
 public sealed record MulliganCommand(
     IReadOnlyList<string> HandObjectIds) : GameCommand("MULLIGAN");

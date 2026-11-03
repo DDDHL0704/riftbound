@@ -1211,6 +1211,7 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
+            ValidateBoundLegendHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldPermanentPlayUses(authoritativeState, commands, events, errors);
             ValidateNextUnitPlayGrantHistory(authoritativeState, commands, events, errors);
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
@@ -3736,6 +3737,7 @@ public static partial class MatchRecoveryValidator
 
         ValidateSpellContinuations(authoritativeState, errors);
         ValidateTurnSequenceState(authoritativeState, errors);
+        if (!CoreRuleEngine.ValidBoundLegends(authoritativeState)) errors.Add("invalid bound legend provenance");
         ValidateOpeningRoleDraw(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         errors.AddRange(SealedRoomPools.Validate(authoritativeState));
@@ -5210,7 +5212,7 @@ public static partial class MatchRecoveryValidator
                 objectId,
                 cardObject.UntilEndOfTurnPowerModifiers,
                 knownObjectIds,
-                errors);
+                errors, authoritativeState);
         }
 
         foreach (var (objectId, location) in authoritativeState.ObjectLocations
@@ -5397,7 +5399,8 @@ public static partial class MatchRecoveryValidator
 
             // Captured triggered abilities survive their source object leaving.
             // Only validated official contexts permit a missing source.
-            if (!CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.EffectKind)
+            if (!CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, stackItem.SourceObjectId, stackItem.CardNo)
+                && !CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.EffectKind)
                 && !HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId,
                     stackItem.SourceObjectId, stackItem.EffectKind)
                 && !(stackItem.SimpleActivation is { CeasedSource: not null } && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
@@ -5503,7 +5506,7 @@ public static partial class MatchRecoveryValidator
         string objectId,
         IReadOnlyList<PowerModifierLedgerEntry>? powerModifiers,
         IReadOnlySet<string> knownObjectIds,
-        List<string> errors)
+        List<string> errors, MatchState authoritativeState)
     {
         if (powerModifiers is null)
         {
@@ -5525,6 +5528,11 @@ public static partial class MatchRecoveryValidator
             {
                 continue;
             }
+
+            // A resolved modifier retains its public provenance after an added
+            // legend ceases to exist. This exception does not make it a live object.
+            if (modifier.Duration == "UNTIL_END_OF_TURN" && modifier.SourceCardNo is { } no
+                && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, sourceObjectId, no)) continue;
 
             var modifierLabel = string.IsNullOrWhiteSpace(modifier.EffectId)
                 ? "<unknown>"
@@ -5672,6 +5680,9 @@ public static partial class MatchRecoveryValidator
                 ? stackItemId.Trim()
                 : $"#{index + 1}";
             var sourceReferences = knownObjectIds;
+            if (authoritativeState.StackItems.FirstOrDefault(item => item.StackItemId == stackItemId) is { } historicalLegend
+                && CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, historicalLegend.SourceObjectId, historicalLegend.CardNo))
+                sourceReferences = knownObjectIds.Append(historicalLegend.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (HasValidatedCeasedLastBreathSource(authoritativeState, stackItemId,
                 ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
                 ReadNormalizedPayloadString(stackItem, "effectKind")))

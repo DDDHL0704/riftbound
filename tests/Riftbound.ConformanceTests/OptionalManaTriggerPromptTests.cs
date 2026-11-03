@@ -111,7 +111,8 @@ public sealed class OptionalManaTriggerPromptTests
         cards["UNIT"] = cards["UNIT"] with { CardNo = branch == "vayne" ? "OGN·035/298" : branch == "icevale" ? "UNL-065/219" : "SFD·125/221" };
         if (branch == "legend")
         {
-            cards["LEGEND"] = new("LEGEND", cardNo: "UNL-197/219", ownerId: "P1", controllerId: "P1", isExhausted: true);
+            cards["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "UNL-197/219", "P1")
+                with { IsExhausted = true };
             zones["P1"] = zones["P1"] with { LegendZone = ["LEGEND"] };
             locations["LEGEND"] = new("P1", "LEGEND");
         }

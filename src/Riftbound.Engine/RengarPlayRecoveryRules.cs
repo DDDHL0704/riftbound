@@ -22,9 +22,11 @@ internal static class RengarPlayRecoveryRules
         if (!(effect == CoreRuleEngine.UnitPlayMightEffect && PrintedSources.Value.Contains(context.CardNo)
             && (cardNo is null || cardNo == context.CardNo) && state.Seats.ContainsKey(controller)
             && context.SourceGeneration >= 0 && context.CapturedTick > 0 && context.CapturedTick <= state.Tick
-            && state.CardObjects.TryGetValue(source, out var legend) && legend.OwnerId == controller
-            && legend.ObjectGeneration >= context.SourceGeneration
-            && (legend.ObjectGeneration != context.SourceGeneration || legend.CardNo == context.CardNo)
+            && (state.CardObjects.TryGetValue(source, out var legend)
+                ? legend.OwnerId == controller && legend.ObjectGeneration >= context.SourceGeneration
+                    && (legend.ObjectGeneration != context.SourceGeneration || legend.CardNo == context.CardNo)
+                : CoreRuleEngine.DepartedLegendBindingMatches(state, new(source, context.SourceGeneration),
+                    context.CardNo, 0, context.CapturedTick, controller))
             && context.PlayedUnit is { Generation: >= 0 } unit && !string.IsNullOrWhiteSpace(unit.ObjectId) && unit.ObjectId != source
             && !string.IsNullOrWhiteSpace(context.PlayedCardNo)
             && (context.RequestedTarget is null || context.RequestedTarget is { Generation: >= 0 } requested
