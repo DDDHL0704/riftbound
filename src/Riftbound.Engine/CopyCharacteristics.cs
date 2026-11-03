@@ -13,7 +13,7 @@ internal static class CopyCharacteristics
     internal static bool HasFace(string? cardNo) => P6TokenFactoryCatalog.IsTokenFactory(cardNo)
         || PrintedCardFactory.TryCreate("", "", cardNo, out _);
 
-    // CN 477.1.b: copy the printed/copied face, never a materialized combat value,
+    // CN 479.1.b.1 / 479.1.c: copy the printed/copied face, never a materialized combat value,
     // buffs, granted keywords, damage, attachments, controller or status. CardNo
     // already resolves rules text/cost/name/traits for a copy of another copy.
     internal static CardObjectState CreateImage(string objectId, string controller, CardObjectState source, bool grantsEphemeral = true)
@@ -27,7 +27,8 @@ internal static class CopyCharacteristics
             throw new InvalidOperationException("Copy source has no authoritative card face.");
 
         var printedKeywords = source.CardNo is not null && CardBehaviorRegistry.TryGetByCardNo(source.CardNo, out var behavior)
-            ? behavior.SourceUnitTags.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            ? (behavior.SourceUnitTags + "|" + behavior.SourceEquipmentTags)
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             : [];
         return copied with {
             TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
