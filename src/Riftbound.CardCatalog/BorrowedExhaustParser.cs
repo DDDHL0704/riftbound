@@ -27,6 +27,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public int RecycledCardCostCount { get; init; }
     public bool RecyclesOnlyUnitsAsCost { get; init; }
     public int? ExhaustedUnitMinimumMightAsCost { get; init; }
+    public string DestroyedFriendlyCardTypeAsCost { get; init; } = "";
     public int DrawCount { get; init; }
     public int RuneCallCount { get; init; }
     public int ScoreAmount { get; init; }
@@ -68,6 +69,8 @@ public static class BorrowedExhaustParser
             if (recycle.Success) cost = cost.Remove(recycle.Index, recycle.Length);
             var exhaustsPowerful = cost.Contains("让一名友方{{强力}}单位变为休眠状态", StringComparison.Ordinal);
             cost = cost.Replace("让一名友方{{强力}}单位变为休眠状态", "", StringComparison.Ordinal);
+            var destroyedFriend = Regex.Match(cost, "摧毁(?<kind>一件友方装备|一名友方单位)");
+            if (destroyedFriend.Success) cost = cost.Remove(destroyedFriend.Index, destroyedFriend.Length);
             var destroysSource = cost.Contains("摧毁此牌", StringComparison.Ordinal)
                 || cost.Contains("摧毁我", StringComparison.Ordinal);
             cost = cost.Replace("摧毁此牌", "", StringComparison.Ordinal)
@@ -103,7 +106,9 @@ public static class BorrowedExhaustParser
                     RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
                     DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
                     RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位",
-                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : null };
+                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : null,
+                    DestroyedFriendlyCardTypeAsCost = destroyedFriend.Success
+                        ? destroyedFriend.Groups["kind"].Value.Contains("装备", StringComparison.Ordinal) ? "EQUIPMENT" : "UNIT" : "" };
             var conversion = Regex.Match(effect, @"^\{\{反应\}\}\s*[—-]\s*支付任意数量的(?<input>法力|\{\{A\}\})来\{\{获得\}\}等量的(?<output>法力|\{\{A\}\})$");
             if (conversion.Success && conversion.Groups["input"].Value != conversion.Groups["output"].Value)
             {
@@ -131,7 +136,7 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
-            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
+            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?:单位指示物)?(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
             if (unitToken.Success)
             {
                 var count = unitToken.Groups["count"].Value switch { "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) };

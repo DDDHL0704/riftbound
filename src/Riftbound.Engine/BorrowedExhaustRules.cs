@@ -79,8 +79,8 @@ internal static class BorrowedExhaustRules
             || c.Borrower.Object is null || c.Donor.Object is null || c.Borrower.Object.ObjectId != item.SourceObjectId
             || c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || item.CardNo != c.Borrower.PhysicalCardNo || !Inherits(c.Borrower.CardNo)
             || Spec(c.Donor.CardNo, c.AbilityIndex) is not { } spec
-            || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost)
-            || !ValidSource(state, c.Donor, c.AcquiredTick)
+            || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
+            || !ValidSource(state, c.Donor, c.AcquiredTick, spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
             || spec.Kind == "RESOURCE"
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield

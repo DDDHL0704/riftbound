@@ -28,6 +28,11 @@ internal static partial class ActionPromptBuilder
                     "休眠" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "费用").Label,
                     "让友方强力单位休眠以支付技能费用")).ToArray();
             if (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue && unitExhaustChoices.Length == 0) continue;
+            var destructionChoices = CoreRuleEngine.BorrowedDestructionCostChoices(state, player, ability.Spec)
+                .Select(id => new ActionPromptChoiceDto(id,
+                    "摧毁" + ObjectChoice(state, id[CoreRuleEngine.DestroyFriendlyPermanentAdditionalCostPrefix.Length..], "费用").Label,
+                    "摧毁友方物体以支付技能费用")).ToArray();
+            if (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 && destructionChoices.Length == 0) continue;
             IReadOnlyList<ActionPromptChoiceDto> optional = [];
             if (ability.Spec.Conversion.Length > 0)
             {
@@ -72,15 +77,16 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? "摧毁一件友方" + (ability.Spec.DestroyedFriendlyCardTypeAsCost == "UNIT" ? "单位；" : "装备；") : "")}横置：{effect}",
                 ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
                 powerPool.TotalPower, PlayCardAvailablePowerByTrait(powerPool, new Dictionary<string, int>()),
                 new RunePaymentReachability(powerPool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(powerPool, byTrait),
                 [], true, ability.Spec.Kind == "RESOURCE", true, null, SpellshieldTaxPowerByTargetObjectId: taxes,
-                AdditionalCostChoices: discardChoices.Concat(recycleChoices).Concat(unitExhaustChoices).ToArray(),
+                AdditionalCostChoices: discardChoices.Concat(recycleChoices).Concat(unitExhaustChoices).Concat(destructionChoices).ToArray(),
                 RequiredAdditionalCostChoiceCount: (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
-                    + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0));
+                    + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
+                    + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0));
         }
     }
 
