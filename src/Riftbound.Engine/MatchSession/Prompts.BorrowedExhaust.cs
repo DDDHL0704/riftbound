@@ -43,6 +43,9 @@ internal static partial class ActionPromptBuilder
                 "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌"
                     + (ability.Spec.RuneCallCount > 0 ? $"并召出 {ability.Spec.RuneCallCount} 枚休眠符文" : ""),
                 "DISCARD_DRAW" => $"弃置一张手牌，然后抽 {ability.Spec.DrawCount} 张牌",
+                "DESTROY_SELF" => "摧毁此牌",
+                "CREATE_GOLD" => "打出一个休眠的金币装备指示物",
+                "SCORE" => $"获得 {ability.Spec.ScoreAmount} 分",
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
                 _ => $"让一名单位在本回合内战力 {ability.Spec.Might:+0;-0}"
                     + (ability.Spec.EmpoweredMight is { } stronger ? $"；此牌已强化时改为 +{stronger}" : "") };

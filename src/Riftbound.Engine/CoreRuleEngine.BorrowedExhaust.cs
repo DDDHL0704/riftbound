@@ -163,11 +163,37 @@ public sealed partial class CoreRuleEngine
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
         if (spec.Kind == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, 1, spec.DrawCount);
+        if (spec.Kind == "SCORE")
+            return ResolveSkillScoreStack(state, item, spec.ScoreAmount, BorrowedExhaustRules.Effect, "获得的得分技能结算");
         var cards = state.CardObjects.ToDictionary();
         var zones = NormalizeZonesForSeats(state);
         var destroyed = new HashSet<string>(StringComparer.Ordinal);
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", "获得的技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId }) };
+        if (spec.Kind == "CREATE_GOLD")
+        {
+            CreateBaseEquipmentTokens(zones, cards,
+                new(c.Donor.CardNo, "获得的指示物技能", 0, item.EffectKind, 0, 0,
+                    CreatedBaseEquipmentTokenCount: 1, CreatedBaseEquipmentTokenName: "金币",
+                    CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard, CreatedBaseEquipmentTokenIsExhausted: true), item, events);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
+        if (spec.Kind == "DESTROY_SELF")
+        {
+            if (!cards.TryGetValue(c.Borrower.Object.ObjectId, out var self)
+                || self.ObjectGeneration != c.Borrower.Object.Generation || !IsObjectOnField(zones, self.ObjectId))
+                return NoopStackResolutionResult(state) with { Events = events };
+            var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(),
+                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), state.RunePools,
+                objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { self.ObjectId },
+                explicitDestroyReason: "SKILL_EFFECT");
+            events.AddRange(removal.Events);
+            return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones,
+                RunePools = removal.RunePools, TriggerQueue = removal.TriggerQueue,
+                DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds, Events = events,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
         using (new MightInstructionScope(state, zones, cards, events))
         foreach (var id in spec.Kind == "BOON_SELF" ? new[] { c.Borrower.Object.ObjectId } : item.TargetObjectIds)
         {

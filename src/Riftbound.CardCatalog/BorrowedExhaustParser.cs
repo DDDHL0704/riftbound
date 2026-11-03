@@ -26,6 +26,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool DestroysSourceAsCost { get; init; }
     public int DrawCount { get; init; }
     public int RuneCallCount { get; init; }
+    public int ScoreAmount { get; init; }
     public int? EmpoweredMight { get; init; }
     public int ExistingBoonMight { get; init; }
 }
@@ -39,6 +40,7 @@ public static class BorrowedExhaustParser
     {
         var result = new List<BorrowedExhaustSpec>();
         var index = 0;
+        var allAbilitiesRequireBattlefield = text.Contains("只有我位于战场时，才能使用我的技能", StringComparison.Ordinal);
         foreach (var line in text.Replace(@"\n", "\n", StringComparison.Ordinal).Split('\n'))
         {
             var parts = Regex.Replace(line, @"（[^）]*）|\([^)]*\)", "").Trim().Split(['：', ':'], 2);
@@ -71,7 +73,8 @@ public static class BorrowedExhaustParser
             var experience = Regex.Match(cost, @"消耗(?<n>[0-9]+)经验");
             var remainder = Regex.Replace(cost, @"\{\{(?:[0-9]+|横置|T|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|消耗[0-9]+经验|支付|[\s，,、和]", "");
             if (remainder.Length != 0) continue;
-            var battlefield = parts[1].Contains("我必须位于战场中才能使用此技能", StringComparison.Ordinal);
+            var battlefield = allAbilitiesRequireBattlefield
+                || parts[1].Contains("我必须位于战场中才能使用此技能", StringComparison.Ordinal);
             var effect = parts[1].Replace("我必须位于战场中才能使用此技能。", "", StringComparison.Ordinal).Trim().TrimEnd('。', '.');
             BorrowedExhaustSpec Skill(string kind, int targets = 1, int might = 0, int floor = 0,
                 string scope = "ANY_UNIT", int damage = 0, string keyword = "")
@@ -108,6 +111,22 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "打出一个休眠的“金币”装备指示物")
+            {
+                result.Add(Skill("CREATE_GOLD", 0));
+                continue;
+            }
+            var score = Regex.Match(effect, @"^获得(?<n>[1-9][0-9]*)分$");
+            if (score.Success)
+            {
+                result.Add(Skill("SCORE", 0) with { ScoreAmount = int.Parse(score.Groups["n"].Value) });
+                continue;
+            }
+            if (effect is "摧毁此牌" or "摧毁我")
+            {
+                result.Add(Skill("DESTROY_SELF", 0));
+                continue;
+            }
             if (effect is "给予我增益" or "给予我{{增益}}")
             {
                 result.Add(Skill("BOON_SELF", 0));
