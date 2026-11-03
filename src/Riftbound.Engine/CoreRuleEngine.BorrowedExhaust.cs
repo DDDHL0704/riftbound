@@ -73,6 +73,31 @@ public sealed partial class CoreRuleEngine
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
         if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
             return RejectWithCorePrompts(state, "支付资源行动后来源已无法使用该技能。", ErrorCodes.InvalidTarget);
+        var destructionTriggers = new List<TriggerQueueItemState>();
+        var destroyedOwners = new List<string>();
+        var borrowerWasOnBattlefield = zones.Values.Any(z => z.Battlefields.Contains(source.ObjectId, StringComparer.Ordinal));
+        var context = new BorrowedExhaustContext(BorrowedExhaustRules.Capture(source, ability.BorrowerText),
+            BorrowedExhaustRules.Capture(cards[ability.Donor.ObjectId], ability.DonorText), ability.Spec.Index,
+            state.Tick + 1, source.IsEmpowered, null, borrowerWasOnBattlefield);
+        if (ability.Spec.DestroysSourceAsCost)
+        {
+            // Exhausting is part of the printed cost and is paid before the
+            // source is destroyed. The captured text instance remains usable
+            // for the resulting stack item after the zone change.
+            source = ExhaustForInstruction(zones, cards, source);
+            cards[source.ObjectId] = source;
+            var costItem = new StackItemState($"cost-{state.Tick + 1}-{source.ObjectId}-BORROWED",
+                intent.PlayerId, source.ObjectId, BorrowedExhaustRules.Effect,
+                source.CardNo ?? context.Borrower.PhysicalCardNo, []);
+            var removal = ResolveFieldDestructions(state, zones, cards, costItem, new HashSet<string>(),
+                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), payment.RunePools,
+                objectLocations: locations, explicitDestroyObjectIds: new HashSet<string> { source.ObjectId });
+            if (removal.Events.Count == 0)
+                return RejectWithCorePrompts(state, "无法支付摧毁来源的费用。", ErrorCodes.InvalidTarget);
+            events.AddRange(removal.Events);
+            destructionTriggers.AddRange(removal.TriggerQueue);
+            destroyedOwners.AddRange(removal.DestroyedUnitOwnerIds);
+        }
         if (ability.Spec.DiscardsEquipmentAsCost)
         {
             if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId).Contains(discard[0]))
@@ -86,14 +111,12 @@ public sealed partial class CoreRuleEngine
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
         }
         if (ability.Spec.Kind == "RESOURCE")
-            return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events, extras);
-        source = cards[source.ObjectId];
+            return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events, extras,
+                source, destructionTriggers, destroyedOwners);
+        if (cards.TryGetValue(source.ObjectId, out var currentSource)) source = currentSource;
         var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
-        var context = new BorrowedExhaustContext(BorrowedExhaustRules.Capture(source, ability.BorrowerText),
-            BorrowedExhaustRules.Capture(cards[ability.Donor.ObjectId], ability.DonorText), ability.Spec.Index,
-            state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories,
-            zones.Values.Any(z => z.Battlefields.Contains(source.ObjectId)));
+        context = context with { TargetTokenFactories = factories.Count == 0 ? null : factories };
         if (ability.Spec.RemovesSourceEmpowerment)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
@@ -101,7 +124,8 @@ public sealed partial class CoreRuleEngine
             source = changed.CardObjects[source.ObjectId];
             events.AddRange(changed.Events);
         }
-        cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
+        if (!ability.Spec.DestroysSourceAsCost && cards.ContainsKey(source.ObjectId))
+            cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-BORROWED", intent.PlayerId,
             source.ObjectId, BorrowedExhaustRules.Effect, AttachedRuleTextRules.Face(source), targets,
             timingContext: StackTimingContextForNewStackItem(state)) {
@@ -120,6 +144,8 @@ public sealed partial class CoreRuleEngine
             PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones),
             RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience, StackItems = [..state.StackItems, item],
+            TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(),
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners),
             UntilEndOfTurnEffects = source.Tags.Contains(CardObjectTags.UnitCard)
                 ? MarkEzrealEnemyTargetsThisTurnForUnitAbility(state, state.UntilEndOfTurnEffects, intent.PlayerId, targets)
                 : state.UntilEndOfTurnEffects };
@@ -193,6 +219,15 @@ public sealed partial class CoreRuleEngine
                 cards[id] = ApplyPowerModifier(current, target, behavior, item, id, spec.Might, out var modified);
                 events.Add(modified);
             }
+        }
+        if (spec.Kind == "DRAW" && spec.DrawCount > 0)
+        {
+            var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId,
+                spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);
+            return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones,
+                PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId,
+                RngCursor = draw.RngCursor, Events = events,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
         }
         if (spec.Kind != "DAMAGE_UNIT")
             return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones, Events = events };

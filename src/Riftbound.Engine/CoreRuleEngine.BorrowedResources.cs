@@ -23,9 +23,11 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult ResolveBorrowedResource(MatchState state, PlayerIntent intent,
         BorrowedExhaustAbility ability, PaymentCostRules.PaymentPlan plan, PaymentCostRules.PaymentCommitResult payment,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
-        Dictionary<string, ObjectLocationState> locations, List<GameEvent> events, IReadOnlyList<string> extraCosts)
+        Dictionary<string, ObjectLocationState> locations, List<GameEvent> events, IReadOnlyList<string> extraCosts,
+        CardObjectState activationSource, IReadOnlyList<TriggerQueueItemState> destructionTriggers,
+        IReadOnlyList<string> destroyedOwners)
     {
-        var source = cards[plan.SourceObjectId!];
+        var source = activationSource;
         var spec = ability.Spec;
         var pool = payment.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
         var mana = source.IsEmpowered ? spec.EmpoweredMana ?? spec.GeneratedMana : spec.GeneratedMana;
@@ -87,7 +89,8 @@ public sealed partial class CoreRuleEngine
             source = changed.CardObjects[source.ObjectId];
             events.AddRange(changed.Events);
         }
-        cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
+        if (cards.ContainsKey(source.ObjectId) && !spec.DestroysSourceAsCost)
+            cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         var payload = new Dictionary<string, object?> {
             ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
             ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = source.ObjectId,
@@ -109,7 +112,9 @@ public sealed partial class CoreRuleEngine
             events.Add(new("POWER_GAINED", "获得符能并保留用途限制", payload));
         var next = state with { Tick = state.Tick + 1, CardObjects = cards, PlayerZones = zones,
             ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = pools,
-            PlayerExperience = payment.PlayerExperience };
+            PlayerExperience = payment.PlayerExperience,
+            TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(),
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners) };
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 }

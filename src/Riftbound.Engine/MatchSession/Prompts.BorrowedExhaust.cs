@@ -36,6 +36,7 @@ internal static partial class ActionPromptBuilder
                 "KEYWORD_UNIT" => $"给予一名{(ability.Spec.TargetScope == "FRIENDLY_UNIT" ? "友方" : "")}单位本回合内{ability.Spec.Keyword}",
                 "DAMAGE_UNIT" => $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
+                "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌",
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
                 _ => $"让一名单位在本回合内战力 {ability.Spec.Might:+0;-0}" };
             var taxes = targets.ToDictionary(t => t.Id, t => CoreRuleEngine.SpellshieldPowerCostForTarget(state, player, t.Id), StringComparer.Ordinal);

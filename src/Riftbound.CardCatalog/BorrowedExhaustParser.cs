@@ -23,6 +23,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool RemovesSourceEmpowerment { get; init; }
     public string Conversion { get; init; } = "";
     public bool DiscardsEquipmentAsCost { get; init; }
+    public bool DestroysSourceAsCost { get; init; }
+    public int DrawCount { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -44,6 +46,10 @@ public static class BorrowedExhaustParser
             cost = Regex.Replace(cost, "解除(?:我的|此牌的)强化", "");
             var discardsEquipment = cost.Contains("弃置一张装备牌", StringComparison.Ordinal);
             cost = cost.Replace("弃置一张装备牌", "", StringComparison.Ordinal);
+            var destroysSource = cost.Contains("摧毁此牌", StringComparison.Ordinal)
+                || cost.Contains("摧毁我", StringComparison.Ordinal);
+            cost = cost.Replace("摧毁此牌", "", StringComparison.Ordinal)
+                .Replace("摧毁我", "", StringComparison.Ordinal);
             var level = Regex.Match(cost, @"\{\{等级(?<n>[0-9]+)>\}\}");
             cost = Regex.Replace(cost, @"\{\{等级[0-9]+>\}\}|\{\{>>\}\}", "");
             var reaction = cost.Contains("{{反应>}}", StringComparison.Ordinal);
@@ -70,7 +76,8 @@ public static class BorrowedExhaustParser
                     Power = power, TypedPower = typed, Experience = experience.Success ? int.Parse(experience.Groups["n"].Value) : 0,
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
-                    RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment };
+                    RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
+                    DestroysSourceAsCost = destroysSource };
             var conversion = Regex.Match(effect, @"^\{\{反应\}\}\s*[—-]\s*支付任意数量的(?<input>法力|\{\{A\}\})来\{\{获得\}\}等量的(?<output>法力|\{\{A\}\})$");
             if (conversion.Success && conversion.Groups["input"].Value != conversion.Groups["output"].Value)
             {
@@ -98,6 +105,13 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            var draw = Regex.Match(effect, @"^抽(?<n>[一二两1-9][0-9]*)张牌$");
+            if (draw.Success)
+            {
+                var count = draw.Groups["n"].Value switch { "一" => 1, "二" or "两" => 2, _ => int.Parse(draw.Groups["n"].Value) };
+                result.Add(Skill("DRAW", 0) with { DrawCount = count });
+                continue;
+            }
             var ready = Regex.Match(effect, @"^让(?<n>[1-9][0-9]*|一|两|二)件装备变为活跃状态$");
             if (ready.Success)
             {
