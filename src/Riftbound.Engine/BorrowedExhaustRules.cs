@@ -12,7 +12,7 @@ public sealed record BorrowedTextSource(ObjectBinding Object, string CardNo, str
 public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, BorrowedTextSource Donor,
     int AbilityIndex, long AcquiredTick, bool BorrowerWasEmpowered,
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false,
-    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false);
+    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
     RuleTextInstance DonorText, BorrowedExhaustSpec Spec);
 
@@ -85,7 +85,12 @@ internal static class BorrowedExhaustRules
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
             || spec.RequiresPlayedArmamentThisTurn != c.ArmamentWasPlayedThisTurn
-            || spec.EmpoweredMight.HasValue != c.LastKnownSourceEmpowered.HasValue
+            || (spec.EmpoweredMight.HasValue || spec.ReadyTargetIfSourceEmpowered) != c.LastKnownSourceEmpowered.HasValue
+            || (spec.TargetScope == "FRIENDLY_DUEL_UNIT") != (c.DuelBattlefield is not null)
+            || c.DuelBattlefield is { } field && (field.Generation < 0 || string.IsNullOrWhiteSpace(field.ObjectId)
+                || !state.CardObjects.TryGetValue(field.ObjectId, out var battlefield)
+                || battlefield.ObjectGeneration < field.Generation
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
             || item.InsightContext is not null || item.InsightCompleted && spec.Kind != "INSIGHT_DRAW_EXPERIENCE"
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
