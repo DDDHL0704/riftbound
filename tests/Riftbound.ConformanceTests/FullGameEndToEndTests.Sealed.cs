@@ -28,7 +28,9 @@ public sealed partial class FullGameEndToEndTests
     {
         // Every card comes from the real six packs. Opponents cooperate by
         // passing; all units, claims, holds and score victories use core rules.
-        var run = new SealedSubmittedOpeningTests.Run(bestOf, setCode: setCode);
+        // Persisted JSONB object keys can return in a different order. Exercise
+        // the original score games through that cold path, including live play.
+        var run = new SealedSubmittedOpeningTests.Run(bestOf, setCode: setCode, reorderRecoveryObjects: true);
         await run.Join("alice");
         await run.Join("bob");
         var poolHash = MatchStateHasher.HashValue(run.State.PlayerSealedPools);
