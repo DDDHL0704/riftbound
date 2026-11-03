@@ -778,7 +778,8 @@ public static partial class MatchRecoveryValidator
                 sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
-                errors);
+                errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
             ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
@@ -1697,6 +1698,12 @@ public static partial class MatchRecoveryValidator
                 decklist.Battlefields,
                 errors,
                 rejectRedactionSentinel: true);
+            if (decklist.AdditionalLegendCardNos is { } additionalLegends)
+                ValidateAuthoritativeStateStringListValues(
+                    $"decklist for {playerLabel} additional legend card",
+                    additionalLegends,
+                    errors,
+                    rejectRedactionSentinel: true);
         }
     }
 

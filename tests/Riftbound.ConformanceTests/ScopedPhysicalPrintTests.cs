@@ -13,15 +13,18 @@ public sealed class ScopedPhysicalPrintTests
     [InlineData("RAD·054/167", 3, 3, "约德尔人")]
     [InlineData("RAD·055/167", 3, 2, "机械")]
     [InlineData("RAD·050/167", 5, 4, "")]
+    [InlineData("RAD·109/167", 4, 4, "恶魔", "purple")]
+    [InlineData("RAD·109a/167", 4, 4, "恶魔", "purple")]
+    [InlineData("RAD·SP3/005", 4, 4, "恶魔", "purple")]
     [InlineData("RAD·065/167", 4, 3, "")]
     [InlineData("RAD·065a/167", 4, 3, "")]
     public void AdmittedPrintKeepsItsExactPhysicalIdentity(
-        string cardNo, int mana, int might, string tag)
+        string cardNo, int mana, int might, string tag, string color = "blue")
     {
         var accepted = TryCreate(cardNo, out var card);
         Evidence("create-" + cardNo, new { cardNo, accepted, card });
         Assert.True(accepted);
-        AssertPrinted(card, cardNo, mana, might, tag);
+        AssertPrinted(card, cardNo, mana, might, tag, color);
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out _));
     }
 
@@ -78,19 +81,23 @@ public sealed class ScopedPhysicalPrintTests
         => Assert.False(TryCreate(cardNo, out _));
 
     [Theory]
-    [InlineData("RAD·038/167")]
-    [InlineData("RAD·109/167")]
-    public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string cardNo)
+    [InlineData("HAND")]
+    [InlineData("CHAMPION")]
+    [InlineData("BANISHED")]
+    public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string zone)
     {
+        const string cardNo = "RAD·SP4/005";
         var card = new CardObjectState("CARD", power: 3, cardNo: cardNo, ownerId: "P1", controllerId: "P1",
             tags: [CardObjectTags.UnitCard]);
         var state = new MatchState("SCOPED-PRINT-PLAY-BLOCKED", 0, 3, "P1",
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(100, 100), ["P2"] = RunePool.Empty },
-            playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty with { Hand = ["CARD"] }, ["P2"] = PlayerZones.Empty },
+            playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty with {
+                Hand = zone == "HAND" ? ["CARD"] : [], ChampionZone = zone == "CHAMPION" ? ["CARD"] : [],
+                Banished = zone == "BANISHED" ? ["CARD"] : [] }, ["P2"] = PlayerZones.Empty },
             cardObjects: new Dictionary<string, CardObjectState> { ["CARD"] = card },
-            objectLocations: new Dictionary<string, ObjectLocationState> { ["CARD"] = new("P1", "HAND") });
+            objectLocations: new Dictionary<string, ObjectLocationState> { ["CARD"] = new("P1", zone) });
         var before = MatchStateHasher.Hash(state);
         var result = await new CoreRuleEngine().ResolveAsync(state,
             new("scoped-print-play-blocked", "P1", CommandTypes.PlayCard), new PlayCardCommand("CARD", cardNo, []), default);
@@ -137,7 +144,7 @@ public sealed class ScopedPhysicalPrintTests
         => typeof(CoreRuleEngine).GetMethod("ResetCardOutsidePlay", BindingFlags.Static | BindingFlags.NonPublic)!
             .Invoke(null, [zones, cards, "CARD", previous, "P1"]);
 
-    private static void AssertPrinted(CardObjectState card, string cardNo, int mana, int might, string tag)
+    private static void AssertPrinted(CardObjectState card, string cardNo, int mana, int might, string tag, string color = "blue")
     {
         Assert.Equal("CARD", card.ObjectId);
         Assert.Equal(cardNo, card.CardNo);
@@ -149,7 +156,7 @@ public sealed class ScopedPhysicalPrintTests
         Assert.False(card.IsExhausted);
         Assert.Null(card.TokenFactoryCardNo);
         Assert.Contains(CardObjectTags.UnitCard, card.Tags);
-        Assert.Contains("COLOR:blue", card.Tags);
+        Assert.Contains("COLOR:" + color, card.Tags);
         Assert.DoesNotContain("COLOR:red", card.Tags);
         if (tag.Length > 0) Assert.Contains(tag, card.Tags);
     }

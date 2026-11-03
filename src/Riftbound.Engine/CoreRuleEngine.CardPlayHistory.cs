@@ -11,7 +11,8 @@ public sealed record CardPlayHistoryEntry(string PlayId, string PlayerId, Object
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? OriginHandPlayerId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool OriginOutsideHands = false,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ReturnedEquipmentManaCost = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ShowcaseReceipt? Showcase = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ShowcaseReceipt? Showcase = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<OptionalPlayCostReductionUse>? OptionalPlayCostReductions = null);
 public sealed record TurnCardPlayHistory(int TurnNumber,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Finalized,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Resolved);
@@ -61,6 +62,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!result.Accepted) return result;
         result = RecordNextUnitPlayGrants(result);
+        result = RecordTimeAssassinNextUnitReductions(result);
         var history = result.State.CardPlays;
         var finalized = (history.TurnNumber == before.TurnNumber ? history.Finalized : []).ToList();
         var resolved = (history.TurnNumber == before.TurnNumber ? history.Resolved : []).ToList();
@@ -84,7 +86,10 @@ public sealed partial class CoreRuleEngine
                 && (!IsIdentityFieldZone(oldLocation.Zone) || !IsIdentityFieldZone(observation.Zone)))
                 generation = Math.Max(generation, old.ObjectGeneration + 1);
             var costReceipt = result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.ReturnedEquipmentManaCost;
+            var optionalPlayReductions = result.State.UntilEndOfTurnEffects.Select(ReadPlayCostReductionUse)
+                .OfType<OptionalPlayCostReductionUse>().Where(use => use.PlayId == entry.PlayId).ToArray();
             entry = entry with { ReturnedEquipmentManaCost = costReceipt,
+                OptionalPlayCostReductions = optionalPlayReductions.Length == 0 ? null : optionalPlayReductions,
                 Showcase = entry.Showcase ?? result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.Showcase };
             var limited = entry.PlayId.Length == 0;
             if (limited) entry = entry with { OriginOutsideHands = true };

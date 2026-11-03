@@ -4,7 +4,8 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record RuleTextModeUse(ObjectBinding Source, string CardNo, string Mode,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null);
 public sealed record RuleTextModeUseLedger(int TurnNumber, IReadOnlyList<RuleTextModeUse> Uses);
 
 public sealed partial class CoreRuleEngine
@@ -157,8 +158,12 @@ public sealed partial class CoreRuleEngine
         if (state.RuleTextModeUses is not { } ledger) return true;
         if (ledger.TurnNumber != state.TurnNumber || ledger.Uses is null || ledger.Uses.Count == 0) return false;
         return ledger.Uses.All(use => use is not null && use.Source is not null && use.Source.Generation >= 0
-            && state.CardObjects.TryGetValue(use.Source.ObjectId, out var source) && use.Source.Generation <= source.ObjectGeneration
-            && AttachmentModeSpec(use.CardNo)?.Modes?.Any(m => m.Id == use.Mode) == true
+            && (state.CardObjects.TryGetValue(use.Source.ObjectId, out var source)
+                ? use.Source.Generation <= source.ObjectGeneration
+                    && (use.TokenFactoryCardNo is null || use.TokenFactoryCardNo == source.TokenFactoryCardNo)
+                : use.TokenFactoryCardNo is not null && P6TokenFactoryCatalog.IsTokenFactory(use.TokenFactoryCardNo))
+            && (AttachmentModeSpec(use.CardNo)?.Modes?.Any(m => m.Id == use.Mode) == true
+                || UnitEventSpec(use.CardNo) is { DistinctModesPerTurn: true } unit && unit.Modes?.Any(m => m.Id == use.Mode) == true)
             && AttachedRuleTextRules.ValidCaptured(state, use.Origin, use.Source.ObjectId, use.Source.Generation, use.CardNo))
             && ledger.Uses.Distinct().Count() == ledger.Uses.Count;
     }

@@ -61,6 +61,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidHeldTargetStack(MatchState state, StackItemState item)
     {
+        if (item.HeldContext?.Kind == LinkedExileHeldKind)
+            return ValidLinkedExileHeldStack(state, item);
         if (item.HeldContext?.Kind == DeploymentHeldKind)
             return ValidDeploymentHeldStack(state, item);
         if (!HasHeldTargetConfirmation(item)) return true;

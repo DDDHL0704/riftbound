@@ -636,7 +636,8 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-BASE-BOON-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["BF", "P1-BASE-BOON-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal("BF", result.FinalState.ObjectLocations["P1-BASE-BOON-UNIT-001"].BattlefieldObjectId);
         Assert.Equal(3, result.FinalState.CardObjects["P1-BASE-BOON-UNIT-001"].Power);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Boon], result.FinalState.CardObjects["P1-BASE-BOON-UNIT-001"].Tags);
     }

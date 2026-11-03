@@ -25606,9 +25606,22 @@ public sealed partial class FullGameEndToEndTests
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
-                        Assert.Contains(unitEvent.CardNo, new[] { "VEN·044", "VEN·094", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·102", "VEN·108", "VEN·121", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP5/005", "T1S·005/005" });
+                        Assert.Contains(unitEvent.CardNo, new[] { "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "T1S·005/005", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
+                        if (unitEvent.CardNo is "RAD·038/167" or "RAD·SP1/005")
+                        {
+                            Assert.Equal("ENEMY_MIGHT_REDUCED_HERE", unitEvent.Timing);
+                            Assert.NotNull(unitEvent.MightReduction);
+                            Assert.Equal(item.ControllerId, unitEvent.MightReduction.Actor);
+                        }
+                        if (unitEvent.CardNo is "RAD·043/167" or "RAD·043a/167")
+                        {
+                            Assert.Equal("BECAME_EXHAUSTED", unitEvent.Timing);
+                            Assert.Contains(unitEvent.Mode, new[] { "GAIN_BOON", "CONSUME_BOON_STUN", "CONSUME_BOON_READY" });
+                            Assert.Contains(result.State.RuleTextModeUses!.Uses, use => use.Source.ObjectId == item.SourceObjectId
+                                && use.Source.Generation == unitEvent.SourceGeneration && use.CardNo == unitEvent.CardNo && use.Mode == unitEvent.Mode);
+                        }
                         if (unitEvent.CardNo == "RAD·146/167")
                         {
                             Assert.Equal("PLAY_OR_MOVE", unitEvent.Timing);
@@ -25632,7 +25645,7 @@ public sealed partial class FullGameEndToEndTests
                     {
                         Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(activation.AbilityId, out var ability));
                         Assert.NotNull(ability.SimpleEffect);
-                        Assert.Equal(ability.SourceCardNo, item.CardNo);
+                        Assert.Contains(item.CardNo, P4ActivatedAbilityCatalog.SourceCardNosForAbility(ability));
                         Assert.Equal(ability.EffectKind, item.EffectKind);
                         Assert.Equal(item.SourceObjectId, activation.Source.ObjectId);
                         Assert.InRange(activation.AcquiredTick, 1, result.State.Tick);

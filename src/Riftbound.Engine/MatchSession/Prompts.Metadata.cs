@@ -206,6 +206,10 @@ internal static partial class ActionPromptBuilder
             ["destinationPolicy"] = "source-specific-server-filtered-destinations",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
             ["supportsSimultaneousMovement"] = state.BattlefieldStates.Count > 0,
+            ["manaPerMoveByDestination"] = state.BattlefieldStates.Keys.ToDictionary(
+                id => "BATTLEFIELD:" + id, id => StandardMovementCostRules.ManaPerMove(state, playerId, id)),
+            ["powerPerMoveByDestination"] = state.BattlefieldStates.Keys.ToDictionary(
+                id => "BATTLEFIELD:" + id, id => StandardMovementCostRules.PowerPerMove(state, playerId, id)),
             ["powerPerExtraUnitByDestination"] = state.BattlefieldStates.Keys.ToDictionary(
                 id => "BATTLEFIELD:" + id, id => StandardMovementCostRules.PowerPerExtraUnit(state, playerId, id)),
             ["sourceRequirements"] = sourceRequirements
@@ -720,6 +724,7 @@ internal static partial class ActionPromptBuilder
         {
             "READY" => "准备",
             "SUBMIT_DECK" => "提交卡组",
+            CommandTypes.ChoosePlayOrder => "选择先后手",
             "MULLIGAN" => "起手调度",
             "WAIT" => "等待",
             "PLAY_CARD" => "打出卡牌",

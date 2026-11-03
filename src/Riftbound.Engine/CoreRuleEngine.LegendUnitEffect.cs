@@ -8,27 +8,10 @@ public sealed record LegendUnitEffectContext(string AbilityId, long SourceGenera
 
 public sealed partial class CoreRuleEngine
 {
-    internal static bool ValidLegendEquipmentUnit(MatchState state, CardObjectState card)
-    {
-        var transform = card.LegendEquipmentUnit;
-        if (transform is null) return true;
-        var originalTags = transform.OriginalTags ?? [];
-        return transform.SourceLegend is { Generation: >= 0, ObjectId.Length: > 0 }
-            && transform.OriginalPower >= 0
-            && transform.CapturedTick >= 0 && transform.CapturedTick <= state.Tick
-            && originalTags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && !originalTags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && card.Power == card.ManaCost;
-    }
-
     internal static bool IsLegendUnitEffect(string effect)
         => effect is LegendAbilityEffectKinds.UnitPowerModifier or LegendAbilityEffectKinds.ReadyUnit
-            or LegendAbilityEffectKinds.EquipmentAsUnit;
-
-    internal static bool IsLegendEquipmentAsUnitEffect(string effect)
-        => effect == LegendAbilityEffectKinds.EquipmentAsUnit;
+            or LegendAbilityEffectKinds.TimeAssassinNextUnitReduction
+            or LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken;
 
     internal static bool IsLegendUnitEffectTarget(MatchState state, string player, string id, bool battlefieldOnly)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
@@ -36,27 +19,21 @@ public sealed partial class CoreRuleEngine
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id)
             && (!battlefieldOnly || state.ObjectLocations.TryGetValue(id, out var location) && location.Zone == MoveUnitBattlefieldZone);
 
-    internal static bool IsLegendEquipmentUnitTarget(MatchState state, string player, string id)
-        => IsLegendEquipmentReadyTarget(state, player, id)
-            && state.CardObjects.TryGetValue(id, out var card)
-            && CardControlRules.IsControlledByPlayerOrLegacyOwned(card, player);
-
     internal static bool ValidLegendUnitEffect(MatchState state, StackItemState item)
     {
+        if (item.EffectKind == LegendAbilityEffectKinds.TimeAssassinNextUnitReduction)
+            return ValidTimeAssassinLegendAction(state, item);
+        if (item.EffectKind == LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken)
+            return ValidLegendBattlefieldEquipmentToken(state, item);
         if (item.LegendUnitEffect is not { } context) return !IsLegendUnitEffect(item.EffectKind);
         if (!IsLegendUnitEffect(item.EffectKind) || !TryGetLegendAbility(context.AbilityId, out var ability)
             || ability.EffectKind != item.EffectKind
-            || item.EffectKind != LegendAbilityEffectKinds.EquipmentAsUnit
-                && (!ability.RemovesSourceEmpowerAsCost || !ability.RequiresAnyUnitTarget)
-            || item.EffectKind == LegendAbilityEffectKinds.EquipmentAsUnit
-                && (!ability.RequiresAnyEquipmentTarget || ability.RemovesSourceEmpowerAsCost)
+            || !ability.RemovesSourceEmpowerAsCost || !ability.RequiresAnyUnitTarget
             || !LegendActionAbilityCatalog.IsSourceCardNoForAbility(context.AbilityId, item.CardNo)
             || context.SourceGeneration < 0 || context.SpellshieldTaxPower < 0 || !state.Seats.ContainsKey(item.ControllerId)
             || string.IsNullOrWhiteSpace(item.SourceObjectId) || item.SourceConfirmed || item.EffectRepeatCount != 1
             || item.DamageAmount != 0
-            || (item.EffectKind == LegendAbilityEffectKinds.EquipmentAsUnit
-                ? !item.OptionalCosts.SequenceEqual(new[] { "SPEND_MANA:1" }, StringComparer.Ordinal)
-                : item.OptionalCosts.Count != 0)
+            || item.OptionalCosts.Count != 0
             || item.Destination.Length != 0
             || item.TargetObjectIds is not { Count: 1 } || item.TargetObjectIds[0] == item.SourceObjectId
             || item.TargetGenerations is not { Count: 1 } bindings
@@ -90,15 +67,17 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveLegendUnitEffect(MatchState state, StackItemState item)
     {
         if (!ValidLegendUnitEffect(state, item)) throw new InvalidOperationException("Invalid captured legend unit effect.");
+        if (item.EffectKind == LegendAbilityEffectKinds.TimeAssassinNextUnitReduction)
+            return ResolveTimeAssassinLegendAction(state, item);
+        if (item.EffectKind == LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken)
+            return ResolveLegendBattlefieldEquipmentToken(state, item);
         var context = item.LegendUnitEffect!;
         TryGetLegendAbility(context.AbilityId, out var ability);
         var events = new List<GameEvent> { new("LEGEND_ABILITY_RESOLVED", "传奇单位技能结算", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
             ["cardNo"] = item.CardNo, ["abilityId"] = context.AbilityId, ["stackItemId"] = item.StackItemId }) };
         var id = item.TargetObjectIds[0];
-        if (!(ability.EffectKind == LegendAbilityEffectKinds.EquipmentAsUnit
-                ? IsLegendEquipmentUnitTarget(state, item.ControllerId, id)
-                : IsLegendUnitEffectTarget(state, item.ControllerId, id, ability.RequiresBattlefieldTarget))
+        if (!IsLegendUnitEffectTarget(state, item.ControllerId, id, ability.RequiresBattlefieldTarget)
             || !state.CardObjects.TryGetValue(id, out var target) || target.ObjectGeneration != item.TargetGenerations![id])
         {
             events.Add(new("ABILITY_NO_EFFECT", "目标不再合法，已支付的费用不退回", new Dictionary<string, object?> {
@@ -107,48 +86,7 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state) with { Events = events };
         }
         var cards = state.CardObjects.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        if (ability.EffectKind == LegendAbilityEffectKinds.EquipmentAsUnit)
-        {
-            var previous = cards.Values.FirstOrDefault(card => card.LegendEquipmentUnit is { } transform
-                && transform.SourceLegend.ObjectId == item.SourceObjectId
-                && transform.SourceLegend.Generation == context.SourceGeneration);
-            if (previous is not null && previous.ObjectId != id)
-            {
-                cards[previous.ObjectId] = previous with {
-                    Power = previous.LegendEquipmentUnit!.OriginalPower,
-                    Tags = previous.LegendEquipmentUnit.OriginalTags,
-                    LegendEquipmentUnit = null };
-                events.Add(new("LEGEND_EQUIPMENT_UNIT_ENDED", "发条魔灵选择了另一件装备，旧装备恢复为装备", new Dictionary<string, object?> {
-                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                    ["targetObjectId"] = previous.ObjectId, ["abilityId"] = context.AbilityId }));
-            }
-
-            var current = cards[id];
-            if (current.LegendEquipmentUnit is { } existing
-                && existing.SourceLegend.ObjectId == item.SourceObjectId
-                && existing.SourceLegend.Generation == context.SourceGeneration)
-            {
-                current = current with { Power = existing.OriginalPower, Tags = existing.OriginalTags,
-                    LegendEquipmentUnit = null };
-            }
-            cards[id] = current with {
-                Power = current.ManaCost,
-                AttachedToObjectId = null,
-                Tags = current.Tags.Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
-                LegendEquipmentUnit = new(new(item.SourceObjectId, context.SourceGeneration), current.Power, current.Tags, state.Tick + 1) };
-            // CN143.5/435.1.h/718.6: becoming a unit immediately removes
-            // the object's own attachment, without moving it from its location.
-            if (current.AttachedToObjectId is { } host)
-                events.Add(new("EQUIPMENT_DETACHED", "武装变为单位后从原宿主卸除", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = item.SourceObjectId, ["unitObjectId"] = host,
-                    ["equipmentObjectId"] = id, ["controllerId"] = item.ControllerId,
-                    ["ownerId"] = current.OwnerId, ["reason"] = "BECAME_UNIT" }));
-            events.Add(new("LEGEND_EQUIPMENT_UNIT_STARTED", "装备变为单位装备", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                ["targetObjectId"] = id, ["power"] = current.ManaCost, ["manaCost"] = current.ManaCost,
-                ["abilityId"] = context.AbilityId }));
-        }
-        else if (ability.EffectKind == LegendAbilityEffectKinds.UnitPowerModifier)
+        if (ability.EffectKind == LegendAbilityEffectKinds.UnitPowerModifier)
         {
             var behavior = new CardBehaviorDefinition(item.CardNo, ability.DisplayName, 0, item.EffectKind, 0, 1,
                 TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: ability.PowerModifierAmount);

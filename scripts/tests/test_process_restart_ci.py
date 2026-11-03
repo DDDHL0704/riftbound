@@ -112,6 +112,28 @@ class RestartSequenceTests(unittest.TestCase):
             RUNNER.restart_sequence(self.launch, self.driver, lambda pid: {'different': pid}, self.stop)
         self.assertEqual(('stop', 2), self.calls[-1])
 
+    def test_resume_uses_the_recovered_process_only_after_original_history_capture(self):
+        def capture(pid):
+            self.calls.append(('capture', pid))
+            return {'original': True}
+        RUNNER.restart_sequence(self.launch, self.driver, capture, self.stop,
+                                lambda: self.calls.append(('resume', self.pid)))
+        self.assertEqual([('start', 1), ('driver', 'restart-prepare'), ('capture', 1), ('stop', 1),
+                          ('start', 2), ('driver', 'restart-recover'), ('capture', 2), ('resume', 2), ('stop', 2)], self.calls)
+
+    def test_changed_history_prevents_resume_and_still_stops_the_recovered_process(self):
+        with self.assertRaisesRegex(ValueError, 'changed the original SQL'):
+            RUNNER.restart_sequence(self.launch, self.driver, lambda pid: {'different': pid}, self.stop,
+                                    lambda: self.calls.append(('resume', self.pid)))
+        self.assertNotIn(('resume', 2), self.calls)
+        self.assertEqual(('stop', 2), self.calls[-1])
+
+    def test_failed_resume_cleans_up_the_recovered_process(self):
+        def resume(): raise ValueError('sealed resume rejected')
+        with self.assertRaisesRegex(ValueError, 'sealed resume rejected'):
+            RUNNER.restart_sequence(self.launch, self.driver, lambda pid: {'original': True}, self.stop, resume)
+        self.assertEqual(('stop', 2), self.calls[-1])
+
     def test_reused_pid_cannot_prove_restart(self):
         def launch(phase): return type('UnitProcess', (), {'pid': 7})()
         with self.assertRaisesRegex(ValueError, 'new actual API process'):

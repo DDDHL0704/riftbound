@@ -2934,7 +2934,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             result.FinalState.CardObjects["P2-BAIT-MOVED-001"].UntilEndOfTurnEffects);
         Assert.Equal(
             1,
-            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_UNIT_LOCATION", StringComparison.Ordinal)));
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -2954,9 +2954,8 @@ public sealed partial class ConformanceFixtureRunnerTests
                     "BAIT_MOVE_ENEMY_UNIT_TO_ANOTHER_ENEMY_UNIT_LOCATION_NO_ECHO",
                     "SFD·129/221",
                     [
-                        "P2-DIRTY-P1-CONTROLLED-BASE-UNIT",
-                        "P2-BAIT-VALID-DESTINATION-UNIT"
-                    ])
+                        "P2-DIRTY-P1-CONTROLLED-BASE-UNIT"
+                    ], destination: "BATTLEFIELD:BF")
             ],
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
@@ -3005,7 +3004,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P2"].Base);
         Assert.Equal(["P2-BAIT-VALID-DESTINATION-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P1-SPELL-BAIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_UNIT_LOCATION", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
     }
 
     [Fact]

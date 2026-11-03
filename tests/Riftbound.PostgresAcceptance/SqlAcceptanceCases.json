@@ -347,6 +347,11 @@
       "id": "draven-battle-death",
       "sourceType": "DravenBattleDeathSqlAcceptance",
       "defaultPartition": 3
+    },
+    {
+      "id": "sealed-series-recovery",
+      "sourceType": "SealedSeriesSqlAcceptance",
+      "defaultPartition": 1
     }
   ]
 }

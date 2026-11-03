@@ -245,15 +245,7 @@ internal static partial class ActionPromptBuilder
             return true;
         }
 
-        if (string.Equals(targetObjectIds[0], targetObjectIds[1], StringComparison.Ordinal)
-            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectIds[0], out var firstLocation)
-            || !TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectIds[1], out var secondLocation))
-        {
-            return false;
-        }
-
-        return !string.Equals(firstLocation.PlayerId, secondLocation.PlayerId, StringComparison.Ordinal)
-            || !string.Equals(firstLocation.Zone, secondLocation.Zone, StringComparison.Ordinal);
+        return CoreRuleEngine.CanSwapTargetLocations(state, targetObjectIds[0], targetObjectIds[1]);
     }
 
     private static IEnumerable<string> PromptTargetCandidateIds(
@@ -1868,7 +1860,7 @@ internal static partial class ActionPromptBuilder
             ["drawCount"] = choice.DrawCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.LastBreathDraw is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.LastBreathDraw is null && choice.StandbyObserver is null ? choice.SourceObjectId
                 : ResolutionResult.VisibleObjectIdForViewer(state, choice.SourceObjectId, playerId),
             ["effectKind"] = choice.EffectKind,
             ["serverHandChoiceState"] = ownChoice ? "PENDING" : "WAITING"

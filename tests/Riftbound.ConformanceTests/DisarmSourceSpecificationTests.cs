@@ -50,7 +50,7 @@ public sealed class DisarmSourceSpecificationTests
         foreach (var specification in DisarmSourceSpecifications.GetAll())
         {
             Assert.DoesNotContain(catalog.Cards, card => card.CardNo == specification.CardNo);
-            Assert.Equal(specification.CardNo is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·063/167" or "RAD·065/167" or "RAD·065a/167" or "RAD·093/167" or "RAD·097/167",
+            Assert.Equal(specification.CardNo is "RAD·038/167" or "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·063/167" or "RAD·065/167" or "RAD·065a/167" or "RAD·093/167" or "RAD·097/167" or "RAD·109/167" or "RAD·109a/167" or "RAD·SP1/005" or "RAD·SP3/005",
                 CardBehaviorRegistry.TryGetByCardNo(specification.CardNo, out _));
         }
     }

@@ -29,6 +29,7 @@ public sealed partial class CoreRuleEngine
     private static (string Kind, int Amount)? HeldDefinition(string? cardNo) =>
         BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldBurnTrigger, out var burn) ? ("BURN", burn.MillCount!.Value) :
         BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldEmptyRuneScoreTrigger, out var emptyRune) ? ("EMPTY_RUNE_SCORE", emptyRune.ScoreAmount!.Value) :
+        CardBehaviorRegistry.TryGetByCardNo(cardNo ?? "", out var linked) && linked.HeldPlaysLinkedExile ? (LinkedExileHeldKind, 0) :
         HeldCards.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), out var definition) ? definition : null;
 
     private static TriggerSpec? ExactOtherFriendlyHeldSpec(string cardNo)
@@ -41,8 +42,13 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidExactOtherFriendlyHeldContext(MatchState state, HeldTriggerContext context,
         string effect, string controller, string source, string? cardNo)
     {
+        if (context.Kind == LinkedExileHeldKind)
+            return ValidLinkedExileHeldContext(state, context, effect, controller, source, cardNo);
+        if (context.LinkedExile is not null) return false;
         if (context.Kind == DeploymentHeldKind)
             return ValidDeploymentHeldContext(state, context, effect, controller, source, cardNo);
+        if (IsParsedUnitHeldContext(context)) return ValidParsedUnitHeld(state, context, effect, controller, source, cardNo);
+        if (context.UnitSource is not null) return false;
         if (context.Deployment is not null) return false;
         var conditional = context.Kind is "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE";
         if (context.Kind is "BURN" or "EMPTY_RUNE_SCORE") return HeldDefinition(context.CardNo) is { } burn
@@ -94,9 +100,13 @@ public sealed partial class CoreRuleEngine
                     || (source != field && card.ControllerId != player)) continue;
                 var abilities = new List<(string Kind, int Amount, RuleTextInstance? Instance, int? ExactCount)>();
                 if (HeldDefinition(card.CardNo) is { } definition
+                    && definition.Kind != LinkedExileHeldKind
                     && (definition.Kind != "SEVEN_WIN" || units.Length >= definition.Amount)
                     && (definition.Kind != "EMPTY_RUNE_SCORE" || state.PlayerZones[player].RuneDeck.Count == 0)
                     && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player))) abilities.Add((definition.Kind, definition.Amount, null, null));
+                foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                    if (CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var linkedBehavior) && linkedBehavior.HeldPlaysLinkedExile)
+                        abilities.Add((LinkedExileHeldKind, 0, instance, null));
                 if (units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
                     abilities.Add(("EXPERIENCE", hunt, null, null));
                 if (units.Contains(source))
@@ -105,6 +115,15 @@ public sealed partial class CoreRuleEngine
                             && HasExactOtherFriendlyBattlefieldUnitCount(state, card, exact.RequiredExactOtherFriendlyBattlefieldUnits))
                             abilities.Add((exact.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE",
                                 exact.DrawCount ?? exact.ScoreAmount!.Value, instance, exact.RequiredExactOtherFriendlyBattlefieldUnits));
+                if (units.Contains(source))
+                    foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                        if (UnitHeldSpec(instance.CardNo) is { } held
+                            && (held.RequiresControlledFaceDownCardHere != true || ControlsFaceDownCardHere(state, player, field)))
+                            for (var copy = 0; copy < copies; copy++)
+                            {
+                                var trigger = CaptureUnitHeld(state, source, player, field, card, instance, held, copy);
+                                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                            }
                 if (units.Contains(source))
                     foreach (var instance in AttachedRuleTextRules.Instances(state, card))
                         if (HeldInsightSpec(instance.CardNo) is { RevealCount: > 0 } insight)
@@ -131,7 +150,10 @@ public sealed partial class CoreRuleEngine
                         else
                         {
                             var trigger = new TriggerQueueItemState(id, player, source, "HOLD_" + ability.Kind, "BATTLEFIELD_HELD") {
-                                HeldContext = new(ability.Instance?.CardNo ?? card.CardNo ?? "", field, ability.Kind, ability.Amount, card.ObjectGeneration, ability.ExactCount, ability.Instance?.Origin, ability.Instance?.Id),
+                                HeldContext = new(ability.Instance?.CardNo ?? card.CardNo ?? "", field, ability.Kind, ability.Amount, card.ObjectGeneration, ability.ExactCount, ability.Instance?.Origin, ability.Instance?.Id) {
+                                    LinkedExile = ability.Kind == LinkedExileHeldKind ? new(
+                                        new(new(source, card.ObjectGeneration), card.CardNo!, card.CopyFaceTransitions?.Count ?? 0, card.TokenFactoryCardNo),
+                                        new(field, state.CardObjects[field].ObjectGeneration), player, state.Tick) : null },
                                 SourceCardNo = ability.Instance?.CardNo };
                             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
                         }
@@ -144,6 +166,10 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item)
     {
         var context = item.HeldContext!;
+        if (context.Kind == LinkedExileHeldKind) return ResolveLinkedExileHeld(state, item);
+        if (IsParsedUnitHeldContext(context)
+            && !ValidParsedUnitHeld(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
+            throw new InvalidOperationException("Invalid captured unit Hold effect.");
         if (context.Kind == DeploymentHeldKind) return ResolveDeploymentHeld(state, item);
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);
@@ -165,6 +191,8 @@ public sealed partial class CoreRuleEngine
         var experience = NormalizeExperienceForSeats(state);
         var effects = state.UntilEndOfTurnEffects;
         var player = item.ControllerId;
+        var visibleSource = IsParsedUnitHeldContext(context)
+            ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId;
         var field = context.BattlefieldObjectId;
         var events = new List<GameEvent>();
         var triggers = new List<TriggerQueueItemState>();
@@ -177,7 +205,7 @@ public sealed partial class CoreRuleEngine
         var resolvedTarget = HasHeldTargetConfirmation(item) ? HeldResolvedTarget(state, item) : null;
         if (HasHeldTargetConfirmation(item) && resolvedTarget is null) return Result();
         events.Add(new("TRIGGER_RESOLVED", "据守技能结算", new Dictionary<string, object?> {
-            ["triggerId"] = item.StackItemId, ["controllerId"] = player, ["sourceObjectId"] = item.SourceObjectId,
+            ["triggerId"] = item.StackItemId, ["controllerId"] = player, ["sourceObjectId"] = visibleSource,
             ["effectKind"] = item.EffectKind, ["battlefieldObjectId"] = field }));
         switch (context.Kind)
         {
@@ -211,7 +239,7 @@ public sealed partial class CoreRuleEngine
                 break;
             case "MINION": case "ROBOT":
                 CreateBattlefieldUnitTokensInBase(zones, cards, player, item.SourceObjectId,
-                    context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events, effects);
+                    context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events, effects, item);
                 break;
             case "GOLD": case "RENATA":
                 for (var i = 0; i < context.Amount; i++)
@@ -220,12 +248,14 @@ public sealed partial class CoreRuleEngine
                 break;
             case "VEX":
                 Draw(1); break;
-            case "CHANNEL_ALL": case "CHANNEL_OPTIONAL":
+            case "CHANNEL_ALL": case "CHANNEL_OPTIONAL": case UnitHeldRuneKind:
                 foreach (var recipient in context.Kind == "CHANNEL_ALL" ? state.Seats.Keys.Order().ToArray() : new[] { player })
                 {
-                    var called = CallRunes(zones, cards, recipient, context.Amount);
-                    events.Add(new("RUNES_CALLED", "据守技能召出休眠符文", new Dictionary<string, object?> {
-                        ["playerId"] = recipient, ["sourceObjectId"] = item.SourceObjectId,
+                    var called = context.Kind == UnitHeldRuneKind
+                        ? ApplyRuneCall(zones, cards, recipient, context.Amount, originalExhausted: false)
+                        : CallRunes(zones, cards, recipient, context.Amount);
+                    events.Add(new("RUNES_CALLED", context.Kind == UnitHeldRuneKind ? "据守技能召出活跃符文" : "据守技能召出休眠符文", new Dictionary<string, object?> {
+                        ["playerId"] = recipient, ["sourceObjectId"] = visibleSource,
                         ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds }));
                 }
                 break;
@@ -259,10 +289,11 @@ public sealed partial class CoreRuleEngine
             case "PAY_POWER_SCORE":
             case "SCORE":
             case "EXACT_OTHER_SCORE":
+            case UnitHeldHiddenScoreKind:
                 var scoreAmount = context.Kind == "PAY_POWER_SCORE" ? 1 : context.Amount;
                 var nextScores = scores.ToDictionary(e => e.Key, e => e.Value); nextScores[player] += scoreAmount; scores = nextScores;
                 if (nextScores[player] >= EffectiveWinningScore(state)) winner = player;
-                events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = scoreAmount, ["score"] = nextScores[player], ["sourceObjectId"] = item.SourceObjectId }));
+                events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = scoreAmount, ["score"] = nextScores[player], ["sourceObjectId"] = visibleSource }));
                 break;
             case "EMPTY_RUNE_SCORE":
                 if (state.PlayerZones.GetValueOrDefault(player)?.RuneDeck.Count == 0)
@@ -301,6 +332,7 @@ public sealed partial class CoreRuleEngine
         {
             if (!cards.TryGetValue(id, out var card)) return;
             var owner = NonFieldDestinationOwner(zones, card, player);
+            CaptureFieldDeparture(zones, cards, id);
             DetachEquipmentFromRemovedHost(cards, id);
             foreach (var p in zones.Keys.ToArray()) zones[p] = zones[p] with { Base = RemoveFromZone(zones[p].Base, id),
                 Battlefields = RemoveFromZone(zones[p].Battlefields, id), Graveyard = RemoveFromZone(zones[p].Graveyard, id) };

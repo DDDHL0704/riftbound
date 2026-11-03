@@ -75,6 +75,7 @@ public static class CommandTypes
 {
     public const string Ready = "READY";
     public const string SubmitDeck = "SUBMIT_DECK";
+    public const string ChoosePlayOrder = "CHOOSE_PLAY_ORDER";
     public const string Mulligan = "MULLIGAN";
     public const string PassPriority = "PASS_PRIORITY";
     public const string PassFocus = "PASS_FOCUS";
@@ -169,12 +170,16 @@ public abstract record GameCommand(string CmdType);
 
 public sealed record ReadyCommand() : GameCommand("READY");
 
+public sealed record ChoosePlayOrderCommand(bool GoFirst) : GameCommand(CommandTypes.ChoosePlayOrder);
+
 public sealed record SubmitDeckCommand(
     string LegendCardNo,
     string ChampionCardNo,
     IReadOnlyList<string> MainDeck,
     IReadOnlyList<string> RuneDeck,
-    IReadOnlyList<string> Battlefields) : GameCommand("SUBMIT_DECK");
+    IReadOnlyList<string> Battlefields,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<string>? AdditionalLegendCardNos = null) : GameCommand("SUBMIT_DECK");
 
 public sealed record MulliganCommand(
     IReadOnlyList<string> HandObjectIds) : GameCommand("MULLIGAN");

@@ -18,7 +18,7 @@ public sealed partial class CoreRuleEngine
 
     private static ResourceStepCapture? BeginRuleChoiceResourceStep(MatchState before, string player, string choice)
         => RuleChoices.Value is { } frame ? new(frame, player, choice,
-            JsonSerializer.SerializeToElement(before, ResourceStepJson), frame.ExhaustedUnitEvents.Count) : null;
+            JsonSerializer.SerializeToElement(before, ResourceStepJson), frame.InstructionUnitEvents.Count) : null;
 
     private static void CompleteRuleChoiceResourceStep(ResourceStepCapture? capture, MatchState after,
         IReadOnlyList<GameEvent> events)
@@ -43,8 +43,10 @@ public sealed partial class CoreRuleEngine
         var previous = RuleChoices.Value; RuleChoices.Value = frame;
         try
         {
+            var command = GameCommandJsonMapper.Map(pending.Command);
+            frame.CommandType = command.CmdType;
             _ = new CoreRuleEngine().ResolveCoreAsync(pending.Origin, pending.Intent,
-                GameCommandJsonMapper.Map(pending.Command), default).GetAwaiter().GetResult();
+                command, default).GetAwaiter().GetResult();
             return false;
         }
         catch (RuleChoiceRequired required)

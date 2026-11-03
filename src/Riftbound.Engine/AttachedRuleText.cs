@@ -27,7 +27,7 @@ internal static class AttachedRuleTextRules
             && gear.Tags.Contains(CardObjectTags.EquipmentCard) && Field(zones, gear.ObjectId)
             && gear.AttachedToObjectId == copy.Unit.ObjectId
             && cards.TryGetValue(copy.Unit.ObjectId, out var unit) && unit.ObjectGeneration == copy.Unit.Generation
-            && unit.Tags.Contains(CardObjectTags.UnitCard)
+            && (unit.Tags.Contains(CardObjectTags.UnitCard) || unit.Tags.Contains(CardObjectTags.EquipmentCard))
             && Field(zones, unit.ObjectId) && copy.CapturedTick is >= 0
             && CopyFaceTimeline.FaceAt(unit, copy.FaceRevision, copy.CapturedTick) == copy.CardNo && CopyCharacteristics.HasFace(copy.CardNo);
 
@@ -38,7 +38,8 @@ internal static class AttachedRuleTextRules
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState unit)
     {
         if (unit.IsFaceDown
-            || !unit.Tags.Contains(CardObjectTags.UnitCard) || !Field(zones, unit.ObjectId)) yield break;
+            || !unit.Tags.Contains(CardObjectTags.UnitCard) && !unit.Tags.Contains(CardObjectTags.EquipmentCard)
+            || !Field(zones, unit.ObjectId)) yield break;
         foreach (var gear in cards.Values.Where(c => c.AttachedToObjectId == unit.ObjectId)
             .OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
@@ -76,7 +77,7 @@ internal static class AttachedRuleTextRules
             yield return new($"GRANTED:{ability.AbilityId}:{source.ObjectId}:{source.ObjectGeneration}", ability.SourceCardNo);
         }
 
-        foreach (var instance in Instances(state, source).Where(i => (i.Origin is null || ability.SupportsCopiedRuleText)
+        foreach (var instance in Instances(state, source).Where(i => (i.Origin is null || ability.SupportsCopiedRuleText || ability.SimpleEffect is not null)
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, i.CardNo)))
         {
             yield return instance;

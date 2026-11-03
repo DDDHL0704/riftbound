@@ -158,7 +158,8 @@ public sealed partial class CoreRuleEngine
                     }
                 }
                 var destinations = targetsOnly ? [] : definition.CommandedMovement is { } move ? CommandedMovementDestinations(state, spell.ControllerId, move)
-                    : definition.MovesTargetsToChosenLocation ? ChosenMovementDestinations(state, spell.ControllerId) : [];
+                    : definition.MovesTargetsToChosenLocation ? ChosenMovementDestinations(state, spell.ControllerId, definition,
+                        ChosenMovementTargets(definition, execution.TargetObjectIds)) : [];
                 foreach (var destination in destinations.Where(d => d.Id != execution.Destination))
                     Add(execution with { Destination = destination.Id }, $"第 {i + 1} 次：目的地 {destination.Label}");
                 if (!targetsOnly && definition.MovesTargetsSequentially)

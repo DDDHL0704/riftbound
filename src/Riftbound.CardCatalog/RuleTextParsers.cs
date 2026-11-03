@@ -323,6 +323,26 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var cardPlayDraw = Regex.Match(text,
+            @"(?:^|\n)\s*当你打出一张卡牌时，抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。(?=\s*(?:\n|$))",
+            RegexOptions.CultureInvariant);
+        if (cardPlayDraw.Success && ParseChineseNumber(cardPlayDraw.Groups["draw"].Value) is > 0 and var playDrawCount)
+            triggers.Add(new(TriggerKinds.ControllerCardPlayDraw, "CARD_PLAY_COMPLETED", cardPlayDraw.Value.Trim(),
+                "Draw after this controller successfully completes a card play, regardless of its origin zone.",
+                DrawCount: playDrawCount));
+        var drawHandThreshold = Regex.Match(text,
+            @"(?:^|\n)\s*当你抽至少(?<draw>[0-9一两二三四五六七八九十]+)张牌且有至少(?<hand>[0-9一两二三四五六七八九十]+)张其他手牌时，弃置你的手牌、摧毁此牌、并选择一名对手。该对手获得(?<score>[0-9一两二三四五六七八九十]+)分。(?=\s*(?:\n|$))",
+            RegexOptions.CultureInvariant);
+        if (drawHandThreshold.Success
+            && ParseChineseNumber(drawHandThreshold.Groups["draw"].Value) is > 0 and var minimumDraw
+            && ParseChineseNumber(drawHandThreshold.Groups["hand"].Value) is > 0 and var minimumOtherHand
+            && ParseChineseNumber(drawHandThreshold.Groups["score"].Value) is > 0 and var opponentScore)
+            triggers.Add(new(TriggerKinds.ControllerDrawHandThresholdDiscardDestroyScore, "CARDS_DRAWN", drawHandThreshold.Value.Trim(),
+                "Capture the draw and other-hand condition at the draw instruction; resolve discard, source destruction and opponent scoring later.",
+                TargetScope: TriggerTargetScopes.OpponentPlayer, DiscardSourceZone: TriggerZones.Hand,
+                DiscardDestinationZone: TriggerZones.Graveyard, DestroyCount: 1, ScoreAmount: opponentScore,
+                MinimumDrawCount: minimumDraw, MinimumOtherHandCount: minimumOtherHand,
+                DiscardsAllControllerHand: true, DestroysSource: true));
         var defendBulwark = Regex.Match(text,
             @"当你在此处防守时，选择此处你控制的一名单位。在本次战斗中给予其\{\{壁垒\}\}",
             RegexOptions.CultureInvariant);
@@ -444,6 +464,9 @@ public static class TriggerParser
         if (firstMoveMill.Success)
             triggers.Add(new(TriggerKinds.UnitFirstMovementMillPlayer, TriggerTimings.UnitMoved, firstMoveMill.Value,
                 TargetScope: TriggerTargetScopes.SourceUnit, MillCount: ParseChineseNumber(firstMoveMill.Groups["count"].Value), OncePerTurn: true));
+        if (StandbyParser.DrawWhenControllerPlaysFromFaceDown(text) is { } standbyDraw)
+            triggers.Add(new(TriggerKinds.ControllerFaceDownPlayDrawOutsideTurnDiscard, "CARD_PLAYED_FROM_FACE_DOWN", text,
+                DrawCount: standbyDraw.DrawCount, DiscardCount: standbyDraw.OutsideTurnDiscardCount, OncePerTurn: standbyDraw.OncePerTurn));
         var movedAllPlayers = Regex.Match(text,
             @"当我移动到一处战场时，选择一个效果\s*—\s*-\s*每名玩家各弃置一张手牌。\s*-\s*每名玩家各抽一张牌。?", RegexOptions.CultureInvariant);
         if (movedAllPlayers.Success)
@@ -1138,6 +1161,12 @@ public static class TriggerParser
                 CreatedTokenName: playedOrScoredToken.Groups["name"].Value, CreatedTokenPower: tokenMight,
                 CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true,
                 CreatedTokenKeywords: [playedOrScoredToken.Groups["tag"].Value]);
+        if (segment.TrimEnd('。') == "当我据守一处战场时，召出一枚符文")
+            return new(TriggerKinds.UnitBattlefieldHeldCallRune, TriggerTimings.BattlefieldHeld, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, RuneCallCount: 1);
+        if (segment.TrimEnd('。') == "当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分")
+            return new(TriggerKinds.UnitBattlefieldHeldScore, TriggerTimings.BattlefieldHeld, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, ScoreAmount: 1, RequiresControlledFaceDownCardHere: true);
         var exactOtherFriendlyHeld = Regex.Match(segment,
             @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
             RegexOptions.CultureInvariant);
@@ -1901,6 +1930,15 @@ public static class TriggerParser
                 ManaDelta: resources.Where(m => m.Groups["value"].Value != "A").Sum(m => int.Parse(m.Groups["value"].Value)),
                 GeneratedPower: resources.Count(m => m.Groups["value"].Value == "A"));
         }
+
+        var conquestEquipmentRune = Regex.Match(segment,
+            @"^当我征服一处战场时，如果此处有拥有\{\{(?<keyword>[^{}]+)\}\}的友方装备，则召出(?<count>[0-9一两二三四五六七八九十]+)枚休眠的符文。?$",
+            RegexOptions.CultureInvariant);
+        if (conquestEquipmentRune.Success)
+            return new TriggerSpec(TriggerKinds.UnitConquestCallRune, TriggerTimings.UnitConquest, segment,
+                "Capture the local friendly equipment keyword condition at conquest; call dormant runes after responses.",
+                RuneCallCount: ParseChineseNumber(conquestEquipmentRune.Groups["count"].Value),
+                RequiredFriendlyEquipmentKeywordHere: conquestEquipmentRune.Groups["keyword"].Value);
 
         var unitConquestDrawMatch = Regex.Match(
             segment,

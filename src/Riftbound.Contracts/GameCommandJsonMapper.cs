@@ -18,12 +18,17 @@ public static class GameCommandJsonMapper
         return cmdType switch
         {
             "READY" => new ReadyCommand(),
+            CommandTypes.ChoosePlayOrder => cmd.TryGetProperty("goFirst", out var goFirst)
+                && goFirst.ValueKind is JsonValueKind.True or JsonValueKind.False
+                    ? new ChoosePlayOrderCommand(goFirst.GetBoolean())
+                    : new UnsupportedCommand(CommandTypes.ChoosePlayOrder, cmd.Clone()),
             "SUBMIT_DECK" => new SubmitDeckCommand(
                 Text(cmd, "legendCardNo"),
                 Text(cmd, "championCardNo"),
                 TextArray(cmd, "mainDeck"),
                 TextArray(cmd, "runeDeck"),
-                TextArray(cmd, "battlefields")),
+                TextArray(cmd, "battlefields"),
+                cmd.TryGetProperty("additionalLegendCardNos", out _) ? TextArray(cmd, "additionalLegendCardNos") : null),
             "MULLIGAN" => new MulliganCommand(TextArray(cmd, "handObjectIds")),
             "PASS_PRIORITY" => new PassPriorityCommand(),
             "PASS_FOCUS" => new PassFocusCommand(),

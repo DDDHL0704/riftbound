@@ -30,7 +30,7 @@ public static partial class MatchRecoveryValidator
 
             ValidateSnapshotShape(view, errors, authoritativeState);
             if (authoritativeState is not null)
-                ValidateOrdinaryPrivatePlaySkillSnapshot(view, authoritativeState, errors);
+                ValidatePrivateSourceSkillSnapshot(view, authoritativeState, errors);
             if (authoritativeState is not null && view.Snapshot.Timing is { } disclosureTiming)
                 ValidateObservedDisclosureSnapshot(disclosureTiming, authoritativeState, $"snapshot for {view.PlayerId}", errors);
 
@@ -330,7 +330,7 @@ public static partial class MatchRecoveryValidator
             ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPendingPaymentScalarPayloadValues(view, errors);
-            ValidateSnapshotTimingPendingPaymentListPayloadValues(view, errors);
+            ValidateSnapshotTimingPendingPaymentListPayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingPendingTaskQueuePayloadShape(view, errors);
             ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPendingTaskQueueTaskPayloadShapes(view, errors);

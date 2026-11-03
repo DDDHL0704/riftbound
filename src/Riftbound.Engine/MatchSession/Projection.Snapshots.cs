@@ -466,11 +466,17 @@ public sealed partial record ResolutionResult
 
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)
     {
-        return state.Seats.Keys.ToDictionary(
-            playerId => playerId,
-            playerId => BuildSnapshotForViewer(state, playerId),
+        return SnapshotSeats(state).ToDictionary(
+            entry => entry.Key,
+            entry => BuildSnapshotForViewer(state, entry.Key),
             StringComparer.Ordinal);
     }
+
+    // JSONB can reorder the stored Seats object's keys. Project the same seat order
+    // for live, recovered and replayed state without changing authoritative maps.
+    internal static IOrderedEnumerable<KeyValuePair<string, string>> SnapshotSeats(MatchState state) =>
+        state.Seats.OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal);
 
     public static SnapshotDto BuildSpectatorSnapshot(MatchState state)
     {
@@ -481,7 +487,7 @@ public sealed partial record ResolutionResult
     {
         state = CoreRuleEngine.VisibleRuleChoiceState(state);
         var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
-        var players = state.Seats.ToDictionary(
+        var players = SnapshotSeats(state).ToDictionary(
             entry => entry.Key,
             entry => (object?)BuildPlayerSnapshotView(state, readyPlayers, viewerPlayerId, entry.Key),
             StringComparer.Ordinal);
@@ -518,7 +524,7 @@ public sealed partial record ResolutionResult
                     .Select(resolution => BuildBattlefieldResolutionSnapshotView(state, resolution, viewerPlayerId))
                     .ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
-                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, CoreRuleEngine.VisiblePendingPayment(state)),
+                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, CoreRuleEngine.VisiblePendingPayment(state), viewerPlayerId),
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state, state.PendingHandChoice, viewerPlayerId),
                 ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state, viewerPlayerId),
@@ -536,14 +542,14 @@ public sealed partial record ResolutionResult
             Format: state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed ? MatchFormats.Sealed : MatchFormats.Constructed,
             SetCode: state.SessionOptions?.SealedSetCode,
             BestOf: state.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed ? state.SessionOptions.SealedBestOf : 1,
-            SealedPool: includePrivatePool ? SealedRoomPools.ViewFor(state, viewerPlayerId) : null);
+            Series: RoomMatchSeries.ViewFor(state, includePrivatePool ? viewerPlayerId : null),
+            SealedPool: includePrivatePool ? SealedRoomPools.ViewFor(state, viewerPlayerId) : null,
+            SideboardCounts: SealedRoomPools.SideboardCountsFor(state));
     }
 
     private static SnapshotTableDto BuildTableSnapshotView(MatchState state, string viewerPlayerId)
     {
-        var players = state.Seats
-            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
-            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+        var players = SnapshotSeats(state)
             .Select(entry => BuildTablePlayerSnapshotView(state, viewerPlayerId, entry.Key, entry.Value))
             .ToArray();
         var battlefields = state.BattlefieldStates.Values

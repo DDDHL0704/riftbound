@@ -21,6 +21,7 @@ public sealed partial class SealedSubmittedOpeningTests
         var run = new Run();
         await run.Join("alice");
         await run.Join("bob");
+        await run.Choose();
         foreach (var player in new[] { "alice", "bob" })
         {
             var deck = await Deck(run.State.PlayerSealedPools![player], legend, champion);
@@ -64,6 +65,8 @@ public sealed partial class SealedSubmittedOpeningTests
     {
         var run = new Run();
         await run.Join("alice");
+        await run.Join("bob");
+        await run.Choose();
         var pool = run.State.PlayerSealedPools!["alice"];
         var legal = await Deck(pool, false, false);
         var extra = legal.MainDeck[0];
@@ -94,6 +97,8 @@ public sealed partial class SealedSubmittedOpeningTests
     {
         var run = new Run(bestOf);
         await run.Join("alice");
+        await run.Join("bob");
+        await run.Choose();
         var deck = await Deck(run.State.PlayerSealedPools!["alice"], false, false, count);
         await run.Act("alice", Command(deck));
         var invalid = Command(deck with { Battlefields = Enumerable.Repeat(SealedDeckRules.BlankBattlefieldCardNo, count == 3 ? 1 : 3).ToArray() });
@@ -128,6 +133,8 @@ public sealed partial class SealedSubmittedOpeningTests
     {
         var run = new Run();
         await run.Join("alice");
+        await run.Join("bob");
+        await run.Choose();
         var deck = Command(await Deck(run.State.PlayerSealedPools!["alice"], false, false));
         var submitted = await run.Live.SubmitDeckAsync("alice", "typed-deck", deck, null, default);
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -160,7 +167,7 @@ public sealed partial class SealedSubmittedOpeningTests
     }
 
     // Build solely from the actual six server packs; never install a replacement pool.
-    private static async Task<OfficialDecklist> Deck(SealedPoolGeneration pool, bool withLegend, bool withChampion, int battlefieldCount = 3)
+    internal static async Task<OfficialDecklist> Deck(SealedPoolGeneration pool, bool withLegend, bool withChampion, int battlefieldCount = 3)
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var cards = catalog.Cards.ToDictionary(card => card.CardNo, StringComparer.Ordinal);
@@ -189,20 +196,27 @@ public sealed partial class SealedSubmittedOpeningTests
         throw new Xunit.Sdk.XunitException("The controlled server seed must yield a legal 25-card deck for this role selection.");
     }
 
-    private sealed class Run
+    internal sealed class Run
     {
         public Journal Journal { get; } = new();
         private readonly Players players = new();
         private readonly Dictionary<string, string> tokens = [];
+        private readonly IRuleEngine engine;
+        private readonly bool reorderRecoveryObjects;
         public IMatchSession Live { get; private set; }
         public MatchState State => Journal.Entries[^1].AuthoritativeState;
-        public Run(int bestOf = 1, string setCode = "OGN")
+        public Run(int bestOf = 1, IRuleEngine? engine = null, long seed = 424242, string setCode = "OGN",
+            bool reorderRecoveryObjects = false)
         {
-            var initial = MatchState.Create("sealed-submitted-opening") with { Seed = 424242,
+            this.engine = engine ?? new CoreRuleEngine();
+            this.reorderRecoveryObjects = reorderRecoveryObjects;
+            var initial = MatchState.Create("sealed-submitted-opening") with { Seed = seed,
                 SessionOptions = MatchSessionOptions.ForSealed(setCode, bestOf) };
-            Live = new MatchSession(initial, new CoreRuleEngine(), Journal, players);
+            Live = new MatchSession(initial, this.engine, Journal, players);
         }
         public async Task Join(string player) => tokens[player] = (await Live.EnsurePlayerAsync(player, default)).ReconnectToken;
+        public Task<ResolutionResult> Choose(bool goFirst = true) => Act(
+            Live.SnapshotFor("alice").Series!.PlayOrderChooserPlayerId!, new ChoosePlayOrderCommand(goFirst));
         public async Task<ResolutionResult> Act(string player, GameCommand command, JsonElement? raw = null)
         {
             raw ??= Raw(command);
@@ -232,26 +246,47 @@ public sealed partial class SealedSubmittedOpeningTests
                 last.AuthoritativeState, initial) { OpeningSeed = initial.Seed };
             return JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
         }
-        public async Task Cold()
+        public async Task Cold(bool verifyReplay = true)
         {
-            var frame = Frame();
+            var original = Frame();
+            var frame = reorderRecoveryObjects ? ReorderRecoveryFrameObjects(original) : original;
+            if (reorderRecoveryObjects)
+            {
+                Assert.Equal(["bob", "alice"], frame.AuthoritativeState!.Seats.Keys);
+                Assert.Equal(MatchStateHasher.Hash(original.AuthoritativeState!), MatchStateHasher.Hash(frame.AuthoritativeState));
+            }
             Assert.Empty(MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
                 frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick));
-            Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
-            Live = MatchSession.Restore(frame, new CoreRuleEngine(), Journal, players);
+            if (verifyReplay)
+                Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, engine, default));
+            Live = MatchSession.Restore(frame, engine, Journal, players);
             foreach (var player in tokens.Keys.ToArray())
             {
                 tokens[player] = (await Live.ReconnectPlayerAsync(player, tokens[player], default)).ReconnectToken;
                 Assert.Equal(MatchStateHasher.HashValue(frame.PlayerViews[player].Snapshot), MatchStateHasher.HashValue(Live.SnapshotFor(player)));
+                if (reorderRecoveryObjects)
+                {
+                    Assert.Equal(JsonSerializer.Serialize(original.PlayerViews[player].Snapshot, Json),
+                        JsonSerializer.Serialize(Live.SnapshotFor(player), Json));
+                    Assert.Equal(JsonSerializer.Serialize(original.PlayerViews[player].Prompt, Json),
+                        JsonSerializer.Serialize(Live.PromptFor(player), Json));
+                }
             }
+            if (reorderRecoveryObjects)
+                Assert.Equal(JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(original.AuthoritativeState!), Json),
+                    JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(frame.AuthoritativeState!), Json));
         }
     }
 
-    private sealed class Journal : IMatchJournal
+    internal sealed class Journal : IMatchJournal
     {
         public List<MatchJournalEntry> Entries { get; } = [];
+        public bool FailNext { get; set; }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
-        { Entries.Add(entry); return ValueTask.CompletedTask; }
+        {
+            if (FailNext) { FailNext = false; throw new IOException("journal unavailable"); }
+            Entries.Add(entry); return ValueTask.CompletedTask;
+        }
     }
     private sealed class Players : IMatchPlayerStore
     {

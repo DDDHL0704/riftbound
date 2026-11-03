@@ -24,6 +24,20 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.HeldContext?.Kind == LinkedExileHeldKind) {
+            definition = new(parent.CardNo, "据守打出关联放逐卡牌", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
+                EffectPlayIgnoreAllCosts: true, EffectPlayAllowsAnyCard: true, EffectPlayDestination: "ANY");
+            return true;
+        }
+        if (P4ActivatedAbilityCatalog.TryGetByEffectKind(parent.EffectKind, out var activation)
+            && activation.SimpleEffect?.BanishesSourceThenReplaysToBase == true)
+        {
+            definition = new(parent.CardNo, activation.DisplayName, 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true,
+                EffectPlayIgnoreBasePower: true, EffectPlayDestination: "BASE", EffectPlayAllowsAnyCard: true);
+            return true;
+        }
         if (parent.LastBreathBattlefieldDamage is { Kind: TriggerKinds.UnitLastBreathBanishDeckTopPlay })
         {
             definition = new(parent.CardNo, "绝念放逐牌库顶并打出", 0, parent.EffectKind, 0, 0,
@@ -298,7 +312,7 @@ public sealed partial class CoreRuleEngine
     {
         var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
         var cost = pending.SourceReplay is not null || pending.Parent.ObservedPlayPermission is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? pending.Parent.DeckPlaySequence is not null
-            ? "忽略一切费用，按正常步骤选择并打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
+            ? "忽略一切费用，按正常步骤选择并打出" : pending.DestinationPolicy == "ANY" ? "忽略一切费用；按正常步骤选择合法位置打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
         return $"《{name}》要求再次打出 · {cost}";
@@ -340,9 +354,13 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var actor = parent.ControllerId;
         var sourceZone = behavior.EffectPlaySourceZone;
+        var selfReplay = P4ActivatedAbilityCatalog.TryGetByEffectKind(parent.EffectKind, out var activation)
+            && activation.SimpleEffect?.BanishesSourceThenReplaysToBase == true;
+        string? sourcePlayer = null;
         ObjectLocationState? originalLocation = null;
         ObjectBinding? originalBattlefield = null;
-        IReadOnlyList<string> sources = sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
+        IReadOnlyList<string> sources = selfReplay ? [parent.SourceObjectId]
+            : sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
         if (sourceZone == "GRAVEYARD" && behavior.EffectPlayRequiresUnitOrEquipment
             && zones.TryGetValue(actor, out var graveyardOwner))
         {
@@ -369,22 +387,20 @@ public sealed partial class CoreRuleEngine
                         && BattlefieldLocalRules.Battlefield(state, fieldId) is { } field)
                         originalBattlefield = new(fieldId, field.ObjectGeneration);
                 }
-                actor = NonFieldDestinationOwner(zones, target, parent.ControllerId);
+                var owner = NonFieldDestinationOwner(zones, target, parent.ControllerId);
+                if (!selfReplay) actor = owner;
+                sourcePlayer = owner == actor ? null : owner;
+                CaptureFieldDeparture(zones, cards, id);
                 DetachEquipmentFromRemovedHost(cards, id);
-                foreach (var owner in zones.Keys.ToArray()) zones[owner] = zones[owner] with {
-                    Base = RemoveFromZone(zones[owner].Base, id), Battlefields = RemoveFromZone(zones[owner].Battlefields, id) };
-                zones[actor] = zones[actor] with { Banished = zones[actor].Banished.Concat([id]).Distinct().ToArray() };
-                if (PrintedCardFactory.TryRestoreOutsidePlay(target, actor, out var printed)) cards[id] = printed with { ObjectGeneration = target.ObjectGeneration + 1 };
-                else if (TokenObjectRules.IsToken(target))
-                {
-                    // CN 186.1: the token vanishes after entering banishment;
-                    // it cannot be a source for the following play instruction.
-                    cards.Remove(id);
-                    zones[actor] = zones[actor] with { Banished = RemoveFromZone(zones[actor].Banished, id) };
-                    sources = [];
-                }
-                events.Add(CaptureOwnedBanishObservers(new("UNIT_BANISHED", "单位被放逐，等待其拥有者再次打出", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED",
+                foreach (var fieldPlayer in zones.Keys.ToArray()) zones[fieldPlayer] = zones[fieldPlayer] with {
+                    Base = RemoveFromZone(zones[fieldPlayer].Base, id), Battlefields = RemoveFromZone(zones[fieldPlayer].Battlefields, id) };
+                zones[owner] = zones[owner] with { Banished = zones[owner].Banished.Concat([id]).Distinct().ToArray() };
+                // A copied unit leaves as its physical card; a token ceases to
+                // exist. Use the same reset as every other field departure.
+                ResetCardOutsidePlay(zones, cards, id, target, owner);
+                if (!cards.ContainsKey(id)) sources = [];
+                events.Add(CaptureOwnedBanishObservers(new("UNIT_BANISHED", "单位被放逐，等待效果指定的玩家再次打出", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = owner, ["destinationZone"] = "BANISHED",
                     ["originalLocation"] = originalLocation, ["originalBattlefield"] = originalBattlefield,
                     ["parentStackItemId"] = parent.StackItemId, ["targetGeneration"] = target.ObjectGeneration }),
                     zones, cards, parent.ControllerId, [id]));
@@ -395,7 +411,10 @@ public sealed partial class CoreRuleEngine
         {
             var resumed = state with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
-            var resolved = ResolveStackItemEffect(resumed, parent with { EffectPlayCompleted = true });
+            // A self-banishing token has finished its skill and cannot be replayed.
+            // Its source is already gone, so do not enter source validation again.
+            var resolved = selfReplay ? NoopStackResolutionResult(resumed)
+                : ResolveStackItemEffect(resumed, parent with { EffectPlayCompleted = true });
             return resolved with { Events = events.Concat(resolved.Events).ToArray() };
         }
         if (sources.Count == 0 && events.Count == 0)
@@ -406,7 +425,7 @@ public sealed partial class CoreRuleEngine
             behavior.EffectPlayDestination, behavior.EffectPlayOptional,
             IgnoreAllCosts: behavior.EffectPlayIgnoreAllCosts) {
                 OriginalLocation = originalLocation, OriginalBattlefield = originalBattlefield,
-                SourcePlayerId = parent.EmpowerInteraction?.Opponent };
+                SourcePlayerId = sourcePlayer ?? parent.EmpowerInteraction?.Opponent };
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
             PendingEffectPlay = pending, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

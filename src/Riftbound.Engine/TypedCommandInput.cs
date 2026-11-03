@@ -15,6 +15,7 @@ public sealed record TypedCommandInput(
     private static readonly IReadOnlyDictionary<string, Type> CommandTypes = new Dictionary<string, Type>(StringComparer.Ordinal)
     {
         ["READY"] = typeof(ReadyCommand), ["SUBMIT_DECK"] = typeof(SubmitDeckCommand),
+        ["CHOOSE_PLAY_ORDER"] = typeof(ChoosePlayOrderCommand),
         ["MULLIGAN"] = typeof(MulliganCommand), ["PASS_PRIORITY"] = typeof(PassPriorityCommand),
         ["PASS_FOCUS"] = typeof(PassFocusCommand), ["PASS"] = typeof(PassCommand),
         ["END_TURN"] = typeof(EndTurnCommand), ["SURRENDER"] = typeof(SurrenderCommand),
@@ -43,6 +44,29 @@ public sealed record TypedCommandInput(
 
     internal static TypedCommandInput CaptureScenario(string scenarioId)
         => new(ScenarioKind, JsonSerializer.SerializeToElement(new { scenarioId }, Json));
+
+    internal static TypedCommandInput CaptureGameLoss(TournamentGameLossDecision decision)
+    {
+        var input = new TypedCommandInput(TournamentGameLossDecision.CommandType, JsonSerializer.SerializeToElement(decision, Json));
+        return input.TryGameLoss(out _) ? input
+            : throw new MatchSessionException(ErrorCodes.InvalidPayload, "单局判负输入无效。");
+    }
+
+    internal bool TryGameLoss(out TournamentGameLossDecision decision)
+    {
+        decision = null!;
+        if (Kind != TournamentGameLossDecision.CommandType || Value.ValueKind != JsonValueKind.Object) return false;
+        try
+        {
+            var restored = Value.Deserialize<TournamentGameLossDecision>(Json);
+            if (restored is null || restored.GameNumber < 1 || string.IsNullOrWhiteSpace(restored.LoserPlayerId)
+                || restored.LoserPlayerId != restored.LoserPlayerId.Trim()
+                || MatchStateHasher.HashValue(Value) != MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(restored, Json))) return false;
+            decision = restored;
+            return true;
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException or ArgumentException) { return false; }
+    }
 
     public bool TryRestore(out GameCommand command)
     {
@@ -86,6 +110,7 @@ public sealed record TypedCommandInput(
     internal bool MatchesRecordedType(string commandType)
         => !string.IsNullOrWhiteSpace(commandType) && commandType == commandType.Trim()
             && (TryScenario(out var scenario) ? commandType == ScenarioKind + ":" + scenario
+                : TryGameLoss(out _) ? commandType == TournamentGameLossDecision.CommandType
                 : TryRestore(out var command) && command.CmdType == commandType);
 
     internal bool MatchesWire(JsonElement raw)

@@ -21,6 +21,7 @@ public sealed partial class CoreRuleEngine
     private sealed class RuleChoiceFrame(MatchState origin, IReadOnlyList<RuleChoiceAnswer> answers)
     {
         public MatchState Origin { get; } = origin;
+        public string? CommandType { get; set; }
         public long CompletionTick { get; set; } = origin.Tick + 1;
         public long AnswerTick => Origin.Tick + cursor + 1;
         public TurnDeathLedger? ResourceDeathLedger { get; set; }
@@ -38,7 +39,7 @@ public sealed partial class CoreRuleEngine
         public MatchState? ResolutionState { get; set; }
         public StackItemState? ResolutionItem { get; set; }
         public List<AppliedDamageFact> AppliedDamages { get; } = [];
-        public List<UnitEventObservation> ExhaustedUnitEvents { get; } = [];
+        public List<UnitEventObservation> InstructionUnitEvents { get; } = [];
         public int UnitEventOrdinal { get; set; }
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];
@@ -77,7 +78,7 @@ public sealed partial class CoreRuleEngine
             answers = answers.Append(new RuleChoiceAnswer(MatchStateHasher.HashValue(pending.Request), selected[0])).ToArray();
             command = GameCommandJsonMapper.Map(pending.Command);
         }
-        var frame = new RuleChoiceFrame(origin, answers) { CompletionTick = state.Tick + 1 }; var previous = RuleChoices.Value; RuleChoices.Value = frame;
+        var frame = new RuleChoiceFrame(origin, answers) { CompletionTick = state.Tick + 1, CommandType = command.CmdType }; var previous = RuleChoices.Value; RuleChoices.Value = frame;
         try {
             var result = await ResolveCoreAsync(origin, originalIntent, command, cancellationToken);
             if (!frame.Complete) return RejectWithCorePrompts(state, "替换选择记录未完整消费。", ErrorCodes.InvalidTarget);
@@ -171,8 +172,10 @@ public sealed partial class CoreRuleEngine
         var frame = new RuleChoiceFrame(pending.Origin, pending.Answers);
         var previous = RuleChoices.Value; RuleChoices.Value = frame;
         try {
+            var command = GameCommandJsonMapper.Map(pending.Command);
+            frame.CommandType = command.CmdType;
             _ = new CoreRuleEngine().ResolveCoreAsync(pending.Origin, pending.Intent,
-                GameCommandJsonMapper.Map(pending.Command), default).GetAwaiter().GetResult();
+                command, default).GetAwaiter().GetResult();
             return null;
         } catch (RuleChoiceRequired required) { return (required.Request, frame); }
         catch (Exception e) when (e is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException) { return null; }

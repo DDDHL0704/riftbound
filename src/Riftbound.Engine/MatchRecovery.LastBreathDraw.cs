@@ -11,6 +11,8 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateLastBreathDrawState(MatchState state, List<string> errors)
     {
+        ValidateLastBreathMightOccurrences(state, errors);
+        ValidateLastBreathInsightOccurrences(state, errors);
         bool MissingDiscardBirth(string id, string kind)
             => kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathDiscardDraw
                 && (id.StartsWith("TRIGGER-death-", StringComparison.Ordinal)
@@ -29,8 +31,23 @@ public static partial class MatchRecoveryValidator
         var contexts = state.StackItems.Select(i => i.LastBreathDraw)
             .Concat(state.TriggerQueue.Select(i => i.LastBreathDraw))
             .Append(state.PendingHandChoice?.LastBreathDraw).OfType<LastBreathDrawContext>().ToArray();
-        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex)).Distinct().Count() != contexts.Length)
+        if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex, c.Repetition?.Occurrence ?? 0)).Distinct().Count() != contexts.Length)
             errors.Add("duplicate captured last-breath draw instance");
+    }
+
+    private static void ValidateLastBreathMightOccurrences(MatchState state, List<string> errors)
+    {
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidLastBreathMightTriggerIdentity(item))
+                errors.Add("invalid captured last-breath Might identity");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidLastBreathMightStackIdentity(item))
+                errors.Add("invalid captured last-breath Might stack identity");
+        var contexts = state.TriggerQueue.Select(i => i.LastBreathMight)
+            .Concat(state.StackItems.Select(i => i.LastBreathMight)).OfType<LastBreathMightContext>().ToArray();
+        if (contexts.Select(c => (c.SourceObjectId, c.SourceGeneration, c.InstanceId, c.Repetition?.Occurrence ?? 0))
+            .Distinct().Count() != contexts.Length)
+            errors.Add("duplicate captured last-breath Might instance");
     }
 
     private static void ValidateLastBreathDrawViews(IReadOnlyList<object?> payloads, List<string> errors)

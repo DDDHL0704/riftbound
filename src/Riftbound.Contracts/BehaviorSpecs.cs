@@ -75,6 +75,8 @@ public static class TriggerKinds
     public const string ControllerHighCostUnitEquipmentOrAbilityReadyRunes = "CONTROLLER_HIGH_COST_UNIT_EQUIPMENT_OR_ABILITY_READY_RUNES";
     public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
+    public const string ControllerCardPlayDraw = "CONTROLLER_CARD_PLAY_DRAW";
+    public const string ControllerDrawHandThresholdDiscardDestroyScore = "CONTROLLER_DRAW_HAND_THRESHOLD_DISCARD_DESTROY_SCORE";
     public const string ControllerOpponentTurnPlayCreateMinion = "CONTROLLER_OPPONENT_TURN_PLAY_CREATE_MINION";
     public const string ControllerCardPlayBasePowerSource = "CONTROLLER_CARD_PLAY_BASE_POWER_SOURCE";
     public const string ControllerHighCostGraveyardPlaySource = "CONTROLLER_HIGH_COST_GRAVEYARD_PLAY_SOURCE";
@@ -186,6 +188,7 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
     public const string UnitConquestDrawOne =
         "UNIT_CONQUEST_DRAW_ONE";
+    public const string UnitConquestCallRune = "UNIT_CONQUEST_CALL_RUNE";
     public const string UnitConquestGainResources = "UNIT_CONQUEST_GAIN_RESOURCES";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
@@ -223,6 +226,7 @@ public static class TriggerKinds
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedDrawDiscardTypes = "UNIT_MOVED_DRAW_DISCARD_TYPES";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
+    public const string ControllerFaceDownPlayDrawOutsideTurnDiscard = "STANDBY_PLAYED_DRAW_OUTSIDE_TURN_DISCARD";
     public const string UnitMovedPowerModifier = "UNIT_MOVED_POWER_MODIFIER";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";
@@ -241,6 +245,7 @@ public static class TriggerKinds
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
+    public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -357,6 +362,7 @@ public static class TriggerTimings
 
 public static class TriggerTargetScopes
 {
+    public const string OpponentPlayer = "OPPONENT_PLAYER";
     public const string OtherExhaustedFieldObject = "OTHER_EXHAUSTED_FIELD_OBJECT";
     public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
     public const string FriendlyUnitHere = "FRIENDLY_UNIT_HERE";
@@ -774,7 +780,19 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? GeneratedPower = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? BasePowerUntilEndOfTurn = null);
+    int? BasePowerUntilEndOfTurn = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MinimumDrawCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MinimumOtherHandCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? DiscardsAllControllerHand = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? DestroysSource = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresControlledFaceDownCardHere = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? RequiredFriendlyEquipmentKeywordHere = null);
 
 public sealed record ReplacementSpec(
     string Kind,

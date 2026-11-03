@@ -164,7 +164,8 @@ public sealed partial class MatchSession
             && string.Equals(left.ChampionCardNo, right.ChampionCardNo, StringComparison.Ordinal)
             && left.MainDeck.SequenceEqual(right.MainDeck, StringComparer.Ordinal)
             && left.RuneDeck.SequenceEqual(right.RuneDeck, StringComparer.Ordinal)
-            && left.Battlefields.SequenceEqual(right.Battlefields, StringComparer.Ordinal);
+            && left.Battlefields.SequenceEqual(right.Battlefields, StringComparer.Ordinal)
+            && (left.AdditionalLegendCardNos ?? []).SequenceEqual(right.AdditionalLegendCardNos ?? [], StringComparer.Ordinal);
     }
 
     private static OfficialOpeningBuildResult BuildOfficialOpeningState(
@@ -177,8 +178,10 @@ public sealed partial class MatchSession
             .OrderBy(entry => entry.Value, StringComparer.Ordinal)
             .Select(entry => entry.Key)
             .ToArray();
-        var turnOrder = RandomizeStable(seatOrder, seed, rngCursor, "TURN_ORDER");
-        if (seatOrder.Length > 1)
+        var firstPlayer = RoomMatchSeries.Current(readyState)?.FirstPlayerId;
+        var turnOrder = firstPlayer is null ? RandomizeStable(seatOrder, seed, rngCursor, "TURN_ORDER")
+            : new[] { firstPlayer }.Concat(seatOrder.Where(player => player != firstPlayer)).ToArray();
+        if (firstPlayer is null && seatOrder.Length > 1)
         {
             rngCursor++;
         }
@@ -204,6 +207,7 @@ public sealed partial class MatchSession
         var cardsByNo = catalog.Cards.ToDictionary(card => card.CardNo, StringComparer.Ordinal);
         if (readyState.SessionOptions?.DeckFormat == OfficialDeckFormat.Sealed)
             cardsByNo[SealedDeckRules.BlankBattlefieldCardNo] = SealedDeckRules.BlankBattlefield;
+        var selectedBattlefields = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var playerId in seatOrder)
         {
             var decklist = readyState.PlayerDecklists[playerId];
@@ -212,8 +216,10 @@ public sealed partial class MatchSession
                 decklist,
                 cardsByNo,
                 seed,
-                rngCursor);
+                rngCursor,
+                SealedSeriesDecks.ForcedBattlefield(readyState, playerId));
             rngCursor = playerOpening.RngCursor;
+            selectedBattlefields[playerId] = playerOpening.SelectedBattlefieldCardNo;
             playerZones[playerId] = playerOpening.Zones;
             foreach (var (objectId, cardObject) in playerOpening.CardObjects)
             {
@@ -264,7 +270,7 @@ public sealed partial class MatchSession
                     ? pending : null
         };
 
-        return new OfficialOpeningBuildResult(nextState, events);
+        return new OfficialOpeningBuildResult(SealedSeriesDecks.RecordOpening(nextState, selectedBattlefields), events);
     }
 
     private static OfficialPlayerOpeningBuildResult BuildOfficialPlayerOpening(
@@ -272,7 +278,8 @@ public sealed partial class MatchSession
         OfficialDecklist decklist,
         IReadOnlyDictionary<string, OfficialCard> cardsByNo,
         long seed,
-        long rngCursor)
+        long rngCursor,
+        string? forcedBattlefieldCardNo = null)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
@@ -327,8 +334,10 @@ public sealed partial class MatchSession
             rngCursor++;
         }
 
-        var battlefieldCardNos = RandomizeStable(decklist.Battlefields, seed, rngCursor, $"{playerId}:BATTLEFIELDS");
-        if (decklist.Battlefields.Count > 1)
+        var battlefieldCardNos = forcedBattlefieldCardNo is null
+            ? RandomizeStable(decklist.Battlefields, seed, rngCursor, $"{playerId}:BATTLEFIELDS")
+            : new[] { forcedBattlefieldCardNo };
+        if (forcedBattlefieldCardNo is null && decklist.Battlefields.Count > 1)
         {
             rngCursor++;
         }
@@ -371,7 +380,9 @@ public sealed partial class MatchSession
         {
             new(
                 "OFFICIAL_BATTLEFIELD_SELECTED",
-                $"{playerId} 随机选择 1 张战场进入本局",
+                forcedBattlefieldCardNo is not null ? $"{playerId} 沿用上一局的战场"
+                    : decklist.Battlefields.Count == 1 ? $"{playerId} 选定 1 张战场进入本局"
+                    : $"{playerId} 随机选择 1 张战场进入本局",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
@@ -388,7 +399,7 @@ public sealed partial class MatchSession
                 })
         };
 
-        return new OfficialPlayerOpeningBuildResult(zones, cardObjects, objectLocations, events, rngCursor);
+        return new OfficialPlayerOpeningBuildResult(zones, cardObjects, objectLocations, events, rngCursor, selectedBattlefieldCardNo);
     }
 
     private static CardObjectState OfficialCardObject(string objectId, string playerId, OfficialCard card)

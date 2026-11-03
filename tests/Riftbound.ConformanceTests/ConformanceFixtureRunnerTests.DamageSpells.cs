@@ -675,45 +675,18 @@ public sealed partial class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task CoreRuleEngineRejectsReflectionsWithoutEphemeralTarget()
+    public async Task CoreRuleEngineReflectionsWithoutEphemeralDrawsWithoutMoving()
     {
-        var state = PunishmentState(mana: 2) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Hand = ["P1-SPELL-REFLECTIONS"],
-                    Base = ["P1-REFLECTIONS-BASE-001"],
-                    Battlefields = ["P1-REFLECTIONS-BATTLEFIELD-001"]
-                },
-                ["P2"] = PlayerZones.Empty
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-REFLECTIONS-BASE-001"] = new("P1-REFLECTIONS-BASE-001", tags: [CardObjectTags.UnitCard]),
-                ["P1-REFLECTIONS-BATTLEFIELD-001"] = new("P1-REFLECTIONS-BATTLEFIELD-001", tags: [CardObjectTags.UnitCard])
-            }
-        };
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-reflections-no-ephemeral", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-SPELL-REFLECTIONS",
-                "UNL-083/219",
-                ["P1-REFLECTIONS-BASE-001", "P1-REFLECTIONS-BATTLEFIELD-001"]),
-            CancellationToken.None);
-
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-SPELL-REFLECTIONS"], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-REFLECTIONS-BASE-001"], result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-REFLECTIONS-BATTLEFIELD-001"], result.State.PlayerZones["P1"].Battlefields);
-        Assert.Empty(result.State.StackItems);
+        var initial = RadGearTestPosition.Put(RadGearTestPosition.Create(), "REFLECTIONS", "UNL-083/219", "P1", "HAND");
+        initial = RadGearTestPosition.Put(initial, "SECOND", "OGN·219/298", "P1", "BATTLEFIELD", "BF");
+        var game = new VenBasicFlowSpellTests.Driver(initial);
+        await game.Act("P1", new PlayCardCommand("REFLECTIONS", "UNL-083/219", ["ALLY", "SECOND"]));
+        await game.Top();
+        Assert.Equal("BASE", game.State.ObjectLocations["ALLY"].Zone);
+        Assert.Equal("BF", game.State.ObjectLocations["SECOND"].BattlefieldObjectId);
+        Assert.Contains("P1-D0", game.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD" or "UNIT_LOCATIONS_SWAPPED");
+        await game.Replay();
     }
 
     [Fact]

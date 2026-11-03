@@ -5,7 +5,7 @@ public sealed partial class CoreRuleEngine
     internal sealed record PlayManaCost(
         int Total, int CardReduction, int OptionalReduction, int EchoReduction, int EquipmentReduction,
         int UnitReduction, int NextSpellReduction, int BattlefieldSpellReduction, int Increase,
-        int EmpoweredSpellReduction = 0, int OpponentSpellIncrease = 0);
+        int EmpoweredSpellReduction = 0, int OpponentSpellIncrease = 0, int TimeAssassinReduction = 0);
 
     // CN 356: component reductions apply to that component, then total reductions apply
     // to base + additional costs + increases. A floor belongs only to its own reducer.
@@ -38,6 +38,8 @@ public sealed partial class CoreRuleEngine
             reductions.AddRange(FlowSpellCostReducers(state, playerId, behavior)
                 .Select(source => ("spell", source.StaticFlowSpellCostReductionMana, source.StaticFlowSpellCostReductionMinimumManaCost)));
         }
+        reductions.Add(("timeAssassin", behavior.PlaysSourceToBaseAsUnit
+            ? TimeAssassinNextUnitReductions(state, playerId).Count * 2 : 0, 0));
         reductions.Add(("next", SourceNextSpellCostReductionEffects(state, playerId)
             .Where(effect => effect.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(effect => effect.Mana), 0));
         reductions.Add(("card", ResolveCostReductionMana(state, playerId, behavior, sourceObjectId), 0));
@@ -61,7 +63,8 @@ public sealed partial class CoreRuleEngine
         }
         return new(total, applied.GetValueOrDefault("card"), applied.GetValueOrDefault("optional"), echoReduction,
             applied.GetValueOrDefault("equipment"), applied.GetValueOrDefault("unit"), applied.GetValueOrDefault("next"),
-            applied.GetValueOrDefault("spell"), increase, applied.GetValueOrDefault("empoweredSpell"), spellIncrease);
+            applied.GetValueOrDefault("spell"), increase, applied.GetValueOrDefault("empoweredSpell"), spellIncrease,
+            applied.GetValueOrDefault("timeAssassin"));
     }
 
     // A prompt's lower bound may assume affordable optional reductions. The quote uses
@@ -88,7 +91,9 @@ public sealed partial class CoreRuleEngine
                 && IsTargetManaCostAllowed(state, playerId, id, behavior)
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
             optionalReduction += behavior.TargetTraitsManaReduction;
-        return CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,
+        var cost = CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,
             sourceObjectId: sourceObjectId, destination: null);
+        var reduction = Math.Min(cost.Total, AvailableOptionalPlayManaReduction(state, playerId, behavior));
+        return cost with { Total = cost.Total - reduction, OptionalReduction = cost.OptionalReduction + reduction };
     }
 }

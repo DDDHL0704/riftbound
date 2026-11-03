@@ -8,6 +8,7 @@ public sealed record CreatedTokenReadyContext(string CardNo, ObjectBinding Sourc
 public sealed partial class CoreRuleEngine
 {
     internal const string CreatedTokenReadyEffect = "CREATED_TOKEN_READY";
+    internal const string CreatedTokenReadyTriggerEvent = "TOKEN_PLAY_INSTRUCTION_COMPLETED";
 
     private static int BaseUnitTokenInstructionCount(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
         => (item.Showcase is not null && behavior.CreatedBaseUnitTokenCountIfShowcase > 0
@@ -26,7 +27,7 @@ public sealed partial class CoreRuleEngine
             && context.Units is not null && context.Units.All(u => u is { Generation: >= 0 }
                 && u.ObjectId.StartsWith(sourceId + "-TOKEN-", StringComparison.Ordinal)
                 && (!state.CardObjects.TryGetValue(u.ObjectId, out var unit) || u.Generation <= unit.ObjectGeneration
-                    && (u.Generation != unit.ObjectGeneration || unit.TokenFactoryCardNo == P6TokenFactoryCatalog.SandSoldierTokenCardNo)))
+                    && (u.Generation != unit.ObjectGeneration || (unit.TokenFactoryCardNo == P6TokenFactoryCatalog.SandSoldierTokenCardNo || unit.TokenFactoryCardNo == "SFD·T01"))))
             && context.Units.Select(u => u.ObjectId).Distinct(StringComparer.Ordinal).Count() == context.Units.Count;
 
     private static bool CreatedTokenReadyHasPayment(StackItemState item)
@@ -77,7 +78,7 @@ public sealed partial class CoreRuleEngine
                 ["createdTokenReady"] = JsonSerializer.SerializeToElement(c, new JsonSerializerOptions(JsonSerializerDefaults.Web)) } };
             var trigger = new TriggerQueueItemState($"token-ready-{result.State.Tick}-{index}",
                 (string)ev.Payload["playerId"]!, (string)ev.Payload["sourceObjectId"]!, CreatedTokenReadyEffect,
-                "TOKEN_PLAY_INSTRUCTION_COMPLETED") { CreatedTokenReady = c };
+                CreatedTokenReadyTriggerEvent) { CreatedTokenReady = c };
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
         if (queue.Count == result.State.TriggerQueue.Count) return result;

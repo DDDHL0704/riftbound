@@ -73,12 +73,11 @@ public sealed class RadChronobreakBoundaryTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND") } };
         initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P1", "HAND");
+        initial = AnimatedArmamentAttachmentTests.WithMainPhaseResources(initial);
         if (destination != "BASE") initial = LocalDestructionRecallTests.At(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
         var g = new Driver(initial);
         await g.Act("P1", new PlayCardCommand("GEAR", equipmentNo, [], Destination: destination));
-        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
-            ["GEAR"], ["SPEND_MANA:1"]));
-        await g.Top();
+        await AnimatedArmamentAttachmentTests.TransformAtNextOwnMain(g, "GEAR");
         Assert.Contains(CardObjectTags.UnitCard, g.State.CardObjects["GEAR"].Tags);
         Assert.NotNull(g.State.CardObjects["GEAR"].LegendEquipmentUnit);
         await g.Act("P1", Cast(2)); await g.Top(); await Choose(g, "GEAR");
@@ -119,13 +118,12 @@ public sealed class RadChronobreakBoundaryTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND") } };
         initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P1", "HAND");
+        initial = AnimatedArmamentAttachmentTests.WithMainPhaseResources(initial);
         initial = LastBreathDrawBoundaryTests.Add(initial, "ARMAMENT", armamentNo, "P1", "HAND");
         if (destination != "BASE") initial = LocalDestructionRecallTests.At(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
         var g = new Driver(initial);
         await g.Act("P1", new PlayCardCommand("GEAR", equipmentNo, [], Destination: destination));
-        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
-            ["GEAR"], ["SPEND_MANA:1"]));
-        await g.Top();
+        await AnimatedArmamentAttachmentTests.TransformAtNextOwnMain(g, "GEAR");
         await g.Act("P1", new PlayCardCommand("ARMAMENT", armamentNo, ["GEAR"], Destination: "BASE"));
         await g.Top();
         Assert.Equal("GEAR", g.State.CardObjects["ARMAMENT"].AttachedToObjectId);
@@ -173,13 +171,12 @@ public sealed class RadChronobreakBoundaryTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND") } };
         initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P1", "HAND");
+        initial = AnimatedArmamentAttachmentTests.WithMainPhaseResources(initial);
         var g = new Driver(initial);
         await g.Act("P1", new PlayCardCommand("GEAR", equipmentNo, ["ALLY"], Destination: "BASE"));
         await g.Top();
         Assert.Equal("ALLY", g.State.CardObjects["GEAR"].AttachedToObjectId);
-        await g.Act("P1", new LegendActCommand("LEGEND", LegendActionAbilityCatalog.OriannaLegendAbilityId,
-            ["GEAR"], ["SPEND_MANA:1"]));
-        await g.Top();
+        await AnimatedArmamentAttachmentTests.TransformAtNextOwnMain(g, "GEAR");
         Assert.Contains(CardObjectTags.UnitCard, g.State.CardObjects["GEAR"].Tags);
         Assert.Null(g.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.Equal("GEAR", Assert.Single(g.Events(), e => e.Event.Kind == "EQUIPMENT_DETACHED"
@@ -261,6 +258,51 @@ public sealed class RadChronobreakBoundaryTests
         }
         await g.Act("P1", new ChooseCardsCommand(p.ChoiceId, "EFFECT_PLAY", []));
         Assert.Contains("ALLY", g.State.PlayerZones["P1"].Banished); Assert.Null(g.State.PendingEffectPlay);
+    }
+
+    [Theory]
+    [InlineData("P1", "ALLY")]
+    [InlineData("P2", "ENEMY")]
+    public async Task OneOwnersRestrictedCardCanStayBanishedWithoutBlockingTheOtherOwnersReplay(
+        string restrictedOwner, string restrictedId)
+    {
+        const string restrictedCard = "SFD·015/221";
+        var initial = LocalDestructionRecallTests.At(Position(), "ENEMY", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            [restrictedId] = OfficialGarenConquestBattlefieldCountTests.Printed(restrictedId, restrictedCard, restrictedOwner)
+                with { ControllerId = "P1" } } };
+        var g = new Driver(initial); await g.Act("P1", Cast(2)); await g.Top();
+        Assert.Equal(["ALLY", "ENEMY"], g.State.StackItems.Select(item => item.SourceObjectId));
+        var p1Resources = g.State.RunePools["P1"]; var p2Resources = g.State.RunePools["P2"];
+        foreach (var (owner, id) in new[] { ("P1", "ALLY"), ("P2", "ENEMY") })
+        {
+            var pending = Assert.IsType<PendingEffectPlayState>(g.State.PendingEffectPlay);
+            Assert.Equal(owner, pending.PlayerId); Assert.Equal(id, Assert.Single(pending.Sources).Key);
+            if (id == restrictedId)
+            {
+                var play = new PlayCardCommand(id, restrictedCard, []);
+                Assert.False(new CoreRuleEngine().PreviewPlayCard(g.State, owner, PlayCostPreviewTests.Request(g.State, play)).CanPay);
+                var generation = g.State.CardObjects[id].ObjectGeneration;
+                await g.Act(owner, new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
+                Assert.Contains(id, g.State.PlayerZones[owner].Banished);
+                Assert.Equal(new ObjectLocationState(owner, "BANISHED"), g.State.ObjectLocations[id]);
+                Assert.Equal(generation + 1, g.State.CardObjects[id].ObjectGeneration);
+            }
+            else
+            {
+                await g.Act(owner, new PlayCardCommand(id, Unit, []));
+                Assert.Contains(id, g.State.PlayerZones[owner].Base);
+                Assert.Equal(owner, g.State.CardObjects[id].ControllerId);
+            }
+            Assert.Equal(p1Resources, g.State.RunePools["P1"]);
+            Assert.Equal(p2Resources, g.State.RunePools["P2"]);
+        }
+        Assert.Null(g.State.PendingEffectPlay); Assert.Empty(g.State.StackItems);
+        Assert.Single(g.Events(), row => row.Event.Kind == "EFFECT_PLAY_UNABLE"
+            && Equals(row.Event.Payload.GetValueOrDefault("targetObjectId"), restrictedId));
+        Assert.DoesNotContain(g.Events(), row => row.Event.Kind == "CARD_PLAYED"
+            && Equals(row.Event.Payload.GetValueOrDefault("sourceObjectId"), restrictedId));
+        await g.Replay();
     }
 
     [Theory]

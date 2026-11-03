@@ -9,7 +9,13 @@ public sealed record EndStepContinuation(string PlayerId, int TurnNumber);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record EndAbilityContext(string CardNo, string Kind, CardObjectState Source, ObjectLocationState Location,
     int TurnNumber, int RuneCount = 0, RuleTextInstanceBinding? Origin = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? CreationTick = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? CreationTick = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public long? CapturedTick { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedSelfAbilitySource? CeasedSource { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -17,6 +23,7 @@ public sealed partial class CoreRuleEngine
     internal const string EndRuneChoiceWindow = "END_STEP_RUNE_TARGETS";
     internal const string CreateEndAbilityEffect = "CREATE_DELAYED_END_ABILITY";
     internal const string DelayedEndReadyPrefix = "DELAYED_END_READY:";
+    internal const string TimeAssassinEndDestructionKind = "TIME_ASSASSIN_END_DESTRUCTION";
     private static TriggerSpec? EndSpec(string? no) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(no)
         .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd
             && (t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes or TriggerKinds.TurnEndRecycleRunesCall
@@ -56,6 +63,23 @@ public sealed partial class CoreRuleEngine
             if (context is null || context.TurnNumber != state.TurnNumber) continue;
             result.Add(new("delayed-end-" + state.Tick + "-" + result.Count, context.Source.ControllerId!, context.Source.ObjectId,
                 EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) { EndAbility = context });
+        }
+        foreach (var target in state.CardObjects.Values.OrderBy(card => card.ObjectId, StringComparer.Ordinal))
+        {
+            foreach (var marker in target.UntilEndOfTurnEffects
+                .Where(value => value.StartsWith(TimeAssassinDestructionPrefix, StringComparison.Ordinal)))
+            {
+                if (!ValidTimeAssassinDestructionMarker(state, marker, target.ObjectId)) continue;
+                var context = ReadTimeAssassinDestructionMarker(marker)!;
+                if (context.ControllerId != state.TurnPlayerId
+                    || target.ControllerId is null || !state.Seats.ContainsKey(target.ControllerId)
+                    || !locations.TryGetValue(target.ObjectId, out var location)
+                    || location.Zone is not ("BASE" or "BATTLEFIELD")) continue;
+                result.Add(new($"time-assassin-end-{state.Tick + 1}-{target.ObjectId}-{context.Source.ObjectId}-{context.CreatedTick}",
+                    target.ControllerId, target.ObjectId, EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) {
+                    EndAbility = new(target.CardNo!, TimeAssassinEndDestructionKind,
+                        target, location, state.TurnNumber, CreationTick: context.CreatedTick) { CapturedTick = state.Tick + 1 } });
+            }
         }
         result.AddRange(CaptureDelayedEmpowerEndAbilities(state));
         result.AddRange(CaptureBombRebuildEndAbilities(state));
@@ -133,6 +157,8 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveEndAbility(MatchState state, StackItemState item)
     {
+        if (item.EndAbility!.Kind == TimeAssassinEndDestructionKind)
+            return ResolveTimeAssassinEndDestruction(state, item);
         if (item.EndAbility!.Kind == TriggerKinds.TurnEndRecycleRunesCall) return ResolveEndRuneRecycleCall(state, item);
         if (item.EndAbility.Kind == TriggerKinds.TurnEndCreateEquipmentToken)
         {
@@ -190,9 +216,61 @@ public sealed partial class CoreRuleEngine
             DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds, Events = events.Concat(cleanup.Events).ToArray() };
     }
 
+    private static StackResolutionResult ResolveTimeAssassinEndDestruction(MatchState state, StackItemState item)
+    {
+        if (!ValidEndAbility(state, item)
+            || !state.CardObjects.TryGetValue(item.SourceObjectId, out var target)
+            || target.ObjectGeneration != item.EndAbility!.Source.ObjectGeneration
+            || !IsObjectOnField(state.PlayerZones, target.ObjectId))
+            return NoopStackResolutionResult(state);
+        var zones = NormalizeZonesForSeats(state);
+        var cards = state.CardObjects.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
+        var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(),
+            state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(), state.RunePools,
+            objectLocations: locations, explicitDestroyObjectIds: new HashSet<string> { target.ObjectId });
+        var cleanupState = state with { PlayerZones = zones, CardObjects = cards, RunePools = removal.RunePools };
+        var cleanup = RunStateBasedCleanupLoop(cleanupState, zones, cards, item, removal.RunePools,
+            objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: removal.DestroyedUnitOwnerIds);
+        return NoopStackResolutionResult(state) with {
+            PlayerZones = zones, CardObjects = cards,
+            ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = cleanup.RunePools,
+            TriggerQueue = removal.TriggerQueue.Concat(cleanup.TriggerQueue).DistinctBy(trigger => trigger.TriggerId).ToArray(),
+            DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds,
+            Events = removal.Events.Concat(cleanup.Events).ToArray() };
+    }
+
     internal static bool ValidEndAbility(MatchState state, StackItemState item)
     {
         if (item.EndAbility is not { } c) return item.EffectKind is not (EndAbilityEffect or CreateEndAbilityEffect);
+        if (c.Kind == TimeAssassinEndDestructionKind)
+        {
+            return item.EffectKind == EndAbilityEffect
+                && state.EndStep is { } endStep && state.Phase == MatchPhases.TurnEnd
+                && endStep.PlayerId == state.TurnPlayerId && endStep.TurnNumber == state.TurnNumber
+                && c.TurnNumber == state.TurnNumber && c.Source.ObjectId == item.SourceObjectId
+                && c.Source.ObjectGeneration >= 0 && c.Source.CardNo == item.CardNo
+                && c.Source.OwnerId is { } capturedOwner && state.Seats.ContainsKey(capturedOwner)
+                && !c.Source.IsFaceDown && c.Source.Tags.Contains(CardObjectTags.UnitCard)
+                && c.Origin is null && c.CreationTick is > 0 && c.CreationTick <= state.Tick && c.RuneCount == 0
+                && c.Location.Zone is "BASE" or "BATTLEFIELD"
+                && item.ControllerId == c.Source.ControllerId && item.CardNo == c.CardNo
+                && state.Seats.ContainsKey(item.ControllerId)
+                && c.CapturedTick is > 0 && c.CapturedTick <= state.Tick
+                && SelfAbilitySourceRules.Valid(state, new(c.Source.ObjectId, c.Source.ObjectGeneration),
+                    c.Source.CardNo!, c.Source.CopyFaceTransitions?.Count ?? 0, c.CapturedTick.Value,
+                    c.Source.TokenFactoryCardNo, c.CeasedSource, usesPrintedFace: false)
+                && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+                && item.EffectRepeatCount == 1 && item.OptionalCosts.Count == 0 && item.DamageAmount == 0
+                && c.Source.UntilEndOfTurnEffects.Any(marker =>
+                    marker.StartsWith(TimeAssassinDestructionPrefix, StringComparison.Ordinal)
+                    && ReadTimeAssassinDestructionMarker(marker) is { } context
+                    && context.CreatedTick == c.CreationTick
+                    && context.ControllerId == endStep.PlayerId
+                    && context.Target.ObjectId == c.Source.ObjectId
+                    && ValidTimeAssassinDestructionContext(state, context, c.Source));
+        }
+        if (c.CapturedTick is not null || c.CeasedSource is not null) return false;
         var spec = c.Kind == "DELAYED_READY_RUNES" && BattlefieldTriggerSpecRules.TryGetTrigger(c.CardNo,
             BattlefieldTriggerSpecRules.IsBattlefieldConquerReadyRunesAtEndTrigger, out var delayed) ? delayed : EndSpec(c.CardNo);
         var creation = item.EffectKind == CreateEndAbilityEffect;
