@@ -67,7 +67,7 @@ class CatalogPreflightTests(unittest.TestCase):
         self.plan = dict(commit='1' * 40, testAssemblySha256=D.digest(self.assembly),
                          cases={**self.cases, 'Unrelated.Method': ['Unrelated.Method']})
 
-    def execute(self, names=None, outcome='Passed', fail=False, change_assembly=False):
+    def execute(self, names=None, outcome='Passed', fail=False, change_assembly=False, failed_names=()):
         def run(command, log):
             self.command = command
             log.write_text('preflight output\n')
@@ -77,12 +77,13 @@ class CatalogPreflightTests(unittest.TestCase):
             tree = ET.Element('TestRun', xmlns=D.RULES.NS['t'])
             results = ET.SubElement(tree, 'Results')
             for name in actual:
-                ET.SubElement(results, 'UnitTestResult', testName=name, outcome=outcome)
+                ET.SubElement(results, 'UnitTestResult', testName=name,
+                              outcome='Failed' if name in failed_names else outcome)
             summary = ET.SubElement(tree, 'ResultSummary')
+            outcomes = [row.get('outcome') for row in results]
             ET.SubElement(summary, 'Counters', total=str(len(actual)),
-                          passed=str(len(actual) if outcome == 'Passed' else 0),
-                          failed=str(len(actual) if outcome == 'Failed' else 0),
-                          notExecuted=str(len(actual) if outcome == 'NotExecuted' else 0))
+                          passed=str(outcomes.count('Passed')), failed=str(outcomes.count('Failed')),
+                          notExecuted=str(outcomes.count('NotExecuted')))
             ET.ElementTree(tree).write(self.output / 'results.trx')
             if change_assembly:
                 self.assembly.write_bytes(b'changed assembly')
@@ -105,6 +106,46 @@ class CatalogPreflightTests(unittest.TestCase):
         self.assertEqual('CATALOG_PREFLIGHT_PASSED', receipt['status'])
         self.assertEqual(len(self.names), receipt['counters']['passed'])
         self.assertTrue(receipt['completeRuleShardsStillRequired'])
+        self.assertTrue(set(D.OPTIONAL_CATALOG_PREFLIGHT).isdisjoint(receipt['methods']))
+
+    def test_new_catalog_guard_runs_all_its_rows_when_present_without_changing_rule_plan(self):
+        method = D.OPTIONAL_CATALOG_PREFLIGHT[0]
+        added = [method + '(value: 1)', method + '(value: 2)']
+        self.plan['cases'][method] = added
+        original = copy.deepcopy(self.plan)
+        self.execute(names=self.names + added)
+        self.assertEqual(original, self.plan)
+        expression = ET.parse(self.output / 'execution.runsettings').findtext('.//TestCaseFilter')
+        self.assertIn('FullyQualifiedName=' + method, expression.split('|'))
+        receipt = D.read(self.output / 'receipt.json')
+        self.assertEqual(list(D.CATALOG_PREFLIGHT) + [method], receipt['methods'])
+        self.assertEqual(len(self.names) + 2, receipt['counters']['passed'])
+        self.assertTrue(receipt['completeRuleShardsStillRequired'])
+
+    def test_present_new_catalog_guard_without_rows_stops_before_execution(self):
+        self.plan['cases'][D.OPTIONAL_CATALOG_PREFLIGHT[0]] = []
+        with mock.patch.object(D, 'run_logged') as runner:
+            with self.assertRaisesRegex(ValueError, 'Missing catalog preflight method'):
+                D.catalog_preflight(self.plan, self.bundle, self.output)
+        runner.assert_not_called()
+        self.assertFalse((self.output / 'receipt.json').exists())
+
+    def test_missing_or_repeated_new_catalog_guard_rows_cannot_pass(self):
+        method = D.OPTIONAL_CATALOG_PREFLIGHT[0]
+        self.plan['cases'][method] = [method]
+        for label, names in [('missing', self.names), ('repeated', self.names + [method, method])]:
+            with self.subTest(label=label):
+                self.output = self.root / label
+                with self.assertRaises(ValueError):
+                    self.execute(names=names)
+                self.assertFalse((self.output / 'receipt.json').exists())
+
+    def test_failure_of_only_the_new_catalog_guard_blocks_preflight(self):
+        method = D.OPTIONAL_CATALOG_PREFLIGHT[0]
+        self.plan['cases'][method] = [method]
+        with self.assertRaises(ValueError):
+            self.execute(names=self.names + [method], failed_names=[method])
+        self.assertFalse((self.output / 'receipt.json').exists())
 
     def test_missing_method_stops_before_execution(self):
         del self.plan['cases'][D.CATALOG_PREFLIGHT[0]]
