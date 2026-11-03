@@ -7802,21 +7802,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         switch (ability.EffectKind)
         {
-            case LegendAbilityEffectKinds.DrawOne:
-            {
-                var drawApplication = ApplyDrawToPlayer(
-                    state,
-                    playerZones, cardObjects,
-                    playerScores,
-                    intent.PlayerId,
-                    1,
-                    rngCursor,
-                    events);
-                playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                rngCursor = drawApplication.RngCursor;
-                break;
-            }
             case LegendAbilityEffectKinds.MoveFriendlyUnit:
             {
                 var movementPools = runePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
@@ -7996,6 +7981,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResourceActionWindow.CanAct(state, playerId);
         if (ability.TimingKind == LegendAbilityTimingKinds.QuickOpen)
             return CanActivateSwiftAbility(state, playerId);
+        if (ability.TimingKind == LegendAbilityTimingKinds.ReactionWindow)
+            return CanActivateReactionAbility(state, playerId);
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
@@ -8321,7 +8308,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 0,
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.DrawOne,
-                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
+                TimingKind: LegendAbilityTimingKinds.ReactionWindow,
                 RequiresEzrealEnemyTargetsThisTurn: true),
             IreliaLegendAbilityId => new LegendAbilityDefinition(
                 IreliaLegendAbilityId,
@@ -27522,7 +27509,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>
         {
             activatedAbility
-                ? new GameEvent("LEGEND_ABILITY_RESOLVED", "传奇弃牌抽牌技能开始结算", new Dictionary<string, object?> {
+                ? new GameEvent("LEGEND_ABILITY_RESOLVED", "传奇抽牌技能开始结算", new Dictionary<string, object?> {
                     ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["controllerId"] = stackItem.ControllerId, ["stackItemId"] = stackItem.StackItemId, ["effectKind"] = effectKind })
                 : BuildTriggerResolvedEvent(new TriggerQueueItemState(
@@ -34827,6 +34814,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string MainOpen = "MAIN_OPEN";
         public const string QuickOpen = "QUICK_OPEN";
         public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string ReactionWindow = "REACTION_WINDOW";
         public const string ResourceAction = "RESOURCE_ACTION";
         public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
     }

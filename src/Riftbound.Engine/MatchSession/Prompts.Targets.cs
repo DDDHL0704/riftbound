@@ -633,6 +633,8 @@ internal static partial class ActionPromptBuilder
             return ResourceActionWindow.CanAct(state, playerId);
         if (ability.TimingKind == LegendActionTimingKinds.QuickOpen)
             return CoreRuleEngine.CanActivateSwiftAbility(state, playerId);
+        if (ability.TimingKind == LegendActionTimingKinds.ReactionWindow)
+            return CoreRuleEngine.CanActivateReactionAbility(state, playerId);
 
         if (state.PendingPayment is not null || state.PendingEffectPlay is not null || state.PendingCardChoice is not null)
             return false;

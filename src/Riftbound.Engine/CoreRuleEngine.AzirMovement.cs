@@ -12,6 +12,12 @@ public sealed record AzirMovementContext(ObjectBinding Source, ObjectBinding? Eq
 
 public sealed partial class CoreRuleEngine
 {
+    // Core 337.2 / 338.1.a: non-resource reactions use priority/focus, never a payment window.
+    internal static bool CanActivateReactionAbility(MatchState state, string player)
+        => state.PendingPayment is null && state.PendingEffectPlay is null
+            && !ResolutionResult.HasOpenBattleDamageAssignmentWindow(state)
+            && CanActivateReactionResourceSkill(state, player);
+
     internal static bool CanActivateSwiftAbility(MatchState state, string player)
         => state.Status == MatchStatuses.InProgress && state.Phase == MatchPhases.Main
             && state.PendingPayment is null && state.PendingHandChoice is null && state.PendingCardChoice is null

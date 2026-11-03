@@ -12,8 +12,8 @@ public sealed partial class CoreRuleEngine
     internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec)
         => (!spec.RequiresPlayedArmamentThisTurn || ControllerPlayedArmamentThisTurn(state, player))
             && BorrowedEnemyTargetRequirementMet(state, player, spec)
-            && (spec.Reaction ? (spec.Kind == "RESOURCE" || state.PendingPayment is null && state.PendingEffectPlay is null)
-                    && CanActivateReactionResourceSkill(state, player)
+            && (spec.Reaction ? (spec.Kind == "RESOURCE" ? CanActivateReactionResourceSkill(state, player)
+                    : CanActivateReactionAbility(state, player))
                 : spec.Swift ? CanActivateSwiftAbility(state, player) : CanActivateOrdinaryPowerAbility(state, player));
 
     internal static bool BorrowedEnemyTargetRequirementMet(MatchState state, string player, BorrowedExhaustSpec spec)
