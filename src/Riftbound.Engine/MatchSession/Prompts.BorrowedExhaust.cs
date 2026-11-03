@@ -60,6 +60,8 @@ internal static partial class ActionPromptBuilder
                 "MOVE_TO_BASE" => "将战场上的一名" + (ability.Spec.TargetScope == "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT" ? "休眠的" : "")
                     + "友方单位移动到基地",
                 "MOVE_BETWEEN_BASE_AND_BATTLEFIELD" => "在战场和基地之间移动一名友方单位",
+                "MOVE_DUEL_UNIT_TO_BASE" => "如果这是你的回合，将一名法术对决中的友方单位移动到基地；此牌已强化时让其活跃",
+                "CREATE_BATTLEFIELD_EQUIPMENT_TOKEN" => $"将 {ability.Spec.TokenCount} 个{ability.Spec.TokenName}装备指示物打出到一处战场",
                 "BOON_UNIT" => "给予一名单位增益",
                 "BOON_SELF" => "给予我增益",
                 "BOON_OR_MIGHT" => $"给予一名单位增益；已有增益时改为本回合战力 +{ability.Spec.ExistingBoonMight}",

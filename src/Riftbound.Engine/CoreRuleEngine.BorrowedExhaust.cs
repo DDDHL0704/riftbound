@@ -36,7 +36,8 @@ public sealed partial class CoreRuleEngine
             .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray();
 
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
-        => spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
+        => spec.TargetScope == "BATTLEFIELD" ? BattlefieldLocalRules.Battlefield(state, id) is not null
+            : spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
             : state.CardObjects.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)
                 && IsObjectOnField(state.PlayerZones, id)
@@ -46,6 +47,7 @@ public sealed partial class CoreRuleEngine
                     || EffectiveFieldControllerId(state.PlayerZones, id, card) == player)
                 && (spec.TargetScope is not ("EXHAUSTED_FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT") || card.IsExhausted)
                 && (spec.TargetScope != "ENEMY_UNIT" || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
+                && (spec.TargetScope != "FRIENDLY_DUEL_UNIT" || IsLegendDuelUnit(state, player, id))
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
 
     private static ResolutionResult ResolveBorrowedExhaust(MatchState state, PlayerIntent intent, ActivateAbilityCommand command)
@@ -143,8 +145,10 @@ public sealed partial class CoreRuleEngine
         var context = new BorrowedExhaustContext(BorrowedExhaustRules.Capture(source, ability.BorrowerText),
             BorrowedExhaustRules.Capture(cards[ability.Donor.ObjectId], ability.DonorText), ability.Spec.Index,
             state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories, borrowerWasOnBattlefield,
-            ability.Spec.EmpoweredMight.HasValue ? source.IsEmpowered : null,
-            ability.Spec.RequiresPlayedArmamentThisTurn);
+            ability.Spec.EmpoweredMight.HasValue || ability.Spec.ReadyTargetIfSourceEmpowered ? source.IsEmpowered : null,
+            ability.Spec.RequiresPlayedArmamentThisTurn,
+            ability.Spec.TargetScope == "FRIENDLY_DUEL_UNIT" ? new(state.SpellDuelState.BattlefieldObjectId!,
+                cards[state.SpellDuelState.BattlefieldObjectId!].ObjectGeneration) : null);
         foreach (var cost in unitExhaustCosts)
         {
             var id = cost[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
@@ -268,7 +272,10 @@ public sealed partial class CoreRuleEngine
             return CreateUnitTokenBatch(state, item, factory.CardNo, spec.TokenCount + AdditionalUnitTokens(item),
                 false, instructionAllowsLocationChoice: !spec.TokensToBase);
         }
-        if (spec.Kind is "MOVE_TO_BASE" or "MOVE_BETWEEN_BASE_AND_BATTLEFIELD") return ResolveBorrowedMovement(state, item, spec);
+        if (spec.Kind is "MOVE_TO_BASE" or "MOVE_BETWEEN_BASE_AND_BATTLEFIELD" or "MOVE_DUEL_UNIT_TO_BASE")
+            return ResolveBorrowedMovement(state, item, spec);
+        if (spec.Kind == "CREATE_BATTLEFIELD_EQUIPMENT_TOKEN")
+            return ResolveBorrowedBattlefieldEquipmentTokens(state, item, spec);
         if (spec.Kind == "INSIGHT_DRAW_EXPERIENCE")
             return item.InsightCompleted ? FinishInsight(state, item)
                 : BeginInsight(state, item, NoopStackResolutionResult(state), spec.InsightCount);

@@ -42,6 +42,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public string TokenKeyword { get; init; } = "";
     public bool TokensToBase { get; init; }
     public bool RequiresPlayedArmamentThisTurn { get; init; }
+    public bool ResolveOnlyOnControllerTurn { get; init; }
+    public bool ReadyTargetIfSourceEmpowered { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -144,6 +146,19 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "如果这是你的回合，则将一名处于法术对决中的友方单位移动到基地，且如果我{{已强化}}，则让该单位变为活跃状态")
+            {
+                result.Add(Skill("MOVE_DUEL_UNIT_TO_BASE", scope: "FRIENDLY_DUEL_UNIT") with {
+                    ResolveOnlyOnControllerTurn = true, ReadyTargetIfSourceEmpowered = true });
+                continue;
+            }
+            var equipmentToken = Regex.Match(effect, "^将一个“(?<name>炸弹)”装备指示物打出到一处战场$");
+            if (equipmentToken.Success)
+            {
+                result.Add(Skill("CREATE_BATTLEFIELD_EQUIPMENT_TOKEN", scope: "BATTLEFIELD") with {
+                    TokenCount = 1, TokenName = equipmentToken.Groups["name"].Value });
+                continue;
+            }
             var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?:单位指示物)?(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
             if (unitToken.Success)
             {
