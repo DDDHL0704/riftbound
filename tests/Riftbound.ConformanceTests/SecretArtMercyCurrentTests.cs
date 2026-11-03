@@ -46,7 +46,7 @@ public sealed class SecretArtMercyCurrentTests
         var initial = AttackDamageDistributionTests.Spell(Position(), "DISPLAY", "OGN·270/298", "P1");
         var driver = Driver(initial, "later-boon-expiry");
         await Cast(driver);
-        await driver.Act("P1", new PlayCardCommand("DISPLAY", "OGN·270/298", ["OTHER_UNIT"]));
+        await driver.Act("P1", new PlayCardCommand("DISPLAY", "OGN·270/298", ["OTHER_UNIT"], Destination: "BATTLEFIELD:F"));
         await driver.Top();
         Assert.Equal(6, driver.State.CardObjects["OTHER_UNIT"].Power);
         Assert.Equal(7, Power(driver.State, "OTHER_UNIT"));

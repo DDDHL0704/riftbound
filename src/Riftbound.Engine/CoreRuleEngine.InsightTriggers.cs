@@ -13,6 +13,8 @@ public sealed record InsightTriggerContext(string CardNo, string ControllerId, i
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? SourceCapturedTick = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LastBreathRepetitionContext? Repetition { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CeasedSelfAbilitySource? CeasedSource { get; init; }
 }
 
@@ -38,9 +40,38 @@ public sealed partial class CoreRuleEngine
     internal static bool IsCapturedInsightKind(string? kind) => kind is "LAST_BREATH" or "DUEL" or "EMPOWERED" or "HELD" or "EXHAUSTED";
 
     private static IReadOnlyList<InsightTriggerContext> CaptureLastBreathInsights(
-        IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
+        MatchState state, IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
         CardObjectState unit, string controller)
-        => CaptureRuleTextInsights(zones, cards, unit, controller, "LAST_BREATH");
+    {
+        var instances = CaptureRuleTextInsights(zones, cards, unit, controller, "LAST_BREATH");
+        if (instances.Count == 0) return [];
+        var repetitions = CaptureLastBreathRepetitions(state, zones, cards, unit);
+        return instances.SelectMany(context => repetitions.Select(repetition => context with { Repetition = repetition })).ToArray();
+    }
+
+    internal static InsightTriggerContext? PublicInsightContext(InsightTriggerContext? context)
+        => context is null ? null : context with { Repetition = null };
+
+    internal static string LastBreathInsightInstanceId(InsightTriggerContext context, string source)
+        => context.Origin is { Equipment: not null } origin
+            ? $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
+            : $"PRINTED:{source}:{context.SourceGeneration}";
+
+    private static bool ValidLastBreathInsightIdentity(InsightTriggerContext? context, string id, bool ordered)
+        => context?.Kind != "LAST_BREATH" || id.StartsWith(ordered ? "ordered-insight-death-" : "insight-death-", StringComparison.Ordinal)
+            && (context.Repetition is { } repetition
+                ? id.EndsWith(LastBreathOccurrenceSuffix(repetition), StringComparison.Ordinal)
+                : !id.Contains(":occurrence-", StringComparison.Ordinal));
+
+    internal static bool ValidLastBreathInsightTriggerIdentity(TriggerQueueItemState item)
+        => ValidLastBreathInsightIdentity(item.InsightContext, item.TriggerId, false)
+            && (item.InsightContext?.Kind != "LAST_BREATH"
+                || item.TriggeredByEventKind == "UNIT_DESTROYED" && item.SourceCardNo == item.InsightContext.CardNo);
+
+    internal static bool ValidLastBreathInsightStackIdentity(StackItemState item)
+        => ValidLastBreathInsightIdentity(item.InsightContext, item.StackItemId, true)
+            && (item.InsightContext?.Kind != "LAST_BREATH" || item.CardNo == item.InsightContext.CardNo
+                && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null);
 
     private static IReadOnlyList<InsightTriggerContext> CaptureRuleTextInsights(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
@@ -56,6 +87,9 @@ public sealed partial class CoreRuleEngine
                 : context.SourceTokenFactoryCardNo is not null && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo)))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind)
                 && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo))
+            && (context.Repetition is null || context.Kind == "LAST_BREATH"
+                && ValidLastBreathRepetition(state, context.Repetition, new(source, context.SourceGeneration),
+                    context.ControllerId, context.CardNo, LastBreathInsightInstanceId(context, source)))
             && (context.Kind != "EXHAUSTED" || context.SourceCapturedTick is > 0 && context.SourceCapturedTick <= state.Tick
                 && context.SourceFaceRevision is >= 0 && SelfAbilitySourceRules.Valid(state,
                     new(source, context.SourceGeneration), context.CardNo, context.SourceFaceRevision.Value,
@@ -88,6 +122,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidInsightTrigger(InsightTriggerContext context, string effect, string controller, string? cardNo = null)
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
+            && (context.Repetition is null || context.Kind == "LAST_BREATH")
             && (context.Kind == "EXHAUSTED" ? context.SourceFaceRevision is >= 0 && context.SourceCapturedTick is > 0
                 : context.SourceFaceRevision is null && context.SourceCapturedTick is null && context.CeasedSource is null)
             && (context.SourceTokenFactoryCardNo is null || IsCapturedInsightKind(context.Kind)
@@ -173,7 +208,7 @@ public sealed partial class CoreRuleEngine
             foreach (var (context, ordinal) in contexts.Select((c, i) => (c, i)))
             {
                 var prefix = ev.Kind == "OBJECT_EMPOWERED" ? "empower" : "death";
-                var trigger = new TriggerQueueItemState($"insight-{prefix}-{result.State.Tick}-{index}-{source}{(ordinal == 0 ? "" : "-" + ordinal)}", context.ControllerId,
+                var trigger = new TriggerQueueItemState($"insight-{prefix}-{result.State.Tick}-{index}-{source}{(ordinal == 0 ? "" : "-" + ordinal)}{LastBreathOccurrenceSuffix(context.Repetition)}", context.ControllerId,
                     source, InsightTriggerEffect, ev.Kind) { InsightContext = context, SourceCardNo = context.CardNo };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
@@ -186,6 +221,10 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveInsightTrigger(MatchState state, StackItemState item)
     {
+        if (!ValidLastBreathInsightStackIdentity(item)
+            || item.InsightContext is not { } context || !ValidInsightTrigger(context, item.EffectKind, item.ControllerId, item.CardNo)
+            || !ValidInsightRuleTextSource(state, context, item.SourceObjectId))
+            throw new InvalidOperationException("Invalid captured Insight skill.");
         if (item.InsightCompleted) return FinishInsight(state, item);
         return BeginInsight(state, item, NoopStackResolutionResult(state), item.InsightContext!.Count);
     }

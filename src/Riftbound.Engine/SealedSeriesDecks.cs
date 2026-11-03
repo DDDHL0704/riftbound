@@ -87,7 +87,7 @@ public static class SealedSeriesDecks
     }
 
     internal static IReadOnlyDictionary<string, IReadOnlyList<string>> UsedBattlefields(MatchState state) =>
-        state.Seats.Keys.ToDictionary(player => player, player => (IReadOnlyList<string>)
+        ResolutionResult.SnapshotSeats(state).Select(entry => entry.Key).ToDictionary(player => player, player => (IReadOnlyList<string>)
             (state.SealedBattlefieldHistory ?? []).Where(game => game is { ReusesPrevious: false, Cards: not null }
                 && game.Cards.ContainsKey(player)).Select(game => game.Cards[player]).ToArray(), StringComparer.Ordinal);
 

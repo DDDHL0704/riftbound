@@ -10,7 +10,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class RadHextechMinefieldTests
 {
     private const string Card = "RAD·142/167";
-    private static MatchState Board()
+    internal static MatchState Board()
     {
         var s = VenUnitEntryBasicTests.Position(Card);
         Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.BombTokenCardNo, out var factory));

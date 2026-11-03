@@ -778,7 +778,8 @@ public static partial class MatchRecoveryValidator
                 sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
-                errors);
+                errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
             ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,

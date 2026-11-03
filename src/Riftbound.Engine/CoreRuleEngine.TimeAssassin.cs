@@ -202,6 +202,7 @@ public sealed partial class CoreRuleEngine
 
     private static string? UnitObjectId(GameEvent ev)
         => ev.Payload.GetValueOrDefault("unitObjectId") as string
+            ?? ev.Payload.GetValueOrDefault("tokenObjectId") as string
             ?? ev.Payload.GetValueOrDefault("targetObjectId") as string;
 
     internal static ResolutionResult RecordTimeAssassinNextUnitReductions(ResolutionResult result)
@@ -213,7 +214,7 @@ public sealed partial class CoreRuleEngine
         foreach (var ev in result.Events)
         {
             events.Add(ev);
-            if (ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
+            if (ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")
                 || UnitObjectId(ev) is not { } objectId || !cards.TryGetValue(objectId, out var unit)
                 || !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)) continue;
             var player = ev.Payload.GetValueOrDefault("playerId") as string ?? unit.ControllerId;

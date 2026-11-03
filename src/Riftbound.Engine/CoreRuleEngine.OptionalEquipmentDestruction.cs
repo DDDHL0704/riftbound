@@ -9,11 +9,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveOptionalEquipmentDestructionMight(
         MatchState state, StackItemState item, int amount)
     {
-        var legal = state.CardObjects.Values.Where(card => !card.IsFaceDown
-            && card.Tags.Contains(CardObjectTags.EquipmentCard)
-            && IsObjectOnField(state.PlayerZones, card.ObjectId)
-            && EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) == item.ControllerId)
-            .OrderBy(card => card.ObjectId, StringComparer.Ordinal).ToArray();
+        var legal = FriendlyDestructionChoices(state, item.ControllerId, requiredTag: CardObjectTags.EquipmentCard);
         if (legal.Length == 0) return NoopStackResolutionResult(state);
         var frame = RuleChoices.Value ?? throw new InvalidOperationException("Equipment destruction requires a rule choice frame.");
         var options = new[] { new RuleChoiceOption("SKIP", "不摧毁装备") }.Concat(legal.Select(card =>
