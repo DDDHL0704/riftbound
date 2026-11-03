@@ -33,7 +33,7 @@ public sealed class HweiMoveDiscardOrdinaryTests(ITestOutputHelper output)
         Assert.Contains(CardObjectTags.UnitCard, before.CardObjects[top].Tags);
         Assert.Contains(CardObjectTags.EquipmentCard, before.CardObjects[top].Tags);
         await run.Cold(); await Save(run, format, reverse, "before-move");
-        var start = run.Frame().Events[^1].Sequence;
+        var start = run.Events()[^1].Sequence;
         var field = before.PlayerZones["P1"].Battlefields.First(before.BattlefieldStates.ContainsKey);
         var move = new MoveUnitCommand(host, "BASE", "BATTLEFIELD:" + field);
         await run.Reject("P2", move); await run.Submit("P1", move); await run.Cold();
@@ -85,7 +85,7 @@ public sealed class HweiMoveDiscardOrdinaryTests(ITestOutputHelper output)
         Assert.Equal(JsonSerializer.Serialize(before.CardPlays), JsonSerializer.Serialize(run.State.CardPlays));
         Assert.Equal(8, CurrentPowerTargetTests.Snapshot(run.State).GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty(host).GetProperty("effectivePower").GetInt32());
         Assert.All(runes, id => Assert.False(run.State.CardObjects[id].IsExhausted));
-        var events = run.Frame().Events.Where(e => e.Sequence > start).Select(e => e.Event).ToArray();
+        var events = run.Events().Where(e => e.Sequence > start).Select(e => e.Event).ToArray();
         Assert.Single(events, e => e.Kind == "CARD_DRAWN");
         Assert.Single(events, e => e.Kind == "CARD_DISCARDED");
         Assert.Equal(2, events.Count(e => e.Kind == "RUNE_READIED"));
@@ -98,8 +98,9 @@ public sealed class HweiMoveDiscardOrdinaryTests(ITestOutputHelper output)
         Assert.Empty(run.State.CardObjects[host].UntilEndOfTurnPowerModifiers);
         Assert.Equal(5, CurrentPowerTargetTests.Snapshot(run.State).GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty(host).GetProperty("effectivePower").GetInt32());
         await run.Cold(); await Save(run, format, reverse, "next-turn");
+        var final = run.Frame();
         output.WriteLine("HWEI_ORIGINAL_OPENING " + JsonSerializer.Serialize(new { format = format.ToString(), reverse,
-            originalSeed = run.Initial.Seed, commands = run.Frame().Commands.Count, events = run.Frame().Events.Count,
+            originalSeed = run.Initial.Seed, commands = final.Commands.Count, events = final.Events.Count,
             run.ColdCount, run.OriginalNextMatches, originalFullReplayMatched = true, drawCount = 1,
             inlineCount = 2, readiedRunes = 2, expectedMight = 8, nextTurnMight = 5, completedOrdinaryGame = false }));
     }

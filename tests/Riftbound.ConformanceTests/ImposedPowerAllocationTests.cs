@@ -72,8 +72,7 @@ public sealed partial class ImposedPowerAllocationTests
     public async Task UniquelyFundedStandardGroupStillCompletesAsOneIntent(bool payAll)
     {
         var run = new Run(Position("unique-" + payAll, payAll, singleTrait: !payAll));
-        await run.Act("gain-blue", "P1", new RecycleRuneCommand("BLUE"));
-        await run.Act("gain-second", "P1", new RecycleRuneCommand("RED"));
+        await run.Act("gain-both", "P1", new RecycleRuneCommand("BLUE", ["BLUE", "RED"]));
         var before = run.Entries.Count;
         await run.Act("move", "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:FIELD2", SourceObjectIds: ["A", "B"]));
         Assert.Equal(before + 1, run.Entries.Count);
@@ -90,7 +89,7 @@ public sealed partial class ImposedPowerAllocationTests
         var run = new Run(Position(name));
         if (effect)
         {
-            foreach (var rune in new[] { "BLUE", "RED", "GREEN", "EXTRA" }) await run.Act("tap-" + rune, "P1", new TapRuneCommand(rune));
+            await run.Act("tap-for-spell", "P1", new TapRuneCommand("BLUE", ["BLUE", "RED", "GREEN", "EXTRA"]));
             await run.Act("green-for-spell", "P1", new RecycleRuneCommand("GREEN"));
             await run.Act("spell", "P1", new PlayCardCommand("SPELL", "UNL-054/219", ["D", "D2"], Destination: "BATTLEFIELD:FIELD2"));
             Assert.Equal(0, run.State.RunePools["P1"].Mana); Assert.Equal(0, run.State.RunePools["P1"].TotalPower);
@@ -100,8 +99,7 @@ public sealed partial class ImposedPowerAllocationTests
         }
         else
         {
-            await run.Act("gain-blue", "P1", new RecycleRuneCommand("BLUE"));
-            await run.Act("gain-red", "P1", new RecycleRuneCommand("RED"));
+            await run.Act("gain-both", "P1", new RecycleRuneCommand("BLUE", ["BLUE", "RED"]));
             await run.Act("move", "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:FIELD2", SourceObjectIds: ["A", "B"]));
         }
         return run;
@@ -213,10 +211,12 @@ public sealed partial class ImposedPowerAllocationTests
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, loaded.Commands, State, new CoreRuleEngine(), default, loaded.Events);
             Save(label + "-replay", replay); Assert.True(replay.IsMatch, string.Join(";", replay.Errors));
             session = MatchSession.Restore(loaded, new CoreRuleEngine(), this); State = loaded.AuthoritativeState!;
+            // Build both players' expected projections once for this unchanged recovery state.
+            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
             foreach (var player in State.Seats.Keys)
             {
-                Assert.Equal(ViewHash(ResolutionResult.BuildSnapshots(State)[player]), ViewHash(session.SnapshotFor(player)));
-                Assert.Equal(ViewHash(ResolutionResult.BuildPrompts(State)[player]), ViewHash(session.PromptFor(player)));
+                Assert.Equal(ViewHash(snapshots[player]), ViewHash(session.SnapshotFor(player)));
+                Assert.Equal(ViewHash(prompts[player]), ViewHash(session.PromptFor(player)));
             }
             var count = Entries.Count; var hash = MatchStateHasher.Hash(State);
             var last = Entries[^1];

@@ -202,6 +202,10 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
             var result = await engine.ResolveAsync(State, new("invalid-last-breath-choice", actor, command.CmdType), command, default);
             Assert.False(result.Accepted); Assert.Empty(result.Events); Assert.Equal(before, MatchStateHasher.Hash(result.State));
         }
+        // Event assertions need the original journal entries, without projecting a recovery frame.
+        internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((ev, i) =>
+            new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
+
         internal MatchRecoveryFrame Frame(MatchState? target = null)
         {
             // Only the unchanged live state may reuse the accepted command's views.
@@ -210,7 +214,7 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
             target ??= State;
             var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
-            var events = entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
+            var events = Events();
             var sequence = entries[^1].CompletedEventSequence;
             var snapshots = result?.Snapshots ?? ResolutionResult.BuildSnapshots(target);
             var prompts = result?.Prompts ?? ResolutionResult.BuildPrompts(target);
@@ -234,13 +238,14 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
                 await JsonSerializer.SerializeAsync(zip, restored, JournalJson);
             }
             Assert.True(replayErrors.Count == 0, string.Join("; ", replayErrors));
-            var previous = session;
             session = MatchSession.Restore(restored, engine, this, NoopMatchPlayerStore.Instance, options);
             lastAcceptedResult = null;
+            // Frame(State) already built fresh expected views before the JSON round trip.
+            // Compare those originals with fresh projections from the restored session.
             foreach (var player in Initial.Seats.Keys)
             {
-                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(previous.SnapshotFor(player)), JsonSerializer.SerializeToNode(session.SnapshotFor(player))));
-                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(previous.PromptFor(player)), JsonSerializer.SerializeToNode(session.PromptFor(player))));
+                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[player].Snapshot), JsonSerializer.SerializeToNode(session.SnapshotFor(player))));
+                Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[player].Prompt), JsonSerializer.SerializeToNode(session.PromptFor(player))));
             }
             ColdCount++; afterCold = true;
         }

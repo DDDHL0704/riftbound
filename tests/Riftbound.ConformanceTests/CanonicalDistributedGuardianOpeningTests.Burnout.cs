@@ -62,7 +62,10 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             }
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", new EndTurnCommand()); await Beginning(game); await game.Tap("P2");
-            await Recycle(game, "P2", "UNL-R01"); await Recycle(game, "P2", "UNL-R01");
+            // Preserve physical rune order and individual resource events in one setup command.
+            var attackRunes = game.Runes("P2").Where(id => game.State.CardObjects[id].CardNo == "UNL-R01").Take(2).ToArray();
+            Assert.Equal(2, attackRunes.Length);
+            await game.Act("P2", new RecycleRuneCommand(attackRunes[0], attackRunes));
             var source = game.Hand("P2", "OGN·041/298").First(); await game.Act("P2", new PlayCardCommand(source, "OGN·041/298", []));
             Assert.Equal(2, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
             await game.Act("P2", new EndTurnCommand()); await Beginning(game); await game.Act("P1", new EndTurnCommand()); await Beginning(game);

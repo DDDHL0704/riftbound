@@ -50,11 +50,16 @@ public sealed class SelectedRecastFeeOpeningTests
             Assert.Empty(initial.Seats); Assert.Empty(initial.CardObjects); Assert.Equal(0, initial.Tick);
             await session.EnsurePlayerAsync("alice", default); await Cold();
             await session.EnsurePlayerAsync("bob", default); await Cold();
+            // Recover the accepted deck submissions, readiness and mulligans at
+            // the completed opening. Selected-fee/refusal stages keep their recovery.
+            verifyColdRecoveryAfterEveryCommand = false;
             foreach (var player in new[] { "alice", "bob" })
                 await Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
             await Act("alice", new ReadyCommand()); await Act("bob", new ReadyCommand());
             await Act(State().ActivePlayerId, new MulliganCommand([]));
             await Act(State().OpeningSecondActionPlayerId!, new MulliganCommand([]));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             // Natural draws and rune channeling are setup for the payment assertion. Replaying the
             // entire accepted action log after every EndTurn makes this fixture quadratic in the
             // number of setup turns, while the critical payment/refusal stages below still perform
