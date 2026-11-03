@@ -116,6 +116,34 @@ public sealed class VenBasicFlowSpellTests
         Assert.Empty(driver.State.StackItems); await driver.Replay();
     }
 
+    // CN VEN official FAQ p. 1: Abandon's return also leaves the chain,
+    // so Flow replaces it with banishment (829.1.b.1).
+    [Theory]
+    [InlineData("VEN·003", false)] [InlineData("VEN·003", true)]
+    [InlineData("VEN·049", false)] [InlineData("VEN·049", true)]
+    [InlineData("VEN·081", false)] [InlineData("VEN·081", true)]
+    public async Task AbandonReturnsOrdinarySpellsButBanishesFlowSpells(string no, bool flow)
+    {
+        var initial = AttackDamageDistributionTests.Spell(Position(no, flow), "COUNTER", "UNL-131/219", "P2");
+        var game = new Driver(initial);
+        await game.Act("P1", Play(no));
+        var target = Assert.Single(game.State.StackItems).StackItemId;
+        await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("COUNTER", "UNL-131/219", [target]));
+        await game.Top();
+        if (game.State.PendingCardChoice is { } insight)
+            await game.Act("P2", new ChooseCardsCommand(insight.ChoiceId, insight.ChoiceWindow, []));
+        Assert.Contains("SPELL", flow ? game.State.PlayerZones["P1"].Banished : game.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("SPELL", flow ? game.State.PlayerZones["P1"].Hand : game.State.PlayerZones["P1"].Banished);
+        Assert.DoesNotContain("SPELL", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("COUNTER", game.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(initial.PlayerZones["P1"].MainDeck, game.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("GEAR", game.State.PlayerZones["P2"].Base);
+        Assert.Equal(4, game.State.CardObjects["ENEMY"].Power);
+        Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
     [Fact]
     public async Task RedFlowCostCannotBePaidWithAnotherTrait()
     {
