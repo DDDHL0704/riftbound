@@ -48,10 +48,6 @@ GENERIC_SOURCE_PARTS = frozenset({'cs', 'tests', 'test', 'src', 'engine', 'contr
 EXPLICIT_GUARD_PARTS = ('privacy', 'hidden', 'sourceidentity', 'provenance', 'catalogbaseline', 'officialopening')
 
 
-class AffectedBranchOutOfDate(ValueError):
-    """The requested base is newer than the checked out branch."""
-
-
 def _test_class_names(text):
     names = _declared_type_names(text)
     return {name for name in names
@@ -134,13 +130,8 @@ def affected_selection(base='origin/main', repo=ROOT, head='HEAD'):
     """Return affected classes, filter and fixed Git inputs for ``head``."""
     head_sha = _git_text(repo, 'rev-parse', '--verify', head + '^{commit}').strip()
     base_sha = _git_text(repo, 'rev-parse', '--verify', base + '^{commit}').strip()
-    try:
-        subprocess.run(['git', 'merge-base', '--is-ancestor', base_sha, head_sha], cwd=repo,
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True)
-    except subprocess.CalledProcessError as error:
-        raise AffectedBranchOutOfDate(
-            f'HEAD {head_sha[:12]} is behind or diverged from {base} {base_sha[:12]}; '
-            'sync origin/main before running affected tests.') from error
+    # Compare this branch's changes from its common ancestor. New main commits
+    # do not require a merge just to run local feedback; PR L2 checks integration.
     merge_base = _git_text(repo, 'merge-base', base_sha, head_sha).strip()
     changed_paths = [path for path in _git_text(
         repo, 'diff', '--name-only', '--diff-filter=ACMR', merge_base + '...' + head_sha).splitlines() if path]

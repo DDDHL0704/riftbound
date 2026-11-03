@@ -230,6 +230,10 @@ public static class RuneTrait
     public const string Orange = "orange";
     public const string Purple = "purple";
 
+    // Official metadata uses both names for cards with no domain. Neutral
+    // cards neither require a legend's domain nor use a sealed domain slot.
+    internal static bool IsNeutral(string? trait) => Normalize(trait) is "colorless" or "neutral";
+
     private static readonly IReadOnlyDictionary<string, string> Aliases =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {

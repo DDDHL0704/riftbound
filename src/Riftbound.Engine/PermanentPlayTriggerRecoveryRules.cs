@@ -54,6 +54,7 @@ internal static class PermanentPlayTriggerRecoveryRules
         var sourceInstruction = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var instruction)
             && item.EffectKind == instruction.EffectKind
             && (instruction.RecyclesSourceIfPlayedFromStandby || instruction.GrantsSourceEphemeralIfOpponentTurn
+                || instruction.AddsRegisteredLegendWhileSourceOnField
                 || instruction.PlayTargetsAtSourceLocation && battlefield);
         if (sourceInstruction && (CoreRuleEngine.PlayInstructionSource(state, item) is not { } receipt
             || !state.CardObjects.TryGetValue(receipt.ObjectId, out var entered) || entered.ObjectGeneration < receipt.Generation

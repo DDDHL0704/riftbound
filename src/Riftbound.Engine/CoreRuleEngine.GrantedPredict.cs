@@ -55,7 +55,8 @@ public sealed partial class CoreRuleEngine
             && (state.CardObjects.TryGetValue(binding.ObjectId, out var current)
                 ? current.ObjectGeneration >= binding.Generation && current.TokenFactoryCardNo == tokenFactory
                     && (current.ObjectGeneration > binding.Generation || CopyFaceTimeline.FaceAt(current, revision, tick) == face)
-                : tokenFactory is not null && P6TokenFactoryCatalog.IsTokenFactory(tokenFactory));
+                : tokenFactory is not null && P6TokenFactoryCatalog.IsTokenFactory(tokenFactory)
+                    || tokenFactory is null && DepartedLegendBindingMatches(state, binding, face, revision, tick));
 
     private static GameEvent CaptureGrantedPredict(GameEvent ev, IReadOnlyDictionary<string,PlayerZones> zones,
         Dictionary<string,CardObjectState> cards, CardObjectState entered, string player)

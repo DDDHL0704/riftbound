@@ -65,6 +65,10 @@ public sealed partial class AttachedSelfDestructionReplacementTests
     }
     private static async Task OrderingSetup(Driver run, string no, bool copied)
     {
+        // Recover the complete paid setup before the actual destruction/order
+        // transcript. Each original command still checks acceptance, retry,
+        // structure and privacy while the ordinary opening is assembled.
+        run.RecoverAfterEveryCommand = false;
         await HostAndAngel(run, no, "BATTLEFIELD:HOME");
         foreach (var id in new[] { "FIELD-1", "FIELD-2", "BASE-1", "BASE-2" })
             await run.Act("P1", new PlayCardCommand(id, "OGN·210/298", [], Destination: id.StartsWith("FIELD", StringComparison.Ordinal) ? "BATTLEFIELD:HOME" : "BASE"));
@@ -72,6 +76,8 @@ public sealed partial class AttachedSelfDestructionReplacementTests
             await run.Act("P1", new PlayCardCommand("SONG", "SFD·059/221", [], Destination: "BASE"));
             await run.Act("P1", new AssembleEquipmentCommand("SONG", "HOST", ["ASSEMBLE_GREEN"])); await run.Top();
         }
+        await run.ColdCheckpoint();
+        run.RecoverAfterEveryCommand = true;
     }
     private static async Task OpenOrderingDestruction(Driver run)
     {

@@ -28,7 +28,7 @@ public sealed partial class LastBreathDrawBoundaryTests
                 await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
             }
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
             await game.ColdCheckpoint();
             game.RecoverAfterEveryCommand = true;
             var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
