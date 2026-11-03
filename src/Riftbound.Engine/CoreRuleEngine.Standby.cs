@@ -63,9 +63,8 @@ public sealed partial class CoreRuleEngine
     internal static IReadOnlyList<string> StandbyHideBattlefields(MatchState state,string player)
         => BattlefieldLocalRules.ControlledBy(state,player).Where(field=>
         {
-            var capacity=TryGetBattlefieldExtraStandbyObject(state.PlayerZones,state.CardObjects,player,field.ObjectId,out _) ? 2 : 1;
-            return state.CardObjects.Values.Count(card=>card.IsFaceDown && state.ObjectLocations.TryGetValue(card.ObjectId,out var at)
-                && at.Zone=="BATTLEFIELD" && at.BattlefieldObjectId==field.ObjectId) < capacity;
+            return StandbyCapacityRules.Occupants(state, field.ObjectId).Length
+                < StandbyCapacityRules.Capacity(state, player, field.ObjectId);
         }).Select(field=>field.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static ResolutionResult ResolveStandbyHide(MatchState state,PlayerIntent intent,HideCardCommand command)

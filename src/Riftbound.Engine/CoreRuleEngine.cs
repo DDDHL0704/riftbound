@@ -167,14 +167,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return ValueTask.FromResult(result);
             if (result.Accepted && result.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
                 return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
-            var completed = CollectResolutionEffects(state, result);
+            var completed = CollectStandbyCapacityCleanup(CollectResolutionEffects(state, result));
             // Each stage's newly produced events are collected once before the
             // next stage can run. A resulting chain/choice suspends settlement.
             for (var stage = 0; stage < 3; stage++)
             {
                 var advanced = AdvanceBattleResultContinuation(completed with { Events = [] });
                 if (ReferenceEquals(advanced.State, completed.State)) break;
-                var addition = CollectResolutionEffects(completed.State, advanced, completed.Events.Count);
+                var addition = CollectStandbyCapacityCleanup(CollectResolutionEffects(completed.State, advanced, completed.Events.Count));
                 completed = addition with { Events = completed.Events.Concat(addition.Events).ToArray() };
             }
             if (completed.Accepted && completed.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
@@ -10969,30 +10969,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return TryGetFieldControllerId(playerZones, objectId, out var fieldControllerId)
             ? fieldControllerId
             : string.Empty;
-    }
-
-    private static bool TryGetBattlefieldExtraStandbyObject(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldObjectId,
-        out CardObjectState battlefieldState)
-    {
-        battlefieldState = new CardObjectState();
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal)
-            || !cardObjects.TryGetValue(battlefieldObjectId, out var candidate)
-            || !BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                candidate.CardNo,
-                BattlefieldStaticAbilitySpecRules.IsBattlefieldExtraStandbyDestinationAbility,
-                out _)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
-        {
-            return false;
-        }
-
-        battlefieldState = candidate;
-        return true;
     }
 
     private static bool HasTeemoStandbyHidePermission(MatchState state, string playerId)
