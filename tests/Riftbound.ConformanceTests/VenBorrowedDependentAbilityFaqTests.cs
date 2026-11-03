@@ -78,6 +78,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         if (empower) {
             await game.Act("P1", new PlayCardCommand("STATUS", "VEN·035", ["HOST"], Mode: "EMPOWER_THEN_REMOVE"));
             await game.Top();
+            while (game.State.StackItems.Count > 0) await game.Top();
         }
         await game.Act("P1", new PlayCardCommand("READY", "OGN·146/298", ["HOST"]));
         await game.Top();

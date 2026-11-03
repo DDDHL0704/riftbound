@@ -44,7 +44,7 @@ internal static class BorrowedExhaustRules
             {
                 // 727.1.b.1: enumerate the entire skill before checking its
                 // dependency on the borrowing source, never the donor.
-                if (spec.RequiresEmpowered && !source.IsEmpowered) continue;
+                if ((spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !source.IsEmpowered) continue;
                 if (state.PlayerExperience.GetValueOrDefault(player) < spec.MinimumExperience) continue;
                 if (spec.RequiresSourceBattlefield && !state.PlayerZones.Values.Any(z => z.Battlefields.Contains(source.ObjectId))) continue;
                 var identity = $"{borrower.Id}|{borrower.CardNo}|{text.Id}|{text.CardNo}|{spec.Index}";
@@ -73,7 +73,7 @@ internal static class BorrowedExhaustRules
             || !ValidSource(state, c.Borrower, c.AcquiredTick) || !ValidSource(state, c.Donor, c.AcquiredTick)
             || Spec(c.Donor.CardNo, c.AbilityIndex) is not { } spec
             || spec.Kind == "RESOURCE"
-            || spec.RequiresEmpowered && !c.BorrowerWasEmpowered
+            || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0

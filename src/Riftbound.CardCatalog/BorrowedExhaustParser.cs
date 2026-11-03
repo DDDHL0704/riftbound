@@ -20,6 +20,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public int GeneratedPower { get; init; }
     public IReadOnlyDictionary<string, int> GeneratedTraits { get; init; } = new Dictionary<string, int>();
     public string ResourceRestriction { get; init; } = "";
+    public bool RemovesSourceEmpowerment { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -37,6 +38,8 @@ public static class BorrowedExhaustParser
             if (parts.Length != 2) continue;
             var ordinal = index++;
             var cost = parts[0].Trim();
+            var removesEmpowerment = Regex.IsMatch(cost, "解除(?:我的|此牌的)强化");
+            cost = Regex.Replace(cost, "解除(?:我的|此牌的)强化", "");
             var level = Regex.Match(cost, @"\{\{等级(?<n>[0-9]+)>\}\}");
             cost = Regex.Replace(cost, @"\{\{等级[0-9]+>\}\}|\{\{>>\}\}", "");
             var reaction = cost.Contains("{{反应>}}", StringComparison.Ordinal);
@@ -62,7 +65,8 @@ public static class BorrowedExhaustParser
                 => new(ordinal, kind, mana, targets, empowered, might, floor) {
                     Power = power, TypedPower = typed, Experience = experience.Success ? int.Parse(experience.Groups["n"].Value) : 0,
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
-                    MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction };
+                    MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
+                    RemovesSourceEmpowerment = removesEmpowerment };
             var resource = Regex.Match(effect, @"^(?:\{\{反应\}\}\s*[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付符能费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
             if (resource.Success && (reaction || effect.StartsWith("{{反应}}", StringComparison.Ordinal)))
             {
@@ -101,19 +105,20 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("BOON_UNIT", scope: boon.Groups["friend"].Value switch {
                     "休眠的友方" => "EXHAUSTED_FRIENDLY_UNIT", "友方" => "FRIENDLY_UNIT", _ => "ANY_UNIT" })); continue;
             }
-            var keyword = Regex.Match(effect, @"^给予一名友方单位在本回合内\{\{(?<keyword>壁垒|强攻[1-9][0-9]*|坚守[1-9][0-9]*)\}\}$");
+            var keyword = Regex.Match(effect, @"^给予一名(?<friend>友方)?单位在本回合内\{\{(?<keyword>壁垒|强攻[1-9][0-9]*|坚守[1-9][0-9]*)\}\}$");
             if (keyword.Success) {
-                result.Add(Skill("KEYWORD_UNIT", scope: "FRIENDLY_UNIT", keyword: keyword.Groups["keyword"].Value)); continue;
+                result.Add(Skill("KEYWORD_UNIT", scope: keyword.Groups["friend"].Success ? "FRIENDLY_UNIT" : "ANY_UNIT", keyword: keyword.Groups["keyword"].Value)); continue;
             }
             if (effect == "{{眩晕}}一名敌方单位")
             {
                 result.Add(Skill("STUN_ENEMY", scope: "ENEMY_UNIT"));
                 continue;
             }
-            var might = Regex.Match(effect, @"^让一名单位(?:在)?本回合内\{\{S\}\}(?<n>[+-][0-9]+)(?:[，,]\s*不得低于(?<floor>[0-9]+)\{\{S\}\})?$");
+            var might = Regex.Match(effect, @"^(?:让|给予)(?<field>战场上的)?一名单位(?:在)?本回合内\{\{S\}\}(?<n>[+-][0-9]+)(?:[，,]\s*不得低于(?<floor>[0-9]+)\{\{S\}\})?$");
             if (might.Success)
                 result.Add(Skill("MIGHT_UNIT", might: int.Parse(might.Groups["n"].Value),
-                    floor: might.Groups["floor"].Success ? int.Parse(might.Groups["floor"].Value) : 0));
+                    floor: might.Groups["floor"].Success ? int.Parse(might.Groups["floor"].Value) : 0,
+                    scope: might.Groups["field"].Success ? "BATTLEFIELD_UNIT" : "ANY_UNIT"));
         }
         return result;
     }

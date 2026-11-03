@@ -74,6 +74,13 @@ public sealed partial class CoreRuleEngine
             BorrowedExhaustRules.Capture(cards[ability.Donor.ObjectId], ability.DonorText), ability.Spec.Index,
             state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories,
             zones.Values.Any(z => z.Battlefields.Contains(source.ObjectId)));
+        if (ability.Spec.RemovesSourceEmpowerment)
+        {
+            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
+                new(source.ObjectId, source.ObjectGeneration), false, intent.PlayerId);
+            source = changed.CardObjects[source.ObjectId];
+            events.AddRange(changed.Events);
+        }
         cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-BORROWED", intent.PlayerId,
             source.ObjectId, BorrowedExhaustRules.Effect, AttachedRuleTextRules.Face(source), targets,

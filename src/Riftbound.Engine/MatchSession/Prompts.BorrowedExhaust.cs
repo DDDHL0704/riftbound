@@ -22,7 +22,7 @@ internal static partial class ActionPromptBuilder
                 "READY_EQUIPMENT" => $"让 {ability.Spec.Targets} 件装备活跃",
                 "READY_UNIT" => "让一名单位活跃",
                 "BOON_UNIT" => "给予一名单位增益",
-                "KEYWORD_UNIT" => $"给予一名友方单位本回合内{ability.Spec.Keyword}",
+                "KEYWORD_UNIT" => $"给予一名{(ability.Spec.TargetScope == "FRIENDLY_UNIT" ? "友方" : "")}单位本回合内{ability.Spec.Keyword}",
                 "DAMAGE_UNIT" => $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
@@ -32,7 +32,7 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}横置：{effect}",
                 ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, [], payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
                 pool.TotalPower, PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()),
