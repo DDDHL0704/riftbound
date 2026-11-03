@@ -24,6 +24,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public string Conversion { get; init; } = "";
     public bool DiscardsEquipmentAsCost { get; init; }
     public bool DestroysSourceAsCost { get; init; }
+    public int RecycledCardCostCount { get; init; }
+    public bool RecyclesOnlyUnitsAsCost { get; init; }
     public int DrawCount { get; init; }
     public int RuneCallCount { get; init; }
     public int ScoreAmount { get; init; }
@@ -59,6 +61,10 @@ public static class BorrowedExhaustParser
             cost = Regex.Replace(cost, "解除(?:我的|此牌的)强化", "");
             var discardsEquipment = cost.Contains("弃置一张装备牌", StringComparison.Ordinal);
             cost = cost.Replace("弃置一张装备牌", "", StringComparison.Ordinal);
+            var recycle = Regex.Match(cost, @"从(?:你的)?废牌堆中回收(?<count>一|二|两|三|[1-9][0-9]*)(?<type>张牌|名单位)");
+            var recycleCount = recycle.Success ? recycle.Groups["count"].Value switch {
+                "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) } : 0;
+            if (recycle.Success) cost = cost.Remove(recycle.Index, recycle.Length);
             var destroysSource = cost.Contains("摧毁此牌", StringComparison.Ordinal)
                 || cost.Contains("摧毁我", StringComparison.Ordinal);
             cost = cost.Replace("摧毁此牌", "", StringComparison.Ordinal)
@@ -92,7 +98,8 @@ public static class BorrowedExhaustParser
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
                     RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
-                    DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament };
+                    DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
+                    RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位" };
             var conversion = Regex.Match(effect, @"^\{\{反应\}\}\s*[—-]\s*支付任意数量的(?<input>法力|\{\{A\}\})来\{\{获得\}\}等量的(?<output>法力|\{\{A\}\})$");
             if (conversion.Success && conversion.Groups["input"].Value != conversion.Groups["output"].Value)
             {

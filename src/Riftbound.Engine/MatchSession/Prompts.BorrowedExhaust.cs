@@ -18,6 +18,11 @@ internal static partial class ActionPromptBuilder
                     new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
                         "弃置装备以支付获得的技能费用")).ToArray() : [];
             if (ability.Spec.DiscardsEquipmentAsCost && discardChoices.Length == 0) continue;
+            var recycleChoices = ability.Spec.RecycledCardCostCount == 0 ? [] : state.CardObjects.Keys
+                .Where(id => CoreRuleEngine.CanRecycleBorrowedAbilityCost(state, player, id, ability.Spec))
+                .Order(StringComparer.Ordinal).Select(id => new ActionPromptChoiceDto("RECYCLE_GRAVEYARD_CARD:" + id,
+                    "回收" + ObjectChoice(state, id, "费用").Label, "回收废牌堆中的牌以支付技能费用")).ToArray();
+            if (recycleChoices.Length < ability.Spec.RecycledCardCostCount) continue;
             IReadOnlyList<ActionPromptChoiceDto> optional = [];
             if (ability.Spec.Conversion.Length > 0)
             {
@@ -62,13 +67,14 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}横置：{effect}",
                 ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
                 powerPool.TotalPower, PlayCardAvailablePowerByTrait(powerPool, new Dictionary<string, int>()),
                 new RunePaymentReachability(powerPool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(powerPool, byTrait),
                 [], true, ability.Spec.Kind == "RESOURCE", true, null, SpellshieldTaxPowerByTargetObjectId: taxes,
-                AdditionalCostChoices: discardChoices, RequiredAdditionalCostChoiceCount: ability.Spec.DiscardsEquipmentAsCost ? 1 : 0);
+                AdditionalCostChoices: discardChoices.Concat(recycleChoices).ToArray(),
+                RequiredAdditionalCostChoiceCount: (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount);
         }
     }
 

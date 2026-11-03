@@ -17,6 +17,10 @@ public sealed partial class CoreRuleEngine
     internal static PowerPaymentPurpose BorrowedPowerPurpose(CardObjectState source)
         => source.Tags.Contains(CardObjectTags.EquipmentCard) ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
 
+    internal static bool CanRecycleBorrowedAbilityCost(MatchState state, string player, string id, BorrowedExhaustSpec spec)
+        => CanRecycleGraveyardCardAsAdditionalCost(state, player, id)
+            && (!spec.RecyclesOnlyUnitsAsCost || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard));
+
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
         => spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
@@ -47,8 +51,14 @@ public sealed partial class CoreRuleEngine
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
             || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
                 out var extras, out var resources, out _) || extras.Count != (ability.Spec.Conversion.Length > 0 ? 1 : 0)
-                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0))
+                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount)
             return RejectWithCorePrompts(state, "所选支付资源行动无效。", ErrorCodes.InvalidTarget);
+        var recycled = extras.Where(id => TryParseRecycleGraveyardCardAdditionalCost(id, out _))
+            .Select(id => { TryParseRecycleGraveyardCardAdditionalCost(id, out var card); return card; }).ToArray();
+        if (recycled.Length != ability.Spec.RecycledCardCostCount
+            || recycled.Distinct(StringComparer.Ordinal).Count() != recycled.Length
+            || recycled.Any(id => !CanRecycleBorrowedAbilityCost(state, intent.PlayerId, id, ability.Spec)))
+            return RejectWithCorePrompts(state, "请选择自己废牌堆中足够且不同的合法牌支付回收费用。", ErrorCodes.InvalidTarget);
         var discard = extras.Where(id => id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)).ToArray();
         if (ability.Spec.DiscardsEquipmentAsCost
             && (discard.Length != 1 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(discard[0])))
@@ -74,11 +84,14 @@ public sealed partial class CoreRuleEngine
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置来源。", ErrorCodes.InsufficientCost);
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
+        if (recycled.Any(id => !CanRecycleBorrowedAbilityCost(paidState, intent.PlayerId, id, ability.Spec)))
+            return RejectWithCorePrompts(state, "所选牌已无法支付回收费用。", ErrorCodes.InvalidTarget);
         if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
             return RejectWithCorePrompts(state, "支付资源行动后来源已无法使用该技能。", ErrorCodes.InvalidTarget);
         source = cards[source.ObjectId];
         var destructionTriggers = new List<TriggerQueueItemState>();
         var destroyedOwners = new List<string>();
+        var rngCursor = state.RngCursor;
         // All targets bind before nonstandard costs can change their zones.
         var targetGenerations = targets.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
         var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
@@ -129,6 +142,13 @@ public sealed partial class CoreRuleEngine
                 ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
         }
+        if (recycled.Length > 0)
+        {
+            var recycling = RecycleGraveyardCards(paidState, zones, cards, intent.PlayerId,
+                source.ObjectId, recycled, "ABILITY_COST");
+            events.AddRange(recycling.Events);
+            rngCursor = recycling.RngCursor;
+        }
         if (ability.Spec.Kind == "RESOURCE")
             return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events, extras,
                 source, destructionTriggers, destroyedOwners);
@@ -152,7 +172,7 @@ public sealed partial class CoreRuleEngine
             PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones),
             RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience, StackItems = [..state.StackItems, item],
-            TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(),
+            TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners),
             UntilEndOfTurnEffects = source.Tags.Contains(CardObjectTags.UnitCard)
                 ? MarkEzrealEnemyTargetsThisTurnForUnitAbility(state, state.UntilEndOfTurnEffects, intent.PlayerId, targets)
