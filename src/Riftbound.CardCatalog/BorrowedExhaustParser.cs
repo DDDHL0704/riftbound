@@ -31,6 +31,12 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public int ExperienceGain { get; init; }
     public int? EmpoweredMight { get; init; }
     public int ExistingBoonMight { get; init; }
+    public int TokenCount { get; init; }
+    public string TokenName { get; init; } = "";
+    public int TokenMight { get; init; }
+    public string TokenKeyword { get; init; } = "";
+    public bool TokensToBase { get; init; }
+    public bool RequiresPlayedArmamentThisTurn { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -75,9 +81,10 @@ public static class BorrowedExhaustParser
             var experience = Regex.Match(cost, @"消耗(?<n>[0-9]+)经验");
             var remainder = Regex.Replace(cost, @"\{\{(?:[0-9]+|横置|T|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|消耗[0-9]+经验|支付|[\s，,、和]", "");
             if (remainder.Length != 0) continue;
-            var battlefield = allAbilitiesRequireBattlefield
-                || parts[1].Contains("我必须位于战场中才能使用此技能", StringComparison.Ordinal);
-            var effect = parts[1].Replace("我必须位于战场中才能使用此技能。", "", StringComparison.Ordinal).Trim().TrimEnd('。', '.');
+            var battlefield = allAbilitiesRequireBattlefield || Regex.IsMatch(parts[1], "我必须位于战场[中上]才能使用此技能");
+            var armament = parts[1].Contains("只能在你本回合打出了一件武装后使用", StringComparison.Ordinal);
+            var effect = Regex.Replace(parts[1], "我必须位于战场[中上]才能使用此技能。?|只能在你本回合打出了一件武装后使用。?", "")
+                .Trim().TrimEnd('。', '.');
             BorrowedExhaustSpec Skill(string kind, int targets = 1, int might = 0, int floor = 0,
                 string scope = "ANY_UNIT", int damage = 0, string keyword = "")
                 => new(ordinal, kind, mana, targets, empowered, might, floor) {
@@ -85,7 +92,7 @@ public static class BorrowedExhaustParser
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
                     RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
-                    DestroysSourceAsCost = destroysSource };
+                    DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament };
             var conversion = Regex.Match(effect, @"^\{\{反应\}\}\s*[—-]\s*支付任意数量的(?<input>法力|\{\{A\}\})来\{\{获得\}\}等量的(?<output>法力|\{\{A\}\})$");
             if (conversion.Success && conversion.Groups["input"].Value != conversion.Groups["output"].Value)
             {
@@ -113,6 +120,15 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
+            if (unitToken.Success)
+            {
+                var count = unitToken.Groups["count"].Value switch { "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) };
+                result.Add(Skill("CREATE_UNIT_TOKEN", 0) with { TokenCount = count,
+                    TokenName = unitToken.Groups["name"].Value, TokenMight = int.Parse(unitToken.Groups["might"].Value),
+                    TokenKeyword = unitToken.Groups["keyword"].Value, TokensToBase = unitToken.Groups["base"].Success });
+                continue;
+            }
             var insight = Regex.Match(effect, @"^\{\{洞察(?<count>[1-9][0-9]*)\}\}，然后抽一张牌。获得(?<experience>[1-9][0-9]*)经验$");
             if (insight.Success)
             {

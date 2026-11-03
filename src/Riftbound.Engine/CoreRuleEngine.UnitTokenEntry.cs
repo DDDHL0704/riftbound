@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static StackResolutionResult CreateUnitTokenBatch(MatchState state, StackItemState item,
-        string factoryCardNo, int count, bool entersReady, string? battlefieldId = null, string? abilityId = null)
+        string factoryCardNo, int count, bool entersReady, string? battlefieldId = null, string? abilityId = null,
+        bool? instructionAllowsLocationChoice = null)
     {
         if (battlefieldId is not null && BattlefieldLocalRules.PreventsUnitPlay(state, "BATTLEFIELD:" + battlefieldId))
             return NoopStackResolutionResult(state);
@@ -31,7 +32,8 @@ public sealed partial class CoreRuleEngine
                 && (item.SourceUnitTokens is null
                     || UnitTokenLocationChoiceGranted(state.UntilEndOfTurnEffects, item.ControllerId))
                 && ShouldOfferUnitTokenLocationChoice(state, item.ControllerId, item.CardNo,
-                    factory.TokenFamilyName, zones, cards, pools, state.UntilEndOfTurnEffects))
+                    factory.TokenFamilyName, zones, cards, pools, state.UntilEndOfTurnEffects,
+                    instructionAllowsLocationChoice: instructionAllowsLocationChoice))
                 entryField = ChooseUnitTokenBattlefield(state, item.ControllerId, factory.TokenFamilyName,
                     zones, cards, locations, pools, state.UntilEndOfTurnEffects);
             token = ApplyUnitTokenEntryStaticAbility(zones, cards, item.ControllerId, id, token,

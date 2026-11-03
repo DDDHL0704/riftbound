@@ -6,8 +6,9 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec)
-        => spec.Reaction ? CanActivateReactionResourceSkill(state, player)
-            : spec.Swift ? CanActivateSwiftAbility(state, player) : CanActivateOrdinaryPowerAbility(state, player);
+        => (!spec.RequiresPlayedArmamentThisTurn || ControllerPlayedArmamentThisTurn(state, player))
+            && (spec.Reaction ? CanActivateReactionResourceSkill(state, player)
+                : spec.Swift ? CanActivateSwiftAbility(state, player) : CanActivateOrdinaryPowerAbility(state, player));
 
     private static bool IsBorrowedReactionResource(MatchState state, string player, ActivateAbilityCommand command)
         => state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
@@ -86,7 +87,8 @@ public sealed partial class CoreRuleEngine
         var context = new BorrowedExhaustContext(BorrowedExhaustRules.Capture(source, ability.BorrowerText),
             BorrowedExhaustRules.Capture(cards[ability.Donor.ObjectId], ability.DonorText), ability.Spec.Index,
             state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories, borrowerWasOnBattlefield,
-            ability.Spec.EmpoweredMight.HasValue ? source.IsEmpowered : null);
+            ability.Spec.EmpoweredMight.HasValue ? source.IsEmpowered : null,
+            ability.Spec.RequiresPlayedArmamentThisTurn);
         if (ability.Spec.RemovesSourceEmpowerment)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
@@ -163,6 +165,15 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind == "CREATE_UNIT_TOKEN")
+        {
+            if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
+            var factory = P6TokenFactoryCatalog.GetAll().First(f => f.TokenFamilyName == spec.TokenName
+                && f.DefaultPower == spec.TokenMight && f.Tags.Contains(CardObjectTags.UnitCard)
+                && (spec.TokenKeyword.Length == 0 || f.Tags.Contains(spec.TokenKeyword)));
+            return CreateUnitTokenBatch(state, item, factory.CardNo, spec.TokenCount + AdditionalUnitTokens(item),
+                false, instructionAllowsLocationChoice: !spec.TokensToBase);
+        }
         if (spec.Kind is "MOVE_TO_BASE" or "MOVE_BETWEEN_BASE_AND_BATTLEFIELD") return ResolveBorrowedMovement(state, item, spec);
         if (spec.Kind == "INSIGHT_DRAW_EXPERIENCE")
             return item.InsightCompleted ? FinishInsight(state, item)

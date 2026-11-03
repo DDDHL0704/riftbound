@@ -49,6 +49,9 @@ internal static partial class ActionPromptBuilder
                 "DISCARD_DRAW" => $"弃置一张手牌，然后抽 {ability.Spec.DrawCount} 张牌",
                 "DESTROY_SELF" => "摧毁此牌",
                 "CREATE_GOLD" => "打出一个休眠的金币装备指示物",
+                "CREATE_UNIT_TOKEN" => $"打出 {ability.Spec.TokenCount} 名 {ability.Spec.TokenMight} 战力的{ability.Spec.TokenName}"
+                    + (ability.Spec.TokensToBase ? "到你的基地" : "")
+                    + (ability.Spec.RequiresPlayedArmamentThisTurn ? "；本回合须已打出武装" : ""),
                 "SCORE" => $"获得 {ability.Spec.ScoreAmount} 分",
                 "INSIGHT_DRAW_EXPERIENCE" => $"洞察 {ability.Spec.InsightCount}，然后抽 {ability.Spec.DrawCount} 张牌并获得 {ability.Spec.ExperienceGain} 经验",
                 "RESOURCE" => BorrowedResourceLabel(ability.Spec, source.IsEmpowered),
