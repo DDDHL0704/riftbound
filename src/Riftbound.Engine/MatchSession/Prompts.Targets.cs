@@ -1448,6 +1448,7 @@ internal static partial class ActionPromptBuilder
             return $"{ability.DisplayName}：横置，让一名单位本回合战力{ability.PowerModifierAmount:+0;-0}，最低{ability.MinimumPowerAfterModifier}";
         return ability.AbilityId switch
         {
+            "CRUMBLING_PALACE_DISCARD_CREATE_WARHAWK" => "倾颓宫殿：弃置一张手牌并横置，打出拥有法盾的1战力战鹰",
             P4ActivatedAbilityCatalog.LanternDragonAbilityId => "提灯亚龙：横置，选择一名对手移动其单位",
             P4ActivatedAbilityCatalog.TranspositionMageAbilityId => "易位法师：支付 1 紫色符能并横置，返回友方单位并免费打出较弱单位",
             P4ActivatedAbilityCatalog.PrismwingFlockAbilityId => "幻彩飞禽：横置，给予单位增益；已有增益则本回合战力+2",

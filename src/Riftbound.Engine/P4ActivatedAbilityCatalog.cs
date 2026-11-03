@@ -59,7 +59,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null,
     bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false,
     bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false,
-    string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false);
+    string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
+    string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -396,6 +397,11 @@ public static class P4ActivatedAbilityCatalog
             false, true, 0, false, "官方勘误：横置，本回合下一个法术每段伤害+1。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
             SimpleEffect: new(GrantsNextSpellDamage: true)),
+        new("CRUMBLING_PALACE_DISCARD_CREATE_WARHAWK", "UNL-088/219", "CRUMBLING_PALACE_DISCARD_CREATE_WARHAWK", "倾颓宫殿", 0, 0, 0,
+            false, true, 0, false, "官方中文：弃置一张手牌并横置，打出一名拥有法盾的1战力战鹰。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DiscardsHandCardAsCost: true,
+                CreatedUnitTokenCardNo: P6TokenFactoryCatalog.WarhawkTokenCardNo, CreatedUnitTokenCount: 1)),
         new("SUN_DISC_NEXT_UNIT_READY", "OGN·021/298", "SUN_DISC_NEXT_UNIT_READY", "太阳圆盘", 0, 0, 0,
             false, true, 0, false, "官方中文：横置，鼓舞时授予本回合下一名单位活跃进场。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,

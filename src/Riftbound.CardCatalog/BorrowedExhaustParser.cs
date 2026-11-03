@@ -23,6 +23,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool RemovesSourceEmpowerment { get; init; }
     public string Conversion { get; init; } = "";
     public bool DiscardsEquipmentAsCost { get; init; }
+    public bool DiscardsHandCardAsCost { get; init; }
     public bool DestroysSourceAsCost { get; init; }
     public int RecycledCardCostCount { get; init; }
     public bool RecyclesOnlyUnitsAsCost { get; init; }
@@ -70,6 +71,8 @@ public static class BorrowedExhaustParser
             cost = Regex.Replace(cost, "解除(?:我的|此牌的)强化", "");
             var discardsEquipment = cost.Contains("弃置一张装备牌", StringComparison.Ordinal);
             cost = cost.Replace("弃置一张装备牌", "", StringComparison.Ordinal);
+            var discardsHandCard = cost.Contains("弃置一张手牌", StringComparison.Ordinal);
+            cost = cost.Replace("弃置一张手牌", "", StringComparison.Ordinal);
             var banishesGraveyardPermanent = cost.Contains("从你的废牌堆中放逐一个单位或装备", StringComparison.Ordinal);
             cost = cost.Replace("从你的废牌堆中放逐一个单位或装备", "", StringComparison.Ordinal);
             var recycle = Regex.Match(cost, @"从(?:你的)?废牌堆中回收(?<count>一|二|两|三|[1-9][0-9]*)(?<type>张牌|名单位)");
@@ -113,6 +116,7 @@ public static class BorrowedExhaustParser
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
                     RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
+                    DiscardsHandCardAsCost = discardsHandCard,
                     DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
                     BanishesGraveyardPermanentAsCost = banishesGraveyardPermanent,
                     RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位",

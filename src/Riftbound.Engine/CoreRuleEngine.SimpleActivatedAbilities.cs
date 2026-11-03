@@ -403,7 +403,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static int SimpleActivationUnitTokenCount(SimpleActivatedEffectSpec spec)
-        => spec.CreatedRobotCount + spec.CreatedMinionCount;
+        => spec.CreatedRobotCount + spec.CreatedMinionCount + spec.CreatedUnitTokenCount;
 
     private static CardBehaviorDefinition SimpleActivationTokenBehavior(P4ActivatedAbilityDefinition ability)
         => new(ability.SourceCardNo, ability.DisplayName, 0, ability.EffectKind, 0, 0,
@@ -420,6 +420,12 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid captured printed activation.");
         if (spec.GrantsNextUnitReady) return ResolveActivatedNextUnitReady(state, item);
         if (spec.GrantsNextSpellDamage) return ResolveActivatedNextSpellDamage(state, item);
+        if (spec.CreatedUnitTokenCardNo is { } unitFactory)
+        {
+            if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
+            return CreateUnitTokenBatch(state, item, unitFactory, spec.CreatedUnitTokenCount + AdditionalUnitTokens(item),
+                entersReady: false, abilityId: ability.AbilityId, instructionAllowsLocationChoice: true);
+        }
         if (spec.BanishesSourceThenReplaysToBase)
         {
             if (item.EffectPlayCompleted || !state.CardObjects.TryGetValue(item.SourceObjectId, out var replayed)

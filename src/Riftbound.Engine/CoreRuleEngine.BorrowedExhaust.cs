@@ -80,10 +80,11 @@ public sealed partial class CoreRuleEngine
             || targets.Where((id, index) => !IsBorrowedExhaustTarget(state, intent.PlayerId, id, ability.Spec, source.ObjectId, index)).Any())
             return RejectWithCorePrompts(state, "请选择技能要求的不同合法目标。", ErrorCodes.InvalidTarget);
         var requested = NormalizeOptionalCosts(command.OptionalCosts);
+        var discardsHandCard = ability.Spec.DiscardsEquipmentAsCost || ability.Spec.DiscardsHandCardAsCost;
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
             || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
                 out var extras, out var resources, out _) || extras.Count != (ability.Spec.Conversion.Length > 0 ? 1 : 0)
-                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
+                    + (discardsHandCard ? 1 : 0) + ability.Spec.RecycledCardCostCount
                     + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
                     + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
                     + (ability.Spec.BanishesGraveyardPermanentAsCost ? 1 : 0))
@@ -108,9 +109,9 @@ public sealed partial class CoreRuleEngine
             || recycled.Any(id => !CanRecycleBorrowedAbilityCost(state, intent.PlayerId, id, ability.Spec)))
             return RejectWithCorePrompts(state, "请选择自己废牌堆中足够且不同的合法牌支付回收费用。", ErrorCodes.InvalidTarget);
         var discard = extras.Where(id => id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)).ToArray();
-        if (ability.Spec.DiscardsEquipmentAsCost
-            && (discard.Length != 1 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(discard[0])))
-            return RejectWithCorePrompts(state, "请选择自己手中的装备牌支付弃置费用。", ErrorCodes.InvalidTarget);
+        if (discard.Length != (discardsHandCard ? 1 : 0)
+            || discard.Any(id => !SimpleActivationDiscardChoices(state, intent.PlayerId, ability.Spec.DiscardsHandCardAsCost).Contains(id)))
+            return RejectWithCorePrompts(state, "请选择自己手中的合法牌支付弃置费用。", ErrorCodes.InvalidTarget);
         var ordered = renekton is null ? resources : OrderedRenektonPaymentResources(requested, resources, renekton);
         var tax = BorrowedExhaustRules.TargetsPlayer(ability.Spec) ? 0
             : ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out _);
@@ -224,14 +225,14 @@ public sealed partial class CoreRuleEngine
             destroyedOwners.AddRange(removal.DestroyedUnitOwnerIds);
             payment = payment with { RunePools = removal.RunePools };
         }
-        if (ability.Spec.DiscardsEquipmentAsCost)
+        if (discardsHandCard)
         {
-            if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId).Contains(discard[0]))
-                return RejectWithCorePrompts(state, "所选装备已无法支付弃置费用。", ErrorCodes.InvalidTarget);
+            if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId, ability.Spec.DiscardsHandCardAsCost).Contains(discard[0]))
+                return RejectWithCorePrompts(state, "所选手牌已无法支付弃置费用。", ErrorCodes.InvalidTarget);
             var discarded = discard[0]["DISCARD_HAND_CARD:".Length..];
             if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))
-                return RejectWithCorePrompts(state, "无法弃置所选装备手牌。", ErrorCodes.InvalidTarget);
-            events.Add(new("CARD_DISCARDED", "弃置装备以支付获得的技能费用", new Dictionary<string, object?> {
+                return RejectWithCorePrompts(state, "无法弃置所选手牌。", ErrorCodes.InvalidTarget);
+            events.Add(new("CARD_DISCARDED", "弃置手牌以支付获得的技能费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = discarded,
                 ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
@@ -264,6 +265,11 @@ public sealed partial class CoreRuleEngine
             ["targetObjectId"] = source.ObjectId, ["wasExhausted"] = false, ["isExhausted"] = true }));
         events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, payment.RunePools, payment.PlayerExperience, payload)));
         events.Add(new("STACK_ITEM_ADDED", "技能加入结算链", new Dictionary<string, object?>(payload) { ["stackItemId"] = item.StackItemId }));
+        var effects = source.Tags.Contains(CardObjectTags.UnitCard)
+            ? MarkEzrealEnemyTargetsThisTurnForUnitAbility(state, state.UntilEndOfTurnEffects, intent.PlayerId, targets)
+            : state.UntilEndOfTurnEffects;
+        if (discardsHandCard)
+            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discard[0]["DISCARD_HAND_CARD:".Length..]], zones);
         var next = state with { Tick = state.Tick + 1, ActivePlayerId = intent.PlayerId,
             TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed,
             PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
@@ -271,9 +277,7 @@ public sealed partial class CoreRuleEngine
             RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience, StackItems = [..state.StackItems, item],
             TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners),
-            UntilEndOfTurnEffects = source.Tags.Contains(CardObjectTags.UnitCard)
-                ? MarkEzrealEnemyTargetsThisTurnForUnitAbility(state, state.UntilEndOfTurnEffects, intent.PlayerId, targets)
-                : state.UntilEndOfTurnEffects };
+            UntilEndOfTurnEffects = effects };
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 

@@ -3122,7 +3122,7 @@ internal static partial class ActionPromptBuilder
                     ? CoreRuleEngine.SimpleActivationAdditionalCostChoices(state, playerId, sourceObjectId, ability).Select(id =>
                         id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)
                             ? new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
-                                "弃置装备以支付技能费用")
+                                ability.SimpleEffect?.DiscardsHandCardAsCost == true ? "弃置手牌以支付技能费用" : "弃置装备以支付技能费用")
                             : id.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)
                                 ? new ActionPromptChoiceDto(id, "让" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "费用").Label + "变为休眠状态",
                                 "让友方单位变为休眠状态以支付技能费用", [id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..]])

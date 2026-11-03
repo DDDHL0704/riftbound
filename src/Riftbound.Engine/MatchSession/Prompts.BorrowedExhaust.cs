@@ -13,11 +13,12 @@ internal static partial class ActionPromptBuilder
         {
             if (!CoreRuleEngine.CanActivateBorrowedExhaust(state, player, ability.Spec)) continue;
             if (ability.Spec.Kind == "RESOURCE" && !CoreRuleEngine.BorrowedResourceGainSupported(state, player, ability.Spec, source)) continue;
-            var discardChoices = ability.Spec.DiscardsEquipmentAsCost
-                ? CoreRuleEngine.SimpleActivationDiscardChoices(state, player).Select(id =>
+            var discardsHandCard = ability.Spec.DiscardsEquipmentAsCost || ability.Spec.DiscardsHandCardAsCost;
+            var discardChoices = discardsHandCard
+                ? CoreRuleEngine.SimpleActivationDiscardChoices(state, player, ability.Spec.DiscardsHandCardAsCost).Select(id =>
                     new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
-                        "弃置装备以支付获得的技能费用")).ToArray() : [];
-            if (ability.Spec.DiscardsEquipmentAsCost && discardChoices.Length == 0) continue;
+                        "弃置手牌以支付获得的技能费用")).ToArray() : [];
+            if (discardsHandCard && discardChoices.Length == 0) continue;
             var banishChoices = ability.Spec.BanishesGraveyardPermanentAsCost
                 ? LegendGraveyardBanishCostRules.Choices(state, player).Select(id => new ActionPromptChoiceDto(id,
                     "放逐" + ObjectChoice(state, id[LegendGraveyardBanishCostRules.Prefix.Length..], "费用").Label,
@@ -92,6 +93,7 @@ internal static partial class ActionPromptBuilder
                 "DESTROY_SELF" => "摧毁此牌",
                 "CREATE_GOLD" => "打出一个休眠的金币装备指示物",
                 "CREATE_UNIT_TOKEN" => $"打出 {ability.Spec.TokenCount} 名{(ability.Spec.TokensEnterReady ? "处于活跃状态的" : " ")}{ability.Spec.TokenMight} 战力的{ability.Spec.TokenName}"
+                    + (ability.Spec.TokenKeyword.Length > 0 ? $"，拥有{ability.Spec.TokenKeyword}" : "")
                     + (ability.Spec.TokensToBase ? "到你的基地" : "")
                     + (ability.Spec.RequiresPlayedArmamentThisTurn ? "；本回合须已打出武装" : ""),
                 "SCORE" => $"获得 {ability.Spec.ScoreAmount} 分",
@@ -104,7 +106,7 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : ability.Spec.DiscardsHandCardAsCost ? "弃置一张手牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
                 CoreRuleEngine.BorrowedExhaustManaCost(state, player, ability.Spec), ability.Spec.Power, ability.Spec.Experience,
                 ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
@@ -112,7 +114,7 @@ internal static partial class ActionPromptBuilder
                 new RunePaymentReachability(powerPool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(powerPool, byTrait),
                 [], true, ability.Spec.Kind == "RESOURCE", true, null, SpellshieldTaxPowerByTargetObjectId: taxes,
                 AdditionalCostChoices: discardChoices.Concat(banishChoices).Concat(recycleChoices).Concat(unitExhaustChoices).Concat(destructionChoices).ToArray(),
-                RequiredAdditionalCostChoiceCount: (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
+                RequiredAdditionalCostChoiceCount: (discardsHandCard ? 1 : 0) + ability.Spec.RecycledCardCostCount
                     + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
                     + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
                     + (ability.Spec.BanishesGraveyardPermanentAsCost ? 1 : 0));
