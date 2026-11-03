@@ -39,6 +39,26 @@ public sealed class VenLocationEffectTests
         await game.Replay();
     }
 
+    [Fact]
+    public async Task EchoingStrikeErratumAllowsAResponseOnTheOpponentsTurnBeforeTheirSpellResolves()
+    {
+        var initial = AttackDamageDistributionTests.Spell(Position("VEN·034"), "DRAW", "OGN·048/298", "P2")
+            with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
+        var game = new Driver(initial);
+        await game.Act("P2", new PlayCardCommand("DRAW", "OGN·048/298", []));
+        await game.Act("P2", new PassPriorityCommand());
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·034", ["BF", "ALLY"]));
+        Assert.Equal(2, game.State.StackItems.Count);
+        await game.Top();
+        Assert.Equal("BF", game.State.ObjectLocations["ALLY"].BattlefieldObjectId);
+        Assert.Equal(6, game.State.CardObjects["ALLY"].Power);
+        Assert.Equal(initial.PlayerZones["P2"].MainDeck, game.State.PlayerZones["P2"].MainDeck);
+        Assert.Equal("DRAW", Assert.Single(game.State.StackItems).SourceObjectId);
+        await game.Top();
+        Assert.Contains("P2-DRAW-1", game.State.PlayerZones["P2"].Hand);
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("foreign-field")] [InlineData("same-location")] [InlineData("equipment")]
     [InlineData("enemy-unit")] [InlineData("reversed")] [InlineData("unpayable")]

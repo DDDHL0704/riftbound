@@ -36,6 +36,15 @@ internal static class ReviewedCardErrata
         // CN356.4.c quotes the same mandatory component reduction.
         : (id == 33242 && cardNo == "SFD·149/221" || id == 33243 && cardNo == "SFD·149a/221")
             ? "当你打出我时，弃置一张手牌，然后抽两张牌。\n你支付的可选额外费用，其费用减少{{1}}或{{A}}。"
+        // CN VEN errata, pp. 4-5 and 7-8, acquired 2026-11-03.
+        // https://cdn.playloltcg.com/lol/2026/07/2026-07-24/9fe1f19110dd4678a6ad7bd96e791bba.pdf
+        // SHA256 425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b.
+        : id == 37983 && cardNo == "VEN·044"
+            ? printedText.Replace("则你下一张卡牌的费用减少", "则你在本回合内打出的下一张卡牌的费用减少", StringComparison.Ordinal)
+        : id == 37986 && cardNo == "VEN·034"
+            ? printedText.Replace("{{反应}}（可在你的回合或法术对决中打出。）", "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）", StringComparison.Ordinal)
+        : id == 37773 && cardNo == "VEN·079"
+            ? printedText.Replace("选择此处一名战力大于我的单位", "选择此处的一名单位", StringComparison.Ordinal)
         // Official Radiance erratum and its localized text, acquired 2026-10-28:
         // radiance-rule-authorities/source-snapshot.json, sources[3].localizedBodyHtml
         // (GLOBAL-SUPPLEMENT-14; supplemental to the prevailing CN rules).

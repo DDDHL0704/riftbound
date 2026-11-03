@@ -89,6 +89,7 @@ public static class VendettaCardSources
                         CardCategoryList = ["indicator_equipment"], CardCategoryNameList = ["指示物装备"] }
                     : card)
             .Select(card => card with {
+                CardEffect = ReviewedCardErrata.EffectiveText(card.Id, card.CardNo, card.CardEffect),
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),
                 CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),
                 CardColorList = card.CardColorList.ToImmutableArray(),

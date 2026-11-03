@@ -630,7 +630,7 @@ public static class CardBehaviorRegistry
             UnitEventAbility: new("ATTACK", "ASSAULT_SELF", 2, LeadingPowerCost: 1, LeadingPowerTrait: "red")),
         new("VEN·079", "夺魂钩 妲姆", 5, "SOUL_HOOK_DAME_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
-            UnitEventAbility: new("ATTACK_OR_DEFEND", "MATCH_GREATER_POWER", RequiresEmpowered: true)),
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MATCH_POWER_THEN_BUFF", RequiresEmpowered: true)),
         new("VEN·080", "诺克萨斯爆破手", 2, "NOXIAN_DEMOLITIONIST_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1,
             UnitEventAbility: new("CONQUEST", "DESTROY_CHEAPER_EQUIPMENT", Optional: true)),
