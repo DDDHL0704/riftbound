@@ -70,7 +70,11 @@ internal static class EmpowerRules
             return [keyword];
         }).ToArray();
     internal static IEnumerable<EmpowerAbility> Abilities(MatchState state, CardObjectState source)
-        => AttachedRuleTextRules.Instances(state, source).SelectMany(instance => Specs(instance.CardNo)
+        // Counted empowerment changes the activation restriction for that text
+        // instance. Its status cap still applies separately during resolution.
+        => AttachedRuleTextRules.Instances(state, source)
+            .Where(instance => !source.IsEmpowered || Self(instance.CardNo).MaximumCount > 1)
+            .SelectMany(instance => Specs(instance.CardNo)
             .SelectMany(spec => spec.Alternatives.Select((cost, index) => new EmpowerAbility(
                 $"EMPOWER:{spec.Index}:{index}", instance, spec, cost, index)).Where(a => SupportedCost(a.Cost))))
             .SelectMany(ability => CoreRuleEngine.BattlefieldEmpowerAbilities(state, source, ability));
@@ -85,7 +89,7 @@ internal static class EmpowerRules
     internal static bool CanEmpower(MatchState state, CardObjectState source)
         => source.EmpowermentCount < MaximumCount(state, source);
     internal static bool CanActivate(MatchState state, string actor, CardObjectState source)
-        => CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, actor) && CanEmpower(state, source) && !source.IsFaceDown && source.ControllerId == actor
+        => CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, actor) && !source.IsFaceDown && source.ControllerId == actor
             && state.PlayerZones.TryGetValue(actor, out var z)
             && (z.LegendZone.Contains(source.ObjectId)
                 || (source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.EquipmentCard))

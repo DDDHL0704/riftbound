@@ -68,7 +68,7 @@ public sealed class KayleCountedEmpowerTests
 
     [Theory]
     [InlineData("VEN·134")] [InlineData("VEN·185")]
-    public async Task ThreePaidActivationsResolveSeparatelyAndTheFourthCannotPayOrChangeState(string no)
+    public async Task CountedEmpowerCanStillBeActivatedAtItsCapWithoutGainingAnotherState(string no)
     {
         var game = new Driver(Position(no));
         await game.Act("P1", new PlayCardCommand("HOST", no, []));
@@ -89,8 +89,20 @@ public sealed class KayleCountedEmpowerTests
             Assert.Equal(count == 3, host.Tags.Contains("游走"));
         }
         Assert.Equal(3, game.Events().Count(e => e.Event.Kind == "OBJECT_EMPOWERED"));
-        Assert.DoesNotContain(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates ?? [], candidate =>
+        Assert.Contains(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates ?? [], candidate =>
             candidate.Action == CommandTypes.ActivateAbility && candidate.Sources!.Any(source => source.Id == "HOST"));
+        for (var mana = 5; mana >= 2; mana -= 3) {
+            await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []));
+            Assert.Equal(mana, game.State.RunePools["P1"].Mana);
+            Assert.NotNull(Assert.Single(game.State.StackItems).EmpowerActivation);
+            Assert.Equal(3, game.State.CardObjects["HOST"].EmpowermentCount);
+            await game.Top();
+            Assert.Equal(3, game.State.CardObjects["HOST"].EmpowermentCount);
+            Assert.Equal(9, View(game.State).GetProperty("effectivePower").GetInt32());
+            Assert.Contains("法盾3", game.State.CardObjects["HOST"].Tags);
+            Assert.Contains("游走", game.State.CardObjects["HOST"].Tags);
+            Assert.Equal(3, game.Events().Count(e => e.Event.Kind == "OBJECT_EMPOWERED"));
+        }
         await Reject(game.State, "P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []));
         await game.Act("P1", new EndTurnCommand());
         Assert.Equal(3, game.State.CardObjects["HOST"].EmpowermentCount);
@@ -151,7 +163,17 @@ public sealed class KayleCountedEmpowerTests
             ArmamentMightTests.PublicRecovery(state); Restore(state);
         }
         Assert.Contains("法盾6", state.CardObjects["HOST"].Tags);
-        await Reject(state, "P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []));
+        foreach (var instance in new string?[] { null, "ATTACHED:GEAR:0:1:EMPOWER:0:0" }) {
+            var mana = state.RunePools["P1"].Mana;
+            var activated = await Act(state, "P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []) { AbilityInstanceId = instance });
+            Assert.Equal(mana - 3, activated.State.RunePools["P1"].Mana);
+            var resolved = await Top(activated.State); state = resolved.State;
+            Assert.Equal(3, state.CardObjects["HOST"].EmpowermentCount);
+            Assert.Equal(15, View(state).GetProperty("effectivePower").GetInt32());
+            Assert.Contains("法盾6", state.CardObjects["HOST"].Tags);
+            Assert.DoesNotContain(resolved.Events, e => e.Kind == "OBJECT_EMPOWERED");
+            ArmamentMightTests.PublicRecovery(state); Restore(state);
+        }
     }
 
     [Theory]
