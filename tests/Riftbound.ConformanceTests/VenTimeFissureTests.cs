@@ -54,6 +54,39 @@ public sealed class VenTimeFissureTests
         Assert.Equal("BASE", game.State.ObjectLocations["ALLY"].Zone); await game.Replay();
     }
 
+    // CN VEN official FAQ p. 19: the owner cannot play into the other player's base.
+    [Fact]
+    public async Task AUnitStolenIntoTheOtherPlayersBaseCannotBeReplayedThereByItsOwner()
+    {
+        var initial = LocalDestructionRecallTests.At(Position(), "ENEMY", "P2", "BATTLEFIELD", "OTHER");
+        initial = AttackDamageDistributionTests.Spell(initial, "TAKEOVER", "SFD·202/221", "P1");
+        initial = AttackDamageDistributionTests.Spell(initial, "FLASH", "OGS·011/024", "P1");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("TAKEOVER", "SFD·202/221", ["ENEMY"])); await game.Top();
+        Assert.Equal("P2", game.State.CardObjects["ENEMY"].OwnerId);
+        Assert.Equal("P1", game.State.CardObjects["ENEMY"].ControllerId);
+        for (var passes = 0; game.State.TimingState == TimingStates.SpellDuelOpen; passes++) {
+            Assert.True(passes < 4);
+            await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        }
+        await game.Act("P1", new PlayCardCommand("FLASH", "OGS·011/024", ["ENEMY"])); await game.Top();
+        Assert.Contains("ENEMY", game.State.PlayerZones["P1"].Base);
+        await game.Act("P1", new PlayCardCommand("UNIT", Spell, ["ENEMY"])); await game.Top();
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        Assert.Equal("P2", pending.PlayerId);
+        Assert.DoesNotContain(game.PromptFor("P2").Candidates ?? [], candidate => candidate.Action == CommandTypes.PlayCard);
+        await Reject(game.State, "P2", new PlayCardCommand("ENEMY", "OGN·219/298", [], Destination: "BASE"));
+        await Reject(game.State, "P2", new PlayCardCommand("ENEMY", "OGN·219/298", [], Destination: "BASE:P1"));
+        await Reject(game.State, "P2", new PlayCardCommand("ENEMY", "OGN·219/298", [], Destination: "BATTLEFIELD:OTHER"));
+        await game.Act("P2", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
+        Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Banished);
+        Assert.DoesNotContain("ENEMY", game.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("ENEMY", game.State.PlayerZones["P2"].Base);
+        Assert.Null(game.State.PendingEffectPlay); Assert.Empty(game.State.StackItems);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
+        await game.Replay();
+    }
+
     [Fact]
     public async Task ATokenVanishesAfterBanishmentWithoutStartingAnImpossibleReplay()
     {
