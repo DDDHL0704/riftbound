@@ -99,7 +99,7 @@ public sealed partial class CoreRuleEngine
         var state = result.State; var queue = state.TriggerQueue.ToList();
         if (steps.Length == 0 && !state.CardObjects.Values.Any(c =>
             (IsObjectOnField(state.PlayerZones, c.ObjectId) || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId)))
-            && AttachedRuleTextRules.Instances(state, c).Any(i => MightySkillDefinition(i.CardNo) is not null)))
+            && AttachedRuleTextRules.Instances(state, c).Any(i => MightySkillDefinition(i.CardNo) is not null || UnitEventSpec(i.CardNo)?.Timing == EnemyMightReducedHere)))
             return result;
         var previous = CapturePublicMightFrame(before, before.PlayerZones, before.CardObjects);
         var index = 0;
@@ -110,6 +110,11 @@ public sealed partial class CoreRuleEngine
                     context.ControllerId, context.Source.ObjectId, context.Kind,
                     context.Kind == MightyEmpowerEffect ? "SOURCE_MIGHT_REACHED" : "UNIT_BECAME_POWERFUL") {
                         SourceCardNo = context.CardNo, MightySkill = context };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+            foreach (var observation in CaptureAuraMightReductions(previous, after)) {
+                var trigger = UnitEventTrigger(observation, state.Tick, 100000 + index++, "STATUS_EFFECT_APPLIED",
+                    before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : before.StackItems.LastOrDefault()?.TimingContext);
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
             previous = after; index++;
@@ -161,12 +166,18 @@ public sealed partial class CoreRuleEngine
             && new[] { context.Before, context.After }.All(frame => frame.PlayerZones.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(state.Seats.Keys)
                 && frame.CardObjects.All(p => state.CardObjects.TryGetValue(p.Key, out var current)
                     ? ValidHistoricalMightyFace(state, current, p.Value)
-                    : IsTokenObject(p.Value)));
+                    : ValidCeasedMightyToken(state, p.Value)));
+
+    private static bool ValidCeasedMightyToken(MatchState state, CardObjectState captured)
+        => IsTokenObject(captured)
+            && P6TokenFactoryCatalog.IsTokenFactory(captured.TokenFactoryCardNo ?? captured.CardNo)
+            && CopyFaceTimeline.Valid(state, captured);
 
     private static bool ValidHistoricalMightyFace(MatchState state, CardObjectState current, CardObjectState captured)
     {
         if (current.ObjectGeneration < captured.ObjectGeneration) return false;
         if (current.ObjectGeneration > captured.ObjectGeneration) return true;
+        if (current.TokenFactoryCardNo != captured.TokenFactoryCardNo) return false;
 
         // Copying changes a face without creating a new object. Accept a prior
         // face only when the saved timeline proves the exact historical prefix,

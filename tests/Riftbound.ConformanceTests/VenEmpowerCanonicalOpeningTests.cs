@@ -263,23 +263,32 @@ public sealed class VenEmpowerCanonicalOpeningTests
             return new(state.RoomId, state.Tick, sequence, commands, events, views, errors, state, initial, spectator) { OpeningSeed = initial.Seed };
         }
 
-        internal async Task RejectCoordinatedForgery(string label, MatchState forged)
+        internal Task RejectCoordinatedForgery(string label, MatchState forged)
+            => RejectCoordinatedForgeries((label, forged));
+
+        internal async Task RejectCoordinatedForgeries(params (string Label, MatchState Forged)[] attempts)
         {
-            var original = Frame(); var attempted = Frame(forged);
-            var originalHash = MatchStateHasher.Hash(State); var count = entries.Count;
-            Assert.Empty(original.ValidationErrors); Assert.Empty(attempted.ValidationErrors);
-            Assert.Equal(MatchStateHasher.HashValue(original.Commands), MatchStateHasher.HashValue(attempted.Commands));
-            Assert.Equal(MatchStateHasher.HashValue(original.Events), MatchStateHasher.HashValue(attempted.Events));
-            var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(attempted, Json), Json)!;
-            var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, new Store(decoded));
-            var failure = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(State.RoomId, default));
-            Assert.Equal(ErrorCodes.RecoveryInconsistent, failure.Code);
-            Assert.Contains("match recovery action-log audit failed", failure.Message, StringComparison.Ordinal);
-            Assert.Contains("replayed final state hash", failure.Message, StringComparison.Ordinal);
-            Assert.Equal(count, entries.Count); Assert.Equal(originalHash, MatchStateHasher.Hash(State));
-            recoveryRejections.Add(new { label, structuralErrors = attempted.ValidationErrors, failure.Code, failure.Message,
-                originalStateHash = originalHash, forgedStateHash = MatchStateHasher.Hash(forged),
-                commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events), frame = decoded });
+            Assert.NotEmpty(attempts);
+            // Each forged frame gets an independent registry and full rejection audit.
+            // No accepted command changes this history, so recover the normal frame once.
+            foreach (var (label, forged) in attempts)
+            {
+                var original = Frame(); var attempted = Frame(forged);
+                var originalHash = MatchStateHasher.Hash(State); var count = entries.Count;
+                Assert.Empty(original.ValidationErrors); Assert.Empty(attempted.ValidationErrors);
+                Assert.Equal(MatchStateHasher.HashValue(original.Commands), MatchStateHasher.HashValue(attempted.Commands));
+                Assert.Equal(MatchStateHasher.HashValue(original.Events), MatchStateHasher.HashValue(attempted.Events));
+                var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(attempted, Json), Json)!;
+                var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, new Store(decoded));
+                var failure = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(State.RoomId, default));
+                Assert.Equal(ErrorCodes.RecoveryInconsistent, failure.Code);
+                Assert.Contains("match recovery action-log audit failed", failure.Message, StringComparison.Ordinal);
+                Assert.Contains("replayed final state hash", failure.Message, StringComparison.Ordinal);
+                Assert.Equal(count, entries.Count); Assert.Equal(originalHash, MatchStateHasher.Hash(State));
+                recoveryRejections.Add(new { label, structuralErrors = attempted.ValidationErrors, failure.Code, failure.Message,
+                    originalStateHash = originalHash, forgedStateHash = MatchStateHasher.Hash(forged),
+                    commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events), frame = decoded });
+            }
             await ColdCheckpoint();
         }
 

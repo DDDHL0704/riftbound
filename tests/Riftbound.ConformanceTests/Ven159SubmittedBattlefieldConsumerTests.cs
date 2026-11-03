@@ -54,7 +54,8 @@ public sealed class Ven159SubmittedBattlefieldConsumerTests
             var generations = walls.Values.Concat(guards.Values).ToDictionary(id => id, id => game.State.CardObjects[id].ObjectGeneration);
             await Arena.FinishBattle(() => game.State, async (p, c) => { await game.Act(p, c); await game.ColdCheckpoint(); }, game.Events, walls, guards);
             Arena.AssertBattleOutcome(game.State, game.Events().Skip(prefix).ToArray(), field, walls, guards, generations);
-            Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
+            // FinishBattle cold-recovers every accepted command, including battle closure.
+            Common.AssertTwelveEach(game.State);
         }
         finally { await game.Save("ven159-submitted-real-temple-battle-" + defender); }
     }
