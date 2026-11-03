@@ -289,9 +289,16 @@ public sealed class Ven010PaidCurrentGraveConsumers
         await act(enemy, new EndTurnCommand()); Assert.Equal(0, state().CardObjects[unit].Damage);
         await Cast(actor, curses[0], Curse, [unit], 2); await top(); Damage(curses[0], 2); Assert.Equal(new[] { curses[0] }, Graves(state(), actor));
         await act(actor, new EndTurnCommand()); await act(enemy, new EndTurnCommand()); Assert.Equal(0, state().CardObjects[unit].Damage);
-        var lower = new PlayCardCommand(curses[1], Curse, [unit]); await Tap(actor, 1);
-        if (rejectOneShort is not null) await rejectOneShort(lower);
-        await Tap(actor, 1); var prefix = events().Length; await act(actor, lower); Arena.Cost(events().Skip(prefix), 2, 0);
+        var lower = new PlayCardCommand(curses[1], Curse, [unit]);
+        if (rejectOneShort is null)
+            // Legal openings need the completed payment; batch the same two physical runes.
+            await Tap(actor, 2);
+        else
+        {
+            // Keep the underfunded state and rejection in the physical boundary cases.
+            await Tap(actor, 1); await rejectOneShort(lower); await Tap(actor, 1);
+        }
+        var prefix = events().Length; await act(actor, lower); Arena.Cost(events().Skip(prefix), 2, 0);
         Assert.Equal(0, state().RunePools[actor].Mana); var captured = Assert.Single(state().StackItems); Assert.Equal(2, captured.DamageAmount);
         Assert.Equal(new[] { curses[0] }, Graves(state(), actor)); Assert.Contains(curses[2], state().PlayerZones[actor].Hand);
         var beforeRecycledGeneration = state().CardObjects[curses[0]].ObjectGeneration;
