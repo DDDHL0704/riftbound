@@ -13,6 +13,7 @@ internal static class PrintedCardFactory
         // product metadata can differ between official snapshots.
         return OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints())
+            .Concat(RadiantCardSources.GetReviewedPhysicalPrints())
             .Concat(ReviewedRuneCardSources.GetPhysicalPrints())
             .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
             .Append(SealedDeckRules.BlankBattlefield)

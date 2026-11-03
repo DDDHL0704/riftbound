@@ -206,6 +206,7 @@ public sealed partial class CoreRuleEngine
         if (!result.Accepted) return result;
         result = QueueBombDestructionObservers(result);
         result = QueueEquipmentDestructionObservers(result);
+        result = QueueEquipmentLastBreathDraws(result);
         var state=result.State;
         var ledger = RuleChoices.Value?.ResourceDeathLedger ?? before.DeathLedger;
         var counts=(ledger.TurnNumber==state.TurnNumber ? ledger.Counts : new Dictionary<string,int>())
@@ -293,7 +294,7 @@ public sealed partial class CoreRuleEngine
                 && c.Might >= spec.RequiredPowerThreshold.GetValueOrDefault(PowerfulUnitPowerThreshold)))
             {
                 var trigger = new TriggerQueueItemState(
-                    $"TRIGGER-{death.Id}{(captured.Origin is null ? "" : ":" + captured.InstanceId)}-{death.Unit.ObjectId}-{TriggerKinds.UnitLastBreathPowerfulDraw}",
+                    $"TRIGGER-{death.Id}{LastBreathMightTriggerSuffix(captured)}",
                     captured.ControllerId, death.Unit.ObjectId, TriggerKinds.UnitLastBreathPowerfulDraw, "UNIT_DESTROYED") {
                     SourceCardNo = captured.CardNo, LastBreathMight = captured };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));

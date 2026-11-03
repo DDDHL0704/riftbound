@@ -86,6 +86,23 @@ public sealed class RadSpinningGyroTests
         Assert.Equal("P1", robot.OwnerId); Assert.Equal("P1", robot.ControllerId); await game.Replay();
     }
 
+    [Fact]
+    public async Task EquipmentStoredWithAnEnemyHostIsPaidByItsActualController()
+    {
+        // A pre-existing attachment whose host has a different controller.
+        // Moving with that host does not transfer control of the equipment.
+        var initial = Put(Position(), "COST", "SFD·022/221", "P1", "BASE");
+        initial = RadUnitEffectTestFixture.Place(initial, "COST", "P2", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["COST"] = initial.CardObjects["COST"] with { ControllerId = "P1", AttachedToObjectId = "ENEMY", AttachmentRevision = 1 } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new ActivateAbilityCommand("GEAR", MinionSkill, [], OptionalCosts: [Cost + "COST"]));
+        Assert.Contains("COST", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Base);
+        Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
+        await game.Top(); Assert.Single(Tokens(game.State, "随从")); await game.Replay();
+    }
+
     [Theory]
     [InlineData("金币", MinionSkill, "随从")] [InlineData("随从", RobotSkill, "机器人")]
     public async Task ARealFactoryTokenCanPayAndCeasesToExist(string family, string skill, string created)

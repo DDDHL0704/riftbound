@@ -257,9 +257,8 @@ public sealed class ReflectionsSwapGuardTests
     }
 
     [Theory]
-    [InlineData("P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT")]
     [InlineData("P1-BASE-EPHEMERAL", "P1-BASE-UNIT")]
-    public async Task ReflectionsRejectsMissingEphemeralOrSamePositionPairsWithoutMutation(
+    public async Task ReflectionsRejectsSamePositionPairsWithoutMutation(
         string firstTargetObjectId,
         string secondTargetObjectId)
     {
@@ -296,7 +295,7 @@ public sealed class ReflectionsSwapGuardTests
     }
 
     [Fact]
-    public void ReflectionsPromptLegalSelectionsRequireEphemeralAndDifferentPositions()
+    public void ReflectionsPromptLegalSelectionsRequireDifferentPositions()
     {
         var state = BuildReflectionsState();
 
@@ -353,7 +352,7 @@ public sealed class ReflectionsSwapGuardTests
             selection.SequenceEqual(["P1-BASE-EPHEMERAL", "P1-BATTLEFIELD-UNIT"]));
         Assert.Contains(legalTargetSelections, selection =>
             selection.SequenceEqual(["P1-BASE-UNIT", "P1-BATTLEFIELD-EPHEMERAL"]));
-        Assert.DoesNotContain(legalTargetSelections, selection =>
+        Assert.Contains(legalTargetSelections, selection =>
             selection.SequenceEqual(["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT"]));
         Assert.DoesNotContain(legalTargetSelections, selection =>
             selection.SequenceEqual(["P1-BASE-EPHEMERAL", "P1-BASE-UNIT"]));
@@ -489,7 +488,7 @@ public sealed class ReflectionsSwapGuardTests
                 "P1-BATTLEFIELD-EPHEMERAL"
             ],
             result.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P2-ENEMY-UNIT"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["F", "P2-ENEMY-UNIT"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
         Assert.Null(result.State.PendingPayment);
@@ -552,7 +551,7 @@ public sealed class ReflectionsSwapGuardTests
                 "P1-BATTLEFIELD-EPHEMERAL"
             ],
             result.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P2-ENEMY-UNIT"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["F", "P2-ENEMY-UNIT"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.StackItems);
         Assert.Null(result.State.PendingPayment);
@@ -612,11 +611,16 @@ public sealed class ReflectionsSwapGuardTests
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P2-ENEMY-UNIT"]
+                    Battlefields = ["F", "P2-ENEMY-UNIT"]
                 }
             },
+            objectLocations: new Dictionary<string, ObjectLocationState> {
+                ["F"] = new("P2", "BATTLEFIELD", "F"),
+                ["P1-BATTLEFIELD-UNIT"] = new("P1", "BATTLEFIELD", "F"),
+                ["P1-BATTLEFIELD-EPHEMERAL"] = new("P1", "BATTLEFIELD", "F") },
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["F"] = new("F", cardNo: "OGN·296/298", ownerId: "P2", controllerId: "P1", tags: ["CARD_TYPE:BATTLEFIELD"]),
                 ["P1-SPELL-REFLECTIONS"] = Reflections(),
                 ["P1-REFLECTIONS-DRAW-001"] = Unit("P1-REFLECTIONS-DRAW-001"),
                 ["P1-BASE-EPHEMERAL"] = Unit(

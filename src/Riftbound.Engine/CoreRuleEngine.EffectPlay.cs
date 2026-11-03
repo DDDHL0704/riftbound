@@ -24,6 +24,12 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.HeldContext?.Kind == LinkedExileHeldKind) {
+            definition = new(parent.CardNo, "据守打出关联放逐卡牌", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
+                EffectPlayIgnoreAllCosts: true, EffectPlayAllowsAnyCard: true, EffectPlayDestination: "ANY");
+            return true;
+        }
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(parent.EffectKind, out var activation)
             && activation.SimpleEffect?.BanishesSourceThenReplaysToBase == true)
         {
@@ -306,7 +312,7 @@ public sealed partial class CoreRuleEngine
     {
         var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
         var cost = pending.SourceReplay is not null || pending.Parent.ObservedPlayPermission is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? pending.Parent.DeckPlaySequence is not null
-            ? "忽略一切费用，按正常步骤选择并打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
+            ? "忽略一切费用，按正常步骤选择并打出" : pending.DestinationPolicy == "ANY" ? "忽略一切费用；按正常步骤选择合法位置打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
         return $"《{name}》要求再次打出 · {cost}";
@@ -384,6 +390,7 @@ public sealed partial class CoreRuleEngine
                 var owner = NonFieldDestinationOwner(zones, target, parent.ControllerId);
                 if (!selfReplay) actor = owner;
                 sourcePlayer = owner == actor ? null : owner;
+                CaptureFieldDeparture(zones, cards, id);
                 DetachEquipmentFromRemovedHost(cards, id);
                 foreach (var fieldPlayer in zones.Keys.ToArray()) zones[fieldPlayer] = zones[fieldPlayer] with {
                     Base = RemoveFromZone(zones[fieldPlayer].Base, id), Battlefields = RemoveFromZone(zones[fieldPlayer].Battlefields, id) };

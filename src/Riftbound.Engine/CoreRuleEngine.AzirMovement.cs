@@ -58,11 +58,13 @@ public sealed partial class CoreRuleEngine
     // keeps its own owner/controller and never creates a unit-movement event.
     private static bool TryMoveFieldUnitByEffect(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, Dictionary<string, ObjectLocationState> locations,
-        string unitId, ObjectLocationState destination, string actor, StackItemState item, List<GameEvent> events)
+        Dictionary<string, RunePool> pools, string unitId, ObjectLocationState destination, string actor,
+        StackItemState item, List<GameEvent> events, Func<MatchState, bool>? movementCondition = null)
     {
         var before = state with { PlayerZones = zones.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal),
             CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal),
-            ObjectLocations = locations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
+            ObjectLocations = locations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal),
+            RunePools = pools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
         if (!cards.TryGetValue(unitId, out var unit) || !IsFaceUpNonStandbyUnit(unit)
             || !TryGetPreciseFieldLocation(zones, locations, unitId, out var origin)
             || !MovementRestrictionRules.CanMove(unit, actor)) return false;
@@ -76,6 +78,28 @@ public sealed partial class CoreRuleEngine
         var next = new ObjectLocationState(controller, destination.Zone, destination.BattlefieldObjectId);
         if (origin.Zone == next.Zone && origin.BattlefieldObjectId == next.BattlefieldObjectId
             && (origin.Zone != "BASE" || origin.PlayerId == next.PlayerId)) return false;
+        var generation = unit.ObjectGeneration;
+        string[]? CurrentMover(MatchState current)
+        {
+            if (!current.CardObjects.TryGetValue(unitId, out var mover) || !IsFaceUpNonStandbyUnit(mover)
+                || mover.ObjectGeneration != generation
+                || EffectiveFieldControllerId(current.PlayerZones, unitId, mover) != controller
+                || !TryGetPreciseFieldLocation(current.PlayerZones, current.ObjectLocations, unitId, out var currentOrigin)
+                || currentOrigin != origin || !MovementRestrictionRules.CanMove(mover, actor)
+                || movementCondition is not null && !movementCondition(current)
+                || next.Zone == "BASE" && BattlefieldLocalRules.PreventsMoveToBase(current, unitId)
+                || next.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(current, next.BattlefieldObjectId) is null)
+                return null;
+            return [unitId];
+        }
+        if (PayImposedMovementCost(state, actor, item.SourceObjectId, next.BattlefieldObjectId, false,
+                zones, cards, locations, pools, CurrentMover, events) != ImposedMovementPaymentResult.Paid)
+            return false;
+        before = state with { PlayerZones = zones.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal),
+            CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal),
+            ObjectLocations = locations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal),
+            RunePools = pools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
+        if (CurrentMover(before) is null) return false;
         var captured = CaptureMovementObservers(before, cards, unitId, actor, next.Zone, next.BattlefieldObjectId);
         RemoveFieldObjectFromLocation(zones, origin.PlayerId, origin.Zone, unitId);
         AddFieldObjectToLocation(zones, controller, next.Zone, unitId);
@@ -132,21 +156,30 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
-        var sourceMoved = TryMoveFieldUnitByEffect(state, zones, cards, locations, item.SourceObjectId, targetOrigin, item.ControllerId, item, events);
-        var targetMoved = TryMoveFieldUnitByEffect(state, zones, cards, locations, targetId, sourceOrigin, item.ControllerId, item, events);
+        var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        var sourceMoved = TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, item.SourceObjectId, targetOrigin, item.ControllerId, item, events);
+        // Separate move instructions each pay their own imposed cost. A resource
+        // action during the first must not substitute a new second target.
+        var targetMoved = cards.TryGetValue(targetId, out var currentTarget)
+            && currentTarget.ObjectGeneration == item.TargetGenerations![targetId]
+            && EffectiveFieldControllerId(zones, targetId, currentTarget) == item.ControllerId
+            && TryGetPreciseFieldLocation(zones, locations, targetId, out var currentTargetOrigin)
+            && currentTargetOrigin == targetOrigin
+            && TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, targetId, sourceOrigin, item.ControllerId, item, events);
         if (sourceMoved || targetMoved)
             events.Add(new("UNIT_LOCATIONS_SWAPPED", "阿兹尔的两次移动指示完成", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
                 ["firstTargetObjectId"] = item.SourceObjectId, ["secondTargetObjectId"] = targetId,
                 ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, ["effectKind"] = item.EffectKind,
                 ["stackItemId"] = item.StackItemId, ["sourceOriginLocation"] = BuildLocationPayload(sourceOrigin),
-                ["sourceDestinationLocation"] = BuildLocationPayload(locations[item.SourceObjectId]),
-                ["targetOriginLocation"] = BuildLocationPayload(targetOrigin), ["targetDestinationLocation"] = BuildLocationPayload(locations[targetId]),
+                ["sourceDestinationLocation"] = locations.TryGetValue(item.SourceObjectId, out var sourceDestination) ? BuildLocationPayload(sourceDestination) : null,
+                ["targetOriginLocation"] = BuildLocationPayload(targetOrigin),
+                ["targetDestinationLocation"] = locations.TryGetValue(targetId, out var targetDestination) ? BuildLocationPayload(targetDestination) : null,
                 ["sourceMoved"] = sourceMoved, ["targetMoved"] = targetMoved,
                 ["selectedArmamentObjectId"] = context.Equipment?.ObjectId, ["armamentReattachApplied"] = false,
                 ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy }));
-        var result = NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, Events = events };
-        var movedState = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+        var result = NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools, Events = events };
+        var movedState = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
         if (!CanExecuteAzirAttachment(movedState, item)) return result;
         var changed = item with { AzirMovement = context with { MovementsCompleted = true } };
         var choice = AzirAttachmentChoice(changed);

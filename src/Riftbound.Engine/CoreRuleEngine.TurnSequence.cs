@@ -17,6 +17,8 @@ public sealed record HeldTriggerContext(string CardNo, string BattlefieldObjectI
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public DeploymentHoldOrigin? Deployment { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LinkedExileHeldOrigin? LinkedExile { get; init; }
 }
 public sealed record HeldUnitSource(long CapturedTick, long FaceRevision, string FaceCardNo,
     string? TokenFactoryCardNo = null, bool Ceased = false);

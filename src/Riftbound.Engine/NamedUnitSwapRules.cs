@@ -130,8 +130,15 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones); var events = new List<GameEvent>();
-        TryMoveFieldUnitByEffect(state, zones, cards, locations, source.ObjectId, targetOrigin, item.ControllerId, item, events);
-        TryMoveFieldUnitByEffect(state, zones, cards, locations, target, sourceOrigin, item.ControllerId, item, events);
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, Events = events };
+        var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, source.ObjectId, targetOrigin, item.ControllerId, item, events);
+        if (cards.TryGetValue(target, out var currentTarget)
+            && currentTarget.ObjectGeneration == item.TargetGenerations![target]
+            && EffectiveFieldControllerId(zones, target, currentTarget) == item.ControllerId
+            && TryGetPreciseFieldLocation(zones, locations, target, out var currentTargetOrigin)
+            && currentTargetOrigin == targetOrigin)
+            TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, target, sourceOrigin, item.ControllerId, item, events);
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+            ObjectLocations = locations, RunePools = pools, Events = events };
     }
 }

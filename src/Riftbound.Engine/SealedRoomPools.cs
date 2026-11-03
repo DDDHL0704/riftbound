@@ -79,7 +79,7 @@ public static class SealedRoomPools
         if (state.SessionOptions?.DeckFormat != OfficialDeckFormat.Sealed || state.PlayerSealedPools is not { } pools)
             return null;
         var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var player in state.Seats.Keys)
+        foreach (var player in ResolutionResult.SnapshotSeats(state).Select(entry => entry.Key))
         {
             if (!state.PlayerDecklists.TryGetValue(player, out var deck)
                 && state.LastCompletedSeriesGame?.State.PlayerDecklists.TryGetValue(player, out deck) != true)

@@ -10,7 +10,11 @@ public sealed record BombDestructionOrigin(
     string ControllerId,
     string BattlefieldId,
     long CapturedTick,
-    string BombTokenFactoryCardNo);
+    string BombTokenFactoryCardNo)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LastBreathRepetitionContext? Repetition { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -22,9 +26,10 @@ public sealed partial class CoreRuleEngine
         => P6TokenFactoryCatalog.IsBombTokenFactory(card.TokenFactoryCardNo)
             && card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
 
-    private static CapturedBombDestructionObserver? CaptureBombDestructionObserver(
+    private static CapturedBombDestructionObserver[] CaptureBombDestructionObservers(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards,
         CardObjectState bomb)
     {
         if (!IsBomb(bomb)
@@ -33,7 +38,9 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
             || string.IsNullOrWhiteSpace(bomb.ControllerId)
             || !state.Seats.ContainsKey(bomb.ControllerId))
-            return null;
+            return [];
+
+        var controller = EffectiveFieldControllerId(zones, bomb.ObjectId, bomb);
 
         var context = new FieldTriggerContext(
             bomb.CardNo ?? P6TokenFactoryCatalog.BombTokenCardNo,
@@ -45,13 +52,16 @@ public sealed partial class CoreRuleEngine
             SourceCeasedToExist = true,
             BombDestruction = new(
                 new(bomb.ObjectId, bomb.ObjectGeneration),
-                bomb.OwnerId ?? bomb.ControllerId,
-                bomb.ControllerId,
+                bomb.OwnerId ?? controller,
+                controller,
                 location.BattlefieldObjectId,
                 state.Tick + 1,
                 P6TokenFactoryCatalog.BombTokenCardNo)
         };
-        return new(bomb.ObjectId, bomb.ControllerId, context);
+        return CaptureLastBreathRepetitions(state, zones, cards, bomb)
+            .Select(repetition => new CapturedBombDestructionObserver(bomb.ObjectId, controller,
+                context with { BombDestruction = context.BombDestruction! with { Repetition = repetition } }))
+            .ToArray();
     }
 
     private static bool ValidBombDestructionShape(FieldTriggerContext context, string effect, string? cardNo)
@@ -97,11 +107,27 @@ public sealed partial class CoreRuleEngine
             && state.Seats.ContainsKey(origin.OwnerId)
             && origin.CapturedTick <= state.Tick
             && BattlefieldLocalRules.Battlefield(state, origin.BattlefieldId) is not null
-            && !state.CardObjects.ContainsKey(sourceId);
+            && !state.CardObjects.ContainsKey(sourceId)
+            && ValidLastBreathRepetition(state, origin.Repetition, origin.Bomb, controller,
+                P6TokenFactoryCatalog.BombTokenCardNo, $"PRINTED:{sourceId}:{origin.Bomb.Generation}")
+            && (origin.Repetition is null
+                || origin.Repetition.Frame.CardObjects[sourceId] is { } before && IsBomb(before)
+                    && before.OwnerId == origin.OwnerId
+                    && TryGetPreciseFieldLocation(origin.Repetition.Frame.PlayerZones, origin.Repetition.Frame.ObjectLocations,
+                        sourceId, out var captured) && captured.Zone == "BATTLEFIELD"
+                    && captured.BattlefieldObjectId == origin.BattlefieldId);
     }
 
+    private static string BombDestructionTriggerId(BombDestructionOrigin origin)
+        => $"bomb-death-{origin.CapturedTick}-{origin.Bomb.ObjectId}-{origin.Bomb.Generation}{LastBreathOccurrenceSuffix(origin.Repetition)}";
+
+    internal static bool ValidBombDestructionTrigger(TriggerQueueItemState item)
+        => item.FieldContext?.Kind != BombDestructionKind || item.FieldContext.BombDestruction is { } origin
+            && item.TriggerId == BombDestructionTriggerId(origin);
+
     internal static bool ValidBombDestructionStack(StackItemState item)
-        => item.FieldContext?.Kind != BombDestructionKind || item.FieldContext.BombDestruction is not null
+        => item.FieldContext?.Kind != BombDestructionKind || item.FieldContext.BombDestruction is { } origin
+            && item.StackItemId == "ordered-" + BombDestructionTriggerId(origin)
             && item.OptionalCosts.Count == 0 && item.DamageAmount == 0
             && item.EffectRepeatCount == 1 && item.Destination.Length == 0;
 
@@ -112,7 +138,7 @@ public sealed partial class CoreRuleEngine
 
         var events = new List<GameEvent>();
         var queue = result.State.TriggerQueue.ToList();
-        foreach (var (ev, index) in result.Events.Select((ev, index) => (ev, index)))
+        foreach (var ev in result.Events)
         {
             events.Add(ev with
             {
@@ -122,23 +148,24 @@ public sealed partial class CoreRuleEngine
             if (result.State.Status != MatchStatuses.InProgress
                 || ev.Payload.GetValueOrDefault(BombDestructionCaptureKey) is not CapturedBombDestructionObserver[] captures)
                 continue;
-            foreach (var (capture, ordinal) in captures.Select((capture, ordinal) => (capture, ordinal)))
+            foreach (var capture in captures)
             {
+                var context = capture.Context with
+                {
+                    BombDestruction = capture.Context.BombDestruction! with
+                    {
+                        CapturedTick = RuleChoices.Value?.CompletionTick ?? result.State.Tick
+                    }
+                };
                 var trigger = new TriggerQueueItemState(
-                    $"bomb-death-{result.State.Tick}-{index}-{ordinal}",
+                    BombDestructionTriggerId(context.BombDestruction!),
                     capture.Controller,
                     capture.SourceId,
                     FieldTriggerEffect,
                     ev.Kind)
                 {
                     SourceCardNo = capture.Context.CardNo,
-                    FieldContext = capture.Context with
-                    {
-                        BombDestruction = capture.Context.BombDestruction! with
-                        {
-                            CapturedTick = RuleChoices.Value?.CompletionTick ?? result.State.Tick
-                        }
-                    }
+                    FieldContext = context
                 };
                 queue.Add(trigger);
                 events.Add(BuildTriggerQueuedEvent(trigger));
