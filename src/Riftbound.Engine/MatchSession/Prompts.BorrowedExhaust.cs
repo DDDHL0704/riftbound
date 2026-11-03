@@ -84,7 +84,7 @@ internal static partial class ActionPromptBuilder
                 "DISCARD_DRAW" => $"弃置一张手牌，然后抽 {ability.Spec.DrawCount} 张牌",
                 "DESTROY_SELF" => "摧毁此牌",
                 "CREATE_GOLD" => "打出一个休眠的金币装备指示物",
-                "CREATE_UNIT_TOKEN" => $"打出 {ability.Spec.TokenCount} 名 {ability.Spec.TokenMight} 战力的{ability.Spec.TokenName}"
+                "CREATE_UNIT_TOKEN" => $"打出 {ability.Spec.TokenCount} 名{(ability.Spec.TokensEnterReady ? "处于活跃状态的" : " ")}{ability.Spec.TokenMight} 战力的{ability.Spec.TokenName}"
                     + (ability.Spec.TokensToBase ? "到你的基地" : "")
                     + (ability.Spec.RequiresPlayedArmamentThisTurn ? "；本回合须已打出武装" : ""),
                 "SCORE" => $"获得 {ability.Spec.ScoreAmount} 分",
@@ -98,7 +98,8 @@ internal static partial class ActionPromptBuilder
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
                 $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
-                ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
+                CoreRuleEngine.BorrowedExhaustManaCost(state, player, ability.Spec), ability.Spec.Power, ability.Spec.Experience,
+                ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
                 powerPool.TotalPower, PlayCardAvailablePowerByTrait(powerPool, new Dictionary<string, int>()),
                 new RunePaymentReachability(powerPool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(powerPool, byTrait),

@@ -5,6 +5,10 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static int BorrowedExhaustManaCost(MatchState state, string player, BorrowedExhaustSpec spec)
+        => spec.ManaReductionPerFriendlyEphemeralUnit == 0 ? spec.Mana
+            : Math.Max(0, spec.Mana - spec.ManaReductionPerFriendlyEphemeralUnit * CountFriendlyEphemeralFieldUnits(state, player));
+
     internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec)
         => (!spec.RequiresPlayedArmamentThisTurn || ControllerPlayedArmamentThisTurn(state, player))
             && (spec.Reaction ? CanActivateReactionResourceSkill(state, player)
@@ -108,8 +112,9 @@ public sealed partial class CoreRuleEngine
         var tax = BorrowedExhaustRules.TargetsPlayer(ability.Spec) ? 0
             : ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out _);
         var paymentId = PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId, source.ObjectId, ability.Id);
+        var mana = BorrowedExhaustManaCost(state, intent.PlayerId, ability.Spec);
         var plan = new PaymentCostRules.PaymentPlan(paymentId, "ACTIVATE_ABILITY", intent.PlayerId,
-            ability.Spec.Mana, ability.Spec.Mana, ability.Spec.Power + tax,
+            mana, mana, ability.Spec.Power + tax,
             ability.Spec.Power + tax + ability.Spec.TypedPower.Values.Sum(), ability.Spec.TypedPower,
             experienceCost: ability.Spec.Experience, optionalCostIds: extras, paymentResourceActionIds: ordered,
             sourceObjectId: source.ObjectId, abilityId: ability.Id, reason: BorrowedExhaustRules.Effect,
@@ -293,7 +298,7 @@ public sealed partial class CoreRuleEngine
                 && f.DefaultPower == spec.TokenMight && f.Tags.Contains(CardObjectTags.UnitCard)
                 && (spec.TokenKeyword.Length == 0 || f.Tags.Contains(spec.TokenKeyword)));
             return CreateUnitTokenBatch(state, item, factory.CardNo, spec.TokenCount + AdditionalUnitTokens(item),
-                false, instructionAllowsLocationChoice: !spec.TokensToBase);
+                spec.TokensEnterReady, instructionAllowsLocationChoice: !spec.TokensToBase);
         }
         if (spec.Kind is "MOVE_TO_BASE" or "MOVE_BETWEEN_BASE_AND_BATTLEFIELD" or "MOVE_DUEL_UNIT_TO_BASE")
             return ResolveBorrowedMovement(state, item, spec);

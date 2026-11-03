@@ -41,6 +41,8 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public int TokenMight { get; init; }
     public string TokenKeyword { get; init; } = "";
     public bool TokensToBase { get; init; }
+    public bool TokensEnterReady { get; init; }
+    public int ManaReductionPerFriendlyEphemeralUnit { get; init; }
     public bool RequiresPlayedArmamentThisTurn { get; init; }
     public bool ResolveOnlyOnControllerTurn { get; init; }
     public bool ReadyTargetIfSourceEmpowered { get; init; }
@@ -199,13 +201,16 @@ public static class BorrowedExhaustParser
                     TokenCount = 1, TokenName = equipmentToken.Groups["name"].Value });
                 continue;
             }
-            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?:单位指示物)?(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
+            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<ready>处于活跃状态的)?(?<might>[1-9][0-9]*)\{\{S\}\}的?“(?<name>随从|机器人|黄沙士兵|战鹰|精灵)”(?:单位指示物)?(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾|瞬息)\}\})?(?:。场上每存在一名拥有\{\{瞬息\}\}的友方单位，此技能费用减少\{\{(?<discount>[1-9][0-9]*)\}\})?$");
             if (unitToken.Success)
             {
                 var count = unitToken.Groups["count"].Value switch { "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) };
                 result.Add(Skill("CREATE_UNIT_TOKEN", 0) with { TokenCount = count,
                     TokenName = unitToken.Groups["name"].Value, TokenMight = int.Parse(unitToken.Groups["might"].Value),
-                    TokenKeyword = unitToken.Groups["keyword"].Value, TokensToBase = unitToken.Groups["base"].Success });
+                    TokenKeyword = unitToken.Groups["keyword"].Value, TokensToBase = unitToken.Groups["base"].Success,
+                    TokensEnterReady = unitToken.Groups["ready"].Success,
+                    ManaReductionPerFriendlyEphemeralUnit = unitToken.Groups["discount"].Success
+                        ? int.Parse(unitToken.Groups["discount"].Value) : 0 });
                 continue;
             }
             var insight = Regex.Match(effect, @"^\{\{洞察(?<count>[1-9][0-9]*)\}\}，然后抽一张牌。获得(?<experience>[1-9][0-9]*)经验$");
