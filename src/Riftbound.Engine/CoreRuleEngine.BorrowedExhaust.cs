@@ -247,6 +247,15 @@ public sealed partial class CoreRuleEngine
         {
             var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId,
                 spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);
+            if (spec.RuneCallCount > 0 && draw.WinnerPlayerId is null)
+            {
+                var called = CallRunes(zones, cards, item.ControllerId, spec.RuneCallCount);
+                events.Add(new("RUNES_CALLED", $"{item.ControllerId} 召出 {called.CalledRuneObjectIds.Count} 枚休眠符文",
+                    new Dictionary<string, object?> {
+                        ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                        ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray(),
+                        ["reason"] = item.EffectKind }));
+            }
             return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones,
                 PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId,
                 RngCursor = draw.RngCursor, Events = events,

@@ -25,6 +25,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool DiscardsEquipmentAsCost { get; init; }
     public bool DestroysSourceAsCost { get; init; }
     public int DrawCount { get; init; }
+    public int RuneCallCount { get; init; }
     public int? EmpoweredMight { get; init; }
     public int ExistingBoonMight { get; init; }
 }
@@ -135,11 +136,12 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("DISCARD_DRAW", 0) with { DrawCount = 1 });
                 continue;
             }
-            var draw = Regex.Match(effect, @"^抽(?<n>一|二|两|[1-9][0-9]*)张牌$");
+            var draw = Regex.Match(effect, @"^抽(?<n>一|二|两|[1-9][0-9]*)张牌(?:并召出(?<runes>一|二|两|[1-9][0-9]*)枚休眠的符文)?$");
             if (draw.Success)
             {
                 var count = draw.Groups["n"].Value switch { "一" => 1, "二" or "两" => 2, _ => int.Parse(draw.Groups["n"].Value) };
-                result.Add(Skill("DRAW", 0) with { DrawCount = count });
+                var runes = draw.Groups["runes"].Value switch { "" => 0, "一" => 1, "二" or "两" => 2, var value => int.Parse(value) };
+                result.Add(Skill("DRAW", 0) with { DrawCount = count, RuneCallCount = runes });
                 continue;
             }
             var ready = Regex.Match(effect, @"^让(?<n>[1-9][0-9]*|一|两|二)件装备变为活跃状态$");
