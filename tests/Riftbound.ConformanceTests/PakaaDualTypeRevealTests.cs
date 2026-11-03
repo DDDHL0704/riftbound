@@ -89,7 +89,7 @@ public sealed class PakaaDualTypeRevealTests(ITestOutputHelper output)
         var grave = run.State.PlayerZones["P1"].Graveyard.ToArray();
         var plays = JsonSerializer.Serialize(run.State.CardPlays);
         await run.Cold(); await Save(run, format, "before-move");
-        var from = run.Frame().Events.Count;
+        var from = run.Events().Length;
         var field = run.State.PlayerZones["P1"].Battlefields.First(id => run.State.BattlefieldStates.ContainsKey(id));
         await run.Reject("P2", new MoveUnitCommand(host, "BASE", "BATTLEFIELD:" + field));
         await run.Submit("P1", new MoveUnitCommand(host, "BASE", "BATTLEFIELD:" + field));
@@ -106,7 +106,7 @@ public sealed class PakaaDualTypeRevealTests(ITestOutputHelper output)
             .GetProperty("objects").GetProperty(host).GetProperty("effectivePower").GetInt32());
         Assert.Contains(CardObjectTags.UnitCard, run.State.CardObjects[top].Tags);
         Assert.Contains(CardObjectTags.EquipmentCard, run.State.CardObjects[top].Tags);
-        var events = run.Frame().Events.Skip(from).Select(entry => entry.Event).ToArray();
+        var events = run.Events().Skip(from).Select(entry => entry.Event).ToArray();
         Assert.Single(events, e => e.Kind == "CARD_DRAWN");
         var reveal = Assert.Single(events, e => e.Kind == "CARDS_REVEALED");
         Assert.Equal(new[] { top }, JsonSerializer.SerializeToElement(reveal.Payload)
