@@ -12,6 +12,7 @@
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalAdditionalCostReductionSqlAcceptance.cs" Link="OptionalAdditionalCostReductionSqlAcceptance.cs" />
     <Compile Include="../Riftbound.NativeNetworkSmoke/OptionalCostReductionNetworkChecks.cs" Link="OptionalCostReductionNetworkChecks.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/RuneRecycleDestinationSqlAcceptance.cs" Link="RuneRecycleDestinationSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/CreatedTokenReadySqlAcceptance.cs" Link="CreatedTokenReadySqlAcceptance.cs" />
     <Compile Include="../Riftbound.ImposedMovementAcceptance/ImposedMovementSqlAcceptance.cs" Link="ImposedMovementSqlAcceptance.cs" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
