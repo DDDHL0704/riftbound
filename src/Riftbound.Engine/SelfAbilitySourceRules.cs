@@ -42,7 +42,9 @@ public sealed partial class CoreRuleEngine
     private static MatchState RecordCeasedSelfAbilitySources(MatchState before, MatchState state, IReadOnlySet<string> departed)
     {
         var stack = state.StackItems.Select(item => {
-            if (item.BorrowedExhaust is { } borrowed && BorrowedExhaustRules.Valid(before, item))
+            // A borrowed skill may destroy its token source while paying the
+            // activation cost, on the same tick on which the skill is captured.
+            if (item.BorrowedExhaust is { } borrowed && BorrowedExhaustRules.Valid(before with { Tick = state.Tick }, item))
             {
                 BorrowedTextSource CaptureBorrowed(BorrowedTextSource text) => text.CeasedSource is null && departed.Contains(text.Object.ObjectId)
                     ? text with { CeasedSource = SelfAbilitySourceRules.Capture(before, state.Tick, text.Object,

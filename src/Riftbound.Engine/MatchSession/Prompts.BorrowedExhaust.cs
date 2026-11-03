@@ -8,6 +8,7 @@ internal static partial class ActionPromptBuilder
         MatchState state, string player, CardObjectState source)
     {
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
+        var powerPool = PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.BorrowedPowerPurpose(source));
         foreach (var ability in BorrowedExhaustRules.Abilities(state, player, source))
         {
             if (!CoreRuleEngine.CanActivateBorrowedExhaust(state, player, ability.Spec)) continue;
@@ -44,11 +45,11 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}横置：{effect}",
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}横置：{effect}",
                 ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
-                pool.TotalPower, PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()),
-                new RunePaymentReachability(pool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(pool, byTrait),
+                powerPool.TotalPower, PlayCardAvailablePowerByTrait(powerPool, new Dictionary<string, int>()),
+                new RunePaymentReachability(powerPool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(powerPool, byTrait),
                 [], true, ability.Spec.Kind == "RESOURCE", true, null, SpellshieldTaxPowerByTargetObjectId: taxes,
                 AdditionalCostChoices: discardChoices, RequiredAdditionalCostChoiceCount: ability.Spec.DiscardsEquipmentAsCost ? 1 : 0);
         }

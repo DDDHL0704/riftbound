@@ -58,9 +58,10 @@ internal static class BorrowedExhaustRules
     internal static BorrowedTextSource Capture(CardObjectState card, RuleTextInstance text)
         => new(new(card.ObjectId, card.ObjectGeneration), text.CardNo, AttachedRuleTextRules.Face(card)!, card.CopyFaceTransitions?.Count ?? 0,
             card.TokenFactoryCardNo, text.Origin);
-    private static bool ValidSource(MatchState state, BorrowedTextSource source, long tick)
+    private static bool ValidSource(MatchState state, BorrowedTextSource source, long tick, bool ceasedAsCost = false)
         => source is { Object: not null } && SelfAbilitySourceRules.Valid(state, source.Object, source.PhysicalCardNo,
-            source.FaceRevision, tick, source.TokenFactoryCardNo, source.CeasedSource, usesPrintedFace: true)
+            source.FaceRevision, tick, source.TokenFactoryCardNo, source.CeasedSource,
+            usesPrintedFace: true, ceasedAsCost: ceasedAsCost)
             && (source.Origin is null ? source.CardNo == source.PhysicalCardNo
                 : AttachedRuleTextRules.ValidCaptured(state, source.Origin, source.Object.ObjectId, source.Object.Generation, source.CardNo));
 
@@ -71,8 +72,9 @@ internal static class BorrowedExhaustRules
             || c.AcquiredTick <= 0 || c.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || c.Borrower.Object is null || c.Donor.Object is null || c.Borrower.Object.ObjectId != item.SourceObjectId
             || c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || item.CardNo != c.Borrower.PhysicalCardNo || !Inherits(c.Borrower.CardNo)
-            || !ValidSource(state, c.Borrower, c.AcquiredTick) || !ValidSource(state, c.Donor, c.AcquiredTick)
             || Spec(c.Donor.CardNo, c.AbilityIndex) is not { } spec
+            || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost)
+            || !ValidSource(state, c.Donor, c.AcquiredTick)
             || spec.Kind == "RESOURCE"
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield

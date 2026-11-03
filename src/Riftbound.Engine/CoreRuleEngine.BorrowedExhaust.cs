@@ -73,12 +73,25 @@ public sealed partial class CoreRuleEngine
         var paidState = state with { PlayerZones = zones, CardObjects = cards };
         if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
             return RejectWithCorePrompts(state, "支付资源行动后来源已无法使用该技能。", ErrorCodes.InvalidTarget);
+        source = cards[source.ObjectId];
         var destructionTriggers = new List<TriggerQueueItemState>();
         var destroyedOwners = new List<string>();
+        // All targets bind before nonstandard costs can change their zones.
+        var targetGenerations = targets.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
+        var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
+            .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var borrowerWasOnBattlefield = zones.Values.Any(z => z.Battlefields.Contains(source.ObjectId, StringComparer.Ordinal));
         var context = new BorrowedExhaustContext(BorrowedExhaustRules.Capture(source, ability.BorrowerText),
             BorrowedExhaustRules.Capture(cards[ability.Donor.ObjectId], ability.DonorText), ability.Spec.Index,
-            state.Tick + 1, source.IsEmpowered, null, borrowerWasOnBattlefield);
+            state.Tick + 1, source.IsEmpowered, factories.Count == 0 ? null : factories, borrowerWasOnBattlefield);
+        if (ability.Spec.RemovesSourceEmpowerment)
+        {
+            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
+                new(source.ObjectId, source.ObjectGeneration), false, intent.PlayerId);
+            source = changed.CardObjects[source.ObjectId];
+            events.AddRange(changed.Events);
+            cards[source.ObjectId] = source;
+        }
         if (ability.Spec.DestroysSourceAsCost)
         {
             // Exhausting is part of the printed cost and is paid before the
@@ -97,6 +110,7 @@ public sealed partial class CoreRuleEngine
             events.AddRange(removal.Events);
             destructionTriggers.AddRange(removal.TriggerQueue);
             destroyedOwners.AddRange(removal.DestroyedUnitOwnerIds);
+            payment = payment with { RunePools = removal.RunePools };
         }
         if (ability.Spec.DiscardsEquipmentAsCost)
         {
@@ -113,24 +127,13 @@ public sealed partial class CoreRuleEngine
         if (ability.Spec.Kind == "RESOURCE")
             return ResolveBorrowedResource(state, intent, ability, plan, payment, zones, cards, locations, events, extras,
                 source, destructionTriggers, destroyedOwners);
-        if (cards.TryGetValue(source.ObjectId, out var currentSource)) source = currentSource;
-        var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
-            .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
-        context = context with { TargetTokenFactories = factories.Count == 0 ? null : factories };
-        if (ability.Spec.RemovesSourceEmpowerment)
-        {
-            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
-                new(source.ObjectId, source.ObjectGeneration), false, intent.PlayerId);
-            source = changed.CardObjects[source.ObjectId];
-            events.AddRange(changed.Events);
-        }
         if (!ability.Spec.DestroysSourceAsCost && cards.ContainsKey(source.ObjectId))
             cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-BORROWED", intent.PlayerId,
-            source.ObjectId, BorrowedExhaustRules.Effect, AttachedRuleTextRules.Face(source), targets,
+            source.ObjectId, BorrowedExhaustRules.Effect, context.Borrower.PhysicalCardNo, targets,
             timingContext: StackTimingContextForNewStackItem(state)) {
             BorrowedExhaust = context,
-            TargetGenerations = targets.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal) };
+            TargetGenerations = targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
             ["sourceObjectId"] = source.ObjectId, ["cardNo"] = source.CardNo, ["abilityId"] = ability.Id,
             ["effectKind"] = item.EffectKind, ["targetObjectIds"] = targets.ToArray() };

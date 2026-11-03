@@ -82,13 +82,6 @@ public sealed partial class CoreRuleEngine
             SpellOnlyPower = pool.SpellOnlyPower + (spec.ResourceRestriction == "SPELL" ? power : 0),
             EquipmentOnlyPower = pool.EquipmentOnlyPower + (spec.ResourceRestriction == "EQUIPMENT" ? power : 0),
             PowerByTrait = traits };
-        if (spec.RemovesSourceEmpowerment)
-        {
-            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards },
-                new(source.ObjectId, source.ObjectGeneration), false, intent.PlayerId);
-            source = changed.CardObjects[source.ObjectId];
-            events.AddRange(changed.Events);
-        }
         if (cards.ContainsKey(source.ObjectId) && !spec.DestroysSourceAsCost)
             cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         var payload = new Dictionary<string, object?> {

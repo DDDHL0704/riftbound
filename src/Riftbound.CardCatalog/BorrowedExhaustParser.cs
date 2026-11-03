@@ -105,7 +105,7 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
-            var draw = Regex.Match(effect, @"^抽(?<n>[一二两1-9][0-9]*)张牌$");
+            var draw = Regex.Match(effect, @"^抽(?<n>一|二|两|[1-9][0-9]*)张牌$");
             if (draw.Success)
             {
                 var count = draw.Groups["n"].Value switch { "一" => 1, "二" or "两" => 2, _ => int.Parse(draw.Groups["n"].Value) };
