@@ -1213,6 +1213,7 @@ public sealed partial record MatchState
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.ActivatedPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TimeAssassinNextUnitReductionPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.StandbyDrawUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantUsePrefix, StringComparison.Ordinal)

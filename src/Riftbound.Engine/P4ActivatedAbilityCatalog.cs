@@ -59,7 +59,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool OpponentGuessesDeckTopType = false, int? ExhaustFriendlyUnitMinimumPowerAsCost = null,
     bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false,
     bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false,
-    string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false);
+    string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -392,6 +392,10 @@ public static class P4ActivatedAbilityCatalog
             IsResourceSkill: true, ReactionSpeed: true, GeneratedMana: 1,
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
             GeneratedManaIfSourceEmpowered: 2),
+        new("RAVENBLOOM_TOME_NEXT_SPELL_DAMAGE", "OGN·032/298", "RAVENBLOOM_TOME_NEXT_SPELL_DAMAGE", "邪鸦魔典", 0, 0, 0,
+            false, true, 0, false, "官方勘误：横置，本回合下一个法术每段伤害+1。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(GrantsNextSpellDamage: true)),
         new("SUN_DISC_NEXT_UNIT_READY", "OGN·021/298", "SUN_DISC_NEXT_UNIT_READY", "太阳圆盘", 0, 0, 0,
             false, true, 0, false, "官方中文：横置，鼓舞时授予本回合下一名单位活跃进场。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,

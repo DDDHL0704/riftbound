@@ -101,6 +101,7 @@ public sealed partial class CoreRuleEngine
             if (!observation.Resolved || limited)
                 if (!finalized.Any(p => p.PlayId == entry.PlayId)) {
                     finalized.Add(entry);
+                    effects = BindActivatedNextSpellDamage(effects, entry);
                     foreach (var reduction in SourceNextSpellCostReductionEffects(result.State with { UntilEndOfTurnEffects = effects }, entry.PlayerId)
                         .Where(r => r.AppliesToAllCards)) effects = RemoveUntilEndOfTurnEffect(effects, reduction.EffectId);
                 }

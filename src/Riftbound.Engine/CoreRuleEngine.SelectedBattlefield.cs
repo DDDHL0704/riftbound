@@ -95,9 +95,9 @@ public sealed partial class CoreRuleEngine
                 if (spec.DamagesEnemyUnits && IsEnemyBattlefieldUnitObject(current, item.ControllerId, id))
                 {
                     var amount = unitDamageAmount is { } fromUnit
-                        ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, fromUnit)
+                        ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, fromUnit, item)
                         : spec.PrimaryEnemyTargetIndex is { } primaryIndex && id != item.TargetObjectIds[primaryIndex]
-                            ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, behavior.OtherEnemyBattlefieldUnitsDamageAmount)
+                            ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, behavior.OtherEnemyBattlefieldUnitsDamageAmount, item)
                             : ResolveDamageAmount(instructionState, instructionItem, behavior, id);
                     var damage = ApplyDamageToCardObject(current, cards, item.ControllerId, id,
                         amount, damageTriggeredDestroyTargets,

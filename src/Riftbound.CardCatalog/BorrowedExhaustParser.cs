@@ -183,6 +183,8 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("GRANT_NEXT_UNIT_READY", 0) with { EffectRequiresEncouraged = true });
                 continue;
             }
+            if (effect == "本回合内你打出的下一个法术造成的伤害+1")
+            { result.Add(Skill("GRANT_NEXT_SPELL_DAMAGE", 0)); continue; }
             if (effect == "让你本回合打出的下一个法术获得等同于其费用的{{回响}}")
             {
                 result.Add(Skill("GRANT_NEXT_SPELL_ECHO", 0));

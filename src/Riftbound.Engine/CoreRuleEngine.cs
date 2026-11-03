@@ -31536,7 +31536,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     stackItem.ControllerId,
                     targetObjectId,
-                    ApplySpellSkillDamageBonuses(state, stackItem.ControllerId, targetObjectId, damageAmount),
+                    ApplySpellSkillDamageBonuses(state, stackItem.ControllerId, targetObjectId, damageAmount, stackItem),
                     damageTriggeredDestroyTargetObjectIds,
                     preventDamage,
                     preventionEffectId);
@@ -33553,7 +33553,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Reuse the current controlled field sources already read for a
         // distributed pool. That pool applies its bonuses separately, once.
         var controllerBonus = DistributionBonuses(state, controllerId, null).Sum(b => b.Amount)
-            + EquipmentSkillDamageBonus(state, controllerId, sourceItem);
+            + EquipmentSkillDamageBonus(state, controllerId, sourceItem)
+            + ActivatedSpellDamageBonus(state, sourceItem);
         return ApplyBattlefieldTargetSpellSkillDamageBonus(state, targetObjectId, checked(damageAmount + controllerBonus));
     }
 

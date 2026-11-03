@@ -17,6 +17,10 @@ internal static class ReviewedCardErrata
         // SHA256 13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d.
         : id == 33075 && cardNo == "SFD·003/221"
             ? "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1}}（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）"
+        // CN official 2026-10-16 catalog, exact record 31240 / OGN·032.
+        // The errata limits the delayed passive to this turn (core 392).
+        : id == 31240 && cardNo == "OGN·032/298"
+            ? "{{横置}}：本回合内你打出的下一个法术造成的伤害+1（每段伤害都+1）。"
         // CN official card-catalog refresh 2026-10-16, OGN·181 errata:
         // the target is any face-down card, not a face-up card with Standby.
         : id == 31411 && cardNo == "OGN·181/298"

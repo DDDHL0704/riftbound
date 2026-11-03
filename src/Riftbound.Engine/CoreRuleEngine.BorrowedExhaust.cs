@@ -291,6 +291,7 @@ public sealed partial class CoreRuleEngine
             return ResolveBorrowedArmamentSkill(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
         if (spec.Kind == "GRANT_NEXT_UNIT_READY") return ResolveActivatedNextUnitReady(state, item);
+        if (spec.Kind == "GRANT_NEXT_SPELL_DAMAGE") return ResolveActivatedNextSpellDamage(state, item);
         if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")
             return ResolveCommandOpponentMovement(state, item, c.Borrower.Object, "获得的移动技能", BorrowedExhaustRules.Effect);
         if (spec.Kind == "TRANSFER_SOURCE_AND_RECALL")

@@ -6,22 +6,31 @@ namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record ActivatedPlayGrant(int TurnNumber, string ControllerId, string CardNo, string StackItemId,
-    BorrowedExhaustContext? Borrowed, SimpleActivationContext? Printed);
+    BorrowedExhaustContext? Borrowed, SimpleActivationContext? Printed)
+{
+    public string Kind { get; init; } = "NEXT_UNIT_READY";
+    public long GrantedTick { get; init; }
+    public string? SpellPlayId { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
     internal const string ActivatedPlayGrantPrefix = "ACTIVATED_NEXT_UNIT_READY:";
+    internal const string ActivatedSpellDamageGrantPrefix = "ACTIVATED_NEXT_SPELL_DAMAGE:";
     private const string ActivatedPlayGrantConsumedKey = "activatedPlayGrantsConsumed";
 
     private static string ActivatedPlayGrantMarker(ActivatedPlayGrant grant)
-        => ActivatedPlayGrantPrefix + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(grant));
+        => (grant.Kind == "NEXT_SPELL_DAMAGE" ? ActivatedSpellDamageGrantPrefix : ActivatedPlayGrantPrefix)
+            + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(grant));
 
     private static ActivatedPlayGrant? ReadActivatedPlayGrant(string marker)
     {
-        if (!marker.StartsWith(ActivatedPlayGrantPrefix, StringComparison.Ordinal)) return null;
+        var prefix = marker.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)
+            ? ActivatedSpellDamageGrantPrefix : ActivatedPlayGrantPrefix;
+        if (!marker.StartsWith(prefix, StringComparison.Ordinal)) return null;
         try
         {
-            var grant = JsonSerializer.Deserialize<ActivatedPlayGrant>(Convert.FromBase64String(marker[ActivatedPlayGrantPrefix.Length..]));
+            var grant = JsonSerializer.Deserialize<ActivatedPlayGrant>(Convert.FromBase64String(marker[prefix.Length..]));
             return grant is not null && ActivatedPlayGrantMarker(grant) == marker ? grant : null;
         }
         catch (Exception error) when (error is JsonException or FormatException or ArgumentException) { return null; }
@@ -36,7 +45,8 @@ public sealed partial class CoreRuleEngine
                     BorrowedExhaust = borrowed, TargetGenerations = new Dictionary<string, long>() };
         if (grant.Borrowed is null && grant.Printed is { Source.ObjectId.Length: > 0 } printed
             && P4ActivatedAbilityCatalog.TryGetByAbilityId(printed.AbilityId, out var ability)
-            && ability.SimpleEffect?.GrantsNextUnitReady == true)
+            && (grant.Kind == "NEXT_UNIT_READY" ? ability.SimpleEffect?.GrantsNextUnitReady == true
+                : grant.Kind == "NEXT_SPELL_DAMAGE" && ability.SimpleEffect?.GrantsNextSpellDamage == true))
         {
             var item = SimpleActivationStackItem(printed, grant.ControllerId, grant.CardNo, ability, []);
             return item.StackItemId == grant.StackItemId ? item : null;
@@ -46,21 +56,26 @@ public sealed partial class CoreRuleEngine
 
     private static bool ValidActivatedPlayGrant(MatchState state, ActivatedPlayGrant grant)
     {
-        if (grant.TurnNumber != state.TurnNumber || string.IsNullOrWhiteSpace(grant.ControllerId)
+        if (grant.Kind is not ("NEXT_UNIT_READY" or "NEXT_SPELL_DAMAGE")
+            || grant.Kind == "NEXT_UNIT_READY" && (grant.GrantedTick != 0 || grant.SpellPlayId is not null)
+            || grant.Kind == "NEXT_SPELL_DAMAGE" && !ValidActivatedSpellDamageBinding(state, grant)
+            || grant.TurnNumber != state.TurnNumber || string.IsNullOrWhiteSpace(grant.ControllerId)
             || string.IsNullOrWhiteSpace(grant.CardNo) || !state.Seats.ContainsKey(grant.ControllerId)
             || ActivatedPlayGrantItem(grant) is not { } item) return false;
         if (item.BorrowedExhaust is { } borrowed)
             return item.StackItemId == $"STACK-{borrowed.AcquiredTick}-{item.SourceObjectId}-BORROWED"
-                && BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex)?.Kind == "GRANT_NEXT_UNIT_READY"
+                && BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex)?.Kind == (grant.Kind == "NEXT_UNIT_READY" ? "GRANT_NEXT_UNIT_READY" : "GRANT_NEXT_SPELL_DAMAGE")
                 && BorrowedExhaustRules.Valid(state, item);
         return ValidSimpleActivation(state, item);
     }
 
     internal static bool ValidActivatedPlayGrants(MatchState state)
     {
-        var markers = state.UntilEndOfTurnEffects.Where(m => m.StartsWith(ActivatedPlayGrantPrefix, StringComparison.Ordinal)).ToArray();
+        var markers = state.UntilEndOfTurnEffects.Where(m => m.StartsWith(ActivatedPlayGrantPrefix, StringComparison.Ordinal)
+            || m.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)).ToArray();
         return markers.Distinct(StringComparer.Ordinal).Count() == markers.Length
-            && markers.All(m => ReadActivatedPlayGrant(m) is { } grant && ValidActivatedPlayGrant(state, grant));
+            && markers.All(m => ReadActivatedPlayGrant(m) is { } grant && ValidActivatedPlayGrant(state, grant))
+            && markers.Select(m => ReadActivatedPlayGrant(m)!.StackItemId).Distinct(StringComparer.Ordinal).Count() == markers.Length;
     }
 
     private static StackResolutionResult ResolveActivatedNextUnitReady(MatchState state, StackItemState item)
@@ -82,7 +97,7 @@ public sealed partial class CoreRuleEngine
         CardObjectState unit, string player, IReadOnlyList<string> effects)
     {
         if (ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")) return ev;
-        var grants = effects.Where(m => ReadActivatedPlayGrant(m) is { } grant && grant.ControllerId == player
+        var grants = effects.Where(m => ReadActivatedPlayGrant(m) is { Kind: "NEXT_UNIT_READY" } grant && grant.ControllerId == player
             && RuleChoices.Value?.ConsumedNextUnitPlayGrants.Contains(m) != true).ToArray();
         if (grants.Length == 0) return ev;
         RuleChoices.Value?.ConsumedNextUnitPlayGrants.UnionWith(grants);
