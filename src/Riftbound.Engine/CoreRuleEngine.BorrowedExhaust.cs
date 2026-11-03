@@ -37,6 +37,14 @@ public sealed partial class CoreRuleEngine
 
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
         => BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
+            : spec.TargetScope == "OWNED_TEEMO_UNIT" ? IsValidOwnedTeemoUnitTarget(state, player, id)
+                && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id)
+            : spec.TargetScope == "OTHER_FRIENDLY_PERMANENT_OR_FACEDOWN" ? id != sourceId
+                && state.CardObjects.TryGetValue(id, out var permanent) && IsObjectOnField(state.PlayerZones, id)
+                && EffectiveFieldControllerId(state.PlayerZones, id, permanent) == player
+                && (permanent.IsFaceDown || IsFaceUpNonStandbyUnit(permanent)
+                    || permanent.Tags.Contains(CardObjectTags.EquipmentCard))
+                && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id)
             : spec.TargetScope == "BATTLEFIELD" ? BattlefieldLocalRules.Battlefield(state, id) is not null
             : spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
@@ -266,6 +274,8 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind is "RETURN_TO_HAND" or "RETURN_AND_CREATE_GOLD")
+            return ResolveBorrowedReturnSkill(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
         if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")
             return ResolveCommandOpponentMovement(state, item, c.Borrower.Object, "获得的移动技能", BorrowedExhaustRules.Effect);

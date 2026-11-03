@@ -17,6 +17,10 @@ internal static class ReviewedCardErrata
         // SHA256 13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d.
         : id == 33075 && cardNo == "SFD·003/221"
             ? "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1}}（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）"
+        // CN official card-catalog refresh 2026-10-16, OGN·181 errata:
+        // the target is any face-down card, not a face-up card with Standby.
+        : id == 31411 && cardNo == "OGN·181/298"
+            ? "{{横置}}：让另一张友方装备、单位或正面朝下的卡牌返回其所属的手牌。"
         // CN OGN errata, 蔚 - 铲除者: recycling is the activation cost (CN 417.3).
         : (id == 31244 && cardNo == "OGN·036/298" || id == 34840 && cardNo == "ARC-001/006")
             ? "{{游走}}（我可以向其他战场进行移动。）\n从你的废牌堆回收一张卡牌：给予我在本回合内{{S}}+1。"
