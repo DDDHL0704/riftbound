@@ -69,7 +69,10 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First()));
             await game.Act("P1", new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); await game.Top();
             Assert.True(game.State.CardObjects[unit].IsEmpowered);
-            for (var i = 0; i < 2; i++) await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First()));
+            // Preserve the first two physical payment runes and their base order.
+            var destructionRunes = game.Runes("P1").Take(2).ToArray();
+            Assert.Equal(2, destructionRunes.Length);
+            await game.Act("P1", new RecycleRuneCommand(destructionRunes[0], destructionRunes));
             await game.Act("P1", new PlayCardCommand(game.Hand("P1", Kill).First(), Kill, [unit])); await game.Top();
             var earned = Assert.Single(game.State.StackItems); var receipt = Assert.IsType<LastBreathUnitCreationContext>(earned.LastBreathUnitCreation);
             Assert.True(receipt.SourceWasEmpowered); Assert.Equal("P1", receipt.ControllerId);

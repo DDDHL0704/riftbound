@@ -1098,7 +1098,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", CoreRuleEngine.StandardMovementExhaustionCostEvent, "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -1218,6 +1218,7 @@ public static partial class MatchRecoveryValidator
             ValidateNextUnitPlayGrantHistory(authoritativeState, commands, events, errors);
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
+            ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
@@ -4251,7 +4252,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidSelfCopyTokenPlay(state, item)) errors.Add("invalid self copy token instruction");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidTokenEntryPlan(state, item)
-                || item.TokenEntryPlan is { } tokenPlan && tokenPlan.NextToken < tokenPlan.OriginalCount
+                || item.TokenEntryPlan is { } tokenPlan && CoreRuleEngine.TokenEntryPlanPending(tokenPlan)
                     && (state.PendingCardChoice?.ChoiceWindow != CoreRuleEngine.TokenReplacementWindow
                         || state.PendingCardChoice.ResolvingStackItemId != item.StackItemId)
                 || item.CompletedRepeatExecutions < 0
@@ -4283,10 +4284,10 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.TriggerQueue)
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid queued battle-result skill");
         foreach (var trigger in state.TriggerQueue)
-            if (!CoreRuleEngine.ValidUnitEvent(state, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
+            if (!CoreRuleEngine.ValidUnitEvent(state, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId, controller: trigger.ControllerId))
                 errors.Add("invalid captured unit event trigger");
         foreach (var item in state.StackItems)
-            if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)
+            if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)
                 || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
                     || !CoreRuleEngine.ValidUnitEventTargets(item)))
                 errors.Add("invalid captured unit event stack");
@@ -4414,7 +4415,8 @@ public static partial class MatchRecoveryValidator
             errors.Add("invalid spell effect-play continuation");
 
         if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay)
-            && !CoreRuleEngine.ValidLinkedExileEffectPlay(state, foreignPlay))
+            && !CoreRuleEngine.ValidLinkedExileEffectPlay(state, foreignPlay)
+            && !CoreRuleEngine.ValidSelfBanishReplayEffectPlay(state, foreignPlay))
             errors.Add("invalid foreign graveyard effect-play continuation");
         if (state.PendingEffectPlay is { } graveyard && graveyard.Parent.RecastContext is null
             && graveyard.DestinationPolicy != "STACK"
@@ -5437,7 +5439,7 @@ public static partial class MatchRecoveryValidator
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !DrawHandThresholdRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !(stackItem.OutsideHandPlayObserver is not null && CoreRuleEngine.ValidOutsideHandPlayStack(authoritativeState, stackItem))
-                && !(stackItem.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, stackItem.UnitEvent, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
+                && !(stackItem.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, stackItem.UnitEvent, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo, stackItem.ControllerId))
                 && !(stackItem.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, stackItem.EmpowerInteraction, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.SourceReadied is not null && CoreRuleEngine.ValidSourceReadiedStack(authoritativeState, stackItem))
                 && !(stackItem.SelfMightActivation is { CeasedSource: not null } && SelfMightRules.Valid(authoritativeState, stackItem))
@@ -5603,7 +5605,7 @@ public static partial class MatchRecoveryValidator
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !DrawHandThresholdRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !(trigger.OutsideHandPlayObserver is not null && CoreRuleEngine.ValidOutsideHandPlayTrigger(authoritativeState, trigger))
-                && !(trigger.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
+                && !(trigger.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId, controller: trigger.ControllerId))
                 && !(trigger.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, trigger.EmpowerInteraction, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.SourceReadied is not null && CoreRuleEngine.ValidSourceReadied(authoritativeState, trigger.SourceReadied, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))
                 && !(trigger.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyObjectTrigger(authoritativeState, trigger.ReadyObjectTrigger, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))

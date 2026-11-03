@@ -61,12 +61,14 @@ public sealed class Ven117SubmittedStandbyConsumerTests
                 await Arena.RevealDuringRealBattle(() => game.State, game.Act, game.Events, actor, host, field);
                 await game.ColdCheckpoint();
             }
-            Arena.AssertCondition(game.State, actor, host, field, 1, false, 4); await game.ColdCheckpoint();
+            // Each branch has already restored this unchanged battle history.
+            Arena.AssertCondition(game.State, actor, host, field, 1, false, 4);
             var beforeCombat = game.Events().Length; var generation = game.State.CardObjects[host].ObjectGeneration;
             await Arena.FinishBattle(() => game.State, game.Act, game.Events, actor, host, [friend], enemy, 4);
             await game.ColdCheckpoint();
             Arena.AssertOutcome(game.State, game.Events().Skip(beforeCombat).ToArray(), host, 4, false, generation);
-            Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
+            // The checkpoint after FinishBattle already audited the final history.
+            Common.AssertTwelveEach(game.State);
         }
         finally { await game.Save("ven117-real-submitted-normal-or-standby-" + actor + "-" + standby); }
     }

@@ -1516,6 +1516,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = effectKind
                 })
         };
+        events[2] = CaptureDirectMightReduction(events[2], state with { PlayerZones = playerZones, CardObjects = cardObjects },
+            targetState, cardObjects[targetObjectId], intent.PlayerId);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -5319,7 +5321,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ability = BattlefieldAdjustedAbility(state, intent.PlayerId, command.SourceObjectId, ability);
         if (selectedMana is not null && ability.IsResourceSkill)
             return RejectWithCorePrompts(state, "此资源技能没有可选择的法力费用。", ErrorCodes.InvalidTarget);
-        if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText)
+        if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText && ability.SimpleEffect is null)
             return RejectWithCorePrompts(state, "此技能的复制实例尚未开放。", ErrorCodes.UnsupportedCommand);
 
         if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
@@ -16280,7 +16282,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int tokenCount,
         string abilityId,
         List<GameEvent> events,
-        IReadOnlyList<string> turnEffects)
+        IReadOnlyList<string> turnEffects, StackItemState? tokenEntryItem = null)
     {
         if (!playerZones.ContainsKey(playerId)
             || tokenCount <= 0
@@ -16296,6 +16298,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 tokenObjectId,
                 playerId,
                 playerId, isExhausted: true);
+            if (tokenEntryItem is not null) tokenState = ApplyUnitTokenFactoryReplacement(tokenEntryItem, tokenIndex, tokenState);
+            var entryDefinition = P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var actualDefinition)
+                ? actualDefinition : tokenDefinition;
             tokenState = ApplyUnitTokenEntryStaticAbility(
                 playerZones,
                 cardObjects,
@@ -16319,8 +16324,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["abilityId"] = abilityId,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenCardNo"] = tokenDefinition.CardNo,
-                ["tokenName"] = tokenDefinition.TokenFamilyName,
+                ["tokenCardNo"] = entryDefinition.CardNo,
+                ["tokenName"] = entryDefinition.TokenFamilyName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = tokenState.Tags.ToArray()
@@ -16332,7 +16337,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entryStaticAbilitySourceState.CardNo);
             events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
-                $"{battlefieldObjectId} 打出{tokenDefinition.TokenFamilyName}",
+                $"{battlefieldObjectId} 打出{entryDefinition.TokenFamilyName}",
                 payload), playerZones, cardObjects, turnEffects));
         }
     }
@@ -18278,6 +18283,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId)
                 && !IsForeignGraveyardEffectPlay(state, intent.PlayerId, command.SourceObjectId)
                 && !IsLinkedExileEffectPlaySource(state, intent.PlayerId, command.SourceObjectId)
+                && !IsForeignSelfBanishReplay(state, intent.PlayerId, command.SourceObjectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
                 rejection = Reject(
@@ -21233,6 +21239,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerZones[owner] = playerZones[owner] with { Graveyard = RemoveFromZone(playerZones[owner].Graveyard, sourceObjectId) };
         if (IsLinkedExileEffectPlaySource(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } exileOwner)
             playerZones[exileOwner] = playerZones[exileOwner] with { Banished = RemoveFromZone(playerZones[exileOwner].Banished, sourceObjectId) };
+        if (IsForeignSelfBanishReplay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } banishedOwner)
+            playerZones[banishedOwner] = playerZones[banishedOwner] with { Banished = RemoveFromZone(playerZones[banishedOwner].Banished, sourceObjectId) };
         return playerZones;
     }
 
@@ -27782,11 +27790,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 };
             }
 
+            var beforeReplacement = tokenState;
+            tokenState = ApplyUnitTokenFactoryReplacement(stackItem, tokenIndex, tokenState);
+            var replacedFactory = !ReferenceEquals(beforeReplacement, tokenState);
+            var entryDefinition = replacedFactory && P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var replacementDefinition)
+                ? replacementDefinition : tokenDefinition;
+            var entryHasDefinition = hasTokenDefinition || replacedFactory;
             var entersReadyFromStaticAbility = false;
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
             StaticAbilitySpec entryStaticAbility = default!;
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
                     playerZones,
@@ -27810,15 +27824,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["abilityId"] = trigger.Kind,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = tokenName,
+                ["tokenName"] = entryHasDefinition ? entryDefinition.TokenFamilyName : tokenName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = tokenState.Tags.ToArray(),
                 ["reason"] = trigger.Kind
             };
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
+                payload["tokenCardNo"] = entryDefinition.CardNo;
                 AddEntryStaticAbilityPayload(
                     payload,
                     entersReadyFromStaticAbility ? entryStaticAbility : null,
@@ -29203,6 +29217,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 };
             }
 
+            var beforeReplacement = tokenState;
+            tokenState = ApplyUnitTokenFactoryReplacement(stackItem, tokenIndex, tokenState);
+            var replacedFactory = !ReferenceEquals(beforeReplacement, tokenState);
+            var entryDefinition = replacedFactory && P6TokenFactoryCatalog.TryGetByCardNo(tokenState.TokenFactoryCardNo!, out var replacementDefinition)
+                ? replacementDefinition : tokenDefinition;
+            var entryHasDefinition = hasTokenDefinition || replacedFactory;
             var entersReadyFromStaticAbility = false;
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
@@ -29215,7 +29235,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     behavior.CreatedBaseUnitTokenName, playerZones, cardObjects, runePools, turnEffects, behavior))
                 entryField = ChooseUnitTokenBattlefield(state, stackItem.ControllerId, behavior.CreatedBaseUnitTokenName,
                     playerZones, cardObjects, objectLocations ?? state.ObjectLocations, runePools, turnEffects);
-            if (hasTokenDefinition)
+            if (entryHasDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
                     playerZones,
@@ -29238,7 +29258,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["playerId"] = stackItem.ControllerId,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = behavior.CreatedBaseUnitTokenName,
+                ["tokenName"] = entryHasDefinition ? entryDefinition.TokenFamilyName : behavior.CreatedBaseUnitTokenName,
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = entryField is null ? "BASE" : "BATTLEFIELD"
             };
@@ -29253,14 +29273,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload["copiedCardNo"] = copiedTargetState!.CardNo;
             }
 
-            if (isImageCopyToken)
+            if (isImageCopyToken && !replacedFactory)
             {
                 payload["tokenFactoryCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
                 payload["tokenCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
             }
-            else if (hasTokenDefinition)
+            else if (entryHasDefinition)
             {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
+                payload["tokenCardNo"] = entryDefinition.CardNo;
                 AddEntryStaticAbilityPayload(
                     payload,
                     entersReadyFromStaticAbility ? entryStaticAbility : null,
@@ -30897,6 +30917,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             $"{behavior.DisplayName}临时修正战力",
             payload);
 
+        powerEvent = CaptureDirectMightReduction(powerEvent, powerState, targetState, nextTargetState, stackItem.ControllerId);
         return nextTargetState;
     }
 

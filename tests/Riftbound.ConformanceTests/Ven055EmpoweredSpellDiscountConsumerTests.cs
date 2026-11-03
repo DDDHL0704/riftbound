@@ -477,7 +477,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P1", new EndTurnCommand()); Assert.Equal(0, game.State.RunePools["P2"].Mana);
             await game.TapRunes("P2", Enumerable.Range(0, 9).Select(i => "PURPLE-" + i));
-            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("PURPLE-" + i));
+            await game.Act("P2", new RecycleRuneCommand("PURPLE-0", ["PURPLE-0", "PURPLE-1", "PURPLE-2"]));
             await game.Act("P2", new PlayCardCommand("TAKE", "OGN·203/298", ["UNIT"])); await game.Top();
             Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId); Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
             Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
@@ -502,7 +502,8 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
         try
         {
             await game.WaitFor(actor, 8, No, "OGN·093/298");
-            foreach (var rune in game.Runes(actor).Take(8)) await game.Act(actor, new TapRuneCommand(rune));
+            var fundingRunes = game.Runes(actor).Take(8).ToArray();
+            foreach (var batch in fundingRunes.Chunk(12)) await game.Act(actor, new TapRuneCommand(batch[0], batch));
             Assert.Equal(8, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             var unit = game.Hand(actor, No).First(); await game.Act(actor, new PlayCardCommand(unit, No, []));
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); Assert.Equal(3, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
@@ -510,10 +511,11 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             var spell = game.Hand(actor, "OGN·093/298").First(); await game.Act(actor, new PlayCardCommand(spell, "OGN·093/298", [unit]));
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             // The forgery helper also cold-recovers this unchanged accepted history.
-            await game.RejectCoordinatedForgery("refunded-spell-aura-mana", game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
-                [actor] = game.State.RunePools[actor] with { Mana = 1 } } });
-            await game.RejectCoordinatedForgery("erased-resolved-aura-source-empower", game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
-                [unit] = game.State.CardObjects[unit] with { IsEmpowered = false } } });
+            await game.RejectCoordinatedForgeries(
+                ("refunded-spell-aura-mana", game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+                    [actor] = game.State.RunePools[actor] with { Mana = 1 } } }),
+                ("erased-resolved-aura-source-empower", game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                    [unit] = game.State.CardObjects[unit] with { IsEmpowered = false } } }));
             await game.Top(); Assert.Equal(1, game.Might(actor, unit)); Assert.True(game.State.CardObjects[unit].IsEmpowered);
             await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(4, game.Might(actor, unit)); await game.ColdCheckpoint();

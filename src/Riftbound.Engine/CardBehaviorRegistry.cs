@@ -7,10 +7,12 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
     string? CreatedTokenFactoryCardNo = null, bool RequiresPlayedUnitStrongest = false,
-    bool LeadingSourceExhaust = false, int DiscardCount = 0, int MinimumExhaustedUnits = 0, bool OncePerTurn = false);
+    bool LeadingSourceExhaust = false, int DiscardCount = 0,
+    bool DistinctModesPerTurn = false, bool ConsumesSourceBoonDuringResolution = false,
+    int MinimumExhaustedUnits = 0, bool OncePerTurn = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
-    string? CreatedTokenFactoryCardNo = null);
+    string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
 public sealed record MovementImposedCostSpec(int ManaPerMove = 0, int PowerPerMove = 0, int PowerPerExtraUnit = 0);
@@ -361,6 +363,7 @@ public sealed record CardBehaviorDefinition(
     int DamageConditionRuneCount = 0,
     GrantedActivatedAbilitySpec? GrantsActivatedAbilityUntilEndOfTurn = null,
     OptionalPowerModifierSpec? OptionalPowerModifier = null,
+    string? UnitTokenReplacementFactoryCardNo = null,
     bool CounterRequiresOpponentOtherSpellThisTurn = false,
     int? BasePowerUntilEndOfTurn = null,
     int PreventDamageUntilEndOfTurn = 0,
@@ -9776,8 +9779,43 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "游走|缴械")
     ];
 
+    private static UnitEventAbilitySpec RivenBrokenBladeAbility => new("BECAME_EXHAUSTED", "CHOOSE_MODE",
+        DistinctModesPerTurn: true, Modes: [
+            new("GAIN_BOON", "给予我增益", "BOON_SELF"),
+            new("CONSUME_BOON_STUN", "消耗我的增益，以此眩晕一名敌方单位", "STUN_ENEMY",
+                ConsumesSourceBoonDuringResolution: true),
+            new("CONSUME_BOON_READY", "消耗我的增益，以此让我变为活跃状态", "READY_SELF",
+                ConsumesSourceBoonDuringResolution: true) ]);
+
     private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
     [
+        new("RAD·038/167", "阿狸 · 自信闪耀", 4, "RAD_038_AHRI_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            UnitEventAbility: new("ENEMY_MIGHT_REDUCED_HERE", "MIGHT_SELF", 1)),
+        new("RAD·SP1/005", "阿狸 · 自信闪耀", 4, "RAD_SP1_AHRI_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            UnitEventAbility: new("ENEMY_MIGHT_REDUCED_HERE", "MIGHT_SELF", 1)),
+        new("RAD·132/167", "黑默丁格 · 学院导师", 6, "RAD_132_HEIMERDINGER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "约德尔人",
+            UnitTokenReplacementFactoryCardNo: "SFD·T01"),
+        new("RAD·021/167", "艾克 · 逆时而行", 5, "RAD_021_EKKO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitIsExhausted: false, SourceUnitTags: "强攻"),
+        new("RAD·021a/167", "艾克 · 逆时而行", 5, "RAD_021A_EKKO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitIsExhausted: false, SourceUnitTags: "强攻"),
+        new("RAD·177/167", "艾克 · 逆时而行", 5, "RAD_177_EKKO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitIsExhausted: false, SourceUnitTags: "强攻"),
+        new("RAD·043/167", "锐雯 · 断剑之誓", 4, "RAD_043_RIVEN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            UnitEventAbility: RivenBrokenBladeAbility),
+        new("RAD·043a/167", "锐雯 · 断剑之誓", 4, "RAD_043A_RIVEN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            UnitEventAbility: RivenBrokenBladeAbility),
+        new("RAD·114/167", "锐雯 · 弃暗投明", 5, "RAD_114_RIVEN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            UnitEventAbility: new("ANOTHER_FRIENDLY_UNIT_EXHAUSTED", "MIGHT_SELF", 1)),
+        new("RAD·114a/167", "锐雯 · 弃暗投明", 5, "RAD_114A_RIVEN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            UnitEventAbility: new("ANOTHER_FRIENDLY_UNIT_EXHAUSTED", "MIGHT_SELF", 1)),
         new("RAD·107/167", "祸心陌客", 2, "MALICIOUS_STRANGER_PLAY_UNIT", 0, 2,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "恶魔|待命",
             MinTargetCount: 1, TargetScope: CardTargetScopes.BattlefieldThenEnemyUnit,

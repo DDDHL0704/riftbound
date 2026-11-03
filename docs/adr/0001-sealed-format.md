@@ -1,6 +1,6 @@
 # ADR 0001：现开赛协议、卡包与多局比赛
 
-2026-11-02，已接受，按 BACKLOG 分步接入。最高依据为中国区[赛事规则（10.16 生效）](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf)：403–407、602.1、602.3、602.4.a；主牌包含选定英雄依核心 103.3。
+2026-11-02，已接受，按 BACKLOG 分步接入；2026-11-03 增补锁定配置的本人投影。最高依据为中国区[赛事规则（10.16 生效）](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf)：403–407、602.1、602.3、602.4.a；主牌包含选定英雄依核心 103.3。
 
 ## 前端契约
 
@@ -12,6 +12,7 @@
 | 私有卡池 | 快照顶层 `sealedPool: { setCode, packs: [{ cards: [{ cardNo, slot, foil }] }], pool: [{ cardNo, count }] }`；只向本人返回，对手和观战者为空（序列化可省略空值）。`slot` 为 `common / uncommon / rare_or_better / foil / rune_or_token`；稀有槽、闪卡槽及符文／指示物槽 `foil = true`。 |
 | 提交 | 继续 `SUBMIT_DECK { legendCardNo, championCardNo, mainDeck, runeDeck, battlefields }`；现开传奇／英雄可为 `null` 或空字符串。单局制提交 3 张战场，三局两胜每局提交 1 张。空白战场固定保留编号 `SEALED·BLANK-BATTLEFIELD`，只在现开解释。拒绝返回逐条中文错误。 |
 | 多局 | `series: { bestOf, gameNumber, wins: { 玩家: 数 }, phase, usedBattlefields: { 玩家: [cardNo…] }, playOrderChooserPlayerId }`；`gameNumber` 从 1 起；phase 为 `choosing_play_order / submitting_decks / playing / finished`；已用战场保留重复编号以表达实体数量，本人全部可见，对手仅包含已公开记录，观战者仅包含公开记录。当前实现只在双方准备后同时记入初始战场，两人暗交和单方准备期间不暴露选牌；平局复用同一实体，不在此数组重复扣量。 |
+| 锁定配置 | `series.lockedDeck: { legendCardNo, championCardNo, mainDeck, runeDeck, battlefields } \| null`；仅在本人下一局配置被锁定且仍处于 `choosing_play_order / submitting_decks` 时非空。只含查看者自己的配置，不以玩家编号索引；对手不能收到本人的配置，观战快照及公开回放始终为空；空值可省略。平局后返回上一局完整提交（单局制保留 3 张战场），客户端应允许按此配置重交，不能因 `usedBattlefields` 禁用被强制复用的战场。首局完全跳过后，已登记者返回初始配置；尚未登记者为空，首次合法提交后即返回该配置。跳过局不消耗战场，后续已合法重选的战场随本人的最新提交返回。缺席角色沿用提交契约的空字符串；普通胜负后的自由换备牌、首局、已开局和整场结束均为空。配置来自权威持久化帧，冷恢复与令牌重连后仍返回，换设备不依赖本地缓存。 |
 | 先后手 | 仅 `series.phase = "choosing_play_order"` 时向 `playOrderChooserPlayerId` 提供启用的候选 `CHOOSE_PLAY_ORDER`，另一方只有等待；通过既有 `SubmitIntent` 提交 `{ cmdType: "CHOOSE_PLAY_ORDER", goFirst: true / false }`，表示选择者本人先手／后手。`goFirst` 必须显式为 JSON 布尔值；支持既有 `promptId`／`snapshotTick`。成功后进入 `submitting_decks`，清空 `playOrderChooserPlayerId`；首局双方入座前 `series` 为空，提示等待入座。 |
 | 备牌 | 快照顶层 `sideboardCounts: { 玩家: 数 }` 向双方和观战公开数量（403.6）；牌面、未提交配置和开包结果继续私有。备牌由服务器用可用卡池减去本局配置计算，选定英雄已包含在主牌堆中，不重复扣除；外部基础符文、空白战场及展示用符文／指示物槽不增加卡池。客户端无需另交备牌清单。首次提交前不返回该玩家的数量；局间未重新提交的玩家沿用上一局配置对应的数量，提交后更新自己的数量。 |
 

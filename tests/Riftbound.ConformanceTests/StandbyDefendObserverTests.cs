@@ -104,8 +104,8 @@ public sealed class StandbyDefendObserverTests
         if (sourceLeaves)
         {
             await driver.Act("P1", new PassPriorityCommand());
-            for (var i = 1; i <= 3; i++) await driver.Act("P2", new TapRuneCommand("DEFEND-RUNE-" + i));
-            for (var i = 4; i <= 5; i++) await driver.Act("P2", new RecycleRuneCommand("DEFEND-RUNE-" + i));
+            await driver.Act("P2", new TapRuneCommand("DEFEND-RUNE-1", ["DEFEND-RUNE-1", "DEFEND-RUNE-2", "DEFEND-RUNE-3"]));
+            await driver.Act("P2", new RecycleRuneCommand("DEFEND-RUNE-4", ["DEFEND-RUNE-4", "DEFEND-RUNE-5"]));
             await driver.Act("P2", new PlayCardCommand("GALE", "OGN·169/298", [host]));
             await driver.Top();
             if (tokenSource)

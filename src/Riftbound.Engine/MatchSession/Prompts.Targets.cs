@@ -1976,6 +1976,7 @@ internal static partial class ActionPromptBuilder
             || string.IsNullOrWhiteSpace(cardObject.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
                 && !CoreRuleEngine.IsForeignGraveyardEffectPlay(state, playerId, objectId)
+                && !CoreRuleEngine.IsForeignSelfBanishReplay(state, playerId, objectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == playerId && self.Sources.ContainsKey(objectId)))
         {
             return false;

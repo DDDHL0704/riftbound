@@ -26,7 +26,7 @@ public sealed partial class CoreRuleEngine
             && context.Units is not null && context.Units.All(u => u is { Generation: >= 0 }
                 && u.ObjectId.StartsWith(sourceId + "-TOKEN-", StringComparison.Ordinal)
                 && (!state.CardObjects.TryGetValue(u.ObjectId, out var unit) || u.Generation <= unit.ObjectGeneration
-                    && (u.Generation != unit.ObjectGeneration || unit.TokenFactoryCardNo == P6TokenFactoryCatalog.SandSoldierTokenCardNo)))
+                    && (u.Generation != unit.ObjectGeneration || (unit.TokenFactoryCardNo == P6TokenFactoryCatalog.SandSoldierTokenCardNo || unit.TokenFactoryCardNo == "SFD·T01"))))
             && context.Units.Select(u => u.ObjectId).Distinct(StringComparer.Ordinal).Count() == context.Units.Count;
 
     private static bool CreatedTokenReadyHasPayment(StackItemState item)

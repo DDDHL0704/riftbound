@@ -25,6 +25,20 @@ public static class SealedSeriesDecks
     internal static string? ForcedBattlefield(MatchState state, string playerId) => AfterDraw(state)
         ? state.SealedBattlefieldHistory![^1].Cards[playerId] : null;
 
+    internal static SealedLockedDeckDto? LockedDeckFor(MatchState state, string? playerId)
+    {
+        if (state.SessionOptions?.DeckFormat != OfficialDeckFormat.Sealed
+            || playerId is null || !state.Seats.ContainsKey(playerId)) return null;
+        var previous = state.LastCompletedSeriesGame?.State.PlayerDecklists.GetValueOrDefault(playerId);
+        // A skipped opening has not revealed or consumed a battlefield. Keep
+        // the player's latest legal selection while their main configuration
+        // remains locked; an unregistered player has nothing to recover yet.
+        var deck = AfterDraw(state) ? previous : AfterSkippedFirstGame(state)
+            ? state.PlayerDecklists.GetValueOrDefault(playerId) ?? previous : null;
+        return deck is null ? null : new(deck.LegendCardNo, deck.ChampionCardNo,
+            deck.MainDeck.ToArray(), deck.RuneDeck.ToArray(), deck.Battlefields.ToArray());
+    }
+
     public static IReadOnlyList<string> SubmissionErrors(MatchState state, string playerId, OfficialDecklist deck)
     {
         if (state.SessionOptions?.DeckFormat != OfficialDeckFormat.Sealed) return [];

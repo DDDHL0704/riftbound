@@ -261,6 +261,51 @@ public sealed class RadChronobreakBoundaryTests
     }
 
     [Theory]
+    [InlineData("P1", "ALLY")]
+    [InlineData("P2", "ENEMY")]
+    public async Task OneOwnersRestrictedCardCanStayBanishedWithoutBlockingTheOtherOwnersReplay(
+        string restrictedOwner, string restrictedId)
+    {
+        const string restrictedCard = "SFD·015/221";
+        var initial = LocalDestructionRecallTests.At(Position(), "ENEMY", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            [restrictedId] = OfficialGarenConquestBattlefieldCountTests.Printed(restrictedId, restrictedCard, restrictedOwner)
+                with { ControllerId = "P1" } } };
+        var g = new Driver(initial); await g.Act("P1", Cast(2)); await g.Top();
+        Assert.Equal(["ALLY", "ENEMY"], g.State.StackItems.Select(item => item.SourceObjectId));
+        var p1Resources = g.State.RunePools["P1"]; var p2Resources = g.State.RunePools["P2"];
+        foreach (var (owner, id) in new[] { ("P1", "ALLY"), ("P2", "ENEMY") })
+        {
+            var pending = Assert.IsType<PendingEffectPlayState>(g.State.PendingEffectPlay);
+            Assert.Equal(owner, pending.PlayerId); Assert.Equal(id, Assert.Single(pending.Sources).Key);
+            if (id == restrictedId)
+            {
+                var play = new PlayCardCommand(id, restrictedCard, []);
+                Assert.False(new CoreRuleEngine().PreviewPlayCard(g.State, owner, PlayCostPreviewTests.Request(g.State, play)).CanPay);
+                var generation = g.State.CardObjects[id].ObjectGeneration;
+                await g.Act(owner, new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
+                Assert.Contains(id, g.State.PlayerZones[owner].Banished);
+                Assert.Equal(new ObjectLocationState(owner, "BANISHED"), g.State.ObjectLocations[id]);
+                Assert.Equal(generation + 1, g.State.CardObjects[id].ObjectGeneration);
+            }
+            else
+            {
+                await g.Act(owner, new PlayCardCommand(id, Unit, []));
+                Assert.Contains(id, g.State.PlayerZones[owner].Base);
+                Assert.Equal(owner, g.State.CardObjects[id].ControllerId);
+            }
+            Assert.Equal(p1Resources, g.State.RunePools["P1"]);
+            Assert.Equal(p2Resources, g.State.RunePools["P2"]);
+        }
+        Assert.Null(g.State.PendingEffectPlay); Assert.Empty(g.State.StackItems);
+        Assert.Single(g.Events(), row => row.Event.Kind == "EFFECT_PLAY_UNABLE"
+            && Equals(row.Event.Payload.GetValueOrDefault("targetObjectId"), restrictedId));
+        Assert.DoesNotContain(g.Events(), row => row.Event.Kind == "CARD_PLAYED"
+            && Equals(row.Event.Payload.GetValueOrDefault("sourceObjectId"), restrictedId));
+        await g.Replay();
+    }
+
+    [Theory]
     [InlineData("units")] [InlineData("fact")] [InlineData("binding")]
     public async Task PersistedRecoveryRejectsMalformedReplayFactsWithoutThrowing(string mutation)
     {
