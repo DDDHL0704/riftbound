@@ -130,7 +130,7 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
                 ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
                 ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
         }
-        var game = new Driver(initial);
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         await game.TapRunes("P1", Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i).Append("EMPOWER-RUNE"));
         await game.Act("P1", new RecycleRuneCommand("EMPOWER-RUNE"));
         await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top();
@@ -143,6 +143,11 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
         await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
         // Keep both physical destruction-payment runes in their original order.
         await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0", ["P2-RUNE-0", "P2-RUNE-1"]));
+        // Restore the full paid empower/copy preparation before actual death.
+        // Birth capture, malformed/private receipts and later consumption retain
+        // per-command recovery and the complete original action-log replay.
+        await game.ColdCheckpoint();
+        game.RecoverAfterEveryCommand = true;
         await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
         Assert.Equal(3, game.State.TriggerQueue.Count); Assert.Empty(game.State.StackItems); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         return (initial, game);

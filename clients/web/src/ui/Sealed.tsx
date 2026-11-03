@@ -7,6 +7,7 @@ import { MAIN_CATEGORIES, RUNES } from "../game/decks";
 import {
   basicRunePrintings,
   breaksTraits,
+  deckLock,
   deckTraits,
   evenRunes,
   fieldsNeeded,
@@ -19,6 +20,7 @@ import {
   seriesScore,
   usedCounts,
   writeDraft,
+  type DeckLock,
   type SealedDeck,
 } from "../game/sealed";
 import type { CardInfo, MatchSeries, Prompt, SealedPackCard, SealedPool, Snapshot } from "../game/types";
@@ -40,6 +42,10 @@ export function SealedScreen({ state, snapshot, prompt }: { state: ClientState; 
   const me = snapshot.players[state.handle];
   const opponent = Object.values(snapshot.players).find((p) => p.id !== state.handle);
   const bestOf = snapshot.bestOf ?? series?.bestOf ?? 1;
+  const lock = deckLock(series, state.handle);
+  // The server's copy wins, so a reconnect on another device needs nothing from this browser.
+  const lockedDeck = series?.lockedDeck;
+  const deck = lockedDeck ? { ...lockedDeck, battlefields: lock === "all" || !draft.deck.battlefields.length ? lockedDeck.battlefields : draft.deck.battlefields } : draft.deck;
 
   const update = (next: typeof draft) => {
     setDraft(next);
@@ -50,6 +56,7 @@ export function SealedScreen({ state, snapshot, prompt }: { state: ClientState; 
   const gameNumber = series?.gameNumber ?? 1;
   useEffect(() => {
     if (!pool || draft.forGame === gameNumber) return;
+    if (lock !== "none") return update({ ...draft, forGame: gameNumber, packsOpened: pool.packs.length, deck });
     const owned = poolCounts(pool);
     const left = new Map<string, number>();
     const battlefields = draft.deck.battlefields.filter((no) => {
@@ -62,16 +69,17 @@ export function SealedScreen({ state, snapshot, prompt }: { state: ClientState; 
   }, [gameNumber, pool]);
 
   let body;
-  if (series?.phase === "choosing_play_order") body = <PlayOrder series={series} meId={state.handle} prompt={prompt} pending={state.pending} />;
+  if (series?.phase === "choosing_play_order") body = <PlayOrder series={series} meId={state.handle} prompt={prompt} pending={state.pending} drawn={lock === "all"} />;
   else if (!pool) body = <p className="sealed__wait muted">{prompt?.reason ?? "等待服务器发放卡包…"}</p>;
-  else if (draft.packsOpened < pool.packs.length)
+  else if (lock === "none" && draft.packsOpened < pool.packs.length)
     body = <PackOpening pool={pool} opened={draft.packsOpened} onOpened={(n) => update({ ...draft, packsOpened: n })} />;
   else
     body = (
       <SealedBuilder
         pool={pool}
         bestOf={bestOf}
-        deck={draft.deck}
+        deck={deck}
+        lock={lock}
         onChange={(deck) => update({ ...draft, deck })}
         prompt={prompt}
         pending={state.pending}
@@ -114,7 +122,7 @@ export function SealedScreen({ state, snapshot, prompt }: { state: ClientState; 
   );
 }
 
-function PlayOrder({ series, meId, prompt, pending }: { series: MatchSeries; meId: string; prompt: Prompt | null; pending: boolean }) {
+function PlayOrder({ series, meId, prompt, pending, drawn }: { series: MatchSeries; meId: string; prompt: Prompt | null; pending: boolean; drawn: boolean }) {
   const chooser = series.playOrderChooserPlayerId;
   const canChoose = Boolean(enabledCandidate(prompt, "CHOOSE_PLAY_ORDER"));
   const first = series.gameNumber === 1;
@@ -123,7 +131,7 @@ function PlayOrder({ series, meId, prompt, pending }: { series: MatchSeries; meI
       <h2>{series.bestOf > 1 ? `第 ${series.gameNumber} 局 · 先后手` : "先后手"}</h2>
       {canChoose ? (
         <>
-          <p className="muted">{first ? "你被随机选中来决定先后手。" : `第 ${series.gameNumber - 1} 局你落败，由你决定这一局的先后手。`}</p>
+          <p className="muted">{first ? "你被随机选中来决定先后手。" : drawn ? "上一局打平，由你决定这一局的先后手。" : `第 ${series.gameNumber - 1} 局你落败，由你决定这一局的先后手。`}</p>
           <div className="lobby__row">
             <button className="btn btn--primary" disabled={pending} onClick={() => void client.submit({ cmdType: "CHOOSE_PLAY_ORDER", goFirst: true })}>
               我先手
@@ -134,7 +142,7 @@ function PlayOrder({ series, meId, prompt, pending }: { series: MatchSeries; meI
           </div>
         </>
       ) : (
-        <p className="muted">{chooser && chooser !== meId ? `${first ? "" : `第 ${series.gameNumber - 1} 局你获胜。`}等待 ${chooser} 决定先后手…` : (prompt?.reason ?? "等待服务器…")}</p>
+        <p className="muted">{chooser && chooser !== meId ? `${first ? "" : drawn ? "上一局打平。" : `第 ${series.gameNumber - 1} 局你获胜。`}等待 ${chooser} 决定先后手…` : (prompt?.reason ?? "等待服务器…")}</p>
       )}
     </section>
   );
@@ -228,6 +236,7 @@ type BuilderProps = {
   pool: SealedPool;
   bestOf: number;
   deck: SealedDeck;
+  lock: DeckLock;
   onChange: (deck: SealedDeck) => void;
   prompt: Prompt | null;
   pending: boolean;
@@ -237,9 +246,10 @@ type BuilderProps = {
   gameNumber: number;
 };
 
-function SealedBuilder({ pool, bestOf, deck, onChange, prompt, pending, submitted, usedBefore, opponentSideboard, gameNumber }: BuilderProps) {
+function SealedBuilder({ pool, bestOf, deck, lock, onChange, prompt, pending, submitted, usedBefore, opponentSideboard, gameNumber }: BuilderProps) {
   const cards = useCards();
-  const [tab, setTab] = useState<Tab>("main");
+  const [chosenTab, setTab] = useState<Tab>("main");
+  const tab = lock === "none" ? chosenTab : "fields";
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState(0);
   const [color, setColor] = useState<string | null>(null);
@@ -251,10 +261,12 @@ function SealedBuilder({ pool, bestOf, deck, onChange, prompt, pending, submitte
   const owned = useMemo(() => poolCounts(pool), [pool]);
   const used = useMemo(() => usedCounts(deck), [deck]);
   const traits = deckTraits(deck);
-  const problems = sealedProblems(deck, pool, bestOf, usedBefore);
+  // A draw forces the deck the server already accepted, including a battlefield that now counts as used.
+  const problems = lock === "all" ? [] : sealedProblems(deck, pool, bestOf, usedBefore);
   const fields = fieldsNeeded(bestOf);
   const set = (patch: Partial<SealedDeck>) => {
-    if (!locked) onChange({ ...deck, ...patch });
+    if (locked || lock === "all" || (lock === "deck" && Object.keys(patch).some((k) => k !== "battlefields"))) return;
+    onChange({ ...deck, ...patch });
   };
 
   const inCategory = (test: (c: CardInfo) => boolean) =>
@@ -332,12 +344,39 @@ function SealedBuilder({ pool, bestOf, deck, onChange, prompt, pending, submitte
     ["roles", "传奇 · 英雄", `${(deck.legendCardNo ? 1 : 0) + (deck.championCardNo ? 1 : 0)}/2`, true], // both are optional in sealed
   ];
   const missing = (deck.legendCardNo ? 0 : 1) + (deck.championCardNo ? 0 : 1);
+  const submit = () =>
+    void client.submit({
+      cmdType: "SUBMIT_DECK",
+      legendCardNo: deck.legendCardNo || null,
+      championCardNo: deck.championCardNo || null,
+      mainDeck: deck.mainDeck,
+      runeDeck: deck.runeDeck,
+      battlefields: deck.battlefields,
+    });
 
   return (
     <div className="db__body sealed__body">
+      {lock === "all" ? (
+        <section className="db__pick sealed__rematch">
+          <h2>第 {gameNumber} 局 · 打平重赛</h2>
+          <p className="muted">上一局打平，这一局要用同样的卡组和战场，不能换备牌。</p>
+          <div className="sealed__rematch-fields">
+            {deck.battlefields.map((no, i) => {
+              const c = cardInfo(no);
+              return <figure key={`${no}-${i}`}>{c?.image ? <img src={c.image} alt={c.name} /> : null}<figcaption>{c?.name ?? no}</figcaption></figure>;
+            })}
+          </div>
+          {canSubmit && (
+            <button className="btn btn--primary" disabled={pending} onClick={submit}>
+              沿用这副牌开始第 {gameNumber} 局
+            </button>
+          )}
+        </section>
+      ) : (
       <section className="db__pick">
+        {lock === "deck" && <p className="sealed__lock-note">第一局被跳过，卡组不能再改，这一局只能重选战场。</p>}
         <nav className="db__tabs" role="tablist">
-          {tabs.map(([id, label, count, ok]) => (
+          {tabs.filter(([id]) => lock === "none" || id === "fields").map(([id, label, count, ok]) => (
             <button key={id} role="tab" aria-selected={tab === id} className={`db__tab${tab === id ? " is-on" : ""}`} onClick={() => setTab(id)}>
               {label}
               <small className={ok ? "is-ok" : ""}>{count}</small>
@@ -432,6 +471,7 @@ function SealedBuilder({ pool, bestOf, deck, onChange, prompt, pending, submitte
           </div>
         )}
       </section>
+      )}
 
       <aside className="db__side">
         <div className="sealed__traits" aria-label={`特性 ${traits.length} / ${MAX_TRAITS}`}>
@@ -443,7 +483,7 @@ function SealedBuilder({ pool, bestOf, deck, onChange, prompt, pending, submitte
             {traits.length}/{MAX_TRAITS}
           </b>
         </div>
-        <SealedList deck={deck} locked={locked} onPeek={setPeek} onAdd={addMain} onRemove={removeMain} />
+        <SealedList deck={deck} locked={locked || lock !== "none"} onPeek={setPeek} onAdd={addMain} onRemove={removeMain} />
         <p className="small sealed__side-counts">
           <span>备牌 {sideboard} 张</span>
           {opponentSideboard !== undefined && <span className="muted">对手备牌 {opponentSideboard} 张</span>}
@@ -455,21 +495,8 @@ function SealedBuilder({ pool, bestOf, deck, onChange, prompt, pending, submitte
             ))}
           </ul>
         )}
-        {canSubmit && (
-          <button
-            className="btn btn--primary"
-            disabled={pending || problems.length > 0}
-            onClick={() =>
-              void client.submit({
-                cmdType: "SUBMIT_DECK",
-                legendCardNo: deck.legendCardNo || null,
-                championCardNo: deck.championCardNo || null,
-                mainDeck: deck.mainDeck,
-                runeDeck: deck.runeDeck,
-                battlefields: deck.battlefields,
-              })
-            }
-          >
+        {canSubmit && lock !== "all" && (
+          <button className="btn btn--primary" disabled={pending || problems.length > 0} onClick={submit}>
             {gameNumber > 1 ? `用这副牌打第 ${gameNumber} 局` : "提交卡组"}
           </button>
         )}

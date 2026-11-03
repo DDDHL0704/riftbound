@@ -101,12 +101,79 @@ class AffectedRuleTests(unittest.TestCase):
                 classes, _ = runner.select_affected_test_classes(paths, diff, files, sources)
                 self.assertEqual({expected, 'OfficialOpeningTests'}, classes)
 
-    def test_affected_selection_requires_base_to_be_an_ancestor(self):
-        failure = subprocess.CalledProcessError(1, ['git', 'merge-base'])
-        with patch.object(runner, '_git_text', side_effect=['head-sha', 'base-sha']), \
-             patch.object(runner.subprocess, 'run', side_effect=failure):
-            with self.assertRaisesRegex(runner.AffectedBranchOutOfDate, 'sync origin/main'):
-                runner.affected_selection('origin/main', repo=Path('/tmp/repo'))
+
+class AffectedGitHistoryTests(unittest.TestCase):
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        self.repo = Path(self.folder.name)
+        self.git('init', '--initial-branch=main')
+        self.write('src/Riftbound.Engine/Foo.cs', 'public class Foo {}')
+        self.write('tests/Riftbound.ConformanceTests/FooTests.cs',
+                   'public class FooTests { Foo value; }')
+        self.write('tests/Riftbound.ConformanceTests/UnrelatedTests.cs',
+                   'public class UnrelatedTests {}')
+        self.write('tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs',
+                   'public class OfficialOpeningTests {}')
+        self.common = self.commit('common')
+        self.git('branch', 'topic')
+        self.write('src/Riftbound.Engine/MainOnly.cs', 'public class MainOnly {}')
+        self.write('tests/Riftbound.ConformanceTests/MainOnlyTests.cs',
+                   'public class MainOnlyTests { MainOnly value; }')
+        self.base = self.commit('main advances')
+        self.git('switch', 'topic')
+
+    def git(self, *args):
+        return subprocess.check_output(
+            ['git', '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', *args],
+            cwd=self.repo, stderr=subprocess.PIPE, text=True).strip()
+
+    def write(self, name, text):
+        path = self.repo / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding='utf-8')
+
+    def commit(self, message):
+        self.git('add', '.')
+        self.git('commit', '-m', message)
+        return self.git('rev-parse', 'HEAD')
+
+    def test_diverged_topic_selects_its_own_source_consumers_without_merging_main(self):
+        self.write('src/Riftbound.Engine/Foo.cs', 'public class Foo { public int Value; }')
+        head = self.commit('topic changes Foo')
+
+        selection = runner.affected_selection('main', repo=self.repo)
+
+        self.assertEqual(self.base, selection['baseSha'])
+        self.assertEqual(head, selection['headSha'])
+        self.assertEqual(self.common, selection['mergeBase'])
+        self.assertEqual(['src/Riftbound.Engine/Foo.cs'], selection['changedPaths'])
+        self.assertEqual(['FooTests', 'OfficialOpeningTests'], selection['classes'])
+        self.assertEqual('(FullyQualifiedName~FooTests|FullyQualifiedName~OfficialOpeningTests)',
+                         selection['filter'])
+        self.assertEqual(head, self.git('rev-parse', 'HEAD'))
+        self.assertEqual(self.base, self.git('rev-parse', 'main'))
+        self.assertEqual('', self.git('status', '--porcelain'))
+
+    def test_topic_behind_main_still_selects_mandatory_guards(self):
+        selection = runner.affected_selection('main', repo=self.repo)
+
+        self.assertEqual(self.base, selection['baseSha'])
+        self.assertEqual(self.common, selection['headSha'])
+        self.assertEqual(self.common, selection['mergeBase'])
+        self.assertEqual([], selection['changedPaths'])
+        self.assertEqual(['OfficialOpeningTests'], selection['classes'])
+        self.assertEqual(self.common, self.git('rev-parse', 'HEAD'))
+
+    def test_missing_or_unrelated_base_cannot_produce_a_selection(self):
+        with self.assertRaisesRegex(ValueError, 'rev-parse'):
+            runner.affected_selection('missing-base', repo=self.repo)
+        self.git('switch', '--orphan', 'unrelated')
+        self.write('unrelated.txt', 'separate history')
+        self.commit('unrelated root')
+        self.git('switch', 'topic')
+        with self.assertRaisesRegex(ValueError, 'merge-base'):
+            runner.affected_selection('unrelated', repo=self.repo)
 
 
 class AffectedExecutionTests(unittest.TestCase):

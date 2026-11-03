@@ -1698,6 +1698,12 @@ public static partial class MatchRecoveryValidator
                 decklist.Battlefields,
                 errors,
                 rejectRedactionSentinel: true);
+            if (decklist.AdditionalLegendCardNos is { } additionalLegends)
+                ValidateAuthoritativeStateStringListValues(
+                    $"decklist for {playerLabel} additional legend card",
+                    additionalLegends,
+                    errors,
+                    rejectRedactionSentinel: true);
         }
     }
 

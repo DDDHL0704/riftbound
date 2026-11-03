@@ -735,7 +735,8 @@ public static partial class MatchRecoveryValidator
     private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(
         object? effectPayload,
         IReadOnlySet<string> knownObjectIds,
-        List<string> errors)
+        List<string> errors,
+        string? historicalSourceObjectId = null)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
         var effectValues = ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
@@ -829,7 +830,8 @@ public static partial class MatchRecoveryValidator
             effectLabel,
             knownObjectIds,
             "object registry",
-            errors);
+            errors,
+            historicalSourceObjectId);
         return effectValues;
     }
 

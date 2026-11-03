@@ -330,7 +330,7 @@ public static partial class MatchRecoveryValidator
             ValidateSnapshotTimingPaymentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPaymentPowerTraitPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPendingPaymentScalarPayloadValues(view, errors);
-            ValidateSnapshotTimingPendingPaymentListPayloadValues(view, errors);
+            ValidateSnapshotTimingPendingPaymentListPayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingPendingTaskQueuePayloadShape(view, errors);
             ValidateSnapshotTimingPendingTaskQueuePayloadPropertyNames(view, errors);
             ValidateSnapshotTimingPendingTaskQueueTaskPayloadShapes(view, errors);
