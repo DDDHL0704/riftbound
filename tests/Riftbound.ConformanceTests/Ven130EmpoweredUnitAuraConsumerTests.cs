@@ -297,7 +297,7 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
             Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal(6, Might(game.State, "NEW-FRIEND", thief));
             await game.Act(originalController, new EndTurnCommand()); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
             await game.TapRunes(thief, Enumerable.Range(0, 9).Select(i => "CONTROL-RUNE-" + i));
-            for (var i = 0; i < 3; i++) await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             Assert.Equal(9, game.State.RunePools[thief].Mana); Assert.Equal(3, game.State.RunePools[thief].PowerByTrait[RuneTrait.Purple]);
             await game.Act(thief, new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();
             Assert.Equal(thief, game.State.CardObjects["TAKEN"].ControllerId); Assert.Equal(originalController, game.State.CardObjects["TAKEN"].OwnerId);

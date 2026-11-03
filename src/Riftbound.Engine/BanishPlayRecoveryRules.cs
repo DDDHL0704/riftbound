@@ -22,6 +22,12 @@ internal static class BanishPlayRecoveryRules
                 && c.CardEffect.Contains(instruction.Text, StringComparison.Ordinal))
             .Select(c => c.CardNo).ToHashSet(StringComparer.Ordinal));
 
+    private static readonly Lazy<IReadOnlySet<string>> SelfReplayPrintedSources = new(() =>
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
+            .Where(c => c.CardNo is "RAD·021/167" or "RAD·021a/167" or "RAD·177/167")
+            .Where(c => c.CardEffect.Contains("放逐我，然后将我打出到你的基地，无视我的费用。", StringComparison.Ordinal))
+            .Select(c => c.CardNo).ToHashSet(StringComparer.Ordinal));
+
     internal static bool Applies(PendingEffectPlayState pending)
         => pending.SourceZone == "BANISHED" || Instructions.ContainsKey(pending.Parent.CardNo);
 
@@ -31,6 +37,9 @@ internal static class BanishPlayRecoveryRules
             return CoreRuleEngine.ValidLinkedExileEffectPlay(state, pending);
         if (pending.Parent.LastBreathBattlefieldDamage?.Kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathBanishDeckTopPlay)
             return CoreRuleEngine.ValidLastBreathDeckTopPlay(state, pending);
+        if (pending.Parent.SimpleActivation is not null)
+            return SelfReplayPrintedSources.Value.Contains(pending.Parent.CardNo)
+                && CoreRuleEngine.ValidSelfBanishReplayEffectPlay(state, pending);
         var parent = pending.Parent;
         if (!Instructions.TryGetValue(parent.CardNo, out var instruction) || !PrintedSources.Value.Contains(parent.CardNo)
             || parent.EffectKind != instruction.EffectKind || parent.EffectPlayCompleted || parent.SourceConfirmed

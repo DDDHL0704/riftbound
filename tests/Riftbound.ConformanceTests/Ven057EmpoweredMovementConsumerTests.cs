@@ -184,7 +184,7 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             await game.Act("P2", new EndTurnCommand());
             await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
             await game.TapRunes("P1", Enumerable.Range(0, 8).Select(i => "CONTROL-RUNE-" + i));
-            for (var i = 0; i < 3; i++) await game.Act("P1", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.Act("P1", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             var draws = Draws(game, "P1"); await game.Act("P1", new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();
             Assert.Equal("P1", game.State.CardObjects["TAKEN"].ControllerId); Assert.Equal("P2", game.State.CardObjects["TAKEN"].OwnerId);
             Assert.Equal("BASE", game.State.ObjectLocations["TAKEN"].Zone); Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered);
@@ -280,7 +280,7 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             await game.Act(owner, new PlayCardCommand("TAKEN", No, [], Destination: "BATTLEFIELD:" + (owner == "P1" ? "BF" : "OTHER")));
             await game.Act(owner, new ActivateAbilityCommand("TAKEN", "EMPOWER:0:0", [])); await game.Top(); await game.Act(owner, new EndTurnCommand());
             await game.TapRunes(thief, Enumerable.Range(0, 10).Select(i => "CONTROL-RUNE-" + i));
-            for (var i = 0; i < 3; i++) await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
             await game.Act(thief, new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();
             Assert.Equal(2, game.State.RunePools[thief].Mana); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
             Assert.Equal(owner, game.State.CardObjects["TAKEN"].OwnerId); Assert.Equal(thief, game.State.CardObjects["TAKEN"].ControllerId);

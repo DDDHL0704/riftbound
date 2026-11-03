@@ -29,7 +29,8 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First(id => game.State.CardObjects[id].CardNo == "UNL-R02")));
             var spell = game.Hand("P1", No).First();
             await game.Act("P1", new PlayCardCommand(spell, No, [unit], Mode: remove ? Remove : Empower));
-            await game.Top(); await game.ColdCheckpoint();
+            await game.Top();
+            // The forgery group below cold-recovers this unchanged accepted history.
             Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
             Assert.Contains(spell, game.State.PlayerZones["P1"].Graveyard);
             const string prefix = "DELAYED_EMPOWER:";
@@ -44,14 +45,15 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             MatchState Replace(DelayedEmpowerContext replacement) => game.State with {
                 UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(e => e == marker
                     ? prefix + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(replacement)) : e).ToArray() };
-            await game.RejectCoordinatedForgery("deleted-delayed-inverse", game.State with {
-                UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Where(e => e != marker).ToArray() });
-            await game.RejectCoordinatedForgery("opposite-delayed-inverse", Replace(context with {
-                CreatingEffectKind = remove ? "TEMPORARY_EMPOWER_UNIT" : "TEMPORARY_REMOVE_EMPOWER_UNIT" }));
-            await game.RejectCoordinatedForgery("different-old-unit-generation", Replace(context with {
-                Unit = context.Unit with { Generation = context.Unit.Generation - 1 } }));
-            await game.RejectCoordinatedForgery("different-old-source-generation", Replace(context with {
-                Source = context.Source with { Generation = context.Source.Generation - 1 } }));
+            await game.RejectCoordinatedForgeries(
+                ("deleted-delayed-inverse", game.State with {
+                    UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Where(e => e != marker).ToArray() }),
+                ("opposite-delayed-inverse", Replace(context with {
+                    CreatingEffectKind = remove ? "TEMPORARY_EMPOWER_UNIT" : "TEMPORARY_REMOVE_EMPOWER_UNIT" })),
+                ("different-old-unit-generation", Replace(context with {
+                    Unit = context.Unit with { Generation = context.Unit.Generation - 1 } })),
+                ("different-old-source-generation", Replace(context with {
+                    Source = context.Source with { Generation = context.Source.Generation - 1 } })));
             await game.RejectCoordinatedForgeryTwiceThenRecover("different-delay-birth-tick", Replace(context with {
                 CreatedAtTick = context.CreatedAtTick - 1 }));
 
