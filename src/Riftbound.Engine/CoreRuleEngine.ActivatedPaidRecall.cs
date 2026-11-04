@@ -17,7 +17,7 @@ public sealed partial class CoreRuleEngine
         var id = item.TargetObjectIds.Single();
         var legal = item.BorrowedExhaust is { } borrowed
             ? IsBorrowedExhaustTarget(state, item.ControllerId, id,
-                BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex)!, item.SourceObjectId)
+                BorrowedExhaustRules.Spec(state, borrowed)!, item.SourceObjectId)
             : P4ActivatedAbilityCatalog.TryGetByAbilityId(item.SimpleActivation!.AbilityId, out var ability)
                 && IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, id, ability);
         if (!StackObjectRules.ReferencesCurrentObject(state, item, id) || !legal) return NoopStackResolutionResult(state);

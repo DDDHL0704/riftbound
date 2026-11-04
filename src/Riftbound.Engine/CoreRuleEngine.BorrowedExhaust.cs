@@ -188,7 +188,10 @@ public sealed partial class CoreRuleEngine
             ability.Spec.EmpoweredMight.HasValue || ability.Spec.ReadyTargetIfSourceEmpowered ? source.IsEmpowered : null,
             ability.Spec.RequiresPlayedArmamentThisTurn,
             ability.Spec.TargetScope == "FRIENDLY_DUEL_UNIT" ? new(state.SpellDuelState.BattlefieldObjectId!,
-                cards[state.SpellDuelState.BattlefieldObjectId!].ObjectGeneration) : null);
+                cards[state.SpellDuelState.BattlefieldObjectId!].ObjectGeneration) : null,
+            BattlefieldSource: ability.BattlefieldSource,
+            BattlefieldCardNo: ability.BattlefieldCardNo,
+            BattlefieldAbilityKind: ability.BattlefieldAbilityKind);
         foreach (var cost in unitExhaustCosts)
         {
             var id = cost[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
@@ -315,7 +318,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
-        var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        var spec = BorrowedExhaustRules.Spec(state, c)!;
         // 396/398: only the activated component was inherited. Its donor's
         // play trigger and exile references belong to another text instance.
         if (spec.Kind == "PLAY_LINKED_EXILE") return NoopStackResolutionResult(state);
@@ -330,6 +333,8 @@ public sealed partial class CoreRuleEngine
             return ResolveBorrowedReturnSkill(state, item, spec);
         if (spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT")
             return ResolveBorrowedArmamentSkill(state, item, spec);
+        if (spec.Kind == "BATTLEFIELD_UNIT_GAIN_EXPERIENCE")
+            return ResolveBorrowedBattlefieldUnitGainExperience(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
         if (spec.Kind == "GRANT_NEXT_UNIT_READY") return ResolveActivatedNextUnitReady(state, item);
         if (spec.Kind == "GRANT_NEXT_SPELL_DAMAGE") return ResolveActivatedNextSpellDamage(state, item);
@@ -507,6 +512,37 @@ public sealed partial class CoreRuleEngine
         return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones, Events = events,
             RunePools = cleanup.RunePools, TriggerQueue = cleanup.TriggerQueue, DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds,
             ObjectLocations = ReconcileObjectLocations(locations, zones) };
+    }
+
+    private static StackResolutionResult ResolveBorrowedBattlefieldUnitGainExperience(
+        MatchState state, StackItemState item, BorrowedExhaustSpec spec)
+    {
+        var context = item.BorrowedExhaust!;
+        var events = new List<GameEvent>
+        {
+            new("ABILITY_RESOLVED", "获得的战场经验技能结算", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId,
+                ["abilityId"] = context.BattlefieldAbilityKind,
+                ["battlefieldObjectId"] = context.BattlefieldSource?.ObjectId,
+                ["battlefieldCardNo"] = context.BattlefieldCardNo })
+        };
+        if (spec.ExperienceGain <= 0)
+            return NoopStackResolutionResult(state) with { Events = events };
+        var sourceCardNo = state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+            && source.ObjectGeneration == context.Borrower.Object.Generation
+            ? source.CardNo : context.Borrower.CardNo;
+        events.Add(new("BATTLEFIELD_TRIGGER_RESOLVED", "通过战场授予技能获得经验", new Dictionary<string, object?> {
+            ["playerId"] = item.ControllerId, ["battlefieldObjectId"] = context.BattlefieldSource?.ObjectId,
+            ["battlefieldCardNo"] = context.BattlefieldCardNo, ["sourceObjectId"] = item.SourceObjectId,
+            ["abilityId"] = context.BattlefieldAbilityKind,
+            ["trigger"] = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE", ["amount"] = spec.ExperienceGain }));
+        var experience = GainExperience(state.PlayerExperience, item.ControllerId, spec.ExperienceGain,
+            item, events, item.SourceObjectId, sourceCardNo);
+        return NoopStackResolutionResult(state) with {
+            PlayerExperience = experience,
+            UntilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(state.UntilEndOfTurnEffects, events),
+            Events = events
+        };
     }
 
     private static ResolutionResult RecordBorrowedSourceStatus(MatchState before, ResolutionResult result)

@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
     private static bool IsDestroyDeckPlayTarget(MatchState state, StackItemState item, string id)
         => item.BorrowedExhaust is { } borrowed
             ? IsBorrowedExhaustTarget(state, item.ControllerId, id,
-                BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex)!, item.SourceObjectId)
+                BorrowedExhaustRules.Spec(state, borrowed)!, item.SourceObjectId)
             : IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestTarget(state.PlayerZones, state.CardObjects,
                 item.ControllerId, item.SourceObjectId, id);
 

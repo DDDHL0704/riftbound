@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 using Riftbound.CardCatalog;
+using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
@@ -12,9 +13,12 @@ public sealed record BorrowedTextSource(ObjectBinding Object, string CardNo, str
 public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, BorrowedTextSource Donor,
     int AbilityIndex, long AcquiredTick, bool BorrowerWasEmpowered,
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false,
-    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null, PaidUnitReference? ExhaustedCostUnit = null);
+    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null,
+    PaidUnitReference? ExhaustedCostUnit = null, ObjectBinding? BattlefieldSource = null,
+    string? BattlefieldCardNo = null, string? BattlefieldAbilityKind = null);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
-    RuleTextInstance DonorText, BorrowedExhaustSpec Spec);
+    RuleTextInstance DonorText, BorrowedExhaustSpec Spec, ObjectBinding? BattlefieldSource = null,
+    string? BattlefieldCardNo = null, string? BattlefieldAbilityKind = null);
 
 internal static class BorrowedExhaustRules
 {
@@ -28,6 +32,32 @@ internal static class BorrowedExhaustRules
         && BorrowedExhaustParser.InheritsFriendlyExhaustAbilities(card.CardEffect);
     internal static BorrowedExhaustSpec? Spec(string cardNo, int index)
         => Specs.Value.GetValueOrDefault(cardNo, []).FirstOrDefault(s => s.Index == index);
+    internal static BorrowedExhaustSpec? Spec(MatchState state, BorrowedExhaustContext context)
+    {
+        if (context.BattlefieldAbilityKind is null)
+            return Spec(context.Donor.CardNo, context.AbilityIndex);
+        if (context.BattlefieldAbilityKind == StaticAbilityKinds.BattlefieldGrantUnitExperienceAbility
+            && context.BattlefieldCardNo is { Length: > 0 }
+            && BattlefieldStaticAbilitySpecRules.TryGetAbility(context.BattlefieldCardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility, out var experience))
+        {
+            return new BorrowedExhaustSpec(-1, "BATTLEFIELD_UNIT_GAIN_EXPERIENCE", 0, 0, false)
+            {
+                ExperienceGain = experience.Amount
+            };
+        }
+        if (context.BattlefieldAbilityKind == StaticAbilityKinds.BattlefieldGrantLegendAttachArmament
+            && context.BattlefieldCardNo is { Length: > 0 }
+            && BattlefieldStaticAbilitySpecRules.TryGetAbility(context.BattlefieldCardNo,
+                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility, out _))
+        {
+            return new BorrowedExhaustSpec(-1, "ATTACH_ARMAMENT", 0, 2, false)
+            {
+                TargetScope = "FRIENDLY_UNIT"
+            };
+        }
+        return null;
+    }
     internal static bool TargetsPlayer(BorrowedExhaustSpec spec) => spec.TargetScope is "PLAYER" or "OPPONENT";
 
     internal static IEnumerable<BorrowedExhaustAbility> Abilities(MatchState state, string player, CardObjectState source)
@@ -50,6 +80,46 @@ internal static class BorrowedExhaustRules
                 var identity = $"{borrower.Id}|{borrower.CardNo}|{text.Id}|{text.CardNo}|{spec.Index}";
                 yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
                     donor, borrower, text, spec);
+            }
+
+            // Battlefield static abilities are acquired by the unit/legend that
+            // currently has them, even though they are not printed on its card.
+            // Keep the granting battlefield in the identity and capture it on
+            // the stack item so a response cannot change the source retroactively.
+            var donorText = AttachedRuleTextRules.Instances(state, donor).FirstOrDefault();
+            if (donorText is null) continue;
+            if (donor.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && BattlefieldLocalRules.AtUnit(state, donor.ObjectId) is { } experienceBattlefield
+                && BattlefieldStaticAbilitySpecRules.TryGetAbility(experienceBattlefield.CardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility, out var experienceAbility)
+                && experienceAbility.Amount > 0)
+            {
+                var dynamicSpec = new BorrowedExhaustSpec(-1, "BATTLEFIELD_UNIT_GAIN_EXPERIENCE", 0, 0, false)
+                {
+                    ExperienceGain = experienceAbility.Amount
+                };
+                var identity = $"{borrower.Id}|{borrower.CardNo}|{donorText.Id}|{donorText.CardNo}|BATTLEFIELD_UNIT_GAIN_EXPERIENCE|{experienceBattlefield.ObjectId}|{experienceBattlefield.ObjectGeneration}";
+                yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
+                    donor, borrower, donorText, dynamicSpec,
+                    new(experienceBattlefield.ObjectId, experienceBattlefield.ObjectGeneration), experienceBattlefield.CardNo,
+                    StaticAbilityKinds.BattlefieldGrantUnitExperienceAbility);
+            }
+            if (donor.Tags.Contains(CardObjectTags.LegendCard, StringComparer.Ordinal)
+                && BattlefieldLocalRules.ControlledBy(state, player)
+                    .OrderBy(battlefield => battlefield.ObjectId, StringComparer.Ordinal)
+                    .FirstOrDefault(battlefield =>
+                    BattlefieldStaticAbilitySpecRules.TryGetAbility(battlefield.CardNo,
+                        BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility, out _)) is { } attachBattlefield)
+            {
+                var dynamicSpec = new BorrowedExhaustSpec(-1, "ATTACH_ARMAMENT", 0, 2, false)
+                {
+                    TargetScope = "FRIENDLY_UNIT"
+                };
+                var identity = $"{borrower.Id}|{borrower.CardNo}|{donorText.Id}|{donorText.CardNo}|BATTLEFIELD_LEGEND_ATTACH_ARMAMENT|{attachBattlefield.ObjectId}|{attachBattlefield.ObjectGeneration}";
+                yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
+                    donor, borrower, donorText, dynamicSpec,
+                    new(attachBattlefield.ObjectId, attachBattlefield.ObjectGeneration), attachBattlefield.CardNo,
+                    StaticAbilityKinds.BattlefieldGrantLegendAttachArmament);
             }
         }
     }
@@ -78,8 +148,29 @@ internal static class BorrowedExhaustRules
     internal static BorrowedExhaustSpec? InsightSpec(MatchState state, StackItemState item)
         => item.BorrowedExhaust is { } context
             && Valid(state, item)
-            && Spec(context.Donor.CardNo, context.AbilityIndex) is { Kind: "INSIGHT_DRAW_EXPERIENCE" } spec
+            && Spec(state, context) is { Kind: "INSIGHT_DRAW_EXPERIENCE" } spec
             ? spec : null;
+
+    private static bool ValidBattlefieldSource(MatchState state, BorrowedExhaustContext context)
+    {
+        if (context.BattlefieldAbilityKind is null)
+            return context.BattlefieldSource is null && context.BattlefieldCardNo is null;
+        if (context.BattlefieldSource is not { } binding || context.BattlefieldCardNo is not { Length: > 0 }) return false;
+        var validCard = context.BattlefieldAbilityKind switch
+        {
+            StaticAbilityKinds.BattlefieldGrantUnitExperienceAbility =>
+                BattlefieldStaticAbilitySpecRules.TryGetAbility(context.BattlefieldCardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility, out _),
+            StaticAbilityKinds.BattlefieldGrantLegendAttachArmament =>
+                BattlefieldStaticAbilitySpecRules.TryGetAbility(context.BattlefieldCardNo,
+                    BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility, out _),
+            _ => false
+        };
+        if (!validCard || binding.Generation < 0 || string.IsNullOrWhiteSpace(binding.ObjectId)) return false;
+        return !state.CardObjects.TryGetValue(binding.ObjectId, out var current)
+            || (current.ObjectGeneration >= binding.Generation
+                && (current.ObjectGeneration != binding.Generation || current.CardNo == context.BattlefieldCardNo));
+    }
     internal static bool ValidSource(MatchState state, BorrowedTextSource source, long tick, bool ceasedAsCost = false)
         => source is { Object: not null } && SelfAbilitySourceRules.Valid(state, source.Object, source.PhysicalCardNo,
             source.FaceRevision, tick, source.TokenFactoryCardNo, source.CeasedSource,
@@ -94,7 +185,8 @@ internal static class BorrowedExhaustRules
             || c.AcquiredTick <= 0 || c.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || c.Borrower.Object is null || c.Donor.Object is null || c.Borrower.Object.ObjectId != item.SourceObjectId
             || c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || item.CardNo != c.Borrower.PhysicalCardNo || !Inherits(c.Borrower.CardNo)
-            || Spec(c.Donor.CardNo, c.AbilityIndex) is not { } spec
+            || !ValidBattlefieldSource(state, c)
+            || Spec(state, c) is not { } spec
             || !CoreRuleEngine.BorrowedEnemyTargetRequirementMet(state, item.ControllerId, spec)
             || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
             || !ValidSource(state, c.Donor, c.AcquiredTick, spec.DestroyedFriendlyCardTypeAsCost.Length > 0)

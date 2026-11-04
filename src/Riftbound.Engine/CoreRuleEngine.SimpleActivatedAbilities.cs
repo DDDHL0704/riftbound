@@ -325,7 +325,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ActivatedSkillTargetsPlayer(MatchState state, StackItemState item)
         => item.BorrowedExhaust is { } borrowed
             ? BorrowedExhaustRules.Valid(state, item)
-                && BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex) is { } spec
+                && BorrowedExhaustRules.Spec(state, borrowed) is { } spec
                 && BorrowedExhaustRules.TargetsPlayer(spec)
             : P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability)
                 && SimpleActivationTargetsPlayer(ability) && ValidSimpleActivation(state, item);

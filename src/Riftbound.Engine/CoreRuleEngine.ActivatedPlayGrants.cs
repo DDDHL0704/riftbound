@@ -75,7 +75,7 @@ public sealed partial class CoreRuleEngine
             || ActivatedPlayGrantItem(grant) is not { } item) return false;
         if (item.BorrowedExhaust is { } borrowed)
             return item.StackItemId == $"STACK-{borrowed.AcquiredTick}-{item.SourceObjectId}-BORROWED"
-                && BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex)?.Kind == (grant.Kind == "PAID_RECALL" ? "GRANT_PAID_RECALL"
+                && BorrowedExhaustRules.Spec(state, borrowed)?.Kind == (grant.Kind == "PAID_RECALL" ? "GRANT_PAID_RECALL"
                     : grant.Kind == "NEXT_UNIT_READY" ? "GRANT_NEXT_UNIT_READY" : "GRANT_NEXT_SPELL_DAMAGE")
                 && BorrowedExhaustRules.Valid(state, item);
         return ValidSimpleActivation(state, item);
