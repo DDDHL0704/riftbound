@@ -174,6 +174,11 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "摧毁一名友方单位。查看你主牌堆顶部的五张牌。你可以选择从中放逐一名战力比被摧毁单位最多高 1 点的单位卡牌，然后将其打出，无视费用。然后回收其余的卡牌")
+            {
+                result.Add(Skill("DESTROY_DECK_PLAY", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             var attachment = Regex.Match(effect, "^将你控制的一件(?<state>未贴附|已贴附)的武装贴附到你控制的一名单位上$");
             if (attachment.Success)
             {

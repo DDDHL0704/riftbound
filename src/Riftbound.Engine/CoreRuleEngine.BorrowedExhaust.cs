@@ -269,6 +269,12 @@ public sealed partial class CoreRuleEngine
             timingContext: StackTimingContextForNewStackItem(state)) {
             BorrowedExhaust = context,
             TargetGenerations = targetGenerations };
+        if (ability.Spec.Kind == "DESTROY_DECK_PLAY")
+        {
+            var printed = BorrowedDestroyDeckPlayDefinition(context)!;
+            item = item with { DestroyDeckPlay = new(context.Borrower.Object, item.CardNo!, printed.AbilityId,
+                new(targets[0], targetGenerations[targets[0]]), CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects)) };
+        }
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
             ["sourceObjectId"] = source.ObjectId, ["cardNo"] = source.CardNo, ["abilityId"] = ability.Id,
             ["effectKind"] = item.EffectKind, ["targetObjectIds"] = targets.ToArray() };
@@ -298,6 +304,7 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind == "DESTROY_DECK_PLAY") return ResolveDestroyDeckPlay(state, item);
         if (spec.MovesToExhaustedCostUnit)
             return ResolveMovementToExhaustedCostUnit(state, item, c.ExhaustedCostUnit!,
                 (frame, id) => IsBorrowedExhaustTarget(frame, item.ControllerId, id, spec, item.SourceObjectId));

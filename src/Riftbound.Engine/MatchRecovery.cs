@@ -5298,8 +5298,10 @@ public static partial class MatchRecoveryValidator
             var capturedDeckSource = choice.DeckContext is not null
                 && CoreRuleEngine.ValidDeckPlayChoice(authoritativeState, choice)
                 && parent!.SourceObjectId == choice.SourceObjectId
-                && parent.FieldContext is { SourceCeasedToExist: true } field
-                && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, parent.SourceObjectId, parent.ControllerId, parent.EffectKind, parent.CardNo);
+                && (parent.FieldContext is { SourceCeasedToExist: true } field
+                    && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, parent.SourceObjectId, parent.ControllerId, parent.EffectKind, parent.CardNo)
+                    || parent.BorrowedExhaust is { Borrower.CeasedSource: not null } && parent.DestroyDeckPlay is not null
+                        && CoreRuleEngine.ValidDestroyDeckPlayContext(authoritativeState, parent));
             var capturedInsightSource = parent is not null && choice.SourceObjectId == parent.SourceObjectId
                 && CoreRuleEngine.ValidInsightChoice(authoritativeState, choice, parent)
                 && (CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, parent.InsightContext,

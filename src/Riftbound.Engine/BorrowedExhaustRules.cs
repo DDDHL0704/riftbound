@@ -96,7 +96,8 @@ internal static class BorrowedExhaustRules
             || !CoreRuleEngine.ValidExhaustedCostUnit(state, c.ExhaustedCostUnit, spec.MovesToExhaustedCostUnit,
                 item.SourceObjectId, item.TargetObjectIds)
             || item.InsightContext is not null || item.InsightCompleted && spec.Kind != "INSIGHT_DRAW_EXPERIENCE"
-            || item.EffectPlayCompleted && spec.Kind != "RETURN_UNIT_FREE_PLAY"
+            || item.EffectPlayCompleted && spec.Kind is not ("RETURN_UNIT_FREE_PLAY" or "DESTROY_DECK_PLAY")
+            || (spec.Kind == "DESTROY_DECK_PLAY") != (item.DestroyDeckPlay is not null)
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds.Count != spec.Targets || item.TargetObjectIds.Distinct().Count() != spec.Targets
