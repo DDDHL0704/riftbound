@@ -15,6 +15,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public string Keyword { get; init; } = "";
     public int MinimumExperience { get; init; }
     public bool Reaction { get; init; }
+    public int RequiredEnemyTargetEvents { get; init; }
     public int GeneratedMana { get; init; }
     public int? EmpoweredMana { get; init; }
     public int GeneratedPower { get; init; }
@@ -23,6 +24,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool RemovesSourceEmpowerment { get; init; }
     public string Conversion { get; init; } = "";
     public bool DiscardsEquipmentAsCost { get; init; }
+    public bool DiscardsHandCardAsCost { get; init; }
     public bool DestroysSourceAsCost { get; init; }
     public int RecycledCardCostCount { get; init; }
     public bool RecyclesOnlyUnitsAsCost { get; init; }
@@ -41,9 +43,13 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public int TokenMight { get; init; }
     public string TokenKeyword { get; init; } = "";
     public bool TokensToBase { get; init; }
+    public bool TokensEnterReady { get; init; }
+    public int ManaReductionPerFriendlyEphemeralUnit { get; init; }
     public bool RequiresPlayedArmamentThisTurn { get; init; }
     public bool ResolveOnlyOnControllerTurn { get; init; }
     public bool ReadyTargetIfSourceEmpowered { get; init; }
+    public bool EffectRequiresEncouraged { get; init; }
+    public bool DamageFromSourceMight { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -66,6 +72,8 @@ public static class BorrowedExhaustParser
             cost = Regex.Replace(cost, "解除(?:我的|此牌的)强化", "");
             var discardsEquipment = cost.Contains("弃置一张装备牌", StringComparison.Ordinal);
             cost = cost.Replace("弃置一张装备牌", "", StringComparison.Ordinal);
+            var discardsHandCard = cost.Contains("弃置一张手牌", StringComparison.Ordinal);
+            cost = cost.Replace("弃置一张手牌", "", StringComparison.Ordinal);
             var banishesGraveyardPermanent = cost.Contains("从你的废牌堆中放逐一个单位或装备", StringComparison.Ordinal);
             cost = cost.Replace("从你的废牌堆中放逐一个单位或装备", "", StringComparison.Ordinal);
             var recycle = Regex.Match(cost, @"从(?:你的)?废牌堆中回收(?<count>一|二|两|三|[1-9][0-9]*)(?<type>张牌|名单位)");
@@ -109,6 +117,7 @@ public static class BorrowedExhaustParser
                     Swift = swift, RequiresSourceBattlefield = battlefield, TargetScope = scope, Damage = damage, Keyword = keyword,
                     MinimumExperience = level.Success ? int.Parse(level.Groups["n"].Value) : 0, Reaction = reaction,
                     RemovesSourceEmpowerment = removesEmpowerment, DiscardsEquipmentAsCost = discardsEquipment,
+                    DiscardsHandCardAsCost = discardsHandCard,
                     DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
                     BanishesGraveyardPermanentAsCost = banishesGraveyardPermanent,
                     RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位",
@@ -123,7 +132,7 @@ public static class BorrowedExhaustParser
                     Conversion = conversion.Groups["input"].Value == "法力" ? "MANA_TO_POWER" : "POWER_TO_MANA" });
                 continue;
             }
-            var resource = Regex.Match(effect, @"^(?:\{\{(?:反应|迅捷)\}\}\s*[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此符能仅可用于打出单位或装备|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付符能费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
+            var resource = Regex.Match(effect, @"^(?:\{\{(?:反应|迅捷)\}\}\s*(?:[，,]\s*\{\{(?<encourage>鼓舞)\}\}\s*)?[—-]\s*)?\{\{获得\}\}\s*(?<gain>(?:\{\{(?:[0-9]+|A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}|和|\s)+)(?<restriction>[，,]但仅可用于打出法术|[，,]仅可用于打出装备或使用装备技能|。此符能仅可用于打出单位或装备|。此法力仅能用于打出法术|。此法力仅能用于打出单位或单位的主动技能|。此法力仅可在法术对决期间消耗|，用以支付(?:符能|法力)费用)?(?:。如果此牌\{\{已强化\}\}，则改为\{\{获得\}\}\{\{(?<empowered>[0-9]+)\}\})?$");
             if (resource.Success && (reaction || swift || effect.StartsWith("{{反应}}", StringComparison.Ordinal)
                 || effect.StartsWith("{{迅捷}}", StringComparison.Ordinal)))
             {
@@ -132,6 +141,7 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("RESOURCE", 0) with {
                     Reaction = reaction || effect.StartsWith("{{反应}}", StringComparison.Ordinal),
                     Swift = swift || effect.StartsWith("{{迅捷}}", StringComparison.Ordinal),
+                    EffectRequiresEncouraged = resource.Groups["encourage"].Success,
                     GeneratedMana = Regex.Matches(gain, @"\{\{(?<n>[0-9]+)\}\}").Sum(m => int.Parse(m.Groups["n"].Value)),
                     GeneratedPower = Regex.Matches(gain, @"\{\{A\}\}").Count,
                     GeneratedTraits = colors.Select(pair => (pair.Value, Count: Regex.Matches(gain, Regex.Escape("{{" + pair.Key + "}}")).Count))
@@ -144,8 +154,20 @@ public static class BorrowedExhaustParser
                         : restriction.Contains("法术", StringComparison.Ordinal) ? "SPELL" : "" });
                 continue;
             }
+            if (effect == "{{反应}} — 抽一张牌。只有当你在本回合内，两次将敌方单位或装备选为法术或单位技能的目标后，才能使用此技能")
+            {
+                result.Add(Skill("DRAW", 0) with { Reaction = true, DrawCount = 1, RequiredEnemyTargetEvents = 2 });
+                continue;
+            }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            var attachment = Regex.Match(effect, "^将你控制的一件(?<state>未贴附|已贴附)的武装贴附到你控制的一名单位上$");
+            if (attachment.Success)
+            {
+                result.Add(Skill(attachment.Groups["state"].Value == "未贴附" ? "ATTACH_ARMAMENT" : "REATTACH_ARMAMENT",
+                    2, scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             if (effect == "让一名友方单位返回其所属的手牌。你可以选择打出一名战力低于该单位的单位，无视其费用")
             {
                 result.Add(Skill("RETURN_UNIT_FREE_PLAY", scope: "FRIENDLY_UNIT"));
@@ -166,6 +188,13 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("RETURN_AND_CREATE_GOLD", scope: "FRIENDLY_BATTLEFIELD_UNIT"));
                 continue;
             }
+            if (effect == "{{鼓舞}}—你在本回合内打出的下一名单位以活跃状态进场")
+            {
+                result.Add(Skill("GRANT_NEXT_UNIT_READY", 0) with { EffectRequiresEncouraged = true });
+                continue;
+            }
+            if (effect == "本回合内你打出的下一个法术造成的伤害+1")
+            { result.Add(Skill("GRANT_NEXT_SPELL_DAMAGE", 0)); continue; }
             if (effect == "让你本回合打出的下一个法术获得等同于其费用的{{回响}}")
             {
                 result.Add(Skill("GRANT_NEXT_SPELL_ECHO", 0));
@@ -199,13 +228,16 @@ public static class BorrowedExhaustParser
                     TokenCount = 1, TokenName = equipmentToken.Groups["name"].Value });
                 continue;
             }
-            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>随从|机器人|黄沙士兵|战鹰)”(?:单位指示物)?(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾)\}\})?$");
+            var unitToken = Regex.Match(effect, @"^打出(?<count>一|二|两|三|[1-9][0-9]*)名(?<ready>处于活跃状态的)?(?<might>[1-9][0-9]*)\{\{S\}\}的?“(?<name>随从|机器人|黄沙士兵|战鹰|精灵)”(?:单位指示物)?(?<base>到你的基地)?(?:，它们?拥有\{\{(?<keyword>法盾|瞬息)\}\})?(?:。场上每存在一名拥有\{\{瞬息\}\}的友方单位，此技能费用减少\{\{(?<discount>[1-9][0-9]*)\}\})?$");
             if (unitToken.Success)
             {
                 var count = unitToken.Groups["count"].Value switch { "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) };
                 result.Add(Skill("CREATE_UNIT_TOKEN", 0) with { TokenCount = count,
                     TokenName = unitToken.Groups["name"].Value, TokenMight = int.Parse(unitToken.Groups["might"].Value),
-                    TokenKeyword = unitToken.Groups["keyword"].Value, TokensToBase = unitToken.Groups["base"].Success });
+                    TokenKeyword = unitToken.Groups["keyword"].Value, TokensToBase = unitToken.Groups["base"].Success,
+                    TokensEnterReady = unitToken.Groups["ready"].Success,
+                    ManaReductionPerFriendlyEphemeralUnit = unitToken.Groups["discount"].Success
+                        ? int.Parse(unitToken.Groups["discount"].Value) : 0 });
                 continue;
             }
             var insight = Regex.Match(effect, @"^\{\{洞察(?<count>[1-9][0-9]*)\}\}，然后抽一张牌。获得(?<experience>[1-9][0-9]*)经验$");
@@ -292,6 +324,11 @@ public static class BorrowedExhaustParser
             if (damage.Success) {
                 result.Add(Skill("DAMAGE_UNIT", scope: damage.Groups["field"].Success ? "BATTLEFIELD_UNIT" : "ANY_UNIT",
                     damage: int.Parse(damage.Groups["n"].Value))); continue;
+            }
+            if (effect == "对任意战场中的一个敌方单位造成等同于我战力的伤害")
+            {
+                result.Add(Skill("DAMAGE_UNIT", scope: "ENEMY_BATTLEFIELD_UNIT") with { DamageFromSourceMight = true });
+                continue;
             }
             var boon = Regex.Match(effect, @"^给予一名(?<friend>友方|休眠的友方)?单位(?:\{\{增益\}\}|增益)$");
             if (boon.Success) {

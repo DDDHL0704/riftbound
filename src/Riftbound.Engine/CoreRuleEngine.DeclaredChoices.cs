@@ -7,13 +7,13 @@ public sealed partial class CoreRuleEngine
     // Shared by initial declaration and effects that explicitly remake choices.
     // It does not grant play permission or move a finalized spell into a hand.
     private static bool HasLegalDeclaredTargets(MatchState state, string player, string source,
-        CardBehaviorDefinition behavior, IReadOnlyList<string> targets, string scope)
+        CardBehaviorDefinition behavior, IReadOnlyList<string> targets, string scope, StackItemState? item = null)
         => HasIndependentPermanentTargets(behavior) && targets.Count == 0
             || HasValidTargetCount(state, player, behavior, targets)
                 && PlayCardTargetsExposeKnownCardNumbers(state, targets)
                 && CreatedBaseUnitCopyTargetAllowed(state, behavior, targets)
                 && HasValidTargetGroup(state, behavior, targets)
-                && HasValidDistributedSpellTargets(state, player, behavior, targets)
+                && HasValidDistributedSpellTargets(state, player, behavior, targets, item)
                 && HasRequiredAnyTargetTag(state, behavior, targets)
                 && HasValidSwapTargetLocations(state, behavior, targets)
                 && AreAttachDetachTargetsAllowed(state, behavior, targets)
@@ -43,7 +43,7 @@ public sealed partial class CoreRuleEngine
         }
         if (spell.ModeExecutions is not null && IsDeferredDeckChoice(behavior))
             return targets.Count == 0 && execution.TargetGenerations.Count == 0;
-        if (!HasLegalDeclaredTargets(state, spell.ControllerId, spell.SourceObjectId, behavior, targets, PlayCardTargetScopeForBehavior(behavior))
+        if (!HasLegalDeclaredTargets(state, spell.ControllerId, spell.SourceObjectId, behavior, targets, PlayCardTargetScopeForBehavior(behavior), spell)
             || targets.Any(id => !PermanentPlayHereTargetAllowed(state, spell, behavior, id))) return false;
         var command = new PlayCardCommand(spell.SourceObjectId, spell.CardNo, targets, behavior.Mode,
             spell.OptionalCosts, execution.Destination, MovementDestinations: execution.MovementDestinations);

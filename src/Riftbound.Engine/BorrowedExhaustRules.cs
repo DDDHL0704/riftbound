@@ -80,6 +80,7 @@ internal static class BorrowedExhaustRules
             || c.Borrower.Object is null || c.Donor.Object is null || c.Borrower.Object.ObjectId != item.SourceObjectId
             || c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || item.CardNo != c.Borrower.PhysicalCardNo || !Inherits(c.Borrower.CardNo)
             || Spec(c.Donor.CardNo, c.AbilityIndex) is not { } spec
+            || !CoreRuleEngine.BorrowedEnemyTargetRequirementMet(state, item.ControllerId, spec)
             || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
             || !ValidSource(state, c.Donor, c.AcquiredTick, spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
             || spec.Kind == "RESOURCE"
@@ -111,7 +112,9 @@ internal static class BorrowedExhaustRules
                     || factory != (token.TokenFactoryCardNo ?? token.CardNo)))
             || !TargetsPlayer(spec) && item.TargetObjectIds.Any(id => !state.CardObjects.ContainsKey(id)
                 && (c.TargetTokenFactories is null || !c.TargetTokenFactories.ContainsKey(id)))
-            || (spec.Swift ? item.TimingContext is not (TimingStates.NeutralOpen or TimingStates.SpellDuelOpen)
+            || (spec.Reaction ? item.TimingContext is not (TimingStates.NeutralOpen or TimingStates.SpellDuelOpen
+                    or TimingStates.NeutralClosed or TimingStates.SpellDuelClosed)
+                : spec.Swift ? item.TimingContext is not (TimingStates.NeutralOpen or TimingStates.SpellDuelOpen)
                 : item.TimingContext != TimingStates.NeutralOpen)) return false;
         return true;
     }

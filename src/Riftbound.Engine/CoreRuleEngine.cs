@@ -7780,7 +7780,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
                 targetObjectIds, optionalCosts, spellshieldTax, events);
 
-        if (IsLegendDiscardDrawEffect(ability.EffectKind))
+        if (IsLegendDiscardDrawEffect(ability.EffectKind)
+            && !(ability.EffectKind == LegendAbilityEffectKinds.DrawOne
+                && ability.TimingKind != LegendAbilityTimingKinds.ReactionWindow))
             return QueueLegendDiscardDraw(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 PlayerZones = playerZones, ObjectLocations = objectLocations,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
@@ -7996,6 +7998,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResourceActionWindow.CanAct(state, playerId);
         if (ability.TimingKind == LegendAbilityTimingKinds.QuickOpen)
             return CanActivateSwiftAbility(state, playerId);
+        if (ability.TimingKind == LegendAbilityTimingKinds.ReactionWindow)
+            return CanActivateReactionAbility(state, playerId);
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
@@ -8321,7 +8325,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 0,
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.DrawOne,
-                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
+                TimingKind: LegendAbilityTimingKinds.ReactionWindow,
                 RequiresEzrealEnemyTargetsThisTurn: true),
             IreliaLegendAbilityId => new LegendAbilityDefinition(
                 IreliaLegendAbilityId,
@@ -8486,9 +8490,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string unitObjectId,
         string equipmentObjectId,
         LegendAbilityDefinition ability)
+        => unitObjectId != equipmentObjectId && IsControlledArmamentTarget(state, playerId, equipmentObjectId,
+            ability.RequiresUnattachedArmamentSecondTarget, ability.RequiresAttachedArmamentSecondTarget);
+
+    private static bool IsControlledArmamentTarget(MatchState state, string playerId, string equipmentObjectId,
+        bool requiresUnattached, bool requiresAttached)
     {
-        if (string.Equals(unitObjectId, equipmentObjectId, StringComparison.Ordinal)
-            || !IsControlledFieldObject(state, playerId, equipmentObjectId)
+        if (!IsControlledFieldObject(state, playerId, equipmentObjectId)
             || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
             || string.IsNullOrWhiteSpace(equipmentState.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
@@ -8500,12 +8508,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var isAttached = !string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId);
-        if (ability.RequiresUnattachedArmamentSecondTarget && isAttached)
+        if (requiresUnattached && isAttached)
         {
             return false;
         }
 
-        if (ability.RequiresAttachedArmamentSecondTarget && !isAttached)
+        if (requiresAttached && !isAttached)
         {
             return false;
         }
@@ -27533,7 +27541,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>
         {
             activatedAbility
-                ? new GameEvent("LEGEND_ABILITY_RESOLVED", "传奇弃牌抽牌技能开始结算", new Dictionary<string, object?> {
+                ? new GameEvent("LEGEND_ABILITY_RESOLVED", "传奇抽牌技能开始结算", new Dictionary<string, object?> {
                     ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["controllerId"] = stackItem.ControllerId, ["stackItemId"] = stackItem.StackItemId, ["effectKind"] = effectKind })
                 : BuildTriggerResolvedEvent(new TriggerQueueItemState(
@@ -31567,7 +31575,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     stackItem.ControllerId,
                     targetObjectId,
-                    ApplySpellSkillDamageBonuses(state, stackItem.ControllerId, targetObjectId, damageAmount),
+                    ApplySpellSkillDamageBonuses(state, stackItem.ControllerId, targetObjectId, damageAmount, stackItem),
                     damageTriggeredDestroyTargetObjectIds,
                     preventDamage,
                     preventionEffectId);
@@ -33584,7 +33592,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Reuse the current controlled field sources already read for a
         // distributed pool. That pool applies its bonuses separately, once.
         var controllerBonus = DistributionBonuses(state, controllerId, null).Sum(b => b.Amount)
-            + EquipmentSkillDamageBonus(state, controllerId, sourceItem);
+            + EquipmentSkillDamageBonus(state, controllerId, sourceItem)
+            + ActivatedSpellDamageBonus(state, sourceItem);
         return ApplyBattlefieldTargetSpellSkillDamageBonus(state, targetObjectId, checked(damageAmount + controllerBonus));
     }
 
@@ -34857,6 +34866,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string MainOpen = "MAIN_OPEN";
         public const string QuickOpen = "QUICK_OPEN";
         public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string ReactionWindow = "REACTION_WINDOW";
         public const string ResourceAction = "RESOURCE_ACTION";
         public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
     }

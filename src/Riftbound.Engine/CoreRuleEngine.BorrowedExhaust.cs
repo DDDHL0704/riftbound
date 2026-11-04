@@ -5,10 +5,20 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static int BorrowedExhaustManaCost(MatchState state, string player, BorrowedExhaustSpec spec)
+        => spec.ManaReductionPerFriendlyEphemeralUnit == 0 ? spec.Mana
+            : Math.Max(0, spec.Mana - spec.ManaReductionPerFriendlyEphemeralUnit * CountFriendlyEphemeralFieldUnits(state, player));
+
     internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec)
         => (!spec.RequiresPlayedArmamentThisTurn || ControllerPlayedArmamentThisTurn(state, player))
-            && (spec.Reaction ? CanActivateReactionResourceSkill(state, player)
+            && BorrowedEnemyTargetRequirementMet(state, player, spec)
+            && (spec.Reaction ? (spec.Kind == "RESOURCE" ? CanActivateReactionResourceSkill(state, player)
+                    : CanActivateReactionAbility(state, player))
                 : spec.Swift ? CanActivateSwiftAbility(state, player) : CanActivateOrdinaryPowerAbility(state, player));
+
+    internal static bool BorrowedEnemyTargetRequirementMet(MatchState state, string player, BorrowedExhaustSpec spec)
+        => spec.RequiredEnemyTargetEvents == 0
+            || EzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, player) >= spec.RequiredEnemyTargetEvents;
 
     private static bool IsBorrowedReactionResource(MatchState state, string player, ActivateAbilityCommand command)
         => state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
@@ -35,8 +45,11 @@ public sealed partial class CoreRuleEngine
                 "UNIT" => CardObjectTags.UnitCard, "EQUIPMENT" => CardObjectTags.EquipmentCard, _ => null })
             .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray();
 
-    internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
-        => BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
+    internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId,
+        int index = 0)
+        => spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
+            ? IsControlledArmamentTarget(state, player, id, spec.Kind == "ATTACH_ARMAMENT", spec.Kind == "REATTACH_ARMAMENT")
+            : BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
             : spec.TargetScope == "OWNED_TEEMO_UNIT" ? IsValidOwnedTeemoUnitTarget(state, player, id)
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id)
             : spec.TargetScope == "OTHER_FRIENDLY_PERMANENT_OR_FACEDOWN" ? id != sourceId
@@ -50,12 +63,12 @@ public sealed partial class CoreRuleEngine
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
             : state.CardObjects.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)
                 && IsObjectOnField(state.PlayerZones, id)
-                && (spec.TargetScope is not ("BATTLEFIELD_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT")
+                && (spec.TargetScope is not ("BATTLEFIELD_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT" or "ENEMY_BATTLEFIELD_UNIT")
                     || state.PlayerZones.Values.Any(z => z.Battlefields.Contains(id)))
                 && (spec.TargetScope is not ("FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_UNIT" or "FRIENDLY_BATTLEFIELD_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT")
                     || EffectiveFieldControllerId(state.PlayerZones, id, card) == player)
                 && (spec.TargetScope is not ("EXHAUSTED_FRIENDLY_UNIT" or "EXHAUSTED_FRIENDLY_BATTLEFIELD_UNIT") || card.IsExhausted)
-                && (spec.TargetScope != "ENEMY_UNIT" || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
+                && (spec.TargetScope is not ("ENEMY_UNIT" or "ENEMY_BATTLEFIELD_UNIT") || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
                 && (spec.TargetScope != "FRIENDLY_DUEL_UNIT" || IsLegendDuelUnit(state, player, id))
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
 
@@ -70,13 +83,14 @@ public sealed partial class CoreRuleEngine
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targets.Count != ability.Spec.Targets || command.TargetObjectIds.Count != targets.Count
             || targets.Distinct(StringComparer.Ordinal).Count() != targets.Count
-            || targets.Any(id => !IsBorrowedExhaustTarget(state, intent.PlayerId, id, ability.Spec, source.ObjectId)))
+            || targets.Where((id, index) => !IsBorrowedExhaustTarget(state, intent.PlayerId, id, ability.Spec, source.ObjectId, index)).Any())
             return RejectWithCorePrompts(state, "请选择技能要求的不同合法目标。", ErrorCodes.InvalidTarget);
         var requested = NormalizeOptionalCosts(command.OptionalCosts);
+        var discardsHandCard = ability.Spec.DiscardsEquipmentAsCost || ability.Spec.DiscardsHandCardAsCost;
         if (!TryExtractRenektonPlayPayment(requested, out var withoutRenekton, out var renekton)
             || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
                 out var extras, out var resources, out _) || extras.Count != (ability.Spec.Conversion.Length > 0 ? 1 : 0)
-                    + (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
+                    + (discardsHandCard ? 1 : 0) + ability.Spec.RecycledCardCostCount
                     + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
                     + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
                     + (ability.Spec.BanishesGraveyardPermanentAsCost ? 1 : 0))
@@ -101,15 +115,16 @@ public sealed partial class CoreRuleEngine
             || recycled.Any(id => !CanRecycleBorrowedAbilityCost(state, intent.PlayerId, id, ability.Spec)))
             return RejectWithCorePrompts(state, "请选择自己废牌堆中足够且不同的合法牌支付回收费用。", ErrorCodes.InvalidTarget);
         var discard = extras.Where(id => id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)).ToArray();
-        if (ability.Spec.DiscardsEquipmentAsCost
-            && (discard.Length != 1 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(discard[0])))
-            return RejectWithCorePrompts(state, "请选择自己手中的装备牌支付弃置费用。", ErrorCodes.InvalidTarget);
+        if (discard.Length != (discardsHandCard ? 1 : 0)
+            || discard.Any(id => !SimpleActivationDiscardChoices(state, intent.PlayerId, ability.Spec.DiscardsHandCardAsCost).Contains(id)))
+            return RejectWithCorePrompts(state, "请选择自己手中的合法牌支付弃置费用。", ErrorCodes.InvalidTarget);
         var ordered = renekton is null ? resources : OrderedRenektonPaymentResources(requested, resources, renekton);
         var tax = BorrowedExhaustRules.TargetsPlayer(ability.Spec) ? 0
             : ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out _);
         var paymentId = PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId, source.ObjectId, ability.Id);
+        var mana = BorrowedExhaustManaCost(state, intent.PlayerId, ability.Spec);
         var plan = new PaymentCostRules.PaymentPlan(paymentId, "ACTIVATE_ABILITY", intent.PlayerId,
-            ability.Spec.Mana, ability.Spec.Mana, ability.Spec.Power + tax,
+            mana, mana, ability.Spec.Power + tax,
             ability.Spec.Power + tax + ability.Spec.TypedPower.Values.Sum(), ability.Spec.TypedPower,
             experienceCost: ability.Spec.Experience, optionalCostIds: extras, paymentResourceActionIds: ordered,
             sourceObjectId: source.ObjectId, abilityId: ability.Id, reason: BorrowedExhaustRules.Effect,
@@ -216,14 +231,14 @@ public sealed partial class CoreRuleEngine
             destroyedOwners.AddRange(removal.DestroyedUnitOwnerIds);
             payment = payment with { RunePools = removal.RunePools };
         }
-        if (ability.Spec.DiscardsEquipmentAsCost)
+        if (discardsHandCard)
         {
-            if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId).Contains(discard[0]))
-                return RejectWithCorePrompts(state, "所选装备已无法支付弃置费用。", ErrorCodes.InvalidTarget);
+            if (!SimpleActivationDiscardChoices(paidState, intent.PlayerId, ability.Spec.DiscardsHandCardAsCost).Contains(discard[0]))
+                return RejectWithCorePrompts(state, "所选手牌已无法支付弃置费用。", ErrorCodes.InvalidTarget);
             var discarded = discard[0]["DISCARD_HAND_CARD:".Length..];
             if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))
-                return RejectWithCorePrompts(state, "无法弃置所选装备手牌。", ErrorCodes.InvalidTarget);
-            events.Add(new("CARD_DISCARDED", "弃置装备以支付获得的技能费用", new Dictionary<string, object?> {
+                return RejectWithCorePrompts(state, "无法弃置所选手牌。", ErrorCodes.InvalidTarget);
+            events.Add(new("CARD_DISCARDED", "弃置手牌以支付获得的技能费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = discarded,
                 ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
@@ -256,6 +271,11 @@ public sealed partial class CoreRuleEngine
             ["targetObjectId"] = source.ObjectId, ["wasExhausted"] = false, ["isExhausted"] = true }));
         events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, payment.RunePools, payment.PlayerExperience, payload)));
         events.Add(new("STACK_ITEM_ADDED", "技能加入结算链", new Dictionary<string, object?>(payload) { ["stackItemId"] = item.StackItemId }));
+        var effects = source.Tags.Contains(CardObjectTags.UnitCard)
+            ? MarkEzrealEnemyTargetsThisTurnForUnitAbility(state, state.UntilEndOfTurnEffects, intent.PlayerId, targets)
+            : state.UntilEndOfTurnEffects;
+        if (discardsHandCard)
+            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discard[0]["DISCARD_HAND_CARD:".Length..]], zones);
         var next = state with { Tick = state.Tick + 1, ActivePlayerId = intent.PlayerId,
             TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed,
             PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
@@ -263,9 +283,7 @@ public sealed partial class CoreRuleEngine
             RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience, StackItems = [..state.StackItems, item],
             TriggerQueue = state.TriggerQueue.Concat(destructionTriggers).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners),
-            UntilEndOfTurnEffects = source.Tags.Contains(CardObjectTags.UnitCard)
-                ? MarkEzrealEnemyTargetsThisTurnForUnitAbility(state, state.UntilEndOfTurnEffects, intent.PlayerId, targets)
-                : state.UntilEndOfTurnEffects };
+            UntilEndOfTurnEffects = effects };
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
@@ -279,7 +297,11 @@ public sealed partial class CoreRuleEngine
                 id => IsBorrowedExhaustTarget(state, item.ControllerId, id, spec, item.SourceObjectId));
         if (spec.Kind is "RETURN_TO_HAND" or "RETURN_AND_CREATE_GOLD")
             return ResolveBorrowedReturnSkill(state, item, spec);
+        if (spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT")
+            return ResolveBorrowedArmamentSkill(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
+        if (spec.Kind == "GRANT_NEXT_UNIT_READY") return ResolveActivatedNextUnitReady(state, item);
+        if (spec.Kind == "GRANT_NEXT_SPELL_DAMAGE") return ResolveActivatedNextSpellDamage(state, item);
         if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")
             return ResolveCommandOpponentMovement(state, item, c.Borrower.Object, "获得的移动技能", BorrowedExhaustRules.Effect);
         if (spec.Kind == "TRANSFER_SOURCE_AND_RECALL")
@@ -293,7 +315,7 @@ public sealed partial class CoreRuleEngine
                 && f.DefaultPower == spec.TokenMight && f.Tags.Contains(CardObjectTags.UnitCard)
                 && (spec.TokenKeyword.Length == 0 || f.Tags.Contains(spec.TokenKeyword)));
             return CreateUnitTokenBatch(state, item, factory.CardNo, spec.TokenCount + AdditionalUnitTokens(item),
-                false, instructionAllowsLocationChoice: !spec.TokensToBase);
+                spec.TokensEnterReady, instructionAllowsLocationChoice: !spec.TokensToBase);
         }
         if (spec.Kind is "MOVE_TO_BASE" or "MOVE_BETWEEN_BASE_AND_BATTLEFIELD" or "MOVE_DUEL_UNIT_TO_BASE")
             return ResolveBorrowedMovement(state, item, spec);
@@ -394,7 +416,17 @@ public sealed partial class CoreRuleEngine
             }
             else if (spec.Kind == "DAMAGE_UNIT")
             {
-                var amount = ApplySpellSkillDamageBonuses(current, item.ControllerId, id, spec.Damage, item);
+                // CN 359.3.e.12: a source removed by a different response has
+                // no available Might. Ignore the instruction, including bonuses.
+                var baseDamage = spec.Damage;
+                if (spec.DamageFromSourceMight)
+                {
+                    if (!cards.TryGetValue(item.SourceObjectId, out var damageSource)
+                        || damageSource.ObjectGeneration != c.Borrower.Object.Generation
+                        || !IsFaceUpNonStandbyUnit(damageSource) || !IsObjectOnField(zones, damageSource.ObjectId)) continue;
+                    baseDamage = ResolveCurrentFieldUnitPower(current, damageSource);
+                }
+                var amount = ApplySpellSkillDamageBonuses(current, item.ControllerId, id, baseDamage, item);
                 var damage = ApplyDamageToCardObject(current, cards, item.ControllerId, id, amount, destroyed,
                     state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new("DAMAGE_APPLIED", "获得的技能造成伤害", BuildDamagePayload(item.SourceObjectId, id, damage)));

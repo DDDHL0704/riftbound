@@ -122,7 +122,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(0, costPaidEvent.Payload["remainingExperience"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
     }
 
     [Fact]
@@ -1823,10 +1823,15 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.True(result.State.CardObjects["P1-LEGEND-EZREAL"].IsExhausted);
-        Assert.Contains("P1-EZREAL-DRAW-001", result.State.PlayerZones["P1"].Hand);
-        Assert.Single(result.State.StackItems);
+        Assert.DoesNotContain("P1-EZREAL-DRAW-001", result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(2, result.State.StackItems.Count);
+        Assert.NotNull(result.State.StackItems[^1].LegendDiscardDraw);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
-        var drawEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
+        var resolved = await OfficialGraveyardRecastTests.Top(result.State);
+        Assert.Contains("P1-EZREAL-DRAW-001", resolved.State.PlayerZones["P1"].Hand);
+        Assert.Single(resolved.State.StackItems);
+        var drawEvent = Assert.Single(resolved.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
         Assert.Equal(1, drawEvent.Payload["count"]);
     }
 

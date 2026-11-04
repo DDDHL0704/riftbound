@@ -1212,6 +1212,8 @@ public sealed partial record MatchState
             || effectId.StartsWith(CoreRuleEngine.SimpleActivationUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.ActivatedPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TimeAssassinNextUnitReductionPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.StandbyDrawUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantUsePrefix, StringComparison.Ordinal)
@@ -1944,7 +1946,8 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.LegendUnitKeyword is not null) view["abilityLabel"] = "传奇技能：双方响应后给予单位关键词";
         if (!hiddenSource && item.LegendUnitEffect is not null) view["abilityLabel"] = "传奇技能：双方响应后处理单位";
         if (!hiddenSource && item.LegendEquipmentReady is not null) view["abilityLabel"] = "传奇技能：双方响应后使装备活跃";
-        if (!hiddenSource && item.LegendDiscardDraw is not null) view["abilityLabel"] = "传奇技能：双方响应后弃一张牌，再抽一张牌";
+        if (!hiddenSource && item.LegendDiscardDraw is not null) view["abilityLabel"] = item.EffectKind == "DRAW_ONE"
+            ? "传奇技能：双方响应后抽一张牌" : "传奇技能：双方响应后弃一张牌，再抽一张牌";
         if (!hiddenSource && item.EmpowerOtherObserver is not null) view["abilityLabel"] = item.EffectKind == CoreRuleEngine.OwnedBanishEmpowerEffect
             ? "放逐自己的卡牌：双方响应后强化来源" : "其他物体被强化：双方响应后强化来源";
         if (!hiddenSource && item.OutsideHandPlayObserver is not null) view["abilityLabel"] = item.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
@@ -2550,6 +2553,7 @@ internal static partial class ActionPromptBuilder
         public const string MainOpen = "MAIN_OPEN";
         public const string QuickOpen = "QUICK_OPEN";
         public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string ReactionWindow = "REACTION_WINDOW";
         public const string ResourceAction = "RESOURCE_ACTION";
         public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
     }
@@ -3120,7 +3124,7 @@ internal static partial class ActionPromptBuilder
                     ? CoreRuleEngine.SimpleActivationAdditionalCostChoices(state, playerId, sourceObjectId, ability).Select(id =>
                         id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)
                             ? new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
-                                "弃置装备以支付技能费用")
+                                ability.SimpleEffect?.DiscardsHandCardAsCost == true ? "弃置手牌以支付技能费用" : "弃置装备以支付技能费用")
                             : id.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)
                                 ? new ActionPromptChoiceDto(id, "让" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "费用").Label + "变为休眠状态",
                                 "让友方单位变为休眠状态以支付技能费用", [id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..]])
@@ -3522,7 +3526,7 @@ internal static partial class ActionPromptBuilder
                 0,
                 false,
                 "DRAW_ONE",
-                TimingKind: LegendActionTimingKinds.PriorityWindow,
+                TimingKind: LegendActionTimingKinds.ReactionWindow,
                 RequiresEzrealEnemyTargetsThisTurn: true),
             new(
                 IreliaLegendAbilityId,
@@ -3733,6 +3737,7 @@ internal static partial class ActionPromptBuilder
             LegendActionTimingKinds.QuickOpen => "主阶段或法术对决开环",
             LegendActionTimingKinds.MainOpen => "主阶段开环",
             LegendActionTimingKinds.PriorityWindow => "优先权窗口",
+            LegendActionTimingKinds.ReactionWindow => "普通开环、法术对决焦点或反应优先权窗口",
             LegendActionTimingKinds.ResourceAction => "反应资源行动窗口",
             LegendActionTimingKinds.SpellDuelFocus => "法术对决焦点",
             _ => timingKind

@@ -3,15 +3,16 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static int DistributedSpellDamage(MatchState state, string player,
-        CardBehaviorDefinition behavior, IReadOnlyList<string> targets)
+        CardBehaviorDefinition behavior, IReadOnlyList<string> targets, StackItemState? item = null)
         => checked(behavior.DamageDistributionAmount
+            + (item is null ? PendingActivatedSpellDamageBonus(state, player) : ActivatedSpellDamageBonus(state, item))
             + DistributionBonuses(state, player, targets.Select(id => state.ObjectLocations.GetValueOrDefault(id))
                 .FirstOrDefault(location => location is not null)).Sum(bonus => bonus.Amount));
 
     private static bool HasValidDistributedSpellTargets(MatchState state, string player,
-        CardBehaviorDefinition behavior, IReadOnlyList<string> targets)
+        CardBehaviorDefinition behavior, IReadOnlyList<string> targets, StackItemState? item = null)
         => behavior.DamageDistributionAmount <= 0
-            || targets.Count <= DistributedSpellDamage(state, player, behavior, targets);
+            || targets.Count <= DistributedSpellDamage(state, player, behavior, targets, item);
 
     // CN 355.14: targets and their taxes are declared with the spell. Only
     // the positive integer allocation is chosen during its resolution.
@@ -24,7 +25,7 @@ public sealed partial class CoreRuleEngine
         if (behavior.DamageDistributionAmount <= 0) return amounts;
         var targets = item.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToList();
         if (targets.Count == 0) return amounts;
-        var remaining = DistributedSpellDamage(state, item.ControllerId, behavior, targets);
+        var remaining = DistributedSpellDamage(state, item.ControllerId, behavior, targets, item);
         while (targets.Count > remaining)
         {
             var removed = RuleChoices.Value!.Choose(item.ControllerId,

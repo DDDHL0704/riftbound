@@ -13,11 +13,12 @@ internal static partial class ActionPromptBuilder
         {
             if (!CoreRuleEngine.CanActivateBorrowedExhaust(state, player, ability.Spec)) continue;
             if (ability.Spec.Kind == "RESOURCE" && !CoreRuleEngine.BorrowedResourceGainSupported(state, player, ability.Spec, source)) continue;
-            var discardChoices = ability.Spec.DiscardsEquipmentAsCost
-                ? CoreRuleEngine.SimpleActivationDiscardChoices(state, player).Select(id =>
+            var discardsHandCard = ability.Spec.DiscardsEquipmentAsCost || ability.Spec.DiscardsHandCardAsCost;
+            var discardChoices = discardsHandCard
+                ? CoreRuleEngine.SimpleActivationDiscardChoices(state, player, ability.Spec.DiscardsHandCardAsCost).Select(id =>
                     new ActionPromptChoiceDto(id, "弃置" + ObjectChoice(state, id["DISCARD_HAND_CARD:".Length..], "费用").Label,
-                        "弃置装备以支付获得的技能费用")).ToArray() : [];
-            if (ability.Spec.DiscardsEquipmentAsCost && discardChoices.Length == 0) continue;
+                        "弃置手牌以支付获得的技能费用")).ToArray() : [];
+            if (discardsHandCard && discardChoices.Length == 0) continue;
             var banishChoices = ability.Spec.BanishesGraveyardPermanentAsCost
                 ? LegendGraveyardBanishCostRules.Choices(state, player).Select(id => new ActionPromptChoiceDto(id,
                     "放逐" + ObjectChoice(state, id[LegendGraveyardBanishCostRules.Prefix.Length..], "费用").Label,
@@ -47,15 +48,19 @@ internal static partial class ActionPromptBuilder
                 if (!CoreRuleEngine.TryBorrowedConversionMaximum(state, player, source, ability.Spec, out var maximum)) continue;
                 optional = ResourceConversionChoices(BorrowedExhaustRules.ConversionChoicePrefix, maximum, "选择资源转换数量");
             }
-            var targets = ability.Spec.Targets == 0 ? [] : (BorrowedExhaustRules.TargetsPlayer(ability.Spec)
-                ? state.Seats.Keys : state.CardObjects.Keys).Order(StringComparer.Ordinal)
-                .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec, source.ObjectId))
-                .Select(id => BorrowedExhaustRules.TargetsPlayer(ability.Spec)
-                    ? new ActionPromptChoiceDto(id, id, "所选玩家") : ObjectChoice(state, id, "技能目标")).ToArray();
-            if (targets.Length < ability.Spec.Targets) continue;
             var choices = Enumerable.Range(0, ability.Spec.Targets).ToDictionary(i => i.ToString(),
-                _ => (IReadOnlyList<ActionPromptChoiceDto>)targets);
+                i => (IReadOnlyList<ActionPromptChoiceDto>)(BorrowedExhaustRules.TargetsPlayer(ability.Spec)
+                    ? state.Seats.Keys : state.CardObjects.Keys).Order(StringComparer.Ordinal)
+                    .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec, source.ObjectId, i))
+                    .Select(id => BorrowedExhaustRules.TargetsPlayer(ability.Spec)
+                        ? new ActionPromptChoiceDto(id, id, "所选玩家") : ObjectChoice(state, id,
+                            ability.Spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT"
+                                ? i == 0 ? "单位" : "武装" : "技能目标")).ToArray());
+            var targets = choices.Values.SelectMany(c => c).DistinctBy(c => c.Id).ToArray();
+            if (choices.Values.Any(c => c.Count == 0) || targets.Length < ability.Spec.Targets) continue;
             var effect = ability.Spec.Kind switch {
+                "ATTACH_ARMAMENT" => "将你控制的一件未贴附的武装贴附到你控制的一名单位上",
+                "REATTACH_ARMAMENT" => "将你控制的一件已贴附的武装贴附到你控制的一名单位上",
                 "RETURN_UNIT_FREE_PLAY" => "让一名友方单位返回手牌，然后可免费打出战力更低的单位",
                 "RETURN_TO_HAND" => ability.Spec.TargetScope == "OWNED_TEEMO_UNIT"
                     ? "将你拥有的英雄区域或场上提莫单位放入手牌" : "让另一张友方装备、单位或正面朝下的卡牌返回手牌",
@@ -63,6 +68,8 @@ internal static partial class ActionPromptBuilder
                 "READY_EQUIPMENT" => $"让 {ability.Spec.Targets} 件装备活跃",
                 "READY_UNIT" => "让一名单位活跃",
                 "GRANT_NEXT_SPELL_ECHO" => "本回合打出的下一个法术获得等同于其费用的回响",
+                "GRANT_NEXT_SPELL_DAMAGE" => "本回合打出的下一个法术每段伤害+1",
+                "GRANT_NEXT_UNIT_READY" => "鼓舞时，本回合打出的下一名单位以活跃状态进场",
                 "TRANSFER_SOURCE_AND_RECALL" => "选择一名玩家，令其获得此牌控制权并召回",
                 "COMMAND_OPPONENT_MOVEMENT" => "选择一名对手，让其将一名单位移动到此牌所在战场",
                 "GUESS_DECK_TOP" => "选择一名对手猜测牌库顶类型，展示后回收或抽取",
@@ -77,14 +84,17 @@ internal static partial class ActionPromptBuilder
                 "BOON_OR_MIGHT" => $"给予一名单位增益；已有增益时改为本回合战力 +{ability.Spec.ExistingBoonMight}",
                 "EMPOWER_EQUIPMENT" => "强化另一件装备",
                 "KEYWORD_UNIT" => $"给予一名{(ability.Spec.TargetScope == "FRIENDLY_UNIT" ? "友方" : "")}单位本回合内{ability.Spec.Keyword}",
-                "DAMAGE_UNIT" => $"对一名单位造成 {ability.Spec.Damage} 点伤害",
+                "DAMAGE_UNIT" => ability.Spec.DamageFromSourceMight ? "对任意战场中的一名敌方单位造成等同于我战力的伤害"
+                    : $"对一名单位造成 {ability.Spec.Damage} 点伤害",
                 "STUN_ENEMY" => "眩晕一名敌方单位",
                 "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌"
+                    + (ability.Spec.RequiredEnemyTargetEvents > 0 ? "；本回合须已两次将敌方单位或装备选为法术或单位技能目标" : "")
                     + (ability.Spec.RuneCallCount > 0 ? $"并召出 {ability.Spec.RuneCallCount} 枚休眠符文" : ""),
                 "DISCARD_DRAW" => $"弃置一张手牌，然后抽 {ability.Spec.DrawCount} 张牌",
                 "DESTROY_SELF" => "摧毁此牌",
                 "CREATE_GOLD" => "打出一个休眠的金币装备指示物",
-                "CREATE_UNIT_TOKEN" => $"打出 {ability.Spec.TokenCount} 名 {ability.Spec.TokenMight} 战力的{ability.Spec.TokenName}"
+                "CREATE_UNIT_TOKEN" => $"打出 {ability.Spec.TokenCount} 名{(ability.Spec.TokensEnterReady ? "处于活跃状态的" : " ")}{ability.Spec.TokenMight} 战力的{ability.Spec.TokenName}"
+                    + (ability.Spec.TokenKeyword.Length > 0 ? $"，拥有{ability.Spec.TokenKeyword}" : "")
                     + (ability.Spec.TokensToBase ? "到你的基地" : "")
                     + (ability.Spec.RequiresPlayedArmamentThisTurn ? "；本回合须已打出武装" : ""),
                 "SCORE" => $"获得 {ability.Spec.ScoreAmount} 分",
@@ -97,14 +107,15 @@ internal static partial class ActionPromptBuilder
                 ? RenektonAwareRecycleRuneChoices(state, player, "支付获得的技能费用").ToArray() : [];
             var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, player, payments);
             yield return new(source.ObjectId, AttachedRuleTextRules.Face(source)!, ability.Id, "获得的横置技能",
-                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
-                ability.Spec.Mana, ability.Spec.Power, ability.Spec.Experience, ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
+                $"{(ability.Spec.Reaction ? "反应；" : ability.Spec.Swift ? "迅捷；" : "")}{(ability.Spec.RemovesSourceEmpowerment ? "解除我的强化；" : "")}{(ability.Spec.DiscardsEquipmentAsCost ? "弃置一张装备牌；" : ability.Spec.DiscardsHandCardAsCost ? "弃置一张手牌；" : "")}{(ability.Spec.BanishesGraveyardPermanentAsCost ? "放逐自己废牌堆中的一个单位或装备；" : "")}{(ability.Spec.DestroysSourceAsCost ? "摧毁此牌；" : "")}{(ability.Spec.RecycledCardCostCount > 0 ? $"回收 {ability.Spec.RecycledCardCostCount} 张{(ability.Spec.RecyclesOnlyUnitsAsCost ? "单位" : "")}牌；" : "")}{(ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? "休眠一名友方强力单位；" : "")}{(ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? ability.Spec.DestroyedFriendlyCardTypeAsCost switch { "UNIT" => "摧毁一名友方单位；", "EQUIPMENT" => "摧毁一件友方装备；", _ => "摧毁一个友方单位或装备；" } : "")}横置：{effect}",
+                CoreRuleEngine.BorrowedExhaustManaCost(state, player, ability.Spec), ability.Spec.Power, ability.Spec.Experience,
+                ability.Spec.TypedPower, ability.Spec.Targets, ability.Spec.Targets,
                 "技能目标", choices, optional, payments, ActivateAbilityPaymentResourcePowerByChoice(state, player, payments),
                 powerPool.TotalPower, PlayCardAvailablePowerByTrait(powerPool, new Dictionary<string, int>()),
                 new RunePaymentReachability(powerPool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(powerPool, byTrait),
                 [], true, ability.Spec.Kind == "RESOURCE", true, null, SpellshieldTaxPowerByTargetObjectId: taxes,
                 AdditionalCostChoices: discardChoices.Concat(banishChoices).Concat(recycleChoices).Concat(unitExhaustChoices).Concat(destructionChoices).ToArray(),
-                RequiredAdditionalCostChoiceCount: (ability.Spec.DiscardsEquipmentAsCost ? 1 : 0) + ability.Spec.RecycledCardCostCount
+                RequiredAdditionalCostChoiceCount: (discardsHandCard ? 1 : 0) + ability.Spec.RecycledCardCostCount
                     + (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
                     + (ability.Spec.DestroyedFriendlyCardTypeAsCost.Length > 0 ? 1 : 0)
                     + (ability.Spec.BanishesGraveyardPermanentAsCost ? 1 : 0));
@@ -123,6 +134,6 @@ internal static partial class ActionPromptBuilder
             "SPELL" => "；仅可用于打出法术", "UNIT" => "；仅可用于打出单位或使用单位技能",
             "EQUIPMENT" => "；仅可用于打出装备或使用装备技能", "DUEL" => "；仅可在法术对决中消耗",
             "PERMANENT_PLAY" => "；仅可用于打出单位或装备", _ => "" };
-        return "获得费用资源：" + string.Join("和", gains) + restriction;
+        return "获得费用资源：" + (spec.EffectRequiresEncouraged ? "鼓舞时" : "") + string.Join("和", gains) + restriction;
     }
 }

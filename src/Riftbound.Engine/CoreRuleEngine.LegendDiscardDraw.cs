@@ -11,7 +11,8 @@ public sealed partial class CoreRuleEngine
 {
     internal const string LegendDiscardDrawWindow = "LEGEND_DISCARD_DRAW";
 
-    internal static bool IsLegendDiscardDrawEffect(string effect) => effect == LegendAbilityEffectKinds.DiscardDraw;
+    internal static bool IsLegendDiscardDrawEffect(string effect)
+        => effect is LegendAbilityEffectKinds.DiscardDraw or LegendAbilityEffectKinds.DrawOne;
 
     private static bool ValidLegendDiscardDrawOrigin(MatchState state, LegendDiscardDrawContext context)
         => context.Source is { Generation: >= 0 } && !string.IsNullOrWhiteSpace(context.Source.ObjectId)
@@ -20,12 +21,15 @@ public sealed partial class CoreRuleEngine
             && context.StackItemId == $"STACK-{context.CapturedTick}-{context.Source.ObjectId}-LEGEND-DISCARD"
             && LegendActionAbilityCatalog.IsSourceCardNoForAbility(context.AbilityId, context.CardNo)
             && TryGetLegendAbility(context.AbilityId, out var ability) && IsLegendDiscardDrawEffect(ability.EffectKind)
+            && (!ability.RequiresEzrealEnemyTargetsThisTurn
+                || EzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, context.ControllerId) >= EzrealEnemyTargetThreshold)
             && PredictBindingMatches(state, context.Source, context.CardNo, context.FaceRevision, context.CapturedTick, null);
 
     internal static bool ValidLegendDiscardDraw(MatchState state, StackItemState item)
     {
         if (item.LegendDiscardDraw is not { } context) return !IsLegendDiscardDrawEffect(item.EffectKind);
         return IsLegendDiscardDrawEffect(item.EffectKind) && ValidLegendDiscardDrawOrigin(state, context)
+            && TryGetLegendAbility(context.AbilityId, out var ability) && item.EffectKind == ability.EffectKind
             && context.Source.ObjectId == item.SourceObjectId && context.CardNo == item.CardNo
             && context.ControllerId == item.ControllerId && context.StackItemId == item.StackItemId
             && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && item.OptionalCosts.Count == 0
@@ -40,7 +44,9 @@ public sealed partial class CoreRuleEngine
         if (choice.LegendDiscardDraw is not { } context)
             return choice.EffectKind != LegendDiscardDrawWindow && choice.ChoiceWindow != LegendDiscardDrawWindow
                 && choice.Reason != LegendDiscardDrawWindow;
-        if (!ValidLegendDiscardDrawOrigin(state, context) || !state.PlayerZones.TryGetValue(context.ControllerId, out var zones)) return false;
+        if (!ValidLegendDiscardDrawOrigin(state, context)
+            || !TryGetLegendAbility(context.AbilityId, out var ability) || ability.EffectKind != LegendAbilityEffectKinds.DiscardDraw
+            || !state.PlayerZones.TryGetValue(context.ControllerId, out var zones)) return false;
         var legal = zones.Hand.Where(id => IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, context.ControllerId, id))
             .Order(StringComparer.Ordinal).ToArray();
         return choice.PlayerId == context.ControllerId && choice.SourceObjectId == context.Source.ObjectId
@@ -62,9 +68,10 @@ public sealed partial class CoreRuleEngine
             LegendDiscardDraw = new(ability.AbilityId, new(sourceId, source.ObjectGeneration), cardNo, player,
                 stackId, tick, source.CopyFaceTransitions?.Count ?? 0) };
         var next = state with { Tick = tick, ActivePlayerId = player,
-            TimingState = state.TimingState == TimingStates.SpellDuelOpen ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed,
+            TimingState = state.TimingState is TimingStates.SpellDuelOpen or TimingStates.SpellDuelClosed
+                ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed,
             PriorityPlayerId = player, PassedPriorityPlayerIds = [], StackItems = [..state.StackItems, item] };
-        events.Add(new("STACK_ITEM_ADDED", "传奇弃牌抽牌技能加入结算链", new Dictionary<string, object?> {
+        events.Add(new("STACK_ITEM_ADDED", "传奇抽牌技能加入结算链", new Dictionary<string, object?> {
             ["stackItemId"] = stackId, ["controllerId"] = player, ["sourceObjectId"] = sourceId,
             ["cardNo"] = cardNo, ["effectKind"] = ability.EffectKind, ["abilityId"] = ability.AbilityId,
             ["targetObjectIds"] = Array.Empty<string>() }));
@@ -74,7 +81,8 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveLegendDiscardDraw(MatchState state, StackItemState item)
     {
         if (!ValidLegendDiscardDraw(state, item)) throw new InvalidOperationException("Invalid legend discard ability.");
-        return ResolveDiscardDrawStackItem(state, item, 1, 1, LegendDiscardDrawWindow, LegendDiscardDrawWindow,
+        return ResolveDiscardDrawStackItem(state, item, item.EffectKind == LegendAbilityEffectKinds.DiscardDraw ? 1 : 0, 1,
+            LegendDiscardDrawWindow, LegendDiscardDrawWindow,
             "LEGEND_ACTIVATED", activatedAbility: true);
     }
 }
