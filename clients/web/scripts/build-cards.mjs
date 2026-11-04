@@ -10,14 +10,20 @@ const target = path.resolve(here, "../public/cards.json");
 const catalog = JSON.parse(fs.readFileSync(source, "utf8"));
 
 // Later sets (VEN, RAD, tournament reprints…) are not in the base catalog: the server admits them
-// from upstream snapshots by (Id, CardNo) pairs listed in src/Riftbound.CardCatalog/*Sources.cs.
-// Read the same pairs so the table and deck builder know exactly the cards the server plays.
+// from upstream snapshots, by (Id, CardNo) pairs and by `CardNo is "A" or "B"` filters over its
+// scoped physical prints, written across src/Riftbound.CardCatalog/*.cs. Read the same so the
+// table and deck builder know exactly the cards the server plays.
 function admittedAdditions() {
   const sourcesDir = path.resolve(here, "../../../src/Riftbound.CardCatalog");
   const pairs = new Map();
-  for (const file of fs.readdirSync(sourcesDir).filter((f) => f.endsWith("Sources.cs")))
-    for (const m of fs.readFileSync(path.join(sourcesDir, file), "utf8").matchAll(/Id:\s*(\d+)L,\s*CardNo:\s*"([^"]+)"/g)) pairs.set(m[2], Number(m[1]));
+  const byNumber = new Set();
+  for (const file of fs.readdirSync(sourcesDir).filter((f) => f.endsWith(".cs"))) {
+    const text = fs.readFileSync(path.join(sourcesDir, file), "utf8");
+    for (const m of text.matchAll(/Id:\s*(\d+)L,\s*CardNo:\s*"([^"]+)"/g)) pairs.set(m[2], Number(m[1]));
+    for (const m of text.matchAll(/CardNo is ((?:"[^"]+"(?:\s+or\s+)?)+)/g)) for (const n of m[1].matchAll(/"([^"]+)"/g)) byNumber.add(n[1]);
+  }
   const byId = new Map();
+  const byNo = new Map();
   const walk = (dir) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, entry.name);
@@ -29,7 +35,13 @@ function admittedAdditions() {
         } catch {
           continue;
         }
-        if (Array.isArray(data?.cards)) for (const c of data.cards) if (c?.id != null && c.cardNo && !byId.has(c.id)) byId.set(c.id, c);
+        // Only full card records: Q&A and page dumps also list cards, often without their faces.
+        if (Array.isArray(data?.cards))
+          for (const c of data.cards)
+            if (c?.id != null && c.cardNo && c.cardName) {
+              if (!byId.has(c.id)) byId.set(c.id, c);
+              if (!byNo.has(c.cardNo)) byNo.set(c.cardNo, c);
+            }
       }
     }
   };
@@ -39,6 +51,12 @@ function admittedAdditions() {
     const card = byId.get(id);
     if (card) out.push({ ...card, cardNo });
     else console.warn(`build-cards: no upstream record for ${cardNo} (id ${id})`);
+  }
+  for (const cardNo of byNumber) {
+    if (pairs.has(cardNo)) continue;
+    const card = byNo.get(cardNo);
+    if (card) out.push(card);
+    else console.warn(`build-cards: no upstream record for ${cardNo}`);
   }
   return out;
 }
