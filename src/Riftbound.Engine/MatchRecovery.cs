@@ -3961,7 +3961,7 @@ public static partial class MatchRecoveryValidator
         // Public old-generation movement facts remain public, while the source
         // field can hide the source's new private incarnation. Authority parity
         // checks separately prove this exact captured fact and source visibility.
-        var capturedSource = source == "HIDDEN" && context?.Kind != TriggerKinds.OpponentMovedToOtherBattlefieldDraw
+        var capturedSource = source == "HIDDEN" && context?.Kind is not (TriggerKinds.OpponentMovedToOtherBattlefieldDraw or CoreRuleEngine.MovedEnemyStunKind)
             ? context?.Kind == TriggerKinds.BattlefieldUnitMovedAwayPowerModifier ? context.Unit?.Origin?.BattlefieldObjectId : context?.Unit?.ObjectId
             : source;
         if (context is null || !CoreRuleEngine.ValidMovementObserver(context, effect ?? "", controller ?? "", capturedSource ?? ""))
@@ -4291,7 +4291,7 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)
                 || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
-                    || !CoreRuleEngine.ValidUnitEventTargets(item)))
+                    || !CoreRuleEngine.ValidUnitEventTargets(item) || !CoreRuleEngine.ValidUnitEventMovementDeclaration(state, item)))
                 errors.Add("invalid captured unit event stack");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.UnitEventModeWindow } unitEventMode
             && !CoreRuleEngine.ValidUnitEventModeChoice(state, unitEventMode))
