@@ -4072,7 +4072,8 @@ public static partial class MatchRecoveryValidator
 
     private static bool ValidMovementPlayers(MatchState state, MovementObserverContext context)
         => (context.MovementBatch ?? [context.Unit]).All(unit => state.Seats.ContainsKey(unit.ControllerId)
-            && state.Seats.ContainsKey(unit.MovingPlayerId));
+            && state.Seats.ContainsKey(unit.MovingPlayerId) && state.Seats.ContainsKey(unit.Origin.PlayerId)
+            && state.Seats.ContainsKey(unit.Destination.PlayerId));
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
