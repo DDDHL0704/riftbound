@@ -40,6 +40,27 @@ public sealed partial class CoreRuleEngine
     internal static bool HasChosenMovementDestination(MatchState state, string player, string target)
         => ChosenMovementDestinations(state, player).Any(choice => IsUnitMovementDestination(state, target, choice.Id));
 
+    internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinationsForTarget(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition movement,
+        string targetObjectId)
+    {
+        if (!CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, targetObjectId))
+            return [];
+
+        var choices = ChosenMovementDestinations(state, playerId, movement, [targetObjectId])
+            .Where(choice => IsUnitMovementDestination(state, targetObjectId, choice.Id))
+            .Where(choice => ChosenMovementDestinationHasRequiredUnits(state, movement, targetObjectId, choice.Id));
+        if (movement.MovesTargetToOpenBattlefield)
+        {
+            choices = choices.Where(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                && IsOpenBattlefield(state, choice.Id[12..]));
+        }
+
+        return choices.ToArray();
+    }
+
     internal static bool IsOpenBattlefield(MatchState state, string fieldId)
         => BattlefieldLocalRules.Battlefield(state, fieldId) is { ControllerId: null }
             && !state.CardObjects.Values.Any(unit => FieldObjectTypeRules.IsVisibleUnit(unit)
