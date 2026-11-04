@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { client, type ClientState } from "../net/client";
 import { cardInfo, cardName, COLOR_HEX, useCards } from "../game/cards";
-import type { PreconstructedDeck, PublicMatch, SealedSet, Snapshot, Prompt } from "../game/types";
+import type { PreconstructedDeck, PublicMatch, SealedPackChoice, SealedSet, Snapshot, Prompt } from "../game/types";
+import { MIX_MAX_PACKS, MIX_MIN_PACKS, packMixLabel } from "../game/sealed";
 import { deckProblems, newDeckFrom, parseDeck, saveDeck, useCustomDecks, type CustomDeck } from "../game/decks";
 import { DeckBuilder } from "./DeckBuilder";
 import { enabledCandidate } from "../game/actions";
@@ -55,6 +56,8 @@ export function LobbyScreen({ state }: { state: ClientState }) {
   const [sets, setSets] = useState<SealedSet[]>([]);
   const [sealedSet, setSealedSet] = useState("");
   const [bestOf, setBestOf] = useState<1 | 3>(1);
+  const [mixing, setMixing] = useState(false);
+  const [mix, setMix] = useState<Record<string, number>>({});
 
   useEffect(() => {
     let alive = true;
@@ -77,6 +80,8 @@ export function LobbyScreen({ state }: { state: ClientState }) {
       if (!alive) return;
       setSets(list);
       setSealedSet((current) => current || list[0]?.setCode || "");
+      // Start the mix as an even split of the first two sets, which adds up to the official six.
+      setMix((current) => (Object.keys(current).length ? current : Object.fromEntries(list.map((s, i) => [s.setCode, i < 2 ? (list.length > 1 ? 3 : 6) : 0]))));
     });
     return () => {
       alive = false;
@@ -84,7 +89,14 @@ export function LobbyScreen({ state }: { state: ClientState }) {
   }, [state.server]);
 
   const matching = state.phase === "matchmaking";
-  const roomRules = (r: PublicMatch) => (r.format === "sealed" ? `现开 · ${sets.find((s) => s.setCode === r.setCode)?.name ?? r.setCode} · ${r.bestOf === 3 ? "三局两胜" : "单局"}` : null);
+  const roomRules = (r: PublicMatch) =>
+    r.format === "sealed"
+      ? `现开 · ${r.sealedPacks?.length ? packMixLabel(r.sealedPacks, sets) : (sets.find((s) => s.setCode === r.setCode)?.name ?? r.setCode)} · ${r.bestOf === 3 ? "三局两胜" : "单局"}`
+      : null;
+  const packs: SealedPackChoice[] = sets.flatMap((s) => ((mix[s.setCode] ?? 0) > 0 ? [{ setCode: s.setCode, count: mix[s.setCode] }] : []));
+  const mixTotal = packs.reduce((a, p) => a + p.count, 0);
+  const mixOk = mixTotal >= MIX_MIN_PACKS && mixTotal <= MIX_MAX_PACKS;
+  const bump = (setCode: string, by: number) => setMix((m) => ({ ...m, [setCode]: Math.max(0, Math.min(MIX_MAX_PACKS, (m[setCode] ?? 0) + by)) }));
 
   return (
     <main className="gate gate--lobby">
@@ -141,16 +153,50 @@ export function LobbyScreen({ state }: { state: ClientState }) {
         {sets.length > 0 && (
           <div className="lobby__block lobby__block--wide">
             <h2>现开赛</h2>
-            <p>每人开 6 包同系列卡包，只用开出的牌组一副至少 25 张的卡组。没开到传奇或英雄也能打，缺任何一个都会在首回合多抽一张。</p>
+            <p>
+              {mixing
+                ? `自由组合（非官方玩法）：每个系列选几包，合计 ${MIX_MIN_PACKS}–${MIX_MAX_PACKS} 包，双方开同样的组合。`
+                : "每人开 6 包同系列卡包，"}
+              只用开出的牌组一副至少 25 张的卡组。没开到传奇或英雄也能打，缺任何一个都会在首回合多抽一张。
+            </p>
             <div className="lobby__options">
-              <div className="lobby__option" role="radiogroup" aria-label="系列">
-                <span className="muted small">系列</span>
-                {sets.map((s) => (
-                  <button key={s.setCode} role="radio" aria-checked={s.setCode === sealedSet} className={`chip${s.setCode === sealedSet ? " chip--on" : ""}`} onClick={() => setSealedSet(s.setCode)}>
-                    {s.name}
-                  </button>
-                ))}
+              <div className="lobby__option" role="radiogroup" aria-label="卡包">
+                <span className="muted small">卡包</span>
+                <button role="radio" aria-checked={!mixing} className={`chip${!mixing ? " chip--on" : ""}`} onClick={() => setMixing(false)}>
+                  单一系列
+                </button>
+                <button role="radio" aria-checked={mixing} className={`chip${mixing ? " chip--on" : ""}`} onClick={() => setMixing(true)}>
+                  自由组合
+                </button>
               </div>
+              {mixing ? (
+                <div className="lobby__option lobby__mix" aria-label="卡包组合">
+                  {sets.map((s) => (
+                    <span key={s.setCode} className={`mix${(mix[s.setCode] ?? 0) > 0 ? " mix--on" : ""}`}>
+                      <span>{s.name}</span>
+                      <button className="mix__step" aria-label={`${s.name}少一包`} disabled={(mix[s.setCode] ?? 0) === 0} onClick={() => bump(s.setCode, -1)}>
+                        −
+                      </button>
+                      <b>{mix[s.setCode] ?? 0}</b>
+                      <button className="mix__step" aria-label={`${s.name}多一包`} disabled={mixTotal >= MIX_MAX_PACKS} onClick={() => bump(s.setCode, 1)}>
+                        ＋
+                      </button>
+                    </span>
+                  ))}
+                  <span className={`small${mixOk ? " muted" : " mix__bad"}`}>
+                    共 {mixTotal} 包{mixOk ? "" : `，需 ${MIX_MIN_PACKS}–${MIX_MAX_PACKS} 包`}
+                  </span>
+                </div>
+              ) : (
+                <div className="lobby__option" role="radiogroup" aria-label="系列">
+                  <span className="muted small">系列</span>
+                  {sets.map((s) => (
+                    <button key={s.setCode} role="radio" aria-checked={s.setCode === sealedSet} className={`chip${s.setCode === sealedSet ? " chip--on" : ""}`} onClick={() => setSealedSet(s.setCode)}>
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="lobby__option" role="radiogroup" aria-label="赛制">
                 <span className="muted small">赛制</span>
                 {(
@@ -164,7 +210,11 @@ export function LobbyScreen({ state }: { state: ClientState }) {
                   </button>
                 ))}
               </div>
-              <button className="btn btn--primary" disabled={matching || !sealedSet} onClick={() => void client.createSealedRoom(sealedSet, bestOf)}>
+              <button
+                className="btn btn--primary"
+                disabled={matching || (mixing ? !mixOk : !sealedSet)}
+                onClick={() => void (mixing ? client.createSealedRoom(null, bestOf, packs) : client.createSealedRoom(sealedSet, bestOf))}
+              >
                 创建现开房间
               </button>
             </div>

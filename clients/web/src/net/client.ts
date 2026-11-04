@@ -6,6 +6,7 @@ import type {
   PlayerSession,
   Prompt,
   PublicMatch,
+  SealedPackChoice,
   SealedSet,
   ServerMessage,
   Snapshot,
@@ -306,12 +307,13 @@ export class GameClient {
     return result?.match.roomId ?? null;
   }
 
-  async createSealedRoom(setCode: string, bestOf: 1 | 3) {
+  /** One set (official six packs) or, with `packs`, a custom ordered mix where setCode stays empty. */
+  async createSealedRoom(setCode: string | null, bestOf: 1 | 3, packs?: SealedPackChoice[]) {
     this.set({ snapshot: null, prompt: null, log: [], tally: {} });
     const result = await this.connection!.invoke<{ match: { roomId: string } } | null>(
       "CreatePublicMatchWithOptions",
       this.state.handle,
-      { format: "sealed", setCode, bestOf },
+      packs ? { format: "sealed", setCode: null, bestOf, packs } : { format: "sealed", setCode, bestOf },
     );
     return result?.match.roomId ?? null;
   }
