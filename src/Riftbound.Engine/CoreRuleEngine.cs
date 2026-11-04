@@ -13940,7 +13940,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static int ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(MatchState state, CardObjectState card)
     {
-        if (!card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)) return 0;
+        // Synthetic rule fixtures may omit type tags; FieldObjectTypeRules
+        // preserves their historical untyped-unit interpretation while still
+        // excluding explicit non-unit equipment/spells from Might calculation.
+        if (!FieldObjectTypeRules.HasUnitType(card)) return 0;
         var before = CurrentPowerBeforeConditionalAuras(state, card);
         return Math.Max(0, before + ConditionalPowerAuraContributions(state, card, before).Sum(c => c.Delta));
     }

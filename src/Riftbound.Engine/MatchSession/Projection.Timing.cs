@@ -801,7 +801,7 @@ public sealed partial record ResolutionResult
     internal static int SnapshotEffectivePower(MatchState state, CardObjectState card, ObjectLocationState? location)
     {
         // A retained boon does not give non-unit equipment a Might characteristic.
-        if (!card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)) return 0;
+        if (!FieldObjectTypeRules.HasUnitType(card)) return 0;
         if (card.IsFaceDown
             || location?.Zone is not ("BASE" or "BATTLEFIELD")) return card.Power;
         return CoreRuleEngine.ResolveCurrentFieldUnitPower(state, card);

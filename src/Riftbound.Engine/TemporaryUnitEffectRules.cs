@@ -56,7 +56,7 @@ internal static class TemporaryUnitEffectRules
             ? null : Number(card, BaseMightPrefix);
 
     internal static int BaseMight(CardObjectState card)
-        => !card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal) ? 0
+        => !FieldObjectTypeRules.HasUnitType(card) ? 0
             : ActiveBaseMightReplacement(card) ?? (card.LegendEquipmentUnit is not null
             ? card.ManaCost : card.Power - card.UntilEndOfTurnPowerModifier);
 
