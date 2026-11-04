@@ -338,7 +338,7 @@ public sealed partial class CoreRuleEngine
             || context.SourceFaceRevision < 0
             || (ability.SwiftSpeed ? context.ReturnTiming is not ("" or TimingStates.SpellDuelOpen) : context.ReturnTiming != "")
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
+            || !P4ActivatedAbilityCatalog.IsActivationSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
             || !ValidActivationAttribute(state, context, ability.SimpleEffect!.TargetsDeclaredAttribute)
             || !ValidExhaustedCostUnit(state, context.ExhaustedCostUnit, ability.SimpleEffect!.MovesToExhaustedCostUnit,

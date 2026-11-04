@@ -44,7 +44,8 @@ public sealed record P4ActivatedAbilityDefinition(
     int? PowerModifierAmountIfSourceEmpowered = null,
     string SourceScope = "",
     string RequiredControllerCardNoOnField = "",
-    bool UsableByAnyPlayerOnOwnTurn = false);
+    bool UsableByAnyPlayerOnOwnTurn = false,
+    bool BorrowedSourceAlias = false);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -324,7 +325,8 @@ public static class P4ActivatedAbilityCatalog
             "来路不明的武器", 0, 0, 1, false, true, 0, true,
             "官方中文：弃置一张手牌并横置；本回合目标下次被摧毁时可支付红色符能改为休眠召回，不移除伤害。",
             SourceRequiredTag: CardObjectTags.EquipmentCard,
-            SimpleEffect: new(DiscardsHandCardAsCost: true, GrantsPaidRecall: true)),
+            SimpleEffect: new(DiscardsHandCardAsCost: true, GrantsPaidRecall: true),
+            BorrowedSourceAlias: true),
         new("RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "RAD·114/167", "RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "锐雯 · 弃暗投明", 0, 0, 1,
             false, false, 0, true, "官方中文：让一名友方单位变为休眠状态，让一名单位变为活跃状态；每回合一次。",
             SourceRequiredTag: CardObjectTags.UnitCard,
@@ -838,14 +840,20 @@ public static class P4ActivatedAbilityCatalog
         P4ActivatedAbilityDefinition definition,
         string? cardNo)
     {
-        // This catalog entry describes the borrowed copy of the weapon skill.
-        // Its donor card number must not make the borrowed skill look like a
-        // native activation of a physical Mysterious Weapon.
-        if (definition.AbilityId == SmuggledWeaponPaidRecallAbilityId)
+        // Borrowed source aliases are registered for the shared resolution
+        // path, but their donor card number must not look like another native
+        // activation of the physical card in catalog/source guards.
+        if (definition.BorrowedSourceAlias)
             return false;
         return SourceCardNosForAbility(definition)
             .Contains(cardNo ?? string.Empty, StringComparer.Ordinal);
     }
+
+    internal static bool IsActivationSourceCardNoForAbility(
+        P4ActivatedAbilityDefinition definition,
+        string? cardNo)
+        => SourceCardNosForAbility(definition)
+            .Contains(cardNo ?? string.Empty, StringComparer.Ordinal);
 
     public static bool IsSourceCardNoForAbilityId(
         string abilityId,
