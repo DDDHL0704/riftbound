@@ -212,12 +212,19 @@ public sealed class SealedRoomPoolRecoveryTests
     }
 
     [Theory]
-    [InlineData("RAD", 1)]
+    [InlineData("unknown", 1)]
     [InlineData("OGN", 2)]
     [InlineData("", 1)]
-    public void UnsupportedRoomOptionsCannotCreatePools(string setCode, int bestOf)
+    public void InvalidRoomOptionsCannotCreatePools(string setCode, int bestOf)
     {
         Assert.Throws<ArgumentException>(() => MatchSessionOptions.ForSealed(setCode, bestOf));
+    }
+
+    [Fact]
+    public void NewlyEnabledSeriesCanCreateSealedRoomOptions()
+    {
+        foreach (var setCode in new[] { "UNL", "VEN", "RAD" })
+            Assert.Equal(setCode, MatchSessionOptions.ForSealed(setCode, 1).SealedSetCode);
     }
 
     [Fact]

@@ -10,7 +10,7 @@ public sealed partial class GameHubJoinTests
 {
     public static IEnumerable<object[]> InvalidMixedPackOptions()
     {
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("UNL", 6)]), "系列 UNL"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("XYZ", 6)]), "系列 XYZ"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 3), new("OGN", 3)]), "不能重复"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 5)]), "6 至 12"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 13)]), "6 至 12"];
@@ -77,7 +77,7 @@ public sealed partial class GameHubJoinTests
     }
 
     [Theory]
-    [InlineData("sealed", "RAD", 1)]
+    [InlineData("sealed", "unknown", 1)]
     [InlineData("sealed", null, 3)]
     [InlineData("sealed", "OGN", 2)]
     [InlineData("constructed", null, 3)]
@@ -105,6 +105,9 @@ public sealed partial class GameHubJoinTests
     [Theory]
     [InlineData("OGN", 1)]
     [InlineData("SFD", 3)]
+    [InlineData("UNL", 1)]
+    [InlineData("VEN", 3)]
+    [InlineData("RAD", 1)]
     public async Task SealedLobbyCreatesListsAndSeatsRealPrivatePoolsAndEnablesTheDesignatedOrderChoice(string setCode, int bestOf)
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
@@ -124,6 +127,8 @@ public sealed partial class GameHubJoinTests
         var own = Assert.IsType<SnapshotDto>(Assert.Single(aliceClients.CallerClient.Snapshots).Payload);
         Assert.Equal(setCode, own.SealedPool!.SetCode);
         Assert.Equal(6, own.SealedPool.Packs.Count);
+        Assert.Equal(78, own.SealedPool.Pool.Sum(card => card.Count));
+        Assert.All(own.SealedPool.Packs, pack => Assert.Equal(setCode, pack.SetCode));
         Assert.Null(own.Series);
 
         var bobClients = new RecordingHubClients();
@@ -138,6 +143,8 @@ public sealed partial class GameHubJoinTests
         Assert.Equal(setCode, own.SetCode);
         Assert.Equal(bestOf, own.BestOf);
         Assert.Equal(6, own.SealedPool!.Packs.Count);
+        Assert.Equal(78, own.SealedPool.Pool.Sum(card => card.Count));
+        Assert.All(own.SealedPool.Packs, pack => Assert.Equal(setCode, pack.SetCode));
         var chooser = own.Series!.PlayOrderChooserPlayerId!;
         var chooserHub = chooser == "alice" ? alice : bob;
         var receipt = await chooserHub.SubmitIntent(created.Match.RoomId, chooser, "public-choose", System.Text.Json.JsonSerializer.SerializeToElement(

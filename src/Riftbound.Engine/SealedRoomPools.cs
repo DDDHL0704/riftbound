@@ -215,7 +215,7 @@ public static class SealedRoomPools
                 if (pack.Cards is null || pack.Cards.Count != slots.Values.Sum() || pack.PoolCardNos is null
                     || pack.SetCode != set.SetCode
                     || pack.Cards.Any(card => card is null || string.IsNullOrWhiteSpace(card.CardNo))
-                    || pack.Cards.Any(card => !card.CardNo.StartsWith(set.SetCode + "·", StringComparison.Ordinal))
+                    || pack.Cards.Any(card => !IsCardNoInSet(card.CardNo, set))
                     || !pack.Cards.Where(card => card.Slot != "rune_or_token").Select(card => card.CardNo).SequenceEqual(pack.PoolCardNos)
                     || pack.PoolCardNos.Count != slots.Values.Sum() - set.Booster.RuneOrTokenSlots
                     || slots.Any(slot => pack.Cards.Count(card => card.Slot == slot.Key) != slot.Value)
@@ -229,4 +229,8 @@ public static class SealedRoomPools
         }
         return [];
     }
+
+    private static bool IsCardNoInSet(string cardNo, SealedSetDefinition set) =>
+        cardNo.StartsWith(set.SetCode + "·", StringComparison.Ordinal)
+        || set.SetCode == "UNL" && cardNo.StartsWith("UNL-", StringComparison.Ordinal);
 }

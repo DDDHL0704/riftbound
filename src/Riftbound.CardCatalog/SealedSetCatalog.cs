@@ -62,6 +62,9 @@ public static class SealedSetCatalog
                 || rates.AltArtPerPack.Value + rates.OvernumberedPerPack.Value
                     + rates.SpecialAltArtPerPack.Value + rates.UltimatePerPack.Value > 1)
                 throw new InvalidDataException($"Sealed replacement probabilities exceed one: {set.SetCode}.");
+            if (rates.SpecialAltArtPerPack.Value > 0 && set.SpecialAltArtCardNos.Count == 0
+                || rates.UltimatePerPack.Value > 0 && set.UltimateCardNos.Count == 0)
+                throw new InvalidDataException($"Sealed replacement targets are missing: {set.SetCode}.");
         }
         return config with { Sets = config.Sets.ToImmutableArray(), Sha256 = Convert.ToHexStringLower(SHA256.HashData(bytes)) };
     }
@@ -76,7 +79,8 @@ public sealed record SealedSetConfiguration(int Version, IReadOnlyList<SealedSet
 public sealed record SealedSetDefinition(
     string SetCode, string Name, bool Enabled, string BoosterProductCode, bool SelectBySetPrefix,
     SealedBoosterDefinition Booster, SealedPackRates Rates, bool VariantOnlyInSecondRareSlot,
-    IReadOnlyList<string> SpecialAltArtCardNos, IReadOnlyList<string> UltimateCardNos);
+    IReadOnlyList<string> SpecialAltArtCardNos, IReadOnlyList<string> UltimateCardNos,
+    IReadOnlyList<string>? ExcludedCardNos = null);
 public sealed record SealedBoosterDefinition(
     int CommonSlots, int UncommonSlots, int RareSlots, int FoilSlots, int RuneOrTokenSlots,
     string SourceLevel, string SourceUrl, SealedSourceValue NoSameRarityDuplicates);
@@ -201,7 +205,9 @@ public static class SealedPackGenerator
     }
 
     public static IReadOnlyList<OfficialCard> EligibleCards(OfficialCardCatalog catalog, SealedSetDefinition definition) =>
-        catalog.Cards.Where(card => card.CardNo.StartsWith(definition.SetCode + "·", StringComparison.Ordinal))
+        catalog.Cards.Where(card => card.CardNo.StartsWith(definition.SetCode + "·", StringComparison.Ordinal)
+                || definition.SetCode == "UNL" && card.CardNo.StartsWith("UNL-", StringComparison.Ordinal))
+            .Where(card => definition.ExcludedCardNos?.Contains(card.CardNo, StringComparer.Ordinal) != true)
             .Where(card => definition.SelectBySetPrefix || card.ProductCodeList.Contains(definition.BoosterProductCode, StringComparer.Ordinal))
             .DistinctBy(card => card.CardNo, StringComparer.Ordinal).OrderBy(card => card.CardNo, StringComparer.Ordinal).ToArray();
 

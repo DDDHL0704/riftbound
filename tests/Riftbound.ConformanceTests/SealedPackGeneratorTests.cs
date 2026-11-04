@@ -12,8 +12,7 @@ public sealed class SealedPackGeneratorTests
     [Fact]
     public void SetsEndpointExposesOnlyEnabledConfiguredSets()
     {
-        Assert.Equal(["OGN", "SFD"], SealedEndpoints.ListSets().Select(set => set.SetCode));
-        Assert.DoesNotContain(SealedEndpoints.ListSets(), set => set.SetCode is "RAD" or "UNL" or "VEN");
+        Assert.Equal(["OGN", "SFD", "UNL", "VEN", "RAD"], SealedEndpoints.ListSets().Select(set => set.SetCode));
         Assert.True(SealedSetCatalog.TryGet(" ogn ", out var origins));
         Assert.Equal("OGN(进阶补充包)", origins.BoosterProductCode);
     }
@@ -21,6 +20,9 @@ public sealed class SealedPackGeneratorTests
     [Theory]
     [InlineData("OGN")]
     [InlineData("SFD")]
+    [InlineData("UNL")]
+    [InlineData("VEN")]
+    [InlineData("RAD")]
     public async Task SixPacksPreservePhysicalPrintsSlotsAndDeterministicPrivatePool(string setCode)
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
@@ -50,8 +52,21 @@ public sealed class SealedPackGeneratorTests
             Assert.DoesNotContain(rune.CardNo, pack.PoolCardNos);
             Assert.All(pack.Cards, item =>
             {
-                Assert.StartsWith(setCode + "·", item.CardNo);
-                Assert.Contains(setCode + "(进阶补充包)", byNo[item.CardNo].ProductCodeList);
+                var card = byNo[item.CardNo];
+                if (setCode == "UNL")
+                {
+                    Assert.True(item.CardNo.StartsWith("UNL-", StringComparison.Ordinal)
+                        || item.CardNo.StartsWith("UNL·", StringComparison.Ordinal));
+                    Assert.Contains("UNL(进阶补充包)", card.ProductCodeList);
+                }
+                else
+                {
+                    Assert.StartsWith(setCode + "·", item.CardNo);
+                    if (setCode == "RAD")
+                        Assert.DoesNotContain(item.CardNo, new[] { "RAD·SP1/005", "RAD·SP2/005", "RAD·SP3/005", "RAD·SP4/005", "RAD·SP5/005" });
+                    else
+                        Assert.Contains(setCode + "(进阶补充包)", card.ProductCodeList);
+                }
             });
             var physical = pack.Cards.Select(card => byNo[card.CardNo]).ToArray();
             Assert.All(FunctionalUnitBuilder.Build(physical), unit => Assert.Single(unit.Cards));
@@ -67,15 +82,23 @@ public sealed class SealedPackGeneratorTests
     public async Task EveryEnabledPhysicalPrintingLoadsAndHasAnImplementedBehavior()
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        var completeCards = VendettaCardSources.GetOfficialCards().Concat(catalog.Cards)
+            .GroupBy(card => card.CardNo, StringComparer.Ordinal)
+            .Select(group => group.Last()).ToArray();
+        var completeCatalog = catalog with { Total = completeCards.Length, Cards = completeCards };
         var play = CardBehaviorRegistry.GetAll().Select(definition => new ImplementedCardBehavior(
             definition.CardNo, definition.EffectKind, definition.DisplayName,
             CardBehaviorRegistry.TriggerEffectKinds(definition))).ToArray();
-        var implemented = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(catalog.Cards, play);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, FunctionalUnitBuilder.Build(catalog.Cards), implemented)
+        var implemented = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(completeCards, play);
+        var specs = BehaviorSpecCatalogBuilder.Build(completeCards, FunctionalUnitBuilder.Build(completeCards), implemented)
             .ToDictionary(spec => spec.CardNo, StringComparer.Ordinal);
         foreach (var set in SealedSetCatalog.Available)
         {
-            foreach (var card in SealedPackGenerator.EligibleCards(catalog, set))
+            var officialCandidates = SealedPackGenerator.EligibleCards(completeCatalog, set);
+            var runtimeCandidates = SealedPackGenerator.EligibleCards(catalog, set);
+            Assert.Equal(officialCandidates.Select(card => card.CardNo), runtimeCandidates.Select(card => card.CardNo));
+            Assert.NotEmpty(runtimeCandidates);
+            foreach (var card in runtimeCandidates)
             {
                 Assert.True(PrintedCardFactory.TryCreate("sealed-card", "P1", card.CardNo, out var physical), card.CardNo);
                 Assert.Equal(card.CardNo, physical.CardNo);
@@ -85,6 +108,75 @@ public sealed class SealedPackGeneratorTests
                     $"{card.CardNo} {card.CardName}: {specs[card.CardNo].Status}");
             }
         }
+    }
+
+    [Fact]
+    public async Task VendettaCandidateEntriesNotInItsSupplementalListComeFromExistingReviewedSources()
+    {
+        var runtime = await OfficialCardCatalog.LoadRuntimeAsync();
+        var official = VendettaCardSources.GetOfficialCards();
+        var original = await OfficialCardCatalog.LoadDefaultAsync();
+        Assert.True(SealedSetCatalog.TryGet("VEN", out var set));
+        var candidates = SealedPackGenerator.EligibleCards(new OfficialCardCatalog(
+            official.First().CardNo, string.Empty, string.Empty, official.Count, official), set);
+        var explicitlyAdmitted = VendettaCardSources.GetAdmittedCards().Select(card => card.CardNo)
+            .ToHashSet(StringComparer.Ordinal);
+        var missingFromSourceList = candidates.Where(card => !explicitlyAdmitted.Contains(card.CardNo)).ToArray();
+        Assert.Equal(78, missingFromSourceList.Length);
+        var originalNos = original.Cards.Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(73, missingFromSourceList.Count(card => originalNos.Contains(card.CardNo)));
+        var separatelyReviewed = ReviewedRuneCardSources.GetAll().Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
+            .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal);
+        var missingFromOriginal = missingFromSourceList.Where(card => !originalNos.Contains(card.CardNo)).ToArray();
+        Assert.Equal(["VEN·005", "VEN·006", "VEN·141", "VEN·190", "VEN·190*"],
+            missingFromOriginal.Select(card => card.CardNo).Order(StringComparer.Ordinal));
+        Assert.All(missingFromOriginal, card => Assert.Contains(card.CardNo, separatelyReviewed));
+        Assert.All(missingFromSourceList, card => Assert.Contains(runtime.Cards, item => item.CardNo == card.CardNo));
+    }
+
+    [Fact]
+    public async Task SpecialPrintingTargetsAreBackedByActualBoosterPrints()
+    {
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        Assert.True(SealedSetCatalog.TryGet("VEN", out var ven));
+        Assert.Equal(["VEN·SP1", "VEN·SP2", "VEN·SP3", "VEN·SP4", "VEN·SP5", "VEN·SP6"], ven.SpecialAltArtCardNos);
+        var venCandidates = SealedPackGenerator.EligibleCards(catalog, ven).ToDictionary(card => card.CardNo, StringComparer.Ordinal);
+        foreach (var cardNo in ven.SpecialAltArtCardNos)
+        {
+            var card = venCandidates[cardNo];
+            Assert.Equal("legacy_etching", card.ExtendRarity);
+            Assert.Contains(ven.BoosterProductCode, card.ProductCodeList);
+        }
+        var zero = ven.Rates.AltArtPerPack with { Value = 0 };
+        var forced = SealedPackGenerator.Generate(catalog, ven with { Rates = ven.Rates with {
+            AltArtPerPack = zero,
+            OvernumberedPerPack = zero,
+            SpecialAltArtPerPack = ven.Rates.SpecialAltArtPerPack with { Value = 1 }
+        }}, "forced-ven-special-alt-art");
+        Assert.Equal(6, forced.Packs.Count);
+        Assert.All(forced.Packs, pack => Assert.Contains(pack.Cards,
+            card => ven.SpecialAltArtCardNos.Contains(card.CardNo, StringComparer.Ordinal)));
+
+        Assert.True(SealedSetCatalog.TryGet("RAD", out var radiant));
+        var forcedAltRune = SealedPackGenerator.Generate(catalog, radiant with { Rates = radiant.Rates with {
+            AltRunePerPack = radiant.Rates.AltRunePerPack with { Value = 1 }
+        }}, "forced-rad-alt-rune");
+        Assert.Equal(78, forcedAltRune.Pool.Values.Sum());
+        Assert.All(forcedAltRune.Packs, pack => Assert.Contains(
+            Assert.Single(pack.Cards, card => card.Slot == "rune_or_token").CardNo,
+            new[] { "RAD·R01a", "RAD·R02a", "RAD·R03a", "RAD·R04a", "RAD·R05a", "RAD·R06a" }));
+
+        Assert.True(SealedSetCatalog.TryGet("UNL", out var unl));
+        Assert.Empty(unl.UltimateCardNos);
+        Assert.Equal(0, unl.Rates.UltimatePerPack.Value);
+        Assert.Contains("待确认", unl.Rates.UltimatePerPack.Note);
+        Assert.True(SealedSetCatalog.TryGet("RAD", out var rad));
+        Assert.Empty(rad.SpecialAltArtCardNos);
+        Assert.Empty(rad.UltimateCardNos);
+        Assert.Equal(0, rad.Rates.SpecialAltArtPerPack.Value);
+        Assert.Equal(0, rad.Rates.UltimatePerPack.Value);
+        Assert.Contains("待确认", rad.Rates.SpecialAltArtPerPack.Note);
+        Assert.Contains("待确认", rad.Rates.UltimatePerPack.Note);
     }
 
     [Theory]
@@ -131,11 +223,10 @@ public sealed class SealedPackGeneratorTests
     }
 
     [Fact]
-    public async Task DisabledOrUnknownSetsAndEmptySeedsCannotGenerateAPubliclySelectedPool()
+    public async Task UnknownSetsAndEmptySeedsCannotGenerateAPubliclySelectedPool()
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
-        foreach (var code in new[] { "RAD", "UNL", "VEN", "unknown" })
-            Assert.Throws<ArgumentException>(() => SealedPackGenerator.Generate(catalog, code, "private-seed"));
+        Assert.Throws<ArgumentException>(() => SealedPackGenerator.Generate(catalog, "unknown", "private-seed"));
         Assert.Throws<ArgumentException>(() => SealedPackGenerator.Generate(catalog, "OGN", " "));
     }
 

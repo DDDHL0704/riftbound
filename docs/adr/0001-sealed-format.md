@@ -7,7 +7,7 @@
 | 入口／字段 | 契约 |
 | --- | --- |
 | 建房 | `CreatePublicMatchWithOptions(playerId, { format = "constructed", setCode = null, bestOf = 1, packs = null })`；现开单系列继续使用 `format = "sealed"`、`setCode` 和 `bestOf = 1 / 3`；自定义玩法传有序 `packs: [{ setCode, count }]`，此时 `setCode` 必须为空，系列不可重复且须已开放，每项至少 1 包、合计 6–12 包；默认仍为官方 602.4.a.1 的单系列六包。保留单参数 `CreatePublicMatch(playerId)` 作为默认构筑入口（SignalR 不支持通过 C# 可选参数省略线上的参数）；匹配队列只开放构筑。格式／系列会规范化，未开放系列、非法组合和非法局制在建房及发布目录前返回中文错误；构筑 `bestOf` 只能为 1。大厅列表保留同一房间格式、系列、局制及有序组合。 |
-| 系列 | `GET /sealed/sets` → `[{ setCode, name }]`；唯一开放名单为 `data/official/sealed-sets.json` 的 `enabled`；OGN、SFD 开放，UNL、VEN、RAD 未完整接入，不开放。 |
+| 系列 | `GET /sealed/sets` → `[{ setCode, name }]`；唯一开放名单为 `data/official/sealed-sets.json` 的 `enabled`；OGN、SFD、UNL、VEN、RAD 均开放。UNL 同时接受官方目录的 `UNL-` 编号和历史指示物的 `UNL·` 编号；VEN 的 `SP1–SP6` 是进阶包特殊异画目标。RAD 进阶包排除随附英雄包 `SP1–SP5`；特殊异画、终极实体编号仍待官方完整目录确认，因此对应概率暂为零。 |
 | 房间／快照 | `PublicMatchDto`、`SnapshotDto` 带 `format`、`setCode`、`bestOf`；自定义组合还带公开的有序 `sealedPacks: [{ setCode, count }]`；`setCode` 非现开为空，自定义组合也为空。 |
 | 私有卡池 | 快照顶层 `sealedPool: { setCode, packs: [{ setCode, cards: [{ cardNo, slot, foil }] }], pool: [{ cardNo, count }] }`；只向本人返回，对手和观战者为空（序列化可省略空值）。自定义组合的 `sealedPool.setCode` 为空，每包的 `setCode` 标明系列；每人按 `sealedPacks` 顺序依次开包，各包使用对应系列的槽位／概率配置和按包序号派生的私有种子。`slot` 为 `common / uncommon / rare_or_better / foil / rune_or_token`；稀有槽、闪卡槽及符文／指示物槽 `foil = true`。 |
 | 提交 | 继续 `SUBMIT_DECK { legendCardNo, championCardNo, mainDeck, runeDeck, battlefields }`；现开传奇／英雄可为 `null` 或空字符串。单局制提交 3 张战场，三局两胜每局提交 1 张。空白战场固定保留编号 `SEALED·BLANK-BATTLEFIELD`，只在现开解释。拒绝返回逐条中文错误。 |
@@ -40,7 +40,7 @@
 
 ## 卡包数据和来源等级
 
-每包进阶包 14 张：7 普通、3 不凡、2 稀有或更高、1 闪卡、1 符文／指示物；移除最后一槽后 13 张（602.4.b.2.a）。按进阶包产品成员筛选（排除预组专有）；RAD 因目录产品字段为空按 `RAD·` 前缀筛选，开放前须补齐全部印次。所有概率在配置，生成器没有系列常量。
+每包进阶包 14 张：7 普通、3 不凡、2 稀有或更高、1 闪卡、1 符文／指示物；移除最后一槽后 13 张（602.4.b.2.a）。按进阶包产品成员筛选（排除预组专有）；UNL 兼容 `UNL-` 与 `UNL·` 目录编号，RAD 因目录产品字段为空按 `RAD·` 前缀筛选并排除随附英雄包 `SP1–SP5`。所有概率在配置，生成器没有系列常量；替换概率为非零时必须有对应实体卡号，无法核实的 UNL 终极及 RAD 特殊异画／终极概率置零并标“待确认”。
 
 | 来源等级 | 依据与配置 |
 | --- | --- |
