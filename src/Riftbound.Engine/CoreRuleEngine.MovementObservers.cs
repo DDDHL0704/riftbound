@@ -40,7 +40,10 @@ public sealed partial class CoreRuleEngine
         => unit is { Generation: >= 0 } && !string.IsNullOrWhiteSpace(unit.ObjectId)
             && !string.IsNullOrWhiteSpace(unit.ControllerId) && !string.IsNullOrWhiteSpace(unit.MovingPlayerId)
             && unit.Origin is not null && unit.Destination is not null && unit.Origin != unit.Destination
-            && unit.Origin.PlayerId == unit.ControllerId && unit.Destination.PlayerId == unit.ControllerId
+            && unit.Origin.PlayerId == unit.ControllerId
+            && (unit.Destination.PlayerId == unit.ControllerId
+                || unit.MovingPlayerId != unit.ControllerId && unit.Destination.PlayerId == unit.MovingPlayerId
+                    && unit.Destination is { Zone: "BASE", BattlefieldObjectId: null })
             && unit.Origin.Zone is "BASE" or "BATTLEFIELD" && unit.Destination.Zone is "BASE" or "BATTLEFIELD";
 
     internal static bool ValidMovementObserver(MovementObserverContext c, string effect, string controller, string source, string? cardNo = null)
@@ -154,13 +157,13 @@ public sealed partial class CoreRuleEngine
                 _ => "：离开此处的单位本回合战力 +1" });
 
     private static MovedUnitFact? CaptureMovedUnitFact(MatchState before, string unitId, string movingPlayer,
-        string destinationZone, string? destinationField = null)
+        string destinationZone, string? destinationField = null, string? destinationPlayerId = null)
     {
         if (!before.CardObjects.TryGetValue(unitId, out var unit) || !unit.Tags.Contains(CardObjectTags.UnitCard)
             || unit.IsFaceDown
             || FindFieldObjectLocation(before.PlayerZones, unitId) is not { } field) return null;
         var origin = before.ObjectLocations.GetValueOrDefault(unitId) ?? new(field.PlayerId, field.Zone);
-        var destination = new ObjectLocationState(field.PlayerId, destinationZone, destinationField);
+        var destination = new ObjectLocationState(destinationPlayerId ?? field.PlayerId, destinationZone, destinationField);
         return origin == destination ? null : new(unitId, unit.ObjectGeneration, field.PlayerId, movingPlayer, origin, destination);
     }
 
@@ -226,6 +229,7 @@ public sealed partial class CoreRuleEngine
         foreach(var fact in units) cards[fact.ObjectId] = cards[fact.ObjectId] with {MovementCountThisTurn=checked(cards[fact.ObjectId].MovementCountThisTurn+1)};
         return WithUnitEvents(new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() }),
             units.SelectMany(f => CaptureUnitEvents(before.PlayerZones, before.CardObjects, [f.ObjectId], "MOVE")
+                .Where(o => o.Controller == f.MovingPlayerId)
                 .Select(o => o with { Context = o.Context with { Here = f.Destination } })).ToArray());
     }
 

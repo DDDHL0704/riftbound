@@ -80,6 +80,60 @@ public sealed class RadChronobreakTests
         Assert.Null(g.State.PendingEffectPlay);
     }
 
+    // DOC-17 / 303.2.a: the explicit five-unit example groups three owned
+    // units before two borrowed units, with each owner choosing their order.
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FaqFiveUnitsQueueByOwnerAndResolveInEachOwnersChosenOrder(bool borrowed)
+    {
+        var initial = LastBreathDrawBoundaryTests.Add(Position(), "OWN-2", Unit, "P1", "BASE");
+        initial = LastBreathDrawBoundaryTests.Add(initial, "OWN-3", Unit, "P1", "BASE");
+        string[] expected;
+        if (borrowed)
+        {
+            initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P1", "BASE");
+            initial = LastBreathDrawBoundaryTests.Add(initial, "FOREIGN-2", Unit, "P2", "BASE");
+            initial = LocalDestructionRecallTests.At(initial, "FOREIGN-2", "P1", "BASE");
+            expected = ["OWN-3", "ALLY", "OWN-2", "FOREIGN-2", "ENEMY"];
+        }
+        else
+        {
+            initial = LastBreathDrawBoundaryTests.Add(initial, "OWN-4", Unit, "P1", "BASE");
+            initial = LastBreathDrawBoundaryTests.Add(initial, "OWN-5", Unit, "P1", "BASE");
+            expected = ["OWN-5", "OWN-3", "ALLY", "OWN-4", "OWN-2"];
+        }
+        var g = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await g.Act("P1", Cast(5)); await g.Top();
+        foreach (var group in expected.GroupBy(id => initial.CardObjects[id].OwnerId))
+            foreach (var id in group.Take(group.Count() - 1))
+            {
+                Assert.Equal(group.Key, g.State.PendingRuleChoice!.Request.PlayerId);
+                await Choose(g, id);
+            }
+        Assert.Equal(expected, g.State.StackItems.Select(item => item.SourceObjectId));
+        Assert.All(g.State.StackItems, item => {
+            Assert.NotNull(item.DeckPlayPendingCard);
+            Assert.Equal(initial.CardObjects[item.SourceObjectId].OwnerId, item.ControllerId);
+        });
+        await g.ColdCheckpoint();
+        for (var i = 0; i < expected.Length; i++)
+        {
+            var id = expected[i];
+            var owner = initial.CardObjects[id].OwnerId!;
+            Assert.Equal(expected.Skip(i), g.State.StackItems.Select(item => item.SourceObjectId));
+            Assert.Equal(owner, g.State.PendingEffectPlay!.PlayerId);
+            var pools = g.State.RunePools;
+            await g.Act(owner, new PlayCardCommand(id, Unit, []));
+            Assert.Contains(id, g.State.PlayerZones[owner].Base);
+            Assert.Equal(owner, g.State.CardObjects[id].ControllerId);
+            foreach (var pair in pools) Assert.Equal(pair.Value, g.State.RunePools[pair.Key]);
+        }
+        Assert.Empty(g.State.StackItems);
+        Assert.Null(g.State.PendingEffectPlay);
+        await g.ColdCheckpoint();
+    }
+
     [Fact]
     public async Task RealEchoSelectsRemainingFieldUnitsBeforeAnyPendingCardCanBePlayed()
     {

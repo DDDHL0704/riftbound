@@ -617,4 +617,184 @@ public sealed class OriannaLegendEquipmentUnitTests
         await game.ColdCheckpoint();
     }
 
+    private static async Task ResolveOrbMovementTrigger(Driver game)
+    {
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("UNIT_EVENT_MODE_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Equal("GEAR", choice.SourceObjectId);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["DRAW"]));
+        await game.Top();
+    }
+
+    private static async Task<Driver> FormerDeployedOrbAtBase()
+    {
+        var initial = RadUnitEffectTestFixture.Place(DeployedOrb(Position()), "ALLY", "P1", "BATTLEFIELD", "BF");
+        initial = Put(initial, "ORDER", "RAD·033/167", "P1", "HAND");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        await game.Act("P1", new MoveUnitCommand("GEAR", "BATTLEFIELD", "BASE"));
+        await ResolveOrbMovementTrigger(game);
+        await NextOwnMain(game); await Select(game, "SECOND"); await Pay(game); await game.Top();
+        Assert.Null(game.State.CardObjects["GEAR"].LegendEquipmentUnit);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Contains(CardEquipmentKeywordNames.Deploy, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), game.State.ObjectLocations["GEAR"]);
+        return game;
+    }
+
+    // DOC-17 / 137.3.b: Deploy does not relocate the former unit from base.
+    [Fact]
+    public async Task AFormerDeployedUnitStaysAtBaseAndCannotUseUnitMovement()
+    {
+        var game = await FormerDeployedOrbAtBase();
+        await Reject(game.State, "P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF"));
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
+        await game.ColdCheckpoint();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AFormerDeployedUnitCanReturnByAttackOrderOrAnotherLegendConversion(bool useLegend)
+    {
+        var game = await FormerDeployedOrbAtBase();
+        var generation = game.State.CardObjects["GEAR"].ObjectGeneration;
+        var moves = game.State.CardObjects["GEAR"].MovementCountThisTurn;
+        if (useLegend)
+        {
+            await NextOwnMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+            await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF"));
+            Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        }
+        else
+        {
+            await game.TapRunes("P1", ["RUNE-1"]);
+            await game.Act("P1", new RecycleRuneCommand("GREEN"));
+            await game.Act("P1", new PlayCardCommand("ORDER", "RAD·033/167", ["GEAR", "BF"],
+                Mode: "MOVE_DEPLOYED_EQUIPMENT", Destination: "BATTLEFIELD:BF"));
+            await game.Top();
+            Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+            Assert.Equal(moves, game.State.CardObjects["GEAR"].MovementCountThisTurn);
+        }
+        var cardsBeforeTrigger = game.State.PlayerZones["P1"].Hand.Count;
+        await ResolveOrbMovementTrigger(game);
+        Assert.Equal(cardsBeforeTrigger + 1, game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), game.State.ObjectLocations["GEAR"]);
+        Assert.Equal(generation, game.State.CardObjects["GEAR"].ObjectGeneration);
+        await game.ColdCheckpoint();
+    }
+
+    // DOC-17: Akshan moves the animated enemy Ball before taking control.
+    // Its controller did not move it, so its printed MOVE ability does not fire.
+    [Fact]
+    public async Task AkshanMovesAnEnemyAnimatedOrbWithoutTriggeringItsControllerMoveAbility()
+    {
+        var initial = Put(Put(Position(), "GEAR", "RAD·146/167", "P1", "BASE"),
+            "AKSHAN", "SFD·109/221", "P2", "HAND");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = initial.CardObjects["GEAR"] with {
+                Tags = initial.CardObjects["GEAR"].Tags.Append(CardEquipmentKeywordNames.Deploy).Order(StringComparer.Ordinal).ToArray() } } };
+        for (var index = 0; index < 6; index++)
+            initial = Put(initial, "P2-ORANGE-" + index, "UNL-R04", "P2", "BASE");
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        await game.Act("P1", new EndTurnCommand());
+        await game.TapRunes("P2", ["P2-ORANGE-0", "P2-ORANGE-1", "P2-ORANGE-2", "P2-ORANGE-3"]);
+        await game.Act("P2", new RecycleRuneCommand("P2-ORANGE-4"));
+        await game.Act("P2", new RecycleRuneCommand("P2-ORANGE-5"));
+        var moves = game.State.CardObjects["GEAR"].MovementCountThisTurn;
+        var firstEvent = game.Events().Length;
+        await game.Act("P2", new PlayCardCommand("AKSHAN", "SFD·109/221", [],
+            OptionalCosts: ["AKSHAN_STEAL_EQUIPMENT:GEAR"]));
+        var tempered = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("TEMPERED_CONFIRMATION", tempered.ChoiceWindow);
+        await game.Act("P2", new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, []));
+        await game.Top();
+        Assert.Equal(new ObjectLocationState("P2", "BASE"), game.State.ObjectLocations["GEAR"]);
+        Assert.Equal("P1", game.State.CardObjects["GEAR"].OwnerId);
+        Assert.Equal("P2", game.State.CardObjects["GEAR"].ControllerId);
+        Assert.Equal(moves + 1, game.State.CardObjects["GEAR"].MovementCountThisTurn);
+        Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        var afterPlay = game.Events().Skip(firstEvent).Select(entry => entry.Event).ToArray();
+        var move = Assert.Single(afterPlay, entry => entry.Kind == "UNIT_MOVED_TO_BASE"
+            && Equals(entry.Payload.GetValueOrDefault("equipmentObjectId"), "GEAR"));
+        Assert.Equal("P1", move.Payload["playerId"]);
+        Assert.Equal("P2", move.Payload["movingPlayerId"]);
+        Assert.Equal("P2", move.Payload["destinationPlayerId"]);
+        Assert.True(Array.IndexOf(afterPlay, move) < Array.FindIndex(afterPlay, entry => entry.Kind == "EQUIPMENT_CONTROL_CHANGED"));
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.Empty(game.State.StackItems);
+        Assert.DoesNotContain(game.Events().Skip(firstEvent), entry => entry.Event.Kind == "UNIT_EVENT_TRIGGERED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("sourceObjectId"), "GEAR"));
+        await game.ColdCheckpoint();
+    }
+
+    // DOC-17: an earned boon survives losing the unit type. Its numeric
+    // bonus is inactive while the object has no Might characteristic.
+    [Fact]
+    public async Task AnEquipmentRetainsItsActuallyEarnedBoonAfterItStopsBeingAUnit()
+    {
+        var game = new Driver(Put(Position(), "COMBO", "RAD·121/167", "P1", "HAND"));
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        await game.TapRunes("P1", ["RUNE-1", "RUNE-2", "RUNE-3"]);
+        await game.Act("P1", new PlayCardCommand("COMBO", "RAD·121/167", ["GEAR", "ENEMY"]));
+        await game.Top();
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["GEAR"].Tags);
+        AssertMight(game, 2, 3);
+        await NextOwnMain(game); await Select(game, "SECOND"); await Pay(game);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["GEAR"].Tags);
+        AssertMight(game, 0, 0);
+        await game.Top();
+        await game.ColdCheckpoint();
+    }
+
+    // DOC-17 permits consuming the retained boon. Shirana's cost does not
+    // require a unit, so it can use the equipment after the conversion ends.
+    [Fact]
+    public async Task ShiranaCanConsumeAnEquipmentsEarnedBoonAfterItStopsBeingAUnit()
+    {
+        var initial = Put(Put(Position(), "BF", "OGN·282/298", "P1", "BATTLEFIELD", "BF"),
+            "COMBO", "RAD·121/167", "P1", "HAND");
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        await game.TapRunes("P1", ["RUNE-1", "RUNE-2", "RUNE-3"]);
+        await game.Act("P1", new PlayCardCommand("COMBO", "RAD·121/167", ["GEAR", "ENEMY"]));
+        await game.Top();
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["GEAR"].Tags);
+        await NextOwnMain(game); await Select(game, "SECOND"); await Pay(game); await game.Top();
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["GEAR"].Tags);
+        AssertMight(game, 0, 0);
+        var generation = game.State.CardObjects["GEAR"].ObjectGeneration;
+        var storedPower = game.State.CardObjects["GEAR"].Power;
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
+        await game.Act("P1", new PassFocusCommand());
+        await game.Act("P2", new PassFocusCommand());
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(TriggerKinds.BattlefieldConquerConsumeBoonDraw, choice.EffectKind);
+        Assert.Contains("GEAR", choice.LegalObjectIds);
+        Assert.DoesNotContain("ENEMY-GEAR", choice.LegalObjectIds);
+        Assert.DoesNotContain("ALLY", choice.LegalObjectIds);
+        var payment = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]);
+        await Reject(game.State, "P2", payment);
+        await Reject(game.State, "P1", payment with { ChosenObjectIds = ["ALLY"] });
+        await game.ColdCheckpoint();
+        var hand = game.State.PlayerZones["P1"].Hand.Count;
+        await game.Act("P1", payment);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal(storedPower - 1, game.State.CardObjects["GEAR"].Power);
+        Assert.Equal(generation, game.State.CardObjects["GEAR"].ObjectGeneration);
+        AssertMight(game, 0, 0);
+        var skill = Assert.Single(game.State.StackItems, item => item.BattlefieldConquestConsumeBoon is not null);
+        Assert.Empty(skill.TargetObjectIds);
+        Assert.Equal(new ObjectBinding("GEAR", generation), skill.TriggerCost!.ConsumedBoon);
+        Assert.Equal(hand, game.State.PlayerZones["P1"].Hand.Count);
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.Equal(hand + 1, game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Single(game.Events(), entry => entry.Event.Kind == "BOON_CONSUMED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("targetObjectId"), "GEAR"));
+        await game.Replay();
+    }
+
 }

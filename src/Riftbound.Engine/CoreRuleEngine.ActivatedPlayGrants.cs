@@ -71,8 +71,9 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidActivatedPlayGrants(MatchState state)
     {
-        var markers = state.UntilEndOfTurnEffects.Where(m => m.StartsWith(ActivatedPlayGrantPrefix, StringComparison.Ordinal)
-            || m.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)).ToArray();
+        var markers = (state.UntilEndOfTurnEffects ?? Array.Empty<string>())
+            .Where(m => m is not null && (m.StartsWith(ActivatedPlayGrantPrefix, StringComparison.Ordinal)
+                || m.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal))).ToArray();
         return markers.Distinct(StringComparer.Ordinal).Count() == markers.Length
             && markers.All(m => ReadActivatedPlayGrant(m) is { } grant && ValidActivatedPlayGrant(state, grant))
             && markers.Select(m => ReadActivatedPlayGrant(m)!.StackItemId).Distinct(StringComparer.Ordinal).Count() == markers.Length;

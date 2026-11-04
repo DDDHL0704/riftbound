@@ -263,7 +263,8 @@ function SealedBuilder({ pool, bestOf, deck, lock, onChange, prompt, pending, su
 
   const canSubmit = Boolean(enabledCandidate(prompt, "SUBMIT_DECK"));
   const canReady = Boolean(enabledCandidate(prompt, "READY"));
-  const locked = !canSubmit;
+  // Build freely while the opponent has not sat down yet; only a submitted deck the server holds is frozen.
+  const locked = submitted && !canSubmit;
   const owned = useMemo(() => poolCounts(pool), [pool]);
   const used = useMemo(() => usedCounts(deck), [deck]);
   const traits = deckTraits(deck);
@@ -516,7 +517,7 @@ function SealedBuilder({ pool, bestOf, deck, lock, onChange, prompt, pending, su
         <AnimatePresence>
           {!canSubmit && !canReady && (
             <motion.p className="muted small" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {prompt?.reason ?? "等待服务器…"}
+              {!submitted ? "可以先组牌，对手入座后就能提交。" : (prompt?.reason ?? "等待服务器…")}
             </motion.p>
           )}
         </AnimatePresence>

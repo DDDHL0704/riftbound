@@ -5,10 +5,14 @@ internal static class FieldObjectTypeRules
     // CN 178: acquiring another type never removes the permissions of UNIT.
     // Untyped objects remain supported by the engine's small rule fixtures.
     internal static bool IsVisibleUnit(CardObjectState card)
-        => !card.IsFaceDown
-            && (card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+        => !card.IsFaceDown && HasUnitType(card);
+
+    // Type and visibility are distinct: defensive cleanup can inspect the
+    // numeric state of a malformed hidden fixture without enabling targeting.
+    internal static bool HasUnitType(CardObjectState card)
+        => card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !card.Tags.Any(tag => tag is CardObjectTags.EquipmentCard or CardObjectTags.SpellCard
-                    or CardObjectTags.RuneCard or "CARD_TYPE:BATTLEFIELD" or "CARD_TYPE:LEGEND"));
+                    or CardObjectTags.RuneCard or "CARD_TYPE:BATTLEFIELD" or "CARD_TYPE:LEGEND");
 
     // CN 178 / 323.6: cleanup recalls unattached non-unit equipment, except
     // deployed equipment (830.1.b.3) and equipment retained by standby play.

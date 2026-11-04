@@ -5,6 +5,11 @@
 //   npm run soak -- [pairs] [stepCap]      e.g. npm run soak -- 0-1,2-4 900
 //   npm run soak -- bot <roomCode> [deck]  one visible-free seat joins a room and plays it out,
 //                                          so a person can play the other seat by hand
+//   npm run soak -- sealed [count] [bo1|bo3] [mix|<setCode>]
+//                                          sealed rooms instead: both seats skip the packs, build a
+//                                          legal deck from their pool by clicking, submit and play;
+//                                          "mix" uses the lobby's default custom pack mix,
+//                                          a set code (e.g. VEN) opens six packs of that set
 //
 // Needs the API (default http://127.0.0.1:5088) and this dev server (npm run dev) running:
 // stuck detection reads the client state the dev build exposes as window.__rb (it never acts through it).
@@ -15,8 +20,16 @@ import { chromium } from "playwright-core";
 
 const WEB = process.env.WEB_URL || "http://127.0.0.1:5176";
 const OUT_DIR = path.resolve(process.env.SOAK_OUT || "soak-results");
-const PAIRS = (process.argv[2] === "bot" ? "" : process.argv[2] || "0-1,2-4,3-9,5-10,6-7,8-0").split(",").map((p) => p.split("-").map(Number));
-const STEP_CAP = Number(process.argv[3] || 1200);
+const SEALED =
+  process.argv[2] === "sealed"
+    ? { count: Number(process.argv[3] || 2), bestOf: process.argv[4] === "bo3" ? 3 : 1, mix: process.argv[5] === "mix", set: process.argv[5] && process.argv[5] !== "mix" ? process.argv[5] : null }
+    : null;
+const API = process.env.API_URL || "http://127.0.0.1:5088";
+const PAIRS = SEALED
+  ? Array.from({ length: SEALED.count }, () => [-1, -1])
+  : (process.argv[2] === "bot" ? "" : process.argv[2] || "0-1,2-4,3-9,5-10,6-7,8-0").split(",").map((p) => p.split("-").map(Number));
+// A best-of-three plays up to three games in one run.
+const STEP_CAP = SEALED ? 1200 * SEALED.bestOf : Number(process.argv[3] || 1200);
 const SHOT_EVERY = Number(process.env.SOAK_SHOTS || 0);
 const RELOAD_EVERY = Number(process.env.SOAK_RELOAD || 0);
 const SHOT_TITLES = process.env.SOAK_SHOT_TITLES ? new RegExp(process.env.SOAK_SHOT_TITLES) : null;
@@ -33,7 +46,64 @@ const STEP = async () => {
   const btns = (sel) => [...document.querySelectorAll(sel)].filter((b) => !b.disabled && vis(b));
   const title = document.querySelector(".rail__title")?.textContent ?? "";
   const turn = document.querySelector(".rail__turn")?.textContent ?? "";
-  if (document.querySelector(".result")) return "RESULT";
+  // Between games of a series the result waits for the next game instead of ending the run.
+  const result = document.querySelector(".result");
+  if (result) return result.textContent.includes("等待下一局") ? null : "RESULT";
+
+  // Sealed setup between games: choose the play order, skip the packs, build, submit, ready.
+  if (document.querySelector("main.sealed")) {
+    const order = btns(".sealed__order .btn");
+    if (order.length) {
+      const b = pick(order);
+      b.click();
+      return "sealed:order-" + b.textContent;
+    }
+    const packs = btns(".packs__actions .btn").find((b) => b.textContent.includes("跳过") || b.textContent === "开始组牌");
+    if (packs) {
+      packs.click();
+      return "sealed:packs";
+    }
+    const side = btns(".db__side .btn--primary");
+    const ready = side.find((b) => b.textContent === "准备开战");
+    if (ready) {
+      ready.click();
+      return "sealed:ready";
+    }
+    // The page reads the game number only to avoid submitting the same game twice.
+    const game = window.__rb?.state?.snapshot?.series?.gameNumber ?? 1;
+    const submit = side.find((b) => b.textContent === "提交卡组" || b.textContent.startsWith("用这副牌") || b.textContent.startsWith("沿用"));
+    if (submit && window.__soakSubmitted !== game) {
+      window.__soakSubmitted = game;
+      submit.click();
+      return "sealed:submit";
+    }
+    if (!document.querySelector(".db__problems") || window.__soakSubmitted === game) return null;
+    const tab = (name) => [...document.querySelectorAll(".db__tab")].find((t) => t.textContent.startsWith(name));
+    const count = (name) => tab(name)?.querySelector("small")?.textContent.split("/").map((n) => parseInt(n, 10)) ?? [0, 0];
+    const main = tab("主牌");
+    if (main) {
+      main.click();
+      await sleep(60);
+      for (let tries = 0; tries < 300 && count("主牌")[0] < 25; tries++) {
+        const open = [...document.querySelectorAll(".db__grid .db__tile:not(.is-dim) .db__art")];
+        if (!open.length) break;
+        open[0].click();
+        await sleep(20);
+      }
+      tab("符文").click();
+      await sleep(60);
+      btns(".db__filters .chip").find((b) => b.textContent.includes("平均分配"))?.click();
+      await sleep(60);
+    }
+    tab("战场").click();
+    await sleep(60);
+    for (let tries = 0; tries < 6 && count("战场")[0] < count("战场")[1]; tries++) {
+      // The blank battlefield is always last and never runs out.
+      [...document.querySelectorAll(".db__grid .db__art")].at(-1)?.click();
+      await sleep(40);
+    }
+    return "sealed:build";
+  }
   // The first table in a fresh browser opens a tour; a player would read it and skip it.
   const skipGuide = [...document.querySelectorAll(".guide button")].find((b) => b.textContent === "跳过");
   if (skipGuide) {
@@ -183,6 +253,20 @@ const STEP = async () => {
     if (document.querySelector(".pickbar:not(.pickbar--leaving)")) return "act:move";
     document.body.click();
   }
+  // Cards usable from the graveyard or banishment sit behind the pile link.
+  const live = btns(".piles__link--live");
+  if (live.length && (mainTurn || reacting) && Math.random() < 0.7) {
+    live[0].click();
+    await sleep(150);
+    const act = btns(".zoneview__card .btn")[0];
+    if (act) {
+      act.click();
+      await sleep(150);
+      if (document.querySelector(".menu__item")) pick([...document.querySelectorAll(".menu__item")]).click();
+      return "act:pile";
+    }
+    btns(".zoneview__head .btn")[0]?.click();
+  }
   // Dock labels may carry a hotkey hint after the text ("结束回合空格"), so match the start.
   const label = (b) => b.textContent.replace(/空格$/, "");
   const pass = btns(".dock button").find((b) => ["让过", "让过焦点", "跳过"].includes(label(b)));
@@ -212,6 +296,41 @@ async function login(page, handle) {
   await page.fill(".gate__form input", handle);
   await page.click(".gate__form button[type=submit]");
   await page.waitForSelector(".lobby__grid", { timeout: 15000 });
+}
+
+// Default setup: a constructed room, each seat picks a preconstructed deck and readies.
+async function constructedSetup(pages, [a, b]) {
+  await pages[0].click("button:text-is(\"创建房间\")");
+  await pages[0].waitForSelector(".setup__code");
+  const code = await pages[0].textContent(".setup__code");
+  await pages[1].fill(".lobby__row .input", code);
+  await pages[1].click(".lobby__row button[type=submit]");
+  for (const [i, deck] of [[0, a], [1, b]]) {
+    const p = pages[i];
+    await p.waitForSelector(".deck");
+    await p.locator(".deck").nth(deck).click();
+    await p.click("button:text-is(\"使用此卡组\")");
+    await p.waitForSelector("button:text-is(\"准备开战\")");
+    await p.click("button:text-is(\"准备开战\")");
+  }
+}
+
+// Sealed: the host creates the room from the lobby options; the rest happens in STEP.
+async function sealedSetup(pages) {
+  if (SEALED.mix) await pages[0].click("button[role=radio]:text-is(\"自由组合\")");
+  if (SEALED.set) {
+    const sets = await (await fetch(`${API}/sealed/sets`)).json();
+    const name = sets.find((s) => s.setCode === SEALED.set)?.name;
+    if (!name) throw new Error(`sealed set ${SEALED.set} is not open on the server`);
+    await pages[0].click(`button[role=radio]:text-is("${name}")`);
+  }
+  if (SEALED.bestOf === 3) await pages[0].click("button[role=radio]:text-is(\"三局两胜\")");
+  await pages[0].click("button:text-is(\"创建现开房间\")");
+  await pages[0].waitForSelector(".setup__code");
+  const code = await pages[0].textContent(".setup__code");
+  await pages[1].fill(".lobby__row .input", code);
+  await pages[1].click(".lobby__row button[type=submit]");
+  await pages[1].waitForSelector("main.sealed");
 }
 
 async function playMatch(browser, a, b, idx) {
@@ -246,23 +365,11 @@ async function playMatch(browser, a, b, idx) {
   const names = [`s${idx}a${Date.now() % 1e5}`, `s${idx}b${Date.now() % 1e5}`];
   await login(pages[0], names[0]);
   await login(pages[1], names[1]);
-  await pages[0].click("button:text-is(\"创建房间\")");
-  await pages[0].waitForSelector(".setup__code");
-  const code = await pages[0].textContent(".setup__code");
-  await pages[1].fill(".lobby__row .input", code);
-  await pages[1].click(".lobby__row button[type=submit]");
-  for (const [i, deck] of [[0, a], [1, b]]) {
-    const p = pages[i];
-    await p.waitForSelector(".deck");
-    await p.locator(".deck").nth(deck).click();
-    await p.click("button:text-is(\"使用此卡组\")");
-    await p.waitForSelector("button:text-is(\"准备开战\")");
-    await p.click("button:text-is(\"准备开战\")");
-  }
+  await (SEALED ? sealedSetup(pages) : constructedSetup(pages, [a, b]));
 
   const idle = [0, 0];
   const t0 = Date.now();
-  while (report.steps < STEP_CAP && Date.now() - t0 < 12 * 60 * 1000) {
+  while (report.steps < STEP_CAP && Date.now() - t0 < 12 * 60 * 1000 * (SEALED?.bestOf ?? 1)) {
     let acted = false;
     for (let i = 0; i < 2; i++) {
       const p = pages[i];
@@ -316,10 +423,15 @@ async function playMatch(browser, a, b, idx) {
         if (pending) {
           idle[i]++;
           if (idle[i] === 8) {
-            const panel = await p.evaluate(() => document.querySelector(".rail__panel")?.textContent ?? "");
+            // The sealed setup has no rail; its sidebar and button states say what the seat was offered.
+            const panel = await p.evaluate(() => {
+              const side = document.querySelector(".rail__panel, .db__side, .sealed__order, .packs__actions");
+              const buttons = [...(side?.querySelectorAll("button") ?? [])].filter((b) => b.className.includes("btn")).map((b) => `[${b.textContent}${b.disabled ? " 禁用" : ""}]`);
+              return `${side?.textContent?.slice(-160) ?? ""} ${buttons.join("")} pending=${window.__rb?.state?.pending}`;
+            });
             const shot = path.join(OUT_DIR, `stuck-${idx}-${i}-${report.stuck.length}.png`);
             await p.screenshot({ path: shot });
-            report.stuck.push({ player: i, title, pending, panel: panel?.slice(0, 300), shot });
+            report.stuck.push({ player: i, title, pending, panel: panel?.slice(-400), shot });
           }
         } else idle[i] = 0;
       }

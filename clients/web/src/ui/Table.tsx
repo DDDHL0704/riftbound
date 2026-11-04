@@ -234,9 +234,20 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const destinationsOf = (id: string): string[] => (moveOf(id)?.requirement?.destinationChoices ?? []).map((d: { id: string }) => d.id);
   const stepChoices = useMemo(() => {
     const choices = currentStep?.choices ?? [];
+    // A spell that moves its targets to one chosen place cannot pick where any target already is (CN 355.4).
+    if (currentStep?.role === "destination" && pick?.action.requirement?.destinationLabel === "移动目的地" && pick.sel.targets.length) {
+      const at = pick.sel.targets.map((id) => objects[id]?.location).filter(Boolean);
+      return choices.filter((c) =>
+        c.id.startsWith("BATTLEFIELD:")
+          ? at.every((l) => l!.battlefieldObjectId !== c.id.slice(12))
+          : c.id.startsWith("BASE:")
+            ? at.every((l) => l!.playerId === c.id.slice(5) && !/BASE/i.test(l!.zone))
+            : true,
+      );
+    }
     if (!grouping || !pick?.group.length) return choices;
     return choices.filter((c) => pick.group.every((id) => destinationsOf(id).includes(c.id)));
-  }, [currentStep, grouping, pick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentStep, grouping, pick, objects]); // eslint-disable-line react-hooks/exhaustive-deps
   // Units already in the group can always leave it; others may join only if a shared destination remains.
   const peers = useMemo(() => {
     if (!grouping) return [];
@@ -760,9 +771,28 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                   </button>
                 </header>
                 <div className="zoneview__cards">
-                  {[...zoneIds].reverse().map((id) => (
-                    <Card key={id} object={objects[id]} cardNo={objects[id]?.cardNo} size="board" onHover={hoverCard} animate={false} />
-                  ))}
+                  {[...zoneIds].reverse().map((id) => {
+                    const acts = zoneView.playerId === meId ? heroActions(id) : [];
+                    return (
+                      <div key={id} className={`zoneview__card${acts.length ? " is-live" : ""}`}>
+                        <Card object={objects[id]} cardNo={objects[id]?.cardNo} size="board" marks={acts.length ? ["playable"] : []} onHover={hoverCard} animate={false} />
+                        {acts.map((a) => (
+                          <button
+                            key={a.key}
+                            className="btn btn--primary btn--small"
+                            onClick={() => {
+                              setZoneView(null);
+                              if (a.cmdType === "PLAY_CARD") void playCard(a.sourceObjectId);
+                              else start(a);
+                            }}
+                          >
+                            {a.label}
+                            {a.detail && <small> · {a.detail}</small>}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })}
                 </div>
                 <p className="muted small">最新进入的牌排在最前。</p>
               </motion.div>
