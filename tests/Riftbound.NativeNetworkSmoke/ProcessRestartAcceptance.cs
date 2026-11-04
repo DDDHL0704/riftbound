@@ -155,7 +155,8 @@ internal static class SealedSeriesNetworkAcceptance
     };
     private sealed record Peer(string Actor, string Key, string Token, JsonElement Snapshot, JsonElement Prompt);
     private sealed record Duplicate(string Actor, string Id, JsonElement Raw, long Tick);
-    private sealed record Checkpoint(string Room, string SetCode, int BestOf, Peer[] Peers, Duplicate Submission);
+    private sealed record Checkpoint(string Room, string? SetCode, IReadOnlyList<SealedPackChoiceDto>? Packs,
+        int BestOf, Peer[] Peers, Duplicate Submission);
 
     public static async Task RunAsync(string url, string output, string mode)
     {
@@ -166,22 +167,25 @@ internal static class SealedSeriesNetworkAcceptance
         var sets = await http.GetFromJsonAsync<SealedSetDto[]>("/sealed/sets", ct);
         Check(sets is not null && sets.Any(s => s.SetCode == "OGN") && sets.Any(s => s.SetCode == "SFD")
             && sets.All(s => s.SetCode is "OGN" or "SFD"), "The real series directory must expose only admitted sets.");
-        foreach (var (setCode, bestOf) in new[] { ("OGN", 1), ("SFD", 3) })
-            await RunCase(setCode, bestOf);
+        await RunCase("OGN", "OGN", 1);
+        await RunCase("SFD", "SFD", 3);
+        await RunCase("MIXED", null, 1, [new("OGN", 3), new("SFD", 3)]);
         await File.WriteAllTextAsync(Path.Combine(output, mode + ".json"), JsonSerializer.Serialize(new
         {
-            status = "PASSED_REAL_SEALED_SIGNALR", mode, cases = 2,
+            status = "PASSED_REAL_SEALED_SIGNALR", mode, cases = 3,
             actualProcessRestartDrivenExternally = true, completeScoringGameCoverage = false
         }, Json), ct);
 
-        async Task RunCase(string setCode, int bestOf)
+        async Task RunCase(string caseName, string? setCode, int bestOf, IReadOnlyList<SealedPackChoiceDto>? packs = null)
         {
-            var folder = Path.Combine(output, setCode);
+            var folder = Path.Combine(output, caseName);
             Directory.CreateDirectory(folder);
             var inputPath = Path.Combine(folder, mode == "resume" ? "recovered-input.json" : "input.json");
             var suffix = Guid.NewGuid().ToString("N");
             var input = mode == "prepare" ? null
                 : JsonSerializer.Deserialize<Checkpoint>(await File.ReadAllTextAsync(inputPath, ct), Json)!;
+            Check(input is null || input.SetCode == setCode && input.BestOf == bestOf
+                && (input.Packs ?? []).SequenceEqual(packs ?? []), "The saved restart input changed its sealed room options.");
             var peers = input?.Peers ?? new[] { "a", "b" }.Select(seat =>
                 new Peer("sealed-" + seat + suffix[..12], "sealed-key-" + seat + suffix, "", default, default)).ToArray();
             var room = input?.Room ?? "";
@@ -211,12 +215,15 @@ internal static class SealedSeriesNetworkAcceptance
                     else if (peer == peers[0])
                     {
                         var created = await client.InvokeAsync<CreatePublicMatchResultDto?>("CreatePublicMatchWithOptions",
-                            peer.Actor, new CreatePublicMatchOptionsDto("sealed", setCode, bestOf), ct);
+                            peer.Actor, new CreatePublicMatchOptionsDto("sealed", setCode, bestOf, packs), ct);
                         Check(created is not null && created.Match.Format == "sealed" && created.Match.SetCode == setCode
-                            && created.Match.BestOf == bestOf, "Wire room creation lost its explicit format, set or bestOf.");
+                            && created.Match.BestOf == bestOf
+                            && (created.Match.SealedPacks ?? []).SequenceEqual(packs ?? []),
+                            "Wire room creation lost its explicit format, set, composition or bestOf.");
                         room = created!.Match.RoomId;
                         var directory = await http.GetFromJsonAsync<PublicMatchDto[]>("/matches", ct);
-                        Check(directory!.Any(m => m.RoomId == room && m.Format == "sealed" && m.SetCode == setCode && m.BestOf == bestOf),
+                        Check(directory!.Any(m => m.RoomId == room && m.Format == "sealed" && m.SetCode == setCode
+                            && m.BestOf == bestOf && (m.SealedPacks ?? []).SequenceEqual(packs ?? [])),
                             "The public HTTP room directory lost the sealed options.");
                     }
                     else await client.InvokeAsync("JoinRoom", room, peer.Actor, (string?)null, ct);
@@ -296,14 +303,14 @@ internal static class SealedSeriesNetworkAcceptance
                 }
                 await Save(Path.Combine(folder, mode + ".json"), new
                 {
-                    status = "PASSED_REAL_SEALED_SIGNALR", room, setCode, bestOf, mode, actualJoinedPlayers = 2,
+                    status = "PASSED_REAL_SEALED_SIGNALR", room, caseName, setCode, packs, bestOf, mode, actualJoinedPlayers = 2,
                     gameNumber = Series().GetProperty("gameNumber").GetInt32(), originalSubmissionId = submission.Id,
                     originalPoolsUnchanged = true, privateViewsEqual = mode != "prepare", resumedAfterHistoryCapture = mode == "resume"
                 });
             }
             finally { foreach (var client in clients.Values) await client.DisposeAsync(); }
 
-            Checkpoint Current(Duplicate duplicate) => new(room, setCode, bestOf, peers.Select(peer => peer with
+            Checkpoint Current(Duplicate duplicate) => new(room, setCode, packs?.ToArray(), bestOf, peers.Select(peer => peer with
             {
                 Token = issuedTokens[peer.Actor], Snapshot = views[peer.Actor].Snapshot, Prompt = views[peer.Actor].Prompt
             }).ToArray(), duplicate);
@@ -390,14 +397,29 @@ internal static class SealedSeriesNetworkAcceptance
                     }, () => snapshot.ValueKind != JsonValueKind.Undefined && prompt.ValueKind != JsonValueKind.Undefined
                         && snapshot.GetProperty("tick").GetInt64() == prompt.GetProperty("snapshotTick").GetInt64()
                         && (expectedTick is null || snapshot.GetProperty("tick").GetInt64() == expectedTick), ct);
-                    Check(snapshot.GetProperty("format").GetString() == "sealed" && snapshot.GetProperty("setCode").GetString() == setCode
-                        && snapshot.GetProperty("bestOf").GetInt32() == bestOf, "A real sealed snapshot lost room options.");
+                    var projectedSetCode = snapshot.TryGetProperty("setCode", out var setCodeValue)
+                        && setCodeValue.ValueKind == JsonValueKind.String ? setCodeValue.GetString() : null;
+                    var projectedPacks = snapshot.TryGetProperty("sealedPacks", out var packsValue)
+                        && packsValue.ValueKind == JsonValueKind.Array
+                            ? packsValue.Deserialize<SealedPackChoiceDto[]>(Json) ?? [] : [];
+                    Check(snapshot.GetProperty("format").GetString() == "sealed" && projectedSetCode == setCode
+                        && snapshot.GetProperty("bestOf").GetInt32() == bestOf
+                        && projectedPacks.SequenceEqual(packs ?? []), "A real sealed snapshot lost room options.");
                     var pool = snapshot.GetProperty("sealedPool");
-                    Check(pool.GetProperty("setCode").GetString() == setCode && pool.GetProperty("packs").GetArrayLength() == 6
-                        && pool.GetProperty("packs").EnumerateArray().All(pack => pack.GetProperty("cards").GetArrayLength() == 14
+                    var expectedPackSetCodes = packs is null
+                        ? Enumerable.Repeat(setCode!, 6).ToArray()
+                        : packs.SelectMany(choice => Enumerable.Repeat(choice.SetCode, choice.Count)).ToArray();
+                    var actualPacks = pool.GetProperty("packs");
+                    Check(pool.GetProperty("setCode").GetString() == (setCode ?? string.Empty)
+                        && actualPacks.GetArrayLength() == expectedPackSetCodes.Length
+                        && actualPacks.EnumerateArray().Select(pack => pack.GetProperty("setCode").GetString())
+                            .SequenceEqual(expectedPackSetCodes)
+                        && actualPacks.EnumerateArray().All(pack => pack.GetProperty("cards").GetArrayLength() == 14
                             && pack.GetProperty("cards").EnumerateArray().All(card => card.GetProperty("slot").ValueKind == JsonValueKind.String
-                                && card.GetProperty("foil").ValueKind is JsonValueKind.True or JsonValueKind.False)),
-                        "The actual private opening must contain six packs with slot and foil metadata.");
+                                && card.GetProperty("foil").ValueKind is JsonValueKind.True or JsonValueKind.False)
+                            && pack.GetProperty("cards").EnumerateArray().All(card =>
+                                card.GetProperty("cardNo").GetString()!.StartsWith(pack.GetProperty("setCode").GetString() + "·", StringComparison.Ordinal))),
+                        "The actual private opening must contain the ordered configured packs with series, slot and foil metadata.");
                     if (pools.TryGetValue(peer.Actor, out var original)) Same(original, pool, "Wire reconnect or intergame transition regenerated the private pool.");
                     else pools.Add(peer.Actor, pool.Clone());
                     views[peer.Actor] = (snapshot, prompt);

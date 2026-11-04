@@ -206,12 +206,13 @@ public sealed partial class SealedSubmittedOpeningTests
         public IMatchSession Live { get; private set; }
         public MatchState State => Journal.Entries[^1].AuthoritativeState;
         public Run(int bestOf = 1, IRuleEngine? engine = null, long seed = 424242, string setCode = "OGN",
-            bool reorderRecoveryObjects = false)
+            bool reorderRecoveryObjects = false, IReadOnlyList<SealedPackChoiceDto>? packs = null)
         {
             this.engine = engine ?? new CoreRuleEngine();
             this.reorderRecoveryObjects = reorderRecoveryObjects;
             var initial = MatchState.Create("sealed-submitted-opening") with { Seed = seed,
-                SessionOptions = MatchSessionOptions.ForSealed(setCode, bestOf) };
+                SessionOptions = packs is null ? MatchSessionOptions.ForSealed(setCode, bestOf)
+                    : MatchSessionOptions.ForSealed(packs, bestOf) };
             Live = new MatchSession(initial, this.engine, Journal, players);
         }
         public async Task Join(string player) => tokens[player] = (await Live.EnsurePlayerAsync(player, default)).ReconnectToken;

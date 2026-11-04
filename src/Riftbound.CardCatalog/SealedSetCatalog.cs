@@ -86,7 +86,7 @@ public sealed record SealedPackRates(
     SealedSourceValue FoilRare, SealedSourceValue FoilEpic, SealedSourceValue AltRunePerPack,
     SealedSourceValue? LegendPerPack, SealedSourceValue? LegendPerRareSlot);
 public sealed record SealedPackCard(string CardNo, string Slot, bool Foil);
-public sealed record SealedPack(int PackNumber, IReadOnlyList<SealedPackCard> Cards, IReadOnlyList<string> PoolCardNos);
+public sealed record SealedPack(int PackNumber, IReadOnlyList<SealedPackCard> Cards, IReadOnlyList<string> PoolCardNos, string SetCode);
 public sealed record SealedPoolGeneration(
     string SetCode, string Seed, int ConfigurationVersion, string ConfigurationSha256, string GeneratorVersion,
     IReadOnlyList<SealedPack> Packs, IReadOnlyDictionary<string, int> Pool);
@@ -194,7 +194,7 @@ public static class SealedPackGenerator
             }
             var poolCards = cards.Where(card => card.Slot != "rune_or_token").Select(card => card.CardNo).ToArray();
             foreach (var cardNo in poolCards) pool[cardNo] = pool.GetValueOrDefault(cardNo) + 1;
-            packs.Add(new(packNumber, cards.ToImmutableArray(), poolCards.ToImmutableArray()));
+            packs.Add(new(packNumber, cards.ToImmutableArray(), poolCards.ToImmutableArray(), definition.SetCode));
         }
         return new(definition.SetCode, seed, SealedSetCatalog.Version, SealedSetCatalog.Sha256, Version,
             packs.ToImmutableArray(), pool.ToImmutableSortedDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal));

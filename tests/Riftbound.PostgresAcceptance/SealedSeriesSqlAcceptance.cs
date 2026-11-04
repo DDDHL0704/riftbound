@@ -18,10 +18,17 @@ internal static class SealedSeriesSqlAcceptance
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         await Run("OGN", 1);
         await Run("SFD", 3);
+        await Run("MIXED-OGN-SFD", 1, [new("OGN", 3), new("SFD", 3)]);
 
-        async Task Run(string setCode, int bestOf)
+        async Task Run(string name, int bestOf, IReadOnlyList<SealedPackChoiceDto>? packs = null)
         {
-            var folder = Path.Combine(output, $"{setCode}-best-of-{bestOf}");
+            var setCode = packs is null ? name : null;
+            var roomOptions = packs is null ? MatchSessionOptions.ForSealed(setCode!, bestOf)
+                : MatchSessionOptions.ForSealed(packs, bestOf);
+            var expectedPackSetCodes = packs is null
+                ? Enumerable.Repeat(setCode!, SealedPackGenerator.PacksPerPlayer).ToArray()
+                : packs.SelectMany(choice => Enumerable.Repeat(choice.SetCode, choice.Count)).ToArray();
+            var folder = Path.Combine(output, $"{name}-best-of-{bestOf}");
             Directory.CreateDirectory(folder);
             var room = "sealed-series-sql-" + Guid.NewGuid().ToString("N");
             var engine = new CoreRuleEngine();
@@ -32,7 +39,7 @@ internal static class SealedSeriesSqlAcceptance
             var adjudications = new MatchTournamentAdjudicationService(results);
             IMatchSession session = new MatchSession(MatchState.Create(room) with
             {
-                Seed = 424242, SessionOptions = MatchSessionOptions.ForSealed(setCode, bestOf)
+                Seed = 424242, SessionOptions = roomOptions
             }, engine, journal, players);
             var tokens = new Dictionary<string, string>(StringComparer.Ordinal);
             var coldCount = 0;
@@ -138,7 +145,7 @@ internal static class SealedSeriesSqlAcceptance
                 await Save("original-nine-tables-final.json.gz", await Rows(["matches", "match_players", .. HistoryTables, "match_results", "match_result_players"]));
                 await Save("receipt.json.gz", new
                 {
-                    status = "PASSED_REAL_SEALED_SQL_SERIES_RECOVERY_AND_FINAL_RESULT_REPAIR", room, setCode, bestOf,
+                    status = "PASSED_REAL_SEALED_SQL_SERIES_RECOVERY_AND_FINAL_RESULT_REPAIR", room, setCode, packs, bestOf,
                     originalPools, coldRecoveries = coldCount, gameReplays, commands = journal.Entries.Count, tick = State().Tick,
                     actualRuleInputs = RuleInputIdentity.Current, result = recorded,
                     realResultCheckViolation = failed, originalHistoryRetained = true, concurrentFinalAdmission = true,
@@ -199,12 +206,21 @@ internal static class SealedSeriesSqlAcceptance
                 var frame = await recovery.LoadAsync(room, default) ?? throw new InvalidOperationException("Sealed SQL recovery frame missing.");
                 Check(frame.IsConsistent, string.Join("; ", frame.ValidationErrors));
                 Check(frame.OpeningSeed == 424242 && frame.ReplayInitialState!.Seats.Count == 0
-                    && frame.ReplayInitialState.PlayerSealedPools is null && frame.ReplayInitialState.SessionOptions == MatchSessionOptions.ForSealed(setCode, bestOf),
+                    && frame.ReplayInitialState.PlayerSealedPools is null && frame.ReplayInitialState.SessionOptions == roomOptions,
                     "Original empty-room replay input, private seed or room options changed.");
                 Check(originalPools is null || originalPools == MatchStateHasher.HashValue(frame.AuthoritativeState!.PlayerSealedPools), "SQL recovery changed a sealed pool.");
                 foreach (var (player, view) in frame.PlayerViews)
+                {
                     Check(MatchStateHasher.HashValue(view.Snapshot.SealedPool) == MatchStateHasher.HashValue(SealedRoomPools.ViewFor(frame.AuthoritativeState!, player)),
                         "A private SQL view contains another player's pool.");
+                    var pool = view.Snapshot.SealedPool;
+                    Check(pool is not null && pool.SetCode == (setCode ?? string.Empty)
+                        && pool.Packs.Select(pack => pack.SetCode).SequenceEqual(expectedPackSetCodes)
+                        && pool.Packs.All(pack => pack.Cards.All(card =>
+                            card.CardNo.StartsWith(pack.SetCode + "·", StringComparison.Ordinal)))
+                        && MatchStateHasher.HashValue(view.Snapshot.SealedPacks) == MatchStateHasher.HashValue(roomOptions.SealedPacks),
+                        "SQL cold recovery changed the ordered mixed-pack contract or pack series.");
+                }
                 Check(frame.SpectatorReplayFrame!.SpectatorSnapshot.SealedPool is null, "SQL spectator replay exposed a private pool.");
                 return frame;
             }

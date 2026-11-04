@@ -12,14 +12,22 @@ public static class PublicMatchCreation
     public static CreatePublicMatchOptionsDto Normalize(CreatePublicMatchOptionsDto? options)
     {
         var format = (options?.Format ?? MatchFormats.Constructed).Trim().ToLowerInvariant();
-        if (format == MatchFormats.Constructed && string.IsNullOrWhiteSpace(options?.SetCode) && (options?.BestOf ?? 1) == 1)
+        if (format == MatchFormats.Constructed && string.IsNullOrWhiteSpace(options?.SetCode)
+            && options?.Packs is null && (options?.BestOf ?? 1) == 1)
             return new();
+        if (format == MatchFormats.Sealed && options?.Packs is { } packs)
+        {
+            if (!string.IsNullOrWhiteSpace(options.SetCode))
+                throw new ArgumentException("自定义卡包组合不能同时指定单一系列 setCode。");
+            var room = MatchSessionOptions.ForSealed(packs, options.BestOf);
+            return new(MatchFormats.Sealed, null, room.SealedBestOf, room.SealedPacks);
+        }
         if (format == MatchFormats.Sealed && !string.IsNullOrWhiteSpace(options?.SetCode))
         {
             var room = MatchSessionOptions.ForSealed(options.SetCode, options.BestOf);
             return new(MatchFormats.Sealed, room.SealedSetCode, room.SealedBestOf);
         }
-        throw new ArgumentException("建房参数无效：构筑赛只支持单局制；现开赛须指定已开放系列及 1 或 3 局制。");
+        throw new ArgumentException("建房参数无效：构筑赛只支持单局制；现开赛须指定已开放系列或卡包组合及 1 或 3 局制。");
     }
 }
 
@@ -167,7 +175,7 @@ public sealed class InMemoryPublicMatchDirectory : IPublicMatchDirectory
                 Capacity: 2,
                 PublicMatchStatuses.Waiting,
                 CreatedAt,
-                Options.Format, Options.SetCode, Options.BestOf);
+                Options.Format, Options.SetCode, Options.BestOf, Options.Packs);
         }
     }
 }
