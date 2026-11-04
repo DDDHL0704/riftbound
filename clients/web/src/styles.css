@@ -2598,6 +2598,31 @@ button {
 .hoverpreview__dmg {
   color: var(--ember);
 }
+.hoverpreview__face {
+  position: relative;
+}
+/* Covers the printed text box, which an erratum has replaced. */
+.hoverpreview__errata {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(21, 17, 31, 0.94);
+  border: 1px solid var(--line-strong);
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+.hoverpreview__errata b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
 
 .spotlight {
   position: fixed;
@@ -2705,6 +2730,12 @@ button {
   gap: 6px;
   font-size: 12px;
   color: var(--muted);
+}
+.preview__errata {
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  font-size: 11px;
 }
 .preview__effect {
   margin: 6px 0 0;

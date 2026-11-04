@@ -268,6 +268,8 @@ export type CardInfo = {
   cost?: number;
   power?: number;
   effect?: string;
+  /** The effect is a reviewed CN erratum, so it differs from the text printed on the image. */
+  errata?: boolean;
   tag?: string;
   image?: string;
   hero?: string;
