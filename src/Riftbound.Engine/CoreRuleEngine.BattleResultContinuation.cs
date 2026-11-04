@@ -106,7 +106,8 @@ public sealed partial class CoreRuleEngine
     private static bool TryBeginBattleResultContinuation(MatchState resultState,
         string battlefield, string attacker, string? defender,
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders,
-        int overkill, List<GameEvent> events, out MatchState pending)
+        int overkill, List<GameEvent> events, out MatchState pending,
+        IReadOnlyList<ObjectBinding>? combatBindings = null)
     {
         resultState = resultState with { Tick = RuleChoices.Value?.CompletionTick ?? resultState.Tick };
         pending = resultState;
@@ -119,6 +120,10 @@ public sealed partial class CoreRuleEngine
         var bindings = TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
             ? declaration.PublicObjectBindings?.Where(b => attackers.Contains(b.ObjectId) || defenders.Contains(b.ObjectId)).ToArray()
             : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders));
+        // Combat cleanup can cease a token before this continuation is built.
+        // Keep its public incarnation captured before damage, even when no
+        // battle-response declaration remains after a replacement choice.
+        bindings = (bindings ?? []).Concat(combatBindings ?? []).DistinctBy(b => b.ObjectId).ToArray();
         var continuation = new BattleResultContinuation(battlefield, attacker, defender, null, resultState.Tick,
             attackers.ToArray(), defenders.ToArray(), SurvivingBattleUnitObjectIds(zones, cards, attackers),
             SurvivingBattleUnitObjectIds(zones, cards, defenders),

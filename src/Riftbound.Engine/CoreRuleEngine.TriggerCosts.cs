@@ -354,7 +354,7 @@ public sealed partial class CoreRuleEngine
         }
         var fieldSource = HasMovedEnemyStunCost(item) || item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent)?.LeadingSourceExhaust == true;
         cards[source.ObjectId] = fieldSource ? ExhaustForInstruction(zones, cards, source) : source with { IsExhausted = true };
-        var exhaustedEvent = fieldSource
+        var exhaustedEvent = fieldSource && !zones[item.ControllerId].LegendZone.Contains(source.ObjectId)
             ? source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED"
             : "LEGEND_EXHAUSTED";
         events.Add(new(exhaustedEvent, "支付休眠费用", new Dictionary<string, object?> {
@@ -428,10 +428,18 @@ public sealed partial class CoreRuleEngine
             baseManaCost: pending.ManaCost, totalManaCost: pending.ManaCost,
             genericPowerCost: pending.PowerCost - pending.PowerCostByTrait.Values.Sum(), totalPowerCost: pending.PowerCost,
             powerCostByTrait: pending.PowerCostByTrait,
-            reason: pending.Reason, sourceObjectId: item.SourceObjectId);
+            reason: pending.Reason, sourceObjectId: item.SourceObjectId,
+            powerPurpose: item.GraveyardPlay is not null ? PowerPaymentPurpose.PlayUnit : PowerPaymentPurpose.Other);
         var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
         if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足，可以先使用符文或反应资源技能，或放弃此技能。", ErrorCodes.InsufficientCost);
         var details = new Dictionary<string, object?> { ["sourceObjectId"] = item.FieldContext?.Kind == EquipmentDeathReturnKind ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId };
+        var restrictedBefore = state.RunePools[item.ControllerId].UnitOrEquipmentPlayOnlyPower;
+        var restrictedAfter = committed.RunePools[item.ControllerId].UnitOrEquipmentPlayOnlyPower;
+        if (restrictedBefore != restrictedAfter)
+        {
+            details["unitOrEquipmentPlayOnlyPowerSpent"] = restrictedBefore - restrictedAfter;
+            details["remainingUnitOrEquipmentPlayOnlyPower"] = restrictedAfter;
+        }
         if (item.BattlefieldConquestMight is not null || item.UnitConquestReturn is not null) {
             details["reason"] = item.EffectKind; details["paymentChoiceIds"] = choices.ToArray();
             details["mana"] = pending.ManaCost; details["power"] = pending.PowerCost;

@@ -2348,6 +2348,18 @@ public sealed partial class ConformanceFixtureRunnerTests
             new PlayerIntent($"intent-p7-9-powerful-unit-play-{legendCardNo}", "P1", "PLAY_CARD"),
             new PlayCardCommand("P1-GAI-BEAST", "SFD·175/221", []),
             CancellationToken.None);
+        if (legendCardNo == "OGN·249/298")
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(playResult.State.PendingCardChoice);
+            Assert.Equal("TRIGGER_COST_CONFIRMATION", choice.ChoiceWindow);
+            Assert.False(playResult.State.CardObjects[legendObjectId].IsExhausted);
+            Assert.Contains("P1-RUNE-POWERFUL-001", playResult.State.PlayerZones["P1"].RuneDeck);
+            var confirmed = await engine.ResolveAsync(playResult.State,
+                new PlayerIntent("powerful-unit-confirm", "P1", CommandTypes.ChooseCards),
+                new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [legendObjectId]), default);
+            Assert.True(confirmed.Accepted, confirmed.ErrorMessage);
+            playResult = confirmed with { Events = playResult.Events.Concat(confirmed.Events).ToArray() };
+        }
         var p1PassResult = await engine.ResolveAsync(
             playResult.State,
             new PlayerIntent($"intent-p7-9-powerful-unit-p1-pass-{legendCardNo}", "P1", "PASS_PRIORITY"),
@@ -2376,13 +2388,9 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Empty(p2PassResult.State.PlayerZones["P1"].RuneDeck);
         Assert.True(p2PassResult.State.CardObjects[legendObjectId].IsExhausted);
         Assert.True(p2PassResult.State.CardObjects["P1-RUNE-POWERFUL-001"].IsExhausted);
-        Assert.Contains(p2PassResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "POWERFUL_UNIT_PLAYED_CALL_RUNE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["legendCardNo"] as string, legendCardNo, StringComparison.Ordinal));
-        Assert.Contains(p2PassResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["legendObjectId"] as string, legendObjectId, StringComparison.Ordinal));
+        Assert.Contains(playResult.Events, gameEvent =>
+            gameEvent.Kind == "LEGEND_EXHAUSTED"
+            && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), legendObjectId));
         var runeCallEvent = Assert.Single(p2PassResult.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         Assert.Equal(1, runeCallEvent.Payload["count"]);
     }

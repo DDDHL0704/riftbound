@@ -150,6 +150,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string GainedExperienceThisTurnEffectPrefix = "GAINED_EXPERIENCE_THIS_TURN:";
     private const string PlayedSpellThisTurnEffectPrefix = "PLAYED_SPELL_THIS_TURN:";
     private const string PlayedFourPlusCostSpellThisTurnEffectPrefix = "PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:";
+    private const string FlameChompersCardNo = "OGN·006/298";
+    private const string FlameChompersDiscardReplacementPayChoice = "PAY_RED";
+    private const string FlameChompersDiscardReplacementReason = "OGN_FLAME_CHOMPERS_DISCARD_ALT_PLAY_UNIT";
 
     private ValueTask<ResolutionResult> ResolveCoreAsync(
         MatchState state,
@@ -3062,9 +3065,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
+        var discardedObjectIds = new List<string>();
+        var playedObjectCount = 0;
         foreach (var objectId in submittedObjectIds)
         {
+            if (TryResolveFlameChompersDiscardReplacement(
+                    state,
+                    pendingChoice,
+                    intent.PlayerId,
+                    objectId,
+                    playerZones,
+                    cardObjects,
+                    runePools,
+                    events))
+            {
+                playedObjectCount++;
+                continue;
+            }
+
             if (!TryDiscardCardFromHand(playerZones, cardObjects, intent.PlayerId, objectId))
             {
                 return RejectWithCorePrompts(
@@ -3078,6 +3098,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 intent.PlayerId,
                 objectId,
                 autoDiscard: false));
+            discardedObjectIds.Add(objectId);
         }
 
         ResolveHandCardsDiscardedReadyPowerTriggers(
@@ -3086,12 +3107,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             "CARD_DISCARDED",
             pendingChoice.SourceObjectId,
-            submittedObjectIds,
+            discardedObjectIds,
             events);
         var untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                 state.UntilEndOfTurnEffects,
                 intent.PlayerId,
-                submittedObjectIds, playerZones)
+            discardedObjectIds, playerZones)
             .ToArray();
         TriggerSpec? callRuneSpec = null;
         var isConquestCallRune = pendingChoice.BattlefieldConquestDiscardDraw is { } discardContext
@@ -3143,6 +3164,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = pendingChoice.SourceObjectId,
                 ["effectKind"] = pendingChoice.EffectKind,
                 ["chosenCount"] = submittedObjectIds.Length,
+                ["discardedCount"] = discardedObjectIds.Count,
+                ["replacedCount"] = playedObjectCount,
                 ["drawCount"] = pendingChoice.DrawCount
             }));
 
@@ -3162,6 +3185,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
             CardObjects = cardObjects,
+            RunePools = runePools,
+            PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId, playedObjectCount),
             PlayerScores = drawApplication.PlayerScores,
             UntilEndOfTurnEffects = untilEndOfTurnEffects,
             RngCursor = drawApplication.RngCursor,
@@ -3172,7 +3197,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         // The discard/draw choice finishes the top effect; any lower stack item
         // must regain response priority before battlefield cleanup can advance.
-        nextState = QueueMovementDiscardInlines(state, nextState, pendingChoice, submittedObjectIds, events);
+        nextState = QueueMovementDiscardInlines(state, nextState, pendingChoice, discardedObjectIds, events);
         if (nextState.Status == MatchStatuses.InProgress && nextState.StackItems.Count > 0)
             nextState = nextState with { ActivePlayerId = nextState.StackItems[^1].ControllerId,
                 PriorityPlayerId = nextState.StackItems[^1].ControllerId, PassedPriorityPlayerIds = [],
@@ -12542,7 +12567,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds) };
         if (TryBeginBattleResultContinuation(resultState, battlefieldId, intent.PlayerId, defendingPlayerId,
-            attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
+            attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult,
+            CaptureBattlePublicBindings(state, attackerObjectIds.Concat(defenderObjectIds))))
         {
             combatEvents.Insert(0, new GameEvent("BATTLE_DECLARED", $"{intent.PlayerId} 声明战斗",
                 new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["battlefieldId"] = battlefieldId,
@@ -20404,76 +20430,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || objectId.Contains("RUNE", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static IReadOnlyList<GameEvent> ResolvePowerfulUnitPlayedRuneLegendTriggers(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string playedUnitObjectId)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !cardObjects.TryGetValue(playedUnitObjectId, out var playedUnit)
-            || !playedUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || playedUnit.Power < PowerfulUnitPowerThreshold)
-        {
-            return [];
-        }
-
-        foreach (var legendObjectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(legendObjectId, out var legendState)
-                || legendState.IsExhausted
-                || !LegendCardHasIdentity(legendState.CardNo, PowerfulUnitRuneLegendIdentityId))
-            {
-                continue;
-            }
-
-            var runeCallResult = CallRunes(playerZones, cardObjects, playerId, 1);
-            if (runeCallResult.CalledRuneObjectIds.Count == 0)
-            {
-                return [];
-            }
-
-            cardObjects[legendObjectId] = legendState with { IsExhausted = true };
-            return
-            [
-                new GameEvent(
-                    "LEGEND_TRIGGER_RESOLVED",
-                    $"{playerId} 的强力单位传奇触发",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["legendObjectId"] = legendObjectId,
-                        ["legendCardNo"] = legendState.CardNo,
-                        ["trigger"] = "POWERFUL_UNIT_PLAYED_CALL_RUNE",
-                        ["playedUnitObjectId"] = playedUnitObjectId,
-                        ["playedUnitPower"] = playedUnit.Power
-                    }),
-                new GameEvent(
-                    "LEGEND_EXHAUSTED",
-                    $"{playerId} 横置传奇以召出符文",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["legendObjectId"] = legendObjectId,
-                        ["legendCardNo"] = legendState.CardNo,
-                        ["reason"] = "POWERFUL_UNIT_PLAYED_CALL_RUNE"
-                    }),
-                new GameEvent(
-                    "RUNES_CALLED",
-                    $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["sourceObjectId"] = legendObjectId,
-                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
-                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
-                    })
-            ];
-        }
-
-        return [];
-    }
-
     private static IReadOnlyList<GameEvent> ResolveRengarUnitPlayedPowerTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -24628,12 +24584,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem,
                 untilEndOfTurnEffects,
                 events);
-
-            events.AddRange(ResolvePowerfulUnitPlayedRuneLegendTriggers(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId));
 
             if (behavior.SourceNextSpellCostReductionMana > 0
                 && !string.IsNullOrWhiteSpace(behavior.SourceNextSpellCostReductionEffectKind))
@@ -30405,6 +30355,158 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal));
     }
 
+    private static bool TryResolveFlameChompersDiscardReplacement(
+        MatchState state,
+        PendingHandChoiceState pendingChoice,
+        string playerId,
+        string objectId,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, RunePool> runePools,
+        List<GameEvent> events)
+    {
+        if (!cardObjects.TryGetValue(objectId, out var card)
+            || !string.Equals(card.CardNo, FlameChompersCardNo, StringComparison.Ordinal)
+            || !CardBehaviorRegistry.TryGetByCardNo(FlameChompersCardNo, out var behavior)
+            || !behavior.PlaysSourceToBaseAsUnit)
+        {
+            return false;
+        }
+
+        var pool = runePools.GetValueOrDefault(playerId, RunePool.Empty);
+        var hasRedPower = pool.HasSupportedAmounts
+            && pool.PowerByTrait.GetValueOrDefault(RuneTrait.Red) > 0;
+        if (!hasRedPower)
+        {
+            return false;
+        }
+
+        var replacement = RuleChoices.Value!.Choose(
+            playerId,
+            "嚼火者手雷被弃置时，可支付1点红色符能改为打出到基地。",
+            [
+                new(FlameChompersDiscardReplacementPayChoice, "支付1点红色符能，改为打出到基地"),
+                new(DeclinePaymentChoiceId, "放弃替代，正常弃置")
+            ],
+            powerCost: 1,
+            kind: "FLAME_CHOMPERS_DISCARD_REPLACEMENT");
+        if (!string.Equals(replacement, FlameChompersDiscardReplacementPayChoice, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var paymentId = PaymentCostRules.BuildPaymentId(
+            state.Tick + 1,
+            RuleChoiceWindow,
+            playerId,
+            objectId,
+            reason: FlameChompersDiscardReplacementReason);
+        var paymentPlan = new PaymentCostRules.PaymentPlan(
+            paymentId,
+            RuleChoiceWindow,
+            playerId,
+            totalPowerCost: 1,
+            powerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 },
+            reason: FlameChompersDiscardReplacementReason,
+            sourceObjectId: objectId,
+            abilityId: behavior.EffectKind);
+        var payment = PaymentCostRules.TryCommitPayment(paymentPlan, runePools, state: state);
+        if (!payment.Accepted)
+        {
+            throw new InvalidOperationException(payment.ErrorMessage ?? "嚼火者手雷替代费用无法支付。");
+        }
+
+        runePools.Clear();
+        foreach (var entry in payment.RunePools)
+        {
+            runePools[entry.Key] = entry.Value;
+        }
+
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Hand.Contains(objectId, StringComparer.Ordinal)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
+        {
+            throw new InvalidOperationException("嚼火者手雷替代对象已不在合法手牌中。");
+        }
+
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{objectId}",
+            playerId,
+            objectId,
+            behavior.EffectKind,
+            behavior.CardNo,
+            [],
+            behavior.DamageAmount,
+            1,
+            [],
+            destination: MoveUnitBaseZone,
+            timingContext: StackTimingContextForNewStackItem(state))
+        {
+            PlayedFromHand = true
+        };
+
+        // The card crosses directly from hand to the base. ObjectContinuity
+        // records the new incarnation after this command completes.
+        playerZones[playerId] = zones with
+        {
+            Hand = RemoveFromZone(zones.Hand, objectId)
+        };
+
+        var origin = CardPlayHandOrigin(state, objectId, playerId);
+        var played = new GameEvent(
+            "CARD_PLAYED",
+            $"{playerId} 打出{behavior.DisplayName}（弃置替代）",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = objectId,
+                ["cardNo"] = behavior.CardNo,
+                ["mode"] = "DISCARD_REPLACEMENT",
+                ["destination"] = MoveUnitBaseZone,
+                ["replacementEffectKind"] = FlameChompersDiscardReplacementReason
+            });
+        played = CaptureCardPlayHistory(
+            played,
+            card,
+            playerId,
+            stackItem.StackItemId,
+            resolved: false,
+            zone: "STACK",
+            origin.OtherHandPlayerId,
+            origin.OutsideHands,
+            zones: playerZones,
+            cards: cardObjects);
+        events.Add(played);
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{playerId} 支付嚼火者手雷替代费用",
+            PaymentCostRules.BuildCostPaidPayload(
+                paymentPlan,
+                payment.RunePools,
+                payment.PlayerExperience,
+                new Dictionary<string, object?>
+                {
+                    ["mana"] = 0,
+                    ["power"] = 1,
+                    ["powerByTrait"] = new Dictionary<string, int> { [RuneTrait.Red] = 1 },
+                    ["reason"] = FlameChompersDiscardReplacementReason,
+                    ["replacement"] = true
+                })));
+
+        PlaySourceUnitToBase(
+            playerZones,
+            cardObjects,
+            behavior,
+            stackItem,
+            state.TurnNumber,
+            state.PlayerExperience,
+            state.DestroyedUnitOwnerIdsThisTurn,
+            state.UntilEndOfTurnEffects,
+            events,
+            state.PlayerScores);
+        return true;
+    }
+
     private static void PlaySourceUnitToBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -34525,6 +34627,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playerCardsPlayedThisTurn[playerId] = playerCardsPlayedThisTurn.TryGetValue(playerId, out var count)
             ? count + 1
             : 1;
+        return playerCardsPlayedThisTurn;
+    }
+
+    private static IReadOnlyDictionary<string, int> IncrementPlayerCardsPlayedThisTurn(
+        MatchState state,
+        string playerId,
+        int amount)
+    {
+        if (amount <= 0)
+        {
+            return state.PlayerCardsPlayedThisTurn;
+        }
+
+        var playerCardsPlayedThisTurn = state.PlayerCardsPlayedThisTurn.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        playerCardsPlayedThisTurn[playerId] = playerCardsPlayedThisTurn.TryGetValue(playerId, out var count)
+            ? checked(count + amount)
+            : amount;
         return playerCardsPlayedThisTurn;
     }
 
