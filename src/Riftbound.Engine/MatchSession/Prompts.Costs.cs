@@ -25,7 +25,8 @@ internal static partial class ActionPromptBuilder
     private static bool PromptHasRequiredTargetChoices(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         if (!CoreRuleEngine.HasMandatoryPlayAdditionalCostChoices(state, playerId, behavior))
             return false;
@@ -38,20 +39,21 @@ internal static partial class ActionPromptBuilder
 
         for (var targetIndex = 0; targetIndex < minTargetCount; targetIndex++)
         {
-            if (PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex).Count == 0)
+            if (PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId).Count == 0)
             {
                 return false;
             }
         }
 
-        return !PlayCardRequiresServerTargetSelection(state, playerId, behavior)
-            || PlayCardLegalTargetSelections(state, playerId, behavior).Count > 0;
+        return !PlayCardRequiresServerTargetSelection(state, playerId, behavior, sourceObjectId)
+            || PlayCardLegalTargetSelections(state, playerId, behavior, sourceObjectId).Count > 0;
     }
 
     private static bool PlayCardRequiresServerTargetSelection(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
@@ -61,7 +63,7 @@ internal static partial class ActionPromptBuilder
         }
 
         var choicesByIndex = Enumerable.Range(0, maxTargetCount)
-            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex)
+            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId)
                 .Select(choice => choice.Id)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray())
@@ -160,7 +162,8 @@ internal static partial class ActionPromptBuilder
     private static IReadOnlyList<IReadOnlyList<string>> PlayCardLegalTargetSelections(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         // Unbounded grouped targets use the server quote for each submitted set;
         // enumerating every permutation here grows factorially with zero-power units.
@@ -174,7 +177,7 @@ internal static partial class ActionPromptBuilder
         }
 
         var choicesByIndex = Enumerable.Range(0, maxTargetCount)
-            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex)
+            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId)
                 .Select(choice => choice.Id)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray())
@@ -190,7 +193,7 @@ internal static partial class ActionPromptBuilder
             if (targetCount == 0)
             {
                 var emptySelection = Array.Empty<string>();
-                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, emptySelection))
+                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, emptySelection, sourceObjectId))
                 {
                     legalSelections.Add(emptySelection);
                 }
@@ -213,7 +216,7 @@ internal static partial class ActionPromptBuilder
             if (targetIndex >= targetCount)
             {
                 var selection = currentSelection.ToArray();
-                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, selection))
+                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, selection, sourceObjectId))
                 {
                     legalSelections.Add(selection);
                 }
@@ -594,8 +597,8 @@ internal static partial class ActionPromptBuilder
 
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardTargetChoices(MatchState state, string playerId)
     {
-        var choices = PlayablePlayCardBehaviors(state, playerId)
-            .SelectMany(behavior => PlayCardTopLevelTargetChoicesForBehavior(state, playerId, behavior))
+        var choices = PlayablePlayCardBehaviorSources(state, playerId)
+            .SelectMany(entry => PlayCardTopLevelTargetChoicesForBehavior(state, playerId, entry.Behavior, entry.SourceObjectId))
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
@@ -605,12 +608,13 @@ internal static partial class ActionPromptBuilder
     private static IEnumerable<ActionPromptChoiceDto> PlayCardTopLevelTargetChoicesForBehavior(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         var choicesByIndex = Enumerable.Range(0, maxTargetCount)
-            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex))
+            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId))
             .ToArray();
         var choiceIdsByIndex = choicesByIndex
             .Select(choices => choices
@@ -623,7 +627,7 @@ internal static partial class ActionPromptBuilder
             return choicesByIndex.SelectMany(choices => choices);
         }
 
-        var legalTargetIds = PlayCardLegalTargetSelections(state, playerId, behavior)
+        var legalTargetIds = PlayCardLegalTargetSelections(state, playerId, behavior, sourceObjectId)
             .SelectMany(selection => selection)
             .ToHashSet(StringComparer.Ordinal);
         return choicesByIndex

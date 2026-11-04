@@ -1815,6 +1815,13 @@ public sealed partial class ConformanceFixtureRunnerTests
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["P1-SPELL-SINFUL-PLEASURE"] = new(
+                    "P1-SPELL-SINFUL-PLEASURE",
+                    cardNo: "OGN·008/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: "P1",
+                    controllerId: "P1"),
                 ["P2-DISCARD-SINFUL-001"] = new("P2-DISCARD-SINFUL-001", manaCost: 4),
                 ["P2-BATTLEFIELD-SINFUL-001"] = new("P2-BATTLEFIELD-SINFUL-001", power: 5)
             }
@@ -1838,6 +1845,80 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-DISCARD-SINFUL-001"], result.State.PlayerZones["P2"].Hand);
         Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-SINFUL-001"].Damage);
         Assert.Empty(result.State.StackItems);
+
+        var sourceTargetResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-sinful-pleasure-source-discard", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SINFUL-PLEASURE",
+                "OGN·008/298",
+                ["P1-SPELL-SINFUL-PLEASURE", "P2-BATTLEFIELD-SINFUL-001"]),
+            CancellationToken.None);
+
+        Assert.False(sourceTargetResult.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, sourceTargetResult.ErrorCode);
+        Assert.Equal("罪恶快感需要选择另一张手牌弃置。", sourceTargetResult.ErrorMessage);
+        Assert.Empty(sourceTargetResult.Events);
+    }
+
+    [Fact]
+    public void ActionPromptExcludesSinfulPleasureSourceFromDiscardTargetChoices()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SINFUL-PLEASURE", "P1-DISCARD-SINFUL-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-SINFUL-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-SINFUL-PLEASURE"] = new(
+                    "P1-SPELL-SINFUL-PLEASURE",
+                    cardNo: "OGN·008/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-DISCARD-SINFUL-001"] = new(
+                    "P1-DISCARD-SINFUL-001",
+                    cardNo: "OGN·005/298",
+                    manaCost: 4,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-SINFUL-001"] = new(
+                    "P2-BATTLEFIELD-SINFUL-001",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(prompt.Candidates ?? [], candidate => candidate.Action == CommandTypes.PlayCard);
+        Assert.DoesNotContain("P1-SPELL-SINFUL-PLEASURE", (playCandidate.Targets ?? []).Select(target => target.Id));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(sourceRequirements, requirement =>
+            Equals(requirement["sourceObjectId"], "P1-SPELL-SINFUL-PLEASURE"));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var discardChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Contains("P1-DISCARD-SINFUL-001", discardChoices);
+        Assert.DoesNotContain("P1-SPELL-SINFUL-PLEASURE", discardChoices);
     }
 
     [Fact]

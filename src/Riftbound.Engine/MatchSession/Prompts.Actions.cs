@@ -2179,7 +2179,7 @@ internal static partial class ActionPromptBuilder
         CardBehaviorDefinition behavior)
     {
         if (behavior.StandbyReactionTargetScope == CardTargetScopes.Battlefield)
-            return PromptTargetChoicesForIndex(state, playerId, behavior, 0);
+            return PromptTargetChoicesForIndex(state, playerId, behavior, 0, sourceObjectId);
 
         if (string.Equals(
                 behavior.StandbyReactionTargetScope,
