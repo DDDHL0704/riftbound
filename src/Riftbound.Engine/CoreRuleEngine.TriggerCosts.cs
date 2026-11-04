@@ -354,7 +354,7 @@ public sealed partial class CoreRuleEngine
         }
         var fieldSource = item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent)?.LeadingSourceExhaust == true;
         cards[source.ObjectId] = fieldSource ? ExhaustForInstruction(zones, cards, source) : source with { IsExhausted = true };
-        var exhaustedEvent = fieldSource
+        var exhaustedEvent = fieldSource && !zones[item.ControllerId].LegendZone.Contains(source.ObjectId)
             ? source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED"
             : "LEGEND_EXHAUSTED";
         events.Add(new(exhaustedEvent, "支付休眠费用", new Dictionary<string, object?> {
