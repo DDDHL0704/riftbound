@@ -11261,6 +11261,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
             if (equipmentLocation is null
+                || equipmentLocation.Value.PlayerId != hostLocation.Value.PlayerId
+                || equipmentLocation.Value.Zone != hostLocation.Value.Zone
                 || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
                 || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
                 || equipmentState.IsFaceDown || equipmentState.AttachedToObjectId != hostState.ObjectId
