@@ -180,7 +180,7 @@
     {
       "setCode": "UNL",
       "name": "破限",
-      "enabled": false,
+      "enabled": true,
       "boosterProductCode": "UNL(进阶补充包)",
       "selectBySetPrefix": false,
       "booster": {
@@ -229,10 +229,10 @@
           "note": "RAD、VEN 与异画同频；无此类别的系列为零。"
         },
         "ultimatePerPack": {
-          "value": 0.0005,
+          "value": 0,
           "sourceLevel": "project_assumption",
           "sourceUrl": "docs/adr/0001-sealed-format.md",
-          "note": "UNL 官方转述仅给 <0.1%，暂取 0.05%，待确认；未完整接入的追逐印次保持关闭。"
+          "note": "官方转述只给出低于 0.1%；已检查目录的稀有度与印次类型，仍无可确认的终极实体卡号，概率置零，待确认。"
         },
         "foilRare": {
           "value": 0.08,
@@ -279,7 +279,7 @@
     {
       "setCode": "VEN",
       "name": "化神争锋",
-      "enabled": false,
+      "enabled": true,
       "boosterProductCode": "VEN(进阶补充包)",
       "selectBySetPrefix": false,
       "booster": {
@@ -373,13 +373,13 @@
         }
       },
       "variantOnlyInSecondRareSlot": false,
-      "specialAltArtCardNos": [],
+      "specialAltArtCardNos": ["VEN·SP1", "VEN·SP2", "VEN·SP3", "VEN·SP4", "VEN·SP5", "VEN·SP6"],
       "ultimateCardNos": []
     },
     {
       "setCode": "RAD",
       "name": "辉耀群星",
-      "enabled": false,
+      "enabled": true,
       "boosterProductCode": "RAD(进阶补充包)",
       "selectBySetPrefix": true,
       "booster": {
@@ -422,17 +422,17 @@
           "note": "超编中的签名占比；不是额外的每包概率。"
         },
         "specialAltArtPerPack": {
-          "value": 0.09,
+          "value": 0,
           "sourceLevel": "community",
           "sourceUrl": "https://tcgtalk.com/guides/radiance-riftbound-pull-rates-box-opening",
-          "note": "与同系列异画大致同频的关系来自 https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/；绝对数值 9% 沿用该系列社区异画观测值，待确认。",
+          "note": "官方确认与同系列异画大致同频，但目录中没有可确认属于进阶包的特殊异画目标，概率置零，待确认。",
           "basisSourceLevel": "official"
         },
         "ultimatePerPack": {
-          "value": 0.00025,
+          "value": 0,
           "sourceLevel": "official",
           "sourceUrl": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
-          "note": "官方按整个印刷批次公布每包约 0.025%，每包最多一张；单包、单盒或单箱均无保证。"
+          "note": "官方公布整个印刷批次每包约 0.025%，但当前目录没有可确认属于进阶包的终极实体卡号，概率置零，待确认。"
         },
         "foilRare": {
           "value": 0.08,
@@ -474,7 +474,8 @@
       },
       "variantOnlyInSecondRareSlot": true,
       "specialAltArtCardNos": [],
-      "ultimateCardNos": []
+      "ultimateCardNos": [],
+      "excludedCardNos": ["RAD·SP1/005", "RAD·SP2/005", "RAD·SP3/005", "RAD·SP4/005", "RAD·SP5/005"]
     }
   ]
 }
