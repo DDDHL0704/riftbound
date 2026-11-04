@@ -28,6 +28,8 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
     public PaidUnitReference? ExhaustedCostUnit { get; init; }
     public string ReturnTiming { get; init; } = "";
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LinkedAttributeDeclaration? LinkedAttribute { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? ReplayCardNo { get; init; }
 }
 
@@ -122,8 +124,10 @@ public sealed partial class CoreRuleEngine
     internal static bool SimpleActivationTargetsPlayer(P4ActivatedAbilityDefinition ability)
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true || SimpleActivationTargetsOpponent(ability);
 
-    internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect is { } friendly && (friendly.MovesToExhaustedCostUnit || friendly.GrantsPaidRecall)
+    internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability, string? instanceId = null)
+        => ability.SimpleEffect?.TargetsDeclaredAttribute == true
+            ? CurrentLinkedAttribute(state, sourceId, instanceId) is { } declaration && IsLinkedAttributeTarget(state, actor, id, declaration)
+            : ability.SimpleEffect is { } friendly && (friendly.MovesToExhaustedCostUnit || friendly.GrantsPaidRecall)
             ? state.CardObjects.TryGetValue(id, out var moved) && IsFaceUpNonStandbyUnit(moved)
                 && IsObjectOnField(state.PlayerZones, id) && EffectiveFieldControllerId(state.PlayerZones, id, moved) == actor
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
@@ -169,7 +173,7 @@ public sealed partial class CoreRuleEngine
             || !IsSimpleAbilitySource(state, intent.PlayerId, command.SourceObjectId, ability)
             || !SelectSimpleActivationInstance(state, state.CardObjects[command.SourceObjectId], ability, command.AbilityInstanceId, out var instance)
             || !SimpleActivationInstanceAvailable(state, state.CardObjects[command.SourceObjectId], ability, intent.PlayerId, instance)
-            || targets.Any(id => !IsSimpleAbilityTarget(state, intent.PlayerId, command.SourceObjectId, id, ability)))
+            || targets.Any(id => !IsSimpleAbilityTarget(state, intent.PlayerId, command.SourceObjectId, id, ability, instance.Id)))
             return RejectWithCorePrompts(state, "技能来源、横置或解除强化费用、目标不合法。", ErrorCodes.InvalidTarget);
         if (!TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
                 out var extras, out var resources, out var recycled)
@@ -268,6 +272,7 @@ public sealed partial class CoreRuleEngine
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets) {
                 ExhaustedCostUnit = exhaustedCostUnit,
+                LinkedAttribute = spec.TargetsDeclaredAttribute ? CurrentLinkedAttribute(state, source.ObjectId, instance.Id) : null,
                 SourceFaceRevision = instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
                 RuleTextInstanceId = instance.Id, Origin = instance.Origin,
                 SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
@@ -329,6 +334,7 @@ public sealed partial class CoreRuleEngine
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
+            || !ValidActivationAttribute(state, context, ability.SimpleEffect!.TargetsDeclaredAttribute)
             || !ValidExhaustedCostUnit(state, context.ExhaustedCostUnit, ability.SimpleEffect!.MovesToExhaustedCostUnit,
                 item.SourceObjectId, item.TargetObjectIds)
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
@@ -456,6 +462,7 @@ public sealed partial class CoreRuleEngine
             TryGetEffectPlayDefinition(item, out var replayDefinition);
             return BeginEffectPlay(state, item, replayDefinition);
         }
+        if (spec.TargetsDeclaredAttribute) return ResolveLinkedAttributeReduction(state, item);
         if (spec.OpponentGuessesDeckTopType) return ResolveGuessedDeckTop(state, item, ability);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);

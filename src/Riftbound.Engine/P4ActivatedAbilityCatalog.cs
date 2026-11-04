@@ -61,7 +61,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false,
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
     string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
-    bool GrantsPaidRecall = false, bool PlaysLinkedGraveyardExile = false);
+    bool GrantsPaidRecall = false, bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -286,6 +286,9 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("EXHAUST_DECLARED_ATTRIBUTE_MINUS_2", "UNL-138/219", "EXHAUST_DECLARED_ATTRIBUTE_MINUS_2",
+            "夺命名单", 0, 0, 1, false, true, 0, true, "横置：具有本组技能宣告的属性标签的单位本回合战力-2。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard, SimpleEffect: new(TargetsDeclaredAttribute: true)),
         new("CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT", "UNL-148/219", "CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT",
             "受诅咒的石棺", 0, 0, 0, false, true, 0, false,
             "官方中文：横置，打出一名以此方式放逐的单位，必须支付卡牌费用。",

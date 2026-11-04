@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-death-list-equipment",
-  "description": "Death List enters the controller's base as an equipment object; declared tag and activated power modifier are deferred.",
+  "description": "Death List declares an official attribute after responses and retains its equipment entry state.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-138/219 夺命名单",
-      "note": "官方卡面：费用 1；装备；打出时宣告一种属性标签；横置后让具有该属性标签的单位本回合内 -2 战力。当前 fixture 只覆盖从手牌打出成为装备对象路径，宣告属性标签和横置技能暂缓。"
+      "note": "官方卡面：打出时宣告一种属性标签；横置后让具有该属性标签的单位本回合内-2战力。按核心395–398将声明绑定到同一来源代际和文本实例；原生和借用由LinkedAttributeDeclarationTests验证。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -75,15 +75,48 @@
         "cardNo": "UNL-138/219",
         "targetObjectIds": []
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "death-list-pass-1",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "death-list-pass-2",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "death-list-attribute",
+      "cmd": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "魄罗"
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 1,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "EQUIPMENT_PLAYED_TO_BASE"
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "PRIORITY_PASSED",
+      "RULE_CHOICE_REQUESTED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "ATTRIBUTE_DECLARED"
     ],
     "events": [
       {
@@ -116,6 +149,27 @@
             "CARD_TYPE:EQUIPMENT"
           ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "RULE_CHOICE_REQUESTED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "ATTRIBUTE_DECLARED"
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },

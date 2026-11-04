@@ -2820,7 +2820,8 @@ public static class CardBehaviorRegistry
             "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_DEFERRED",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("PLAY", "DECLARE_ATTRIBUTE")),
         new(
             "UNL-148/219",
             "受诅咒的石棺",

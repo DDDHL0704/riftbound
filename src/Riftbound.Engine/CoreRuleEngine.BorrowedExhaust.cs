@@ -47,7 +47,9 @@ public sealed partial class CoreRuleEngine
 
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId,
         int index = 0)
-        => spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
+        // Core 396/398: acquiring only the activated component does not acquire a declaration.
+        => spec.TargetScope == "UNLINKED_ATTRIBUTE" ? false
+            : spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
             ? IsControlledArmamentTarget(state, player, id, spec.Kind == "ATTACH_ARMAMENT", spec.Kind == "REATTACH_ARMAMENT")
             : BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
             : spec.TargetScope == "OWNED_TEEMO_UNIT" ? IsValidOwnedTeemoUnitTarget(state, player, id)

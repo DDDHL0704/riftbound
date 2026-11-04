@@ -83,7 +83,7 @@ internal static class BorrowedExhaustRules
             || !CoreRuleEngine.BorrowedEnemyTargetRequirementMet(state, item.ControllerId, spec)
             || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
             || !ValidSource(state, c.Donor, c.AcquiredTick, spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
-            || spec.Kind == "RESOURCE"
+            || spec.Kind == "RESOURCE" || spec.TargetScope == "UNLINKED_ATTRIBUTE"
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
             || spec.RequiresPlayedArmamentThisTurn != c.ArmamentWasPlayedThisTurn

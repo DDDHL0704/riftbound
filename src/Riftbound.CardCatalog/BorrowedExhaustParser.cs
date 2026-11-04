@@ -174,6 +174,11 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "让一名具有该属性标签的单位在本回合内{{S}}-2")
+            {
+                result.Add(Skill("MIGHT_UNIT", scope: "UNLINKED_ATTRIBUTE") with { Might = -2 });
+                continue;
+            }
             if (effect == "打出一名以此方式放逐的单位")
             {
                 result.Add(Skill("PLAY_LINKED_EXILE", 0));
