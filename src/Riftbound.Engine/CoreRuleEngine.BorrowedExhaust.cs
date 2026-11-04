@@ -36,7 +36,8 @@ public sealed partial class CoreRuleEngine
             .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray();
 
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId)
-        => spec.TargetScope == "BATTLEFIELD" ? BattlefieldLocalRules.Battlefield(state, id) is not null
+        => BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
+            : spec.TargetScope == "BATTLEFIELD" ? BattlefieldLocalRules.Battlefield(state, id) is not null
             : spec.Kind is "READY_EQUIPMENT" or "EMPOWER_EQUIPMENT" ? IsLegendEquipmentReadyTarget(state, player, id)
                 && (spec.Kind != "EMPOWER_EQUIPMENT" || id != sourceId)
             : state.CardObjects.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)
@@ -96,7 +97,8 @@ public sealed partial class CoreRuleEngine
             && (discard.Length != 1 || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(discard[0])))
             return RejectWithCorePrompts(state, "请选择自己手中的装备牌支付弃置费用。", ErrorCodes.InvalidTarget);
         var ordered = renekton is null ? resources : OrderedRenektonPaymentResources(requested, resources, renekton);
-        var tax = ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out _);
+        var tax = BorrowedExhaustRules.TargetsPlayer(ability.Spec) ? 0
+            : ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out _);
         var paymentId = PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId, source.ObjectId, ability.Id);
         var plan = new PaymentCostRules.PaymentPlan(paymentId, "ACTIVATE_ABILITY", intent.PlayerId,
             ability.Spec.Mana, ability.Spec.Mana, ability.Spec.Power + tax,
@@ -138,8 +140,9 @@ public sealed partial class CoreRuleEngine
         var rngCursor = state.RngCursor;
         var borrowerDestroyedAsCost = false;
         // All targets bind before nonstandard costs can change their zones.
-        var targetGenerations = targets.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
-        var factories = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
+        var objectTargets = BorrowedExhaustRules.TargetsPlayer(ability.Spec) ? [] : targets;
+        var targetGenerations = objectTargets.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
+        var factories = objectTargets.Where(id => TokenObjectRules.IsToken(cards[id]))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var borrowerWasOnBattlefield = zones.Values.Any(z => z.Battlefields.Contains(source.ObjectId, StringComparer.Ordinal));
         var context = new BorrowedExhaustContext(BorrowedExhaustRules.Capture(source, ability.BorrowerText),
@@ -263,6 +266,12 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")
+            return ResolveCommandOpponentMovement(state, item, c.Borrower.Object, "获得的移动技能", BorrowedExhaustRules.Effect);
+        if (spec.Kind == "TRANSFER_SOURCE_AND_RECALL")
+            return ResolveTransferSourceAndRecall(state, item, c.Borrower.Object, BorrowedExhaustRules.Effect);
+        if (spec.Kind == "GUESS_DECK_TOP")
+            return ResolveGuessedDeckTop(state, item, "获得的猜牌技能", BorrowedExhaustRules.Effect);
         if (spec.Kind == "CREATE_UNIT_TOKEN")
         {
             if (BeginTokenReplacement(state, item) is { } replacement) return replacement;

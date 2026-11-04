@@ -146,6 +146,21 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "选择一名玩家。该玩家获得此牌的控制权，并将其召回")
+            {
+                result.Add(Skill("TRANSFER_SOURCE_AND_RECALL", scope: "PLAYER"));
+                continue;
+            }
+            if (effect == "选择一名对手。该对手必须将其控制的一名单位移动到我所在的战场")
+            {
+                result.Add(Skill("COMMAND_OPPONENT_MOVEMENT", scope: "OPPONENT"));
+                continue;
+            }
+            if (effect == "选择一名对手。让其猜测一种卡牌类型。展示你主牌堆顶部的一张牌。如果该卡牌属于该类型，则将其回收，否则抽取该卡牌")
+            {
+                result.Add(Skill("GUESS_DECK_TOP", scope: "OPPONENT"));
+                continue;
+            }
             if (effect == "如果这是你的回合，则将一名处于法术对决中的友方单位移动到基地，且如果我{{已强化}}，则让该单位变为活跃状态")
             {
                 result.Add(Skill("MOVE_DUEL_UNIT_TO_BASE", scope: "FRIENDLY_DUEL_UNIT") with {
