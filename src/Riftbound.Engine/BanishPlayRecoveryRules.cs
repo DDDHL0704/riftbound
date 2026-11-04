@@ -62,7 +62,10 @@ internal static class BanishPlayRecoveryRules
             && parent.TargetGenerations.GetValueOrDefault(source.Key, -1) == source.Value - 1
             && state.CardObjects.TryGetValue(source.Key, out var card) && card.ObjectGeneration == source.Value
             && !TokenObjectRules.IsToken(card) && card.OwnerId == pending.PlayerId && card.ControllerId == pending.PlayerId
-            && card.Tags.Contains(CardObjectTags.UnitCard) && zones.Banished.Contains(source.Key)
+            && !card.IsFaceDown && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))
+            && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var printed)
+            && (printed.PlaysSourceToBaseAsUnit || printed.PlaysSourceToBaseAsEquipment)
+            && zones.Banished.Contains(source.Key)
             && state.ObjectLocations.GetValueOrDefault(source.Key) is { Zone: "BANISHED" } location
             && location.PlayerId == pending.PlayerId;
     }

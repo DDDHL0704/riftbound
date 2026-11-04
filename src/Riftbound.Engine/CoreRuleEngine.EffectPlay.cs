@@ -104,7 +104,8 @@ public sealed partial class CoreRuleEngine
     private static bool EffectPlaySourceMatches(CardObjectState card, CardBehaviorDefinition definition)
         => CardBehaviorRegistry.GetAll().Any(b => b.CardNo == card.CardNo && (definition.EffectPlayAllowsAnyCard
             ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(b)
-            : definition.DeckPlayKind is "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY" or OwnedUnitReplayKind
+            : definition.EffectPlaySourceZone == "BANISHED"
+                || definition.DeckPlayKind is "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY" or OwnedUnitReplayKind
             ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment
             : b.PlaysSourceToBaseAsUnit));
 
@@ -192,11 +193,12 @@ public sealed partial class CoreRuleEngine
 
     internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId, CardBehaviorDefinition? behavior = null)
     {
-        var ordinary = OrdinaryEffectPlayDestinations(state, playerId);
-        IEnumerable<CardBehaviorDefinition> behaviors = behavior is not null ? [behavior] : EffectPlaySources(state, playerId)
+        CardBehaviorDefinition[] behaviors = behavior is not null ? [behavior] : EffectPlaySources(state, playerId)
             .Select(id => state.CardObjects.GetValueOrDefault(id)?.CardNo)
             .Select(no => CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var found) ? found : null)
-            .OfType<CardBehaviorDefinition>();
+            .OfType<CardBehaviorDefinition>().ToArray();
+        var ordinary = behaviors.SelectMany(b => OrdinaryEffectPlayDestinations(state, playerId, b)
+            .Where(destination => UnitPlayLocationRestrictionAllows(state, playerId, b, destination)));
         var deployed = EffectPlayAllowsDeployment(state, playerId) && behaviors.Any(IsDeployedEquipment)
                 ? state.CardObjects.Keys.Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)
                     .Select(id => "BATTLEFIELD:" + id) : [];
@@ -206,16 +208,19 @@ public sealed partial class CoreRuleEngine
             .Distinct(StringComparer.Ordinal).ToArray();
     }
 
-    private static IReadOnlyList<string> OrdinaryEffectPlayDestinations(MatchState state, string playerId)
+    private static IReadOnlyList<string> OrdinaryEffectPlayDestinations(MatchState state, string playerId,
+        CardBehaviorDefinition behavior)
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        bool AllowsEntry(string destination) => !behavior.PlaysSourceToBaseAsUnit
+            || !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination);
         if (pending.DestinationPolicy == "ORIGINAL_LOCATION_OR_BASE")
         {
             var originalDestinations = new List<string> { "BASE" };
             var original = "BATTLEFIELD:" + pending.OriginalBattlefield?.ObjectId;
             if (IsForcedEffectPlayDestination(state, playerId, original)
-                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, original)) originalDestinations.Add(original);
+                && AllowsEntry(original)) originalDestinations.Add(original);
             return originalDestinations;
         }
         if (pending.DestinationPolicy == "ORIGINAL_LOCATION")
@@ -224,7 +229,7 @@ public sealed partial class CoreRuleEngine
                 return at.PlayerId == playerId ? ["BASE"] : [];
             var destination = "BATTLEFIELD:" + pending.OriginalBattlefield?.ObjectId;
             return IsForcedEffectPlayDestination(state, playerId, destination)
-                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination) ? [destination] : [];
+                && AllowsEntry(destination) ? [destination] : [];
         }
         if (pending.Parent.FieldContext is { Kind: "ATTACK_DECK_PLAY" }
             && pending.Sources.Keys.SingleOrDefault() is { } chosen && state.CardObjects.TryGetValue(chosen, out var selected)
@@ -234,25 +239,25 @@ public sealed partial class CoreRuleEngine
             return state.CardObjects.TryGetValue(origin.Battlefield.ObjectId, out var field)
                 && field.ObjectGeneration == origin.Battlefield.Generation
                 && field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)
-                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, "BATTLEFIELD:" + field.ObjectId)
+                && AllowsEntry("BATTLEFIELD:" + field.ObjectId)
                     ? ["BATTLEFIELD:" + field.ObjectId] : [];
         if (pending.RevealedHand is { } hand)
             return !hand.Choosing && IsForcedEffectPlayDestination(state, playerId, "BATTLEFIELD:" + hand.BattlefieldId)
-                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, "BATTLEFIELD:" + hand.BattlefieldId)
+                && AllowsEntry("BATTLEFIELD:" + hand.BattlefieldId)
                 ? ["BATTLEFIELD:" + hand.BattlefieldId] : [];
         if (pending.DestinationPolicy == "STACK") return ["BASE"];
         if (pending.DestinationPolicy == "ANY_BATTLEFIELD")
             return state.CardObjects.Keys.Select(id => "BATTLEFIELD:" + id)
                 .Where(destination => IsForcedEffectPlayDestination(state, playerId, destination)
-                    && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination)).ToArray();
+                    && AllowsEntry(destination)).ToArray();
         var destinations = new List<string>();
         if (pending.DestinationPolicy != "CONTROLLED_BATTLEFIELD") destinations.Add("BASE");
         if (pending.DestinationPolicy != "BASE")
             destinations.AddRange(state.CardObjects.Keys.Select(id => "BATTLEFIELD:" + id)
                 .Where(destination => IsPlayCardUnitBattlefieldDestinationAllowed(state, playerId, destination)
-                    && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination)));
+                    && AllowsEntry(destination)));
         if (AttackDeckPlayHere(state, pending) is { } here && !destinations.Contains(here)
-            && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, here)) destinations.Add(here);
+            && AllowsEntry(here)) destinations.Add(here);
         return destinations;
     }
 

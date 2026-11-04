@@ -8,7 +8,7 @@ using static Riftbound.ConformanceTests.RadGearTestPosition;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class RadDocksideCageTests
+public sealed partial class RadDocksideCageTests
 {
     private const string Cage = "RAD·136/167";
 

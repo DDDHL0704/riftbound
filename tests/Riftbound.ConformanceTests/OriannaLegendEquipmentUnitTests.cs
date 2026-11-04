@@ -591,6 +591,107 @@ public sealed class OriannaLegendEquipmentUnitTests
         await game.Replay();
     }
 
+    // DOC-17: copying an enemy Ball copies its printed equipment face,
+    // rather than the legend's continuous unit transformation.
+    [Fact]
+    public async Task MirrorImageOfAnEnemyAnimatedOrbIsAnEphemeralNonUnitEquipment()
+    {
+        var initial = Put(Put(Position(), "GEAR", "RAD·146/167", "P1", "BASE"),
+            "COPY", "UNL-200/219", "P2", "HAND");
+        for (var i = 0; i < 5; i++) initial = Put(initial, "P2-MANA-" + i, "UNL-R03", "P2", "BASE");
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        await game.Act("P1", new EndTurnCommand());
+        await game.TapRunes("P2", ["P2-MANA-0", "P2-MANA-1", "P2-MANA-2"]);
+        await game.Act("P2", new RecycleRuneCommand("P2-MANA-3"));
+        await game.Act("P2", new RecycleRuneCommand("P2-MANA-4"));
+        await game.Act("P2", new PlayCardCommand("COPY", "UNL-200/219", ["GEAR"]));
+        await game.Top();
+        var image = Assert.Single(game.State.CardObjects.Values,
+            card => card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo);
+        Assert.Contains(CardObjectTags.UnitCard, image.Tags);
+        Assert.Equal(0, image.Power);
+        await game.Top();
+        var copied = game.State.CardObjects[image.ObjectId];
+        Assert.Equal("RAD·146/167", copied.CardNo);
+        Assert.Contains(CardObjectTags.EquipmentCard, copied.Tags);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, copied.Tags);
+        Assert.Contains(CardObjectTags.Ephemeral, copied.Tags);
+        Assert.Null(copied.LegendEquipmentUnit);
+        Assert.Equal(new ObjectLocationState("P2", "BASE"), game.State.ObjectLocations[image.ObjectId]);
+        await game.ColdCheckpoint();
+        await game.Replay();
+    }
+
+    // DOC-17: same-location replay follows the new object's printed type.
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task TimeFissureReplaysTheEquipmentFaceAndRespectsDeployment(bool deployedAtBase, bool rockfall)
+    {
+        // This FAQ concerns replay at the original location; use equipment
+        // without Agile so declaring an attachment is not part of the example.
+        var no = deployedAtBase ? "RAD·146/167" : "SFD·016/221";
+        var initial = Put(Put(Position(), "GEAR", no, "P1", "BASE"), "FISSURE", "VEN·066", "P1", "HAND");
+        if (rockfall) initial = Put(initial, "BF", "SFD·216/221", "P1", "BATTLEFIELD", "BF");
+        var game = new Driver(initial);
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        if (!deployedAtBase) {
+            await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF", []));
+            if (game.State.SpellDuelState.IsActive) {
+                await game.Act("P1", new PassFocusCommand());
+                await game.Act("P2", new PassFocusCommand());
+            }
+            Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
+        }
+        var generation = game.State.CardObjects["GEAR"].ObjectGeneration;
+        await game.TapRunes("P1", ["RUNE-1", "RUNE-2"]);
+        await game.Act("P1", new RecycleRuneCommand("RUNE-3"));
+        await game.Act("P1", new PlayCardCommand("FISSURE", "VEN·066", ["GEAR"]));
+        await game.Top();
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Banished);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Equal(generation + 1, game.State.CardObjects["GEAR"].ObjectGeneration);
+        if (deployedAtBase) {
+            await Reject(game.State, "P1", new PlayCardCommand("GEAR", no, [], Destination: "BASE"));
+            Assert.DoesNotContain(game.PromptFor("P1").Candidates ?? [], candidate => candidate.Action == CommandTypes.PlayCard
+                && candidate.Enabled && candidate.Sources?.Any(source => source.Id == "GEAR") == true);
+            if (game.State.PendingEffectPlay is { } impossible)
+                await game.Act("P1", new ChooseCardsCommand(impossible.ChoiceId, "EFFECT_PLAY", []));
+            Assert.Null(game.State.PendingEffectPlay);
+        }
+        else {
+            Assert.NotNull(game.State.PendingEffectPlay);
+            var play = new PlayCardCommand("GEAR", no, [], Destination: "BATTLEFIELD:BF");
+            var destinations = Assert.Single(game.PromptFor("P1").Candidates!,
+                candidate => candidate.Action == CommandTypes.PlayCard).Destinations;
+            Assert.NotNull(destinations);
+            Assert.Equal(["BATTLEFIELD:BF"], destinations.Select(destination => destination.Id));
+            await Reject(game.State, "P1", play with { Destination = "BASE" });
+            await Reject(game.State, "P2", play);
+            await game.ColdCheckpoint();
+            await game.Act("P1", play);
+            Assert.DoesNotContain("GEAR", game.State.PlayerZones["P1"].Banished);
+            Assert.Equal(generation + 2, game.State.CardObjects["GEAR"].ObjectGeneration);
+            // Core 323.6 and 459.1 recall unattached non-unit equipment in
+            // the next cleanup after it was played at the original location.
+            Assert.Equal("BASE", game.State.ObjectLocations["GEAR"].Zone);
+            if (rockfall) Assert.Contains(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_RECALLED_TO_BASE"
+                && Equals(entry.Event.Payload.GetValueOrDefault("equipmentObjectId"), "GEAR"));
+            else {
+                var played = Assert.Single(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
+                    && Equals(entry.Event.Payload.GetValueOrDefault("equipmentObjectId"), "GEAR"));
+                Assert.Equal("BF", played.Event.Payload.GetValueOrDefault("battlefieldObjectId"));
+                var recalled = Assert.Single(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_RECALLED_TO_BASE"
+                    && Equals(entry.Event.Payload.GetValueOrDefault("equipmentObjectId"), "GEAR"));
+                Assert.True(played.Sequence < recalled.Sequence);
+            }
+        }
+        await game.ColdCheckpoint();
+        await game.Replay();
+    }
+
     // DOC-17 / 143.5, 435.1.h, 718.6: an animated armament remains
     // a legal Tempered target, but a unit cannot be attached to another object.
     [Fact]
