@@ -3906,7 +3906,7 @@ internal static partial class ActionPromptBuilder
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
                     || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId))
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
-                    || CoreRuleEngine.CanMoveUnitWithAttachedEquipment(state, playerId, objectId)))
+                    || CoreRuleEngine.CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, objectId)))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
                 : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
@@ -3972,7 +3972,7 @@ internal static partial class ActionPromptBuilder
                 return false;
             if (behavior.MovesTargetsToChosenLocation
                 && CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
-                && !CoreRuleEngine.CanMoveUnitWithAttachedEquipment(state, playerId, targetObjectIds[targetIndex]))
+                && !CoreRuleEngine.CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, targetObjectIds[targetIndex]))
                 return false;
         }
 

@@ -11241,7 +11241,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         CardObjectState hostState,
-        IReadOnlyList<string> attachedEquipmentObjectIds)
+        IReadOnlyList<string> attachedEquipmentObjectIds,
+        bool requireSameFieldLocation = true)
     {
         // CN718.5.e-f / 719.3: movement belongs to the host's controller.
         // Its owner and the attached equipment's controller may be different.
@@ -11261,8 +11262,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
             if (equipmentLocation is null
-                || equipmentLocation.Value.PlayerId != hostLocation.Value.PlayerId
-                || equipmentLocation.Value.Zone != hostLocation.Value.Zone
+                || requireSameFieldLocation && (equipmentLocation.Value.PlayerId != hostLocation.Value.PlayerId
+                    || equipmentLocation.Value.Zone != hostLocation.Value.Zone)
                 || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
                 || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
                 || equipmentState.IsFaceDown || equipmentState.AttachedToObjectId != hostState.ObjectId
@@ -11280,6 +11281,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         string playerId,
         string sourceObjectId)
+        => CanMoveUnitWithAttachedEquipment(state, playerId, sourceObjectId, requireSameFieldLocation: true);
+
+    // Effect movement can relocate a host and its independently controlled
+    // equipment together.  The explicit MOVE_UNIT command remains stricter:
+    // a malformed attachment in another seat's field must not be offered as a
+    // normal movement candidate.
+    internal static bool CanMoveUnitWithAttachedEquipmentForEffect(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+        => CanMoveUnitWithAttachedEquipment(state, playerId, sourceObjectId, requireSameFieldLocation: false);
+
+    private static bool CanMoveUnitWithAttachedEquipment(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        bool requireSameFieldLocation)
     {
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var host)) return false;
         var attached = AttachedEquipmentObjectIds(state.CardObjects, sourceObjectId);
@@ -11291,7 +11309,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.CardObjects,
             movementPlayerId,
             host,
-            attached);
+            attached,
+            requireSameFieldLocation);
     }
 
     private static IReadOnlyList<GameEvent> MoveAttachedEquipmentWithHost(
