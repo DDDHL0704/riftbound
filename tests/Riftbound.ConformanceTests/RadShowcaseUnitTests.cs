@@ -35,6 +35,26 @@ public sealed class RadShowcaseUnitTests
         Assert.False(result.Accepted); Assert.Empty(result.Events); Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
     }
 
+    // DOC-17: a real face-down standby has no front-face characteristics
+    // that Dark Alley Guardian may reference through Showcase.
+    [Fact]
+    public async Task DarkAlleyGuardianCannotShowcaseARealFriendlyBattlefieldStandby()
+    {
+        var state = RadGearTestPosition.Put(RadGearTestPosition.Create(), "UNIT", Guardian, "P1", "HAND");
+        state = RadGearTestPosition.Put(state, "SHOWN", Guardian, "P1", "HAND");
+        state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "BATTLEFIELD", "BF");
+        var game = new Driver(state);
+        await game.Act("P1", new HideCardCommand("SHOWN", Guardian, "BATTLEFIELD:BF", ["STANDBY_A"]));
+        Assert.True(game.State.CardObjects["SHOWN"].IsFaceDown);
+        Assert.Equal("BF", game.State.ObjectLocations["SHOWN"].BattlefieldObjectId);
+        await Reject(game.State, Play(Guardian, "SHOWCASE:SHOWN"));
+        await game.Act("P1", Play(Guardian));
+        Assert.Null(game.State.CardPlays.Finalized.Last().Showcase);
+        Assert.True(game.State.CardObjects["SHOWN"].IsFaceDown);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "CARDS_REVEALED");
+        await game.ColdCheckpoint();
+    }
+
     [Theory]
     [InlineData(Construct, "RAD·055/167", true)]
     [InlineData(Construct, "RAD·055/167", false)]
