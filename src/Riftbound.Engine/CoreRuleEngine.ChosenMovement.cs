@@ -166,6 +166,7 @@ public sealed partial class CoreRuleEngine
             && IsUnitMovementDestination(current, id, destination)
             && (!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var movement)
                 || ChosenMovementDestinationHasRequiredUnits(current, movement, id, destination))
+            && CanMoveUnitWithAttachedEquipmentForEffect(current, item.ControllerId, id)
             && MovementRestrictionRules.CanMove(unit, item.ControllerId)
             && !(toBase && BattlefieldLocalRules.PreventsMoveToBase(current, id))).ToArray();
         var payment = PayImposedMovementCost(state, item.ControllerId, item.SourceObjectId, field, false,

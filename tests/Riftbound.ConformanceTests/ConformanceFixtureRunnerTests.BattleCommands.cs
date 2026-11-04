@@ -3097,7 +3097,7 @@ public sealed partial class ConformanceFixtureRunnerTests
     [InlineData("p4-assemble-equipment-non-unit-target-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-unsupported-optional-cost-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-missing-optional-cost-rejected.fixture.json")]
-    [InlineData("p4-move-unit-attached-equipment-source-rejected.fixture.json")]
+    [InlineData("p5-move-unit-attached-equipment-source-follows-host.fixture.json")]
     public async Task P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -3332,7 +3332,7 @@ public sealed partial class ConformanceFixtureRunnerTests
     [InlineData("p4-move-unit-origin-mismatch-rejected.fixture.json")]
     [InlineData("p4-move-unit-hand-source-rejected.fixture.json")]
     [InlineData("p4-move-unit-combatant-source-rejected.fixture.json")]
-    [InlineData("p4-move-unit-attached-equipment-source-rejected.fixture.json")]
+    [InlineData("p5-move-unit-attached-equipment-source-follows-host.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     [InlineData("p4-play-stern-sergeant-dynamic-experience.fixture.json")]

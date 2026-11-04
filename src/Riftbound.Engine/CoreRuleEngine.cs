@@ -11164,8 +11164,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "带有贴附装备的单位移动暂未开放。",
-                ErrorCodes.UnsupportedCommand);
+                "贴附装备的位置或控制者与移动单位不一致。",
+                ErrorCodes.InvalidTarget);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -11274,23 +11274,29 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         CardObjectState hostState,
-        IReadOnlyList<string> attachedEquipmentObjectIds)
+        IReadOnlyList<string> attachedEquipmentObjectIds,
+        bool requireSameFieldLocation = true)
     {
         // CN718.5.e-f / 719.3: movement belongs to the host's controller.
         // Its owner and the attached equipment's controller may be different.
         var hostLocation = FindFieldObjectLocation(playerZones, hostState.ObjectId);
         if (hostLocation is null || hostLocation.Value.PlayerId != playerId
-            || hostState.ControllerId != playerId || !playerZones.ContainsKey(hostState.OwnerId ?? string.Empty))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(hostState, playerId)
+            || !playerZones.ContainsKey(hostState.OwnerId ?? string.Empty))
         {
             return false;
         }
+
+        // An omitted controller is a legacy-owned object state.  The field
+        // location still establishes which player may move the host, while
+        // the owner must remain a known seat for attachment integrity.
 
         foreach (var equipmentObjectId in attachedEquipmentObjectIds)
         {
             var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
             if (equipmentLocation is null
-                || !string.Equals(equipmentLocation.Value.PlayerId, playerId, StringComparison.Ordinal)
-                || equipmentLocation.Value.Zone != hostLocation.Value.Zone
+                || requireSameFieldLocation && (equipmentLocation.Value.PlayerId != hostLocation.Value.PlayerId
+                    || equipmentLocation.Value.Zone != hostLocation.Value.Zone)
                 || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
                 || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
                 || equipmentState.IsFaceDown || equipmentState.AttachedToObjectId != hostState.ObjectId
@@ -11302,6 +11308,42 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return true;
+    }
+
+    internal static bool CanMoveUnitWithAttachedEquipment(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+        => CanMoveUnitWithAttachedEquipment(state, playerId, sourceObjectId, requireSameFieldLocation: true);
+
+    // Effect movement can relocate a host and its independently controlled
+    // equipment together.  The explicit MOVE_UNIT command remains stricter:
+    // a malformed attachment in another seat's field must not be offered as a
+    // normal movement candidate.
+    internal static bool CanMoveUnitWithAttachedEquipmentForEffect(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+        => CanMoveUnitWithAttachedEquipment(state, playerId, sourceObjectId, requireSameFieldLocation: false);
+
+    private static bool CanMoveUnitWithAttachedEquipment(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        bool requireSameFieldLocation)
+    {
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var host)) return false;
+        var attached = AttachedEquipmentObjectIds(state.CardObjects, sourceObjectId);
+        if (attached.Count == 0) return true;
+        var hostLocation = FindFieldObjectLocation(state.PlayerZones, sourceObjectId);
+        var movementPlayerId = hostLocation?.PlayerId ?? playerId;
+        return CanMoveExplicitAttachedEquipmentWithHost(
+            state.PlayerZones,
+            state.CardObjects,
+            movementPlayerId,
+            host,
+            attached,
+            requireSameFieldLocation);
     }
 
     private static IReadOnlyList<GameEvent> MoveAttachedEquipmentWithHost(
@@ -11443,8 +11485,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "带有贴附装备的单位移动暂未开放。",
-                ErrorCodes.UnsupportedCommand);
+                "贴附装备的位置或控制者与移动单位不一致。",
+                ErrorCodes.InvalidTarget);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -11632,15 +11674,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (state.CardObjects.Values.Any(cardObject => string.Equals(
-            cardObject.AttachedToObjectId,
-            command.SourceObjectId,
-            StringComparison.Ordinal)))
+        var attachedEquipmentObjectIds = AttachedEquipmentObjectIds(state.CardObjects, command.SourceObjectId);
+        if (attachedEquipmentObjectIds.Count > 0
+            && !CanMoveExplicitAttachedEquipmentWithHost(
+                state.PlayerZones,
+                state.CardObjects,
+                intent.PlayerId,
+                sourceState,
+                attachedEquipmentObjectIds))
         {
             return RejectWithCorePrompts(
                 state,
-                "带有贴附装备的单位移动暂未开放。",
-                ErrorCodes.UnsupportedCommand);
+                "贴附装备的位置或控制者与移动单位不一致。",
+                ErrorCodes.InvalidTarget);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -11652,6 +11698,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             destinationBattlefieldObjectId);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
         ExhaustMoveUnitSource(playerZones, cardObjects, command.SourceObjectId);
+        var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
+            playerZones,
+            attachedEquipmentObjectIds,
+            intent.PlayerId,
+            command.SourceObjectId,
+            MoveUnitBattlefieldZone);
+        foreach (var attachedEquipmentObjectId in attachedEquipmentObjectIds)
+        {
+            objectLocations[attachedEquipmentObjectId] = new ObjectLocationState(
+                intent.PlayerId,
+                MoveUnitBattlefieldZone,
+                destinationBattlefieldObjectId);
+        }
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -11700,6 +11759,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
+        events.AddRange(attachedEquipmentMoves);
         events.Add(movementObservation);
 
         events.AddRange(lethalCleanup.Events);
@@ -23537,7 +23597,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId)
+            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId, events)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
@@ -26522,7 +26582,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetToBase
-                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId))
+                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BASE",
@@ -32735,7 +32795,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string movingPlayerId,
         string targetObjectId,
-        out string ownerPlayerId)
+        out string ownerPlayerId,
+        List<GameEvent>? events = null)
     {
         ownerPlayerId = string.Empty;
         if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
@@ -32755,6 +32816,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     : zones.Base.Concat([targetObjectId]).ToArray()
             };
             ownerPlayerId = playerId;
+            if (events is not null)
+            {
+                events.AddRange(MoveAttachedEquipmentWithHost(
+                    playerZones,
+                    AttachedEquipmentObjectIds(cardObjects, targetObjectId),
+                    playerId,
+                    targetObjectId,
+                    MoveUnitBaseZone));
+            }
             return true;
         }
 
