@@ -229,7 +229,11 @@ public sealed class GameHub(
         try
         {
             session = normalizedOptions.Format == MatchFormats.Sealed
-                ? await sessions.GetOrCreateAsync(roomId, MatchSessionOptions.ForSealed(normalizedOptions.SetCode!, normalizedOptions.BestOf), Context.ConnectionAborted)
+                ? await sessions.GetOrCreateAsync(roomId,
+                    normalizedOptions.Packs is { } packs
+                        ? MatchSessionOptions.ForSealed(packs, normalizedOptions.BestOf)
+                        : MatchSessionOptions.ForSealed(normalizedOptions.SetCode!, normalizedOptions.BestOf),
+                    Context.ConnectionAborted)
                 : await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
             match = normalizedOptions.Format == MatchFormats.Sealed

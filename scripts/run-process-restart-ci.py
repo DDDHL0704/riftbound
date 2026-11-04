@@ -147,14 +147,14 @@ def main():
             if receipt['status'] != 'PASSED' or receipt['actualJoinedPlayers'] != 2:
                 raise ValueError('Both actual SignalR players must complete this phase.')
             sealed = json.loads((output / 'sealed' / (phase.removeprefix('restart-') + '.json')).read_text())
-            if sealed['status'] != 'PASSED_REAL_SEALED_SIGNALR' or sealed['cases'] != 2:
-                raise ValueError('Both sealed formats must complete the actual SignalR restart phase.')
+            if sealed['status'] != 'PASSED_REAL_SEALED_SIGNALR' or sealed['cases'] != 3:
+                raise ValueError('Both sealed formats and the mixed-pack format must complete the actual SignalR restart phase.')
 
         def resume_sealed():
             checked([dotnet, str(driver), 'restart-sealed-resume', str(output)], 'driver-sealed-resume.log')
             receipt = json.loads((output / 'sealed/resume.json').read_text())
-            if receipt['status'] != 'PASSED_REAL_SEALED_SIGNALR' or receipt['cases'] != 2:
-                raise ValueError('Both original sealed rooms must resume and finish after the SQL history comparison.')
+            if receipt['status'] != 'PASSED_REAL_SEALED_SIGNALR' or receipt['cases'] != 3:
+                raise ValueError('Both original sealed rooms and the mixed-pack room must resume and finish after the SQL history comparison.')
 
         def capture(pid):
             room = json.loads((output / 'restart-input.json').read_text())['room']
@@ -165,8 +165,8 @@ def main():
                 raise ValueError('Actual API process did not load the fixed Engine path.')
             (output / ('process-' + str(pid) + '-maps.txt')).write_text(maps)
             rooms = [room]
-            for set_code in ('OGN', 'SFD'):
-                sealed = json.loads((output / 'sealed' / set_code / 'input.json').read_text())
+            for case_name in ('OGN', 'SFD', 'MIXED'):
+                sealed = json.loads((output / 'sealed' / case_name / 'input.json').read_text())
                 sealed_room = sealed['room']
                 if not re.fullmatch(r'RB-[A-HJ-NP-Z2-9]{6}', sealed_room):
                     raise ValueError('Unexpected server-generated sealed room code.')
@@ -188,7 +188,7 @@ def main():
             raise ValueError('Runtime changed during process restart acceptance.')
         CANDIDATE.verify(ROOT, a.expected)
         proof.update(status='ACTUAL_SQL_SIGNALR_PROCESS_RESTART_PASSED', originalSqlHistoryEqual=True,
-                     sealedFormatsRestored=2, sealedOriginalSubmissionsResumed=True)
+                     sealedFormatsRestored=3, sealedOriginalSubmissionsResumed=True)
     except BaseException as error:
         proof.update(status='PROCESS_RESTART_FAILURE_OR_INCOMPLETE', error=repr(error),
                      cleanupErrors=getattr(error, 'riftbound_cleanup_errors', []))

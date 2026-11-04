@@ -95,6 +95,55 @@ public sealed class SealedRoomPoolRecoveryTests
     }
 
     [Fact]
+    public async Task MixedPackPoolsRetainOrderAndCardCountsAcrossColdRecoveryAndReplay()
+    {
+        var choices = new[] { new SealedPackChoiceDto("OGN", 3), new SealedPackChoiceDto("SFD", 3) };
+        var options = MatchSessionOptions.ForSealed(choices);
+        var journal = new Journal();
+        var players = new PlayerStore();
+        var live = new MatchSession("mixed-sealed-pools", new CoreRuleEngine(), journal, players, options);
+        var alice = await live.EnsurePlayerAsync("alice", default);
+        await live.EnsurePlayerAsync("bob", default);
+        var frame = RoundTripWithReorderedObjectKeys(Frame(journal.Entries));
+
+        Assert.True(frame.IsConsistent, string.Join("; ", frame.ValidationErrors));
+        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        Assert.Equal(options, frame.ReplayInitialState!.SessionOptions);
+        foreach (var pool in frame.AuthoritativeState!.PlayerSealedPools!.Values)
+        {
+            Assert.Equal(string.Empty, pool.SetCode);
+            Assert.Equal(78, pool.Pool.Values.Sum());
+            Assert.Equal(["OGN", "OGN", "OGN", "SFD", "SFD", "SFD"], pool.Packs.Select(pack => pack.SetCode));
+            Assert.All(pool.Packs, pack => Assert.All(pack.Cards,
+                card => Assert.StartsWith(pack.SetCode + "·", card.CardNo)));
+            Assert.Equal(pool.Pool.OrderBy(entry => entry.Key), pool.Packs.SelectMany(pack => pack.PoolCardNos)
+                .GroupBy(cardNo => cardNo, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal)
+                .OrderBy(entry => entry.Key, StringComparer.Ordinal));
+        }
+        Assert.NotEqual(frame.AuthoritativeState.PlayerSealedPools["alice"].Seed,
+            frame.AuthoritativeState.PlayerSealedPools["bob"].Seed);
+        Assert.Equal(choices, live.SnapshotFor("alice").SealedPacks);
+        Assert.Equal(string.Empty, live.SnapshotFor("alice").SealedPool!.SetCode);
+        foreach (var player in new[] { "alice", "bob" })
+        {
+            var other = player == "alice" ? "bob" : "alice";
+            var ownPool = live.SnapshotFor(player).SealedPool;
+            Assert.Equal(JsonSerializer.Serialize(SealedRoomPools.ViewFor(frame.AuthoritativeState, player), Json),
+                JsonSerializer.Serialize(ownPool, Json));
+            Assert.NotEqual(JsonSerializer.Serialize(SealedRoomPools.ViewFor(frame.AuthoritativeState, other), Json),
+                JsonSerializer.Serialize(ownPool, Json));
+        }
+        Assert.Null(ResolutionResult.BuildSpectatorSnapshot(frame.AuthoritativeState).SealedPool);
+
+        var cold = MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance, players);
+        await cold.ReconnectPlayerAsync("alice", alice.ReconnectToken, default);
+        foreach (var player in new[] { "alice", "bob" })
+            Assert.Equal(JsonSerializer.Serialize(live.SnapshotFor(player), Json),
+                JsonSerializer.Serialize(cold.SnapshotFor(player), Json));
+    }
+
+    [Fact]
     public async Task OpponentSpectatorEventsAndPromptsNeverContainPrivatePoolMetadata()
     {
         var journal = new Journal();

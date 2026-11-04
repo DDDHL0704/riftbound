@@ -24,13 +24,19 @@ public sealed partial class FullGameEndToEndTests
     public Task SealedBestOfThreeWithRolesScoresTwoWinsAndReplaysEveryGame() =>
         DriveSealedMatchAsync(3, "SFD", true, ["bob", "bob"]);
 
-    private async Task DriveSealedMatchAsync(int bestOf, string setCode, bool withRoles, string[] winners)
+    [Fact]
+    public Task MixedOriginsAndSpiritforgedPacksCompleteAndReplayAFullGame() =>
+        DriveSealedMatchAsync(1, "OGN+SFD", false, ["alice"],
+            [new("OGN", 3), new("SFD", 3)]);
+
+    private async Task DriveSealedMatchAsync(int bestOf, string setCode, bool withRoles, string[] winners,
+        IReadOnlyList<SealedPackChoiceDto>? packs = null)
     {
         // Every card comes from the real six packs. Opponents cooperate by
         // passing; all units, claims, holds and score victories use core rules.
         // Persisted JSONB object keys can return in a different order. Exercise
         // the original score games through that cold path, including live play.
-        var run = new SealedSubmittedOpeningTests.Run(bestOf, setCode: setCode, reorderRecoveryObjects: true);
+        var run = new SealedSubmittedOpeningTests.Run(bestOf, setCode: setCode, reorderRecoveryObjects: true, packs: packs);
         await run.Join("alice");
         await run.Join("bob");
         var poolHash = MatchStateHasher.HashValue(run.State.PlayerSealedPools);
