@@ -21,7 +21,7 @@ npm run dev
 
 打开 http://127.0.0.1:5176 。双人测试时用两个浏览器（或一个普通窗口加一个无痕窗口）各自登录不同的玩家名。服务器地址可在登录页修改，或用 `?server=` 参数指定。
 
-`npm run dev` / `npm run build` 会先从 `data/official/card-catalog.zh-CN.json` 生成 `public/cards.json`（卡名、费用、效果文本与卡图地址），并按 `src/Riftbound.CardCatalog/*Sources.cs` 里服务端接入的（Id, CardNo）补入 `data/official/upstream/` 快照中的 VEN、RAD 等后续系列印次。
+`npm run dev` / `npm run build` 会先从 `data/official/card-catalog.zh-CN.json` 生成 `public/cards.json`（卡名、费用、效果文本与卡图地址），并按 `src/Riftbound.CardCatalog/*Sources.cs` 里服务端接入的（Id, CardNo）补入 `data/official/upstream/` 快照中的 VEN、RAD 等后续系列印次。效果文本套用 `src/Riftbound.CardCatalog/ReviewedCardErrata.cs` 里服务端采用的中国区勘误；那里新增的写法脚本读不懂时会直接报错，不会悄悄退回印刷文本。
 
 ## 已覆盖的对战流程
 

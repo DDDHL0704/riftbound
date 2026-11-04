@@ -752,7 +752,7 @@ git show <分支>:<路径> > <路径>
 - 网页对战前端在 `clients/web`，PR #233 / #234 及分支 `web/battle-polish-2-20261028` 已覆盖桌面、卡组编辑器、战绩、音效、导览等。
 - 服务端规则改了提示或命令格式时，在这里追加一条"前端需适配"，写明 PR 号。
 - [x] 2026-11-03 `web/server-adapt-20261103` 已适配以下各项：亮出（`SHOWCASE:` 至多选一）、凯尔强化层数（`empowermentCount` 角标）、流转费用与废牌堆普通打出（按 `flowCostChoiceId` / `normalGraveyardPlayChoiceId` 分别列为打出方式）、授予技能（沿用 `ACTIVATE_ABILITY`）、铁铠冥魂等必选附加费用（`additionalCostChoices` + `requiredAdditionalCostChoiceCount`）、触发弃牌费用（通用 `CHOOSE_CARDS` 面板）；另补炫音返场的 `modeChoices`、任意额外符能（`variableAdditionalPowerCost`）、妮蔻额外登记传奇（`SUBMIT_DECK.additionalLegendCardNos`）、中立卡色，以及网页卡牌数据补入服务端已接入的 VEN/RAD/T1S 印次。
-- [ ] 网页只显示印刷文本：`ReviewedCardErrata` 的中国区勘误写在 C# 里，前端暂未同步（规则以服务端为准）。
+- [x] 网页卡面套用中国区勘误（`web/card-errata-20261104`）：生成 `cards.json` 时读取 `ReviewedCardErrata.cs`，15 个印次显示勘误后文本。
 
 ## 现开规则待确认（F 线）
 
