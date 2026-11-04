@@ -7780,7 +7780,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
                 targetObjectIds, optionalCosts, spellshieldTax, events);
 
-        if (IsLegendDiscardDrawEffect(ability.EffectKind))
+        if (IsLegendDiscardDrawEffect(ability.EffectKind)
+            && !(ability.EffectKind == LegendAbilityEffectKinds.DrawOne
+                && ability.TimingKind != LegendAbilityTimingKinds.ReactionWindow))
             return QueueLegendDiscardDraw(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 PlayerZones = playerZones, ObjectLocations = objectLocations,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
@@ -7802,6 +7804,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         switch (ability.EffectKind)
         {
+            case LegendAbilityEffectKinds.DrawOne:
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones, cardObjects,
+                    playerScores,
+                    intent.PlayerId,
+                    1,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+                break;
+            }
             case LegendAbilityEffectKinds.MoveFriendlyUnit:
             {
                 var movementPools = runePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
