@@ -85,7 +85,7 @@ public sealed class RadZiggsBombasticTests
     [Theory]
     [InlineData("RAD·112/167", false)] [InlineData("RAD·112/167", true)]
     [InlineData("RAD·112a/167", false)] [InlineData("RAD·112a/167", true)]
-    public async Task DefenseOffersOptionalDestructionOnlyDuringResolutionAndRewardsOnlyDestruction(string no, bool destroy)
+    public async Task DefensePaysOptionalEquipmentCostBeforeResponsesAndRewardsOnlyOnResolution(string no, bool destroy)
     {
         var game = new Driver(Defense(no));
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
@@ -94,23 +94,68 @@ public sealed class RadZiggsBombasticTests
         Assert.Equal(game.State.Tick, item.UnitEvent!.CapturedTick);
         Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
             StackItems = [item with { UnitEvent = item.UnitEvent with { CapturedTick = game.State.Tick + 1 } }] }));
-        Assert.Null(game.State.PendingCardChoice); Assert.Null(game.State.PendingRuleChoice);
+        Assert.Null(game.State.PendingRuleChoice);
         Assert.Contains("GEAR", game.State.PlayerZones["P2"].Base); Assert.Equal(4, game.State.CardObjects["ENEMY1"].Power);
-        await game.Top();
-        var choice = game.State.PendingRuleChoice!;
-        Assert.Equal("P2", choice.Request.PlayerId);
-        Assert.Equal(new[] { "SKIP", "DESTROY:GEAR" }, choice.Request.Options.Select(o => o.Id));
-        await game.Act("P2", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", [destroy ? "DESTROY:GEAR" : "SKIP"]));
-        Assert.Equal(destroy ? 6 : 4, game.State.CardObjects["ENEMY1"].Power);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(CoreRuleEngine.TriggerCostWindow, choice.ChoiceWindow);
+        Assert.Equal("P2", choice.PlayerId);
+        Assert.Equal(new[] { "GEAR" }, choice.LegalObjectIds);
+        Assert.Null(game.State.PriorityPlayerId);
+        await game.Act("P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+            destroy ? ["GEAR"] : []));
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.Equal(destroy, game.State.StackItems.SingleOrDefault()?.TriggerCost?.DestroyedPermanents is not null);
         Assert.Equal(destroy, game.State.PlayerZones["P1"].Graveyard.Contains("GEAR"));
+        Assert.Equal(4, game.State.CardObjects["ENEMY1"].Power);
+        Assert.Equal(destroy ? "P2" : null, game.State.PriorityPlayerId);
+        if (destroy) await game.Top();
+        Assert.Equal(destroy ? 6 : 4, game.State.CardObjects["ENEMY1"].Power);
         Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Fact]
+    public async Task LeadingEquipmentCostRejectsFriendlyUnitsAndOpponentsEquipmentWithoutChangingState()
+    {
+        var initial = Defense("RAD·112/167");
+        var cards = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["P2-UNIT"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-UNIT", "SFD·125/221", "P2"),
+            ["P1-GEAR"] = initial.CardObjects["GEAR"] with { ObjectId = "P1-GEAR", OwnerId = "P1", ControllerId = "P1" } };
+        var zones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+            ["P1"] = initial.PlayerZones["P1"] with { Base = [..initial.PlayerZones["P1"].Base, "P1-GEAR"] },
+            ["P2"] = initial.PlayerZones["P2"] with { Base = [..initial.PlayerZones["P2"].Base, "P2-UNIT"] } };
+        var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+            ["P2-UNIT"] = new("P2", "BASE"), ["P1-GEAR"] = new("P1", "BASE") };
+        initial = initial with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations };
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(new[] { "GEAR" }, choice.LegalObjectIds);
+        var hash = MatchStateHasher.Hash(game.State);
+        var invalid = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P2-UNIT"]);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State,
+            new("invalid-ziggs-equipment-cost", "P2", invalid.CmdType), invalid, default);
+        Assert.False(rejected.Accepted);
+        Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+        Assert.Empty(rejected.Events);
+        await game.Act("P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
+        Assert.Equal("P2", game.State.PriorityPlayerId);
+        Assert.Equal(4, game.State.CardObjects["ENEMY1"].Power);
+        Assert.Empty(game.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers);
+        var item = Assert.Single(game.State.StackItems);
+        var forgedReceipt = item.TriggerCost! with { DestroyedPermanents = [new("P2-UNIT", 0)] };
+        var forged = game.State with { StackItems = [item with { TriggerCost = forgedReceipt }] };
+        Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(forged));
+        await game.Top();
+        Assert.Equal(6, game.State.CardObjects["ENEMY1"].Power);
+        Assert.Single(game.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers);
+        await game.Replay();
     }
 
     [Fact]
     public async Task NoFriendlyEquipmentMakesDefenseResolveWithoutAChoiceAndAttackDoesNotTrigger()
     {
         var defend = new Driver(Defense("RAD·112/167", gear: false));
-        await defend.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", [])); await defend.Top();
+        await defend.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         Assert.Null(defend.State.PendingRuleChoice); Assert.Equal(4, defend.State.CardObjects["ENEMY1"].Power);
         await defend.Replay();
         var attack = new Driver(AhriCombatMightTests.Board("RAD·112/167"));
