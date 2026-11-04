@@ -50,6 +50,7 @@ public sealed record BorrowedExhaustSpec(int Index, string Kind, int Mana, int T
     public bool ReadyTargetIfSourceEmpowered { get; init; }
     public bool EffectRequiresEncouraged { get; init; }
     public bool DamageFromSourceMight { get; init; }
+    public bool MovesToExhaustedCostUnit { get; init; }
 }
 
 public static class BorrowedExhaustParser
@@ -80,6 +81,8 @@ public static class BorrowedExhaustParser
             var recycleCount = recycle.Success ? recycle.Groups["count"].Value switch {
                 "一" => 1, "二" or "两" => 2, "三" => 3, var n => int.Parse(n) } : 0;
             if (recycle.Success) cost = cost.Remove(recycle.Index, recycle.Length);
+            var exhaustsFriendly = cost.Contains("将你控制的一名单位变为休眠状态", StringComparison.Ordinal);
+            cost = cost.Replace("将你控制的一名单位变为休眠状态", "", StringComparison.Ordinal);
             var exhaustsPowerful = cost.Contains("让一名友方{{强力}}单位变为休眠状态", StringComparison.Ordinal);
             cost = cost.Replace("让一名友方{{强力}}单位变为休眠状态", "", StringComparison.Ordinal);
             var destroyedFriend = Regex.Match(cost, "摧毁(?<kind>一件友方装备|一名友方单位|一个友方单位或装备)");
@@ -121,7 +124,7 @@ public static class BorrowedExhaustParser
                     DestroysSourceAsCost = destroysSource, RequiresPlayedArmamentThisTurn = armament,
                     BanishesGraveyardPermanentAsCost = banishesGraveyardPermanent,
                     RecycledCardCostCount = recycleCount, RecyclesOnlyUnitsAsCost = recycle.Groups["type"].Value == "名单位",
-                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : null,
+                    ExhaustedUnitMinimumMightAsCost = exhaustsPowerful ? 5 : exhaustsFriendly ? 0 : null,
                     DestroyedFriendlyCardTypeAsCost = destroyedFriend.Success
                         ? destroyedFriend.Groups["kind"].Value.Contains("或", StringComparison.Ordinal) ? "PERMANENT"
                             : destroyedFriend.Groups["kind"].Value.Contains("装备", StringComparison.Ordinal) ? "EQUIPMENT" : "UNIT" : "" };
@@ -159,8 +162,33 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("DRAW", 0) with { Reaction = true, DrawCount = 1, RequiredEnemyTargetEvents = 2 });
                 continue;
             }
+            if (effect == "将你控制的另一名单位移动到你因此技能而休眠的单位的所在位置" && exhaustsFriendly)
+            {
+                result.Add(Skill("MOVE_TO_EXHAUSTED_COST_UNIT", scope: "FRIENDLY_UNIT") with { MovesToExhaustedCostUnit = true });
+                continue;
+            }
+            if (effect == "选择一名友方单位。在本回合内，当它下次被摧毁时，你可以选择支付{{红色}}，改为以休眠状态将其召回")
+            {
+                result.Add(Skill("GRANT_PAID_RECALL", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "让一名具有该属性标签的单位在本回合内{{S}}-2")
+            {
+                result.Add(Skill("MIGHT_UNIT", scope: "UNLINKED_ATTRIBUTE") with { Might = -2 });
+                continue;
+            }
+            if (effect == "打出一名以此方式放逐的单位")
+            {
+                result.Add(Skill("PLAY_LINKED_EXILE", 0));
+                continue;
+            }
+            if (effect == "摧毁一名友方单位。查看你主牌堆顶部的五张牌。你可以选择从中放逐一名战力比被摧毁单位最多高 1 点的单位卡牌，然后将其打出，无视费用。然后回收其余的卡牌")
+            {
+                result.Add(Skill("DESTROY_DECK_PLAY", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
             var attachment = Regex.Match(effect, "^将你控制的一件(?<state>未贴附|已贴附)的武装贴附到你控制的一名单位上$");
             if (attachment.Success)
             {
@@ -342,6 +370,11 @@ public static class BorrowedExhaustParser
             if (effect == "{{眩晕}}一名敌方单位")
             {
                 result.Add(Skill("STUN_ENEMY", scope: "ENEMY_UNIT"));
+                continue;
+            }
+            if (effect == "{{眩晕}}一名进攻此处的敌方单位")
+            {
+                result.Add(Skill("STUN_ENEMY", scope: "ENEMY_ATTACKING_HERE") with { RequiresSourceBattlefield = true });
                 continue;
             }
             var might = Regex.Match(effect, @"^(?:让|给予)(?<field>战场上的)?一名单位(?:在)?本回合内\{\{S\}\}(?<n>[+-][0-9]+)(?:[，,]\s*不得低于(?<floor>[0-9]+)\{\{S\}\})?$");

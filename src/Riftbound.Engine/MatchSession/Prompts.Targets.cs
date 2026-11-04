@@ -794,7 +794,8 @@ internal static partial class ActionPromptBuilder
                     .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
                     .Select(id => ObjectChoice(state, id,
-                        ability.SimpleEffect.ReturnsFriendlyUnitThenFreePlayUpToPower ? "友方单位目标"
+                        ability.SimpleEffect.TargetsDeclaredAttribute ? "具有已宣告属性的单位"
+                            : ability.SimpleEffect.ReturnsFriendlyUnitThenFreePlayUpToPower ? "友方单位目标"
                             : ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
 
         if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
@@ -1486,6 +1487,7 @@ internal static partial class ActionPromptBuilder
         if (ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true) return "一名友方单位";
         if (ability.SimpleEffect?.StunsTarget == true) return "一名敌方单位";
         if (ability.SimpleEffect?.GrantsBoonOrPower == true) return "一名单位";
+        if (ability.SimpleEffect?.TargetsDeclaredAttribute == true) return "具有已宣告属性的一名单位";
         if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return ability.TargetScope == CardTargetScopes.EnemyUnit ? "敌方公开单位" : "任意公开单位";
         return ability.RequiredTargetCount == 0

@@ -3961,7 +3961,7 @@ public static partial class MatchRecoveryValidator
         // Public old-generation movement facts remain public, while the source
         // field can hide the source's new private incarnation. Authority parity
         // checks separately prove this exact captured fact and source visibility.
-        var capturedSource = source == "HIDDEN" && context?.Kind != TriggerKinds.OpponentMovedToOtherBattlefieldDraw
+        var capturedSource = source == "HIDDEN" && context?.Kind is not (TriggerKinds.OpponentMovedToOtherBattlefieldDraw or CoreRuleEngine.MovedEnemyStunKind)
             ? context?.Kind == TriggerKinds.BattlefieldUnitMovedAwayPowerModifier ? context.Unit?.Origin?.BattlefieldObjectId : context?.Unit?.ObjectId
             : source;
         if (context is null || !CoreRuleEngine.ValidMovementObserver(context, effect ?? "", controller ?? "", capturedSource ?? ""))
@@ -4292,7 +4292,7 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)
                 || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
-                    || !CoreRuleEngine.ValidUnitEventTargets(item)))
+                    || !CoreRuleEngine.ValidUnitEventTargets(item) || !CoreRuleEngine.ValidUnitEventMovementDeclaration(state, item)))
                 errors.Add("invalid captured unit event stack");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.UnitEventModeWindow } unitEventMode
             && !CoreRuleEngine.ValidUnitEventModeChoice(state, unitEventMode))
@@ -4419,6 +4419,7 @@ public static partial class MatchRecoveryValidator
             errors.Add("invalid spell effect-play continuation");
 
         if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay)
+            && !CoreRuleEngine.ValidLinkedGraveyardExilePlay(state, foreignPlay)
             && !CoreRuleEngine.ValidLinkedExileEffectPlay(state, foreignPlay)
             && !CoreRuleEngine.ValidSelfBanishReplayEffectPlay(state, foreignPlay))
             errors.Add("invalid foreign graveyard effect-play continuation");
@@ -4464,7 +4465,9 @@ public static partial class MatchRecoveryValidator
         if (state.LinkedExiles.Any(g => string.IsNullOrWhiteSpace(g.SourceObjectId) || g.SourceGeneration < 0
             || !CoreRuleEngine.ValidLinkedUnitExile(state, g)
             || !state.Seats.ContainsKey(g.ControllerId) || g.Objects.Any(e => string.IsNullOrWhiteSpace(e.Key) || e.Value < 0))
-            || state.LinkedExiles.Select(g => (g.SourceObjectId, g.SourceGeneration, Controller: g.UnitEventOrigin is null ? g.ControllerId : "", Instance: g.UnitEventOrigin?.InstanceId)).Distinct().Count() != state.LinkedExiles.Count)
+            || state.LinkedExiles.Select(g => (g.SourceObjectId, g.SourceGeneration,
+                Controller: g.UnitEventOrigin is null && g.GraveyardOrigin is null ? g.ControllerId : "",
+                Instance: g.UnitEventOrigin?.InstanceId ?? g.GraveyardOrigin?.InstanceId)).Distinct().Count() != state.LinkedExiles.Count)
             errors.Add("invalid linked exile ledger");
         if (state.DrawLedger.TurnNumber < 0 || state.DrawLedger.TurnNumber > state.TurnNumber
             || state.DrawLedger.Counts.Any(e => !state.Seats.ContainsKey(e.Key) || e.Value < 0)) errors.Add("invalid turn draw ledger");
@@ -5204,7 +5207,10 @@ public static partial class MatchRecoveryValidator
     {
         CoreRuleEngine.ValidateBattlefieldReplacements(authoritativeState, errors);
         foreach (var card in authoritativeState.CardObjects.Values)
+        {
             if (!CoreRuleEngine.ValidSpellNameDeclaration(authoritativeState, card)) errors.Add($"card object {card.ObjectId} spell name declaration is invalid");
+            if (!CoreRuleEngine.ValidLinkedAttributes(authoritativeState, card)) errors.Add($"card object {card.ObjectId} linked attribute declaration is invalid");
+        }
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         foreach (var (objectId, cardObject) in authoritativeState.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -5300,8 +5306,10 @@ public static partial class MatchRecoveryValidator
             var capturedDeckSource = choice.DeckContext is not null
                 && CoreRuleEngine.ValidDeckPlayChoice(authoritativeState, choice)
                 && parent!.SourceObjectId == choice.SourceObjectId
-                && parent.FieldContext is { SourceCeasedToExist: true } field
-                && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, parent.SourceObjectId, parent.ControllerId, parent.EffectKind, parent.CardNo);
+                && (parent.FieldContext is { SourceCeasedToExist: true } field
+                    && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, parent.SourceObjectId, parent.ControllerId, parent.EffectKind, parent.CardNo)
+                    || parent.BorrowedExhaust is { Borrower.CeasedSource: not null } && parent.DestroyDeckPlay is not null
+                        && CoreRuleEngine.ValidDestroyDeckPlayContext(authoritativeState, parent));
             var capturedInsightSource = parent is not null && choice.SourceObjectId == parent.SourceObjectId
                 && CoreRuleEngine.ValidInsightChoice(authoritativeState, choice, parent)
                 && (CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, parent.InsightContext,

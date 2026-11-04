@@ -45,6 +45,7 @@ public sealed record CardBehaviorDefinition(
     ConquestDamageSpec? ConquestDamage = null,
     EmpowerInteractionSpec? EmpowerInteraction = null,
     MovementScoreSpec? MovementScore = null,
+    bool MayExhaustToStunMovedEnemy = false,
     bool BeginningDeckTopManaComparison = false,
     UnitEventAbilitySpec? UnitEventAbility = null,
     bool HeldPlaysLinkedExile = false,
@@ -2800,7 +2801,9 @@ public static class CardBehaviorRegistry
             "BLAST_CONE_PLAY_EQUIPMENT_NO_MOVE",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("PLAY", "MOVE_ENEMY", Optional: true),
+            MayExhaustToStunMovedEnemy: true),
         new(
             "OGN·063/298",
             "奥义！魂佑",
@@ -2818,7 +2821,8 @@ public static class CardBehaviorRegistry
             "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_DEFERRED",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("PLAY", "DECLARE_ATTRIBUTE")),
         new(
             "UNL-148/219",
             "受诅咒的石棺",

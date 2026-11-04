@@ -12,7 +12,7 @@ public sealed record BorrowedTextSource(ObjectBinding Object, string CardNo, str
 public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, BorrowedTextSource Donor,
     int AbilityIndex, long AcquiredTick, bool BorrowerWasEmpowered,
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false,
-    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null);
+    bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null, PaidUnitReference? ExhaustedCostUnit = null);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
     RuleTextInstance DonorText, BorrowedExhaustSpec Spec);
 
@@ -98,7 +98,7 @@ internal static class BorrowedExhaustRules
             || !CoreRuleEngine.BorrowedEnemyTargetRequirementMet(state, item.ControllerId, spec)
             || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
             || !ValidSource(state, c.Donor, c.AcquiredTick, spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
-            || spec.Kind == "RESOURCE"
+            || spec.Kind == "RESOURCE" || spec.TargetScope == "UNLINKED_ATTRIBUTE"
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield
             || spec.RequiresPlayedArmamentThisTurn != c.ArmamentWasPlayedThisTurn
@@ -108,8 +108,11 @@ internal static class BorrowedExhaustRules
                 || !state.CardObjects.TryGetValue(field.ObjectId, out var battlefield)
                 || battlefield.ObjectGeneration < field.Generation
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
+            || !CoreRuleEngine.ValidExhaustedCostUnit(state, c.ExhaustedCostUnit, spec.MovesToExhaustedCostUnit,
+                item.SourceObjectId, item.TargetObjectIds)
             || item.InsightContext is not null || item.InsightCompleted && spec.Kind != "INSIGHT_DRAW_EXPERIENCE"
-            || item.EffectPlayCompleted && spec.Kind != "RETURN_UNIT_FREE_PLAY"
+            || item.EffectPlayCompleted && spec.Kind is not ("RETURN_UNIT_FREE_PLAY" or "DESTROY_DECK_PLAY")
+            || (spec.Kind == "DESTROY_DECK_PLAY") != (item.DestroyDeckPlay is not null)
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds.Count != spec.Targets || item.TargetObjectIds.Distinct().Count() != spec.Targets

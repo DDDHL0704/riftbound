@@ -25,6 +25,10 @@ public sealed record MovementObserverContext(string CardNo, string Kind, long So
     public string? Mode { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SelectedPlayerId { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public long? SourceFaceRevision { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public long? CapturedTick { get; init; }
 }
 public sealed record MovementDiscardInlineContext(ObjectBinding DiscardedCard, string CardNo, int Types,
     int BranchType, long CreatedAtTick);
@@ -61,6 +65,8 @@ public sealed partial class CoreRuleEngine
                     || c.Origin.CardNo != c.CardNo || c.Origin.Equipment is not { Generation: >= 0 } equipment
                     || c.Origin.Revision <= 0 || c.RuleTextInstanceId != $"ATTACHED:{equipment.ObjectId}:{equipment.Generation}:{c.Origin.Revision}")) return false;
         var unit = c.Unit;
+        if (c.Kind == MovedEnemyStunKind) return ValidMovedEnemyStunShape(c, controller);
+        if (c.SourceFaceRevision is not null || c.CapturedTick is not null) return false;
         if (!ValidMovementInstructionShape(c)) return false;
         if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
             && c.SourceWasEmpowered is null && c.MovementBatch is null && c.SourceLocation is null && MovementScoreDefinition(c.CardNo) is { } score && c.MovementOrdinal == score.Ordinal;
@@ -95,6 +101,7 @@ public sealed partial class CoreRuleEngine
         string controller, string source, string? cardNo = null)
         => ValidMovementObserver(c, effect, controller, source, cardNo)
             && (c.SelectedPlayerId is null || state.Seats.ContainsKey(c.SelectedPlayerId))
+            && (c.Kind != MovedEnemyStunKind || ValidMovedEnemyStunSource(state, c, source))
             && AttachedRuleTextRules.ValidCaptured(state, c.Origin, source, c.SourceGeneration, c.CardNo);
 
     internal static bool ValidMovementInstanceId(MovementObserverContext c, string? id, bool stack = false)
@@ -134,6 +141,7 @@ public sealed partial class CoreRuleEngine
                 _ => "：弃置法术后，抽一张牌" }
             : c.Kind switch {
                 MovementScoreKind => "：第三次移动后获得 1 分",
+                MovedEnemyStunKind => "：可横置来源，以此眩晕刚移动的敌方单位",
                 TriggerKinds.UnitMovedSetOtherUnitBaseMight => "：移动后可设置另一名单位本回合的基础战力",
                 TriggerKinds.UnitMovedDamageAtOriginOrDestination => "：移动后可对起点或终点战场的一名单位造成伤害",
                 TriggerKinds.UnitMovedSourceKeywordDamage => "：移动后可对战场上的一名单位造成等同于坚守数值的伤害",
@@ -226,6 +234,7 @@ public sealed partial class CoreRuleEngine
                 foreach (var (instance, spec) in specs)
                     Add(source.ObjectId, field.PlayerId, instance, new(instance.CardNo, spec.Kind, source.ObjectGeneration, group.First(), units.ToArray(), after));
         }
+        observers.AddRange(CaptureMovedEnemyStunObservers(before, units));
         foreach(var fact in units) cards[fact.ObjectId] = cards[fact.ObjectId] with {MovementCountThisTurn=checked(cards[fact.ObjectId].MovementCountThisTurn+1)};
         return WithUnitEvents(new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() }),
             units.SelectMany(f => CaptureUnitEvents(before.PlayerZones, before.CardObjects, [f.ObjectId], "MOVE")
@@ -252,7 +261,7 @@ public sealed partial class CoreRuleEngine
                     observer.Context.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD") { MovementObserver = resource ? null : observer.Context, SourceCardNo = observer.Context.CardNo };
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
-                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight)
+                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or MovedEnemyStunKind)
                     queued = queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
                         ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, trigger.SourceObjectId, ProjectionViewers.Spectator) } };
                 events.Add(queued);
@@ -268,6 +277,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidMovementObserver(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured movement observer.");
         if (context.DiscardInline is not null) return ResolveMovementDiscardInline(state, item);
+        if (context.Kind == MovedEnemyStunKind) return ResolveMovedEnemyStun(state, item);
         if (context.Kind == MovementScoreKind) return ResolveMovementScore(state,item);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);

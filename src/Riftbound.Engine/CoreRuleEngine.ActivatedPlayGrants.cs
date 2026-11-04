@@ -11,21 +11,25 @@ public sealed record ActivatedPlayGrant(int TurnNumber, string ControllerId, str
     public string Kind { get; init; } = "NEXT_UNIT_READY";
     public long GrantedTick { get; init; }
     public string? SpellPlayId { get; init; }
+    public ObjectBinding? Target { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
 {
     internal const string ActivatedPlayGrantPrefix = "ACTIVATED_NEXT_UNIT_READY:";
     internal const string ActivatedSpellDamageGrantPrefix = "ACTIVATED_NEXT_SPELL_DAMAGE:";
+    internal const string ActivatedPaidRecallGrantPrefix = "ACTIVATED_PAID_RECALL:";
     private const string ActivatedPlayGrantConsumedKey = "activatedPlayGrantsConsumed";
 
     private static string ActivatedPlayGrantMarker(ActivatedPlayGrant grant)
-        => (grant.Kind == "NEXT_SPELL_DAMAGE" ? ActivatedSpellDamageGrantPrefix : ActivatedPlayGrantPrefix)
+        => (grant.Kind == "PAID_RECALL" ? ActivatedPaidRecallGrantPrefix
+            : grant.Kind == "NEXT_SPELL_DAMAGE" ? ActivatedSpellDamageGrantPrefix : ActivatedPlayGrantPrefix)
             + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(grant));
 
     private static ActivatedPlayGrant? ReadActivatedPlayGrant(string marker)
     {
-        var prefix = marker.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)
+        var prefix = marker.StartsWith(ActivatedPaidRecallGrantPrefix, StringComparison.Ordinal) ? ActivatedPaidRecallGrantPrefix
+            : marker.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)
             ? ActivatedSpellDamageGrantPrefix : ActivatedPlayGrantPrefix;
         if (!marker.StartsWith(prefix, StringComparison.Ordinal)) return null;
         try
@@ -38,17 +42,22 @@ public sealed partial class CoreRuleEngine
 
     private static StackItemState? ActivatedPlayGrantItem(ActivatedPlayGrant grant)
     {
+        string[] targets = grant.Target is { } target ? [target.ObjectId] : [];
+        var bindings = grant.Target is { } binding ? new Dictionary<string, long> { [binding.ObjectId] = binding.Generation }
+            : new Dictionary<string, long>();
         if (grant.Borrowed is { Borrower.Object.ObjectId.Length: > 0, Borrower.CardNo.Length: > 0,
                 Borrower.PhysicalCardNo.Length: > 0, Donor.CardNo.Length: > 0 } borrowed && grant.Printed is null)
             return new StackItemState(grant.StackItemId, grant.ControllerId, borrowed.Borrower.Object.ObjectId,
-                BorrowedExhaustRules.Effect, grant.CardNo, [], timingContext: TimingStates.NeutralOpen) {
-                    BorrowedExhaust = borrowed, TargetGenerations = new Dictionary<string, long>() };
+                BorrowedExhaustRules.Effect, grant.CardNo, targets, timingContext: TimingStates.NeutralOpen) {
+                    BorrowedExhaust = borrowed, TargetGenerations = bindings };
         if (grant.Borrowed is null && grant.Printed is { Source.ObjectId.Length: > 0 } printed
             && P4ActivatedAbilityCatalog.TryGetByAbilityId(printed.AbilityId, out var ability)
             && (grant.Kind == "NEXT_UNIT_READY" ? ability.SimpleEffect?.GrantsNextUnitReady == true
+                : grant.Kind == "PAID_RECALL" ? ability.SimpleEffect?.GrantsPaidRecall == true
                 : grant.Kind == "NEXT_SPELL_DAMAGE" && ability.SimpleEffect?.GrantsNextSpellDamage == true))
         {
-            var item = SimpleActivationStackItem(printed, grant.ControllerId, grant.CardNo, ability, []);
+            var item = SimpleActivationStackItem(printed, grant.ControllerId, grant.CardNo, ability, targets)
+                with { TargetGenerations = bindings };
             return item.StackItemId == grant.StackItemId ? item : null;
         }
         return null;
@@ -56,7 +65,9 @@ public sealed partial class CoreRuleEngine
 
     private static bool ValidActivatedPlayGrant(MatchState state, ActivatedPlayGrant grant)
     {
-        if (grant.Kind is not ("NEXT_UNIT_READY" or "NEXT_SPELL_DAMAGE")
+        if (grant.Kind is not ("NEXT_UNIT_READY" or "NEXT_SPELL_DAMAGE" or "PAID_RECALL")
+            || (grant.Kind == "PAID_RECALL" ? !CurrentPaidRecallTarget(state, grant) : grant.Target is not null)
+            || grant.Kind == "PAID_RECALL" && (grant.GrantedTick != 0 || grant.SpellPlayId is not null)
             || grant.Kind == "NEXT_UNIT_READY" && (grant.GrantedTick != 0 || grant.SpellPlayId is not null)
             || grant.Kind == "NEXT_SPELL_DAMAGE" && !ValidActivatedSpellDamageBinding(state, grant)
             || grant.TurnNumber != state.TurnNumber || string.IsNullOrWhiteSpace(grant.ControllerId)
@@ -64,7 +75,8 @@ public sealed partial class CoreRuleEngine
             || ActivatedPlayGrantItem(grant) is not { } item) return false;
         if (item.BorrowedExhaust is { } borrowed)
             return item.StackItemId == $"STACK-{borrowed.AcquiredTick}-{item.SourceObjectId}-BORROWED"
-                && BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex)?.Kind == (grant.Kind == "NEXT_UNIT_READY" ? "GRANT_NEXT_UNIT_READY" : "GRANT_NEXT_SPELL_DAMAGE")
+                && BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex)?.Kind == (grant.Kind == "PAID_RECALL" ? "GRANT_PAID_RECALL"
+                    : grant.Kind == "NEXT_UNIT_READY" ? "GRANT_NEXT_UNIT_READY" : "GRANT_NEXT_SPELL_DAMAGE")
                 && BorrowedExhaustRules.Valid(state, item);
         return ValidSimpleActivation(state, item);
     }
@@ -73,7 +85,8 @@ public sealed partial class CoreRuleEngine
     {
         var markers = (state.UntilEndOfTurnEffects ?? Array.Empty<string>())
             .Where(m => m is not null && (m.StartsWith(ActivatedPlayGrantPrefix, StringComparison.Ordinal)
-                || m.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal))).ToArray();
+                || m.StartsWith(ActivatedSpellDamageGrantPrefix, StringComparison.Ordinal)
+                || m.StartsWith(ActivatedPaidRecallGrantPrefix, StringComparison.Ordinal))).ToArray();
         return markers.Distinct(StringComparer.Ordinal).Count() == markers.Length
             && markers.All(m => ReadActivatedPlayGrant(m) is { } grant && ValidActivatedPlayGrant(state, grant))
             && markers.Select(m => ReadActivatedPlayGrant(m)!.StackItemId).Distinct(StringComparer.Ordinal).Count() == markers.Length;
@@ -112,11 +125,12 @@ public sealed partial class CoreRuleEngine
     {
         var consumed = result.Events.SelectMany(e => e.Payload.GetValueOrDefault(ActivatedPlayGrantConsumedKey) as string[] ?? [])
             .ToHashSet(StringComparer.Ordinal);
-        if (consumed.Count == 0) return result;
         // Departure receipts can update a marker during this instruction. Its
         // activation identity stays stable, so a consumed grant cannot return.
         var state = result.State with { UntilEndOfTurnEffects = result.State.UntilEndOfTurnEffects
-            .Where(m => ReadActivatedPlayGrant(m) is not { } grant || !consumed.Contains(grant.StackItemId)).ToArray() };
+            .Where(m => ReadActivatedPlayGrant(m) is not { } grant || !consumed.Contains(grant.StackItemId)
+                && (grant.Kind != "PAID_RECALL" || CurrentPaidRecallTarget(result.State, grant))).ToArray() };
+        if (consumed.Count == 0 && state.UntilEndOfTurnEffects.Count == result.State.UntilEndOfTurnEffects.Count) return result;
         var events = result.Events.Select(e => e.Payload.ContainsKey(ActivatedPlayGrantConsumedKey)
             ? e with { Payload = e.Payload.Where(p => p.Key != ActivatedPlayGrantConsumedKey).ToDictionary(p => p.Key, p => p.Value) } : e).ToArray();
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
