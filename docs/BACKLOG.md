@@ -703,6 +703,7 @@
 
 ## 现开赛（F 线）
 
+- [x] **现开赛自由组合卡包**（`f/sealed-mixed-packs`，PR 待创建）：新增非官方自定义玩法 `packs: [{ setCode, count }]`，官方单系列六包保持默认；服务端按顺序逐包生成、私有种子按包序号派生，保存／恢复／重放与大厅和快照投影保留组合及每包系列，卡池仍按真实印次计数且不泄漏给对手或观战。建房拒绝未开放、重复、数量越界及同时提供 `setCode` 的组合；补完整混合卡池冷恢复和一局完整对局回归。契约见 ADR 0001。 |
 - [x] **基础配置、卡包生成器、系列目录和协议 ADR**（`f/sealed-foundation`）：[#392](https://github.com/DDDHL0704/riftbound/pull/392) 已合入。6 包同系列、14 张进阶包结构；OGN、SFD 开放名单统一在 `data/official/sealed-sets.json`，UNL、VEN、RAD 待引擎全部接入。真实印次、slot/foil、私有种子、配置版本和指纹；`GET /sealed/sets` 与 `format/setCode/bestOf/series/sealedPool/sideboardCounts` DTO；依据 602.4.a.1、602.4.b.2.a 和 Riot Origins／SFD 产品页。契约见 `docs/adr/0001-sealed-format.md`。
 - [x] **现开卡组校验和空白战场**：[#393](https://github.com/DDDHL0704/riftbound/pull/393) 已合入，61 项定向测试通过。新增 OfficialDeckFormat；602.1.a.1–3、602.1.b、602.3.d、602.4.a.2–6；主牌至少 25（含英雄）、符文恰好 12、特性并集和实际印次卡池数量由服务端校验。空白编号 `SEALED·BLANK-BATTLEFIELD`；真实房间提交与开局由下一项接入。
 - [x] **房间格式、卡池持久化、恢复、回放和投影隐藏**：[#407](https://github.com/DDDHL0704/riftbound/pull/407) 已合入 main；[完整 L2 41455841165](https://github.com/DDDHL0704/riftbound/actions/runs/41455841165) 九片规则和 `L2 required` 全部通过。建房 format/setCode/bestOf、私有 sealedPool；种子、配置版本、指纹和完整卡包写日志／恢复帧；对手、观战者不能看到卡池、配置或备牌内容。
@@ -762,6 +763,7 @@ git show <分支>:<路径> > <路径>
 - 服务端规则改了提示或命令格式时，在这里追加一条"前端需适配"，写明 PR 号。
 - [x] 2026-11-03 `web/server-adapt-20261103` 已适配以下各项：亮出（`SHOWCASE:` 至多选一）、凯尔强化层数（`empowermentCount` 角标）、流转费用与废牌堆普通打出（按 `flowCostChoiceId` / `normalGraveyardPlayChoiceId` 分别列为打出方式）、授予技能（沿用 `ACTIVATE_ABILITY`）、铁铠冥魂等必选附加费用（`additionalCostChoices` + `requiredAdditionalCostChoiceCount`）、触发弃牌费用（通用 `CHOOSE_CARDS` 面板）；另补炫音返场的 `modeChoices`、任意额外符能（`variableAdditionalPowerCost`）、妮蔻额外登记传奇（`SUBMIT_DECK.additionalLegendCardNos`）、中立卡色，以及网页卡牌数据补入服务端已接入的 VEN/RAD/T1S 印次。
 - [x] 网页卡面套用中国区勘误（`web/card-errata-20261104`）：生成 `cards.json` 时读取 `ReviewedCardErrata.cs`，15 个印次显示勘误后文本。
+- [ ] 前端需适配（#457）：现开赛大厅创建与列表展示自定义 `packs` / `sealedPacks` 组合，房间快照显示每包 `setCode`；自定义组合 `setCode` 为空。非官方玩法，官方单系列仍为默认。
 
 ## 现开规则待确认（F 线）
 

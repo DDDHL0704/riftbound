@@ -6,10 +6,10 @@
 
 | 入口／字段 | 契约 |
 | --- | --- |
-| 建房 | `CreatePublicMatchWithOptions(playerId, { format = "constructed", setCode = null, bestOf = 1 })`；现开入口已接入，使用 `format = "sealed"`、指定系列、`bestOf = 1 / 3`；保留单参数 `CreatePublicMatch(playerId)` 作为默认构筑入口（SignalR 不支持通过 C# 可选参数省略线上的参数）；匹配队列只开放构筑。格式／系列会规范化，未开放系列、缺系列、非法局制在建房及发布目录前返回中文错误；构筑 `bestOf` 只能为 1。大厅列表保留同一房间格式、系列及局制。 |
+| 建房 | `CreatePublicMatchWithOptions(playerId, { format = "constructed", setCode = null, bestOf = 1, packs = null })`；现开单系列继续使用 `format = "sealed"`、`setCode` 和 `bestOf = 1 / 3`；自定义玩法传有序 `packs: [{ setCode, count }]`，此时 `setCode` 必须为空，系列不可重复且须已开放，每项至少 1 包、合计 6–12 包；默认仍为官方 602.4.a.1 的单系列六包。保留单参数 `CreatePublicMatch(playerId)` 作为默认构筑入口（SignalR 不支持通过 C# 可选参数省略线上的参数）；匹配队列只开放构筑。格式／系列会规范化，未开放系列、非法组合和非法局制在建房及发布目录前返回中文错误；构筑 `bestOf` 只能为 1。大厅列表保留同一房间格式、系列、局制及有序组合。 |
 | 系列 | `GET /sealed/sets` → `[{ setCode, name }]`；唯一开放名单为 `data/official/sealed-sets.json` 的 `enabled`；OGN、SFD 开放，UNL、VEN、RAD 未完整接入，不开放。 |
-| 房间／快照 | `PublicMatchDto`、`SnapshotDto` 带 `format`、`setCode`、`bestOf`；`setCode` 非现开为空。 |
-| 私有卡池 | 快照顶层 `sealedPool: { setCode, packs: [{ cards: [{ cardNo, slot, foil }] }], pool: [{ cardNo, count }] }`；只向本人返回，对手和观战者为空（序列化可省略空值）。`slot` 为 `common / uncommon / rare_or_better / foil / rune_or_token`；稀有槽、闪卡槽及符文／指示物槽 `foil = true`。 |
+| 房间／快照 | `PublicMatchDto`、`SnapshotDto` 带 `format`、`setCode`、`bestOf`；自定义组合还带公开的有序 `sealedPacks: [{ setCode, count }]`；`setCode` 非现开为空，自定义组合也为空。 |
+| 私有卡池 | 快照顶层 `sealedPool: { setCode, packs: [{ setCode, cards: [{ cardNo, slot, foil }] }], pool: [{ cardNo, count }] }`；只向本人返回，对手和观战者为空（序列化可省略空值）。自定义组合的 `sealedPool.setCode` 为空，每包的 `setCode` 标明系列；每人按 `sealedPacks` 顺序依次开包，各包使用对应系列的槽位／概率配置和按包序号派生的私有种子。`slot` 为 `common / uncommon / rare_or_better / foil / rune_or_token`；稀有槽、闪卡槽及符文／指示物槽 `foil = true`。 |
 | 提交 | 继续 `SUBMIT_DECK { legendCardNo, championCardNo, mainDeck, runeDeck, battlefields }`；现开传奇／英雄可为 `null` 或空字符串。单局制提交 3 张战场，三局两胜每局提交 1 张。空白战场固定保留编号 `SEALED·BLANK-BATTLEFIELD`，只在现开解释。拒绝返回逐条中文错误。 |
 | 多局 | `series: { bestOf, gameNumber, wins: { 玩家: 数 }, phase, usedBattlefields: { 玩家: [cardNo…] }, playOrderChooserPlayerId }`；`gameNumber` 从 1 起；phase 为 `choosing_play_order / submitting_decks / playing / finished`；已用战场保留重复编号以表达实体数量，本人全部可见，对手仅包含已公开记录，观战者仅包含公开记录。当前实现只在双方准备后同时记入初始战场，两人暗交和单方准备期间不暴露选牌；平局复用同一实体，不在此数组重复扣量。 |
 | 锁定配置 | `series.lockedDeck: { legendCardNo, championCardNo, mainDeck, runeDeck, battlefields } \| null`；仅在本人下一局配置被锁定且仍处于 `choosing_play_order / submitting_decks` 时非空。只含查看者自己的配置，不以玩家编号索引；对手不能收到本人的配置，观战快照及公开回放始终为空；空值可省略。平局后返回上一局完整提交（单局制保留 3 张战场），客户端应允许按此配置重交，不能因 `usedBattlefields` 禁用被强制复用的战场。首局完全跳过后，已登记者返回初始配置；尚未登记者为空，首次合法提交后即返回该配置。跳过局不消耗战场，后续已合法重选的战场随本人的最新提交返回。缺席角色沿用提交契约的空字符串；普通胜负后的自由换备牌、首局、已开局和整场结束均为空。配置来自权威持久化帧，冷恢复与令牌重连后仍返回，换设备不依赖本地缓存。 |
@@ -24,7 +24,7 @@
 
 ## 规则和流程
 
-每人 6 包同系列（602.4.a.1），主牌至少 25 张且英雄计入，符文恰好 12 张、只用特性内基础符文，来源不限。实际用到的特性并集不超过 3 种并包含传奇全部特性；专属法术的全部特性均须符合。传奇／英雄可缺席且不要求同英雄标签；缺任一者每局本人首回合开始阶段仅额外抽一张。现开豁免同名、专属数量和“唯我”，构筑禁卡不自动套用（602.1.b、602.4.a.2–6）。卡池按真实印次计数，除基础符文及空白战场外须由服务端校验持有数量（602.1.a.1–3）。
+每人默认 6 包同系列（602.4.a.1）；自定义多系列组合是非官方玩法，按所选组合顺序开 6–12 包。主牌至少 25 张且英雄计入，符文恰好 12 张、只用特性内基础符文，来源不限。实际用到的特性并集不超过 3 种并包含传奇全部特性；专属法术的全部特性均须符合。传奇／英雄可缺席且不要求同英雄标签；缺任一者每局本人首回合开始阶段仅额外抽一张。现开豁免同名、专属数量和“唯我”，构筑禁卡不自动套用（602.1.b、602.4.a.2–6）。卡池按真实印次计数，除基础符文及空白战场外须由服务端校验持有数量（602.1.a.1–3）。
 
 单局制随机从 3 张战场抽 1 张，不能换备牌（602.3.e.3、602.3.g）。三局两胜先获 2 胜结束，平局不计胜局（404.1–3）；首局随机指定玩家选先后手，此后败方选，平局沿用顺序（407.1–4）。局间顺序为败方选先后手 → 双方暗交配置／战场 → 同时公开战场 → 核心 110；该公开顺序参照 406.1.h，列待确认。平局后禁止换备牌且沿用同一战场（403.10、406.1.b）；首局完全跳过禁止换牌（403.9），判负依 406.1.c。其余局间允许调整主牌、备牌、符文特性、传奇和英雄，仍须合法（602.4.a.7）。每张实体战场每轮仅用一次，空白不限（602.3.e.4、602.3.f）。
 

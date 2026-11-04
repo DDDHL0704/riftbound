@@ -143,8 +143,9 @@ public sealed class SealedPackGeneratorTests
     public void FrontendContractsUseStableWebNamesAndDoNotExposeGenerationSeed()
     {
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-        var pool = new SealedPoolDto("OGN", [new([new("OGN·001/298", "common", false)])], [new("OGN·001/298", 1)]);
+        var pool = new SealedPoolDto("OGN", [new("OGN", [new("OGN·001/298", "common", false)])], [new("OGN·001/298", 1)]);
         var json = JsonSerializer.Serialize(pool, options);
+        Assert.Contains("\"setCode\":\"OGN\"", json);
         Assert.Contains("\"cards\":[{\"cardNo\":", json);
         Assert.Contains("\"slot\":\"common\",\"foil\":false", json);
         Assert.DoesNotContain("seed", json, StringComparison.OrdinalIgnoreCase);
@@ -152,5 +153,13 @@ public sealed class SealedPackGeneratorTests
         Assert.Equal(MatchFormats.Constructed, room.Format);
         Assert.Null(room.SetCode);
         Assert.Equal(1, room.BestOf);
+
+        var choices = new[] { new SealedPackChoiceDto("OGN", 3), new SealedPackChoiceDto("SFD", 3) };
+        var createJson = JsonSerializer.Serialize(new CreatePublicMatchOptionsDto(MatchFormats.Sealed, null, 1, choices), options);
+        Assert.Contains("\"packs\":[{\"setCode\":\"OGN\",\"count\":3}", createJson);
+        var projected = new PublicMatchDto("room", "P1", 1, 2, "waiting", DateTimeOffset.UnixEpoch,
+            MatchFormats.Sealed, null, 1, choices);
+        Assert.Contains("\"sealedPacks\":[{\"setCode\":\"OGN\",\"count\":3}",
+            JsonSerializer.Serialize(projected, options));
     }
 }
