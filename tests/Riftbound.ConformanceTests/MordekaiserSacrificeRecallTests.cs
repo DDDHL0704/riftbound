@@ -7,7 +7,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class MordekaiserSacrificeRecallTests
+public sealed partial class MordekaiserSacrificeRecallTests
 {
     private const string No = "RAD·020/167";
     private const string Kind = ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn;
