@@ -136,6 +136,56 @@ public sealed class RadNeekoLegendTests
     }
 
     [Fact]
+    public async Task ASecondNeekoMaySelectTheSameRegisteredLegendAfterTheFirstNeekoIsDestroyed()
+    {
+        var initial = AttackDamageDistributionTests.Spell((await Position(Viktor, Darius)).State,
+            "KILL", "OGN·229/298", "P1");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var firstChoice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice).Request;
+        await game.Act("P1", new PayCostCommand(firstChoice.Id, "RULE_REPLACEMENT", [Viktor]));
+        var original = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        var originalBinding = Assert.Single(game.State.BoundLegends!);
+        Assert.Equal(Viktor, game.State.CardObjects[original].CardNo);
+        await game.ColdCheckpoint();
+        await game.Act("P1", new PlayCardCommand("KILL", "OGN·229/298", ["NEEKO"]));
+        await game.Top();
+        Assert.Contains("NEEKO", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(game.State.PlayerZones["P1"].LegendZone);
+        Assert.False(game.State.CardObjects.ContainsKey(original));
+        Assert.False(game.State.ObjectLocations.ContainsKey(original));
+        Assert.NotNull(Assert.Single(game.State.BoundLegends!).DepartedAtTick);
+        await game.ColdCheckpoint();
+        await Play(game, "SECOND"); await game.Top();
+        var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice).Request;
+        Assert.Equal("REGISTERED_LEGEND_SELECTION", choice.Kind);
+        Assert.NotEqual(firstChoice.Id, choice.Id);
+        Assert.Equal(new[] { Viktor, Darius }, choice.Options.Select(option => option.Id));
+        var selection = new PayCostCommand(choice.Id, "RULE_REPLACEMENT", [Viktor]);
+        var hash = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State,
+            new("neeko-faq-wrong-player", "P2", CommandTypes.PayCost), selection, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+        await game.ColdCheckpoint();
+        await game.Act("P1", selection);
+        var current = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        Assert.NotEqual(original, current);
+        Assert.Equal(Viktor, game.State.CardObjects[current].CardNo);
+        Assert.False(game.State.CardObjects[current].IsExhausted);
+        Assert.Equal(2, game.State.BoundLegends!.Count);
+        Assert.Equal(originalBinding.Source, Assert.Single(game.State.BoundLegends!, b => b.LegendObjectId == original).Source);
+        var currentBinding = Assert.Single(game.State.BoundLegends!, b => b.LegendObjectId == current);
+        Assert.Equal(new ObjectBinding("SECOND", game.State.CardObjects["SECOND"].ObjectGeneration), currentBinding.Source);
+        Assert.Null(currentBinding.DepartedAtTick);
+        Assert.Null(game.State.PendingRuleChoice);
+        Assert.Null(game.State.PendingPayment);
+        Assert.Empty(game.State.StackItems);
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
+    [Fact]
     public async Task ARealLegendAbilityAlreadyOnTheChainResolvesAfterItsLegendCeasesToExist()
     {
         var game = await Position(Viktor);
