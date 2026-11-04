@@ -304,6 +304,9 @@ public sealed partial class CoreRuleEngine
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
         var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        // 396/398: only the activated component was inherited. Its donor's
+        // play trigger and exile references belong to another text instance.
+        if (spec.Kind == "PLAY_LINKED_EXILE") return NoopStackResolutionResult(state);
         if (spec.Kind == "DESTROY_DECK_PLAY") return ResolveDestroyDeckPlay(state, item);
         if (spec.MovesToExhaustedCostUnit)
             return ResolveMovementToExhaustedCostUnit(state, item, c.ExhaustedCostUnit!,

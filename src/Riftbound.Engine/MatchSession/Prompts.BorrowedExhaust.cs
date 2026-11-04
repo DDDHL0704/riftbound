@@ -62,6 +62,7 @@ internal static partial class ActionPromptBuilder
                 "ATTACH_ARMAMENT" => "将你控制的一件未贴附的武装贴附到你控制的一名单位上",
                 "REATTACH_ARMAMENT" => "将你控制的一件已贴附的武装贴附到你控制的一名单位上",
                 "RETURN_UNIT_FREE_PLAY" => "让一名友方单位返回手牌，然后可免费打出战力更低的单位",
+                "PLAY_LINKED_EXILE" => "打出以关联技能放逐的单位；单独获得此技能不获得其他来源的放逐关联",
                 "DESTROY_DECK_PLAY" => "摧毁一名友方单位，查看牌堆顶部五张牌，可免费打出战力最多高 1 的单位，然后回收其余牌",
                 "RETURN_TO_HAND" => ability.Spec.TargetScope == "OWNED_TEEMO_UNIT"
                     ? "将你拥有的英雄区域或场上提莫单位放入手牌" : "让另一张友方装备、单位或正面朝下的卡牌返回手牌",
