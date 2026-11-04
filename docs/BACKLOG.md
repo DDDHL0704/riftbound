@@ -773,7 +773,7 @@ git show <分支>:<路径> > <路径>
 - [x] 2026-11-03 `web/server-adapt-20261103` 已适配以下各项：亮出（`SHOWCASE:` 至多选一）、凯尔强化层数（`empowermentCount` 角标）、流转费用与废牌堆普通打出（按 `flowCostChoiceId` / `normalGraveyardPlayChoiceId` 分别列为打出方式）、授予技能（沿用 `ACTIVATE_ABILITY`）、铁铠冥魂等必选附加费用（`additionalCostChoices` + `requiredAdditionalCostChoiceCount`）、触发弃牌费用（通用 `CHOOSE_CARDS` 面板）；另补炫音返场的 `modeChoices`、任意额外符能（`variableAdditionalPowerCost`）、妮蔻额外登记传奇（`SUBMIT_DECK.additionalLegendCardNos`）、中立卡色，以及网页卡牌数据补入服务端已接入的 VEN/RAD/T1S 印次。
 - [x] 网页卡面套用中国区勘误（`web/card-errata-20261104`）：生成 `cards.json` 时读取 `ReviewedCardErrata.cs`，15 个印次显示勘误后文本。
 - [x] 现开自由组合卡包（#457 前端适配，`web/sealed-mixed-packs-20261104`）：大厅可选“单一系列／自由组合”，按系列加减包数（合计 6–12）；房间列表、现开标题和开包进度显示组合与每包系列。
-- [ ] 前端需适配（#466）：`GET /sealed/sets` 现开放 UNL、VEN、RAD；系列选择器和大厅／现开房间展示应读取服务端开放名单。UNL 目录编号兼容 `UNL-`，RAD 的特殊异画／终极概率目前为零并标“待确认”。
+- [x] 前端适配 #466：大厅系列列表读取 `GET /sealed/sets`，UNL／VEN／RAD 无需改界面；`cards.json` 已补齐服务端全部准入印次（#468，1501 张），三系列各一局现开压测打完。
 
 ## 现开规则待确认（F 线）
 
