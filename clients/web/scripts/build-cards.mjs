@@ -43,6 +43,57 @@ function admittedAdditions() {
   return out;
 }
 
+// The server shows reviewed CN errata instead of the printed text (ReviewedCardErrata.cs, a chain of
+// `id == N && cardNo == "X" ? <text> : …`). Read the same chain so card faces match the rules played.
+// Each branch is either a full replacement string or printedText.Replace(old, new); anything else fails
+// the build rather than silently showing the printed text.
+function reviewedErrata() {
+  const file = path.resolve(here, "../../../src/Riftbound.CardCatalog/ReviewedCardErrata.cs");
+  const body = fs.readFileSync(file, "utf8").replace(/\/\/[^\n]*/g, "");
+  const tokens = body.matchAll(/id == (\d+) && cardNo == "([^"]+)"|printedText\.Replace\(|"(?:[^"\\]|\\.)*"|[?:+]/g);
+  const literal = (s) => JSON.parse(s);
+  const out = new Map();
+  let pending = [];
+  let mode = null;
+  let parts = [];
+  const flush = () => {
+    if (!mode) return;
+    const rule = mode === "replace" ? { replace: [parts[0], parts[1]] } : { text: parts.join("") };
+    if (mode === "replace" && parts.length < 2) throw new Error("build-cards: unreadable Replace in ReviewedCardErrata.cs");
+    for (const key of pending) out.set(key, rule);
+    pending = [];
+    mode = null;
+    parts = [];
+  };
+  for (const [tok, id, cardNo] of tokens) {
+    if (id) {
+      flush();
+      pending.push(`${id}|${cardNo}`);
+    } else if (tok === "?") {
+      if (!pending.length) throw new Error("build-cards: errata branch without a card in ReviewedCardErrata.cs");
+      mode = "text";
+    } else if (tok === ":") flush();
+    else if (tok.startsWith("printedText")) mode = "replace";
+    else if (tok.startsWith('"') && mode) parts.push(literal(tok));
+  }
+  flush();
+  const expected = [...body.matchAll(/id == \d+ && cardNo ==/g)].length;
+  if (out.size !== expected) throw new Error(`build-cards: read ${out.size} of ${expected} errata entries`);
+  return out;
+}
+
+const errata = reviewedErrata();
+let errataApplied = 0;
+function effectiveText(card) {
+  const rule = errata.get(`${card.id}|${card.cardNo}`);
+  const printed = card.cardEffect || "";
+  if (!rule) return printed;
+  errataApplied++;
+  if (rule.text != null) return rule.text;
+  if (!printed.includes(rule.replace[0])) throw new Error(`build-cards: erratum for ${card.cardNo} no longer matches its printed text`);
+  return printed.replace(rule.replace[0], rule.replace[1]);
+}
+
 const cards = {};
 const base = [...catalog.cards, ...(Array.isArray(catalog.scopedAdditions) ? catalog.scopedAdditions : [])];
 const known = new Set(base.map((c) => c?.cardNo));
@@ -57,7 +108,8 @@ for (const card of [...base, ...admittedAdditions().filter((c) => !known.has(c.c
     colors: card.cardColorList ?? [],
     cost: card.energy ?? undefined,
     power: card.power ?? undefined,
-    effect: card.cardEffect || undefined,
+    effect: effectiveText(card) || undefined,
+    errata: errata.has(`${card.id}|${card.cardNo}`) || undefined,
     tag: card.tag || undefined,
     image: card.frontImage || undefined,
     // Deck building: legend/champion pairing, the one-copy limit and the printing's sort order.
@@ -69,4 +121,4 @@ for (const card of [...base, ...admittedAdditions().filter((c) => !known.has(c.c
 // public/ holds only this generated (git-ignored) file, so a fresh checkout has no such folder.
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, JSON.stringify(cards));
-console.log(`cards.json: ${Object.keys(cards).length} cards`);
+console.log(`cards.json: ${Object.keys(cards).length} cards, ${errataApplied} with reviewed errata`);

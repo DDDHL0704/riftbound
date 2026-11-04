@@ -152,7 +152,15 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
       transition={{ duration: 0.14, ease: "easeOut" }}
       aria-hidden
     >
-      {info.image ? <img src={info.image} alt="" /> : <div className="hoverpreview__fallback">{info.name}</div>}
+      <div className="hoverpreview__face">
+        {info.image ? <img src={info.image} alt="" /> : <div className="hoverpreview__fallback">{info.name}</div>}
+        {info.errata && info.effect && (
+          <p className="hoverpreview__errata">
+            <b>中国区勘误</b>
+            <EffectText text={info.effect} />
+          </p>
+        )}
+      </div>
       {object && (unit || object.damage > 0 || object.isExhausted || object.isEmpowered) && (
         <p className="hoverpreview__state">
           {unit && (

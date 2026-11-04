@@ -538,6 +538,7 @@ function Preview({ snapshot, objects }: { snapshot: Snapshot; objects: Record<st
         <p className="preview__meta">
           {info.category}
           {info.cost != null && <span className="sym sym--mana">{info.cost}</span>}
+          {info.errata && <span className="preview__errata">已按勘误</span>}
         </p>
         {info.effect && (
           <p className="preview__effect">
