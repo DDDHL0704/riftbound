@@ -5,10 +5,11 @@
 //   npm run soak -- [pairs] [stepCap]      e.g. npm run soak -- 0-1,2-4 900
 //   npm run soak -- bot <roomCode> [deck]  one visible-free seat joins a room and plays it out,
 //                                          so a person can play the other seat by hand
-//   npm run soak -- sealed [count] [bo1|bo3] [mix]
+//   npm run soak -- sealed [count] [bo1|bo3] [mix|<setCode>]
 //                                          sealed rooms instead: both seats skip the packs, build a
 //                                          legal deck from their pool by clicking, submit and play;
-//                                          "mix" uses the lobby's default custom pack mix
+//                                          "mix" uses the lobby's default custom pack mix,
+//                                          a set code (e.g. VEN) opens six packs of that set
 //
 // Needs the API (default http://127.0.0.1:5088) and this dev server (npm run dev) running:
 // stuck detection reads the client state the dev build exposes as window.__rb (it never acts through it).
@@ -19,7 +20,11 @@ import { chromium } from "playwright-core";
 
 const WEB = process.env.WEB_URL || "http://127.0.0.1:5176";
 const OUT_DIR = path.resolve(process.env.SOAK_OUT || "soak-results");
-const SEALED = process.argv[2] === "sealed" ? { count: Number(process.argv[3] || 2), bestOf: process.argv[4] === "bo3" ? 3 : 1, mix: process.argv[5] === "mix" } : null;
+const SEALED =
+  process.argv[2] === "sealed"
+    ? { count: Number(process.argv[3] || 2), bestOf: process.argv[4] === "bo3" ? 3 : 1, mix: process.argv[5] === "mix", set: process.argv[5] && process.argv[5] !== "mix" ? process.argv[5] : null }
+    : null;
+const API = process.env.API_URL || "http://127.0.0.1:5088";
 const PAIRS = SEALED
   ? Array.from({ length: SEALED.count }, () => [-1, -1])
   : (process.argv[2] === "bot" ? "" : process.argv[2] || "0-1,2-4,3-9,5-10,6-7,8-0").split(",").map((p) => p.split("-").map(Number));
@@ -313,6 +318,12 @@ async function constructedSetup(pages, [a, b]) {
 // Sealed: the host creates the room from the lobby options; the rest happens in STEP.
 async function sealedSetup(pages) {
   if (SEALED.mix) await pages[0].click("button[role=radio]:text-is(\"自由组合\")");
+  if (SEALED.set) {
+    const sets = await (await fetch(`${API}/sealed/sets`)).json();
+    const name = sets.find((s) => s.setCode === SEALED.set)?.name;
+    if (!name) throw new Error(`sealed set ${SEALED.set} is not open on the server`);
+    await pages[0].click(`button[role=radio]:text-is("${name}")`);
+  }
   if (SEALED.bestOf === 3) await pages[0].click("button[role=radio]:text-is(\"三局两胜\")");
   await pages[0].click("button:text-is(\"创建现开房间\")");
   await pages[0].waitForSelector(".setup__code");
