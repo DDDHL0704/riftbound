@@ -78,7 +78,7 @@ internal static class AttachedRuleTextRules
         }
 
         foreach (var instance in Instances(state, source).Where(i => (i.Origin is null || ability.SupportsCopiedRuleText || ability.SimpleEffect is not null)
-            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, i.CardNo)))
+            && P4ActivatedAbilityCatalog.IsActivationSourceCardNoForAbility(ability, i.CardNo)))
         {
             yield return instance;
         }

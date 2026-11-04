@@ -13,11 +13,13 @@ public sealed partial class CoreRuleEngine
 
     internal static ContinuousEffectState PublicPlayInstructionEffect(MatchState state, ContinuousEffectState effect, string viewer)
     {
-        // Keep the full provenance in the authoritative ledger. A recycled
-        // source's new deck object is not disclosed by its resolved modifier.
+        // Keep the full provenance in the authoritative ledger. A resolved
+        // skill must not disclose its source's later private incarnation.
         if (effect.SourceObjectId is not { } id
             || ResolutionResult.VisibleObjectIdForViewer(state, id, viewer) != "HIDDEN") return effect;
-        if (effect.EffectKind != BorrowedExhaustRules.Effect
+        var capturedActivation = P4ActivatedAbilityCatalog.TryGetByEffectKind(effect.EffectKind, out var ability)
+            && ability.SimpleEffect is not null;
+        if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation
             && (effect.SourceCardNo is not { } no || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
                 || !behavior.RecyclesSourceIfPlayedFromStandby)) return effect;
         return effect with { SourceObjectId = "HIDDEN" };

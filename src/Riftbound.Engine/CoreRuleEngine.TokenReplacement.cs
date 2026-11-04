@@ -66,7 +66,7 @@ public sealed partial class CoreRuleEngine
             : parent;
         if (TryMovementTokenInstruction(state, item, out var movementToken)) return movementToken.Count;
         if (item.BorrowedExhaust is { } borrowed && BorrowedExhaustRules.Valid(state, item)
-            && BorrowedExhaustRules.Spec(borrowed.Donor.CardNo, borrowed.AbilityIndex) is { Kind: "CREATE_UNIT_TOKEN" } tokenSkill)
+            && BorrowedExhaustRules.Spec(state, borrowed) is { Kind: "CREATE_UNIT_TOKEN" } tokenSkill)
             return tokenSkill.TokenCount;
         if (item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { Effect: "CREATE_UNIT_TOKEN" } unitToken)
             return unitToken.Amount;

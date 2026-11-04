@@ -32311,7 +32311,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? reason = null)
     {
         var sourceState = RuleChoices.Value?.ResolutionState ?? RuleChoices.Value?.Origin;
-        var visibleSource = (stackItem.FieldContext is not null || NeedsLastBreathHereTarget(stackItem)) && sourceState is not null
+        var visibleSource = (stackItem.FieldContext is not null || stackItem.BorrowedExhaust is not null
+                || NeedsLastBreathHereTarget(stackItem)) && sourceState is not null
             ? ResolutionResult.VisibleObjectIdForViewer(sourceState, stackItem.SourceObjectId, ProjectionViewers.Spectator)
             : stackItem.SourceObjectId;
         var payload = new Dictionary<string, object?>

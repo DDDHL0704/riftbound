@@ -66,7 +66,15 @@ public sealed partial class CoreRuleEngine
                 && departed.Contains(recycle.Source.ObjectId) && RecycleMightRules.Valid(before, item))
                 return item with { RecycleMightActivation = recycle with { CeasedSource = SelfAbilitySourceRules.Capture(
                     before, state.Tick, recycle.Source, recycle.CardNo, recycle.FaceRevision, recycle.AcquiredTick, recycle.SourceTokenFactoryCardNo) } };
-            if (item.EmpowerActivation is { CeasedSource: null } empower
+            if (item.EmpowerActivation is { Borrowed: { } borrowedEmpower } keyword && EmpowerRules.Valid(before, item))
+            {
+                BorrowedTextSource CaptureKeyword(BorrowedTextSource text) => text.CeasedSource is null && departed.Contains(text.Object.ObjectId)
+                    ? text with { CeasedSource = SelfAbilitySourceRules.Capture(before, state.Tick, text.Object,
+                        text.PhysicalCardNo, text.FaceRevision, keyword.AcquiredTick, text.TokenFactoryCardNo) } : text;
+                return item with { EmpowerActivation = keyword with { Borrowed = borrowedEmpower with {
+                    Borrower = CaptureKeyword(borrowedEmpower.Borrower), Donor = CaptureKeyword(borrowedEmpower.Donor) } } };
+            }
+            if (item.EmpowerActivation is { CeasedSource: null, Borrowed: null } empower
                 && departed.Contains(empower.Source.ObjectId) && EmpowerRules.Valid(before, item))
                 return item with { EmpowerActivation = empower with { CeasedSource = SelfAbilitySourceRules.Capture(
                     before, state.Tick, empower.Source, empower.CardNo, empower.FaceRevision, empower.AcquiredTick, empower.SourceTokenFactoryCardNo) } };

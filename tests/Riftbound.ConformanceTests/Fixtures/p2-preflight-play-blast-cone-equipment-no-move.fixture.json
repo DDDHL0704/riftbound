@@ -12,12 +12,12 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-133/219 喷射球果",
-      "note": "官方卡面：费用 4；装备；打出时可以选择移动一名敌方单位；当你移动敌方单位时可让此牌休眠以眩晕该单位。当前 fixture 覆盖不选择可选移动时从手牌打出成为装备对象路径，可选移动、移动触发休眠和眩晕暂缓。"
+      "note": "官方卡面：费用 4；打出时可选择移动一名敌方单位；当你移动敌方单位时，可让此牌休眠以眩晕该单位。本夹具无合法敌方单位，打出触发无法确认；可选移动、独立触发与非目标眩晕由 BlastConeMovementFaqTests 验证。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算；移动和眩晕效果暂缓。"
+      "note": "装备是游戏对象，可位于公开区域；确认时进场，打出触发独立进入结算链。没有合法敌方单位时，该可选触发不被确认，不开放无效果的响应窗口。"
     },
     {
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
@@ -84,29 +84,18 @@
         "cardNo": "UNL-133/219",
         "targetObjectIds": []
       }
-    },
-    {
-      "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-blast-cone-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
-    },
-    {
-      "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-blast-cone-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "EQUIPMENT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_NOT_CONFIRMED"
     ],
     "events": [
       {
@@ -145,13 +134,10 @@
         "kind": "TRIGGER_QUEUED"
       },
       {
-        "kind": "PRIORITY_PASSED"
+        "kind": "TRIGGERS_MOVED_TO_STACK"
       },
       {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "STACK_ITEM_RESOLVED"
+        "kind": "TRIGGER_NOT_CONFIRMED"
       }
     ],
     "promptActions": {

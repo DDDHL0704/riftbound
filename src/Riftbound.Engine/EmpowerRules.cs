@@ -22,13 +22,17 @@ public sealed record EmpowerActivationContext(ObjectBinding Source, string CardN
     public string? SourceTokenFactoryCardNo { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CeasedSelfAbilitySource? CeasedSource { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BorrowedEmpowerSource? Borrowed { get; init; }
 }
-internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, EmpowerSpec Spec, EmpowerCostSpec Cost, int Alternative, EmpowerBattlefieldReduction? BattlefieldReduction = null)
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record BorrowedEmpowerSource(BorrowedTextSource Borrower, BorrowedTextSource Donor);
+internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, EmpowerSpec Spec, EmpowerCostSpec Cost, int Alternative, EmpowerBattlefieldReduction? BattlefieldReduction = null, BorrowedEmpowerSource? Borrowed = null)
 {
     internal string? InstanceId => Instance.Origin is null ? null : $"{Instance.Id}:{Id}";
 }
 
-internal static class EmpowerRules
+internal static partial class EmpowerRules
 {
     internal const string Effect = "EMPOWER_ACTIVATION";
     // CN 423.1: a discarded spell is a spell card in its controller's hand.
@@ -77,6 +81,7 @@ internal static class EmpowerRules
             .SelectMany(instance => Specs(instance.CardNo)
             .SelectMany(spec => spec.Alternatives.Select((cost, index) => new EmpowerAbility(
                 $"EMPOWER:{spec.Index}:{index}", instance, spec, cost, index)).Where(a => SupportedCost(a.Cost))))
+            .Concat(BorrowedAbilities(state, source))
             .SelectMany(ability => CoreRuleEngine.BattlefieldEmpowerAbilities(state, source, ability));
     internal static int ControlledRunes(MatchState state, string actor) => state.PlayerZones.Values
         .SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct().Count(id => state.CardObjects.TryGetValue(id, out var c)
@@ -105,12 +110,7 @@ internal static class EmpowerRules
             || item.StackItemId != $"STACK-{c.AcquiredTick}-{c.Source.ObjectId}-EMPOWER"
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.TargetObjectIds.Count != 0 || item.OptionalCosts.Count != 0
             || !state.Seats.ContainsKey(item.ControllerId)
-            || !SelfAbilitySourceRules.Valid(state, c.Source, c.CardNo, c.FaceRevision, c.AcquiredTick,
-                c.SourceTokenFactoryCardNo, c.CeasedSource, c.Origin is null,
-                c.DestructionCost is { } destruction && destruction.Unit == c.Source
-                    && destruction.TokenFactoryCardNo == c.SourceTokenFactoryCardNo
-                    && destruction.TokenCeasedAtTick == c.AcquiredTick)
-            || !AttachedRuleTextRules.ValidCaptured(state, c.Origin, item.SourceObjectId, c.Source.Generation, c.CardNo)) return false;
+            || !ValidSource(state, item, c)) return false;
         var spec = specs[c.Keyword]; var cost = spec.Alternatives[c.Alternative];
         if (!SupportedCost(cost) || !CoreRuleEngine.TryApplyCapturedEmpowerReduction(state, c, cost, out var reducedCost)
             || !CoreRuleEngine.ValidEquipmentEmpowerReduction(state, c, Mana(spec, reducedCost, c.ControlledRunes))
@@ -246,7 +246,7 @@ public sealed partial class CoreRuleEngine
         var context = new EmpowerActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
             ability.Spec.Index, ability.Alternative, mana, runes, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0,
             ability.Instance.Origin, discarded, destructionReceipt, ability.BattlefieldReduction, equipmentReduction) {
-                SourceTokenFactoryCardNo = source.TokenFactoryCardNo };
+                SourceTokenFactoryCardNo = source.TokenFactoryCardNo, Borrowed = ability.Borrowed };
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-EMPOWER", intent.PlayerId, source.ObjectId,
             EmpowerRules.Effect, ability.Instance.CardNo, [], 0, 0, []) { EmpowerActivation = context };
         var committedPools = payment.RunePools;

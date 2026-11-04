@@ -44,7 +44,8 @@ public sealed record P4ActivatedAbilityDefinition(
     int? PowerModifierAmountIfSourceEmpowered = null,
     string SourceScope = "",
     string RequiredControllerCardNoOnField = "",
-    bool UsableByAnyPlayerOnOwnTurn = false);
+    bool UsableByAnyPlayerOnOwnTurn = false,
+    bool BorrowedSourceAlias = false);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -60,8 +61,9 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false,
     bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false,
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
-    string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0,
-    bool GrantsMysteriousWeaponRecall = false);
+    string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
+    bool GrantsMysteriousWeaponRecall = false, bool GrantsPaidRecall = false,
+    bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -285,9 +287,18 @@ public static class P4ActivatedAbilityCatalog
     public const string RunebladeAnvilAbilityId = "RAD_012_PAY_RED_EXHAUST_DESTROY_SOURCE";
     public const string MysteriousWeaponCardNo = "OGN·023/298";
     public const string MysteriousWeaponRecallAbilityId = "OGN_023_DISCARD_EXHAUST_GRANT_RED_RECALL";
+    public const string SmuggledWeaponPaidRecallAbilityId = "SMUGGLED_WEAPON_DISCARD_GRANT_PAID_RECALL";
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("EXHAUST_DECLARED_ATTRIBUTE_MINUS_2", "UNL-138/219", "EXHAUST_DECLARED_ATTRIBUTE_MINUS_2",
+            "夺命名单", 0, 0, 1, false, true, 0, true, "横置：具有本组技能宣告的属性标签的单位本回合战力-2。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard, SimpleEffect: new(TargetsDeclaredAttribute: true)),
+        new("CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT", "UNL-148/219", "CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT",
+            "受诅咒的石棺", 0, 0, 0, false, true, 0, false,
+            "官方中文：横置，打出一名以此方式放逐的单位，必须支付卡牌费用。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(PlaysLinkedGraveyardExile: true)),
         new(RunebladeAnvilAbilityId, "RAD·012/167", RunebladeAnvilAbilityId, "符刃铁砧", 2, 0, 0,
             RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false, Reason: "支付2法力与红色符能，休眠：结算时摧毁来源。",
@@ -305,6 +316,17 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 }, SwiftSpeed: true,
             SourceRequiredTag: CardObjectTags.UnitCard,
             SimpleEffect: new(DiscardsHandCardAsCost: true, BanishesSourceThenReplaysToBase: true)),
+        new("FORGOTTEN_SIGNPOST_EXHAUST_MOVE_FRIENDLY_UNIT", "UNL-045/219", "FORGOTTEN_SIGNPOST_EXHAUST_MOVE_FRIENDLY_UNIT",
+            "被遗忘的路标", 0, 0, 1, false, true, 0, true,
+            "官方中文：迅捷；让一名友方单位休眠并横置，将另一名友方单位移动到该单位所在位置。",
+            SwiftSpeed: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(ExhaustFriendlyUnitMinimumPowerAsCost: 0, MovesToExhaustedCostUnit: true)),
+        new(SmuggledWeaponPaidRecallAbilityId, "OGN·023/298", SmuggledWeaponPaidRecallAbilityId,
+            "来路不明的武器", 0, 0, 1, false, true, 0, true,
+            "官方中文：弃置一张手牌并横置；本回合目标下次被摧毁时可支付红色符能改为休眠召回，不移除伤害。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DiscardsHandCardAsCost: true, GrantsPaidRecall: true),
+            BorrowedSourceAlias: true),
         new("RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "RAD·114/167", "RAD_114_EXHAUST_FRIENDLY_READY_UNIT", "锐雯 · 弃暗投明", 0, 0, 1,
             false, false, 0, true, "官方中文：让一名友方单位变为休眠状态，让一名单位变为活跃状态；每回合一次。",
             SourceRequiredTag: CardObjectTags.UnitCard,
@@ -818,9 +840,20 @@ public static class P4ActivatedAbilityCatalog
         P4ActivatedAbilityDefinition definition,
         string? cardNo)
     {
+        // Borrowed source aliases are registered for the shared resolution
+        // path, but their donor card number must not look like another native
+        // activation of the physical card in catalog/source guards.
+        if (definition.BorrowedSourceAlias)
+            return false;
         return SourceCardNosForAbility(definition)
             .Contains(cardNo ?? string.Empty, StringComparer.Ordinal);
     }
+
+    internal static bool IsActivationSourceCardNoForAbility(
+        P4ActivatedAbilityDefinition definition,
+        string? cardNo)
+        => SourceCardNosForAbility(definition)
+            .Contains(cardNo ?? string.Empty, StringComparer.Ordinal);
 
     public static bool IsSourceCardNoForAbilityId(
         string abilityId,

@@ -26,7 +26,8 @@ public sealed partial class CoreRuleEngine
     private const string SettRecallEffect = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED";
     private sealed record DestructionOption(RuleChoiceOption Choice, string Target, string Source, string Kind,
         string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0,
-        string? ResponsiblePlayerId = null, SacrificeRecallCost? SacrificeCost = null, string? RecallMarker = null);
+        string? ResponsiblePlayerId = null, SacrificeRecallCost? SacrificeCost = null,
+        string? RecallMarker = null, ActivatedPlayGrant? PaidRecall = null);
 
     // Replacement instructions happen before the unreplaced simultaneous deaths (CN 373).
     private sealed class DestructionReplacementScope(RuleChoiceFrame frame) : IDisposable
@@ -69,6 +70,7 @@ public sealed partial class CoreRuleEngine
                 .Select(rule => new CapturedLocalRecallSource(new(source.ObjectId, source.ObjectGeneration), rule)))
             .ToArray();
         var startedLocalSources = new HashSet<string>(StringComparer.Ordinal);
+        var declinedPaidRecalls = new HashSet<string>(StringComparer.Ordinal);
         var graveyardGroups = new Dictionary<string, IReadOnlyList<CapturedDestructionOption>>(StringComparer.Ordinal);
         frame.DestructionCandidates = frame.DestructionCandidates.Concat(candidates).ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructions = remaining.ToHashSet(StringComparer.Ordinal);
@@ -106,7 +108,8 @@ public sealed partial class CoreRuleEngine
                         }
                         foreach (var candidate in candidatesForTarget.Concat(localRecalls
                             .Where(c => c.Option.Target == target && c.TargetGeneration == unit.ObjectGeneration).Select(c => c.Option)))
-                            if (!frame.AppliedDestructionReplacements.Contains(candidate.EffectKey)) options.Add(candidate);
+                            if (!frame.AppliedDestructionReplacements.Contains(candidate.EffectKey)
+                                && !declinedPaidRecalls.Contains(candidate.EffectKey)) options.Add(candidate);
                     }
                     var resources = canPayOptional ? ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player) : [];
                     if (options.Count + resources.Count == 0) {
@@ -121,7 +124,7 @@ public sealed partial class CoreRuleEngine
                         if (optional) choices.Add(new("DECLINE", "不使用可选替换；仍需执行适用的强制替换"));
                         selected = frame.Choose(player,
                             $"当前可用 {pools.GetValueOrDefault(player, RunePool.Empty).Mana} 法力、{pools.GetValueOrDefault(player, RunePool.Empty).TotalPower} 符能。选择先执行的摧毁替换及对象；可选支付可先发动资源技能。", choices,
-                            powerCost: options.Any(o => o.Kind is "SETT" or "PAID_RECALL") ? 1 : 0);
+                            powerCost: options.Any(o => o.Kind is "SETT" or PaidRecallKind) ? 1 : 0);
                     }
                     if (selected == "DECLINE") { declinedOptional = true; continue; }
                     if (resources.FirstOrDefault(r => r.Choice.Id == selected) is { } resource) {
@@ -129,6 +132,9 @@ public sealed partial class CoreRuleEngine
                         continue;
                     }
                     var option = options.Single(o => o.Choice.Id == selected);
+                    if (option.PaidRecall is not null && !ConfirmPaidRecallPayment(state, zones, cards, pools, player, option, scope.Events)) {
+                        declinedPaidRecalls.Add(option.EffectKey); continue;
+                    }
                     if ((option.Kind == "LOCAL_RECALL" || option.EffectKey.StartsWith("GRAVEYARD_BANISH:", StringComparison.Ordinal)) && activeLocalGroup is null) {
                         startedLocalSources.Add(option.EffectKey);
                         activeLocalGroup = localRecalls.Where(c => c.Option.EffectKey == option.EffectKey).ToArray();
@@ -280,6 +286,7 @@ public sealed partial class CoreRuleEngine
                 target, target, "PAID_RECALL", grant.Marker, grant.Context.CardNo, true,
                 RecallMarker: grant.Marker));
         }
+        AddPaidRecallOptions(state, zones, cards, pools, target, player, options, ref optionalAvailable);
         options.AddRange(SourceSacrificeRecallOptions(zones, cards, unit, player));
         var field = ResolveDestroyedSourceBattlefieldObjectId(locations, target, battlefieldId);
         var inBattle = cause?.EffectKind == "DECLARE_BATTLE_COMBAT_DAMAGE" && field == battlefieldId
@@ -317,6 +324,9 @@ public sealed partial class CoreRuleEngine
     {
         if (option.Kind == "SETT") { ApplySettDestructionOption(zones, cards, pools, player, option, events); return; }
         var target = cards[option.Target];
+        var paidRecall = option.PaidRecall is not null;
+        var legacyPaidRecall = option.Kind == "PAID_RECALL" && !paidRecall;
+        if (paidRecall) PayActivatedRecall(state, zones, cards, pools, option, events);
         var attachedGear = option.Kind == "ATTACHED_GEAR";
         var effectSource = attachedGear ? option.Target : option.Source;
         var effectCardNo = attachedGear ? target.CardNo ?? target.TokenFactoryCardNo ?? option.SourceCardNo : option.SourceCardNo;
@@ -344,7 +354,7 @@ public sealed partial class CoreRuleEngine
             events.Add(new("COST_PAID", "支付鲜血祭坛替换费用", new Dictionary<string, object?> {
                 ["playerId"] = player, ["mana"] = option.Mana, ["power"] = 0, ["reason"] = BattlefieldDestroyedInBattleRecallEffectId }));
         }
-        if (option.Kind == "PAID_RECALL")
+        if (legacyPaidRecall)
         {
             var currentPool = pools.GetValueOrDefault(player, RunePool.Empty);
             var paidPower = PayPowerCost(currentPool, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 });
@@ -367,20 +377,23 @@ public sealed partial class CoreRuleEngine
             return;
         }
         RecallAttachedGroupToBase(zones, cards, option.Target, player);
-        cards[option.Target] = ExhaustForInstruction(zones, cards, current) with { Damage = 0, DamageMarkedByPlayerIds = null, IsExhausted = true, IsAttacking = false, IsDefending = false, ControllerId = player,
+        cards[option.Target] = ExhaustForInstruction(zones, cards, current) with { Damage = paidRecall ? current.Damage : 0,
+            DamageMarkedByPlayerIds = paidRecall ? current.DamageMarkedByPlayerIds : null, IsExhausted = true, IsAttacking = false, IsDefending = false, ControllerId = player,
             UntilEndOfTurnEffects = option.Kind == "RECALL" ? current.UntilEndOfTurnEffects.Where(e => e != RecallToBaseExhaustedIfDestroyedThisTurnEffectId).ToArray()
-                : option.Kind == "PAID_RECALL" ? current.UntilEndOfTurnEffects.Where(e => e != option.RecallMarker).ToArray()
+                : legacyPaidRecall ? current.UntilEndOfTurnEffects.Where(e => e != option.RecallMarker).ToArray()
                 : current.UntilEndOfTurnEffects };
-        events.Add(new("UNIT_RECALLED_TO_BASE", "移除伤害并休眠召回", new Dictionary<string, object?> {
-            ["sourceObjectId"] = option.Kind == "RECALL" ? cause?.SourceObjectId ?? option.Source : effectSource,
+        events.Add(new("UNIT_RECALLED_TO_BASE", paidRecall ? "保留伤害并休眠召回" : "移除伤害并休眠召回", new Dictionary<string, object?> {
+            ["sourceObjectId"] = paidRecall ? ResolutionResult.VisibleObjectIdForViewer(
+                state with { PlayerZones = zones, CardObjects = cards }, effectSource, ProjectionViewers.Spectator)
+                : option.Kind == "RECALL" ? cause?.SourceObjectId ?? option.Source : effectSource,
             ["targetObjectId"] = option.Target, ["ownerPlayerId"] = current.OwnerId ?? player,
-            ["controllerId"] = player, ["destinationZone"] = "BASE", ["isExhausted"] = true, ["damage"] = 0,
+            ["controllerId"] = player, ["destinationZone"] = "BASE", ["isExhausted"] = true, ["damage"] = paidRecall ? current.Damage : 0,
             ["destroyReason"] = destructionReason,
-            ["replacementEffectId"] = option.Kind is "GEAR" or "ATTACHED_GEAR" ? gearReplacementEffect
+            ["replacementEffectId"] = paidRecall ? PaidRecallKind : legacyPaidRecall ? P4ActivatedAbilityCatalog.MysteriousWeaponRecallAbilityId
+                : option.Kind is "GEAR" or "ATTACHED_GEAR" ? gearReplacementEffect
                 : option.Kind == "ALTAR" ? BattlefieldDestroyedInBattleRecallEffectId
                 : option.Kind == "LOCAL_RECALL" ? ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
                 : option.Kind == SourceSacrificeRecallKind ? ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn
-                : option.Kind == "PAID_RECALL" ? P4ActivatedAbilityCatalog.MysteriousWeaponRecallAbilityId
                 : RecallToBaseExhaustedIfDestroyedThisTurnEffectId }));
     }
 

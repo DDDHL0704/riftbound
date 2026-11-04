@@ -416,6 +416,8 @@ public sealed partial class CoreRuleEngine
             item = item with { FieldContext = stunContext with { PaidUnitTrigger = stun with { CostPaid = true } } };
         if (item.FieldContext is { Kind: AttackMightDamageKind, AttackMightDamage: { } attack } context)
             item = item with { FieldContext = context with { AttackMightDamage = attack with { CostPaid = true } } };
+        if (!ConfirmUnitEventMovementDestination(next, ref item, events))
+            return RejectWithCorePrompts(next, "已无合法的单位移动目的地。", ErrorCodes.InvalidTarget);
         var state = next;
         var selected = item.TargetObjectIds;
         if (item.HighCostPlayObserver is { } highCost)

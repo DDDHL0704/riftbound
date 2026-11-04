@@ -17,7 +17,8 @@ public sealed partial class CoreRuleEngine
 
     private static bool IsLinkedExileEffectPlaySource(MatchState state, string player, string source)
         => state.PendingEffectPlay is { } pending && pending.PlayerId == player
-            && pending.Sources.ContainsKey(source) && ValidLinkedExileEffectPlay(state, pending);
+            && pending.Sources.ContainsKey(source)
+            && (ValidLinkedExileEffectPlay(state, pending) || ValidLinkedGraveyardExilePlay(state, pending));
 
     private static string LinkedExileInstance(string source, UnitEventContext context)
         => context.Origin is { } origin
@@ -55,6 +56,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidLinkedUnitExile(MatchState state, LinkedExileGroup group)
     {
+        if (group.GraveyardOrigin is not null) return ValidLinkedGraveyardExile(state, group);
         if (group.UnitEventOrigin is not { } origin)
             return state.CardObjects.TryGetValue(group.SourceObjectId, out var legacySource)
                 && SpellTriggerSpec(legacySource.CardNo ?? "", TriggerKinds.LegendHighCostSpellBanishCompletion) is not null;

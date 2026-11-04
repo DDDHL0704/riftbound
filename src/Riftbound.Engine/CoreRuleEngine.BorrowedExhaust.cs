@@ -47,7 +47,10 @@ public sealed partial class CoreRuleEngine
 
     internal static bool IsBorrowedExhaustTarget(MatchState state, string player, string id, BorrowedExhaustSpec spec, string sourceId,
         int index = 0)
-        => spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
+        // Core 396/398: acquiring only the activated component does not acquire a declaration.
+        => spec.TargetScope == "UNLINKED_ATTRIBUTE" ? false
+            : spec.TargetScope == "ENEMY_ATTACKING_HERE" ? IsEnemyAttackingAtSourceBattlefield(state, player, sourceId, id)
+            : spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
             ? IsControlledArmamentTarget(state, player, id, spec.Kind == "ATTACH_ARMAMENT", spec.Kind == "REATTACH_ARMAMENT")
             : BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
             : spec.TargetScope == "OWNED_TEEMO_UNIT" ? IsValidOwnedTeemoUnitTarget(state, player, id)
@@ -71,6 +74,15 @@ public sealed partial class CoreRuleEngine
                 && (spec.TargetScope is not ("ENEMY_UNIT" or "ENEMY_BATTLEFIELD_UNIT") || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
                 && (spec.TargetScope != "FRIENDLY_DUEL_UNIT" || IsLegendDuelUnit(state, player, id))
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
+
+    private static bool IsEnemyAttackingAtSourceBattlefield(MatchState state, string player, string sourceId, string targetId)
+        => state.ObjectLocations.TryGetValue(sourceId, out var source) && source.Zone == "BATTLEFIELD"
+            && source.BattlefieldObjectId is { Length: > 0 } field
+            && state.ObjectLocations.TryGetValue(targetId, out var target) && target.Zone == "BATTLEFIELD"
+            && target.BattlefieldObjectId == field
+            && state.CardObjects.TryGetValue(targetId, out var card) && IsFaceUpNonStandbyUnit(card)
+            && IsAttackingBattlefieldObject(state, targetId) && IsEnemyFieldObject(state, player, targetId)
+            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, targetId);
 
     private static ResolutionResult ResolveBorrowedExhaust(MatchState state, PlayerIntent intent, ActivateAbilityCommand command)
     {
@@ -107,7 +119,9 @@ public sealed partial class CoreRuleEngine
         var unitExhaustCosts = extras.Where(id => id.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
         if (unitExhaustCosts.Length != (ability.Spec.ExhaustedUnitMinimumMightAsCost.HasValue ? 1 : 0)
             || unitExhaustCosts.Any(id => !BorrowedUnitExhaustCostChoices(state, intent.PlayerId, source.ObjectId, ability.Spec).Contains(id)))
-            return RejectWithCorePrompts(state, "请选择合法的活跃强力友方单位支付休眠费用。", ErrorCodes.InvalidTarget);
+            return RejectWithCorePrompts(state, "请选择合法的活跃友方单位支付休眠费用。", ErrorCodes.InvalidTarget);
+        if (ability.Spec.MovesToExhaustedCostUnit && targets.Contains(unitExhaustCosts.Single()[ExhaustFriendlyUnitOptionalCostPrefix.Length..]))
+            return RejectWithCorePrompts(state, "移动目标必须是另一名友方单位。", ErrorCodes.InvalidTarget);
         var recycled = extras.Where(id => TryParseRecycleGraveyardCardAdditionalCost(id, out _))
             .Select(id => { TryParseRecycleGraveyardCardAdditionalCost(id, out var card); return card; }).ToArray();
         if (recycled.Length != ability.Spec.RecycledCardCostCount
@@ -174,7 +188,10 @@ public sealed partial class CoreRuleEngine
             ability.Spec.EmpoweredMight.HasValue || ability.Spec.ReadyTargetIfSourceEmpowered ? source.IsEmpowered : null,
             ability.Spec.RequiresPlayedArmamentThisTurn,
             ability.Spec.TargetScope == "FRIENDLY_DUEL_UNIT" ? new(state.SpellDuelState.BattlefieldObjectId!,
-                cards[state.SpellDuelState.BattlefieldObjectId!].ObjectGeneration) : null);
+                cards[state.SpellDuelState.BattlefieldObjectId!].ObjectGeneration) : null,
+            BattlefieldSource: ability.BattlefieldSource,
+            BattlefieldCardNo: ability.BattlefieldCardNo,
+            BattlefieldAbilityKind: ability.BattlefieldAbilityKind);
         foreach (var cost in unitExhaustCosts)
         {
             var id = cost[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
@@ -182,6 +199,10 @@ public sealed partial class CoreRuleEngine
             events.Add(new("UNIT_EXHAUSTED", "让友方单位休眠以支付获得的技能费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = id,
                 ["wasExhausted"] = false, ["isExhausted"] = true, ["reason"] = "ABILITY_COST" }));
+        }
+        if (ability.Spec.MovesToExhaustedCostUnit) {
+            var costUnit = cards[unitExhaustCosts.Single()[ExhaustFriendlyUnitOptionalCostPrefix.Length..]];
+            context = context with { ExhaustedCostUnit = new(new(costUnit.ObjectId, costUnit.ObjectGeneration), costUnit.TokenFactoryCardNo) };
         }
         if (ability.Spec.RemovesSourceEmpowerment)
         {
@@ -263,6 +284,12 @@ public sealed partial class CoreRuleEngine
             timingContext: StackTimingContextForNewStackItem(state)) {
             BorrowedExhaust = context,
             TargetGenerations = targetGenerations };
+        if (ability.Spec.Kind == "DESTROY_DECK_PLAY")
+        {
+            var printed = BorrowedDestroyDeckPlayDefinition(context)!;
+            item = item with { DestroyDeckPlay = new(context.Borrower.Object, item.CardNo!, printed.AbilityId,
+                new(targets[0], targetGenerations[targets[0]]), CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects)) };
+        }
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
             ["sourceObjectId"] = source.ObjectId, ["cardNo"] = source.CardNo, ["abilityId"] = ability.Id,
             ["effectKind"] = item.EffectKind, ["targetObjectIds"] = targets.ToArray() };
@@ -291,7 +318,14 @@ public sealed partial class CoreRuleEngine
     {
         if (!BorrowedExhaustRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured borrowed skill.");
         var c = item.BorrowedExhaust!;
-        var spec = BorrowedExhaustRules.Spec(c.Donor.CardNo, c.AbilityIndex)!;
+        var spec = BorrowedExhaustRules.Spec(state, c)!;
+        // 396/398: only the activated component was inherited. Its donor's
+        // play trigger and exile references belong to another text instance.
+        if (spec.Kind == "PLAY_LINKED_EXILE") return NoopStackResolutionResult(state);
+        if (spec.Kind == "DESTROY_DECK_PLAY") return ResolveDestroyDeckPlay(state, item);
+        if (spec.MovesToExhaustedCostUnit)
+            return ResolveMovementToExhaustedCostUnit(state, item, c.ExhaustedCostUnit!,
+                (frame, id) => IsBorrowedExhaustTarget(frame, item.ControllerId, id, spec, item.SourceObjectId));
         if (spec.Kind == "RETURN_UNIT_FREE_PLAY")
             return ResolveReturnUnitThenFreePlay(state, item, "获得的返手后打出技能", BorrowedExhaustRules.Effect,
                 id => IsBorrowedExhaustTarget(state, item.ControllerId, id, spec, item.SourceObjectId));
@@ -299,9 +333,12 @@ public sealed partial class CoreRuleEngine
             return ResolveBorrowedReturnSkill(state, item, spec);
         if (spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT")
             return ResolveBorrowedArmamentSkill(state, item, spec);
+        if (spec.Kind == "BATTLEFIELD_UNIT_GAIN_EXPERIENCE")
+            return ResolveBorrowedBattlefieldUnitGainExperience(state, item, spec);
         if (spec.Kind == "GRANT_NEXT_SPELL_ECHO") return ResolveNextSpellEchoGrant(state, item);
         if (spec.Kind == "GRANT_NEXT_UNIT_READY") return ResolveActivatedNextUnitReady(state, item);
         if (spec.Kind == "GRANT_NEXT_SPELL_DAMAGE") return ResolveActivatedNextSpellDamage(state, item);
+        if (spec.Kind == "GRANT_PAID_RECALL") return ResolveActivatedPaidRecall(state, item);
         if (spec.Kind == "COMMAND_OPPONENT_MOVEMENT")
             return ResolveCommandOpponentMovement(state, item, c.Borrower.Object, "获得的移动技能", BorrowedExhaustRules.Effect);
         if (spec.Kind == "TRANSFER_SOURCE_AND_RECALL")
@@ -366,6 +403,9 @@ public sealed partial class CoreRuleEngine
                     || !IsFaceUpNonStandbyUnit(self) || !IsObjectOnField(zones, id)) continue;
             }
             else if (!StackObjectRules.ReferencesCurrentObject(current, item, id)
+                || spec.TargetScope == "ENEMY_ATTACKING_HERE"
+                    && (!cards.TryGetValue(item.SourceObjectId, out var locationSource)
+                        || locationSource.ObjectGeneration != c.Borrower.Object.Generation)
                 || !IsBorrowedExhaustTarget(current, item.ControllerId, id, spec, item.SourceObjectId)) continue;
             var target = cards[id];
             if (spec.Kind == "READY_EQUIPMENT")
@@ -472,6 +512,37 @@ public sealed partial class CoreRuleEngine
         return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones, Events = events,
             RunePools = cleanup.RunePools, TriggerQueue = cleanup.TriggerQueue, DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds,
             ObjectLocations = ReconcileObjectLocations(locations, zones) };
+    }
+
+    private static StackResolutionResult ResolveBorrowedBattlefieldUnitGainExperience(
+        MatchState state, StackItemState item, BorrowedExhaustSpec spec)
+    {
+        var context = item.BorrowedExhaust!;
+        var events = new List<GameEvent>
+        {
+            new("ABILITY_RESOLVED", "获得的战场经验技能结算", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId,
+                ["abilityId"] = context.BattlefieldAbilityKind,
+                ["battlefieldObjectId"] = context.BattlefieldSource?.ObjectId,
+                ["battlefieldCardNo"] = context.BattlefieldCardNo })
+        };
+        if (spec.ExperienceGain <= 0)
+            return NoopStackResolutionResult(state) with { Events = events };
+        var sourceCardNo = state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+            && source.ObjectGeneration == context.Borrower.Object.Generation
+            ? source.CardNo : context.Borrower.CardNo;
+        events.Add(new("BATTLEFIELD_TRIGGER_RESOLVED", "通过战场授予技能获得经验", new Dictionary<string, object?> {
+            ["playerId"] = item.ControllerId, ["battlefieldObjectId"] = context.BattlefieldSource?.ObjectId,
+            ["battlefieldCardNo"] = context.BattlefieldCardNo, ["sourceObjectId"] = item.SourceObjectId,
+            ["abilityId"] = context.BattlefieldAbilityKind,
+            ["trigger"] = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE", ["amount"] = spec.ExperienceGain }));
+        var experience = GainExperience(state.PlayerExperience, item.ControllerId, spec.ExperienceGain,
+            item, events, item.SourceObjectId, sourceCardNo);
+        return NoopStackResolutionResult(state) with {
+            PlayerExperience = experience,
+            UntilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(state.UntilEndOfTurnEffects, events),
+            Events = events
+        };
     }
 
     private static ResolutionResult RecordBorrowedSourceStatus(MatchState before, ResolutionResult result)

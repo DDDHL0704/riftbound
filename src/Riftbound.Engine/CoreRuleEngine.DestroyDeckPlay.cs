@@ -9,11 +9,33 @@ public sealed record DestroyDeckPlayContext(ObjectBinding Source, string CardNo,
 
 public sealed partial class CoreRuleEngine
 {
+    private static P4ActivatedAbilityDefinition? BorrowedDestroyDeckPlayDefinition(BorrowedExhaustContext context)
+        => BorrowedExhaustRules.Spec(context.Donor.CardNo, context.AbilityIndex)?.Kind == "DESTROY_DECK_PLAY"
+            ? P4ActivatedAbilityCatalog.GetAll().FirstOrDefault(a => a.SourceCardNo == context.Donor.CardNo
+                && a.Kind == ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest) : null;
+
     private static bool DestroyDeckPlayDefinition(StackItemState item, out P4ActivatedAbilityDefinition ability)
-        => P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out ability!)
+    {
+        ability = null!;
+        if (item.BorrowedExhaust is { } borrowed)
+        {
+            ability = BorrowedDestroyDeckPlayDefinition(borrowed)!;
+            return ability is not null && item.EffectKind == BorrowedExhaustRules.Effect
+                && item.DestroyDeckPlay is { } captured && captured.CardNo == item.CardNo
+                && captured.AbilityId == ability.AbilityId;
+        }
+        return P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out ability!)
             && ability.Kind == ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest
             && item.DestroyDeckPlay is { } context && context.CardNo == item.CardNo
             && ability.SourceCardNo == context.CardNo && ability.AbilityId == context.AbilityId;
+    }
+
+    private static bool IsDestroyDeckPlayTarget(MatchState state, StackItemState item, string id)
+        => item.BorrowedExhaust is { } borrowed
+            ? IsBorrowedExhaustTarget(state, item.ControllerId, id,
+                BorrowedExhaustRules.Spec(state, borrowed)!, item.SourceObjectId)
+            : IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestTarget(state.PlayerZones, state.CardObjects,
+                item.ControllerId, item.SourceObjectId, id);
 
     private static StackResolutionResult ResolveDestroyDeckPlay(MatchState state, StackItemState item)
     {
@@ -34,7 +56,7 @@ public sealed partial class CoreRuleEngine
             LastKnownMightFrame? frame = null;
             int? killedMight = null;
             if (cards.TryGetValue(context.Target.ObjectId, out var target) && target.ObjectGeneration == context.Target.Generation
-                && IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestTarget(zones, cards, item.ControllerId, item.SourceObjectId, target.ObjectId))
+                && IsDestroyDeckPlayTarget(state with { PlayerZones = zones, CardObjects = cards }, item, target.ObjectId))
             {
                 var before = CapturePublicMightFrame(state, zones, cards);
                 var might = ResolveCurrentFieldUnitPower(MightFrameState(before), target);
@@ -66,6 +88,7 @@ public sealed partial class CoreRuleEngine
                 || plain.Kind != ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest;
         try
         {
+            var borrowed = item.BorrowedExhaust;
             if (!DestroyDeckPlayDefinition(item, out _) || context.Source is not { Generation: >= 0 }
                 || item.EffectRepeatCount != 1 || item.OptionalCosts.Count != 0 || item.DamageAmount != 0 || item.Destination.Length != 0
                 || context.Source.ObjectId != item.SourceObjectId || context.Target is not { Generation: >= 0 }
@@ -73,12 +96,14 @@ public sealed partial class CoreRuleEngine
                 || item.TargetObjectIds[0] != context.Target.ObjectId
                 || item.TargetGenerations is null || item.TargetGenerations.Count != 1
                 || item.TargetGenerations.GetValueOrDefault(context.Target.ObjectId, -1) != context.Target.Generation
-                || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration < context.Source.Generation
+                || (borrowed is not null ? !BorrowedExhaustRules.Valid(state, item) || context.Source != borrowed.Borrower.Object
+                    : !state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration < context.Source.Generation)
                 || !ValidDestroyDeckMightFrame(state, context.DeclaredFrame)
                 || !context.DeclaredFrame.CardObjects.TryGetValue(context.Source.ObjectId, out var declaredSource)
                 || declaredSource.ObjectGeneration != context.Source.Generation || declaredSource.CardNo != context.CardNo
-                || !declaredSource.Tags.Contains(CardObjectTags.EquipmentCard)
-                || !context.DeclaredFrame.PlayerZones[item.ControllerId].Base.Contains(declaredSource.ObjectId)
+                || (borrowed is not null ? !IsObjectOnField(context.DeclaredFrame.PlayerZones, declaredSource.ObjectId)
+                    : !declaredSource.Tags.Contains(CardObjectTags.EquipmentCard)
+                        || !context.DeclaredFrame.PlayerZones[item.ControllerId].Base.Contains(declaredSource.ObjectId))
                 || EffectiveFieldControllerId(context.DeclaredFrame.PlayerZones, declaredSource.ObjectId, declaredSource) != item.ControllerId
                 || !context.DeclaredFrame.CardObjects.TryGetValue(context.Target.ObjectId, out var declaredTarget)
                 || declaredTarget.ObjectGeneration != context.Target.Generation || !IsFaceUpNonStandbyUnit(declaredTarget)
