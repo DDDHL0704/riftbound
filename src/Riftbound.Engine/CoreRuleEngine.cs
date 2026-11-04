@@ -11261,8 +11261,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
             if (equipmentLocation is null
-                || !string.Equals(equipmentLocation.Value.PlayerId, playerId, StringComparison.Ordinal)
-                || equipmentLocation.Value.Zone != hostLocation.Value.Zone
                 || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
                 || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
                 || equipmentState.IsFaceDown || equipmentState.AttachedToObjectId != hostState.ObjectId
@@ -23599,7 +23597,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId)
+            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId, events)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
@@ -26590,7 +26588,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetToBase
-                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId))
+                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BASE",
@@ -32631,7 +32629,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string movingPlayerId,
         string targetObjectId,
-        out string ownerPlayerId)
+        out string ownerPlayerId,
+        List<GameEvent>? events = null)
     {
         ownerPlayerId = string.Empty;
         if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
@@ -32651,6 +32650,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     : zones.Base.Concat([targetObjectId]).ToArray()
             };
             ownerPlayerId = playerId;
+            if (events is not null)
+            {
+                events.AddRange(MoveAttachedEquipmentWithHost(
+                    playerZones,
+                    AttachedEquipmentObjectIds(cardObjects, targetObjectId),
+                    playerId,
+                    targetObjectId,
+                    MoveUnitBaseZone));
+            }
             return true;
         }
 
