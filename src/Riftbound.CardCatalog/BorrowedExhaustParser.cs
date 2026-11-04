@@ -372,6 +372,11 @@ public static class BorrowedExhaustParser
                 result.Add(Skill("STUN_ENEMY", scope: "ENEMY_UNIT"));
                 continue;
             }
+            if (effect == "{{眩晕}}一名进攻此处的敌方单位")
+            {
+                result.Add(Skill("STUN_ENEMY", scope: "ENEMY_ATTACKING_HERE") with { RequiresSourceBattlefield = true });
+                continue;
+            }
             var might = Regex.Match(effect, @"^(?:让|给予)(?<field>战场上的)?一名单位(?:在)?本回合内\{\{S\}\}(?<n>[+-][0-9]+)(?:[，,]\s*不得低于(?<floor>[0-9]+)\{\{S\}\})?$");
             if (might.Success)
                 result.Add(Skill("MIGHT_UNIT", might: int.Parse(might.Groups["n"].Value),

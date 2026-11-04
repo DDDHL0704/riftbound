@@ -41,7 +41,8 @@ internal static class BorrowedExhaustRules
                 || !AttachedRuleTextRules.Field(state, donor.ObjectId)
                     && !state.PlayerZones.GetValueOrDefault(player, PlayerZones.Empty).LegendZone.Contains(donor.ObjectId)) continue;
             if (!Cards.Value.TryGetValue(AttachedRuleTextRules.Face(donor) ?? "", out var printed)
-                || printed.CardCategory is not ("legendary" or "unit" or "hero_unit" or "equipment")) continue;
+                || !printed.CardCategoryList.Any(category => category is "legendary" or "unit" or "hero_unit"
+                    or "exclusive_unit" or "equipment" or "exclusive_equipment")) continue;
             foreach (var text in AttachedRuleTextRules.Instances(state, donor))
             foreach (var spec in Specs.Value.GetValueOrDefault(text.CardNo, []))
             {

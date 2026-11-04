@@ -89,7 +89,8 @@ internal static partial class ActionPromptBuilder
                 "KEYWORD_UNIT" => $"给予一名{(ability.Spec.TargetScope == "FRIENDLY_UNIT" ? "友方" : "")}单位本回合内{ability.Spec.Keyword}",
                 "DAMAGE_UNIT" => ability.Spec.DamageFromSourceMight ? "对任意战场中的一名敌方单位造成等同于我战力的伤害"
                     : $"对一名单位造成 {ability.Spec.Damage} 点伤害",
-                "STUN_ENEMY" => "眩晕一名敌方单位",
+                "STUN_ENEMY" => ability.Spec.TargetScope == "ENEMY_ATTACKING_HERE"
+                    ? "眩晕一名进攻此处的敌方单位" : "眩晕一名敌方单位",
                 "MOVE_TO_EXHAUSTED_COST_UNIT" => "将另一名友方单位移动到因此技能而休眠的单位所在位置",
                 "DRAW" => $"抽 {ability.Spec.DrawCount} 张牌"
                     + (ability.Spec.RequiredEnemyTargetEvents > 0 ? "；本回合须已两次将敌方单位或装备选为法术或单位技能目标" : "")

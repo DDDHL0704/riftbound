@@ -49,6 +49,7 @@ public sealed partial class CoreRuleEngine
         int index = 0)
         // Core 396/398: acquiring only the activated component does not acquire a declaration.
         => spec.TargetScope == "UNLINKED_ATTRIBUTE" ? false
+            : spec.TargetScope == "ENEMY_ATTACKING_HERE" ? IsEnemyAttackingAtSourceBattlefield(state, player, sourceId, id)
             : spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
             ? IsControlledArmamentTarget(state, player, id, spec.Kind == "ATTACH_ARMAMENT", spec.Kind == "REATTACH_ARMAMENT")
             : BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
@@ -73,6 +74,15 @@ public sealed partial class CoreRuleEngine
                 && (spec.TargetScope is not ("ENEMY_UNIT" or "ENEMY_BATTLEFIELD_UNIT") || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
                 && (spec.TargetScope != "FRIENDLY_DUEL_UNIT" || IsLegendDuelUnit(state, player, id))
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
+
+    private static bool IsEnemyAttackingAtSourceBattlefield(MatchState state, string player, string sourceId, string targetId)
+        => state.ObjectLocations.TryGetValue(sourceId, out var source) && source.Zone == "BATTLEFIELD"
+            && source.BattlefieldObjectId is { Length: > 0 } field
+            && state.ObjectLocations.TryGetValue(targetId, out var target) && target.Zone == "BATTLEFIELD"
+            && target.BattlefieldObjectId == field
+            && state.CardObjects.TryGetValue(targetId, out var card) && IsFaceUpNonStandbyUnit(card)
+            && IsAttackingBattlefieldObject(state, targetId) && IsEnemyFieldObject(state, player, targetId)
+            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, targetId);
 
     private static ResolutionResult ResolveBorrowedExhaust(MatchState state, PlayerIntent intent, ActivateAbilityCommand command)
     {
@@ -388,6 +398,9 @@ public sealed partial class CoreRuleEngine
                     || !IsFaceUpNonStandbyUnit(self) || !IsObjectOnField(zones, id)) continue;
             }
             else if (!StackObjectRules.ReferencesCurrentObject(current, item, id)
+                || spec.TargetScope == "ENEMY_ATTACKING_HERE"
+                    && (!cards.TryGetValue(item.SourceObjectId, out var locationSource)
+                        || locationSource.ObjectGeneration != c.Borrower.Object.Generation)
                 || !IsBorrowedExhaustTarget(current, item.ControllerId, id, spec, item.SourceObjectId)) continue;
             var target = cards[id];
             if (spec.Kind == "READY_EQUIPMENT")
