@@ -11,7 +11,10 @@ public static class MatchFormats
 public sealed record CreatePublicMatchOptionsDto(
     string Format = MatchFormats.Constructed,
     string? SetCode = null,
-    int BestOf = 1);
+    int BestOf = 1,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? Packs = null);
+
+public sealed record SealedPackChoiceDto(string SetCode, int Count);
 
 public sealed record SealedSetDto(
     string SetCode,
@@ -23,6 +26,7 @@ public sealed record SealedPackCardDto(
     bool Foil);
 
 public sealed record SealedPackDto(
+    string SetCode,
     IReadOnlyList<SealedPackCardDto> Cards);
 
 public sealed record SealedPoolCardDto(

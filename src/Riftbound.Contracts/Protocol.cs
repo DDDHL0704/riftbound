@@ -133,7 +133,8 @@ public sealed record PublicMatchDto(
     DateTimeOffset CreatedAt,
     string Format = MatchFormats.Constructed,
     string? SetCode = null,
-    int BestOf = 1);
+    int BestOf = 1,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? SealedPacks = null);
 
 public sealed record CreatePublicMatchResultDto(
     PublicMatchDto Match,
@@ -412,7 +413,8 @@ public sealed record SnapshotDto(
     int BestOf = 1,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] MatchSeriesDto? Series = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SealedPoolDto? SealedPool = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? SideboardCounts = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? SideboardCounts = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SealedPackChoiceDto>? SealedPacks = null);
 
 public static class PromptTypes
 {
