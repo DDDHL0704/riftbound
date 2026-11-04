@@ -95,7 +95,10 @@ export function SealedScreen({ state, snapshot, prompt }: { state: ClientState; 
     <main className="sealed">
       <header className="sealed__head">
         <div>
-          <p className="muted small">房间号 · 现开{bestOf === 3 ? " · 三局两胜" : " · 单局"}</p>
+          <p className="muted small">
+            房间号 · 现开{snapshot.sealedPacks?.length ? ` · ${snapshot.sealedPacks.map((p) => `${p.setCode}×${p.count}`).join(" + ")}` : ""}
+            {bestOf === 3 ? " · 三局两胜" : " · 单局"}
+          </p>
           <button className="setup__code" title="复制房间号" onClick={() => void navigator.clipboard?.writeText(state.roomId)}>
             {state.roomId}
           </button>
@@ -154,6 +157,7 @@ function PackOpening({ pool, opened, onOpened }: { pool: SealedPool; opened: num
   const [peek, setPeek] = useState<string | null>(null);
   const [showing, setShowing] = useState<number | null>(null);
   const total = pool.packs.length;
+  const mixed = !pool.setCode && pool.packs.some((p) => p.setCode);
   const pack = showing === null ? null : pool.packs[showing];
   const openNext = () => setShowing(showing === null ? opened : showing + 1);
   const finished = showing !== null && showing + 1 >= total;
@@ -167,8 +171,9 @@ function PackOpening({ pool, opened, onOpened }: { pool: SealedPool; opened: num
     <section className="packs">
       <div className="packs__row" aria-label={`卡包，共 ${total} 包`}>
         {pool.packs.map((_, i) => (
-          <span key={i} className={`packs__pack${showing === i ? " is-on" : ""}${i < (showing ?? opened) ? " is-done" : ""}`}>
+          <span key={i} className={`packs__pack${showing === i ? " is-on" : ""}${i < (showing ?? opened) ? " is-done" : ""}`} title={mixed ? pool.packs[i].setCode : undefined}>
             {i + 1}
+            {mixed && <small>{pool.packs[i].setCode}</small>}
           </span>
         ))}
         <span className="packs__set muted small">{total} 包 · 共 {pool.pool.reduce((a, p) => a + p.count, 0)} 张进卡池</span>
@@ -182,6 +187,7 @@ function PackOpening({ pool, opened, onOpened }: { pool: SealedPool; opened: num
       ) : (
         <div className="packs__intro">
           <h2>{opened > 0 ? "继续开包" : "开包"}</h2>
+          {mixed && <p className="muted small">自由组合：每包按所属系列（包号下方）开出。</p>}
           <p className="muted">开出的牌组成你的卡池。稀有槽、闪卡槽和符文槽的牌带闪面；符文 / 指示物槽只用于展示，不进卡池。</p>
         </div>
       )}
@@ -284,7 +290,9 @@ function SealedBuilder({ pool, bestOf, deck, lock, onChange, prompt, pending, su
   const legends = useMemo(() => inCategory((c) => c.category === "传奇"), [cards, owned]); // eslint-disable-line react-hooks/exhaustive-deps
   const champions = useMemo(() => inCategory((c) => c.category === "英雄单位"), [cards, owned]); // eslint-disable-line react-hooks/exhaustive-deps
   const battlefields = useMemo(() => inCategory((c) => c.category === "战场"), [cards, owned]); // eslint-disable-line react-hooks/exhaustive-deps
-  const runes = useMemo(() => basicRunePrintings(cards, pool.setCode), [cards, pool.setCode]);
+  // A custom mix has no single set; prefer the first pack's set for the rune printings.
+  const runeSet = pool.setCode ?? pool.packs[0]?.setCode ?? "";
+  const runes = useMemo(() => basicRunePrintings(cards, runeSet), [cards, runeSet]);
   // Everything the deck leaves out is the sideboard; the server computes the same number for the opponent to see.
   const sideboard = pool.pool.reduce((sum, p) => sum + Math.max(0, p.count - (used.get(p.cardNo) ?? 0)), 0);
 

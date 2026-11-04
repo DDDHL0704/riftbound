@@ -768,7 +768,7 @@ git show <分支>:<路径> > <路径>
 - 服务端规则改了提示或命令格式时，在这里追加一条"前端需适配"，写明 PR 号。
 - [x] 2026-11-03 `web/server-adapt-20261103` 已适配以下各项：亮出（`SHOWCASE:` 至多选一）、凯尔强化层数（`empowermentCount` 角标）、流转费用与废牌堆普通打出（按 `flowCostChoiceId` / `normalGraveyardPlayChoiceId` 分别列为打出方式）、授予技能（沿用 `ACTIVATE_ABILITY`）、铁铠冥魂等必选附加费用（`additionalCostChoices` + `requiredAdditionalCostChoiceCount`）、触发弃牌费用（通用 `CHOOSE_CARDS` 面板）；另补炫音返场的 `modeChoices`、任意额外符能（`variableAdditionalPowerCost`）、妮蔻额外登记传奇（`SUBMIT_DECK.additionalLegendCardNos`）、中立卡色，以及网页卡牌数据补入服务端已接入的 VEN/RAD/T1S 印次。
 - [x] 网页卡面套用中国区勘误（`web/card-errata-20261104`）：生成 `cards.json` 时读取 `ReviewedCardErrata.cs`，15 个印次显示勘误后文本。
-- [ ] 前端需适配（#457）：现开赛大厅创建与列表展示自定义 `packs` / `sealedPacks` 组合，房间快照显示每包 `setCode`；自定义组合 `setCode` 为空。非官方玩法，官方单系列仍为默认。
+- [x] 现开自由组合卡包（#457 前端适配，`web/sealed-mixed-packs-20261104`）：大厅可选“单一系列／自由组合”，按系列加减包数（合计 6–12）；房间列表、现开标题和开包进度显示组合与每包系列。
 
 ## 现开规则待确认（F 线）
 
