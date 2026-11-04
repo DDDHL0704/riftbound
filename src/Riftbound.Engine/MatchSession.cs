@@ -3246,7 +3246,7 @@ internal static partial class ActionPromptBuilder
                 : requiredCosts.Select(cost => new ActionPromptChoiceDto(cost, LegendActionCostLabel(cost))).ToArray();
             if (ability.BanishesGraveyardPermanentAsCost && optionalCostChoices.Length == 0) continue;
             var unsupportedReason = LegendActionUnsupportedCompositionReason(ability);
-            var spellshieldByTarget = ability.RequiresAnyUnitTarget || ability.RequiresAnyEquipmentTarget
+            var spellshieldByTarget = ability.RequiresAnyUnitTarget || ability.RequiresAnyEquipmentTarget || ability.RequiresOwnedTeemoUnitTarget
                 ? targetChoicesByIndex["0"].ToDictionary(choice => choice.Id,
                     choice => SpellshieldTaxPowerForTarget(state, playerId, choice.Id), StringComparer.Ordinal)
                 : null;

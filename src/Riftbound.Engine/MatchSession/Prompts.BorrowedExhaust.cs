@@ -56,8 +56,13 @@ internal static partial class ActionPromptBuilder
             var choices = Enumerable.Range(0, ability.Spec.Targets).ToDictionary(i => i.ToString(),
                 _ => (IReadOnlyList<ActionPromptChoiceDto>)targets);
             var effect = ability.Spec.Kind switch {
+                "RETURN_UNIT_FREE_PLAY" => "让一名友方单位返回手牌，然后可免费打出战力更低的单位",
+                "RETURN_TO_HAND" => ability.Spec.TargetScope == "OWNED_TEEMO_UNIT"
+                    ? "将你拥有的英雄区域或场上提莫单位放入手牌" : "让另一张友方装备、单位或正面朝下的卡牌返回手牌",
+                "RETURN_AND_CREATE_GOLD" => "让战场上的一名友方单位返回手牌，然后打出一个休眠的金币装备指示物",
                 "READY_EQUIPMENT" => $"让 {ability.Spec.Targets} 件装备活跃",
                 "READY_UNIT" => "让一名单位活跃",
+                "GRANT_NEXT_SPELL_ECHO" => "本回合打出的下一个法术获得等同于其费用的回响",
                 "TRANSFER_SOURCE_AND_RECALL" => "选择一名玩家，令其获得此牌控制权并召回",
                 "COMMAND_OPPONENT_MOVEMENT" => "选择一名对手，让其将一名单位移动到此牌所在战场",
                 "GUESS_DECK_TOP" => "选择一名对手猜测牌库顶类型，展示后回收或抽取",

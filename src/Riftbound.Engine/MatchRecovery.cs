@@ -4386,6 +4386,7 @@ public static partial class MatchRecoveryValidator
                 || item.CompletedHandExecutions > 0 && !CoreRuleEngine.TryGetRevealedHandChoiceSpec(item, out _))
                 errors.Add("invalid revealed hand execution count");
         if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null, Parent.ObservedPlayPermission: null } handPlay && (handPlay.RevealedHand is not null
+            || handPlay.Parent.BorrowedExhaust is not null
             || P4ActivatedAbilityCatalog.TryGetByEffectKind(handPlay.Parent.EffectKind, out var ability)
                 && ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
