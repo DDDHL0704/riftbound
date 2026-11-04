@@ -26,7 +26,7 @@ public sealed partial class CoreRuleEngine
     private const string SettRecallEffect = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED";
     private sealed record DestructionOption(RuleChoiceOption Choice, string Target, string Source, string Kind,
         string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0,
-        string? ResponsiblePlayerId = null, SacrificeRecallCost? SacrificeCost = null);
+        string? ResponsiblePlayerId = null, SacrificeRecallCost? SacrificeCost = null, string? RecallMarker = null);
 
     // Replacement instructions happen before the unreplaced simultaneous deaths (CN 373).
     private sealed class DestructionReplacementScope(RuleChoiceFrame frame) : IDisposable
@@ -121,7 +121,7 @@ public sealed partial class CoreRuleEngine
                         if (optional) choices.Add(new("DECLINE", "不使用可选替换；仍需执行适用的强制替换"));
                         selected = frame.Choose(player,
                             $"当前可用 {pools.GetValueOrDefault(player, RunePool.Empty).Mana} 法力、{pools.GetValueOrDefault(player, RunePool.Empty).TotalPower} 符能。选择先执行的摧毁替换及对象；可选支付可先发动资源技能。", choices,
-                            powerCost: options.Any(o => o.Kind == "SETT") ? 1 : 0);
+                            powerCost: options.Any(o => o.Kind is "SETT" or "PAID_RECALL") ? 1 : 0);
                     }
                     if (selected == "DECLINE") { declinedOptional = true; continue; }
                     if (resources.FirstOrDefault(r => r.Choice.Id == selected) is { } resource) {
@@ -271,6 +271,15 @@ public sealed partial class CoreRuleEngine
             Add("GEAR", source, $"由中娅沙漏（{source}）替换，摧毁沙漏并休眠召回");
         }
         if (declinedOptional) return options;
+        foreach (var grant in MysteriousWeaponRecalls(state with { PlayerZones = zones, CardObjects = cards }, unit))
+        {
+            optionalAvailable = true;
+            if (pool.PowerByTrait.GetValueOrDefault(RuneTrait.Red) <= 0) continue;
+            var index = Array.IndexOf(unit.UntilEndOfTurnEffects.ToArray(), grant.Marker);
+            options.Add(new(new($"PAID_RECALL:{target}:{index}", $"{label}（{target}）：支付1点红色符能，移除伤害并休眠召回", [target]),
+                target, target, "PAID_RECALL", grant.Marker, grant.Context.CardNo, true,
+                RecallMarker: grant.Marker));
+        }
         options.AddRange(SourceSacrificeRecallOptions(zones, cards, unit, player));
         var field = ResolveDestroyedSourceBattlefieldObjectId(locations, target, battlefieldId);
         var inBattle = cause?.EffectKind == "DECLARE_BATTLE_COMBAT_DAMAGE" && field == battlefieldId
@@ -335,6 +344,16 @@ public sealed partial class CoreRuleEngine
             events.Add(new("COST_PAID", "支付鲜血祭坛替换费用", new Dictionary<string, object?> {
                 ["playerId"] = player, ["mana"] = option.Mana, ["power"] = 0, ["reason"] = BattlefieldDestroyedInBattleRecallEffectId }));
         }
+        if (option.Kind == "PAID_RECALL")
+        {
+            var currentPool = pools.GetValueOrDefault(player, RunePool.Empty);
+            var paidPower = PayPowerCost(currentPool, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 });
+            pools[player] = currentPool with { Power = paidPower.AnyPower, PowerByTrait = paidPower.PowerByTrait };
+            events.Add(new("COST_PAID", "支付本回合召回替换的红色符能费用", new Dictionary<string, object?> {
+                ["playerId"] = player, ["mana"] = 0, ["power"] = 1,
+                ["powerByTrait"] = new Dictionary<string, int> { [RuneTrait.Red] = 1 },
+                ["reason"] = P4ActivatedAbilityCatalog.MysteriousWeaponRecallAbilityId }));
+        }
         // Nested replacement instructions may already have removed this incarnation.
         if (!cards.TryGetValue(option.Target, out var current) || current.ObjectGeneration != target.ObjectGeneration
             || !IsObjectOnField(zones, option.Target)) return;
@@ -349,7 +368,9 @@ public sealed partial class CoreRuleEngine
         }
         RecallAttachedGroupToBase(zones, cards, option.Target, player);
         cards[option.Target] = ExhaustForInstruction(zones, cards, current) with { Damage = 0, DamageMarkedByPlayerIds = null, IsExhausted = true, IsAttacking = false, IsDefending = false, ControllerId = player,
-            UntilEndOfTurnEffects = option.Kind == "RECALL" ? current.UntilEndOfTurnEffects.Where(e => e != RecallToBaseExhaustedIfDestroyedThisTurnEffectId).ToArray() : current.UntilEndOfTurnEffects };
+            UntilEndOfTurnEffects = option.Kind == "RECALL" ? current.UntilEndOfTurnEffects.Where(e => e != RecallToBaseExhaustedIfDestroyedThisTurnEffectId).ToArray()
+                : option.Kind == "PAID_RECALL" ? current.UntilEndOfTurnEffects.Where(e => e != option.RecallMarker).ToArray()
+                : current.UntilEndOfTurnEffects };
         events.Add(new("UNIT_RECALLED_TO_BASE", "移除伤害并休眠召回", new Dictionary<string, object?> {
             ["sourceObjectId"] = option.Kind == "RECALL" ? cause?.SourceObjectId ?? option.Source : effectSource,
             ["targetObjectId"] = option.Target, ["ownerPlayerId"] = current.OwnerId ?? player,
@@ -359,6 +380,7 @@ public sealed partial class CoreRuleEngine
                 : option.Kind == "ALTAR" ? BattlefieldDestroyedInBattleRecallEffectId
                 : option.Kind == "LOCAL_RECALL" ? ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
                 : option.Kind == SourceSacrificeRecallKind ? ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn
+                : option.Kind == "PAID_RECALL" ? P4ActivatedAbilityCatalog.MysteriousWeaponRecallAbilityId
                 : RecallToBaseExhaustedIfDestroyedThisTurnEffectId }));
     }
 
