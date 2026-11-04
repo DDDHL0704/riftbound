@@ -134,6 +134,12 @@ public sealed partial class CoreRuleEngine
                     && IsObjectOnField(state.PlayerZones, id)
                     && SourceObjectControlledByPlayerOrLegacyOwned(returned, actor)
                     && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.SimpleEffect?.GrantsMysteriousWeaponRecall == true
+                ? state.CardObjects.TryGetValue(id, out var recallTarget)
+                    && !recallTarget.IsFaceDown && recallTarget.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && IsObjectOnField(state.PlayerZones, id)
+                    && SourceObjectControlledByPlayerOrLegacyOwned(recallTarget, actor)
+                    && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
             : ability.SimpleEffect?.GrantsBoonOrPower == true
                 ? state.CardObjects.TryGetValue(id, out var boonTarget)
                     && !boonTarget.IsFaceDown && boonTarget.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -445,6 +451,22 @@ public sealed partial class CoreRuleEngine
         var result = NoopStackResolutionResult(state);
         if (spec.CommandsOpponentUnitToSourceBattlefield)
             return ResolveCommandOpponentMovement(state, item, item.SimpleActivation!.Source, ability.DisplayName, ability.AbilityId);
+        if (spec.GrantsMysteriousWeaponRecall)
+        {
+            var targetId = item.TargetObjectIds.Single();
+            if (!cards.TryGetValue(targetId, out var target)
+                || target.ObjectGeneration != item.TargetGenerations!.GetValueOrDefault(targetId, -1)
+                || !IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
+                return result;
+            var marker = MysteriousWeaponRecallMarker(state.TurnNumber, item.ControllerId,
+                item.SimpleActivation!.Source, new(targetId, target.ObjectGeneration), item.CardNo!, state.Tick + 1);
+            cards[targetId] = target with { UntilEndOfTurnEffects = target.UntilEndOfTurnEffects
+                .Append(marker).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
+            events.Add(new("MYSTERIOUS_WEAPON_RECALL_GRANTED", "来路不明的武器授予本回合红色符能召回替换", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
+                ["controllerId"] = item.ControllerId, ["duration"] = "UNTIL_END_OF_TURN" }));
+            return result with { CardObjects = cards, Events = events };
+        }
         if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && item.EffectPlayCompleted)
             // A child play can reuse the returned card after its modifiers
             // reset. A returned token ceases to exist instead (CN186.1).

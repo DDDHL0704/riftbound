@@ -50,6 +50,47 @@ public sealed class AkaliLegendDuelMovementTests
         Restore(resolved.State);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TargetingIreliaOnTheOpponentsTurnGrantsHerPowerWhileTheLegendDoesNothing(bool empowered)
+    {
+        var initial = Position("VEN·139", "P2", empowered);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["D"] = OfficialGarenConquestBattlefieldCountTests.Printed("D", "VEN·174", "P2") with { IsExhausted = true } } };
+        var power = initial.CardObjects["D"].Power;
+        var game = new VenBasicFlowSpellTests.Driver(initial) { RecoverAfterEveryCommand = false };
+        await game.Act("P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
+        await game.Act("P1", new PassFocusCommand());
+        Assert.Equal("P2", game.State.FocusPlayerId);
+        await game.Act("P2", Command("D"));
+        Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Equal(empowered, game.State.CardObjects["LEGEND"].IsEmpowered);
+        Assert.Single(game.State.StackItems, item => item.LegendDuelMovement is not null);
+        var observer = Assert.Single(game.State.StackItems, item => item.FieldContext?.Kind == "CONTROLLER_TARGETED_OR_READIED_SELF_POWER");
+        Assert.Equal("D", observer.SourceObjectId);
+        Assert.Equal("P2", observer.FieldContext!.SelfAction!.Actor);
+        Assert.Equal("TARGETED", observer.FieldContext.SelfAction.Action);
+        Assert.Equal(observer.StackItemId, game.State.StackItems[^1].StackItemId);
+        Assert.Equal(power, game.State.CardObjects["D"].Power);
+        Assert.Empty(game.State.TriggerQueue);
+        await game.ColdCheckpoint();
+
+        // The selection earns Irelia's independent +1 skill even though Akali's
+        // "if it is your turn" instructions will do nothing (CN DOC-17).
+        await game.Top();
+        Assert.Equal(power + 1, game.State.CardObjects["D"].Power);
+        Assert.NotNull(Assert.Single(game.State.StackItems).LegendDuelMovement);
+        await game.ColdCheckpoint();
+        await game.Top();
+        Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "BF"), game.State.ObjectLocations["D"]);
+        Assert.True(game.State.CardObjects["D"].IsExhausted);
+        Assert.Equal(power + 1, game.State.CardObjects["D"].Power);
+        Assert.Empty(game.State.StackItems);
+        Assert.Empty(game.State.TriggerQueue);
+        await game.ColdCheckpoint();
+    }
+
     [Fact]
     public async Task ProhibitedMovementDoesNotStopTheSeparateEmpoweredReadyInstruction()
     {

@@ -724,17 +724,21 @@ public sealed class CardCatalogBaselineTests
                 CardInteractionKeywordNames.Ambush
             ]);
 
+        // OGN·181's reviewed CN erratum refers to face-down cards; the bag
+        // itself does not have Standby. Keep it out of keyword coverage.
+        var bag = Assert.Single(specs, spec => spec.CardNo == "OGN·181/298");
+        Assert.DoesNotContain(bag.Keywords, keyword => keyword.Keyword == CardInteractionKeywordNames.Standby);
         AssertInteractionKeywordCoverage(
             rows,
             CardInteractionKeywordNames.Standby,
-            entries: 54,
-            specImplementedEntries: 54,
-            functionalUnits: 44,
-            specImplementedFunctionalUnits: 44,
+            entries: 53,
+            specImplementedEntries: 53,
+            functionalUnits: 43,
+            specImplementedFunctionalUnits: 43,
             profileImplementedEntries: 0,
-            profileDeferredEntries: 54,
+            profileDeferredEntries: 53,
             profileImplementedFunctionalUnits: 0,
-            profileDeferredFunctionalUnits: 44);
+            profileDeferredFunctionalUnits: 43);
         AssertInteractionKeywordCoverage(
             rows,
             CardInteractionKeywordNames.Echo,

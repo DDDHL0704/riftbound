@@ -203,6 +203,65 @@ public sealed class RadJarvanLegendTests
         Assert.Equal("OTHER", game.State.ObjectLocations["ALLY"].BattlefieldObjectId); await game.Replay();
     }
 
+    [Theory]
+    [InlineData("RAD·155/167")]
+    [InlineData("RAD·176*/167")]
+    [InlineData("RAD·176/167")]
+    public async Task RavenbloomPrefectBanishingThePlayedWeaponPileKeepsTheLegendsCapturedBattlefield(string legend)
+    {
+        const string equipment = "RAD·073/167";
+        var initial = LastBreathDrawBoundaryTests.Add(Position(legend, equipment),
+            "PREFECT", "VEN·102", "P2", "BASE");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await game.Act("P1", new PlayCardCommand("UNIT", equipment, [], Destination: "BATTLEFIELD:BF"));
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), game.State.ObjectLocations["UNIT"]);
+
+        // CN DOC-17: both players earn their skills from the same real play.
+        // The opponent's block resolves first; P1 chooses movement before boon.
+        var order = new[] { "PREFECT", "LEGEND", "UNIT" }
+            .Select(id => Assert.Single(game.State.TriggerQueue, t => t.SourceObjectId == id).TriggerId).ToArray();
+        await Reject(game.State, "P2", new OrderTriggersCommand(OrderedTriggerIds: order));
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: order));
+        for (var i = 0; game.State.PendingCardChoice is not null || game.State.PendingPayment is not null; i++)
+        {
+            Assert.InRange(i, 0, 5);
+            if (game.State.PendingCardChoice is { } choice)
+            {
+                var target = choice.SourceObjectId == "PREFECT" ? "PREFECT" : "ALLY";
+                await Reject(game.State, choice.PlayerId == "P1" ? "P2" : "P1",
+                    new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+                await game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+            }
+            else await Pay(game);
+        }
+
+        var movement = Assert.Single(game.State.StackItems, i => i.SourceObjectId == "LEGEND");
+        var captured = movement.UnitEvent!;
+        Assert.Equal(new ObjectBinding("BF", initial.CardObjects["BF"].ObjectGeneration), captured.DeploymentBattlefield);
+        Assert.Equal("UNIT", captured.Other!.Binding.ObjectId);
+        Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Contains("PREFECT", game.State.PlayerZones["P2"].Banished);
+        Assert.Equal("PREFECT", game.State.StackItems[^1].SourceObjectId);
+        await game.ColdCheckpoint();
+
+        await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Banished);
+        Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > captured.Other.Binding.Generation);
+        Assert.Equal("BASE", game.State.ObjectLocations["ALLY"].Zone);
+        Assert.Equal(captured, Assert.Single(game.State.StackItems, i => i.StackItemId == movement.StackItemId).UnitEvent);
+        await game.ColdCheckpoint();
+
+        await game.Top();
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF"), game.State.ObjectLocations["ALLY"]);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Banished);
+        await game.Top();
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        Assert.Empty(game.State.StackItems);
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.Null(game.State.PendingPayment);
+        await game.ColdCheckpoint();
+    }
+
     [Fact]
     public async Task EquipmentWithoutDeployDoesNotTriggerTheLegend()
     {

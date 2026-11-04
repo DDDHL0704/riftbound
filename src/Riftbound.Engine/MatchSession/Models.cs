@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -802,6 +803,9 @@ public sealed record MatchSessionOptions(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int SealedBestOf { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<SealedPackChoiceDto>? SealedPacks { get; init; }
+
     public static MatchSessionOptions ForSealed(string setCode, int bestOf = 1)
     {
         var options = new MatchSessionOptions(false, OfficialDeckFormat.Sealed)
@@ -812,6 +816,42 @@ public sealed record MatchSessionOptions(
         };
         SealedRoomPools.RequireOptions(options);
         return options;
+    }
+
+    public static MatchSessionOptions ForSealed(IReadOnlyList<SealedPackChoiceDto> packs, int bestOf = 1)
+    {
+        ArgumentNullException.ThrowIfNull(packs);
+        var options = new MatchSessionOptions(false, OfficialDeckFormat.Sealed)
+        {
+            HideSubmittedDeckIdentities = true,
+            SealedPacks = packs.Select(pack => pack is null ? null! : pack with
+            {
+                SetCode = (pack.SetCode ?? string.Empty).Trim().ToUpperInvariant()
+            }).ToImmutableArray(),
+            SealedBestOf = bestOf
+        };
+        SealedRoomPools.RequireOptions(options);
+        return options;
+    }
+
+    public bool Equals(MatchSessionOptions? other) => other is not null
+        && AllowLegacyReadyWithoutDeck == other.AllowLegacyReadyWithoutDeck
+        && DeckFormat == other.DeckFormat
+        && HideSubmittedDeckIdentities == other.HideSubmittedDeckIdentities
+        && SealedSetCode == other.SealedSetCode
+        && SealedBestOf == other.SealedBestOf
+        && (SealedPacks ?? []).SequenceEqual(other.SealedPacks ?? []);
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(AllowLegacyReadyWithoutDeck);
+        hash.Add(DeckFormat);
+        hash.Add(HideSubmittedDeckIdentities);
+        hash.Add(SealedSetCode, StringComparer.Ordinal);
+        hash.Add(SealedBestOf);
+        foreach (var pack in SealedPacks ?? []) hash.Add(pack);
+        return hash.ToHashCode();
     }
 }
 

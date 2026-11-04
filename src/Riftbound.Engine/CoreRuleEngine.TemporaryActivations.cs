@@ -49,6 +49,10 @@ public sealed partial class CoreRuleEngine
                 ? ReadTimeAssassinDestructionMarker(effect) is not null
                     ? "TIME_ASSASSIN_DESTROY_AT_END:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(effect)))
                     : "TIME_ASSASSIN_DESTROY_INVALID"
+                : effect.StartsWith(MysteriousWeaponRecallPrefix, StringComparison.Ordinal)
+                    ? ReadMysteriousWeaponRecallMarker(effect) is not null
+                        ? "MYSTERIOUS_WEAPON_RECALL:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(effect)))
+                        : "MYSTERIOUS_WEAPON_RECALL_INVALID"
                 : effect;
 
     internal static GrantedActivatedAbilitySpec? TemporaryActivationDefinition(TemporaryActivatedAbilityGrant grant)

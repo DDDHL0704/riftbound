@@ -4737,6 +4737,7 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidActivatedPlayGrants(state)) errors.Add("invalid activated next play grant");
         if (!CoreRuleEngine.ValidCurrentTimeAssassinNextUnitReductions(state)) errors.Add("invalid time assassin next unit reduction");
         if (!CoreRuleEngine.ValidCurrentTimeAssassinDestructions(state)) errors.Add("invalid time assassin destruction marker");
+        if (!CoreRuleEngine.ValidCurrentMysteriousWeaponRecalls(state)) errors.Add("invalid paid destruction recall grant");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidNextUnitPlayGrant(state, item.NextUnitPlayGrant, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
                 errors.Add("invalid captured next unit play grant stack");

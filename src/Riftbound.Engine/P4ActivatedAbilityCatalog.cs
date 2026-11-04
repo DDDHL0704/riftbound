@@ -60,7 +60,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool MayExhaustSourceAsAdditionalCost = false, bool ReadiesUnitTarget = false,
     bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false,
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
-    string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0);
+    string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0,
+    bool GrantsMysteriousWeaponRecall = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -282,6 +283,8 @@ public static class P4ActivatedAbilityCatalog
     public const string RelentlessStalkerAbilityEffectKind = "RAD_104_EXHAUST_STUN_ENEMY_UNIT";
 
     public const string RunebladeAnvilAbilityId = "RAD_012_PAY_RED_EXHAUST_DESTROY_SOURCE";
+    public const string MysteriousWeaponCardNo = "OGN·023/298";
+    public const string MysteriousWeaponRecallAbilityId = "OGN_023_DISCARD_EXHAUST_GRANT_RED_RECALL";
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -291,6 +294,12 @@ public static class P4ActivatedAbilityCatalog
             PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 },
             SourceRequiredTag: CardObjectTags.EquipmentCard,
             SimpleEffect: new(DestroysSourceOnResolution: true)),
+        new(MysteriousWeaponRecallAbilityId, MysteriousWeaponCardNo, MysteriousWeaponRecallAbilityId, "来路不明的武器", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：弃置一张手牌并横置：选择一名友方单位；本回合内，其下次被摧毁时可支付1点红色符能，改为以休眠状态召回。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard, RequiresBaseEquipmentSource: true,
+            SimpleEffect: new(DiscardsHandCardAsCost: true, GrantsMysteriousWeaponRecall: true)),
         new("RAD_021_SWIFT_DISCARD_BANISH_REPLAY", "RAD·021/167", "RAD_021_SWIFT_DISCARD_BANISH_REPLAY", "艾克 · 逆时而行", 1, 0, 0,
             false, false, 0, false, "官方中文：迅捷，弃置一张手牌，支付1和红色符能，放逐我，然后将我打出到你的基地，无视我的费用。",
             PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = 1 }, SwiftSpeed: true,

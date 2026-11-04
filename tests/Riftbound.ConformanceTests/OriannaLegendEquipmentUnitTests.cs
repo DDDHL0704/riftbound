@@ -590,4 +590,31 @@ public sealed class OriannaLegendEquipmentUnitTests
         }
         await game.Replay();
     }
+
+    // DOC-17 / 143.5, 435.1.h, 718.6: an animated armament remains
+    // a legal Tempered target, but a unit cannot be attached to another object.
+    [Fact]
+    public async Task TemperedCanChooseAnAnimatedArmamentAndPaysWithoutAttachingIt()
+    {
+        var initial = Put(Position(), "SMITH", "SFD·008/221", "P1", "HAND");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await BeginMain(game); await Select(game, "GEAR"); await Pay(game); await game.Top();
+        await game.TapRunes("P1", ["RUNE-1", "RUNE-2", "RUNE-3"]);
+        await game.Act("P1", new RecycleRuneCommand("RED"));
+        await game.Act("P1", new PlayCardCommand("SMITH", "SFD·008/221", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("TEMPERED_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Contains("GEAR", choice.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
+        var red = game.State.RunePools["P1"].PowerByTrait[RuneTrait.Red];
+        await game.Top();
+        Assert.Equal(red - 1, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Red));
+        Assert.Contains("SMITH", game.State.PlayerZones["P1"].Base);
+        Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["GEAR"].Tags);
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "EQUIPMENT_ATTACHED"
+            && Equals(e.Event.Payload.GetValueOrDefault("equipmentObjectId"), "GEAR"));
+        await game.ColdCheckpoint();
+    }
+
 }
