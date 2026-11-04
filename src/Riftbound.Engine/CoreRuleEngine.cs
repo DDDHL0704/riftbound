@@ -13940,6 +13940,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static int ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(MatchState state, CardObjectState card)
     {
+        if (!card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)) return 0;
         var before = CurrentPowerBeforeConditionalAuras(state, card);
         return Math.Max(0, before + ConditionalPowerAuraContributions(state, card, before).Sum(c => c.Delta));
     }
@@ -22556,12 +22557,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (normalizedOptionalCosts.Count == 1
-            && behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost > 0
-            && TryParseExhaustFriendlyUnitOptionalCost(normalizedOptionalCosts[0], out var exhaustedTargetObjectId))
+        if (behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost > 0
+            && normalizedOptionalCosts.Any(cost => cost.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)))
         {
-            effectRepeatCount = behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost;
-            exhaustedOptionalCostTargetObjectIds = [exhaustedTargetObjectId];
+            var selected = normalizedOptionalCosts.Where(cost =>
+                cost.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (selected.Length != 1 || !TryParseExhaustFriendlyUnitOptionalCost(selected[0], out var exhaustedTargetObjectId)) return false;
+            if (!TryBuildOptionalCostPlan(state, playerId,
+                    normalizedOptionalCosts.Where(cost => !selected.Contains(cost, StringComparer.Ordinal)).ToArray(),
+                    behavior with { EffectRepeatCountIfExhaustFriendlyUnitOptionalCost = 0 }, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)) return false;
+            // This additional draw is earned once by paying the cost; Echo
+            // repeats the printed instruction without paying it again (DOC-17).
+            effectRepeatCount = checked(effectRepeatCount + behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost - 1);
+            exhaustedOptionalCostTargetObjectIds = exhaustedOptionalCostTargetObjectIds.Append(exhaustedTargetObjectId).ToArray();
             return true;
         }
 
@@ -29606,6 +29618,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        // The instruction moves the equipment before control changes (DOC-17).
+        // Capture its former controller and the actual mover at that point.
+        var beforeMove = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
+        var movedUnit = CaptureMovedUnitFact(beforeMove, equipmentObjectId, stackItem.ControllerId,
+            MoveUnitBaseZone, destinationPlayerId: stackItem.ControllerId);
+        var movement = movedUnit is null ? null : CaptureMovementBatchObservers(beforeMove, cardObjects, [movedUnit]);
+        equipmentState = cardObjects[equipmentObjectId];
         RemoveFieldObjectFromLocation(
             playerZones,
             equipmentLocation.PlayerId,
@@ -29616,6 +29636,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.ControllerId,
             MoveUnitBaseZone,
             equipmentObjectId);
+
+        events.Add(new(movedUnit is null ? "EQUIPMENT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BASE", "效果移动装备到基地",
+            new Dictionary<string, object?> {
+                ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = equipmentObjectId,
+                ["equipmentObjectId"] = equipmentObjectId, ["unitObjectId"] = movedUnit?.ObjectId,
+                ["playerId"] = equipmentLocation.PlayerId, ["movingPlayerId"] = stackItem.ControllerId,
+                ["originZone"] = equipmentLocation.Zone,
+                ["originBattlefieldObjectId"] = beforeMove.ObjectLocations.GetValueOrDefault(equipmentObjectId)?.BattlefieldObjectId,
+                ["destinationZone"] = MoveUnitBaseZone, ["destinationPlayerId"] = stackItem.ControllerId,
+                ["destination"] = "BASE:" + stackItem.ControllerId
+            }));
+        if (movement is not null) events.Add(movement);
 
         var ownerId = string.IsNullOrWhiteSpace(equipmentState.OwnerId)
             ? equipmentLocation.PlayerId
