@@ -4418,6 +4418,7 @@ public static partial class MatchRecoveryValidator
             errors.Add("invalid spell effect-play continuation");
 
         if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay)
+            && !CoreRuleEngine.ValidLinkedGraveyardExilePlay(state, foreignPlay)
             && !CoreRuleEngine.ValidLinkedExileEffectPlay(state, foreignPlay)
             && !CoreRuleEngine.ValidSelfBanishReplayEffectPlay(state, foreignPlay))
             errors.Add("invalid foreign graveyard effect-play continuation");
@@ -4463,7 +4464,9 @@ public static partial class MatchRecoveryValidator
         if (state.LinkedExiles.Any(g => string.IsNullOrWhiteSpace(g.SourceObjectId) || g.SourceGeneration < 0
             || !CoreRuleEngine.ValidLinkedUnitExile(state, g)
             || !state.Seats.ContainsKey(g.ControllerId) || g.Objects.Any(e => string.IsNullOrWhiteSpace(e.Key) || e.Value < 0))
-            || state.LinkedExiles.Select(g => (g.SourceObjectId, g.SourceGeneration, Controller: g.UnitEventOrigin is null ? g.ControllerId : "", Instance: g.UnitEventOrigin?.InstanceId)).Distinct().Count() != state.LinkedExiles.Count)
+            || state.LinkedExiles.Select(g => (g.SourceObjectId, g.SourceGeneration,
+                Controller: g.UnitEventOrigin is null && g.GraveyardOrigin is null ? g.ControllerId : "",
+                Instance: g.UnitEventOrigin?.InstanceId ?? g.GraveyardOrigin?.InstanceId)).Distinct().Count() != state.LinkedExiles.Count)
             errors.Add("invalid linked exile ledger");
         if (state.DrawLedger.TurnNumber < 0 || state.DrawLedger.TurnNumber > state.TurnNumber
             || state.DrawLedger.Counts.Any(e => !state.Seats.ContainsKey(e.Key) || e.Value < 0)) errors.Add("invalid turn draw ledger");

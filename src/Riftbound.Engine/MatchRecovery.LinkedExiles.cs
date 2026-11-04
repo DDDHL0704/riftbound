@@ -16,17 +16,19 @@ public static partial class MatchRecoveryValidator
             .OrderBy(e => e.Sequence))
         {
             if (!entry.Event.Payload.TryGetValue("link", out var payload)
-                || !TryReadLocation<LinkedExileGroup>(payload, out var group) || group?.UnitEventOrigin is not { } origin
-                || origin.CreatedTick != entry.Tick)
+                || !TryReadLocation<LinkedExileGroup>(payload, out var group) || group is null
+                || (group.UnitEventOrigin?.CreatedTick ?? group.GraveyardOrigin?.CreatedTick) != entry.Tick
+                || group.UnitEventOrigin is null && group.GraveyardOrigin is null)
             {
                 errors.Add("linked exile history has an invalid creation");
                 continue;
             }
-            expected[(group.SourceObjectId, group.SourceGeneration, origin.InstanceId)] = MatchStateHasher.HashValue(group);
+            expected[(group.SourceObjectId, group.SourceGeneration,
+                group.UnitEventOrigin?.InstanceId ?? group.GraveyardOrigin!.InstanceId)] = MatchStateHasher.HashValue(group);
         }
-        var actual = state.LinkedExiles.Where(g => g.UnitEventOrigin is not null).ToArray();
+        var actual = state.LinkedExiles.Where(g => g.UnitEventOrigin is not null || g.GraveyardOrigin is not null).ToArray();
         if (actual.Length != expected.Count || actual.Any(g => !expected.TryGetValue(
-                (g.SourceObjectId, g.SourceGeneration, g.UnitEventOrigin!.InstanceId), out var hash)
+                (g.SourceObjectId, g.SourceGeneration, g.UnitEventOrigin?.InstanceId ?? g.GraveyardOrigin!.InstanceId), out var hash)
             || hash != MatchStateHasher.HashValue(g)))
             errors.Add("linked exile ledger differs from accepted banishment history");
     }

@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-148/219 受诅咒的石棺",
-      "note": "官方卡面：费用 4；装备；当你打出此牌时，放逐你废牌堆中的所有单位牌；另有横置并摧毁自身来打出被其放逐单位牌的技能。当前 fixture 覆盖从手牌打出成为装备对象，并放逐控制者废牌堆中全部单位牌；横置摧毁打出放逐牌的激活技能暂缓。"
+      "note": "官方中文卡面：费用 4；当你打出此牌时，放逐你废牌堆中的所有单位；横置：打出一名以此方式放逐的单位（必须支付卡牌费用）。本夹具覆盖打出、放逐及其关联记录；横置打出由 CursedSarcophagusLinkedExileTests 验证。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -109,7 +109,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "CARDS_BANISHED"
+      "CARDS_BANISHED",
+      "LINKED_EXILE_CREATED"
     ],
     "events": [
       {
@@ -169,6 +170,9 @@
           "fromZone": "GRAVEYARD",
           "destinationZone": "BANISHED"
         }
+      },
+      {
+        "kind": "LINKED_EXILE_CREATED"
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },

@@ -347,7 +347,8 @@ public sealed partial class CoreRuleEngine
         var expected = SimpleActivationStackItem(context, item.ControllerId, item.CardNo!, ability, item.TargetObjectIds)
             with { TargetGenerations = item.TargetGenerations, TokenEntryPlan = item.TokenEntryPlan,
                 DepartedTokenTargets = item.DepartedTokenTargets,
-                EffectPlayCompleted = allowMissingReturnTarget || ability.SimpleEffect!.BanishesSourceThenReplaysToBase ? item.EffectPlayCompleted : false };
+                EffectPlayCompleted = allowMissingReturnTarget || ability.SimpleEffect!.BanishesSourceThenReplaysToBase
+                    || ability.SimpleEffect.PlaysLinkedGraveyardExile ? item.EffectPlayCompleted : false };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
             && (item.TokenEntryPlan is null || SimpleActivationUnitTokenCount(ability.SimpleEffect!) > 0 && ValidTokenEntryPlan(state, item));
     }
@@ -439,6 +440,7 @@ public sealed partial class CoreRuleEngine
         if (spec.GrantsNextUnitReady) return ResolveActivatedNextUnitReady(state, item);
         if (spec.GrantsNextSpellDamage) return ResolveActivatedNextSpellDamage(state, item);
         if (spec.GrantsPaidRecall) return ResolveActivatedPaidRecall(state, item);
+        if (spec.PlaysLinkedGraveyardExile) return ResolveLinkedGraveyardExilePlay(state, item);
         if (spec.CreatedUnitTokenCardNo is { } unitFactory)
         {
             if (BeginTokenReplacement(state, item) is { } replacement) return replacement;

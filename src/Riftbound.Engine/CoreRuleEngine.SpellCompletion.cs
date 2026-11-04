@@ -13,6 +13,8 @@ public sealed record LinkedExileGroup(string SourceObjectId, long SourceGenerati
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public LinkedUnitExileOrigin? UnitEventOrigin { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LinkedGraveyardExileOrigin? GraveyardOrigin { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -28,6 +30,7 @@ public sealed partial class CoreRuleEngine
         frame.ResolutionState = state; frame.ResolutionItem = item;
         try {
         var result = ResolveStackItemEffectCore(state, item, confirmPermanent, deferCompletion, repeatDamageDestroyTargets, skipInsight);
+        result = CaptureLinkedGraveyardExile(state, item, result);
         result = FinishRecycledPlays(state, item, result, deferCompletion);
         if (result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null
             || result.PendingCardChoice is not null || result.PendingEffectPlay is not null

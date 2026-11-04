@@ -61,7 +61,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool DiscardsHandCardAsCost = false, bool BanishesSourceThenReplaysToBase = false,
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
     string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
-    bool GrantsPaidRecall = false);
+    bool GrantsPaidRecall = false, bool PlaysLinkedGraveyardExile = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -286,6 +286,11 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT", "UNL-148/219", "CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT",
+            "受诅咒的石棺", 0, 0, 0, false, true, 0, false,
+            "官方中文：横置，打出一名以此方式放逐的单位，必须支付卡牌费用。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(PlaysLinkedGraveyardExile: true)),
         new(RunebladeAnvilAbilityId, "RAD·012/167", RunebladeAnvilAbilityId, "符刃铁砧", 2, 0, 0,
             RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
             AppliesSpellshieldTargetTax: false, Reason: "支付2法力与红色符能，休眠：结算时摧毁来源。",

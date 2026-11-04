@@ -24,6 +24,12 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.SimpleActivation?.AbilityId == LinkedGraveyardPlayAbility)
+        {
+            definition = new(parent.CardNo, "受诅咒的石棺", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED");
+            return true;
+        }
         if (parent.HeldContext?.Kind == LinkedExileHeldKind) {
             definition = new(parent.CardNo, "据守打出关联放逐卡牌", 0, parent.EffectKind, 0, 0,
                 EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
