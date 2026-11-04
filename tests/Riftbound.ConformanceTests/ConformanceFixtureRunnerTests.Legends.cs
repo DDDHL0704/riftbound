@@ -109,10 +109,9 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.True(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
-        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
-        Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal("MAIN_DECK", result.State.ObjectLocations["P1-LEGEND-DRAW-001"].Zone);
-        Assert.NotNull(Assert.Single(result.State.StackItems).LegendDiscardDraw);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("HAND", result.State.ObjectLocations["P1-LEGEND-DRAW-001"].Zone);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
         var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal("LEGEND_ACT", costPaidEvent.Payload["paymentWindow"]);
@@ -123,12 +122,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(0, costPaidEvent.Payload["remainingExperience"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
-        var resolved = await OfficialGraveyardRecastTests.Top(result.State);
-        Assert.Empty(resolved.State.PlayerZones["P1"].MainDeck);
-        Assert.Equal(["P1-LEGEND-DRAW-001"], resolved.State.PlayerZones["P1"].Hand);
-        Assert.Equal("HAND", resolved.State.ObjectLocations["P1-LEGEND-DRAW-001"].Zone);
-        Assert.Contains(resolved.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
+        Assert.Contains(result.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
     }
 
     [Fact]
