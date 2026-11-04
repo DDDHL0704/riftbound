@@ -639,6 +639,12 @@ button {
   font-family: var(--font-num);
   font-size: 16px;
 }
+.packs__pack small {
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
 .packs__pack.is-on {
   border-color: var(--brass);
   color: var(--brass-hi);
@@ -649,6 +655,44 @@ button {
 }
 .packs__set {
   margin-left: auto;
+}
+.lobby__mix {
+  flex-wrap: wrap;
+}
+.mix {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.mix--on {
+  border-color: var(--brass);
+  color: var(--text);
+}
+.mix b {
+  min-width: 1.2em;
+  text-align: center;
+  font-family: var(--font-num);
+}
+.mix__step {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.mix__step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.mix__bad {
+  color: var(--ember);
 }
 .packs__intro {
   padding: 72px 0;

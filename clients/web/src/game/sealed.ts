@@ -1,6 +1,6 @@
 import { BLANK_BATTLEFIELD, cardInfo, isNeutralColor } from "./cards";
 import { MAIN_CATEGORIES, RUNES } from "./decks";
-import type { CardInfo, MatchSeries, SealedPool } from "./types";
+import type { CardInfo, MatchSeries, SealedPackChoice, SealedPool, SealedSet } from "./types";
 
 // Sealed deck rules as the server enforces them (src/Riftbound.Engine/SealedDeckRules.cs, tournament
 // rules 602.3–602.4). The checks mirror the server's so the builder can say what is missing; the
@@ -148,4 +148,12 @@ export function writeDraft(roomId: string, handle: string, draft: SealedDraft) {
   } catch {
     /* kept for this visit only */
   }
+}
+
+/** Custom pack mixes (unofficial, server PR #457): 6–12 packs in total, each set listed once. */
+export const MIX_MIN_PACKS = 6;
+export const MIX_MAX_PACKS = 12;
+
+export function packMixLabel(packs: SealedPackChoice[], sets: SealedSet[]) {
+  return packs.map((p) => `${sets.find((s) => s.setCode === p.setCode)?.name ?? p.setCode}×${p.count}`).join(" + ");
 }

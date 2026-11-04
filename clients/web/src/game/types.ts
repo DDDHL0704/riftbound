@@ -114,8 +114,9 @@ export type StackItem = Record<string, unknown> & {
 /** Mirrors SealedPoolDto in src/Riftbound.Contracts/SealedContracts.cs; only ever sent to its owner. */
 export type SealedPackCard = { cardNo: string; slot: string; foil: boolean };
 export type SealedPool = {
-  setCode: string;
-  packs: { cards: SealedPackCard[] }[];
+  /** Null for a custom mix of sets; each pack then names its own set. */
+  setCode: string | null;
+  packs: { setCode?: string; cards: SealedPackCard[] }[];
   pool: { cardNo: string; count: number }[];
 };
 
@@ -162,6 +163,8 @@ export type Snapshot = {
   bestOf?: number;
   series?: MatchSeries | null;
   sealedPool?: SealedPool | null;
+  /** Ordered custom pack mix (unofficial); absent for a single-set room. */
+  sealedPacks?: SealedPackChoice[] | null;
   sideboardCounts?: Record<string, number> | null;
 };
 
@@ -243,9 +246,12 @@ export type PublicMatch = {
   format?: string;
   setCode?: string | null;
   bestOf?: number;
+  sealedPacks?: SealedPackChoice[] | null;
 };
 
 export type SealedSet = { setCode: string; name: string };
+/** Mirrors SealedPackChoiceDto: one entry of a custom pack mix. */
+export type SealedPackChoice = { setCode: string; count: number };
 
 export type PreconstructedDeck = {
   id: string;
