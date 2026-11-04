@@ -136,6 +136,54 @@ public sealed class RadEquipmentDestructionUnitTests
         Assert.Single(game.Events(), e => e.Event.Kind == "EQUIPMENT_RETURNED_TO_HAND"); await game.Replay();
     }
 
+    [Fact]
+    public async Task TheArmorerCanPayToReturnTheGuardianAngelDestroyedInsteadOfItself()
+    {
+        var initial = RadUnitEffectTestFixture.Place(Position(), "GEAR", "P1", "HAND");
+        initial = AttackDamageDistributionTests.Spell(initial, "KILL", "OGN·229/298", "P1");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", "SFD·051/221", "P1") } };
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await game.Act("P1", new PlayCardCommand("UNIT", Armor, [], Destination: "BATTLEFIELD:BF"));
+        await game.Act("P1", new PlayCardCommand("GEAR", "SFD·051/221", [], Destination: "BASE"));
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "UNIT", ["ASSEMBLE_GREEN"]));
+        await game.Top();
+        Assert.Equal("UNIT", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
+        var generation = game.State.CardObjects["GEAR"].ObjectGeneration;
+        await game.ColdCheckpoint();
+
+        await game.Act("P1", new PlayCardCommand("KILL", "OGN·229/298", ["UNIT"]));
+        await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(generation + 1, game.State.CardObjects["GEAR"].ObjectGeneration);
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "UNIT_DESTROYED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("targetObjectId"), "UNIT"));
+        var destroyed = Assert.Single(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_DESTROYED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("targetObjectId"), "GEAR"));
+        Assert.Equal("UNIT", destroyed.Event.Payload.GetValueOrDefault("replacementTargetObjectId"));
+        Assert.NotNull(game.State.PendingPayment);
+        var payment = game.State.PendingPayment!;
+        Assert.Equal(1, payment.ManaCost);
+        Assert.Equal(0, payment.PowerCost);
+        await game.ColdCheckpoint();
+        await Reject(game.State, "P2", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        var mana = game.State.RunePools["P1"].Mana;
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Graveyard);
+        await game.ColdCheckpoint();
+        await game.Top();
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(generation + 2, game.State.CardObjects["GEAR"].ObjectGeneration);
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        Assert.Empty(game.State.StackItems);
+        await game.ColdCheckpoint();
+    }
+
     private static async Task Reject(MatchState state, string player, GameCommand command)
     {
         var result = await new CoreRuleEngine().ResolveAsync(state, new("illegal-equipment-return", player, command.CmdType), command, default);
