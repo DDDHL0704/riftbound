@@ -5453,7 +5453,8 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.SourceReadied is not null && CoreRuleEngine.ValidSourceReadiedStack(authoritativeState, stackItem))
                 && !(stackItem.SelfMightActivation is { CeasedSource: not null } && SelfMightRules.Valid(authoritativeState, stackItem))
                 && !(stackItem.RecycleMightActivation is { CeasedSource: not null } && RecycleMightRules.Valid(authoritativeState, stackItem))
-                && !(stackItem.EmpowerActivation is { CeasedSource: not null } && EmpowerRules.Valid(authoritativeState, stackItem))
+                && !(stackItem.EmpowerActivation is { CeasedSource: not null } or { Borrowed.Borrower.CeasedSource: not null }
+                    && EmpowerRules.Valid(authoritativeState, stackItem))
                 && !(stackItem.SelfMovement is { CeasedSource: not null } && CoreRuleEngine.ValidSelfMovement(authoritativeState, stackItem))
                 && !(stackItem.BorrowedExhaust is { Borrower.CeasedSource: not null } && BorrowedExhaustRules.Valid(authoritativeState, stackItem))
                 && !(stackItem.TemporaryActivation is { CeasedSource: not null } && CoreRuleEngine.ValidTemporaryActivation(authoritativeState, stackItem))
@@ -5743,7 +5744,8 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { RecycleMightActivation.CeasedSource: not null } recycle
                 && RecycleMightRules.Valid(authoritativeState, recycle))
                 sourceReferences = knownObjectIds.Append(recycle.SourceObjectId).ToHashSet(StringComparer.Ordinal);
-            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { EmpowerActivation.CeasedSource: not null } empower
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } empower
+                && (empower.EmpowerActivation is { CeasedSource: not null } or { Borrowed.Borrower.CeasedSource: not null })
                 && EmpowerRules.Valid(authoritativeState, empower))
                 sourceReferences = knownObjectIds.Append(empower.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { SelfMovement.CeasedSource: not null } movement

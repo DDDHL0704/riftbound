@@ -34,14 +34,11 @@ internal static class BorrowedExhaustRules
     {
         if (source.ControllerId != player || source.IsFaceDown || source.IsExhausted
             || !AttachedRuleTextRules.Field(state, source.ObjectId)) yield break;
-        foreach (var borrower in AttachedRuleTextRules.Instances(state, source).Where(i => Inherits(i.CardNo)))
-        foreach (var donor in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
+        foreach (var (borrower, donor) in Providers(state, player, source))
         {
-            if (donor.ObjectId == source.ObjectId || donor.ControllerId != player || donor.IsFaceDown
-                || !AttachedRuleTextRules.Field(state, donor.ObjectId)
-                    && !state.PlayerZones.GetValueOrDefault(player, PlayerZones.Empty).LegendZone.Contains(donor.ObjectId)) continue;
             if (!Cards.Value.TryGetValue(AttachedRuleTextRules.Face(donor) ?? "", out var printed)
-                || printed.CardCategory is not ("legendary" or "unit" or "hero_unit" or "equipment")) continue;
+                || !printed.CardCategoryList.Any(category => category is "legendary" or "unit" or "hero_unit"
+                    or "exclusive_unit" or "equipment" or "exclusive_equipment")) continue;
             foreach (var text in AttachedRuleTextRules.Instances(state, donor))
             foreach (var spec in Specs.Value.GetValueOrDefault(text.CardNo, []))
             {
@@ -57,6 +54,24 @@ internal static class BorrowedExhaustRules
         }
     }
 
+    internal static IEnumerable<(RuleTextInstance Borrower, CardObjectState Donor)> Providers(
+        MatchState state, string player, CardObjectState source)
+    {
+        if (source.ControllerId != player || source.IsFaceDown || source.IsExhausted
+            || !AttachedRuleTextRules.Field(state, source.ObjectId)) yield break;
+        foreach (var borrower in AttachedRuleTextRules.Instances(state, source).Where(i => Inherits(i.CardNo)))
+        foreach (var donor in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
+        {
+            if (donor.ObjectId == source.ObjectId || donor.ControllerId != player || donor.IsFaceDown
+                || !AttachedRuleTextRules.Field(state, donor.ObjectId)
+                    && !state.PlayerZones.GetValueOrDefault(player, PlayerZones.Empty).LegendZone.Contains(donor.ObjectId)) continue;
+            if (!Cards.Value.TryGetValue(AttachedRuleTextRules.Face(donor) ?? "", out var printed)
+                || !printed.CardCategoryList.Any(category => category is "legendary" or "unit" or "hero_unit"
+                    or "exclusive_unit" or "equipment" or "exclusive_equipment")) continue;
+            yield return (borrower, donor);
+        }
+    }
+
     internal static BorrowedTextSource Capture(CardObjectState card, RuleTextInstance text)
         => new(new(card.ObjectId, card.ObjectGeneration), text.CardNo, AttachedRuleTextRules.Face(card)!, card.CopyFaceTransitions?.Count ?? 0,
             card.TokenFactoryCardNo, text.Origin);
@@ -65,7 +80,7 @@ internal static class BorrowedExhaustRules
             && Valid(state, item)
             && Spec(context.Donor.CardNo, context.AbilityIndex) is { Kind: "INSIGHT_DRAW_EXPERIENCE" } spec
             ? spec : null;
-    private static bool ValidSource(MatchState state, BorrowedTextSource source, long tick, bool ceasedAsCost = false)
+    internal static bool ValidSource(MatchState state, BorrowedTextSource source, long tick, bool ceasedAsCost = false)
         => source is { Object: not null } && SelfAbilitySourceRules.Valid(state, source.Object, source.PhysicalCardNo,
             source.FaceRevision, tick, source.TokenFactoryCardNo, source.CeasedSource,
             usesPrintedFace: true, ceasedAsCost: ceasedAsCost)
