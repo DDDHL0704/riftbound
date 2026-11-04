@@ -99,6 +99,8 @@ export type Selection = {
   modeTargets?: Record<string, string[]>;
 };
 
+const ONE_OF_COST_PREFIXES = ["RECYCLE_GRAVEYARD_CARD:", "CONVERT_MANA_TO_GENERIC_POWER:", "CONVERT_GENERIC_POWER_TO_MANA:"];
+
 const ANCHORED = new Set([
   "PLAY_CARD",
   "MOVE_UNIT",
@@ -226,9 +228,11 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
     }
     optional = extras.filter((c) => !mandatory.some((m) => m.id === c.id));
   } else {
-    // Some costs take exactly one option (the server rejects zero or several). Recycling a graveyard
-    // card for an ability is one of them, though older requirements don't mark it.
-    const pickOne = Number(req.requiredOptionalCostChoiceCount) === 1 || (action === "ACTIVATE_ABILITY" && extras.length > 0 && extras.every((c) => c.id.startsWith("RECYCLE_GRAVEYARD_CARD:")));
+    // Some costs take exactly one option (the server rejects zero or several), though older
+    // requirements don't mark it: recycling a graveyard card for an ability, and the amount a
+    // conversion equipment (Ancient Stele, Hextech Anomaly) turns between mana and power.
+    const oneOf = ONE_OF_COST_PREFIXES.find((p) => extras.length > 0 && extras.every((c) => c.id.startsWith(p)));
+    const pickOne = Number(req.requiredOptionalCostChoiceCount) === 1 || (action === "ACTIVATE_ABILITY" && Boolean(oneOf));
     if (pickOne && extras.length > 1) steps.push({ key: "cost", role: "cost", label: costLabelText, required: true, choices: extras });
     required = pickOne && extras.length === 1 ? [extras[0].id] : req.requiredOptionalCosts ?? [];
     optional = pickOne ? [] : extras;
