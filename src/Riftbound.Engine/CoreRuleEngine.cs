@@ -11131,8 +11131,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "带有贴附装备的单位移动暂未开放。",
-                ErrorCodes.UnsupportedCommand);
+                "贴附装备的位置或控制者与移动单位不一致。",
+                ErrorCodes.InvalidTarget);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -11247,10 +11247,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Its owner and the attached equipment's controller may be different.
         var hostLocation = FindFieldObjectLocation(playerZones, hostState.ObjectId);
         if (hostLocation is null || hostLocation.Value.PlayerId != playerId
-            || hostState.ControllerId != playerId || !playerZones.ContainsKey(hostState.OwnerId ?? string.Empty))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(hostState, playerId)
+            || !playerZones.ContainsKey(hostState.OwnerId ?? string.Empty))
         {
             return false;
         }
+
+        // An omitted controller is a legacy-owned object state.  The field
+        // location still establishes which player may move the host, while
+        // the owner must remain a known seat for attachment integrity.
 
         foreach (var equipmentObjectId in attachedEquipmentObjectIds)
         {
@@ -11269,6 +11274,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return true;
+    }
+
+    internal static bool CanMoveUnitWithAttachedEquipment(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var host)) return false;
+        var attached = AttachedEquipmentObjectIds(state.CardObjects, sourceObjectId);
+        if (attached.Count == 0) return true;
+        var hostLocation = FindFieldObjectLocation(state.PlayerZones, sourceObjectId);
+        var movementPlayerId = hostLocation?.PlayerId ?? playerId;
+        return CanMoveExplicitAttachedEquipmentWithHost(
+            state.PlayerZones,
+            state.CardObjects,
+            movementPlayerId,
+            host,
+            attached);
     }
 
     private static IReadOnlyList<GameEvent> MoveAttachedEquipmentWithHost(
@@ -11410,8 +11433,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "带有贴附装备的单位移动暂未开放。",
-                ErrorCodes.UnsupportedCommand);
+                "贴附装备的位置或控制者与移动单位不一致。",
+                ErrorCodes.InvalidTarget);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -11599,15 +11622,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (state.CardObjects.Values.Any(cardObject => string.Equals(
-            cardObject.AttachedToObjectId,
-            command.SourceObjectId,
-            StringComparison.Ordinal)))
+        var attachedEquipmentObjectIds = AttachedEquipmentObjectIds(state.CardObjects, command.SourceObjectId);
+        if (attachedEquipmentObjectIds.Count > 0
+            && !CanMoveExplicitAttachedEquipmentWithHost(
+                state.PlayerZones,
+                state.CardObjects,
+                intent.PlayerId,
+                sourceState,
+                attachedEquipmentObjectIds))
         {
             return RejectWithCorePrompts(
                 state,
-                "带有贴附装备的单位移动暂未开放。",
-                ErrorCodes.UnsupportedCommand);
+                "贴附装备的位置或控制者与移动单位不一致。",
+                ErrorCodes.InvalidTarget);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -11619,6 +11646,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             destinationBattlefieldObjectId);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
         ExhaustMoveUnitSource(playerZones, cardObjects, command.SourceObjectId);
+        var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
+            playerZones,
+            attachedEquipmentObjectIds,
+            intent.PlayerId,
+            command.SourceObjectId,
+            MoveUnitBattlefieldZone);
+        foreach (var attachedEquipmentObjectId in attachedEquipmentObjectIds)
+        {
+            objectLocations[attachedEquipmentObjectId] = new ObjectLocationState(
+                intent.PlayerId,
+                MoveUnitBattlefieldZone,
+                destinationBattlefieldObjectId);
+        }
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -11667,6 +11707,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
+        events.AddRange(attachedEquipmentMoves);
         events.Add(movementObservation);
 
         events.AddRange(lethalCleanup.Events);

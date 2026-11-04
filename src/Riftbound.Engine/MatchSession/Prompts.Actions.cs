@@ -2346,6 +2346,7 @@ internal static partial class ActionPromptBuilder
             && !cardObject.IsFaceDown
             && !cardObject.IsExhausted
             && !cardObject.IsAttacking
-            && !cardObject.IsDefending;
+            && !cardObject.IsDefending
+            && CoreRuleEngine.CanMoveUnitWithAttachedEquipment(state, playerId, objectId);
     }
 }

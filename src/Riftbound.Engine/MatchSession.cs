@@ -3904,7 +3904,9 @@ internal static partial class ActionPromptBuilder
                 && (!behavior.RequiresMovementThisTurn
                     || state.CardObjects.TryGetValue(objectId, out var moved) && moved.MovementCountThisTurn > 0)
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
-                    || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId)))
+                    || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId))
+                && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
+                    || CoreRuleEngine.CanMoveUnitWithAttachedEquipment(state, playerId, objectId)))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
                 : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
@@ -3967,6 +3969,10 @@ internal static partial class ActionPromptBuilder
                 || !CoreRuleEngine.IsTargetPowerComparisonAllowed(state, playerId, behavior, targetObjectIds, targetIndex)
                 || !CoreRuleEngine.IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex)
                 || !CoreRuleEngine.IsMovementEquipmentRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex))
+                return false;
+            if (behavior.MovesTargetsToChosenLocation
+                && CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
+                && !CoreRuleEngine.CanMoveUnitWithAttachedEquipment(state, playerId, targetObjectIds[targetIndex]))
                 return false;
         }
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p4-move-unit-attached-equipment-source-rejected",
-  "description": "P4 MOVE_UNIT rejects moving a unit with attached equipment until equipment movement is modeled.",
+  "fixtureId": "p5-move-unit-attached-equipment-source-follows-host",
+  "description": "P5 MOVE_UNIT moves a unit and its attached equipment together.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,15 +12,15 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·173/298 驭风而行；SFD·022/221 长剑；SFD·011/221 取放自如",
-      "note": "官方卡面分别代表友方单位移动、装备/武装和贴附/卸除代表路径；本 fixture 只覆盖 P4 当前 coarse MOVE_UNIT 不能移动已有装备贴附的来源单位。"
+      "note": "官方卡面分别代表友方单位移动、装备/武装和贴附/卸除代表路径；本 fixture 覆盖 coarse MOVE_UNIT 移动已有装备贴附的来源单位。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p89 rules 718-719; p92-p105 keyword rules 800+",
-      "note": "装备贴附移动需要和装备未激活文本、贴附层级、owner/controller、战场位置和移动触发一起建模；这些系统未完成前，MOVE_UNIT 应显式拒绝带已贴附装备的来源，且不移动单位、不改写 attachedToObjectId。"
+      "note": "核心 718.5.c、719.3、719.3.a 要求顶层卡改变位置时所有贴附卡随之改变位置；owner/controller、贴附关系和公开区域保持不变。"
     }
   ],
-  "roomId": "p4-move-unit-attached-equipment-source-rejected-room",
+  "roomId": "p5-move-unit-attached-equipment-source-follows-host-room",
   "players": ["P1", "P2"],
   "initialState": {
     "seed": 2603304334,
@@ -60,12 +60,17 @@
     },
     "cardObjects": {
       "P1-MOVE-UNIT-ATTACHED-001": {
+        "cardNo": "SFD·125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
         "power": 4,
         "isExhausted": false,
         "tags": ["CARD_TYPE:UNIT"]
       },
       "P1-MOVE-EQUIPMENT-ATTACHED-001": {
         "cardNo": "SFD·022/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
         "power": 0,
         "isExhausted": false,
         "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
@@ -76,7 +81,7 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p4-move-unit-attached-equipment-source-rejected",
+      "clientIntentId": "intent-p5-move-unit-attached-equipment-source-follows-host",
       "cmd": {
         "cmdType": "MOVE_UNIT",
         "sourceObjectId": "P1-MOVE-UNIT-ATTACHED-001",
@@ -87,8 +92,32 @@
     }
   ],
   "expected": {
-    "finalTick": 0,
-    "eventKinds": [],
+    "finalTick": 1,
+    "eventKinds": ["UNIT_MOVED_TO_BATTLEFIELD", "EQUIPMENT_MOVED_WITH_UNIT"],
+    "events": [
+      {
+        "kind": "UNIT_MOVED_TO_BATTLEFIELD",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+          "targetObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+          "originZone": "BASE",
+          "destinationZone": "BATTLEFIELD",
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "EQUIPMENT_MOVED_WITH_UNIT",
+        "payload": {
+          "playerId": "P1",
+          "unitObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+          "equipmentObjectId": "P1-MOVE-EQUIPMENT-ATTACHED-001",
+          "originZone": "BASE",
+          "destinationZone": "BATTLEFIELD",
+          "attachedToObjectId": "P1-MOVE-UNIT-ATTACHED-001"
+        }
+      }
+    ],
     "promptActions": {
       "P1": ["END_TURN"],
       "P2": ["WAIT"]
@@ -106,8 +135,8 @@
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
-          "battlefields": [],
+          "base": [],
+          "battlefields": ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
           "graveyard": []
         },
         "P2": {
@@ -118,12 +147,17 @@
       },
       "cardObjects": {
         "P1-MOVE-UNIT-ATTACHED-001": {
+          "cardNo": "SFD·125/221",
+          "ownerId": "P1",
+          "controllerId": "P1",
           "power": 4,
-          "isExhausted": false,
+          "isExhausted": true,
           "tags": ["CARD_TYPE:UNIT"]
         },
         "P1-MOVE-EQUIPMENT-ATTACHED-001": {
           "cardNo": "SFD·022/221",
+          "ownerId": "P1",
+          "controllerId": "P1",
           "power": 0,
           "isExhausted": false,
           "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
