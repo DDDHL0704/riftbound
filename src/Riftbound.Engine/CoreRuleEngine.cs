@@ -18389,7 +18389,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a different hand card to discard.",
+                $"{behavior.DisplayName}需要选择另一张手牌弃置。",
                 ErrorCodes.InvalidTarget);
             return false;
         }

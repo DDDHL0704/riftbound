@@ -1986,7 +1986,7 @@ internal static partial class ActionPromptBuilder
         }
 
         return PlayCardPromptBehaviorsForSource(state, playerId, objectId).Any(behavior =>
-            PromptHasRequiredTargetChoices(state, playerId, behavior));
+            PromptHasRequiredTargetChoices(state, playerId, behavior, objectId));
     }
 
     private static bool IsAgileDirectPlayAttachRepresentative(CardBehaviorDefinition behavior)
@@ -2040,7 +2040,8 @@ internal static partial class ActionPromptBuilder
     private static bool ShouldPreferModeSpecificPlayCardBehaviors(
         MatchState state,
         string playerId,
-        IReadOnlyList<CardBehaviorDefinition> behaviors)
+        IReadOnlyList<CardBehaviorDefinition> behaviors,
+        string? sourceObjectId = null)
     {
         var modeBehaviors = behaviors
             .Where(behavior => !string.IsNullOrWhiteSpace(behavior.Mode))
@@ -2049,7 +2050,7 @@ internal static partial class ActionPromptBuilder
         return modeBehaviors.Length > 0
             && behaviors.Any(IsDefaultUnitPlayBehavior)
             && modeBehaviors.All(IsModeSpecificUnitPlayBehavior)
-            && modeBehaviors.Any(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior));
+            && modeBehaviors.Any(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior, sourceObjectId));
     }
 
     private static bool IsDefaultUnitPlayBehavior(CardBehaviorDefinition behavior)

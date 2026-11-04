@@ -2793,7 +2793,7 @@ internal static partial class ActionPromptBuilder
             result.Add(new(source, behavior.CardNo, behavior.DisplayName, mode, "从待命打出",
                 [new(destination, destination == StandbyReactionDestination ? "结算链" : "待命原战场")],
                 [new(StandbyRevealOptionalCost, "免基础费用；额外费用请使用完整出牌面板")],
-                Enumerable.Range(0,count).ToDictionary(i=>i.ToString(),i=>(IReadOnlyList<ActionPromptChoiceDto>)PromptTargetChoicesForIndex(state,playerId,behavior,i)),
+                Enumerable.Range(0,count).ToDictionary(i=>i.ToString(),i=>(IReadOnlyList<ActionPromptChoiceDto>)PromptTargetChoicesForIndex(state,playerId,behavior,i,source)),
                 PromptMinTargetCount(behavior,condition), count, PromptTargetScopeForBehavior(behavior), [StandbyRevealOptionalCost],
                 !CoreRuleEngine.UsesDeclaredMovementDestination(behavior), CoreRuleEngine.UsesDeclaredMovementDestination(behavior) ? "请使用完整出牌面板选择移动计划" : null));
         }
@@ -3875,7 +3875,7 @@ internal static partial class ActionPromptBuilder
                 || AffordableOptionalSacrificePlayCosts(state, playerId, behavior, objectId).Count > 0)
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
-        if (ShouldPreferModeSpecificPlayCardBehaviors(state, playerId, behaviors))
+        if (ShouldPreferModeSpecificPlayCardBehaviors(state, playerId, behaviors, objectId))
         {
             return behaviors
                 .Where(behavior => !string.IsNullOrWhiteSpace(behavior.Mode))
@@ -3889,7 +3889,8 @@ internal static partial class ActionPromptBuilder
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        int targetIndex)
+        int targetIndex,
+        string? sourceObjectId = null)
     {
         var targetScope = PromptTargetScopeForBehavior(behavior);
         if (behavior.MainDeckLookCount > 0
@@ -3911,7 +3912,10 @@ internal static partial class ActionPromptBuilder
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
                     || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId))
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
-                    || CoreRuleEngine.CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, objectId)))
+                    || CoreRuleEngine.CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, objectId))
+                && (!behavior.DiscardsTargetFromHand
+                    || string.IsNullOrWhiteSpace(sourceObjectId)
+                    || !string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
                 : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
@@ -3939,7 +3943,8 @@ internal static partial class ActionPromptBuilder
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds)
+        IReadOnlyList<string> targetObjectIds,
+        string? sourceObjectId = null)
     {
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
@@ -3958,6 +3963,13 @@ internal static partial class ActionPromptBuilder
 
         for (var targetIndex = 0; targetIndex < targetObjectIds.Count; targetIndex++)
         {
+            if (behavior.DiscardsTargetFromHand
+                && !string.IsNullOrWhiteSpace(sourceObjectId)
+                && string.Equals(sourceObjectId, targetObjectIds[targetIndex], StringComparison.Ordinal))
+            {
+                return false;
+            }
+
             var targetScope = PromptTargetScopeForBehavior(behavior);
                 if (!IsPromptTargetObjectInScope(
                     state,
@@ -4806,7 +4818,7 @@ internal static partial class ActionPromptBuilder
                     TargetEffectAdditionalCostIds(behavior), runePool, out _,
                     powerReachability: new RunePaymentReachability(runePool, paymentResourcePowerByTrait)))
             && (CoreRuleEngine.HasIndependentPermanentTargets(behavior)
-                || PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0);
+                || PromptTargetChoicesForIndex(state, playerId, behavior, 0, sourceObjectId).Count > 0);
     }
 
     private static IReadOnlyList<string> TargetEffectAdditionalCostIds(CardBehaviorDefinition behavior)
@@ -5404,7 +5416,7 @@ internal static partial class ActionPromptBuilder
         var targetChoicesByIndex = Enumerable.Range(0, maxTargetCount)
             .ToDictionary(
                 targetIndex => targetIndex.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                targetIndex => (object?)PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex),
+                targetIndex => (object?)PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId),
                 StringComparer.Ordinal);
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
@@ -5494,10 +5506,10 @@ internal static partial class ActionPromptBuilder
                 ["deferredDeckChoice"] = CoreRuleEngine.IsDeferredDeckChoice(mode),
                 ["targetChoicesByIndex"] = CoreRuleEngine.IsDeferredDeckChoice(mode) ? null : Enumerable.Range(0,
                     PromptMaxTargetCount(state, playerId, mode, false)).ToDictionary(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                        i => (object?)PromptTargetChoicesForIndex(state, playerId, mode, i))
+                        i => (object?)PromptTargetChoicesForIndex(state, playerId, mode, i, sourceObjectId))
             }).ToArray(),
             ["targetChoicesByIndex"] = targetChoicesByIndex,
-            ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
+            ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior, sourceObjectId),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
             ["movementDestinationChoicesByIndex"] = behavior.MovesTargetsSequentially
                 ? Enumerable.Range(0, behavior.RequiredTargetCount).ToDictionary(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture),
