@@ -114,6 +114,8 @@ export function Side({ player, side, render, onZone, legal, onOpenZone, heroActi
   const baseLegal = legal.has(`BASE:${player.id}`) || (legal.has("BASE") && side === "me");
   const traits = Object.entries(pool.powerByTrait || {}).filter(([, v]) => v > 0);
   const heroes = [...z.legendZone, ...z.championZone];
+  // A card the prompt lets this player use from a pile (replay from banishment, graveyard play).
+  const liveIn = (ids: string[]) => side === "me" && ids.some((id) => heroActions(id).length > 0);
   return (
     <section className={`side side--${side}`} aria-label={side === "me" ? "你的区域" : "对手区域"}>
       <div className="heroes">
@@ -176,7 +178,7 @@ export function Side({ player, side, render, onZone, legal, onOpenZone, heroActi
         <Pile label="符文库" count={z.runeDeckCount} rune />
         <div className="piles__meta">
           <button
-            className="piles__link"
+            className={`piles__link${liveIn(z.graveyard) ? " piles__link--live" : ""}`}
             disabled={!z.graveyard.length}
             onClick={(e) => {
               e.stopPropagation();
@@ -184,16 +186,18 @@ export function Side({ player, side, render, onZone, legal, onOpenZone, heroActi
             }}
           >
             废牌 {z.graveyard.length}
+            {liveIn(z.graveyard) && " · 可用"}
           </button>
           {z.banished.length > 0 && (
             <button
-              className="piles__link"
+              className={`piles__link${liveIn(z.banished) ? " piles__link--live" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onOpenZone({ title: `${side === "me" ? "我的" : "对手的"}放逐区`, playerId: player.id, zone: "banished" });
               }}
             >
               放逐 {z.banished.length}
+              {liveIn(z.banished) && " · 可用"}
             </button>
           )}
           {player.experience > 0 && <span>经验 {player.experience}</span>}

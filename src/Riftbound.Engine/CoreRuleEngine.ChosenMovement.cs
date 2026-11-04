@@ -96,10 +96,16 @@ public sealed partial class CoreRuleEngine
         if (origin is null) return [];
         var originBattlefield = locations.GetValueOrDefault(equipmentId)?.BattlefieldObjectId;
         var field = destination[12..];
+        // Moving a non-unit equipment still observes its own printed MOVE
+        // text. Keep this out of the unit-movement observer batch.
+        var observations = CaptureUnitEvents(zones, cards, [equipmentId], "MOVE")
+            .Where(observation => observation.Controller == item.ControllerId)
+            .Select(observation => observation with { Context = observation.Context with {
+                Here = new(origin.Value.PlayerId, "BATTLEFIELD", field) } }).ToArray();
         RemoveFieldObjectFromLocation(zones, origin.Value.PlayerId, origin.Value.Zone, equipmentId);
         AddFieldObjectToLocation(zones, origin.Value.PlayerId, "BATTLEFIELD", equipmentId);
         locations[equipmentId] = new(origin.Value.PlayerId, "BATTLEFIELD", field);
-        events.Add(new("EQUIPMENT_MOVED_TO_BATTLEFIELD", "效果移动装备",
+        events.Add(WithUnitEvents(new("EQUIPMENT_MOVED_TO_BATTLEFIELD", "效果移动装备",
             new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = equipmentId,
@@ -111,7 +117,7 @@ public sealed partial class CoreRuleEngine
                 ["destinationZone"] = "BATTLEFIELD",
                 ["destination"] = destination,
                 ["battlefieldObjectId"] = field
-            }));
+            }), observations));
         return [equipmentId];
     }
 
