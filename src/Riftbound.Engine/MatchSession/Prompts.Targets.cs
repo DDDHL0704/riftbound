@@ -465,14 +465,13 @@ internal static partial class ActionPromptBuilder
         MatchState state,
         string playerId)
     {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        if (!state.PlayerZones.ContainsKey(playerId))
         {
             return [];
         }
 
-        return zones.Base
-            .Concat(zones.Battlefields)
-            .Concat(zones.ChampionZone)
+        return state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.ChampionZone))
+            .Distinct(StringComparer.Ordinal)
             .Where(objectId => LegendActionIsValidOwnedTeemoUnitTarget(state, playerId, objectId))
             .Select(objectId => ObjectChoice(state, objectId, "己方提莫单位"));
     }
@@ -557,7 +556,8 @@ internal static partial class ActionPromptBuilder
             && string.Equals(targetState.OwnerId, playerId, StringComparison.Ordinal)
             && UnitIdentityCatalog.IsSourceCardNoForIdentity(
                 UnitIdentityCatalog.TeemoUnitIdentityId,
-                targetState.CardNo);
+                targetState.CardNo)
+            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, targetObjectId);
     }
 
     private static bool LegendActionIsPendingFriendlyUnitTarget(

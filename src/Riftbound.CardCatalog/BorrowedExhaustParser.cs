@@ -146,6 +146,31 @@ public static class BorrowedExhaustParser
             }
             // Reaction non-resource effects need their own timing and templates.
             if (reaction) continue;
+            if (effect == "让一名友方单位返回其所属的手牌。你可以选择打出一名战力低于该单位的单位，无视其费用")
+            {
+                result.Add(Skill("RETURN_UNIT_FREE_PLAY", scope: "FRIENDLY_UNIT"));
+                continue;
+            }
+            if (effect == "让另一张友方装备、单位或正面朝下的卡牌返回其所属的手牌")
+            {
+                result.Add(Skill("RETURN_TO_HAND", scope: "OTHER_FRIENDLY_PERMANENT_OR_FACEDOWN"));
+                continue;
+            }
+            if (effect == "将你拥有的一张位于英雄区域或场上的提莫单位牌放入你的手牌")
+            {
+                result.Add(Skill("RETURN_TO_HAND", scope: "OWNED_TEEMO_UNIT"));
+                continue;
+            }
+            if (effect == "让战场上的一名友方单位返回其所属的手牌。打出一个休眠的“金币”装备指示物")
+            {
+                result.Add(Skill("RETURN_AND_CREATE_GOLD", scope: "FRIENDLY_BATTLEFIELD_UNIT"));
+                continue;
+            }
+            if (effect == "让你本回合打出的下一个法术获得等同于其费用的{{回响}}")
+            {
+                result.Add(Skill("GRANT_NEXT_SPELL_ECHO", 0));
+                continue;
+            }
             if (effect == "选择一名玩家。该玩家获得此牌的控制权，并将其召回")
             {
                 result.Add(Skill("TRANSFER_SOURCE_AND_RECALL", scope: "PLAYER"));

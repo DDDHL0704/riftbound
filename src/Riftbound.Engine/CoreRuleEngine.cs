@@ -7582,7 +7582,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var spellshieldTax = ability.RequiresAnyUnitTarget || ability.RequiresAnyEquipmentTarget
+        var spellshieldTax = ability.RequiresAnyUnitTarget || ability.RequiresAnyEquipmentTarget || ability.RequiresOwnedTeemoUnitTarget
             ? ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targetObjectIds, out _)
             : 0;
         var totalPowerCost = checked(ability.PowerCost + spellshieldTax);
@@ -8518,8 +8518,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return state.PlayerZones.TryGetValue(playerId, out var zones)
-            && (zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+        return state.PlayerZones.Values.Any(zones => zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
                 || zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
                 || zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal))
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
@@ -8528,7 +8527,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && string.Equals(targetState.OwnerId, playerId, StringComparison.Ordinal)
             && UnitIdentityCatalog.IsSourceCardNoForIdentity(
                 UnitIdentityCatalog.TeemoUnitIdentityId,
-                targetState.CardNo);
+                targetState.CardNo)
+            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, targetObjectId);
     }
 
     private static bool ControllerHasAzirLegend(
@@ -8897,47 +8897,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string abilityId,
         List<GameEvent> events)
     {
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
-        {
-            return;
-        }
-
-        CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
-        var originZone = zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal)
-            ? "CHAMPION"
-            : zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
-                ? MoveUnitBattlefieldZone
-                : MoveUnitBaseZone;
-        playerZones[playerId] = zones with
-        {
-            Base = RemoveFromZone(zones.Base, targetObjectId),
-            Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
-            ChampionZone = RemoveFromZone(zones.ChampionZone, targetObjectId),
-            Hand = zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
-                ? zones.Hand
-                : zones.Hand.Concat([targetObjectId]).ToArray()
-        };
-        cardObjects[targetObjectId] = targetState with
-        {
-            ControllerId = playerId,
-            IsAttacking = false,
-            IsDefending = false,
-            IsExhausted = false
-        };
-        events.Add(new GameEvent(
-            "UNIT_RETURNED_TO_HAND",
-            $"{targetObjectId} 被提莫传奇技能返回手牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = sourceObjectId,
-                ["abilityId"] = abilityId,
-                ["targetObjectId"] = targetObjectId,
-                ["originZone"] = originZone,
-                ["ownerPlayerId"] = playerId,
-                ["destinationZone"] = "HAND"
-            }));
+        var originZone = playerZones.Values.Any(z => z.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal))
+            ? "CHAMPION" : playerZones.Values.Any(z => z.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
+                ? MoveUnitBattlefieldZone : MoveUnitBaseZone;
+        if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var owner, out _, includeChampionZone: true)) return;
+        events.Add(new("UNIT_RETURNED_TO_HAND", "拥有的单位返回手牌", new Dictionary<string, object?> {
+            ["playerId"] = playerId, ["sourceObjectId"] = sourceObjectId, ["abilityId"] = abilityId,
+            ["targetObjectId"] = targetObjectId, ["originZone"] = originZone,
+            ["ownerPlayerId"] = owner, ["destinationZone"] = "HAND" }));
     }
 
     private static void CreateLegendEquipmentToken(
@@ -24260,11 +24227,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.ConquestSource is not null) return ResolveConquestSource(state, stackItem);
         if (stackItem.ConquestFlow is not null) return ResolveConquestFlow(state, stackItem);
         if (stackItem.EffectKind == P4ActivatedAbilityCatalog.NextSpellEchoEffectKind)
-            return new(state.PlayerZones, state.CardObjects, state.PlayerScores, state.PlayerExperience, state.RunePools,
-                EchoCostRules.AddBaseCostGrant(state.UntilEndOfTurnEffects, stackItem.ControllerId), null,
-                [new("NEXT_SPELL_ECHO_GRANTED", "下一个法术获得等同基础费用的回响", new Dictionary<string, object?>
-                    { ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId })],
-                [], null, [], null, [], state.RngCursor);
+            return ResolveNextSpellEchoGrant(state, stackItem);
         if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior)
             && (insightBehavior.PerformsInsight || insightBehavior.Showcase is { InsightFromPowerCost: true } && stackItem.Showcase is not null)
             && (IsSpellPlayBehavior(insightBehavior) || stackItem.SourceConfirmed))
@@ -32248,7 +32211,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         out string ownerPlayerId,
-        out bool wasEquipment)
+        out bool wasEquipment,
+        bool includeChampionZone = false)
     {
         ownerPlayerId = string.Empty;
         wasEquipment = false;
@@ -32256,7 +32220,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
             var isInBattlefield = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal);
-            if ((!isInBase && !isInBattlefield)
+            var isInChampion = includeChampionZone && zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal);
+            if ((!isInBase && !isInBattlefield && !isInChampion)
                 || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
@@ -32270,7 +32235,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
-                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
+                ChampionZone = isInChampion ? RemoveFromZone(zones.ChampionZone, targetObjectId) : zones.ChampionZone
             };
             var ownerZones = playerZones[ownerPlayerId];
             playerZones[ownerPlayerId] = ownerZones with

@@ -244,6 +244,9 @@ public sealed class AhriCombatMightTests
         // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
+            // CN31411: targets face-down cards, not cards with Standby.
+            ["OGN·181/298"] = ("{{横置}}：让另一张友方装备、单位或{{待命}}卡牌返回其所属的手牌。",
+                "{{横置}}：让另一张友方装备、单位或正面朝下的卡牌返回其所属的手牌。"),
             // CN31291 exact current API erratum; retain the archived printed text.
             ["OGN·077/298"] = ("{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n下一次当友方单位被摧毁时，改为将此牌摧毁，然后以休眠状态将该单位召回。（把该单位送回基地，此行动不算作移动。）",
                 "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n如果一名友方单位被摧毁，则改为将此牌摧毁。移除该单位所受伤害，让其进入休眠状态，并将其召回。（把该单位送回基地，此行动不算作移动。）"),

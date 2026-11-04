@@ -366,8 +366,10 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTranspositionMageEffectPlay(MatchState state, PendingEffectPlayState pending)
     {
-        if (!P4ActivatedAbilityCatalog.TryGetByEffectKind(pending.Parent.EffectKind, out var ability)
-            || ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower != true
+        var borrowed = IsBorrowedReturnPlay(pending.Parent);
+        var native = P4ActivatedAbilityCatalog.TryGetByEffectKind(pending.Parent.EffectKind, out var ability)
+            && ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true;
+        if ((!borrowed && !native)
             || pending.RevealedHand is not null || pending.Parent.EffectPlayCompleted
             || pending.SourceZone != "HAND" || pending.PlayerId != pending.Parent.ControllerId
             || pending.DestinationPolicy != "" || pending.SourcePlayerId is not null
@@ -375,13 +377,15 @@ public sealed partial class CoreRuleEngine
             || pending.ViewedCardIds is not null || pending.Sources.Count == 0
             || !pending.Optional || !pending.IgnoreAllCosts || !pending.IgnoreBaseMana || !pending.IgnoreBasePower
             || pending.ManaReduction != 0 || pending.MaximumUnitPower is not >= 0
-            || !ValidSimpleActivation(state, pending.Parent, allowMissingReturnTarget: true)
+            || !(borrowed ? BorrowedExhaustRules.Valid(state, pending.Parent)
+                : ValidSimpleActivation(state, pending.Parent, allowMissingReturnTarget: true))
             || !state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)) return false;
 
         var targetId = pending.Parent.TargetObjectIds.SingleOrDefault();
+        var factories = borrowed ? pending.Parent.BorrowedExhaust!.TargetTokenFactories : pending.Parent.SimpleActivation?.TargetTokenFactories;
         if (targetId is null || !state.PlayerZones.Values.Any(player => player.Hand.Contains(targetId, StringComparer.Ordinal))
-            && (state.CardObjects.ContainsKey(targetId)
-                || pending.Parent.SimpleActivation?.TargetTokenFactories?.ContainsKey(targetId) != true)) return false;
+            && (state.CardObjects.ContainsKey(targetId) || factories?.ContainsKey(targetId) != true)
+            && !ValidReplacedReturnPlayTarget(state, pending, targetId)) return false;
 
         var eligible = zones.Hand
             .Where(id => state.CardObjects.TryGetValue(id, out var card)
@@ -438,78 +442,9 @@ public sealed partial class CoreRuleEngine
             // reset. A returned token ceases to exist instead (CN186.1).
             // Neither must remain in a hand when the parent resumes.
             return result;
-        if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower && !item.EffectPlayCompleted)
-        {
-            var targetId = item.TargetObjectIds.SingleOrDefault();
-            var targetGeneration = targetId is null ? -1 : item.TargetGenerations?.GetValueOrDefault(targetId, -1) ?? -1;
-            if (targetId is null
-                || targetGeneration < 0
-                || !cards.TryGetValue(targetId, out var target)
-                || target.ObjectGeneration != targetGeneration
-                || !IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, targetId, ability))
-            {
-                events.Add(new("ABILITY_NO_EFFECT", "易位法师结算时目标已不再合法",
-                    new Dictionary<string, object?> {
-                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
-                        ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
-                        ["reason"] = "TARGET_NO_LONGER_LEGAL"
-                    }));
-                return result with { Events = events };
-            }
-
-            var capturedPower = ResolveCurrentFieldUnitPower(state, target);
-            if (TryReplaceEmpoweredTargetEvent(state with { PlayerZones = zones, CardObjects = cards }, item, target,
-                "RETURN_TO_HAND", out var returnReplacement, out var returnReplacementEvent))
-            {
-                cards[targetId] = returnReplacement;
-                events.Add(returnReplacementEvent);
-                capturedPower = ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, returnReplacement);
-            }
-            else
-            {
-                if (!TryReturnTargetToHand(zones, cards, targetId, out var ownerPlayerId, out var wasEquipment))
-                {
-                    events.Add(new("ABILITY_NO_EFFECT", "易位法师结算时无法返回目标",
-                        new Dictionary<string, object?> {
-                            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
-                            ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId,
-                            ["reason"] = "TARGET_RETURN_FAILED"
-                        }));
-                    return result with { Events = events };
-                }
-                events.Add(BuildReturnedToHandEvent(ability.DisplayName, item, targetId, ownerPlayerId, wasEquipment));
-            }
-
-            var eligible = zones[item.ControllerId].Hand
-                .Where(id => cards.TryGetValue(id, out var candidate)
-                    && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    && CardBehaviorRegistry.TryGetByCardNo(candidate.CardNo ?? "", out var behavior)
-                    && behavior.PlaysSourceToBaseAsUnit
-                    && ResolveCurrentFieldUnitPower(state with { PlayerZones = zones, CardObjects = cards }, candidate) < capturedPower)
-                .Distinct(StringComparer.Ordinal)
-                .ToArray();
-            if (eligible.Length == 0)
-            {
-                events.Add(new("ABILITY_NO_EFFECT", "易位法师没有符合战力限制的手牌单位",
-                    new Dictionary<string, object?> {
-                        ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
-                        ["abilityId"] = ability.AbilityId, ["capturedPower"] = capturedPower,
-                        ["reason"] = "NO_ELIGIBLE_HAND_UNIT"
-                    }));
-                return result with { PlayerZones = zones, CardObjects = cards,
-                    ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };
-            }
-
-            var pending = new PendingEffectPlayState(
-                $"EFFECT-PLAY:{state.Tick + 1}:{item.StackItemId}", item.ControllerId, item, "HAND",
-                eligible.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
-                IgnoreBaseMana: true, IgnoreBasePower: true, ManaReduction: 0,
-                DestinationPolicy: "", Optional: true, IgnoreAllCosts: true,
-                MaximumUnitPower: capturedPower - 1);
-            return result with { PlayerZones = zones, CardObjects = cards,
-                ObjectLocations = ReconcileObjectLocations(locations, zones), PendingEffectPlay = pending,
-                Events = events };
-        }
+        if (spec.ReturnsFriendlyUnitThenFreePlayUpToPower)
+            return ResolveReturnUnitThenFreePlay(state, item, ability.DisplayName, ability.AbilityId,
+                id => IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, id, ability));
         if (spec.GrantsBoonOrPower)
         {
             var targetId = item.TargetObjectIds.SingleOrDefault();

@@ -93,6 +93,7 @@ internal static class BorrowedExhaustRules
                 || battlefield.ObjectGeneration < field.Generation
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
             || item.InsightContext is not null || item.InsightCompleted && spec.Kind != "INSIGHT_DRAW_EXPERIENCE"
+            || item.EffectPlayCompleted && spec.Kind != "RETURN_UNIT_FREE_PLAY"
             || item.SourceConfirmed || item.EffectRepeatCount != 1 || item.DamageAmount != 0
             || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds.Count != spec.Targets || item.TargetObjectIds.Distinct().Count() != spec.Targets
