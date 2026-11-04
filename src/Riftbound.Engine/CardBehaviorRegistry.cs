@@ -10,7 +10,8 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool LeadingSourceExhaust = false, int DiscardCount = 0,
     bool DistinctModesPerTurn = false, bool ConsumesSourceBoonDuringResolution = false,
     int MinimumExhaustedUnits = 0, bool OncePerTurn = false,
-    string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null);
+    string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
+    string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);

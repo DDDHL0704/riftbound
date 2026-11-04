@@ -20430,76 +20430,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || objectId.Contains("RUNE", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static IReadOnlyList<GameEvent> ResolvePowerfulUnitPlayedRuneLegendTriggers(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string playedUnitObjectId)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !cardObjects.TryGetValue(playedUnitObjectId, out var playedUnit)
-            || !playedUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || playedUnit.Power < PowerfulUnitPowerThreshold)
-        {
-            return [];
-        }
-
-        foreach (var legendObjectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(legendObjectId, out var legendState)
-                || legendState.IsExhausted
-                || !LegendCardHasIdentity(legendState.CardNo, PowerfulUnitRuneLegendIdentityId))
-            {
-                continue;
-            }
-
-            var runeCallResult = CallRunes(playerZones, cardObjects, playerId, 1);
-            if (runeCallResult.CalledRuneObjectIds.Count == 0)
-            {
-                return [];
-            }
-
-            cardObjects[legendObjectId] = legendState with { IsExhausted = true };
-            return
-            [
-                new GameEvent(
-                    "LEGEND_TRIGGER_RESOLVED",
-                    $"{playerId} 的强力单位传奇触发",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["legendObjectId"] = legendObjectId,
-                        ["legendCardNo"] = legendState.CardNo,
-                        ["trigger"] = "POWERFUL_UNIT_PLAYED_CALL_RUNE",
-                        ["playedUnitObjectId"] = playedUnitObjectId,
-                        ["playedUnitPower"] = playedUnit.Power
-                    }),
-                new GameEvent(
-                    "LEGEND_EXHAUSTED",
-                    $"{playerId} 横置传奇以召出符文",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["legendObjectId"] = legendObjectId,
-                        ["legendCardNo"] = legendState.CardNo,
-                        ["reason"] = "POWERFUL_UNIT_PLAYED_CALL_RUNE"
-                    }),
-                new GameEvent(
-                    "RUNES_CALLED",
-                    $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["sourceObjectId"] = legendObjectId,
-                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
-                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
-                    })
-            ];
-        }
-
-        return [];
-    }
-
     private static IReadOnlyList<GameEvent> ResolveRengarUnitPlayedPowerTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -24654,12 +24584,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem,
                 untilEndOfTurnEffects,
                 events);
-
-            events.AddRange(ResolvePowerfulUnitPlayedRuneLegendTriggers(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId));
 
             if (behavior.SourceNextSpellCostReductionMana > 0
                 && !string.IsNullOrWhiteSpace(behavior.SourceNextSpellCostReductionEffectKind))
