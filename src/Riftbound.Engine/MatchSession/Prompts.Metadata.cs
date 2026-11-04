@@ -324,7 +324,7 @@ internal static partial class ActionPromptBuilder
         return CoreRuleEngine.EffectPlaySources(state, playerId)
             .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
             .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
-                .Where(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior))
+                .Where(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior, objectId))
                 .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
