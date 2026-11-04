@@ -10,7 +10,7 @@ public sealed partial class GameHubJoinTests
 {
     public static IEnumerable<object[]> InvalidMixedPackOptions()
     {
-        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("UNL", 6)]), "系列 UNL"];
+        yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("XYZ", 6)]), "系列 XYZ"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 3), new("OGN", 3)]), "不能重复"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 5)]), "6 至 12"];
         yield return [new CreatePublicMatchOptionsDto("sealed", null, 1, [new("OGN", 13)]), "6 至 12"];
