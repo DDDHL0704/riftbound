@@ -9,7 +9,8 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     string? CreatedTokenFactoryCardNo = null, bool RequiresPlayedUnitStrongest = false,
     bool LeadingSourceExhaust = false, int DiscardCount = 0,
     bool DistinctModesPerTurn = false, bool ConsumesSourceBoonDuringResolution = false,
-    int MinimumExhaustedUnits = 0, bool OncePerTurn = false);
+    int MinimumExhaustedUnits = 0, bool OncePerTurn = false,
+    string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
@@ -9874,10 +9875,14 @@ public static class CardBehaviorRegistry
     [
         new("RAD·112/167", "吉格斯 · 狂轰滥炸", 4, "RAD_112_ZIGGS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人",
-            UnitEventAbility: new("DEFEND", "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF", 2)),
+            UnitEventAbility: new("DEFEND", "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF", 2,
+                LeadingDestroyOtherFriendlyPermanents: 1,
+                LeadingDestroyOtherFriendlyPermanentsRequiredTag: CardObjectTags.EquipmentCard)),
         new("RAD·112a/167", "吉格斯 · 狂轰滥炸", 4, "RAD_112A_ZIGGS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人",
-            UnitEventAbility: new("DEFEND", "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF", 2)),
+            UnitEventAbility: new("DEFEND", "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF", 2,
+                LeadingDestroyOtherFriendlyPermanents: 1,
+                LeadingDestroyOtherFriendlyPermanentsRequiredTag: CardObjectTags.EquipmentCard)),
         new("RAD·023/167", "吉格斯 · 炸欢天", 5, "RAD_023_ZIGGS_PLAY_BOMB", 0, 1,
             TargetScope: CardTargetScopes.Battlefield,
             CreatedBattlefieldEquipmentTokenCount: 1, CreatedBattlefieldEquipmentTokenName: "炸弹",
