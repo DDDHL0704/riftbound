@@ -286,6 +286,7 @@ public static class P4ActivatedAbilityCatalog
     public const string RunebladeAnvilAbilityId = "RAD_012_PAY_RED_EXHAUST_DESTROY_SOURCE";
     public const string MysteriousWeaponCardNo = "OGN·023/298";
     public const string MysteriousWeaponRecallAbilityId = "OGN_023_DISCARD_EXHAUST_GRANT_RED_RECALL";
+    public const string SmuggledWeaponPaidRecallAbilityId = "SMUGGLED_WEAPON_DISCARD_GRANT_PAID_RECALL";
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -319,7 +320,7 @@ public static class P4ActivatedAbilityCatalog
             "官方中文：迅捷；让一名友方单位休眠并横置，将另一名友方单位移动到该单位所在位置。",
             SwiftSpeed: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
             SimpleEffect: new(ExhaustFriendlyUnitMinimumPowerAsCost: 0, MovesToExhaustedCostUnit: true)),
-        new("SMUGGLED_WEAPON_DISCARD_GRANT_PAID_RECALL", "OGN·023/298", "SMUGGLED_WEAPON_DISCARD_GRANT_PAID_RECALL",
+        new(SmuggledWeaponPaidRecallAbilityId, "OGN·023/298", SmuggledWeaponPaidRecallAbilityId,
             "来路不明的武器", 0, 0, 1, false, true, 0, true,
             "官方中文：弃置一张手牌并横置；本回合目标下次被摧毁时可支付红色符能改为休眠召回，不移除伤害。",
             SourceRequiredTag: CardObjectTags.EquipmentCard,
@@ -837,6 +838,11 @@ public static class P4ActivatedAbilityCatalog
         P4ActivatedAbilityDefinition definition,
         string? cardNo)
     {
+        // This catalog entry describes the borrowed copy of the weapon skill.
+        // Its donor card number must not make the borrowed skill look like a
+        // native activation of a physical Mysterious Weapon.
+        if (definition.AbilityId == SmuggledWeaponPaidRecallAbilityId)
+            return false;
         return SourceCardNosForAbility(definition)
             .Contains(cardNo ?? string.Empty, StringComparer.Ordinal);
     }
