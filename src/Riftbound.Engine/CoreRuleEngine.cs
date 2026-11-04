@@ -18635,7 +18635,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
-            && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit && !IsDeployedEquipment(behavior) || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+            && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit && !IsDeployedEquipment(behavior)
+                    && !(behavior.PlaysSourceToBaseAsEquipment && IsForcedEffectPlayDestination(state, intent.PlayerId, destination))
+                || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !DeployedEquipmentDestinationAllowed(state, behavior, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
                 && !OpenBattlefieldPlayAllowed(state, behavior, destination)

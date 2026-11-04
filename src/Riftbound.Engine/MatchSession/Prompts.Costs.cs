@@ -16,7 +16,9 @@ internal static partial class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return !behavior.PlaysSourceToBaseAsUnit
+        var requiresDestination = behavior.PlaysSourceToBaseAsUnit || CoreRuleEngine.IsDeployedEquipment(behavior)
+            || state.PendingEffectPlay is not null && behavior.PlaysSourceToBaseAsEquipment;
+        return !requiresDestination
             || (PlayCardDestinationChoicesForBehavior(state, playerId, behavior)?.Count ?? 0) > 0;
     }
 

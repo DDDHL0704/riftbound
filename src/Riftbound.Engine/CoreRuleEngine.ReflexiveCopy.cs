@@ -128,16 +128,12 @@ public sealed partial class CoreRuleEngine
             // This is an effect on the existing object, not a new entry: damage,
             // granted abilities, status, owner/controller and attachments survive.
             var copied = copySource is null ? null : CopyCharacteristics.CreateImage(image.ObjectId, image.ControllerId!, copySource, grantsEphemeral: !context.CopySourceIsSelf);
-            var transformed = copied?.CardNo is { } face ? CopyFaceTimeline.ChangeFace(image, face, state.Tick + 1) : image;
+            var transformed = copied?.CardNo is { } face ? AttachmentUnitCopyRules.Apply(image,
+                new(face, copied.ManaCost, copied.Power, copied.Tags), state.Tick + 1) : image;
             cards[image.ObjectId] = transformed with {
-                ManaCost = copied?.ManaCost ?? image.ManaCost,
-                Power = copied is null ? image.Power : image.Power + copied.Power
-                    - (P6TokenFactoryCatalog.TryGetByCardNo(image.TokenFactoryCardNo ?? "", out var factory) ? factory.DefaultPower : 0),
                 GrantedTags = context.CopySourceIsSelf ? image.GrantedTags
                     : (image.GrantedTags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
-                Tags = image.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag
-                    && (copied is null || image.TokenFactoryCardNo != "SFD·T01" || t != "机械" || (image.GrantedTags ?? []).Contains(t)))
-                    .Concat(copied?.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag) ?? [])
+                Tags = transformed.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag)
                     .Concat(context.CopySourceIsSelf ? [] : [CardObjectTags.Ephemeral]).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
             };
             events.Add(new("UNIT_COPY_RESOLVED", copySource is null ? "复制来源失效" : "映像复制来源单位",

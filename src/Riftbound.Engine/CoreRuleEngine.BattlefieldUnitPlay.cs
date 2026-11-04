@@ -68,14 +68,14 @@ public sealed partial class CoreRuleEngine
                 || pending.DestinationPolicy is "ORIGINAL_LOCATION" or "ORIGINAL_LOCATION_OR_BASE" or "BASE" or "CONTROLLED_BATTLEFIELD" or "ANY_BATTLEFIELD")) return false;
         // CN355.17.a: combine compatible positive instructions. Only genuinely
         // conflicting sets permit choosing the original instruction instead.
-        var instructed = OrdinaryEffectPlayDestinations(state, player);
+        var instructed = OrdinaryEffectPlayDestinations(state, player, behavior);
         return instructed.Contains(destination) && !selected.Any(cost =>
             instructed.Contains("BATTLEFIELD:" + cost[BattlefieldUnitPlayCostPrefix.Length..]));
     }
 
     private static bool EffectPlayDeclaredDestinationAllowed(MatchState state, string player,
         CardBehaviorDefinition behavior, string destination, IReadOnlyList<string>? costs)
-        => OrdinaryEffectPlayDestinations(state, player).Contains(destination)
+        => OrdinaryEffectPlayDestinations(state, player, behavior).Contains(destination)
             || EffectPlayAllowsDeployment(state, player) && DeployedEquipmentDestinationAllowed(state, behavior, destination)
             || PaidBattlefieldUnitPlayDestination(costs, destination)
                 && ValidBattlefieldUnitPlayDeclaration(state, player, behavior, destination, costs);
