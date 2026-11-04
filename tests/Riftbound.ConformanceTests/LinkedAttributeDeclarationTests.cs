@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Reflection;
+using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -149,6 +150,17 @@ public sealed class LinkedAttributeDeclarationTests
         Assert.Null(game.State.CardObjects["LIST"].LinkedAttributes);
         await game.Top();
         Assert.Equal(3, game.State.CardObjects["ENEMY"].Power);
+        Assert.Equal("LIST", Assert.Single(game.State.CardObjects["ENEMY"].UntilEndOfTurnPowerModifiers).SourceObjectId);
+        var snapshots = ResolutionResult.BuildSnapshots(game.State);
+        foreach (var (snapshot, expectedSource) in new[] {
+            (snapshots["P1"], "LIST"), (snapshots["P2"], "HIDDEN"),
+            (ResolutionResult.BuildSpectatorSnapshot(game.State), "HIDDEN") })
+        {
+            var view = JsonSerializer.SerializeToElement(snapshot, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var effect = Assert.Single(view.GetProperty("timing").GetProperty("continuousEffects").EnumerateArray(),
+                effect => effect.TryGetProperty("effectKind", out var kind) && kind.GetString() == Skill);
+            Assert.Equal(expectedSource, effect.GetProperty("sourceObjectId").GetString());
+        }
         await game.Replay();
     }
 
