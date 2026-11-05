@@ -234,7 +234,23 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const destinationsOf = (id: string): string[] => (moveOf(id)?.requirement?.destinationChoices ?? []).map((d: { id: string }) => d.id);
   const stepChoices = useMemo(() => {
     const choices = currentStep?.choices ?? [];
-    // A spell that moves its targets to one chosen place cannot pick where any target already is (CN 355.4).
+    // Spells that move their targets to one chosen place list each target's legal destinations (#478):
+    // the chosen place must suit every moving target, so later targets must still share one with the earlier ones.
+    const perTarget: Record<string, Choice[]> | null = pick?.action.requirement?.destinationChoicesByTargetObjectId ?? null;
+    if (perTarget && pick && (currentStep?.role === "destination" || currentStep?.role === "target")) {
+      const moving = pick.sel.targets.filter((id) => perTarget[id]);
+      const shared = (ids: string[]) =>
+        ids.reduce<Set<string> | null>((acc, id) => {
+          const own = new Set(perTarget[id].map((d) => d.id));
+          return acc ? new Set([...acc].filter((d) => own.has(d))) : own;
+        }, null);
+      if (currentStep.role === "destination") {
+        const ok = shared(moving);
+        return ok ? choices.filter((c) => ok.has(c.id)) : choices;
+      }
+      return choices.filter((c) => !perTarget[c.id] || (shared([...moving, c.id])?.size ?? 0) > 0);
+    }
+    // Older prompts without per-target data: a target's own location is never a legal destination (CN 355.4).
     if (currentStep?.role === "destination" && pick?.action.requirement?.destinationLabel === "移动目的地" && pick.sel.targets.length) {
       const at = pick.sel.targets.map((id) => objects[id]?.location).filter(Boolean);
       return choices.filter((c) =>
