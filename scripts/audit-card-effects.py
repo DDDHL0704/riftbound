@@ -101,6 +101,8 @@ def clause_kind(text: str, category: str) -> str:
         # A triggered rule change is still a trigger; check its timing first.
         if not re.match(r"(?:每当|当|在.+时)", bare):
             return "rule"
+    if re.match(r"当我在一个回合内进行了第[^，,]+次移动[，,]", bare):
+        return "trigger"
     if re.search(r"(?:每当|当[^，。]*时|在你的?.*阶段|回合结束时|\{\{(?:鼓舞|绝念|征服|驻守|进攻|防守)[^}]*\}\})", bare):
         return "trigger"
     return "effect" if "spell" in category else "static"
@@ -268,9 +270,9 @@ OPERATIONS = [
 
 EVENT_TIMINGS = {
     "SECOND_CARD_PLAYED": r"打出第二张牌", "FIRST_CARD_PLAYED": r"打出.*第一张牌",
-    "PLAY": r"(?:打出我|我被打出|将我打出)", "PLAY_OR_CONQUEST": r"打出我|我被打出|我征服",
-    "PLAY_OR_EXHAUST": r"打出我|我被打出|我变为休眠", "PLAY_OR_MOVE": r"打出我|我被打出|我移动",
-    "PLAY_OR_LEAVE": r"打出我|我被打出|我离场", "PLAY_OR_START": r"打出我|我被打出|回合开始",
+    "PLAY": r"(?:打出(?:我|此牌)|(?:我|此牌)被打出|将(?:我|此牌)打出)", "PLAY_OR_CONQUEST": r"打出(?:我|此牌)|(?:我|此牌)被打出|我征服",
+    "PLAY_OR_EXHAUST": r"打出(?:我|此牌)|(?:我|此牌)被打出|我变为休眠", "PLAY_OR_MOVE": r"打出(?:我|此牌)|(?:我|此牌)被打出|我移动",
+    "PLAY_OR_LEAVE": r"打出(?:我|此牌)|(?:我|此牌)被打出|我离场", "PLAY_OR_START": r"打出(?:我|此牌)|(?:我|此牌)被打出|回合开始",
     "PLAY_AFTER_ANOTHER_CARD": r"鼓舞", "BECAME_EXHAUSTED": r"我变为休眠",
     "BECAME_READY": r"我变为活跃", "ANOTHER_UNIT_PLAYED": r"打出.*(?:另一|其他).*单位",
     "FRIENDLY_UNIT_PLAYED": r"打出.*单位", "ANOTHER_FRIENDLY_UNIT_EXHAUSTED": r"另一名友方单位变为休眠",
@@ -294,7 +296,10 @@ def activation_matches(ability: dict, clause: dict) -> bool:
     if mana != ability.get("manaCost", 0):
         return False
     colors = re.findall(r"\{\{(A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}", cost)
-    if len(colors) != ability.get("powerCost", 0) + sum((ability.get("powerCostByTrait") or {}).values()):
+    trait_names = {"红色": "red", "绿色": "green", "蓝色": "blue", "橙色": "orange", "紫色": "purple", "黄色": "yellow"}
+    printed_traits = Counter(trait_names[color] for color in colors if color != "A")
+    actual_traits = {trait: amount for trait, amount in (ability.get("powerCostByTrait") or {}).items() if amount}
+    if colors.count("A") != ability.get("powerCost", 0) or printed_traits != actual_traits:
         return False
     numeric_damage = re.search(r"造成([0-9]+)点伤害", effect)
     if numeric_damage and ability.get("damageAmount") and ability["damageAmount"] != int(numeric_damage[1]):
@@ -327,18 +332,54 @@ def activation_matches(ability: dict, clause: dict) -> bool:
     return bool("{{获得}}" in effect and (ability.get("generatedMana") or ability.get("generatedPower") or ability.get("generatedPowerByTrait"))) or bool(re.search(r"获得.*分", effect) and "SCORE" in label)
 
 
+def event_operations_match(event: dict, text: str) -> bool:
+    # A matching timing is not evidence for an unrelated or partial effect.
+    # The trigger condition itself is not an instruction (e.g. "becomes ready").
+    body = re.sub(r"^.*?时[，,]", "", text, count=1)
+    capabilities = {
+        "DRAW": {"draw"}, "DISCARD_DRAW": {"draw", "discard"},
+        "MIGHT_SELF": {"might"}, "MIGHT_FRIENDLY": {"might"}, "MIGHT_ATTACKERS": {"might"},
+        "MIGHT_SELF_AND_READY": {"might", "ready"}, "MATCH_POWER_THEN_BUFF": {"might"},
+        "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF": {"might", "destroy"},
+        "READY_SELF": {"ready"}, "READY_ANOTHER_FRIENDLY": {"ready"}, "READY_HERE": {"ready"},
+        "BOON_SELF": {"boon"}, "BOON_FRIENDLY": {"boon"}, "BOON_SELF_AND_READY": {"boon", "ready"},
+        "CALL_RUNES_PER_CONSUMED_BOON": {"rune"}, "INSIGHT": {"insight"},
+        "CREATE_UNIT_TOKEN": {"token"}, "CREATE_EQUIPMENT_TOKEN": {"token"},
+        "MOVE_ENEMY_HERE": {"move"}, "MOVE_ENEMY": {"move"}, "MOVE_ENEMIES_TO_BASE": {"move"},
+        "DESTROY_SELF": {"destroy"}, "DESTROY_CHEAPER_EQUIPMENT": {"destroy"},
+        "BANISH_ENTERED_EQUIPMENT": {"banish"}, "DAMAGE_ENEMIES_HERE": {"damage"},
+        "BANISH_HAND_GRAVEYARD_BURN": {"banish", "burn"}, "BANISH_LINKED_UNIT_HERE": {"banish"},
+    }
+    supported = set(capabilities.get(event["effect"], ()))
+    if event.get("leadingDestroyOtherFriendlyPermanents"):
+        supported.add("destroy")
+    if event.get("runeCallCount"):
+        supported.add("rune")
+    required = {op for op, pattern, _ in OPERATIONS if re.search(pattern, body)}
+    if event["effect"] in capabilities and not required <= supported:
+        return False
+    if event["effect"] in ("DRAW", "DISCARD_DRAW"):
+        match = re.search(r"抽([一二两三四五六七八九十0-9]+)张牌", body)
+        if match:
+            digits = dict(zip("一二三四五六七八九十", range(1, 11)), 两=2)
+            count = int(match[1]) if match[1].isdigit() else digits.get(match[1])
+            if count != event.get("amount", 0):
+                return False
+    return True
+
+
 def behavior_operations(card: dict, clause: dict, sources: Sources) -> dict | None:
     bare = unparenthesize(clause["text"])
     scope = unparenthesize(clause["scope"])
     if clause["kind"] == "trigger":
-        for behavior in card.get("behaviors", []):
-            event = behavior.get("unitEventAbility", {})
-            if event and re.search(EVENT_TIMINGS.get(event["timing"], r"(?!)"), scope):
+        events = [card.get("unitEventAbility")] + [behavior.get("unitEventAbility") for behavior in card.get("behaviors", [])]
+        for event in events:
+            if event and re.search(EVENT_TIMINGS.get(event["timing"], r"(?!)"), scope) and event_operations_match(event, bare):
                 timing = sources.references('"' + event["timing"] + '"')
                 effect = sources.references('"' + event["effect"] + '"')
                 if timing and effect:
                     return result("route", "事件技能：" + event["timing"] + "/" + event["effect"], timing + effect)
-        if not re.search(r"打出我|我被打出|将我打出", scope):
+        if not re.search(r"打出(?:我|此牌)|(?:我|此牌)被打出|将(?:我|此牌)打出", scope):
             return None
     elif clause["kind"] not in ("effect", "static"):
         return None
@@ -357,6 +398,11 @@ def behavior_operations(card: dict, clause: dict, sources: Sources) -> dict | No
                 number = re.search(r"造成([0-9]+)点伤害", bare) if op == "damage" else re.search(r"\{\{S\}\}([+-][0-9]+)", bare) if op == "might" else None
                 if number:
                     candidates = [f for f in candidates if not isinstance(behavior[f], int) or isinstance(behavior[f], bool) or behavior[f] == int(number[1])]
+                if op == "draw" and (printed := re.search(r"抽(?:取)?([一二两三四五六七八九十0-9]+)张(?:牌|卡牌)", bare)):
+                    digits = dict(zip("一二三四五六七八九十", range(1, 11)), 两=2)
+                    amount = int(printed[1]) if printed[1].isdigit() else digits.get(printed[1])
+                    if amount is not None:
+                        candidates = [field for field in candidates if type(behavior[field]) is int and behavior[field] == amount]
                 paths = [p for f in candidates for p in sources.field_routes(f)]
                 if not candidates or not paths:
                     break
@@ -411,10 +457,133 @@ def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
     return result("review", "未找到该关键词的物体／费用／文本消费路径")
 
 
+def native_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    def signature(spec):
+        # Export defaults are omitted; parser probes include them. Every actual
+        # payment/effect field participates, including newly added parser fields.
+        # An isolated clause has a fresh index and cannot see the following
+        # sentence's battlefield limitation, which is audited independently.
+        nullable_numbers = {"empoweredMana", "empoweredMight", "exhaustedUnitMinimumMightAsCost"}
+        return {key: value for key, value in spec.items()
+                if key not in ("index", "requiresSourceBattlefield")
+                and (value is not None if key in nullable_numbers else value not in (None, False, 0, "", {}, []))}
+    owner = []
+    for probe in sources.probes.get(normalize(clause["scope"]), []):
+        if probe["method"] != "BorrowedExhaustParser.Parse":
+            continue
+        for parsed in probe["value"]:
+            owner += [native for native in card.get("nativeActivations", [])
+                      if signature(native) == signature(parsed)]
+    if clause["text"] == clause["scope"] and owner:
+        routes = [path for native in owner for path in sources.references('"' + native["kind"] + '"')
+                  if "CoreRuleEngine" in path]
+        if any(native["kind"] == "MIGHT_UNIT" for native in owner):
+            # The shared resolver's ordinary else branch applies spec.Might;
+            # it does not need another literal comparison with MIGHT_UNIT.
+            routes += [path for path in sources.references("spec.Might")
+                       if Path(path).name == "CoreRuleEngine.BorrowedExhaust.cs"
+                       and path in sources.references("ApplyPowerModifier(")]
+        if routes:
+            return result("route", "原生横置技能规格及共享执行分支：" + owner[0]["kind"], routes)
+    if re.fullmatch(r"(?:我必须位于战场[中上]才能使用此技能|只有我位于战场时，才能使用我的技能)[。.]?",
+                    unparenthesize(clause["text"])):
+        candidates = owner or card.get("activations", [])
+        if candidates and all(a.get("requiresSourceBattlefield") or a.get("requiresBattlefieldSource") for a in candidates):
+            return result("route", "激活技能的来源位置限制", sources.references("RequiresSourceBattlefield")
+                          + sources.references("RequiresBattlefieldSource"))
+    return None
+
+
+def counted_behavior_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    bare = unparenthesize(clause["text"])
+    for behavior in card.get("behaviors", []):
+        field, consumer = None, None
+        defended_reveal = r"当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌[。.]?"
+        defended_damage = r"当中每有一张带有\{\{待命\}\}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收[。.]?"
+        defend_fields = dict(defendTriggerMaxTargetCount=1, defendTriggerTargetScope="ENEMY_UNIT_AT_SOURCE_BATTLEFIELD",
+                             defendTriggerMainDeckLookCount=5, defendTriggerCountedTag="待命",
+                             defendTriggerDamagePerCountedCard=1, defendTriggerRecyclesLookedMainDeckCards=True)
+        if re.fullmatch(defended_reveal, unparenthesize(clause["scope"])) and (
+                re.fullmatch(defended_reveal, bare) or re.fullmatch(defended_damage, bare)) and all(
+                behavior.get(key) == value for key, value in defend_fields.items()):
+            if sources.references("ResolveStandbyDefendTrigger(") and sources.references("CaptureStandbyDefendTriggers("):
+                evidence = [path for key in defend_fields for path in sources.field_routes(key)]
+                targets = [path for path in sources.references('"STANDBY_DEFEND"')
+                           if Path(path).name == "CoreRuleEngine.FieldTriggers.cs"
+                           and "IsCombatMightTargetHere(" in sources.files[path]
+                           and "c.ControllerId != item.ControllerId" in sources.files[path]]
+                # The generic field-trigger target selector enforces this scope
+                # directly, rather than reading the registry's descriptive field.
+                if targets and all(sources.field_routes(key) for key in defend_fields if key != "defendTriggerTargetScope"):
+                    return result("route", "防守展示、待命计数伤害与回收的完整规格及结算分支", evidence
+                                  + targets + sources.references("ResolveStandbyDefendTrigger("))
+        if re.fullmatch(r"(?:在本回合内，如果我移动了两次，则我免疫伤害|如果我已在本回合内移动了两次，则我无法受到伤害)[。.]?", bare) and behavior.get("damageImmunityAfterMoves") == 2:
+            field, consumer = "damageImmunityAfterMoves", "UnitMovementRules.CannotTakeDamage"
+        if re.fullmatch(r"当我在一个回合内进行了第三次移动，你获得1分[。.]?", bare) and behavior.get("movementScore") == dict(ordinal=3, scoreAmount=1):
+            field, consumer = "movementScore", "ResolveMovementScore("
+        if re.fullmatch(r"你的所有\{\{绝念\}\}效果可以额外触发一次[。.]?", bare) and behavior.get("friendlyLastBreathAdditionalTriggers") == 1:
+            field, consumer = "friendlyLastBreathAdditionalTriggers", "CaptureLastBreathRepetitions("
+        if field and sources.field_routes(field) and sources.references(consumer):
+            return result("route", "计数规格及共享执行流程：" + field,
+                          sources.field_routes(field) + sources.references(consumer))
+    return None
+
+
+def legacy_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Match concrete runtime identity readers to their individual instructions."""
+    bare = unparenthesize(clause["text"])
+    routes = card.get("legacyRoutes", {})
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5}
+    def number(value):
+        return int(value) if value.isdigit() else digits.get(value)
+    matched = None
+    held = routes.get("HeldDefinition", {})
+    prefix = re.fullmatch(r"(?:当(?:我|你)据守(?:一处战场|此处)?时)[，,]\s*(.+?)[。.]?", bare)
+    if prefix and held:
+        body = normalize(prefix[1])
+        kind, amount = held["kind"], held.get("amount", 0)
+        patterns = {
+            "DRAW": r"抽([一二两三四五0-9]+)张牌",
+            "SCORE": r"你获得(?:的分数\+|)([一二两三四五0-9]+)(?:分)?",
+            "EXPERIENCE": r"(?:你)?获得([一二两三四五0-9]+)(?:点)?经验",
+            "ROBOT": r"打出([一二两三四五0-9]+)名3\{\{S\}\}的机器人到你的基地",
+            "MINION": r"(?:在你的基地)?打出([一二两三四五0-9]+)名1\{\{S\}\}的随从(?:单位指示物)?(?:到你的基地)?",
+        }
+        value = re.fullmatch(patterns[kind], body) if kind in patterns else None
+        if value and number(value[1]) == amount:
+            matched = "HeldDefinition", "ResolveHeldStackItem", f"据守 {kind}/{amount}"
+        if kind == "RETURN_SELF" and re.fullmatch(r"把我送回所属的手牌|让(?:我|此牌)返回(?:其)?所属的手牌", body):
+            matched = "HeldDefinition", "ResolveHeldStackItem", "据守来源返手"
+    if routes.get("BeginningDrawKind") == "HAND_BELOW_TWO" and re.fullmatch(
+            r"在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌[。.]?", bare):
+        matched = "BeginningDrawKind", "ResolveBeginningDraw", "回合开始手牌不足两张时抽一张牌"
+    recycle = re.fullmatch(r"在你的回合开始阶段，从(?:你的)?废牌堆中?回收([一二两三四五0-9]+)张牌[。.]?", bare)
+    if recycle and number(recycle[1]) == routes.get("BeginningRecycleCount"):
+        matched = "BeginningRecycleCount", "BeginGraveyardRecycle", "回合开始从废牌堆回收"
+    if routes.get("IsUnitBattleWinDrawPrinting") and re.fullmatch(r"当我赢得一场战斗时，抽一张牌[。.]?", bare):
+        matched = "IsUnitBattleWinDrawPrinting", "ResolveUnitBattleWinDraw", "单位赢得战斗抽牌"
+    if routes.get("IsDravenBattleWinScorePrinting") and re.fullmatch(r"每回合首次，当我赢得战斗时，你获得1分[。.]?", bare):
+        matched = "IsDravenBattleWinScorePrinting", "ResolveDravenBattleWinScore", "首次赢得战斗得分"
+    if routes.get("IsKhazixBattleWinPrinting") and re.fullmatch(r"当你赢得一场战斗时，获得1经验[。.]?", bare):
+        matched = "IsKhazixBattleWinPrinting", "ResolveKhazixBattleWin", "传奇赢得战斗获得经验"
+    if matched:
+        reader, consumer, description = matched
+        evidence = sources.references(reader + "(") + sources.references(consumer + "(")
+        if sources.references(reader + "(") and sources.references(consumer + "("):
+            return result("route", "运行时来源分组及结算分支：" + description, evidence)
+    return None
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     kind = clause["kind"]
+    if counted := counted_behavior_route(card, clause, sources):
+        return counted
+    if legacy := legacy_route(card, clause, sources):
+        return legacy
     if routes := sources.exact_text_readers.get(normalize(unparenthesize(clause["text"]))):
         return result("route", "共享流程读取本句完整文本", routes)
+    if native := native_activation_route(card, clause, sources):
+        return native
     for probe in sources.probes.get(normalize(clause["text"]), []):
         # A donor can be executable when copied by Heimerdinger while its own
         # source still lacks an activation. Donor syntax is not a native route.
@@ -460,7 +629,7 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
             # Quoted/granted skills need independent scope review before calling
             # the source's absent activation a real missing implementation.
             if "具有“" not in clause["scope"]:
-                return result("missing", "激活技能目录和传奇技能目录均无来源项")
+                return result("missing", "激活技能目录未找到与本句费用、结算和限制匹配的来源项")
         return result("review", "存在技能来源项；仍需逐句核对费用、结算及限制")
     if "不限数量" in clause["text"]:
         return result("missing", "未找到该规则例外的静态规格或执行路径")
@@ -501,6 +670,7 @@ def markdown(report: dict) -> str:
     counts = report["counts"]
     lines = ["# 卡牌逐句效果清单", "", "由 `python3 scripts/audit-card-effects.py --refresh --markdown docs/CARD_BACKLOG.md` 生成。",
              "官方基准目录、运行时已审补充与中国区勘误共用服务端加载流程；同名不同副标题／效果分别核对，同效果异画共用句子，所有印次都检查实现路径。", "",
+             "范围补查：下述句数目前只计目录的 `cardEffect`；部分武装下栏文字另存于 `data/official/armaments.json`，尚需逐张对照官方中文卡图补录，不在本轮计数内，不能据此宣称覆盖完整牌面。", "",
              f"当前 {report['prints']} 个印次、{report['effectGroups']} 项不同效果、{report['clauseCount']} 句：" + "，".join(f"{STATUSES[k]} {v}" for k, v in counts.items()) + "。", "",
              "“已找到实现路径”表示本句匹配到具体规格及执行消费者，不能据此证明所有规则边界正确；只有整张牌登记、解析器识别、旧夹具说明或关键词总表的状态，不算本句实现。未建立对应关系的句子保留“待确认”，不会直接当作规则缺陷。", "",
              "优先列英雄／传奇，以及在官方[洛杉矶赛事牌表（2026-09-30）](https://playriftbound.com/en-us/news/organizedplay/los-angeles-top-decks/)中出现的占卜贝壳、奇妙行囊、无主宝藏、先锋军备；牌表仅作排序参考，不代表中国区实时使用率。其余牌随后处理。李青·苦修者及增益计数由 N 线处理。", ""]
