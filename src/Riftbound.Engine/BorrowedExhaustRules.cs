@@ -15,10 +15,11 @@ public sealed record BorrowedExhaustContext(BorrowedTextSource Borrower, Borrowe
     IReadOnlyDictionary<string, string>? TargetTokenFactories = null, bool BorrowerWasOnBattlefield = false,
     bool? LastKnownSourceEmpowered = null, bool ArmamentWasPlayedThisTurn = false, ObjectBinding? DuelBattlefield = null,
     PaidUnitReference? ExhaustedCostUnit = null, ObjectBinding? BattlefieldSource = null,
-    string? BattlefieldCardNo = null, string? BattlefieldAbilityKind = null);
+    string? BattlefieldCardNo = null, string? BattlefieldAbilityKind = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Native = false);
 internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, RuleTextInstance BorrowerText,
     RuleTextInstance DonorText, BorrowedExhaustSpec Spec, ObjectBinding? BattlefieldSource = null,
-    string? BattlefieldCardNo = null, string? BattlefieldAbilityKind = null);
+    string? BattlefieldCardNo = null, string? BattlefieldAbilityKind = null, bool Native = false);
 
 internal static class BorrowedExhaustRules
 {
@@ -33,6 +34,32 @@ internal static class BorrowedExhaustRules
         && BorrowedExhaustParser.InheritsFriendlyExhaustAbilities(card.CardEffect);
     internal static BorrowedExhaustSpec? Spec(string cardNo, int index)
         => Specs.Value.GetValueOrDefault(cardNo, []).FirstOrDefault(s => s.Index == index);
+    private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<BorrowedExhaustSpec>>> NativeSourceSpecs = new(() =>
+    {
+        var existing = P4ActivatedAbilityCatalog.GetAll().Where(a => !a.BorrowedSourceAlias)
+            .SelectMany(P4ActivatedAbilityCatalog.SourceCardNosForAbility).ToHashSet(StringComparer.Ordinal);
+        return Cards.Value.Values.Where(card => !existing.Contains(card.CardNo)
+                && card.CardCategoryList.Any(category => category is "unit" or "hero_unit" or "exclusive_unit"
+                    or "equipment" or "exclusive_equipment")
+                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo, out _))
+            .ToDictionary(card => card.CardNo, card => (IReadOnlyList<BorrowedExhaustSpec>)
+                Specs.Value.GetValueOrDefault(card.CardNo, []).Where(spec =>
+                    spec.Kind is "MIGHT_UNIT" or "DAMAGE_UNIT" or "BOON_UNIT").ToArray(), StringComparer.Ordinal);
+    });
+
+    internal static IReadOnlyList<BorrowedExhaustSpec> NativeSpecs(string? cardNo)
+        => cardNo is null ? [] : NativeSourceSpecs.Value.GetValueOrDefault(cardNo, []);
+
+    private static bool SourceSupportsSpec(MatchState state, string player, CardObjectState source, BorrowedExhaustSpec spec)
+        => (!(spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) || source.IsEmpowered)
+            && state.PlayerExperience.GetValueOrDefault(player) >= spec.MinimumExperience
+            && (!spec.RequiresSourceBattlefield || state.PlayerZones.Values.Any(z => z.Battlefields.Contains(source.ObjectId)));
+
+    private static bool ValidNativeSource(BorrowedExhaustContext context)
+        => context.Borrower == context.Donor && context.BattlefieldSource is null
+            && context.BattlefieldCardNo is null && context.BattlefieldAbilityKind is null
+            && NativeSpecs(context.Borrower.CardNo).Any(spec => spec.Index == context.AbilityIndex);
+
     internal static BorrowedExhaustSpec? Spec(MatchState state, BorrowedExhaustContext context)
     {
         if (context.BattlefieldAbilityKind is null)
@@ -65,6 +92,17 @@ internal static class BorrowedExhaustRules
     {
         if (source.ControllerId != player || source.IsFaceDown || source.IsExhausted
             || !AttachedRuleTextRules.Field(state, source.ObjectId)) yield break;
+        // Printed and acquired exhaust skills share payment, target binding,
+        // responses and recovery. Native sources use the same captured text in
+        // both roles and carry an explicit discriminator for recovery validation.
+        foreach (var text in AttachedRuleTextRules.Instances(state, source))
+        foreach (var spec in NativeSpecs(text.CardNo))
+        {
+            if (!SourceSupportsSpec(state, player, source, spec)) continue;
+            var identity = $"NATIVE|{text.Id}|{text.CardNo}|{spec.Index}";
+            yield return new("BORROWED:NATIVE:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
+                source, text, text, spec, Native: true);
+        }
         foreach (var (borrower, donor) in Providers(state, player, source))
         {
             if (!Cards.Value.TryGetValue(AttachedRuleTextRules.Face(donor) ?? "", out var printed)
@@ -75,9 +113,7 @@ internal static class BorrowedExhaustRules
             {
                 // 727.1.b.1: enumerate the entire skill before checking its
                 // dependency on the borrowing source, never the donor.
-                if ((spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !source.IsEmpowered) continue;
-                if (state.PlayerExperience.GetValueOrDefault(player) < spec.MinimumExperience) continue;
-                if (spec.RequiresSourceBattlefield && !state.PlayerZones.Values.Any(z => z.Battlefields.Contains(source.ObjectId))) continue;
+                if (!SourceSupportsSpec(state, player, source, spec)) continue;
                 var identity = $"{borrower.Id}|{borrower.CardNo}|{text.Id}|{text.CardNo}|{spec.Index}";
                 yield return new("BORROWED:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity))),
                     donor, borrower, text, spec);
@@ -185,12 +221,15 @@ internal static class BorrowedExhaustRules
         if (item.EffectKind != Effect || c.Borrower is null || c.Donor is null
             || c.AcquiredTick <= 0 || c.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || c.Borrower.Object is null || c.Donor.Object is null || c.Borrower.Object.ObjectId != item.SourceObjectId
-            || c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || item.CardNo != c.Borrower.PhysicalCardNo || !Inherits(c.Borrower.CardNo)
+            || item.CardNo != c.Borrower.PhysicalCardNo
+            || (c.Native ? !ValidNativeSource(c)
+                : c.Borrower.Object.ObjectId == c.Donor.Object.ObjectId || !Inherits(c.Borrower.CardNo))
             || !ValidBattlefieldSource(state, c)
             || Spec(state, c) is not { } spec
             || !CoreRuleEngine.BorrowedEnemyTargetRequirementMet(state, item.ControllerId, spec)
             || !ValidSource(state, c.Borrower, c.AcquiredTick, spec.DestroysSourceAsCost || spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
-            || !ValidSource(state, c.Donor, c.AcquiredTick, spec.DestroyedFriendlyCardTypeAsCost.Length > 0)
+            || !ValidSource(state, c.Donor, c.AcquiredTick,
+                spec.DestroyedFriendlyCardTypeAsCost.Length > 0 || c.Native && spec.DestroysSourceAsCost)
             || spec.Kind == "RESOURCE" || spec.TargetScope == "UNLINKED_ATTRIBUTE"
             || (spec.RequiresEmpowered || spec.RemovesSourceEmpowerment) && !c.BorrowerWasEmpowered
             || spec.RequiresSourceBattlefield && !c.BorrowerWasOnBattlefield

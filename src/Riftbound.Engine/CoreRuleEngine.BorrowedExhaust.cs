@@ -191,7 +191,7 @@ public sealed partial class CoreRuleEngine
                 cards[state.SpellDuelState.BattlefieldObjectId!].ObjectGeneration) : null,
             BattlefieldSource: ability.BattlefieldSource,
             BattlefieldCardNo: ability.BattlefieldCardNo,
-            BattlefieldAbilityKind: ability.BattlefieldAbilityKind);
+            BattlefieldAbilityKind: ability.BattlefieldAbilityKind, Native: ability.Native);
         foreach (var cost in unitExhaustCosts)
         {
             var id = cost[ExhaustFriendlyUnitOptionalCostPrefix.Length..];
@@ -293,7 +293,7 @@ public sealed partial class CoreRuleEngine
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
             ["sourceObjectId"] = source.ObjectId, ["cardNo"] = source.CardNo, ["abilityId"] = ability.Id,
             ["effectKind"] = item.EffectKind, ["targetObjectIds"] = targets.ToArray() };
-        events.Add(new("ABILITY_ACTIVATED", "激活获得的技能", payload));
+        events.Add(new("ABILITY_ACTIVATED", ability.Native ? "激活横置技能" : "激活获得的技能", payload));
         events.Add(new(source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED", "横置来源以支付技能费用", new Dictionary<string, object?>(payload) {
             ["targetObjectId"] = source.ObjectId, ["wasExhausted"] = false, ["isExhausted"] = true }));
         events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, payment.RunePools, payment.PlayerExperience, payload)));
@@ -367,7 +367,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary();
         var zones = NormalizeZonesForSeats(state);
         var destroyed = new HashSet<string>(StringComparer.Ordinal);
-        var events = new List<GameEvent> { new("ABILITY_RESOLVED", "获得的技能结算", new Dictionary<string, object?> {
+        var events = new List<GameEvent> { new("ABILITY_RESOLVED", c.Native ? "横置技能结算" : "获得的技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId }) };
         if (spec.Kind == "CREATE_GOLD")
         {
