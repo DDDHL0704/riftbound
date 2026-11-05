@@ -88,6 +88,31 @@ public sealed class PrintedEntryPassiveTests
     }
 
     [Theory]
+    [InlineData("OGN·174/298")]
+    [InlineData("OGN·176/298")]
+    public async Task OtherPrintedOpenBattlefieldPermissionsUseTheSameSharedPlayRule(string cardNo)
+    {
+        var initial = OpenFieldPosition(cardNo);
+        var command = new PlayCardCommand("UNIT", cardNo, [], Destination: "BATTLEFIELD:OTHER");
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", new("open-field", "prompt", initial.Tick, command));
+        Assert.True(quote.IsValid, quote.Message);
+        var game = new Driver(initial);
+        await game.Act("P1", command);
+        Assert.Equal("OTHER", game.State.ObjectLocations["UNIT"].BattlefieldObjectId);
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("OGN·174/298")]
+    [InlineData("OGN·176/298")]
+    public async Task AnOpenBattlefieldPrintingDoesNotPermitPlayingToAnEnemyOccupiedBattlefield(string cardNo)
+    {
+        var initial = LocalDestructionRecallTests.At(OpenFieldPosition(cardNo), "ENEMY", "P2", "BATTLEFIELD", "OTHER");
+        await Reject(initial, "P1", new PlayCardCommand("UNIT", cardNo, [], Destination: "BATTLEFIELD:OTHER"));
+    }
+
+    [Theory]
     [InlineData("OGN·193/298")] [InlineData("OGN·193a/298")] [InlineData("OGN·193b/298")]
     public async Task AFieldSourceImmediatelyGrantsItsControllerTheOpenBattlefieldPlayPermission(string cardNo)
     {
