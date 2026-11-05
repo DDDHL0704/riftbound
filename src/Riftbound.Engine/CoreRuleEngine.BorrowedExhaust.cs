@@ -50,7 +50,7 @@ public sealed partial class CoreRuleEngine
         // Core 396/398: acquiring only the activated component does not acquire a declaration.
         => spec.TargetScope == "UNLINKED_ATTRIBUTE" ? false
             : spec.TargetScope == "ENEMY_ATTACKING_HERE" ? IsEnemyAttackingAtSourceBattlefield(state, player, sourceId, id)
-            : spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" && index == 1
+            : spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" or BorrowedExhaustRules.AttachAnyArmament && index == 1
             ? IsControlledArmamentTarget(state, player, id, spec.Kind == "ATTACH_ARMAMENT", spec.Kind == "REATTACH_ARMAMENT")
             : BorrowedExhaustRules.TargetsPlayer(spec) ? state.Seats.ContainsKey(id) && (spec.TargetScope != "OPPONENT" || id != player)
             : spec.TargetScope == "OWNED_TEEMO_UNIT" ? IsValidOwnedTeemoUnitTarget(state, player, id)
@@ -331,7 +331,7 @@ public sealed partial class CoreRuleEngine
                 id => IsBorrowedExhaustTarget(state, item.ControllerId, id, spec, item.SourceObjectId));
         if (spec.Kind is "RETURN_TO_HAND" or "RETURN_AND_CREATE_GOLD")
             return ResolveBorrowedReturnSkill(state, item, spec);
-        if (spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT")
+        if (spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" or BorrowedExhaustRules.AttachAnyArmament)
             return ResolveBorrowedArmamentSkill(state, item, spec);
         if (spec.Kind == "BATTLEFIELD_UNIT_GAIN_EXPERIENCE")
             return ResolveBorrowedBattlefieldUnitGainExperience(state, item, spec);

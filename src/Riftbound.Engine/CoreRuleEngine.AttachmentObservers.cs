@@ -116,7 +116,9 @@ public sealed partial class CoreRuleEngine
                 ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId, ["sourceCardNo"] = face,
                 ["revision"] = revision, ["reason"] = "ATTACH_THEN_COPY_PRINTED_RULE_TEXT" }));
         }
-        ApplyAttachmentUnitCopy(state, zones, cards, nextLocations, gearId, unitId, actor, events);
+        // CN core 374 / Vendetta FAQ p.6: the equipment's controller controls
+        // its replacement effect, including its choices and friendly reference.
+        ApplyAttachmentUnitCopy(state, zones, cards, nextLocations, gearId, unitId, controller, events);
         return true;
     }
 
