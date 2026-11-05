@@ -37,7 +37,7 @@ public sealed class RadSpellDuelReactionTests
         Assert.Empty(game.State.PlayerZones["P1"].ChampionZone); await game.Replay();
     }
 
-    private static MatchState Position(string no = Kaisa, bool copied = false)
+    internal static MatchState Position(string no = Kaisa, bool copied = false)
     {
         var s = ArmamentMightTests.Position(gear: copied ? "SFD·059/221" : "SFD·022/221", unit: no, power: no == Kaisa ? 5 : 4, attached: copied);
         s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["F"] = s.CardObjects["F"] with { ControllerId = "P2" } },
@@ -48,7 +48,7 @@ public sealed class RadSpellDuelReactionTests
         return s;
     }
 
-    private static async Task OpenDuel(Driver game)
+    internal static async Task OpenDuel(Driver game)
     {
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         Assert.True(game.State.SpellDuelState.IsActive); Assert.Equal("F", game.State.SpellDuelState.BattlefieldObjectId);
@@ -162,7 +162,7 @@ public sealed class RadSpellDuelReactionTests
         await game.Top(); Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DRAWN"); await game.Replay();
     }
 
-    private static async Task Reject(MatchState state, string player, PlayCardCommand command)
+    internal static async Task Reject(MatchState state, string player, PlayCardCommand command)
     {
         var before = MatchStateHasher.Hash(state); var snapshots = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(state));
         var prompts = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(state));

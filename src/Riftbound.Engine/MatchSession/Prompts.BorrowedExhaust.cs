@@ -54,11 +54,12 @@ internal static partial class ActionPromptBuilder
                     .Where(id => CoreRuleEngine.IsBorrowedExhaustTarget(state, player, id, ability.Spec, source.ObjectId, i))
                     .Select(id => BorrowedExhaustRules.TargetsPlayer(ability.Spec)
                         ? new ActionPromptChoiceDto(id, id, "所选玩家") : ObjectChoice(state, id,
-                            ability.Spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT"
+                            ability.Spec.Kind is "ATTACH_ARMAMENT" or "REATTACH_ARMAMENT" or BorrowedExhaustRules.AttachAnyArmament
                                 ? i == 0 ? "单位" : "武装" : "技能目标")).ToArray());
             var targets = choices.Values.SelectMany(c => c).DistinctBy(c => c.Id).ToArray();
             if (choices.Values.Any(c => c.Count == 0) || targets.Length < ability.Spec.Targets) continue;
             var effect = ability.Spec.Kind switch {
+                BorrowedExhaustRules.AttachAnyArmament => "将你控制的一件武装贴附到你控制的一名单位上",
                 "ATTACH_ARMAMENT" => "将你控制的一件未贴附的武装贴附到你控制的一名单位上",
                 "REATTACH_ARMAMENT" => "将你控制的一件已贴附的武装贴附到你控制的一名单位上",
                 "RETURN_UNIT_FREE_PLAY" => "让一名友方单位返回手牌，然后可免费打出战力更低的单位",
