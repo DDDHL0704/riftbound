@@ -1445,6 +1445,7 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.GrantSelfBoon) return $"{ability.DisplayName}：横置，给予我增益";
         if (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit) return $"{ability.DisplayName}：横置，眩晕一名敌方单位";
         if (ability.Kind == ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower) return $"{ability.DisplayName}：横置，给予单位增益；已有增益则本回合战力 +{ability.PowerModifierAmount}";
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)

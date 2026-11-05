@@ -3049,6 +3049,7 @@ public static class ActivatedAbilityParser
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
             if (segment.StartsWith("当", StringComparison.Ordinal) || segment.StartsWith("每当", StringComparison.Ordinal)
+                || segment == "我可以拥有不限数量的增益"
                 || segment.StartsWith("{{已强化>}}", StringComparison.Ordinal))
             {
                 if (!string.IsNullOrWhiteSpace(currentActivatedAbility)) segments.Add(currentActivatedAbility);
@@ -3145,6 +3146,14 @@ public static class ActivatedAbilityParser
         ability = default!;
         if (cost is not ("{{T}}" or "{{横置}}")) return false;
         var functionalEffect = Regex.Replace(effect, @"（[^）]*）|\([^)]*\)", "", RegexOptions.CultureInvariant).Trim().TrimEnd('。', '.');
+        if (functionalEffect is "给予我增益" or "给予我{{增益}}")
+        {
+            ability = new(cost, effect, [BehaviorTemplateIds.Boon], BehaviorImplementationStatuses.Implemented,
+                "Exhaust the source to grant itself a boon at ordinary timing, without choosing a target.",
+                Kind: ActivatedAbilityKinds.GrantSelfBoon, ExhaustsSourceAsCost: true,
+                ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0);
+            return true;
+        }
         if (Regex.IsMatch(functionalEffect, @"^\{\{眩晕\}\}一名敌方单位$", RegexOptions.CultureInvariant))
         {
             ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),

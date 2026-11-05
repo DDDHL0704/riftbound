@@ -26,8 +26,7 @@ public sealed partial class CoreRuleEngine
         {
             if (spec.ConsumesSourceBoonDuringResolution)
             {
-                source = source with { Power = source.Power - 1,
-                    Tags = source.Tags.Where(t => t != CardObjectTags.Boon).ToArray() };
+                source = BoonRules.Consume(source);
                 cards[source.ObjectId] = source;
                 events.Add(new("BOON_CONSUMED", "结算时消耗来源的增益", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId,

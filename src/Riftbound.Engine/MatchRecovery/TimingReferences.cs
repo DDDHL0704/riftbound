@@ -863,9 +863,12 @@ public static partial class MatchRecoveryValidator
             condition,
             lifecycle,
             errors);
-        ValidateContinuousEffectNonStaticAuraParticipantListAbsence(effectPayload, effectLabel, layer, errors);
-        ValidateContinuousEffectNonStaticAuraDependencyListAbsence(effectPayload, effectLabel, layer, errors);
-        ValidateContinuousEffectNonStaticAuraStaticMetadataAbsence(effectPayload, effectLabel, layer, errors);
+        if (!(scope == "OBJECT" && layer == ContinuousEffectLayers.RuleText && IsSourceObjectKeywordAura(effectKind, sourceCardNo)))
+        {
+            ValidateContinuousEffectNonStaticAuraParticipantListAbsence(effectPayload, effectLabel, layer, errors);
+            ValidateContinuousEffectNonStaticAuraDependencyListAbsence(effectPayload, effectLabel, layer, errors);
+            ValidateContinuousEffectNonStaticAuraStaticMetadataAbsence(effectPayload, effectLabel, layer, errors);
+        }
         return (effectId, sequence);
     }
 

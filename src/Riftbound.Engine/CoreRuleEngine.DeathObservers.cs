@@ -355,7 +355,7 @@ public sealed partial class CoreRuleEngine
                 && item.TargetGenerations?.GetValueOrDefault(target, -1) == boonCards[target].ObjectGeneration)
             {
                 using var instruction = new MightInstructionScope(state, state.PlayerZones, boonCards, events);
-                GrantLegendBoon(boonCards, target, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
+                GrantLegendBoon(boonCards, target, item.ControllerId, item.SourceObjectId, item.EffectKind, events, state.PlayerZones);
             }
             return NoopStackResolutionResult(state) with { CardObjects = boonCards, Events = events };
         }

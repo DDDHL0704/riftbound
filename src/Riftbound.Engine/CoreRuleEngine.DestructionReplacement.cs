@@ -432,9 +432,9 @@ public sealed partial class CoreRuleEngine
         var paidPower = PayPowerCost(current, traitToSpend is null ? 1 : 0, paymentTraits);
         pools[player] = current with { Power = paidPower.AnyPower, PowerByTrait = paidPower.PowerByTrait };
         RecallAttachedGroupToBase(zones, cards, option.Target, player);
-        cards[option.Target] = ExhaustForInstruction(zones, cards, unitState) with { Damage = 0, DamageMarkedByPlayerIds = null, Power = unitState.Power - 1, IsExhausted = true,
-            IsAttacking = false, IsDefending = false, ControllerId = player,
-            Tags = unitState.Tags.Where(t => t != CardObjectTags.Boon).ToArray() };
+        cards[option.Target] = BoonRules.Consume(ExhaustForInstruction(zones, cards, unitState)) with {
+            Damage = 0, DamageMarkedByPlayerIds = null, IsExhausted = true,
+            IsAttacking = false, IsDefending = false, ControllerId = player };
         cards[option.Source] = ExhaustForInstruction(zones, cards, cards[option.Source]);
         events.Add(new("COST_PAID", "支付腕豪替换费用：1 点任意符能", new Dictionary<string, object?> {
             ["playerId"] = player, ["mana"] = 0, ["power"] = 1, ["reason"] = SettRecallEffect }));

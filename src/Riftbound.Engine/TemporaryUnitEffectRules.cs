@@ -66,7 +66,7 @@ internal static class TemporaryUnitEffectRules
         var printed = card.LegendEquipmentUnit is not null ? card.ManaCost
             : PrintedCardFactory.TryCreate(card.ObjectId, card.OwnerId ?? "", card.CardNo, out var face) ? face.Power
             : card.CardNo is { } no && P6TokenFactoryCatalog.TryGetByCardNo(no, out var token) ? token.DefaultPower
-            : card.Power - card.UntilEndOfTurnPowerModifier - (card.Tags.Contains("增益") ? 1 : 0);
+            : card.Power - card.UntilEndOfTurnPowerModifier - BoonRules.Count(card);
         return replacement - printed;
     }
 

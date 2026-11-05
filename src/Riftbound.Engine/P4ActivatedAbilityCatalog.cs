@@ -63,7 +63,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
     string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
     bool GrantsMysteriousWeaponRecall = false, bool GrantsPaidRecall = false,
-    bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false);
+    bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -1062,10 +1062,12 @@ public static class P4ActivatedAbilityCatalog
         return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
             .SelectMany(spec => spec.ActivatedAbilities
                 .Where(ability => IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(ability)
+                    || IsSelfBoonSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedUnitExhaustSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedPowerModifier(ability) && (spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
                         || spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)))
-                .Select(ability => IsTargetedUnitExhaustSpec(ability) ? TargetedUnitExhaustDefinition(spec, ability)
+                .Select(ability => IsSelfBoonSpec(ability) ? SelfBoonDefinition(spec, ability)
+                    : IsTargetedUnitExhaustSpec(ability) ? TargetedUnitExhaustDefinition(spec, ability)
                     : IsTargetedPowerModifier(ability)
                     ? TargetedPowerModifierDefinition(spec, ability)
                     : DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(spec, ability)))
@@ -1082,6 +1084,17 @@ public static class P4ActivatedAbilityCatalog
     public static bool IsOrdinaryTargetedExhaustAbility(P4ActivatedAbilityDefinition ability)
         => ability.Kind is ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
             or ActivatedAbilityKinds.StunEnemyUnit or ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower;
+
+    private static bool IsSelfBoonSpec(ActivatedAbilitySpec ability)
+        => ability.Kind == ActivatedAbilityKinds.GrantSelfBoon && ability.ExhaustsSourceAsCost == true
+            && ability.RequiredTargetCount == 0 && ability.ManaCost == 0 && ability.PowerCost == 0;
+
+    private static P4ActivatedAbilityDefinition SelfBoonDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
+    {
+        var id = BuildBehaviorSpecAbilityId(spec.CardNo, ability.Kind);
+        return new(id, spec.CardNo, id, spec.CardName, 0, 0, 0, false, true, 0, false, ability.Reason,
+            Kind: ability.Kind!, SourceRequiredTag: CardObjectTags.UnitCard, SimpleEffect: new(GrantsSourceBoon: true));
+    }
 
     private static bool IsTargetedUnitExhaustSpec(ActivatedAbilitySpec ability)
         => ability.ExhaustsSourceAsCost == true && ability.RequiredTargetCount == 1

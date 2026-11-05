@@ -3330,7 +3330,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Select(objectId => objectId.Trim())
             .ToArray();
         if (submittedObjectIds.Length != chosenObjectIds.Count
-            || submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
+            || !AllowsRepeatedBoonChoice(state, pendingChoice)
+                && submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
             || submittedObjectIds.Length < pendingChoice.RequiredCount
             || submittedObjectIds.Length > pendingChoice.MaxCount)
         {
@@ -7930,7 +7931,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     command.SourceObjectId,
                     command.AbilityId,
-                    events);
+                    events, playerZones);
                 break;
             case LegendAbilityEffectKinds.GrantRoam:
                 GrantLegendRoam(
@@ -8770,24 +8771,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string sourceObjectId,
         string abilityId,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        IReadOnlyDictionary<string, PlayerZones> playerZones)
     {
         if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return;
         }
 
-        var alreadyHadBoon = targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
-        var nextTags = targetState.Tags
-            .Concat([CardObjectTags.Boon])
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-        cardObjects[targetObjectId] = targetState with
-        {
-            Power = alreadyHadBoon ? targetState.Power : targetState.Power + 1,
-            Tags = nextTags
-        };
+        var alreadyHadBoon = BoonRules.Count(targetState) > 0;
+        if (BoonRules.TryGrant(targetState, playerZones, cardObjects, out var granted))
+            cardObjects[targetObjectId] = granted;
         events.Add(new GameEvent(
             "BOON_GRANTED",
             $"{targetObjectId} 获得增益",
@@ -8798,7 +8792,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["abilityId"] = abilityId,
                 ["targetObjectId"] = targetObjectId,
                 ["alreadyHadBoon"] = alreadyHadBoon,
-                ["power"] = alreadyHadBoon ? targetState.Power : targetState.Power + 1
+                ["power"] = granted.Power,
+                ["boonCount"] = BoonRules.Count(granted)
             }));
     }
 
@@ -14089,7 +14084,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
             + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
             + ArmamentMightContributions(state, zones, card).Sum(c => c.Delta)
-            + BoonAmplifiersFor(state, zones, card).Sum(c => c.Amount)
+            + BoonAmplifiersFor(state, zones, card).Sum(c => c.Amount) * BoonRules.Count(card)
             + EmpowerRules.Might(state, card)
             + EmpoweredUnitAuraContributions(state, card).Sum(aura => aura.Delta)
             + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
@@ -15870,7 +15865,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 playerId,
                 unitObjectId,
                 unitConquestFriendlyBoonTrigger.Kind,
-                events);
+                events, playerZones);
             drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
             return true;
         }
@@ -15957,7 +15952,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     playerId,
                     unitObjectId,
                     unitConquestDestroyEquipmentTrigger.Kind,
-                    events);
+                    events, playerZones);
             }
 
             drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
@@ -16788,13 +16783,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var drawCount = trigger.DrawCount.GetValueOrDefault();
         var nextPower = targetState.Power - 1;
-        cardObjects[targetObjectId] = targetState with
-        {
-            Power = nextPower,
-            Tags = targetState.Tags
-                .Where(tag => !string.Equals(tag, CardObjectTags.Boon, StringComparison.Ordinal))
-                .ToArray()
-        };
+        cardObjects[targetObjectId] = BoonRules.Consume(targetState);
 
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
@@ -23546,7 +23535,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
             || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceUnitState, playerId)
-            || sourceUnitState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
+            || !BoonRules.CanGrant(sourceUnitState, playerZones, cardObjects)
             || !runePools.TryGetValue(playerId, out var currentPool))
         {
             return false;
@@ -23621,7 +23610,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerId,
             battlefieldObjectId,
             triggerKind,
-            events);
+            events, playerZones);
         return true;
     }
 
@@ -31270,24 +31259,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
-        if (targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal))
+        if (!BoonRules.TryGrant(targetState, playerZones, cardObjects, out var nextTargetState))
         {
             boonEvents = [];
             return targetState;
         }
 
-        var nextTargetState = targetState with
-        {
-            Power = targetState.Power + 1,
-            Tags = targetState.Tags
-                .Concat([CardObjectTags.Boon])
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(tag => tag, StringComparer.Ordinal)
-                .ToArray()
-        };
-        var nextBoonEvents = new List<GameEvent>
-        {
-            new(
+        var nextBoonEvents = new List<GameEvent>();
+        if (BoonRules.Count(targetState) == 0)
+            nextBoonEvents.Add(new(
                 "OBJECT_TAG_ADDED",
                 $"{behavior.DisplayName}给予增益标签",
                 new Dictionary<string, object?>
@@ -31295,8 +31275,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["tag"] = CardObjectTags.Boon
-                }),
-            new(
+                }));
+        nextBoonEvents.Add(new(
                 "BOON_GRANTED",
                 $"{behavior.DisplayName}给予增益",
                 new Dictionary<string, object?>
@@ -31304,9 +31284,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["powerDelta"] = 1,
+                    ["boonCount"] = nextTargetState.BoonCount,
                     ["resultingPower"] = nextTargetState.Power
-                })
-        };
+                }));
 
         if (TryGetUnitBoonGrantedReadySelfTrigger(nextTargetState, stackItem.ControllerId, out var boonGrantedTrigger))
         {

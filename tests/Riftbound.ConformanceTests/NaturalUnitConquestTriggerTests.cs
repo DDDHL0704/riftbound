@@ -547,6 +547,7 @@ public sealed class NaturalUnitConquestTriggerTests
 
         var treant = result.State.CardObjects[TreantObjectId];
         Assert.Equal(5, treant.Power);
+        Assert.Equal(1, treant.BoonCount);
         Assert.Contains(CardObjectTags.Boon, treant.Tags);
     }
 

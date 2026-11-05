@@ -529,7 +529,7 @@ public sealed partial class CoreRuleEngine
             else if (item.FieldContext.Kind == "RECYCLE_BOON")
             {
                 using var instruction = new MightInstructionScope(state, zones, cards, events);
-                GrantLegendBoon(cards, target, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
+                GrantLegendBoon(cards, target, item.ControllerId, item.SourceObjectId, item.EffectKind, events, zones);
             }
             else if (item.FieldContext.Kind == "SECOND_DRAW")
             {
