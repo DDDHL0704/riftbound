@@ -26730,14 +26730,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 resolvedObjectLocations ?? state.ObjectLocations);
         }
 
-        if (behavior.PreventsOpponentSpellPlayThisTurn
+        if ((behavior.PreventsOpponentSpellPlayThisTurn || behavior.PreventsOpponentCardPlayThisTurn)
             && OpponentOf(state, stackItem.ControllerId) is { } opponentId)
         {
-            var marker = CardPermissionKeywordRules.SpellPlayProhibitionPrefix + opponentId;
+            var allCards = behavior.PreventsOpponentCardPlayThisTurn;
+            var marker = (allCards ? CardPermissionKeywordRules.CardPlayProhibitionPrefix
+                : CardPermissionKeywordRules.SpellPlayProhibitionPrefix) + opponentId;
             if (!untilEndOfTurnEffects.Contains(marker, StringComparer.Ordinal))
                 untilEndOfTurnEffects.Add(marker);
             untilEndOfTurnEffects.Sort(StringComparer.Ordinal);
-            events.Add(new GameEvent("SPELL_PLAY_PROHIBITED", "对手本回合内不能打出法术",
+            events.Add(new GameEvent(allCards ? "CARD_PLAY_PROHIBITED" : "SPELL_PLAY_PROHIBITED",
+                allCards ? "对手本回合内不能打出卡牌" : "对手本回合内不能打出法术",
                 new Dictionary<string, object?> { ["playerId"] = opponentId,
                     ["sourceObjectId"] = stackItem.SourceObjectId, ["duration"] = "THIS_TURN" }));
         }

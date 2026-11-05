@@ -22,9 +22,9 @@ public sealed partial class CoreRuleEngine
             return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed, "请先完成当前对局步骤。");
 
         if (CardBehaviorRegistry.TryGetByCardNoAndMode(request.Command.CardNo, request.Command.Mode, out var behavior)
-            && CardPermissionKeywordRules.IsSpellPlayProhibited(state, playerId, behavior))
+            && CardPermissionKeywordRules.IsPlayProhibited(state, playerId, behavior))
             return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed,
-                CardPermissionKeywordRules.SpellPlayProhibitionMessage(state, playerId, behavior));
+                CardPermissionKeywordRules.PlayProhibitionMessage(state, playerId, behavior));
 
         var previewWithoutTargets = NormalizeTargetObjectIds(request.Command.TargetObjectIds).Count == 0
             && (request.Command.RepeatChoices?.Count ?? 0) == 0;

@@ -38,6 +38,14 @@ public sealed record CardPlayTimingDecision(
 
 public static class CardPermissionKeywordRules
 {
+    public const string CardPlayProhibitionPrefix = "CANNOT_PLAY_CARDS_THIS_TURN:";
+    public const string CardPlayProhibitionReason = "本回合内不能打出卡牌；已在结算链上的法术和技能仍可结算。";
+    public static bool IsPlayProhibited(MatchState state, string player, CardBehaviorDefinition behavior)
+        => state.UntilEndOfTurnEffects.Contains(CardPlayProhibitionPrefix + player, StringComparer.Ordinal)
+            || IsSpellPlayProhibited(state, player, behavior);
+    public static string PlayProhibitionMessage(MatchState state, string player, CardBehaviorDefinition behavior)
+        => state.UntilEndOfTurnEffects.Contains(CardPlayProhibitionPrefix + player, StringComparer.Ordinal)
+            ? CardPlayProhibitionReason : SpellPlayProhibitionMessage(state, player, behavior);
     public const string SpellPlayProhibitionReason = "本回合内不能打出法术；已在结算链上的法术仍可结算。";
     public static string SpellPlayProhibitionMessage(MatchState state, string player, CardBehaviorDefinition behavior)
         => CoreRuleEngine.IsDeclaredSpellNameProhibited(state, player, behavior)
@@ -88,8 +96,9 @@ public static class CardPermissionKeywordRules
         if (!CoreRuleEngine.PrintedPlayTurnAllowed(state, playerId, behavior))
             return Rejected($"此单位在你的前 {behavior.SourceStaticLimits!.UnplayableThroughControllerTurn} 个回合中无法打出。");
 
-        if (IsSpellPlayProhibited(state, playerId, behavior))
-            return Rejected(SpellPlayProhibitionMessage(state, playerId, behavior));
+        // CN 054.1: prohibitions also override permissions granted by effects.
+        if (IsPlayProhibited(state, playerId, behavior))
+            return Rejected(PlayProhibitionMessage(state, playerId, behavior));
 
         if (state.PendingEffectPlay is { } pending)
             return new(CoreRuleEngine.EffectPlayAllowsBehavior(state, playerId, behavior), "EFFECT_PLAY", "由正在结算的效果许可再次打出。");
