@@ -1,0 +1,290 @@
+[
+  {
+    "ref": "refs/win/archive/dirty/riftbound-b-ven-discard",
+    "sha": "b8c72bc3db9efdb710165b96fc797f345e01c33a",
+    "added": 36,
+    "novel": 27,
+    "samples": [
+      "awaitPaySmuggledRecall(game,false);",
+      "privateconststringPaidRecallAbility=P4ActivatedAbilityCatalog.MysteriousWeaponRecallAbilityId;",
+      "privatestaticstring[]PaidRecallGrants(MatchStatestate,boolborrowed)",
+      "?state.UntilEndOfTurnEffects",
+      ":state.CardObjects.Values.SelectMany(card=>card.UntilEndOfTurnEffects))",
+      ".Where(m=>m.StartsWith(borrowed?PaidRecallPrefix:CoreRuleEngine.MysteriousWeaponRecallPrefix,StringComparison.Ordinal))",
+      "privatestaticasyncTaskPaySmuggledRecall(Drivergame,boolborrowed)",
+      "Assert.Empty(PaidRecallGrants(game.State,borrowed));",
+      "varmarker=Assert.Single(PaidRecallGrants(game.State,borrowed));",
+      "awaitPaySmuggledRecall(game,borrowed);",
+      "Assert.Equal(borrowed?1:0,game.State.CardObjects[\"ALLY\"].Damage);",
+      "Assert.Equal(borrowed?[\"P2\"]:null,game.State.CardObjects[\"ALLY\"].DamageMarkedByPlayerIds);"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-d-rad-spell-16-20261101",
+    "sha": "1ff2c1d067d75f484b56c0a1c6cedaa9280d9c8c",
+    "added": 3,
+    "novel": 2,
+    "samples": [
+      "if(trigger.BombRebuildisnotnull||trigger.EndAbilityisnotnull||trigger.InsightContextis{Kind:\"EXHAUSTED\"}||trigger.UnitConquestReturnisnotnull||trigger.ConquestTokenisnotnull||trigger.SourceUnitTokensisnotnull||trigger.ReadyObjectTriggerisnotnull||trigger.SourceReadiedisnotnull||trigger.BeginningRuneisnotnull||trigger.LastBreathUnitCreationisnotnull||trigger.LastBreathRuneCallisnotnull||trigger.LastBreathDrawisnotnull||trigger.LastBreathBattlefieldDamageisnotnull||trigger.DelayedEmpowerisnotnull||trigger.EmpowerOtherObserverisnotnull||trigger.OutsideHandPlayObserverisnotnull||trigger.HighCostPlayObserverisnotnull||trigger.ConquestSourceisnotnull||trigger.DeathObserverisnotnull||trigger.MovementObserverisnotnull||trigger.FieldContext?.KindisCoreRuleEngine.BombDestructionKindorCoreRuleEngine.EmpoweredBanishKindorCoreRuleEngine.AttackAreaDamageKindorCoreRuleEngine.AttackMightDamageKindorCoreRuleEngine.CombatMightDamageKindorCoreRuleEngine.SelfActionPowerKindorCoreRuleEngine.EmpoweredAttackDestroyKindorCoreRuleEngine.AttackWeaponDamageKindorCoreRuleEngine.DisarmKindorCoreRuleEngine.PaidUnitStunKindorCoreRuleEngine.PaidUnitDestroyKindorCoreRuleEngine.StunReadyPowerKindorCoreRuleEngine.StunBoonKindorCoreRuleEngine.EquipmentDeathReturnKind||trigger.HandDiscardObserverisnotnull||trigger.UnitBattleWinDrawisnotnull||trigger.LegendBattleWinDrawisnotnull||trigger.KhazixBattleWinisnotnull||trigger.DravenBattleWinScoreisnotnull||trigger.DravenBattleDeathScoreisnotnull||trigger.TurnUnitPlayBoonisnotnull||trigger.TurnUnitPlayDrawisnotnull)",
+      "||item.TurnUnitPlayBoonisnotnull||item.TurnUnitPlayDrawisnotnull"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-d-rad-spells",
+    "sha": "a507564941984a2235808067ff025113b75ca4b3",
+    "added": 119,
+    "novel": 96,
+    "samples": [
+      "boolStatusEffectAmountFromTargetCurrentPower=false,",
+      "boolGrantsSpellPlayProhibitionThisTurn=false,",
+      "boolTargetMustBeEnemyOccupiedBattlefield=false,",
+      "boolTargetMustHaveMovedThisTurn=false,",
+      "boolTargetMustBeDeployEquipment=false,",
+      "boolUsesAreaDamageDistribution=false,",
+      "boolAreaDamageIncludesFriendlyUnits=false,",
+      "boolCreatesTokensAtTargetBattlefield=false,",
+      "boolCreatesActiveBaseEquipmentTokensWhenPlayedFromStandby=false,",
+      "boolRequiresHighCostPlayRecursion=false,",
+      "boolBanishesSourceAfterHighCostPlayRecursion=false)",
+      "new(\"RAD\u00b7004/167\",\"\u4e71\u6bb4\",3,\"RAD_004_ASSAULT_CURRENT_POWER\",0,1,"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-d-rad-spells-16",
+    "sha": "96c9223b2873dde6815ae53d79955f6cb302a9d7",
+    "added": 118,
+    "novel": 92,
+    "samples": [
+      "//RADspellprimitives.Theseliveonthesharedbehaviorcontractso",
+      "//declaration,resolution,andrecoveryvalidateoneauthoritativeshape.",
+      "boolStatusEffectAmountFromTargetCurrentPower=false,",
+      "boolDamageDistributionAcrossBattlefield=false,",
+      "intCreatedBattlefieldUnitTokenCount=0,",
+      "stringCreatedBattlefieldUnitTokenName=\"\",",
+      "stringCreatedBattlefieldUnitTokenTags=\"\",",
+      "intCreatedBattlefieldUnitTokenPower=0,",
+      "boolCreatedBattlefieldUnitTokenEntersReady=false,",
+      "boolTargetBattlefieldMustBeEnemyControlled=false,",
+      "boolMovesFriendlyEquipmentToChosenLocation=false,",
+      "boolCreatesBattlefieldEquipmentAtChosenDestination=false,"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-d-rad-spells-20261101",
+    "sha": "b24993a9e916a80a15fe3498d76e2ec2d2371b1a",
+    "added": 129,
+    "novel": 92,
+    "samples": [
+      "(Id:39641L,CardNo:\"RAD\u00b7135/167\")",
+      "boolDistributesDamage=false,",
+      "boolEffectPlayMultipleSources=false,",
+      "intEffectPlayMaximumSources=1,",
+      "intCreatedBattlefieldUnitTokenCount=0,",
+      "intCreatedBattlefieldUnitTokenPower=0,",
+      "stringCreatedBattlefieldUnitTokenName=\"\",",
+      "stringCreatedBattlefieldUnitTokenTags=\"\",",
+      "boolCreatedBattlefieldUnitTokenEntersReady=false,",
+      "boolMovesEquipmentToChosenLocation=false,",
+      "boolMovesToEnemyOccupiedBattlefield=false,",
+      "boolTargetBattlefieldMustBeEnemyOccupied=false,"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-d-rad-spells-next",
+    "sha": "ca28ebb5c00fb511faa6fc0228e302bee89d3dc2",
+    "added": 486,
+    "novel": 131,
+    "samples": [
+      "@\"\u5f53\u4f60\u6253\u51fa\u4e00\u5f20\u6cd5\u529b\u8d39\u7528\u4e0d\u4f4e\u4e8e\\{\\{(?<mana>[0-9]+)\\}\\}\u7684\u5361\u724c\u65f6\uff0c\u4f60\u53ef\u4ee5\u9009\u62e9\u4ece\u4f60\u7684\u5e9f\u724c\u5806\u4e2d\u4ee5\\{\\{(?<playMana>[0-9]+)\\}\\}\u548c(?<traits>(?:\\{\\{(?:\u7ea2\u8272|\u7eff\u8272|\u84dd\u8272|\u6a59\u8272|\u7d2b\u8272|\u9ec4\u8272)\\}\\})+)\u7684\u8d39\u7528\u5c06\u6211\u6253\u51fa\u3002\",",
+      "@\"\u5f53\u4f60\u6253\u51fa\u4e00\u5f20\u6cd5\u529b\u8d39\u7528\u4e0d\u4f4e\u4e8e\\{\\{(?<mana>[0-9]+)\\}\\}\u7684\u5361\u724c\u65f6\uff0c\u4f60\u53ef\u4ee5\u9009\u62e9\u4ece\u4f60\u7684\u5e9f\u724c\u5806\u4e2d\u4ee5\\{\\{(?<trait>\u9ec4\u8272)\\}\\}\u7684\u8d39\u7528\u5c06\u6211\u6253\u51fa\u3002\",",
+      "boolStatusEffectUsesTargetCurrentPower=false)",
+      "DamageDistributionAmount:5),",
+      "new(\"RAD\u00b7032/167\",\"\u6218\u524d\u4eea\u5f0f\",2,\"RAD_032_SHOW_EQUIPMENT_POWER_PLUS_TWO\",0,1,",
+      "new(\"RAD\u00b7102/167\",\"\u6076\u9b54\u9b45\u5f71\",3,\"RAD_102_STANDBY_MOVE_OR_ROAM\",0,1,",
+      "MovesTargetToOpenBattlefield:true,GrantsRoamIfNoOpenBattlefield:true),",
+      "new(\"RAD\u00b7135/167\",\"\u4e0d\u673d\u94ed\u8bb0\",8,\"RAD_135_REPLAY_UP_TO_THREE_CHEAP_PERMANENTS\",0,0,",
+      "events.Add(new(\"EQUIPMENT_MOVED_TO_BATTLEFIELD\",\"\u6548\u679c\u79fb\u52a8\u88c5\u5907\",",
+      "=>(behavior.CreatedBaseUnitTokenCount",
+      "+(item.Showcaseisnotnull?behavior.CreatedBaseUnitTokenCountIfShowcase:0))*Math.Max(1,item.EffectRepeatCount)",
+      "if(state.CardObjects.TryGetValue(context.Source.ObjectId,outvarsource)"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-battlefields-20261101",
+    "sha": "be7ad0e74c9c332f078789d2f2e58dd987f16c55",
+    "added": 10,
+    "novel": 10,
+    "samples": [
+      "//RAD\u00b7111hasitsownbeginning-stepobserverbelow.Keepingit",
+      "//outofthegenericfacedown-battlefieldbranchpreventsa",
+      "//duplicatetriggerwhenaslotmachinehappenstoshareafield",
+      "//withafacedownbattlefieldcard.",
+      "if(kind==\"RAD111_SLOT_MACHINE\")continue;",
+      "Assert.Contains(unitEvent.CardNo,new[]{\"VEN\u00b7044\",\"VEN\u00b7094\",\"VEN\u00b7009\",\"VEN\u00b7020\",\"VEN\u00b7024\",\"VEN\u00b7028\",\"VEN\u00b7071\",\"VEN\u00b7079\",\"VEN\u00b7080\",\"VEN\u00b7091\",\"VEN\u00b7102\",\"VEN\u00b7108\",\"VEN\u00b7121\",\"RAD\u00b7017/167\",\"RAD\u00b7024/167\",\"RAD\u00b7035/167\",\"RAD\u00b7039/167\",\"RAD\u00b7044/167\",\"RAD\u00b7046/167\",\"RAD\u00b7053/167\",\"RAD\u00b7073/167\",\"RAD\u00b7087/167\",\"RAD\u00b7089/167\",\"RAD\u00b7105/167\",\"RAD\u00b7106/167\",\"RAD\u00b7116/167\",\"RAD\u00b7136/167\"});",
+      "Assert.Equal(1397,runtime.Total);",
+      "Assert.Equal(1397,runtime.Cards.Count);",
+      "Assert.Equal([\"RAD\u00b7001/167\",\"RAD\u00b7002/167\",\"RAD\u00b7003/167\",\"RAD\u00b7005/167\",\"RAD\u00b7008/167\",\"RAD\u00b7009/167\",\"RAD\u00b7011/167\",\"RAD\u00b7012/167\",\"RAD\u00b7013/167\",\"RAD\u00b7014/167\",\"RAD\u00b7015/167\",\"RAD\u00b7016/167\",\"RAD\u00b7017/167\",\"RAD\u00b7018/167\",\"RAD\u00b7019/167\",\"RAD\u00b7020/167\",\"RAD\u00b7020a/167\",\"RAD\u00b7022/167\",\"RAD\u00b7024/167\",\"RAD\u00b7025/167\",\"RAD\u00b7026/167\",\"RAD\u00b7027/167\",\"RAD\u00b7028/167\",\"RAD\u00b7029/167\",\"RAD\u00b7030/167\",\"RAD\u00b7031/167\",\"RAD\u00b7034/167\",\"RAD\u00b7035/167\",\"RAD\u00b7036/167\",\"RAD\u00b7037/167\",\"RAD\u00b7039/167\",\"RAD\u00b7040/167\",\"RAD\u00b7041/167\",\"RAD\u00b7044/167\",\"RAD\u00b7046/167\",\"RAD\u00b7048/167\",\"RAD\u00b7049/167\",\"RAD\u00b7050/167\",\"RAD\u00b7052/167\",\"RAD\u00b7053/167\",\"RAD\u00b7054/167\",\"RAD\u00b7055/167\",\"RAD\u00b7056/167\",\"RAD\u00b7057/167\",\"RAD\u00b7058/167\",\"RAD\u00b7059/167\",\"RAD\u00b7060/167\",\"RAD\u00b7061/167\",\"RAD\u00b7061a/167\",\"RAD\u00b7062/167\",\"RAD\u00b7064/167\",\"RAD\u00b7066/167\",\"RAD\u00b7067/167\",\"RAD\u00b7069/167\",\"RAD\u00b7070/167\",\"RAD\u00b7071/167\",\"RAD\u00b7072/167\",\"RAD\u00b7073/167\",\"RAD\u00b7074/167\",\"RAD\u00b7075/167\",\"RAD\u00b7076/167\",\"RAD\u00b7077/167\",\"RAD\u00b7078/167\",\"RAD\u00b7079/167\",\"RAD\u00b7080/167\",\"RAD\u00b7081/167\",\"RAD\u00b7083/167\",\"RAD\u00b7087/167\",\"RAD\u00b7088/167\",\"RAD\u00b7089/167\",\"RAD\u00b7092/167\",\"RAD\u00b7093/167\",\"RAD\u00b7094/167\",\"RAD\u00b7095/167\",\"RAD\u00b7097/167\",\"RAD\u00b7099/167\",\"RAD\u00b7101/167\",\"RAD\u00b7103/167\",\"RAD\u00b7104/167\",\"RAD\u00b7105/167\",\"RAD\u00b7106/167\",\"RAD\u00b7107/167\",\"RAD\u00b7108/167\",\"RAD\u00b7111/167\",\"RAD\u00b7113/167\",\"RAD\u00b7115/167\",\"RAD\u00b7116/167\",\"RAD\u00b7117/167\",\"RAD\u00b7118/167\",\"RAD\u00b7119/167\",\"RAD\u00b7120/167\",\"RAD\u00b7121/167\",\"RAD\u00b7122/167\",\"RAD\u00b7123/167\",\"RAD\u00b7124/167\",\"RAD\u00b7125/167\",\"RAD\u00b7126/167\",\"RAD\u00b7128/167\",\"RAD\u00b7129/167\",\"RAD\u00b7130/167\",\"RAD\u00b7131/167\",\"RAD\u00b7134/167\",\"RAD\u00b7136/167\",\"RAD\u00b7137/167\",\"RAD\u00b7137a/167\",\"RAD\u00b7143/167\",\"RAD\u00b7144/167\",\"RAD\u00b7149/167\",\"RAD\u00b7150/167\",\"RAD\u00b7157/167\",\"RAD\u00b7158/167\",\"RAD\u00b7159/167\",\"RAD\u00b7160/167\",\"RAD\u00b7161/167\",\"RAD\u00b7162/167\",\"RAD\u00b7163/167\",\"RAD\u00b7164/167\",\"RAD\u00b7165/167\",\"RAD\u00b7166/167\",\"RAD\u00b7170*/167\",\"RAD\u00b7170/167\",\"RAD\u00b7173*/167\",\"RAD\u00b7173/167\",\"RAD\u00b7179*/167\",\"RAD\u00b7179/167\",\"RAD\u00b7180*/167\",\"RAD\u00b7180/167\",\"RAD\u00b7181*/167\",\"RAD\u00b7181/167\",\"RAD\u00b7182*/167\",\"RAD\u00b7182/167\",\"RAD\u00b7183*/167\",\"RAD\u00b7183/167\",\"RAD\u00b7184/167\",\"RAD\u00b7SP2/005\",\"VEN\u00b7002\",\"VEN\u00b7004\",\"VEN\u00b7005\",\"VEN\u00b7006\",\"VEN\u00b7009\",\"VEN\u00b7011\",\"VEN\u00b7015\",\"VEN\u00b7016\",\"VEN\u00b7018\",\"VEN\u00b7019\",\"VEN\u00b7019a\",\"VEN\u00b7020\",\"VEN\u00b7021\",\"VEN\u00b7021a\",\"VEN\u00b7022\",\"VEN\u00b7023\",\"VEN\u00b7023a\",\"VEN\u00b7024\",\"VEN\u00b7025\",\"VEN\u00b7027\",\"VEN\u00b7028\",\"VEN\u00b7029\",\"VEN\u00b7031\",\"VEN\u00b7034\",\"VEN\u00b7036\",\"VEN\u00b7037\",\"VEN\u00b7038\",\"VEN\u00b7038a\",\"VEN\u00b7039\",\"VEN\u00b7040\",\"VEN\u00b7041\",\"VEN\u00b7044\",\"VEN\u00b7045\",\"VEN\u00b7046\",\"VEN\u00b7046a\",\"VEN\u00b7052\",\"VEN\u00b7053\",\"VEN\u00b7054\",\"VEN\u00b7060\",\"VEN\u00b7061\",\"VEN\u00b7062\",\"VEN\u00b7063\",\"VEN\u00b7063a\",\"VEN\u00b7064\",\"VEN\u00b7065\",\"VEN\u00b7066\",\"VEN\u00b7067\",\"VEN\u00b7068\",\"VEN\u00b7068a\",\"VEN\u00b7071\",\"VEN\u00b7073\",\"VEN\u00b7075\",\"VEN\u00b7076\",\"VEN\u00b7077\",\"VEN\u00b7079\",\"VEN\u00b7080\",\"VEN\u00b7082\",\"VEN\u00b7083\",\"VEN\u00b7084\",\"VEN\u00b7084a\",\"VEN\u00b7085\",\"VEN\u00b7087\",\"VEN\u00b7088\",\"VEN\u00b7088a\",\"VEN\u00b7090\",\"VEN\u00b7091\",\"VEN\u00b7092\",\"VEN\u00b7092a\",\"VEN\u00b7094\",\"VEN\u00b7095\",\"VEN\u00b7096\",\"VEN\u00b7097\",\"VEN\u00b7098\",\"VEN\u00b7099\",\"VEN\u00b7100\",\"VEN\u00b7101\",\"VEN\u00b7102\",\"VEN\u00b7104\",\"VEN\u00b7106\",\"VEN\u00b7107\",\"VEN\u00b7108\",\"VEN\u00b7109\",\"VEN\u00b7110a\",\"VEN\u00b7111\",\"VEN\u00b7112\",\"VEN\u00b7112a\",\"VEN\u00b7113\",\"VEN\u00b7113a\",\"VEN\u00b7114\",\"VEN\u00b7115\",\"VEN\u00b7116\",\"VEN\u00b7119\",\"VEN\u00b7120\",\"VEN\u00b7121\",\"VEN\u00b7125\",\"VEN\u00b7126\",\"VEN\u00b7127\",\"VEN\u00b7131\",\"VEN\u00b7132\",\"VEN\u00b7133\",\"VEN\u00b7134\",\"VEN\u00b7135\",\"VEN\u00b7135a\",\"VEN\u00b7136\",\"VEN\u00b7136a\",\"VEN\u00b7139\",\"VEN\u00b7140\",\"VEN\u00b7141\",\"VEN\u00b7142\",\"VEN\u00b7143\",\"VEN\u00b7144\",\"VEN\u00b7145\",\"VEN\u00b7146\",\"VEN\u00b7147\",\"VEN\u00b7148\",\"VEN\u00b7149\",\"VEN\u00b7150\",\"VEN\u00b7151\",\"VEN\u00b7153\",\"VEN\u00b7154\",\"VEN\u00b7155\",\"VEN\u00b7155a\",\"VEN\u00b7157\",\"VEN\u00b7158\",\"VEN\u00b7160\",\"VEN\u00b7161\",\"VEN\u00b7162\",\"VEN\u00b7163\",\"VEN\u00b7164\",\"VEN\u00b7165\",\"VEN\u00b7166\",\"VEN\u00b7167\",\"VEN\u00b7168\",\"VEN\u00b7169\",\"VEN\u00b7171\",\"VEN\u00b7172\",\"VEN\u00b7173\",\"VEN\u00b7174\",\"VEN\u00b7175\",\"VEN\u00b7176\",\"VEN\u00b7177\",\"VEN\u00b7178\",\"VEN\u00b7180\",\"VEN\u00b7182\",\"VEN\u00b7184\",\"VEN\u00b7185\",\"VEN\u00b7187\",\"VEN\u00b7188\",\"VEN\u00b7189\",\"VEN\u00b7189*\",\"VEN\u00b7190\",\"VEN\u00b7190*\",\"VEN\u00b7191\",\"VEN\u00b7191*\",\"VEN\u00b7192\",\"VEN\u00b7192*\",\"VEN\u00b7193\",\"VEN\u00b7193*\",\"VEN\u00b7194\",\"VEN\u00b7194*\",\"VEN\u00b7195\",\"VEN\u00b7195*\",\"VEN\u00b7196\",\"VEN\u00b7196*\",\"VEN\u00b7197\",\"VEN\u00b7197*\",\"VEN\u00b7SP1\",\"VEN\u00b7SP2\",\"VEN\u00b7SP4\",\"VEN\u00b7SP5\",\"VEN\u00b7T04\",\"VEN\u00b7T05\",\"VEN\u00b7T06\"],runtime.Cards.Where(card=>!originalNos.Contains(card.CardNo))",
+      "Assert.Equal(1397,specs.Count);"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-equip-final",
+    "sha": "61e1a5561581d569a0f62a54c84c32e28e4d66b0",
+    "added": 133,
+    "novel": 110,
+    "samples": [
+      "if(isCallRune&&legal.Length>0)",
+      "TriggerKinds.BattlefieldConquerDiscardDraw,item.ControllerId,0,1,legal,",
+      "context.Source.ObjectId,item.EffectKind,drawCount)",
+      "varrequested=newGameEvent(\"HAND_CHOICE_REQUESTED\",\"\u5f81\u670d\u6218\u573a\uff1a\u9009\u62e9\u662f\u5426\u5f03\u7f6e\u624b\u724c\u5e76\u53ec\u51fa\u7b26\u6587\",",
+      "[\"effectKind\"]=item.EffectKind,[\"requiredCount\"]=0,",
+      "[\"maxCount\"]=1,[\"legalCount\"]=legal.Length,[\"drawCount\"]=0});",
+      "varisOptionalCallRune=context.CardNo==Rad166CardNo",
+      "&&BattlefieldTriggerSpecRules.IsBattlefieldConquerDiscardCallRuneTrigger(spec);",
+      "returnchoice.ChoiceId==$\"CONQUEST-HAND:{continuation.StackItemId}\"",
+      "&&(isOptionalCallRune",
+      "?choice.RequiredCount==0&&choice.MaxCount==1&&legal.Length>0",
+      ":count>0&&legal.Length>count&&choice.RequiredCount==count&&choice.MaxCount==count)"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-equipment-battlefields",
+    "sha": "b27ae1b43e88fe0d053561a3089ffb2f05ef4604",
+    "added": 131,
+    "novel": 62,
+    "samples": [
+      "//RADequipmentgrantsakeywordtofriendlyunitsatthe",
+      "//equipment'sbattlefield.Modelthisthroughthesameshared",
+      "//same-battlefieldaurausedbyunitruletext;theenginebinds",
+      "//thesourcecontrollerandcurrentbattlefieldatquerytime.",
+      "varbattlefieldFriendlyUnitsKeywordMatch=Regex.Match(",
+      "@\"\u6b64\u5904\u7684\u53cb\u65b9\u5355\u4f4d(?:\u5177\u6709|\u83b7\u5f97)\\{\\{([^}]+)\\}\\}(?!\\+)\",",
+      "if(battlefieldFriendlyUnitsKeywordMatch.Success)",
+      "vargrantedKeyword=battlefieldFriendlyUnitsKeywordMatch.Groups[1].Value.Trim();",
+      "\"Friendlybattlefieldkeywordauraisresolvedfromthecurrentcontrollerandlocation.\",",
+      "@\"\u6b64\u5904\u7684\u82f1\u96c4\u5355\u4f4d(?:\u5177\u6709|\u83b7\u5f97)\\{\\{S\\}\\}\\+(\\d+)\",",
+      "if(battlefieldHeroPowerMatch.Success",
+      "&&int.TryParse(battlefieldHeroPowerMatch.Groups[1].Value,outvarheroPowerDelta))"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-gear-battlefields-20261101",
+    "sha": "35bb922a88346c672856b9550ae9865bbf2a5897",
+    "added": 112,
+    "novel": 78,
+    "samples": [
+      ".Any(a=>a.GrantedKeywordis{Length:>0}granted&&CardCombatKeywordRules.KeywordAmount([granted],keyword)>0)",
+      "||state.CardObjects.TryGetValue(unitId,outvarunit)&&CoreRuleEngine.LocalEquipmentKeywordAmount(state,unit,keyword)>0;",
+      "string?CreatedTokenFactoryCardNo=null,boolLeadingExhaustSelf=false);",
+      "UnitEventAbility:new(\"ANOTHER_UNIT_PLAYED\",\"DRAW_IF_GREATER\",LeadingExhaustSelf:true)),",
+      "UnitEventAbility:new(\"PLAY\",\"DISCARD_DRAW\",3)),",
+      "||!string.IsNullOrWhiteSpace(source.AttachedToObjectId)",
+      "//Theabilitywasearnedatturnstart.Likeotherbeginningskills,",
+      "//itresolvesindependentlyoflatersourcechanges(CN383.2.a.1).",
+      "returnamount+LocalEquipmentKeywordAmount(state,unit,keyword)",
+      "applies|=friendly&&source.Tags.Contains(CardObjectTags.EquipmentCard)",
+      "&&StaticAuraSpecRules.IsBattlefieldKeywordStaticAura(aura)",
+      "&&battlefieldisnotnull&&BattlefieldLocalRules.AtObject(state,id)?.ObjectId==battlefield.ObjectId;"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-gear-close-20261101",
+    "sha": "41ec60213b2ab8197f88a9dabd8218d6ea4420d9",
+    "added": 398,
+    "novel": 166,
+    "samples": [
+      "or\"RAD\u00b7157/167\"or\"RAD\u00b7158/167\"or\"RAD\u00b7159/167\"or\"RAD\u00b7160/167\"or\"RAD\u00b7161/167\"or\"RAD\u00b7162/167\"",
+      "or\"RAD\u00b7163/167\"or\"RAD\u00b7164/167\"or\"RAD\u00b7165/167\"or\"RAD\u00b7166/167\"or\"RAD\u00b7184/167\";",
+      "(Id:39707L,CardNo:\"RAD\u00b7184/167\")",
+      "varstandbyGold=Regex.Match(segment,",
+      "@\"^\u5f53\u4f60\u5728\u6b64\u5904\u5e03\u7f6e\u4e00\u5f20\\{\\{\u5f85\u547d\\}\\}\u5361\u724c\u65f6\uff0c\u6253\u51fa\u4e00\u4e2a\u4f11\u7720\u7684\u201c\u91d1\u5e01\u201d\u88c5\u5907\u6307\u793a\u7269\u3002?$\",",
+      "if(standbyGold.Success)",
+      "returnnew(TriggerKinds.BattlefieldDeployStandbyCreateGold,TriggerTimings.BattlefieldStandbyPlaced,",
+      "segment,TargetScope:TriggerTargetScopes.SourceBattlefieldUnits,CreatedTokenCount:1,",
+      "CreatedTokenName:\"\u91d1\u5e01\",CreatedTokenDestination:TriggerTokenDestinations.OwnerBase,",
+      "vardestroyedHereMinion=Regex.Match(segment,",
+      "@\"^\u4e8e\u6bcf\u540d\u73a9\u5bb6\uff0c\u5f53\u6bcf\u56de\u5408\u9996\u6b21\u6709\u5176\u63a7\u5236\u7684\u4e00\u540d\u975e\u6307\u793a\u7269\u5355\u4f4d\u5728\u6b64\u5904\u88ab\u6467\u6bc1\u65f6\uff0c\u8be5\u73a9\u5bb6\u5c06\u4e00\u540d([0-9\u4e00\u4e24\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\\{\\{S\\}\\}\u7684\u201c\u968f\u4ece\u201d\u5355\u4f4d\u6307\u793a\u7269\u6253\u51fa\u5230\u5176\u57fa\u5730\u3002?$\",",
+      "if(destroyedHereMinion.Success)"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-gear-complete-20261101",
+    "sha": "bab81e290d582f61d43bcadb809244e21951f994",
+    "added": 167,
+    "novel": 151,
+    "samples": [
+      "internalstaticIEnumerable<CardObjectState>AuraSources(MatchStatestate,stringbattlefieldId)",
+      "=>state.CardObjects.Values.Where(c=>!c.IsFaceDown",
+      "&&state.PlayerZones.Values.Any(z=>z.Battlefields.Contains(c.ObjectId,StringComparer.Ordinal))",
+      "&&at.BattlefieldObjectId==battlefieldId",
+      "&&(c.ObjectId==battlefieldId||c.Tags.Contains(CardObjectTags.EquipmentCard,StringComparer.Ordinal)))",
+      ".OrderBy(c=>c.ObjectId,StringComparer.Ordinal);",
+      "internalstaticboolAuraApplies(MatchStatestate,CardObjectStatesource,StaticAuraSpecaura,CardObjectStateunit)",
+      "=>aura.TargetScope==StaticAuraTargetScopes.SameBattlefieldFriendlyUnits",
+      "?CoreRuleEngine.EffectiveFieldControllerId(state.PlayerZones,unit.ObjectId,unit)",
+      "==CoreRuleEngine.EffectiveFieldControllerId(state.PlayerZones,source.ObjectId,source)",
+      ":CoreRuleEngine.BattlefieldStaticAuraAppliesToParticipant(state,aura,unit);",
+      "AtUnit(state,unitId)is{}battlefield&&AuraSources(state,battlefield.ObjectId).SelectMany(source=>"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-gear-finish-20261101",
+    "sha": "b90cb5c2c1d87824d0b01a34bea0458d3b417e97",
+    "added": 136,
+    "novel": 124,
+    "samples": [
+      "if(defendBulwark.Success)",
+      "triggers.Add(new(TriggerKinds.BattlefieldDefendGrantBulwark,TriggerTimings.BattlefieldDefended,",
+      "defendBulwark.Value,TargetScope:TriggerTargetScopes.FriendlyUnitAtThisBattlefield,",
+      "GrantedKeyword:\"\u58c1\u5792\",KeywordBonus:1));",
+      "IReadOnlyList<UnitEventAbilitySpec>?AdditionalUnitEventAbilities=null,",
+      "UnitEventAbility:new(\"PLAY_OR_LEAVE\",\"TIMED_BANISH_TOP\")),",
+      "UnitEventAbility:new(\"BATTLE_WIN\",\"DRAW\",1)),",
+      "PlaysSourceToBaseAsEquipment:true,UnitEventAbility:new(\"CONTROLLER_CARD_PLAYED\",\"DRAW\",2),",
+      "AdditionalUnitEventAbilities:[new(\"DRAW_WITH_NINE_OTHER_CARDS\",\"DISCARD_HAND_DESTROY_SELF_OPPONENT_SCORE\",1)]),",
+      "if(!ValidBeginningDraw(state,context,item.EffectKind,item.ControllerId,item.SourceObjectId,item.CardNo))",
+      "thrownewInvalidOperationException(\"Invalidcapturedbeginningability.\");",
+      "internalconststringControllerEquipmentHeldKind=\"EQUIPMENT_CONTROLLER_HELD\";"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-gear-validation-20261101",
+    "sha": "1ea8d6ee71ffdd0947249c12d6e955f8ed1a2bc0",
+    "added": 251,
+    "novel": 56,
+    "samples": [
+      "or\"RAD\u00b7158/167\"or\"RAD\u00b7160/167\"or\"RAD\u00b7161/167\"or\"RAD\u00b7164/167\"or\"RAD\u00b7166/167\"or\"RAD\u00b7184/167\";",
+      "@\"\u5f53\u4f60\u5728\u6b64\u5904\u9632\u5b88\u65f6\uff0c\u9009\u62e9\u6b64\u5904\u4f60\u63a7\u5236\u7684\u4e00\u540d\u5355\u4f4d\u3002\\s*\u5728\u672c\u6b21\u6218\u6597\u4e2d\u7ed9\u4e88\u5176\\{\\{\u58c1\u5792\\}\\}\",",
+      "if(defendBulwark.Success)",
+      "triggers.Add(new(TriggerKinds.BattlefieldDefendGrantBulwark,TriggerTimings.BattlefieldDefended,",
+      "defendBulwark.Value,TargetScope:TriggerTargetScopes.FriendlyUnitAtThisBattlefield,",
+      "GrantedKeyword:\"\u58c1\u5792\",KeywordBonus:1));",
+      "TriggerKinds.BattlefieldDefendGrantBulwark=>true,",
+      "TriggerKinds.BattlefieldHeldEmptyRuneScore=>true,",
+      "TriggerKinds.BattlefieldConquerDiscardCallRune=>true,",
+      "vargrant=BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,",
+      "varkeyword=grant?.GrantedKeyword??CardCombatKeywordNames.Steadfast;",
+      "varamount=grant?.KeywordBonus.GetValueOrDefault()??2;"
+    ]
+  },
+  {
+    "ref": "refs/win/archive/dirty/riftbound-e-rad-gear-verify-20261101",
+    "sha": "0333f70484b2703dba2bf102b93001f18cf4d752",
+    "added": 741,
+    "novel": 332,
+    "samples": [
+      "or\"RAD\u00b7157/167\"or\"RAD\u00b7158/167\"or\"RAD\u00b7159/167\"or\"RAD\u00b7160/167\"or\"RAD\u00b7161/167\"or\"RAD\u00b7162/167\"",
+      "or\"RAD\u00b7163/167\"or\"RAD\u00b7164/167\"or\"RAD\u00b7165/167\"or\"RAD\u00b7166/167\"or\"RAD\u00b7184/167\";",
+      "(Id:39707L,CardNo:\"RAD\u00b7184/167\")",
+      "//Adeclarationanditsbattle-durationinstructionformoneability,",
+      "//evenwhentheofficialtextseparatesthemwithafullstop.",
+      ".Where(segment=>segment.StartsWith(\"\u4e8e\u6bcf\u540d\u73a9\u5bb6\",StringComparison.Ordinal)",
+      "||segment.Contains(\"\u5f53\",StringComparison.Ordinal)",
+      "varstandbyGold=Regex.Match(segment,",
+      "@\"^\u5f53\u4f60\u5728\u6b64\u5904\u5e03\u7f6e\u4e00\u5f20\\{\\{\u5f85\u547d\\}\\}\u5361\u724c\u65f6\uff0c\u6253\u51fa\u4e00\u4e2a\u4f11\u7720\u7684\u201c\u91d1\u5e01\u201d\u88c5\u5907\u6307\u793a\u7269\u3002?$\",",
+      "if(standbyGold.Success)",
+      "returnnew(TriggerKinds.BattlefieldDeployStandbyCreateGold,TriggerTimings.BattlefieldStandbyPlaced,",
+      "segment,TargetScope:TriggerTargetScopes.SourceBattlefieldUnits,CreatedTokenCount:1,"
+    ]
+  }
+]

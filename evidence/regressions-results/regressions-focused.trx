@@ -1,0 +1,756 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="bdc52750-32cb-490c-8a4c-b5ff5bec7e1b" name="@Mac-mini 2026-11-05 17:19:50" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-05T17:19:50.7774800+08:00" queuing="2026-11-05T17:19:50.7774800+08:00" start="2026-11-05T17:19:22.8150110+08:00" finish="2026-11-05T17:22:54.1004520+08:00" />
+  <TestSettings name="default" id="56f455b7-b887-4e41-9d8f-e942762ac5fc">
+    <Deployment runDeploymentRoot="_Mac-mini_2026-11-05_17_19_50" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="0c2bb0bf-c79a-4d70-88b8-ff19de792916" testId="e73539df-244d-931b-a82c-f21591d01fcd" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;equipment&quot;)" computerName="Mac-mini" duration="00:00:00.6817009" startTime="2026-11-05T17:19:53.0076030+08:00" endTime="2026-11-05T17:19:53.0076030+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0c2bb0bf-c79a-4d70-88b8-ff19de792916" />
+    <UnitTestResult executionId="ecd1a028-48df-4181-85af-5feea5621bb7" testId="7f154235-0fbd-4c8a-6042-59a4ea16d8aa" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·030/221&quot;, cost: &quot;ASSEMBLE_RED&quot;)" computerName="Mac-mini" duration="00:00:00.1291994" startTime="2026-11-05T17:20:01.0210670+08:00" endTime="2026-11-05T17:20:01.0210670+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ecd1a028-48df-4181-85af-5feea5621bb7" />
+    <UnitTestResult executionId="3ed71474-c695-481d-a6ce-cb2e1c9a8117" testId="48178eee-e2d0-dfe7-cd8a-f844818cce4e" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;duplicate&quot;)" computerName="Mac-mini" duration="00:00:00.7080381" startTime="2026-11-05T17:19:52.3256720+08:00" endTime="2026-11-05T17:19:52.3256720+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3ed71474-c695-481d-a6ce-cb2e1c9a8117" />
+    <UnitTestResult executionId="d0e04189-e4bd-441e-a970-fa54368ae48a" testId="70011bdc-dc27-5efa-e470-fd29bc214fd9" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;face-version&quot;)" computerName="Mac-mini" duration="00:00:15.6098615" startTime="2026-11-05T17:19:50.1340870+08:00" endTime="2026-11-05T17:19:50.1341060+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d0e04189-e4bd-441e-a970-fa54368ae48a" />
+    <UnitTestResult executionId="c89c0bc4-a622-434f-9aa9-8dd224b9e0ae" testId="72239bb9-6ffe-6149-a078-04f2f3cf276f" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.CopiedSandSoldierKeepsIntrinsicTokenIdentityAndCeasesToExistOnReturn" computerName="Mac-mini" duration="00:00:02.0558043" startTime="2026-11-05T17:20:27.4245290+08:00" endTime="2026-11-05T17:20:27.4245300+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c89c0bc4-a622-434f-9aa9-8dd224b9e0ae" />
+    <UnitTestResult executionId="f29d0949-7482-429a-a54e-344377eb1f24" testId="81bade4b-c42a-7cf5-3b02-ed801c6c7b93" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·118/221&quot;, cost: &quot;ASSEMBLE_ORANGE&quot;)" computerName="Mac-mini" duration="00:00:00.1137728" startTime="2026-11-05T17:20:00.8915280+08:00" endTime="2026-11-05T17:20:00.8915280+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f29d0949-7482-429a-a54e-344377eb1f24" />
+    <UnitTestResult executionId="c3ebf58d-a6af-44d0-a762-339448f500f2" testId="18e62d3d-fdb2-02c5-d486-babffbb8f236" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.DestroyingTheGearCanMakeTheRestoredUnitLethal" computerName="Mac-mini" duration="00:00:02.0393093" startTime="2026-11-05T17:20:08.6451850+08:00" endTime="2026-11-05T17:20:08.6451850+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c3ebf58d-a6af-44d0-a762-339448f500f2" />
+    <UnitTestResult executionId="e7756ee8-2b26-4910-9961-796727feb3e0" testId="b8edd9ec-c318-a4cd-6ab5-c9b7dc6f28c2" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·086&quot;, empowered: True)" computerName="Mac-mini" duration="00:00:00.6427412" startTime="2026-11-05T17:22:46.0316840+08:00" endTime="2026-11-05T17:22:46.0316840+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e7756ee8-2b26-4910-9961-796727feb3e0">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="768b67de-f9a9-45a7-8b73-881a93aa19c4" testId="f59fd68e-6848-e543-572a-037c705be76a" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.CapturedGardenSkillSurvivesItsBorrowerOrRecipientReturningInResponse(returned: &quot;BORROWER&quot;)" computerName="Mac-mini" duration="00:00:08.2284864" startTime="2026-11-05T17:21:09.2410870+08:00" endTime="2026-11-05T17:21:09.2410870+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="768b67de-f9a9-45a7-8b73-881a93aa19c4" />
+    <UnitTestResult executionId="2d24e20d-d142-43c6-b038-9708acb467c4" testId="d8a144c6-5e13-a8e7-5ffb-be47517a2b9e" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.GainedAttachmentAbilityCannotSeeTheEarlierAttachmentEvent" computerName="Mac-mini" duration="00:00:01.5648374" startTime="2026-11-05T17:20:10.2108090+08:00" endTime="2026-11-05T17:20:10.2108090+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2d24e20d-d142-43c6-b038-9708acb467c4" />
+    <UnitTestResult executionId="06de4215-4082-4a8a-9b16-bd98cca33917" testId="476e4a74-a318-49e6-c0cb-2d94330f6e4e" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: &quot;VEN·086&quot;)" computerName="Mac-mini" duration="00:00:02.4067181" startTime="2026-11-05T17:21:29.2135400+08:00" endTime="2026-11-05T17:21:29.2135400+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="06de4215-4082-4a8a-9b16-bd98cca33917">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 99
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="01083896-18bd-43d3-bed7-6803496fe48a" testId="f806cacd-333f-70e8-145c-c33aa61a3bf6" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.BlastConeStillRejectsAUnitTargetOnTheEquipmentPlayCommand(printing: &quot;VEN·181&quot;)" computerName="Mac-mini" duration="00:00:00.0430217" startTime="2026-11-05T17:21:25.1870820+08:00" endTime="2026-11-05T17:21:25.1870820+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="01083896-18bd-43d3-bed7-6803496fe48a" />
+    <UnitTestResult executionId="f51df8b8-1ab8-4323-923f-6065010fd3ba" testId="e3e122fd-253c-b18a-e11d-5b47cfc3f2c0" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation(card: &quot;VEN·137&quot;, cost: &quot;ASSEMBLE_YELLOW&quot;, mana: 1, trait: &quot;green&quot;)" computerName="Mac-mini" duration="00:00:00.0368958" startTime="2026-11-05T17:20:06.4747500+08:00" endTime="2026-11-05T17:20:06.4747500+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f51df8b8-1ab8-4323-923f-6065010fd3ba" />
+    <UnitTestResult executionId="71402834-4bc5-40a9-a36a-c765a13d01e4" testId="2ae80bdd-1e8b-e05d-ab39-4d306fdfedae" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;null-equipment&quot;)" computerName="Mac-mini" duration="00:00:00.7193338" startTime="2026-11-05T17:19:57.5354960+08:00" endTime="2026-11-05T17:19:57.5354970+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="71402834-4bc5-40a9-a36a-c765a13d01e4" />
+    <UnitTestResult executionId="6a6ffc84-99fc-4340-81ff-3c58e0492f45" testId="60655dc8-1276-5aa8-eab1-f9d98a8a1672" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;basis&quot;)" computerName="Mac-mini" duration="00:00:00.6813276" startTime="2026-11-05T17:19:56.8159730+08:00" endTime="2026-11-05T17:19:56.8159730+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6a6ffc84-99fc-4340-81ff-3c58e0492f45" />
+    <UnitTestResult executionId="57baaea3-dc14-425c-9b63-6a9cf394bb2b" testId="56e87877-8eb4-1987-5424-ef5e16c722b7" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;power&quot;)" computerName="Mac-mini" duration="00:00:00.8432987" startTime="2026-11-05T17:19:56.1344310+08:00" endTime="2026-11-05T17:19:56.1344310+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="57baaea3-dc14-425c-9b63-6a9cf394bb2b" />
+    <UnitTestResult executionId="912ea8ec-25a3-45d7-977c-ade65e8d2cf6" testId="c3443c22-d365-0aa8-b30a-597d326d1941" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: &quot;VEN·086&quot;, empowered: True)" computerName="Mac-mini" duration="00:00:00.8126254" startTime="2026-11-05T17:22:48.3456230+08:00" endTime="2026-11-05T17:22:48.3456230+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="912ea8ec-25a3-45d7-977c-ade65e8d2cf6">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 64
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2d7390a0-2fde-4b94-9b92-19f1402c432b" testId="3e134693-76fe-75a8-0cac-0e7df2e82c4d" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;ARC-003/006&quot;, here: True)" computerName="Mac-mini" duration="00:00:06.4701214" startTime="2026-11-05T17:20:50.8761820+08:00" endTime="2026-11-05T17:20:50.8761820+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2d7390a0-2fde-4b94-9b92-19f1402c432b" />
+    <UnitTestResult executionId="e05cbfbd-1190-4cf1-8d04-85eca92d7573" testId="332dc3af-b87d-91f1-2e0c-40546ac9fc53" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.CapturedGardenSkillSurvivesItsBorrowerOrRecipientReturningInResponse(returned: &quot;DONOR&quot;)" computerName="Mac-mini" duration="00:00:10.1357347" startTime="2026-11-05T17:21:01.0122260+08:00" endTime="2026-11-05T17:21:01.0122260+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e05cbfbd-1190-4cf1-8d04-85eca92d7573" />
+    <UnitTestResult executionId="2d9ec1d8-c2b0-4a2d-b07e-479b5db98833" testId="c7855554-b28c-7fca-332e-6df64736b55c" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.CurrentPrintingHasAnEquipmentPlayBehavior" computerName="Mac-mini" duration="00:00:00.0042445" startTime="2026-11-05T17:20:25.3686520+08:00" endTime="2026-11-05T17:20:25.3686520+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2d9ec1d8-c2b0-4a2d-b07e-479b5db98833" />
+    <UnitTestResult executionId="f2715e9a-de58-44b3-8302-932f3c1b2502" testId="5feca219-8119-d35f-e8e1-65e312e07b24" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;OGN·111/298&quot;, here: False)" computerName="Mac-mini" duration="00:00:00.0554348" startTime="2026-11-05T17:20:44.4057780+08:00" endTime="2026-11-05T17:20:44.4057780+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f2715e9a-de58-44b3-8302-932f3c1b2502" />
+    <UnitTestResult executionId="b1b9cb28-3979-43aa-8695-aecc69362d0d" testId="2d25be2d-d798-8851-e4cc-34bb112c9f57" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone" computerName="Mac-mini" duration="00:00:01.5633183" startTime="2026-11-05T17:21:26.8053100+08:00" endTime="2026-11-05T17:21:26.8053100+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b1b9cb28-3979-43aa-8695-aecc69362d0d">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone() in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 171
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e07e832e-6334-4016-8485-f2371704b87f" testId="bbc9465d-fb9c-c192-46de-a813b6c6d9c8" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.ReturningAnOriannaConvertedSourceAfterPayingDoesNotEraseTheIndependentStun" computerName="Mac-mini" duration="00:01:11.9102013" startTime="2026-11-05T17:22:43.3427070+08:00" endTime="2026-11-05T17:22:43.3427070+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e07e832e-6334-4016-8485-f2371704b87f" />
+    <UnitTestResult executionId="b27490c0-9520-4660-b76d-62f8302e18f4" testId="758c8df2-444b-b906-8636-a1eafed33b09" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.BlastConeStillRejectsAUnitTargetOnTheEquipmentPlayCommand(printing: &quot;VEN·086&quot;)" computerName="Mac-mini" duration="00:00:00.0526256" startTime="2026-11-05T17:21:25.2397770+08:00" endTime="2026-11-05T17:21:25.2397770+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b27490c0-9520-4660-b76d-62f8302e18f4" />
+    <UnitTestResult executionId="f4e45c7d-9fac-4d27-82d3-7ef969528785" testId="211888ad-cc7b-c71a-1a44-6f3d9b6ade12" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;ARC-003/006&quot;, attached: False)" computerName="Mac-mini" duration="00:00:00.0845534" startTime="2026-11-05T17:20:35.6866370+08:00" endTime="2026-11-05T17:20:35.6866380+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f4e45c7d-9fac-4d27-82d3-7ef969528785">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="93aa0d12-105c-4b2b-93d3-70bbe1d0bc1f" testId="43fbc816-a5d5-9ac7-7a9c-4eb5d92313bb" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EndingOneOfTwoCopyEffectsKeepsTheOtherAndEventuallyRestoresTheBasis(topFirst: False)" computerName="Mac-mini" duration="00:00:05.3008940" startTime="2026-11-05T17:20:20.1964440+08:00" endTime="2026-11-05T17:20:20.1964440+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="93aa0d12-105c-4b2b-93d3-70bbe1d0bc1f" />
+    <UnitTestResult executionId="55ed2c99-522c-4244-b432-6df9490fcba4" testId="884f047d-281a-1a21-241c-f9b39e4680c5" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·181&quot;, empowered: False)" computerName="Mac-mini" duration="00:00:00.7213808" startTime="2026-11-05T17:22:46.7552270+08:00" endTime="2026-11-05T17:22:46.7552270+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="55ed2c99-522c-4244-b432-6df9490fcba4">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="84421de0-9914-4c31-8ea7-064d6b048f02" testId="5005e304-0700-e0b0-29db-7b0ca18f23b0" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·181&quot;, empowered: True)" computerName="Mac-mini" duration="00:00:00.7781225" startTime="2026-11-05T17:22:47.5323190+08:00" endTime="2026-11-05T17:22:47.5323190+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="84421de0-9914-4c31-8ea7-064d6b048f02">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="da6f8227-4760-41ff-8178-e96e1f20f754" testId="7956aaa5-830d-f82d-ed7f-9ee750d55493" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.ActualFourManaEquipmentPlayEntersWithoutApplyingAnyCopyYet" computerName="Mac-mini" duration="00:00:02.9384895" startTime="2026-11-05T17:20:00.4747110+08:00" endTime="2026-11-05T17:20:00.4747110+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="da6f8227-4760-41ff-8178-e96e1f20f754" />
+    <UnitTestResult executionId="a339ca11-efe3-4963-b0cf-9f3bbac5e8d5" testId="b43d4109-4b37-600b-160a-f24841fa69e7" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;ARC-003/006&quot;, here: False)" computerName="Mac-mini" duration="00:00:00.0490697" startTime="2026-11-05T17:20:44.3502270+08:00" endTime="2026-11-05T17:20:44.3502270+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a339ca11-efe3-4963-b0cf-9f3bbac5e8d5" />
+    <UnitTestResult executionId="ac2a8e96-40a1-4d1a-a773-35589c34ccef" testId="9ef2c95c-af34-3cd1-58aa-cb7e32a11f95" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;basis-missing&quot;)" computerName="Mac-mini" duration="00:00:01.3252549" startTime="2026-11-05T17:19:54.3331730+08:00" endTime="2026-11-05T17:19:54.3331730+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ac2a8e96-40a1-4d1a-a773-35589c34ccef" />
+    <UnitTestResult executionId="548d01c9-927d-4ebf-897f-ec372299c9d4" testId="5c0591c8-e09e-f080-9fb1-49169fa0c09e" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice(actor: &quot;P1&quot;, selection: &quot;COPY:COPY-SOURCE&quot;)" computerName="Mac-mini" duration="00:00:01.5364538" startTime="2026-11-05T17:21:18.5362050+08:00" endTime="2026-11-05T17:21:18.5362050+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="548d01c9-927d-4ebf-897f-ec372299c9d4" />
+    <UnitTestResult executionId="5538e977-1c6d-41f9-8c9d-8dead011b699" testId="bf4111e2-05e1-984c-5a28-5c29cf650e1f" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation(card: &quot;SFD·059/221&quot;, cost: &quot;ASSEMBLE_GREEN&quot;, mana: 0, trait: &quot;green&quot;)" computerName="Mac-mini" duration="00:00:00.1025066" startTime="2026-11-05T17:20:06.5774360+08:00" endTime="2026-11-05T17:20:06.5774360+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5538e977-1c6d-41f9-8c9d-8dead011b699" />
+    <UnitTestResult executionId="f6f40001-fa25-41c0-9674-ebb6ea959c50" testId="f2fd9a55-a4b8-2d08-d447-a43badda52a1" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EndingOneOfTwoCopyEffectsKeepsTheOtherAndEventuallyRestoresTheBasis(topFirst: True)" computerName="Mac-mini" duration="00:00:04.6832684" startTime="2026-11-05T17:20:14.8944090+08:00" endTime="2026-11-05T17:20:14.8944090+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f6f40001-fa25-41c0-9674-ebb6ea959c50" />
+    <UnitTestResult executionId="72ee79e4-ea56-4ec1-8200-a77a34bb7f3c" testId="f94f0562-9aa7-5e4e-b525-cd318f55b2f9" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;tags&quot;)" computerName="Mac-mini" duration="00:00:00.6647845" startTime="2026-11-05T17:19:51.6173520+08:00" endTime="2026-11-05T17:19:51.6173520+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="72ee79e4-ea56-4ec1-8200-a77a34bb7f3c" />
+    <UnitTestResult executionId="64db3809-2b70-4ba6-a457-68b02ae4c76c" testId="a3284368-fc5e-d0b3-fec1-fcacd357d769" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;missing-equipment-id&quot;)" computerName="Mac-mini" duration="00:00:00.8246423" startTime="2026-11-05T17:19:50.9524250+08:00" endTime="2026-11-05T17:19:50.9524250+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="64db3809-2b70-4ba6-a457-68b02ae4c76c" />
+    <UnitTestResult executionId="80401643-694c-4e47-b610-51883c4a900c" testId="3a2218c0-d8ef-cecc-e273-bf3c2929c921" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;UNL-019/219&quot;, cost: &quot;ASSEMBLE_RED&quot;)" computerName="Mac-mini" duration="00:00:00.1370723" startTime="2026-11-05T17:20:01.1582770+08:00" endTime="2026-11-05T17:20:01.1582770+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="80401643-694c-4e47-b610-51883c4a900c" />
+    <UnitTestResult executionId="6de6382e-53a4-4aca-a1b7-19ac8cac4b92" testId="4170ab79-9145-6abe-8e66-e8f4b81210a0" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.CapturedCopiedSpellSkillSurvivesDetachmentAndAffectsTheSameObject" computerName="Mac-mini" duration="00:00:04.9432840" startTime="2026-11-05T17:20:06.4377340+08:00" endTime="2026-11-05T17:20:06.4377340+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6de6382e-53a4-4aca-a1b7-19ac8cac4b92" />
+    <UnitTestResult executionId="69a1c598-74cc-4b90-8eed-9c224be3e7f1" testId="965b5996-190a-c7a5-1446-8b32cdc24fd8" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;preview&quot;)" computerName="Mac-mini" duration="00:00:00.2330079" startTime="2026-11-05T17:19:54.5663720+08:00" endTime="2026-11-05T17:19:54.5663720+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="69a1c598-74cc-4b90-8eed-9c224be3e7f1" />
+    <UnitTestResult executionId="c426c3f4-7c77-4c93-b838-7361b9664e73" testId="8b111153-bbdb-3d69-0001-19226407959e" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.RecoveryRejectsReturningTheChoiceToTheCasterOrAddingItsUnit(mutation: &quot;candidate&quot;)" computerName="Mac-mini" duration="00:00:00.8725284" startTime="2026-11-05T17:22:52.7403270+08:00" endTime="2026-11-05T17:22:52.7403270+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c426c3f4-7c77-4c93-b838-7361b9664e73" />
+    <UnitTestResult executionId="a79f2ecd-e51f-402c-92c9-37f7d8881843" testId="7363adde-c041-9f55-44fc-fe794f50b2d8" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.OpponentEquipmentControllerChoosesItsOwnFriendlyCopyAfterTakeUp" computerName="Mac-mini" duration="00:00:01.7452042" startTime="2026-11-05T17:21:21.9528190+08:00" endTime="2026-11-05T17:21:21.9528190+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a79f2ecd-e51f-402c-92c9-37f7d8881843" />
+    <UnitTestResult executionId="7b96f191-ccdb-4706-9f2f-b3a5a59d8c6d" testId="01d47638-5bc9-dba1-fee3-1fa4bdb2b458" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RealAttachmentCopiesPrintedTraitsAndDetachmentRestoresTheBasis" computerName="Mac-mini" duration="00:00:02.1299278" startTime="2026-11-05T17:20:29.5546690+08:00" endTime="2026-11-05T17:20:29.5546690+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7b96f191-ccdb-4706-9f2f-b3a5a59d8c6d" />
+    <UnitTestResult executionId="3550a9a6-5764-4e11-85db-534da431bddc" testId="d8b0fe2a-4ddd-5aa3-0011-9ae9100fc297" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.RecoveryRejectsReturningTheChoiceToTheCasterOrAddingItsUnit(mutation: &quot;chooser&quot;)" computerName="Mac-mini" duration="00:00:01.1727691" startTime="2026-11-05T17:22:53.9132540+08:00" endTime="2026-11-05T17:22:53.9132540+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3550a9a6-5764-4e11-85db-534da431bddc" />
+    <UnitTestResult executionId="dddce00c-b270-4d89-aca7-174fe88471ba" testId="1dc05d61-e569-7106-a521-4aba9b7df43d" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;OGN·111/298&quot;, attached: False)" computerName="Mac-mini" duration="00:00:00.0809494" startTime="2026-11-05T17:20:35.7674680+08:00" endTime="2026-11-05T17:20:35.7674680+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dddce00c-b270-4d89-aca7-174fe88471ba">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a00bb70d-3fd6-4baf-867e-08902eff6b17" testId="1ddd3d2a-dad3-bdb7-b320-6e285de66a77" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: &quot;VEN·181&quot;, empowered: False)" computerName="Mac-mini" duration="00:00:00.7535315" startTime="2026-11-05T17:22:49.1001220+08:00" endTime="2026-11-05T17:22:49.1001220+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a00bb70d-3fd6-4baf-867e-08902eff6b17">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 64
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2085d1cd-8f40-44b8-b215-ecab9db8179e" testId="84872f84-508b-1402-a64c-80e5dc63eb33" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;OGN·111/298&quot;, here: True)" computerName="Mac-mini" duration="00:00:08.3863412" startTime="2026-11-05T17:20:44.2992910+08:00" endTime="2026-11-05T17:20:44.2992910+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2085d1cd-8f40-44b8-b215-ecab9db8179e" />
+    <UnitTestResult executionId="c9d00db4-5d0d-4150-8ae6-4e90664dbaed" testId="470b4400-d33f-9480-33a7-871d3754b1a5" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: &quot;VEN·086&quot;)" computerName="Mac-mini" duration="00:00:01.6141994" startTime="2026-11-05T17:21:23.5781650+08:00" endTime="2026-11-05T17:21:23.5781650+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c9d00db4-5d0d-4150-8ae6-4e90664dbaed">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 78
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="62fddc4f-0023-4840-9670-e44000aa1967" testId="68380564-d5c2-f1fe-4949-fb5bc697c7dc" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.TypedAssemblePaysPrintedManaAndOneTypedPower" computerName="Mac-mini" duration="00:00:00.0981509" startTime="2026-11-05T17:20:30.2937500+08:00" endTime="2026-11-05T17:20:30.2937510+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="62fddc4f-0023-4840-9670-e44000aa1967" />
+    <UnitTestResult executionId="de841bcd-7549-4546-9402-71d7f4e3e946" testId="da077752-1313-0bcd-0f59-fc6e6b801edc" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation(card: &quot;VEN·137&quot;, cost: &quot;ASSEMBLE_YELLOW&quot;, mana: 0, trait: &quot;yellow&quot;)" computerName="Mac-mini" duration="00:00:00.0279051" startTime="2026-11-05T17:20:06.6055060+08:00" endTime="2026-11-05T17:20:06.6055060+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="de841bcd-7549-4546-9402-71d7f4e3e946" />
+    <UnitTestResult executionId="e0b76e57-bc1a-43af-92b5-da6f965cfe20" testId="79a1e143-dbe2-cdd0-f99b-538e092d446f" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.CopyKeepsReceiverModificationsAndDoesNotCopySourceModifications" computerName="Mac-mini" duration="00:00:00.9857087" startTime="2026-11-05T17:20:25.3640660+08:00" endTime="2026-11-05T17:20:25.3640660+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e0b76e57-bc1a-43af-92b5-da6f965cfe20" />
+    <UnitTestResult executionId="3195ae84-0e09-4cf1-ad9c-073c452997e7" testId="0474e17e-9d45-c538-ed1b-8c075dcc534c" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;VEN·137&quot;, cost: &quot;ASSEMBLE_YELLOW&quot;)" computerName="Mac-mini" duration="00:00:00.1946863" startTime="2026-11-05T17:20:00.6695580+08:00" endTime="2026-11-05T17:20:00.6695580+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3195ae84-0e09-4cf1-ad9c-073c452997e7" />
+    <UnitTestResult executionId="616ce1f9-228f-4ce1-b316-4047f63bb6ba" testId="28f21d03-37c0-d2fe-700e-e95c8d65b3c9" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·059/221&quot;, cost: &quot;ASSEMBLE_GREEN&quot;)" computerName="Mac-mini" duration="00:00:00.1657366" startTime="2026-11-05T17:20:01.4942850+08:00" endTime="2026-11-05T17:20:01.4942850+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="616ce1f9-228f-4ce1-b316-4047f63bb6ba" />
+    <UnitTestResult executionId="8b5e198b-46ba-404d-ae50-aadb33002eb4" testId="55a92ca8-7728-c329-ec94-6f510ccddb05" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.WithNoOtherFriendlyUnitTheAttachmentCompletesWithoutAReplacementChoice" computerName="Mac-mini" duration="00:00:00.6403995" startTime="2026-11-05T17:20:30.1953970+08:00" endTime="2026-11-05T17:20:30.1953970+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8b5e198b-46ba-404d-ae50-aadb33002eb4" />
+    <UnitTestResult executionId="ba25a12c-f419-4466-b7b0-9672d39506b3" testId="119872a1-6111-bad8-17c5-a415a8ee8c0d" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates(gearOwner: &quot;P1&quot;, copyOwner: &quot;P1&quot;)" computerName="Mac-mini" duration="00:00:00.9288741" startTime="2026-11-05T17:22:50.0326510+08:00" endTime="2026-11-05T17:22:50.0326510+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ba25a12c-f419-4466-b7b0-9672d39506b3" />
+    <UnitTestResult executionId="56d672e2-1a78-4d61-9735-5b8da21ffe9d" testId="6f5b6222-0346-3ca6-6ef3-7c7a3067ad94" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment" computerName="Mac-mini" duration="00:00:00.6947648" startTime="2026-11-05T17:22:44.2205330+08:00" endTime="2026-11-05T17:22:44.2205330+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="56d672e2-1a78-4d61-9735-5b8da21ffe9d">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment() in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 187
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="dd6518b7-fef3-4c26-b4e7-02860433fbad" testId="069e7f0f-e565-7c0f-a044-42122c4a7cf0" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·086&quot;, empowered: False)" computerName="Mac-mini" duration="00:00:00.7356144" startTime="2026-11-05T17:22:45.3896720+08:00" endTime="2026-11-05T17:22:45.3896720+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dd6518b7-fef3-4c26-b4e7-02860433fbad">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="63cfcd47-24e8-49d0-b7ff-155e1e3230a4" testId="764c99aa-6bc4-4015-65c9-f542a688ad8a" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.ReacquiringTheSameAzirFaceCreatesAFreshOncePerTurnInstance" computerName="Mac-mini" duration="00:00:05.0066548" startTime="2026-11-05T17:20:35.3008250+08:00" endTime="2026-11-05T17:20:35.3008250+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="63cfcd47-24e8-49d0-b7ff-155e1e3230a4" />
+    <UnitTestResult executionId="1d63ef54-a099-4819-8f32-d7127b1d08a8" testId="3ad40a5b-f277-c0b0-9296-25afda0cfc8e" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice(actor: &quot;P2&quot;, selection: &quot;COPY:HOST&quot;)" computerName="Mac-mini" duration="00:00:03.9957529" startTime="2026-11-05T17:21:15.1240660+08:00" endTime="2026-11-05T17:21:15.1240660+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1d63ef54-a099-4819-8f32-d7127b1d08a8" />
+    <UnitTestResult executionId="a81174e4-3e1c-4595-a7ea-edf68ea64764" testId="5836e10e-348f-dbaf-cf03-844db4c8b041" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates(gearOwner: &quot;P2&quot;, copyOwner: &quot;P1&quot;)" computerName="Mac-mini" duration="00:00:00.9842163" startTime="2026-11-05T17:22:51.8676820+08:00" endTime="2026-11-05T17:22:51.8676820+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a81174e4-3e1c-4595-a7ea-edf68ea64764" />
+    <UnitTestResult executionId="edf58e24-25c1-4d1e-8f15-da8ad0768003" testId="88d9f67d-2cd7-d467-359a-cc2a7c43429e" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·090/221&quot;, cost: &quot;ASSEMBLE_BLUE&quot;)" computerName="Mac-mini" duration="00:00:00.1076778" startTime="2026-11-05T17:20:00.7776250+08:00" endTime="2026-11-05T17:20:00.7776250+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="edf58e24-25c1-4d1e-8f15-da8ad0768003" />
+    <UnitTestResult executionId="16f1a3be-d06c-480e-8ed8-659231baac75" testId="d683467c-0b96-2d7b-387e-ed416fc1ad5f" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;OGN·111/298&quot;, attached: True)" computerName="Mac-mini" duration="00:00:00.2459888" startTime="2026-11-05T17:20:35.6168940+08:00" endTime="2026-11-05T17:20:35.6168940+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="16f1a3be-d06c-480e-8ed8-659231baac75">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="fa935b94-0819-42e4-8074-f55bdc1588b8" testId="9512d9c0-02e0-fcc8-f597-53773d046dc1" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·118a/221·P&quot;, cost: &quot;ASSEMBLE_ORANGE&quot;)" computerName="Mac-mini" duration="00:00:00.1698921" startTime="2026-11-05T17:20:01.3283710+08:00" endTime="2026-11-05T17:20:01.3283710+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fa935b94-0819-42e4-8074-f55bdc1588b8" />
+    <UnitTestResult executionId="a62e5331-4010-450b-b703-5520ae323c22" testId="8d879fa9-b986-da7b-4944-615059dcac75" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates(gearOwner: &quot;P1&quot;, copyOwner: &quot;P2&quot;)" computerName="Mac-mini" duration="00:00:00.8504823" startTime="2026-11-05T17:22:50.8833800+08:00" endTime="2026-11-05T17:22:50.8833800+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a62e5331-4010-450b-b703-5520ae323c22" />
+    <UnitTestResult executionId="e48633d0-be66-4252-a5a0-3f0eceb69194" testId="3cbd6348-85af-47ef-38f5-96a3137dc87f" testName="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;ARC-003/006&quot;, attached: True)" computerName="Mac-mini" duration="00:00:00.1443579" startTime="2026-11-05T17:20:35.9128690+08:00" endTime="2026-11-05T17:20:35.9128690+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e48633d0-be66-4252-a5a0-3f0eceb69194">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="becc3243-4233-41a8-a7b0-81086ddef91e" testId="8d295ec2-6634-cb63-f78f-44c85eb09f76" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: &quot;VEN·181&quot;)" computerName="Mac-mini" duration="00:00:01.5658314" startTime="2026-11-05T17:21:25.1456890+08:00" endTime="2026-11-05T17:21:25.1456890+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="becc3243-4233-41a8-a7b0-81086ddef91e">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 78
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e8a87c0b-2083-44b7-bcbd-d5cdf58ebaeb" testId="bf49b9cd-26b8-b3c9-124f-68aca0ddbc0c" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.WithoutAnotherEquipmentControllersUnitAttachmentAndCasterDrawStillComplete" computerName="Mac-mini" duration="00:00:01.6676188" startTime="2026-11-05T17:21:20.2042360+08:00" endTime="2026-11-05T17:21:20.2042360+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e8a87c0b-2083-44b7-bcbd-d5cdf58ebaeb" />
+    <UnitTestResult executionId="9421e523-d03d-483d-baaf-6e6339b7bced" testId="3acb8951-3bd9-b0c2-027b-46ee4435dec1" testName="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice(actor: &quot;P2&quot;, selection: &quot;COPY:P1-SOURCE&quot;)" computerName="Mac-mini" duration="00:00:01.8752298" startTime="2026-11-05T17:21:16.9994820+08:00" endTime="2026-11-05T17:21:16.9994830+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9421e523-d03d-483d-baaf-6e6339b7bced" />
+    <UnitTestResult executionId="c7c015a6-af36-4c9c-a3e4-720b762ad063" testId="e583e307-3bff-8675-5d96-723551f93eb0" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.ReturningTheCopiedUnitRestoresItsPhysicalCardBeforeReentry" computerName="Mac-mini" duration="00:00:04.1664983" startTime="2026-11-05T17:20:24.3753410+08:00" endTime="2026-11-05T17:20:24.3753410+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c7c015a6-af36-4c9c-a3e4-720b762ad063" />
+    <UnitTestResult executionId="2e633f7f-43d4-45cf-83b1-916443b783b1" testId="acee1020-d68f-f10e-ca6a-d5ce3b4d83d9" testName="Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: &quot;VEN·181&quot;)" computerName="Mac-mini" duration="00:00:02.2186156" startTime="2026-11-05T17:21:31.4326390+08:00" endTime="2026-11-05T17:21:31.4326390+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2e633f7f-43d4-45cf-83b1-916443b783b1">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 99
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c5cc8b41-4a79-48a1-bf46-f0cd50ef0e79" testId="37634756-1101-daae-1892-ec62ffaef9b0" testName="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;revision&quot;)" computerName="Mac-mini" duration="00:00:00.7243309" startTime="2026-11-05T17:19:55.2909260+08:00" endTime="2026-11-05T17:19:55.2909260+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c5cc8b41-4a79-48a1-bf46-f0cd50ef0e79" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: &quot;VEN·181&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="acee1020-d68f-f10e-ca6a-d5ce3b4d83d9">
+      <Execution id="2e633f7f-43d4-45cf-83b1-916443b783b1" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;ARC-003/006&quot;, here: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="b43d4109-4b37-600b-160a-f24841fa69e7">
+      <Execution id="a339ca11-efe3-4963-b0cf-9f3bbac5e8d5" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice(actor: &quot;P1&quot;, selection: &quot;COPY:COPY-SOURCE&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="5c0591c8-e09e-f080-9fb1-49169fa0c09e">
+      <Execution id="548d01c9-927d-4ebf-897f-ec372299c9d4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests" name="CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·086&quot;, empowered: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="069e7f0f-e565-7c0f-a044-42122c4a7cf0">
+      <Execution id="dd6518b7-fef3-4c26-b4e7-02860433fbad" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: &quot;VEN·086&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="470b4400-d33f-9480-33a7-871d3754b1a5">
+      <Execution id="c9d00db4-5d0d-4150-8ae6-4e90664dbaed" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="DecliningExhaustKeepsTheRealMoveButDoesNotStun" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.BlastConeStillRejectsAUnitTargetOnTheEquipmentPlayCommand(printing: &quot;VEN·181&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="f806cacd-333f-70e8-145c-c33aa61a3bf6">
+      <Execution id="01083896-18bd-43d3-bed7-6803496fe48a" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="BlastConeStillRejectsAUnitTargetOnTheEquipmentPlayCommand" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.CopyKeepsReceiverModificationsAndDoesNotCopySourceModifications" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="79a1e143-dbe2-cdd0-f99b-538e092d446f">
+      <Execution id="e0b76e57-bc1a-43af-92b5-da6f965cfe20" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="CopyKeepsReceiverModificationsAndDoesNotCopySourceModifications" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·086&quot;, empowered: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="b8edd9ec-c318-a4cd-6ab5-c9b7dc6f28c2">
+      <Execution id="e7756ee8-2b26-4910-9961-796727feb3e0" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.OpponentEquipmentControllerChoosesItsOwnFriendlyCopyAfterTakeUp" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="7363adde-c041-9f55-44fc-fe794f50b2d8">
+      <Execution id="a79f2ecd-e51f-402c-92c9-37f7d8881843" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests" name="OpponentEquipmentControllerChoosesItsOwnFriendlyCopyAfterTakeUp" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.CapturedGardenSkillSurvivesItsBorrowerOrRecipientReturningInResponse(returned: &quot;DONOR&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="332dc3af-b87d-91f1-2e0c-40546ac9fc53">
+      <Execution id="e05cbfbd-1190-4cf1-8d04-85eca92d7573" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="CapturedGardenSkillSurvivesItsBorrowerOrRecipientReturningInResponse" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;OGN·111/298&quot;, attached: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="1dc05d61-e569-7106-a521-4aba9b7df43d">
+      <Execution id="dddce00c-b270-4d89-aca7-174fe88471ba" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;OGN·111/298&quot;, here: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="84872f84-508b-1402-a64c-80e5dc63eb33">
+      <Execution id="2085d1cd-8f40-44b8-b215-ecab9db8179e" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·118/221&quot;, cost: &quot;ASSEMBLE_ORANGE&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="81bade4b-c42a-7cf5-3b02-ed801c6c7b93">
+      <Execution id="f29d0949-7482-429a-a54e-344377eb1f24" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EveryListedTypedManaAssemblePaysOneManaAndOnePower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;OGN·111/298&quot;, here: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="5feca219-8119-d35f-e8e1-65e312e07b24">
+      <Execution id="f2715e9a-de58-44b3-8302-932f3c1b2502" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: &quot;VEN·181&quot;, empowered: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="1ddd3d2a-dad3-bdb7-b320-6e285de66a77">
+      <Execution id="a00bb70d-3fd6-4baf-867e-08902eff6b17" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation(card: &quot;VEN·137&quot;, cost: &quot;ASSEMBLE_YELLOW&quot;, mana: 1, trait: &quot;green&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="e3e122fd-253c-b18a-e11d-5b47cfc3f2c0">
+      <Execution id="f51df8b8-1ab8-4323-923f-6065010fd3ba" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RealAttachmentCopiesPrintedTraitsAndDetachmentRestoresTheBasis" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="01d47638-5bc9-dba1-fee3-1fa4bdb2b458">
+      <Execution id="7b96f191-ccdb-4706-9f2f-b3a5a59d8c6d" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RealAttachmentCopiesPrintedTraitsAndDetachmentRestoresTheBasis" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="2d25be2d-d798-8851-e4cc-34bb112c9f57">
+      <Execution id="b1b9cb28-3979-43aa-8695-aecc69362d0d" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.WithNoOtherFriendlyUnitTheAttachmentCompletesWithoutAReplacementChoice" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="55a92ca8-7728-c329-ec94-6f510ccddb05">
+      <Execution id="8b5e198b-46ba-404d-ae50-aadb33002eb4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="WithNoOtherFriendlyUnitTheAttachmentCompletesWithoutAReplacementChoice" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: &quot;VEN·086&quot;, empowered: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="c3443c22-d365-0aa8-b30a-597d326d1941">
+      <Execution id="912ea8ec-25a3-45d7-977c-ade65e8d2cf6" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;ARC-003/006&quot;, attached: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="211888ad-cc7b-c71a-1a44-6f3d9b6ade12">
+      <Execution id="f4e45c7d-9fac-4d27-82d3-7ef969528785" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.ReturningTheCopiedUnitRestoresItsPhysicalCardBeforeReentry" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="e583e307-3bff-8675-5d96-723551f93eb0">
+      <Execution id="c7c015a6-af36-4c9c-a3e4-720b762ad063" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="ReturningTheCopiedUnitRestoresItsPhysicalCardBeforeReentry" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.CapturedGardenSkillSurvivesItsBorrowerOrRecipientReturningInResponse(returned: &quot;BORROWER&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="f59fd68e-6848-e543-572a-037c705be76a">
+      <Execution id="768b67de-f9a9-45a7-8b73-881a93aa19c4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="CapturedGardenSkillSurvivesItsBorrowerOrRecipientReturningInResponse" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;revision&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="37634756-1101-daae-1892-ec62ffaef9b0">
+      <Execution id="c5cc8b41-4a79-48a1-bf46-f0cd50ef0e79" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·181&quot;, empowered: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="884f047d-281a-1a21-241c-f9b39e4680c5">
+      <Execution id="55ed2c99-522c-4244-b432-6df9490fcba4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;duplicate&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="48178eee-e2d0-dfe7-cd8a-f844818cce4e">
+      <Execution id="3ed71474-c695-481d-a6ce-cb2e1c9a8117" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·030/221&quot;, cost: &quot;ASSEMBLE_RED&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="7f154235-0fbd-4c8a-6042-59a4ea16d8aa">
+      <Execution id="ecd1a028-48df-4181-85af-5feea5621bb7" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EveryListedTypedManaAssemblePaysOneManaAndOnePower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.DestroyingTheGearCanMakeTheRestoredUnitLethal" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="18e62d3d-fdb2-02c5-d486-babffbb8f236">
+      <Execution id="c3ebf58d-a6af-44d0-a762-339448f500f2" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="DestroyingTheGearCanMakeTheRestoredUnitLethal" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: &quot;VEN·181&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="8d295ec2-6634-cb63-f78f-44c85eb09f76">
+      <Execution id="becc3243-4233-41a8-a7b0-81086ddef91e" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="DecliningExhaustKeepsTheRealMoveButDoesNotStun" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;VEN·137&quot;, cost: &quot;ASSEMBLE_YELLOW&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="0474e17e-9d45-c538-ed1b-8c075dcc534c">
+      <Execution id="3195ae84-0e09-4cf1-ad9c-073c452997e7" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EveryListedTypedManaAssemblePaysOneManaAndOnePower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.ReturningAnOriannaConvertedSourceAfterPayingDoesNotEraseTheIndependentStun" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="bbc9465d-fb9c-c192-46de-a813b6c6d9c8">
+      <Execution id="e07e832e-6334-4016-8485-f2371704b87f" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="ReturningAnOriannaConvertedSourceAfterPayingDoesNotEraseTheIndependentStun" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.RecoveryRejectsReturningTheChoiceToTheCasterOrAddingItsUnit(mutation: &quot;chooser&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="d8b0fe2a-4ddd-5aa3-0011-9ae9100fc297">
+      <Execution id="3550a9a6-5764-4e11-85db-534da431bddc" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests" name="RecoveryRejectsReturningTheChoiceToTheCasterOrAddingItsUnit" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;ARC-003/006&quot;, attached: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="3cbd6348-85af-47ef-38f5-96a3137dc87f">
+      <Execution id="e48633d0-be66-4252-a5a0-3f0eceb69194" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.CurrentPrintingHasAnEquipmentPlayBehavior" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="c7855554-b28c-7fca-332e-6df64736b55c">
+      <Execution id="2d9ec1d8-c2b0-4a2d-b07e-479b5db98833" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="CurrentPrintingHasAnEquipmentPlayBehavior" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;face-version&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="70011bdc-dc27-5efa-e470-fd29bc214fd9">
+      <Execution id="d0e04189-e4bd-441e-a970-fa54368ae48a" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.WithoutAnotherEquipmentControllersUnitAttachmentAndCasterDrawStillComplete" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="bf49b9cd-26b8-b3c9-124f-68aca0ddbc0c">
+      <Execution id="e8a87c0b-2083-44b7-bcbd-d5cdf58ebaeb" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests" name="WithoutAnotherEquipmentControllersUnitAttachmentAndCasterDrawStillComplete" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;power&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="56e87877-8eb4-1987-5424-ef5e16c722b7">
+      <Execution id="57baaea3-dc14-425c-9b63-6a9cf394bb2b" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.RecoveryRejectsReturningTheChoiceToTheCasterOrAddingItsUnit(mutation: &quot;candidate&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="8b111153-bbdb-3d69-0001-19226407959e">
+      <Execution id="c426c3f4-7c77-4c93-b838-7361b9664e73" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests" name="RecoveryRejectsReturningTheChoiceToTheCasterOrAddingItsUnit" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: &quot;VEN·181&quot;, empowered: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="5005e304-0700-e0b0-29db-7b0ca18f23b0">
+      <Execution id="84421de0-9914-4c31-8ea7-064d6b048f02" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·059/221&quot;, cost: &quot;ASSEMBLE_GREEN&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="28f21d03-37c0-d2fe-700e-e95c8d65b3c9">
+      <Execution id="616ce1f9-228f-4ce1-b316-4047f63bb6ba" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EveryListedTypedManaAssemblePaysOneManaAndOnePower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.CopiedSandSoldierKeepsIntrinsicTokenIdentityAndCeasesToExistOnReturn" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="72239bb9-6ffe-6149-a078-04f2f3cf276f">
+      <Execution id="c89c0bc4-a622-434f-9aa9-8dd224b9e0ae" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="CopiedSandSoldierKeepsIntrinsicTokenIdentityAndCeasesToExistOnReturn" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.BlastConeStillRejectsAUnitTargetOnTheEquipmentPlayCommand(printing: &quot;VEN·086&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="758c8df2-444b-b906-8636-a1eafed33b09">
+      <Execution id="b27490c0-9520-4660-b76d-62f8302e18f4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="BlastConeStillRejectsAUnitTargetOnTheEquipmentPlayCommand" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.CapturedCopiedSpellSkillSurvivesDetachmentAndAffectsTheSameObject" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="4170ab79-9145-6abe-8e66-e8f4b81210a0">
+      <Execution id="6de6382e-53a4-4aca-a1b7-19ac8cac4b92" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="CapturedCopiedSpellSkillSurvivesDetachmentAndAffectsTheSameObject" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.ReacquiringTheSameAzirFaceCreatesAFreshOncePerTurnInstance" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="764c99aa-6bc4-4015-65c9-f542a688ad8a">
+      <Execution id="63cfcd47-24e8-49d0-b7ff-155e1e3230a4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="ReacquiringTheSameAzirFaceCreatesAFreshOncePerTurnInstance" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation(card: &quot;SFD·059/221&quot;, cost: &quot;ASSEMBLE_GREEN&quot;, mana: 0, trait: &quot;green&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="bf4111e2-05e1-984c-5a28-5c29cf650e1f">
+      <Execution id="5538e977-1c6d-41f9-8c9d-8dead011b699" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;tags&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="f94f0562-9aa7-5e4e-b525-cd318f55b2f9">
+      <Execution id="72ee79e4-ea56-4ec1-8200-a77a34bb7f3c" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;basis-missing&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="9ef2c95c-af34-3cd1-58aa-cb7e32a11f95">
+      <Execution id="ac2a8e96-40a1-4d1a-a773-35589c34ccef" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;UNL-019/219&quot;, cost: &quot;ASSEMBLE_RED&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="3a2218c0-d8ef-cecc-e273-bf3c2929c921">
+      <Execution id="80401643-694c-4e47-b610-51883c4a900c" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EveryListedTypedManaAssemblePaysOneManaAndOnePower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EndingOneOfTwoCopyEffectsKeepsTheOtherAndEventuallyRestoresTheBasis(topFirst: False)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="43fbc816-a5d5-9ac7-7a9c-4eb5d92313bb">
+      <Execution id="93aa0d12-105c-4b2b-93d3-70bbe1d0bc1f" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EndingOneOfTwoCopyEffectsKeepsTheOtherAndEventuallyRestoresTheBasis" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: &quot;OGN·111/298&quot;, attached: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="d683467c-0b96-2d7b-387e-ed416fc1ad5f">
+      <Execution id="16f1a3be-d06c-480e-8ed8-659231baac75" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates(gearOwner: &quot;P1&quot;, copyOwner: &quot;P1&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="119872a1-6111-bad8-17c5-a415a8ee8c0d">
+      <Execution id="ba25a12c-f419-4466-b7b0-9672d39506b3" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests" name="PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="6f5b6222-0346-3ca6-6ef3-7c7a3067ad94">
+      <Execution id="56d672e2-1a78-4d61-9735-5b8da21ffe9d" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;missing-equipment-id&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="a3284368-fc5e-d0b3-fec1-fcacd357d769">
+      <Execution id="64db3809-2b70-4ba6-a457-68b02ae4c76c" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.ActualFourManaEquipmentPlayEntersWithoutApplyingAnyCopyYet" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="7956aaa5-830d-f82d-ed7f-9ee750d55493">
+      <Execution id="da6f8227-4760-41ff-8178-e96e1f20f754" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="ActualFourManaEquipmentPlayEntersWithoutApplyingAnyCopyYet" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EndingOneOfTwoCopyEffectsKeepsTheOtherAndEventuallyRestoresTheBasis(topFirst: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="f2fd9a55-a4b8-2d08-d447-a43badda52a1">
+      <Execution id="f6f40001-fa25-41c0-9674-ebb6ea959c50" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EndingOneOfTwoCopyEffectsKeepsTheOtherAndEventuallyRestoresTheBasis" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·118a/221·P&quot;, cost: &quot;ASSEMBLE_ORANGE&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="9512d9c0-02e0-fcc8-f597-53773d046dc1">
+      <Execution id="fa935b94-0819-42e4-8074-f55bdc1588b8" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EveryListedTypedManaAssemblePaysOneManaAndOnePower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice(actor: &quot;P2&quot;, selection: &quot;COPY:P1-SOURCE&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="3acb8951-3bd9-b0c2-027b-46ee4435dec1">
+      <Execution id="9421e523-d03d-483d-baaf-6e6339b7bced" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests" name="CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates(gearOwner: &quot;P2&quot;, copyOwner: &quot;P1&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="5836e10e-348f-dbaf-cf03-844db4c8b041">
+      <Execution id="a81174e4-3e1c-4595-a7ea-edf68ea64764" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests" name="PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: &quot;VEN·086&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="476e4a74-a318-49e6-c0cb-2d94330f6e4e">
+      <Execution id="06de4215-4082-4a8a-9b16-bd98cca33917" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBlastConeFaqTests" name="OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.GainedAttachmentAbilityCannotSeeTheEarlierAttachmentEvent" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="d8a144c6-5e13-a8e7-5ffb-be47517a2b9e">
+      <Execution id="2d24e20d-d142-43c6-b038-9708acb467c4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="GainedAttachmentAbilityCannotSeeTheEarlierAttachmentEvent" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests.CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice(actor: &quot;P2&quot;, selection: &quot;COPY:HOST&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="3ad40a5b-f277-c0b0-9296-25afda0cfc8e">
+      <Execution id="1d63ef54-a099-4819-8f32-d7127b1d08a8" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyChoiceTests" name="CasterSelfAndEnemyChoicesAreAtomicAndDoNotBlockTheLegalChoice" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;preview&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="965b5996-190a-c7a5-1446-8b32cdc24fd8">
+      <Execution id="69a1c598-74cc-4b90-8eed-9c224be3e7f1" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase(printing: &quot;ARC-003/006&quot;, here: True)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="3e134693-76fe-75a8-0cac-0e7df2e82c4d">
+      <Execution id="2d7390a0-2fde-4b94-9b92-19f1402c432b" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests" name="GardenGrantedSkillIsBorrowedFromAnotherUnitHereAndWorksAtBase" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.EveryListedTypedManaAssemblePaysOneManaAndOnePower(card: &quot;SFD·090/221&quot;, cost: &quot;ASSEMBLE_BLUE&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="88d9f67d-2cd7-d467-359a-cc2a7c43429e">
+      <Execution id="edf58e24-25c1-4d1e-8f15-da8ad0768003" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="EveryListedTypedManaAssemblePaysOneManaAndOnePower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation(card: &quot;VEN·137&quot;, cost: &quot;ASSEMBLE_YELLOW&quot;, mana: 0, trait: &quot;yellow&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="da077752-1313-0bcd-0f59-fc6e6b801edc">
+      <Execution id="de841bcd-7549-4546-9402-71d7f4e3e946" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="MissingPrintedManaOrWrongTypedPowerRejectsWithoutMutation" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;basis&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="60655dc8-1276-5aa8-eab1-f9d98a8a1672">
+      <Execution id="6a6ffc84-99fc-4340-81ff-3c58e0492f45" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;null-equipment&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="2ae80bdd-1e8b-e05d-ab39-4d306fdfedae">
+      <Execution id="71402834-4bc5-40a9-a36a-c765a13d01e4" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.RecoveryRejectsForgedAttachmentCopyOrReplacementPreview(mutation: &quot;equipment&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="e73539df-244d-931b-a82c-f21591d01fcd">
+      <Execution id="0c2bb0bf-c79a-4d70-88b8-ff19de792916" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="RecoveryRejectsForgedAttachmentCopyOrReplacementPreview" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests.PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates(gearOwner: &quot;P1&quot;, copyOwner: &quot;P2&quot;)" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="8d879fa9-b986-da7b-4944-615059dcac75">
+      <Execution id="a62e5331-4010-450b-b703-5520ae323c22" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.OpponentAttachmentCopyRecoveryTests" name="PhysicalOwnershipDoesNotChangeTheChooserOrItsFriendlyCandidates" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.ShadySpectaclesTests.TypedAssemblePaysPrintedManaAndOneTypedPower" storage="/volumes/externalssd/myprojects/.worktrees/riftbound-m-regressions/tests/riftbound.conformancetests/bin/release/net10.0/riftbound.conformancetests.dll" id="68380564-d5c2-f1fe-4949-fb5bc697c7dc">
+      <Execution id="62fddc4f-0023-4840-9670-e44000aa1967" />
+      <TestMethod codeBase="/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.ShadySpectaclesTests" name="TypedAssemblePaysPrintedManaAndOneTypedPower" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="e73539df-244d-931b-a82c-f21591d01fcd" executionId="0c2bb0bf-c79a-4d70-88b8-ff19de792916" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7f154235-0fbd-4c8a-6042-59a4ea16d8aa" executionId="ecd1a028-48df-4181-85af-5feea5621bb7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="48178eee-e2d0-dfe7-cd8a-f844818cce4e" executionId="3ed71474-c695-481d-a6ce-cb2e1c9a8117" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="70011bdc-dc27-5efa-e470-fd29bc214fd9" executionId="d0e04189-e4bd-441e-a970-fa54368ae48a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72239bb9-6ffe-6149-a078-04f2f3cf276f" executionId="c89c0bc4-a622-434f-9aa9-8dd224b9e0ae" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="81bade4b-c42a-7cf5-3b02-ed801c6c7b93" executionId="f29d0949-7482-429a-a54e-344377eb1f24" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="18e62d3d-fdb2-02c5-d486-babffbb8f236" executionId="c3ebf58d-a6af-44d0-a762-339448f500f2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b8edd9ec-c318-a4cd-6ab5-c9b7dc6f28c2" executionId="e7756ee8-2b26-4910-9961-796727feb3e0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f59fd68e-6848-e543-572a-037c705be76a" executionId="768b67de-f9a9-45a7-8b73-881a93aa19c4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d8a144c6-5e13-a8e7-5ffb-be47517a2b9e" executionId="2d24e20d-d142-43c6-b038-9708acb467c4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="476e4a74-a318-49e6-c0cb-2d94330f6e4e" executionId="06de4215-4082-4a8a-9b16-bd98cca33917" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f806cacd-333f-70e8-145c-c33aa61a3bf6" executionId="01083896-18bd-43d3-bed7-6803496fe48a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e3e122fd-253c-b18a-e11d-5b47cfc3f2c0" executionId="f51df8b8-1ab8-4323-923f-6065010fd3ba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2ae80bdd-1e8b-e05d-ab39-4d306fdfedae" executionId="71402834-4bc5-40a9-a36a-c765a13d01e4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="60655dc8-1276-5aa8-eab1-f9d98a8a1672" executionId="6a6ffc84-99fc-4340-81ff-3c58e0492f45" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="56e87877-8eb4-1987-5424-ef5e16c722b7" executionId="57baaea3-dc14-425c-9b63-6a9cf394bb2b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c3443c22-d365-0aa8-b30a-597d326d1941" executionId="912ea8ec-25a3-45d7-977c-ade65e8d2cf6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3e134693-76fe-75a8-0cac-0e7df2e82c4d" executionId="2d7390a0-2fde-4b94-9b92-19f1402c432b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="332dc3af-b87d-91f1-2e0c-40546ac9fc53" executionId="e05cbfbd-1190-4cf1-8d04-85eca92d7573" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c7855554-b28c-7fca-332e-6df64736b55c" executionId="2d9ec1d8-c2b0-4a2d-b07e-479b5db98833" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5feca219-8119-d35f-e8e1-65e312e07b24" executionId="f2715e9a-de58-44b3-8302-932f3c1b2502" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2d25be2d-d798-8851-e4cc-34bb112c9f57" executionId="b1b9cb28-3979-43aa-8695-aecc69362d0d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bbc9465d-fb9c-c192-46de-a813b6c6d9c8" executionId="e07e832e-6334-4016-8485-f2371704b87f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="758c8df2-444b-b906-8636-a1eafed33b09" executionId="b27490c0-9520-4660-b76d-62f8302e18f4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="211888ad-cc7b-c71a-1a44-6f3d9b6ade12" executionId="f4e45c7d-9fac-4d27-82d3-7ef969528785" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="43fbc816-a5d5-9ac7-7a9c-4eb5d92313bb" executionId="93aa0d12-105c-4b2b-93d3-70bbe1d0bc1f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="884f047d-281a-1a21-241c-f9b39e4680c5" executionId="55ed2c99-522c-4244-b432-6df9490fcba4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5005e304-0700-e0b0-29db-7b0ca18f23b0" executionId="84421de0-9914-4c31-8ea7-064d6b048f02" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7956aaa5-830d-f82d-ed7f-9ee750d55493" executionId="da6f8227-4760-41ff-8178-e96e1f20f754" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b43d4109-4b37-600b-160a-f24841fa69e7" executionId="a339ca11-efe3-4963-b0cf-9f3bbac5e8d5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9ef2c95c-af34-3cd1-58aa-cb7e32a11f95" executionId="ac2a8e96-40a1-4d1a-a773-35589c34ccef" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c0591c8-e09e-f080-9fb1-49169fa0c09e" executionId="548d01c9-927d-4ebf-897f-ec372299c9d4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bf4111e2-05e1-984c-5a28-5c29cf650e1f" executionId="5538e977-1c6d-41f9-8c9d-8dead011b699" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f2fd9a55-a4b8-2d08-d447-a43badda52a1" executionId="f6f40001-fa25-41c0-9674-ebb6ea959c50" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f94f0562-9aa7-5e4e-b525-cd318f55b2f9" executionId="72ee79e4-ea56-4ec1-8200-a77a34bb7f3c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a3284368-fc5e-d0b3-fec1-fcacd357d769" executionId="64db3809-2b70-4ba6-a457-68b02ae4c76c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3a2218c0-d8ef-cecc-e273-bf3c2929c921" executionId="80401643-694c-4e47-b610-51883c4a900c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4170ab79-9145-6abe-8e66-e8f4b81210a0" executionId="6de6382e-53a4-4aca-a1b7-19ac8cac4b92" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="965b5996-190a-c7a5-1446-8b32cdc24fd8" executionId="69a1c598-74cc-4b90-8eed-9c224be3e7f1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b111153-bbdb-3d69-0001-19226407959e" executionId="c426c3f4-7c77-4c93-b838-7361b9664e73" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7363adde-c041-9f55-44fc-fe794f50b2d8" executionId="a79f2ecd-e51f-402c-92c9-37f7d8881843" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="01d47638-5bc9-dba1-fee3-1fa4bdb2b458" executionId="7b96f191-ccdb-4706-9f2f-b3a5a59d8c6d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d8b0fe2a-4ddd-5aa3-0011-9ae9100fc297" executionId="3550a9a6-5764-4e11-85db-534da431bddc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1dc05d61-e569-7106-a521-4aba9b7df43d" executionId="dddce00c-b270-4d89-aca7-174fe88471ba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1ddd3d2a-dad3-bdb7-b320-6e285de66a77" executionId="a00bb70d-3fd6-4baf-867e-08902eff6b17" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="84872f84-508b-1402-a64c-80e5dc63eb33" executionId="2085d1cd-8f40-44b8-b215-ecab9db8179e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="470b4400-d33f-9480-33a7-871d3754b1a5" executionId="c9d00db4-5d0d-4150-8ae6-4e90664dbaed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="68380564-d5c2-f1fe-4949-fb5bc697c7dc" executionId="62fddc4f-0023-4840-9670-e44000aa1967" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="da077752-1313-0bcd-0f59-fc6e6b801edc" executionId="de841bcd-7549-4546-9402-71d7f4e3e946" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="79a1e143-dbe2-cdd0-f99b-538e092d446f" executionId="e0b76e57-bc1a-43af-92b5-da6f965cfe20" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0474e17e-9d45-c538-ed1b-8c075dcc534c" executionId="3195ae84-0e09-4cf1-ad9c-073c452997e7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="28f21d03-37c0-d2fe-700e-e95c8d65b3c9" executionId="616ce1f9-228f-4ce1-b316-4047f63bb6ba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="55a92ca8-7728-c329-ec94-6f510ccddb05" executionId="8b5e198b-46ba-404d-ae50-aadb33002eb4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="119872a1-6111-bad8-17c5-a415a8ee8c0d" executionId="ba25a12c-f419-4466-b7b0-9672d39506b3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6f5b6222-0346-3ca6-6ef3-7c7a3067ad94" executionId="56d672e2-1a78-4d61-9735-5b8da21ffe9d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="069e7f0f-e565-7c0f-a044-42122c4a7cf0" executionId="dd6518b7-fef3-4c26-b4e7-02860433fbad" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="764c99aa-6bc4-4015-65c9-f542a688ad8a" executionId="63cfcd47-24e8-49d0-b7ff-155e1e3230a4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3ad40a5b-f277-c0b0-9296-25afda0cfc8e" executionId="1d63ef54-a099-4819-8f32-d7127b1d08a8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5836e10e-348f-dbaf-cf03-844db4c8b041" executionId="a81174e4-3e1c-4595-a7ea-edf68ea64764" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="88d9f67d-2cd7-d467-359a-cc2a7c43429e" executionId="edf58e24-25c1-4d1e-8f15-da8ad0768003" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d683467c-0b96-2d7b-387e-ed416fc1ad5f" executionId="16f1a3be-d06c-480e-8ed8-659231baac75" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9512d9c0-02e0-fcc8-f597-53773d046dc1" executionId="fa935b94-0819-42e4-8074-f55bdc1588b8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8d879fa9-b986-da7b-4944-615059dcac75" executionId="a62e5331-4010-450b-b703-5520ae323c22" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3cbd6348-85af-47ef-38f5-96a3137dc87f" executionId="e48633d0-be66-4252-a5a0-3f0eceb69194" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8d295ec2-6634-cb63-f78f-44c85eb09f76" executionId="becc3243-4233-41a8-a7b0-81086ddef91e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bf49b9cd-26b8-b3c9-124f-68aca0ddbc0c" executionId="e8a87c0b-2083-44b7-bcbd-d5cdf58ebaeb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3acb8951-3bd9-b0c2-027b-46ee4435dec1" executionId="9421e523-d03d-483d-baaf-6e6339b7bced" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e583e307-3bff-8675-5d96-723551f93eb0" executionId="c7c015a6-af36-4c9c-a3e4-720b762ad063" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="acee1020-d68f-f10e-ca6a-d5ce3b4d83d9" executionId="2e633f7f-43d4-45cf-83b1-916443b783b1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="37634756-1101-daae-1892-ec62ffaef9b0" executionId="c5cc8b41-4a79-48a1-bf46-f0cd50ef0e79" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="70" executed="70" passed="54" failed="16" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:01.50]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:08.84]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:09.10]   Starting:    Riftbound.ConformanceTests
+[xUnit.net 00:01:10.65]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:01:10.65]       Stack Trace:
+[xUnit.net 00:01:10.66]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs(98,0): at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached)
+[xUnit.net 00:01:10.66]         --- End of stack trace from previous location ---
+[xUnit.net 00:01:10.73]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:01:10.73]       Stack Trace:
+[xUnit.net 00:01:10.73]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs(98,0): at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached)
+[xUnit.net 00:01:10.73]         --- End of stack trace from previous location ---
+[xUnit.net 00:01:10.81]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:01:10.81]       Stack Trace:
+[xUnit.net 00:01:10.81]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs(98,0): at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached)
+[xUnit.net 00:01:10.81]         --- End of stack trace from previous location ---
+[xUnit.net 00:01:10.96]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:01:10.96]       Stack Trace:
+[xUnit.net 00:01:10.96]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs(98,0): at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached)
+[xUnit.net 00:01:10.96]         --- End of stack trace from previous location ---
+[xUnit.net 00:01:58.62]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:01:58.62]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:01:58.62]       Actual:   null
+[xUnit.net 00:01:58.62]       Stack Trace:
+[xUnit.net 00:01:58.62]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:01:58.62]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(78,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(String printing)
+[xUnit.net 00:01:58.62]         --- End of stack trace from previous location ---
+[xUnit.net 00:02:00.19]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:02:00.19]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:02:00.19]       Actual:   null
+[xUnit.net 00:02:00.19]       Stack Trace:
+[xUnit.net 00:02:00.19]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:02:00.19]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(78,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(String printing)
+[xUnit.net 00:02:00.19]         --- End of stack trace from previous location ---
+[xUnit.net 00:02:01.85]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:02:01.85]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:02:01.85]       Actual:   null
+[xUnit.net 00:02:01.85]       Stack Trace:
+[xUnit.net 00:02:01.85]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:02:01.85]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(171,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone()
+[xUnit.net 00:02:01.85]         --- End of stack trace from previous location ---
+[xUnit.net 00:02:04.26]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:02:04.26]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:02:04.26]       Actual:   null
+[xUnit.net 00:02:04.26]       Stack Trace:
+[xUnit.net 00:02:04.26]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:02:04.26]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(99,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(String printing)
+[xUnit.net 00:02:04.26]         --- End of stack trace from previous location ---
+[xUnit.net 00:02:06.48]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:02:06.48]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:02:06.48]       Actual:   null
+[xUnit.net 00:02:06.48]       Stack Trace:
+[xUnit.net 00:02:06.48]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:02:06.48]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(99,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(String printing)
+[xUnit.net 00:02:06.48]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:19.26]       System.NullReferenceException : Object reference not set to an instance of an object.
+[xUnit.net 00:03:19.26]       Stack Trace:
+[xUnit.net 00:03:19.26]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(187,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment()
+[xUnit.net 00:03:19.26]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:20.43]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:03:20.43]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:03:20.43]       Actual:   null
+[xUnit.net 00:03:20.43]       Stack Trace:
+[xUnit.net 00:03:20.43]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:03:20.43]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(29,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered)
+[xUnit.net 00:03:20.43]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:21.07]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:03:21.08]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:03:21.08]       Actual:   null
+[xUnit.net 00:03:21.08]       Stack Trace:
+[xUnit.net 00:03:21.08]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:03:21.08]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(29,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered)
+[xUnit.net 00:03:21.08]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:21.80]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:03:21.80]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:03:21.80]       Actual:   null
+[xUnit.net 00:03:21.80]       Stack Trace:
+[xUnit.net 00:03:21.80]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:03:21.80]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(29,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered)
+[xUnit.net 00:03:21.80]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:22.58]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:03:22.58]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:03:22.58]       Actual:   null
+[xUnit.net 00:03:22.58]       Stack Trace:
+[xUnit.net 00:03:22.58]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:03:22.58]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(29,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered)
+[xUnit.net 00:03:22.58]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:23.39]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:03:23.39]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:03:23.39]       Actual:   null
+[xUnit.net 00:03:23.39]       Stack Trace:
+[xUnit.net 00:03:23.39]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:03:23.39]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(64,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(String printing, Boolean empowered)
+[xUnit.net 00:03:23.39]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:24.14]       Assert.IsType() Failure: Value is null
+[xUnit.net 00:03:24.14]       Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+[xUnit.net 00:03:24.14]       Actual:   null
+[xUnit.net 00:03:24.14]       Stack Trace:
+[xUnit.net 00:03:24.14]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(227,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination)
+[xUnit.net 00:03:24.14]         /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs(64,0): at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(String printing, Boolean empowered)
+[xUnit.net 00:03:24.14]         --- End of stack trace from previous location ---
+[xUnit.net 00:03:28.96]   Finished:    Riftbound.ConformanceTests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:20:35.6091310+08:00">
+        <Text>[xUnit.net 00:01:10.65]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "OGN·111/298", attached: True) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:20:35.6867170+08:00">
+        <Text>[xUnit.net 00:01:10.73]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "ARC-003/006", attached: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:20:35.7669880+08:00">
+        <Text>[xUnit.net 00:01:10.81]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "OGN·111/298", attached: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:20:35.9131590+08:00">
+        <Text>[xUnit.net 00:01:10.96]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "ARC-003/006", attached: True) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:21:23.5774320+08:00">
+        <Text>[xUnit.net 00:01:58.62]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: "VEN·086") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:21:25.1448470+08:00">
+        <Text>[xUnit.net 00:02:00.19]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: "VEN·181") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:21:26.8049140+08:00">
+        <Text>[xUnit.net 00:02:01.85]     Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:21:29.2130270+08:00">
+        <Text>[xUnit.net 00:02:04.26]     Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: "VEN·086") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:21:31.4324080+08:00">
+        <Text>[xUnit.net 00:02:06.48]     Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: "VEN·181") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:22:44.2200740+08:00">
+        <Text>[xUnit.net 00:03:19.26]     Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:22:45.3883510+08:00">
+        <Text>[xUnit.net 00:03:20.43]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·086", empowered: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:22:46.0311580+08:00">
+        <Text>[xUnit.net 00:03:21.07]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·086", empowered: True) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:22:46.7531220+08:00">
+        <Text>[xUnit.net 00:03:21.80]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·181", empowered: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:22:47.5318910+08:00">
+        <Text>[xUnit.net 00:03:22.58]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·181", empowered: True) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:22:48.3453310+08:00">
+        <Text>[xUnit.net 00:03:23.39]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: "VEN·086", empowered: True) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-11-05T17:22:49.0995600+08:00">
+        <Text>[xUnit.net 00:03:24.14]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: "VEN·181", empowered: False) [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

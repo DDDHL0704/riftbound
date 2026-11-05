@@ -1,0 +1,3422 @@
+[
+  {
+    "ref": "refs/heads/a/backlog-330-record",
+    "sha": "fd33bd493b6382f331fc2b266164fd43752e7bca",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/deploy-hold",
+    "sha": "87341607c11ca80fc9dcd0521d3dc4d185069d3b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-agent-preparation",
+    "sha": "0694a0c8530e532df53a13356a68057a3f7bbf03",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-area-guardian-preparation-next",
+    "sha": "17065c04928b3b1dd233026f08905bf62d3abc86",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-audited-history-batch",
+    "sha": "24aa85b0f953a27f30bb4bf44d2bf4d9b26faa2f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-batched-tap-tests",
+    "sha": "b7bbe722deda841f1bb089024b585d5edb716e62",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-battle-cleanup",
+    "sha": "86b8bedf0c03b04b1ee7a80be8f8e9aa1e571980",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-battle-cleanup-pre-main",
+    "sha": "b8bc8299e4fd411a08874591549e2afdfc3e2f20",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-battle-followup",
+    "sha": "a07c749150379a80c1a988341668724a7fb884eb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-battle-result-boundary",
+    "sha": "0ef9c0749c479c0c96168d9ee38482a696eba036",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-battle-terminal-replays",
+    "sha": "24276420b4f05049af330e2a695f1889f329163e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-battlefield-replay",
+    "sha": "2f52aeb5637686ff2f238954bc70e56b08c2563d",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-boundary-batch",
+    "sha": "3bc90128ca12fccbb72a7d5026f4341749204f90",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-boundary-batch-next",
+    "sha": "c732a7254f2e67163f85ccc6f353d7a6fd04c480",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-boundary-publish",
+    "sha": "6a093850923189e914dfb26b9b05ce0a8c54dd2c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-build-log",
+    "sha": "9595a14b6f694f404d4f6b2b7df3fd7cd7e6b5f0",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-burnout-resource-profile-next",
+    "sha": "0496671086305e18b76ded1aec232dd74710ec57",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-canonical-filler-next",
+    "sha": "9e3ab83a95eab7024a74a4aedf9036fec292dc03",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-canonical-payment-preparation-next",
+    "sha": "03596e1b4a3f4ba52d873e116333a46563a05b40",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-canonical-phase",
+    "sha": "bca9b55c033a94ae4d0a1821827f481946831d3b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-canonical-prompts",
+    "sha": "a01efba41d320a49ece1b4090622725211997b85",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-canonical-result-views",
+    "sha": "90cf91b66e2636ca69796622ce69efc19c9fe553",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-canonical-terminal-next",
+    "sha": "1acd7a8781329b82a6d4b0fec57652a8af86ab0e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-catalog-preflight-followup",
+    "sha": "37a6e24800caa01b2d41e9458499d0e0e24d25bf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-cold-checkpoint",
+    "sha": "df2c2101cbff6be35e1feedb109f57f90fcde0b6",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-conditional-death-recycle-next",
+    "sha": "e7f29099b95323dd901017867ea4bf6851453e24",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-control-payment-preparation-next",
+    "sha": "34178db467da4283df3b0cd9d51c25fb0d82c9da",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-copy-control-preparation-followup",
+    "sha": "e96634dde32a4759ab134256517fd8c07aef16c9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-current-grave-checkpoints",
+    "sha": "8bace6aa2ce30200f105500a99547708c801f66a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-destruction-forgery-audit-next",
+    "sha": "bbd5a8e72d93d21e48d6fb7c0f6073f931ee0dc4",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-draw-payment-preparation-next",
+    "sha": "8a7ccf29e2eac30aefa0ff24e61e8463ed4a9529",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-empower-boundary",
+    "sha": "e45a00e3b8cd2366f0d4c20281735f17350d569b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-empower-boundary-pr",
+    "sha": "31748bc44d4efda4e36eaf582aee3b6e74dd562e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-empower-followup",
+    "sha": "6cff31e11b25368b486e215b94292ff21d7c9fa6",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-empty-drain-next",
+    "sha": "1d99e2a65e4ceaa5cf38b6fdcb37b6973b1444d4",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-expiry-candidate-next",
+    "sha": "57c92900927f68b4083caaf2e975d7cfe54a5963",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-expiry-preparation-next",
+    "sha": "ca3214d974a4029a6fa474b55cd3d3b768f7285b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-flow-projections",
+    "sha": "7ed62c8010f0fac2dec7e77957293ce1a9361dc3",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-followup-next",
+    "sha": "924261537583cb49a4f43c2fe63939a9f41b5b8d",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-further-canonical-recovery-next",
+    "sha": "668ce2b2969b4f92255360238fe0e7212afa57cf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-grouped-forgery-checkpoints-next",
+    "sha": "7aaa10a4c6e4e18014c896bd1ab64269f7a42762",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-guardian-birth-setup-followup",
+    "sha": "4a3505bd9c77af9e78edc2879f7b2bec436785ca",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-guardian-opening",
+    "sha": "806a2bc5c42d9a64dd8e95ccae28dfa070e7c851",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-guardian-preparation-checkpoint-next",
+    "sha": "8c90a35e880c2e1a6a12d38662b8d536dbbe3137",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-held-tax-opening-setup-followup",
+    "sha": "df8e860d54ce4fa5c20cf60bf7d103266ffc7b03",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-held-tax-preparation-next",
+    "sha": "72589e91d2d50490921365fd6e5036e8a1cf982c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-ingress-replay-next",
+    "sha": "9a2f81f608e63f5409328795a4731a3fcc2eb3da",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-lastbreath-next",
+    "sha": "0381876f5d9794b895cb0a55ce7e0dbd47b0215c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-lastbreath-payment-preparation-next",
+    "sha": "4110cfc7bc878a5378ec695a128f0850671d25ba",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-lastbreath-repaired-checkpoints-next",
+    "sha": "659198b3eff38dd7a96b7dc93c11e76d296d1ae2",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-lastbreath-resource-followup",
+    "sha": "0508e75e2f247919ab1f070a38785e0a7c8e61c1",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-main-skip-reuse",
+    "sha": "eee211edc7e3aaaf8122d8a9e0d8df12ba243383",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-method-timing-observation",
+    "sha": "93cf46ab8543feb8b0116b4418c76cd0f10ba0bd",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-more-canonical-forgery-boundaries-next",
+    "sha": "85c56118e1d6c65a7904a32489d3d7d4e6075176",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-more-grouped-forgery-checkpoints-next",
+    "sha": "87d7b4463eb1116572da8b559790fd3e972585ce",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-movement-preparation-next",
+    "sha": "2b9de89c65e8d8ebe07280fe508b7a26e7c88776",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-native-cold-views-next",
+    "sha": "8821d30b914f0a89d0e5dc6a650076691338be2d",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-native-empower-forgery-group-next",
+    "sha": "f385d06f635194e25658bfd41d6a33db27749f08",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-next-batch",
+    "sha": "9eeea80cd773b98c3c042ef18b6f43f51d2fb27b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-next-battle-boundary",
+    "sha": "f967551f8a692cb7ffd18a260cc8a59aaf4a20ee",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-next-boundary-fix",
+    "sha": "a17ae208541f95c618a99a2c9db7da41fd57c5ed",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-next-guardian",
+    "sha": "d4b402eb2a22983970aac65f88112f93439d68cd",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-next-terminal-pair",
+    "sha": "3373c397f8615f2478c8978d89d65e98897bc4cd",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-opening-audit",
+    "sha": "cd545d59515af065f80f0547add07c77dc2a96b7",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-opening-audits",
+    "sha": "167af11b06e3ec4ab4554a2e429586c458f1a8f0",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-opening-cost",
+    "sha": "8d0fcbe2e719576b0b58e46787e6cf2c9d5ab9b6",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-opening-cost-next",
+    "sha": "fd33f55a00bf21e260816a5e6c3fcc37d38d9adf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-opening-result-views",
+    "sha": "cb7d8003047ba48ffb6881313715c25d5e073f7b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-origin-replay-next",
+    "sha": "2b25eedb6e3f31732770a0209132a8fabdcd7df9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-paid-preparation-next",
+    "sha": "3ba07dc975b7a48e5d1cb4e66e09b90224500768",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-physical-recycle-preparation-next",
+    "sha": "4610499d53b23fc24257dd7eff6729c8e7a4bc0e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-physical-replay",
+    "sha": "187386e1c5d2225565bc1dcf24a3071a148fdf66",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-pr409-timing-refresh-next",
+    "sha": "96e87ba53d184015c0dee62cc7e1e877a9c68283",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-pr428-balance-next",
+    "sha": "db409969ae19a9dbb17fc55a189d3fb81d02d917",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-pr428-complete-observation-next",
+    "sha": "cef21bf2d5a0dc81f60f26eb8d7d70dddd5f6fc3",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-cold-next",
+    "sha": "633ecfc914e3339cd56009d1715cdc0cb86106c6",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-echo-payment-preparation-next",
+    "sha": "8a9af1d1b148ff5facb86b0586d50531f703174e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-opening",
+    "sha": "189b488d97c9d8a92006c1bcadc8d60d3435a44a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-opening-setup-next",
+    "sha": "982690ce1fc377dec2b14563eba8d028efe986b9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-replay-next",
+    "sha": "278b2ea167906ea71cf8138a58d05e5a7b70435d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-setup-checkpoints-next",
+    "sha": "87d7b4463eb1116572da8b559790fd3e972585ce",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-remaining-caller-audits-next",
+    "sha": "8e9ebaa6e9d800c1947c1c39eb734221bfb40192",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-remaining-rune-tap-preparation-next",
+    "sha": "c1a79a47ca8105383c6827605635b969ad546094",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-rengar-preparation-next",
+    "sha": "f45222d222a421845a10090c4e7aa99f58333565",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-replacement-setup-followup",
+    "sha": "60b3542bb826f26f4d3d2a6115fddf4743bb23c5",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-replay-overlap-next",
+    "sha": "85f48b9fd021d2cf94ecc8f7add86f36947fb742",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-resource-batch",
+    "sha": "3824309349f035a22cf845e561a11900c5f200c7",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-resource-preparation-batch-next",
+    "sha": "7316bdaacf203a03902b79749735d1c6f63b4474",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-rune-printing",
+    "sha": "824ff4cecc54a60d42409469458603d59454c40d",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-rune-projections",
+    "sha": "55641173c05c31fc77d94c7d00a82cdbbce29959",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-additional-audit-next",
+    "sha": "ec2d7cb8f3ecfe50dd85cc6da4bf442da7844deb",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-balance-next",
+    "sha": "46fccc02f3f8549796fb8ac83abfcd8dd5b636e4",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-forgery-checkpoint-next",
+    "sha": "49492aa8cc8e20b7bff492d2cb06ecf188133b5c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-positive-audit-next",
+    "sha": "2530b2fb43fe885be6b238c51e29fec48b07105b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-prefix-audits-next",
+    "sha": "3baebdc39ee790f87b1a701124773ae64054134b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-runtime-observation-next",
+    "sha": "0c76801bbb11f23c7238a3bcbfc2a54779327fe4",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-runtime-report-next",
+    "sha": "e8ad3983a2c60b8ab21c7d34144da37f34abbc87",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-submitted-battle-checkpoints-next",
+    "sha": "e614b03c143525c978c136b96f64ea5f197156c1",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-submitted-standby",
+    "sha": "1f6cb49ab78d1805effdcabf3134a729de69d9ee",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-terminal-audits",
+    "sha": "7508aebe63dab23a2e54a82160dd06615488ca70",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-unit-creation-payment-preparation-next",
+    "sha": "c6fb1a1ce48e3c6b4eda7db7873da19249e5ac84",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-ven-opening-batch",
+    "sha": "b3e3616a7d27c30599afff5645710026d0930bb8",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-ven010-resource-next",
+    "sha": "a1aab796222bf4d0f3a69ea2c7bdb15cf1d5145b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-ven035-repaired-checkpoint-next",
+    "sha": "a0b9ae23949eb9e86eaa9a81790a95cf2b4d3ee2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-ven035-setup",
+    "sha": "44f1d9db746628cb85d4b32048ef863d4689c88c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-ven035-setup-next",
+    "sha": "c409d22194acad14a55b8cf5ce65292023d92897",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-ven122-ward",
+    "sha": "76046a61c67755286404cec89570b6ab7ee4b2d6",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/l2-wallet-preparation-next",
+    "sha": "d3a9cdd25831f01d3288e82463f3be8625607e28",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/l2-workflow-timing-followup",
+    "sha": "ed24da126bdabdf3e6593908a25ed23a3bf138e9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/main-l2-idle-scheduler",
+    "sha": "d3790df0d1f75675956d5cb92467b3e9e5a4a374",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/nightly-cancel-aggregate",
+    "sha": "3ba3b0f1ce7d3a3f5daa583366142b076f3cdbb0",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/nightly-full-preflight",
+    "sha": "6c9015cfb6df10cc593c32ecfa49dbb67da27b2a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/nightly-validation",
+    "sha": "49cee924a27a9dc420144801aead7ba205ee0a86",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p0-2-complete",
+    "sha": "de914e0e26614307b87863a6a6620615f3422110",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p0-2-three-green",
+    "sha": "ae033a25ba700d2657a68b97b5649806b9d0e790",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p0-created-token-jsonb",
+    "sha": "0c714419c09a5c7e3ccc45d10c992ea9523d963a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p0-hall-legends-acceptance",
+    "sha": "576dc0eb869eec593fa65ff2b6c4ad430330ea3b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p0-nightly-fix",
+    "sha": "db28cd2ce0e99a04a6bf5f9689b84b87ad4e1f1a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p0-nightly-restricted",
+    "sha": "688d8db07ad921e77c1a39c1be11706a1f557f7b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p0-sealed-snapshot-order",
+    "sha": "d1bf1fd0ff1b6af9a61cf069d55185165bea09aa",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/p3-2-backlog-323",
+    "sha": "6bfffe449e344395cd6c2cb934d12b2427ceb52d",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/p3-3-legacy-cleanup",
+    "sha": "3f6a8d58a65fd08202f996072eff2868a7b32d97",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/payment-reachability",
+    "sha": "4c817dd5a482a51c9db61f969878caef4cf3ad62",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/rad-bomb-rebuild",
+    "sha": "b541d46923e910a7aeb668af1040bbb7fbd07005",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/rad-bomb-rebuild-fix",
+    "sha": "c51c8a4a30e3e427d869b817cfb867eedeb086e6",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/rad-shared-bombs",
+    "sha": "f3720d574556c61ea8a509d5e770188a0d9814b4",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-draft",
+    "sha": "df5612d28020c3431dbfa5530dba1bed2aafb5ac",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-final",
+    "sha": "b332f9082a641e4e8553e81e90b83703d05d0a8b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-main",
+    "sha": "52b20cf6711d6b9c0608803d719b3af336922308",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-next",
+    "sha": "30b1a65e5fdc80aaa640f78f935c2f91dfca4cbc",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-p287",
+    "sha": "a6ca7a925ab52ba35e1b1863a9ee2a609ac7411b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-ready",
+    "sha": "570dde9da4492878af88b3896ea940da3731ba48",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/a/server-deliverable-20261104",
+    "sha": "a8d16ed5ae3158af8ec61546ad00d1fa2c05096c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/a/sql-runtime-followup",
+    "sha": "48c3c3b3c7bc370bdaa083e8ec6c7462ab640f2b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/archive/main-checkout-untracked-20261029",
+    "sha": "ce3e85fff6c95ca1d46a69ed5dc89b874f54eea5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n51-check-20261023-20261029",
+    "sha": "9724f8bd49f76e89978242599e825fd2b4fd1a65",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n52-check-20261023-20261029",
+    "sha": "47cf4f2bdde7c9495072138b3e34c8a51c554a14",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n53-check-20261023-20261029",
+    "sha": "86027f45ce7c0e6c24dcd6ee042245e939d0b28b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n54-check-20261023-20261029",
+    "sha": "253b5f84a04b17d586d34808e4b3584778b71bb5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n55-rengar-check-20261023-20261029",
+    "sha": "928d8e601eaba4a8fac09e0d619a528116cb4de1",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-cards-20261023-20261029",
+    "sha": "4923485d70269550bee8bd8d957358b2ef4fa13f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-combat-20261023-20261029",
+    "sha": "b2a2b0e4025490d7985635a1d42bbf71dc202182",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/archive/wt-parallel-official-audit-20261023-20261029",
+    "sha": "0a1ddb1d3597df04bd77863cc9cc15ca31cb669f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/akali-movement-endpoints",
+    "sha": "769b38a6259d56b5e27d6b373b24b2957a8ed9b3",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/akali-protection",
+    "sha": "4e76ae70e2c3d437d6b0d88069169070637ae4fc",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/ambessa-attack-destroy",
+    "sha": "ce6b5e84d2991cc42014f1bdc1e276e1171d9bb3",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/ambessa-damage-protection",
+    "sha": "654ed7fb65265fdcdb0683e98a7c93fb946f969c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/ambessa-empowered-attack",
+    "sha": "aaa78fa6976bd827f00de95d22f8d2199214dbe2",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/ambessa-outside-battle",
+    "sha": "171319225964dfd82e919e052e1ecc0138f76fbc",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/attack-might-damage",
+    "sha": "91487aedb000417914f8d542ad8d54f9c84a205f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/conquest-score-heroes",
+    "sha": "2caa0a06787128073523cd6a2435a5ff1c726728",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/draven-controller-score",
+    "sha": "94b5e40ba67d7ac035f8c2ff4eca213f2fb2d47a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/draven-score-might",
+    "sha": "ffdedb73c0341e9e5b4c2f9e625f046e4eab69fd",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/hero-might-empower",
+    "sha": "fa5051895a673b2159dfe3b85cfd286113449f46",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/hero-source-actions",
+    "sha": "65a8c9172325c957af1867e2c498702feec42b8f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/hero-summon-copies",
+    "sha": "d2857ec7dff89af6641a0f53fe6878b95c7a9a35",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/illaoi-tentacles",
+    "sha": "c8995cb8711843d6e21dd1b84d1121169e0aa85e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/irelia-ready-target",
+    "sha": "5d5e6f10a58b96c74980f2430afb3698d018cb93",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/jayce-ready",
+    "sha": "49e6b98a5784ea5d8246ed40fc1f115b982205a2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/jayce-rebuild",
+    "sha": "4ff3c61ee9e0daa2928af8c260807b5e796d1585",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/kayle-empower-count",
+    "sha": "3af31a870742c8a5532de94d6a1a92737565d405",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/kennen-legend-outside-hand",
+    "sha": "8a6842adac4d5b228fe88372e0643cadcf3f1ef2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/kennen-paid-stun",
+    "sha": "59b1bf641cdd7ee86ced6fd47be0dc5c80ca83f1",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/kennen-stun",
+    "sha": "71349baa6974ee74e5949266f6205369c48b017e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/legend-banish",
+    "sha": "691302310a2101e35dc1feebb8e43605a8715d0e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/legend-empower-observer",
+    "sha": "17aca5f7c176626d3061ca1066fca09f12ae88a1",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/legend-equipment-ready",
+    "sha": "6fd71be485f91b33d1d97d5cb1fdcfd2a03fc97e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/legend-high-cost",
+    "sha": "b78ea37e239f2e500bf2dc6f480c2060b3aaf0fa",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/legend-outside-hand",
+    "sha": "345ab40ceece0ffa4e357211bbbe4c09b4f026cd",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/legend-renekton-admission",
+    "sha": "11dabdd19d36fc5e83853e41814a25459eae7389",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/mandatory-play-discard",
+    "sha": "46cf570fdda0defb39b0f34764646258ae5f2194",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/mel-empower-discard-cost",
+    "sha": "f0dd8a0b8fb804142afa7342d6545ab4fc46d88b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/mel-physical-printings",
+    "sha": "76c245bc58f89934489aae14db6234db8da7fa1f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/nasus-conquest-score",
+    "sha": "0596e3eeaae41567f38855d44027ca64a4df1ba9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/nasus-death-rune",
+    "sha": "8c950b6b16a13796a9a27027d3aa3eacb4d2407e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/nasus-legend-high-cost",
+    "sha": "da33bb65e455594f10ec1bdf61dc9100899bee82",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/nasus-local-death-runes",
+    "sha": "3a6acf156ed53a74843ff4f6e02001119e139f46",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-akali-movement",
+    "sha": "86a0c59427ef91a2d258052d69d2796f5b85bfe9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-attack-rally",
+    "sha": "866c34c9ee36e9d62aa5b2c01401e9a5f810b81d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-batch-backlog",
+    "sha": "05cdc3e357ee7ee14c2997e4cca240b4bca2f018",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-entry",
+    "sha": "6ad34a61c404af83e4146f242f042bac536193d9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-entry-cost",
+    "sha": "149c762f80f7a1d2d42311e3df4c73cd1f4bbf66",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-equipment-play-discount",
+    "sha": "f6f63e8037dcf6f93b5e8812e3fdc229accb5a73",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-exhausted-tokens",
+    "sha": "37944c064a19744191b554696ebde6a0b32bbab5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-final-caress",
+    "sha": "1e5f8d66a7f1e5ed0a377fd6b67110b1e2b83b87",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-final-caress-next",
+    "sha": "59fe43dfa65a3b77b0c2821d36e6151010b2a405",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-hero-batch",
+    "sha": "a07748f79b69b6fc845952208d07911f2f6eae76",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-hero-reprints",
+    "sha": "b27f85859885201a57ae0a1ccd02d38749d93bcb",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-jarvan-deploy",
+    "sha": "880bd92520e605ec73135d62ac0ad567a1db849f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-keyword-values",
+    "sha": "d4a94fc7503deca0a0438b06d00eec0a83504a55",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-keyword-values-split",
+    "sha": "5603f56ab56f6aa81505604e11757c00ddc8723f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-movement-might",
+    "sha": "7acda367bd4c82cebe915831b39146050fb37e79",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-neeko-choices",
+    "sha": "778f0abcae8b905dc05b5b0fbfc58f0ae249ff91",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-next-unit-grants",
+    "sha": "a73ea1e1b74a2ad733e71f5a7b615c2983606542",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/rad-orianna-clean",
+    "sha": "65531a865416d8229fb26cadee1ee5596b268d01",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-orianna-legend",
+    "sha": "7146224a38954c21f7f1392d5aca430a075def3a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-retained-heroes",
+    "sha": "3c86947ba9e7a3803ac3fbd77013fbd2a4b6daca",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/rad-robot-replacement",
+    "sha": "eca1177b5549b056d2f46bb71793a05995ddb4ef",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/renekton-might",
+    "sha": "9ffe67438136b4432c72959680fbcebcf32a9816",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/riven-attack-weapon",
+    "sha": "26361f7c16e454239772079a28166a6d9d601e95",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/riven-weapon-attack",
+    "sha": "0c93ea16e63d618ee95613ca6f37ca1fa93d0121",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/sona-end-runes",
+    "sha": "4a30a9feda0abcd38ed4e5f0dc1cefb40ac51811",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/sona-rune-printing",
+    "sha": "1144688f189684a4097b2c1f3dd0ca5beffefffa",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/source-boon-might",
+    "sha": "738a0ed0a20dc2d42910f7329897132998711ed9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/source-play-discard",
+    "sha": "aa31ff6c9d49325b94467d2d5b84473f30418d60",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/stun-trigger-observers",
+    "sha": "eb3938d952bb2221962b956bfaac0cf1d9a3da51",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/token-printings",
+    "sha": "55153167e9479cb2b094661dc82d97b5a438c20b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/ven-faq-empower-confirmation",
+    "sha": "511ba893915859aef38c9f929a40c91c09107342",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/ven-faq-flow-choices",
+    "sha": "02a6ed8c47fd17972177ac0e9c2745ac472b4d46",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/ven-faq-linked-instructions",
+    "sha": "9569c575e14faabf5ebcf5bc0a493f2a929ea1ef",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/ven-signature-spells",
+    "sha": "54108532125847e5e0c9c73f6162334e3680c281",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/ven-temporary-abilities",
+    "sha": "27bf9bdb5facd64a9a2f8acb619ca11641bf9a21",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/b/vi-paid-recycle",
+    "sha": "54f420ad33e4ad5c458ab049f012581ad91914aa",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/vi-recycle-cost",
+    "sha": "70a12bde3161e0df7c3d4c48475268430381745e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/vi-recycle-might",
+    "sha": "6db876cdce20f66cade910b8bd62e35549a83113",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/viktor-opponent-turn",
+    "sha": "37948336292a333e794d1e28f1c416356db199be",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/zed-legend-banish",
+    "sha": "bf9f8731f84b1992ae320f73611c1224d68ac285",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/b/zed-shadow-clone",
+    "sha": "1cb179ececf6ad86aff205be843162edbd9de875",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/conquest-window",
+    "sha": "73b7cc9dc243b13cae6a6131e59df7249a986500",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/frontend-quotes",
+    "sha": "60c3e4e299301538387a667be65002ab69d473e0",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/c/old-prs",
+    "sha": "fe8f5f12ce184ecaae7315bedd1ca1f89799829a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-2",
+    "sha": "7cef8028706780de65218ec0220a0c324c625cd2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-4c",
+    "sha": "48142316b8089f05d8ff541881e6f7da2ed77661",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-4d-fix",
+    "sha": "d0f0cfdcc73ae21f231875bdf05fd6241d7e6bc8",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-4e-fix",
+    "sha": "b13e72cbe0ff2e901c4e6547251e66c16cc9a225",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-4g-backlog",
+    "sha": "e891620bb11e03642fafbcf898d2613adb917bdf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-legacy-complete",
+    "sha": "b4cc327c2d87bd51f0d213268a85e792c8515381",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-s9",
+    "sha": "8c69783c60655df37019b9e822dc11fdc2c48e85",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/c/p1-self-ability-source-continuity",
+    "sha": "b83eb179c2fa899d8e581538c9251e1e4f443444",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-source-boon-continuity",
+    "sha": "4607930f4f1bcb5273d427673e4b3bc09bfd093e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/p1-targeted-source-continuity",
+    "sha": "27a4ffd341be1d31fcb1b267345fbe4179b1e324",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/payment-before-delivery-split-20261030",
+    "sha": "f2a01991914ee4c3adc64edf20a69ffe2870cad7",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/payment-taps",
+    "sha": "3d45af2e0db18cede8f1740fe612811269daccbb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/c/rad-exclusive-equipment",
+    "sha": "97d7f7e869b3cd0e9f2a724dc041a7a0291bdebc",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/rad-unit-batch",
+    "sha": "7eb083085f3f940082d7758600c7be49ba441b26",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/rad-unit-boundaries",
+    "sha": "2ca601db397cc33e0cdf7c15b7afad49849cff37",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/rad-unit-response-boundaries",
+    "sha": "8bfc0935ff991032bc37117d72d05f563a0ad62c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/rad-units-prep",
+    "sha": "5c5f281e5b65dd95c2dbebf111e2e67327136d86",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/c/standby-payment",
+    "sha": "7b62ded759872fe317b31863c3e3c021937041fe",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/c/t1s-printings",
+    "sha": "fdce30d2acfcc25eefd31aa15d279d24da6640e2",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/c/zone-identity",
+    "sha": "24f7645d7132f9df16a68a6c7854ff65e9b0cd91",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-20261023",
+    "sha": "99edd079074c17428e208e1f076d19e5a56ac6b0",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-empower-canonical-20261026",
+    "sha": "404c259f7501af4662f7989c241b14eb2dd36490",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-flow-tokens-20261026",
+    "sha": "4656d197cf9b93b82dfc61e4f5c532a63d506cf5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-ven050-20261026",
+    "sha": "55a7280ab980fa6084770f198340a8efd0088ed4",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/backend-combat-20261023",
+    "sha": "bc61829b1c25d079b16e14d977889573dc78aebe",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/backend-integration-20261023",
+    "sha": "cc2bbe7921d2d1220ef62d71bd5edcd2f654ea82",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/backend-payment-20261023",
+    "sha": "1de2188ad3cae99852cf7f2a0e4d4c6b1b1d2048",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/backlog-combat-batch-20261026",
+    "sha": "e52275a274457e4a58292b70faf2f5e9d7a793ee",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/battle-winner-phases-main-baseline",
+    "sha": "26d3008cfecc9b2a0e05e58b94bdcab838ae04ce",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/c11-battle-duration",
+    "sha": "3883a49de7a5281ebbe28ae33f1987f5eea92215",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-discard-trigger-timing-prep-20261026",
+    "sha": "09b5c4bf6c074b8a5060fca6c6f3ee92756e64a4",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-nightly-recycle-boon-sql-20261028",
+    "sha": "db79e14fea3c460eb4ae8cae8223d8832e375b4d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-p7-resource-consumers-20261026",
+    "sha": "6926005a7d6880eb62ee45b508f8cd8f2e3ed789",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-conquest-extra-tests-20261028",
+    "sha": "bb4a7bdcf39662d48f4614739d96cc919be75903",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-conquest-extra-tests-corrected-20261028",
+    "sha": "f5f5c37ad6a417d58df9f17dd742bc896d2260dd",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-mighty-forgery-component-sequence-20261028",
+    "sha": "d1631f3317e9475c6df9d02f04769ea8e454840c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-mighty-security-tests-20261028",
+    "sha": "d53ffc9f359b183991dcc5bb00b224e1c0081bbe",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-p79-consumer-tests-20261028",
+    "sha": "2c4b44cc3857a47e244b945a3cecea4ccdcaefb6",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-zaun-moonveil-20261028",
+    "sha": "61f724faa89fd576af9543a4026337bb80425c9b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-zaun-moonveil-tests-20261028",
+    "sha": "760fc1a4ddd642300204c1f39de75fabf891c6bb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-replacement-resource-red-20261026",
+    "sha": "6a2b8607f8549b86431391f8a5ec3c9a3989f7a1",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven003-049-081-paid-flow-20261028",
+    "sha": "8e01f46b1d180725dfa4ba76ffecc1ed594605af",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven010-paid-current-grave-20261028",
+    "sha": "7fd9dd88223160242a0f78d0db336f8ae9f54bc2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven010-real-resource-prelude-20261028",
+    "sha": "a043e2cead800a29ddb2afeae977bb234860b7ec",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven013-103-paid-graveyard-20261028",
+    "sha": "8c0afe226ed9fdd2b20879b69873df6924d59a64",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven078-dependent-runes-20261027",
+    "sha": "b3d67c8aa89346d2a8598a4d9ebcc04a86450edc",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven093-122-paid-self-20261028",
+    "sha": "8f0d9583be2da8bc1b1214d248bb95c7fafaae52",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven117-paid-standby-20261028",
+    "sha": "20e25043ebef58d7f5daa7f603601ca5c24ee693",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven159-bulwark-field-consumers-20261028",
+    "sha": "6df40da037b9ca0a292808d82e10e0fdd5143081",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/ci-conquest-prefix-20261028",
+    "sha": "d44ae075db4f583983480461e7ca16ff025624de",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/ci-db-preflight-20261028",
+    "sha": "da0e6a50207d082ecf63ba476dad6c004df2a412",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/ci-db-preflight-after-nightly-20261028",
+    "sha": "9b33929618490d5a76d87410fe71ae47548872e2",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-assignment-conflict-canonical-red-20261028",
+    "sha": "a0788a9330a015ff95e852c6f807655b46c70f30",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-assignment-contradictory-priorities-20261028",
+    "sha": "c2975e35be8ae3307c7c95fd635a28cab85b8389",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-assignment-surrender-20261026",
+    "sha": "b7e30c706fc422fa09b1ca54fddf77b26c0f3b0b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-conquest-battlefield-mill-20261028",
+    "sha": "90e25029b52cebc43cde3ba833d7f2e14d0ef596",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-conquest-fixtures-20261028",
+    "sha": "8bf366927031fdfab0f84c7bac7eabdf3e28a050",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-disarm-producer-20261028",
+    "sha": "632b4f8348470931efc87018986a8a8252a1f5bc",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-draven-sql-order-20261028",
+    "sha": "94722f190648c20813f5755a4c6aed10385517b9",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-mill-identity-20261028",
+    "sha": "a4d995733a714e0cf3d1a73b4e9f4b0033639d6c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-optional-powerful-legend-20261028",
+    "sha": "debbc9b255bc2041168d1120f526c9003abe3768",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-pr231-replacement-20261028",
+    "sha": "581be3a0dcbc30aea6aa0a81338f0c707306d215",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-terminal-facedown-20261026",
+    "sha": "ab6b06e068cd701503316769d78b71fc1f8d3911",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/combat-vayne-conquest-trigger-20261028",
+    "sha": "4cc418e04ff68b473f2085c16f48a53e9409d532",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/diagnostic-db-preflight-20261028",
+    "sha": "6e3a4bb8a00c7ee59f91493419868428887a2dbf",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/governance-scope-split-20261028",
+    "sha": "f36cd1e832ebdf3871830e9b4432b854f6e98690",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/guardian-host-destruction-pre-c8",
+    "sha": "5858e60838a8dc26c70ecb8d644658eec6ee54c3",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/integration-vayne-consumers-20261028",
+    "sha": "44159ef163b33560f209d0aa94563bd6288e0fc1",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/l2-db-and-balance-after-nightly-20261028",
+    "sha": "691cae928bbcf81344e0820d98bf88065be5236c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-20261028",
+    "sha": "7e85f0cd07e040a4a4b5552309b736b1cc7be921",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-local-submit-20261028",
+    "sha": "9f83f35dbea07e2eb9eabd156ef88b0fb25bebd7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-nightly-20261028",
+    "sha": "7c1bf8b79cf1fc1531bacf8850c2d150f703c4ef",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-recovery-20261028",
+    "sha": "315ec4f0613e784e846794d9aecb53c1a65c78b5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/l2-timing-refresh-20261028",
+    "sha": "2206603424ab11420e2169af0557022e550d4b3d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/meditation-echo-fee-20261028",
+    "sha": "96f5801eacb575086daa36b5c4a2a4722e96d0be",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/nightly-fixes-combined-20261028",
+    "sha": "f3fb9c71a180f787246e24d64a3905f8db906778",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/nightly-optional-reduction-selector-20261028",
+    "sha": "7aae34befb81d877bef884ee09a788eb434d1bcf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/nightly-preflight-diagnostic-20261028",
+    "sha": "0d271929f4edea6bdaaee5320e1317d67c59a86e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/parallel-draven-timing-20261023",
+    "sha": "120ecf3ec9e24e82adb8c2be028856736bb40964",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/parallel-official-audit-20261023",
+    "sha": "0f28b3742fa333a53697f35e904afc0eb77f9746",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-cold-code-joint-20261026",
+    "sha": "4c1b5fe05a5d13d14ddeb0da451586397c2caba5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-jsonb-sql-proof-20261026",
+    "sha": "fb7770408fece6fa8c7edc5724a9e7618acb25b7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-l3-optional-copy-choice-20261028",
+    "sha": "a79b0f323d62a250de78391589aa2dc1bebfb522",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/payment-next-five-prep-20261026",
+    "sha": "452712b9ee62b394bd7005c7d5b10bee491f7aee",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-reconnect-consumers-105",
+    "sha": "39045e0641720a9742004ce26e59362fe0ea8522",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/codex/payment-remaining-four-prep-20261026",
+    "sha": "48aca8fbb1398872c1c826f2fc6570665b19195e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-resource-commit-boundary-20261026",
+    "sha": "c74252668effb7edeebacf323fa4eda3dc11f420",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-resource-journal-controls-20261026",
+    "sha": "e85998d9488fe2ba025b1d55d4c7862ba6efcf98",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-typed-writer-minimal-20261026",
+    "sha": "df02e944585e6ab0872570772426c51ddc5c9356",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/payment-typed-writer-red-20261026",
+    "sha": "60ef0637bdb6e947de306fa7ae6f3ba6119d9860",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/pr231-optional-mana-regression-20261028",
+    "sha": "8ad3524f0207f9d70768738b0ba08dab6ab07b86",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/private-ordinary-source-mask-v5-20261024",
+    "sha": "52bde259f8446d1c6e7f1535e3784f6a729c794c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/private-ordinary-source-privacy-baseline-20261024",
+    "sha": "d66b6580ceced20f8c6dc750776ef7c5ac9e3e4e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/private-ordinary-source-privacy-baseline-final-20261024",
+    "sha": "00bdcfe04192b7ec58c79fc32825ab6c7dadd492",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/private-ven-three-entry-registration-20261024",
+    "sha": "dfef195acb3ad1e0b977c536269cae8c290a536d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/private-ven159-parser-frontier-20261024",
+    "sha": "cec028bc049f8d6cecc94e6a666857e8988b3256",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/private-ven159-parser-frontier-final-20261024",
+    "sha": "6724c73b8f97239fb50ede9dd568b24f223b78fb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/private-ven159-parser-frontier-v2-20261024",
+    "sha": "c6b0b09156f74f98294d5a19f1530b9d52a89ec7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/restricted-mana-sql-checkpoint-20261028",
+    "sha": "cc64f1a65eed6c4be8c3e201a14ea02c9e37b5ea",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/s7-nightly-wiring-20261027",
+    "sha": "3d976fe02870b83a81580410cb7213e589c59022",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/sage-play-resource-window-20261028",
+    "sha": "6088a05800bd415b1ed76bb5787627fc60ca9e4f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/shadow-swift-resource-payment-20261028",
+    "sha": "d64b67ceab4ef17812d2f135b3d4ea7730dcf5a9",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/codex/vayne-conquest-payment-regression-20261028",
+    "sha": "6356d70d14c4a0c95a447b583e7078742f7f5882",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/d/legend-equipment-copy-recovery-after478-20261105",
+    "sha": "78d4b286a8f1cb9413b0d5452790cb5a7ab56a0e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-activated",
+    "sha": "a6f06f7eee683b8885cb5cb7552fa7db752b6712",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-basic-effects",
+    "sha": "455cddf8aca254a7d113a12c60dbd79f4e10c672",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-combat-spells",
+    "sha": "89b9e2346bba4fab5b7a7ec561421511dcdf5041",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-cost-targets",
+    "sha": "c09ba786cf59d6c19f9cd43bd4aa22a48b78394e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-entry-static",
+    "sha": "af8b4fc2912d088167a5631b6b27e55246124e0c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-equipment-ward",
+    "sha": "9c946a6d46414ae7d832c554dbc2e3a40dc9c240",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-merge",
+    "sha": "3b241be72f3232571c54401276e9f8704e226269",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-next",
+    "sha": "baff272fb02c24b4cf58175c30df7980fa46dda2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/rad-next-spell",
+    "sha": "399b115a125c6363c7cdacbfe3ccd155879c25cf",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/d/rad-static-power",
+    "sha": "87d594f063233385020d9f6c171f1eb4dabb6bcb",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-activated-equipment",
+    "sha": "1a6710a236b11d2c97b27a99eb9727b5e7f630e7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/d/ven-battlefield-costs",
+    "sha": "8d6f49a6afa3054b5ad2e5404c781ce2ef6f2866",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-battlefield-dragon",
+    "sha": "a8dc7e1ff6e82ad4fcc6c595ba06c43b846a0ee4",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-battlefield-forge",
+    "sha": "07e81a749eb2eb079dc22e2b05ed2bd1818e2b9a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-battlefield-triggers",
+    "sha": "37b3374c68490fb4af3741bcbd97fdbac2723470",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-card-observers",
+    "sha": "f409bd34bd67e3826795874dd97fa941cfcfc145",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/d/ven-continuous",
+    "sha": "15c39ddbba0d5c353ac75c2ecea2408423874a24",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-cost-units",
+    "sha": "1ff60fbb2d819839c293a427ca31f483c40cbd17",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-events-and-battlefields",
+    "sha": "fbb1028dc5c5ec7e01f4ac002d7192e607829519",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-graveyard-equipment",
+    "sha": "e1175edeabde1b5f0a869d730e62c94b4dcacd85",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-merge",
+    "sha": "c5e69724220301a9db588f79d9c4b1bc19e2b5fb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/d/ven-static-limits",
+    "sha": "5cd67829f6ab19bafedb5feef9b4e34604e4c1ec",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/heads/d/ven-triggered-equipment",
+    "sha": "23a9ec127f8c90aa249980c4b3a5bcd285b5eba9",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/heads/d/ven-unit-events",
+    "sha": "b889e516ee7cf1542c0a3955373f463d00868c83",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-battle-result-boundary",
+    "sha": "0ef9c0749c479c0c96168d9ee38482a696eba036",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-battle-terminal-replays",
+    "sha": "24276420b4f05049af330e2a695f1889f329163e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-boundary-batch",
+    "sha": "6a093850923189e914dfb26b9b05ce0a8c54dd2c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-canonical-phase",
+    "sha": "bca9b55c033a94ae4d0a1821827f481946831d3b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-canonical-prompts",
+    "sha": "a01efba41d320a49ece1b4090622725211997b85",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-canonical-result-views",
+    "sha": "90cf91b66e2636ca69796622ce69efc19c9fe553",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-canonical-terminal-next",
+    "sha": "1acd7a8781329b82a6d4b0fec57652a8af86ab0e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-destruction-forgery-audit-next",
+    "sha": "bbd5a8e72d93d21e48d6fb7c0f6073f931ee0dc4",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-empower-boundary",
+    "sha": "e45a00e3b8cd2366f0d4c20281735f17350d569b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-empty-drain-next",
+    "sha": "1d99e2a65e4ceaa5cf38b6fdcb37b6973b1444d4",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-expiry-candidate-next",
+    "sha": "57c92900927f68b4083caaf2e975d7cfe54a5963",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-expiry-preparation-next",
+    "sha": "ca3214d974a4029a6fa474b55cd3d3b768f7285b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-flow-projections",
+    "sha": "7ed62c8010f0fac2dec7e77957293ce1a9361dc3",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-held-tax-preparation-next",
+    "sha": "72589e91d2d50490921365fd6e5036e8a1cf982c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-movement-preparation-next",
+    "sha": "2b9de89c65e8d8ebe07280fe508b7a26e7c88776",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-next-terminal-pair",
+    "sha": "3373c397f8615f2478c8978d89d65e98897bc4cd",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-opening-result-views",
+    "sha": "cb7d8003047ba48ffb6881313715c25d5e073f7b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-paid-preparation-next",
+    "sha": "3ba07dc975b7a48e5d1cb4e66e09b90224500768",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-pr409-timing-refresh-next",
+    "sha": "96e87ba53d184015c0dee62cc7e1e877a9c68283",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-rengar-preparation-next",
+    "sha": "f45222d222a421845a10090c4e7aa99f58333565",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-rune-projections",
+    "sha": "55641173c05c31fc77d94c7d00a82cdbbce29959",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-sql-positive-audit-next",
+    "sha": "2530b2fb43fe885be6b238c51e29fec48b07105b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-submitted-standby",
+    "sha": "1f6cb49ab78d1805effdcabf3134a729de69d9ee",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-terminal-audits",
+    "sha": "7508aebe63dab23a2e54a82160dd06615488ca70",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/l2-wallet-preparation-next",
+    "sha": "500e84a4646aa316a2ed6b61cdde71094efe69a7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/nightly-full-preflight",
+    "sha": "6c9015cfb6df10cc593c32ecfa49dbb67da27b2a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/p0-hall-legends-acceptance",
+    "sha": "576dc0eb869eec593fa65ff2b6c4ad430330ea3b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/p0-sealed-snapshot-order",
+    "sha": "d1bf1fd0ff1b6af9a61cf069d55185165bea09aa",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/payment-reachability",
+    "sha": "4c817dd5a482a51c9db61f969878caef4cf3ad62",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/a/rad-shared-bombs",
+    "sha": "f3720d574556c61ea8a509d5e770188a0d9814b4",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/a/registration-hotspots-next",
+    "sha": "30b1a65e5fdc80aaa640f78f935c2f91dfca4cbc",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/akali-movement-endpoints",
+    "sha": "769b38a6259d56b5e27d6b373b24b2957a8ed9b3",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/akali-protection",
+    "sha": "4e76ae70e2c3d437d6b0d88069169070637ae4fc",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ambessa-empowered-attack",
+    "sha": "aaa78fa6976bd827f00de95d22f8d2199214dbe2",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/ambessa-outside-battle",
+    "sha": "171319225964dfd82e919e052e1ecc0138f76fbc",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/attack-might-damage",
+    "sha": "91487aedb000417914f8d542ad8d54f9c84a205f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/conquest-score-heroes",
+    "sha": "2caa0a06787128073523cd6a2435a5ff1c726728",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/consolidated-heroes-queued",
+    "sha": "278f1bfb0fef6072cc640da4f1de05bf6c1cd0a1",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/draven-controller-score",
+    "sha": "94b5e40ba67d7ac035f8c2ff4eca213f2fb2d47a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/hero-might-empower",
+    "sha": "fa5051895a673b2159dfe3b85cfd286113449f46",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/hero-source-actions",
+    "sha": "65a8c9172325c957af1867e2c498702feec42b8f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/hero-summon-copies",
+    "sha": "d2857ec7dff89af6641a0f53fe6878b95c7a9a35",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/illaoi-tentacles",
+    "sha": "c8995cb8711843d6e21dd1b84d1121169e0aa85e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/irelia-ready-target",
+    "sha": "5e226a86136894cd338680f3926931dfaac57026",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/kayle-empower-count",
+    "sha": "3af31a870742c8a5532de94d6a1a92737565d405",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/kennen-conquest-main-queued",
+    "sha": "af45bdb475d130d55c4a563d7a07074cdb0e78cd",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/kennen-legend-outside-hand",
+    "sha": "8a6842adac4d5b228fe88372e0643cadcf3f1ef2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/kennen-paid-stun",
+    "sha": "59b1bf641cdd7ee86ced6fd47be0dc5c80ca83f1",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/mel-empower-discard-cost",
+    "sha": "f0dd8a0b8fb804142afa7342d6545ab4fc46d88b",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/nasus-legend-high-cost",
+    "sha": "da33bb65e455594f10ec1bdf61dc9100899bee82",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/nasus-local-death-runes",
+    "sha": "3a6acf156ed53a74843ff4f6e02001119e139f46",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-assemble-cost",
+    "sha": "0797d58a9a7b80a36750457c7353180939fe5668",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-attack-rally",
+    "sha": "866c34c9ee36e9d62aa5b2c01401e9a5f810b81d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-combat-heroes",
+    "sha": "00aa3bfb48a5bf2984c86e46bbd06067ebc6761b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-equipment-play-discount",
+    "sha": "f6f63e8037dcf6f93b5e8812e3fdc229accb5a73",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-final-caress",
+    "sha": "a9b71d2e869eaa10b155c138fe2cb2a29212d9f9",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-hero-batch",
+    "sha": "a07748f79b69b6fc845952208d07911f2f6eae76",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-hero-batch-fix",
+    "sha": "a0b3300e854d3272620863aa4c4938571bd2378c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-hero-reprints",
+    "sha": "40efdb4cf339f73e4e00f8e0ec153a2164c4d6bf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-jarvan-deploy",
+    "sha": "880bd92520e605ec73135d62ac0ad567a1db849f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-keyword-values",
+    "sha": "d4a94fc7503deca0a0438b06d00eec0a83504a55",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-movement-might",
+    "sha": "7acda367bd4c82cebe915831b39146050fb37e79",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-neeko-choices",
+    "sha": "778f0abcae8b905dc05b5b0fbfc58f0ae249ff91",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-next-unit-grants",
+    "sha": "a73ea1e1b74a2ad733e71f5a7b615c2983606542",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/rad-robot-replacement",
+    "sha": "eca1177b5549b056d2f46bb71793a05995ddb4ef",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/renekton-might",
+    "sha": "9ffe67438136b4432c72959680fbcebcf32a9816",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/riven-attack-weapon",
+    "sha": "26361f7c16e454239772079a28166a6d9d601e95",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/sona-rune-printing",
+    "sha": "1144688f189684a4097b2c1f3dd0ca5beffefffa",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/source-boon-might",
+    "sha": "738a0ed0a20dc2d42910f7329897132998711ed9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/source-play-discard",
+    "sha": "aa31ff6c9d49325b94467d2d5b84473f30418d60",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/stun-trigger-observers",
+    "sha": "eb3938d952bb2221962b956bfaac0cf1d9a3da51",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/token-printings",
+    "sha": "55153167e9479cb2b094661dc82d97b5a438c20b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-blast-cone",
+    "sha": "34c15af79ef109e5737b45f170176e2b21be6c80",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-blast-cone-regression",
+    "sha": "a81008c1f022ff9073c4030e3e904866824cb489",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-attachments",
+    "sha": "64fc0dc9e52149d067d1ba5e8d7cb95e7ce1579c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-attackers",
+    "sha": "c25fa79bddfe17b301c5caf4c29eb5cd32488618",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-battlefield-grants",
+    "sha": "ca110e31a673b96e6a7dc0fb6cc1d7c5958ee50a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-empower-keywords",
+    "sha": "810dca6b23176433b09cb51f0cab948c2b0885bb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-faeries",
+    "sha": "25eb0e88b73e16fb98bae5f6eb8d82e6d2b7e847",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-hand-costs",
+    "sha": "627d6ddbea82604b9e6cf6c2ee75e86a92f5d4f8",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-hook",
+    "sha": "cab1515a220cb0624d34160afed4f2233d8dd087",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-linked-exile",
+    "sha": "c96ad2564c92e2121ab375d09fd324b28bea8acf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-next-spell",
+    "sha": "d85f73dc7da3a7b5ce149d895b0bb4b4bc18ed7f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-next-spell-damage",
+    "sha": "55b9b6ed8ae514f577f0c41c822128038c44a2b7",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-next-unit-ready",
+    "sha": "669d452ccf3cf3949a5f3b6a3dec2d6bf3e693c9",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-paid-recall",
+    "sha": "13a504dbade79da11864272c86789dd76ab8ef00",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-reaction-draw",
+    "sha": "cb793b15eac47183b61e63cbc4a1418868edf598",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-returns",
+    "sha": "b543087d70e37e38445b6c7ece8556b1a5658f24",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-source-might",
+    "sha": "d63cc3ded64f6b863c547b89d607a3c848ba8088",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-borrowed-waymark",
+    "sha": "ee59abef442185496a04ae10abf391b275e6f01c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-empower-after-464",
+    "sha": "88eb10e7d1417317c721b6ffb0552c34f0513072",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-linked-attributes",
+    "sha": "ac79e167d6f7578dca80494559c681dcadb816e0",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-faq-native-linked-exile",
+    "sha": "73f02c7e25a6e0ded2622a4ac19d0aa429f5e6a0",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-signature-spells",
+    "sha": "54108532125847e5e0c9c73f6162334e3680c281",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/ven-temporary-abilities",
+    "sha": "27bf9bdb5facd64a9a2f8acb619ca11641bf9a21",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/b/vi-paid-recycle",
+    "sha": "54f420ad33e4ad5c458ab049f012581ad91914aa",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/vi-recycle-cost",
+    "sha": "70a12bde3161e0df7c3d4c48475268430381745e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/vi-recycle-might",
+    "sha": "6db876cdce20f66cade910b8bd62e35549a83113",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/zed-legend-banish",
+    "sha": "bf9f8731f84b1992ae320f73611c1224d68ac285",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/b/zed-shadow-clone",
+    "sha": "abd835f72da6572bd975aa353ffbacf25ee2d6be",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/c/p1-4d",
+    "sha": "fb628ef55bfddb63e822b7e9b132eb093ce90ec6",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/c/p1-4e",
+    "sha": "4bcadb2bfe83d1a82a13f93178736a7b2e7623dc",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/c/p1-4f",
+    "sha": "c4804b239bb96662ac8b1cae4bdb6cecce35d78e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/c/p1-s9",
+    "sha": "8c69783c60655df37019b9e822dc11fdc2c48e85",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/c/payment-taps",
+    "sha": "3d45af2e0db18cede8f1740fe612811269daccbb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/c/rad-faq-followup-after473-20261105",
+    "sha": "3c87fa72e94bcf6edec37d5c4e174474a5bac208",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/c/rad-units-prep",
+    "sha": "5c5f281e5b65dd95c2dbebf111e2e67327136d86",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/c/t1s-printings",
+    "sha": "fdce30d2acfcc25eefd31aa15d279d24da6640e2",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/backend-cards-20261023",
+    "sha": "99edd079074c17428e208e1f076d19e5a56ac6b0",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/backend-combat-20261023",
+    "sha": "bc61829b1c25d079b16e14d977889573dc78aebe",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/backend-integration-20261023",
+    "sha": "cc2bbe7921d2d1220ef62d71bd5edcd2f654ea82",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/backend-payment-20261023",
+    "sha": "1de2188ad3cae99852cf7f2a0e4d4c6b1b1d2048",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/cards-nightly-recycle-boon-sql-20261028",
+    "sha": "db79e14fea3c460eb4ae8cae8223d8832e375b4d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/cards-p7-resource-consumers-20261026",
+    "sha": "6926005a7d6880eb62ee45b508f8cd8f2e3ed789",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/cards-ven010-paid-current-grave-20261028",
+    "sha": "7fd9dd88223160242a0f78d0db336f8ae9f54bc2",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/cards-ven013-103-paid-graveyard-20261028",
+    "sha": "8c0afe226ed9fdd2b20879b69873df6924d59a64",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/cards-ven093-122-paid-self-20261028",
+    "sha": "8f0d9583be2da8bc1b1214d248bb95c7fafaae52",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/cards-ven117-paid-standby-20261028",
+    "sha": "20e25043ebef58d7f5daa7f603601ca5c24ee693",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/cards-ven159-bulwark-field-consumers-20261028",
+    "sha": "6df40da037b9ca0a292808d82e10e0fdd5143081",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-assignment-contradictory-priorities-20261028",
+    "sha": "c2975e35be8ae3307c7c95fd635a28cab85b8389",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-assignment-surrender-20261026",
+    "sha": "b7e30c706fc422fa09b1ca54fddf77b26c0f3b0b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-conquest-battlefield-mill-20261028",
+    "sha": "bccb3038ae690da1108b2fa7cc9779916655263b",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-conquest-fixtures-20261028",
+    "sha": "8bf366927031fdfab0f84c7bac7eabdf3e28a050",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-disarm-producer-20261028",
+    "sha": "632b4f8348470931efc87018986a8a8252a1f5bc",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-draven-sql-order-20261028",
+    "sha": "94722f190648c20813f5755a4c6aed10385517b9",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-mill-identity-20261028",
+    "sha": "a4d995733a714e0cf3d1a73b4e9f4b0033639d6c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-optional-powerful-legend-20261028",
+    "sha": "debbc9b255bc2041168d1120f526c9003abe3768",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/combat-terminal-facedown-20261026",
+    "sha": "ab6b06e068cd701503316769d78b71fc1f8d3911",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/diagnostic-db-preflight-20261028",
+    "sha": "6e3a4bb8a00c7ee59f91493419868428887a2dbf",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/governance-scope-split-20261028",
+    "sha": "f36cd1e832ebdf3871830e9b4432b854f6e98690",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/l2-profile-nightly-20261028",
+    "sha": "7c1bf8b79cf1fc1531bacf8850c2d150f703c4ef",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/l2-profile-recovery-20261028",
+    "sha": "315ec4f0613e784e846794d9aecb53c1a65c78b5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/macbook-evidence-integrity-20261027",
+    "sha": "c27b5ae0538b0f3ffd247471a7a7d42e31876c88",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/meditation-echo-fee-20261028",
+    "sha": "96f5801eacb575086daa36b5c4a2a4722e96d0be",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/nightly-fixes-combined-20261028",
+    "sha": "44159ef163b33560f209d0aa94563bd6288e0fc1",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/nightly-optional-reduction-selector-20261028",
+    "sha": "7aae34befb81d877bef884ee09a788eb434d1bcf",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/nightly-preflight-diagnostic-20261028",
+    "sha": "0d271929f4edea6bdaaee5320e1317d67c59a86e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/parallel-draven-timing-20261023",
+    "sha": "120ecf3ec9e24e82adb8c2be028856736bb40964",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/payment-l3-optional-copy-choice-20261028",
+    "sha": "a79b0f323d62a250de78391589aa2dc1bebfb522",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/payment-reconnect-consumers-105",
+    "sha": "db1b7db53013d9600b17f487eb76d2063dfc6a09",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/codex/restricted-mana-sql-checkpoint-20261028",
+    "sha": "cc64f1a65eed6c4be8c3e201a14ea02c9e37b5ea",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/s7-nightly-wiring-20261027",
+    "sha": "3d976fe02870b83a81580410cb7213e589c59022",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/codex/shadow-swift-resource-payment-20261028",
+    "sha": "bcf91f9af99135413adf88b10479b64d19a4797f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/albus-boon-runes-next-20261105",
+    "sha": "e4530c7a0537effc52bba941b80d43f87adf7340",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/ava-standby-attack-next-20261105",
+    "sha": "57cf97dfa4a2d5072e1484128576a9543e1b1ce1",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/encourage-completion-after485-20261105",
+    "sha": "61442abf915f23d2d1004313890c78b45f7f7c65",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/encourage-graveyard-permission-next-20261105",
+    "sha": "306be3abce20c2f21a53975bdd87f0b61cfa5f04",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ghost-matron-confirmation-next-20261105",
+    "sha": "2a8d8940a2ff2369d4b2954da8d4208570d09b15",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/karthus-global-lastbreath-next-20261105",
+    "sha": "ee2e876f9895e447a217a19865a8f2d62ad80964",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/ledros-multi-sacrifice-next-20261105",
+    "sha": "f70e8cafd3046afbc7b3a97de7501c31b11972ad",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/movement-destination-metadata-20261105",
+    "sha": "a4533ce033832aaddc151292028d75863e003d7c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-activated",
+    "sha": "a6f06f7eee683b8885cb5cb7552fa7db752b6712",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-ahri-complete-20261103-0933",
+    "sha": "986e8d3c5fa3ee5c7a0a3561fd5c8ccef1c1e50a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-ahri-validation-20261103-0918",
+    "sha": "8d869ae87d6eb5e2395f7e5ba823046cc4ef0a30",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-attachment-choice-after-defense-20261103-1100",
+    "sha": "044e3566cb9fdd5402c64d6098adf1535d5ba943",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-axe-stack-after-kaisa-20261103-1158",
+    "sha": "69c89caaec4ab8a255bc3276d894ec1f2f701b70",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-basic-effects",
+    "sha": "455cddf8aca254a7d113a12c60dbd79f4e10c672",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-bomb",
+    "sha": "d2e6c2612c7bada8e2c98bdda29a7c6d75142330",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-chronobreak-20261102",
+    "sha": "fcc8598c1052a03f1873aac699d3323c7ff83a05",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-combat-spells",
+    "sha": "89b9e2346bba4fab5b7a7ec561421511dcdf5041",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-completion-after481-20261105",
+    "sha": "fabdb0762af0df15bc3cf13efb2946ce112f7331",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-copy-controller-boundaries-20261103-1130",
+    "sha": "a7df339141659f48861f3f361684ae2d434a7110",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-cost-targets",
+    "sha": "c09ba786cf59d6c19f9cd43bd4aa22a48b78394e",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-darius-completion-after484-20261105",
+    "sha": "0bd5c04d8026b190eec57eab8d6eb24f7081cf3e",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-entry-static",
+    "sha": "af8b4fc2912d088167a5631b6b27e55246124e0c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-equipment-ward",
+    "sha": "9c946a6d46414ae7d832c554dbc2e3a40dc9c240",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-heimer-boundaries-after-riven-20261103-0944",
+    "sha": "c2360eaee53c5bdc450d9cbcf41b96b3c0c4393d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-kaisa-copy-after-controller-20261103-1142",
+    "sha": "c18b841622e63b1f130cb1cbd6952fbc539b3a04",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-legend-copy-recovery-main-20261105",
+    "sha": "38cd4b219fc925c0900164ab05ae7b19dfa31235",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-minefield-end-after-axe-20261103-1214",
+    "sha": "5cdd5a49af4e429495c2ba09217bda0840dfff0f",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-next-spell",
+    "sha": "399b115a125c6363c7cdacbfe3ccd155879c25cf",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-riven-boundaries-after-ahri-20261103-0938",
+    "sha": "ca89e02b32f96a2a4ad252f6e7df89c6af941d22",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-spell-16-20261101",
+    "sha": "39646d0b084a0711bc65d9a8d22ca4b42d94dd48",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-spell-batch",
+    "sha": "142625930f6817df1ec9ea0da2d7f298d39054aa",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-spells",
+    "sha": "a874fc50169877232b412b3363deaa95b79ecdc8",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-spells-16",
+    "sha": "9243ddb44beefd49fc70f8d27e22fe6a82098ee6",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-static-power",
+    "sha": "87d594f063233385020d9f6c171f1eb4dabb6bcb",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-token-end-departure-fix-20261103",
+    "sha": "7cb7eebbe5d1bfd9c37bb4607932f19ab2fb6c5f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-token-repair-main-20261103-1038",
+    "sha": "f925ff3777010aec4baca218d3258bc6876ffd5f",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-ziggs-activation-after-heimer-20261103-1009",
+    "sha": "ff8633d2b1c593494a9073a4125293b0ba7542ed",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-ziggs-damage-after-activation-20261103-1012",
+    "sha": "420643d8701efe7027ffe4856603687987ee4e61",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-ziggs-defense-after-damage-20261103-1018",
+    "sha": "614df821571a976f383a17be2ca42302bd098ad7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/rad-ziggs-defense-complete-20261103-1045",
+    "sha": "116d51fa6b47c19c8057c7d0b4257a35f64cc68d",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/sinful-pleasure-discard-20261105",
+    "sha": "b58aa72bf0693ae550e5f12f44b41fa63789ba9a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-activated-equipment",
+    "sha": "1a6710a236b11d2c97b27a99eb9727b5e7f630e7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-battlefield-costs",
+    "sha": "8d6f49a6afa3054b5ad2e5404c781ce2ef6f2866",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-battlefield-dragon",
+    "sha": "a8dc7e1ff6e82ad4fcc6c595ba06c43b846a0ee4",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-battlefield-forge",
+    "sha": "07e81a749eb2eb079dc22e2b05ed2bd1818e2b9a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-battlefield-triggers",
+    "sha": "37b3374c68490fb4af3741bcbd97fdbac2723470",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-card-observers",
+    "sha": "f409bd34bd67e3826795874dd97fa941cfcfc145",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-continuous",
+    "sha": "15c39ddbba0d5c353ac75c2ecea2408423874a24",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-cost-units",
+    "sha": "1ff60fbb2d819839c293a427ca31f483c40cbd17",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-events-and-battlefields",
+    "sha": "fbb1028dc5c5ec7e01f4ac002d7192e607829519",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-graveyard-equipment",
+    "sha": "e1175edeabde1b5f0a869d730e62c94b4dcacd85",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-merge",
+    "sha": "c5e69724220301a9db588f79d9c4b1bc19e2b5fb",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-static-limits",
+    "sha": "5cd67829f6ab19bafedb5feef9b4e34604e4c1ec",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-triggered-equipment",
+    "sha": "23a9ec127f8c90aa249980c4b3a5bcd285b5eba9",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/d/ven-unit-events",
+    "sha": "b889e516ee7cf1542c0a3955373f463d00868c83",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/e/copied-movement-source-20261103",
+    "sha": "f94ce5ec4088067d84948bbc654f0b43bbbd5310",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/e/rad-five-fields-20261101",
+    "sha": "2daa4e26f32b171f5b76bd61ef5db156bc410136",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/e/rad-gear-battlefields-20261101",
+    "sha": "ee41159f786043c1a7fde9fd06388164fd3ffd18",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/e/rad-gear-departures-repair-20261103-0122",
+    "sha": "ee93cf91e8750808c2cd2bd3cbda1e4cb61c2536",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/e/rad-gear-resume-20261101",
+    "sha": "d0afe171adb3dd7811f13f0a084e6b684d81aad5",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/e/rad-transposition",
+    "sha": "76bfc1bcfb5809bf1ce4d4fc428ce3aeab02baa9",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/e/rad-transposition-pr",
+    "sha": "1aff8e14bca994434e5fb0e10f50573d4f12adef",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/e/stage-costs-sync-20261102-0837",
+    "sha": "0fe3ad8d87249bb059a9b45f22c5147c27cb09c6",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/e/standby-capacity-20261102",
+    "sha": "33fc55f26bc730b007723b3edca7fe6227107d30",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-final-result-once",
+    "sha": "38bb4a4fa34bbb983e3eba0d84acd1b0fe8ce7d7",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-full-games",
+    "sha": "64ee37a180b5eef9970646ea0c55380844b93064",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-network-recovery",
+    "sha": "0f3d13ae734404f4f39334b6a5846bfe473eb69a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-series-model",
+    "sha": "36a8bb36c9f7e48da32b095b14fd600b0c5ef894",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-series-runtime",
+    "sha": "476b5224950307414d519f9d4e4f948d27efe50c",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-sideboarding",
+    "sha": "d3f3b76229ae04eec5ac7c499b5c91b5a79b530a",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-sql-ci",
+    "sha": "c4f55db7d48bdf26fac6c4d78e07e86e5903c650",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/f/sealed-sql-recovery",
+    "sha": "0c13550b8aa841f49b859a7c629f6ca8c8fc92bf",
+    "reachable_main": false,
+    "backed_tip": true
+  },
+  {
+    "ref": "refs/remotes/origin/main",
+    "sha": "ececa8377e59cd178f940d866a6b36b1214d6c16",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/web/battle-layout-log-20261028",
+    "sha": "e54b7f8a4f5152508553e16d881334703cd7738a",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/origin/web/battle-polish-2-20261028",
+    "sha": "4e126a4d7ee463bee29d7daf21d554938fef062c",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/pr/470",
+    "sha": "c9938cb47cd46e31b70f0473d2f7750a801d3cd0",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/pr/472",
+    "sha": "e2eff7922901ad1b411c479429706cf27f566873",
+    "reachable_main": true,
+    "backed_tip": false
+  },
+  {
+    "ref": "refs/remotes/pr/481",
+    "sha": "84b01898b42012759025260fb7dbe9b7ef28bd9a",
+    "reachable_main": true,
+    "backed_tip": false
+  }
+]

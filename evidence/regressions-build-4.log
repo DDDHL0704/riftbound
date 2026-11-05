@@ -1,0 +1,14 @@
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+  Riftbound.Contracts -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/src/Riftbound.Contracts/bin/Release/net10.0/Riftbound.Contracts.dll
+  Riftbound.CardCatalog -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/src/Riftbound.CardCatalog/bin/Release/net10.0/Riftbound.CardCatalog.dll
+  Riftbound.Engine -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/src/Riftbound.Engine/bin/Release/net10.0/Riftbound.Engine.dll
+  Riftbound.Persistence -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/src/Riftbound.Persistence/bin/Release/net10.0/Riftbound.Persistence.dll
+  Riftbound.Api -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/src/Riftbound.Api/bin/Release/net10.0/Riftbound.Api.dll
+  Riftbound.ConformanceTests -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll
+
+已成功生成。
+    0 个警告
+    0 个错误
+
+已用时间 00:10:55.41

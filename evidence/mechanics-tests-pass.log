@@ -1,0 +1,63 @@
+/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-mechanics/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll (.NETCoreApp,Version=v10.0)的测试运行
+总共 1 个测试文件与指定模式相匹配。
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:34.64]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:40.00]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:40.40]   Starting:    Riftbound.ConformanceTests
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.ResourceQuoteIsReadOnlyAndCannotAuthorizeAChangedResourceSource(rawPresent: True) [24 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.ResourceQuoteIsReadOnlyAndCannotAuthorizeAChangedResourceSource(rawPresent: False) [4 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.OrdinaryRuneAcquisitionOnlyCommitsAfterItsJournalAndRetriesOnce(recycle: True, rawPresent: False) [12 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.OrdinaryRuneAcquisitionOnlyCommitsAfterItsJournalAndRetriesOnce(recycle: False, rawPresent: False) [12 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.OrdinaryRuneAcquisitionOnlyCommitsAfterItsJournalAndRetriesOnce(recycle: True, rawPresent: True) [6 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.OrdinaryRuneAcquisitionOnlyCommitsAfterItsJournalAndRetriesOnce(recycle: False, rawPresent: True) [3 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.LoggedInstructionPaymentOnlyCommitsAfterItsJournalAndRetriesOnce(spend: True, rawPresent: False) [39 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.LoggedInstructionPaymentOnlyCommitsAfterItsJournalAndRetriesOnce(spend: True, rawPresent: True) [1 s]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.LoggedInstructionPaymentOnlyCommitsAfterItsJournalAndRetriesOnce(spend: False, rawPresent: True) [534 ms]
+  已通过 Riftbound.ConformanceTests.PaymentJournalFailureTests.LoggedInstructionPaymentOnlyCommitsAfterItsJournalAndRetriesOnce(spend: False, rawPresent: False) [539 ms]
+  已通过 Riftbound.ConformanceTests.TerminalDisclosureRecoveryGuardTests.CoordinatedFinishedStateCannotExposeAnUnfinishedStandbyThroughTheRegistry(forgedWinner: "P1") [37 s]
+  已通过 Riftbound.ConformanceTests.TerminalDisclosureRecoveryGuardTests.CoordinatedFinishedStateCannotExposeAnUnfinishedStandbyThroughTheRegistry(forgedWinner: "P2") [10 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.CanonicalMixedBattlePositionSurvivesComponentRecovery(mixedAttacker: True) [909 ms]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.CanonicalMixedBattlePositionSurvivesComponentRecovery(mixedAttacker: False) [383 ms]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.TwoMixedTargetsMaySatisfyDifferentRequirements [1 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.DefendingPlayerMixedPrioritySurvivesColdRestoreAndReplay(mixedFirst: False) [6 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.DefendingPlayerMixedPrioritySurvivesColdRestoreAndReplay(mixedFirst: True) [4 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.AttackerMayAssignTheMixedKeywordTargetFirstOrLast(mixedFirst: False) [5 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.AttackerMayAssignTheMixedKeywordTargetFirstOrLast(mixedFirst: True) [865 ms]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.MixedPriorityPromptAndDamageEventsSurviveColdRestoreAndReplay(mixedFirst: False) [4 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.MixedPriorityPromptAndDamageEventsSurviveColdRestoreAndReplay(mixedFirst: True) [4 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.MixedTargetCannotReceiveDamageWhenNeitherFirstNorLastRequirementCanBeMet [790 ms]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.DefenderMayAssignTheMixedKeywordTargetFirstOrLast(mixedFirst: False) [1 s]
+  已通过 Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.DefenderMayAssignTheMixedKeywordTargetFirstOrLast(mixedFirst: True) [3 s]
+  已通过 Riftbound.ConformanceTests.CombatAssignmentSurrenderTests.EitherPlayerCanConcedeBeforeUncommittedCombatDamageAfterColdRecovery(attackerSubmitted: True, player: "P1") [24 s]
+  已通过 Riftbound.ConformanceTests.CombatAssignmentSurrenderTests.EitherPlayerCanConcedeBeforeUncommittedCombatDamageAfterColdRecovery(attackerSubmitted: False, player: "P2") [7 s]
+  已通过 Riftbound.ConformanceTests.CombatAssignmentSurrenderTests.EitherPlayerCanConcedeBeforeUncommittedCombatDamageAfterColdRecovery(attackerSubmitted: True, player: "P2") [15 s]
+  已通过 Riftbound.ConformanceTests.CombatAssignmentSurrenderTests.EitherPlayerCanConcedeBeforeUncommittedCombatDamageAfterColdRecovery(attackerSubmitted: False, player: "P1") [4 s]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.EitherConcessionShowsTheCurrentStandbyCardWithoutTurningItFaceUpOrOpeningHiddenZones(player: "P2") [5 s]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.EitherConcessionShowsTheCurrentStandbyCardWithoutTurningItFaceUpOrOpeningHiddenZones(player: "P1") [5 s]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.TheSharedFinishedProjectionUsesTheSameDisclosureForEitherWinner(winner: "P1") [993 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.TheSharedFinishedProjectionUsesTheSameDisclosureForEitherWinner(winner: "P2") [331 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "missing-shown-object") [2 s]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "hidden-rune-deck") [685 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "hidden-hand") [237 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "unfinished-standby") [260 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "missing-card-number") [491 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "shown-face-down") [279 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "shown-power") [220 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "shown-card-number") [239 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(mutation: "hidden-main-deck") [229 ms]
+  已通过 Riftbound.ConformanceTests.TerminalFaceDownDisclosureTests.ARealBurnoutVictoryAlsoShowsTheStandbyCardAndReplaysItsOriginalCommands [11 s]
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.RecoveryRejectsNoncanonicalApplicationReceipts(forged: "DAMAGE_RECEIVED_DOUBLED_THIS_TURN:02") [12 s]
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.RecoveryRejectsNoncanonicalApplicationReceipts(forged: "DAMAGE_RECEIVED_DOUBLED_THIS_TURN:4") [2 s]
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.RecoveryRejectsNoncanonicalApplicationReceipts(forged: "DAMAGE_RECEIVED_DOUBLED_THIS_TURN:invalid") [2 s]
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.SeparateLotusTrapsMultiplyEveryLaterRay(applications: 1, expected: 6) [11 s]
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.SeparateLotusTrapsMultiplyEveryLaterRay(applications: 2, expected: 12) [16 s]
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.SeparateLotusTrapsMultiplyEveryLaterRay(applications: 3, expected: 24) [20 s]
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.TurnEndClearsEveryApplication [11 s]
+[xUnit.net 00:06:53.81]   Finished:    Riftbound.ConformanceTests
+  已通过 Riftbound.ConformanceTests.RepeatedDamageReplacementTests.EchoKeepsTwoApplicationsFromOnePhysicalSpell [6 s]
+
+测试运行成功。
+测试总数: 50
+     通过数: 50
+总时间: 6.9944 分钟
+结果文件: /Volumes/ExternalSSD/MyProjects/riftbound/var/m-integration/mechanics-results/mechanics-focused-pass.trx

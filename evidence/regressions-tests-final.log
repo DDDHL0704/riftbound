@@ -1,0 +1,150 @@
+/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll (.NETCoreApp,Version=v10.0)的测试运行
+总共 1 个测试文件与指定模式相匹配。
+[xUnit.net 00:01:10.65]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "OGN·111/298", attached: True) [FAIL]
+[xUnit.net 00:01:10.73]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "ARC-003/006", attached: False) [FAIL]
+[xUnit.net 00:01:10.81]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "OGN·111/298", attached: False) [FAIL]
+[xUnit.net 00:01:10.96]     Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "ARC-003/006", attached: True) [FAIL]
+  失败 Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "OGN·111/298", attached: True) [245 ms]
+  错误消息:
+   Assert.Single() Failure: The collection was empty
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---
+  失败 Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "ARC-003/006", attached: False) [84 ms]
+  错误消息:
+   Assert.Single() Failure: The collection was empty
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---
+  失败 Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "OGN·111/298", attached: False) [80 ms]
+  错误消息:
+   Assert.Single() Failure: The collection was empty
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---
+  失败 Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(printing: "ARC-003/006", attached: True) [144 ms]
+  错误消息:
+   Assert.Single() Failure: The collection was empty
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBorrowedBattlefieldGrantTests.ControlledForgeGrantsBorrowableLegendSkillForAttachedAndUnattachedArmaments(String printing, Boolean attached) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBorrowedBattlefieldGrantTests.cs:line 98
+--- End of stack trace from previous location ---
+[xUnit.net 00:01:58.62]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: "VEN·086") [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: "VEN·086") [1 s]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 78
+--- End of stack trace from previous location ---
+[xUnit.net 00:02:00.19]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: "VEN·181") [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(printing: "VEN·181") [1 s]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningExhaustKeepsTheRealMoveButDoesNotStun(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 78
+--- End of stack trace from previous location ---
+[xUnit.net 00:02:01.85]     Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone [1 s]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.MovingYourOwnUnitOrAnOpponentMovingTheirOwnUnitDoesNotTriggerTheCone() in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 171
+--- End of stack trace from previous location ---
+[xUnit.net 00:02:04.26]     Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: "VEN·086") [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: "VEN·086") [2 s]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 99
+--- End of stack trace from previous location ---
+[xUnit.net 00:02:06.48]     Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: "VEN·181") [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(printing: "VEN·181") [2 s]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.OtherSpellsEarnTheSameTriggerButAnExhaustedSourceCannotPayAgain(String printing) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 99
+--- End of stack trace from previous location ---
+[xUnit.net 00:03:19.26]     Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment [694 ms]
+  错误消息:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.InvalidMovementChoicesDoNotChangeStateAndDecliningTheUnitStillKeepsTheEquipment() in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 187
+--- End of stack trace from previous location ---
+[xUnit.net 00:03:20.43]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·086", empowered: False) [FAIL]
+[xUnit.net 00:03:21.07]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·086", empowered: True) [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·086", empowered: False) [735 ms]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·086", empowered: True) [642 ms]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---
+[xUnit.net 00:03:21.80]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·181", empowered: False) [FAIL]
+[xUnit.net 00:03:22.58]     Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·181", empowered: True) [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·181", empowered: False) [721 ms]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(printing: "VEN·181", empowered: True) [778 ms]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.ActualBlastConePlayMovesAndStunsWithoutTargetingThenAnAlreadyStunnedGangplankDoesNotReplace(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 29
+--- End of stack trace from previous location ---
+[xUnit.net 00:03:23.39]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: "VEN·086", empowered: True) [FAIL]
+[xUnit.net 00:03:24.14]     Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: "VEN·181", empowered: False) [FAIL]
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: "VEN·086", empowered: True) [812 ms]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 64
+--- End of stack trace from previous location ---
+  失败 Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(printing: "VEN·181", empowered: False) [753 ms]
+  错误消息:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Riftbound.Engine.RuleChoiceContinuation)
+Actual:   null
+  堆栈跟踪:
+     at Riftbound.ConformanceTests.VenBlastConeFaqTests.ChooseDestination(Driver game, String destination) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 227
+   at Riftbound.ConformanceTests.VenBlastConeFaqTests.DecliningEntryMovementLeavesTheEquipmentReadyAndDoesNotStun(String printing, Boolean empowered) in /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/VenBlastConeFaqTests.cs:line 64
+--- End of stack trace from previous location ---
+结果文件: /Volumes/ExternalSSD/MyProjects/riftbound/var/m-integration/regressions-results/regressions-focused.trx
+
+失败!  - 失败:    16，通过:    54，已跳过:     0，总计:    70，持续时间: 3 m 19 s - Riftbound.ConformanceTests.dll (net10.0)

@@ -1,0 +1,658 @@
+[
+  {
+    "ref": "refs/heads/a/l2-battle-cleanup-pre-main",
+    "sha": "b8bc8299e4fd411a08874591549e2afdfc3e2f20"
+  },
+  {
+    "ref": "refs/heads/a/l2-battle-followup",
+    "sha": "a07c749150379a80c1a988341668724a7fb884eb"
+  },
+  {
+    "ref": "refs/heads/a/l2-boundary-batch",
+    "sha": "3bc90128ca12fccbb72a7d5026f4341749204f90"
+  },
+  {
+    "ref": "refs/heads/a/l2-boundary-publish",
+    "sha": "6a093850923189e914dfb26b9b05ce0a8c54dd2c"
+  },
+  {
+    "ref": "refs/heads/a/l2-canonical-phase",
+    "sha": "bca9b55c033a94ae4d0a1821827f481946831d3b"
+  },
+  {
+    "ref": "refs/heads/a/l2-destruction-forgery-audit-next",
+    "sha": "bbd5a8e72d93d21e48d6fb7c0f6073f931ee0dc4"
+  },
+  {
+    "ref": "refs/heads/a/l2-empower-boundary",
+    "sha": "e45a00e3b8cd2366f0d4c20281735f17350d569b"
+  },
+  {
+    "ref": "refs/heads/a/l2-empower-followup",
+    "sha": "6cff31e11b25368b486e215b94292ff21d7c9fa6"
+  },
+  {
+    "ref": "refs/heads/a/l2-empty-drain-next",
+    "sha": "1d99e2a65e4ceaa5cf38b6fdcb37b6973b1444d4"
+  },
+  {
+    "ref": "refs/heads/a/l2-expiry-preparation-next",
+    "sha": "ca3214d974a4029a6fa474b55cd3d3b768f7285b"
+  },
+  {
+    "ref": "refs/heads/a/l2-held-tax-preparation-next",
+    "sha": "72589e91d2d50490921365fd6e5036e8a1cf982c"
+  },
+  {
+    "ref": "refs/heads/a/l2-ingress-replay-next",
+    "sha": "9a2f81f608e63f5409328795a4731a3fcc2eb3da"
+  },
+  {
+    "ref": "refs/heads/a/l2-lastbreath-repaired-checkpoints-next",
+    "sha": "659198b3eff38dd7a96b7dc93c11e76d296d1ae2"
+  },
+  {
+    "ref": "refs/heads/a/l2-method-timing-observation",
+    "sha": "93cf46ab8543feb8b0116b4418c76cd0f10ba0bd"
+  },
+  {
+    "ref": "refs/heads/a/l2-movement-preparation-next",
+    "sha": "2b9de89c65e8d8ebe07280fe508b7a26e7c88776"
+  },
+  {
+    "ref": "refs/heads/a/l2-next-terminal-pair",
+    "sha": "3373c397f8615f2478c8978d89d65e98897bc4cd"
+  },
+  {
+    "ref": "refs/heads/a/l2-opening-audit",
+    "sha": "cd545d59515af065f80f0547add07c77dc2a96b7"
+  },
+  {
+    "ref": "refs/heads/a/l2-opening-result-views",
+    "sha": "cb7d8003047ba48ffb6881313715c25d5e073f7b"
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-replay-next",
+    "sha": "278b2ea167906ea71cf8138a58d05e5a7b70435d"
+  },
+  {
+    "ref": "refs/heads/a/l2-recast-setup-checkpoints-next",
+    "sha": "87d7b4463eb1116572da8b559790fd3e972585ce"
+  },
+  {
+    "ref": "refs/heads/a/l2-rengar-preparation-next",
+    "sha": "f45222d222a421845a10090c4e7aa99f58333565"
+  },
+  {
+    "ref": "refs/heads/a/l2-replay-overlap-next",
+    "sha": "85f48b9fd021d2cf94ecc8f7add86f36947fb742"
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-runtime-observation-next",
+    "sha": "0c76801bbb11f23c7238a3bcbfc2a54779327fe4"
+  },
+  {
+    "ref": "refs/heads/a/l2-sql-runtime-report-next",
+    "sha": "e8ad3983a2c60b8ab21c7d34144da37f34abbc87"
+  },
+  {
+    "ref": "refs/heads/a/l2-submitted-standby",
+    "sha": "1f6cb49ab78d1805effdcabf3134a729de69d9ee"
+  },
+  {
+    "ref": "refs/heads/a/l2-ven035-setup",
+    "sha": "44f1d9db746628cb85d4b32048ef863d4689c88c"
+  },
+  {
+    "ref": "refs/heads/a/l2-wallet-preparation-next",
+    "sha": "d3a9cdd25831f01d3288e82463f3be8625607e28"
+  },
+  {
+    "ref": "refs/heads/a/nightly-full-preflight",
+    "sha": "6c9015cfb6df10cc593c32ecfa49dbb67da27b2a"
+  },
+  {
+    "ref": "refs/heads/a/p0-sealed-snapshot-order",
+    "sha": "d1bf1fd0ff1b6af9a61cf069d55185165bea09aa"
+  },
+  {
+    "ref": "refs/heads/a/payment-reachability",
+    "sha": "4c817dd5a482a51c9db61f969878caef4cf3ad62"
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-draft",
+    "sha": "df5612d28020c3431dbfa5530dba1bed2aafb5ac"
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-main",
+    "sha": "52b20cf6711d6b9c0608803d719b3af336922308"
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-next",
+    "sha": "30b1a65e5fdc80aaa640f78f935c2f91dfca4cbc"
+  },
+  {
+    "ref": "refs/heads/a/registration-hotspots-ready",
+    "sha": "570dde9da4492878af88b3896ea940da3731ba48"
+  },
+  {
+    "ref": "refs/heads/archive/main-checkout-untracked-20261029",
+    "sha": "ce3e85fff6c95ca1d46a69ed5dc89b874f54eea5"
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n51-check-20261023-20261029",
+    "sha": "9724f8bd49f76e89978242599e825fd2b4fd1a65"
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n52-check-20261023-20261029",
+    "sha": "47cf4f2bdde7c9495072138b3e34c8a51c554a14"
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n53-check-20261023-20261029",
+    "sha": "86027f45ce7c0e6c24dcd6ee042245e939d0b28b"
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n54-check-20261023-20261029",
+    "sha": "253b5f84a04b17d586d34808e4b3584778b71bb5"
+  },
+  {
+    "ref": "refs/heads/archive/wt-backend-n55-rengar-check-20261023-20261029",
+    "sha": "928d8e601eaba4a8fac09e0d619a528116cb4de1"
+  },
+  {
+    "ref": "refs/heads/archive/wt-cards-20261023-20261029",
+    "sha": "4923485d70269550bee8bd8d957358b2ef4fa13f"
+  },
+  {
+    "ref": "refs/heads/archive/wt-combat-20261023-20261029",
+    "sha": "b2a2b0e4025490d7985635a1d42bbf71dc202182"
+  },
+  {
+    "ref": "refs/heads/archive/wt-parallel-official-audit-20261023-20261029",
+    "sha": "0a1ddb1d3597df04bd77863cc9cc15ca31cb669f"
+  },
+  {
+    "ref": "refs/heads/b/akali-movement-endpoints",
+    "sha": "769b38a6259d56b5e27d6b373b24b2957a8ed9b3"
+  },
+  {
+    "ref": "refs/heads/b/ambessa-damage-protection",
+    "sha": "654ed7fb65265fdcdb0683e98a7c93fb946f969c"
+  },
+  {
+    "ref": "refs/heads/b/ambessa-empowered-attack",
+    "sha": "aaa78fa6976bd827f00de95d22f8d2199214dbe2"
+  },
+  {
+    "ref": "refs/heads/b/draven-controller-score",
+    "sha": "94b5e40ba67d7ac035f8c2ff4eca213f2fb2d47a"
+  },
+  {
+    "ref": "refs/heads/b/draven-score-might",
+    "sha": "ffdedb73c0341e9e5b4c2f9e625f046e4eab69fd"
+  },
+  {
+    "ref": "refs/heads/b/irelia-ready-target",
+    "sha": "5d5e6f10a58b96c74980f2430afb3698d018cb93"
+  },
+  {
+    "ref": "refs/heads/b/kennen-paid-stun",
+    "sha": "59b1bf641cdd7ee86ced6fd47be0dc5c80ca83f1"
+  },
+  {
+    "ref": "refs/heads/b/kennen-stun",
+    "sha": "71349baa6974ee74e5949266f6205369c48b017e"
+  },
+  {
+    "ref": "refs/heads/b/legend-renekton-admission",
+    "sha": "11dabdd19d36fc5e83853e41814a25459eae7389"
+  },
+  {
+    "ref": "refs/heads/b/mandatory-play-discard",
+    "sha": "46cf570fdda0defb39b0f34764646258ae5f2194"
+  },
+  {
+    "ref": "refs/heads/b/mel-physical-printings",
+    "sha": "76c245bc58f89934489aae14db6234db8da7fa1f"
+  },
+  {
+    "ref": "refs/heads/b/nasus-legend-high-cost",
+    "sha": "da33bb65e455594f10ec1bdf61dc9100899bee82"
+  },
+  {
+    "ref": "refs/heads/b/nasus-local-death-runes",
+    "sha": "3a6acf156ed53a74843ff4f6e02001119e139f46"
+  },
+  {
+    "ref": "refs/heads/b/rad-attack-rally",
+    "sha": "866c34c9ee36e9d62aa5b2c01401e9a5f810b81d"
+  },
+  {
+    "ref": "refs/heads/b/rad-equipment-play-discount",
+    "sha": "f6f63e8037dcf6f93b5e8812e3fdc229accb5a73"
+  },
+  {
+    "ref": "refs/heads/b/rad-exhausted-tokens",
+    "sha": "37944c064a19744191b554696ebde6a0b32bbab5"
+  },
+  {
+    "ref": "refs/heads/b/rad-final-caress",
+    "sha": "1e5f8d66a7f1e5ed0a377fd6b67110b1e2b83b87"
+  },
+  {
+    "ref": "refs/heads/b/rad-final-caress-next",
+    "sha": "59fe43dfa65a3b77b0c2821d36e6151010b2a405"
+  },
+  {
+    "ref": "refs/heads/b/rad-hero-batch",
+    "sha": "a07748f79b69b6fc845952208d07911f2f6eae76"
+  },
+  {
+    "ref": "refs/heads/b/rad-hero-reprints",
+    "sha": "b27f85859885201a57ae0a1ccd02d38749d93bcb"
+  },
+  {
+    "ref": "refs/heads/b/rad-jarvan-deploy",
+    "sha": "880bd92520e605ec73135d62ac0ad567a1db849f"
+  },
+  {
+    "ref": "refs/heads/b/rad-keyword-values",
+    "sha": "d4a94fc7503deca0a0438b06d00eec0a83504a55"
+  },
+  {
+    "ref": "refs/heads/b/rad-keyword-values-split",
+    "sha": "5603f56ab56f6aa81505604e11757c00ddc8723f"
+  },
+  {
+    "ref": "refs/heads/b/rad-movement-might",
+    "sha": "7acda367bd4c82cebe915831b39146050fb37e79"
+  },
+  {
+    "ref": "refs/heads/b/rad-next-unit-grants",
+    "sha": "a73ea1e1b74a2ad733e71f5a7b615c2983606542"
+  },
+  {
+    "ref": "refs/heads/b/rad-robot-replacement",
+    "sha": "eca1177b5549b056d2f46bb71793a05995ddb4ef"
+  },
+  {
+    "ref": "refs/heads/b/riven-attack-weapon",
+    "sha": "26361f7c16e454239772079a28166a6d9d601e95"
+  },
+  {
+    "ref": "refs/heads/b/sona-end-runes",
+    "sha": "4a30a9feda0abcd38ed4e5f0dc1cefb40ac51811"
+  },
+  {
+    "ref": "refs/heads/b/sona-rune-printing",
+    "sha": "1144688f189684a4097b2c1f3dd0ca5beffefffa"
+  },
+  {
+    "ref": "refs/heads/b/source-play-discard",
+    "sha": "aa31ff6c9d49325b94467d2d5b84473f30418d60"
+  },
+  {
+    "ref": "refs/heads/b/token-printings",
+    "sha": "55153167e9479cb2b094661dc82d97b5a438c20b"
+  },
+  {
+    "ref": "refs/heads/b/vi-paid-recycle",
+    "sha": "54f420ad33e4ad5c458ab049f012581ad91914aa"
+  },
+  {
+    "ref": "refs/heads/b/vi-recycle-cost",
+    "sha": "70a12bde3161e0df7c3d4c48475268430381745e"
+  },
+  {
+    "ref": "refs/heads/b/vi-recycle-might",
+    "sha": "6db876cdce20f66cade910b8bd62e35549a83113"
+  },
+  {
+    "ref": "refs/heads/b/viktor-opponent-turn",
+    "sha": "37948336292a333e794d1e28f1c416356db199be"
+  },
+  {
+    "ref": "refs/heads/b/zed-legend-banish",
+    "sha": "bf9f8731f84b1992ae320f73611c1224d68ac285"
+  },
+  {
+    "ref": "refs/heads/b/zed-shadow-clone",
+    "sha": "1cb179ececf6ad86aff205be843162edbd9de875"
+  },
+  {
+    "ref": "refs/heads/c/frontend-quotes",
+    "sha": "60c3e4e299301538387a667be65002ab69d473e0"
+  },
+  {
+    "ref": "refs/heads/c/p1-s9",
+    "sha": "8c69783c60655df37019b9e822dc11fdc2c48e85"
+  },
+  {
+    "ref": "refs/heads/c/payment-taps",
+    "sha": "3d45af2e0db18cede8f1740fe612811269daccbb"
+  },
+  {
+    "ref": "refs/heads/c/rad-units-prep",
+    "sha": "5c5f281e5b65dd95c2dbebf111e2e67327136d86"
+  },
+  {
+    "ref": "refs/heads/c/t1s-printings",
+    "sha": "fdce30d2acfcc25eefd31aa15d279d24da6640e2"
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-20261023",
+    "sha": "99edd079074c17428e208e1f076d19e5a56ac6b0"
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-empower-canonical-20261026",
+    "sha": "404c259f7501af4662f7989c241b14eb2dd36490"
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-flow-tokens-20261026",
+    "sha": "4656d197cf9b93b82dfc61e4f5c532a63d506cf5"
+  },
+  {
+    "ref": "refs/heads/codex/backend-cards-ven050-20261026",
+    "sha": "55a7280ab980fa6084770f198340a8efd0088ed4"
+  },
+  {
+    "ref": "refs/heads/codex/backend-combat-20261023",
+    "sha": "bc61829b1c25d079b16e14d977889573dc78aebe"
+  },
+  {
+    "ref": "refs/heads/codex/backend-integration-20261023",
+    "sha": "cc2bbe7921d2d1220ef62d71bd5edcd2f654ea82"
+  },
+  {
+    "ref": "refs/heads/codex/backend-payment-20261023",
+    "sha": "1de2188ad3cae99852cf7f2a0e4d4c6b1b1d2048"
+  },
+  {
+    "ref": "refs/heads/codex/backlog-combat-batch-20261026",
+    "sha": "e52275a274457e4a58292b70faf2f5e9d7a793ee"
+  },
+  {
+    "ref": "refs/heads/codex/battle-winner-phases-main-baseline",
+    "sha": "26d3008cfecc9b2a0e05e58b94bdcab838ae04ce"
+  },
+  {
+    "ref": "refs/heads/codex/c11-battle-duration",
+    "sha": "3883a49de7a5281ebbe28ae33f1987f5eea92215"
+  },
+  {
+    "ref": "refs/heads/codex/cards-discard-trigger-timing-prep-20261026",
+    "sha": "09b5c4bf6c074b8a5060fca6c6f3ee92756e64a4"
+  },
+  {
+    "ref": "refs/heads/codex/cards-nightly-recycle-boon-sql-20261028",
+    "sha": "db79e14fea3c460eb4ae8cae8223d8832e375b4d"
+  },
+  {
+    "ref": "refs/heads/codex/cards-p7-resource-consumers-20261026",
+    "sha": "6926005a7d6880eb62ee45b508f8cd8f2e3ed789"
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-conquest-extra-tests-20261028",
+    "sha": "bb4a7bdcf39662d48f4614739d96cc919be75903"
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-conquest-extra-tests-corrected-20261028",
+    "sha": "f5f5c37ad6a417d58df9f17dd742bc896d2260dd"
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-mighty-forgery-component-sequence-20261028",
+    "sha": "d1631f3317e9475c6df9d02f04769ea8e454840c"
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-mighty-security-tests-20261028",
+    "sha": "d53ffc9f359b183991dcc5bb00b224e1c0081bbe"
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-p79-consumer-tests-20261028",
+    "sha": "2c4b44cc3857a47e244b945a3cecea4ccdcaefb6"
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-zaun-moonveil-20261028",
+    "sha": "61f724faa89fd576af9543a4026337bb80425c9b"
+  },
+  {
+    "ref": "refs/heads/codex/cards-pr231-zaun-moonveil-tests-20261028",
+    "sha": "760fc1a4ddd642300204c1f39de75fabf891c6bb"
+  },
+  {
+    "ref": "refs/heads/codex/cards-replacement-resource-red-20261026",
+    "sha": "6a2b8607f8549b86431391f8a5ec3c9a3989f7a1"
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven003-049-081-paid-flow-20261028",
+    "sha": "8e01f46b1d180725dfa4ba76ffecc1ed594605af"
+  },
+  {
+    "ref": "refs/heads/codex/cards-ven010-real-resource-prelude-20261028",
+    "sha": "a043e2cead800a29ddb2afeae977bb234860b7ec"
+  },
+  {
+    "ref": "refs/heads/codex/ci-conquest-prefix-20261028",
+    "sha": "d44ae075db4f583983480461e7ca16ff025624de"
+  },
+  {
+    "ref": "refs/heads/codex/ci-db-preflight-20261028",
+    "sha": "da0e6a50207d082ecf63ba476dad6c004df2a412"
+  },
+  {
+    "ref": "refs/heads/codex/ci-db-preflight-after-nightly-20261028",
+    "sha": "9b33929618490d5a76d87410fe71ae47548872e2"
+  },
+  {
+    "ref": "refs/heads/codex/combat-assignment-conflict-canonical-red-20261028",
+    "sha": "a0788a9330a015ff95e852c6f807655b46c70f30"
+  },
+  {
+    "ref": "refs/heads/codex/combat-assignment-contradictory-priorities-20261028",
+    "sha": "c2975e35be8ae3307c7c95fd635a28cab85b8389"
+  },
+  {
+    "ref": "refs/heads/codex/combat-assignment-surrender-20261026",
+    "sha": "b7e30c706fc422fa09b1ca54fddf77b26c0f3b0b"
+  },
+  {
+    "ref": "refs/heads/codex/combat-conquest-battlefield-mill-20261028",
+    "sha": "90e25029b52cebc43cde3ba833d7f2e14d0ef596"
+  },
+  {
+    "ref": "refs/heads/codex/combat-conquest-fixtures-20261028",
+    "sha": "8bf366927031fdfab0f84c7bac7eabdf3e28a050"
+  },
+  {
+    "ref": "refs/heads/codex/combat-disarm-producer-20261028",
+    "sha": "632b4f8348470931efc87018986a8a8252a1f5bc"
+  },
+  {
+    "ref": "refs/heads/codex/combat-draven-sql-order-20261028",
+    "sha": "94722f190648c20813f5755a4c6aed10385517b9"
+  },
+  {
+    "ref": "refs/heads/codex/combat-mill-identity-20261028",
+    "sha": "a4d995733a714e0cf3d1a73b4e9f4b0033639d6c"
+  },
+  {
+    "ref": "refs/heads/codex/combat-optional-powerful-legend-20261028",
+    "sha": "debbc9b255bc2041168d1120f526c9003abe3768"
+  },
+  {
+    "ref": "refs/heads/codex/combat-pr231-replacement-20261028",
+    "sha": "581be3a0dcbc30aea6aa0a81338f0c707306d215"
+  },
+  {
+    "ref": "refs/heads/codex/combat-terminal-facedown-20261026",
+    "sha": "ab6b06e068cd701503316769d78b71fc1f8d3911"
+  },
+  {
+    "ref": "refs/heads/codex/combat-vayne-conquest-trigger-20261028",
+    "sha": "4cc418e04ff68b473f2085c16f48a53e9409d532"
+  },
+  {
+    "ref": "refs/heads/codex/diagnostic-db-preflight-20261028",
+    "sha": "6e3a4bb8a00c7ee59f91493419868428887a2dbf"
+  },
+  {
+    "ref": "refs/heads/codex/governance-scope-split-20261028",
+    "sha": "f36cd1e832ebdf3871830e9b4432b854f6e98690"
+  },
+  {
+    "ref": "refs/heads/codex/guardian-host-destruction-pre-c8",
+    "sha": "5858e60838a8dc26c70ecb8d644658eec6ee54c3"
+  },
+  {
+    "ref": "refs/heads/codex/integration-vayne-consumers-20261028",
+    "sha": "44159ef163b33560f209d0aa94563bd6288e0fc1"
+  },
+  {
+    "ref": "refs/heads/codex/l2-db-and-balance-after-nightly-20261028",
+    "sha": "691cae928bbcf81344e0820d98bf88065be5236c"
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-20261028",
+    "sha": "7e85f0cd07e040a4a4b5552309b736b1cc7be921"
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-local-submit-20261028",
+    "sha": "9f83f35dbea07e2eb9eabd156ef88b0fb25bebd7"
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-nightly-20261028",
+    "sha": "7c1bf8b79cf1fc1531bacf8850c2d150f703c4ef"
+  },
+  {
+    "ref": "refs/heads/codex/l2-profile-recovery-20261028",
+    "sha": "315ec4f0613e784e846794d9aecb53c1a65c78b5"
+  },
+  {
+    "ref": "refs/heads/codex/l2-timing-refresh-20261028",
+    "sha": "2206603424ab11420e2169af0557022e550d4b3d"
+  },
+  {
+    "ref": "refs/heads/codex/meditation-echo-fee-20261028",
+    "sha": "96f5801eacb575086daa36b5c4a2a4722e96d0be"
+  },
+  {
+    "ref": "refs/heads/codex/nightly-fixes-combined-20261028",
+    "sha": "f3fb9c71a180f787246e24d64a3905f8db906778"
+  },
+  {
+    "ref": "refs/heads/codex/nightly-preflight-diagnostic-20261028",
+    "sha": "0d271929f4edea6bdaaee5320e1317d67c59a86e"
+  },
+  {
+    "ref": "refs/heads/codex/parallel-draven-timing-20261023",
+    "sha": "120ecf3ec9e24e82adb8c2be028856736bb40964"
+  },
+  {
+    "ref": "refs/heads/codex/parallel-official-audit-20261023",
+    "sha": "0f28b3742fa333a53697f35e904afc0eb77f9746"
+  },
+  {
+    "ref": "refs/heads/codex/payment-cold-code-joint-20261026",
+    "sha": "4c1b5fe05a5d13d14ddeb0da451586397c2caba5"
+  },
+  {
+    "ref": "refs/heads/codex/payment-jsonb-sql-proof-20261026",
+    "sha": "fb7770408fece6fa8c7edc5724a9e7618acb25b7"
+  },
+  {
+    "ref": "refs/heads/codex/payment-next-five-prep-20261026",
+    "sha": "452712b9ee62b394bd7005c7d5b10bee491f7aee"
+  },
+  {
+    "ref": "refs/heads/codex/payment-remaining-four-prep-20261026",
+    "sha": "48aca8fbb1398872c1c826f2fc6570665b19195e"
+  },
+  {
+    "ref": "refs/heads/codex/payment-resource-commit-boundary-20261026",
+    "sha": "c74252668effb7edeebacf323fa4eda3dc11f420"
+  },
+  {
+    "ref": "refs/heads/codex/payment-resource-journal-controls-20261026",
+    "sha": "e85998d9488fe2ba025b1d55d4c7862ba6efcf98"
+  },
+  {
+    "ref": "refs/heads/codex/payment-typed-writer-minimal-20261026",
+    "sha": "df02e944585e6ab0872570772426c51ddc5c9356"
+  },
+  {
+    "ref": "refs/heads/codex/payment-typed-writer-red-20261026",
+    "sha": "60ef0637bdb6e947de306fa7ae6f3ba6119d9860"
+  },
+  {
+    "ref": "refs/heads/codex/pr231-optional-mana-regression-20261028",
+    "sha": "8ad3524f0207f9d70768738b0ba08dab6ab07b86"
+  },
+  {
+    "ref": "refs/heads/codex/private-ordinary-source-mask-v5-20261024",
+    "sha": "52bde259f8446d1c6e7f1535e3784f6a729c794c"
+  },
+  {
+    "ref": "refs/heads/codex/private-ordinary-source-privacy-baseline-20261024",
+    "sha": "d66b6580ceced20f8c6dc750776ef7c5ac9e3e4e"
+  },
+  {
+    "ref": "refs/heads/codex/private-ordinary-source-privacy-baseline-final-20261024",
+    "sha": "00bdcfe04192b7ec58c79fc32825ab6c7dadd492"
+  },
+  {
+    "ref": "refs/heads/codex/private-ven-three-entry-registration-20261024",
+    "sha": "dfef195acb3ad1e0b977c536269cae8c290a536d"
+  },
+  {
+    "ref": "refs/heads/codex/private-ven159-parser-frontier-20261024",
+    "sha": "cec028bc049f8d6cecc94e6a666857e8988b3256"
+  },
+  {
+    "ref": "refs/heads/codex/private-ven159-parser-frontier-final-20261024",
+    "sha": "6724c73b8f97239fb50ede9dd568b24f223b78fb"
+  },
+  {
+    "ref": "refs/heads/codex/private-ven159-parser-frontier-v2-20261024",
+    "sha": "c6b0b09156f74f98294d5a19f1530b9d52a89ec7"
+  },
+  {
+    "ref": "refs/heads/codex/restricted-mana-sql-checkpoint-20261028",
+    "sha": "cc64f1a65eed6c4be8c3e201a14ea02c9e37b5ea"
+  },
+  {
+    "ref": "refs/heads/codex/s7-nightly-wiring-20261027",
+    "sha": "3d976fe02870b83a81580410cb7213e589c59022"
+  },
+  {
+    "ref": "refs/heads/codex/sage-play-resource-window-20261028",
+    "sha": "6088a05800bd415b1ed76bb5787627fc60ca9e4f"
+  },
+  {
+    "ref": "refs/heads/codex/shadow-swift-resource-payment-20261028",
+    "sha": "d64b67ceab4ef17812d2f135b3d4ea7730dcf5a9"
+  },
+  {
+    "ref": "refs/heads/codex/vayne-conquest-payment-regression-20261028",
+    "sha": "6356d70d14c4a0c95a447b583e7078742f7f5882"
+  },
+  {
+    "ref": "refs/heads/d/rad-next-spell",
+    "sha": "399b115a125c6363c7cdacbfe3ccd155879c25cf"
+  },
+  {
+    "ref": "refs/heads/d/ven-activated-equipment",
+    "sha": "1a6710a236b11d2c97b27a99eb9727b5e7f630e7"
+  },
+  {
+    "ref": "refs/heads/d/ven-card-observers",
+    "sha": "f409bd34bd67e3826795874dd97fa941cfcfc145"
+  },
+  {
+    "ref": "refs/heads/d/ven-merge",
+    "sha": "c5e69724220301a9db588f79d9c4b1bc19e2b5fb"
+  },
+  {
+    "ref": "refs/heads/d/ven-triggered-equipment",
+    "sha": "23a9ec127f8c90aa249980c4b3a5bcd285b5eba9"
+  }
+]

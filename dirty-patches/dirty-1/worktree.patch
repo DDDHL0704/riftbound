@@ -1,0 +1,32 @@
+diff --git a/src/Riftbound.Engine/MatchSession.cs b/src/Riftbound.Engine/MatchSession.cs
+index f45d74451..2076acb7c 100644
+--- a/src/Riftbound.Engine/MatchSession.cs
++++ b/src/Riftbound.Engine/MatchSession.cs
+@@ -6420,6 +6420,8 @@ public sealed partial class MatchSession : IMatchSession
+                 return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+ 
+             var startedTick = state.Tick;
++            var profile = string.Equals(Environment.GetEnvironmentVariable("RIFTBOUND_PROFILE"), "1", StringComparison.Ordinal);
++            var profileTimer = profile ? System.Diagnostics.Stopwatch.StartNew() : null;
+             var startedEventSequence = lastEventSequence;
+             ResolutionResult result;
+             if (state.Status == MatchStatuses.Finished)
+@@ -6450,8 +6452,10 @@ public sealed partial class MatchSession : IMatchSession
+                 var intent = new PlayerIntent(normalizedIntentId, normalizedPlayerId, command.CmdType);
+                 result = await ruleEngine.ResolveAsync(state, intent, command, cancellationToken)
+                     .ConfigureAwait(false);
++                if (profile) Console.Error.WriteLine($"PROFILE resolve {command.CmdType} tick={startedTick} ms={profileTimer!.ElapsedMilliseconds}");
+             }
+             var completedEventSequence = startedEventSequence + result.Events.Count;
++            if (profile) profileTimer!.Restart();
+             await journal.RecordAsync(new MatchJournalEntry(
+                     RoomId,
+                     normalizedPlayerId,
+@@ -6470,6 +6474,7 @@ public sealed partial class MatchSession : IMatchSession
+                     result.Prompts,
+                     DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
+                 cancellationToken).ConfigureAwait(false);
++            if (profile) Console.Error.WriteLine($"PROFILE journal {command.CmdType} tick={startedTick} ms={profileTimer!.ElapsedMilliseconds}");
+ 
+             if (result.Accepted)
+             {

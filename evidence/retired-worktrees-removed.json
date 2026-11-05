@@ -1,0 +1,157 @@
+[
+  {
+    "path": "/private/tmp/riftbound-p0-clean-20261101",
+    "sha": "295d232a2a6e49073bf19f71e2adc29fed404cfe",
+    "dirty": true
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-battle-followup",
+    "sha": "a07c749150379a80c1a988341668724a7fb884eb",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-boundary-batch",
+    "sha": "3bc90128ca12fccbb72a7d5026f4341749204f90",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-boundary-publish",
+    "sha": "6a093850923189e914dfb26b9b05ce0a8c54dd2c",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-empower-boundary",
+    "sha": "e45a00e3b8cd2366f0d4c20281735f17350d569b",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-empower-followup",
+    "sha": "6cff31e11b25368b486e215b94292ff21d7c9fa6",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-empty-drain-publish",
+    "sha": "1d99e2a65e4ceaa5cf38b6fdcb37b6973b1444d4",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-followup",
+    "sha": "9a2f81f608e63f5409328795a4731a3fcc2eb3da",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-lastbreath-repaired-checkpoints-next",
+    "sha": "659198b3eff38dd7a96b7dc93c11e76d296d1ae2",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-lastbreath-resource-followup",
+    "sha": "93cf46ab8543feb8b0116b4418c76cd0f10ba0bd",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-next-terminal-pair",
+    "sha": "3373c397f8615f2478c8978d89d65e98897bc4cd",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-opening-audit",
+    "sha": "cd545d59515af065f80f0547add07c77dc2a96b7",
+    "dirty": true
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-opening-result-views",
+    "sha": "cb7d8003047ba48ffb6881313715c25d5e073f7b",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-origin-replay-next",
+    "sha": "bca9b55c033a94ae4d0a1821827f481946831d3b",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-recast-setup-checkpoints-next",
+    "sha": "87d7b4463eb1116572da8b559790fd3e972585ce",
+    "dirty": true
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-sql-runtime-observation-next",
+    "sha": "0c76801bbb11f23c7238a3bcbfc2a54779327fe4",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-sql-runtime-report-next",
+    "sha": "e8ad3983a2c60b8ab21c7d34144da37f34abbc87",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-submitted-standby",
+    "sha": "1f6cb49ab78d1805effdcabf3134a729de69d9ee",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-l2-ven035-setup",
+    "sha": "44f1d9db746628cb85d4b32048ef863d4689c88c",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-movement-preparation-next",
+    "sha": "2b9de89c65e8d8ebe07280fe508b7a26e7c88776",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-p0-sealed-snapshot-order",
+    "sha": "d1bf1fd0ff1b6af9a61cf069d55185165bea09aa",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-registration-hotspots-draft",
+    "sha": "df5612d28020c3431dbfa5530dba1bed2aafb5ac",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-registration-hotspots-main",
+    "sha": "52b20cf6711d6b9c0608803d719b3af336922308",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-registration-hotspots-next",
+    "sha": "30b1a65e5fdc80aaa640f78f935c2f91dfca4cbc",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-registration-hotspots-ready",
+    "sha": "570dde9da4492878af88b3896ea940da3731ba48",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-a-rengar-preparation-next",
+    "sha": "f45222d222a421845a10090c4e7aa99f58333565",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-b-rad-final-caress",
+    "sha": "1e5f8d66a7f1e5ed0a377fd6b67110b1e2b83b87",
+    "dirty": true
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-c-payment-taps",
+    "sha": "3d45af2e0db18cede8f1740fe612811269daccbb",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-c-rad-units-prep",
+    "sha": "5c5f281e5b65dd95c2dbebf111e2e67327136d86",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-d-rad-next-spell",
+    "sha": "399b115a125c6363c7cdacbfe3ccd155879c25cf",
+    "dirty": false
+  },
+  {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-d-ven-merge",
+    "sha": "c5e69724220301a9db588f79d9c4b1bc19e2b5fb",
+    "dirty": false
+  }
+]

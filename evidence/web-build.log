@@ -1,0 +1,29 @@
+
+> riftbound-web@0.1.0 build
+> node scripts/build-cards.mjs && tsc --noEmit && vite build
+
+cards.json: 1501 cards, 17 with reviewed errata
+vite v7.3.2 building client environment for production...
+transforming...
+node_modules/@microsoft/signalr/dist/esm/Utils.js (189:0): A comment
+
+"/*#__PURE__*/"
+
+in "node_modules/@microsoft/signalr/dist/esm/Utils.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/@microsoft/signalr/dist/esm/Utils.js (207:0): A comment
+
+"/*#__PURE__*/"
+
+in "node_modules/@microsoft/signalr/dist/esm/Utils.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 478 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.71 kB │ gzip:   0.42 kB
+dist/assets/index-CrP0dejx.css   50.64 kB │ gzip:  11.19 kB
+dist/assets/index-CgvvlwTP.js   517.52 kB │ gzip: 165.35 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.23s

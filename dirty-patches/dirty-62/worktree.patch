@@ -1,0 +1,78 @@
+diff --git a/tests/Riftbound.ConformanceTests/MandatoryRecastHeldTaxOpeningTests.cs b/tests/Riftbound.ConformanceTests/MandatoryRecastHeldTaxOpeningTests.cs
+index 3b68a08c5..f88718768 100644
+--- a/tests/Riftbound.ConformanceTests/MandatoryRecastHeldTaxOpeningTests.cs
++++ b/tests/Riftbound.ConformanceTests/MandatoryRecastHeldTaxOpeningTests.cs
+@@ -64,12 +64,11 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
+                 Assert.True(turns < 30 && State().Status == MatchStatuses.InProgress);
+                 await Act(State().TurnPlayerId, new EndTurnCommand());
+             }
+-            verifyColdRecoveryAfterEveryCommand = true;
+-            await Cold();
++            // Recover the natural setup together with the preparation below.
++            // Subsequent play, payment, refusal and conquest boundaries still recover independently.
+             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var pirate = Hand(Pirate)!; var host = Hand(Host)!;
+             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
+             // Recover the same paid unit preparation once before readiness and conquest.
+-            verifyColdRecoveryAfterEveryCommand = false;
+             var hostRunes = Runes().Take(2).ToArray();
+             await Act(actor, new TapRuneCommand(hostRunes[0], hostRunes));
+             await Act(actor, new PlayCardCommand(host, Host, [])); await Drain();
+diff --git a/tests/Riftbound.ConformanceTests/MandatoryRecastOpeningTests.cs b/tests/Riftbound.ConformanceTests/MandatoryRecastOpeningTests.cs
+index 9b2f6e82e..87f418b21 100644
+--- a/tests/Riftbound.ConformanceTests/MandatoryRecastOpeningTests.cs
++++ b/tests/Riftbound.ConformanceTests/MandatoryRecastOpeningTests.cs
+@@ -65,14 +65,13 @@ public sealed class MandatoryRecastOpeningTests
+                 Assert.True(turns < 70 && State().Status == MatchStatuses.InProgress, "Wait only for natural draws and physical rune channeling.");
+                 await Act(State().TurnPlayerId, new EndTurnCommand());
+             }
+-            verifyColdRecoveryAfterEveryCommand = true;
+-            await Cold();
++            // Recover the natural setup together with the preparation below.
++            // Subsequent play, payment, refusal and conquest boundaries still recover independently.
+             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
+             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var unit = Hand(unitNo)!;
+             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
+             var blue = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R03");
+             Assert.Equal(2, purple.Length);
+-            verifyColdRecoveryAfterEveryCommand = false;
+             var manaRunes = Runes().Except(purple.Append(blue)).ToArray();
+             await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
+             await Act(actor, new RecycleRuneCommand(purple[0], purple));
+@@ -153,7 +152,7 @@ public sealed class MandatoryRecastOpeningTests
+             {
+                 Directory.CreateDirectory(output);
+                 await File.WriteAllTextAsync(Path.Combine(output, actor + "-" + mode + ".json"), JsonSerializer.Serialize(new {
+-                    scope = "Empty room, real seats, validated blue/purple 40/12/3 decks, seed424242, Ready/Mulligan and natural draws/channeling. Actual Moonsilver Gift discards the unit and draws two, then actual nine-mana/two-purple setup pays Gift and Harrowing. Both seats cover funded/unfunded refusal, actual blue payment and zero refusal rejection. Every native command is deduplicated and JSON-cold-loaded through the production registry with unchanged original history. No SQL/SignalR/process restart/full L2/L3/whole-card claim.",
++                    scope = "Empty room, real seats, validated blue/purple 40/12/3 decks, seed424242, Ready/Mulligan and natural draws/channeling. Actual Moonsilver Gift discards the unit and draws two, then actual nine-mana/two-purple setup pays Gift and Harrowing. Both seats cover funded/unfunded refusal, actual blue payment and zero refusal rejection. Every native command is deduplicated; JSON cold recovery at preparation and critical rule boundaries uses the production registry with unchanged original history. No SQL/SignalR/process restart/full L2/L3/whole-card claim.",
+                     initial, deck, actor, mode, final = journal.Entries.LastOrDefault()?.AuthoritativeState, commands = Commands(), events = Events(), forgery }, Json));
+             }
+         }
+diff --git a/tests/Riftbound.ConformanceTests/SelectedRecastFeeOpeningTests.cs b/tests/Riftbound.ConformanceTests/SelectedRecastFeeOpeningTests.cs
+index 77f57e8ce..d0410b66d 100644
+--- a/tests/Riftbound.ConformanceTests/SelectedRecastFeeOpeningTests.cs
++++ b/tests/Riftbound.ConformanceTests/SelectedRecastFeeOpeningTests.cs
+@@ -66,13 +66,12 @@ public sealed class SelectedRecastFeeOpeningTests
+                 Assert.True(turns < 70 && State().Status == MatchStatuses.InProgress);
+                 await Act(State().TurnPlayerId, new EndTurnCommand());
+             }
+-            verifyColdRecoveryAfterEveryCommand = true;
+-            await Cold();
++            // Recover the natural setup together with the preparation below.
++            // Subsequent play, payment, refusal and conquest boundaries still recover independently.
+             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
+             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var unit = Hand(Unit)!;
+             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
+             var red = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R01");
+-            verifyColdRecoveryAfterEveryCommand = false;
+             var manaRunes = Runes().Except(purple).ToArray();
+             await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
+             await Act(actor, new RecycleRuneCommand(purple[0], purple));
+@@ -170,7 +169,7 @@ public sealed class SelectedRecastFeeOpeningTests
+             {
+                 Directory.CreateDirectory(output);
+                 await File.WriteAllTextAsync(Path.Combine(output, actor + "-" + route + ".json"), JsonSerializer.Serialize(new {
+-                    scope = "Empty room, real seats, submitted red/purple 40/12/3 deck validated against explicit ChinaStandard20260724 snapshot, fixed seed, native Ready/Mulligan/natural draws and twelve physical runes. Actual Gift discard/draw2 and paid Harrowing derive default zero versus chosen Haste 1mana+1red; funded/unfunded explicit refusal, actual payment/free play and false-client-price zero rejection. Per-command privacy, dedup and production-registry JSON cold recovery preserve original input; altered accepted refusal history must reject. No claim of latest format/source completeness, SQL/SignalR/process restart, full L2/L3 or whole-card.",
++                    scope = "Empty room, real seats, submitted red/purple 40/12/3 deck validated against explicit ChinaStandard20260724 snapshot, fixed seed, native Ready/Mulligan/natural draws and twelve physical runes. Actual Gift discard/draw2 and paid Harrowing derive default zero versus chosen Haste 1mana+1red; funded/unfunded explicit refusal, actual payment/free play and false-client-price zero rejection. Per-command privacy/dedup and production-registry JSON cold recovery at preparation and critical rule boundaries preserve original input; altered accepted refusal history must reject. No claim of latest format/source completeness, SQL/SignalR/process restart, full L2/L3 or whole-card.",
+                     initial, deck, actor, route, defaultQuote, selectedQuote, core, native, forgery,
+                     final = journal.Entries.LastOrDefault()?.AuthoritativeState, commands = Commands(), events = Events() }, Json));
+             }

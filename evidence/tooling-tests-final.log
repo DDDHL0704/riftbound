@@ -1,0 +1,15 @@
+test_artifact_changed_during_observation_is_rejected (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_different_modules_or_rule_inputs_cannot_be_aggregated (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_legacy_completed_partition_is_a_partial_observation_with_unknown_counters (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_malformed_counters_and_missing_scope_are_rejected (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_measured_zero_unavailable_and_legacy_counters_remain_distinct (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_multiple_partitions_bind_all_outputs_modules_and_input_checksums (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_output_coverage_paths_and_original_bytes_are_required (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_real_cli_writes_one_observation_and_never_overwrites_it (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_stale_manifest_wrong_commit_duplicate_partition_and_incomplete_cases_are_rejected (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+test_wrong_zip_digest_corrupt_output_and_duplicate_members_are_rejected (test_sql_runtime_report.SqlRuntimeReportTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.171s
+
+OK

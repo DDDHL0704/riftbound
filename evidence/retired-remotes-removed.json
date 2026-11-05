@@ -1,0 +1,518 @@
+[
+  {
+    "name": "a/l2-boundary-batch",
+    "sha": "6a093850923189e914dfb26b9b05ce0a8c54dd2c"
+  },
+  {
+    "name": "a/l2-canonical-phase",
+    "sha": "bca9b55c033a94ae4d0a1821827f481946831d3b"
+  },
+  {
+    "name": "a/l2-destruction-forgery-audit-next",
+    "sha": "bbd5a8e72d93d21e48d6fb7c0f6073f931ee0dc4"
+  },
+  {
+    "name": "a/l2-empower-boundary",
+    "sha": "e45a00e3b8cd2366f0d4c20281735f17350d569b"
+  },
+  {
+    "name": "a/l2-empty-drain-next",
+    "sha": "1d99e2a65e4ceaa5cf38b6fdcb37b6973b1444d4"
+  },
+  {
+    "name": "a/l2-expiry-preparation-next",
+    "sha": "ca3214d974a4029a6fa474b55cd3d3b768f7285b"
+  },
+  {
+    "name": "a/l2-held-tax-preparation-next",
+    "sha": "72589e91d2d50490921365fd6e5036e8a1cf982c"
+  },
+  {
+    "name": "a/l2-movement-preparation-next",
+    "sha": "2b9de89c65e8d8ebe07280fe508b7a26e7c88776"
+  },
+  {
+    "name": "a/l2-next-terminal-pair",
+    "sha": "3373c397f8615f2478c8978d89d65e98897bc4cd"
+  },
+  {
+    "name": "a/l2-opening-result-views",
+    "sha": "cb7d8003047ba48ffb6881313715c25d5e073f7b"
+  },
+  {
+    "name": "a/l2-rengar-preparation-next",
+    "sha": "f45222d222a421845a10090c4e7aa99f58333565"
+  },
+  {
+    "name": "a/l2-submitted-standby",
+    "sha": "1f6cb49ab78d1805effdcabf3134a729de69d9ee"
+  },
+  {
+    "name": "a/l2-wallet-preparation-next",
+    "sha": "500e84a4646aa316a2ed6b61cdde71094efe69a7"
+  },
+  {
+    "name": "a/nightly-full-preflight",
+    "sha": "6c9015cfb6df10cc593c32ecfa49dbb67da27b2a"
+  },
+  {
+    "name": "a/p0-sealed-snapshot-order",
+    "sha": "d1bf1fd0ff1b6af9a61cf069d55185165bea09aa"
+  },
+  {
+    "name": "a/payment-reachability",
+    "sha": "4c817dd5a482a51c9db61f969878caef4cf3ad62"
+  },
+  {
+    "name": "a/registration-hotspots-next",
+    "sha": "30b1a65e5fdc80aaa640f78f935c2f91dfca4cbc"
+  },
+  {
+    "name": "b/akali-movement-endpoints",
+    "sha": "769b38a6259d56b5e27d6b373b24b2957a8ed9b3"
+  },
+  {
+    "name": "b/ambessa-empowered-attack",
+    "sha": "aaa78fa6976bd827f00de95d22f8d2199214dbe2"
+  },
+  {
+    "name": "b/draven-controller-score",
+    "sha": "94b5e40ba67d7ac035f8c2ff4eca213f2fb2d47a"
+  },
+  {
+    "name": "b/kennen-paid-stun",
+    "sha": "59b1bf641cdd7ee86ced6fd47be0dc5c80ca83f1"
+  },
+  {
+    "name": "b/nasus-legend-high-cost",
+    "sha": "da33bb65e455594f10ec1bdf61dc9100899bee82"
+  },
+  {
+    "name": "b/nasus-local-death-runes",
+    "sha": "3a6acf156ed53a74843ff4f6e02001119e139f46"
+  },
+  {
+    "name": "b/rad-attack-rally",
+    "sha": "866c34c9ee36e9d62aa5b2c01401e9a5f810b81d"
+  },
+  {
+    "name": "b/rad-combat-heroes",
+    "sha": "00aa3bfb48a5bf2984c86e46bbd06067ebc6761b"
+  },
+  {
+    "name": "b/rad-equipment-play-discount",
+    "sha": "f6f63e8037dcf6f93b5e8812e3fdc229accb5a73"
+  },
+  {
+    "name": "b/rad-final-caress",
+    "sha": "a9b71d2e869eaa10b155c138fe2cb2a29212d9f9"
+  },
+  {
+    "name": "b/rad-hero-batch",
+    "sha": "a07748f79b69b6fc845952208d07911f2f6eae76"
+  },
+  {
+    "name": "b/rad-hero-batch-fix",
+    "sha": "a0b3300e854d3272620863aa4c4938571bd2378c"
+  },
+  {
+    "name": "b/rad-jarvan-deploy",
+    "sha": "880bd92520e605ec73135d62ac0ad567a1db849f"
+  },
+  {
+    "name": "b/rad-keyword-values",
+    "sha": "d4a94fc7503deca0a0438b06d00eec0a83504a55"
+  },
+  {
+    "name": "b/rad-movement-might",
+    "sha": "7acda367bd4c82cebe915831b39146050fb37e79"
+  },
+  {
+    "name": "b/rad-next-unit-grants",
+    "sha": "a73ea1e1b74a2ad733e71f5a7b615c2983606542"
+  },
+  {
+    "name": "b/rad-robot-replacement",
+    "sha": "eca1177b5549b056d2f46bb71793a05995ddb4ef"
+  },
+  {
+    "name": "b/riven-attack-weapon",
+    "sha": "26361f7c16e454239772079a28166a6d9d601e95"
+  },
+  {
+    "name": "b/sona-rune-printing",
+    "sha": "1144688f189684a4097b2c1f3dd0ca5beffefffa"
+  },
+  {
+    "name": "b/source-play-discard",
+    "sha": "aa31ff6c9d49325b94467d2d5b84473f30418d60"
+  },
+  {
+    "name": "b/token-printings",
+    "sha": "55153167e9479cb2b094661dc82d97b5a438c20b"
+  },
+  {
+    "name": "b/ven-faq-blast-cone-regression",
+    "sha": "a81008c1f022ff9073c4030e3e904866824cb489"
+  },
+  {
+    "name": "b/ven-faq-borrowed-battlefield-grants",
+    "sha": "ca110e31a673b96e6a7dc0fb6cc1d7c5958ee50a"
+  },
+  {
+    "name": "b/ven-faq-borrowed-empower-keywords",
+    "sha": "810dca6b23176433b09cb51f0cab948c2b0885bb"
+  },
+  {
+    "name": "b/ven-faq-borrowed-hand-costs",
+    "sha": "627d6ddbea82604b9e6cf6c2ee75e86a92f5d4f8"
+  },
+  {
+    "name": "b/vi-paid-recycle",
+    "sha": "54f420ad33e4ad5c458ab049f012581ad91914aa"
+  },
+  {
+    "name": "b/vi-recycle-cost",
+    "sha": "70a12bde3161e0df7c3d4c48475268430381745e"
+  },
+  {
+    "name": "b/vi-recycle-might",
+    "sha": "6db876cdce20f66cade910b8bd62e35549a83113"
+  },
+  {
+    "name": "b/zed-legend-banish",
+    "sha": "bf9f8731f84b1992ae320f73611c1224d68ac285"
+  },
+  {
+    "name": "c/p1-4d",
+    "sha": "fb628ef55bfddb63e822b7e9b132eb093ce90ec6"
+  },
+  {
+    "name": "c/p1-4e",
+    "sha": "4bcadb2bfe83d1a82a13f93178736a7b2e7623dc"
+  },
+  {
+    "name": "c/p1-4f",
+    "sha": "c4804b239bb96662ac8b1cae4bdb6cecce35d78e"
+  },
+  {
+    "name": "c/p1-s9",
+    "sha": "8c69783c60655df37019b9e822dc11fdc2c48e85"
+  },
+  {
+    "name": "c/payment-taps",
+    "sha": "3d45af2e0db18cede8f1740fe612811269daccbb"
+  },
+  {
+    "name": "c/rad-faq-followup-after473-20261105",
+    "sha": "3c87fa72e94bcf6edec37d5c4e174474a5bac208"
+  },
+  {
+    "name": "c/rad-units-prep",
+    "sha": "5c5f281e5b65dd95c2dbebf111e2e67327136d86"
+  },
+  {
+    "name": "c/t1s-printings",
+    "sha": "fdce30d2acfcc25eefd31aa15d279d24da6640e2"
+  },
+  {
+    "name": "codex/backend-cards-20261023",
+    "sha": "99edd079074c17428e208e1f076d19e5a56ac6b0"
+  },
+  {
+    "name": "codex/backend-combat-20261023",
+    "sha": "bc61829b1c25d079b16e14d977889573dc78aebe"
+  },
+  {
+    "name": "codex/backend-integration-20261023",
+    "sha": "cc2bbe7921d2d1220ef62d71bd5edcd2f654ea82"
+  },
+  {
+    "name": "codex/backend-payment-20261023",
+    "sha": "1de2188ad3cae99852cf7f2a0e4d4c6b1b1d2048"
+  },
+  {
+    "name": "codex/cards-nightly-recycle-boon-sql-20261028",
+    "sha": "db79e14fea3c460eb4ae8cae8223d8832e375b4d"
+  },
+  {
+    "name": "codex/cards-p7-resource-consumers-20261026",
+    "sha": "6926005a7d6880eb62ee45b508f8cd8f2e3ed789"
+  },
+  {
+    "name": "codex/combat-assignment-contradictory-priorities-20261028",
+    "sha": "c2975e35be8ae3307c7c95fd635a28cab85b8389"
+  },
+  {
+    "name": "codex/combat-assignment-surrender-20261026",
+    "sha": "b7e30c706fc422fa09b1ca54fddf77b26c0f3b0b"
+  },
+  {
+    "name": "codex/combat-conquest-battlefield-mill-20261028",
+    "sha": "bccb3038ae690da1108b2fa7cc9779916655263b"
+  },
+  {
+    "name": "codex/combat-conquest-fixtures-20261028",
+    "sha": "8bf366927031fdfab0f84c7bac7eabdf3e28a050"
+  },
+  {
+    "name": "codex/combat-disarm-producer-20261028",
+    "sha": "632b4f8348470931efc87018986a8a8252a1f5bc"
+  },
+  {
+    "name": "codex/combat-draven-sql-order-20261028",
+    "sha": "94722f190648c20813f5755a4c6aed10385517b9"
+  },
+  {
+    "name": "codex/combat-mill-identity-20261028",
+    "sha": "a4d995733a714e0cf3d1a73b4e9f4b0033639d6c"
+  },
+  {
+    "name": "codex/combat-optional-powerful-legend-20261028",
+    "sha": "debbc9b255bc2041168d1120f526c9003abe3768"
+  },
+  {
+    "name": "codex/combat-terminal-facedown-20261026",
+    "sha": "ab6b06e068cd701503316769d78b71fc1f8d3911"
+  },
+  {
+    "name": "codex/diagnostic-db-preflight-20261028",
+    "sha": "6e3a4bb8a00c7ee59f91493419868428887a2dbf"
+  },
+  {
+    "name": "codex/governance-scope-split-20261028",
+    "sha": "f36cd1e832ebdf3871830e9b4432b854f6e98690"
+  },
+  {
+    "name": "codex/l2-profile-nightly-20261028",
+    "sha": "7c1bf8b79cf1fc1531bacf8850c2d150f703c4ef"
+  },
+  {
+    "name": "codex/l2-profile-recovery-20261028",
+    "sha": "315ec4f0613e784e846794d9aecb53c1a65c78b5"
+  },
+  {
+    "name": "codex/macbook-evidence-integrity-20261027",
+    "sha": "c27b5ae0538b0f3ffd247471a7a7d42e31876c88"
+  },
+  {
+    "name": "codex/meditation-echo-fee-20261028",
+    "sha": "96f5801eacb575086daa36b5c4a2a4722e96d0be"
+  },
+  {
+    "name": "codex/nightly-fixes-combined-20261028",
+    "sha": "44159ef163b33560f209d0aa94563bd6288e0fc1"
+  },
+  {
+    "name": "codex/nightly-preflight-diagnostic-20261028",
+    "sha": "0d271929f4edea6bdaaee5320e1317d67c59a86e"
+  },
+  {
+    "name": "codex/parallel-draven-timing-20261023",
+    "sha": "120ecf3ec9e24e82adb8c2be028856736bb40964"
+  },
+  {
+    "name": "codex/restricted-mana-sql-checkpoint-20261028",
+    "sha": "cc64f1a65eed6c4be8c3e201a14ea02c9e37b5ea"
+  },
+  {
+    "name": "codex/s7-nightly-wiring-20261027",
+    "sha": "3d976fe02870b83a81580410cb7213e589c59022"
+  },
+  {
+    "name": "codex/shadow-swift-resource-payment-20261028",
+    "sha": "bcf91f9af99135413adf88b10479b64d19a4797f"
+  },
+  {
+    "name": "d/albus-boon-runes-next-20261105",
+    "sha": "e4530c7a0537effc52bba941b80d43f87adf7340"
+  },
+  {
+    "name": "d/ava-standby-attack-next-20261105",
+    "sha": "57cf97dfa4a2d5072e1484128576a9543e1b1ce1"
+  },
+  {
+    "name": "d/encourage-completion-after485-20261105",
+    "sha": "61442abf915f23d2d1004313890c78b45f7f7c65"
+  },
+  {
+    "name": "d/ghost-matron-confirmation-next-20261105",
+    "sha": "2a8d8940a2ff2369d4b2954da8d4208570d09b15"
+  },
+  {
+    "name": "d/karthus-global-lastbreath-next-20261105",
+    "sha": "ee2e876f9895e447a217a19865a8f2d62ad80964"
+  },
+  {
+    "name": "d/ledros-multi-sacrifice-next-20261105",
+    "sha": "f70e8cafd3046afbc7b3a97de7501c31b11972ad"
+  },
+  {
+    "name": "d/movement-destination-metadata-20261105",
+    "sha": "a4533ce033832aaddc151292028d75863e003d7c"
+  },
+  {
+    "name": "d/rad-ahri-complete-20261103-0933",
+    "sha": "986e8d3c5fa3ee5c7a0a3561fd5c8ccef1c1e50a"
+  },
+  {
+    "name": "d/rad-ahri-validation-20261103-0918",
+    "sha": "8d869ae87d6eb5e2395f7e5ba823046cc4ef0a30"
+  },
+  {
+    "name": "d/rad-attachment-choice-after-defense-20261103-1100",
+    "sha": "044e3566cb9fdd5402c64d6098adf1535d5ba943"
+  },
+  {
+    "name": "d/rad-axe-stack-after-kaisa-20261103-1158",
+    "sha": "69c89caaec4ab8a255bc3276d894ec1f2f701b70"
+  },
+  {
+    "name": "d/rad-bomb",
+    "sha": "d2e6c2612c7bada8e2c98bdda29a7c6d75142330"
+  },
+  {
+    "name": "d/rad-chronobreak-20261102",
+    "sha": "fcc8598c1052a03f1873aac699d3323c7ff83a05"
+  },
+  {
+    "name": "d/rad-completion-after481-20261105",
+    "sha": "fabdb0762af0df15bc3cf13efb2946ce112f7331"
+  },
+  {
+    "name": "d/rad-copy-controller-boundaries-20261103-1130",
+    "sha": "a7df339141659f48861f3f361684ae2d434a7110"
+  },
+  {
+    "name": "d/rad-darius-completion-after484-20261105",
+    "sha": "0bd5c04d8026b190eec57eab8d6eb24f7081cf3e"
+  },
+  {
+    "name": "d/rad-heimer-boundaries-after-riven-20261103-0944",
+    "sha": "c2360eaee53c5bdc450d9cbcf41b96b3c0c4393d"
+  },
+  {
+    "name": "d/rad-kaisa-copy-after-controller-20261103-1142",
+    "sha": "c18b841622e63b1f130cb1cbd6952fbc539b3a04"
+  },
+  {
+    "name": "d/rad-legend-copy-recovery-main-20261105",
+    "sha": "38cd4b219fc925c0900164ab05ae7b19dfa31235"
+  },
+  {
+    "name": "d/rad-minefield-end-after-axe-20261103-1214",
+    "sha": "5cdd5a49af4e429495c2ba09217bda0840dfff0f"
+  },
+  {
+    "name": "d/rad-next-spell",
+    "sha": "399b115a125c6363c7cdacbfe3ccd155879c25cf"
+  },
+  {
+    "name": "d/rad-riven-boundaries-after-ahri-20261103-0938",
+    "sha": "ca89e02b32f96a2a4ad252f6e7df89c6af941d22"
+  },
+  {
+    "name": "d/rad-spell-16-20261101",
+    "sha": "39646d0b084a0711bc65d9a8d22ca4b42d94dd48"
+  },
+  {
+    "name": "d/rad-spell-batch",
+    "sha": "142625930f6817df1ec9ea0da2d7f298d39054aa"
+  },
+  {
+    "name": "d/rad-spells",
+    "sha": "a874fc50169877232b412b3363deaa95b79ecdc8"
+  },
+  {
+    "name": "d/rad-spells-16",
+    "sha": "9243ddb44beefd49fc70f8d27e22fe6a82098ee6"
+  },
+  {
+    "name": "d/rad-ziggs-activation-after-heimer-20261103-1009",
+    "sha": "ff8633d2b1c593494a9073a4125293b0ba7542ed"
+  },
+  {
+    "name": "d/rad-ziggs-damage-after-activation-20261103-1012",
+    "sha": "420643d8701efe7027ffe4856603687987ee4e61"
+  },
+  {
+    "name": "d/rad-ziggs-defense-after-damage-20261103-1018",
+    "sha": "614df821571a976f383a17be2ca42302bd098ad7"
+  },
+  {
+    "name": "d/rad-ziggs-defense-complete-20261103-1045",
+    "sha": "116d51fa6b47c19c8057c7d0b4257a35f64cc68d"
+  },
+  {
+    "name": "d/sinful-pleasure-discard-20261105",
+    "sha": "b58aa72bf0693ae550e5f12f44b41fa63789ba9a"
+  },
+  {
+    "name": "d/ven-activated-equipment",
+    "sha": "1a6710a236b11d2c97b27a99eb9727b5e7f630e7"
+  },
+  {
+    "name": "d/ven-card-observers",
+    "sha": "f409bd34bd67e3826795874dd97fa941cfcfc145"
+  },
+  {
+    "name": "d/ven-merge",
+    "sha": "c5e69724220301a9db588f79d9c4b1bc19e2b5fb"
+  },
+  {
+    "name": "d/ven-triggered-equipment",
+    "sha": "23a9ec127f8c90aa249980c4b3a5bcd285b5eba9"
+  },
+  {
+    "name": "e/rad-gear-battlefields-20261101",
+    "sha": "ee41159f786043c1a7fde9fd06388164fd3ffd18"
+  },
+  {
+    "name": "e/rad-gear-resume-20261101",
+    "sha": "d0afe171adb3dd7811f13f0a084e6b684d81aad5"
+  },
+  {
+    "name": "e/rad-transposition",
+    "sha": "76bfc1bcfb5809bf1ce4d4fc428ce3aeab02baa9"
+  },
+  {
+    "name": "e/rad-transposition-pr",
+    "sha": "1aff8e14bca994434e5fb0e10f50573d4f12adef"
+  },
+  {
+    "name": "e/standby-capacity-20261102",
+    "sha": "33fc55f26bc730b007723b3edca7fe6227107d30"
+  },
+  {
+    "name": "f/sealed-final-result-once",
+    "sha": "38bb4a4fa34bbb983e3eba0d84acd1b0fe8ce7d7"
+  },
+  {
+    "name": "f/sealed-full-games",
+    "sha": "64ee37a180b5eef9970646ea0c55380844b93064"
+  },
+  {
+    "name": "f/sealed-network-recovery",
+    "sha": "0f3d13ae734404f4f39334b6a5846bfe473eb69a"
+  },
+  {
+    "name": "f/sealed-series-model",
+    "sha": "36a8bb36c9f7e48da32b095b14fd600b0c5ef894"
+  },
+  {
+    "name": "f/sealed-series-runtime",
+    "sha": "476b5224950307414d519f9d4e4f948d27efe50c"
+  },
+  {
+    "name": "f/sealed-sideboarding",
+    "sha": "d3f3b76229ae04eec5ac7c499b5c91b5a79b530a"
+  },
+  {
+    "name": "f/sealed-sql-ci",
+    "sha": "c4f55db7d48bdf26fac6c4d78e07e86e5903c650"
+  },
+  {
+    "name": "f/sealed-sql-recovery",
+    "sha": "0c13550b8aa841f49b859a7c629f6ca8c8fc92bf"
+  }
+]

@@ -1,0 +1,19 @@
+  正在确定要还原的项目…
+  已还原 /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj (用时 6.23 秒)。
+  已还原 /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Persistence/Riftbound.Persistence.csproj (用时 45 毫秒)。
+  已还原 /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Engine/Riftbound.Engine.csproj (用时 4 毫秒)。
+  已还原 /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Contracts/Riftbound.Contracts.csproj (用时 14 毫秒)。
+  已还原 /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.CardCatalog/Riftbound.CardCatalog.csproj (用时 4 毫秒)。
+  已还原 /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Api/Riftbound.Api.csproj (用时 17 毫秒)。
+  Riftbound.Contracts -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Contracts/bin/Release/net10.0/Riftbound.Contracts.dll
+  Riftbound.CardCatalog -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.CardCatalog/bin/Release/net10.0/Riftbound.CardCatalog.dll
+  Riftbound.Engine -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Engine/bin/Release/net10.0/Riftbound.Engine.dll
+  Riftbound.Persistence -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Persistence/bin/Release/net10.0/Riftbound.Persistence.dll
+  Riftbound.Api -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/src/Riftbound.Api/bin/Release/net10.0/Riftbound.Api.dll
+  Riftbound.ConformanceTests -> /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-integration/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll
+
+已成功生成。
+    0 个警告
+    0 个错误
+
+已用时间 00:08:46.65

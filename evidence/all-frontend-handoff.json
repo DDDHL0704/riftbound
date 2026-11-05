@@ -1,0 +1,34 @@
+[
+  {
+    "sha": "afff0be85a6c506e07e91d073633e533a11be5c0",
+    "subject": "Queue battlefield conquest choices and bind recovery history",
+    "files": [
+      "clients/godot/scripts/interaction/PromptInteractionController.cs"
+    ],
+    "refs": [
+      "refs/heads/archive/wt-combat-20261023-20261029",
+      "refs/heads/codex/cards-pr231-p79-consumer-tests-20261028",
+      "refs/heads/codex/combat-mill-identity-20261028",
+      "refs/heads/codex/combat-pr231-replacement-20261028",
+      "refs/heads/codex/combat-vayne-conquest-trigger-20261028",
+      "refs/heads/codex/integration-vayne-consumers-20261028",
+      "refs/heads/codex/pr231-optional-mana-regression-20261028",
+      "refs/heads/codex/vayne-conquest-payment-regression-20261028",
+      "refs/remotes/origin/codex/combat-mill-identity-20261028",
+      "refs/remotes/origin/codex/nightly-fixes-combined-20261028"
+    ]
+  },
+  {
+    "sha": "f283945288f7cd98d92cadf039666fb0e3ba0781",
+    "subject": "Expose alternative combat priorities to clients",
+    "files": [
+      "clients/godot/scripts/DamageAssignmentModels.cs",
+      "clients/godot/scripts/SpecialPromptCommandBuilder.cs",
+      "clients/godot/scripts/ui/DamageAssignmentOverlay.cs"
+    ],
+    "refs": [
+      "refs/heads/codex/combat-assignment-contradictory-priorities-20261028",
+      "refs/remotes/origin/codex/combat-assignment-contradictory-priorities-20261028"
+    ]
+  }
+]

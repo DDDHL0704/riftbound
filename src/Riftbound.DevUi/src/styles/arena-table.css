@@ -1,7 +1,0 @@
-/* Arena stylesheet manifest. Keep imports ordered from structure to overrides. */
-@import "./arena-shell.css";
-@import "./arena-board.css";
-@import "./arena-actions.css";
-@import "./arena-desktop.css";
-@import "./arena-mobile.css";
-@import "./arena-motion.css";

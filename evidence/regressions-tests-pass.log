@@ -1,0 +1,7 @@
+/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-m-regressions/tests/Riftbound.ConformanceTests/bin/Release/net10.0/Riftbound.ConformanceTests.dll (.NETCoreApp,Version=v10.0)的测试运行
+总共 1 个测试文件与指定模式相匹配。
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:05.25]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:13.44]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:13.96]   Starting:    Riftbound.ConformanceTests
+正在尝试取消生成...
