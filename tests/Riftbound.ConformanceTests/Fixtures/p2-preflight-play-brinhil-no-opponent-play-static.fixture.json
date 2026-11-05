@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-brinhil-no-opponent-play-static",
-  "description": "OGN 026 Brinhil enters as a unit while the opponent cannot play cards this turn effect is deferred.",
+  "description": "OGN 026 Brinhil enters as a unit and its independent play ability prohibits the opponent from playing cards this turn after resolution.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·026/298 颂雷者 布林希尔",
-      "note": "官方卡面：费用 6；单位；战力 5；打出时令对手本回合内不能打出卡牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；本回合内对手打出限制路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 5；打出时令对手本回合内不能打出卡牌。本 fixture 保留普通主阶段从手牌打出及技能入链结算的原命令；BrinhilCardPlayProhibitionTests 覆盖限制前后响应、全部卡牌权限、效果许可、来源离场和真实回合结束，并验证冷恢复及原始回放。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -94,7 +94,8 @@
       "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "STACK_ITEM_RESOLVED",
+      "CARD_PLAY_PROHIBITED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

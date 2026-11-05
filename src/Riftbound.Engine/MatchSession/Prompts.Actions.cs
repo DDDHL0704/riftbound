@@ -110,7 +110,9 @@ internal static partial class ActionPromptBuilder
         string reason,
         IReadOnlyList<string> actions)
     {
-        if (state.UntilEndOfTurnEffects.Contains(CardPermissionKeywordRules.SpellPlayProhibitionPrefix + playerId, StringComparer.Ordinal))
+        if (state.UntilEndOfTurnEffects.Contains(CardPermissionKeywordRules.CardPlayProhibitionPrefix + playerId, StringComparer.Ordinal))
+            reason += " · " + CardPermissionKeywordRules.CardPlayProhibitionReason;
+        else if (state.UntilEndOfTurnEffects.Contains(CardPermissionKeywordRules.SpellPlayProhibitionPrefix + playerId, StringComparer.Ordinal))
             reason += " · " + CardPermissionKeywordRules.SpellPlayProhibitionReason;
         var normalizedActions = actions
             .Where(action => !string.IsNullOrWhiteSpace(action))
@@ -2292,7 +2294,7 @@ internal static partial class ActionPromptBuilder
             return false;
         }
 
-        if (CardPermissionKeywordRules.IsSpellPlayProhibited(state, playerId, behavior)) return false;
+        if (CardPermissionKeywordRules.IsPlayProhibited(state, playerId, behavior)) return false;
 
         return cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || HasDelimitedTag(behavior.SourceUnitTags, CardObjectTags.Standby);

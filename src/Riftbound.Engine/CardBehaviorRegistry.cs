@@ -11,13 +11,16 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool DistinctModesPerTurn = false, bool ConsumesSourceBoonDuringResolution = false,
     int MinimumExhaustedUnits = 0, bool OncePerTurn = false,
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
-    string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null);
+    string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
+    bool LeadingConsumeBoon = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
 public sealed record MovementImposedCostSpec(int ManaPerMove = 0, int PowerPerMove = 0, int PowerPerExtraUnit = 0);
+public sealed record SelfGraveyardPlaySpec(int Mana, int Power, IReadOnlyList<string> Traits,
+    bool RequiresPlayedAnotherCard = false);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -51,6 +54,7 @@ public sealed record CardBehaviorDefinition(
     UnitEventAbilitySpec? UnitEventAbility = null,
     bool HeldPlaysLinkedExile = false,
     bool GrantsNormalGraveyardPlay = false, bool SkipsDrawPhase = false, bool BanishesNonDeckGraveyardEntries = false,
+    SelfGraveyardPlaySpec? SelfGraveyardPlay = null, SelfGraveyardPlaySpec? AppliedSelfGraveyardPlay = null,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
     bool DamagesAllBaseUnits = false,
@@ -399,6 +403,7 @@ public sealed record CardBehaviorDefinition(
     bool MovesTargetToOpenBattlefield = false,
     bool GrantsRoamIfNoOpenBattlefield = false,
     bool PreventsOpponentSpellPlayThisTurn = false,
+    bool PreventsOpponentCardPlayThisTurn = false,
     bool MovesFriendlyEquipmentToChosenBattlefield = false,
     int CreatedBaseUnitTokenCountIfShowcase = 0,
     bool CreatedBaseUnitTokensAtTargetBattlefield = false,
@@ -5255,7 +5260,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            PreventsOpponentCardPlayThisTurn: true),
         new(
             "OGN·027/298",
             "德莱厄斯",
@@ -5344,7 +5350,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "机械|壁垒"),
+            SourceUnitTags: "机械|壁垒",
+            UnitEventAbility: new("PLAY", "MOVE_ENEMY_HERE", Optional: true)),
         new(
             "OGN·068/298",
             "凯特琳",
@@ -5572,16 +5579,18 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "精锐"),
+            SourceUnitTags: "精锐",
+            UnitEventAbility: new("ANOTHER_UNIT_PLAYED", "BOON_SELF")),
         new(
             "OGN·147/298",
             "野爪萨满",
             4,
-            "WILDCLAW_SHAMAN_NO_BOON_CONSUME_PLAY_UNIT",
+            "WILDCLAW_SHAMAN_BOON_READY_PLAY_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            UnitEventAbility: new("PLAY", "BOON_SELF_AND_READY", LeadingConsumeBoon: true)),
         new(
             "OGN·148/298",
             "艾尼维亚",
@@ -5607,10 +5616,15 @@ public static class CardBehaviorRegistry
             8,
             "OGN_SOULSIPPER_GRAVE_UNIT_PLAY_UNIT",
             0,
-            0,
+            1,
+            MinTargetCount: 0,
+            TargetScope: CardTargetScopes.FriendlyGraveyardCard,
+            TargetRequiredTag: CardObjectTags.UnitCard,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "灵体"),
+            SourceUnitTags: "灵体",
+            EffectPlaySourceZone: "GRAVEYARD",
+            EffectPlayIgnoreBaseMana: true),
         new(
             "OGN·200/298",
             "崔斯特",
@@ -5965,7 +5979,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "灵体"),
+            SourceUnitTags: "灵体",
+            SelfGraveyardPlay: new(3, 1, [RuneTrait.Red], RequiresPlayedAnotherCard: true)),
         new(
             "OGN·020/298",
             "垃圾场小霸王",

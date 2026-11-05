@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-wildclaw-shaman-no-boon-consume-static",
-  "description": "OGN 147 Wildclaw Shaman enters as a unit while the optional consume boon effect is deferred.",
+  "description": "OGN 147 Wildclaw Shaman enters exhausted; without a controlled unit boon its optional play ability cannot be confirmed.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·147/298 野爪萨满",
-      "note": "官方卡面：费用 4；单位；战力 3；打出时可消耗一个增益，以此给予自身增益并变为活跃状态。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；消耗增益、自身增益和活跃路径暂缓。"
+      "note": "官方卡面：费用 4；单位；战力 3；打出时可消耗一个增益，以此给予自身增益并变为活跃状态。没有受控单位的增益可支付时，不确认可选技能，来源保持休眠和基础战力。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -80,21 +80,18 @@
         "cardNo": "OGN·147/298",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-wildclaw-shaman-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-wildclaw-shaman-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_NOT_CONFIRMED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

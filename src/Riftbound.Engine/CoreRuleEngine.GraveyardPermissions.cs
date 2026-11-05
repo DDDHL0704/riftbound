@@ -24,8 +24,25 @@ public sealed partial class CoreRuleEngine
 
     internal static IReadOnlyList<CardBehaviorDefinition> NormalGraveyardPlayBehaviors(MatchState state,
         string player, string source, CardBehaviorDefinition behavior)
-        => behavior.AppliedFlowCost is not null && NormalGraveyardPlaySources(state, player).Contains(source)
-            ? [behavior, behavior with { AppliedFlowCost = null }] : [behavior];
+    {
+        behavior = SelfGraveyardPlayBehavior(state, player, source, behavior);
+        return (behavior.AppliedFlowCost is not null || behavior.AppliedSelfGraveyardPlay is not null)
+            && NormalGraveyardPlaySources(state, player).Contains(source)
+                ? [behavior, behavior with { AppliedFlowCost = null, AppliedSelfGraveyardPlay = null }] : [behavior];
+    }
+
+    internal static IReadOnlyList<string> SelfGraveyardPlaySources(MatchState state, string player)
+        => state.PendingEffectPlay is null && state.PlayerZones.TryGetValue(player, out var zones)
+            ? zones.Graveyard.Where(id => state.CardObjects.TryGetValue(id, out var card)
+                && card.OwnerId == player && card.ControllerId == player && !card.IsFaceDown
+                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var behavior)
+                && behavior.SelfGraveyardPlay is { } spec
+                && (!spec.RequiresPlayedAnotherCard || ControllerPlayedAnotherCardThisTurn(state, player, id))).ToArray() : [];
+
+    private static CardBehaviorDefinition SelfGraveyardPlayBehavior(MatchState state, string player,
+        string source, CardBehaviorDefinition behavior)
+        => SelfGraveyardPlaySources(state, player).Contains(source)
+            ? behavior with { AppliedSelfGraveyardPlay = behavior.SelfGraveyardPlay } : behavior;
 
     private static bool RedirectsGraveyardEntry(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, string owner, string id)

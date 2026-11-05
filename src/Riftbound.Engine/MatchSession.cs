@@ -4237,7 +4237,7 @@ internal static partial class ActionPromptBuilder
             var shown = ObjectChoice(state, choice[CoreRuleEngine.ShowcaseChoicePrefix.Length..], "亮出：确认打出时锁定此牌信息；可以不选");
             choices.Add(new(choice, "亮出：" + shown.Label, shown.Reason));
         }
-        if (sourceObjectId is not null && behavior.AppliedFlowCost is null
+        if (sourceObjectId is not null && behavior.AppliedFlowCost is null && behavior.AppliedSelfGraveyardPlay is null
             && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId))
             choices.Add(new(CoreRuleEngine.NormalGraveyardPlayChoice, "从废牌堆支付普通费用打出", "遵守正常时机，支付卡面费用和额外费用"));
         if (behavior.MayEnterReadyWithMovementProhibition)
@@ -5486,13 +5486,15 @@ internal static partial class ActionPromptBuilder
             ["sourceObjectId"] = sourceObjectId,
             ["cardNo"] = behavior.CardNo,
             ["displayName"] = behavior.DisplayName,
-            ["normalGraveyardPlayChoiceId"] = behavior.AppliedFlowCost is null
+            ["normalGraveyardPlayChoiceId"] = behavior.AppliedFlowCost is null && behavior.AppliedSelfGraveyardPlay is null
                 && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId) ? CoreRuleEngine.NormalGraveyardPlayChoice : null,
             ["flowCostChoiceId"] = behavior.AppliedFlowCost is { } flowCost ? CoreRuleEngine.FlowCostChoiceId(flowCost) : null,
             ["flowCostChoices"] = CoreRuleEngine.FlowPlayBehaviors(state, playerId, sourceObjectId, behavior)
                 .Where(b => b.AppliedFlowCost is not null).Select(b => new {
                     id = CoreRuleEngine.FlowCostChoiceId(b.AppliedFlowCost!), mana = b.AppliedFlowCost!.Mana,
                     power = b.AppliedFlowCost.Power, traits = b.AppliedFlowCost.Traits }).ToArray(),
+            ["graveyardPlayCost"] = behavior.AppliedSelfGraveyardPlay is { } graveyard ? new {
+                mana = graveyard.Mana, power = graveyard.Power, traits = graveyard.Traits } : null,
             ["sourceZone"] = state.PendingEffectPlay?.SourceZone
                 ?? (state.PlayerZones[playerId].Graveyard.Contains(sourceObjectId) ? "GRAVEYARD" : behavior.StandbyPlayFrom is not null ? "STANDBY" : state.PlayerZones[playerId].ChampionZone.Contains(sourceObjectId, StringComparer.Ordinal) ? "CHAMPION" : "HAND"),
             ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,
@@ -5501,7 +5503,7 @@ internal static partial class ActionPromptBuilder
             ["minimumManaCost"] = minimumManaCost,
             ["minimumPrintedPowerShortfall"] = printedPowerShortfall,
             ["printedPowerCost"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Amount,
-            ["effectPlayReason"] = behavior.AppliedFlowCost is not null ? "流转：从废牌堆支付替代基础费用打出；离开结算链时改为放逐" : behavior.StandbyPlayFrom is not null ? "从待命打出：免基础费用，额外费用另计；遵守原战场限制" : state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
+            ["effectPlayReason"] = behavior.AppliedSelfGraveyardPlay is not null ? "从废牌堆支付卡牌指定的替代费用打出" : behavior.AppliedFlowCost is not null ? "流转：从废牌堆支付替代基础费用打出；离开结算链时改为放逐" : behavior.StandbyPlayFrom is not null ? "从待命打出：免基础费用，额外费用另计；遵守原战场限制" : state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
             ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
             ["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata,

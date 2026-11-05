@@ -128,6 +128,7 @@ public sealed partial class CoreRuleEngine
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId))
                     .Concat(FlowPlaySources(state, playerId)).Concat(NormalGraveyardPlaySources(state, playerId))
+                    .Concat(SelfGraveyardPlaySources(state, playerId))
                     .Concat(TimedBanishPlayRules.Sources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];

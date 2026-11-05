@@ -89,9 +89,13 @@ public sealed partial class CoreRuleEngine
         }
         var friendly = cards.Values.Where(c => EffectiveFieldControllerId(zones, c.ObjectId, c) == player)
             .Select(c => c.ObjectId).ToArray();
+        // Destination conditions belong to the play event, before any response
+        // can move the source to a different location (CN 383.2.c).
         var observations = CaptureUnitEvents(zones, cards, friendly.Where(id => id != entered.ObjectId), "ANOTHER_UNIT_PLAYED")
             .Concat(CaptureUnitEvents(zones, cards, friendly, "FRIENDLY_UNIT_PLAYED"))
-            .Concat(CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")).ToArray();
+            .Concat(CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")
+                .Where(o => !OfficialPrintedTimingRules.HasPlayTrigger(o.Context.CardNo)
+                    || OfficialPrintedTimingRules.HasPlayTrigger(o.Context.CardNo, destinationZone == "BATTLEFIELD"))).ToArray();
         if (observations.Any(o => UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest))
         {
             // Compare at the entry instruction, including current auras. Later
@@ -451,7 +455,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "BANISH_LINKED_UNIT_HERE") return ResolveLinkedUnitExile(state, item);
         if (spec.Effect == "BANISH_TOP_TIMED_PLAY") return ResolveTimedBanishPlay(state, item,
             [new("ABILITY_RESOLVED", "触发技能结算", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId })]);
-        if (spec.Effect is "BOON_SELF" or "READY_SELF" or "MIGHT_SELF_AND_READY" or "STUN_ENEMY")
+        if (spec.Effect is "BOON_SELF" or "BOON_SELF_AND_READY" or "READY_SELF" or "MIGHT_SELF_AND_READY" or "STUN_ENEMY")
             return ResolveUnitEventBoonInstruction(state, item, spec);
         if (spec.Effect == EquipmentUnitTransformationEffect) return ResolveEquipmentUnitTransformation(state, item);
         if (spec.Effect == "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF")
