@@ -2,17 +2,17 @@
 
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
-**当前状态（2026-11-05）**
+**当前状态（2026-11-06）**
 
-- **代码整合（M 线）**：六张卡的后端实现 [#488](https://github.com/DDDHL0704/riftbound/pull/488) 与终局公开／伤害替换／冲突优先级 [#490](https://github.com/DDDHL0704/riftbound/pull/490) 已经完整 L2 并合入 main。复制选择权、借用贴附和保留回归 [#493](https://github.com/DDDHL0704/riftbound/pull/493) 也已完整 L2 全绿合入，本地最终 146/146、同步 N／O 后联测 122/122 通过、零跳过。
-- **完整验收**：此前 [41736409262](https://github.com/DDDHL0704/riftbound/actions/runs/41736409262) 在 main `fb193c4c0` 全部成功；最新既定夜验 [41933998078](https://github.com/DDDHL0704/riftbound/actions/runs/41933998078) 的 `/sealed/sets` 旧集合断言已由 [#483](https://github.com/DDDHL0704/riftbound/pull/483) 修复。整合后 main 的完整验收记录为 [42036590705](https://github.com/DDDHL0704/riftbound/actions/runs/42036590705)，固定 `33dd1bbd2` 覆盖全部规则、PostgreSQL、SignalR、进程重启与回放；根目录 `dotnet build -m:1` 已通过，零警告、零错误。收尾文档合入后独立调度 main 完整 L2，实际运行结果以对应 Actions 记录为准。
+- **代码整合（M 线）**：六张卡的后端实现 [#488](https://github.com/DDDHL0704/riftbound/pull/488) 与终局公开／伤害替换／冲突优先级 [#490](https://github.com/DDDHL0704/riftbound/pull/490) 已经完整 L2 并合入 main。复制选择权、借用贴附和保留回归 [#493](https://github.com/DDDHL0704/riftbound/pull/493) 也已完整 L2 全绿合入，本地最终 146/146、同步 N／O 后联测 122/122 通过、零跳过。整合夜验的瑟提夹具修复 [#502](https://github.com/DDDHL0704/riftbound/pull/502) 也已九个规则分片和 `L2 required` 全绿合入。
+- **完整验收记录**：`/sealed/sets` 旧集合断言已由 [#483](https://github.com/DDDHL0704/riftbound/pull/483) 修复；整合夜验 [42036590705](https://github.com/DDDHL0704/riftbound/actions/runs/42036590705) 在 `33dd1bbd2` 复现的瑟提夹具问题已由 #502 修正。修复后的完整 main 验收记录为 [42077894361](https://github.com/DDDHL0704/riftbound/actions/runs/42077894361)，固定 `30f634c70` 覆盖全部规则、PostgreSQL、SignalR、进程重启、回放和桌面检查。最终 main 完整 L2 在本状态文档合入后独立调度，验收结果以对应 Actions 记录为准。
 - **卡牌核对（O 线）**：当前准入目录有 1,501 个印次，登记状态不代表每句效果均已实现。逐句核对工具及清单已由 [#492](https://github.com/DDDHL0704/riftbound/pull/492) 合入，后续缺口见 [卡牌清单](CARD_BACKLOG.md)。
 - **本次整合范围外的新工作**：N 线已合入 [#491](https://github.com/DDDHL0704/riftbound/pull/491) 的李青·苦修者横置技能与增益计数；O 线继续逐句核对和实现；Claude 已由 [#494](https://github.com/DDDHL0704/riftbound/pull/494) 适配伤害优先级显示，继续维护网页。它们的分支和工作树由各自维护，不属于旧来源清理对象。
 - **旧来源**：旧卡牌父链、共享流程草稿及测试优化分支已逐主题核对并归档；独有行为由上述 M 批次提取。旧战斗伤害换算、支付可达性、甘普朗与有限抵挡的未确认部分保留在 P1，来源恢复方式见下方。
 
 ## P0 · 让 main 和夜间验收恢复全绿（A 线）
 
-- [ ] **M 线整合夜验：瑟提同战场增益光环夹具**（`m/nightly-sett-aura-fixture`）。完整夜验 [42036590705](https://github.com/DDDHL0704/riftbound/actions/runs/42036590705) 固定 `33dd1bbd2`，规则分片 4 的 `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` 预期光环 +1，实际 +2；该片其余 3,312 行通过，零跳过。场景从真实开局保留驻军，却只按后来指定的一名增益单位断言；候选在日志开始前将目标战场原驻军移回基地，再以原有真实出牌、增益、移动及战斗命令建立唯一参与者，并加强精确参与者断言。瑟提 OGN·240/298 的官方文本按同战场拥有增益的友方单位人数计算；保留 +1 光环、6 点伤害、得分胜利及完整原始回放断言，不改生产规则。本地 Release 构建零警告、零错误；原失败用例 1/1、固定守卫 27 类 1,302/1,302 及四组 CI 脚本测试 36/36 全部通过，零跳过；待 PR L2 与后续 main 完整夜验。
+- [x] **M 线夜验夹具修复：瑟提同战场增益光环**（`m/nightly-sett-aura-fixture`）。完整夜验 [42036590705](https://github.com/DDDHL0704/riftbound/actions/runs/42036590705) 固定 `33dd1bbd2`，规则分片 4 的 `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` 预期光环 +1，实际 +2；该片其余 3,312 行通过，零跳过。场景从真实开局保留驻军，却只按后来指定的一名增益单位断言；夹具在日志开始前将目标战场原驻军移回基地，再以原有真实出牌、增益、移动及战斗命令建立唯一参与者，并加强精确参与者断言。瑟提 OGN·240/298 的官方文本按同战场拥有增益的友方单位人数计算；保留 +1 光环、6 点伤害、得分胜利及完整原始回放断言，不改生产规则。本地 Release 构建零警告、零错误；原失败用例 1/1、固定守卫 27 类 1,302/1,302 及四组 CI 脚本测试 36/36 全部通过，零跳过；已由 [#502](https://github.com/DDDHL0704/riftbound/pull/502) 九片及 `L2 required` 全绿合入 main `30f634c70`；包含新原生横置技能的组合 main 再次精确复验 1/1 通过、零跳过。完整 main 复验记录见 [42077894361](https://github.com/DDDHL0704/riftbound/actions/runs/42077894361)（同一固定提交）。
 
 - [x] **P0-1 合入夜间验收的测试修正**。[PR #236](https://github.com/DDDHL0704/riftbound/pull/236) 已合入，基于 `codex/nightly-optional-reduction-selector-20261028`（`7aae34be`，已包含付款线的 `a79b0f32`）。只改测试：
   - 付款重连夹具：#223 改变了可选减费的候选结构，导致 `OptionalCostReductionAcceptance` 失败，这里同步更新；
@@ -818,7 +818,7 @@ M 已核对旧远端分支、Windows 本地提交与脏树、主目录半途 che
 - Windows 原始来源：`var/archive/riftbound-windows-20261105.bundle`，93 个本地分支及 15 份脏树 stash。
 - Mac 与旧远端来源：`var/archive/riftbound-mac-and-remote-20261105.bundle`，288 个引用。旧战斗、支付及甘普朗草稿的具体提交见 P1 三组待确认。
 - 远端恢复标签：`archive/m-windows-handoff-20261105`（`3bf359a32`），保存两份原始 bundle、额外 435 引用安全 bundle、来源映射及原始脏树补丁；初始 570 个非保护来源均已核对能从 main 或有效 bundle 找回。
-- WSL 额外遗留的三份旧 stash 已由现行 main 覆盖并作废：伊芙琳待命抽牌草稿 `aede57915` 已有 `3aba7e88d` 及后继；RAD·047 隐私草稿 `1b74753fb` 已由 `52f6a5ec8` 及通用 `PublicTurnUnitPlayBoonContext` 覆盖，额外隐藏身份、来源标记和代际；最终抚慰草稿 `7e2fde4cc` 已有 `467825742` 及后继。原 32 个测试方法均保留，解析另增两例。补充恢复标签 `archive/m-wsl-stashes-20261105`（`4bb5caf19`）的三个父提交按上述顺序保存原 stash（含未跟踪文件），可用 `git show <标签>^1:<路径>` 等逐份取回；本机 `refs/stash` 已清理。
+- WSL 额外遗留的三份旧 stash 已由现行 main 覆盖并作废：伊芙琳待命抽牌草稿 `aede57915` 已有 `3aba7e88d` 及后继；RAD·047 隐私草稿 `1b74753fb` 已由 `52f6a5ec8` 及通用 `PublicTurnUnitPlayBoonContext` 覆盖，额外隐藏身份、来源标记和代际；最终抚慰草稿 `7e2fde4cc` 已有 `467825742` 及后继。原 32 个测试方法均保留，解析另增两例。补充恢复标签 `archive/m-wsl-stashes-20261105`（`4bb5caf19`）的三个父提交按上述顺序保存原 stash（含未跟踪文件），可用 `git show <标签>^1:<路径>` 等逐份取回，原未跟踪文件从相应 stash 的第三父提交（如 `<标签>^1^3:<路径>`）取回；本机 `refs/stash` 已清理。
 - 重置前文档：`archive/pre-reset-20261029`，保留历史参考。
 
 恢复时先核验 bundle，再取所需引用到临时非分支命名空间；按提交取单个文件并与当前 main 比较。归档标签仅用于恢复资料，不作为产品分支合入。
