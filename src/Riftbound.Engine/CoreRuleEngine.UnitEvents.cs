@@ -355,7 +355,7 @@ public sealed partial class CoreRuleEngine
         && (SelectedUnitEventSpec(c)?.Effect is PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
-        => item.TargetGenerations is null || NeedsUnitEventTarget(item)
+        => item.TargetGenerations is null ? item.TargetObjectIds.Count == 0 : NeedsUnitEventTarget(item)
             && (item.TargetObjectIds.Count > 0 || UnitEventSpec(item.UnitEvent!.CardNo)!.Effect == PlayedUnitReadyRunes)
             && (UnitEventSpec(item.UnitEvent!.CardNo)!.AnyNumberOfTargets || item.TargetObjectIds.Count == 1)
             && (UnitEventSpec(item.UnitEvent.CardNo)!.Effect != PlayedUnitReadyRunes || item.TargetObjectIds.Count <= UnitEventSpec(item.UnitEvent.CardNo)!.Amount)
@@ -475,6 +475,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect is DeploymentPlayMoveEffect or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "CREATE_UNIT_TOKEN")
             return ResolvePermanentUnitEventInstruction(state, item, spec);
         if (spec.Effect == "DAMAGE_ENEMIES_HERE") return ResolveUnitEventAreaDamage(state, item, spec.Amount);
+        if (spec.Effect == "DESTROY_DAMAGED_ENEMIES_HERE") return ResolveUnitEventDamagedEnemyDestruction(state, item);
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
         if (spec.Effect == "SCORE" && item.TriggerCost is not null) {

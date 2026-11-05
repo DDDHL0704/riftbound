@@ -1824,6 +1824,12 @@ public static class TriggerParser
                 CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
 
         if (Regex.IsMatch(segment,
+            @"^当我进攻时[，,]\s*对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
+            RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.UnitAttackSourceMightDamage, TriggerTimings.UnitAttack,
+                segment, TargetScope: TriggerTargetScopes.EnemyUnitHere);
+
+        if (Regex.IsMatch(segment,
             @"^当我进攻或防守时[，,]\s*对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
             RegexOptions.CultureInvariant))
             return new TriggerSpec(TriggerKinds.UnitAttackOrDefendSourceMightDamage, TriggerTimings.UnitAttackOrDefend,

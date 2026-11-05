@@ -7107,7 +7107,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形",
+            UnitEventAbility: new("ATTACK", "DESTROY_DAMAGED_ENEMIES_HERE")),
         new(
             "ARC-001/006",
             "蔚",
@@ -7147,7 +7148,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形",
+            UnitEventAbility: new("ATTACK", "DESTROY_DAMAGED_ENEMIES_HERE")),
         new(
             "ARC-005/006",
             "金克丝",
