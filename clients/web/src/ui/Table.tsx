@@ -510,10 +510,24 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
   const hoverCard: HoverHandler = (cardNo, object, rect) => {
     if (dragRef.current?.active) return;
-    // Runes need no large preview; their art says nothing new and would cover the table.
-    if (cardNo && object && me.zones.baseRunes.includes(object.objectId)) return setHover(null);
     setHover(cardNo ? { cardNo, object, rect } : null);
   };
+
+  // Anything that names a card (log lines, choice chips, panels) carries data-card-no and previews it on hover.
+  const hoverRef = useRef(hoverCard);
+  hoverRef.current = hoverCard;
+  const objectsRef = useRef(objects);
+  objectsRef.current = objects;
+  useEffect(() => {
+    const over = (e: globalThis.MouseEvent) => {
+      const el = (e.target as Element | null)?.closest?.("[data-card-no]") as HTMLElement | null;
+      if (!el?.dataset.cardNo) return;
+      const object = el.dataset.objectId ? objectsRef.current[el.dataset.objectId] : undefined;
+      hoverRef.current(el.dataset.cardNo, object, el.getBoundingClientRect());
+    };
+    document.addEventListener("mouseover", over);
+    return () => document.removeEventListener("mouseover", over);
+  }, []);
 
   // A hovered card can move or vanish without a mouseleave; drop the preview once nothing is under the pointer.
   useEffect(() => {
@@ -523,7 +537,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const el = document.elementFromPoint(e.clientX, e.clientY);
-        if (!el?.closest(".card, .field__card, .obj__attachment, .stack li")) setHover(null);
+        if (!el?.closest(".card, .field__card, .obj__attachment, .stack li, [data-card-no]")) setHover(null);
       });
     };
     window.addEventListener("pointermove", check);
@@ -696,6 +710,8 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                         onClick={onObject(id)}
                         aria-pressed={swap}
                         aria-label={`${cardName(o?.cardNo)}${swap ? "（换掉）" : ""}`}
+                        data-card-no={o?.cardNo ?? undefined}
+                        data-object-id={id}
                       >
                         {cardInfo(o?.cardNo)?.image ? <img src={cardInfo(o?.cardNo)!.image} alt="" draggable={false} /> : <span>{cardName(o?.cardNo)}</span>}
                         {swap && <span className="mulligan__mark">换掉</span>}
@@ -1028,6 +1044,12 @@ type PickBarProps = {
   onCancel: () => void;
 };
 
+/** Hover-preview attributes for a choice that stands for a card on the table. */
+function cardRefAttrs(id: string, objects: Record<string, GameObject>) {
+  const o = objects[id] ?? objects[id.split(":").pop() ?? id];
+  return o?.cardNo ? { "data-card-no": o.cardNo, "data-object-id": o.objectId } : {};
+}
+
 function choiceName(id: string, label: string, objects: Record<string, GameObject>) {
   if (id === "BASE" || id.startsWith("BASE:")) return id === "BASE" ? "基地" : label;
   const tail = id.split(":").pop() ?? id;
@@ -1080,7 +1102,7 @@ function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extr
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.16 }}
     >
-      {info?.image && <img className="pickbar__thumb" src={info.image} alt="" />}
+      {info?.image && <img className="pickbar__thumb" src={info.image} alt="" data-card-no={src?.cardNo} data-object-id={src?.objectId} />}
       <div className="pickbar__body">
         <p className="pickbar__title">
           <strong>{info?.name ?? cardName(src?.cardNo)}</strong>
@@ -1098,7 +1120,7 @@ function PickBar({ pick, step, choices, peers, otherActions, onOtherAction, extr
               {choices
                 .filter((c) => !pick.sel.targets.includes(c.id) && !(step.role === "cost" && pick.sel.optionalCosts.includes(c.id)))
                 .map((c) => (
-                  <button key={c.id} className="chip" onClick={() => onChoose(c.id)}>
+                  <button key={c.id} className="chip" onClick={() => onChoose(c.id)} {...cardRefAttrs(c.id, objects)}>
                     {choiceName(c.id, c.label, objects)}
                     {extraPower(c.id) > 0 && <span className="chip__cost">+{extraPower(c.id)} 符能</span>}
                   </button>
