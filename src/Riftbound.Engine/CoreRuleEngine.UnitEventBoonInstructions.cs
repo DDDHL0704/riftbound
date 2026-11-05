@@ -45,6 +45,17 @@ public sealed partial class CoreRuleEngine
                 source.ObjectId, out var readied, zones, cards);
             if (readied is not null) events.Add(readied);
         }
+        else if (spec.Effect == "MIGHT_SELF_AND_READY")
+        {
+            cards[source.ObjectId] = ApplyDirectUntilEndPowerModifier(source, source.ObjectId, item.SourceObjectId,
+                context.CardNo, item.EffectKind, "UNIT_EVENT", spec.Amount, source.Power + spec.Amount);
+            events.Add(new("UNIT_POWER_CHANGED", "单位在本回合内获得战力", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = source.ObjectId,
+                ["powerDelta"] = spec.Amount }));
+            cards[source.ObjectId] = ApplyReadyState(cards[source.ObjectId], behavior with { ReadiesTarget = true }, item,
+                source.ObjectId, out var readied, zones, cards);
+            if (readied is not null) events.Add(readied);
+        }
         else if (target is not null && CanExecuteStun(cards[target])
             && !TryReplaceEmpoweredStun(state, item, cards, target, events))
         {
