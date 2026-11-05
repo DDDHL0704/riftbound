@@ -7,6 +7,13 @@ export type CardMark = "selected" | "legal" | "playable" | "autopay" | "attackin
 
 const BOON_TAG = "增益";
 
+/** Boons on a unit, each +1 might: the server's count (#491), else 1 when only the 增益 tag is present. */
+function boonCountOf(object?: GameObject) {
+  if (!object) return 0;
+  if (typeof object.boonCount === "number") return object.boonCount;
+  return object.tags?.includes(BOON_TAG) ? 1 : 0;
+}
+
 export type HoverHandler = (cardNo: string | null, object?: GameObject, rect?: DOMRect) => void;
 
 type CardProps = {
@@ -36,8 +43,7 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
   const power = object?.effectivePower ?? info?.power;
   const showStats = size !== "mini" && size !== "rune" && object && object.tags?.includes("CARD_TYPE:UNIT");
   const buffed = object && object.effectivePower !== object.basePower;
-  // A boon is a +1 might counter the server carries as the unit's 增益 tag.
-  const boon = Boolean(object?.tags?.includes(BOON_TAG));
+  const boons = boonCountOf(object);
   const cls = [
     "card",
     `card--${size}`,
@@ -82,9 +88,9 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
         {peek && <span className="card__ribbon">待命</span>}
         {showStats && !hidden && <span className={`card__power${buffed ? " card__power--changed" : ""}`}>{power}</span>}
         {object && object.damage > 0 && <span className="card__damage">{object.damage}</span>}
-        {boon && !hidden && (
-          <span className="card__boon" title="拥有增益（+1 战力）">
-            益
+        {boons > 0 && !hidden && (
+          <span className={`card__boon${boons > 1 ? " card__boon--many" : ""}`} title={`拥有 ${boons} 个增益（每个 +1 战力）`}>
+            益{boons > 1 ? `×${boons}` : ""}
           </span>
         )}
         {object?.isEmpowered && !hidden && (
@@ -174,7 +180,7 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
           </p>
         )}
       </div>
-      {object && (unit || object.damage > 0 || object.isExhausted || object.isEmpowered || object.tags?.includes(BOON_TAG)) && (
+      {object && (unit || object.damage > 0 || object.isExhausted || object.isEmpowered || boonCountOf(object) > 0) && (
         <p className="hoverpreview__state">
           {unit && (
             <span>
@@ -184,7 +190,9 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
           )}
           {object.damage > 0 && <span className="hoverpreview__dmg">已受 {object.damage} 点伤害</span>}
           {object.isExhausted && <span>已横置</span>}
-          {object.tags?.includes(BOON_TAG) && <span className="hoverpreview__boon">拥有增益</span>}
+          {boonCountOf(object) > 0 && (
+            <span className="hoverpreview__boon">{boonCountOf(object) > 1 ? `增益 ×${boonCountOf(object)}` : "拥有增益"}</span>
+          )}
           {object.isEmpowered && <span>强化 {object.empowermentCount ?? 1} 层</span>}
         </p>
       )}
