@@ -59,6 +59,8 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         self.assertEqual('route', self.outcome(card)['status'])
         card['armament']['grantedKeywords'] = ['强攻']
         self.assertEqual('missing', self.outcome(card)['status'])
+        card['armament']['grantedKeywords'] = ['强攻21']
+        self.assertEqual('missing', self.outcome(card)['status'])
         card['armament']['grantedKeywords'] = ['坚守2']
         self.assertEqual('missing', self.outcome(card)['status'])
 

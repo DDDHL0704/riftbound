@@ -3383,6 +3383,29 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (Regex.IsMatch(segment, @"^你可以选择将我打出到一处开放的战场[。.]?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new(StaticAbilityKinds.SourceUnitPlayToOpenBattlefield, segment,
+                    BehaviorImplementationStatuses.Implemented, "The source unit can be played to an unoccupied, uncontrolled battlefield."));
+                continue;
+            }
+            if (Regex.IsMatch(segment, @"^当我在场上时，你可以选择将友方单位打出到一处开放的战场[。.]?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new(StaticAbilityKinds.FriendlyUnitPlayToOpenBattlefield, segment,
+                    BehaviorImplementationStatuses.Implemented, "While this text is on the field, controlled units can be played to open battlefields."));
+                continue;
+            }
+            var opponentScoreEntry = Regex.Match(segment,
+                @"^如果对手的得分距离胜利得分不超过(?<distance>[0-9]+)分，则我以活跃状态进场[。.]?$",
+                RegexOptions.CultureInvariant);
+            if (opponentScoreEntry.Success)
+            {
+                staticSpecs.Add(new(StaticAbilityKinds.SourceUnitEnterReady, segment,
+                    BehaviorImplementationStatuses.Implemented, "Ready entry checks the opponent's current distance from the effective winning score.",
+                    MaxOpponentWinningScoreDistance: int.Parse(opponentScoreEntry.Groups["distance"].Value)));
+                continue;
+            }
+
             var sourceUnitLevelEnterReadyMatch = Regex.Match(
                 segment,
                 @"\{\{等级(\d+)>\}\}\s*我.*以活跃状态进场。?$",

@@ -144,7 +144,8 @@ class EffectClauseAuditTests(unittest.TestCase):
         ability = dict(abilityId="DRAW", effectKind="DRAW", manaCost=1)
         c = audit.split_clauses("支付{{4}}和{{蓝色}}{{蓝色}}{{蓝色}}{{蓝色}}，{{横置}}：获得1分。")[0]
         self.assertFalse(audit.activation_matches(ability, c))
-        self.assertTrue(audit.activation_matches(dict(abilityId="SCORE", effectKind="SCORE", manaCost=4, powerCost=4, exhaustsSourceAsCost=True), c))
+        self.assertFalse(audit.activation_matches(dict(abilityId="SCORE", effectKind="SCORE", manaCost=4, powerCost=4, exhaustsSourceAsCost=True), c))
+        self.assertTrue(audit.activation_matches(dict(abilityId="SCORE", effectKind="SCORE", manaCost=4, powerCostByTrait={"blue": 4}, exhaustsSourceAsCost=True), c))
 
     def test_composite_effect_requires_every_operation(self):
         (self.engine / "CoreRuleEngine.cs").write_text("var draw = behavior.DrawCount;")
@@ -188,6 +189,157 @@ class EffectClauseAuditTests(unittest.TestCase):
         sources = audit.Sources(self.root, [])
         c = card("我可以拥有不限数量的增益。")
         self.assertEqual("missing", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
+
+    def test_native_bridge_needs_an_actual_native_entry_matching_the_printed_skill(self):
+        (self.engine / "CoreRuleEngine.BorrowedExhaust.cs").write_text('if (spec.Kind == "DAMAGE_UNIT") ResolveDamage();')
+        text = "{{横置}}：对战场上的一名单位造成2点伤害。"
+        parsed = dict(kind="DAMAGE_UNIT", targets=1, damage=2, targetScope="BATTLEFIELD_UNIT")
+        sources = audit.Sources(self.root, [], [dict(text=text, method="BorrowedExhaustParser.Parse", value=[parsed])])
+        c = card(text, nativeActivations=[parsed])
+        row = audit.split_clauses(text)[0]
+        self.assertEqual("route", audit.audit_clause(c, row, sources)["status"])
+        c["nativeActivations"] = [dict(parsed, damage=3)]
+        self.assertEqual("missing", audit.audit_clause(c, row, sources)["status"])
+        c["nativeActivations"] = [dict(parsed, recycledCardCostCount=3)]
+        self.assertEqual("missing", audit.audit_clause(c, row, sources)["status"])
+        c["nativeActivations"] = [dict(parsed, empoweredMight=0)]
+        self.assertEqual("missing", audit.audit_clause(c, row, sources)["status"])
+        c["nativeActivations"] = [dict(parsed, index=7, mana=0, swift=False, typedPower={})]
+        self.assertEqual("route", audit.audit_clause(c, row, sources)["status"])
+
+    def test_battlefield_limitation_requires_a_matching_executable_skill(self):
+        (self.engine / "CoreRuleEngine.cs").write_text("if (ability.RequiresBattlefieldSource) CheckSource();")
+        sources = audit.Sources(self.root, [])
+        c = card("我必须位于战场中才能使用此技能。")
+        row = audit.split_clauses(c["cardEffect"])[0]
+        self.assertEqual("review", audit.audit_clause(c, row, sources)["status"])
+        c["activations"] = [dict(requiresBattlefieldSource=True)]
+        self.assertEqual("route", audit.audit_clause(c, row, sources)["status"])
+
+    def test_native_might_route_can_use_the_shared_resolvers_ordinary_branch(self):
+        path = self.engine / "CoreRuleEngine.BorrowedExhaust.cs"
+        path.write_text('var amount = spec.Might; ApplyPowerModifier(state, amount);')
+        text = "{{迅捷>}} 摧毁此牌，{{横置}}：让一名单位在本回合内{{S}}+2。"
+        parsed = dict(kind="MIGHT_UNIT", targets=1, might=2, swift=True, destroysSourceAsCost=True, targetScope="ANY_UNIT")
+        probe = dict(text=text, method="BorrowedExhaustParser.Parse", value=[parsed])
+        c = card(text, nativeActivations=[parsed])
+        row = audit.split_clauses(text)[0]
+        self.assertEqual("route", audit.audit_clause(c, row, audit.Sources(self.root, [], [probe]))["status"])
+        path.write_text('var amount = spec.Might;')
+        self.assertEqual("missing", audit.audit_clause(c, row, audit.Sources(self.root, [], [probe]))["status"])
+
+    def test_an_equipment_play_draw_does_not_certify_its_separate_exhaust_draw(self):
+        (self.engine / "CoreRuleEngine.Equipment.cs").write_text('var draw = behavior.DrawCount;')
+        sources = audit.Sources(self.root, [])
+        c = card("当你打出此牌时，抽一张牌。\n支付{{1}}和{{绿色}}，{{横置}}，摧毁此牌：抽一张牌。")
+        c["cardCategory"] = "equipment"
+        c["behaviors"] = [dict(playsSourceToBaseAsEquipment=True, drawCount=1)]
+        self.assertEqual(["route", "missing"], [audit.audit_clause(c, row, sources)["status"]
+                                               for row in audit.split_clauses(c["cardEffect"], "equipment")])
+
+    def test_dynamic_runtime_event_catalog_does_not_require_a_hand_written_behavior(self):
+        (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text('if (spec.Timing == "FRIENDLY_UNIT_PLAYED" && spec.Effect == "PLAYED_UNIT_CALL_RUNES") CallRunes();')
+        sources = audit.Sources(self.root, [])
+        c = card("当你打出一名{{强力}}单位时，你可以选择让我变为休眠状态，以此召出一枚休眠的符文。",
+                 unitEventAbility=dict(timing="FRIENDLY_UNIT_PLAYED", effect="PLAYED_UNIT_CALL_RUNES", amount=1))
+        self.assertEqual("route", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
+
+    def test_matching_event_timing_does_not_certify_unrelated_partial_or_wrong_count_effects(self):
+        (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text('if (spec.Timing == "BECAME_EXHAUSTED" && spec.Effect == "DRAW") ApplyDrawToPlayer();')
+        sources = audit.Sources(self.root, [])
+        for instruction, expected in [("抽一张牌", "route"), ("抽两张牌", "review"),
+                                      ("对一名单位造成2点伤害", "review"),
+                                      ("抽一张牌，然后召出一枚符文", "review")]:
+            c = card("当我变为休眠状态时，" + instruction + "。")
+            c["behaviors"] = [dict(unitEventAbility=dict(timing="BECAME_EXHAUSTED", effect="DRAW", amount=1))]
+            self.assertEqual(expected, audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
+
+    def test_counted_passives_require_the_printed_count_and_the_shared_consumer(self):
+        (self.engine / "CoreRuleEngine.Counted.cs").write_text("behavior.DamageImmunityAfterMoves; UnitMovementRules.CannotTakeDamage(card); behavior.MovementScore; ResolveMovementScore(item); behavior.FriendlyLastBreathAdditionalTriggers; CaptureLastBreathRepetitions(state);")
+        sources = audit.Sources(self.root, [])
+        cases = [
+            ("在本回合内，如果我移动了两次，则我免疫伤害。", dict(damageImmunityAfterMoves=2), dict(damageImmunityAfterMoves=3)),
+            ("当我在一个回合内进行了第三次移动，你获得1分。", dict(movementScore=dict(ordinal=3, scoreAmount=1)), dict(movementScore=dict(ordinal=2, scoreAmount=1))),
+            ("你的所有{{绝念}}效果可以额外触发一次。", dict(friendlyLastBreathAdditionalTriggers=1), dict(friendlyLastBreathAdditionalTriggersHere=1))]
+        for text, correct, wrong in cases:
+            c = card(text)
+            c["behaviors"] = [correct]
+            row = audit.split_clauses(text)[0]
+            self.assertEqual("route", audit.audit_clause(c, row, sources)["status"])
+            c["behaviors"] = [wrong]
+            self.assertEqual("review", audit.audit_clause(c, row, sources)["status"])
+        self.assertEqual("trigger", audit.split_clauses(cases[1][0])[0]["kind"])
+
+    def test_reveal_count_damage_and_recycle_need_the_complete_defend_spec(self):
+        (self.engine / "CoreRuleEngine.StandbyDefend.cs").write_text("CaptureStandbyDefendTriggers(state); ResolveStandbyDefendTrigger(state); behavior.DefendTriggerMainDeckLookCount; behavior.DefendTriggerDamagePerCountedCard; behavior.DefendTriggerRecyclesLookedMainDeckCards; behavior.DefendTriggerMaxTargetCount; behavior.DefendTriggerTargetScope; behavior.DefendTriggerCountedTag;")
+        targets = self.engine / "CoreRuleEngine.FieldTriggers.cs"
+        targets.write_text('if (context.Kind == "STANDBY_DEFEND") return c.ControllerId != item.ControllerId && IsCombatMightTargetHere(state, item, id);')
+        sources = audit.Sources(self.root, [])
+        text = "当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。\n当我进攻时，抽一张牌。"
+        c = card(text)
+        c["behaviors"] = [dict(defendTriggerMaxTargetCount=1, defendTriggerTargetScope="ENEMY_UNIT_AT_SOURCE_BATTLEFIELD",
+                               defendTriggerMainDeckLookCount=5, defendTriggerCountedTag="待命",
+                               defendTriggerDamagePerCountedCard=1, defendTriggerRecyclesLookedMainDeckCards=True)]
+        rows = audit.split_clauses(text)
+        self.assertEqual(["route", "route", "review"], [audit.audit_clause(c, row, sources)["status"] for row in rows])
+        c["behaviors"][0]["defendTriggerRecyclesLookedMainDeckCards"] = False
+        self.assertEqual(["review", "review", "review"], [audit.audit_clause(c, row, sources)["status"] for row in rows])
+        c["behaviors"][0]["defendTriggerRecyclesLookedMainDeckCards"] = True
+        targets.write_text('var kind = "STANDBY_DEFEND";')
+        sources = audit.Sources(self.root, [])
+        self.assertEqual(["review", "review", "review"], [audit.audit_clause(c, row, sources)["status"] for row in rows])
+
+    def test_legacy_runtime_hold_route_does_not_certify_a_separate_skill(self):
+        (self.engine / "CoreRuleEngine.Hold.cs").write_text('var definition = HeldDefinition(no); ResolveHeldStackItem(state);')
+        sources = audit.Sources(self.root, [])
+        c = card("当我据守一处战场时，你获得的分数+1。\n{{横置}}：抽一张牌。", legacyRoutes={"HeldDefinition": dict(kind="SCORE", amount=1)})
+        self.assertEqual(["route", "missing"], [audit.audit_clause(c, row, sources)["status"] for row in audit.split_clauses(c["cardEffect"])])
+
+    def test_runtime_serialization_can_omit_a_zero_held_amount(self):
+        (self.engine / "CoreRuleEngine.Hold.cs").write_text('HeldDefinition(no); ResolveHeldStackItem(state);')
+        sources = audit.Sources(self.root, [])
+        c = card("当我据守一处战场时，把我送回所属的手牌。", legacyRoutes={"HeldDefinition": dict(kind="RETURN_SELF")})
+        self.assertEqual("route", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
+
+    def test_legacy_hold_count_and_timing_have_to_match_the_instruction(self):
+        (self.engine / "CoreRuleEngine.Hold.cs").write_text('HeldDefinition(no); ResolveHeldStackItem(state);')
+        sources = audit.Sources(self.root, [])
+        for text in ["当我进攻时，抽两张牌。", "当我据守一处战场时，抽一张牌。", "当我据守一处战场时，抽两张牌，然后召出一枚符文。"]:
+            c = card(text, legacyRoutes={"HeldDefinition": dict(kind="DRAW", amount=2)})
+            self.assertEqual("review", audit.audit_clause(c, audit.split_clauses(text)[0], sources)["status"])
+
+    def test_a_legacy_reader_alone_requires_the_actual_resolution_route(self):
+        (self.engine / "CoreRuleEngine.Hold.cs").write_text('HeldDefinition(no);')
+        sources = audit.Sources(self.root, [])
+        c = card("当我据守一处战场时，抽两张牌。", legacyRoutes={"HeldDefinition": dict(kind="DRAW", amount=2)})
+        self.assertEqual("review", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
+
+    def test_legacy_starting_hand_condition_is_not_a_generic_draw_registration(self):
+        (self.engine / "CoreRuleEngine.BeginningDraw.cs").write_text('BeginningDrawKind(no); ResolveBeginningDraw(state);')
+        sources = audit.Sources(self.root, [])
+        c = card("在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。", legacyRoutes={"BeginningDrawKind": "HAND_BELOW_TWO"})
+        self.assertEqual("route", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
+        c["legacyRoutes"] = {"BeginningDrawKind": "FACEDOWN_AT_START"}
+        self.assertEqual("review", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
+
+    def test_draw_count_must_match_the_printed_number(self):
+        (self.engine / "CoreRuleEngine.Draw.cs").write_text('var amount = behavior.DrawCount; var selected = behavior.DrawsSelectedMainDeckTarget;')
+        sources = audit.Sources(self.root, [])
+        c = card("当你打出此牌时，抽两张牌。")
+        row = audit.split_clauses(c["cardEffect"])[0]
+        c["behaviors"] = [dict(drawCount=1)]
+        self.assertEqual("review", audit.audit_clause(c, row, sources)["status"])
+        c["behaviors"] = [dict(drawsSelectedMainDeckTarget=True)]
+        self.assertEqual("review", audit.audit_clause(c, row, sources)["status"])
+        c["behaviors"] = [dict(drawCount=2)]
+        self.assertEqual("route", audit.audit_clause(c, row, sources)["status"])
+
+    def test_activation_cost_requires_the_actual_color_and_not_only_its_quantity(self):
+        row = audit.split_clauses("支付{{1}}和{{绿色}}，{{横置}}：抽一张牌。")[0]
+        ability = dict(exhaustsSourceAsCost=True, manaCost=1, powerCostByTrait=dict(green=1), simpleEffect=dict(drawCount=1))
+        self.assertTrue(audit.activation_matches(ability, row))
+        self.assertFalse(audit.activation_matches(dict(ability, powerCostByTrait=dict(red=1)), row))
+        self.assertFalse(audit.activation_matches(dict(ability, powerCost=1, powerCostByTrait={}), row))
 
     def test_inventory_fingerprint_changes_with_shared_rule_source(self):
         before = audit.source_fingerprint(self.root)
