@@ -210,6 +210,8 @@ def attach_armament_sources(inventory: dict, path: Path) -> dict:
                 raise ValueError("武装中文卡图来源或摘要无效：" + card["cardNo"])
             if runtime.get("baseMightBonus", 0) != row["baseMightBonus"]:
                 raise ValueError("武装下栏战力与官方中文卡图不符：" + card["cardNo"])
+            if runtime.get("effectText", "") != row["lowerText"]:
+                raise ValueError("武装下栏原文与官方中文卡图不符：" + card["cardNo"])
             card["armamentText"] = row
             count += 1
         cards.append(card)

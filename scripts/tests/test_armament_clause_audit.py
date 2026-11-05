@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -12,7 +13,7 @@ SPEC.loader.exec_module(audit)
 def equipment(text='{{装配红色}}', lower='{{强攻2}}', **kwargs):
     return dict(cardNo='SFD·009/221', cardName='锯齿短匕', cardCategory='equipment', cardEffect=text,
                 armamentText=dict(lowerText=lower, sourceImageUrl='https://cdn.playloltcg.com/card.png', sourceImageSha256='a' * 64),
-                armament=dict(baseMightBonus=0), **kwargs)
+                armament=dict(baseMightBonus=0, effectText=lower), **kwargs)
 
 
 class ArmamentClauseAuditTests(unittest.TestCase):
@@ -140,7 +141,7 @@ class ArmamentClauseAuditTests(unittest.TestCase):
     def test_source_joins_normalized_printing_and_validates_zero_might(self):
         card = equipment()
         path = self.document(card)
-        card = dict(card, cardNo='SFD-009/221', armament={})
+        card = dict(card, cardNo='SFD-009/221', armament=dict(effectText='{{强攻2}}'))
         result = audit.attach_armament_sources(dict(cards=[card]), path)
         self.assertEqual(1, result['armamentSourceCoverage'])
         self.assertEqual('{{强攻2}}', result['cards'][0]['armamentText']['lowerText'])
@@ -164,6 +165,8 @@ class ArmamentClauseAuditTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, '卡图来源或摘要'):
                 audit.attach_armament_sources(dict(cards=[card]), path)
         path = self.document(card)
+        with self.assertRaisesRegex(ValueError, '下栏原文'):
+            audit.attach_armament_sources(dict(cards=[dict(card, armament=dict(effectText='wrong'))]), path)
         with self.assertRaisesRegex(ValueError, '下栏战力'):
             audit.attach_armament_sources(dict(cards=[dict(card, armament=dict(baseMightBonus=1))]), path)
         data = json.loads(path.read_text())
@@ -174,10 +177,14 @@ class ArmamentClauseAuditTests(unittest.TestCase):
 
     def test_real_cn_sources_cover_all_current_definitions_and_empty_english_lower(self):
         root = Path(__file__).parents[2]
-        definitions = json.loads((root / 'data/official/armaments.json').read_text())['records']
+        metadata = json.loads((root / 'data/official/armaments.json').read_text())
+        self.assertEqual('data/official/armament-text.zh-CN.json', metadata['sourceSnapshot'])
+        self.assertEqual(hashlib.sha256((root / metadata['sourceSnapshot']).read_bytes()).hexdigest(), metadata['sourceSha256'])
+        definitions = metadata['records']
         cards = [dict(cardNo=row['cardNo'], cardCategory='equipment', armament=row) for row in definitions]
         result = audit.attach_armament_sources(dict(cards=cards), root / 'data/official/armament-text.zh-CN.json')
         self.assertEqual(44, result['armamentSourceCoverage'])
+        self.assertTrue(all(card['armament']['cardImageUrl'] == card['armamentText']['sourceImageUrl'] for card in result['cards']))
         for no in ['VEN·011', 'VEN·027', 'VEN·073', 'RAD·150/167']:
             card = next(card for card in result['cards'] if card['cardNo'] == no)
             self.assertTrue(card['armamentText']['lowerText'])
