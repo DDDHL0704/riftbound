@@ -20349,13 +20349,14 @@ public sealed partial class FullGameEndToEndTests
             && string.Equals(effect.TargetObjectId, sourceObjectId, StringComparison.Ordinal));
         Assert.Equal(SettSameBattlefieldBoonCountStaticAuraCardNo, staticAura.SourceCardNo);
         Assert.Equal(StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, staticAura.EffectKind);
+        var participantObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds);
+        Assert.Equal(new[] { boonParticipantObjectId }, participantObjectIds);
         Assert.Equal(1, staticAura.PowerDelta);
         Assert.Equal(5, staticAura.BasePower);
         Assert.Equal(6, staticAura.EffectivePower);
         Assert.Equal("CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus", staticAura.SourcePath);
         Assert.Equal("SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD", staticAura.Condition);
         Assert.Equal("RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS", staticAura.Lifecycle);
-        var participantObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds);
         Assert.Contains(boonParticipantObjectId, participantObjectIds);
         Assert.DoesNotContain(sourceObjectId, participantObjectIds);
         var sourceDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds);
@@ -32382,11 +32383,14 @@ public sealed partial class FullGameEndToEndTests
 
     private static MatchState BuildSameBattlefieldBoonCountStaticAuraMidgameInitialState(MatchState state)
     {
-        return BuildSpecificCardsMidgameInitialState(
+        var prepared = BuildSpecificCardsMidgameInitialState(
             state,
             "P1",
             [SettSameBattlefieldBoonCountStaticAuraCardNo, ArenaRookieGrantBoonCardNo, DemaciaEnvoyCardNo],
             new RunePool(mana: 10, power: 0, new Dictionary<string, int>(StringComparer.Ordinal)));
+        // Stage the sole boon participant through commands after the journal starts.
+        // Opening-game garrisons can acquire their own boons while these units are played.
+        return ClearFixtureBattlefieldUnitsToBase(prepared, BattlefieldObjectIdForPlayer(prepared, "P1"));
     }
 
     private static MatchState BuildPetalPixieSameBattlefieldEphemeralCountStaticAuraMidgameInitialState(MatchState state)
