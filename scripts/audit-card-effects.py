@@ -97,7 +97,7 @@ def clause_kind(text: str, category: str) -> str:
         return "activated"
     if re.match(r"当我在场上时[，,]", bare):
         return "rule" if re.search(r"可以.+(?:打出|移动)|不能|无法|改为", bare) else "static"
-    if re.search(r"不限数量|至多.*增益|不能|不可|可以.+(?:打出|移动)|跳过|改为|额外.+(?:次|个|张)|上限|仅(?:可|能)|只能|无法", bare):
+    if re.search(r"不限数量|至多.*增益|不能|不可|可以.+(?:打出|移动)|跳过|改为|效果也是.+效果|额外.+(?:次|个|张)|上限|仅(?:可|能)|只能|无法", bare):
         # A triggered rule change is still a trigger; check its timing first.
         if not re.match(r"(?:每当|当|在.+时)", bare):
             return "rule"
@@ -176,7 +176,48 @@ def effect_identity(card: dict) -> tuple:
     # Subtitles, costs, power, tags and colors are gameplay-relevant.
     return tuple(json.dumps(sorted(card.get(key, [])) if key == "cardColorList" else card.get(key), ensure_ascii=False, sort_keys=True) for key in
                  ("cardName", "subTitle", "cardCategory", "energy", "power", "returnEnergy", "tag",
-                  "cardColorList")) + (normalize("\n".join(unparenthesize(line) for line in card["cardEffect"].splitlines())),)
+                  "cardColorList")) + (normalize("\n".join(unparenthesize(line) for line in card["cardEffect"].splitlines())),
+                  normalize(unparenthesize("" if card.get("armamentText", {}).get("reminderOnly")
+                      else card.get("armamentText", {}).get("lowerText", ""))),
+                  card.get("armament", {}).get("baseMightBonus", 0) if card.get("armament") else 0)
+
+
+def card_clauses(card: dict) -> list[dict]:
+    upper = [dict(row, location="upper") for row in split_clauses(card["cardEffect"], card.get("cardCategory", ""))]
+    lower = card.get("armamentText", {})
+    if lower.get("reminderOnly"):
+        return upper
+    return upper + [dict(row, location="armament") for row in split_clauses(lower.get("lowerText", ""), "unit")]
+
+
+def attach_armament_sources(inventory: dict, path: Path) -> dict:
+    document = json.loads(path.read_text())
+    if document.get("schemaVersion") != 1:
+        raise ValueError("武装中文来源版本不支持")
+    normalize_no = lambda no: no.replace("·", "-").upper()
+    rows = {normalize_no(row["cardNo"]): row for row in document["records"]}
+    if len(rows) != len(document["records"]):
+        raise ValueError("武装中文来源卡号重复")
+    cards = []
+    count = 0
+    for original in inventory["cards"]:
+        card = dict(original)
+        runtime = card.get("armament")
+        if runtime is not None or "equipment" in (card.get("cardCategory") or "") and (
+                "武装" in (card.get("tag") or "") or "装配" in (card.get("cardEffect") or "")):
+            row = rows.get(normalize_no(card["cardNo"]))
+            if row is None or runtime is None:
+                raise ValueError("缺少武装下栏中文来源或运行时定义：" + card["cardNo"])
+            if not row.get("sourceImageUrl", "").startswith("https://cdn.playloltcg.com/") or not re.fullmatch(r"[0-9a-f]{64}", row.get("sourceImageSha256", "")):
+                raise ValueError("武装中文卡图来源或摘要无效：" + card["cardNo"])
+            if runtime.get("baseMightBonus", 0) != row["baseMightBonus"]:
+                raise ValueError("武装下栏战力与官方中文卡图不符：" + card["cardNo"])
+            if runtime.get("effectText", "") != row["lowerText"]:
+                raise ValueError("武装下栏原文与官方中文卡图不符：" + card["cardNo"])
+            card["armamentText"] = row
+            count += 1
+        cards.append(card)
+    return dict(inventory, cards=cards, armamentSourceCoverage=count)
 
 
 def source_fingerprint(root: Path) -> str:
@@ -457,6 +498,37 @@ def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
     return result("review", "未找到该关键词的物体／费用／文本消费路径")
 
 
+def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
+    runtime = card.get("armament", {})
+    bare = normalize(unparenthesize(clause["text"]))
+    if clause["kind"] == "keyword":
+        token = TOKEN.match(clause["text"])[1]
+        grants = runtime.get("grantedKeywords", []) or []
+        matches = token in grants or (token == keyword_family(token)
+            and token in ("强攻", "坚守", "法盾", "狩猎") and token + "1" in grants)
+        grant_paths = [path for path in sources.references(".GrantedKeywords")
+                       if Path(path).name == "CoreRuleEngine.ArmamentKeywords.cs"]
+        if matches and grant_paths:
+            return result("route", "贴附武装向宿主授予具体关键词", grant_paths)
+    replacement = {
+        normalize("如果我被摧毁，则改为摧毁守护天使。"),
+        normalize("移除我所受到的伤害，让我变为休眠状态，并将我召回。")}
+    if bare in replacement and runtime.get("replacesHostDestruction"):
+        flags, outcomes = sources.references(".ReplacesHostDestruction"), sources.references('"ATTACHED_GEAR"')
+        if flags and outcomes:
+            return result("route", "贴附武装的摧毁替换及移除伤害／休眠召回", flags + outcomes)
+    # Upper-box activations, the equipment's own tags and donor parsers do not
+    # grant a lower-box skill to its host. Unknown future runtime fields keep
+    # the clause in review until their concrete consumer is mapped.
+    known = {"cardNo", "sourceCardNo", "baseMightBonus", "effectText", "cardImageUrl",
+             "copiesHostPrintedRulesText", "copiesChosenFriendlyUnit", "replacesHostDestruction", "grantedKeywords"}
+    if any(meaningful(value) for key, value in runtime.items() if key not in known):
+        return result("review", "存在新增武装规格；需核对下栏句子及宿主执行消费者")
+    if any(sources.references(reader) for reader in ("armament.EffectText", "definition.EffectText", "gearDefinition.EffectText")):
+        return result("review", "存在武装文字消费者；需核对本句及宿主范围")
+    return result("missing", "未登记与该句匹配的武装宿主效果或关键词；上栏接入不代表下栏生效")
+
+
 def native_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     def signature(spec):
         # Export defaults are omitted; parser probes include them. Every actual
@@ -575,6 +647,8 @@ def legacy_route(card: dict, clause: dict, sources: Sources) -> dict | None:
 
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
+    if clause.get("location") == "armament":
+        return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
     if counted := counted_behavior_route(card, clause, sources):
         return counted
@@ -650,27 +724,31 @@ def build_report(inventory: dict, sources: Sources) -> dict:
         prints.sort(key=lambda c: (bool(re.search(r"[a-z*]", c["cardNo"].split("·")[-1])), c["cardNo"]))
         card = prints[0]
         rows = []
-        for index, clause in enumerate(split_clauses(card["cardEffect"], card.get("cardCategory", "")), 1):
+        for index, clause in enumerate(card_clauses(card), 1):
             outcomes = [audit_clause(p, clause, sources) for p in prints]
             # Equivalent art still needs every admitted print's route to exist.
             worst = max(outcomes, key=lambda o: {"verified": 0, "route": 1, "review": 2, "missing": 3}[o["status"]])
             row = dict(clause, **worst, index=index)
             row["affectedPrints"] = [p["cardNo"] for p, outcome in zip(prints, outcomes) if outcome["status"] == worst["status"]]
-            row["id"] = card["cardNo"] + ":" + hashlib.sha256(clause["text"].encode()).hexdigest()[:12]
+            if clause["location"] == "armament":
+                row["sourceImages"] = [dict(cardNo=p["cardNo"], url=p["armamentText"]["sourceImageUrl"],
+                    sha256=p["armamentText"]["sourceImageSha256"]) for p in prints]
+            row["id"] = card["cardNo"] + ":" + clause["location"] + ":" + hashlib.sha256(clause["text"].encode()).hexdigest()[:12]
             rows.append(row)
         cards.append(dict(cardNo=card["cardNo"], name=card["cardName"] + ("·" + card["subTitle"] if card.get("subTitle") else ""),
                           prints=[p["cardNo"] for p in prints], priority=priority(card)[0], clauses=rows))
     cards.sort(key=lambda c: (c["priority"], c["cardNo"]))
     counts = Counter(row["status"] for card in cards for row in card["clauses"])
     return dict(schemaVersion=1, prints=len(inventory["cards"]), effectGroups=len(cards),
-                clauseCount=sum(counts.values()), counts=dict(sorted(counts.items())), cards=cards)
+                clauseCount=sum(counts.values()), armamentSourceCoverage=inventory.get("armamentSourceCoverage", 0),
+                counts=dict(sorted(counts.items())), cards=cards)
 
 
 def markdown(report: dict) -> str:
     counts = report["counts"]
     lines = ["# 卡牌逐句效果清单", "", "由 `python3 scripts/audit-card-effects.py --refresh --markdown docs/CARD_BACKLOG.md` 生成。",
              "官方基准目录、运行时已审补充与中国区勘误共用服务端加载流程；同名不同副标题／效果分别核对，同效果异画共用句子，所有印次都检查实现路径。", "",
-             "范围补查：下述句数目前只计目录的 `cardEffect`；部分武装下栏文字另存于 `data/official/armaments.json`，尚需逐张对照官方中文卡图补录，不在本轮计数内，不能据此宣称覆盖完整牌面。", "",
+             f"另含 {report.get('armamentSourceCoverage', 0)} 个武装印次的下栏：逐张对照官方中文卡图，原文、卡图链接和 SHA256 保存在 `data/official/armament-text.zh-CN.json`。下栏单独检查宿主授予与触发，不用装备自身的上栏技能或关键词充作实现依据。下栏战力数值另与运行时逐项比较，不计入句数；风味文字和上栏复制效果的重复提示不另计。", "",
              f"当前 {report['prints']} 个印次、{report['effectGroups']} 项不同效果、{report['clauseCount']} 句：" + "，".join(f"{STATUSES[k]} {v}" for k, v in counts.items()) + "。", "",
              "“已找到实现路径”表示本句匹配到具体规格及执行消费者，不能据此证明所有规则边界正确；只有整张牌登记、解析器识别、旧夹具说明或关键词总表的状态，不算本句实现。未建立对应关系的句子保留“待确认”，不会直接当作规则缺陷。", "",
              "优先列英雄／传奇，以及在官方[洛杉矶赛事牌表（2026-09-30）](https://playriftbound.com/en-us/news/organizedplay/los-angeles-top-decks/)中出现的占卜贝壳、奇妙行囊、无主宝藏、先锋军备；牌表仅作排序参考，不代表中国区实时使用率。其余牌随后处理。李青·苦修者及增益计数由 N 线处理。", ""]
@@ -678,7 +756,7 @@ def markdown(report: dict) -> str:
         pending = [(c, r) for c in report["cards"] if c["priority"] == tier for r in c["clauses"] if r["status"] in ("missing", "review")]
         lines += [f"## {title}（{len(pending)} 句）", "", "| 卡号／牌名 | 原文句子 | 缺失类型／核对状态 |", "|---|---|---|"]
         for card, row in sorted(pending, key=lambda pair: (pair[1]["status"] != "missing", pair[0]["cardNo"], pair[1]["index"])):
-            text = row["text"].replace("|", "\\|").replace("\n", " ")
+            text = ("**武装下栏：** " if row.get("location") == "armament" else "") + row["text"].replace("|", "\\|").replace("\n", " ")
             numbers = "／".join(row["affectedPrints"])
             lines.append(f"| {numbers} {card['name']} | {text} | {STATUSES[row['status']]} · {KINDS[row['kind']]}：{row['reason']} |")
         lines.append("")
@@ -691,7 +769,8 @@ def refresh_inventory(root: Path, path: Path) -> dict:
     subprocess.run(["dotnet", "build", str(PROJECT), "-m:1", "--nologo", "--verbosity", "quiet"], cwd=root, env=env, check=True)
     subprocess.run(["dotnet", "run", "--no-build", "--project", str(PROJECT), "--", str(path)], cwd=root, env=env, check=True)
     data = json.loads(path.read_text())
-    texts = sorted({clause["text"] for card in data["cards"] for clause in split_clauses(card["cardEffect"], card["cardCategory"])})
+    data = attach_armament_sources(data, root / "data/official/armament-text.zh-CN.json")
+    texts = sorted({clause["text"] for card in data["cards"] for clause in card_clauses(card)})
     inputs, outputs = path.with_name("probe-inputs.json"), path.with_name("probe-results.json")
     inputs.write_text(json.dumps(texts, ensure_ascii=False))
     subprocess.run(["dotnet", "run", "--no-build", "--project", str(PROJECT), "--", "--probes", str(inputs), str(outputs)], cwd=root, env=env, check=True)
@@ -715,6 +794,10 @@ def main(argv=None) -> int:
         parser.error("运行时清单已过期；请使用 --refresh 重新导出")
     if inventory.get("schemaVersion") != 1 or not inventory.get("cards"):
         parser.error("运行时清单为空或版本不支持")
+    try:
+        inventory = attach_armament_sources(inventory, ROOT / "data/official/armament-text.zh-CN.json")
+    except ValueError as error:
+        parser.error(str(error))
     sources = Sources(ROOT, inventory["constants"], inventory.get("textProbes", []))
     report = build_report(inventory, sources)
     rng = random.Random(20261105)
