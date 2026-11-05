@@ -53,6 +53,13 @@
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
+- [ ] **M 线整合：终局公开、伤害替换与冲突优先级**（`m/recovered-mechanics`）。从 `codex/combat-terminal-facedown-20261026` 的 `cbba0a8ef7`／`d9a7dc2065` 恢复终局背面场上牌公开及对应独立恢复校验，保留手牌、牌库与未结束对局的私密边界；从 `7db6315d56` 提取独立伤害翻倍的规范凭据，接入当前共享伤害替换排序，不移入旧版绕过抵挡的直接乘法路径；从 `codex/combat-assignment-contradictory-priorities-20261028` 的 `3caaa4cd45` 恢复每名同时具壁垒／后排单位独立选取最先或最后的合法分配，并公开 `targetPriorityOptions`，保持免伤、完整伤害池和单一未致命目标约束。恢复终局／日志失败／投降／分配回放测试，补齐实际莲花陷阱多次与回响叠加回归。依据中国区核心 370.2、372、422.4、467.2.c.8–9，以及破限裁判 FAQ“两张莲花陷阱＋海克斯射线＝12 点”。本地 Release 构建零警告错误，定向 50/50 通过、零跳过；因迁往 Windows 暂停，分支已推送但尚未开 PR，待完整 L2 合入后勾选；Godot 前端改动未移植。
+
+- [ ] **待确认／M：旧战斗伤害换算方案的移植边界**。`codex/backend-combat-20261023` 的 `bdd2610af0`、`7db6315d56` 及其 `CombatDamageModifierBudgetTests`／`DamageDoublingApplicationTests.CombatUsesOneSharedOriginalBudgetAndDoesNotApplyDoublingTwice` 仍基于旧版直接乘法与致命阈值。当前 main 已使用共享抵挡预算和控制者排序，不能覆盖掉新流程。非战斗的独立莲花应用已由上项提取；战斗分配须按当前核心 467.2.c.4.a／c.5 与化神争锋 FAQ 的抵挡顺序例重建最小分配量及凭据，不能把旧样例直接当作当前实现已验证。
+- [ ] **待确认／M：旧支付可达性候选**。`a/payment-reachability` 的 `4c817dd5a4`、`codex/shadow-swift-resource-payment-20261028` 的 `d64b67ceab`／`92780e651b`，以及 `codex/cards-ven003-049-081-paid-flow-20261028` 的 `8e01f46b1d` 涉及影子的迅捷付款中资源获取顺序、颜色选择、法盾附加费用与真实流转资源。当前 main 后续的共享支付／提示修复已改变入口和恢复凭据，尚未逐个证明这些旧回归的剩余独有边界；保留现行实现，不直接覆盖会话或付款代码。源码可从原始 Mac bundle 的相同引用恢复。
+- [ ] **待确认／M：重置前的甘普朗与有限抵挡草稿**。`archive/wt-combat-20261023-20261029` 的 `b2a2b0e402`、`archive/wt-cards-20261023-20261029` 的 `4923485d70` 包含五份 `Gangplank*Consumer/Boundary/SelectionTests` 和 `Ven126FinitePreventionConsumerTests`。其中夹具与当前共享目标替换／有限抵挡结构不同，旧分支不能作为规则结论；需要按官方印次及当前正常命令重新核对是否仍有缺口。来源保存在 `var/archive/riftbound-mac-and-remote-20261105.bundle`，不要求保留活跃分支。
+
+
 - [x] **P1-1 征服时机（#231）**。征服触发的技能应先让对手响应，再结算效果。PR [#275](https://github.com/DDDHL0704/riftbound/pull/275) 覆盖 SFD·212 磨牌、薇恩返回手牌、祖安、Shirana、Moonveil 的响应窗口与费用确认；对象跨区身份追踪和伪造历史校验已在 `c/zone-identity` 补齐。依据中国区核心规则 383.3.a–d、383.4.c.2.a–c、337.1.b、204.3.a、359.3.e、124、186.1。
 - [x] **P1-2 出牌候选计入可横置的符文**。出牌候选现计入可横置的活跃符文，并允许 `PLAY_CARD` 在同一原子命令中携带 `TAP_RUNE:<objectId>` 完成资源获取与支付；容量、顺序、恢复和回放均由共享支付流程校验。规则依据：204.4.b.1、430.3（S1）。
 - [x] **P1-3 待命布置时允许回收符文支付**。[#259](https://github.com/DDDHL0704/riftbound/pull/259) 已实现：`HIDE_CARD` 候选在支付待命费用时可携带回收符文资源动作，并在同一原子结算中完成回收与扣费。依据：811.1.b、430.3（见 S2）。

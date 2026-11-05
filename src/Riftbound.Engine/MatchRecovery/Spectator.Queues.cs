@@ -469,6 +469,7 @@ public static partial class MatchRecoveryValidator
     {
         return string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(task.ObjectId)
+            && !IsTerminalFaceDownFieldObjectPublicForRecovery(authoritativeState, task.ObjectId)
             && authoritativeState.CardObjects.TryGetValue(task.ObjectId, out var cardObject)
             && cardObject.IsFaceDown
             && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);

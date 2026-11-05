@@ -3882,7 +3882,8 @@ public static partial class MatchRecoveryValidator
             {
                 if (!state.CardObjects.TryGetValue(id, out var card)) continue;
                 var present = TryReadObjectValue(payload, "isEmpowered", out _);
-                var visible = !card.IsFaceDown || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
+                var visible = !card.IsFaceDown || IsTerminalFaceDownFieldObjectPublicForRecovery(state, id)
+                    || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
                 if (present && (!visible || !card.IsEmpowered || !TryReadObjectBool(payload, "isEmpowered", out var value) || !value)
                     || !present && visible && card.IsEmpowered)
                     errors.Add($"{label} empowered status differs from authoritative visible object");
@@ -6067,7 +6068,8 @@ public static partial class MatchRecoveryValidator
             }
         }
 
-        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+        return !IsTerminalFaceDownFieldObjectPublicForRecovery(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && cardObject.IsFaceDown
             && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && state.ObjectLocations.TryGetValue(objectId, out var location)

@@ -19,8 +19,17 @@ public sealed partial class CoreRuleEngine
             if (preventAll && !used.Contains("ALL")) options.Add(new("ALL", "抵挡本次全部伤害", [target.ObjectId]));
             if (target.UntilEndOfTurnEffects.Contains(PreventNextDamageThisTurnEffectId) && !used.Contains("NEXT"))
                 options.Add(new("NEXT", "抵挡下一次伤害", [target.ObjectId]));
-            if (target.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId) && !used.Contains("DOUBLE"))
-                options.Add(new("DOUBLE", "将本次伤害翻倍", [target.ObjectId]));
+            // CN370.2/372: every Lotus application is an independent replacement.
+            // Keep the first choice id stable while later applications can be ordered separately.
+            for (var index = 0; index < DamageDoublingApplications.Count(target); index++)
+            {
+                var id = index == 0 ? "DOUBLE" : "DOUBLE:" + (index + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                if (!used.Contains(id))
+                {
+                    options.Add(new(id, "将本次伤害翻倍", [target.ObjectId]));
+                    break; // Identical doublers commute; prevention can still be ordered between them.
+                }
+            }
             var budgets = TemporaryUnitEffectRules.PreventionBudgets(target);
             options.AddRange(budgets.Where(b => !used.Contains(b.Id)).Select(b =>
                 new RuleChoiceOption(b.Id, $"抵挡伤害（剩余 {b.Remaining} 点）", [target.ObjectId])));
@@ -36,7 +45,12 @@ public sealed partial class CoreRuleEngine
                     kind: "DAMAGE_REPLACEMENT_ORDER", preview: preview);
             }
             used.Add(selected);
-            if (selected == "DOUBLE") { damage = checked(damage * 2); continue; }
+            if (selected == "DOUBLE" || selected.StartsWith("DOUBLE:", StringComparison.Ordinal))
+            {
+                if (damage > int.MaxValue / 2) throw new DamageNumericLimitException("伤害翻倍结果");
+                damage *= 2;
+                continue;
+            }
             var amount = selected is "ALL" or "NEXT" ? damage : Math.Min(damage, budgets.Single(b => b.Id == selected).Remaining);
             if (selected == "NEXT") target = target with { UntilEndOfTurnEffects = target.UntilEndOfTurnEffects
                 .Where(e => e != PreventNextDamageThisTurnEffectId).ToArray() };
