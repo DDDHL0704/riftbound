@@ -12,7 +12,7 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     int MinimumExhaustedUnits = 0, bool OncePerTurn = false,
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
     string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
-    bool LeadingConsumeBoon = false);
+    bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
@@ -338,6 +338,7 @@ public sealed record CardBehaviorDefinition(
     string EffectPlayDestination = "ANY",
     bool EffectPlayOptional = false,
     bool EffectPlayAllowsAnyCard = false,
+    bool EffectPlayRequiresStandby = false,
     bool EffectPlayRevealsCards = false,
     bool IgnorePrintedPowerCost = false,
     string TargetTraitsManaReductionTags = "",
@@ -353,6 +354,7 @@ public sealed record CardBehaviorDefinition(
     IReadOnlyList<string>? GrantedHastePowerTraits = null,
     bool MaySacrificeUnitForPrintedCostReduction = false,
     int? FixedUnitSacrificeManaReduction = null,
+    int FixedYellowPowerReductionPerSacrificedUnit = 0,
     bool DeckPlayOptionalReflexiveEmpower = false,
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
@@ -424,6 +426,7 @@ public sealed record CardBehaviorDefinition(
     DrawHandThresholdSpec? ControllerDrawHandThreshold = null,
     MovementImposedCostSpec? MovementImposedCost = null,
     int FriendlyLastBreathAdditionalTriggersHere = 0,
+    int FriendlyLastBreathAdditionalTriggers = 0,
     SpellModeSetSpec? SpellModes = null)
 {
     public bool PerformsInsight => InsightCount > 0;
@@ -5435,7 +5438,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "约德尔人"),
+            SourceUnitTags: "约德尔人",
+            UnitEventAbility: new("ATTACK", "PLAY_HAND_STANDBY_HERE", LeadingPowerCost: 1, LeadingPowerTrait: "blue")),
         new(
             "OGN·109/298",
             "蒙多医生",
@@ -5670,17 +5674,17 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "灵体",
-            EffectPlayOptional: true,
             MaxTargetPowerCost: 1),
         new(
             "OGN·230/298",
             "阿不思·菲罗斯",
             4,
-            "ALBUS_FERROS_NO_BOON_CALL_RUNE_PLAY_UNIT",
+            "ALBUS_FERROS_BOONS_CALL_RUNES_PLAY_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            UnitEventAbility: new("PLAY", "CALL_RUNES_PER_CONSUMED_BOON", 1, LeadingConsumeAnyNumberOfBoons: true)),
         new(
             "OGN·231/298",
             "莱卓斯指挥官",
@@ -5690,7 +5694,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 8,
-            SourceUnitTags: "灵体|法盾|游走"),
+            SourceUnitTags: "灵体|法盾|游走",
+            MaySacrificeUnitForPrintedCostReduction: true,
+            FixedYellowPowerReductionPerSacrificedUnit: 1),
         new(
             "OGN·235/298",
             "卡尔玛",
@@ -5710,7 +5716,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "灵体"),
+            SourceUnitTags: "灵体",
+            FriendlyLastBreathAdditionalTriggers: 1),
         new(
             "OGN·246/298",
             "维克托",
@@ -6262,7 +6269,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("PLAY", "READY_SELF", MinimumControlledEquipment: 2)),
         new(
             "SFD·074/221",
             "暗巷神偷",

@@ -29,6 +29,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool EffectPlayAllowsBehavior(MatchState state, string player, CardBehaviorDefinition behavior)
         => state.PendingEffectPlay is { } p && p.PlayerId == player
+            && (!IsStandbyHandPlayHere(p.Parent) || StandbyRules.HasPrintedKeyword(behavior.CardNo))
             && (TryGetEffectPlayDefinition(p.Parent, out var definition) && definition.EffectPlayAllowsAnyCard
                 ? behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(behavior)
                 : definition is { EffectPlaySourceZone: "BANISHED" }

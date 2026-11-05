@@ -1,7 +1,9 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
 using static Riftbound.ConformanceTests.OfficialGraveyardRecastTests;
+using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 namespace Riftbound.ConformanceTests;
 
 public sealed class OfficialUnitRevivalTests
@@ -22,13 +24,13 @@ public sealed class OfficialUnitRevivalTests
     [Theory]
     [InlineData("OGN·226/298",true)]
     [InlineData("UNL-168/219",false)]
-    public async Task GraveyardPlayUsesBaseCostWaiversWithoutDuplicatePlay(string source,bool optional)
+    public async Task GraveyardPlayUsesBaseCostWaiversWithoutDuplicatePlay(string source,bool matron)
     {
         var state = Position(source,"UNL-137/219") with {
-            RunePools = new Dictionary<string,RunePool>{{"P1", optional ? new(4,2) : new(2,1)},{"P2",new(10,10)}}};
+            RunePools = new Dictionary<string,RunePool>{{"P1", matron ? new(4,2) : new(2,1)},{"P2",new(10,10)}}};
         var played=await Act(state,"P1",new PlayCardCommand("C",source,["G"]));
         var opened=await Top(played.State);var pending=opened.State.PendingEffectPlay!;
-        Assert.Equal(optional,pending.Optional);Assert.Equal(new[]{"G"},pending.Sources.Keys);Restore(opened.State);
+        Assert.False(pending.Optional);Assert.Equal(new[]{"G"},pending.Sources.Keys);Restore(opened.State);
         var pool=opened.State.RunePools["P1"];
         Assert.Equal(0, pool.Power);
         var command=new PlayCardCommand("G","UNL-137/219",[]);
@@ -90,13 +92,40 @@ public sealed class OfficialUnitRevivalTests
         Assert.False(bad.Accepted);Assert.Equal(MatchStateHasher.Hash(state),MatchStateHasher.Hash(bad.State));
     }
 
-    [Fact]
-    public async Task MatronOptionalReplayCanBeDeclined()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task MatronConfirmedFreeReplayCannotBeDeclined(bool targetWithPlay)
     {
-        var cast=await Act(Position("OGN·226/298"),"P1",new PlayCardCommand("C","OGN·226/298",["G"]));
-        var opened=await Top(cast.State);var p=opened.State.PendingEffectPlay!;
-        var done=await Act(opened.State,"P1",new ChooseCardsCommand(p.ChoiceId,"EFFECT_PLAY",[]));
-        Assert.Contains("G",done.State.PlayerZones["P1"].Graveyard);Assert.Empty(done.State.StackItems);Restore(done.State);
+        var game = new Driver(Position("OGN·226/298") with { Tick = 0 });
+        await game.Act("P1", new PlayCardCommand("C", "OGN·226/298", targetWithPlay ? ["G"] : []));
+        if (!targetWithPlay)
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["G"]));
+        }
+        await game.Top();
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var raw = JsonSerializer.SerializeToNode(new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []), json)!.AsObject();
+        raw["promptId"] = game.PromptFor("P1").PromptId;
+        raw["snapshotTick"] = game.State.Tick;
+        var rejected = new ConformanceCommand("P1", "matron-cannot-refuse-free-play", JsonSerializer.SerializeToElement(raw, json));
+        await game.ActRetained(rejected, false);
+        await game.ActRetained(rejected, false);
+        Assert.False(pending.Optional);
+        Assert.DoesNotContain(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.ChooseCards && c.Enabled);
+        var corrupt = game.State with { PendingEffectPlay = pending with { Optional = true } };
+        Assert.Contains("invalid graveyard unit effect-play continuation",
+            MatchRecoveryValidator.Validate(corrupt.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), corrupt, corrupt.Tick));
+        var pool = game.State.RunePools["P1"];
+        await game.Act("P1", new PlayCardCommand("G", "OGN·096/298", []));
+        Assert.Contains("G", game.State.PlayerZones["P1"].Base);
+        Assert.Equal(pool, game.State.RunePools["P1"]);
+        Assert.Single(game.State.CardPlays.Resolved, p => p.Source.ObjectId == "G");
+        Assert.Empty(game.State.StackItems);
+        Assert.Null(game.State.PendingEffectPlay);
+        await game.Replay();
     }
 
     [Theory]
@@ -149,13 +178,18 @@ public sealed class OfficialUnitRevivalTests
     [Fact]
     public async Task MatronWithoutASelectedTargetDoesNotOpenAnEmptyComposer()
     {
-        var cast = await Act(Position("OGN·226/298"), "P1", new PlayCardCommand("C", "OGN·226/298", []));
-        var done = cast.State.PendingCardChoice is not null ? await OfficialHeldConfirmationTests.Choose(cast.State)
-            : cast.State.StackItems.Count == 0 ? cast : await Top(cast.State);
-        Assert.Null(done.State.PendingEffectPlay);
-        Assert.Contains("C", done.State.PlayerZones["P1"].Base);
-        Assert.Contains("G", done.State.PlayerZones["P1"].Graveyard);
-        Restore(done.State);
+        var game = new Driver(Position("OGN·226/298") with { Tick = 0 });
+        await game.Act("P1", new PlayCardCommand("C", "OGN·226/298", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Contains("G", choice.LegalObjectIds);
+        var pool = game.State.RunePools["P1"];
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+        Assert.Equal(pool, game.State.RunePools["P1"]);
+        Assert.Null(game.State.PendingEffectPlay);
+        Assert.Contains("C", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("G", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(game.State.StackItems);
+        await game.Replay();
     }
 
     internal static MatchState Position(string source,string target="OGN·096/298")

@@ -17,6 +17,7 @@ public sealed class RecastNativeContinuationTests
         var power = branch == "pay-power";
         var unit = branch.StartsWith("unit-");
         var decline = branch.EndsWith("decline");
+        var declineAtConfirmation = unit && decline;
         var initial = unit ? OfficialUnitRevivalTests.Position("OGN·226/298")
             : OfficialGraveyardRecastTests.Fizz(power ? "UNL-200/219" : "OGN·048/298");
         var engine = new CoreRuleEngine(); var journal = new Journal(); var session = new MatchSession(initial,engine,journal);
@@ -33,11 +34,13 @@ public sealed class RecastNativeContinuationTests
                 raw??JsonSerializer.SerializeToElement(command,command.GetType(),json),default);
             Assert.True(result.Accepted,result.ErrorMessage);OfficialGraveyardRecastTests.Restore(result.State);return result;
         }
-        var result=await Submit("P1",new PlayCardCommand(unit?"C":"F",unit?"OGN·226/298":"SFD·140/221",unit?["G"]:[]));
-        for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
-        var pending=result.State.PendingEffectPlay!;Assert.NotNull(pending);
+        var result=await Submit("P1",new PlayCardCommand(unit?"C":"F",unit?"OGN·226/298":"SFD·140/221",unit && !declineAtConfirmation?["G"]:[]));
+        if (!declineAtConfirmation)
+            for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
         var prompt=session.PromptFor("P1");Export("prompt.json",prompt);
-        GameCommand command=decline ? new ChooseCardsCommand(pending.ChoiceId,"EFFECT_PLAY",[])
+        GameCommand command=declineAtConfirmation
+            ? new ChooseCardsCommand(result.State.PendingCardChoice!.ChoiceId,result.State.PendingCardChoice.ChoiceWindow,[])
+            : decline ? new ChooseCardsCommand(result.State.PendingEffectPlay!.ChoiceId,"EFFECT_PLAY",[])
             :new PlayCardCommand(unit?"G":power?"C":"OTHER",unit?"OGN·096/298":power?"UNL-200/219":"OGN·048/298",power?["F"]:[]);
         if(command is PlayCardCommand play)
         {
