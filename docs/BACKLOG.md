@@ -810,10 +810,11 @@ M 已核对旧远端分支、Windows 本地提交与脏树、主目录半途 che
 
 - Windows 原始来源：`var/archive/riftbound-windows-20261105.bundle`，93 个本地分支及 15 份脏树 stash。
 - Mac 与旧远端来源：`var/archive/riftbound-mac-and-remote-20261105.bundle`，288 个引用。旧战斗、支付及甘普朗草稿的具体提交见 P1 三组待确认。
-- 远端恢复标签：`archive/m-windows-handoff-20261105`（`3bf359a32`），保存两份原始 bundle、额外 435 引用安全 bundle、来源映射及原始脏树补丁；570 个非保护来源均已核对能从 main 或有效 bundle 找回。
+- 远端恢复标签：`archive/m-windows-handoff-20261105`（`3bf359a32`），保存两份原始 bundle、额外 435 引用安全 bundle、来源映射及原始脏树补丁；初始 570 个非保护来源均已核对能从 main 或有效 bundle 找回。
+- WSL 额外遗留的三份旧 stash 已由现行 main 覆盖并作废：伊芙琳待命抽牌草稿 `aede57915` 已有 `3aba7e88d` 及后继；RAD·047 隐私草稿 `1b74753fb` 已由 `52f6a5ec8` 及通用 `PublicTurnUnitPlayBoonContext` 覆盖，额外隐藏身份、来源标记和代际；最终抚慰草稿 `7e2fde4cc` 已有 `467825742` 及后继。原 32 个测试方法均保留，解析另增两例。补充恢复标签 `archive/m-wsl-stashes-20261105`（`4bb5caf19`）的三个父提交按上述顺序保存原 stash（含未跟踪文件），可用 `git show <标签>^1:<路径>` 等逐份取回；本机 `refs/stash` 已清理。
 - 重置前文档：`archive/pre-reset-20261029`，保留历史参考。
 
-恢复时先核验 bundle，再取所需引用到临时非分支命名空间；按提交取单个文件并与当前 main 比较。归档标签的树只保存恢复资料。
+恢复时先核验 bundle，再取所需引用到临时非分支命名空间；按提交取单个文件并与当前 main 比较。归档标签仅用于恢复资料，不作为产品分支合入。
 
 ## 前端（Claude）
 
