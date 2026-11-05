@@ -36,6 +36,12 @@ internal static class CardStaticAbilitySpecRules
         return string.Equals(ability.Kind, StaticAbilityKinds.SourceUnitEnterReady, StringComparison.Ordinal);
     }
 
+    public static bool IsSourceUnitPlayToOpenBattlefield(StaticAbilitySpec ability)
+        => ability.Kind == StaticAbilityKinds.SourceUnitPlayToOpenBattlefield;
+
+    public static bool IsFriendlyUnitPlayToOpenBattlefield(StaticAbilitySpec ability)
+        => ability.Kind == StaticAbilityKinds.FriendlyUnitPlayToOpenBattlefield;
+
     public static bool IsSourcePowerfulUnitCostReduction(StaticAbilitySpec ability)
     {
         return string.Equals(ability.Kind, StaticAbilityKinds.SourceCostReductionPerControlledPowerfulUnit, StringComparison.Ordinal)
