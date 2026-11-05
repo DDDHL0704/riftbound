@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "scope": "Official CN card images: armament lower boxes. Icons use the existing {{S}}/{{A}} token convention; italic flavor text is excluded. Parenthesized duplicate copy reminder is recorded without a second rule clause. Images are referenced by URL and SHA256; no images are embedded.",
+  "records": [
+    {
+      "cardNo": "SFD·009/221",
+      "lowerText": "{{强攻2}}（如果我是进攻方，则{{S}}+2。）",
+      "reminderOnly": false,
+      "baseMightBonus": 0,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/1d2005b27489499f839da2a805b985f8.png",
+      "sourceImageSha256": "cfdcd328feafbafb329cda9abcb70c3410ee3ac973961d1a35c42aa60ac301a5"
+    },
+    {
+      "cardNo": "SFD·016/221",
+      "lowerText": "当我进攻或防守时，对此处的一名敌方单位造成2点伤害。",
+      "reminderOnly": false,
+      "baseMightBonus": 0,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d1a50c803abf4109bc1079ab725394af.png",
+      "sourceImageSha256": "addb643d85bffd4ba9dcfb9d2283533d8a9cbb31c1260f829817cc7ab98b629f"
+    },
+    {
+      "cardNo": "SFD·022/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/48ad3f52ea5a4fc4bef6b90e0186d6c7.png",
+      "sourceImageSha256": "8479a1270af25a4854d6f2b5840ec484c389f8ce851719b673ca01652de1ff61"
+    },
+    {
+      "cardNo": "SFD·030/221",
+      "lowerText": "我的据守效果也是征服效果，反之亦然。",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/ca519b1a4c5149a69f0aebccb8991bda.png",
+      "sourceImageSha256": "1af775dd90c720151e3ebac4a5f4333dc57955be6142bae488e6bd33e8578ca9"
+    },
+    {
+      "cardNo": "SFD·033/221",
+      "lowerText": "{{壁垒}}（我在战斗中首先承担伤害。）",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/074701dac87b4b53b23a540122bda822.png",
+      "sourceImageSha256": "1903c6596fa495e38a9ce2b2688119c246c7348ba72685b9547ebf341a5e0c13"
+    },
+    {
+      "cardNo": "SFD·042/221",
+      "lowerText": "如果此牌是在本回合贴附到我身上的，则我额外获得{{S}}+2。",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/4da831212c3748a8b6f0e58c605972c2.png",
+      "sourceImageSha256": "486601316cf4bedacb0c3b1d20c56cd6978cb3cff3868bdf88c9b33b5a0ddc24"
+    },
+    {
+      "cardNo": "SFD·051/221",
+      "lowerText": "如果我被摧毁，则改为摧毁守护天使。移除我所受到的伤害，让我变为休眠状态，并将我召回。",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/cbbc137ed7644a529456560f55cce23e.png",
+      "sourceImageSha256": "fde3a9e1ec0824a952d9ab0f073c214a3a3ee62d60d20223f9939b809327c30f"
+    },
+    {
+      "cardNo": "SFD·056/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 3,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/b9a16b698fb64b93ba88ca7b96303d2c.png",
+      "sourceImageSha256": "2867ee81b1577846c2a2f754a59a127a0a5c01e8ad7d938b589734f434bdad77"
+    },
+    {
+      "cardNo": "SFD·059/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 0,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/3fb9c51990c64735b1d613e27e53f2a7.png",
+      "sourceImageSha256": "9076e040d714ff630d6ee5608405a81714b8ff573ce47f4bebc2cd7a4bf59bad"
+    },
+    {
+      "cardNo": "SFD·064/221",
+      "lowerText": "{{坚守2}}（如果我是防守方，则{{S}}+2。）",
+      "reminderOnly": false,
+      "baseMightBonus": 0,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d31c7e8423b74a6b8f476fc48b0a6e9f.png",
+      "sourceImageSha256": "8d6a798ce8d32a47a31c7a8c8de975f5e2a426c7fd4cce076b268c47830155b3"
+    },
+    {
+      "cardNo": "SFD·073/221",
+      "lowerText": "我拥有“机械”属性。",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/ca537f6376c24628a1865a1ef0820519.png",
+      "sourceImageSha256": "a63ebe40b5c40854ff1fb7c064f6fd7e737730b6eae4b3fe54139b1675997f4b"
+    },
+    {
+      "cardNo": "SFD·086/221",
+      "lowerText": "当我据守一处战场时，打出两个休眠的“金币”装备指示物。",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/2d9dab4fe9ab43789b44936bcae350fd.png",
+      "sourceImageSha256": "d2301c3ba352ee6db2af74379d430c5998a6abc8e719ff6622f945dfebace4f5"
+    },
+    {
+      "cardNo": "SFD·090/221",
+      "lowerText": "{{绝念}}——放逐我。（当我被摧毁后，发动此效果。）",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/5f86f798e1034532a5f1ca0478b39d9f.png",
+      "sourceImageSha256": "7d44b989bed706a15fe05d924ccd8ebc4e11a75f09b9a6f987a0fbdd025ca8dc"
+    },
+    {
+      "cardNo": "SFD·095/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/ea875fe56f0e42098b5d0617c491e5f3.png",
+      "sourceImageSha256": "cddbbb7a7ee54c213eaff4d12bde3b1fcd8f5b86bf4a4d35465bfe9de92f5210"
+    },
+    {
+      "cardNo": "SFD·102/221",
+      "lowerText": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/5cb0d360db1d434ebd4670e324feeb7e.png",
+      "sourceImageSha256": "f348d5767bae78288a0fd079000a258797839b21340470af18d2aedf00278a7b"
+    },
+    {
+      "cardNo": "SFD·108/221",
+      "lowerText": "当我征服一处战场时，给予我增益。（如果我还未拥有增益，则获得一个{{S}}+1增益。）",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/bd6fa98eb467496cb564b8f95d0ddb80.png",
+      "sourceImageSha256": "c135c573ec7951818b84c2d05920d1623923e5cc1e0d13d645911dbbd3a15b16"
+    },
+    {
+      "cardNo": "SFD·115/221",
+      "lowerText": "当我据守一处战场时，获得的分数+1。",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d481cd43228e4ad5901fe2d058d01593.png",
+      "sourceImageSha256": "3088855fbad9ae2dede55dcdcb53a250b8db87e64934ffd9d87be868994a4ce2"
+    },
+    {
+      "cardNo": "SFD·118/221",
+      "lowerText": "当我征服一处战场时，召出一枚休眠的符文。",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/9e8fa915f43d42f2b4634dcf2e6f496b.png",
+      "sourceImageSha256": "61cc4be1e76c817f568e99a647982f78088da48885bdb6d2b394edf1356782f3"
+    },
+    {
+      "cardNo": "SFD·118a/221·P",
+      "lowerText": "当我征服一处战场时，召出一枚休眠的符文。",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260130/4a1b6acd9057487e8d104b9b2375bce3.png",
+      "sourceImageSha256": "cb97e58e5bf012b491c2e424efe71bc66b8f38ed30abef29b4228dd382221846"
+    },
+    {
+      "cardNo": "SFD·124/221",
+      "lowerText": "当我征服一处战场时，弃置一张手牌，然后抽一张牌。",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/72b73f8855f64e46b13c68ba694e15f1.png",
+      "sourceImageSha256": "ce512af012b56d7bc5fc510aeb997b3caf164e907cbf4c533f9eb3eebadcc70e"
+    },
+    {
+      "cardNo": "SFD·133/221",
+      "lowerText": "{{游走}}（我可以向其他战场进行移动。）",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d694b9a10e9c405e9eb5109316f20078.png",
+      "sourceImageSha256": "72ab0d57614a959bd41d360b9093756391743d480f333e35cbd2f475f0e3a3c2"
+    },
+    {
+      "cardNo": "SFD·134/221",
+      "lowerText": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/8d84b89359f94941ac589d509006360b.png",
+      "sourceImageSha256": "452eb563a23dc84f814a4e53e35de5486ea373c2622f61d9ca8a263c58883b66"
+    },
+    {
+      "cardNo": "SFD·139/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/3772585868e94929a85477e5d58cda09.png",
+      "sourceImageSha256": "744a6830ec1cda1fff535194dd3cb34d993058574c1e5fc90d690f8ccc149532"
+    },
+    {
+      "cardNo": "SFD·150/221",
+      "lowerText": "当我征服或据守一处战场时，你可以选择从你的弃牌堆中打出一名单位。（仍需支付其费用。）",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/aedfdfbe1a394446a7449258702ef61f.png",
+      "sourceImageSha256": "20304b0b77ef59a9a291272535d4d6fd7097c48407e78c440c04de38716d4e0b"
+    },
+    {
+      "cardNo": "SFD·153/221",
+      "lowerText": "当我移动时，在此处打出一名1{{S}}的“随从”。",
+      "reminderOnly": false,
+      "baseMightBonus": 0,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/327a71f28d88482cacebb67322c2c37f.png",
+      "sourceImageSha256": "ddfbe17c30573d3ec9c3a06b5e4352f747020c4e4e0dc56e0589b653affd199f"
+    },
+    {
+      "cardNo": "SFD·161/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 3,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/e6a2f0b37e4a41b1b713bcc9eb0d7287.png",
+      "sourceImageSha256": "331f9a1da06521bdf4280ef36dba67f241800127f8359c208fd30958a542bd69"
+    },
+    {
+      "cardNo": "SFD·172/221",
+      "lowerText": "{{绝念}}——抽一张牌。（当我被摧毁后，发动此效果。）",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/54b8194b26f64d01859d71766eaf43e1.png",
+      "sourceImageSha256": "60911981028ca1c3c4c4c043420317dc4516652d529c9bb97bdee6e135c1a81b"
+    },
+    {
+      "cardNo": "SFD·178/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 4,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/53ef6ac60d7d4654b8eed0ba8a485c8b.png",
+      "sourceImageSha256": "0eb554ad0d7bcfe0e484a5302cb11bb724f80f18a87a24c63456215bdef0933f"
+    },
+    {
+      "cardNo": "SFD·186/221",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 3,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/0639abe218a74627b49ab15846218ea6.png",
+      "sourceImageSha256": "079ce8a627b8dd8e2cfa3a343cbf8cf5c38080e2c61c298c22b6038d762b0519"
+    },
+    {
+      "cardNo": "SFD·190/221",
+      "lowerText": "当我进攻及防守时，对此处的所有敌方单位各造成2点伤害。",
+      "reminderOnly": false,
+      "baseMightBonus": 3,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/3a33a78a86674d2ea12dab75faefca49.png",
+      "sourceImageSha256": "dab63e9aa79e8641ce2a05ada1dcb13d6fc537056ef9c45f959bb12f75e16c24"
+    },
+    {
+      "cardNo": "SFD·191/221",
+      "lowerText": "你的法术和技能造成的伤害+3（如果已贴附此牌）。",
+      "reminderOnly": false,
+      "baseMightBonus": 3,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/67c65e3a2f854381948c55e1ba47ea5a.png",
+      "sourceImageSha256": "01a04f4ef64e68414851566b6bce5508200dc37f4d7e6c0cd6eb1eff4955b85c"
+    },
+    {
+      "cardNo": "SFD·192/221",
+      "lowerText": "你在此处的单位获得{{游走}}。（我们可以向其他战场进行移动。）",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/679bf5b2aa4c46d1a0a58cb640992a50.png",
+      "sourceImageSha256": "7826b400d36a02ef0b3a8a0857b96bc361adf0bd24989fafafcab4e803b57e85"
+    },
+    {
+      "cardNo": "UNL-019/219",
+      "lowerText": "在你的回合结束时，如果我本回合没有征服战场，则卸除此装备，并对我造成4点伤害。",
+      "reminderOnly": false,
+      "baseMightBonus": 4,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260320/7d138597c0844ab5864e58e29e950227.webp",
+      "sourceImageSha256": "814cf7b8aa058fc08679641c226bb6f61dabf56bae0f4a8554d4a04c67c2320a"
+    },
+    {
+      "cardNo": "UNL-039/219",
+      "lowerText": "{{等级3}}我额外获得{{S}}+1。（如果你拥有不少于3经验，则获得该效果。）",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260321/2578dd9aed844bafa139d869cb67b7ba.webp",
+      "sourceImageSha256": "852625a8624e1ff6498fa99c352e93492821b8e988fc8e1efd6ac7053396fd28"
+    },
+    {
+      "cardNo": "UNL-096/219",
+      "lowerText": "{{狩猎}}（当我征服或据守一处战场时，获得1经验。）",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260319/ba0362fdd1184709ae22b32658a4b236.webp",
+      "sourceImageSha256": "a436ff3024e6a2985af1d5e50a7b93e215237f01d2ede0202b7c74b9865345e4"
+    },
+    {
+      "cardNo": "UNL-158/219",
+      "lowerText": "",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260328/c357165bebcd41158065e7e3679967b7.webp",
+      "sourceImageSha256": "650d48ff410807911467406d73eaff0e4682296ec003d59df88213bd6c60186c"
+    },
+    {
+      "cardNo": "UNL-188/219",
+      "lowerText": "当我征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则抽一张牌。",
+      "reminderOnly": false,
+      "baseMightBonus": 3,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260320/bf4279fe48f54deb9eeb9bb5e6ebec41.webp",
+      "sourceImageSha256": "61513cd00cfa495844486ab9196468ac62997d433957b01192e998128f6e5aa1"
+    },
+    {
+      "cardNo": "VEN·137",
+      "lowerText": "（我是所选单位的复制体。）",
+      "reminderOnly": true,
+      "baseMightBonus": 0,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
+      "sourceImageSha256": "f04884b18ebbc262c2dea9d49f860b841dd7259bc988b8079338778eeba391d3"
+    },
+    {
+      "cardNo": "RAD·071/167",
+      "lowerText": "{{坚守2}}（只要我是防守方，便{{S}}+2。）",
+      "reminderOnly": false,
+      "baseMightBonus": 0,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20261001/458644e3f626422a96a151e61acdb4f3.png",
+      "sourceImageSha256": "ba4760ba468b4e41508428e26e122a78edceeb04be9c97a75670e6fbf1e1736d"
+    },
+    {
+      "cardNo": "RAD·123/167",
+      "lowerText": "{{壁垒}}（必须先为我分配战斗伤害。）",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20261009/a93d1d051cc34556bc4156d4f0a46cb0.png",
+      "sourceImageSha256": "47123a01489766c1a24add48e782e3acd949312680966ebe645324361b25ecc9"
+    },
+    {
+      "cardNo": "VEN·011",
+      "lowerText": "当我移动到一处战场时，给予我在本回合内{{S}}+2。",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260715/117e224c90b94867b095001438b0a2dd.png",
+      "sourceImageSha256": "b70a81aa99fc7ed7a115e0801dc70f715f4f79496515849d427e1c73ec86984b"
+    },
+    {
+      "cardNo": "VEN·027",
+      "lowerText": "如果我所在的战场上受你控制的其他单位有且仅有一个，则我获得{{S}}+2。",
+      "reminderOnly": false,
+      "baseMightBonus": 1,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260715/2c8c6e4630f34482848e254fcd86c35a.png",
+      "sourceImageSha256": "76a3bfafb6603873613146dac070c5c2a0d80d95300b918f56c1dfd55cdd3fbd"
+    },
+    {
+      "cardNo": "VEN·073",
+      "lowerText": "我无法被敌方法术和技能移动。",
+      "reminderOnly": false,
+      "baseMightBonus": 2,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260709/9b7eb54b2aee4168b061e911d6acad99.png",
+      "sourceImageSha256": "a40c6de22e17f7673bc6c2448576ed022fad2462f4808da06051372f6c2b7a3b"
+    },
+    {
+      "cardNo": "RAD·150/167",
+      "lowerText": "{{游走}}（我可以从战场移动到其他战场。）",
+      "reminderOnly": false,
+      "baseMightBonus": 3,
+      "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260928/70887e0a6ba84c74a179ff0a42284700.png",
+      "sourceImageSha256": "d69b6087acc86dd915402c1028104aecf9b39b2c274f603525a0e27c8eb018fb"
+    }
+  ]
+}

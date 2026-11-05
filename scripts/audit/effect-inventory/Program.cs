@@ -84,6 +84,7 @@ var cards = catalog.Cards.OrderBy(c => c.CardNo, StringComparer.Ordinal).Select(
         card.Id, card.CardNo, card.CardName, card.SubTitle, card.CardCategory, card.CardCategoryName,
         card.CardEffect, card.Hero, card.Energy, card.Power, card.ReturnEnergy, card.Tag,
         card.CardColorList, spec.FunctionalUnitId,
+        armament = OfficialArmamentCatalog.Find(card.CardNo),
         behaviors = ActiveBehaviors(card.CardNo),
         tokenTags = P6TokenFactoryCatalog.TryGetByCardNo(card.CardNo, out var factory)
             ? factory.CreateObject("audit-token", "audit-player", "audit-player").Tags.ToArray() : [],
