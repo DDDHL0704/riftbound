@@ -33,6 +33,10 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         path.write_text(json.dumps(dict(schemaVersion=1, records=[row])))
         return path
 
+    def test_hold_and_conquer_equivalence_is_a_rule_modification(self):
+        row = audit.card_clauses(equipment(lower='我的据守效果也是征服效果，反之亦然。'))[-1]
+        self.assertEqual('rule', row['kind'])
+
     def test_upper_and_lower_are_separate_clauses_with_distinct_hosts(self):
         card = equipment()
         rows = audit.card_clauses(card)
@@ -102,6 +106,7 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         same = equipment(lower='{{强攻2}}（战力增加。）')
         self.assertEqual(audit.effect_identity(card), audit.effect_identity(same))
         self.assertNotEqual(audit.effect_identity(card), audit.effect_identity(equipment(lower='{{坚守2}}')))
+        self.assertNotEqual(audit.effect_identity(card), audit.effect_identity(dict(card, armament=dict(baseMightBonus=1))))
         same['armamentText']['sourceImageSha256'] = 'b' * 64
         self.assertEqual(audit.effect_identity(card), audit.effect_identity(same))
 
@@ -145,9 +150,9 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         path = self.document(card)
         with self.assertRaisesRegex(ValueError, '下栏中文来源'):
             audit.attach_armament_sources(dict(cards=[dict(card, cardNo='NEW')]), path)
-        card = dict(card, armament=None, tag='武装')
-        with self.assertRaisesRegex(ValueError, '运行时定义'):
-            audit.attach_armament_sources(dict(cards=[card]), path)
+        for tag in ['武装', '', None]:
+            with self.subTest(tag=tag), self.assertRaisesRegex(ValueError, '运行时定义'):
+                audit.attach_armament_sources(dict(cards=[dict(card, armament=None, tag=tag)]), path)
 
     def test_bad_source_authority_hash_might_and_duplicate_are_rejected(self):
         card = equipment()

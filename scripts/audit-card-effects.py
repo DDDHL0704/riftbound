@@ -97,7 +97,7 @@ def clause_kind(text: str, category: str) -> str:
         return "activated"
     if re.match(r"当我在场上时[，,]", bare):
         return "rule" if re.search(r"可以.+(?:打出|移动)|不能|无法|改为", bare) else "static"
-    if re.search(r"不限数量|至多.*增益|不能|不可|可以.+(?:打出|移动)|跳过|改为|额外.+(?:次|个|张)|上限|仅(?:可|能)|只能|无法", bare):
+    if re.search(r"不限数量|至多.*增益|不能|不可|可以.+(?:打出|移动)|跳过|改为|效果也是.+效果|额外.+(?:次|个|张)|上限|仅(?:可|能)|只能|无法", bare):
         # A triggered rule change is still a trigger; check its timing first.
         if not re.match(r"(?:每当|当|在.+时)", bare):
             return "rule"
@@ -176,7 +176,8 @@ def effect_identity(card: dict) -> tuple:
                  ("cardName", "subTitle", "cardCategory", "energy", "power", "returnEnergy", "tag",
                   "cardColorList")) + (normalize("\n".join(unparenthesize(line) for line in card["cardEffect"].splitlines())),
                   normalize(unparenthesize("" if card.get("armamentText", {}).get("reminderOnly")
-                      else card.get("armamentText", {}).get("lowerText", ""))))
+                      else card.get("armamentText", {}).get("lowerText", ""))),
+                  card.get("armament", {}).get("baseMightBonus", 0) if card.get("armament") else 0)
 
 
 def card_clauses(card: dict) -> list[dict]:
@@ -200,7 +201,8 @@ def attach_armament_sources(inventory: dict, path: Path) -> dict:
     for original in inventory["cards"]:
         card = dict(original)
         runtime = card.get("armament")
-        if runtime is not None or "equipment" in card.get("cardCategory", "") and "武装" in card.get("tag", ""):
+        if runtime is not None or "equipment" in (card.get("cardCategory") or "") and (
+                "武装" in (card.get("tag") or "") or "装配" in (card.get("cardEffect") or "")):
             row = rows.get(normalize_no(card["cardNo"]))
             if row is None or runtime is None:
                 raise ValueError("缺少武装下栏中文来源或运行时定义：" + card["cardNo"])
