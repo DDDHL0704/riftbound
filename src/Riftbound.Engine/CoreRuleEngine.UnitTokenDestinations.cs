@@ -65,7 +65,8 @@ public sealed partial class CoreRuleEngine
         {
             var destination = "BATTLEFIELD:" + field.ObjectId;
             if (!BattlefieldLocalRules.PreventsUnitPlay(context, destination)
-                && (anywhere || IsPlayCardUnitBattlefieldDestinationAllowed(context, player, destination)
+                && (anywhere || IsOpenBattlefield(context, field.ObjectId) && FriendlyUnitPlayToOpenBattlefieldGranted(context, player)
+                    || IsPlayCardUnitBattlefieldDestinationAllowed(context, player, destination)
                     && HasControlledUnitAtBattlefield(context, player, field.ObjectId)))
                 options.Add(new(destination, OfficialCardSourceIdentityGroups.DisplayName(field.CardNo ?? field.ObjectId), [field.ObjectId]));
         }

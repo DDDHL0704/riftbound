@@ -18770,7 +18770,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !DeployedEquipmentDestinationAllowed(state, behavior, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
-                && !OpenBattlefieldPlayAllowed(state, behavior, destination)
+                && !OpenBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                     && !GrantedUnitPlayBattlefieldAllowed(state, intent.PlayerId, behavior, destination)
                 && !PaidBattlefieldUnitPlayDestination(optionalCosts, destination)
                 && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
@@ -30271,6 +30271,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int>? playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         bool isBattlefieldDestination,
+        IReadOnlyDictionary<string, int>? playerScores,
         out StaticAbilitySpec ability)
     {
         ability = default!;
@@ -30287,7 +30288,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 controllerId,
                 playerExperience,
                 destroyedUnitOwnerIdsThisTurn,
-                isBattlefieldDestination))
+                isBattlefieldDestination,
+                playerScores))
         {
             return false;
         }
@@ -30304,8 +30306,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyDictionary<string, int>? playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
-        bool isBattlefieldDestination)
+        bool isBattlefieldDestination,
+        IReadOnlyDictionary<string, int>? playerScores)
     {
+        if (ability.MaxOpponentWinningScoreDistance is { } distance
+            && (playerScores is null || !playerZones.Keys.Any(opponent => opponent != controllerId
+                && PlayerWithinWinningScoreDistance(playerScores, EffectiveWinningScore(playerZones, cardObjects), opponent, distance))))
+            return false;
         if (!StaticAbilityControllerRequirementsSatisfied(ability, playerExperience, controllerId))
         {
             return false;

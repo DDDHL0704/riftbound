@@ -70,6 +70,7 @@ public sealed partial class CoreRuleEngine
                 playerExperience,
                 destroyedUnitOwnerIdsThisTurn,
                 IsStackItemBattlefieldDestination(stackItem),
+                playerScores,
                 out var sourceUnitEntryStaticAbility);
         var entersReadyFromOtherFriendlyStaticAbility =
             TryGetFriendlyUnitEnterReadyStaticAbilitySource(
