@@ -22486,17 +22486,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var required = normalizedOptionalCosts.Where(cost =>
                 cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
-            if (required.Length != 1 || !TryParseDestroyFriendlyUnitAdditionalCost(required[0], out var target)) return false;
-            if (behavior.MaySacrificeUnitForPrintedCostReduction
-                && !TrySacrificeUnitCost(state, playerId, target, out _, out _)) return false;
-            var otherCosts = normalizedOptionalCosts.Where(cost => !string.Equals(cost, required[0], StringComparison.Ordinal)).ToArray();
+            if (required.Length == 0 || behavior.FixedYellowPowerReductionPerSacrificedUnit == 0 && required.Length != 1
+                || required.Any(cost => !TryParseDestroyFriendlyUnitAdditionalCost(cost, out _))) return false;
+            var targets = required.Select(cost => cost[DestroyFriendlyUnitAdditionalCostPrefix.Length..].Trim()).ToArray();
+            if (targets.Distinct(StringComparer.Ordinal).Count() != targets.Length
+                || behavior.MaySacrificeUnitForPrintedCostReduction
+                    && targets.Any(target => !TrySacrificeUnitCost(state, playerId, target, out _, out _))) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => !required.Contains(cost, StringComparer.Ordinal)).ToArray();
             if (!TryBuildOptionalCostPlan(state, playerId, otherCosts,
                     behavior with { RequiresDestroyFriendlyUnitAdditionalCost = false, MaySacrificeUnitForPrintedCostReduction = false }, out _,
                     out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
                     out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
                     out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
                     out discardedOptionalCostTargetObjectIds)) return false;
-            destroyedAdditionalCostTargetObjectIds = destroyedAdditionalCostTargetObjectIds.Append(target).ToArray();
+            destroyedAdditionalCostTargetObjectIds = destroyedAdditionalCostTargetObjectIds.Concat(targets).ToArray();
             return true;
         }
 

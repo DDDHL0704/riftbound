@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-commander-ledros-spirit-static",
-  "description": "OGN 231 Commander Ledros enters as a Spirit unit with shield and roam while optional sacrifice cost text is deferred.",
+  "description": "OGN 231 Commander Ledros pays the full printed cost when no optional sacrifices are selected and enters exhausted with Spirit, shield and roam.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·231/298 莱卓斯指挥官",
-      "note": "官方卡面：费用 6；单位；战力 8；灵体；法盾；游走；可选择摧毁任意数量友方单位作为额外费用，每摧毁一名费用减少黄色。当前 fixture 覆盖不支付可选额外费用时从手牌打出后成为基地单位对象并记录标签；可选牺牲、费用减少、法盾目标税和游走移动路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 8；灵体；法盾；游走；可选择摧毁任意数量友方单位作为额外费用，每摧毁一名费用减少黄色。当前 fixture 覆盖不支付可选额外费用时从手牌打出，完整支付 6 法力和 4 黄色符能，并成为休眠基地单位、保留属性标签。任意数量牺牲减费、替换付款和恢复回放由专项测试覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

@@ -4294,10 +4294,13 @@ internal static partial class ActionPromptBuilder
 
         if (behavior.MaySacrificeUnitForPrintedCostReduction)
             choices.AddRange(AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId)
-                .Where(cost => cost.Choice is not null).Select(cost => {
-                    var target = ObjectChoice(state, cost.Choice!.Split(':', 2)[1], "可选额外费用；不是技能目标");
-                    return new ActionPromptChoiceDto(cost.Choice!, $"摧毁友方单位：{target.Label}",
-                        $"支付后 {cost.Mana.Total} 法力 / {cost.GenericPower + cost.TypedPower.Values.Sum()} 符能");
+                .SelectMany(cost => cost.Choices.Select(choice => (cost, choice))).DistinctBy(item => item.choice)
+                .Select(item => {
+                    var target = ObjectChoice(state, item.choice.Split(':', 2)[1], "可选额外费用；不是技能目标");
+                    return new ActionPromptChoiceDto(item.choice, $"摧毁友方单位：{target.Label}",
+                        behavior.FixedYellowPowerReductionPerSacrificedUnit > 0
+                            ? $"可选择任意数量；每名减少 {behavior.FixedYellowPowerReductionPerSacrificedUnit} 黄色符能，仍支付完整法力费用"
+                            : $"支付后 {item.cost.Mana.Total} 法力 / {item.cost.GenericPower + item.cost.TypedPower.Values.Sum()} 符能");
                 }));
 
         if (HasSourceStealEnemyEquipmentOptionalCost(behavior))

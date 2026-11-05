@@ -24,6 +24,14 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (IsStandbyHandPlayHere(parent))
+        {
+            definition = new(parent.CardNo, "进攻后从手牌打出待命牌", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "HAND", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
+                EffectPlayIgnoreAllCosts: true, EffectPlayAllowsAnyCard: true, EffectPlayRequiresStandby: true,
+                EffectPlayDestination: "SOURCE_HERE_IF_UNIT");
+            return true;
+        }
         if (parent.SimpleActivation?.AbilityId == LinkedGraveyardPlayAbility)
         {
             definition = new(parent.CardNo, "受诅咒的石棺", 0, parent.EffectKind, 0, 0,
@@ -108,7 +116,8 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool EffectPlaySourceMatches(CardObjectState card, CardBehaviorDefinition definition)
-        => CardBehaviorRegistry.GetAll().Any(b => b.CardNo == card.CardNo && (definition.EffectPlayAllowsAnyCard
+        => (!definition.EffectPlayRequiresStandby || StandbyRules.HasPrintedKeyword(card.CardNo))
+            && CardBehaviorRegistry.GetAll().Any(b => b.CardNo == card.CardNo && (definition.EffectPlayAllowsAnyCard
             ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(b)
             : definition.EffectPlaySourceZone == "BANISHED"
                 || definition.DeckPlayKind is "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY" or OwnedUnitReplayKind
@@ -136,6 +145,8 @@ public sealed partial class CoreRuleEngine
         var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null || pending.Parent.ObservedPlayPermission is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value
+            && (!IsStandbyHandPlayHere(pending.Parent)
+                || TryGetEffectPlayDefinition(pending.Parent, out var handDefinition) && EffectPlaySourceMatches(card, handDefinition))
             && (RecastSpec(pending.Parent) is not { } spec || RecastSourceAllowed(state, playerId, card, spec)))
             .Select(x => x.Key).ToArray();
     }
@@ -212,6 +223,8 @@ public sealed partial class CoreRuleEngine
         return ordinary.Concat(deployed).Concat(behaviors.SelectMany(b => BattlefieldUnitPlayGrants(state, playerId, b))
                 .Select(g => "BATTLEFIELD:" + g.Field.ObjectId))
             .Where(destination => behavior is null || UnitPlayLocationRestrictionAllows(state, playerId, behavior, destination))
+            .Where(destination => state.PendingEffectPlay is not { } current || !IsStandbyHandPlayHere(current.Parent)
+                || behaviors.Any(b => !b.PlaysSourceToBaseAsUnit || destination == StandbyHandPlayHere(state, current.Parent)))
             .Distinct(StringComparer.Ordinal).ToArray();
     }
 
@@ -222,6 +235,9 @@ public sealed partial class CoreRuleEngine
         if (pending is null || pending.PlayerId != playerId) return [];
         bool AllowsEntry(string destination) => !behavior.PlaysSourceToBaseAsUnit
             || !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination);
+        if (IsStandbyHandPlayHere(pending.Parent) && behavior.PlaysSourceToBaseAsUnit)
+            return StandbyHandPlayHere(state, pending.Parent) is { } standbyHere && AllowsEntry(standbyHere) ? [standbyHere] : [];
+        if (IsStandbyHandPlayHere(pending.Parent) && !IsDeployedEquipment(behavior)) return ["BASE"];
         if (pending.DestinationPolicy == "ORIGINAL_LOCATION_OR_BASE")
         {
             var originalDestinations = new List<string> { "BASE" };
@@ -324,7 +340,9 @@ public sealed partial class CoreRuleEngine
     {
         var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
         var cost = pending.SourceReplay is not null || pending.Parent.ObservedPlayPermission is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? pending.Parent.DeckPlaySequence is not null
-            ? "忽略一切费用，按正常步骤选择并打出" : pending.DestinationPolicy == "ANY" ? "忽略一切费用；按正常步骤选择合法位置打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
+            ? "忽略一切费用，按正常步骤选择并打出" : pending.DestinationPolicy == "SOURCE_HERE_IF_UNIT"
+                ? "从手牌正面朝上打出带有待命技能的卡牌，无视费用；单位须打到技能来源当前所在的位置"
+                : pending.DestinationPolicy == "ANY" ? "忽略一切费用；按正常步骤选择合法位置打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
         return $"《{name}》要求再次打出 · {cost}";
@@ -473,8 +491,9 @@ public sealed partial class CoreRuleEngine
         if (command is PlayCardCommand play)
         {
             if (!EffectPlaySources(state, intent.PlayerId).Contains(play.SourceObjectId)
-                || (!(CardBehaviorRegistry.TryGetByCardNo(play.CardNo, out var playedBehavior) && UsesDeclaredMovementDestination(playedBehavior))
-                    && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrWhiteSpace(play.Destination) ? "BASE" : play.Destination))
+                || !CardBehaviorRegistry.TryGetByCardNo(play.CardNo, out var playedBehavior)
+                || (!UsesDeclaredMovementDestination(playedBehavior)
+                    && !EffectPlayDestinations(state, intent.PlayerId, playedBehavior).Contains(string.IsNullOrWhiteSpace(play.Destination) ? "BASE" : play.Destination))
                 || IsAmbushPlayMode(play.Mode))
                 return RejectWithCorePrompts(state, "再次打出的来源或位置已失效。", ErrorCodes.InvalidTarget);
             var playState = pending.Parent.ObservedPlayPermission is not null ? state with {

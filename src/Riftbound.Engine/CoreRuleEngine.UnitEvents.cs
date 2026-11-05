@@ -43,6 +43,10 @@ public sealed partial class CoreRuleEngine
                         || spec.Timing == "PLAY_OR_LEAVE" && timing is "PLAY" or "LEAVE"
                         || spec.Timing == "PLAY_OR_EXHAUST" && timing is "PLAY" or "BECAME_EXHAUSTED")
                     && (!spec.RequiresEmpowered || card.IsEmpowered)
+                    // CN383.2.a.1: an immediately following condition is checked
+                    // at the triggering event; later responses do not recheck it.
+                    && (spec.MinimumControlledEquipment == 0 || CountControlledPublicFieldEquipmentObjects(zones, cards,
+                        EffectiveFieldControllerId(zones, card.ObjectId, card)) >= spec.MinimumControlledEquipment)
                     && (!spec.RequiresNoDamageThisTurn || !card.UntilEndOfTurnEffects.Contains(TookDamageThisTurn)))
                 .Select(i => new UnitEventObservation(card.ObjectId, EffectiveFieldControllerId(zones, card.ObjectId, card),
                     new(i.CardNo, card.ObjectGeneration, card.CopyFaceTransitions?.Count ?? 0, 0, UnitEventSpec(i.CardNo)!.Timing,
@@ -450,8 +454,15 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
+        if (spec.Effect == StandbyHandPlayHereEffect)
+        {
+            if (item.EffectPlayCompleted) return NoopStackResolutionResult(state);
+            TryGetEffectPlayDefinition(item, out var definition);
+            return BeginEffectPlay(state, item, definition);
+        }
         if (spec.Effect == "DECLARE_ATTRIBUTE") return ResolveAttributeDeclaration(state, item);
         if (IsPlayedUnitRuneSpec(spec)) return ResolvePlayedUnitRunes(state, item, spec);
+        if (spec.Effect == "CALL_RUNES_PER_CONSUMED_BOON") return ResolvePaidBoonRuneInstruction(state, item, spec);
         if (spec.Effect == "BANISH_LINKED_UNIT_HERE") return ResolveLinkedUnitExile(state, item);
         if (spec.Effect == "BANISH_TOP_TIMED_PLAY") return ResolveTimedBanishPlay(state, item,
             [new("ABILITY_RESOLVED", "触发技能结算", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId })]);

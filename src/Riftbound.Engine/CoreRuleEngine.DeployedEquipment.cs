@@ -14,7 +14,7 @@ public sealed partial class CoreRuleEngine
             && BattlefieldLocalRules.Battlefield(state, destination[12..]) is not null;
 
     private static bool EffectPlayAllowsDeployment(MatchState state, string player)
-        => state.PendingEffectPlay is { DestinationPolicy: "ANY", RevealedHand: null } pending
+        => state.PendingEffectPlay is { DestinationPolicy: "ANY" or "SOURCE_HERE_IF_UNIT", RevealedHand: null } pending
             && pending.PlayerId == player && pending.Parent.PlayedFromStandby is null;
 
     private static UnitEventObservation[] CaptureFriendlyAttackHere(MatchState state, IEnumerable<string> attackers)

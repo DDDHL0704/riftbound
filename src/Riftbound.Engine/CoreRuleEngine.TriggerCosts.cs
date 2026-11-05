@@ -9,6 +9,8 @@ public sealed record TriggerCostReceipt(ObjectBinding Source, ObjectBinding? Dis
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ObjectBinding? ConsumedBoon { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ObjectBinding>? ConsumedBoons { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -17,7 +19,8 @@ public sealed partial class CoreRuleEngine
     internal const string OptionalTriggerWindow = "TRIGGER_OPTIONAL_CONFIRMATION";
     private sealed record LeadingCost(bool Exhaust = false, bool Discard = false, int Power = 0, int Mana = 0, bool DestroyLocalUnit = false, string? PowerTrait = null, bool BanishSelf = false,
         int DestroyOtherFriendlyPermanents = 0, bool BanishGraveyardCard = false, bool ConsumeBoon = false, bool DestroySelf = false,
-        string? DestroyOtherFriendlyPermanentsRequiredTag = null, bool ConsumeBoonFromUnitsOnly = false);
+        string? DestroyOtherFriendlyPermanentsRequiredTag = null, bool ConsumeBoonFromUnitsOnly = false,
+        bool ConsumeAnyNumberOfBoons = false);
 
     // CN 204.1.c: leading instruction costs are paid while confirming a trigger,
     // before responses. A paid receipt follows the captured stack item, not its live source.
@@ -25,7 +28,7 @@ public sealed partial class CoreRuleEngine
         && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior) && behavior.PlayTriggerBanishesGraveyardCardAsCost
         && item.EffectKind == behavior.EffectKind && TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts);
 
-    private static LeadingCost? LeadingTriggerCost(StackItemState item) => HasMovedEnemyStunCost(item) ? new(Exhaust: true) : item.BattlefieldConquestConsumeBoon is { } boon && BattlefieldConquestConsumeBoonDefinition(boon.CardNo) is not null ? new(ConsumeBoon: true) : item.UnitConquestReturn is { } unitReturn && UnitConquestReturnSpec(unitReturn.CardNo) is { } returnSpec ? new(Mana: returnSpec.ManaCost ?? 0) : item.FieldContext?.Kind == EquipmentDeathReturnKind ? new(Mana: EquipmentDeathReturnSpecs.Value[item.FieldContext.CardNo].ManaCost ?? 0) : HasPlayGraveyardBanishCost(item) ? new(BanishGraveyardCard: true) : item.UnitEvent is { } boonEvent && SelectedUnitEventSpec(boonEvent) is { LeadingConsumeBoon: true } ? new(ConsumeBoon: true, ConsumeBoonFromUnitsOnly: true) : item.UnitEvent is { } optional && IsOptionalUnitEventDraw(optional) ? new() : item.UnitEvent is { } exhausting && SelectedUnitEventSpec(exhausting) is { LeadingSourceExhaust: true } exhaustSpec ? new(Exhaust: true,
+    private static LeadingCost? LeadingTriggerCost(StackItemState item) => HasMovedEnemyStunCost(item) ? new(Exhaust: true) : item.BattlefieldConquestConsumeBoon is { } boon && BattlefieldConquestConsumeBoonDefinition(boon.CardNo) is not null ? new(ConsumeBoon: true) : item.UnitConquestReturn is { } unitReturn && UnitConquestReturnSpec(unitReturn.CardNo) is { } returnSpec ? new(Mana: returnSpec.ManaCost ?? 0) : item.FieldContext?.Kind == EquipmentDeathReturnKind ? new(Mana: EquipmentDeathReturnSpecs.Value[item.FieldContext.CardNo].ManaCost ?? 0) : HasPlayGraveyardBanishCost(item) ? new(BanishGraveyardCard: true) : item.UnitEvent is { } manyBoons && SelectedUnitEventSpec(manyBoons) is { LeadingConsumeAnyNumberOfBoons: true } ? new(ConsumeAnyNumberOfBoons: true, ConsumeBoonFromUnitsOnly: true) : item.UnitEvent is { } boonEvent && SelectedUnitEventSpec(boonEvent) is { LeadingConsumeBoon: true } ? new(ConsumeBoon: true, ConsumeBoonFromUnitsOnly: true) : item.UnitEvent is { } optional && IsOptionalUnitEventDraw(optional) ? new() : item.UnitEvent is { } exhausting && SelectedUnitEventSpec(exhausting) is { LeadingSourceExhaust: true } exhaustSpec ? new(Exhaust: true,
             Power: exhaustSpec.LeadingPowerCost, Mana: exhaustSpec.LeadingManaCost, PowerTrait: exhaustSpec.LeadingPowerTrait) : item.UnitEvent is { } sacrifice && SelectedUnitEventSpec(sacrifice) is { LeadingDestroyOtherFriendlyPermanents: > 0 } sacrificeSpec ? new(DestroyOtherFriendlyPermanents: sacrificeSpec.LeadingDestroyOtherFriendlyPermanents, DestroyOtherFriendlyPermanentsRequiredTag: sacrificeSpec.LeadingDestroyOtherFriendlyPermanentsRequiredTag) : item.UnitEvent is { } self && SelectedUnitEventSpec(self)?.LeadingSelfBanish == true ? new(BanishSelf: true) : item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { } eventSpec && (eventSpec.LeadingPowerCost > 0 || eventSpec.LeadingManaCost > 0) ? new(Power: eventSpec.LeadingPowerCost, Mana: eventSpec.LeadingManaCost, PowerTrait: eventSpec.LeadingPowerTrait) : item.GraveyardPlay is { } graveyard && GraveyardPlaySpec(graveyard.CardNo) is { } graveyardSpec ? new(Power: graveyardSpec.PowerCost!.Value, Mana: graveyardSpec.ManaCost!.Value, PowerTrait: graveyardSpec.PowerCostTrait) : CreatedTokenReadyHasPayment(item) ? new(Power: 1, PowerTrait: CardBehaviorRegistry.TryGetByCardNo(item.CreatedTokenReady!.CardNo, out var ready) ? ready.CreatedTokenReadyPowerTrait : null) : item.SivirRuneRecycle is not null ? new(Exhaust: true) : item.BattlefieldConquestMight is { } conquestMight ? new(Mana: BattlefieldConquestMightDefinition(conquestMight.CardNo)?.ManaCost ?? 0) : item.AttachmentObserver is { } attached && AttachmentDrawSpec(attached.CardNo) is { } drawSpec ? new(Mana: drawSpec.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
         "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
         "EXHAUST_READY_UNIT" or "EXHAUST_DECK_PLAY" => new(Exhaust: true),
@@ -40,7 +43,7 @@ public sealed partial class CoreRuleEngine
     };
     internal static bool NeedsTriggerCostConfirmation(StackItemState item) => LeadingTriggerCost(item) is not null && item.TriggerCost is null;
 
-    private static bool ValidLeadingCostContext(StackItemState item) => HasMovedEnemyStunCost(item) ? ValidMovedEnemyStunStack(item) : item.BattlefieldConquestConsumeBoon is { } boon ? ValidBattlefieldConquestConsumeBoonCostShape(item, boon) : item.UnitConquestReturn is { } unitReturn ? ValidUnitConquestReturnCostShape(item, unitReturn) : item.FieldContext is { Kind: EquipmentDeathReturnKind } equipment ? ValidEquipmentDeathShape(equipment, item.EffectKind, item.CardNo) && ValidEquipmentDeathStack(item) : HasPlayGraveyardBanishCost(item) ? item.PermanentPlaySource is { Generation: >= 0 } source && source.ObjectId == item.SourceObjectId : item.UnitEvent is { } unitEvent ? item.EffectKind == UnitEventEffect && item.CardNo == unitEvent.CardNo && SelectedUnitEventSpec(unitEvent) is { } spec && (spec.LeadingPowerCost > 0 || spec.LeadingManaCost > 0 || spec.LeadingSelfBanish || spec.LeadingDestroyOtherFriendlyPermanents > 0 || spec.LeadingSourceExhaust || spec.LeadingConsumeBoon || spec.Optional && spec.Effect == "DRAW")
+    private static bool ValidLeadingCostContext(StackItemState item) => HasMovedEnemyStunCost(item) ? ValidMovedEnemyStunStack(item) : item.BattlefieldConquestConsumeBoon is { } boon ? ValidBattlefieldConquestConsumeBoonCostShape(item, boon) : item.UnitConquestReturn is { } unitReturn ? ValidUnitConquestReturnCostShape(item, unitReturn) : item.FieldContext is { Kind: EquipmentDeathReturnKind } equipment ? ValidEquipmentDeathShape(equipment, item.EffectKind, item.CardNo) && ValidEquipmentDeathStack(item) : HasPlayGraveyardBanishCost(item) ? item.PermanentPlaySource is { Generation: >= 0 } source && source.ObjectId == item.SourceObjectId : item.UnitEvent is { } unitEvent ? item.EffectKind == UnitEventEffect && item.CardNo == unitEvent.CardNo && SelectedUnitEventSpec(unitEvent) is { } spec && (spec.LeadingPowerCost > 0 || spec.LeadingManaCost > 0 || spec.LeadingSelfBanish || spec.LeadingDestroyOtherFriendlyPermanents > 0 || spec.LeadingSourceExhaust || spec.LeadingConsumeBoon || spec.LeadingConsumeAnyNumberOfBoons || spec.Optional && spec.Effect == "DRAW")
             && (spec.LeadingDestroyOtherFriendlyPermanentsRequiredTag is null
                 || spec.LeadingDestroyOtherFriendlyPermanents > 0 && spec.LeadingDestroyOtherFriendlyPermanentsRequiredTag == CardObjectTags.EquipmentCard)
             : item.GraveyardPlay is { } graveyard ? item.EffectKind == GraveyardPlayEffect && item.CardNo == graveyard.CardNo && item.ControllerId == graveyard.ControllerId && item.SourceObjectId == graveyard.Source.ObjectId && GraveyardPlaySpec(graveyard.CardNo) is not null : item.CreatedTokenReady is not null ? CreatedTokenReadyHasPayment(item) && item.EffectKind == CreatedTokenReadyEffect && item.CardNo == item.CreatedTokenReady.CardNo : item.SivirRuneRecycle is { } sivir ? ValidSivirRuneContext(sivir, item.EffectKind) : item.BattlefieldConquestMight is { } conquestMight ? ValidBattlefieldConquestMightFrame(conquestMight) && item.CardNo == conquestMight.CardNo && item.SourceObjectId == conquestMight.Source.ObjectId && item.ControllerId == conquestMight.ControllerId && ValidCapturedConquestDrawKind(conquestMight, item.EffectKind)  : item.AttachmentObserver is not null ? ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo) : item.BattlefieldStart is { DrawCount: > 0 } start ? ValidBattlefieldStartDefinition(start, item.EffectKind, item.CardNo) : item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
@@ -68,7 +71,7 @@ public sealed partial class CoreRuleEngine
 
     private static string[] TriggerCostChoices(MatchState state, StackItemState item)
     {
-        if (LeadingTriggerCost(item) is { ConsumeBoon: true } boonCost)
+        if (LeadingTriggerCost(item) is { } boonCost && (boonCost.ConsumeBoon || boonCost.ConsumeAnyNumberOfBoons))
             return ValidLeadingCostContext(item) && item.TriggerCost is null
                 && state.PlayerZones.TryGetValue(item.ControllerId, out var controlled)
                 ? controlled.Base.Concat(controlled.Battlefields).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)
@@ -127,9 +130,9 @@ public sealed partial class CoreRuleEngine
     }
 
     private static PendingCardChoiceState TriggerCostChoice(MatchState state, StackItemState item)
-        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false, BanishSelf: false, DestroyOtherFriendlyPermanents: 0, BanishGraveyardCard: false, ConsumeBoon: false, DestroySelf: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, Math.Max(1, LeadingTriggerCost(item)!.DestroyOtherFriendlyPermanents),
+        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false, BanishSelf: false, DestroyOtherFriendlyPermanents: 0, BanishGraveyardCard: false, ConsumeBoon: false, ConsumeAnyNumberOfBoons: false, DestroySelf: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, LeadingTriggerCost(item) is { ConsumeAnyNumberOfBoons: true } ? Math.Max(1, TriggerCostChoices(state, item).Length) : Math.Max(1, LeadingTriggerCost(item)!.DestroyOtherFriendlyPermanents),
             TriggerCostChoices(state, item), [item.BattlefieldConquestConsumeBoon?.Source.ObjectId ?? item.BattlefieldStart?.BattlefieldObjectId ?? item.LegendConquest?.BattlefieldId ?? item.HeldContext?.BattlefieldObjectId ?? item.SourceObjectId],
-            LeadingTriggerCost(item) is { DestroySelf: true } ? "摧毁来源以确认技能；确认后双方可以响应，随后打出关联的放逐卡牌。" : LeadingTriggerCost(item) is { ConsumeBoon: true } boon ? $"选择消耗你控制的{(boon.ConsumeBoonFromUnitsOnly ? "单位" : "单位或装备")}上的增益以确认技能；不选则放弃。支付后双方可以响应，随后结算技能。" : LeadingTriggerCost(item) is { BanishGraveyardCard: true } ? "选择从任意废牌堆放逐一张牌作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyOtherFriendlyPermanents: > 0 } sacrifice
+            LeadingTriggerCost(item) is { DestroySelf: true } ? "摧毁来源以确认技能；确认后双方可以响应，随后打出关联的放逐卡牌。" : LeadingTriggerCost(item) is { ConsumeAnyNumberOfBoons: true } ? "选择消耗任意数量的友方单位增益以确认技能；不选则放弃。支付后双方可以响应，随后按已支付的数量结算技能。" : LeadingTriggerCost(item) is { ConsumeBoon: true } boon ? $"选择消耗你控制的{(boon.ConsumeBoonFromUnitsOnly ? "单位" : "单位或装备")}上的增益以确认技能；不选则放弃。支付后双方可以响应，随后结算技能。" : LeadingTriggerCost(item) is { BanishGraveyardCard: true } ? "选择从任意废牌堆放逐一张牌作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyOtherFriendlyPermanents: > 0 } sacrifice
                 ? $"选择摧毁另外 {sacrifice.DestroyOtherFriendlyPermanents} 个友方{(sacrifice.DestroyOtherFriendlyPermanentsRequiredTag == CardObjectTags.EquipmentCard ? "装备" : "单位或装备")}作为费用；不选则放弃。支付后双方可以响应。"
                 : LeadingTriggerCost(item) is { BanishSelf: true } ? "选择放逐此单位作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyLocalUnit: true } ? "选择摧毁此战场的一名友方单位以确认技能；不选则放弃。费用支付后双方可响应，随后才抽牌。" : item.HeldContext?.Kind == "CHANNEL_OPTIONAL" ? "确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。" : item.HeldContext?.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
                 ? "选择弃置一张手牌并横置乐芙兰以确认技能；不选则放弃。确认后双方响应，结算时在此战场打出活跃映像，再选择复制对象。"
@@ -253,6 +256,12 @@ public sealed partial class CoreRuleEngine
                 || consumed.ObjectId == item.SourceObjectId && !cost.ConsumeBoonFromUnitsOnly
                 || state.CardObjects.TryGetValue(consumed.ObjectId, out var current) && current.ObjectGeneration < consumed.Generation
             : receipt.ConsumedBoon is not null) return false;
+        if (cost.ConsumeAnyNumberOfBoons
+            ? receipt.ConsumedBoons is not { Count: > 0 } boons
+                || boons.Any(b => b is null || b.Generation < 0 || string.IsNullOrWhiteSpace(b.ObjectId)
+                    || state.CardObjects.TryGetValue(b.ObjectId, out var current) && current.ObjectGeneration < b.Generation)
+                || boons.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != boons.Count
+            : receipt.ConsumedBoons is not null) return false;
         return receipt.Power == cost.Power && receipt.Mana == cost.Mana && (cost.Discard
             ? receipt.Discarded is { } discarded && discarded.ObjectId != item.SourceObjectId && discarded.Generation >= 0
                 && state.CardObjects.TryGetValue(discarded.ObjectId, out var card) && discarded.Generation < card.ObjectGeneration
@@ -336,7 +345,9 @@ public sealed partial class CoreRuleEngine
         if (LeadingTriggerCost(item) is { DestroyLocalUnit: true })
             return PayTriggerDestructionCost(state, item, selected[0]);
         if (LeadingTriggerCost(item) is { ConsumeBoon: true })
-            return PayTriggerBoonCost(state, item, selected[0]);
+            return PayTriggerBoonCost(state, item, selected);
+        if (LeadingTriggerCost(item) is { ConsumeAnyNumberOfBoons: true })
+            return PayTriggerBoonCost(state, item, selected);
         if (LeadingTriggerCost(item) is { Exhaust: false })
             return CompleteTriggerCost(state, item, new(new(item.SourceObjectId, TriggerCostSourceGeneration(item))), []);
         var zones = NormalizeZonesForSeats(state);
@@ -392,28 +403,45 @@ public sealed partial class CoreRuleEngine
             DestroyedPermanents: LeadingTriggerCost(item) is { DestroySelf: true } or { DestroyOtherFriendlyPermanents: > 0 } ? paid : null), events);
     }
 
-    private static ResolutionResult PayTriggerBoonCost(MatchState state, StackItemState item, string id)
+    private static ResolutionResult PayTriggerBoonCost(MatchState state, StackItemState item, IReadOnlyList<string> selected)
     {
-        if (!TriggerCostChoices(state, item).Contains(id, StringComparer.Ordinal))
+        var choices = TriggerCostChoices(state, item);
+        var anyNumber = LeadingTriggerCost(item)!.ConsumeAnyNumberOfBoons;
+        if (selected.Count == 0 || !anyNumber && selected.Count != 1
+            || selected.Distinct(StringComparer.Ordinal).Count() != selected.Count
+            || selected.Any(id => !choices.Contains(id, StringComparer.Ordinal)))
             return RejectWithCorePrompts(state, "无法消耗所选增益作为触发费用。", ErrorCodes.InvalidTarget);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        var target = cards[id];
-        var consumed = new ObjectBinding(id, target.ObjectGeneration);
+        var consumed = selected.Select(id => new ObjectBinding(id, cards[id].ObjectGeneration)).ToArray();
         var events = new List<GameEvent>();
         using (new MightInstructionScope(state, zones, cards, events))
         {
-            cards[id] = BoonRules.Consume(target);
-            events.Add(new("BOON_CONSUMED", "消耗所选友方单位或装备的增益作为触发费用", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                ["sourceGeneration"] = TriggerCostSourceGeneration(item), ["targetObjectId"] = id,
-                ["targetGeneration"] = target.ObjectGeneration, ["stackItemId"] = item.StackItemId,
-                ["previousPower"] = target.Power, ["power"] = target.Power - 1, ["reason"] = item.EffectKind }));
+            foreach (var id in selected)
+            {
+                var target = cards[id];
+                cards[id] = BoonRules.Consume(target);
+                events.Add(new("BOON_CONSUMED", "消耗所选友方单位或装备的增益作为触发费用", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["sourceGeneration"] = TriggerCostSourceGeneration(item), ["targetObjectId"] = id,
+                    ["targetGeneration"] = target.ObjectGeneration, ["stackItemId"] = item.StackItemId,
+                    ["previousPower"] = target.Power, ["power"] = target.Power - 1, ["reason"] = item.EffectKind }));
+            }
         }
-        var next = state with { PlayerZones = zones, CardObjects = cards,
-            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        var changed = state with { PlayerZones = zones, CardObjects = cards };
+        var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
+        // CN 143.2.b: losing the boon's might can make marked damage lethal.
+        // Finish this payment instruction before either player can respond.
+        var cleanup = RunStateBasedCleanupLoop(changed, zones, cards, item, state.RunePools,
+            objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
+        events.AddRange(cleanup.Events);
+        var next = changed with { ObjectLocations = ReconcileObjectLocations(locations, zones),
+            RunePools = cleanup.RunePools, TriggerQueue = state.TriggerQueue.Concat(cleanup.TriggerQueue).ToArray(),
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn,
+                cleanup.DestroyedUnitOwnerIds) };
         return CompleteTriggerCost(next, item,
-            new TriggerCostReceipt(new(item.SourceObjectId, TriggerCostSourceGeneration(item))) { ConsumedBoon = consumed }, events);
+            new TriggerCostReceipt(new(item.SourceObjectId, TriggerCostSourceGeneration(item))) {
+                ConsumedBoon = anyNumber ? null : consumed.Single(), ConsumedBoons = anyNumber ? consumed : null }, events);
     }
 
     private static ResolutionResult ResolveTriggerCostPayment(MatchState state, PlayerIntent intent, PendingPaymentState pending,
