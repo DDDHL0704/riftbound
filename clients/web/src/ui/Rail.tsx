@@ -17,6 +17,33 @@ type RailProps = {
   onHover: HoverHandler;
 };
 
+/** A card's name that previews the card on hover (see the delegated listener in Table). */
+function Named({ id, objects, fallback }: { id: string; objects: Record<string, GameObject>; fallback?: string }) {
+  const o = objects[id];
+  return o?.cardNo ? (
+    <span className="cardref" data-card-no={o.cardNo} data-object-id={id}>
+      {cardName(o.cardNo)}
+    </span>
+  ) : (
+    <>{fallback ?? id}</>
+  );
+}
+
+/** Splits a log line on 「card names」 so each name previews its card. */
+function linkNames(text: string, byName: Map<string, { cardNo: string; objectId: string }>) {
+  const parts = text.split(/(「[^」]+」)/);
+  return parts.map((part, i) => {
+    const ref = part.startsWith("「") ? byName.get(part.slice(1, -1)) : undefined;
+    return ref ? (
+      <span key={i} className="cardref" data-card-no={ref.cardNo} data-object-id={ref.objectId}>
+        {part}
+      </span>
+    ) : (
+      part
+    );
+  });
+}
+
 function nameOf(id: string, objects: Record<string, GameObject>, fallback?: string) {
   const o = objects[id];
   return o?.cardNo ? cardName(o.cardNo) : fallback ?? id;
@@ -144,15 +171,15 @@ function BattlePanel({ prompt, objects }: { prompt: Prompt | null; objects: Reco
 
   return (
     <div className="panel panel--battle">
-      <p className="panel__title">{nameOf(battlefieldId ?? "", objects, "战场")}</p>
+      <p className="panel__title"><Named id={battlefieldId ?? ""} objects={objects} fallback={"战场"} /></p>
       <div className="versus">
         <div>
           <p className="muted">进攻</p>
-          <ul>{attackers.map((id) => <li key={id}>{nameOf(id, objects)}（{objects[id]?.effectivePower ?? "?"}）</li>)}</ul>
+          <ul>{attackers.map((id) => <li key={id}><Named id={id} objects={objects} />（{objects[id]?.effectivePower ?? "?"}）</li>)}</ul>
         </div>
         <div>
           <p className="muted">防守</p>
-          <ul>{defenders.map((id) => <li key={id}>{nameOf(id, objects)}（{objects[id]?.effectivePower ?? "?"}）</li>)}</ul>
+          <ul>{defenders.map((id) => <li key={id}><Named id={id} objects={objects} />（{objects[id]?.effectivePower ?? "?"}）</li>)}</ul>
         </div>
       </div>
       {maxTargets > 0 && targetChoices.length > 0 && (
@@ -168,7 +195,7 @@ function BattlePanel({ prompt, objects }: { prompt: Prompt | null; objects: Reco
                 className={`chip${targets.includes(c.id) ? " chip--on" : ""}`}
                 onClick={() => setTargets((cur) => toggle(cur, c.id, maxTargets))}
               >
-                {nameOf(c.id, objects, c.label)}
+                <Named id={c.id} objects={objects} fallback={c.label} />
               </button>
             ))}
           </div>
@@ -283,13 +310,13 @@ function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects
       {required.map((r) => (
         <div key={r.sourceObjectId} className="dmg">
           <p className="dmg__src">
-            {nameOf(r.sourceObjectId, objects)} 造成 <b>{r.damage}</b> 点
+            <Named id={r.sourceObjectId} objects={objects} /> 造成 <b>{r.damage}</b> 点
             {used(r.sourceObjectId) !== r.damage && <span className="warn small">（还剩 {r.damage - used(r.sourceObjectId)} 点）</span>}
           </p>
           {r.legalTargetObjectIds.map((t) => (
             <div key={t} className="dmg__row">
               <span>
-                {nameOf(t, objects)}
+                <Named id={t} objects={objects} />
                 <span className="muted small">（致命 {Math.max(0, (lethal[t] ?? 0) - (existing[t] ?? 0))}）</span>
               </span>
               <span className="stepper">
@@ -343,7 +370,7 @@ function TriggerPanel({ prompt, objects }: { prompt: Prompt | null; objects: Rec
       <ol className="order">
         {order.map((id, i) => (
           <li key={id}>
-            <span>{nameOf(triggers[id]?.sourceObjectId ?? "", objects, triggers[id]?.effectKind ?? id)}</span>
+            <span><Named id={triggers[id]?.sourceObjectId ?? ""} objects={objects} fallback={triggers[id]?.effectKind ?? id} /></span>
             <span className="order__moves">
               <button onClick={() => move(i, -1)} disabled={i === 0} aria-label="上移">↑</button>
               <button onClick={() => move(i, 1)} disabled={i === order.length - 1} aria-label="下移">↓</button>
@@ -663,6 +690,11 @@ function Log({ entries, objects, meId }: { entries: ClientState["log"]; objects:
   }, [objects]);
   // Player handles read as "你" for this player; the opponent keeps the name they chose.
   const me = useMemo(() => new RegExp(`(^|[^\\w])${meId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w]) ?`, "g"), [meId]);
+  const byName = useMemo(() => {
+    const map = new Map<string, { cardNo: string; objectId: string }>();
+    for (const [objectId, o] of Object.entries(objects)) if (o?.cardNo) map.set(cardName(o.cardNo), { cardNo: o.cardNo, objectId });
+    return map;
+  }, [objects]);
   const shown = full ? entries : entries.filter((e) => !ROUTINE.has(e.kind));
   useEffect(() => {
     ref.current?.scrollTo({ top: ref.current.scrollHeight });
@@ -687,7 +719,7 @@ function Log({ entries, objects, meId }: { entries: ClientState["log"]; objects:
             );
           return (
             <li key={entry.id} className={`log__item log__item--${entry.tone}`}>
-              {text}
+              {linkNames(text, byName)}
               {count > 1 && <span className="log__count">×{count}</span>}
             </li>
           );

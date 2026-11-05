@@ -3369,3 +3369,10 @@ button {
   text-align: center;
   font-family: var(--font-num);
 }
+
+/* Card names in the log, panels and choices preview the card on hover. */
+.cardref {
+  text-decoration: underline dotted color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 3px;
+  cursor: help;
+}
