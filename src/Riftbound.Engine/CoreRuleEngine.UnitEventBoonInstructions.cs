@@ -34,10 +34,16 @@ public sealed partial class CoreRuleEngine
                     ["targetObjectId"] = source.ObjectId, ["previousPower"] = source.Power + 1, ["power"] = source.Power }));
             }
         }
-        if (spec.Effect == "BOON_SELF")
+        if (spec.Effect is "BOON_SELF" or "BOON_SELF_AND_READY")
         {
             cards[source.ObjectId] = ApplyBoon(source, behavior, item, source.ObjectId, out var granted, zones, cards);
             events.AddRange(granted);
+            if (spec.Effect == "BOON_SELF_AND_READY")
+            {
+                cards[source.ObjectId] = ApplyReadyState(cards[source.ObjectId], behavior with { ReadiesTarget = true }, item,
+                    source.ObjectId, out var readied, zones, cards);
+                if (readied is not null) events.Add(readied);
+            }
         }
         else if (spec.Effect == "READY_SELF")
         {

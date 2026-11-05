@@ -217,20 +217,20 @@ public static partial class MatchRecoveryValidator
                     && c.CompletedEventSequence >= opened[0].Sequence))
                 errors.Add("captured battlefield equipment detach is not bound to accepted resolution history");
         }
-        foreach (var item in state.StackItems.Where(i => i.BattlefieldConquestConsumeBoon is not null && i.TriggerCost?.ConsumedBoon is not null))
+        foreach (var item in state.StackItems.Where(i => i.TriggerCost?.ConsumedBoon is not null))
         {
             var paid = item.TriggerCost!.ConsumedBoon!;
             var consumed = events.Where(e => e.Event.Kind == "BOON_CONSUMED"
                 && TryReadObjectString(e.Event.Payload, "stackItemId", out var stackId) && stackId == item.StackItemId
                 && TryReadObjectString(e.Event.Payload, "playerId", out var p) && p == item.ControllerId
                 && TryReadObjectString(e.Event.Payload, "sourceObjectId", out var sourceId) && sourceId == item.SourceObjectId
-                && TryReadObjectLong(e.Event.Payload, "sourceGeneration", out var sg) && sg == item.BattlefieldConquestConsumeBoon!.Source.Generation
+                && TryReadObjectLong(e.Event.Payload, "sourceGeneration", out var sg) && sg == item.TriggerCost!.Source?.Generation
                 && TryReadObjectString(e.Event.Payload, "targetObjectId", out var target) && target == paid.ObjectId
                 && TryReadObjectLong(e.Event.Payload, "targetGeneration", out var tg) && tg == paid.Generation
                 && TryReadObjectString(e.Event.Payload, "reason", out var reason) && reason == item.EffectKind).Take(2).ToArray();
             if (consumed.Length != 1 || !HasAcceptedBattlefieldChoice(commands, consumed[0], item.ControllerId,
                 "TRIGGER-COST:" + item.StackItemId, CoreRuleEngine.TriggerCostWindow, paid.ObjectId))
-                errors.Add("captured battlefield boon cost is not bound to accepted payment history");
+                errors.Add("captured trigger boon cost is not bound to accepted payment history");
         }
         if (state.PendingHandChoice is { BattlefieldConquestDiscardDraw: { } hand } choice)
         {

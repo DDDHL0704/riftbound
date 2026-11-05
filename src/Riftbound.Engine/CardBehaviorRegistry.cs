@@ -11,7 +11,8 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     bool DistinctModesPerTurn = false, bool ConsumesSourceBoonDuringResolution = false,
     int MinimumExhaustedUnits = 0, bool OncePerTurn = false,
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
-    string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null);
+    string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
+    bool LeadingConsumeBoon = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
@@ -5583,11 +5584,12 @@ public static class CardBehaviorRegistry
             "OGN·147/298",
             "野爪萨满",
             4,
-            "WILDCLAW_SHAMAN_NO_BOON_CONSUME_PLAY_UNIT",
+            "WILDCLAW_SHAMAN_BOON_READY_PLAY_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            UnitEventAbility: new("PLAY", "BOON_SELF_AND_READY", LeadingConsumeBoon: true)),
         new(
             "OGN·148/298",
             "艾尼维亚",
