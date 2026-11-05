@@ -18,11 +18,12 @@ public sealed partial class CoreRuleEngine
         {
             if (permanent.IsFaceDown || !permanent.Tags.Any(t => t is CardObjectTags.UnitCard or CardObjectTags.EquipmentCard)
                 || !IsObjectOnField(frame.PlayerZones, permanent.ObjectId)
-                || EffectiveFieldControllerId(frame.PlayerZones, permanent.ObjectId, permanent) != controller
-                || !IsSameFieldLocation(frame.PlayerZones, frame.ObjectLocations, source.ObjectId, permanent.ObjectId)) continue;
+                || EffectiveFieldControllerId(frame.PlayerZones, permanent.ObjectId, permanent) != controller) continue;
+            var sameLocation = IsSameFieldLocation(frame.PlayerZones, frame.ObjectLocations, source.ObjectId, permanent.ObjectId);
             foreach (var instance in AttachedRuleTextRules.Instances(frame.PlayerZones, frame.CardObjects, permanent))
                 if (CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var spec))
-                    count = checked(count + Math.Max(0, spec.FriendlyLastBreathAdditionalTriggersHere));
+                    count = checked(count + Math.Max(0, spec.FriendlyLastBreathAdditionalTriggers)
+                        + (sameLocation ? Math.Max(0, spec.FriendlyLastBreathAdditionalTriggersHere) : 0));
         }
         return count;
     }

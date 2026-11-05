@@ -195,6 +195,24 @@ public sealed class WildclawShamanPlayTests
         Assert.False(replay.IsMatch);
     }
 
+    [Fact]
+    public async Task ConsumingASingleBoonCleansUpLethalDamageBeforeResponsesAndKeepsThePaidReceipt()
+    {
+        var initial = Position();
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ALLY"] = initial.CardObjects["ALLY"] with { Damage = 4 } } };
+        var game = await Open(initial);
+        var generation = game.State.CardObjects["ALLY"].ObjectGeneration;
+        await Pay(game, "ALLY");
+        Assert.Contains("ALLY", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(new ObjectBinding("ALLY", generation), Assert.Single(game.State.StackItems).TriggerCost!.ConsumedBoon);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        await game.Top();
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        Assert.False(game.State.CardObjects["UNIT"].IsExhausted);
+        await game.Replay();
+    }
+
     private static MatchState Position() => Boon(VenUnitEntryBasicTests.Position(Shaman), "ALLY");
     private static MatchState Boon(MatchState state, string id) => state with {
         CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {

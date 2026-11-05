@@ -227,6 +227,27 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     return client.submit({ cmdType, sourceObjectId: ids[0], sourceObjectIds: ids.slice(0, 12) });
   };
 
+  /**
+   * A rune can be exhausted for mana and still be recycled for power. When a payment recycles a rune that is still
+   * ready, exhaust it first so its mana stays in the pool for later this turn instead of being lost with the rune.
+   * The play's own taps shrink by the mana this adds. Returns the selection to send and whether anything was tapped.
+   */
+  const tapBeforeRecycle = async (sel: Selection): Promise<{ sel: Selection; tapped: boolean }> => {
+    const objectOf = (id: string) => id.split(":").pop() ?? id;
+    const tappedByPay = new Set(sel.optionalCosts.filter(isTap).map(objectOf));
+    const ready = sel.optionalCosts
+      .filter(isRecycle)
+      .map(objectOf)
+      .filter((id) => tapIds.has(id) && !objects[id]?.isExhausted && !tappedByPay.has(id));
+    if (!ready.length) return { sel, tapped: false };
+    const before = client.state.prompt?.promptId;
+    const receipt = await runRuneCommand("TAP_RUNE", ready);
+    if (!receipt?.accepted) return { sel, tapped: false };
+    for (let i = 0; i < 30 && client.state.prompt?.promptId === before; i++) await new Promise((r) => setTimeout(r, 100));
+    const drop = new Set(sel.optionalCosts.filter(isTap).slice(0, ready.length));
+    return { sel: { ...sel, optionalCosts: sel.optionalCosts.filter((c) => !drop.has(c)) }, tapped: true };
+  };
+
   // ---------- picking ----------
   const currentStep: ActionStep | undefined = pick ? pick.action.steps[pick.step] : undefined;
   const moveOf = (id: string) => actions.get(id)?.find((a) => a.cmdType === "MOVE_UNIT");
@@ -298,7 +319,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       return;
     }
     if (p.action.cmdType !== "PLAY_CARD") {
-      void client.submit(buildCommand(p.action, withOptionPayment(p)), p.action.promptId);
+      void (async () => {
+        const { sel, tapped } = await tapBeforeRecycle(withOptionPayment(p));
+        void client.submit(buildCommand(p.action, sel), tapped ? undefined : p.action.promptId);
+      })();
       return;
     }
     void submitPlay(p);
@@ -325,7 +349,9 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       quote = await client.previewPlayCard(buildCommand(p.action, sel));
     }
     if (!quote || (quote.isValid && quote.canPay)) {
-      void client.submit(buildCommand(p.action, sel), p.action.promptId);
+      const ready = await tapBeforeRecycle(sel);
+      // After the tap the prompt has moved on; the play itself is unchanged, so send it against the new one.
+      void client.submit(buildCommand(p.action, ready.sel), ready.tapped ? undefined : p.action.promptId);
       return;
     }
     const missingPower = quote.cost?.missingPower ?? 0;
