@@ -3914,7 +3914,7 @@ internal static partial class ActionPromptBuilder
                 && (!behavior.RequiresMovementThisTurn
                     || state.CardObjects.TryGetValue(objectId, out var moved) && moved.MovementCountThisTurn > 0)
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
-                    || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId))
+                    || CoreRuleEngine.ChosenMovementDestinationsForTarget(state, playerId, behavior, objectId).Count > 0)
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
                     || CoreRuleEngine.CanMoveUnitWithAttachedEquipmentForEffect(state, playerId, objectId))
                 && (!behavior.DiscardsTargetFromHand
@@ -5417,11 +5417,30 @@ internal static partial class ActionPromptBuilder
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         var targetScope = PromptTargetScopeForBehavior(behavior);
+        var targetChoices = Enumerable.Range(0, maxTargetCount)
+            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId))
+            .ToArray();
         var targetChoicesByIndex = Enumerable.Range(0, maxTargetCount)
             .ToDictionary(
                 targetIndex => targetIndex.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                targetIndex => (object?)PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId),
+                targetIndex => (object?)targetChoices[targetIndex],
                 StringComparer.Ordinal);
+        var movementTargetObjectIds = behavior.MovesTargetsToChosenLocation
+            ? targetChoices
+                .Where((choices, targetIndex) => CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex))
+                .SelectMany(choices => choices)
+                .Select(choice => choice.Id)
+                .Where(state.CardObjects.ContainsKey)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray()
+            : [];
+        var destinationChoicesByTargetObjectId = behavior.MovesTargetsToChosenLocation
+            ? movementTargetObjectIds.ToDictionary(
+                objectId => objectId,
+                objectId => CoreRuleEngine.ChosenMovementDestinationsForTarget(state, playerId, behavior, objectId),
+                StringComparer.Ordinal)
+            : null;
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
@@ -5515,6 +5534,7 @@ internal static partial class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior, sourceObjectId),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
+            ["destinationChoicesByTargetObjectId"] = destinationChoicesByTargetObjectId,
             ["movementDestinationChoicesByIndex"] = behavior.MovesTargetsSequentially
                 ? Enumerable.Range(0, behavior.RequiredTargetCount).ToDictionary(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     i => CoreRuleEngine.SequentialMovementDestinations(state, playerId, i)) : null,
