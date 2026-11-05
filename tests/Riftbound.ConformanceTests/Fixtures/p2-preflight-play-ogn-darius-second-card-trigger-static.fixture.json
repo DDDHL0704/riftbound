@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-darius-second-card-trigger-static",
-  "description": "OGN 027 Darius enters as a Trifarian hero unit while the second-card trigger is deferred.",
+  "description": "OGN 027 Darius enters as a Trifarian hero unit; its second-card trigger is exercised by DariusSecondCardTriggerTests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·027/298 德莱厄斯",
-      "note": "官方卡面：费用 5；英雄单位；战力 5；崔法利；每当控制者在回合中打出第二张牌时，本回合内战力 +2 并变为活跃。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录属性标签；第二张牌触发、本回合战力修正和活跃路径暂缓。"
+      "note": "官方卡面：费用 5；英雄单位；战力 5；崔法利；每当控制者在回合中打出第二张牌时，本回合内战力 +2 并变为活跃。当前静态夹具覆盖普通主阶段从手牌打出后成为基地单位对象并记录属性标签；第二张牌共享触发、回合临时战力和活跃路径由 DariusSecondCardTriggerTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/upstream/2026-10-12/rules-manifest.json",
+      "locator": "CN Origins judge FAQ 7.1; core 383.2.c.1, 420.4.a",
+      "note": "官方起源裁判 FAQ 7.1 明确德莱厄斯自身为本回合第二张牌时其技能正常触发；共享出牌完成流程按成功完成出牌的时机捕获来源并进入正常触发响应链。"
     }
   ],
   "roomId": "p2-preflight-ogn-darius-second-card-room",

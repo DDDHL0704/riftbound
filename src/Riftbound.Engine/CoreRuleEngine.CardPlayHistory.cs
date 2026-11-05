@@ -33,7 +33,8 @@ public sealed partial class CoreRuleEngine
             || (confirmed.OriginHandPlayerId ?? confirmed.PlayerId) != completed.PlayerId);
     private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone,
         IReadOnlyList<UnitEventObservation> FirstCardObservers,
-        OutsideHandPlayObserverCandidate[] Observers, HighCostPlayObserverCandidate[] HighCostObservers);
+        OutsideHandPlayObserverCandidate[] Observers, HighCostPlayObserverCandidate[] HighCostObservers,
+        UnitEventObservation[] CardPlayObservers);
     private static readonly Lazy<IReadOnlyDictionary<string, int>> PrintedPlayTypes = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo,
             c => (c.CardCategoryNameList.Any(n => n.Contains("单位", StringComparison.Ordinal)) ? 1 : 0)
@@ -54,8 +55,23 @@ public sealed partial class CoreRuleEngine
                 card.CopyFaceTransitions?.Count ?? 0, originHandPlayerId, originOutsideHands, Showcase: showcase), resolved, zone,
             CaptureFirstCardObservers(zones, cards, player),
             resolved && zones is not null && cards is not null ? CaptureOutsideHandPlayObservers(zones, cards, player) : [],
-            resolved && zones is not null && cards is not null ? CaptureHighCostPlayObservers(zones, cards, player) : []);
+            resolved && zones is not null && cards is not null ? CaptureHighCostPlayObservers(zones, cards, player) : [],
+            resolved && zones is not null && cards is not null
+                ? CaptureCardPlayUnitEvents(zones, cards, player, card.ObjectId) : []);
         return ev with { Payload = payload };
+    }
+
+    // Capture at successful completion, before cleanup can remove an observer.
+    // An entering unit can observe its own play (Origins judge FAQ 7.1).
+    private static UnitEventObservation[] CaptureCardPlayUnitEvents(
+        IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
+        string player, string playedSource)
+    {
+        var friendly = cards.Values.Where(card => EffectiveFieldControllerId(zones, card.ObjectId, card) == player)
+            .Select(card => card.ObjectId);
+        return CaptureUnitEvents(zones, cards, friendly, "SECOND_CARD_PLAYED")
+            .Concat(CaptureUnitEvents(zones, cards, [playedSource], "PLAY_AFTER_ANOTHER_CARD"))
+            .Where(observation => observation.Controller == player).ToArray();
     }
 
     private static ResolutionResult RecordCardPlayHistory(MatchState before, ResolutionResult result)
@@ -70,6 +86,7 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var queue = result.State.TriggerQueue.ToList();
         var observers = new List<UnitEventObservation>();
+        var cardPlayObservers = new List<UnitEventObservation>();
         var effects = result.State.UntilEndOfTurnEffects;
         var locations = IdentityLocations(before);
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i)))
@@ -135,6 +152,17 @@ public sealed partial class CoreRuleEngine
                 }
                 if (result.State.Status == MatchStatuses.InProgress)
                 {
+                    if (result.State.PlayerCardsPlayedThisTurn.GetValueOrDefault(entry.PlayerId) >= 2)
+                    {
+                        // Confirmation fixes the ordinal; a later reaction can resolve first
+                        // and raise the counter before the second card completes (CN 420.4).
+                        var isSecondCard = finalized.Where(play => play.PlayerId == entry.PlayerId)
+                            .Skip(1).FirstOrDefault()?.PlayId == entry.PlayId;
+                        var hasOtherCard = finalized.Any(play => play.PlayerId == entry.PlayerId
+                            && play.Source.ObjectId != entry.Source.ObjectId);
+                        cardPlayObservers.AddRange(observation.CardPlayObservers.Where(observer =>
+                            observer.Context.Timing == "SECOND_CARD_PLAYED" ? isSecondCard : hasOtherCard));
+                    }
                     foreach (var (observer, ordinal) in observation.Observers.Select((value, ordinal) => (value, ordinal)))
                     {
                         if (observer.Effect == OutsideHandPlayObserverEffect && !CompletedPlayFromOutsideHand(confirmed, entry)
@@ -168,6 +196,16 @@ public sealed partial class CoreRuleEngine
             if (before.CardObjects.TryGetValue(observer.Source, out var prior) && !IsObjectOnField(before.PlayerZones, observer.Source))
                 captured = observer with { Context = observer.Context with { SourceGeneration = Math.Max(observer.Context.SourceGeneration, prior.ObjectGeneration + 1) } };
             var trigger = UnitEventTrigger(captured, result.State.Tick, index, "FIRST_CARD_PLAYED");
+            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+        foreach (var (observer, index) in cardPlayObservers
+            .DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Timing, o.Context.Origin))
+            .Select((o, i) => (o, i))) {
+            var captured = observer;
+            if (before.CardObjects.TryGetValue(observer.Source, out var prior) && !IsObjectOnField(before.PlayerZones, observer.Source))
+                captured = observer with { Context = observer.Context with {
+                    SourceGeneration = Math.Max(observer.Context.SourceGeneration, prior.ObjectGeneration + 1) } };
+            var trigger = UnitEventTrigger(captured, result.State.Tick, observers.Count + index, "CARD_PLAY_COMPLETED");
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
         var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue, UntilEndOfTurnEffects = effects };

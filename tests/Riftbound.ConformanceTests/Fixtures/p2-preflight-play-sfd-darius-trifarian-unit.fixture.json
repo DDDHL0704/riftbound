@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-sfd-darius-trifarian-unit",
-  "description": "SFD Darius enters as a Trifarian unit object without resolving Inspire or local static power.",
+  "description": "SFD Darius enters exhausted as the first card of the turn; its conditional Inspire ready trigger is exercised by DariusSecondCardTriggerTests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·236/221 德莱厄斯",
-      "note": "官方卡面：费用 6；英雄单位；战力 6；崔法利属性；鼓舞打出时变为活跃，且此处其他友方单位 +1。当前 fixture 覆盖普通主阶段源单位入场并记录属性标签；鼓舞条件、活跃进场和同处友方单位静态战力修正路径暂缓。"
+      "note": "官方卡面：费用 6；英雄单位；战力 6；崔法利属性；鼓舞打出时变为活跃，且此处其他友方单位 +1。当前夹具覆盖本回合第一张出牌的单位入场与属性标签；鼓舞活跃的正反路径由 DariusSecondCardTriggerTests 覆盖，同处光环由 SameBattlefieldOtherFriendlyStaticPowerCardRowTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/upstream/2026-10-12/rules-manifest.json",
+      "locator": "CN core 420.4.a-b, 812.1.b-c",
+      "note": "鼓舞须有同回合另一张已完成确认的卡牌；德莱厄斯作为第一张牌打出时不产生活跃技能，满足鼓舞时通过正常触发响应链变为活跃。"
     }
   ],
   "roomId": "p2-preflight-sfd-darius-room",
@@ -89,21 +94,15 @@
         "cardNo": "SFD·236/221",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-sfd-darius-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-sfd-darius-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

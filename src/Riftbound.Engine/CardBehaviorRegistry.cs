@@ -4396,7 +4396,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            UnitEventAbility: new("PLAY_AFTER_ANOTHER_CARD", "READY_SELF")),
         new(
             "SFD·236*/221",
             "德莱厄斯",
@@ -4406,7 +4407,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            UnitEventAbility: new("PLAY_AFTER_ANOTHER_CARD", "READY_SELF")),
         new(
             "OGN·037/298",
             "不朽凤凰",
@@ -5263,7 +5265,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            UnitEventAbility: new("SECOND_CARD_PLAYED", "MIGHT_SELF_AND_READY", 2)),
         new(
             "OGN·027a/298",
             "德莱厄斯",
@@ -5273,7 +5276,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            UnitEventAbility: new("SECOND_CARD_PLAYED", "MIGHT_SELF_AND_READY", 2)),
         new(
             "OGN·034/298",
             "泰达米尔",

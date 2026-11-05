@@ -451,7 +451,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "BANISH_LINKED_UNIT_HERE") return ResolveLinkedUnitExile(state, item);
         if (spec.Effect == "BANISH_TOP_TIMED_PLAY") return ResolveTimedBanishPlay(state, item,
             [new("ABILITY_RESOLVED", "触发技能结算", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId })]);
-        if (spec.Effect is "BOON_SELF" or "READY_SELF" or "STUN_ENEMY")
+        if (spec.Effect is "BOON_SELF" or "READY_SELF" or "MIGHT_SELF_AND_READY" or "STUN_ENEMY")
             return ResolveUnitEventBoonInstruction(state, item, spec);
         if (spec.Effect == EquipmentUnitTransformationEffect) return ResolveEquipmentUnitTransformation(state, item);
         if (spec.Effect == "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF")
