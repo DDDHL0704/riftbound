@@ -74,14 +74,19 @@ public sealed partial class CoreRuleEngine
         {
             foreach (var previous in previousUnits)
             {
-                var printedUnit = previous.CardNo is not null && P6TokenFactoryCatalog.TryGetByCardNo(previous.CardNo, out var token)
-                    ? token.Tags.Contains(CardObjectTags.UnitCard)
-                    : PrintedCardFactory.TryCreate(previous.ObjectId, previous.OwnerId ?? "", previous.CardNo, out var printed)
-                        && printed.Tags.Contains(CardObjectTags.UnitCard);
+                var face = AttachedRuleTextRules.Face(previous);
+                IReadOnlyList<string> printedTags = face is not null && P6TokenFactoryCatalog.TryGetByCardNo(face, out var token)
+                    ? token.Tags
+                    : PrintedCardFactory.TryCreate(previous.ObjectId, previous.OwnerId ?? "", face, out var printed)
+                        ? printed.Tags : [];
                 var remaining = LatestEquipmentUnitTransformation(EquipmentUnitTransformations(previous)
                     .Where(effect => effect.SourceLegend != source));
+                // Core 479.1/479.2: a copy may have replaced the equipment face.
+                // When its last transformation ends, both types follow that face.
                 cards[previous.ObjectId] = previous with { LegendEquipmentUnit = remaining,
-                    Tags = previous.Tags.Where(tag => tag != CardObjectTags.UnitCard || printedUnit || remaining is not null).ToArray() };
+                    Tags = previous.Tags.Where(tag => remaining is not null
+                        || tag is not (CardObjectTags.UnitCard or CardObjectTags.EquipmentCard)
+                        || printedTags.Contains(tag) || previous.GrantedTags?.Contains(tag) == true).ToArray() };
                 events.Add(new("LEGEND_EQUIPMENT_UNIT_ENDED", "选择另一件装备，此传奇对原装备的单位转换结束",
                     new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
                         ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = previous.ObjectId }));
