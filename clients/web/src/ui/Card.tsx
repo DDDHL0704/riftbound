@@ -5,6 +5,8 @@ import type { GameObject } from "../game/types";
 
 export type CardMark = "selected" | "legal" | "playable" | "autopay" | "attacking" | "defending" | "dragging" | "recent" | null;
 
+const BOON_TAG = "增益";
+
 export type HoverHandler = (cardNo: string | null, object?: GameObject, rect?: DOMRect) => void;
 
 type CardProps = {
@@ -34,6 +36,8 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
   const power = object?.effectivePower ?? info?.power;
   const showStats = size !== "mini" && size !== "rune" && object && object.tags?.includes("CARD_TYPE:UNIT");
   const buffed = object && object.effectivePower !== object.basePower;
+  // A boon is a +1 might counter the server carries as the unit's 增益 tag.
+  const boon = Boolean(object?.tags?.includes(BOON_TAG));
   const cls = [
     "card",
     `card--${size}`,
@@ -78,6 +82,11 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
         {peek && <span className="card__ribbon">待命</span>}
         {showStats && !hidden && <span className={`card__power${buffed ? " card__power--changed" : ""}`}>{power}</span>}
         {object && object.damage > 0 && <span className="card__damage">{object.damage}</span>}
+        {boon && !hidden && (
+          <span className="card__boon" title="拥有增益（+1 战力）">
+            益
+          </span>
+        )}
         {object?.isEmpowered && !hidden && (
           <span className="card__empower" title={`强化 ${object.empowermentCount ?? 1} 层`}>
             强{(object.empowermentCount ?? 1) > 1 ? `×${object.empowermentCount}` : ""}
@@ -131,8 +140,10 @@ export function EffectText({ text }: { text: string }) {
 export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?: GameObject; rect?: DOMRect }) {
   const info = cardInfo(cardNo);
   if (!info || !rect) return null;
-  const width = 280;
-  const height = Math.round(width * 1.398);
+  // Battlefield scans are portrait with the text turned clockwise; preview them lying down so they read upright.
+  const landscape = info.category === "战场";
+  const width = landscape ? 392 : 280;
+  const height = landscape ? 280 : Math.round(width * 1.398);
   const gap = 18;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
@@ -154,7 +165,7 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
       transition={{ duration: 0.14, ease: "easeOut" }}
       aria-hidden
     >
-      <div className="hoverpreview__face">
+      <div className={`hoverpreview__face${landscape ? " hoverpreview__face--landscape" : ""}`}>
         {info.image ? <img src={info.image} alt="" /> : <div className="hoverpreview__fallback">{info.name}</div>}
         {info.errata && info.effect && (
           <p className="hoverpreview__errata">
@@ -163,7 +174,7 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
           </p>
         )}
       </div>
-      {object && (unit || object.damage > 0 || object.isExhausted || object.isEmpowered) && (
+      {object && (unit || object.damage > 0 || object.isExhausted || object.isEmpowered || object.tags?.includes(BOON_TAG)) && (
         <p className="hoverpreview__state">
           {unit && (
             <span>
@@ -173,6 +184,7 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
           )}
           {object.damage > 0 && <span className="hoverpreview__dmg">已受 {object.damage} 点伤害</span>}
           {object.isExhausted && <span>已横置</span>}
+          {object.tags?.includes(BOON_TAG) && <span className="hoverpreview__boon">拥有增益</span>}
           {object.isEmpowered && <span>强化 {object.empowermentCount ?? 1} 层</span>}
         </p>
       )}

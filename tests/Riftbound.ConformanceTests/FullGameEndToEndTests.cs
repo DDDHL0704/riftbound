@@ -25610,9 +25610,28 @@ public sealed partial class FullGameEndToEndTests
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
-                        Assert.Contains(unitEvent.CardNo, new[] { "OGN·067/298", "OGN·139/298", "OGN·147/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "T1S·005/005", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
+                        Assert.Contains(unitEvent.CardNo, new[] { "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
+                        if (unitEvent.CardNo == "OGN·107/298")
+                        {
+                            Assert.Equal("ATTACK", unitEvent.Timing);
+                            Assert.Equal("PLAY_HAND_STANDBY_HERE", behavior.UnitEventAbility.Effect);
+                            Assert.Equal(1, behavior.UnitEventAbility.LeadingPowerCost);
+                            Assert.Equal("blue", behavior.UnitEventAbility.LeadingPowerTrait);
+                            Assert.Equal(new ObjectBinding(item.SourceObjectId, unitEvent.SourceGeneration), item.TriggerCost!.Source);
+                            Assert.Equal(1, item.TriggerCost.Power);
+                        }
+                        if (unitEvent.CardNo == "SFD·072/221")
+                        {
+                            Assert.Equal("PLAY", unitEvent.Timing);
+                            Assert.Equal("READY_SELF", behavior.UnitEventAbility.Effect);
+                            Assert.Equal(2, behavior.UnitEventAbility.MinimumControlledEquipment);
+                            Assert.False(behavior.UnitEventAbility.Optional);
+                            Assert.Contains(result.State.CardPlays.Resolved, play => play.CardNo == unitEvent.CardNo
+                                && play.Source == new ObjectBinding(item.SourceObjectId, unitEvent.SourceGeneration)
+                                && play.Tick == unitEvent.CapturedTick);
+                        }
                         if (unitEvent.CardNo == "OGN·067/298")
                         {
                             Assert.Equal("PLAY", unitEvent.Timing);
@@ -25635,6 +25654,17 @@ public sealed partial class FullGameEndToEndTests
                             Assert.True(behavior.UnitEventAbility.LeadingConsumeBoon);
                             Assert.Equal(new ObjectBinding(item.SourceObjectId, unitEvent.SourceGeneration), item.TriggerCost!.Source);
                             Assert.NotNull(item.TriggerCost.ConsumedBoon);
+                            Assert.Contains(result.State.CardPlays.Resolved, play => play.CardNo == unitEvent.CardNo
+                                && play.Source == item.TriggerCost.Source && play.Tick == unitEvent.CapturedTick);
+                        }
+                        if (unitEvent.CardNo == "OGN·230/298")
+                        {
+                            Assert.Equal("PLAY", unitEvent.Timing);
+                            Assert.Equal("CALL_RUNES_PER_CONSUMED_BOON", behavior.UnitEventAbility.Effect);
+                            Assert.True(behavior.UnitEventAbility.LeadingConsumeAnyNumberOfBoons);
+                            Assert.Equal(new ObjectBinding(item.SourceObjectId, unitEvent.SourceGeneration), item.TriggerCost!.Source);
+                            Assert.NotEmpty(item.TriggerCost.ConsumedBoons!);
+                            Assert.Null(item.TriggerCost.ConsumedBoon);
                             Assert.Contains(result.State.CardPlays.Resolved, play => play.CardNo == unitEvent.CardNo
                                 && play.Source == item.TriggerCost.Source && play.Tick == unitEvent.CapturedTick);
                         }

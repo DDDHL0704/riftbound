@@ -80,7 +80,8 @@ public sealed class VenBorrowedBattlefieldGrantTests
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
                 ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["DONOR"] } },
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["DONOR"] = new("DONOR", cardNo: "OGN·265/298", ownerId: "P1", controllerId: "P1", tags: ["传奇"], isExhausted: true),
+                ["DONOR"] = OfficialGarenConquestBattlefieldCountTests.Printed("DONOR", "OGN·265/298", "P1")
+                    with { IsExhausted = true },
                 ["BF"] = state.CardObjects["BF"] with { ControllerId = controlled ? "P1" : "P2" },
                 ["GEAR"] = state.CardObjects["GEAR"] with { AttachedToObjectId = attached ? "ALLY" : null } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["DONOR"] = new("P1", "LEGEND") } };

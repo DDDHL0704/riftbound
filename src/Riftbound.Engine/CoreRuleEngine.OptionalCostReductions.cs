@@ -223,12 +223,11 @@ public sealed partial class CoreRuleEngine
                 .DistinctBy(price => price.Key).ToArray();
         }
         var echoReduction = components.Where(c => c.IsEcho).Sum(c => Math.Min(c.Mana, automaticEchoReduction));
-        var sacrifices = new string?[] { null }.Concat(behavior.MaySacrificeUnitForPrintedCostReduction
-            ? OptionalSacrificeCandidates(state, player) : []);
+        var sacrifices = OptionalSacrificeSelections(state, player, behavior);
         foreach (var sacrifice in sacrifices)
         foreach (var price in prices)
         {
-            IReadOnlyList<string> costs = sacrifice is null ? normalized : normalized.Append(sacrifice).ToArray();
+            IReadOnlyList<string> costs = normalized.Concat(sacrifice).ToArray();
             var total = CalculatePlayManaCost(state, player, behavior, price.Mana, optionalReduction,
                 costs, sourceObjectId: source, componentEchoReduction: echoReduction);
             if (PaymentCostRules.AvailableMana(availablePool, ManaPurposeForPlay(behavior), state: state) < total.Total) continue;

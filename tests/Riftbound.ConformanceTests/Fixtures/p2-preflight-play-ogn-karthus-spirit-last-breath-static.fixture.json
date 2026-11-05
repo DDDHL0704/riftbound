@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-karthus-spirit-last-breath-static",
-  "description": "Karthus enters as a Spirit hero unit while last-breath static text is deferred.",
+  "description": "Karthus enters as an exhausted Spirit hero unit; global last-breath amplification is covered by KarthusGlobalLastBreathTests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·236/298 卡尔萨斯",
-      "note": "官方卡面：费用 3；英雄单位；战力 3；灵体；控制者所有绝念效果可以额外触发一次。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；绝念效果额外触发静态路径暂缓。"
+      "note": "官方卡面：费用 3；英雄单位；战力 3；灵体；官方 API 勘误为控制者所有绝念效果额外触发一次。当前 fixture 覆盖普通主阶段打出后成为休眠基地单位并记录属性标签；全场加次、独立技能、响应及恢复回放由 KarthusGlobalLastBreathTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

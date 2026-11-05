@@ -65,19 +65,40 @@ public sealed class RadZiggsCopiedDefenseTests
         Assert.Null(game.State.PendingRuleChoice);
     }
 
-    private static async Task ResolveSkills(Driver game, params string[] destroyed)
+    private static async Task PayDefenseCosts(Driver game, params string[] destroyed)
     {
         var initialPower = game.State.CardObjects["ENEMY1"].Power;
-        for (var index = 0; index < destroyed.Length; index++)
+        // The leading destruction is paid while confirming each captured
+        // trigger, before either player can respond or receive its reward.
+        foreach (var id in destroyed)
         {
-            await game.Top();
-            var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
-            Assert.Equal("DESTRUCTION_SELECTION", choice.Request.Kind);
-            Assert.Equal("P2", choice.Request.PlayerId);
-            Assert.Contains(choice.Request.Options, option => option.Id == "DESTROY:" + destroyed[index]);
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal(CoreRuleEngine.TriggerCostWindow, choice.ChoiceWindow);
+            Assert.Equal("P2", choice.PlayerId);
+            Assert.Null(game.State.PriorityPlayerId);
+            Assert.Contains(id, choice.LegalObjectIds);
+            var generation = game.State.CardObjects[id].ObjectGeneration;
             var firstEvent = game.Events().Length;
-            await game.Act("P2", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["DESTROY:" + destroyed[index]]));
-            Assert.Contains(destroyed[index], game.State.PlayerZones["P2"].Graveyard);
+            await game.Act("P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [id]));
+            Assert.Contains(id, game.State.PlayerZones["P2"].Graveyard);
+            var paid = Assert.Single(game.State.StackItems, item => item.StackItemId == choice.ResolvingStackItemId);
+            Assert.Equal(new ObjectBinding(id, generation), Assert.Single(paid.TriggerCost!.DestroyedPermanents!));
+            Assert.Equal(initialPower, game.State.CardObjects["ENEMY1"].Power);
+            Assert.DoesNotContain(game.Events().Skip(firstEvent), entry => entry.Event.Kind == "UNIT_POWER_CHANGED");
+        }
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.All(game.State.StackItems, item => Assert.NotNull(item.TriggerCost));
+    }
+
+    private static async Task ResolveSkills(Driver game, int count)
+    {
+        var initialPower = game.State.CardObjects["ENEMY1"].Power;
+        for (var index = 0; index < count; index++)
+        {
+            var firstEvent = game.Events().Length;
+            await game.Top();
+            Assert.Null(game.State.PendingRuleChoice);
+            Assert.Null(game.State.PendingCardChoice);
             Assert.Equal(initialPower + 2 * (index + 1), game.State.CardObjects["ENEMY1"].Power);
             Assert.Single(game.Events().Skip(firstEvent), entry => entry.Event.Kind == "UNIT_POWER_CHANGED");
         }
@@ -93,9 +114,11 @@ public sealed class RadZiggsCopiedDefenseTests
         var game = await Attached(songs);
         await CaptureDefense(game, songs + 1);
         Assert.Equal(songs, game.State.StackItems.Count(item => item.UnitEvent!.Origin is not null));
-        await ResolveSkills(game, songs == 1 ? ["GEAR", "JUNK"] : ["GEAR", "SONG2", "JUNK"]);
+        await PayDefenseCosts(game, songs == 1 ? ["GEAR", "JUNK"] : ["GEAR", "SONG2", "JUNK"]);
+        Assert.Equal(songs + 1, game.State.StackItems.Count);
         Assert.Null(game.State.CardObjects["GEAR"].AttachedRuleText);
         if (songs == 2) Assert.Null(game.State.CardObjects["SONG2"].AttachedRuleText);
+        await ResolveSkills(game, songs + 1);
     }
 
     [Theory]
@@ -103,13 +126,21 @@ public sealed class RadZiggsCopiedDefenseTests
     public async Task RealDetachmentRemovesFutureDefenseTriggersAndPreservesAlreadyCapturedOnes(bool afterCapture)
     {
         var game = await Attached();
-        if (afterCapture) await CaptureDefense(game, 2);
+        if (afterCapture)
+        {
+            await CaptureDefense(game, 2);
+            await PayDefenseCosts(game, "SONG2", "JUNK");
+        }
         await Toggle(game, "DETACH", "GEAR");
         Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.Null(game.State.CardObjects["GEAR"].AttachedRuleText);
-        if (!afterCapture) await CaptureDefense(game, 1);
+        if (!afterCapture)
+        {
+            await CaptureDefense(game, 1);
+            await PayDefenseCosts(game, "JUNK");
+        }
         Assert.Equal(afterCapture ? 1 : 0, game.State.StackItems.Count(item => item.UnitEvent!.Origin is not null));
-        await ResolveSkills(game, afterCapture ? ["GEAR", "JUNK"] : ["JUNK"]);
+        await ResolveSkills(game, afterCapture ? 2 : 1);
     }
 
     [Fact]
@@ -118,18 +149,19 @@ public sealed class RadZiggsCopiedDefenseTests
         var game = await Attached(onlySong: true);
         await CaptureDefense(game, 2);
         var power = game.State.CardObjects["ENEMY1"].Power;
-        await game.Top();
-        var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
-        Assert.Equal(new[] { "SKIP", "DESTROY:GEAR" }, choice.Request.Options.Select(option => option.Id));
-        await game.Act("P2", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["DESTROY:GEAR"]));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(new[] { "GEAR" }, choice.LegalObjectIds);
+        var confirmationEvent = game.Events().Length;
+        await PayDefenseCosts(game, "GEAR");
         Assert.Contains("GEAR", game.State.PlayerZones["P2"].Graveyard);
-        Assert.Equal(power + 2, game.State.CardObjects["ENEMY1"].Power);
+        Assert.Equal(power, game.State.CardObjects["ENEMY1"].Power);
         Assert.Single(game.State.StackItems);
+        Assert.Single(game.Events().Skip(confirmationEvent), entry => entry.Event.Kind == "TRIGGER_NOT_CONFIRMED");
         var firstEvent = game.Events().Length;
         await game.Top();
         Assert.Null(game.State.PendingRuleChoice);
         Assert.Equal(power + 2, game.State.CardObjects["ENEMY1"].Power);
-        Assert.DoesNotContain(game.Events().Skip(firstEvent), entry => entry.Event.Kind == "UNIT_POWER_CHANGED");
+        Assert.Single(game.Events().Skip(firstEvent), entry => entry.Event.Kind == "UNIT_POWER_CHANGED");
         Assert.Empty(game.State.StackItems);
         await game.Replay();
     }
