@@ -3890,6 +3890,11 @@ public static partial class MatchRecoveryValidator
                         || !TryReadObjectInt(payload, "empowermentCount", out var count) || count != card.EmpowermentCount)
                     || !countPresent && visible && card.IsEmpowered)
                     errors.Add($"{label} empowerment count differs from authoritative visible object");
+                var boonCountPresent = TryReadObjectValue(payload, "boonCount", out _);
+                var visibleUnit = visible && FieldObjectTypeRules.HasUnitType(card);
+                if (boonCountPresent && (!visibleUnit || !TryReadObjectInt(payload, "boonCount", out var boons)
+                        || boons != BoonRules.Count(card)) || !boonCountPresent && visibleUnit)
+                    errors.Add($"{label} boon count differs from authoritative visible object");
             }
         }
     }
@@ -4819,6 +4824,8 @@ public static partial class MatchRecoveryValidator
         foreach (var card in state.CardObjects.Values)
         {
             if (!EmpowerRules.ValidCount(card)) errors.Add("invalid empowerment count");
+            if (card.BoonCount < 0 || card.BoonCount > 0 && !card.Tags.Contains(CardObjectTags.Boon))
+                errors.Add("invalid boon count");
             if (card.StandbyPlacement is not null && !StandbyRules.ValidPlacement(state, card)) errors.Add("invalid standby placement provenance");
             if (!StandbyRules.ValidLastPlay(state, card)) errors.Add("invalid last standby play provenance");
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");

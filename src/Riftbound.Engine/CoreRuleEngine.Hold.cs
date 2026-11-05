@@ -263,7 +263,7 @@ public sealed partial class CoreRuleEngine
                 experience = GainExperience(experience, player, context.Amount, item, events, item.SourceObjectId, context.CardNo); break;
             case "BOON": case "BOON_ALL":
                 foreach (var id in context.Kind == "BOON" ? new[] { resolvedTarget! } : HeldUnitsAt(state, field))
-                    GrantLegendBoon(cards, id, player, item.SourceObjectId, item.EffectKind, events);
+                    GrantLegendBoon(cards, id, player, item.SourceObjectId, item.EffectKind, events, zones);
                 break;
             case "OPTIONAL_RETURN_SELF":
                 if (sourceExists && RuleChoices.Value!.Choose(player, "可以让此牌返回所属手牌。",

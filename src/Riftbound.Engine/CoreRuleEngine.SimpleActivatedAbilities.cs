@@ -526,7 +526,7 @@ public sealed partial class CoreRuleEngine
                         }));
                 }
                 else
-                    GrantLegendBoon(cards, targetId, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
+                    GrantLegendBoon(cards, targetId, item.ControllerId, item.SourceObjectId, item.EffectKind, events, zones);
             }
             else
                 events.Add(new("ABILITY_NO_EFFECT", "幻彩飞禽结算时目标已不再合法", new Dictionary<string, object?> {
@@ -563,6 +563,15 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.TransfersSourceToChosenPlayer)
             return ResolveTransferSourceAndRecall(state, item, item.SimpleActivation!.Source, ability.AbilityId);
+        if (spec.GrantsSourceBoon && cards.TryGetValue(item.SourceObjectId, out var boonSource)
+            && boonSource.ObjectGeneration == item.SimpleActivation!.Source.Generation
+            && IsFaceUpNonStandbyUnit(boonSource) && IsObjectOnField(zones, boonSource.ObjectId))
+        {
+            var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 0);
+            cards[boonSource.ObjectId] = ApplyBoon(boonSource, behavior, item, boonSource.ObjectId,
+                out var granted, zones, cards);
+            events.AddRange(granted);
+        }
         if (spec.ReadiesSource && cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, source.ObjectId)) {
             var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 0, PowerModifierAmount: spec.SourcePowerBonus);

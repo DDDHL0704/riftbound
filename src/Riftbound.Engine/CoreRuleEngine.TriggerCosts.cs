@@ -403,8 +403,7 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         using (new MightInstructionScope(state, zones, cards, events))
         {
-            cards[id] = target with { Power = target.Power - 1,
-                Tags = target.Tags.Where(tag => !string.Equals(tag, CardObjectTags.Boon, StringComparison.Ordinal)).ToArray() };
+            cards[id] = BoonRules.Consume(target);
             events.Add(new("BOON_CONSUMED", "消耗所选友方单位或装备的增益作为触发费用", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["sourceGeneration"] = TriggerCostSourceGeneration(item), ["targetObjectId"] = id,

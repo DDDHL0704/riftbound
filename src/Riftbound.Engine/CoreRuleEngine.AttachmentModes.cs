@@ -140,7 +140,7 @@ public sealed partial class CoreRuleEngine
                 if (!target.IsExhausted) continue; cards[target.ObjectId] = target with { IsExhausted = false };
                 events.Add(new("RUNE_READIED", "贴附技能让符文活跃", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = target.ObjectId }));
             } else if (mode.BoonCount is not null && target.Tags.Contains(CardObjectTags.UnitCard))
-                GrantLegendBoon(cards, target.ObjectId, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
+                GrantLegendBoon(cards, target.ObjectId, item.ControllerId, item.SourceObjectId, item.EffectKind, events, zones);
         }
         if (mode.RuneCallCount is { } count) {
             var called = CallRunes(zones, cards, item.ControllerId, count);

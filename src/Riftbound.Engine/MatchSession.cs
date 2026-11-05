@@ -28,6 +28,8 @@ public sealed record CardObjectState
     public StandbyPlacement? LastStandbyPlay { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int EmpowermentCount { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int BoonCount { get; init; }
     [JsonIgnore]
     public bool IsEmpowered
     {
@@ -87,6 +89,7 @@ public sealed record CardObjectState
         UntilEndOfTurnPowerModifier = untilEndOfTurnPowerModifier;
         IsExhausted = isExhausted;
         Tags = NormalizeTags(tags);
+        BoonCount = Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal) ? 1 : 0;
         ManaCost = Math.Max(0, manaCost);
         AttachedToObjectId = NormalizeOptionalText(attachedToObjectId);
         CardNo = NormalizeOptionalText(cardNo);
@@ -1035,7 +1038,8 @@ public sealed partial record MatchState
             foreach (var grant in CoreRuleEngine.BoonAmplifiersFor(state, state.PlayerZones, cardObject))
                 effects.Add(new ContinuousEffectState($"BOON_MIGHT:{grant.Marker}:{objectId}", "OBJECT",
                     ContinuousEffectLayers.StaticAura, "UNTIL_END_OF_TURN", objectId, grant.Source.ObjectId,
-                    grant.Amount, cardObject.Power, cardObject.Power + grant.Amount, CoreRuleEngine.BoonAmplifierEffect,
+                    grant.Amount * BoonRules.Count(cardObject), cardObject.Power,
+                    cardObject.Power + grant.Amount * BoonRules.Count(cardObject), CoreRuleEngine.BoonAmplifierEffect,
                     grant.CardNo, "CoreRuleEngine.BoonAmplifiersFor", true, LayerEngineFoundationResiduals(),
                     Condition: "CURRENT_FRIENDLY_UNIT_HAS_BOON", Lifecycle: "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON",
                     ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [grant.Source.ObjectId],
@@ -2278,6 +2282,7 @@ public sealed partial record ResolutionResult(
             ["controllerId"] = cardObject.ControllerId
         };
         if (cardObject.GrantedTags is { Count: > 0 } grantedTags) view["grantedTags"] = grantedTags.ToArray();
+        if (FieldObjectTypeRules.HasUnitType(cardObject)) view["boonCount"] = BoonRules.Count(cardObject);
         if (cardObject.IsEmpowered) {
             view["isEmpowered"] = true;
             view["empowermentCount"] = cardObject.EmpowermentCount;

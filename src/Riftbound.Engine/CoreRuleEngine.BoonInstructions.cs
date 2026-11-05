@@ -15,8 +15,7 @@ public sealed partial class CoreRuleEngine
                 || item.TargetGenerations is null || !item.TargetGenerations.TryGetValue(id, out var generation)
                 || unit.ObjectGeneration != generation) continue;
             AddReadiedObservation(zones, cards, unit, events);
-            cards[id] = unit with { Power = unit.Power - 1,
-                Tags = unit.Tags.Where(tag => tag != CardObjectTags.Boon).ToArray(), IsExhausted = false };
+            cards[id] = BoonRules.Consume(unit) with { IsExhausted = false };
             events.Add(new("BOON_CONSUMED", "消耗所选单位的增益", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = id, ["previousPower"] = unit.Power, ["power"] = unit.Power - 1 }));

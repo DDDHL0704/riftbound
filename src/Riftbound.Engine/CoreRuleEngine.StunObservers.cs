@@ -164,7 +164,7 @@ public sealed partial class CoreRuleEngine
             && item.TargetGenerations?.GetValueOrDefault(target, -1) == cards.GetValueOrDefault(target)?.ObjectGeneration
             && FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal)) {
             using var instruction = new MightInstructionScope(state, NormalizeZonesForSeats(state), cards, events);
-            GrantLegendBoon(cards, target, item.ControllerId, item.SourceObjectId, "LEGEND_TRIGGER_ENEMY_STUNNED_GRANT_BOON", events);
+            GrantLegendBoon(cards, target, item.ControllerId, item.SourceObjectId, "LEGEND_TRIGGER_ENEMY_STUNNED_GRANT_BOON", events, state.PlayerZones);
         }
         events.Add(new("TRIGGER_RESOLVED", "眩晕观察者技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = visibleSource, ["controllerId"] = item.ControllerId,

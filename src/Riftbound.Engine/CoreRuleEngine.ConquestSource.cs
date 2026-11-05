@@ -141,7 +141,7 @@ public sealed partial class CoreRuleEngine
             var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             if (cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.Source.Generation
                 && IsFaceUpNonStandbyUnit(source) && IsObjectOnField(state.PlayerZones, source.ObjectId))
-                GrantLegendBoon(cards, source.ObjectId, item.ControllerId, source.ObjectId, context.Kind, events);
+                GrantLegendBoon(cards, source.ObjectId, item.ControllerId, source.ObjectId, context.Kind, events, state.PlayerZones);
             return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
         }
         var scores = NormalizeScoresForSeats(state); var amount = spec.ScoreAmount!.Value;
