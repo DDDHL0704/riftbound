@@ -5579,7 +5579,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "精锐"),
+            SourceUnitTags: "精锐",
+            UnitEventAbility: new("ANOTHER_UNIT_PLAYED", "BOON_SELF")),
         new(
             "OGN·147/298",
             "野爪萨满",
