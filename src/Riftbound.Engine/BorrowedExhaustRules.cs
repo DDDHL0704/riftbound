@@ -23,6 +23,7 @@ internal sealed record BorrowedExhaustAbility(string Id, CardObjectState Donor, 
 internal static class BorrowedExhaustRules
 {
     internal const string Effect = "BORROWED_EXHAUST_ACTIVATION";
+    internal const string AttachAnyArmament = "BATTLEFIELD_LEGEND_ATTACH_ARMAMENT";
     internal const string ConversionChoicePrefix = "BORROWED_CONVERSION:";
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo));
@@ -51,7 +52,7 @@ internal static class BorrowedExhaustRules
             && BattlefieldStaticAbilitySpecRules.TryGetAbility(context.BattlefieldCardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility, out _))
         {
-            return new BorrowedExhaustSpec(-1, "ATTACH_ARMAMENT", 0, 2, false)
+            return new BorrowedExhaustSpec(-1, AttachAnyArmament, 0, 2, false)
             {
                 TargetScope = "FRIENDLY_UNIT"
             };
@@ -111,7 +112,7 @@ internal static class BorrowedExhaustRules
                     BattlefieldStaticAbilitySpecRules.TryGetAbility(battlefield.CardNo,
                         BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantLegendAttachArmamentAbility, out _)) is { } attachBattlefield)
             {
-                var dynamicSpec = new BorrowedExhaustSpec(-1, "ATTACH_ARMAMENT", 0, 2, false)
+                var dynamicSpec = new BorrowedExhaustSpec(-1, AttachAnyArmament, 0, 2, false)
                 {
                     TargetScope = "FRIENDLY_UNIT"
                 };
