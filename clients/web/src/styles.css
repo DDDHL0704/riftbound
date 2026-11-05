@@ -1539,6 +1539,24 @@ button {
   box-shadow: 0 0 8px rgba(240, 181, 74, 0.55);
   pointer-events: none;
 }
+/* Boon (+1 might counter): a green seal top-right, clear of power, damage and empower. */
+.card__boon {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #8ee6a8, #2f9d5a 70%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #0c2414;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 0 8px rgba(80, 220, 130, 0.6);
+  pointer-events: none;
+}
 /* Own face-down standby: dimmed art and a ribbon so it reads as "set, not in play". */
 .card--peek .card__art {
   filter: brightness(0.55) saturate(0.6);
@@ -2648,6 +2666,28 @@ button {
 }
 .hoverpreview__face {
   position: relative;
+}
+/* Battlefields lie down: the portrait scan is turned so its text reads upright. */
+.hoverpreview__face--landscape {
+  aspect-ratio: 1.398 / 1;
+}
+.hoverpreview__face--landscape img,
+.hoverpreview__face--landscape .hoverpreview__fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% / 1.398);
+  height: auto;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.hoverpreview__face--landscape .hoverpreview__fallback {
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.hoverpreview__boon {
+  color: #7fdc9a;
 }
 /* Covers the printed text box, which an erratum has replaced. */
 .hoverpreview__errata {
