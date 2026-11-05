@@ -95,6 +95,8 @@ def clause_kind(text: str, category: str) -> str:
     bare = unparenthesize(text)
     if is_activation(bare):
         return "activated"
+    if re.match(r"当我在场上时[，,]", bare):
+        return "rule" if re.search(r"可以.+(?:打出|移动)|不能|无法|改为", bare) else "static"
     if re.search(r"不限数量|至多.*增益|不能|不可|可以.+(?:打出|移动)|跳过|改为|额外.+(?:次|个|张)|上限|仅(?:可|能)|只能|无法", bare):
         # A triggered rule change is still a trigger; check its timing first.
         if not re.match(r"(?:每当|当|在.+时)", bare):
@@ -202,6 +204,15 @@ class Sources:
         self.symbols = defaultdict(list)
         for entry in constants:
             self.symbols[entry["value"]].append(entry["symbol"])
+        self.exact_text_readers = defaultdict(list)
+        for path, text in self.files.items():
+            if not (Path(path).name.startswith("CoreRuleEngine.") or Path(path).name == "BoonRules.cs"):
+                continue
+            for literal in re.findall(r'CardEffect\.(?:Contains|StartsWith)\("([^"\n]+)"', text):
+                # Complete legacy sentences only. Keyword/condition fragments
+                # and a parser's donor support do not certify a whole clause.
+                if len(re.findall(r"[一-鿿]", literal)) >= 12:
+                    self.exact_text_readers[normalize(unparenthesize(literal))].append(path)
         self.probes = defaultdict(list)
         for probe in probes:
             self.probes[normalize(probe["text"])].append(probe)
@@ -283,7 +294,7 @@ def activation_matches(ability: dict, clause: dict) -> bool:
     if mana != ability.get("manaCost", 0):
         return False
     colors = re.findall(r"\{\{(A|红色|绿色|蓝色|橙色|紫色|黄色)\}\}", cost)
-    if len(colors) != ability.get("powerCost", 0):
+    if len(colors) != ability.get("powerCost", 0) + sum((ability.get("powerCostByTrait") or {}).values()):
         return False
     numeric_damage = re.search(r"造成([0-9]+)点伤害", effect)
     if numeric_damage and ability.get("damageAmount") and ability["damageAmount"] != int(numeric_damage[1]):
@@ -402,6 +413,8 @@ def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     kind = clause["kind"]
+    if routes := sources.exact_text_readers.get(normalize(unparenthesize(clause["text"]))):
+        return result("route", "共享流程读取本句完整文本", routes)
     for probe in sources.probes.get(normalize(clause["text"]), []):
         # A donor can be executable when copied by Heimerdinger while its own
         # source still lacks an activation. Donor syntax is not a native route.

@@ -57,6 +57,11 @@ class EffectClauseAuditTests(unittest.TestCase):
         self.assertEqual(["activated"] * 3, [r["kind"] for r in rows])
         self.assertEqual(rows[0]["scope"], rows[2]["scope"])
 
+    def test_while_source_is_on_field_is_continuous_not_a_trigger(self):
+        self.assertEqual("rule", audit.split_clauses("当我在场上时，你可以选择将友方单位打出到一处开放的战场。")[0]["kind"])
+        self.assertEqual("static", audit.split_clauses("当我在场上时，友方单位{{S}}+1。")[0]["kind"])
+        self.assertEqual("trigger", audit.split_clauses("当我移动时，抽一张牌。")[0]["kind"])
+
     def test_separate_reminder_does_not_become_a_second_equip_skill(self):
         rows = audit.split_clauses("{{装配}}—支付{{黄色}}，摧毁一名友方单位。\n（支付此费用：将此牌贴附到你控制的一名单位上。）")
         self.assertEqual(1, len(rows))
@@ -94,6 +99,20 @@ class EffectClauseAuditTests(unittest.TestCase):
         self.assertEqual("missing", audit.audit_clause(c, clause, sources)["status"])
         c["behaviors"][0]["sourceUnitTags"] = "强攻2"
         self.assertEqual("route", audit.audit_clause(c, clause, sources)["status"])
+
+    def test_natural_back_row_text_needs_an_actual_keyword_on_every_printing(self):
+        (self.engine / "CoreRuleEngine.cs").write_text("var order = CardCombatKeywordNames.BackRow;")
+        sources = audit.Sources(self.root, [])
+        c = card("我在战斗中最后承担伤害。")
+        c["behaviors"] = [dict(playsSourceToBaseAsUnit=True)]
+        row = audit.split_clauses(c["cardEffect"])[0]
+        self.assertEqual("missing", audit.audit_clause(c, row, sources)["status"])
+        c["behaviors"][0]["sourceUnitTags"] = "后排"
+        self.assertEqual("route", audit.audit_clause(c, row, sources)["status"])
+        alternate = dict(c, cardNo="ALT", behaviors=[dict(playsSourceToBaseAsUnit=True)])
+        outcome = audit.build_report(dict(cards=[c, alternate]), sources)
+        self.assertEqual({"missing": 1}, outcome["counts"])
+        self.assertEqual(["ALT"], outcome["cards"][0]["clauses"][0]["affectedPrints"])
 
     def test_tokens_use_factory_tags_without_a_play_card_registration(self):
         (self.engine / "CoreRuleEngine.cs").write_text("var tax = CardResourceKeywordNames.Spellshield;")
@@ -150,6 +169,25 @@ class EffectClauseAuditTests(unittest.TestCase):
         report = audit.build_report(dict(cards=[a, b]), sources)
         self.assertEqual(1, report["effectGroups"])
         self.assertEqual({"review": 1}, report["counts"])
+
+    def test_typed_power_dictionary_is_part_of_the_activated_cost(self):
+        row = audit.split_clauses("支付{{1}}和{{蓝色}}：抽一张牌。")[0]
+        ability = dict(manaCost=1, powerCostByTrait={"blue": 1}, effectKind="DRAW")
+        self.assertTrue(audit.activation_matches(ability, row))
+        self.assertFalse(audit.activation_matches(dict(ability, powerCostByTrait={"blue": 2}), row))
+
+    def test_legacy_complete_text_reader_does_not_cover_unrelated_sentences(self):
+        (self.engine / "BoonRules.cs").write_text('var unlimited = card.CardEffect.Contains("我可以拥有不限数量的增益", StringComparison.Ordinal);')
+        sources = audit.Sources(self.root, [])
+        c = card("我可以拥有不限数量的增益。\n{{横置}}：给予我增益。")
+        self.assertEqual(["route", "missing"], [audit.audit_clause(c, row, sources)["status"]
+                                                for row in audit.split_clauses(c["cardEffect"])])
+
+    def test_short_text_fragment_cannot_certify_the_whole_condition(self):
+        (self.engine / "CoreRuleEngine.Skills.cs").write_text('var unit = card.CardEffect.Contains("我可以拥有");')
+        sources = audit.Sources(self.root, [])
+        c = card("我可以拥有不限数量的增益。")
+        self.assertEqual("missing", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
 
     def test_inventory_fingerprint_changes_with_shared_rule_source(self):
         before = audit.source_fingerprint(self.root)

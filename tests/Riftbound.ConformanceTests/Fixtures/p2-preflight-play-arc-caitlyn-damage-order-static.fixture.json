@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-arc-caitlyn-damage-order-static",
-  "description": "ARC Caitlyn enters as an active hero unit while combat damage ordering and the tap damage skill are deferred.",
+  "description": "ARC Caitlyn enters exhausted with Back Row; this fixture covers entry and the printed combat tag.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "ARC-002/006 凯特琳",
-      "note": "官方卡面：费用 3；英雄单位；战力 3；在战斗中最后承担伤害；横置技能对任意战场中的一个敌方单位造成等同于自身战力的伤害，且必须位于战场中才能使用。当前 fixture 覆盖普通主阶段打出后成为未休眠的基地单位对象；战斗伤害顺序和横置伤害技能暂缓。"
+      "note": "官方卡面：费用 3；英雄单位；战力 3；在战斗中最后承担伤害；横置技能对任意战场中的一个敌方单位造成等同于自身战力的伤害，且必须位于战场中才能使用。当前 fixture 覆盖普通主阶段入场与后排标签；PrintedBackRowPreventsBypassingTheOrdinaryDefender 另验证战斗伤害顺序，横置技能另行补齐。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -122,7 +122,7 @@
       "cardObjects": {
         "P1-UNIT-ARC-CAITLYN": {
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": ["CARD_TYPE:UNIT", "后排"],
           "isExhausted": true
         }
       }

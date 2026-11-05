@@ -3251,6 +3251,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-CHEMPUNK-DISCARD-001"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-CHEMPUNK-TOUGH"].Power);
+        Assert.Equal([CardObjectTags.UnitCard, "强攻2"], result.FinalState.CardObjects["P1-UNIT-CHEMPUNK-TOUGH"].Tags);
     }
 
     [Fact]
