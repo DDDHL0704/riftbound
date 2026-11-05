@@ -12,6 +12,8 @@
 
 ## P0 · 让 main 和夜间验收恢复全绿（A 线）
 
+- [ ] **M 线整合夜验：瑟提同战场增益光环夹具**（`m/nightly-sett-aura-fixture`）。完整夜验 [42036590705](https://github.com/DDDHL0704/riftbound/actions/runs/42036590705) 固定 `33dd1bbd2`，规则分片 4 的 `OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash` 预期光环 +1，实际 +2；该片其余 3,312 行通过，零跳过。场景从真实开局保留驻军，却只按后来指定的一名增益单位断言；候选在日志开始前将目标战场原驻军移回基地，再以原有真实出牌、增益、移动及战斗命令建立唯一参与者，并加强精确参与者断言。瑟提 OGN·240/298 的官方文本按同战场拥有增益的友方单位人数计算；保留 +1 光环、6 点伤害、得分胜利及完整原始回放断言，不改生产规则。本地 Release 构建零警告、零错误；原失败用例 1/1、固定守卫 27 类 1,302/1,302 及四组 CI 脚本测试 36/36 全部通过，零跳过；待 PR L2 与后续 main 完整夜验。
+
 - [x] **P0-1 合入夜间验收的测试修正**。[PR #236](https://github.com/DDDHL0704/riftbound/pull/236) 已合入，基于 `codex/nightly-optional-reduction-selector-20261028`（`7aae34be`，已包含付款线的 `a79b0f32`）。只改测试：
   - 付款重连夹具：#223 改变了可选减费的候选结构，导致 `OptionalCostReductionAcceptance` 失败，这里同步更新；
   - 修正 6 局完整对局和对应的投影测试。
