@@ -401,7 +401,9 @@ public static partial class MatchRecoveryValidator
         }
 
         if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-            && (string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal)
+            && (duration == "WHILE_SOURCE_ON_PUBLIC_FIELD"
+                    && effectKind is StaticAuraKinds.SourceObjectFilteredKeyword or StaticAuraKinds.SourceObjectLevelKeyword
+                || string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal)
                 || string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal)
                 || string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)))
         {
@@ -1058,6 +1060,11 @@ public static partial class MatchRecoveryValidator
         {
             return;
         }
+
+        // These conditional keywords carry the same dependency metadata as
+        // power auras. ValidateDynamicPowerAuraViews checks the complete view
+        // against the current authoritative source and its printed definition.
+        if (scope == "OBJECT" && IsSourceObjectKeywordAura(effectKind, sourceCardNo)) return;
 
         var equipmentKeywordAura = scope == "OBJECT"
             && effectKind == StaticAuraKinds.FriendlyEquipmentKeyword

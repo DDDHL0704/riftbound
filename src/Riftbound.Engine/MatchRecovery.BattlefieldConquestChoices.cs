@@ -235,9 +235,9 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectString(e.Event.Payload, "sourceObjectId", out var sourceId) && sourceId == item.SourceObjectId
                 && TryReadObjectLong(e.Event.Payload, "sourceGeneration", out var sg) && sg == item.TriggerCost.Source?.Generation
                 && TryReadObjectString(e.Event.Payload, "reason", out var reason) && reason == item.EffectKind).ToArray();
-            if (consumed.Length != paid.Count || paid.Any(binding => consumed.Count(e =>
-                    TryReadObjectString(e.Event.Payload, "targetObjectId", out var target) && target == binding.ObjectId
-                    && TryReadObjectLong(e.Event.Payload, "targetGeneration", out var tg) && tg == binding.Generation) != 1)
+            if (consumed.Length != paid.Count || paid.GroupBy(binding => binding).Any(group => consumed.Count(e =>
+                    TryReadObjectString(e.Event.Payload, "targetObjectId", out var target) && target == group.Key.ObjectId
+                    && TryReadObjectLong(e.Event.Payload, "targetGeneration", out var tg) && tg == group.Key.Generation) != group.Count())
                 || consumed.Any(e => !HasAcceptedBattlefieldChoice(commands, e, item.ControllerId,
                     "TRIGGER-COST:" + item.StackItemId, CoreRuleEngine.TriggerCostWindow, paid.Select(b => b.ObjectId).ToArray())))
                 errors.Add("captured trigger boon cost is not bound to accepted payment history");

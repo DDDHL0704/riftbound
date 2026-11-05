@@ -1609,6 +1609,11 @@ public static partial class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        if (FieldObjectTypeRules.HasUnitType(cardObject))
+            ValidateSpectatorSnapshotPlayerObjectIntScalar(playerId, objectId, objectPayload,
+                "boonCount", BoonRules.Count(cardObject), "boon count", errors, mustBeNonNegative: true);
+        else if (TryReadObjectValue(objectPayload, "boonCount", out _))
+            errors.Add($"spectator snapshot non-unit {objectId} exposes boon count");
         ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
             playerId,
             objectId,
@@ -2836,10 +2841,12 @@ public static partial class MatchRecoveryValidator
 
         if (string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
             && (string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
-                || string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal))
-            && powerDelta.Value != 1)
+                || string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal)))
         {
-            errors.Add($"{effectLabel} battlefield static aura power delta {powerDelta.Value} must be 1");
+            var expected = StaticAuraSpecRules.GetStaticAuras(sourceCardNo).FirstOrDefault(aura =>
+                aura.Kind == effectKind && aura.Duration == duration)?.PowerDeltaPerParticipant ?? 1;
+            if (powerDelta.Value != expected)
+                errors.Add($"{effectLabel} battlefield static aura power delta {powerDelta.Value} must be {expected}");
         }
     }
 
@@ -3900,12 +3907,17 @@ public static partial class MatchRecoveryValidator
         }
     }
 
+    private static bool IsSourceObjectKeywordAura(string? kind, string? sourceCardNo)
+        => StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(aura =>
+            aura.Kind == kind && StaticAuraSpecRules.IsSourceObjectKeywordStaticAura(aura));
+
     private static bool IsValidatedDynamicPowerAura(string? kind, string? sourceCardNo)
         => kind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower
             or StaticAuraKinds.SourceControllerScorePower
             or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT"
             or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect
             or StaticAuraKinds.SourceOtherSameNameUnitCountPower
+            || IsSourceObjectKeywordAura(kind, sourceCardNo)
             || (kind == StaticAuraKinds.FriendlyUnitsPower
                 && StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(a => a.PowerDeltaIfSourceEmpowered.HasValue));
 
@@ -3942,7 +3954,15 @@ public static partial class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect
+                if (IsSourceObjectKeywordAura(effect.EffectKind, effect.SourceCardNo))
+                {
+                    if (!TryReadObjectString(payload, "layerEngineStatus", out var status) || status != "FOUNDATION_ONLY"
+                        || !TryReadObjectStringList(payload, "deferredLayerEngineResiduals", out var residuals)
+                        || !residuals.SequenceEqual(effect.DeferredLayerEngineResiduals ?? []))
+                        errors.Add($"{label} source keyword aura layer metadata differs from authoritative state");
+                }
+                if (IsSourceObjectKeywordAura(effect.EffectKind, effect.SourceCardNo)
+                    || effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect
                     or StaticAuraKinds.SourceOtherSameNameUnitCountPower or StaticAuraKinds.FriendlyUnitsPower)
                     foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
                         ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],

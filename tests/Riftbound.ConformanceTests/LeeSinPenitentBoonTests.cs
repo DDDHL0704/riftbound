@@ -30,7 +30,9 @@ public sealed class LeeSinPenitentBoonTests
     private static MatchState Spell(MatchState state, string id, string no)
         => AttackDamageDistributionTests.Spell(state, id, no, "P1");
     private static JsonElement UnitView(MatchState state, string viewer = "P1", string id = "UNIT")
-        => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)[viewer], new JsonSerializerOptions(JsonSerializerDefaults.Web))
+        => JsonSerializer.SerializeToElement(viewer == ProjectionViewers.Spectator
+                ? ResolutionResult.BuildSpectatorSnapshot(state) : ResolutionResult.BuildSnapshots(state)[viewer],
+                new JsonSerializerOptions(JsonSerializerDefaults.Web))
             .GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty(id);
     private static bool PromptOffers(MatchState state, string no = Lee)
         => (ResolutionResult.BuildPrompts(state)["P1"].Candidates ?? []).Where(c => c.Action == CommandTypes.ActivateAbility && c.Enabled)
@@ -86,6 +88,8 @@ public sealed class LeeSinPenitentBoonTests
             }
         }
         Assert.Equal(3, game.Events().Count(e => e.Event.Kind == "BOON_GRANTED"));
+        Assert.Single(game.Events(), e => e.Event.Kind == "OBJECT_TAG_ADDED"
+            && Equals(e.Event.Payload.GetValueOrDefault("tag"), CardObjectTags.Boon));
         await game.Act("P1", new EndTurnCommand()); AssertBoons(game.State, 3, 8);
         await game.ColdCheckpoint(); await game.Replay();
     }
@@ -179,6 +183,57 @@ public sealed class LeeSinPenitentBoonTests
     }
 
     [Theory]
+    [InlineData(2, false)] [InlineData(3, false)] [InlineData(2, true)]
+    public async Task AnyNumberBoonCostCanConsumeSeveralCountersFromTheSameUnit(int leeCount, bool withAlly)
+    {
+        var initial = HandDiscardObserverTests.Put(Position(boons: 3), "ALBUS", "OGN·230/298", "P1", "HAND");
+        var cards = initial.CardObjects.ToDictionary(); var locations = initial.ObjectLocations.ToDictionary();
+        var deck = Enumerable.Range(1, 4).Select(i => "RUNE-" + i).ToArray();
+        foreach (var id in deck)
+        {
+            cards[id] = new(id, cardNo: "UNL-R01", ownerId: "P1", controllerId: "P1",
+                tags: [CardObjectTags.RuneCard, "COLOR:red"]);
+            locations[id] = new("P1", "RUNE_DECK");
+        }
+        if (withAlly) cards["ALLY"] = cards["ALLY"] with { BoonCount = 1, Power = cards["ALLY"].Power + 1,
+            Tags = [..cards["ALLY"].Tags, CardObjectTags.Boon] };
+        initial = initial with { CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { RuneDeck = deck } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("ALBUS", "OGN·230/298", [], Destination: "BASE"));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(withAlly ? 4 : 3, choice.MaxCount);
+        await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+            Enumerable.Repeat("UNIT", 4).ToArray()));
+        if (withAlly)
+            await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY", "ALLY"]));
+        var selected = Enumerable.Repeat("UNIT", leeCount).Concat(withAlly ? ["ALLY"] : []).ToArray();
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, selected));
+        var receipt = Assert.Single(game.State.StackItems).TriggerCost!;
+        Assert.Equal(selected, receipt.ConsumedBoons!.Select(binding => binding.ObjectId));
+        AssertBoons(game.State, 3 - leeCount, 8 - leeCount);
+        Assert.Equal(selected.Length, game.Events().Count(e => e.Event.Kind == "BOON_CONSUMED"));
+        Assert.Equal(4, game.State.PlayerZones["P1"].RuneDeck.Count);
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.Equal(4 - selected.Length, game.State.PlayerZones["P1"].RuneDeck.Count);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task TagOnlyBoonFixturesKeepTheirHashAcrossRecoveryAndUpgradeOnTheNextGrant()
+    {
+        var initial = Position();
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["UNIT"] = initial.CardObjects["UNIT"] with { Power = 6,
+                Tags = [..initial.CardObjects["UNIT"].Tags, CardObjectTags.Boon] } } };
+        Assert.Equal(1, UnitView(initial).GetProperty("boonCount").GetInt32());
+        var game = new Driver(initial); await game.ColdCheckpoint();
+        await game.Act("P1", Activate()); await game.Top();
+        AssertBoons(game.State, 2, 7); await game.Replay();
+    }
+
+    [Theory]
     [InlineData(0)] [InlineData(1)] [InlineData(3)]
     public void OtherLeeSinChecksPresenceOfABoonWithoutMultiplyingItsTwoMightAura(int count)
     {
@@ -253,6 +308,41 @@ public sealed class LeeSinPenitentBoonTests
             unit["boonCount"] = 99;
             Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
             unit["boonCount"] = 3;
+        }
+    }
+
+    [Theory]
+    [InlineData("OGN·151/298", "powerDelta")]
+    [InlineData("OGN·125/298", "powerDelta")]
+    [InlineData("OGN·125/298", "sourceCardNo")]
+    [InlineData("OGN·125/298", "sourcePath")]
+    [InlineData("OGN·125/298", "condition")]
+    [InlineData("OGN·125/298", "layerEngineStatus")]
+    [InlineData("OGN·125/298", "sourceDependencyObjectIds")]
+    [InlineData("OGN·125/298", "deferredLayerEngineResiduals")]
+    public void RecoveryRejectsForgedBoonDependentAuraViews(string no, string key)
+    {
+        var state = Position(no, 1);
+        if (no == "OGN·151/298")
+        {
+            state = LocalDestructionRecallTests.At(state, "UNIT", "P1", "BATTLEFIELD", "BF");
+            state = LocalDestructionRecallTests.At(state, "ALLY", "P1", "BATTLEFIELD", "BF");
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["ALLY"] = state.CardObjects["ALLY"] with { BoonCount = 1, Power = state.CardObjects["ALLY"].Power + 1,
+                    Tags = [..state.CardObjects["ALLY"].Tags, CardObjectTags.Boon] } } };
+        }
+        ArmamentMightTests.PublicRecovery(state);
+        var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
+        foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot))
+        {
+            var effects = Assert.IsAssignableFrom<IEnumerable<Dictionary<string, object?>>>(snapshot.Timing["continuousEffects"]);
+            var effect = effects.First(e => Equals(e.GetValueOrDefault("sourceCardNo"), no));
+            var original = effect[key];
+            effect[key] = key == "powerDelta" ? 99 : original is string ? "FORGED" : new[] { "FORGED" };
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
+            effect[key] = original;
         }
     }
 

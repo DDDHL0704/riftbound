@@ -3262,7 +3262,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Select(objectId => objectId.Trim())
             .ToArray();
         if (submittedObjectIds.Length != chosenObjectIds.Count
-            || submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
+            || !AllowsRepeatedBoonChoice(state, pendingChoice)
+                && submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
             || submittedObjectIds.Length < pendingChoice.RequiredCount
             || submittedObjectIds.Length > pendingChoice.MaxCount)
         {
@@ -31183,9 +31184,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return targetState;
         }
 
-        var nextBoonEvents = new List<GameEvent>
-        {
-            new(
+        var nextBoonEvents = new List<GameEvent>();
+        if (BoonRules.Count(targetState) == 0)
+            nextBoonEvents.Add(new(
                 "OBJECT_TAG_ADDED",
                 $"{behavior.DisplayName}给予增益标签",
                 new Dictionary<string, object?>
@@ -31193,8 +31194,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["tag"] = CardObjectTags.Boon
-                }),
-            new(
+                }));
+        nextBoonEvents.Add(new(
                 "BOON_GRANTED",
                 $"{behavior.DisplayName}给予增益",
                 new Dictionary<string, object?>
@@ -31204,8 +31205,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["powerDelta"] = 1,
                     ["boonCount"] = nextTargetState.BoonCount,
                     ["resultingPower"] = nextTargetState.Power
-                })
-        };
+                }));
 
         if (TryGetUnitBoonGrantedReadySelfTrigger(nextTargetState, stackItem.ControllerId, out var boonGrantedTrigger))
         {

@@ -89,7 +89,6 @@ public sealed record CardObjectState
         UntilEndOfTurnPowerModifier = untilEndOfTurnPowerModifier;
         IsExhausted = isExhausted;
         Tags = NormalizeTags(tags);
-        BoonCount = Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal) ? 1 : 0;
         ManaCost = Math.Max(0, manaCost);
         AttachedToObjectId = NormalizeOptionalText(attachedToObjectId);
         CardNo = NormalizeOptionalText(cardNo);

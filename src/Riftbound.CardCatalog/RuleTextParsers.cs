@@ -3148,7 +3148,7 @@ public static class ActivatedAbilityParser
         var functionalEffect = Regex.Replace(effect, @"（[^）]*）|\([^)]*\)", "", RegexOptions.CultureInvariant).Trim().TrimEnd('。', '.');
         if (functionalEffect is "给予我增益" or "给予我{{增益}}")
         {
-            ability = new(cost, effect, [BehaviorTemplateIds.Boon], BehaviorImplementationStatuses.Unimplemented,
+            ability = new(cost, effect, [BehaviorTemplateIds.Boon], BehaviorImplementationStatuses.Implemented,
                 "Exhaust the source to grant itself a boon at ordinary timing, without choosing a target.",
                 Kind: ActivatedAbilityKinds.GrantSelfBoon, ExhaustsSourceAsCost: true,
                 ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0);

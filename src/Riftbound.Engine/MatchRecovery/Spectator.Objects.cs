@@ -1358,7 +1358,8 @@ public static partial class MatchRecoveryValidator
 
     private static bool SpectatorFaceDownObjectExposesPrivateMetadata(object? objectPayload)
     {
-        return TryReadObjectValue(objectPayload, "damage", out _)
+        return TryReadObjectValue(objectPayload, "boonCount", out _)
+            || TryReadObjectValue(objectPayload, "damage", out _)
             || TryReadObjectValue(objectPayload, "power", out _)
             || TryReadObjectValue(objectPayload, "basePower", out _)
             || TryReadObjectValue(objectPayload, "effectivePower", out _)
