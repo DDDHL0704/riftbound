@@ -45,7 +45,10 @@ public sealed class LeeSinPenitentBoonTests
         Assert.Equal(count > 0, state.CardObjects["UNIT"].Tags.Contains(CardObjectTags.Boon));
         foreach (var viewer in new[] { "P1", "P2", ProjectionViewers.Spectator })
             Assert.Equal(count, UnitView(state, viewer).GetProperty("boonCount").GetInt32());
-        ArmamentMightTests.PublicRecovery(state);
+        var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(state))!;
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(restored));
+        Assert.Equal(count, restored.CardObjects["UNIT"].BoonCount);
+        ArmamentMightTests.PublicRecovery(restored);
     }
 
     [Theory]
@@ -228,6 +231,7 @@ public sealed class LeeSinPenitentBoonTests
             ["UNIT"] = initial.CardObjects["UNIT"] with { Power = 6,
                 Tags = [..initial.CardObjects["UNIT"].Tags, CardObjectTags.Boon] } } };
         Assert.Equal(1, UnitView(initial).GetProperty("boonCount").GetInt32());
+        initial = OfficialInsightAndSpellLockTests.Restore(initial);
         var game = new Driver(initial); await game.ColdCheckpoint();
         await game.Act("P1", Activate()); await game.Top();
         AssertBoons(game.State, 2, 7); await game.Replay();

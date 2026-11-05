@@ -8712,8 +8712,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var alreadyHadBoon = BoonRules.Count(targetState) > 0;
-        if (!BoonRules.TryGrant(targetState, playerZones, cardObjects, out var granted)) return;
-        cardObjects[targetObjectId] = granted;
+        if (BoonRules.TryGrant(targetState, playerZones, cardObjects, out var granted))
+            cardObjects[targetObjectId] = granted;
         events.Add(new GameEvent(
             "BOON_GRANTED",
             $"{targetObjectId} 获得增益",
@@ -8725,7 +8725,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["alreadyHadBoon"] = alreadyHadBoon,
                 ["power"] = granted.Power,
-                ["boonCount"] = granted.BoonCount
+                ["boonCount"] = BoonRules.Count(granted)
             }));
     }
 
