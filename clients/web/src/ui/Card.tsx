@@ -57,7 +57,9 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
         className={cls}
         onClick={onClick}
         onPointerDown={onPointerDown}
-        disabled={!onClick && !onPointerDown}
+        // Not `disabled`: a disabled button gets no mouse events, so its card could not be previewed.
+        aria-disabled={!onClick && !onPointerDown ? true : undefined}
+        tabIndex={!onClick && !onPointerDown ? -1 : undefined}
         title={title ?? (hidden ? "背面朝上" : undefined)}
         onMouseEnter={(e) => onHover?.(hidden ? null : no, object, e.currentTarget.getBoundingClientRect())}
         onMouseLeave={() => onHover?.(null)}
