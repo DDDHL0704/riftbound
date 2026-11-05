@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-sfd-soraka-damage-redirection-static",
-  "description": "SFD 173 Soraka enters as a unit while its late-damage and friendly destruction replacement text is deferred.",
+  "description": "Soraka enters exhausted with Back Row; combat ordering and destruction replacement have focused lifecycle tests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·173/221 索拉卡",
-      "note": "官方卡面：费用 4；英雄单位；战力 4；其在战斗中最后承担伤害；若此处另一名受控制单位被摧毁且其战力低于索拉卡，则改为移除伤害、变为休眠并召回。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；战斗伤害顺序、同处友方单位摧毁替代、移除伤害、休眠和召回路径暂缓。"
+      "note": "官方卡面：费用 4；英雄单位；战力 4；其在战斗中最后承担伤害；若此处另一名受控制单位被摧毁且其战力低于索拉卡，则改为移除伤害、变为休眠并召回。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；另由 PrintedBackRowPreventsBypassingTheOrdinaryDefender 验证战斗伤害顺序，LocalDestructionRecallTests 验证同处摧毁替代与召回。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -123,7 +123,7 @@
       "cardObjects": {
         "P1-UNIT-SFD-SORAKA": {
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": ["CARD_TYPE:UNIT", "后排"],
           "isExhausted": true
         }
       }

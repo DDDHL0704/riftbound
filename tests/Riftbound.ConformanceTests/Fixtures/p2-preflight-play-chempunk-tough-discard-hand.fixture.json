@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·003/298 炼金太保",
-      "note": "官方卡面：费用 2；单位；战力 2；强攻2；当你打出我时，弃置一张手牌。当前 fixture 覆盖单位源牌入场和弃置另一张己方手牌；强攻战斗关键词暂缓到战斗模型。"
+      "note": "官方卡面：费用 2；单位；战力 2；强攻2；当你打出我时，弃置一张手牌。当前 fixture 覆盖单位源牌入场和弃置另一张己方手牌；强攻2实际战斗伤害另由 PrintedChempunkToughHasFourAttackDamageFromItsTwoBaseAndAssaultTwo 验证。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -142,7 +142,8 @@
           "destinationZone": "BASE",
           "power": 2,
           "tags": [
-            "CARD_TYPE:UNIT"
+            "CARD_TYPE:UNIT",
+            "强攻2"
           ]
         }
       },
@@ -198,7 +199,7 @@
       "cardObjects": {
         "P1-UNIT-CHEMPUNK-TOUGH": {
           "power": 2,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": ["CARD_TYPE:UNIT", "强攻2"],
           "isExhausted": true
         }
       }

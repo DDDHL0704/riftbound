@@ -6561,7 +6561,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            SourceUnitTags: "后排"),
         new(
             "SFD·175/221",
             "垓兽",
@@ -6639,7 +6640,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            SourceUnitTags: "后排"),
         new(
             "SFD·239*/221",
             "索拉卡",
@@ -6648,7 +6650,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            SourceUnitTags: "后排"),
         new(
             "SFD·050/221",
             "阿兹尔",
@@ -7123,7 +7126,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            SourceUnitTags: "后排"),
         new(
             "ARC-003/006",
             "黑默丁格",
@@ -7392,7 +7396,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 2),
+            SourceUnitPower: 2,
+            SourceUnitTags: "强攻2"),
         new(
             "OGN·030/298",
             "金克丝",
