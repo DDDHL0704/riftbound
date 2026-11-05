@@ -149,6 +149,7 @@ internal static class ProcessRestartAcceptance
 internal static class SealedSeriesNetworkAcceptance
 {
     private const string Blank = "SEALED·BLANK-BATTLEFIELD";
+    private static readonly HashSet<string> AdmittedSetCodes = ["OGN", "SFD", "UNL", "VEN", "RAD"];
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true, Converters = { new JsonStringEnumConverter() }
@@ -165,8 +166,9 @@ internal static class SealedSeriesNetworkAcceptance
         Directory.CreateDirectory(output);
         using var http = new HttpClient { BaseAddress = new Uri(url) };
         var sets = await http.GetFromJsonAsync<SealedSetDto[]>("/sealed/sets", ct);
-        Check(sets is not null && sets.Any(s => s.SetCode == "OGN") && sets.Any(s => s.SetCode == "SFD")
-            && sets.All(s => s.SetCode is "OGN" or "SFD"), "The real series directory must expose only admitted sets.");
+        Check(sets is not null && sets.Length == AdmittedSetCodes.Count
+            && sets.Select(s => s.SetCode).ToHashSet(StringComparer.Ordinal).SetEquals(AdmittedSetCodes),
+            "The real series directory must expose exactly the admitted OGN, SFD, UNL, VEN and RAD sets.");
         await RunCase("OGN", "OGN", 1);
         await RunCase("SFD", "SFD", 3);
         await RunCase("MIXED", null, 1, [new("OGN", 3), new("SFD", 3)]);
