@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-blitzcrank-barrier-static",
-  "description": "OGN 067 Blitzcrank enters as a Mechanical Barrier hero unit while battlefield and hold text is deferred.",
+  "description": "OGN 067 Blitzcrank enters at base as a Mechanical Barrier hero unit; the battlefield-only pull does not trigger on this base play.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·067/298 布里茨",
-      "note": "官方卡面：费用 5；英雄单位；战力 5；机械；壁垒；打出到战场时可移动任意一名敌方单位到此处；据守战场时返回所属手牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录机械和壁垒标签；壁垒承伤、战场打出移动敌方单位和据守回手路径暂缓。"
+      "note": "官方卡面：费用 5；英雄单位；战力 5；机械；壁垒；打出到战场时可移动任意一名敌方单位到此处；据守战场时返回所属手牌。本夹具覆盖普通主阶段从手牌打出到基地，记录机械与壁垒标签且不产生战场打出触发；战场拉人与据守返手另由 BlitzcrankBattlefieldPlayTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

@@ -5347,7 +5347,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "机械|壁垒"),
+            SourceUnitTags: "机械|壁垒",
+            UnitEventAbility: new("PLAY", "MOVE_ENEMY_HERE", Optional: true)),
         new(
             "OGN·068/298",
             "凯特琳",

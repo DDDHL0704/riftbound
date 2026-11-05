@@ -89,9 +89,13 @@ public sealed partial class CoreRuleEngine
         }
         var friendly = cards.Values.Where(c => EffectiveFieldControllerId(zones, c.ObjectId, c) == player)
             .Select(c => c.ObjectId).ToArray();
+        // Destination conditions belong to the play event, before any response
+        // can move the source to a different location (CN 383.2.c).
         var observations = CaptureUnitEvents(zones, cards, friendly.Where(id => id != entered.ObjectId), "ANOTHER_UNIT_PLAYED")
             .Concat(CaptureUnitEvents(zones, cards, friendly, "FRIENDLY_UNIT_PLAYED"))
-            .Concat(CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")).ToArray();
+            .Concat(CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")
+                .Where(o => !OfficialPrintedTimingRules.HasPlayTrigger(o.Context.CardNo)
+                    || OfficialPrintedTimingRules.HasPlayTrigger(o.Context.CardNo, destinationZone == "BATTLEFIELD"))).ToArray();
         if (observations.Any(o => UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest))
         {
             // Compare at the entry instruction, including current auras. Later
