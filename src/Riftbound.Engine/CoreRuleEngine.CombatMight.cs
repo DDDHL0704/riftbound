@@ -9,24 +9,28 @@ public sealed partial class CoreRuleEngine
     private static readonly string[] CombatMightKinds = ["COMBAT_MIGHT", CombatMightDamageKind, CombatKeywordDoubleKind];
     private static TriggerSpec? CombatMightSpec(string? cardNo, string kind = "COMBAT_MIGHT")
         => SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo).FirstOrDefault(t =>
-            t.Timing == TriggerTimings.UnitAttackOrDefend
+            (t.Timing == TriggerTimings.UnitAttackOrDefend
+                || kind == CombatMightDamageKind && t.Timing == TriggerTimings.UnitAttack)
             && (kind == CombatKeywordDoubleKind ? t.Kind == TriggerKinds.UnitAttackOrDefendDoubleFriendlyKeywordHere
                 && t.TargetScope == TriggerTargetScopes.FriendlyUnitHere && t.Duration == "UNTIL_END_OF_TURN"
                 && t.GrantedKeyword == CardCombatKeywordNames.Steadfast
                 : t.TargetScope == TriggerTargetScopes.EnemyUnitHere
-            && (kind == CombatMightDamageKind ? t.Kind == TriggerKinds.UnitAttackOrDefendSourceMightDamage
+            && (kind == CombatMightDamageKind ? t.Kind == (t.Timing == TriggerTimings.UnitAttack
+                ? TriggerKinds.UnitAttackSourceMightDamage : TriggerKinds.UnitAttackOrDefendSourceMightDamage)
                 : t.Kind == TriggerKinds.UnitAttackOrDefendPowerModifier && t.Duration == "UNTIL_END_OF_TURN"
                     && t.PowerDelta is < 0 && t.MinimumPowerAfterModifier is > 0)));
 
     private static TriggerQueueItemState[] CaptureCombatMightTriggers(MatchState state, IEnumerable<string> participants,
-        string battlefield, string timing, string? returnFocusPlayer = null)
+        string battlefield, string timing, string? returnFocusPlayer = null, IEnumerable<string>? attackers = null)
     {
+        var attacking = (attackers ?? []).ToHashSet(StringComparer.Ordinal);
         var queue = new List<TriggerQueueItemState>();
         foreach (var id in participants.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)) {
             if (!state.CardObjects.TryGetValue(id, out var source) || !IsFaceUpNonStandbyUnit(source)) continue;
             foreach (var instance in AttachedRuleTextRules.Instances(state, source)) {
               foreach (var kind in CombatMightKinds) {
-                if (CombatMightSpec(instance.CardNo, kind) is null) continue;
+                if (CombatMightSpec(instance.CardNo, kind) is not { } spec
+                    || spec.Timing == TriggerTimings.UnitAttack && !attacking.Contains(id)) continue;
                 var context = new FieldTriggerContext(instance.CardNo, kind, source.ObjectGeneration,
                     battlefield, returnFocusPlayer) {
                     SourceLocation = new(source.ControllerId!, "BATTLEFIELD", battlefield), Origin = instance.Origin,

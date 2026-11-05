@@ -389,6 +389,7 @@ def event_operations_match(event: dict, text: str) -> bool:
         "CREATE_UNIT_TOKEN": {"token"}, "CREATE_EQUIPMENT_TOKEN": {"token"},
         "MOVE_ENEMY_HERE": {"move"}, "MOVE_ENEMY": {"move"}, "MOVE_ENEMIES_TO_BASE": {"move"},
         "DESTROY_SELF": {"destroy"}, "DESTROY_CHEAPER_EQUIPMENT": {"destroy"},
+        "DESTROY_DAMAGED_ENEMIES_HERE": {"destroy"},
         "BANISH_ENTERED_EQUIPMENT": {"banish"}, "DAMAGE_ENEMIES_HERE": {"damage"},
         "BANISH_HAND_GRAVEYARD_BURN": {"banish", "burn"}, "BANISH_LINKED_UNIT_HERE": {"banish"},
     }
@@ -399,6 +400,9 @@ def event_operations_match(event: dict, text: str) -> bool:
         supported.add("rune")
     required = {op for op, pattern, _ in OPERATIONS if re.search(pattern, body)}
     if event["effect"] not in capabilities or not required <= supported:
+        return False
+    if event["effect"] == "DESTROY_DAMAGED_ENEMIES_HERE" and not re.fullmatch(
+            r"摧毁此处所有已受伤的敌方单位。?", body.strip()):
         return False
     if event["effect"] in ("DRAW", "DISCARD_DRAW"):
         match = re.search(r"抽([一二两三四五六七八九十0-9]+)张牌", body)

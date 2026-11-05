@@ -276,6 +276,7 @@ public static class TriggerKinds
     public const string UnitAttackBanishGraveyardUnitAssault = "UNIT_ATTACK_BANISH_GRAVEYARD_UNIT_ASSAULT";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string UnitAttackOrDefendSourceMightDamage = "UNIT_ATTACK_OR_DEFEND_SOURCE_MIGHT_DAMAGE";
+    public const string UnitAttackSourceMightDamage = "UNIT_ATTACK_SOURCE_MIGHT_DAMAGE";
     public const string UnitAttackOrDefendDoubleFriendlyKeywordHere = "UNIT_ATTACK_OR_DEFEND_DOUBLE_FRIENDLY_KEYWORD_HERE";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
