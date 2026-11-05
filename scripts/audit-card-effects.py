@@ -322,6 +322,7 @@ EVENT_TIMINGS = {
     "OPPONENT_EQUIPMENT_PLAYED": r"对手打出.*装备", "BATTLE_END": r"战斗结束",
     "ATTACK_OR_DEFEND": r"我进攻|我防守", "ATTACK": r"我进攻", "DEFEND": r"我防守",
     "CONQUEST": r"我征服", "MAIN": r"主阶段", "FRIENDLY_ATTACK_HERE": r"友方单位.*进攻",
+    "LEAVE": r"(?:我|此牌)离场",
 }
 
 
@@ -384,7 +385,7 @@ def event_operations_match(event: dict, text: str) -> bool:
         "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF": {"might", "destroy"},
         "READY_SELF": {"ready"}, "READY_ANOTHER_FRIENDLY": {"ready"}, "READY_HERE": {"ready"},
         "BOON_SELF": {"boon"}, "BOON_FRIENDLY": {"boon"}, "BOON_SELF_AND_READY": {"boon", "ready"},
-        "CALL_RUNES_PER_CONSUMED_BOON": {"rune"}, "INSIGHT": {"insight"},
+        "CALL_RUNES_PER_CONSUMED_BOON": {"rune"}, "PLAYED_UNIT_CALL_RUNES": {"rune"}, "INSIGHT": {"insight"},
         "CREATE_UNIT_TOKEN": {"token"}, "CREATE_EQUIPMENT_TOKEN": {"token"},
         "MOVE_ENEMY_HERE": {"move"}, "MOVE_ENEMY": {"move"}, "MOVE_ENEMIES_TO_BASE": {"move"},
         "DESTROY_SELF": {"destroy"}, "DESTROY_CHEAPER_EQUIPMENT": {"destroy"},
@@ -397,7 +398,7 @@ def event_operations_match(event: dict, text: str) -> bool:
     if event.get("runeCallCount"):
         supported.add("rune")
     required = {op for op, pattern, _ in OPERATIONS if re.search(pattern, body)}
-    if event["effect"] in capabilities and not required <= supported:
+    if event["effect"] not in capabilities or not required <= supported:
         return False
     if event["effect"] in ("DRAW", "DISCARD_DRAW"):
         match = re.search(r"抽([一二两三四五六七八九十0-9]+)张牌", body)
@@ -406,6 +407,14 @@ def event_operations_match(event: dict, text: str) -> bool:
             count = int(match[1]) if match[1].isdigit() else digits.get(match[1])
             if count != event.get("amount", 0):
                 return False
+    if "rune" in required and event.get("runeCallCount"):
+        match = re.search(r"召出([一二两三四五六七八九十0-9]+)(?:枚|张|个)[^。；]*符文", body)
+        if not match:
+            return False
+        digits = dict(zip("一二三四五六七八九十", range(1, 11)), 两=2)
+        count = int(match[1]) if match[1].isdigit() else digits.get(match[1])
+        if count != event["runeCallCount"]:
+            return False
     return True
 
 

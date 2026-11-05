@@ -44,7 +44,8 @@ internal static class BorrowedExhaustRules
                 && CardBehaviorRegistry.TryGetByCardNo(card.CardNo, out _))
             .ToDictionary(card => card.CardNo, card => (IReadOnlyList<BorrowedExhaustSpec>)
                 Specs.Value.GetValueOrDefault(card.CardNo, []).Where(spec =>
-                    spec.Kind is "MIGHT_UNIT" or "DAMAGE_UNIT" or "BOON_UNIT").ToArray(), StringComparer.Ordinal);
+                    spec.Kind is "MIGHT_UNIT" or "DAMAGE_UNIT" or "BOON_UNIT"
+                        or "RETURN_TO_HAND" or "DESTROY_SELF" or "CREATE_UNIT_TOKEN").ToArray(), StringComparer.Ordinal);
     });
 
     internal static IReadOnlyList<BorrowedExhaustSpec> NativeSpecs(string? cardNo)
