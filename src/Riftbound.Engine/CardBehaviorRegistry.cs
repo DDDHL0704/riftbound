@@ -12,7 +12,8 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     int MinimumExhaustedUnits = 0, bool OncePerTurn = false,
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
     string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
-    bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0);
+    bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0,
+    int RuneCallCount = 0);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
@@ -2677,7 +2678,8 @@ public static class CardBehaviorRegistry
             "OWNERLESS_TREASURE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("LEAVE", "DRAW", 1, RuneCallCount: 1)),
         new(
             "OGN·099/298",
             "拾荒小能手",

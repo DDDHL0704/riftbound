@@ -49,6 +49,25 @@ var merged = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(catal
 var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, FunctionalUnitBuilder.Build(catalog.Cards), merged)
     .ToDictionary(s => s.CardNo);
 var activations = P4ActivatedAbilityCatalog.GetAll();
+string[] legacyReaderNames = ["HeldDefinition", "BeginningDrawKind", "BeginningRecycleCount",
+    "IsUnitBattleWinDrawPrinting", "IsDravenBattleWinScorePrinting", "IsKhazixBattleWinPrinting"];
+var legacyReaders = legacyReaderNames.Select(name => typeof(CoreRuleEngine)
+    .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!).ToArray();
+var unitEventReader = typeof(CoreRuleEngine).GetMethod("UnitEventSpec", BindingFlags.Static | BindingFlags.NonPublic)!;
+Dictionary<string, object> LegacyRoutes(string cardNo)
+{
+    var routes = new Dictionary<string, object>();
+    foreach (var method in legacyReaders)
+    {
+        var value = method.Invoke(null, [cardNo]);
+        if (value is null or false || value is int zero && zero == 0) continue;
+        routes[method.Name] = value is ValueTuple<string, int> tuple
+            ? new { kind = tuple.Item1, amount = tuple.Item2 } : value;
+    }
+    return routes;
+}
+var nativeSpecs = typeof(CardBehaviorRegistry).Assembly.GetType("Riftbound.Engine.BorrowedExhaustRules")!
+    .GetMethod("NativeSpecs", BindingFlags.NonPublic | BindingFlags.Static)!;
 var legendAbilities = typeof(LegendActionAbilityCatalog).GetFields(BindingFlags.Public | BindingFlags.Static)
     .Where(f => f.IsLiteral && f.FieldType == typeof(string) && f.Name.EndsWith("AbilityId"))
     .Select(f => (Id: (string)f.GetRawConstantValue()!, Sources: LegendActionAbilityCatalog.SourceCardNosForAbility(
@@ -84,11 +103,15 @@ var cards = catalog.Cards.OrderBy(c => c.CardNo, StringComparer.Ordinal).Select(
         card.Id, card.CardNo, card.CardName, card.SubTitle, card.CardCategory, card.CardCategoryName,
         card.CardEffect, card.Hero, card.Energy, card.Power, card.ReturnEnergy, card.Tag,
         card.CardColorList, spec.FunctionalUnitId,
+        armament = OfficialArmamentCatalog.Find(card.CardNo),
         behaviors = ActiveBehaviors(card.CardNo),
         tokenTags = P6TokenFactoryCatalog.TryGetByCardNo(card.CardNo, out var factory)
             ? factory.CreateObject("audit-token", "audit-player", "audit-player").Tags.ToArray() : [],
         activations = activations.Where(a => P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(a, card.CardNo)).ToArray(),
+        nativeActivations = nativeSpecs.Invoke(null, [card.CardNo]),
         legendActivations = legendAbilities.Where(a => a.Sources.Contains(card.CardNo)).Select(a => a.Id).ToArray(),
+        legacyRoutes = LegacyRoutes(card.CardNo),
+        unitEventAbility = unitEventReader.Invoke(null, [card.CardNo]),
         spec.Keywords, spec.ActivatedAbilities, spec.Effects,
         triggers = spec.Triggers.Select(node => new { node, predicates = Predicates(node) }).ToArray(),
         staticAbilities = spec.StaticAbilities.Select(node => new { node, predicates = Predicates(node) }).ToArray(),
