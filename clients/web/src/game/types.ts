@@ -40,6 +40,8 @@ export type GameObject = {
   /** Present only while the card is empowered; the count is how many times (at most three). */
   isEmpowered?: boolean;
   empowermentCount?: number;
+  /** Units only (#491): how many boons the unit has, each +1 might. Absent on older servers. */
+  boonCount?: number;
 };
 
 export type Zones = {

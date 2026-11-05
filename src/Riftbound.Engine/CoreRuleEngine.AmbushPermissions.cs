@@ -44,9 +44,21 @@ public sealed partial class CoreRuleEngine
                 && location.Zone == "BATTLEFIELD" && "BATTLEFIELD:" + location.BattlefieldObjectId == destination);
 
     // CN 170.11.c: an open battlefield is both unoccupied and uncontrolled.
-    private static bool OpenBattlefieldPlayAllowed(MatchState state, CardBehaviorDefinition behavior, string destination)
-        => behavior.AllowsPlayToOpenBattlefield && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
-            && IsOpenBattlefield(state, destination[12..]);
+    private static bool OpenBattlefieldPlayAllowed(MatchState state, string player, CardBehaviorDefinition behavior, string destination)
+        => behavior.PlaysSourceToBaseAsUnit && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && IsOpenBattlefield(state, destination[12..])
+            && (behavior.AllowsPlayToOpenBattlefield
+                || CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
+                    CardStaticAbilitySpecRules.IsSourceUnitPlayToOpenBattlefield, out _)
+                || FriendlyUnitPlayToOpenBattlefieldGranted(state, player));
+
+    private static bool FriendlyUnitPlayToOpenBattlefieldGranted(MatchState state, string player)
+        => state.CardObjects.Values.Any(source => !source.IsFaceDown
+            && IsObjectOnField(state.PlayerZones, source.ObjectId)
+            && EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source) == player
+            && AttachedRuleTextRules.Instances(state, source).Any(instance =>
+                CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
+                    CardStaticAbilitySpecRules.IsFriendlyUnitPlayToOpenBattlefield, out _)));
 
     internal static IReadOnlyList<ActionPromptChoiceDto> UnitPlayDestinationChoices(MatchState state, string player,
         CardBehaviorDefinition behavior)
@@ -64,7 +76,7 @@ public sealed partial class CoreRuleEngine
             if ((DeployedEquipmentDestinationAllowed(state, behavior, destination)
                     || IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
                     || GrantedUnitPlayBattlefieldAllowed(state, player, behavior, destination)
-                    || OpenBattlefieldPlayAllowed(state, behavior, destination)
+                    || OpenBattlefieldPlayAllowed(state, player, behavior, destination)
                     || BattlefieldUnitPlayGrants(state, player, behavior).Any(g => g.Field.ObjectId == field.ObjectId)
                     || AmbushLocationAllowed(state, player, behavior, destination)
                     || RengarAttackingBattlefieldPlayAllowed(state, player, behavior, destination)

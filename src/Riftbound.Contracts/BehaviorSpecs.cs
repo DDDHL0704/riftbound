@@ -468,6 +468,8 @@ public static class StaticAbilityKinds
     public const string UnitExactOtherFriendlyBattlefieldCombatDamage = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_COMBAT_DAMAGE";
     public const string SourceCostReductionPerControlledPowerfulUnit = "SOURCE_COST_REDUCTION_PER_CONTROLLED_POWERFUL_UNIT";
     public const string SourceUnitEnterReady = "SOURCE_UNIT_ENTER_READY";
+    public const string SourceUnitPlayToOpenBattlefield = "SOURCE_UNIT_PLAY_TO_OPEN_BATTLEFIELD";
+    public const string FriendlyUnitPlayToOpenBattlefield = "FRIENDLY_UNIT_PLAY_TO_OPEN_BATTLEFIELD";
     public const string FriendlyUnitsEnterReady = "FRIENDLY_UNITS_ENTER_READY";
     public const string OtherFriendlyUnitsEnterReady = "OTHER_FRIENDLY_UNITS_ENTER_READY";
     public const string FriendlyFilteredUnitsEnterReady = "FRIENDLY_FILTERED_UNITS_ENTER_READY";
@@ -855,7 +857,9 @@ public sealed record StaticAbilitySpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? RequiresSourceEmpowered = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? MaxOtherControlledUnitCount = null);
+    int? MaxOtherControlledUnitCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MaxOpponentWinningScoreDistance = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
