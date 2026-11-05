@@ -138,7 +138,7 @@ public sealed partial class CoreRuleEngine
                     {
                         var targets = execution.TargetObjectIds.ToList();
                         if (index == targets.Count) targets.Add(id); else targets[index] = id;
-                        if (targets.Count > MaxTargetCount(state, spell.ControllerId, definition, TargetCountConditionApplies(state, spell.ControllerId, definition))
+                        if (targets.Count > MaxTargetCount(state, spell.ControllerId, definition, TargetCountConditionApplies(state, spell.ControllerId, definition, spell.SourceObjectId))
                             && !IsStandbyReactionStackItem(definition, spell)) continue;
                         if (index < execution.TargetObjectIds.Count && id == execution.TargetObjectIds[index]
                             && CurrentChosenIncarnation(state, execution, id)) continue;
@@ -218,7 +218,7 @@ public sealed partial class CoreRuleEngine
             || behavior.CommandedMovement is not null || behavior.MovesTargetsToChosenLocation || behavior.MovesTargetsSequentially
             || !string.IsNullOrEmpty(execution.Destination) || execution.MovementDestinations is { Count: > 0 }
             || !targetsOnly && CardBehaviorRegistry.GetAll().Any(b => b.CardNo == spell.CardNo && b.EffectKind != execution.EffectKind)
-            || MaxTargetCount(state, spell.ControllerId, behavior, TargetCountConditionApplies(state, spell.ControllerId, behavior)) > 1)
+            || MaxTargetCount(state, spell.ControllerId, behavior, TargetCountConditionApplies(state, spell.ControllerId, behavior, spell.SourceObjectId)) > 1)
             return false;
         if (HasLegalRemadeExecution(state, spell, execution)
             || HasLegalRemadeExecution(state, spell, execution with { TargetObjectIds = [], TargetGenerations = new Dictionary<string, long>() }))
