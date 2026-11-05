@@ -140,8 +140,7 @@ public sealed partial class CoreRuleEngine
             new("STACK_ITEM_ADDED", "技能进入结算链", new Dictionary<string, object?> {
                 ["stackItemId"] = item.StackItemId, ["sourceObjectId"] = source.ObjectId, ["effectKind"] = item.EffectKind }) };
         using (new MightInstructionScope(state, zones, cards, events, locations))
-            cards[source.ObjectId] = source with { Power = source.Power - 1,
-                Tags = source.Tags.Where(t => t != CardObjectTags.Boon).ToArray() };
+            cards[source.ObjectId] = BoonRules.Consume(source);
         // Paying the boon can make existing damage lethal before anyone may
         // respond. The earned ability remains even when its source dies.
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,

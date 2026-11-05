@@ -25934,7 +25934,10 @@ public sealed partial class FullGameEndToEndTests
             Assert.Equal($"STACK-{tick}-{sourceId}", stackId);
             Assert.Equal(sourceId, effect["sourceObjectId"]!.GetValue<string>());
             Assert.Equal(cardNo, effect["sourceCardNo"]!.GetValue<string>());
-            Assert.Equal(1, effect["powerDelta"]!.GetValue<int>());
+            var unit = state.CardObjects[target];
+            var boonCount = Math.Max(unit.BoonCount, unit.Tags.Contains(CardObjectTags.Boon) ? 1 : 0);
+            Assert.True(boonCount > 0);
+            Assert.Equal(boonCount, effect["powerDelta"]!.GetValue<int>());
             Assert.Equal("UNTIL_END_OF_TURN", effect["duration"]!.GetValue<string>());
             Assert.Equal("CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON", effect["lifecycle"]!.GetValue<string>());
             var source = state.CardObjects[sourceId];

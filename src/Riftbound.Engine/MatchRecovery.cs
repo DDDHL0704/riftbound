@@ -1609,6 +1609,11 @@ public static partial class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        if (FieldObjectTypeRules.HasUnitType(cardObject))
+            ValidateSpectatorSnapshotPlayerObjectIntScalar(playerId, objectId, objectPayload,
+                "boonCount", BoonRules.Count(cardObject), "boon count", errors, mustBeNonNegative: true);
+        else if (TryReadObjectValue(objectPayload, "boonCount", out _))
+            errors.Add($"spectator snapshot non-unit {objectId} exposes boon count");
         ValidateSpectatorSnapshotPlayerObjectOptionalStringScalar(
             playerId,
             objectId,
@@ -2836,10 +2841,12 @@ public static partial class MatchRecoveryValidator
 
         if (string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
             && (string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
-                || string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal))
-            && powerDelta.Value != 1)
+                || string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal)))
         {
-            errors.Add($"{effectLabel} battlefield static aura power delta {powerDelta.Value} must be 1");
+            var expected = StaticAuraSpecRules.GetStaticAuras(sourceCardNo).FirstOrDefault(aura =>
+                aura.Kind == effectKind && aura.Duration == duration)?.PowerDeltaPerParticipant ?? 1;
+            if (powerDelta.Value != expected)
+                errors.Add($"{effectLabel} battlefield static aura power delta {powerDelta.Value} must be {expected}");
         }
     }
 
@@ -3882,7 +3889,8 @@ public static partial class MatchRecoveryValidator
             {
                 if (!state.CardObjects.TryGetValue(id, out var card)) continue;
                 var present = TryReadObjectValue(payload, "isEmpowered", out _);
-                var visible = !card.IsFaceDown || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
+                var visible = !card.IsFaceDown || IsTerminalFaceDownFieldObjectPublicForRecovery(state, id)
+                    || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
                 if (present && (!visible || !card.IsEmpowered || !TryReadObjectBool(payload, "isEmpowered", out var value) || !value)
                     || !present && visible && card.IsEmpowered)
                     errors.Add($"{label} empowered status differs from authoritative visible object");
@@ -3891,9 +3899,18 @@ public static partial class MatchRecoveryValidator
                         || !TryReadObjectInt(payload, "empowermentCount", out var count) || count != card.EmpowermentCount)
                     || !countPresent && visible && card.IsEmpowered)
                     errors.Add($"{label} empowerment count differs from authoritative visible object");
+                var boonCountPresent = TryReadObjectValue(payload, "boonCount", out _);
+                var visibleUnit = visible && FieldObjectTypeRules.HasUnitType(card);
+                if (boonCountPresent && (!visibleUnit || !TryReadObjectInt(payload, "boonCount", out var boons)
+                        || boons != BoonRules.Count(card)) || !boonCountPresent && visibleUnit)
+                    errors.Add($"{label} boon count differs from authoritative visible object");
             }
         }
     }
+
+    private static bool IsSourceObjectKeywordAura(string? kind, string? sourceCardNo)
+        => StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(aura =>
+            aura.Kind == kind && StaticAuraSpecRules.IsSourceObjectKeywordStaticAura(aura));
 
     private static bool IsValidatedDynamicPowerAura(string? kind, string? sourceCardNo)
         => kind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower
@@ -3901,6 +3918,7 @@ public static partial class MatchRecoveryValidator
             or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT"
             or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect
             or StaticAuraKinds.SourceOtherSameNameUnitCountPower
+            || IsSourceObjectKeywordAura(kind, sourceCardNo)
             || (kind == StaticAuraKinds.FriendlyUnitsPower
                 && StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(a => a.PowerDeltaIfSourceEmpowered.HasValue));
 
@@ -3937,7 +3955,15 @@ public static partial class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect
+                if (IsSourceObjectKeywordAura(effect.EffectKind, effect.SourceCardNo))
+                {
+                    if (!TryReadObjectString(payload, "layerEngineStatus", out var status) || status != "FOUNDATION_ONLY"
+                        || !TryReadObjectStringList(payload, "deferredLayerEngineResiduals", out var residuals)
+                        || !residuals.SequenceEqual(effect.DeferredLayerEngineResiduals ?? []))
+                        errors.Add($"{label} source keyword aura layer metadata differs from authoritative state");
+                }
+                if (IsSourceObjectKeywordAura(effect.EffectKind, effect.SourceCardNo)
+                    || effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect
                     or StaticAuraKinds.SourceOtherSameNameUnitCountPower or StaticAuraKinds.FriendlyUnitsPower)
                     foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
                         ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
@@ -4827,6 +4853,8 @@ public static partial class MatchRecoveryValidator
         foreach (var card in state.CardObjects.Values)
         {
             if (!EmpowerRules.ValidCount(card)) errors.Add("invalid empowerment count");
+            if (card.BoonCount < 0 || card.BoonCount > 0 && !card.Tags.Contains(CardObjectTags.Boon))
+                errors.Add("invalid boon count");
             if (card.StandbyPlacement is not null && !StandbyRules.ValidPlacement(state, card)) errors.Add("invalid standby placement provenance");
             if (!StandbyRules.ValidLastPlay(state, card)) errors.Add("invalid last standby play provenance");
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
@@ -6067,7 +6095,8 @@ public static partial class MatchRecoveryValidator
             }
         }
 
-        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+        return !IsTerminalFaceDownFieldObjectPublicForRecovery(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && cardObject.IsFaceDown
             && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && state.ObjectLocations.TryGetValue(objectId, out var location)

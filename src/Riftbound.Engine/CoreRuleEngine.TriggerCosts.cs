@@ -129,8 +129,12 @@ public sealed partial class CoreRuleEngine
             && card.ControllerId == item.ControllerId).ToArray() : [source.ObjectId];
     }
 
+    private static bool AllowsRepeatedBoonChoice(MatchState state, PendingCardChoiceState choice)
+        => choice.ChoiceWindow == TriggerCostWindow && state.StackItems.Any(item =>
+            item.StackItemId == choice.ResolvingStackItemId && LeadingTriggerCost(item)?.ConsumeAnyNumberOfBoons == true);
+
     private static PendingCardChoiceState TriggerCostChoice(MatchState state, StackItemState item)
-        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false, BanishSelf: false, DestroyOtherFriendlyPermanents: 0, BanishGraveyardCard: false, ConsumeBoon: false, ConsumeAnyNumberOfBoons: false, DestroySelf: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, LeadingTriggerCost(item) is { ConsumeAnyNumberOfBoons: true } ? Math.Max(1, TriggerCostChoices(state, item).Length) : Math.Max(1, LeadingTriggerCost(item)!.DestroyOtherFriendlyPermanents),
+        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false, BanishSelf: false, DestroyOtherFriendlyPermanents: 0, BanishGraveyardCard: false, ConsumeBoon: false, ConsumeAnyNumberOfBoons: false, DestroySelf: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, LeadingTriggerCost(item) is { ConsumeAnyNumberOfBoons: true } ? Math.Max(1, TriggerCostChoices(state, item).Sum(id => BoonRules.Count(state.CardObjects[id]))) : Math.Max(1, LeadingTriggerCost(item)!.DestroyOtherFriendlyPermanents),
             TriggerCostChoices(state, item), [item.BattlefieldConquestConsumeBoon?.Source.ObjectId ?? item.BattlefieldStart?.BattlefieldObjectId ?? item.LegendConquest?.BattlefieldId ?? item.HeldContext?.BattlefieldObjectId ?? item.SourceObjectId],
             LeadingTriggerCost(item) is { DestroySelf: true } ? "摧毁来源以确认技能；确认后双方可以响应，随后打出关联的放逐卡牌。" : LeadingTriggerCost(item) is { ConsumeAnyNumberOfBoons: true } ? "选择消耗任意数量的友方单位增益以确认技能；不选则放弃。支付后双方可以响应，随后按已支付的数量结算技能。" : LeadingTriggerCost(item) is { ConsumeBoon: true } boon ? $"选择消耗你控制的{(boon.ConsumeBoonFromUnitsOnly ? "单位" : "单位或装备")}上的增益以确认技能；不选则放弃。支付后双方可以响应，随后结算技能。" : LeadingTriggerCost(item) is { BanishGraveyardCard: true } ? "选择从任意废牌堆放逐一张牌作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyOtherFriendlyPermanents: > 0 } sacrifice
                 ? $"选择摧毁另外 {sacrifice.DestroyOtherFriendlyPermanents} 个友方{(sacrifice.DestroyOtherFriendlyPermanentsRequiredTag == CardObjectTags.EquipmentCard ? "装备" : "单位或装备")}作为费用；不选则放弃。支付后双方可以响应。"
@@ -199,7 +203,8 @@ public sealed partial class CoreRuleEngine
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
             && choice.EffectKind == expected.EffectKind && choice.ResolvingStackItemId == item.StackItemId
-            && choice.RequiredCount == 0 && choice.MaxCount == expected.MaxCount && choice.LegalObjectIds.Count >= expected.MaxCount
+            && choice.RequiredCount == 0 && choice.MaxCount == expected.MaxCount
+            && (LeadingTriggerCost(item)?.ConsumeAnyNumberOfBoons == true || choice.LegalObjectIds.Count >= expected.MaxCount)
             && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds) && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
     }
 
@@ -260,7 +265,7 @@ public sealed partial class CoreRuleEngine
             ? receipt.ConsumedBoons is not { Count: > 0 } boons
                 || boons.Any(b => b is null || b.Generation < 0 || string.IsNullOrWhiteSpace(b.ObjectId)
                     || state.CardObjects.TryGetValue(b.ObjectId, out var current) && current.ObjectGeneration < b.Generation)
-                || boons.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != boons.Count
+                || boons.GroupBy(b => b.ObjectId, StringComparer.Ordinal).Any(group => group.Select(b => b.Generation).Distinct().Count() != 1)
             : receipt.ConsumedBoons is not null) return false;
         return receipt.Power == cost.Power && receipt.Mana == cost.Mana && (cost.Discard
             ? receipt.Discarded is { } discarded && discarded.ObjectId != item.SourceObjectId && discarded.Generation >= 0
@@ -408,8 +413,8 @@ public sealed partial class CoreRuleEngine
         var choices = TriggerCostChoices(state, item);
         var anyNumber = LeadingTriggerCost(item)!.ConsumeAnyNumberOfBoons;
         if (selected.Count == 0 || !anyNumber && selected.Count != 1
-            || selected.Distinct(StringComparer.Ordinal).Count() != selected.Count
-            || selected.Any(id => !choices.Contains(id, StringComparer.Ordinal)))
+            || selected.Any(id => !choices.Contains(id, StringComparer.Ordinal))
+            || selected.GroupBy(id => id, StringComparer.Ordinal).Any(group => group.Count() > BoonRules.Count(state.CardObjects[group.Key])))
             return RejectWithCorePrompts(state, "无法消耗所选增益作为触发费用。", ErrorCodes.InvalidTarget);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
@@ -420,8 +425,7 @@ public sealed partial class CoreRuleEngine
             foreach (var id in selected)
             {
                 var target = cards[id];
-                cards[id] = target with { Power = target.Power - 1,
-                    Tags = target.Tags.Where(tag => !string.Equals(tag, CardObjectTags.Boon, StringComparison.Ordinal)).ToArray() };
+                cards[id] = BoonRules.Consume(target);
                 events.Add(new("BOON_CONSUMED", "消耗所选友方单位或装备的增益作为触发费用", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                     ["sourceGeneration"] = TriggerCostSourceGeneration(item), ["targetObjectId"] = id,

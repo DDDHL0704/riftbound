@@ -28,6 +28,8 @@ public sealed record CardObjectState
     public StandbyPlacement? LastStandbyPlay { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int EmpowermentCount { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int BoonCount { get; init; }
     [JsonIgnore]
     public bool IsEmpowered
     {
@@ -1035,7 +1037,8 @@ public sealed partial record MatchState
             foreach (var grant in CoreRuleEngine.BoonAmplifiersFor(state, state.PlayerZones, cardObject))
                 effects.Add(new ContinuousEffectState($"BOON_MIGHT:{grant.Marker}:{objectId}", "OBJECT",
                     ContinuousEffectLayers.StaticAura, "UNTIL_END_OF_TURN", objectId, grant.Source.ObjectId,
-                    grant.Amount, cardObject.Power, cardObject.Power + grant.Amount, CoreRuleEngine.BoonAmplifierEffect,
+                    grant.Amount * BoonRules.Count(cardObject), cardObject.Power,
+                    cardObject.Power + grant.Amount * BoonRules.Count(cardObject), CoreRuleEngine.BoonAmplifierEffect,
                     grant.CardNo, "CoreRuleEngine.BoonAmplifiersFor", true, LayerEngineFoundationResiduals(),
                     Condition: "CURRENT_FRIENDLY_UNIT_HAS_BOON", Lifecycle: "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON",
                     ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [grant.Source.ObjectId],
@@ -1475,7 +1478,7 @@ public sealed partial record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, LegendEquipmentUnit = state.LegendEquipmentUnit, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName, LinkedAttributes = state.LinkedAttributes?.ToArray() };
+            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BoonCount = state.BoonCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, LegendEquipmentUnit = state.LegendEquipmentUnit, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName, LinkedAttributes = state.LinkedAttributes?.ToArray() };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -2278,6 +2281,7 @@ public sealed partial record ResolutionResult(
             ["controllerId"] = cardObject.ControllerId
         };
         if (cardObject.GrantedTags is { Count: > 0 } grantedTags) view["grantedTags"] = grantedTags.ToArray();
+        if (FieldObjectTypeRules.HasUnitType(cardObject)) view["boonCount"] = BoonRules.Count(cardObject);
         if (cardObject.IsEmpowered) {
             view["isEmpowered"] = true;
             view["empowermentCount"] = cardObject.EmpowermentCount;
@@ -5014,7 +5018,9 @@ internal static partial class ActionPromptBuilder
             ["suggestedDamageByTarget"] = CoreRuleEngine.SuggestCombatDamageByTarget(state, battle, assigningSourceIds),
             ["targetPriority"] = ResolutionResult.BattleParticipantObjectIds(battle)
                 .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityFor(state, id), StringComparer.Ordinal),
-            ["assignmentGuidance"] = "免伤单位可以忽略。其余单位先分配壁垒，再分配普通单位，最后分配后排；同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
+            ["targetPriorityOptions"] = ResolutionResult.BattleParticipantObjectIds(battle)
+                .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityOptionsFor(state, id), StringComparer.Ordinal),
+            ["assignmentGuidance"] = "免伤单位可以忽略。其余单位先分配壁垒，再分配普通单位，最后分配后排；同时拥有壁垒和后排的单位可以选择最先或最后分配，同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
             ["assigningSourceObjectIds"] = assigningSourceIds,
             ["legalTargets"] = assignableLegalTargets,
             ["allLegalTargets"] = legalTargets,

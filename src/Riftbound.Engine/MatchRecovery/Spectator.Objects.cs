@@ -1358,7 +1358,8 @@ public static partial class MatchRecoveryValidator
 
     private static bool SpectatorFaceDownObjectExposesPrivateMetadata(object? objectPayload)
     {
-        return TryReadObjectValue(objectPayload, "damage", out _)
+        return TryReadObjectValue(objectPayload, "boonCount", out _)
+            || TryReadObjectValue(objectPayload, "damage", out _)
             || TryReadObjectValue(objectPayload, "power", out _)
             || TryReadObjectValue(objectPayload, "basePower", out _)
             || TryReadObjectValue(objectPayload, "effectivePower", out _)
@@ -1491,10 +1492,11 @@ public static partial class MatchRecoveryValidator
 
         ValidateSpectatorSnapshotPlayerObjectLocation(playerId, objectId, objectPayload, authoritativeState, errors);
 
-        if (!expectedFaceDown)
+        var publiclyShownFaceDown = IsTerminalFaceDownFieldObjectPublicForRecovery(authoritativeState, objectId);
+        if (!expectedFaceDown || publiclyShownFaceDown)
         {
             ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, authoritativeState, errors);
-            if (hasValidFaceDownFlag
+            if (!publiclyShownFaceDown && hasValidFaceDownFlag
                 && isFaceDown
                 && SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
             {

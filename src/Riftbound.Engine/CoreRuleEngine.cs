@@ -43,7 +43,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
-    private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
     private const string ReturnControlToOwnerAtTurnEndEffectPrefix = "RETURN_CONTROL_TO_OWNER_AT_TURN_END:";
@@ -2317,33 +2316,72 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var source = side.FirstOrDefault(requiredSources.Contains);
             if (source is null || !legalTargets.TryGetValue(source, out var targets)) continue;
             var requiredTargets = targets.Where(id => !DamageImmunityRules.CannotTakeDamage(state, state.CardObjects[id])).ToArray();
-            var targetPriority = targets.ToDictionary(id => id,
-                id => state.CardObjects.TryGetValue(id, out var card)
-                    ? BattleDamageAssignmentPriority(state, state.PlayerZones, id, card) : 1,
-                StringComparer.Ordinal);
-            var partiallyAssigned = 0;
-            var overAssigned = 0;
-            foreach (var target in requiredTargets)
+            if (!TrySelectCombatDamagePriorities(state, requiredTargets, targetTotals, lethalThreshold, out _, out var reason))
+                return Reject(ErrorCodes.InvalidPayload, reason);
+        }
+        return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
+    }
+
+    private static bool TrySelectCombatDamagePriorities(
+        MatchState state,
+        IReadOnlyList<string> targets,
+        IReadOnlyDictionary<string, long> targetTotals,
+        IReadOnlyDictionary<string, int> lethalThreshold,
+        out Dictionary<string, int> selected,
+        out string reason)
+    {
+        selected = new(StringComparer.Ordinal);
+        reason = "必须先向更高优先级的单位分配致命伤害。";
+        if (targets.Count(target => targetTotals.GetValueOrDefault(target) > 0
+            && targetTotals.GetValueOrDefault(target) < lethalThreshold.GetValueOrDefault(target)) > 1)
+        {
+            reason = "不能同时向多个单位分配不足致命的伤害。";
+            return false;
+        }
+
+        var excessTargets = targets.Where(target => targetTotals.GetValueOrDefault(target) > lethalThreshold.GetValueOrDefault(target)).ToArray();
+        if (excessTargets.Length > 1 || (excessTargets.Length == 1 && targets.Any(other => other != excessTargets[0]
+            && targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other))))
+        {
+            reason = "其他单位尚可分配伤害时，不能向此单位分配过量伤害。";
+            return false;
+        }
+
+        var excessTarget = excessTargets.FirstOrDefault();
+        var options = targets.ToDictionary(target => target, target => CombatDamageTargetPriorityOptionsFor(state, target), StringComparer.Ordinal);
+        IReadOnlyList<int> lastPriorities = excessTarget is null ? [-1] : options[excessTarget];
+        // CN 467.2.c.8-9 permits each target with conflicting first/last
+        // requirements to satisfy either one. The command carries totals,
+        // not a declared order. A cutoff represents the priority between all
+        // targets already assigned damage and all still below lethal.
+        for (var cutoff = 0; cutoff <= 2; cutoff++)
+        {
+            foreach (var lastPriority in lastPriorities)
             {
-                var damage = targetTotals.GetValueOrDefault(target);
-                var lethal = lethalThreshold.GetValueOrDefault(target);
-                if (damage <= 0) continue;
-                if (requiredTargets.Any(other => targetPriority[other] < targetPriority[target]
-                    && targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)))
-                    return Reject(ErrorCodes.InvalidPayload, "必须先向更高优先级的单位分配致命伤害。");
-                if (damage < lethal && ++partiallyAssigned > 1)
-                    return Reject(ErrorCodes.InvalidPayload, "不能同时向多个单位分配不足致命的伤害。");
-                if (damage > lethal)
+                var candidate = new Dictionary<string, int>(StringComparer.Ordinal);
+                foreach (var target in targets)
                 {
-                    // Excess can only remain on the last target in a legal order.
-                    if (++overAssigned > 1 || requiredTargets.Any(other => other != target
-                        && (targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)
-                            || targetPriority[other] > targetPriority[target])))
-                        return Reject(ErrorCodes.InvalidPayload, "其他单位尚可分配伤害时，不能向此单位分配过量伤害。");
+                    var damage = targetTotals.GetValueOrDefault(target);
+                    var lethal = lethalThreshold.GetValueOrDefault(target);
+                    var valid = options[target]
+                        .Where(priority => (damage <= 0 || priority <= cutoff)
+                            && (damage >= lethal || priority >= cutoff)
+                            && (excessTarget is null || (target == excessTarget
+                                ? priority == lastPriority : priority <= lastPriority)))
+                        .Select(priority => (int?)priority).FirstOrDefault();
+                    if (valid is null) break;
+                    candidate[target] = valid.Value;
+                }
+                if (candidate.Count == targets.Count)
+                {
+                    selected = candidate;
+                    return true;
                 }
             }
         }
-        return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
+
+        if (excessTarget is not null) reason = "其他单位尚可分配伤害时，不能向此单位分配过量伤害。";
+        return false;
     }
 
     private static CombatDamageAssignmentValidationResult ValidateCombatDamageAssignments(
@@ -2450,6 +2488,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battleId = battle.BattleId;
         var battlefieldId = battle.BattlefieldObjectId;
         var assignmentLegalTargets = BuildCombatDamageLegalTargets(state, battle);
+        var selectedPriorities = SelectSubmittedCombatDamagePriorities(state, battle, assignments, assignmentLegalTargets, lethalDamageThreshold);
         foreach (var assignment in assignments)
         {
             var damageApplication = ApplyDamageToCardObject(
@@ -2463,6 +2502,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var assignmentRole = state.CardObjects.TryGetValue(assignment.TargetObjectId, out var targetState)
                 ? BattleDamageAssignmentRole(state, state.PlayerZones, assignment.TargetObjectId, targetState)
                 : string.Empty;
+            if (CombatDamageTargetPriorityOptionsFor(state, assignment.TargetObjectId).Count > 1
+                && selectedPriorities.TryGetValue(assignment.TargetObjectId, out var chosenPriority))
+                assignmentRole = chosenPriority == 2 ? "BACK_ROW_LAST" : "BULWARK_FIRST";
             payload["battleId"] = battleId;
             payload["battlefieldId"] = battlefieldId;
             payload["reason"] = "ASSIGN_COMBAT_DAMAGE";
@@ -2491,6 +2533,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && orderedTargets.Count > 1)
             {
                 var assignmentIndex = orderedTargets
+                    .OrderBy(target => DamageImmunityRules.CannotTakeDamage(state, state.CardObjects[target]) ? 0 : 1)
+                    .ThenBy(target => selectedPriorities.TryGetValue(target, out var priority)
+                        ? priority : CombatDamageTargetPriorityFor(state, target))
                     .Select((targetObjectId, index) => new { targetObjectId, index })
                     .FirstOrDefault(item => string.Equals(item.targetObjectId, assignment.TargetObjectId, StringComparison.Ordinal))
                     ?.index + 1;
@@ -2511,6 +2556,29 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload));
         }
 
+    }
+
+    private static IReadOnlyDictionary<string, int> SelectSubmittedCombatDamagePriorities(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> legalTargets,
+        IReadOnlyDictionary<string, int> lethalThreshold)
+    {
+        var totals = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (var assignment in assignments)
+            totals[assignment.TargetObjectId] = totals.GetValueOrDefault(assignment.TargetObjectId) + assignment.Damage;
+        var selected = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var side in new[] { battle.AttackerObjectIds, battle.DefenderObjectIds })
+        {
+            var source = side.FirstOrDefault(id => assignments.Any(assignment => assignment.SourceObjectId == id));
+            if (source is null || !legalTargets.TryGetValue(source, out var targets)) continue;
+            var required = targets.Where(id => !DamageImmunityRules.CannotTakeDamage(state, state.CardObjects[id])).ToArray();
+            if (!TrySelectCombatDamagePriorities(state, required, totals, lethalThreshold, out var priorities, out _))
+                throw new InvalidOperationException("Previously validated combat damage priorities cannot be reconstructed.");
+            foreach (var (target, priority) in priorities) selected[target] = priority;
+        }
+        return selected;
     }
 
     private static IReadOnlyDictionary<string, int> BuildCombatDamagePool(MatchState state, BattleState battle)
@@ -3262,7 +3330,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Select(objectId => objectId.Trim())
             .ToArray();
         if (submittedObjectIds.Length != chosenObjectIds.Count
-            || submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
+            || !AllowsRepeatedBoonChoice(state, pendingChoice)
+                && submittedObjectIds.Distinct(StringComparer.Ordinal).Count() != submittedObjectIds.Length
             || submittedObjectIds.Length < pendingChoice.RequiredCount
             || submittedObjectIds.Length > pendingChoice.MaxCount)
         {
@@ -7862,7 +7931,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     command.SourceObjectId,
                     command.AbilityId,
-                    events);
+                    events, playerZones);
                 break;
             case LegendAbilityEffectKinds.GrantRoam:
                 GrantLegendRoam(
@@ -8702,24 +8771,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string sourceObjectId,
         string abilityId,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        IReadOnlyDictionary<string, PlayerZones> playerZones)
     {
         if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return;
         }
 
-        var alreadyHadBoon = targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
-        var nextTags = targetState.Tags
-            .Concat([CardObjectTags.Boon])
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-        cardObjects[targetObjectId] = targetState with
-        {
-            Power = alreadyHadBoon ? targetState.Power : targetState.Power + 1,
-            Tags = nextTags
-        };
+        var alreadyHadBoon = BoonRules.Count(targetState) > 0;
+        if (BoonRules.TryGrant(targetState, playerZones, cardObjects, out var granted))
+            cardObjects[targetObjectId] = granted;
         events.Add(new GameEvent(
             "BOON_GRANTED",
             $"{targetObjectId} 获得增益",
@@ -8730,7 +8792,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["abilityId"] = abilityId,
                 ["targetObjectId"] = targetObjectId,
                 ["alreadyHadBoon"] = alreadyHadBoon,
-                ["power"] = alreadyHadBoon ? targetState.Power : targetState.Power + 1
+                ["power"] = granted.Power,
+                ["boonCount"] = BoonRules.Count(granted)
             }));
     }
 
@@ -14021,7 +14084,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
             + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
             + ArmamentMightContributions(state, zones, card).Sum(c => c.Delta)
-            + BoonAmplifiersFor(state, zones, card).Sum(c => c.Amount)
+            + BoonAmplifiersFor(state, zones, card).Sum(c => c.Amount) * BoonRules.Count(card)
             + EmpowerRules.Might(state, card)
             + EmpoweredUnitAuraContributions(state, card).Sum(aura => aura.Delta)
             + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
@@ -15802,7 +15865,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 playerId,
                 unitObjectId,
                 unitConquestFriendlyBoonTrigger.Kind,
-                events);
+                events, playerZones);
             drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
             return true;
         }
@@ -15889,7 +15952,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     playerId,
                     unitObjectId,
                     unitConquestDestroyEquipmentTrigger.Kind,
-                    events);
+                    events, playerZones);
             }
 
             drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
@@ -16720,13 +16783,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var drawCount = trigger.DrawCount.GetValueOrDefault();
         var nextPower = targetState.Power - 1;
-        cardObjects[targetObjectId] = targetState with
-        {
-            Power = nextPower,
-            Tags = targetState.Tags
-                .Where(tag => !string.Equals(tag, CardObjectTags.Boon, StringComparison.Ordinal))
-                .ToArray()
-        };
+        cardObjects[targetObjectId] = BoonRules.Consume(targetState);
 
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
@@ -17885,6 +17942,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     internal static int CombatDamageTargetPriorityFor(MatchState state, string objectId)
         => state.CardObjects.TryGetValue(objectId, out var card)
             ? BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, card) : 1;
+
+    internal static IReadOnlyList<int> CombatDamageTargetPriorityOptionsFor(MatchState state, string objectId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var card)) return [1];
+        var priority = BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, card);
+        if (priority == 0 && ((HasExactCombatKeyword(card.Tags, CardCombatKeywordNames.BackRow)
+                || TemporaryCombatKeywordRules.Has(card, CardCombatKeywordNames.BackRow))
+            || ResolveFriendlyFilteredUnitsKeywordBonus(state, state.PlayerZones, objectId, card, CardCombatKeywordNames.BackRow) > 0))
+            return [0, 2];
+        return [priority];
+    }
 
     private static int BattleDamageAssignmentPriority(
         MatchState state,
@@ -23467,7 +23535,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
             || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceUnitState, playerId)
-            || sourceUnitState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
+            || !BoonRules.CanGrant(sourceUnitState, playerZones, cardObjects)
             || !runePools.TryGetValue(playerId, out var currentPool))
         {
             return false;
@@ -23542,7 +23610,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerId,
             battlefieldObjectId,
             triggerKind,
-            events);
+            events, playerZones);
         return true;
     }
 
@@ -26246,7 +26314,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 events.Add(stunReplacementEvent);
                                 continue;
                             }
-                            var appliedStatusEffectId = TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId);
+                            var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState,
+                                TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId));
                             targetState = targetState with
                             {
                                 UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
@@ -28410,10 +28479,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             foreach (var statusEffectId in statusEffectIds)
             {
+                var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState, statusEffectId);
                 targetState = targetState with
                 {
                     UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                        .Concat([statusEffectId])
+                        .Concat([appliedStatusEffectId])
                         .Distinct(StringComparer.Ordinal)
                         .OrderBy(effectId => effectId, StringComparer.Ordinal)
                         .ToArray()
@@ -29055,7 +29125,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         cardObjects[targetObjectId] = targetState with
         {
-            Damage = targetState.Damage + adjustedDamageAmount,
+            Damage = DamageDoublingApplications.AddMarkedDamage(targetState.Damage, adjustedDamageAmount),
             DamageMarkedByPlayerIds = adjustedDamageAmount > 0
                 ? (targetState.Damage > 0 ? targetState.DamageMarkedByPlayerIds ?? [] : []).Append(damageControllerId)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
@@ -31189,24 +31259,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
-        if (targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal))
+        if (!BoonRules.TryGrant(targetState, playerZones, cardObjects, out var nextTargetState))
         {
             boonEvents = [];
             return targetState;
         }
 
-        var nextTargetState = targetState with
-        {
-            Power = targetState.Power + 1,
-            Tags = targetState.Tags
-                .Concat([CardObjectTags.Boon])
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(tag => tag, StringComparer.Ordinal)
-                .ToArray()
-        };
-        var nextBoonEvents = new List<GameEvent>
-        {
-            new(
+        var nextBoonEvents = new List<GameEvent>();
+        if (BoonRules.Count(targetState) == 0)
+            nextBoonEvents.Add(new(
                 "OBJECT_TAG_ADDED",
                 $"{behavior.DisplayName}给予增益标签",
                 new Dictionary<string, object?>
@@ -31214,8 +31275,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["tag"] = CardObjectTags.Boon
-                }),
-            new(
+                }));
+        nextBoonEvents.Add(new(
                 "BOON_GRANTED",
                 $"{behavior.DisplayName}给予增益",
                 new Dictionary<string, object?>
@@ -31223,9 +31284,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["targetObjectId"] = targetObjectId,
                     ["powerDelta"] = 1,
+                    ["boonCount"] = nextTargetState.BoonCount,
                     ["resultingPower"] = nextTargetState.Power
-                })
-        };
+                }));
 
         if (TryGetUnitBoonGrantedReadySelfTrigger(nextTargetState, stackItem.ControllerId, out var boonGrantedTrigger))
         {
