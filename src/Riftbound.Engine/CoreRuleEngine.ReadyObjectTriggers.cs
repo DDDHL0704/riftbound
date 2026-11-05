@@ -7,7 +7,8 @@ namespace Riftbound.Engine;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record ReadyObjectTriggerContext(string CardNo, ObjectBinding Source, long CapturedTick,
     long FaceRevision, string Timing, string? EquipmentPlayId = null,
-    RuleTextInstanceBinding? Origin = null, string? SourceTokenFactoryCardNo = null);
+    RuleTextInstanceBinding? Origin = null, string? SourceTokenFactoryCardNo = null,
+    MovedUnitFact? Movement = null, int? MovementOrdinal = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -16,13 +17,15 @@ public sealed partial class CoreRuleEngine
     private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> ReadyOtherObjectSpecs = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Select(c => (c.CardNo, Spec: RuleTextParser.Parse(c).Triggers.FirstOrDefault(t =>
-                t.Kind == TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject)))
+                t.Kind is TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject or TriggerKinds.UnitFirstMovementReadyOtherObject)))
             .Where(c => c.Spec is not null).ToDictionary(c => c.CardNo, c => c.Spec!, StringComparer.Ordinal));
 
     private static ReadyObjectTriggerContext[] CaptureReadyOtherObjects(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<CardObjectState> sources, string timing, string? playId = null)
         => sources.Where(c => !c.IsFaceDown).SelectMany(c => AttachedRuleTextRules.Instances(zones, cards, c)
-            .Where(i => ReadyOtherObjectSpecs.Value.ContainsKey(i.CardNo))
+            .Where(i => ReadyOtherObjectSpecs.Value.TryGetValue(i.CardNo, out var spec)
+                && (timing == "FIRST_MOVE" ? spec.Kind == TriggerKinds.UnitFirstMovementReadyOtherObject
+                    : spec.Kind == TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject))
             .Select(i => new ReadyObjectTriggerContext(i.CardNo, new(c.ObjectId, c.ObjectGeneration), 0,
                 c.CopyFaceTransitions?.Count ?? 0, timing, playId, i.Origin, c.TokenFactoryCardNo))).ToArray();
 
@@ -43,6 +46,16 @@ public sealed partial class CoreRuleEngine
             [ReadyObjectObservationKey] = CaptureReadyOtherObjects(zones, cards, sources, "FIRST_EQUIPMENT", playId) } };
     }
 
+    private static ReadyObjectTriggerContext[] CaptureMovementReadyObjects(MatchState before, IReadOnlyList<MovedUnitFact> units)
+        => units.Where(unit => before.CardObjects.TryGetValue(unit.ObjectId, out var source) && source.MovementCountThisTurn == 0)
+            .SelectMany(unit => CaptureReadyOtherObjects(before.PlayerZones, before.CardObjects,
+                [before.CardObjects[unit.ObjectId]], "FIRST_MOVE").Select(context => context with {
+                    Movement = unit, MovementOrdinal = 1 })).ToArray();
+
+    private static GameEvent WithReadyObjectObservations(GameEvent ev, ReadyObjectTriggerContext[] observations)
+        => observations.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
+            [ReadyObjectObservationKey] = observations } };
+
     private static ResolutionResult QueueReadyOtherObjects(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
@@ -62,11 +75,13 @@ public sealed partial class CoreRuleEngine
                 if (captured.Timing == "SOURCE_PLAY" && before.CardObjects.TryGetValue(source.ObjectId, out var old)
                     && !IsObjectOnField(before.PlayerZones, source.ObjectId))
                     source = source with { Generation = Math.Max(source.Generation, old.ObjectGeneration + 1) };
-                var controller = ev.Payload.GetValueOrDefault("playerId") as string;
+                var controller = captured.Movement?.ControllerId ?? ev.Payload.GetValueOrDefault("playerId") as string;
                 if (controller is null) continue;
                 var context = captured with { Source = source, CapturedTick = state.Tick };
+                var observedKind = captured.Movement is { } moved
+                    ? moved.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD" : ev.Kind;
                 var trigger = new TriggerQueueItemState($"ready-other-{state.Tick}-{index}-{instance}", controller,
-                    source.ObjectId, ReadyOtherObjectEffect, ev.Kind) { ReadyObjectTrigger = context, SourceCardNo = context.CardNo };
+                    source.ObjectId, ReadyOtherObjectEffect, observedKind) { ReadyObjectTrigger = context, SourceCardNo = context.CardNo };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
@@ -77,12 +92,23 @@ public sealed partial class CoreRuleEngine
         string source, string controller, string? cardNo = null)
     {
         if (context is null) return effect != ReadyOtherObjectEffect;
+        if (string.IsNullOrWhiteSpace(context.CardNo)) return false;
+        var spec = ReadyOtherObjectSpecs.Value.GetValueOrDefault(context.CardNo);
         if (effect != ReadyOtherObjectEffect || cardNo is not null && cardNo != context.CardNo
-            || !ReadyOtherObjectSpecs.Value.ContainsKey(context.CardNo) || context.Source is not { Generation: >= 0 }
+            || spec is null || context.Source is not { Generation: >= 0 }
             || context.Source.ObjectId != source || context.CapturedTick <= 0 || context.CapturedTick > state.Tick
             || context.FaceRevision < 0 || !state.Seats.ContainsKey(controller)
-            || context.Timing is not ("SOURCE_PLAY" or "FIRST_EQUIPMENT")) return false;
-        if (context.Timing == "SOURCE_PLAY" ? context.EquipmentPlayId is not null
+            || context.Timing is not ("SOURCE_PLAY" or "FIRST_EQUIPMENT" or "FIRST_MOVE")) return false;
+        if (context.Timing == "FIRST_MOVE")
+        {
+            if (spec.Kind != TriggerKinds.UnitFirstMovementReadyOtherObject || spec.OncePerTurn != true
+                || spec.MovementOrdinal != 1 || context.MovementOrdinal != 1 || !ValidMovedUnitFact(context.Movement)
+                || context.Movement!.ObjectId != source || context.Movement.Generation != context.Source.Generation
+                || context.Movement.ControllerId != controller) return false;
+        }
+        else if (spec.Kind != TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject
+            || context.Movement is not null || context.MovementOrdinal is not null) return false;
+        if (context.Timing != "FIRST_EQUIPMENT" ? context.EquipmentPlayId is not null
             : string.IsNullOrWhiteSpace(context.EquipmentPlayId)
                 || state.CardPlays.TurnNumber != state.TurnNumber
                 || state.CardPlays.Resolved.FirstOrDefault(p => p.PlayerId == controller && (p.Types & 2) != 0)?.PlayId != context.EquipmentPlayId)
@@ -94,8 +120,9 @@ public sealed partial class CoreRuleEngine
 
     private static string[] ReadyOtherObjectTargets(MatchState state, StackItemState item)
         => state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.LegendZone))
-            .Distinct(StringComparer.Ordinal).Where(id => id != item.SourceObjectId
-                && state.CardObjects.TryGetValue(id, out var c) && !c.IsFaceDown && c.IsExhausted
+            .Distinct(StringComparer.Ordinal).Where(id => state.CardObjects.TryGetValue(id, out var c)
+                && (id != item.SourceObjectId || c.ObjectGeneration != item.ReadyObjectTrigger!.Source.Generation)
+                && !c.IsFaceDown && c.IsExhausted
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, id))
             .Order(StringComparer.Ordinal).ToArray();
 
@@ -105,15 +132,17 @@ public sealed partial class CoreRuleEngine
         if (!ValidReadyObjectTrigger(state, item.ReadyObjectTrigger, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo)
             || item.SourceConfirmed || item.DamageAmount != 0 || item.EffectRepeatCount != 1 || item.OptionalCosts.Count != 0) return false;
         return item.TargetGenerations is null ? item.TargetObjectIds.Count == 0
-            : item.TargetObjectIds.Count == 1 && item.TargetObjectIds[0] != item.SourceObjectId
-                && item.TargetGenerations.Count == 1 && item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var generation) && generation >= 0;
+            : item.TargetObjectIds.Count == 1
+                && item.TargetGenerations.Count == 1 && item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var generation) && generation >= 0
+                && (item.TargetObjectIds[0] != item.SourceObjectId || generation != item.ReadyObjectTrigger.Source.Generation);
     }
 
     private static PendingCardChoiceState ReadyOtherObjectChoice(MatchState state, StackItemState item)
     {
         var legal = ReadyOtherObjectTargets(state, item);
-        return new("READY-OTHER:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 0, 1, legal, legal,
-            "选择除来源外的一个休眠物体变为活跃；不选则放弃。", item.SourceObjectId, item.EffectKind)
+        var optional = ReadyOtherObjectSpecs.Value[item.ReadyObjectTrigger!.CardNo].Optional == true;
+        return new("READY-OTHER:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, optional ? 0 : 1, 1, legal, legal,
+            optional ? "选择除来源外的一个休眠物体变为活跃；不选则放弃。" : "选择来源以外的一个休眠物体变为活跃。", item.SourceObjectId, item.EffectKind)
             { ResolvingStackItemId = item.StackItemId };
     }
 
@@ -133,7 +162,7 @@ public sealed partial class CoreRuleEngine
         var expected = ReadyOtherObjectChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
-            && choice.EffectKind == expected.EffectKind && choice.RequiredCount == 0 && choice.MaxCount == 1
+            && choice.EffectKind == expected.EffectKind && choice.RequiredCount == expected.RequiredCount && choice.MaxCount == expected.MaxCount
             && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds) && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
     }
 

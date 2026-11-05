@@ -218,6 +218,7 @@ public static class TriggerKinds
     public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedSetOtherUnitBaseMight = "UNIT_MOVED_SET_OTHER_UNIT_BASE_MIGHT";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
+    public const string UnitFirstMovementReadyOtherObject = "UNIT_FIRST_MOVEMENT_READY_OTHER_OBJECT";
     public const string UnitFirstMovementMillPlayer = "UNIT_FIRST_MOVEMENT_MILL_PLAYER";
     public const string UnitOrdinalMovementGainResources = "UNIT_ORDINAL_MOVEMENT_GAIN_RESOURCES";
     public const string UnitOrdinalMovementBanishTopPlay = "UNIT_ORDINAL_MOVEMENT_BANISH_TOP_PLAY";
