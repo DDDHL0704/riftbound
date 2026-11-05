@@ -285,6 +285,16 @@ function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects
   const lethal: Record<string, number> = md.lethalDamageThreshold ?? {};
   const existing: Record<string, number> = md.existingDamage ?? {};
   const targetCount = Number(md.minimumAssignedTargets ?? 0);
+  // Combat order per target (CN 467.2.c): 0 bulwark first, 1 ordinary, 2 back row last; a unit with both may be either.
+  const priorityOptions: Record<string, number[]> = md.targetPriorityOptions ?? {};
+  const priorityOf: Record<string, number> = md.targetPriority ?? {};
+  const orderLabel = (t: string) => {
+    const opts = priorityOptions[t] ?? (t in priorityOf ? [priorityOf[t]] : []);
+    if (opts.includes(0) && opts.includes(2)) return "可先可后";
+    if (opts.length === 1 && opts[0] === 0) return "先分配";
+    if (opts.length === 1 && opts[0] === 2) return "最后分配";
+    return null;
+  };
 
   const amount = (s: string, t: string) => plan.find((a) => a.sourceObjectId === s && a.targetObjectId === t)?.damage ?? 0;
   const bump = (s: string, t: string, delta: number, total: number) => {
@@ -318,6 +328,7 @@ function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects
               <span>
                 <Named id={t} objects={objects} />
                 <span className="muted small">（致命 {Math.max(0, (lethal[t] ?? 0) - (existing[t] ?? 0))}）</span>
+                {kind === "combat" && orderLabel(t) && <span className="dmg__order">{orderLabel(t)}</span>}
               </span>
               <span className="stepper">
                 <button onClick={() => bump(r.sourceObjectId, t, -1, r.damage)} aria-label="减少">−</button>

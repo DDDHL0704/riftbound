@@ -3076,6 +3076,15 @@ button {
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.22);
 }
+/* Combat damage order for this target: bulwark first, back row last, or either when it has both. */
+.dmg__order {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  color: var(--brass);
+  font-size: 11px;
+}
 .dmg__row {
   display: flex;
   justify-content: space-between;
