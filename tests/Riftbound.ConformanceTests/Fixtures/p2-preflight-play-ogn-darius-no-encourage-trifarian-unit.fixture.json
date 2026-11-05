@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·243/298 德莱厄斯",
-      "note": "官方卡面：费用 6；英雄单位；战力 6；崔法利属性；鼓舞触发时让自身变为活跃状态，且此处其他友方单位获得战力 +1。当前 fixture 未设置本回合已打出其他卡牌，覆盖普通主阶段打出后成为基地单位对象并记录属性标签；鼓舞活跃、战场静态战力修正和战场目的地路径暂缓。"
+      "note": "官方卡面：费用 6；英雄单位；战力 6；崔法利属性；鼓舞触发时让自身变为活跃状态，且此处其他友方单位获得战力 +1。当前 fixture 未设置本回合已打出其他卡牌，覆盖普通主阶段打出后成为基地单位对象并记录属性标签；鼓舞活跃正反路径由 DariusSecondCardTriggerTests 覆盖；本夹具第一张出牌不产生空触发。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -89,21 +89,15 @@
         "cardNo": "OGN·243/298",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ogn-243-darius-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ogn-243-darius-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

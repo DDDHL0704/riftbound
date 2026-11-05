@@ -30,7 +30,7 @@ internal static partial class ActionPromptBuilder
     {
         if (!CoreRuleEngine.HasMandatoryPlayAdditionalCostChoices(state, playerId, behavior))
             return false;
-        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         if (minTargetCount == 0)
         {
@@ -55,7 +55,7 @@ internal static partial class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         if (maxTargetCount == 0)
         {
@@ -74,13 +74,14 @@ internal static partial class ActionPromptBuilder
     private static bool PromptTargetCountConditionApplies(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         return behavior.TargetCountConditionKind switch
         {
             CardTargetCountConditionKinds.None => true,
             CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn
-                => state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count) && count > 0,
+                => CoreRuleEngine.ControllerPlayedAnotherCardThisTurn(state, playerId, sourceObjectId),
             _ => false
         };
     }
@@ -168,7 +169,7 @@ internal static partial class ActionPromptBuilder
         // Unbounded grouped targets use the server quote for each submitted set;
         // enumerating every permutation here grows factorially with zero-power units.
         if (behavior.AnyNumberOfTargets) return [];
-        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         if (maxTargetCount == 0)
@@ -611,7 +612,7 @@ internal static partial class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         var choicesByIndex = Enumerable.Range(0, maxTargetCount)
             .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex, sourceObjectId))

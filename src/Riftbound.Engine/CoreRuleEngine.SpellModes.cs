@@ -108,7 +108,7 @@ public sealed partial class CoreRuleEngine
                 last = index;
                 var definition = spec.Modes[index];
                 if (IsDeferredDeckChoice(definition) ? targets.Count != 0
-                    : !HasValidTargetCount(state, item.ControllerId, definition, targets)) return false;
+                    : !HasValidTargetCount(state, item.ControllerId, definition, targets, item.SourceObjectId)) return false;
                 var ids = targets.Distinct(StringComparer.Ordinal).ToArray();
                 if (targets.Any(string.IsNullOrWhiteSpace) || bindings.Count != ids.Length
                     || ids.Any(id => !bindings.TryGetValue(id, out var generation) || generation < 0

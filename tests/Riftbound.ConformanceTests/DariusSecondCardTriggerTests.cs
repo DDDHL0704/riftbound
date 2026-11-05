@@ -136,7 +136,9 @@ public sealed class DariusSecondCardTriggerTests
     [Theory]
     [InlineData("SFD·236/221")]
     [InlineData("SFD·236*/221")]
-    public async Task SfdDariusReadiesOnlyWhenItIsPlayedAfterAnotherCard(string dariusCardNo)
+    [InlineData("OGN·243/298")]
+    [InlineData("OGN·243a/298")]
+    public async Task DariusExecutionerReadiesOnlyWhenItIsPlayedAfterAnotherCard(string dariusCardNo)
     {
         var first = new Driver(Position(dariusCardNo, "OGN·048/298"));
         await first.Act("P1", new PlayCardCommand("UNIT", dariusCardNo, [], Destination: "BASE"));

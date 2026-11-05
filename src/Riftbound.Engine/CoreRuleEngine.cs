@@ -3671,7 +3671,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? behavior.DamageAmountIfDiscardHandCardOptionalCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
-            playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
+            playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId, command.SourceObjectId),
             destination: destination,
             timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromHand = state.PlayerZones.Values.Any(z => z.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)),
                 Showcase = plan.Showcase,
@@ -18366,7 +18366,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior)} {DescribeTargetScope(targetScope)} target(s).",
+                $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior, command.SourceObjectId)} {DescribeTargetScope(targetScope)} target(s).",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -22299,9 +22299,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds)
+        IReadOnlyList<string> targetObjectIds,
+        string? sourceObjectId = null)
     {
-        var targetCountConditionApplies = TargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = TargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var minTargetCount = MinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = MaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         return targetObjectIds.Count >= minTargetCount
@@ -23203,7 +23204,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardCostReductionConditionKinds.ControllerControlsEmpoweredObject
                 => ControllerControlsEmpoweredObject(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
-                => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+                => ControllerPlayedAnotherCardThisTurn(state, playerId, sourceObjectId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn
                 => ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn(state, playerId)
                     ? behavior.CostReductionMana : 0,
@@ -23650,9 +23651,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
-    private static bool ControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)
+    internal static bool ControllerPlayedAnotherCardThisTurn(MatchState state, string playerId, string? sourceObjectId = null)
     {
-        return state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count) && count > 0;
+        // CN 812.1.c: another physical card must have been confirmed. A hand
+        // transition changes generation, but does not turn this source into
+        // another card. Exclude its own confirmations from the turn counter.
+        var ownPlays = sourceObjectId is not null && state.CardPlays.TurnNumber == state.TurnNumber
+            ? state.CardPlays.Finalized.Count(play => play.PlayerId == playerId && play.Source.ObjectId == sourceObjectId)
+            : 0;
+        return state.PlayerCardsPlayedThisTurn.GetValueOrDefault(playerId) > ownPlays;
     }
 
     private static bool ControllerControlsFaceUpUnitWithTag(
@@ -23851,13 +23858,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TargetCountConditionApplies(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         return behavior.TargetCountConditionKind switch
         {
             CardTargetCountConditionKinds.None => true,
             CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn
-                => ControllerPlayedAnotherCardThisTurn(state, playerId),
+                => ControllerPlayedAnotherCardThisTurn(state, playerId, sourceObjectId),
             _ => false
         };
     }
@@ -24011,9 +24019,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-    private static string DescribeTargetCount(MatchState state, string playerId, CardBehaviorDefinition behavior)
+    private static string DescribeTargetCount(MatchState state, string playerId, CardBehaviorDefinition behavior, string? sourceObjectId = null)
     {
-        var targetCountConditionApplies = TargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = TargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var minTargetCount = MinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = MaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         return minTargetCount == maxTargetCount
@@ -24088,13 +24096,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (targetObjectIds.Count == 0
-            || HasValidTargetCount(state, playerId, behavior, targetObjectIds))
+            || HasValidTargetCount(state, playerId, behavior, targetObjectIds, sourceObjectId))
         {
             return string.Empty;
         }
 
         var behaviorTargetCandidates = targetObjectIds.Take(targetObjectIds.Count - 1).ToArray();
-        if (!HasValidTargetCount(state, playerId, behavior, behaviorTargetCandidates))
+        if (!HasValidTargetCount(state, playerId, behavior, behaviorTargetCandidates, sourceObjectId))
         {
             return string.Empty;
         }

@@ -2789,7 +2789,7 @@ internal static partial class ActionPromptBuilder
         foreach (var source in CoreRuleEngine.StandbyPlaySources(state, playerId))
         foreach (var behavior in PlayCardPromptBehaviorsForSource(state, playerId, source))
         {
-            var condition = PromptTargetCountConditionApplies(state, playerId, behavior);
+            var condition = PromptTargetCountConditionApplies(state, playerId, behavior, source);
             var count = PromptMaxTargetCount(state, playerId, behavior, condition);
             var destination = behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment
                 ? "BATTLEFIELD:" + behavior.StandbyPlayFrom!.Battlefield.ObjectId : StandbyReactionDestination;
@@ -3950,7 +3950,7 @@ internal static partial class ActionPromptBuilder
         IReadOnlyList<string> targetObjectIds,
         string? sourceObjectId = null)
     {
-        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         if (targetObjectIds.Count < minTargetCount
@@ -5413,7 +5413,7 @@ internal static partial class ActionPromptBuilder
         string sourceObjectId,
         CardBehaviorDefinition behavior)
     {
-        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior, sourceObjectId);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         var targetScope = PromptTargetScopeForBehavior(behavior);

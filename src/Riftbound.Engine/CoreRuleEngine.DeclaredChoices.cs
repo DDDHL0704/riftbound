@@ -9,7 +9,7 @@ public sealed partial class CoreRuleEngine
     private static bool HasLegalDeclaredTargets(MatchState state, string player, string source,
         CardBehaviorDefinition behavior, IReadOnlyList<string> targets, string scope, StackItemState? item = null)
         => HasIndependentPermanentTargets(behavior) && targets.Count == 0
-            || HasValidTargetCount(state, player, behavior, targets)
+            || HasValidTargetCount(state, player, behavior, targets, source)
                 && PlayCardTargetsExposeKnownCardNumbers(state, targets)
                 && CreatedBaseUnitCopyTargetAllowed(state, behavior, targets)
                 && HasValidTargetGroup(state, behavior, targets)

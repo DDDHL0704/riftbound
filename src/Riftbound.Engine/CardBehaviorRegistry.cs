@@ -6005,7 +6005,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            UnitEventAbility: new("PLAY_AFTER_ANOTHER_CARD", "READY_SELF")),
         new(
             "OGN·243a/298",
             "德莱厄斯",
@@ -6015,7 +6016,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            UnitEventAbility: new("PLAY_AFTER_ANOTHER_CARD", "READY_SELF")),
         new(
             "UNL-111/219",
             "坚定的哨兵",
