@@ -32,17 +32,40 @@ public sealed partial class CoreRuleEngine
             .Select(x => x.Observer with { Context = x.Observer.Context with { Attackers = x.Participants } }).ToArray();
     }
 
+    private static string[] UnitEventEnemiesHere(MatchState state, StackItemState item)
+    {
+        // CN359.3.f.2: "here" is read at resolution from the current source
+        // generation. A departed source cannot supply a location.
+        var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);
+        return here is null ? [] : state.CardObjects.Values
+            .Where(card => IsFaceUpNonStandbyUnit(card) && IsObjectOnField(state.PlayerZones, card.ObjectId)
+                && EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) != item.ControllerId
+                && state.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.Zone == here.Zone
+                && (here.Zone == "BASE" ? at.PlayerId == here.PlayerId : at.BattlefieldObjectId == here.BattlefieldObjectId))
+            .Select(card => card.ObjectId).Order(StringComparer.Ordinal).ToArray();
+    }
+
+    private static StackResolutionResult ResolveUnitEventDamagedEnemyDestruction(MatchState state, StackItemState item)
+    {
+        // This is an untargeted instruction. Marked damage is read now, so
+        // reactions can heal, hurt, or move units before the shared destruction.
+        var damaged = UnitEventEnemiesHere(state, item).Where(id => state.CardObjects[id].Damage > 0)
+            .ToHashSet(StringComparer.Ordinal);
+        if (damaged.Count == 0) return NoopStackResolutionResult(state);
+        var cards = state.CardObjects.ToDictionary();
+        var zones = NormalizeZonesForSeats(state);
+        var locations = state.ObjectLocations.ToDictionary();
+        var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(),
+            state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(), state.RunePools,
+            objectLocations: locations, explicitDestroyObjectIds: damaged);
+        return NoopStackResolutionResult(state) with { CardObjects = cards, PlayerZones = zones,
+            RunePools = removal.RunePools, Events = removal.Events, TriggerQueue = removal.TriggerQueue,
+            DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds, ObjectLocations = ReconcileObjectLocations(locations, zones) };
+    }
+
     private static StackResolutionResult ResolveUnitEventAreaDamage(MatchState state, StackItemState item, int amount)
     {
-        // CN359.3.f.2: "here" refers to the source's location when this
-        // instruction executes; a departed source has no current location.
-        var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);
-        if (here is null) return NoopStackResolutionResult(state);
-        var targets = state.CardObjects.Values.Where(c => IsFaceUpNonStandbyUnit(c) && IsObjectOnField(state.PlayerZones, c.ObjectId)
-            && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
-            && state.ObjectLocations.TryGetValue(c.ObjectId, out var at) && at.Zone == here.Zone
-            && (here.Zone == "BASE" ? at.PlayerId == here.PlayerId : at.BattlefieldObjectId == here.BattlefieldObjectId))
-            .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
+        var targets = UnitEventEnemiesHere(state, item);
         var cards = state.CardObjects.ToDictionary(); var zones = NormalizeZonesForSeats(state);
         var locations = state.ObjectLocations.ToDictionary(); var destroyed = new HashSet<string>(StringComparer.Ordinal);
         var events = new List<GameEvent>();

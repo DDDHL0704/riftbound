@@ -262,6 +262,22 @@ class EffectClauseAuditTests(unittest.TestCase):
             row = audit.split_clauses(c["cardEffect"])[0]
             self.assertEqual("review", audit.audit_clause(c, row, sources)["status"])
 
+    def test_attack_destroy_requires_all_wounded_enemies_here(self):
+        (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text(
+            'if (spec.Timing == "ATTACK" && spec.Effect == "DESTROY_DAMAGED_ENEMIES_HERE") DestroyDamagedEnemiesHere();')
+        sources = audit.Sources(self.root, [])
+        for instruction, expected in [
+                ("摧毁此处所有已受伤的敌方单位", "route"),
+                ("摧毁此处所有敌方单位", "review"),
+                ("摧毁此处所有已受伤的单位", "review"),
+                ("摧毁此处一名已受伤的敌方单位", "review"),
+                ("摧毁其他战场所有已受伤的敌方单位", "review")]:
+            with self.subTest(instruction=instruction):
+                c = card("当我进攻时，" + instruction + "。",
+                         unitEventAbility=dict(timing="ATTACK", effect="DESTROY_DAMAGED_ENEMIES_HERE"))
+                row = audit.split_clauses(c["cardEffect"])[0]
+                self.assertEqual(expected, audit.audit_clause(c, row, sources)["status"])
+
     def test_matching_event_timing_does_not_certify_unrelated_partial_or_wrong_count_effects(self):
         (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text('if (spec.Timing == "BECAME_EXHAUSTED" && spec.Effect == "DRAW") ApplyDrawToPlayer();')
         sources = audit.Sources(self.root, [])

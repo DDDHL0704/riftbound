@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-yasuo-alt-a-attack-damage-static",
-  "description": "OGN 076a Yasuo enters as a hero unit while the attack damage trigger is deferred.",
+  "description": "OGN 076a Yasuo enters as a hero unit with attack resolution covered separately by PrintedAttackClauseTests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·076a/298 亚索",
-      "note": "官方卡面：费用 6；英雄单位；战力 6；进攻时对此处的一名敌方单位造成等同于自身战力的伤害。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；进攻触发和战力等值伤害路径暂缓。"
+      "note": "官方卡面：费用 6；英雄单位；战力 6；进攻时对此处的一名敌方单位造成等同于自身战力的伤害。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；进攻触发与当前战力伤害由 PrintedAttackClauseTests 的真实移动、响应及结算用例覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
