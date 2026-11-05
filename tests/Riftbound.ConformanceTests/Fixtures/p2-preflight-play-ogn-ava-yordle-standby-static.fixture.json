@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-ava-yordle-standby-static",
-  "description": "OGN 107 Ava enters as a Yordle unit while attack standby play text is deferred.",
+  "description": "OGN 107 Ava enters as a Yordle unit; AvaStandbyAttackPlayTests covers the paid attack trigger and face-up hand play.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·107/298 斥候标兵 艾娃",
-      "note": "官方卡面：费用 5；单位；战力 4；约德尔人；进攻时可支付蓝色符能，从手牌正面朝上打出一张带有待命技能的卡牌且无视费用。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录约德尔人标签；进攻触发、蓝色费用和待命牌免费打出路径暂缓。"
+      "note": "官方卡面：费用 5；单位；战力 4；约德尔人；进攻时可支付蓝色符能，从手牌正面朝上打出一张带有待命技能的卡牌且无视费用。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录约德尔人标签；进攻触发、确认时支付蓝色符能、正面免费打出及勘误要求的单位打到来源当前此处，另由 AvaStandbyAttackPlayTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

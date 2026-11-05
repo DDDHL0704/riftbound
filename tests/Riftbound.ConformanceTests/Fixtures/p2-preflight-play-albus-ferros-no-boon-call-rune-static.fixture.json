@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-albus-ferros-no-boon-call-rune-static",
-  "description": "Albus Ferros enters as a unit while boon-consuming rune-call text is deferred.",
+  "description": "Albus Ferros enters exhausted and skips its optional boon cost when no boons are available.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·230/298 阿不思·菲罗斯",
-      "note": "官方卡面：费用 4；单位；战力 3；当控制者打出自身时，可选择消耗任意数量的增益，每消耗一个增益便召出一枚休眠符文。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；消耗增益和召出休眠符文路径暂缓。"
+      "note": "官方卡面：费用 4；单位；战力 3；当控制者打出自身时，可选择消耗任意数量的增益，每消耗一个增益便召出一枚休眠符文。当前 fixture 覆盖普通主阶段打出后成为休眠基地单位；没有可支付增益时，不确认可选技能，也不召出符文。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -80,21 +80,18 @@
         "cardNo": "OGN·230/298",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ogn-230-albus-ferros-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ogn-230-albus-ferros-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_NOT_CONFIRMED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

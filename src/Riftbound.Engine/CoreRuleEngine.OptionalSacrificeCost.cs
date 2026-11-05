@@ -2,7 +2,7 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
-    internal sealed record OptionalSacrificePlayCost(string? Choice, PlayManaCost Mana,
+    internal sealed record OptionalSacrificePlayCost(IReadOnlyList<string> Choices, PlayManaCost Mana,
         int GenericPower, IReadOnlyDictionary<string, int> TypedPower, ManaPaymentPurpose ManaPurpose)
     {
         internal bool CanPay(RunePool pool, MatchState? state = null) => PaymentCostRules.AvailableMana(pool,
@@ -36,6 +36,11 @@ public sealed partial class CoreRuleEngine
     {
         if (!behavior.MaySacrificeUnitForPrintedCostReduction) return (0, 0);
         var selected = costs.Where(cost => cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
+        if (behavior.FixedYellowPowerReductionPerSacrificedUnit > 0)
+            return selected.Length > 0 && selected.Distinct(StringComparer.Ordinal).Count() == selected.Length
+                && selected.All(cost => TryParseDestroyFriendlyUnitAdditionalCost(cost, out var unit)
+                    && TrySacrificeUnitCost(state, player, unit, out _, out _))
+                ? (0, checked(selected.Length * behavior.FixedYellowPowerReductionPerSacrificedUnit)) : (0, 0);
         if (selected.Length != 1 || !TryParseDestroyFriendlyUnitAdditionalCost(selected[0], out var id)
             || !TrySacrificeUnitCost(state, player, id, out var mana, out var power)) return (0, 0);
         // A fixed reduction changes only mana; it does not inherit either
@@ -53,24 +58,39 @@ public sealed partial class CoreRuleEngine
             StringComparer.Ordinal).Where(entry => entry.Value > 0)
                 .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
 
+    private static IReadOnlyList<IReadOnlyList<string>> OptionalSacrificeSelections(
+        MatchState state, string player, CardBehaviorDefinition behavior)
+    {
+        var selections = new List<IReadOnlyList<string>> { Array.Empty<string>() };
+        if (!behavior.MaySacrificeUnitForPrintedCostReduction) return selections;
+        var candidates = OptionalSacrificeCandidates(state, player);
+        // A fixed per-unit reduction is monotone. The full set gives the price
+        // lower bound without enumerating subsets; real commands quote and pay
+        // their actual selection, including selections beyond the zero floor.
+        if (behavior.FixedYellowPowerReductionPerSacrificedUnit > 0)
+        {
+            if (candidates.Count > 0) selections.Add(candidates);
+        }
+        else foreach (var choice in candidates) selections.Add(new[] { choice });
+        return selections;
+    }
+
     internal static IReadOnlyList<OptionalSacrificePlayCost> OptionalSacrificePlayCosts(
         MatchState state, string player, CardBehaviorDefinition behavior, string? source,
         int additionalMana = 0, int additionalPower = 0, string additionalTrait = "")
     {
         var pool = state.RunePools.GetValueOrDefault(player) ?? RunePool.Empty;
-        var choices = new string?[] { null }.Concat(behavior.MaySacrificeUnitForPrintedCostReduction
-            ? OptionalSacrificeCandidates(state, player) : []);
+        var choices = OptionalSacrificeSelections(state, player, behavior);
         var extraTyped = string.IsNullOrWhiteSpace(additionalTrait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [additionalTrait] = additionalPower };
-        return choices.Select(choice => {
-            IReadOnlyList<string> costs = choice is null ? [] : [choice];
+        return choices.Select(costs => {
             var reduction = SelectedSacrificeCostReduction(state, player, behavior, costs);
             var mana = CalculatePlayManaCost(state, player, behavior, additionalMana,
                 optionalCosts: costs, sourceObjectId: source);
             TrySelectPlayPowerCost(state, player, behavior, null, pool,
                 SourceReplayPowerCost(state, player) + (additionalTrait.Length == 0 ? additionalPower : 0), extraTyped,
                 out var generic, out var typed);
-            return new OptionalSacrificePlayCost(choice, mana, generic, ApplySacrificePowerReduction(typed, reduction.Power), ManaPurposeForPlay(behavior));
+            return new OptionalSacrificePlayCost(costs, mana, generic, ApplySacrificePowerReduction(typed, reduction.Power), ManaPurposeForPlay(behavior));
         }).ToArray();
     }
 }

@@ -1223,6 +1223,7 @@ public static partial class MatchRecoveryValidator
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
+            ValidateStandbyHandPlayPaymentHistory(authoritativeState, commands, events, errors);
             errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));
         }
         ValidateSpectatorReplayFrame(
@@ -4397,6 +4398,13 @@ public static partial class MatchRecoveryValidator
             errors.Add("invalid revealed hand effect-play continuation");
         if (state.PendingCardChoice is { ChoiceWindow: "RECYCLE_FOR_EFFECT_PLAY" } recycling
             && !CoreRuleEngine.ValidRecyclingChoice(state, recycling)) errors.Add("invalid recycling cost choice");
+        if (state.PendingEffectPlay is { } standbyHandPlay
+            && (standbyHandPlay.Parent.UnitEvent?.CardNo is { } handCard
+                    && CardBehaviorRegistry.TryGetByCardNo(handCard, out var handAbility)
+                    && handAbility.UnitEventAbility?.Effect == CoreRuleEngine.StandbyHandPlayHereEffect
+                || standbyHandPlay.DestinationPolicy == "SOURCE_HERE_IF_UNIT")
+            && !CoreRuleEngine.ValidStandbyHandPlayHere(state, standbyHandPlay))
+            errors.Add("invalid standby hand effect-play continuation");
         foreach (var item in state.StackItems)
         {
             if (!CoreRuleEngine.ValidFlowPlay(state, item)) errors.Add("invalid flow play receipt");
