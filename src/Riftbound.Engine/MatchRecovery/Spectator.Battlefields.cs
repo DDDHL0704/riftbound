@@ -808,9 +808,17 @@ public static partial class MatchRecoveryValidator
             .ToArray();
     }
 
+    // CN129.4/422.4: game-end disclosure preserves face-down orientation.
+    private static bool IsTerminalFaceDownFieldObjectPublicForRecovery(MatchState state, string objectId)
+        => state.Status == MatchStatuses.Finished
+            && state.CardObjects.TryGetValue(objectId, out var card) && card.IsFaceDown
+            && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+
     private static bool IsHiddenBattlefieldStandbyForSpectator(MatchState authoritativeState, string objectId)
     {
-        if (!authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
+        if (IsTerminalFaceDownFieldObjectPublicForRecovery(authoritativeState, objectId)
+            || !authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
             || !cardObject.IsFaceDown
             || !authoritativeState.ObjectLocations.TryGetValue(objectId, out var location)
             || !string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)

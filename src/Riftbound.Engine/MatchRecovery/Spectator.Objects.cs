@@ -1491,10 +1491,11 @@ public static partial class MatchRecoveryValidator
 
         ValidateSpectatorSnapshotPlayerObjectLocation(playerId, objectId, objectPayload, authoritativeState, errors);
 
-        if (!expectedFaceDown)
+        var publiclyShownFaceDown = IsTerminalFaceDownFieldObjectPublicForRecovery(authoritativeState, objectId);
+        if (!expectedFaceDown || publiclyShownFaceDown)
         {
             ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, authoritativeState, errors);
-            if (hasValidFaceDownFlag
+            if (!publiclyShownFaceDown && hasValidFaceDownFlag
                 && isFaceDown
                 && SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
             {
