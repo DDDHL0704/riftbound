@@ -428,7 +428,8 @@ public sealed record CardBehaviorDefinition(
     MovementImposedCostSpec? MovementImposedCost = null,
     int FriendlyLastBreathAdditionalTriggersHere = 0,
     int FriendlyLastBreathAdditionalTriggers = 0,
-    SpellModeSetSpec? SpellModes = null)
+    SpellModeSetSpec? SpellModes = null,
+    bool DefaultChosenMovementToControllerBase = false)
 {
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
@@ -8901,8 +8902,9 @@ public static class CardBehaviorRegistry
             "CHARM_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE",
             0,
             1,
-            TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
-            MovesTargetToBase: true),
+            TargetScope: CardTargetScopes.EnemyUnit,
+            MovesTargetsToChosenLocation: true,
+            DefaultChosenMovementToControllerBase: true),
         new(
             "UNL-038/219",
             "升龙踢",
@@ -8910,8 +8912,9 @@ public static class CardBehaviorRegistry
             "RISING_DRAGON_KICK_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_LEVEL_6",
             0,
             1,
-            TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
-            MovesTargetToBase: true),
+            TargetScope: CardTargetScopes.EnemyUnit,
+            MovesTargetsToChosenLocation: true,
+            DefaultChosenMovementToControllerBase: true),
         new(
             "UNL-124/219",
             "隔绝",

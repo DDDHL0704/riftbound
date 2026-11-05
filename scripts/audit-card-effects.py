@@ -435,6 +435,12 @@ def behavior_operations(card: dict, clause: dict, sources: Sources) -> dict | No
         return None
     if clause["kind"] == "static" and not re.search(r"以(?:活跃|休眠)状态进场", bare):
         return None
+    # CN 355.4.a: an unqualified movement instruction permits any other
+    # legal field location. A fixed recall-to-base branch is only partial.
+    behaviors = card.get("behaviors", [])
+    if re.fullmatch(r"移动一名(?:敌方|友方)单位。?", bare.strip()) and behaviors             and any(b.get("movesTargetToBase") for b in behaviors)             and not any(b.get("movesTargetsToChosenLocation") for b in behaviors):
+        return result("missing", "未限定终点的移动仅实现移回基地（核心355.4.a）",
+                      sources.field_routes("movesTargetToBase"))
     for behavior in card.get("behaviors", []):
         if re.search(r"以(?:活跃|休眠)状态进场", bare):
             field = "sourceEquipmentIsExhausted" if behavior.get("playsSourceToBaseAsEquipment") else "sourceUnitIsExhausted"
