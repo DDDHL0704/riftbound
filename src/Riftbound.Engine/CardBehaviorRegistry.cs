@@ -18,6 +18,8 @@ public sealed record UnitEventModeSpec(string Id, string Label, string Effect, i
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
 public sealed record MovementImposedCostSpec(int ManaPerMove = 0, int PowerPerMove = 0, int PowerPerExtraUnit = 0);
+public sealed record SelfGraveyardPlaySpec(int Mana, int Power, IReadOnlyList<string> Traits,
+    bool RequiresPlayedAnotherCard = false);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -51,6 +53,7 @@ public sealed record CardBehaviorDefinition(
     UnitEventAbilitySpec? UnitEventAbility = null,
     bool HeldPlaysLinkedExile = false,
     bool GrantsNormalGraveyardPlay = false, bool SkipsDrawPhase = false, bool BanishesNonDeckGraveyardEntries = false,
+    SelfGraveyardPlaySpec? SelfGraveyardPlay = null, SelfGraveyardPlaySpec? AppliedSelfGraveyardPlay = null,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
     bool DamagesAllBaseUnits = false,
@@ -5965,7 +5968,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "灵体"),
+            SourceUnitTags: "灵体",
+            SelfGraveyardPlay: new(3, 1, [RuneTrait.Red], RequiresPlayedAnotherCard: true)),
         new(
             "OGN·020/298",
             "垃圾场小霸王",

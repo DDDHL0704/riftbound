@@ -70,6 +70,9 @@ public sealed partial class CoreRuleEngine
                 Adjust("效果忽略基础符能", 0, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
         }
         Adjust("效果替代基础费用", 0, SourceReplayPowerCost(state, playerId));
+        if (plan.Behavior.AppliedSelfGraveyardPlay is { } graveyard)
+            Adjust("废牌堆打出替代费用", graveyard.Mana - plan.Behavior.ManaCost,
+                graveyard.Power - PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
         if (plan.Behavior.AppliedFlowCost is { } flow)
             Adjust("流转替代费用", flow.Mana - plan.Behavior.ManaCost,
                 flow.Power - PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);

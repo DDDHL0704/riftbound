@@ -4237,7 +4237,7 @@ internal static partial class ActionPromptBuilder
             var shown = ObjectChoice(state, choice[CoreRuleEngine.ShowcaseChoicePrefix.Length..], "亮出：确认打出时锁定此牌信息；可以不选");
             choices.Add(new(choice, "亮出：" + shown.Label, shown.Reason));
         }
-        if (sourceObjectId is not null && behavior.AppliedFlowCost is null
+        if (sourceObjectId is not null && behavior.AppliedFlowCost is null && behavior.AppliedSelfGraveyardPlay is null
             && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId))
             choices.Add(new(CoreRuleEngine.NormalGraveyardPlayChoice, "从废牌堆支付普通费用打出", "遵守正常时机，支付卡面费用和额外费用"));
         if (behavior.MayEnterReadyWithMovementProhibition)
@@ -5486,7 +5486,7 @@ internal static partial class ActionPromptBuilder
             ["sourceObjectId"] = sourceObjectId,
             ["cardNo"] = behavior.CardNo,
             ["displayName"] = behavior.DisplayName,
-            ["normalGraveyardPlayChoiceId"] = behavior.AppliedFlowCost is null
+            ["normalGraveyardPlayChoiceId"] = behavior.AppliedFlowCost is null && behavior.AppliedSelfGraveyardPlay is null
                 && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId) ? CoreRuleEngine.NormalGraveyardPlayChoice : null,
             ["flowCostChoiceId"] = behavior.AppliedFlowCost is { } flowCost ? CoreRuleEngine.FlowCostChoiceId(flowCost) : null,
             ["flowCostChoices"] = CoreRuleEngine.FlowPlayBehaviors(state, playerId, sourceObjectId, behavior)

@@ -3628,7 +3628,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 Tags = hidden.Tags.Where(tag => tag != CardObjectTags.Standby).ToArray() };
         }
         if ((state.PendingEffectPlay is { SourceZone: not ("HAND" or "STACK") } || behavior.AppliedFlowCost is not null
-                || NormalGraveyardPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId))
+                || NormalGraveyardPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId)
+                || SelfGraveyardPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId))
             && cardObjects.TryGetValue(command.SourceObjectId, out var replayed)
             && PrintedCardFactory.TryRestoreOutsidePlay(replayed, replayed.OwnerId ?? intent.PlayerId, out var printedReplay))
             cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration, ControllerId = intent.PlayerId };
@@ -18224,8 +18225,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 rejection = Reject(state, "当前没有从废牌堆正常打出此牌的权限。", ErrorCodes.InvalidTarget); return false;
             }
             normalGraveyardPlay = true;
-            behavior = behavior with { AppliedFlowCost = null };
+            behavior = behavior with { AppliedFlowCost = null, AppliedSelfGraveyardPlay = null };
         }
+        else behavior = SelfGraveyardPlayBehavior(state, intent.PlayerId, command.SourceObjectId, behavior);
         if (!TurnEquipmentPlayRules.TryApply(state, intent.PlayerId, command.SourceObjectId, command.OptionalCosts, behavior, out behavior))
         {
             rejection = Reject(state, "所选装备打出权限不存在、已使用，或不适用于这张牌。", ErrorCodes.InvalidTarget);
@@ -21151,6 +21153,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ChampionZone = RemoveFromZone(zones.ChampionZone, sourceObjectId),
             Graveyard = state.PendingEffectPlay?.SourceZone == "GRAVEYARD" || FlowPlaySources(state, playerId).Contains(sourceObjectId)
                 || NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId)
+                || SelfGraveyardPlaySources(state, playerId).Contains(sourceObjectId)
                 ? RemoveFromZone(zones.Graveyard, sourceObjectId) : zones.Graveyard,
             Banished = state.PendingEffectPlay?.SourceZone == "BANISHED" || TimedBanishPlayRules.Sources(state, playerId).Contains(sourceObjectId)
                 ? RemoveFromZone(zones.Banished, sourceObjectId) : zones.Banished,
