@@ -244,6 +244,24 @@ class EffectClauseAuditTests(unittest.TestCase):
                  unitEventAbility=dict(timing="FRIENDLY_UNIT_PLAYED", effect="PLAYED_UNIT_CALL_RUNES", amount=1))
         self.assertEqual("route", audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
 
+    def test_leave_draw_and_rune_call_require_both_printed_counts(self):
+        text = '当此牌离场时，抽一张牌并召出一枚休眠的符文。'
+        event = dict(effect='DRAW', timing='LEAVE', amount=1, runeCallCount=1)
+        self.assertTrue(audit.event_operations_match(event, text))
+        self.assertFalse(audit.event_operations_match(dict(event, amount=2), text))
+        self.assertFalse(audit.event_operations_match(dict(event, runeCallCount=0), text))
+        self.assertFalse(audit.event_operations_match(dict(event, runeCallCount=2), text))
+
+    def test_unrecognized_runtime_event_effects_stay_in_review(self):
+        (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text(
+            'if (spec.Timing == "BECAME_EXHAUSTED" && spec.Effect == "FUTURE_EFFECT") ResolveFutureEffect();')
+        sources = audit.Sources(self.root, [])
+        for instruction in ("抽一张牌", "做一种全新的事情"):
+            c = card("当我变为休眠状态时，" + instruction + "。",
+                     unitEventAbility=dict(timing="BECAME_EXHAUSTED", effect="FUTURE_EFFECT", amount=1))
+            row = audit.split_clauses(c["cardEffect"])[0]
+            self.assertEqual("review", audit.audit_clause(c, row, sources)["status"])
+
     def test_matching_event_timing_does_not_certify_unrelated_partial_or_wrong_count_effects(self):
         (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text('if (spec.Timing == "BECAME_EXHAUSTED" && spec.Effect == "DRAW") ApplyDrawToPlayer();')
         sources = audit.Sources(self.root, [])

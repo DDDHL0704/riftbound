@@ -569,6 +569,15 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "DRAW" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)) {
             // CN383.2.a.1: the undamaged clause is checked when the battle ends.
             var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.Amount, state.RngCursor, events, deferNormalVictory: true);
+            if (spec.RuneCallCount > 0 && draw.WinnerPlayerId is null)
+            {
+                var called = CallRunes(zones, cards, item.ControllerId, spec.RuneCallCount);
+                events.Add(new("RUNES_CALLED", "触发技能召出休眠符文", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId,
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
+                    ["count"] = called.CalledRuneObjectIds.Count,
+                    ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray(), ["reason"] = item.EffectKind }));
+            }
             return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,
                 RngCursor = draw.RngCursor, WinnerPlayerId = draw.WinnerPlayerId, Events = events,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
