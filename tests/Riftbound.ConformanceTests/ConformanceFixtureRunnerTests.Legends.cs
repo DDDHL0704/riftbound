@@ -109,9 +109,8 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.True(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
-        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
-        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal("HAND", result.State.ObjectLocations["P1-LEGEND-DRAW-001"].Zone);
+        Assert.NotNull(Assert.Single(result.State.StackItems).LegendDiscardDraw);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
         var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal("LEGEND_ACT", costPaidEvent.Payload["paymentWindow"]);
@@ -122,6 +121,10 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(0, costPaidEvent.Payload["remainingExperience"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        result = await OfficialGraveyardRecastTests.Top(result.State);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("HAND", result.State.ObjectLocations["P1-LEGEND-DRAW-001"].Zone);
         Assert.Contains(result.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
     }
 
@@ -358,9 +361,11 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-YASUO"].IsExhausted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.NotNull(Assert.Single(result.State.StackItems).LegendFieldEffect);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
         Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
     }
 
@@ -451,6 +456,8 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.True(result.State.CardObjects["P1-LEGEND-YASUO-REPRINT"].IsExhausted);
+        Assert.NotNull(Assert.Single(result.State.StackItems).LegendFieldEffect);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
     }
 
@@ -599,6 +606,8 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.NotNull(Assert.Single(result.State.StackItems).LegendFieldEffect);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
         Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
@@ -622,6 +631,8 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-PYKE"].IsExhausted);
+        Assert.NotNull(Assert.Single(result.State.StackItems).LegendFieldEffect);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
         Assert.Contains("P1-LEGEND-PYKE-TOKEN-001", result.State.PlayerZones["P1"].Base);
@@ -1055,6 +1066,8 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-TEEMO"].IsExhausted);
+        Assert.NotNull(Assert.Single(result.State.StackItems).LegendFieldEffect);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.DoesNotContain("P1-TEEMO-UNIT", result.State.PlayerZones["P1"].ChampionZone);
         Assert.Contains("P1-TEEMO-UNIT", result.State.PlayerZones["P1"].Hand);
         var returnedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal));
