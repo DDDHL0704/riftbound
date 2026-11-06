@@ -358,6 +358,77 @@ def meaningful(value) -> bool:
     return value is not None and value is not False and value not in ("", "NONE", -1, 0)
 
 
+def legend_field_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    if card.get("cardCategory") != "legendary":
+        return None
+    scope = unparenthesize(clause["scope"])
+    if not re.search("[：:]", scope):
+        return None
+    cost, effect = re.split("[：:]", scope, maxsplit=1)
+    effect = normalize(effect)
+    shapes = {
+        normalize("在战场和其所属基地之间移动一名友方单位"): ("MOVE_FRIENDLY_UNIT", True, False, False, False),
+        normalize("将战场上一名处于休眠状态的友方单位移动到其基地"): ("MOVE_FRIENDLY_UNIT", True, True, True, False),
+        normalize("让战场上的一名友方单位返回其所属的手牌"): ("RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN", True, True, False, False),
+        normalize("将你拥有的一张位于英雄区域或场上的提莫单位牌放入你的手牌"): ("RETURN_OWNED_TEEMO_UNIT_TO_HAND", False, False, False, True),
+    }
+    draw = effect == normalize("抽一张牌") and bool(re.search(r"消耗[0-9]+经验", cost))
+    shape = ("DRAW_ONE", False, False, False, False) if draw else shapes.get(effect)
+    if shape is None:
+        return None
+    primary = clause["scope"] == clause["text"]
+    gold = normalize(unparenthesize(clause["text"])) == normalize("打出一个休眠的“金币”装备指示物")
+    if not primary and not (gold and shape[0] == "RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN"):
+        return None
+    expected, friendly, battlefield, exhausted, owned = shape
+    mana = sum(int(n) for n in re.findall(r"\{\{([0-9]+)\}\}", cost))
+    experience = sum(int(n) for n in re.findall(r"消耗([0-9]+)经验", cost))
+    token = f"SPEND_EXPERIENCE:{experience}" if experience else f"SPEND_MANA:{mana}" if mana else ""
+    candidates = [ability for ability in card.get("legendActivationDefinitions", [])
+                  if activation_cost_matches(ability, dict(clause, text=clause["scope"]))
+                  and ability.get("requiredCostToken", "") == token
+                  and ability.get("effectKind") == expected]
+    if not candidates:
+        return result("missing", "传奇技能缺少与本句费用和效果匹配的运行时规格")
+    scoped = [ability for ability in candidates if ability.get("requiredTargetCount", 0) == (0 if draw else 1)
+              and bool(ability.get("requiresFriendlyUnitTarget")) == friendly
+              and bool(ability.get("requiresBattlefieldTarget")) == battlefield
+              and bool(ability.get("requiresExhaustedTarget")) == exhausted
+              and bool(ability.get("requiresOwnedTeemoUnitTarget")) == owned
+              and not ability.get("requiresAnyUnitTarget") and ability.get("timingKind") == "MAIN_OPEN"]
+    if not scoped:
+        return result("missing", "传奇技能的时机、目标数量、区域、拥有权或休眠条件与牌面不符")
+    flow = "DISCARD_DRAW" if draw else "FIELD_EFFECT"
+    if not any(ability.get("flow") == flow for ability in scoped):
+        return result("missing" if any(ability.get("flow") == "IMMEDIATE" for ability in scoped) else "review",
+                      "普通传奇技能没有对应的独立结算路径；需核对实际响应窗口")
+    resolver = "CoreRuleEngine.LegendDiscardDraw.cs" if draw else "CoreRuleEngine.LegendFieldEffect.cs"
+    def consumer(symbol: str, filename: str) -> list[str]:
+        return [path for path in sources.references(symbol) if Path(path).name == filename]
+    if draw and consumer("&& !(ability.EffectKind == LegendAbilityEffectKinds.DrawOne", "CoreRuleEngine.cs"):
+        return result("missing", "普通抽牌技能仍被分派条件排除在结算链之外")
+    required = [("QueueLegendDiscardDraw(" if draw else "QueueLegendFieldEffect(", "CoreRuleEngine.cs"),
+                ("if (IsLegendDiscardDrawEffect(ability.EffectKind))" if draw
+                 else "if (IsLegendFieldEffect(ability.EffectKind))", "CoreRuleEngine.cs")]
+    if draw:
+        required += [("ResolveDiscardDrawStackItem(", resolver)]
+    elif expected == "MOVE_FRIENDLY_UNIT":
+        required += [("TryMoveFieldUnitByEffect(", resolver), ("SameOrigin", resolver),
+                     ("DeclareLegendFieldDestination(", "CoreRuleEngine.cs")]
+    else:
+        required += [("ResolveUnitReturnInstructions(", resolver), ("TryReturnTargetToHand(", "CoreRuleEngine.ReturnSkills.cs")]
+        if owned:
+            required += [("LegalTarget, ability.RequiresOwnedTeemoUnitTarget", resolver)]
+        if gold:
+            required += [("if (createsGold)", "CoreRuleEngine.ReturnSkills.cs"),
+                         ("CreateBaseEquipmentTokens(", "CoreRuleEngine.ReturnSkills.cs"),
+                         ("ability.EffectKind == LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin", resolver)]
+    paths = [consumer(symbol, filename) for symbol, filename in required]
+    if all(paths):
+        return result("route", "逐句传奇费用／范围及独立移动、返手或抽牌结算", sorted({p for row in paths for p in row}))
+    return result("review", "存在匹配的传奇技能规格；仍需核对实际分派与结算消费者")
+
+
 def activation_cost_matches(ability: dict, clause: dict) -> bool:
     cost = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[0]
     if bool(re.search(r"\{\{(?:横置|T)\}\}", cost)) != bool(ability.get("exhaustsSourceAsCost")):
@@ -985,11 +1056,18 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if normalize(clause["text"]) == "我在战斗中最后承担伤害":
         tags = "|".join(b.get("sourceUnitTags", "") for b in card.get("behaviors", []))
         return result("route", "后排的文字表述及实际物体标签", sources.references("BackRow")) if "后排" in tags else result("missing", "后排的文字表述未映射到实际物体标签")
+    if kind == "activated" and (legend := legend_field_activation_route(card, clause, sources)):
+        return legend
     families = ("triggers", "staticAuras", "staticAbilities", "replacements")
     for family in families:
         for item in card.get(family, []):
             if node_matches(clause, item) and (routes := sources.node_routes(item)):
                 return result("route", f"{family}: {item['node']['kind']}", routes)
+    if kind == "trigger" and card.get("cardCategory") == "legendary" and normalize(clause["text"]) == normalize(
+            "当你将一名友方单位选为目标时，你可以选择让我变为休眠状态并支付{{A}}，以此让该单位变为活跃状态"):
+        if any(ability.get("effectKind") == "READY_FRIENDLY_UNIT" and ability.get("requiresPendingFriendlyUnitTarget")
+               for ability in card.get("legendActivationDefinitions", [])):
+            return result("missing", "只有手动传奇入口；缺少选取目标触发、可选费用确认及正确的符能付款")
     if answer := behavior_operations(card, clause, sources):
         return answer
     if kind == "activated":

@@ -16088,17 +16088,16 @@ public sealed partial class GameHubJoinTests
         var acceptedExhaustEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
         Assert.Equal("P1-LEGEND-POPPY", acceptedExhaustEvent.Payload["sourceObjectId"]);
         Assert.Equal("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", acceptedExhaustEvent.Payload["abilityId"]);
-        var acceptedDrawEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
-        Assert.Equal("P1", acceptedDrawEvent.Payload["playerId"]);
-        Assert.Equal(1, acceptedDrawEvent.Payload["count"]);
+        Assert.DoesNotContain(acceptedEvents, gameEvent => gameEvent.Kind == "CARD_DRAWN");
+        var acceptedStackEvent = Assert.Single(acceptedEvents, gameEvent => gameEvent.Kind == "STACK_ITEM_ADDED");
         Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
         Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
         var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
         var acceptedP1 = PlayerView(acceptedSnapshot, "P1");
         Assert.Equal(0, Assert.IsType<int>(acceptedP1["experience"]));
         var acceptedZones = ZoneView(acceptedP1);
-        Assert.Equal(0, Assert.IsType<int>(acceptedZones["mainDeckCount"]));
-        Assert.Equal(["P1-LEGEND-DRAW-001"], StringList(acceptedZones["hand"]));
+        Assert.Equal(1, Assert.IsType<int>(acceptedZones["mainDeckCount"]));
+        Assert.Empty(StringList(acceptedZones["hand"]));
         var acceptedObjects = Assert.IsType<Dictionary<string, object?>>(acceptedP1["objects"]);
         var acceptedLegend = Assert.IsType<Dictionary<string, object?>>(acceptedObjects["P1-LEGEND-POPPY"]);
         Assert.True(Assert.IsType<bool>(acceptedLegend["isExhausted"]));
@@ -16159,9 +16158,9 @@ public sealed partial class GameHubJoinTests
         var replayExhaustEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
         Assert.Equal(acceptedExhaustEvent.Payload["sourceObjectId"], replayExhaustEvent.Payload["sourceObjectId"]);
         Assert.Equal(acceptedExhaustEvent.Payload["abilityId"], replayExhaustEvent.Payload["abilityId"]);
-        var replayDrawEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
-        Assert.Equal(acceptedDrawEvent.Payload["count"], replayDrawEvent.Payload["count"]);
-        Assert.Equal(acceptedDrawEvent.Payload["playerId"], replayDrawEvent.Payload["playerId"]);
+        Assert.DoesNotContain(replayEvents, gameEvent => gameEvent.Kind == "CARD_DRAWN");
+        var replayStackEvent = Assert.Single(replayEvents, gameEvent => gameEvent.Kind == "STACK_ITEM_ADDED");
+        Assert.Equal(acceptedStackEvent.Payload["stackItemId"], replayStackEvent.Payload["stackItemId"]);
         Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
         Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
         Assert.Equal(
@@ -16255,6 +16254,26 @@ public sealed partial class GameHubJoinTests
         var currentObjects = Assert.IsType<Dictionary<string, object?>>(currentP1["objects"]);
         var currentLegend = Assert.IsType<Dictionary<string, object?>>(currentObjects["P1-LEGEND-POPPY"]);
         Assert.Equal(acceptedLegend["isExhausted"], currentLegend["isExhausted"]);
+        // Exact duplicates preserve the activation result; only two subsequent passes draw.
+        var responseClients = acceptedClients;
+        for (var index = 0; index < 2; index++)
+        {
+            var player = index == 0 ? "P1" : "P2";
+            var prompt = PromptFor(responseClients, player);
+            responseClients = new RecordingHubClients();
+            await CreateHub(responseClients, new RecordingGroupManager(), player == "P1" ? "connection-1" : "connection-2",
+                    registry, authenticatedHandle: player)
+                .SubmitIntent(roomId, player, "legend-act-pass-" + index, JsonSerializer.SerializeToElement(new {
+                    cmdType = "PASS_PRIORITY", promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+            Assert.Empty(responseClients.CallerClient.Errors);
+            if (index == 0) Assert.DoesNotContain(EventsFor(responseClients), e => e.Kind == "CARD_DRAWN");
+        }
+        var draw = Assert.Single(EventsFor(responseClients), e => e.Kind == "CARD_DRAWN");
+        Assert.Equal(1, draw.Payload["count"]);
+        var resolved = PlayerView(SnapshotFor(responseClients, "P1"), "P1");
+        Assert.Equal(0, resolved["experience"]);
+        Assert.Equal(new[] { "P1-LEGEND-DRAW-001" }, StringList(ZoneView(resolved)["hand"]));
+        Assert.Equal(acceptedJournalCount + 2, journal.Entries.Count);
     }
 
     [Fact]
@@ -16303,7 +16322,21 @@ public sealed partial class GameHubJoinTests
         Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
         Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
-        Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.DoesNotContain(actEvents, gameEvent => gameEvent.Kind == "CARD_DRAWN");
+        Assert.Single(actEvents, gameEvent => gameEvent.Kind == "STACK_ITEM_ADDED");
+        for (var index = 0; index < 2; index++)
+        {
+            var player = index == 0 ? "P1" : "P2";
+            var prompt = PromptFor(actClients, player);
+            actClients = new RecordingHubClients();
+            await CreateHub(actClients, new RecordingGroupManager(), player == "P1" ? "connection-1" : "connection-2",
+                    registry, authenticatedHandle: player)
+                .SubmitIntent(roomId, player, "legend-act-core-pass-" + index, JsonSerializer.SerializeToElement(new {
+                    cmdType = "PASS_PRIORITY", promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+            Assert.Empty(actClients.CallerClient.Errors);
+            if (index == 0) Assert.DoesNotContain(EventsFor(actClients), e => e.Kind == "CARD_DRAWN");
+        }
+        Assert.Single(EventsFor(actClients), gameEvent => gameEvent.Kind == "CARD_DRAWN");
         var actSnapshot = SnapshotFor(actClients, "P1");
         var actP1 = Assert.IsType<Dictionary<string, object?>>(actSnapshot.Players["P1"]);
         Assert.Equal(0, Assert.IsType<int>(actP1["experience"]));

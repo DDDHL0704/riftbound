@@ -97,7 +97,7 @@ var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
 };
 var legendDefinitionReader = typeof(CoreRuleEngine).GetMethod("TryGetLegendAbility", BindingFlags.Static | BindingFlags.NonPublic)!;
 var legendFlowReaders = new[] {
-    ("IsLegendUnitEffect", "UNIT_EFFECT"), ("IsLegendUnitKeywordEffect", "UNIT_KEYWORD"),
+    ("IsLegendFieldEffect", "FIELD_EFFECT"), ("IsLegendUnitEffect", "UNIT_EFFECT"), ("IsLegendUnitKeywordEffect", "UNIT_KEYWORD"),
     ("IsLegendDuelMovementEffect", "DUEL_MOVEMENT"), ("IsLegendDiscardDrawEffect", "DISCARD_DRAW"),
     ("IsLegendEquipmentReadyEffect", "EQUIPMENT_READY"), ("IsLegendAttachmentEffect", "ATTACHMENT")
 }.Select(pair => (Method: typeof(CoreRuleEngine).GetMethod(pair.Item1,
@@ -108,9 +108,7 @@ object? LegendDefinition(string abilityId)
     if (!(bool)legendDefinitionReader.Invoke(null, args)!) return null;
     var value = JsonSerializer.Deserialize<Dictionary<string, object?>>(JsonSerializer.Serialize(args[1], options), options)!;
     var effect = ((JsonElement)value["effectKind"]!).GetString()!;
-    var timing = value.TryGetValue("timingKind", out var timingValue) ? ((JsonElement)timingValue!).GetString() : null;
     var flow = legendFlowReaders.FirstOrDefault(reader => (bool)reader.Method.Invoke(null, [effect])!).Flow ?? "IMMEDIATE";
-    if (effect == "DRAW_ONE" && timing != "REACTION_WINDOW") flow = "IMMEDIATE";
     object?[] tokenArgs = [effect, null];
     if ((bool)typeof(CoreRuleEngine).GetMethod("TryGetLegendUnitToken", BindingFlags.Static | BindingFlags.NonPublic)!
         .Invoke(null, tokenArgs)!) flow = "UNIT_TOKEN";
