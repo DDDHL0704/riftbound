@@ -1,0 +1,229 @@
+/* ---------- action menu, pick bar ---------- */
+
+.menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  min-width: 190px;
+  display: grid;
+  padding: 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: rgba(24, 19, 36, 0.96);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+}
+.side--opp .menu,
+.field__row--opp .menu {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+.hand .menu {
+  bottom: calc(100% + var(--hand-w) * 0.75);
+  transform: translateX(-50%) rotate(calc(var(--fan, 0deg) * -1));
+}
+.obj:has(.menu) {
+  z-index: 35;
+}
+.menu__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.menu__item:hover {
+  background: rgba(240, 181, 74, 0.16);
+}
+.menu__detail {
+  color: var(--brass);
+  font-size: 12px;
+}
+.menu__item--quiet {
+  color: var(--muted);
+}
+
+.pickbar {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 40;
+  width: min(600px, 92%);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 241, 184, 0.55);
+  border-radius: 16px;
+  background: rgba(24, 19, 36, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6);
+}
+.pickbar--leaving {
+  pointer-events: none;
+}
+.pickbar__thumb {
+  width: 56px;
+  border-radius: 6px;
+  align-self: start;
+}
+.pickbar__body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding-right: 40px;
+}
+.pickbar p {
+  margin: 0;
+}
+.pickbar__title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.pickbar__title strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+.pickbar__title span {
+  color: var(--brass);
+  font-size: 13px;
+}
+.pickbar__hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+.pickbar__hint--group {
+  color: var(--legal);
+}
+.pickbar__hint--warn {
+  color: var(--ember);
+}
+.pickbar__choices,
+.pickbar__others {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.pickbar__others {
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.pickbar__cancel {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.banner {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  translate: 0 -50%;
+  padding: 12px 0 10px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(21, 17, 31, 0.86) 22%, rgba(21, 17, 31, 0.86) 78%, transparent);
+}
+.banner span {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 36px;
+  letter-spacing: 0.32em;
+  padding-left: 0.32em;
+}
+.banner small {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+}
+.banner--me span {
+  color: var(--brass);
+  text-shadow: 0 0 30px rgba(240, 181, 74, 0.55);
+}
+.banner--opp span {
+  color: var(--glacier);
+  text-shadow: 0 0 30px rgba(111, 208, 238, 0.55);
+}
+
+.result {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(21, 17, 31, 0.93), rgba(12, 9, 18, 0.97));
+}
+.result p {
+  margin: 0;
+}
+.result__title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 80px;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em;
+}
+.result--win .result__title {
+  color: var(--brass);
+  text-shadow: 0 0 40px rgba(240, 181, 74, 0.6);
+}
+.result--loss .result__title {
+  color: var(--glacier);
+  text-shadow: 0 0 40px rgba(111, 208, 238, 0.5);
+}
+.result__score {
+  font-family: var(--font-num);
+  font-size: 34px;
+  font-weight: 600;
+}
+.result__stats {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.result__stats table {
+  border-collapse: collapse;
+}
+.result__stats th,
+.result__stats td {
+  padding: 4px 14px;
+  text-align: center;
+  font-weight: 400;
+}
+.result__stats thead th {
+  font-size: 12px;
+  color: var(--muted);
+}
+.result__stats tbody th {
+  text-align: left;
+  color: var(--muted);
+}
+.result__stats td {
+  font-family: var(--font-num);
+  font-size: 18px;
+}
+.result__stats tbody tr + tr {
+  border-top: 1px solid var(--line);
+}
