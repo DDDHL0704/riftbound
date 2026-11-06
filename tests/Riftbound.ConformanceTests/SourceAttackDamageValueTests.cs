@@ -223,24 +223,33 @@ public sealed class SourceAttackDamageValueTests
         Assert.DoesNotContain(game.State.TriggerQueue, item => item.SourceObjectId == "ENEMY" && item.FieldContext is not null);
         await game.Replay();
     }
-    [Fact]
-    public async Task ZeroSourceMightDoesNotBecomeDamageThroughAVoidGateBonus()
+
+    [Theory]
+    [InlineData(false, 2)]
+    [InlineData(true, 0)]
+    public async Task AVoidGateIncreasesPositiveAssaultDamageButCannotCreateItFromZero(bool zero, int expectedDamage)
     {
-        const string no = "OGN·076/298";
-        var initial = VenConditionalPlayCostTests.Place(Position(no), "UNIT", no, "P1", "BASE");
+        const string no = "SFD·028/221";
+        var initial = Position(no);
         Assert.True(PrintedCardFactory.TryCreate("OTHER", "P2", "OGN·296/298", out var gate));
-        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { ["OTHER"] = gate } };
-        // Source and battlefield are public opening fixtures for this boundary.
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["OTHER"] = gate with { ControllerId = "P2" } } };
         var game = new Driver(initial);
-        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:OTHER", []));
-        await Choose(game);
-        // Same-incarnation numeric boundary, with the real battlefield bonus.
+        await Attack(game, no); await Choose(game);
+        var source = game.State.CardObjects["UNIT"];
+        Assert.True(source.Power > 0);
+        // Same-incarnation keyword boundary, not a real keyword-removal spell.
+        // The source remains alive, so missing-source handling cannot mask zero.
         var changed = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
-            ["UNIT"] = game.State.CardObjects["UNIT"] with { Power = 0 } } };
+            ["UNIT"] = source with { Tags = zero
+                ? source.Tags.Where(tag => !tag.StartsWith("强攻", StringComparison.Ordinal)).ToArray()
+                : source.Tags } } };
         OfficialInsightAndSpellLockTests.Restore(changed);
         var resolved = await OfficialGraveyardRecastTests.Top(changed);
-        Assert.Equal(0, resolved.State.CardObjects["ENEMY"].Damage);
-        Assert.DoesNotContain(resolved.Events, ev => ev.Kind == "DAMAGE_APPLIED");
+        Assert.Equal(source.ObjectGeneration, resolved.State.CardObjects["UNIT"].ObjectGeneration);
+        Assert.Equal("OTHER", resolved.State.ObjectLocations["UNIT"].BattlefieldObjectId);
+        Assert.Equal(expectedDamage, resolved.State.CardObjects["ENEMY"].Damage);
+        if (zero) Assert.DoesNotContain(resolved.Events, ev => ev.Kind == "DAMAGE_APPLIED");
         OfficialInsightAndSpellLockTests.Restore(resolved.State);
     }
 
