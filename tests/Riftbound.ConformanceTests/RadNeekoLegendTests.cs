@@ -259,17 +259,20 @@ public sealed class RadNeekoLegendTests
         await game.ColdCheckpoint(); await game.Replay();
     }
 
-    [Fact]
-    public async Task AnAlreadyGrantedTurnEffectRemainsAfterTheAddedLegendDeparts()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AnAlreadyGrantedTurnEffectRemainsAfterTheAddedLegendDeparts(bool departBeforeResolution)
     {
         var game = await Position("OGN·267/298");
         await Play(game, "NEEKO"); await game.Top();
         var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
         await game.Act("P1", new LegendActCommand(legend,
             LegendActionAbilityCatalog.MissFortuneLegendAbilityId, ["UNIT"], []));
-        Assert.Contains("ROAM", game.State.CardObjects["UNIT"].UntilEndOfTurnEffects);
+        Assert.DoesNotContain("ROAM", game.State.CardObjects["UNIT"].UntilEndOfTurnEffects);
+        if (!departBeforeResolution) await game.Top();
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEEKO"])); await game.Top();
         Assert.False(game.State.CardObjects.ContainsKey(legend));
+        if (departBeforeResolution) await game.Top();
         Assert.Contains("ROAM", game.State.CardObjects["UNIT"].UntilEndOfTurnEffects);
         await game.ColdCheckpoint(); await game.Replay();
     }

@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { client, type ClientState } from "../net/client";
 import { cardName, paymentChoiceLabel } from "../game/cards";
 import { enabledCandidate, isRecycle, isTap } from "../game/actions";
+import { fillByIndex, suggestCombat, suggestEffect, type Assignment, type Required } from "../game/decisions";
 import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/types";
 import { Card, EffectText, type HoverHandler } from "./Card";
 import { TEMPO_ACTIONS } from "./Overlay";
 import { cardInfo } from "../game/cards";
 import { guideSeen, SettingsPanel, TableGuide } from "./Guide";
+import { practiceHandle, usePractice } from "../ai/practice";
 
 type RailProps = {
   state: ClientState;
@@ -133,14 +135,6 @@ function MulliganPanel({ prompt, selected, objects }: { prompt: Prompt; selected
   );
 }
 
-function fillByIndex(byIndex: Record<string, Choice[]> | undefined, count: number) {
-  const out: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const c = (byIndex?.[String(i)] ?? []).find((x) => !out.includes(x.id));
-    if (c) out.push(c.id);
-  }
-  return out;
-}
 
 function BattlePanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<string, GameObject> }) {
   const cand = enabledCandidate(prompt, "DECLARE_BATTLE");
@@ -232,44 +226,6 @@ function BattlePanel({ prompt, objects }: { prompt: Prompt | null; objects: Reco
       </button>
     </div>
   );
-}
-
-type Assignment = { sourceObjectId: string; targetObjectId: string; damage: number };
-type Required = { sourceObjectId: string; damage: number; legalTargetObjectIds: string[] };
-
-function suggestCombat(md: Record<string, any>): Assignment[] {
-  const required: Required[] = md.requiredAssignments ?? [];
-  const want: Record<string, number> = { ...(md.suggestedDamageByTarget ?? {}) };
-  const out: Assignment[] = [];
-  for (const r of required) {
-    let left = r.damage;
-    const order = [...r.legalTargetObjectIds].sort((a, b) => (want[b] ?? 0) - (want[a] ?? 0));
-    for (const t of order) {
-      if (left <= 0) break;
-      const take = Math.min(left, want[t] ?? 0);
-      if (take > 0) {
-        out.push({ sourceObjectId: r.sourceObjectId, targetObjectId: t, damage: take });
-        want[t] -= take;
-        left -= take;
-      }
-    }
-    if (left > 0 && order[0]) {
-      const existing = out.find((a) => a.sourceObjectId === r.sourceObjectId && a.targetObjectId === order[0]);
-      if (existing) existing.damage += left;
-      else out.push({ sourceObjectId: r.sourceObjectId, targetObjectId: order[0], damage: left });
-    }
-  }
-  return out;
-}
-
-/** Effect damage must hit exactly `minimumAssignedTargets` targets with at least 1 each. */
-function suggestEffect(md: Record<string, any>): Assignment[] {
-  const r: Required | undefined = md.requiredAssignments?.[0];
-  if (!r) return [];
-  const count = Math.min(Number(md.minimumAssignedTargets ?? 1), r.legalTargetObjectIds.length, r.damage);
-  const out = r.legalTargetObjectIds.slice(0, count).map((t) => ({ sourceObjectId: r.sourceObjectId, targetObjectId: t, damage: 1 }));
-  if (out[0]) out[0].damage += r.damage - out.length;
-  return out;
 }
 
 function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects: Record<string, GameObject>; kind: "combat" | "effect" }) {
@@ -701,6 +657,12 @@ function Log({ entries, objects, meId }: { entries: ClientState["log"]; objects:
   }, [objects]);
   // Player handles read as "你" for this player; the opponent keeps the name they chose.
   const me = useMemo(() => new RegExp(`(^|[^\\w])${meId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w]) ?`, "g"), [meId]);
+  // In practice the computer's generated handle reads as "电脑".
+  const practice = usePractice();
+  const bot = useMemo(() => {
+    const handle = practice ? practiceHandle() : null;
+    return handle ? new RegExp(`(^|[^\\w])${handle}(?![\\w]) ?`, "g") : null;
+  }, [practice]);
   const byName = useMemo(() => {
     const map = new Map<string, { cardNo: string; objectId: string }>();
     for (const [objectId, o] of Object.entries(objects)) if (o?.cardNo) map.set(cardName(o.cardNo), { cardNo: o.cardNo, objectId });
@@ -720,7 +682,8 @@ function Log({ entries, objects, meId }: { entries: ClientState["log"]; objects:
       </h3>
       <ol ref={ref}>
         {compact(shown).map(({ entry, count }) => {
-          const text = readable(entry.text, objects, pattern).replace(me, "$1你");
+          const named = readable(entry.text, objects, pattern).replace(me, "$1你");
+          const text = bot ? named.replace(bot, "$1电脑") : named;
           // A new turn starts a new block in the record.
           if (entry.kind === "TURN_PLAYER_ADVANCED")
             return (

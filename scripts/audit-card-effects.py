@@ -227,6 +227,7 @@ def source_fingerprint(root: Path) -> str:
     paths += sorted(p for p in (root / "data/official").rglob("*") if p.is_file() and p.suffix in (".json", ".gz"))
     if (script := root / "scripts/audit-card-effects.py").exists():
         paths.append(script)
+    paths += sorted((root / "scripts/audit/reviewed-clauses").glob("*.json"))
     digest = hashlib.sha256()
     for path in paths:
         digest.update(str(path.relative_to(root)).encode())
@@ -259,6 +260,33 @@ class Sources:
         self.probes = defaultdict(list)
         for probe in probes:
             self.probes[normalize(probe["text"])].append(probe)
+        self.reviewed_clauses = defaultdict(list)
+        for path in sorted((root / "scripts/audit/reviewed-clauses").glob("*.json")):
+            document = json.loads(path.read_text())
+            if document.get("schemaVersion") != 1:
+                raise ValueError("已审逐句补充版本不支持：" + str(path))
+            for record in document["records"]:
+                if (record.get("status") not in ("route", "missing") or not record.get("evidence")
+                        or not record.get("rules") or not record.get("cardNos")
+                        or not record.get("text") or not record.get("scope")):
+                    raise ValueError("已审逐句补充必须包含结论和代码证据：" + str(path))
+                if record["status"] == "route" and not record.get("tests"):
+                    raise ValueError("已实现的逐句补充必须包含规则测试：" + str(path))
+                if any(not entry.get("contains") or not entry["path"].startswith("src/Riftbound.Engine/")
+                       or not entry["path"].endswith(".cs") for entry in record["evidence"]):
+                    raise ValueError("已审代码证据必须指向引擎 C# 及具体代码片段：" + str(path))
+                if record["status"] == "route" and not any(
+                        Path(entry["path"]).name.startswith(("CoreRuleEngine", "CardPermission", "OfficialDeck"))
+                        for entry in record["evidence"]):
+                    raise ValueError("已审路径必须包含执行消费者：" + str(path))
+                if any(not test.get("methods") or not test["path"].startswith("tests/Riftbound.ConformanceTests/")
+                       for test in record.get("tests", [])):
+                    raise ValueError("已审测试证据必须指向规则测试方法：" + str(path))
+                for no in record["cardNos"]:
+                    key = (no, normalize(record["text"]), normalize(record["scope"]))
+                    if self.reviewed_clauses[key]:
+                        raise ValueError("已审逐句补充重复：" + repr(key))
+                    self.reviewed_clauses[key].append(record)
 
     @lru_cache(maxsize=None)
     def references(self, token: str, *, exclude: str = "") -> list[str]:
@@ -330,8 +358,8 @@ def meaningful(value) -> bool:
     return value is not None and value is not False and value not in ("", "NONE", -1, 0)
 
 
-def activation_matches(ability: dict, clause: dict) -> bool:
-    cost, effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
+def activation_cost_matches(ability: dict, clause: dict) -> bool:
+    cost = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[0]
     if bool(re.search(r"\{\{(?:横置|T)\}\}", cost)) != bool(ability.get("exhaustsSourceAsCost")):
         return False
     mana = sum(int(n) for n in re.findall(r"\{\{([0-9]+)\}\}", cost))
@@ -343,6 +371,14 @@ def activation_matches(ability: dict, clause: dict) -> bool:
     actual_traits = {trait: amount for trait, amount in (ability.get("powerCostByTrait") or {}).items() if amount}
     if colors.count("A") != ability.get("powerCost", 0) or printed_traits != actual_traits:
         return False
+    experience = sum(int(n) for n in re.findall(r"消耗([0-9]+)经验", cost))
+    return experience == ability.get("experienceCost", 0)
+
+
+def activation_matches(ability: dict, clause: dict) -> bool:
+    if not activation_cost_matches(ability, clause):
+        return False
+    _, effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
     numeric_damage = re.search(r"造成([0-9]+)点伤害", effect)
     if numeric_damage and ability.get("damageAmount") and ability["damageAmount"] != int(numeric_damage[1]):
         return False
@@ -372,6 +408,35 @@ def activation_matches(ability: dict, clause: dict) -> bool:
     if operations:
         return all(checks.get(op, False) for op in operations)
     return bool("{{获得}}" in effect and (ability.get("generatedMana") or ability.get("generatedPower") or ability.get("generatedPowerByTrait"))) or bool(re.search(r"获得.*分", effect) and "SCORE" in label)
+
+
+def legend_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[1].strip()
+    candidates = [a for a in card.get("legendActivationDefinitions", []) if activation_cost_matches(a, clause)]
+    boon = re.fullmatch(r"给予一名(友方)?单位(?:\{\{增益\}\}|增益)[。.]?", effect)
+    roam = re.fullmatch(r"让一名单位本回合内获得\{\{游走\}\}[。.]?", effect)
+    expected = "GRANT_BOON" if boon else "GRANT_ROAM" if roam else None
+    relevant = [a for a in candidates if a.get("effectKind") == expected] if expected else []
+    if relevant:
+        friendly = bool(boon and boon[1])
+        scoped = [a for a in relevant if a.get("requiredTargetCount") == 1
+                  and bool(a.get("requiresFriendlyUnitTarget")) == friendly
+                  and (friendly or a.get("requiresAnyUnitTarget"))]
+        if not scoped:
+            return result("missing", "传奇技能的目标数量或敌我范围与牌面不符")
+        stacked = [a for a in scoped if a.get("flow") == "UNIT_EFFECT"]
+        if not stacked:
+            return result("missing", "普通传奇技能仍直接结算；缺少技能入链及响应窗口")
+        resolver = [p for p in sources.references("LegendAbilityEffectKinds." + ("GrantBoon" if boon else "GrantRoam"))
+                    if Path(p).name == "CoreRuleEngine.LegendUnitEffect.cs"]
+        dispatch = [p for p in sources.references("QueueLegendUnitEffect(") if Path(p).name == "CoreRuleEngine.cs"]
+        if resolver and dispatch:
+            return result("route", "逐句传奇费用／目标范围及共享入链技能结算", resolver + dispatch)
+    # A matching effect switch is not enough for any ordinary legend ability.
+    # Resource skills remain distinct; other families need their own mapping.
+    if any(a.get("flow") == "IMMEDIATE" and activation_matches(a, clause) for a in candidates):
+        return result("missing", "已登记的非资源传奇技能仍直接结算；缺少技能入链及响应窗口")
+    return None
 
 
 def event_operations_match(event: dict, text: str) -> bool:
@@ -482,6 +547,69 @@ def node_matches(clause: dict, item: dict) -> bool:
 
 def result(status: str, reason: str, evidence=()) -> dict:
     return dict(status=status, reason=reason, evidence=sorted(set(evidence)))
+
+
+def inventory_contains(actual, expected) -> bool:
+    """A reviewed route must still have its concrete exported specification.
+
+    Dictionaries select fields; list entries must match distinct actual entries.
+    Scalars (including booleans vs integers) compare exactly. An empty expected
+    list means the runtime list really is empty, not a vacuous match.
+    """
+    if isinstance(expected, dict):
+        return isinstance(actual, dict) and all(key in actual and inventory_contains(actual[key], value)
+                                                for key, value in expected.items())
+    if isinstance(expected, list):
+        if not isinstance(actual, list) or not expected:
+            return actual == expected
+        def match(remaining, candidates):
+            if not remaining:
+                return True
+            return any(inventory_contains(candidate, remaining[0])
+                       and match(remaining[1:], candidates[:i] + candidates[i + 1:])
+                       for i, candidate in enumerate(candidates))
+        return match(expected, actual)
+    return type(actual) is type(expected) and actual == expected
+
+
+def reviewed_clause_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Fallback for individually reviewed clauses, never a card-wide override.
+
+    Evidence is part of the match: exact print, clause and scope; current runtime
+    fields; executable source fragments; and named rule tests. Removing any of
+    these reopens review. Ordinary matchers run first so O-line implementations
+    can supersede a recorded gap without editing the review supplement.
+    """
+    key = (card["cardNo"], normalize(clause["text"]), normalize(clause["scope"]))
+    records = sources.reviewed_clauses.get(key, [])
+    for record in records:
+        if clause.get("location", "upper") != record.get("location", "upper"):
+            continue
+        evidence, stale = [], []
+        if not inventory_contains(card, record.get("runtime", {})):
+            stale.append("运行时规格")
+        for entry in record["evidence"]:
+            path = sources.root / entry["path"]
+            code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(), flags=re.S) if path.exists() else ""
+            if not entry.get("contains") or not all(fragment in code for fragment in entry["contains"]):
+                stale.append(entry["path"])
+            evidence.append(entry["path"])
+        for test in record.get("tests", []):
+            path = sources.root / test["path"]
+            code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(), flags=re.S) if path.exists() else ""
+            for method in test["methods"]:
+                declaration = (r"\[(?:Fact|Theory)\b[^\]]*\]\s*(?:\[[^\]]*\]\s*)*"
+                               r"public\s+(?:async\s+)?(?:Task(?:<[^>]+>)?|void)\s+"
+                               + re.escape(method) + r"\s*\(")
+                if not re.search(declaration, code):
+                    stale.append(test["path"] + "::" + method)
+                evidence.append(test["path"] + "::" + method)
+        if stale:
+            return result("review", "已审证据发生变化，需重新核对：" + "、".join(stale), evidence)
+        answer = result(record["status"], "逐句已审：" + record["reason"], evidence)
+        answer["rules"] = record["rules"]
+        return answer
+    return None
 
 
 def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
@@ -729,6 +857,11 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
+    keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
+    if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
+        if any(b.get("recyclesUnkeptSacredJudgmentCards") for b in card.get("behaviors", [])):
+            return result("missing", "仍由施法者预提交双方保留目标；缺少各玩家结算选择及按种类回收")
+        return result("review", "须独立核对各玩家私有保留选择与符文／主牌分类回收，普通回收字段不足以认证")
     if rune := rune_domain_reveal_route(card, clause, sources):
         return rune
     if counted := counted_behavior_route(card, clause, sources):
@@ -777,15 +910,18 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
                     routes += sources.references("ability.SimpleEffect")
                 if routes:
                     return result("route", "已登记的激活技能及执行分支：" + ability["abilityId"], routes)
-            for ability in card.get("legendActivations", []):
-                if routes := sources.value_routes(ability):
-                    return result("route", "传奇技能来源及执行分支：" + ability, routes)
+            if outcome := legend_activation_route(card, clause, sources):
+                return outcome
+        if reviewed := reviewed_clause_route(card, clause, sources):
+            return reviewed
         if not card.get("activations") and not card.get("legendActivations"):
             # Quoted/granted skills need independent scope review before calling
             # the source's absent activation a real missing implementation.
             if "具有“" not in clause["scope"]:
                 return result("missing", "激活技能目录未找到与本句费用、结算和限制匹配的来源项")
         return result("review", "存在技能来源项；仍需逐句核对费用、结算及限制")
+    if reviewed := reviewed_clause_route(card, clause, sources):
+        return reviewed
     if "不限数量" in clause["text"]:
         return result("missing", "未找到该规则例外的静态规格或执行路径")
     return result("review", "未建立本句到具体执行字段／消费者的对应关系")
