@@ -90,7 +90,7 @@ public sealed partial class CoreRuleEngine
         var empower = item.EmpowerActivation;
         var generation = empower?.Source.Generation ?? item.Equip?.SourceGeneration
             ?? item.TargetedPowerAbility?.SourceGeneration ?? item.LegendAttachment?.SourceGeneration
-            ?? item.LegendDuelMovement?.SourceGeneration ?? item.LegendUnitKeyword?.SourceGeneration
+            ?? item.LegendFieldEffect?.Source.Generation ?? item.LegendDuelMovement?.SourceGeneration ?? item.LegendUnitKeyword?.SourceGeneration
             ?? item.LegendUnitEffect?.SourceGeneration ?? item.LegendEquipmentReady?.SourceGeneration
             ?? item.LegendDiscardDraw?.Source.Generation ?? source?.ObjectGeneration;
         if (generation is null) return [];
@@ -111,7 +111,7 @@ public sealed partial class CoreRuleEngine
         { abilityId = ability.AbilityId; baseMana = ability.ManaCost; }
         else
         {
-            abilityId = item.LegendAttachment?.AbilityId ?? item.LegendDuelMovement?.AbilityId
+            abilityId = item.LegendAttachment?.AbilityId ?? item.LegendFieldEffect?.AbilityId ?? item.LegendDuelMovement?.AbilityId
                 ?? item.LegendUnitKeyword?.AbilityId ?? item.LegendUnitEffect?.AbilityId
                 ?? item.LegendEquipmentReady?.AbilityId ?? item.LegendDiscardDraw?.AbilityId;
             if (abilityId is null && TryGetLegendUnitToken(item.EffectKind, out var token)) abilityId = token.AbilityId;

@@ -72,6 +72,10 @@ public sealed class LegacyEffectMovementPaymentTests
         Assert.Equal("MOVEMENT_DESTINATION", game.State.PendingRuleChoice!.Request.Kind);
         Assert.All(game.State.PendingRuleChoice.Request.Options, option => Assert.StartsWith("BATTLEFIELD:", option.Id));
         await Decide(game, "BATTLEFIELD:BF");
+        Assert.Null(game.State.PendingRuleChoice);
+        Assert.Single(game.State.StackItems);
+        Assert.Equal("BASE", game.State.ObjectLocations["ALLY"].Zone);
+        await game.Top();
         Fee(game);
         if (acquire) await Gain(game);
         await Decide(game, pay ? "PAY" : "DECLINE");
@@ -103,6 +107,10 @@ public sealed class LegacyEffectMovementPaymentTests
             khazix ? LegendActionAbilityCatalog.KhazixLegendMoveAbilityId : LegendActionAbilityCatalog.YasuoLegendAbilityId,
             ["ALLY"], [khazix ? "SPEND_EXPERIENCE:2" : "SPEND_MANA:2"]));
         Assert.Null(game.State.PendingRuleChoice);
+        Assert.Single(game.State.StackItems);
+        Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["ALLY"].Zone);
+        Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["GEAR"].Zone);
+        await game.Top();
         Assert.Equal("BASE", game.State.ObjectLocations["ALLY"].Zone);
         Assert.Equal("BASE", game.State.ObjectLocations["GEAR"].Zone);
         Assert.Equal("P2", game.State.ObjectLocations["GEAR"].PlayerId);
