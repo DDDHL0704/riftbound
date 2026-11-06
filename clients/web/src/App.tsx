@@ -4,6 +4,7 @@ import { useCards } from "./game/cards";
 import { ConnectScreen, LobbyScreen, SetupScreen } from "./ui/Lobby";
 import { SealedScreen, sealedSetupOpen } from "./ui/Sealed";
 import { Table } from "./ui/Table";
+import { resumePractice } from "./ai/practice";
 
 let resumed = false;
 
@@ -14,7 +15,9 @@ export function App() {
   useEffect(() => {
     if (resumed) return;
     resumed = true;
-    if (client.hasResumableRoom()) void client.resume();
+    if (client.hasResumableRoom()) void client.resume().then((ok) => {
+      if (ok) void resumePractice();
+    });
   }, []);
 
   useEffect(() => {
