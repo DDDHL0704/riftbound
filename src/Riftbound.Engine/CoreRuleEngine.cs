@@ -7921,24 +7921,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 runePools = movementPools;
                 break;
             }
-            case LegendAbilityEffectKinds.GrantBoon:
-                GrantLegendBoon(
-                    cardObjects,
-                    targetObjectIds[0],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events, playerZones);
-                break;
-            case LegendAbilityEffectKinds.GrantRoam:
-                GrantLegendRoam(
-                    cardObjects,
-                    targetObjectIds[0],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
-                break;
             case LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin:
             {
                 var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
@@ -8281,8 +8263,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 KhazixLegendBoonExperienceCost,
                 KhazixLegendBoonExperienceCostToken,
                 1,
-                RequiresFriendlyUnitTarget: true,
-                LegendAbilityEffectKinds.GrantBoon),
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.GrantBoon, RequiresAnyUnitTarget: true),
             KhazixLegendMoveAbilityId => new LegendAbilityDefinition(
                 KhazixLegendMoveAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(KhazixLegendMoveAbilityId),

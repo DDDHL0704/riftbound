@@ -17,6 +17,7 @@ import {
 } from "../game/actions";
 import { cardInfo, cardName, paymentChoiceLabel } from "../game/cards";
 import { cue } from "../game/sound";
+import { preloadArt } from "../game/art";
 import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../game/types";
 import { Ambient, Confetti, tiltHandlers } from "./Ambient";
 import { Card, HoverPreview, type CardMark, type HoverHandler } from "./Card";
@@ -82,6 +83,9 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     for (const p of Object.values(snapshot.players)) Object.assign(all, p.objects);
     return all;
   }, [snapshot]);
+
+  // Everything visible (including the opponent's revealed cards) is fetched ahead of its first hover.
+  useEffect(() => preloadArt(Object.values(objects).map((o) => o.cardNo)), [objects]);
 
   const actions = useMemo(() => objectActions(prompt), [prompt]);
   const promptType = prompt?.view?.type ?? "WAIT";
