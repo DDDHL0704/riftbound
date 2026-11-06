@@ -288,6 +288,21 @@ class EffectClauseAuditTests(unittest.TestCase):
             c["behaviors"] = [dict(unitEventAbility=dict(timing="BECAME_EXHAUSTED", effect="DRAW", amount=1))]
             self.assertEqual(expected, audit.audit_clause(c, audit.split_clauses(c["cardEffect"])[0], sources)["status"])
 
+    def test_unqualified_movement_is_not_covered_by_a_fixed_base_destination(self):
+        (self.engine / "CoreRuleEngine.Movement.cs").write_text(
+            "behavior.MovesTargetToBase; behavior.MovesTargetsToChosenLocation;")
+        sources = audit.Sources(self.root, [])
+        cases = [
+            ("移动一名敌方单位。", dict(movesTargetToBase=True, targetScope="ENEMY_BATTLEFIELD_UNIT"), "missing"),
+            ("移动一名友方单位。", dict(movesTargetToBase=True, targetScope="FRIENDLY_UNIT"), "missing"),
+            ("移动一名敌方单位。", dict(movesTargetsToChosenLocation=True, targetScope="ENEMY_UNIT"), "route"),
+            ("将一名敌方单位移动到其所属的基地。", dict(movesTargetToBase=True, targetScope="ENEMY_BATTLEFIELD_UNIT"), "route"),
+        ]
+        for text, behavior, expected in cases:
+            with self.subTest(text=text, behavior=behavior):
+                c = card(text); c["cardCategory"] = "spell"; c["behaviors"] = [behavior]
+                self.assertEqual(expected, audit.audit_clause(c, audit.card_clauses(c)[0], sources)["status"])
+
     def test_counted_passives_require_the_printed_count_and_the_shared_consumer(self):
         (self.engine / "CoreRuleEngine.Counted.cs").write_text("behavior.DamageImmunityAfterMoves; UnitMovementRules.CannotTakeDamage(card); behavior.MovementScore; ResolveMovementScore(item); behavior.FriendlyLastBreathAdditionalTriggers; CaptureLastBreathRepetitions(state);")
         sources = audit.Sources(self.root, [])

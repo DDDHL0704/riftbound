@@ -18,7 +18,8 @@ public sealed partial class CoreRuleEngine
         if (choices.Count != count - 1) return false;
         SpellExecutionState Capture(CardBehaviorDefinition definition, IReadOnlyList<string> ids, IReadOnlyList<string>? destinations, string? destination)
             => new(definition.EffectKind, ids, ids.Distinct(StringComparer.Ordinal)
-                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), destinations, NormalizeRepeatDestination(destination),
+                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), destinations,
+                DeclaredPlayDestination(state, definition, command with { TargetObjectIds = ids, Destination = destination ?? string.Empty }),
                 definition.MovesTargetsToChosenLocation ? intent.PlayerId : null);
         var result = new List<SpellExecutionState> { Capture(behavior, targets, command.MovementDestinations, command.Destination) };
         foreach (var choice in choices)

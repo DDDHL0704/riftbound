@@ -3673,10 +3673,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var behavior = plan.Behavior;
         var targetObjectIds = plan.TargetObjectIds;
-        var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
-            ? string.Empty
-            : command.Destination?.Trim() ?? string.Empty;
-        destination = StandbyPlayDestination(behavior, destination);
+        var destination = DeclaredPlayDestination(state, behavior, command);
         const string paymentWindow = "PLAY_CARD";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -18357,9 +18354,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
         }
 
-        var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
-            ? string.Empty : command.Destination?.Trim() ?? string.Empty;
-        destination = StandbyPlayDestination(behavior, destination);
+        var destination = DeclaredPlayDestination(state, behavior, command);
         if (behavior.StandbyPlayFrom is { } shadow && (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
             && destination != "BATTLEFIELD:" + shadow.Battlefield.ObjectId
             && !GrantedUnitPlayBattlefieldAllowed(state, intent.PlayerId, behavior, destination))
