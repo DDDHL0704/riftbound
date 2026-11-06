@@ -24,7 +24,8 @@ public sealed partial class CoreRuleEngine
                 EffectiveFieldControllerId(state.PlayerZones, id, state.CardObjects[id])))
             .ToDictionary(id => id, _ => new[] { CardEquipmentKeywordNames.Tempered }, StringComparer.Ordinal);
         var candidates = field.Where(id => state.CardObjects.TryGetValue(id, out var card)
-            && CardStaticAbilitySpecRules.TryGetStaticAbility(AttachedRuleTextRules.Face(card), CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out _))
+            && (CardStaticAbilitySpecRules.TryGetStaticAbility(AttachedRuleTextRules.Face(card), CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out _)
+                || HasConditionalSourceUnitKeywords(state, card)))
             .Concat(armamentKeywords.Keys)
             .Concat(sandSoldiers)
             .Concat(state.CardObjects.Values.Where(c => c.RuleDerivedTags is not null).Select(c => c.ObjectId))
@@ -41,7 +42,8 @@ public sealed partial class CoreRuleEngine
                 CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo, CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out var spec)
                     ? (instance, spec) : ((RuleTextInstance, StaticAbilitySpec)?)null).Where(s => s.HasValue).Select(s => s!.Value).ToArray();
             if (specs.Length == 0 && card.RuleDerivedTags is null && EmpowerRules.Keywords(state, card).Length == 0
-                && !armamentKeywords.ContainsKey(id) && !sandSoldiers.Contains(id)) continue;
+                && !armamentKeywords.ContainsKey(id) && !sandSoldiers.Contains(id)
+                && !HasConditionalSourceUnitKeywords(state, card)) continue;
             // Independent printed/granted tags survive removal of this layer.
             var removable = (card.RuleDerivedTags ?? []).Concat(specs.SelectMany(s => s.Item2.GrantedKeywords ?? [])).ToHashSet(StringComparer.Ordinal);
             if (sandSoldiers.Contains(id)) removable.Add(CardEquipmentKeywordNames.Tempered);
@@ -54,7 +56,7 @@ public sealed partial class CoreRuleEngine
             var isUnit = IsFaceUpNonStandbyUnit(card);
             if (IsObjectOnField(state.PlayerZones, card.ObjectId)
                 && (isUnit && (specs.Length > 0 || EmpowerRules.Keywords(state, card).Length > 0
-                        || azirKeywords.ContainsKey(id))
+                        || azirKeywords.ContainsKey(id) || HasConditionalSourceUnitKeywords(state, card))
                     || armamentKeywords.ContainsKey(id)))
                 grants[card.ObjectId] = isUnit ? specs : [];
         }
@@ -73,6 +75,7 @@ public sealed partial class CoreRuleEngine
                                 EffectiveFieldControllerId(current.PlayerZones, id, card)))
                         : s.Spec.GrantedKeywords ?? [])
                     .Concat(EmpowerRules.Keywords(current, card))
+                    .Concat(ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords))
                     .Concat(azirKeywords.GetValueOrDefault(id) ?? [])
                     .Concat(armamentKeywords.GetValueOrDefault(id) ?? []).ToArray();
                 var countedKeywords = new[] { CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast, CardObjectTags.Spellshield };

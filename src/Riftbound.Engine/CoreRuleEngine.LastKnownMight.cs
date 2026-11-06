@@ -11,7 +11,10 @@ public sealed record LastKnownMightFrame(
     IReadOnlyDictionary<string, CardObjectState> CardObjects,
     IReadOnlyDictionary<string, ObjectLocationState> ObjectLocations,
     IReadOnlyList<string> BattleDeclarations,
-    IReadOnlyDictionary<string, int> PlayerExperience);
+    IReadOnlyDictionary<string, int> PlayerExperience)
+{
+    public IReadOnlyList<string> ConditionalTurnHistory { get; init; } = [];
+}
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record LastBreathMightContext(string SourceObjectId, string CardNo, long SourceGeneration,
@@ -39,13 +42,15 @@ public sealed partial class CoreRuleEngine
             .Where(p => visible.ContainsKey(p.Key)).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         return new(publicZones, visible, publicLocations, state.UntilEndOfTurnEffects
             .Where(e => e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal)).ToArray(),
-            publicZones.Keys.ToDictionary(id => id, id => state.PlayerExperience.GetValueOrDefault(id), StringComparer.Ordinal));
+            publicZones.Keys.ToDictionary(id => id, id => state.PlayerExperience.GetValueOrDefault(id), StringComparer.Ordinal)) {
+                ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys) };
     }
 
     private static bool ValidMightFrameExperience(LastKnownMightFrame frame)
         => frame.PlayerExperience is not null && frame.PlayerZones is not null
             && frame.PlayerExperience.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(frame.PlayerZones.Keys)
-            && frame.PlayerExperience.Values.All(value => value >= 0);
+            && frame.PlayerExperience.Values.All(value => value >= 0)
+            && ValidConditionalSourceUnitTurnHistory(frame.ConditionalTurnHistory, frame.PlayerZones.Keys);
 
     private static MatchState MightFrameState(LastKnownMightFrame frame)
     {
@@ -54,7 +59,7 @@ public sealed partial class CoreRuleEngine
             frame.PlayerZones.Keys.ToDictionary(p => p, p => p, StringComparer.Ordinal),
             status: MatchStatuses.InProgress, phase: MatchPhases.Main,
             playerZones: frame.PlayerZones, cardObjects: frame.CardObjects,
-            objectLocations: frame.ObjectLocations, untilEndOfTurnEffects: frame.BattleDeclarations,
+            objectLocations: frame.ObjectLocations, untilEndOfTurnEffects: [..frame.BattleDeclarations, ..frame.ConditionalTurnHistory],
             playerExperience: frame.PlayerExperience);
     }
 

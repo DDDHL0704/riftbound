@@ -268,8 +268,8 @@
       ],
       "text": "如果你本回合内已经弃置过手牌，则我获得{{强攻}}和{{游走}}。（如果我是进攻方，则{{S}}+1。我可以向其他战场进行移动。）",
       "scope": "如果你本回合内已经弃置过手牌，则我获得{{强攻}}和{{游走}}。（如果我是进攻方，则{{S}}+1。我可以向其他战场进行移动。）",
-      "status": "missing",
-      "reason": "被动仅在单位入场时把条件标签直接加入Tags；来源已在场后本回合首次弃牌不会获得强攻／游走，缺少持续条件重算",
+      "status": "route",
+      "reason": "共享持续条件重算读取当前控制者的本回合历史；入场后达成条件立即生效，回合结束撤销该层，基础战力及独立授予的关键词不变；定向规则测试覆盖三张牌的真实行动、入场前已满足条件和对手历史隔离",
       "rules": "核心364.3／365.1 条件性被动技能持续生效；OGN·019 官方中文牌面",
       "runtime": {
         "behaviors": [
@@ -281,19 +281,46 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalSourceUnits.cs",
           "contains": [
-            ".Concat(ResolveConditionalSourceUnitTags(behavior, stackItem.ControllerId, untilEndOfTurnEffects))"
+            "ConditionalSourceUnitContributions(",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "HasConditionalSourceUnitKeywords(state, card)",
+            "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"
           ]
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "private static IReadOnlyList<string> ResolveConditionalSourceUnitTags("
+            "ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs",
+          "contains": [
+            "ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys)",
+            "untilEndOfTurnEffects: [..frame.BattleDeclarations, ..frame.ConditionalTurnHistory]"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConditionalSourceUnitPassiveTests.cs",
+          "methods": [
+            "AlreadyPlayedUnitGainsItsPassiveFromARealActionAndLosesItAtTurnEnd",
+            "ConditionAlreadyMetOnEntryDoesNotBecomeAPermanentOrDoubleBonus",
+            "AnotherPlayersHistoryDoesNotEnableThePassive",
+            "DiscardingAfterEntryEnablesAnActualMoveBetweenBattlefields",
+            "ExpiringTheConditionalLayerPreservesAnIndependentlyGrantedRoam"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

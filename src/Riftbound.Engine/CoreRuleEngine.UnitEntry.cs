@@ -48,7 +48,6 @@ public sealed partial class CoreRuleEngine
         {
             unitPower += behavior.LevelSourceUnitPowerBonus;
         }
-        unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
         unitPower += friendlyEquipmentPowerBonus;
 
         var hasteReadyOptionalCostPaid = IsHasteReadyOptionalCostPaidForPlayUnit(
@@ -132,7 +131,6 @@ public sealed partial class CoreRuleEngine
                 .Concat([CardObjectTags.UnitCard])
                 .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
                 .Concat(levelApplies ? ParseDelimitedValues(behavior.LevelSourceUnitTags) : [])
-                .Concat(ResolveConditionalSourceUnitTags(behavior, stackItem.ControllerId, untilEndOfTurnEffects))
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
