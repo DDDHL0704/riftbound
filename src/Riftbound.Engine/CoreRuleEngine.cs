@@ -12238,7 +12238,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             queue.AddRange(CaptureStandbyDefendTriggers(attackState, defenderObjectIds, battlefieldId,
                 TimingStates.NeutralClosed).Select(t => t with { TriggeredByEventKind = "BATTLE_DECLARED" }));
             queue.AddRange(CaptureCombatMightTriggers(attackState, attackerObjectIds.Concat(defenderObjectIds),
-                battlefieldId, TimingStates.NeutralClosed));
+                battlefieldId, TimingStates.NeutralClosed, attackers: attackerObjectIds));
             queue.AddRange(CaptureEnemyAttackMightTriggers(attackState, attackerObjectIds, battlefieldId,
                 TimingStates.NeutralClosed));
             if (canOpenBattleResponsePriority)
