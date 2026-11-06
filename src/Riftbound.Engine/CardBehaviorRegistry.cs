@@ -13,10 +13,11 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
     string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
     bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0,
-    int RuneCallCount = 0);
+    int RuneCallCount = 0, int OtherEnemyDamageAmount = 0);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
-    string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false);
+    string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false,
+    string? RequiredRevealedRuneTrait = null, int OtherEnemyDamageAmount = 0);
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
 public sealed record MovementImposedCostSpec(int ManaPerMove = 0, int PowerPerMove = 0, int PowerPerExtraUnit = 0);
@@ -5640,7 +5641,12 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.RuneDomainRevealEffect, Modes: [
+                new("RUNE_RED", "红色：此处一名敌人受到2点伤害，其他敌人各1点", CoreRuleEngine.RuneDomainDamageEffect, 2,
+                    RequiredRevealedRuneTrait: "red", OtherEnemyDamageAmount: 1),
+                new("RUNE_BLUE", "蓝色：抽一张牌", "DRAW", 1, RequiredRevealedRuneTrait: "blue"),
+                new("RUNE_YELLOW", "黄色：眩晕一名敌人", "STUN_ENEMY", RequiredRevealedRuneTrait: "yellow") ])),
         new(
             "OGN·202a/298",
             "金克丝",
