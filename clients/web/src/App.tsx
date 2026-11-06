@@ -5,6 +5,7 @@ import { ConnectScreen, LobbyScreen, SetupScreen } from "./ui/Lobby";
 import { SealedScreen, sealedSetupOpen } from "./ui/Sealed";
 import { Table } from "./ui/Table";
 import { resumePractice } from "./ai/practice";
+import { Ambient } from "./ui/Ambient";
 
 let resumed = false;
 
@@ -34,8 +35,10 @@ export function App() {
     screen = <SetupScreen state={state} snapshot={state.snapshot} prompt={state.prompt} />;
   else screen = <Table state={state} snapshot={state.snapshot} prompt={state.prompt} />;
 
+  const atTable = screen.type === Table;
   return (
     <>
+      {!atTable && <Ambient variant="gate" />}
       {screen}
       {state.toast && (
         <div className={`toast toast--${state.toast.tone}`} role="alert" onClick={() => client.dismissToast()}>
