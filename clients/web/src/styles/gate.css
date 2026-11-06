@@ -1,0 +1,294 @@
+/* ---------- gate screens: connect, lobby, setup ---------- */
+
+.gate {
+  min-height: 100%;
+  padding: 10vh 24px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(226, 176, 74, 0.14), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 50% 100%, rgba(114, 196, 222, 0.1), transparent 70%),
+    var(--ink);
+}
+.gate__mark {
+  width: 4px;
+  height: 72px;
+  margin-bottom: 20px;
+  background: linear-gradient(var(--glacier), var(--ink) 50%, var(--brass));
+  border-radius: 2px;
+}
+.gate__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(44px, 7vw, 80px);
+  letter-spacing: 0.18em;
+  line-height: 1.1;
+  padding-left: 0.18em;
+}
+.gate__title--small {
+  font-size: 32px;
+  letter-spacing: 0.12em;
+}
+.gate__lede {
+  max-width: 30em;
+  margin: 16px 0 36px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 15px;
+}
+.gate__form {
+  width: min(360px, 100%);
+  display: grid;
+  gap: 16px;
+}
+.formfield {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.gate__advanced summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
+.gate__advanced .formfield {
+  margin-top: 10px;
+}
+.gate__note {
+  margin: 0;
+  color: var(--ember);
+}
+
+.gate--lobby {
+  padding-top: 6vh;
+}
+.lobby__head {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.lobby__who {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+.lobby__who strong {
+  color: var(--text);
+}
+.lobby__grid {
+  width: min(820px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.import {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--felt);
+}
+.import__text {
+  width: 100%;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12.5px;
+  resize: vertical;
+}
+.records {
+  width: min(820px, 100%);
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.records__summary {
+  font-size: 14px;
+}
+.records__summary b {
+  font-family: var(--font-num);
+  font-size: 20px;
+}
+.records__win {
+  color: #7fd79a;
+}
+.records__loss {
+  color: var(--ember);
+}
+.records__list,
+.records__board {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+.records__list li,
+.records__board li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 0;
+  border-top: 1px solid var(--line);
+}
+.records__opp {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.records__score,
+.records__rank {
+  font-family: var(--font-num);
+  font-size: 15px;
+}
+.records__rank {
+  color: var(--brass);
+  text-align: center;
+}
+.records__board li.is-me {
+  color: var(--brass-hi);
+}
+.lobby__block {
+  padding: 24px;
+  background: var(--felt);
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.lobby__block--wide {
+  grid-column: 1 / -1;
+}
+.lobby__block h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+.lobby__block p {
+  margin: 0;
+}
+.lobby__row {
+  display: flex;
+  gap: 8px;
+}
+.lobby__row .input {
+  flex: 1;
+  min-width: 0;
+  text-transform: uppercase;
+}
+.lobby__matching {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--brass);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+.rooms {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.rooms li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+.rooms__code {
+  font-family: var(--font-num);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.rooms li .btn {
+  margin-left: auto;
+}
+
+.gate--setup {
+  padding-top: 32px;
+  align-items: stretch;
+}
+.setup__head {
+  width: min(1100px, 100%);
+  margin: 0 auto 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-content: space-between;
+}
+.setup__head p {
+  margin: 0;
+  font-size: 12px;
+}
+.setup__code {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: copy;
+  font-family: var(--font-num);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.setup__seats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.setup__vs {
+  font-family: var(--font-display);
+  color: var(--muted);
+}
+.seat {
+  display: grid;
+  padding: 8px 16px;
+  border-left: 3px solid;
+  min-width: 140px;
+}
+.seat--self {
+  border-color: var(--brass);
+}
+.seat--opp {
+  border-color: var(--glacier);
+}
+.seat__name {
+  font-weight: 600;
+}
+.seat__state {
+  font-size: 12px;
+  color: var(--muted);
+}
+.setup__body {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 28px;
+  align-items: start;
+}
+.setup__pick {
+  min-width: 0;
+}

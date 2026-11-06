@@ -1,0 +1,160 @@
+/* ---------- battlefields ---------- */
+
+.fields {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+  padding: 10px 14px;
+  /* The tempo dock lives in this right-hand gutter so it never covers a battlefield. */
+  margin-right: var(--dock-w);
+  container-type: size;
+}
+.field {
+  /* Shrink the battlefield card on short or narrow screens so it and both unit rows fit inside the field. */
+  --field-card-w: clamp(
+    120px,
+    min(27vh, (100cqh - 2 * var(--board-w) * var(--card-ratio) - 64px) * var(--card-ratio), 50cqw - 40px),
+    290px
+  );
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 8px;
+  min-height: 0;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.025);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s,
+    background-color 0.3s;
+}
+.field--me {
+  border-color: rgba(240, 181, 74, 0.35);
+  background: linear-gradient(180deg, transparent 45%, rgba(240, 181, 74, 0.1));
+}
+.field--opp {
+  border-color: rgba(111, 208, 238, 0.35);
+  background: linear-gradient(180deg, rgba(111, 208, 238, 0.1), transparent 55%);
+}
+.field--contested {
+  border-color: rgba(255, 94, 87, 0.6);
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 94, 87, 0.16), transparent 70%);
+  animation: contested 2.2s ease-in-out infinite;
+}
+@keyframes contested {
+  50% {
+    box-shadow: inset 0 0 30px rgba(255, 94, 87, 0.22);
+  }
+}
+.field.is-legal {
+  cursor: crosshair;
+  border-color: var(--legal);
+  box-shadow:
+    inset 0 0 0 1px var(--legal),
+    inset 0 0 40px rgba(255, 241, 184, 0.18);
+}
+.field--focus {
+  box-shadow: inset 0 0 0 2px var(--ember);
+}
+.field__row {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 10px;
+  min-height: calc(var(--board-w) * var(--card-ratio));
+}
+.field__row--opp {
+  align-self: end;
+}
+.field__row--me {
+  align-self: start;
+}
+.field__mid {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.field__standby {
+  display: flex;
+  gap: 6px;
+}
+.standby-hidden {
+  position: relative;
+  width: var(--board-w);
+  height: calc(var(--board-w) * var(--card-ratio));
+  border-radius: var(--radius-card);
+  overflow: visible;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.field__cardwrap {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+.field__card {
+  position: relative;
+  width: var(--field-card-w);
+  height: calc(var(--field-card-w) / var(--card-ratio));
+  border-radius: 10px;
+  overflow: hidden;
+  background: #110d17;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+}
+.field__art {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--field-card-w) / var(--card-ratio));
+  height: var(--field-card-w);
+  /* Battlefield scans are portrait with the text turned clockwise; this side's copy reads upright. */
+  transform: translate(-50%, -50%) rotate(-90deg);
+  object-fit: cover;
+}
+.field__fallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-family: var(--font-display);
+}
+.field--me .field__card {
+  box-shadow:
+    0 0 0 2px var(--brass),
+    0 0 26px rgba(240, 181, 74, 0.35),
+    0 10px 26px rgba(0, 0, 0, 0.55);
+}
+.field--opp .field__card {
+  box-shadow:
+    0 0 0 2px var(--glacier),
+    0 0 26px rgba(111, 208, 238, 0.35),
+    0 10px 26px rgba(0, 0, 0, 0.55);
+}
+.field--contested .field__card {
+  box-shadow:
+    0 0 0 2px var(--ember),
+    0 0 26px rgba(255, 94, 87, 0.4),
+    0 10px 26px rgba(0, 0, 0, 0.55);
+}
+.field__status {
+  padding: 1px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  color: var(--muted);
+}
+.field--me .field__status {
+  color: var(--brass);
+}
+.field--opp .field__status {
+  color: var(--glacier);
+}
+.field--contested .field__status {
+  color: var(--ember);
+}
