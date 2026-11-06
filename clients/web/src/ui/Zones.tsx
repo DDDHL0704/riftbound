@@ -3,6 +3,7 @@ import type { ObjectAction } from "../game/actions";
 import { cardInfo, COLOR_HEX } from "../game/cards";
 import type { GameObject, SnapshotPlayer, TableBattlefield } from "../game/types";
 import type { HoverHandler } from "./Card";
+import { Art } from "./Art";
 
 export type RenderObject = (id: string, size?: "board" | "hand" | "hero" | "mini" | "rune", opts?: { peek?: boolean }) => ReactNode;
 
@@ -266,7 +267,11 @@ export function Battlefield({ bf, meId, oppId, objects, render, onZone, legal, h
             onMouseEnter={(e) => hover(bf.cardNo ?? null, undefined, e.currentTarget.getBoundingClientRect())}
             onMouseLeave={() => hover(null)}
           >
-            {info?.image ? <img src={info.image} alt="" className="field__art" /> : <span className="field__fallback">{info?.name ?? bf.cardNo}</span>}
+            {info?.image ? (
+              <Art src={info.image} className="field__art" fallback={<span className="field__fallback">{info?.name ?? bf.cardNo}</span>} />
+            ) : (
+              <span className="field__fallback">{info?.name ?? bf.cardNo}</span>
+            )}
           </div>
           <span className="field__status">
             {status}
