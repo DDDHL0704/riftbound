@@ -1063,6 +1063,27 @@ public sealed partial record MatchState
                     before += aura.Delta;
                 }
             }
+            var sourceConditions = CoreRuleEngine.ConditionalSourceUnitContributions(state, cardObject)
+                .Where(contribution => contribution.PowerDelta != 0).ToArray();
+            if (sourceConditions.Length > 0)
+            {
+                var beforeSourceConditions = CoreRuleEngine.CurrentPowerBeforeConditionalAuras(state, cardObject)
+                    - sourceConditions.Sum(contribution => contribution.PowerDelta);
+                foreach (var contribution in sourceConditions)
+                {
+                    var dependencies = contribution.Instance.Origin is { } copied
+                        ? new[] { objectId, copied.Equipment.ObjectId } : new[] { objectId };
+                    effects.Add(new ContinuousEffectState($"CONDITIONAL_SOURCE_UNIT:{objectId}:{contribution.Instance.Id}:{objectId}",
+                        "OBJECT", ContinuousEffectLayers.StaticAura, "WHILE_SOURCE_ON_PUBLIC_FIELD", objectId, objectId,
+                        contribution.PowerDelta, beforeSourceConditions, beforeSourceConditions + contribution.PowerDelta,
+                        CoreRuleEngine.ConditionalSourceUnitEffect, contribution.Instance.CardNo,
+                        "CoreRuleEngine.ConditionalSourceUnitContributions", true, LayerEngineFoundationResiduals(),
+                        Condition: contribution.Condition, Lifecycle: "RECOMPUTED_FROM_CURRENT_CONTROLLER_TURN_HISTORY",
+                        ParticipantObjectIds: [objectId], SourceDependencyObjectIds: dependencies,
+                        TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+                    beforeSourceConditions += contribution.PowerDelta;
+                }
+            }
             foreach (var aura in CoreRuleEngine.ConditionalPowerAuraContributions(state, cardObject))
             {
                 var dependencies = aura.Instance.Origin is { } copied

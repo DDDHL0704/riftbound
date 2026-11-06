@@ -7,8 +7,8 @@
       ],
       "text": "如果你在本回合消耗了不低于{{4}}的费用来打出一个法术，则我获得{{S}}+4。",
       "scope": "如果你在本回合消耗了不低于{{4}}的费用来打出一个法术，则我获得{{S}}+4。",
-      "status": "missing",
-      "reason": "条件性被动被做成入场快照：只有 UnitEntry 调用条件加成；先打出信徒后支付4法力法术不会持续获得+4，回合结束也不会重算基础加成",
+      "status": "route",
+      "reason": "共享持续条件重算读取当前控制者的本回合历史；入场后达成条件立即生效，回合结束撤销该层，基础战力及独立授予的关键词不变；定向规则测试覆盖三张牌的真实行动、入场前已满足条件和对手历史隔离",
       "rules": "核心364.3／365.1 持续条件性被动；UNL-004 官方中文牌面",
       "runtime": {
         "behaviors": [
@@ -20,13 +20,46 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalSourceUnits.cs",
           "contains": [
-            "unitPower += ResolveConditionalSourceUnitPowerBonus("
+            "ConditionalSourceUnitContributions(",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "HasConditionalSourceUnitKeywords(state, card)",
+            "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs",
+          "contains": [
+            "ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys)",
+            "untilEndOfTurnEffects: [..frame.BattleDeclarations, ..frame.ConditionalTurnHistory]"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConditionalSourceUnitPassiveTests.cs",
+          "methods": [
+            "AlreadyPlayedUnitGainsItsPassiveFromARealActionAndLosesItAtTurnEnd",
+            "ConditionAlreadyMetOnEntryDoesNotBecomeAPermanentOrDoubleBonus",
+            "AnotherPlayersHistoryDoesNotEnableThePassive",
+            "PayingThreeForADiscountedFourCostSpellDoesNotEnableTheBeliever",
+            "CompleteRecoveryRejectsForgedConditionalPassiveLayer"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2550,8 +2583,8 @@
       ],
       "text": "如果你已在本回合内获得了经验值，则我获得{{S}}+1和{{游走}}。（我可以向其他战场进行移动。）",
       "scope": "如果你已在本回合内获得了经验值，则我获得{{S}}+1和{{游走}}。（我可以向其他战场进行移动。）",
-      "status": "missing",
-      "reason": "条件性被动只在入场读取本回合获得经验记录，随后经验变化不重算，入场时附加的+1与游走也不会随条件结束消失；缺少持续生效消费者",
+      "status": "route",
+      "reason": "共享持续条件重算读取当前控制者的本回合历史；入场后达成条件立即生效，回合结束撤销该层，基础战力及独立授予的关键词不变；定向规则测试覆盖三张牌的真实行动、入场前已满足条件和对手历史隔离",
       "rules": "核心364.3／365.1 条件性被动；UNL-108 官方中文牌面",
       "runtime": {
         "behaviors": [
@@ -2564,14 +2597,47 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalSourceUnits.cs",
           "contains": [
-            "ResolveConditionalSourceUnitPowerBonus(",
-            "ResolveConditionalSourceUnitTags("
+            "ConditionalSourceUnitContributions(",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "HasConditionalSourceUnitKeywords(state, card)",
+            "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs",
+          "contains": [
+            "ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys)",
+            "untilEndOfTurnEffects: [..frame.BattleDeclarations, ..frame.ConditionalTurnHistory]"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConditionalSourceUnitPassiveTests.cs",
+          "methods": [
+            "AlreadyPlayedUnitGainsItsPassiveFromARealActionAndLosesItAtTurnEnd",
+            "ConditionAlreadyMetOnEntryDoesNotBecomeAPermanentOrDoubleBonus",
+            "AnotherPlayersHistoryDoesNotEnableThePassive",
+            "TurnEndRemovesDamageBeforeTheSalamanderLosesItsBonus",
+            "GainingExperienceCapturesTheSalamandersFourToFiveMightyCrossing",
+            "RecoveryRejectsForgedConditionalHistoryInCapturedMight"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
