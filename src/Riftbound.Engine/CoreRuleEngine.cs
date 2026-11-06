@@ -5559,6 +5559,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             command.AbilityId);
         var orderedPaymentResources = renektonResourceAction is null ? paymentResourceActions
             : OrderedRenektonPaymentResources(normalizedOptionalCosts, paymentResourceActions, renektonResourceAction);
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var totalPowerCost = ability.PowerCost + powerCostByTrait.Values.Sum();
         var paymentPlan = new PaymentCostRules.PaymentPlan(
             paymentId,
             paymentWindow,
@@ -5566,7 +5568,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             baseManaCost: ability.ManaCost,
             totalManaCost: ability.ManaCost,
             genericPowerCost: ability.PowerCost,
-            totalPowerCost: ability.PowerCost,
+            totalPowerCost: totalPowerCost,
+            powerCostByTrait: powerCostByTrait,
             paymentResourceActionIds: orderedPaymentResources,
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
@@ -5670,7 +5673,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = intent.PlayerId,
                 ["mana"] = ability.ManaCost,
-                ["power"] = ability.PowerCost,
+                ["power"] = totalPowerCost,
                 ["abilityId"] = command.AbilityId
             });
         if (ability.ManaCost > 0 && (adjustedPool.UnitPlayOrUnitAbilityOnlyMana > 0 || renektonResourceAction is not null))
@@ -9160,6 +9163,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 command.TargetObjectIds,
                 out spellshieldTaxTargetObjectIds);
         }
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var totalPowerCost = ability.PowerCost + powerCostByTrait.Values.Sum() + spellshieldTaxPower;
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -9174,7 +9179,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             baseManaCost: 0,
             totalManaCost: 0,
             genericPowerCost: (ability.PowerCost + spellshieldTaxPower),
-            totalPowerCost: (ability.PowerCost + spellshieldTaxPower),
+            totalPowerCost: totalPowerCost,
+            powerCostByTrait: powerCostByTrait,
             paymentResourceActionIds: paymentResourceActions,
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
@@ -9283,7 +9289,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = 0,
-                    ["power"] = (ability.PowerCost + spellshieldTaxPower),
+                    ["power"] = totalPowerCost,
                     ["abilityId"] = command.AbilityId,
                     ["spellshieldTaxPower"] = spellshieldTaxPower,
                     ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()

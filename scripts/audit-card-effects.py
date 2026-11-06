@@ -853,10 +853,59 @@ def rune_domain_reveal_route(card: dict, clause: dict, sources: Sources) -> dict
     return result("missing", "进攻展示／回收符文或对应颜色的独立技能缺少精确规格及执行消费者")
 
 
+def colored_legacy_activation_fee(card: dict, clause: dict, sources: Sources) -> dict | None:
+    if clause["kind"] != "activated" or clause["scope"] != clause["text"]:
+        return None
+    shape = normalize(unparenthesize(clause["text"]))
+    profiles = {
+        normalize("支付{{2}}和{{红色}}：让我本回合内战力翻倍。"): (
+            "PAY_2_RED_DOUBLE_POWER", "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", "ResolveActivateAbility", 0, 0, False),
+        normalize("支付{{红色}}，{{横置}}：对一名单位造成3点伤害。"): (
+            "PAY_RED_EXHAUST_DAMAGE_3", "XERATH_PAY_RED_EXHAUST_DAMAGE_3", "ResolveXerathDamageAbility", 1, 3, True),
+    }
+    if shape not in profiles:
+        return None
+    ability_id, effect, method, targets, damage, battlefield = profiles[shape]
+    candidates = [ability for ability in card.get("activations", [])
+        if ability.get("abilityId") == ability_id and ability.get("effectKind") == effect
+        and activation_matches(ability, clause) and ability.get("requiredTargetCount", 0) == targets
+        and ability.get("damageAmount", 0) == damage and bool(ability.get("requiresBattlefieldSource")) == battlefield
+        and bool(ability.get("appliesSpellshieldTargetTax")) == battlefield
+        and not any(meaningful(ability.get(key)) for key in ["simpleEffect", "kind", "isResourceSkill",
+            "paymentOnlyResource", "reactionSpeed", "swiftSpeed", "sourceRequiredTag", "sourceScope",
+            "requiredControllerCardNoOnField", "requiresBaseEquipmentSource"])]
+    path = "src/Riftbound.Engine/CoreRuleEngine.cs"
+    core = sources.files.get(path, "")
+    def region(name):
+        # Restrict proof to the actual consumer, not a neighboring skill that
+        # happens to read the same fee fields. Engine members use four spaces.
+        found = re.search(r"(?ms)^    private static ResolutionResult " + re.escape(name)
+            + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)", core)
+        return found.group(0) if found else ""
+    consumer = region(method)
+    total = "var totalPowerCost = ability.PowerCost + powerCostByTrait.Values.Sum()" \
+        + (" + spellshieldTaxPower;" if battlefield else ";")
+    generic = "genericPowerCost: " + ("(ability.PowerCost + spellshieldTaxPower)" if battlefield else "ability.PowerCost")
+    required = ["P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability)", total, generic,
+        "totalPowerCost: totalPowerCost", "powerCostByTrait: powerCostByTrait", "TryApplyOrderedPaymentResources(",
+        "PaymentCostRules.AuthorizePayment(", "PaymentCostRules.TryCommitPayment(", "PaymentCostRules.BuildCostPaidPayload("]
+    dispatcher = region("ResolveActivateAbility")
+    routed = "P4ActivatedAbilityCatalog.TryGetByAbilityId(command.AbilityId, out var ability)" in dispatcher
+    if battlefield:
+        routed = routed and "return ResolveXerathDamageAbility(state, intent, command, ability);" in dispatcher
+    if candidates and routed and all(token in consumer for token in required):
+        return result("route", "精确印刷有色费用及共享付款消费者，通用符能按核心163.2.b可代付", [path])
+    return result("missing", "缺少印刷有色费用，或真实激活消费者未将颜色要求交给共享付款校验")
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
+    if colored := colored_legacy_activation_fee(card, clause, sources):
+        if colored["status"] == "route":
+            return result("missing", "有色费用已实现；原生技能仍缺少来源／目标代际凭据及来源离场后的安全投影", colored["evidence"])
+        return colored
     keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
     if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
         if any(b.get("recyclesUnkeptSacredJudgmentCards") for b in card.get("behaviors", [])):

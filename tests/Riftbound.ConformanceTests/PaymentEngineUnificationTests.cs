@@ -416,7 +416,8 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
         Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Equal(2, costEvent.Payload["totalManaCost"]);
-        Assert.Equal(1, costEvent.Payload["genericPower"]);
+        Assert.Equal(0, costEvent.Payload["genericPower"]);
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"])[RuneTrait.Red]);
         Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
         Assert.Equal(0, costEvent.Payload["remainingPower"]);
@@ -452,7 +453,8 @@ public sealed class PaymentEngineUnificationTests
 
         // Historical method identity retained; CN 164.2.b/430 permits voluntary surplus acquisition.
         Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(0, result.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Red));
+        Assert.Equal(1, result.State.RunePools["P1"].Power);
         Assert.Equal(["P1-UNIT-VI"], result.State.PlayerZones["P1"].Base);
         Assert.Contains(runeObjectId, result.State.PlayerZones["P1"].RuneDeck);
         Assert.Single(result.State.StackItems);
@@ -2089,7 +2091,8 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
         Assert.Equal(1, costEvent.Payload["spellshieldTaxPower"]);
         Assert.Equal(0, costEvent.Payload["totalManaCost"]);
-        Assert.Equal(2, costEvent.Payload["genericPower"]);
+        Assert.Equal(1, costEvent.Payload["genericPower"]);
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"])[RuneTrait.Red]);
         Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
         Assert.Equal(0, costEvent.Payload["remainingPower"]);
