@@ -11,7 +11,11 @@ public sealed partial class CoreRuleEngine
     internal static bool IsLegendUnitEffect(string effect)
         => effect is LegendAbilityEffectKinds.UnitPowerModifier or LegendAbilityEffectKinds.ReadyUnit
             or LegendAbilityEffectKinds.TimeAssassinNextUnitReduction
-            or LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken;
+            or LegendAbilityEffectKinds.CreateBattlefieldEquipmentToken
+            || IsLegendBoonOrRoamEffect(effect);
+
+    private static bool IsLegendBoonOrRoamEffect(string effect)
+        => effect is LegendAbilityEffectKinds.GrantBoon or LegendAbilityEffectKinds.GrantRoam;
 
     internal static bool IsLegendUnitEffectTarget(MatchState state, string player, string id, bool battlefieldOnly)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
@@ -28,12 +32,16 @@ public sealed partial class CoreRuleEngine
         if (item.LegendUnitEffect is not { } context) return !IsLegendUnitEffect(item.EffectKind);
         if (!IsLegendUnitEffect(item.EffectKind) || !TryGetLegendAbility(context.AbilityId, out var ability)
             || ability.EffectKind != item.EffectKind
-            || !ability.RemovesSourceEmpowerAsCost || !ability.RequiresAnyUnitTarget
+            || (IsLegendBoonOrRoamEffect(item.EffectKind)
+                ? !ability.RequiresFriendlyUnitTarget && !ability.RequiresAnyUnitTarget
+                : !ability.RemovesSourceEmpowerAsCost || !ability.RequiresAnyUnitTarget)
             || !LegendActionAbilityCatalog.IsSourceCardNoForAbility(context.AbilityId, item.CardNo)
             || context.SourceGeneration < 0 || context.SpellshieldTaxPower < 0 || !state.Seats.ContainsKey(item.ControllerId)
             || string.IsNullOrWhiteSpace(item.SourceObjectId) || item.SourceConfirmed || item.EffectRepeatCount != 1
             || item.DamageAmount != 0
-            || item.OptionalCosts.Count != 0
+            || !item.OptionalCosts.SequenceEqual(IsLegendBoonOrRoamEffect(item.EffectKind)
+                    && !string.IsNullOrEmpty(ability.RequiredCostToken) ? [ability.RequiredCostToken] : [], StringComparer.Ordinal)
+            || !ability.RequiresAnyUnitTarget && context.SpellshieldTaxPower != 0
             || item.Destination.Length != 0
             || item.TargetObjectIds is not { Count: 1 } || item.TargetObjectIds[0] == item.SourceObjectId
             || item.TargetGenerations is not { Count: 1 } bindings
@@ -78,7 +86,8 @@ public sealed partial class CoreRuleEngine
             ["cardNo"] = item.CardNo, ["abilityId"] = context.AbilityId, ["stackItemId"] = item.StackItemId }) };
         var id = item.TargetObjectIds[0];
         if (!IsLegendUnitEffectTarget(state, item.ControllerId, id, ability.RequiresBattlefieldTarget)
-            || !state.CardObjects.TryGetValue(id, out var target) || target.ObjectGeneration != item.TargetGenerations![id])
+            || !state.CardObjects.TryGetValue(id, out var target) || target.ObjectGeneration != item.TargetGenerations![id]
+            || ability.RequiresFriendlyUnitTarget && !SourceObjectControlledByPlayerOrLegacyOwned(target, item.ControllerId))
         {
             events.Add(new("ABILITY_NO_EFFECT", "目标不再合法，已支付的费用不退回", new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId, ["abilityId"] = context.AbilityId,
@@ -86,7 +95,11 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state) with { Events = events };
         }
         var cards = state.CardObjects.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        if (ability.EffectKind == LegendAbilityEffectKinds.UnitPowerModifier)
+        if (ability.EffectKind == LegendAbilityEffectKinds.GrantBoon)
+            GrantLegendBoon(cards, id, item.ControllerId, item.SourceObjectId, ability.AbilityId, events, state.PlayerZones);
+        else if (ability.EffectKind == LegendAbilityEffectKinds.GrantRoam)
+            GrantLegendRoam(cards, id, item.ControllerId, item.SourceObjectId, ability.AbilityId, events);
+        else if (ability.EffectKind == LegendAbilityEffectKinds.UnitPowerModifier)
         {
             var behavior = new CardBehaviorDefinition(item.CardNo, ability.DisplayName, 0, item.EffectKind, 0, 1,
                 TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: ability.PowerModifierAmount);

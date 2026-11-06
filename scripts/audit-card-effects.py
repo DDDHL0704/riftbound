@@ -331,7 +331,7 @@ def meaningful(value) -> bool:
 
 
 def legend_field_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
-    if card.get("cardCategory") != "legend":
+    if card.get("cardCategory") != "legendary":
         return None
     scope = unparenthesize(clause["scope"])
     if not re.search("[：:]", scope):
@@ -418,11 +418,10 @@ def activation_cost_matches(ability: dict, clause: dict) -> bool:
     return experience == ability.get("experienceCost", 0)
 
 
-
 def activation_matches(ability: dict, clause: dict) -> bool:
-    effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[1]
     if not activation_cost_matches(ability, clause):
         return False
+    _, effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
     numeric_damage = re.search(r"造成([0-9]+)点伤害", effect)
     if numeric_damage and ability.get("damageAmount") and ability["damageAmount"] != int(numeric_damage[1]):
         return False
@@ -452,6 +451,35 @@ def activation_matches(ability: dict, clause: dict) -> bool:
     if operations:
         return all(checks.get(op, False) for op in operations)
     return bool("{{获得}}" in effect and (ability.get("generatedMana") or ability.get("generatedPower") or ability.get("generatedPowerByTrait"))) or bool(re.search(r"获得.*分", effect) and "SCORE" in label)
+
+
+def legend_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[1].strip()
+    candidates = [a for a in card.get("legendActivationDefinitions", []) if activation_cost_matches(a, clause)]
+    boon = re.fullmatch(r"给予一名(友方)?单位(?:\{\{增益\}\}|增益)[。.]?", effect)
+    roam = re.fullmatch(r"让一名单位本回合内获得\{\{游走\}\}[。.]?", effect)
+    expected = "GRANT_BOON" if boon else "GRANT_ROAM" if roam else None
+    relevant = [a for a in candidates if a.get("effectKind") == expected] if expected else []
+    if relevant:
+        friendly = bool(boon and boon[1])
+        scoped = [a for a in relevant if a.get("requiredTargetCount") == 1
+                  and bool(a.get("requiresFriendlyUnitTarget")) == friendly
+                  and (friendly or a.get("requiresAnyUnitTarget"))]
+        if not scoped:
+            return result("missing", "传奇技能的目标数量或敌我范围与牌面不符")
+        stacked = [a for a in scoped if a.get("flow") == "UNIT_EFFECT"]
+        if not stacked:
+            return result("missing", "普通传奇技能仍直接结算；缺少技能入链及响应窗口")
+        resolver = [p for p in sources.references("LegendAbilityEffectKinds." + ("GrantBoon" if boon else "GrantRoam"))
+                    if Path(p).name == "CoreRuleEngine.LegendUnitEffect.cs"]
+        dispatch = [p for p in sources.references("QueueLegendUnitEffect(") if Path(p).name == "CoreRuleEngine.cs"]
+        if resolver and dispatch:
+            return result("route", "逐句传奇费用／目标范围及共享入链技能结算", resolver + dispatch)
+    # A matching effect switch is not enough for any ordinary legend ability.
+    # Resource skills remain distinct; other families need their own mapping.
+    if any(a.get("flow") == "IMMEDIATE" and activation_matches(a, clause) for a in candidates):
+        return result("missing", "已登记的非资源传奇技能仍直接结算；缺少技能入链及响应窗口")
+    return None
 
 
 def event_operations_match(event: dict, text: str) -> bool:
@@ -809,6 +837,11 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
+    keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
+    if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
+        if any(b.get("recyclesUnkeptSacredJudgmentCards") for b in card.get("behaviors", [])):
+            return result("missing", "仍由施法者预提交双方保留目标；缺少各玩家结算选择及按种类回收")
+        return result("review", "须独立核对各玩家私有保留选择与符文／主牌分类回收，普通回收字段不足以认证")
     if rune := rune_domain_reveal_route(card, clause, sources):
         return rune
     if counted := counted_behavior_route(card, clause, sources):
@@ -839,7 +872,7 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         for item in card.get(family, []):
             if node_matches(clause, item) and (routes := sources.node_routes(item)):
                 return result("route", f"{family}: {item['node']['kind']}", routes)
-    if kind == "trigger" and card.get("cardCategory") == "legend" and normalize(clause["text"]) == normalize(
+    if kind == "trigger" and card.get("cardCategory") == "legendary" and normalize(clause["text"]) == normalize(
             "当你将一名友方单位选为目标时，你可以选择让我变为休眠状态并支付{{A}}，以此让该单位变为活跃状态"):
         if any(ability.get("effectKind") == "READY_FRIENDLY_UNIT" and ability.get("requiresPendingFriendlyUnitTarget")
                for ability in card.get("legendActivationDefinitions", [])):
@@ -864,9 +897,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
                     routes += sources.references("ability.SimpleEffect")
                 if routes:
                     return result("route", "已登记的激活技能及执行分支：" + ability["abilityId"], routes)
-            for ability in card.get("legendActivations", []):
-                if routes := sources.value_routes(ability):
-                    return result("route", "传奇技能来源及执行分支：" + ability, routes)
+            if outcome := legend_activation_route(card, clause, sources):
+                return outcome
         if not card.get("activations") and not card.get("legendActivations"):
             # Quoted/granted skills need independent scope review before calling
             # the source's absent activation a real missing implementation.

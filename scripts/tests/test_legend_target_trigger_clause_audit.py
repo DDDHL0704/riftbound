@@ -14,7 +14,7 @@ class LegendTargetTriggerClauseAuditTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.engine = self.root / "src/Riftbound.Engine"
         self.engine.mkdir(parents=True)
-        self.card = dict(cardNo="TEST", cardName="测试传奇", cardCategory="legend", cardEffect=self.TEXT,
+        self.card = dict(cardNo="TEST", cardName="测试传奇", cardCategory="legendary", cardEffect=self.TEXT,
                          legendActivationDefinitions=[dict(effectKind="READY_FRIENDLY_UNIT",
                              requiresPendingFriendlyUnitTarget=True, manaCost=1, flow="IMMEDIATE")])
 

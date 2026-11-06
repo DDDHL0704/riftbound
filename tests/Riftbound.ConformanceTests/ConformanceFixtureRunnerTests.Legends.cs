@@ -477,6 +477,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-LEE-SIN"].IsExhausted);
         var target = result.State.CardObjects["P1-LEGEND-BASE-UNIT"];
@@ -533,6 +535,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.True(result.State.CardObjects["P1-LEGEND-MISS-FORTUNE"].IsExhausted);
         Assert.Contains("ROAM", result.State.CardObjects["P1-LEGEND-BASE-UNIT"].UntilEndOfTurnEffects);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "ROAM_GRANTED", StringComparison.Ordinal));
@@ -561,10 +565,12 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
+        Assert.Single(result.State.StackItems);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.True(result.State.CardObjects["P1-LEGEND-KHAZIX"].IsExhausted);
         Assert.Contains(CardObjectTags.Boon, result.State.CardObjects["P1-LEGEND-BASE-UNIT"].Tags);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal));
     }
 

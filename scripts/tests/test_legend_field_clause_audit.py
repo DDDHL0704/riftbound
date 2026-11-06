@@ -47,7 +47,7 @@ class LegendFieldClauseAuditTests(unittest.TestCase):
             requiresBattlefieldTarget=family in ("dormant", "return"), requiresExhaustedTarget=family == "dormant",
             requiresOwnedTeemoUnitTarget=family == "owned", timingKind="MAIN_OPEN",
             flow="DISCARD_DRAW" if family == "draw" else "FIELD_EFFECT")
-        return dict(cardNo="TEST", cardName="测试传奇", cardCategory="legend", cardEffect=self.TEXT[family],
+        return dict(cardNo="TEST", cardName="测试传奇", cardCategory="legendary", cardEffect=self.TEXT[family],
                     legendActivationDefinitions=[definition], legendActivations=["ABILITY"])
 
     def outcome(self, card, index=0):

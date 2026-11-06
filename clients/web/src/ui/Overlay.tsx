@@ -144,6 +144,25 @@ export function ChainArrows({ snapshot, meId }: { snapshot: Snapshot; meId: stri
 }
 
 type Fx = { id: number; x: number; y: number; text: string; tone: "damage" | "destroy" | "score-me" | "score-opp" };
+type Burst = { id: number; x: number; y: number; tone: "hit" | "destroy" | "score-me" | "score-opp" | "play"; bits: { dx: number; dy: number; s: number; d: number }[] };
+
+/** Scatter of sparks for a burst; directions are spread evenly with a little jitter. */
+function sparks(count: number, reach: number) {
+  return Array.from({ length: count }, (_, i) => {
+    const a = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+    const r = reach * (0.55 + Math.random() * 0.45);
+    return { dx: Math.cos(a) * r, dy: Math.sin(a) * r, s: 0.6 + Math.random() * 0.8, d: Math.random() * 0.08 };
+  });
+}
+
+/** Restarts a one-shot CSS animation class on an element (used for hit shakes and score pops). */
+function flash(el: Element | null, cls: string, ms: number) {
+  if (!el) return;
+  el.classList.remove(cls);
+  void (el as HTMLElement).offsetWidth;
+  el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), ms);
+}
 function SoundToggle() {
   const on = useSoundEnabled();
   return (
@@ -159,6 +178,7 @@ let fxSeq = 0;
 /** Short-lived marks where events land: damage numbers, destroyed units, points scored. */
 export function EventFx({ meId }: { meId: string }) {
   const [items, setItems] = useState<Fx[]>([]);
+  const [bursts, setBursts] = useState<Burst[]>([]);
 
   useEffect(() => {
     // Batches that existed before this table mounted are history, not fresh feedback.
@@ -178,6 +198,11 @@ export function EventFx({ meId }: { meId: string }) {
         return null;
       };
       const next: Fx[] = [];
+      const booms: Burst[] = [];
+      const boom = (pos: { x: number; y: number } | null, tone: Burst["tone"], count: number, reach: number) => {
+        if (pos) booms.push({ id: ++fxSeq, x: pos.x, y: pos.y, tone, bits: sparks(count, reach) });
+      };
+      const node = (id: unknown) => (typeof id === "string" ? document.querySelector(`[data-oid="${CSS.escape(id)}"]`) : null);
       const stacked = new Map<string, number>();
       const push = (key: string, pos: { x: number; y: number } | null, text: string, tone: Fx["tone"]) => {
         if (!pos) return;
@@ -191,16 +216,30 @@ export function EventFx({ meId }: { meId: string }) {
         else if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0) cue("hit");
         else if (e.kind === "UNIT_DESTROYED") cue("destroy");
         else if (e.kind === "SCORE_GAINED" && Number(p.amount) > 0) cue(p.playerId === meId ? "score-me" : "score-opp");
-        if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0)
-          push(String(p.targetObjectId), at(p.targetObjectId, p.battlefieldId), `−${p.damage}`, "damage");
-        else if (e.kind === "UNIT_DESTROYED") push(String(p.targetObjectId), at(p.targetObjectId), "摧毁", "destroy");
-        else if (e.kind === "SCORE_GAINED" && Number(p.amount) > 0)
-          push(
-            String(p.battlefieldObjectId ?? p.playerId),
-            at(p.battlefieldObjectId, p.sourceObjectId, `score:${p.playerId}`),
-            `+${p.amount} 分`,
-            p.playerId === meId ? "score-me" : "score-opp",
-          );
+        if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0) {
+          const pos = at(p.targetObjectId, p.battlefieldId);
+          push(String(p.targetObjectId), pos, `−${p.damage}`, "damage");
+          boom(pos, "hit", 8, 42);
+          flash(node(p.targetObjectId), "fx-hit", 520);
+        } else if (e.kind === "UNIT_DESTROYED") {
+          const pos = at(p.targetObjectId);
+          push(String(p.targetObjectId), pos, "摧毁", "destroy");
+          boom(pos, "destroy", 16, 78);
+        } else if (e.kind === "SCORE_GAINED" && Number(p.amount) > 0) {
+          const tone = p.playerId === meId ? "score-me" : "score-opp";
+          const pos = at(p.battlefieldObjectId, p.sourceObjectId, `score:${p.playerId}`);
+          push(String(p.battlefieldObjectId ?? p.playerId), pos, `+${p.amount} 分`, tone);
+          boom(pos, tone, 14, 70);
+          boom(at(`score:${p.playerId}`), tone, 10, 40);
+          flash(node(`score:${p.playerId}`), "fx-pop", 700);
+        } else if (e.kind === "CARD_PLAYED" && p.playerId === meId) {
+          boom(at(p.sourceObjectId), "play", 10, 54);
+        }
+      }
+      if (booms.length) {
+        setBursts((cur) => [...cur, ...booms]);
+        const done = new Set(booms.map((b) => b.id));
+        setTimeout(() => setBursts((cur) => cur.filter((b) => !done.has(b.id))), 1100);
       }
       if (!next.length) return;
       setItems((cur) => [...cur, ...next]);
@@ -213,9 +252,21 @@ export function EventFx({ meId }: { meId: string }) {
     };
   }, [meId]);
 
-  if (!items.length) return null;
+  if (!items.length && !bursts.length) return null;
   return (
     <div className="fx" aria-hidden>
+      {bursts.map((b) => (
+        <span key={b.id} className={`fx__burst fx__burst--${b.tone}`} style={{ left: b.x, top: b.y }}>
+          <i className="fx__ring" />
+          {b.bits.map((s, i) => (
+            <i
+              key={i}
+              className="fx__spark"
+              style={{ ["--dx" as string]: `${s.dx.toFixed(1)}px`, ["--dy" as string]: `${s.dy.toFixed(1)}px`, ["--s" as string]: s.s, ["--d" as string]: `${s.d}s` }}
+            />
+          ))}
+        </span>
+      ))}
       {items.map((f) => (
         <span key={f.id} className={`fx__item fx__item--${f.tone}`} style={{ left: f.x, top: f.y }}>
           {f.text}
