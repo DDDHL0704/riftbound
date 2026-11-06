@@ -1830,6 +1830,22 @@ public static class TriggerParser
                 CreatedTokenName: standbyHiddenToken.Groups[2].Value, CreatedTokenExhausted: true,
                 CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
 
+        var attackKeywordDamage = Regex.Match(segment,
+            @"^当我进攻时[，,]\s*对此处的一名敌方单位造成等同于我(?:\{\{(?<keyword>强攻|坚守)\}\}|(?<keyword>强攻|坚守))数值的伤害[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (attackKeywordDamage.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackSourceKeywordDamage, TriggerTimings.UnitAttack,
+                segment, TargetScope: TriggerTargetScopes.EnemyUnitHere,
+                DamageSourceKeyword: attackKeywordDamage.Groups["keyword"].Value);
+
+        var attackFixedDamage = Regex.Match(segment,
+            @"^当我进攻时[，,]\s*对此处的一名敌方单位造成([1-9][0-9]*)点伤害[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (attackFixedDamage.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackFixedDamage, TriggerTimings.UnitAttack,
+                segment, TargetScope: TriggerTargetScopes.EnemyUnitHere,
+                DamageAmount: int.Parse(attackFixedDamage.Groups[1].Value));
+
         if (Regex.IsMatch(segment,
             @"^当我进攻时[，,]\s*对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
             RegexOptions.CultureInvariant))

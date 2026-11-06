@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class PrintedAttackClauseTests
 {
-    private static MatchState Position(string no)
+    internal static MatchState Position(string no)
     {
         var state = VenUnitEntryBasicTests.Position(no);
         state = state with {
@@ -43,7 +43,7 @@ public sealed class PrintedAttackClauseTests
         return LocalDestructionRecallTests.At(state, "ELSEWHERE", "P2", "BASE");
     }
 
-    private static async Task Attack(Driver game, string no, bool withAlly = false)
+    internal static async Task Attack(Driver game, string no, bool withAlly = false)
     {
         await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
         if (game.State.CardObjects["UNIT"].IsExhausted)
@@ -55,7 +55,7 @@ public sealed class PrintedAttackClauseTests
             withAlly ? ["UNIT", "ALLY"] : ["UNIT"]));
     }
 
-    private static async Task SelectEnemy(Driver game, string id = "ENEMY")
+    internal static async Task SelectEnemy(Driver game, string id = "ENEMY")
     {
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal("UNIT", choice.SourceObjectId);

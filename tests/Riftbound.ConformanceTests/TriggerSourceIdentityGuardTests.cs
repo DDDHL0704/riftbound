@@ -90,7 +90,8 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.Contains("SourceStunEnemyUnitTriggerEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("SourceReadiesWhenControllerPlaysEquipment", source, StringComparison.Ordinal);
         Assert.Contains("SourcePowerOnControllerStandbyHiddenAmount", source, StringComparison.Ordinal);
-        Assert.Contains("SourceAttackDamageToFirstDefenderAmount", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ResolveSourceAttackDamageToFirstDefenderTriggers", source, StringComparison.Ordinal);
+        Assert.Contains("CaptureCombatMightTriggers(", source, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()
