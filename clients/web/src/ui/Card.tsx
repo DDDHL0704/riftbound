@@ -2,6 +2,7 @@ import type { CSSProperties, MouseEvent, PointerEvent } from "react";
 import { motion } from "motion/react";
 import { cardInfo, COLOR_HEX, keywordReminder, tokenizeEffect } from "../game/cards";
 import type { GameObject } from "../game/types";
+import { Art } from "./Art";
 
 export type CardMark = "selected" | "legal" | "playable" | "autopay" | "attacking" | "defending" | "dragging" | "recent" | null;
 
@@ -78,12 +79,9 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
         {hidden ? (
           <span className="card__back" />
         ) : info?.image ? (
-          <img className="card__art" src={info.image} alt="" loading="lazy" draggable={false} />
+          <Art className="card__art" src={info.image} lazy fallback={<CardFallback name={info.name ?? no} cost={info.cost} />} />
         ) : (
-          <span className="card__fallback">
-            <span className="card__fallback-name">{info?.name ?? no}</span>
-            {info?.cost != null && <span className="card__fallback-cost">{info.cost}</span>}
-          </span>
+          <CardFallback name={info?.name ?? no} cost={info?.cost} />
         )}
         {peek && <span className="card__ribbon">待命</span>}
         {showStats && !hidden && <span className={`card__power${buffed ? " card__power--changed" : ""}`}>{power}</span>}
@@ -100,6 +98,15 @@ export function Card({ cardNo, object, size = "board", faceDown, peek, marks = [
         )}
       </button>
     </motion.div>
+  );
+}
+
+function CardFallback({ name, cost }: { name?: string | null; cost?: number }) {
+  return (
+    <span className="card__fallback">
+      <span className="card__fallback-name">{name}</span>
+      {cost != null && <span className="card__fallback-cost">{cost}</span>}
+    </span>
   );
 }
 
@@ -172,7 +179,11 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
       aria-hidden
     >
       <div className={`hoverpreview__face${landscape ? " hoverpreview__face--landscape" : ""}`}>
-        {info.image ? <img src={info.image} alt="" /> : <div className="hoverpreview__fallback">{info.name}</div>}
+        {info.image ? (
+          <Art src={info.image} fallback={<div className="hoverpreview__fallback">{info.name}</div>} />
+        ) : (
+          <div className="hoverpreview__fallback">{info.name}</div>
+        )}
         {info.errata && info.effect && (
           <p className="hoverpreview__errata">
             <b>中国区勘误</b>
