@@ -16,7 +16,7 @@ public sealed class ColoredHeroActivationFeeTests
         ? P4ActivatedAbilityCatalog.XerathDamageAbilityId : P4ActivatedAbilityCatalog.ViDoublePowerAbilityId;
     private static ActivateAbilityCommand Command(string no, IReadOnlyList<string>? resources = null)
         => new("HOST", Ability(no), Xerath(no) ? ["ENEMY"] : [], resources);
-    private static MatchState Position(string no, RunePool pool, bool ward = false)
+    internal static MatchState Position(string no, RunePool pool, bool ward = false)
     {
         var initial = ArmamentMightTests.Position(unit: no, power: 3);
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {

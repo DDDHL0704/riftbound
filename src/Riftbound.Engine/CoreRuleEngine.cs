@@ -5715,13 +5715,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         ]);
 
-        return new ResolutionResult(
+        return BindNativeUnitActivationSource(state, new ResolutionResult(
             true,
             null,
             nextState,
             events,
             ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+            BuildCorePrompts(nextState)), ability);
     }
 
     private static ResolutionResult ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestAbility(
@@ -9320,13 +9320,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         ]);
 
-        return new ResolutionResult(
+        return BindNativeUnitActivationSource(state, new ResolutionResult(
             true,
             null,
             nextState,
             events,
             ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+            BuildCorePrompts(nextState)), ability);
     }
 
     private static ResolutionResult ResolveCrimsonRoseReadyAbility(
@@ -19398,12 +19398,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.BorrowedExhaust is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.UnitEvent is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.NativeUnitActivation is null && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.BorrowedExhaust is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.UnitEvent is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.BorrowedExhaust is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.NativeUnitActivation is null && resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.BorrowedExhaust is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, ProjectionViewers.Spectator)).ToArray()
                 };
             if (highCostSkillObservers.Length > 0) resolvedPayload[HighCostSkillCaptureKey] = highCostSkillObservers;
@@ -24391,6 +24391,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var simpleAbility)
             && simpleAbility.SimpleEffect is not null)
             return ResolveSimpleActivationEffect(state, stackItem, simpleAbility);
+        if (!ValidNativeUnitActivation(state, stackItem))
+            throw new InvalidOperationException("Invalid native unit activation context.");
+        if (stackItem.NativeUnitActivation is not null
+            && P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var nativeAbility)
+            && nativeAbility.ModifiesUnitSource && !NativeUnitActivationSourceStillOnField(state, stackItem))
+            return NoopStackResolutionResult(state);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal))
@@ -24441,12 +24447,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
-            return ResolveViDoublePowerAbilityStackItem(state, stackItem);
+            return RedactNativeUnitActivationSource(state, stackItem, ResolveViDoublePowerAbilityStackItem(state, stackItem));
         }
 
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.XerathDamageAbilityEffectKind, StringComparison.Ordinal))
         {
-            return ResolveXerathDamageAbilityStackItem(state, stackItem);
+            return RedactNativeUnitActivationSource(state, stackItem, ResolveXerathDamageAbilityStackItem(state, stackItem));
         }
 
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, StringComparison.Ordinal))

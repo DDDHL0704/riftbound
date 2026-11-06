@@ -1,5 +1,6 @@
 import importlib.util
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
 
@@ -121,3 +122,91 @@ class ColoredNativeFeeAuditTests(unittest.TestCase):
     def test_an_unused_xerath_consumer_without_its_dispatch_is_not_a_route(self):
         self.sources(True, lambda text: text.replace('return ResolveXerathDamageAbility(state, intent, command, ability);', ''))
         self.assertEqual('missing', self.outcome(True))
+
+
+class NativeUnitBindingAuditTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        repository = Path(__file__).parents[2]
+        self.paths = [
+            'CoreRuleEngine.cs', 'CoreRuleEngine.NativeUnitActivations.cs', 'SelfAbilitySourceRules.cs',
+            'MatchSession.cs', 'MatchRecovery.cs', 'MatchRecovery/Authoritative.Resources.cs']
+        for name in self.paths:
+            destination = self.root / 'src/Riftbound.Engine' / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(repository / 'src/Riftbound.Engine' / name, destination)
+
+    def outcome(self, xerath, changes=None):
+        profile = ColoredNativeFeeAuditTests.profile(xerath)
+        profile.update(bindsUnitSource=True, modifiesUnitSource=not xerath)
+        profile.update(changes or {})
+        card = dict(cardNo='TEST', cardName='test', cardEffect=ColoredNativeFeeAuditTests.text(xerath), activations=[profile])
+        return audit.audit_clause(card, audit.card_clauses(card)[0], audit.Sources(self.root, []))['status']
+
+    def mutate(self, path, old, new='removed'):
+        destination = self.root / 'src/Riftbound.Engine' / path
+        previous = destination.read_text()
+        self.assertIn(old, previous)
+        destination.write_text(previous.replace(old, new))
+        return destination, previous
+
+    def test_both_complete_clauses_require_their_source_binding_policy(self):
+        for xerath in [False, True]:
+            self.assertEqual('route', self.outcome(xerath))
+            for changes in [dict(bindsUnitSource=False), dict(modifiesUnitSource=xerath)]:
+                self.assertEqual('missing', self.outcome(xerath, changes))
+
+    def test_an_unbound_consumer_cannot_borrow_the_other_skills_binding(self):
+        for xerath, method in [(False, 'ResolveActivateAbility'), (True, 'ResolveXerathDamageAbility')]:
+            destination = self.root / 'src/Riftbound.Engine/CoreRuleEngine.cs'
+            previous = destination.read_text()
+            pattern = (r'(?ms)(^    private static ResolutionResult ' + method
+                + r'\(.*?)(?=^    (?:private|internal|public|protected)\s|\Z)')
+            import re
+            changed, count = re.subn(pattern, lambda match: match[0].replace('return BindNativeUnitActivationSource(', 'return Unbound('), previous)
+            self.assertEqual(1, count); destination.write_text(changed)
+            self.assertEqual('missing', self.outcome(xerath))
+            destination.write_text(previous)
+
+    def test_source_identity_and_resolution_checks_are_consumed(self):
+        for path, token in [
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'new(source.ObjectId, source.ObjectGeneration)'),
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'source.CopyFaceTransitions?.Count ?? 0'),
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'SelfAbilitySourceRules.Valid('),
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'MatchStateHasher.HashValue(expected)'),
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'source.ObjectGeneration == context.Source.Generation'),
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'IsObjectOnField(state.PlayerZones, source.ObjectId)'),
+            ('CoreRuleEngine.cs', 'if (!ValidNativeUnitActivation(state, stackItem))'),
+            ('CoreRuleEngine.cs', 'nativeAbility.ModifiesUnitSource && !NativeUnitActivationSourceStillOnField(state, stackItem)'),
+            ('CoreRuleEngine.cs', 'stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);')]:
+            with self.subTest(path=path, token=token):
+                destination, previous = self.mutate(path, token)
+                for xerath in [False, True]: self.assertEqual('missing', self.outcome(xerath))
+                destination.write_text(previous)
+
+    def test_departed_token_receipts_json_normalization_and_recovery_are_required(self):
+        for path, token in [
+            ('SelfAbilitySourceRules.cs', 'departed.Contains(native.Source.ObjectId) && ValidNativeUnitActivation(before, item)'),
+            ('SelfAbilitySourceRules.cs', 'NativeUnitActivation = native with { CeasedSource = SelfAbilitySourceRules.Capture('),
+            ('MatchSession.cs', 'NativeUnitActivation = item.NativeUnitActivation'),
+            ('MatchRecovery.cs', 'stackItem.NativeUnitActivation is { CeasedSource: not null } && CoreRuleEngine.ValidNativeUnitActivation(authoritativeState, stackItem)'),
+            ('MatchRecovery/Authoritative.Resources.cs', 'if (!CoreRuleEngine.ValidNativeUnitActivation(authoritativeState, item))')]:
+            with self.subTest(path=path, token=token):
+                destination, previous = self.mutate(path, token)
+                for xerath in [False, True]: self.assertEqual('missing', self.outcome(xerath))
+                destination.write_text(previous)
+
+    def test_hidden_source_projection_events_and_validation_must_agree(self):
+        for path, token in [
+            ('CoreRuleEngine.cs', '!IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.NativeUnitActivation is null'),
+            ('CoreRuleEngine.cs', '"targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.NativeUnitActivation is null'),
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'ProjectionViewers.Spectator'),
+            ('CoreRuleEngine.NativeUnitActivations.cs', 'pair.Key is "sourceObjectId" or "unitSourceObjectId"'),
+            ('MatchSession.cs', 'item.TargetedPowerAbility is not null || item.NativeUnitActivation is not null'),
+            ('MatchSession.cs', 'item.TargetedPowerAbility is null && item.NativeUnitActivation is null'),
+            ('MatchRecovery.cs', 'item.NativeUnitActivation is not null && CoreRuleEngine.ValidNativeUnitActivation(state, item)')]:
+            with self.subTest(path=path, token=token):
+                destination, previous = self.mutate(path, token)
+                for xerath in [False, True]: self.assertEqual('missing', self.outcome(xerath))
+                destination.write_text(previous)

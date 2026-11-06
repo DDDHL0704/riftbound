@@ -58,6 +58,11 @@ public sealed partial class CoreRuleEngine
                 return item with { BorrowedExhaust = borrowed with {
                     Borrower = CaptureBorrowed(borrowed.Borrower), Donor = CaptureBorrowed(borrowed.Donor) } };
             }
+            if (item.NativeUnitActivation is { CeasedSource: null } native
+                && departed.Contains(native.Source.ObjectId) && ValidNativeUnitActivation(before, item))
+                return item with { NativeUnitActivation = native with { CeasedSource = SelfAbilitySourceRules.Capture(
+                    before, state.Tick, native.Source, native.CardNo, native.FaceRevision, native.AcquiredTick,
+                    native.TokenFactoryCardNo) } };
             if (item.SelfMightActivation is { CeasedSource: null } self
                 && departed.Contains(self.Source.ObjectId) && SelfMightRules.Valid(before, item))
                 return item with { SelfMightActivation = self with { CeasedSource = SelfAbilitySourceRules.Capture(

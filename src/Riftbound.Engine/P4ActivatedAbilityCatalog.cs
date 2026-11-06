@@ -45,7 +45,9 @@ public sealed record P4ActivatedAbilityDefinition(
     string SourceScope = "",
     string RequiredControllerCardNoOnField = "",
     bool UsableByAnyPlayerOnOwnTurn = false,
-    bool BorrowedSourceAlias = false);
+    bool BorrowedSourceAlias = false,
+    bool BindsUnitSource = false,
+    bool ModifiesUnitSource = false);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -456,7 +458,8 @@ public static class P4ActivatedAbilityCatalog
             0,
             AppliesSpellshieldTargetTax: false,
             "支付2法力和1红色符能：让我本回合内战力翻倍。",
-            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = ViDoublePowerAbilityPowerCost }),
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = ViDoublePowerAbilityPowerCost },
+            BindsUnitSource: true, ModifiesUnitSource: true),
         new(
             XerathDamageAbilityId,
             XerathCardNo,
@@ -470,7 +473,8 @@ public static class P4ActivatedAbilityCatalog
             XerathDamageAbilityDamageAmount,
             AppliesSpellshieldTargetTax: true,
             "支付1红色符能并横置：对一名单位造成3点伤害；来源必须位于战场。",
-            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = XerathDamageAbilityPowerCost }),
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = XerathDamageAbilityPowerCost },
+            BindsUnitSource: true),
         new(
             MalzaharResourceAbilityId,
             MalzaharCardNo,

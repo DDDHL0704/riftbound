@@ -898,13 +898,64 @@ def colored_legacy_activation_fee(card: dict, clause: dict, sources: Sources) ->
     return result("missing", "缺少印刷有色费用，或真实激活消费者未将颜色要求交给共享付款校验")
 
 
+def native_unit_activation_binding(card: dict, clause: dict, sources: Sources) -> dict:
+    xerath = normalize(unparenthesize(clause["text"])).startswith(normalize("支付{{红色}}，{{横置}}"))
+    ability_id = "PAY_RED_EXHAUST_DAMAGE_3" if xerath else "PAY_2_RED_DOUBLE_POWER"
+    profiles = [ability for ability in card.get("activations", []) if ability.get("abilityId") == ability_id]
+    if not profiles or not all(ability.get("bindsUnitSource")
+            and bool(ability.get("modifiesUnitSource")) == (not xerath) for ability in profiles):
+        return result("missing", "有色费用已实现；原生技能尚未绑定来源代际及自身效果的场地限制")
+    core_path = "src/Riftbound.Engine/CoreRuleEngine.cs"
+    consumer = re.search(r"(?ms)^    private static ResolutionResult "
+        + ("ResolveXerathDamageAbility" if xerath else "ResolveActivateAbility")
+        + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)", sources.files.get(core_path, ""))
+    if not consumer or "return BindNativeUnitActivationSource(state, new ResolutionResult(" not in consumer.group(0):
+        return result("missing", "有色费用已实现；实际激活消费者未捕获原生来源代际")
+    required = {
+        core_path: [
+            "if (!ValidNativeUnitActivation(state, stackItem))",
+            "nativeAbility.ModifiesUnitSource && !NativeUnitActivationSourceStillOnField(state, stackItem)",
+            "stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);",
+            "!IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.NativeUnitActivation is null",
+            '"targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.NativeUnitActivation is null',
+            "return RedactNativeUnitActivationSource(state, stackItem, Resolve"
+                + ("XerathDamage" if xerath else "ViDoublePower") + "AbilityStackItem(state, stackItem));"],
+        "src/Riftbound.Engine/CoreRuleEngine.NativeUnitActivations.cs": [
+            "if (!result.Accepted || !ability.BindsUnitSource)",
+            "new(source.ObjectId, source.ObjectGeneration)", "source.CopyFaceTransitions?.Count ?? 0",
+            "internal static bool ValidNativeUnitActivation(",
+            "SelfAbilitySourceRules.Valid(state, context.Source, context.CardNo, context.FaceRevision,",
+            "usesPrintedFace: true", "item.TargetGenerations", "MatchStateHasher.HashValue(expected)",
+            "source.ObjectGeneration == context.Source.Generation && IsFaceUpNonStandbyUnit(source)",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)",
+            "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)",
+            'pair.Key is "sourceObjectId" or "unitSourceObjectId"'],
+        "src/Riftbound.Engine/SelfAbilitySourceRules.cs": [
+            "item.NativeUnitActivation is { CeasedSource: null } native",
+            "departed.Contains(native.Source.ObjectId) && ValidNativeUnitActivation(before, item)",
+            "NativeUnitActivation = native with { CeasedSource = SelfAbilitySourceRules.Capture("],
+        "src/Riftbound.Engine/MatchSession.cs": [
+            "NativeUnitActivation = item.NativeUnitActivation",
+            "item.TargetedPowerAbility is not null || item.NativeUnitActivation is not null",
+            "item.TargetedPowerAbility is null && item.NativeUnitActivation is null"],
+        "src/Riftbound.Engine/MatchRecovery/Authoritative.Resources.cs": [
+            "if (!CoreRuleEngine.ValidNativeUnitActivation(authoritativeState, item))"],
+        "src/Riftbound.Engine/MatchRecovery.cs": [
+            "stackItem.NativeUnitActivation is { CeasedSource: not null } && CoreRuleEngine.ValidNativeUnitActivation(authoritativeState, stackItem)",
+            "item.NativeUnitActivation is not null && CoreRuleEngine.ValidNativeUnitActivation(state, item)"],
+    }
+    if all(all(token in sources.files.get(path, "") for token in tokens) for path, tokens in required.items()):
+        return result("route", "印刷有色费用及共享付款；绑定来源代际、独立入链、消失凭据、隐私投影与恢复；目标复用共享代际校验", list(required))
+    return result("missing", "有色费用已实现；仍缺少完整来源代际、离场续接、隐私投影或恢复消费者")
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
     if colored := colored_legacy_activation_fee(card, clause, sources):
         if colored["status"] == "route":
-            return result("missing", "有色费用已实现；原生技能仍缺少来源／目标代际凭据及来源离场后的安全投影", colored["evidence"])
+            return native_unit_activation_binding(card, clause, sources)
         return colored
     keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
     if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
