@@ -1,0 +1,1911 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "VEN·090"
+      ],
+      "text": "每名玩家选择一个受自己控制的单位。",
+      "scope": "每名玩家选择一个受自己控制的单位。",
+      "status": "route",
+      "reason": "法术不在打出时指目标，响应后每位玩家各自从其当前公开单位中选一个保留，位置可跨基地和战场，随后才同时摧毁其他单位；没有单位的玩家不阻塞其他人",
+      "rules": "核心355.18 结算中选择、429 同时摧毁、355.6 目标区别；VEN·090 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "eachPlayerKeepsOneUnitBeforeDestroyingOthers": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (behavior.EachPlayerKeepsOneUnitBeforeDestroyingOthers)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenFinalDuelTests.cs",
+          "methods": [
+            "EachControllerKeepsOneUnitAcrossBaseAndBattlefieldsBeforeTheOthersAreDestroyed",
+            "APlayerWithoutUnitsMakesNoSelectionAndCannotPreventTheOtherPlayersDestruction",
+            "TheChoiceDoesNotTargetUnitsOrChargeTheirSpellshieldAndFaceDownCardsStayUntouched"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·091"
+      ],
+      "text": "如果你的得分距离胜利得分超过3分，则我以活跃状态进场。",
+      "scope": "如果你的得分距离胜利得分超过3分，则我以活跃状态进场。",
+      "status": "route",
+      "reason": "单位真正进场时按其控制者当前得分距胜利分数超过3判定活跃替换，恰差3仍休眠；使用有效胜利分数，不按印刷默认固定阈值",
+      "rules": "核心359 进场、416 活跃与胜利分数；VEN·091 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceReadyWhenWinningScoreDistanceExceeds": 3
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "contains": [
+            "behavior.SourceReadyWhenWinningScoreDistanceExceeds is { } distance"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenUnitEventTests.cs",
+          "methods": [
+            "DragonEntersReadyOnlyWhenMoreThanThreePointsBelowTheWinningScore"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·096"
+      ],
+      "text": "你的废牌堆中每有一张和我同名的卡牌，我的费用便减少{{2}}。",
+      "scope": "你的废牌堆中每有一张和我同名的卡牌，我的费用便减少{{2}}。",
+      "status": "route",
+      "reason": "共享费用按自己当前废牌堆同名实体数量每张减2法力，异画共用正式名称，敌方废牌堆及未知同名不计，最低0且报价付款一致",
+      "rules": "核心356.4 减费与名称特性；VEN·096 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "SAME_NAME_IN_CONTROLLER_GRAVEYARD",
+            "costReductionMana": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.SameNameInControllerGraveyard",
+            "OfficialCardSourceIdentityGroups.SameKnownName("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalPlayCostTests.cs",
+          "methods": [
+            "CountedEquipmentAndSameNameGravesQuoteAndPayTheCurrentCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·097"
+      ],
+      "text": "你的卡组中可以包含任意数量名为“小蜘蛛”的卡牌。",
+      "scope": "你的卡组中可以包含任意数量名为“小蜘蛛”的卡牌。",
+      "status": "route",
+      "reason": "构筑验证对官方印刷的任意数量同名卡牌例外跳过普通3张上限，其他牌组构筑限制仍检查；4张以上小蜘蛛可通过，不把所有蜘蛛属性牌一起豁免",
+      "rules": "核心构筑同名张数限制与卡牌优先规则；VEN·097 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/OfficialDeckRules.cs",
+          "contains": [
+            "ValidateCopyLimits(",
+            "你的卡组中可以包含任意数量名为"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenContinuousCardTests.cs",
+          "methods": [
+            "AnExplicitUnlimitedCopiesTextOverridesTheOrdinaryThreeCopyLimit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·099"
+      ],
+      "text": "当你将我从正面朝下的状态打出时，你可以选择强化此处的一个物体。",
+      "scope": "当你将我从正面朝下的状态打出时，你可以选择强化此处的一个物体。",
+      "status": "route",
+      "reason": "仅从背面实际打出时捕获可选独立技能，可强化来源当前精确位置的合法物体；已捕获技能来源离场不取消，结束时按绑定代际独立解除，结束窗口过去不再建立延迟",
+      "rules": "核心811 待命、383.3／383.4.a.2、359.3.e.16、442；VEN·099 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "STANDBY_PLAY",
+              "effect": "TEMPORARY_EMPOWER_HERE"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "TEMPORARY_EMPOWER_HERE"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedEmpower.cs",
+          "contains": [
+            "ScheduleDelayedEmpower("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "WhirlwindWarriorOnlyGrantsTemporaryEmpowerAfterAnActualStandbyPlay"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·099"
+      ],
+      "text": "在回合结束时，解除其强化。",
+      "scope": "在回合结束时，解除其强化。",
+      "status": "route",
+      "reason": "仅从背面实际打出时捕获可选独立技能，可强化来源当前精确位置的合法物体；已捕获技能来源离场不取消，结束时按绑定代际独立解除，结束窗口过去不再建立延迟",
+      "rules": "核心811 待命、383.3／383.4.a.2、359.3.e.16、442；VEN·099 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "STANDBY_PLAY",
+              "effect": "TEMPORARY_EMPOWER_HERE"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "TEMPORARY_EMPOWER_HERE"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedEmpower.cs",
+          "contains": [
+            "ScheduleDelayedEmpower("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "WhirlwindWarriorOnlyGrantsTemporaryEmpowerAfterAnActualStandbyPlay"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·100"
+      ],
+      "text": "打出两名具有“比尔吉沃特”属性的1{{S}}“触手”。",
+      "scope": "打出两名具有“比尔吉沃特”属性的1{{S}}“触手”。",
+      "status": "route",
+      "reason": "共享指示物流程实际打出两个1战力触手到自己基地，保留比尔吉沃特原生属性并按默认单位休眠进场；普通和流转打出均执行相同指示",
+      "rules": "核心440 创建、829 流转；VEN·100 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "createdBaseUnitTokenCount": 2,
+            "createdBaseUnitTokenPower": 1,
+            "createdBaseUnitTokenName": "触手",
+            "createdBaseUnitTokenTags": "比尔吉沃特"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.CreatedBaseUnitTokenCount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenBasicFlowSpellTests.cs",
+          "methods": [
+            "OrdinaryAndFlowPlayPayThenResolveTheExactEffectAndLeaveToTheCorrectZone"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·101"
+      ],
+      "text": "你可以选择支付{{1}}，作为打出我的额外费用。",
+      "scope": "你可以选择支付{{1}}，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "实际打出时可选支付额外1法力，单位入场后才确认目标与从任一废牌堆放逐一张作为技能费用；响应后给仍合法同代际单位本回合真正强攻2，不因费用牌随后变化取消已付事实",
+      "rules": "核心204.2、383.3.b／383.4.a.2、807 强攻；VEN·101 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetEffectAdditionalManaCost": 1,
+            "playTriggerBanishesGraveyardCardAsCost": true,
+            "statusEffectId": "COMBAT_KEYWORD:强攻2"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "behavior.PlayTriggerBanishesGraveyardCardAsCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "declaration.PlayTriggerBanishesGraveyardCardAsCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenPaidAssaultUnitTests.cs",
+          "methods": [
+            "MonkPaysExtraManaThenBanishesEitherGraveyardsCardBeforeResponses",
+            "DecliningThePlayFeeHasNoTriggerAndAnUnaffordableExtraFeeChangesNothing",
+            "ATargetLeavingInResponseDoesNotRefundTheBanishedCardOrBuffItsNewIncarnation"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·101"
+      ],
+      "text": "当你打出我时，如果你支付了该额外费用，则从任意废牌堆中放逐一张牌，以此给予一名单位在本回合内{{强攻2}}。（如果它是进攻方，则{{S}}+2。）",
+      "scope": "当你打出我时，如果你支付了该额外费用，则从任意废牌堆中放逐一张牌，以此给予一名单位在本回合内{{强攻2}}。（如果它是进攻方，则{{S}}+2。）",
+      "status": "route",
+      "reason": "实际打出时可选支付额外1法力，单位入场后才确认目标与从任一废牌堆放逐一张作为技能费用；响应后给仍合法同代际单位本回合真正强攻2，不因费用牌随后变化取消已付事实",
+      "rules": "核心204.2、383.3.b／383.4.a.2、807 强攻；VEN·101 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetEffectAdditionalManaCost": 1,
+            "playTriggerBanishesGraveyardCardAsCost": true,
+            "statusEffectId": "COMBAT_KEYWORD:强攻2"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "behavior.PlayTriggerBanishesGraveyardCardAsCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "declaration.PlayTriggerBanishesGraveyardCardAsCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenPaidAssaultUnitTests.cs",
+          "methods": [
+            "MonkPaysExtraManaThenBanishesEitherGraveyardsCardBeforeResponses",
+            "DecliningThePlayFeeHasNoTriggerAndAnUnaffordableExtraFeeChangesNothing",
+            "ATargetLeavingInResponseDoesNotRefundTheBanishedCardOrBuffItsNewIncarnation"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·104"
+      ],
+      "text": "当我变为{{已强化}}时，你可以选择从你的废牌堆中选择一名法力费用不高于{{3}}且符能费用不高于{{A}}的单位。",
+      "scope": "当我变为{{已强化}}时，你可以选择从你的废牌堆中选择一名法力费用不高于{{3}}且符能费用不高于{{A}}的单位。",
+      "status": "route",
+      "reason": "真正成为已强化后捕获可选墓地单位技能，须满足印刷法力≤3且符能≤1，响应后到自己基地实际打出；只免基础费用，强制额外费用仍支付，来源离场不取消技能",
+      "rules": "核心442、383.3、356.1.b 无视基础费用；VEN·104 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "EMPOWERED",
+              "effect": "PLAY_GRAVEYARD_UNIT",
+              "maximumMana": 3,
+              "maximumPower": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "EmpowerInteractionPlayBehavior(",
+            "EffectPlaySourceZone: \"GRAVEYARD\", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "MatriarchOnlyTriggersOnBecomingEmpoweredAndPlaysACostLimitedGraveyardUnitForFree",
+            "MatriarchRejectsGraveyardUnitsAboveEitherPrintedCostLimit",
+            "IgnoringBaseCostsStillRequiresTheChosenUnitsMandatoryAdditionalCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·104"
+      ],
+      "text": "将其打出到你的基地，无视其费用。",
+      "scope": "当我变为{{已强化}}时，你可以选择从你的废牌堆中选择一名法力费用不高于{{3}}且符能费用不高于{{A}}的单位。",
+      "status": "route",
+      "reason": "真正成为已强化后捕获可选墓地单位技能，须满足印刷法力≤3且符能≤1，响应后到自己基地实际打出；只免基础费用，强制额外费用仍支付，来源离场不取消技能",
+      "rules": "核心442、383.3、356.1.b 无视基础费用；VEN·104 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "EMPOWERED",
+              "effect": "PLAY_GRAVEYARD_UNIT",
+              "maximumMana": 3,
+              "maximumPower": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "EmpowerInteractionPlayBehavior(",
+            "EffectPlaySourceZone: \"GRAVEYARD\", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "MatriarchOnlyTriggersOnBecomingEmpoweredAndPlaysACostLimitedGraveyardUnitForFree",
+            "MatriarchRejectsGraveyardUnitsAboveEitherPrintedCostLimit",
+            "IgnoringBaseCostsStillRequiresTheChosenUnitsMandatoryAdditionalCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·106"
+      ],
+      "text": "选择战场上的一名单位。",
+      "scope": "选择战场上的一名单位。",
+      "status": "route",
+      "reason": "目标限定公开在场战场单位，响应后按当前战力≤3放逐，否则返手给所有者；结算前真实战力变化会改变分支，新的代际不替代旧目标",
+      "rules": "核心355.6、407、479 当前战力、359.3.e.4；VEN·106 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalTargetRemoval": {
+              "maximumMight": 3,
+              "removal": "BANISH",
+              "otherwiseRemoval": "RETURN_TO_HAND"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalTargetRemoval.cs",
+          "contains": [
+            "behavior.ConditionalTargetRemoval"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalRemovalSpellTests.cs",
+          "methods": [
+            "SpiritShiftUsesTheTargetsCurrentMightAtResolution",
+            "AReactionCanChangeWhichSpiritShiftRemovalInstructionWillRun",
+            "IllegalModesAndTargetsAreRejectedWithoutPayment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·106"
+      ],
+      "text": "如果其战力不高于3{{S}}，则将其放逐。",
+      "scope": "如果其战力不高于3{{S}}，则将其放逐。",
+      "status": "route",
+      "reason": "目标限定公开在场战场单位，响应后按当前战力≤3放逐，否则返手给所有者；结算前真实战力变化会改变分支，新的代际不替代旧目标",
+      "rules": "核心355.6、407、479 当前战力、359.3.e.4；VEN·106 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalTargetRemoval": {
+              "maximumMight": 3,
+              "removal": "BANISH",
+              "otherwiseRemoval": "RETURN_TO_HAND"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalTargetRemoval.cs",
+          "contains": [
+            "behavior.ConditionalTargetRemoval"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalRemovalSpellTests.cs",
+          "methods": [
+            "SpiritShiftUsesTheTargetsCurrentMightAtResolution",
+            "AReactionCanChangeWhichSpiritShiftRemovalInstructionWillRun",
+            "IllegalModesAndTargetsAreRejectedWithoutPayment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·106"
+      ],
+      "text": "否则让其返回其所属的手牌。",
+      "scope": "否则让其返回其所属的手牌。",
+      "status": "route",
+      "reason": "目标限定公开在场战场单位，响应后按当前战力≤3放逐，否则返手给所有者；结算前真实战力变化会改变分支，新的代际不替代旧目标",
+      "rules": "核心355.6、407、479 当前战力、359.3.e.4；VEN·106 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalTargetRemoval": {
+              "maximumMight": 3,
+              "removal": "BANISH",
+              "otherwiseRemoval": "RETURN_TO_HAND"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalTargetRemoval.cs",
+          "contains": [
+            "behavior.ConditionalTargetRemoval"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalRemovalSpellTests.cs",
+          "methods": [
+            "SpiritShiftUsesTheTargetsCurrentMightAtResolution",
+            "AReactionCanChangeWhichSpiritShiftRemovalInstructionWillRun",
+            "IllegalModesAndTargetsAreRejectedWithoutPayment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·108"
+      ],
+      "text": "当你打出此牌时，或在你的开始阶段开始时，{{燃烧1}}。",
+      "scope": "当你打出此牌时，或在你的开始阶段开始时，{{燃烧1}}。",
+      "status": "route",
+      "reason": "装备入场及自己开始阶段分别捕获独立燃烧1技能，响应后实际将牌库顶入墓；只有以此方式燃烧单位才创建独立加战力技能，数值绑定被燃烧牌印刷战力并在后续确认友方单位",
+      "rules": "核心383.3／383.4.a.2、388–389、441 燃烧／432 燃尽；VEN·108 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "PLAY_OR_START",
+          "effect": "BURN_MIGHT_FRIENDLY"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "BURN_MIGHT_FRIENDLY"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenRelicEquipmentTests.cs",
+          "methods": [
+            "PlayingRelicBurnsAfterResponsesAndOnlyABurnedUnitCreatesASeparateMightSkill",
+            "EachControllersStartPhaseBurnsBeforeTheNormalDrawAndTheOpponentStartDoesNotTriggerRelic",
+            "BurnUsesTheSharedBurnoutReplacementAndStillCreatesTheFollowupForTheRecycledUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·108"
+      ],
+      "text": "当你以此方式燃烧一张单位牌时，进行一次：给予一名友方单位在本回合内等同于被燃烧卡牌战力的+{{S}}加成。（将你主牌堆顶部的一张牌放入你的废牌堆，即为燃烧1。）",
+      "scope": "当你以此方式燃烧一张单位牌时，进行一次：给予一名友方单位在本回合内等同于被燃烧卡牌战力的+{{S}}加成。（将你主牌堆顶部的一张牌放入你的废牌堆，即为燃烧1。）",
+      "status": "route",
+      "reason": "装备入场及自己开始阶段分别捕获独立燃烧1技能，响应后实际将牌库顶入墓；只有以此方式燃烧单位才创建独立加战力技能，数值绑定被燃烧牌印刷战力并在后续确认友方单位",
+      "rules": "核心383.3／383.4.a.2、388–389、441 燃烧／432 燃尽；VEN·108 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "PLAY_OR_START",
+          "effect": "BURN_MIGHT_FRIENDLY"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "BURN_MIGHT_FRIENDLY"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenRelicEquipmentTests.cs",
+          "methods": [
+            "PlayingRelicBurnsAfterResponsesAndOnlyABurnedUnitCreatesASeparateMightSkill",
+            "EachControllersStartPhaseBurnsBeforeTheNormalDrawAndTheOpponentStartDoesNotTriggerRelic",
+            "BurnUsesTheSharedBurnoutReplacementAndStillCreatesTheFollowupForTheRecycledUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·114"
+      ],
+      "text": "当我变为{{已强化}}时，选择一名对手。",
+      "scope": "当我变为{{已强化}}时，选择一名对手。",
+      "status": "route",
+      "reason": "真正强化后独立技能在响应后让当前唯一对手燃烧3，随后独立可选内嵌技能从该玩家当前废牌堆选择单位并作为自己实际打出；只免基础费用，额外费用与目标另确认",
+      "rules": "核心442、383.3、388–389 内嵌触发、356.1.b；VEN·114 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "EMPOWERED",
+              "effect": "MILL_THEN_PLAY_OPPONENT_UNIT",
+              "millCount": 3
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "MILL_THEN_PLAY_OPPONENT_UNIT",
+            "EmpowerInteractionPlayBehavior("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "KarloxBurnThenPlayHasIndependentTargetConfirmationAndResponses",
+            "IgnoringBaseCostsStillRequiresTheChosenUnitsMandatoryAdditionalCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·114"
+      ],
+      "text": "该玩家{{燃烧3}}。",
+      "scope": "当我变为{{已强化}}时，选择一名对手。",
+      "status": "route",
+      "reason": "真正强化后独立技能在响应后让当前唯一对手燃烧3，随后独立可选内嵌技能从该玩家当前废牌堆选择单位并作为自己实际打出；只免基础费用，额外费用与目标另确认",
+      "rules": "核心442、383.3、388–389 内嵌触发、356.1.b；VEN·114 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "EMPOWERED",
+              "effect": "MILL_THEN_PLAY_OPPONENT_UNIT",
+              "millCount": 3
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "MILL_THEN_PLAY_OPPONENT_UNIT",
+            "EmpowerInteractionPlayBehavior("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "KarloxBurnThenPlayHasIndependentTargetConfirmationAndResponses",
+            "IgnoringBaseCostsStillRequiresTheChosenUnitsMandatoryAdditionalCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·114"
+      ],
+      "text": "然后你可以选择进行一次：从其废牌堆中选择一名单位，并当作自己的牌打出，无视其费用。（将其主牌堆顶部的三张牌放入废牌堆，即为燃烧3。）",
+      "scope": "当我变为{{已强化}}时，选择一名对手。",
+      "status": "route",
+      "reason": "真正强化后独立技能在响应后让当前唯一对手燃烧3，随后独立可选内嵌技能从该玩家当前废牌堆选择单位并作为自己实际打出；只免基础费用，额外费用与目标另确认",
+      "rules": "核心442、383.3、388–389 内嵌触发、356.1.b；VEN·114 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "EMPOWERED",
+              "effect": "MILL_THEN_PLAY_OPPONENT_UNIT",
+              "millCount": 3
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "MILL_THEN_PLAY_OPPONENT_UNIT",
+            "EmpowerInteractionPlayBehavior("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "KarloxBurnThenPlayHasIndependentTargetConfirmationAndResponses",
+            "IgnoringBaseCostsStillRequiresTheChosenUnitsMandatoryAdditionalCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·116"
+      ],
+      "text": "选择一名单位。",
+      "scope": "选择一名单位。",
+      "status": "route",
+      "reason": "选择任意公开在场单位后在结算设置本回合基础战力为5，随后仍应用原有和之后的新加减战力修正，不把总战力锁死；回合结束恢复印刷基础",
+      "rules": "核心479 效果层、359.3.e.4；VEN·116 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "basePowerUntilEndOfTurn": 5
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TemporaryUnitEffectRules.SetBaseMight(targetState, baseMight, state.Tick + 1)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenTemporaryEffectSpellTests.cs",
+          "methods": [
+            "DragonFormReplacesBaseMightAndPreservesExistingOrLaterModifiers",
+            "NormalAndFlowPlaysApplyTheTemporaryEffectAndExpireAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·116"
+      ],
+      "text": "其基础战力在本回合内变为5。",
+      "scope": "其基础战力在本回合内变为5。",
+      "status": "route",
+      "reason": "选择任意公开在场单位后在结算设置本回合基础战力为5，随后仍应用原有和之后的新加减战力修正，不把总战力锁死；回合结束恢复印刷基础",
+      "rules": "核心479 效果层、359.3.e.4；VEN·116 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "basePowerUntilEndOfTurn": 5
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TemporaryUnitEffectRules.SetBaseMight(targetState, baseMight, state.Tick + 1)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenTemporaryEffectSpellTests.cs",
+          "methods": [
+            "DragonFormReplacesBaseMightAndPreservesExistingOrLaterModifiers",
+            "NormalAndFlowPlaysApplyTheTemporaryEffectAndExpireAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·120"
+      ],
+      "text": "你可以选择支付{{黄色}}，作为打出我的额外费用。",
+      "scope": "你可以选择支付{{黄色}}，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "出牌可选额外1黄色符能随基础费用实际支付，费用凭据传给入场后独立眩晕技能；错误颜色／数量拒绝且不扣费，未选则正常入场不产生该技能",
+      "rules": "核心204.2、356–357、383.4.a.2；VEN·120 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetEffectAdditionalPowerCost": 1,
+            "targetEffectAdditionalPowerTrait": "yellow"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.TargetEffectAdditionalPowerCost",
+            "behavior.TargetEffectAdditionalPowerTrait"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenPaidStunUnitTests.cs",
+          "methods": [
+            "ThunderfistPaysOptionalYellowBeforeChoosingAnEnemyBattlefieldUnit",
+            "WrongColorOrAmountCannotPayAndBaseEnemiesCannotBeChosen"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·125"
+      ],
+      "text": "仅可在你本回合内已选择过敌方单位后使用，且每回合仅限使用一次。",
+      "scope": "支付{{黄色}}：让我变为活跃状态，给予我在本回合内{{S}}+1。",
+      "status": "route",
+      "reason": "共享确认前检查本回合真实选择过敌方单位，并为来源代际及文本实例记录每回合一次使用；被拒绝的敌方选择与合法己方选择不解锁，费用不足不占次数，回合结束清除",
+      "rules": "核心355.6／383.4.b、399–407、359.3.e.4；VEN·125 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "TUNDRA_HUNTER_READY",
+            "simpleEffect": {
+              "oncePerTurn": true,
+              "requiresEnemyUnitTargetThisTurn": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "RequiresEnemyUnitTargetThisTurn",
+            "OncePerTurn"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenActivatedUnitTests.cs",
+          "methods": [
+            "HunterRequiresAnActualEnemyUnitTargetAndLimitsItsPaidReadyToOncePerTurn",
+            "ARejectedEnemyTargetAndAResolvedFriendlyTargetDoNotUnlockHunter",
+            "HuntersPaidSkillDoesNotReadyOrBuffItsNewHandIncarnation"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·126"
+      ],
+      "text": "选择一名单位。",
+      "scope": "选择一名单位。",
+      "status": "route",
+      "reason": "选择任意公开在场单位并授予本回合独立7点伤害防止预算，跨多次伤害逐次消耗；战斗分配与致死需求会计入未用预算，结束时清除，重复授予各自独立",
+      "rules": "核心伤害防止、466–468 战斗分配、回合结束；VEN·126 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "preventDamageUntilEndOfTurn": 7
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TemporaryUnitEffectRules.GrantPrevention("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LethalDamage.cs",
+          "contains": [
+            "TemporaryUnitEffectRules.RemainingPrevention(target)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenTemporaryEffectSpellTests.cs",
+          "methods": [
+            "ASevenPointShieldSpendsOneFiniteBudgetAcrossSmallOrLargeHits",
+            "CombatPromptsAndBothManualAssignmentsUseTheUnspentShieldBudget",
+            "TwoShieldGrantsRetainTheirIndependentBudgetsAndBothExpireAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·126"
+      ],
+      "text": "抵挡该单位在本回合内将受到的7点伤害。（对手可以分配额外战斗伤害来摧毁该单位。）",
+      "scope": "抵挡该单位在本回合内将受到的7点伤害。（对手可以分配额外战斗伤害来摧毁该单位。）",
+      "status": "route",
+      "reason": "选择任意公开在场单位并授予本回合独立7点伤害防止预算，跨多次伤害逐次消耗；战斗分配与致死需求会计入未用预算，结束时清除，重复授予各自独立",
+      "rules": "核心伤害防止、466–468 战斗分配、回合结束；VEN·126 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "preventDamageUntilEndOfTurn": 7
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TemporaryUnitEffectRules.GrantPrevention("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LethalDamage.cs",
+          "contains": [
+            "TemporaryUnitEffectRules.RemainingPrevention(target)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenTemporaryEffectSpellTests.cs",
+          "methods": [
+            "ASevenPointShieldSpendsOneFiniteBudgetAcrossSmallOrLargeHits",
+            "CombatPromptsAndBothManualAssignmentsUseTheUnspentShieldBudget",
+            "TwoShieldGrantsRetainTheirIndependentBudgetsAndBothExpireAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·127"
+      ],
+      "text": "选择一名单位。",
+      "scope": "选择一名单位。",
+      "status": "route",
+      "reason": "选择任意公开单位，结算先解除其当前强化再重新计算当前战力，只有此时≤3才摧毁；原本未强化且战力恰3也摧毁，顺序不颠倒",
+      "rules": "核心442、479 当前战力、429 摧毁；VEN·127 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalTargetRemoval": {
+              "maximumMight": 3,
+              "removal": "DESTROY",
+              "removeEmpowermentFirst": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalTargetRemoval.cs",
+          "contains": [
+            "RemoveEmpowermentFirst",
+            "behavior.ConditionalTargetRemoval"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalRemovalSpellTests.cs",
+          "methods": [
+            "BloodlettingRemovesEmpowermentBeforeTestingMightAndSupportsItsPrintedFlowCost",
+            "BloodlettingStillDestroysAnUnempoweredUnitAtExactlyThreeMight"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·127"
+      ],
+      "text": "如果该单位{{已强化}}，则解除其强化。",
+      "scope": "如果该单位{{已强化}}，则解除其强化。",
+      "status": "route",
+      "reason": "选择任意公开单位，结算先解除其当前强化再重新计算当前战力，只有此时≤3才摧毁；原本未强化且战力恰3也摧毁，顺序不颠倒",
+      "rules": "核心442、479 当前战力、429 摧毁；VEN·127 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalTargetRemoval": {
+              "maximumMight": 3,
+              "removal": "DESTROY",
+              "removeEmpowermentFirst": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalTargetRemoval.cs",
+          "contains": [
+            "RemoveEmpowermentFirst",
+            "behavior.ConditionalTargetRemoval"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalRemovalSpellTests.cs",
+          "methods": [
+            "BloodlettingRemovesEmpowermentBeforeTestingMightAndSupportsItsPrintedFlowCost",
+            "BloodlettingStillDestroysAnUnempoweredUnitAtExactlyThreeMight"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·127"
+      ],
+      "text": "然后如果其战力不高于3{{S}}，则将其摧毁。",
+      "scope": "然后如果其战力不高于3{{S}}，则将其摧毁。",
+      "status": "route",
+      "reason": "选择任意公开单位，结算先解除其当前强化再重新计算当前战力，只有此时≤3才摧毁；原本未强化且战力恰3也摧毁，顺序不颠倒",
+      "rules": "核心442、479 当前战力、429 摧毁；VEN·127 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalTargetRemoval": {
+              "maximumMight": 3,
+              "removal": "DESTROY",
+              "removeEmpowermentFirst": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalTargetRemoval.cs",
+          "contains": [
+            "RemoveEmpowermentFirst",
+            "behavior.ConditionalTargetRemoval"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalRemovalSpellTests.cs",
+          "methods": [
+            "BloodlettingRemovesEmpowermentBeforeTestingMightAndSupportsItsPrintedFlowCost",
+            "BloodlettingStillDestroysAnUnempoweredUnitAtExactlyThreeMight"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·132"
+      ],
+      "text": "当你打出我时，宣告一个法术。",
+      "scope": "当你打出我时，宣告一个法术。",
+      "status": "route",
+      "reason": "单位先入场，独立技能响应后可宣告任何官方法术名称；只有来源公开在场战场时禁止对手打出同名法术，返回基地解除禁止、离场清除宣告，新代际不沿用",
+      "rules": "核心383.4.a.2／383.3、364–365、359.3.e.4；VEN·132 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStaticLimits": {
+              "declaresSpellNameAndProhibitsItOnEnemyBattlefield": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellNameDeclarations.cs",
+          "contains": [
+            "spec.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield",
+            "DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenSpellNameDeclarationTests.cs",
+          "methods": [
+            "CatDeclaresAfterResponsesAndOnlyLocksEnemySpellsWhileOnABattlefield",
+            "MovingTheCatBackToBaseRestoresEnemySpellPermissionAndLeavingClearsItsDeclaration",
+            "DeclarationCanNameAnOfficialSpellOutsideBothDecksAndRejectsUnitsOrInventedNames"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·132"
+      ],
+      "text": "如果我位于战场上，则对手无法打出与其同名的法术。",
+      "scope": "如果我位于战场上，则对手无法打出与其同名的法术。",
+      "status": "route",
+      "reason": "单位先入场，独立技能响应后可宣告任何官方法术名称；只有来源公开在场战场时禁止对手打出同名法术，返回基地解除禁止、离场清除宣告，新代际不沿用",
+      "rules": "核心383.4.a.2／383.3、364–365、359.3.e.4；VEN·132 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStaticLimits": {
+              "declaresSpellNameAndProhibitsItOnEnemyBattlefield": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellNameDeclarations.cs",
+          "contains": [
+            "spec.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield",
+            "DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenSpellNameDeclarationTests.cs",
+          "methods": [
+            "CatDeclaresAfterResponsesAndOnlyLocksEnemySpellsWhileOnABattlefield",
+            "MovingTheCatBackToBaseRestoresEnemySpellPermissionAndLeavingClearsItsDeclaration",
+            "DeclarationCanNameAnOfficialSpellOutsideBothDecksAndRejectsUnitsOrInventedNames"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·133"
+      ],
+      "text": "解除此牌的强化，{{横置}}：选择一名玩家。",
+      "scope": "解除此牌的强化，{{横置}}：选择一名玩家。",
+      "status": "route",
+      "reason": "共享激活确认先解除来源强化并横置，选择任意玩家，双方响应后该玩家取得来源控制权并召回其基地；不改变来源所有者，不能用未强化或休眠来源支付",
+      "rules": "核心127.1 所属者、399–407、191–192 控制／所属、456–460 召回；VEN·133 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "GLOWING_STONE_TRANSFER",
+            "exhaustsSourceAsCost": true,
+            "simpleEffect": {
+              "removesSourceEmpowermentAsCost": true,
+              "transfersSourceToChosenPlayer": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "if (spec.TransfersSourceToChosenPlayer)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenGlowingStoneTests.cs",
+          "methods": [
+            "StonePaysTwoGenericPowerToEmpowerThenPaysRemovalAndExhaustionBeforeGivingControl"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·133"
+      ],
+      "text": "该玩家获得此牌的控制权，并将其召回。（将其送到该玩家的基地。）",
+      "scope": "解除此牌的强化，{{横置}}：选择一名玩家。",
+      "status": "route",
+      "reason": "共享激活确认先解除来源强化并横置，选择任意玩家，双方响应后该玩家取得来源控制权并召回其基地；不改变来源所有者，不能用未强化或休眠来源支付",
+      "rules": "核心127.1 所属者、399–407、191–192 控制／所属、456–460 召回；VEN·133 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "GLOWING_STONE_TRANSFER",
+            "exhaustsSourceAsCost": true,
+            "simpleEffect": {
+              "removesSourceEmpowermentAsCost": true,
+              "transfersSourceToChosenPlayer": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "if (spec.TransfersSourceToChosenPlayer)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenGlowingStoneTests.cs",
+          "methods": [
+            "StonePaysTwoGenericPowerToEmpowerThenPaysRemovalAndExhaustionBeforeGivingControl"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·133"
+      ],
+      "text": "在你回合结束时，摧毁此牌，并对你控制的所有单位各造成5点伤害。",
+      "scope": "在你回合结束时，摧毁此牌，并对你控制的所有单位各造成5点伤害。",
+      "status": "route",
+      "reason": "每次当前控制者的回合结束捕获独立技能，不要求来源仍已强化；响应后先摧毁来源，再对该控制者当前全部单位各造成5点伤害，伤害可按共享规则抵挡",
+      "rules": "核心回合结束、383.3、429 摧毁、伤害防止；VEN·133 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "endStepSelfDestructionDamage": 5
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EndStep.cs",
+          "contains": [
+            "EndStepSelfDestructionDamage"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenGlowingStoneTests.cs",
+          "methods": [
+            "UnempoweredStoneStillDestroysItselfAtItsControllersEndAndDealsFiveToEveryFriendlyUnit",
+            "PreventingSkillDamageInResponseStillDestroysTheStoneButSavesTheUnits"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·137"
+      ],
+      "text": "此牌贴附到单位上时，选择另一名友方单位。",
+      "scope": "此牌贴附到单位上时，选择另一名友方单位。",
+      "status": "route",
+      "reason": "真实贴附建立时由装备当前控制者选择另一名友方单位，宿主在该贴附期间复制所选单位印刷特征；保留宿主自身修正，卸除恢复基础身份，重贴建立新的文本实例",
+      "rules": "核心435／718 贴附、复制特征、479；VEN·137 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs",
+          "contains": [
+            "ApplyAttachmentUnitCopy("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/AttachmentUnitCopy.cs",
+          "contains": [
+            "AttachmentUnitCopy"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ShadySpectaclesTests.cs",
+          "methods": [
+            "RealAttachmentCopiesPrintedTraitsAndDetachmentRestoresTheBasis",
+            "CopyKeepsReceiverModificationsAndDoesNotCopySourceModifications"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OpponentAttachmentCopyChoiceTests.cs",
+          "methods": [
+            "OpponentEquipmentControllerChoosesItsOwnFriendlyCopyAfterTakeUp"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·137"
+      ],
+      "text": "装配此牌的单位在此牌贴附期间变为所选单位的复制体。",
+      "scope": "装配此牌的单位在此牌贴附期间变为所选单位的复制体。",
+      "status": "route",
+      "reason": "真实贴附建立时由装备当前控制者选择另一名友方单位，宿主在该贴附期间复制所选单位印刷特征；保留宿主自身修正，卸除恢复基础身份，重贴建立新的文本实例",
+      "rules": "核心435／718 贴附、复制特征、479；VEN·137 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs",
+          "contains": [
+            "ApplyAttachmentUnitCopy("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/AttachmentUnitCopy.cs",
+          "contains": [
+            "AttachmentUnitCopy"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ShadySpectaclesTests.cs",
+          "methods": [
+            "RealAttachmentCopiesPrintedTraitsAndDetachmentRestoresTheBasis",
+            "CopyKeepsReceiverModificationsAndDoesNotCopySourceModifications"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OpponentAttachmentCopyChoiceTests.cs",
+          "methods": [
+            "OpponentEquipmentControllerChoosesItsOwnFriendlyCopyAfterTakeUp"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·142"
+      ],
+      "text": "在本回合内，让一名单位的战力翻倍，并给予其“{{A}}{{A}}：让我变为活跃状态。”",
+      "scope": "在本回合内，让一名单位的战力翻倍，并给予其“{{A}}{{A}}：让我变为活跃状态。”",
+      "status": "route",
+      "reason": "响应后按目标当前战力翻倍一次并给该物体本回合可反复支付2通用符能的活跃自身技能；目标可为敌方，但只有其当前控制者可激活，技能入链可响应，结束时授予消失",
+      "rules": "核心433 翻倍、399–407、479、回合结束；VEN·142 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "usesTargetCurrentPowerAsPowerModifier": true,
+            "grantsActivatedAbilityUntilEndOfTurn": {
+              "kind": "READY_SELF",
+              "genericPowerCost": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TemporaryActivations.cs",
+          "contains": [
+            "behavior.GrantsActivatedAbilityUntilEndOfTurn"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.UsesTargetCurrentPowerAsPowerModifier"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DominusTests.cs",
+          "methods": [
+            "RealPlayDoublesOnceAndRepeatablePaidActivationResolvesAfterBothPlayersRespond",
+            "EnemyUnitReceivesTheAbilityButOnlyItsCurrentControllerCanActivateIt",
+            "RecycledRunesPayTwoGenericPowerAndTheNoTargetSelfEffectDoesNotPayWard"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·146"
+      ],
+      "text": "如果你控制的符文不少于七枚，则改为对其造成7点伤害。",
+      "scope": "如果你控制的符文不少于七枚，则改为对其造成7点伤害。",
+      "status": "route",
+      "reason": "法术结算按当前受控符文至少7枚以7替代4伤害，并为目标同代际建立本回合延迟摧毁指示；真正摧毁后独立可响应技能从当前符文牌堆召出休眠符文，放逐替换不触发",
+      "rules": "核心359.3.e.4／359.3.e.16、383.3、418 伤害／429 摧毁；VEN·146 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "damageConditionRuneCount": 7,
+            "conditionalDamageAmount": 7,
+            "delayedDestructionReward": {
+              "runeCallCount": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.DamageConditionRuneCount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedDestruction.cs",
+          "contains": [
+            "reward.RuneCallCount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SiphoningStrikeTests.cs",
+          "methods": [
+            "PrintedDamagePaysThenWaitsAndActualImmediateOrLaterDeathEarnsAnAnswerableDormantRune",
+            "RealRuneCallingOrRecyclingResponsesRecheckTheSevenRuneConditionAtResolution",
+            "ARealBanishReplacementRemovesTheInstructionWithoutAwardingARune"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·146"
+      ],
+      "text": "当该单位在本回合内被摧毁时，召出一枚休眠的符文。",
+      "scope": "当该单位在本回合内被摧毁时，召出一枚休眠的符文。",
+      "status": "route",
+      "reason": "法术结算按当前受控符文至少7枚以7替代4伤害，并为目标同代际建立本回合延迟摧毁指示；真正摧毁后独立可响应技能从当前符文牌堆召出休眠符文，放逐替换不触发",
+      "rules": "核心359.3.e.4／359.3.e.16、383.3、418 伤害／429 摧毁；VEN·146 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "damageConditionRuneCount": 7,
+            "conditionalDamageAmount": 7,
+            "delayedDestructionReward": {
+              "runeCallCount": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.DamageConditionRuneCount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedDestruction.cs",
+          "contains": [
+            "reward.RuneCallCount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SiphoningStrikeTests.cs",
+          "methods": [
+            "PrintedDamagePaysThenWaitsAndActualImmediateOrLaterDeathEarnsAnAnswerableDormantRune",
+            "RealRuneCallingOrRecyclingResponsesRecheckTheSevenRuneConditionAtResolution",
+            "ARealBanishReplacementRemovesTheInstructionWithoutAwardingARune"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·148"
+      ],
+      "text": "将一名敌方单位移动到一处你有单位的战场。",
+      "scope": "将一名敌方单位移动到一处你有单位的战场。",
+      "status": "route",
+      "reason": "确认须有公开己方单位的精确战场和敌方单位，响应后先尝试移动，再按该处当前己方单位恰2给二者本回合+1；移动被禁止不取消独立增益，其他战场不计数",
+      "rules": "核心355.4／355.6、447–451、479；VEN·148 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "selectedBattlefieldEffect": {
+              "moveOptionalEnemy": true,
+              "friendlyPowerModifier": 1,
+              "requiredFriendlyUnitCount": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+          "contains": [
+            "spec.RequiredFriendlyUnitCount",
+            "spec.FriendlyPowerModifier"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenSignatureFlowSpellTests.cs",
+          "methods": [
+            "ShadowDashCountsFriendlyUnitsAtTheExactDestinationAndOnlyBuffsAPair",
+            "ShadowDashStillBuffsThePairWhenMovementIsProhibitedAndExpiresAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·148"
+      ],
+      "text": "如果你在该处有且仅有两名单位，则这两名单位在本回合内各获得{{S}}+1。",
+      "scope": "如果你在该处有且仅有两名单位，则这两名单位在本回合内各获得{{S}}+1。",
+      "status": "route",
+      "reason": "确认须有公开己方单位的精确战场和敌方单位，响应后先尝试移动，再按该处当前己方单位恰2给二者本回合+1；移动被禁止不取消独立增益，其他战场不计数",
+      "rules": "核心355.4／355.6、447–451、479；VEN·148 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "selectedBattlefieldEffect": {
+              "moveOptionalEnemy": true,
+              "friendlyPowerModifier": 1,
+              "requiredFriendlyUnitCount": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+          "contains": [
+            "spec.RequiredFriendlyUnitCount",
+            "spec.FriendlyPowerModifier"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenSignatureFlowSpellTests.cs",
+          "methods": [
+            "ShadowDashCountsFriendlyUnitsAtTheExactDestinationAndOnlyBuffsAPair",
+            "ShadowDashStillBuffsThePairWhenMovementIsProhibitedAndExpiresAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·152"
+      ],
+      "text": "选择一个法力费用不高于{{4}}的法术。",
+      "scope": "选择一个法力费用不高于{{4}}的法术。",
+      "status": "route",
+      "reason": "选择基础法力≤4的当前法术物体，响应后结算中可付1通用符能：付则取得控制并可重做完整合法选择，不重付原出牌费用；不付则共享无效化，不可被无效化的法术仍可被改控制",
+      "rules": "核心355.18 结算中决定、191 控制、355.3／355.6、426 无效化；VEN·152 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "maxTargetManaCost": 4,
+            "mayPayPowerToGainControlAndRemakeSpellChoices": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs",
+          "contains": [
+            "MayPayPowerToGainControlAndRemakeSpellChoices"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RebuttalRulesTests.cs",
+          "methods": [
+            "OptionalPowerIsChosenOnlyDuringResolutionAndControlDoesNotCounter",
+            "ModeCanChangeAndNeedsACompleteLegalTargetSet",
+            "FourManaLimitUsesTheSpellsCardCostInsteadOfManaActuallyPaid",
+            "ProtectedSpellCanChangeControlButCannotBeCountered"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·152"
+      ],
+      "text": "你可以选择支付{{A}}。",
+      "scope": "你可以选择支付{{A}}。",
+      "status": "route",
+      "reason": "选择基础法力≤4的当前法术物体，响应后结算中可付1通用符能：付则取得控制并可重做完整合法选择，不重付原出牌费用；不付则共享无效化，不可被无效化的法术仍可被改控制",
+      "rules": "核心355.18 结算中决定、191 控制、355.3／355.6、426 无效化；VEN·152 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "maxTargetManaCost": 4,
+            "mayPayPowerToGainControlAndRemakeSpellChoices": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs",
+          "contains": [
+            "MayPayPowerToGainControlAndRemakeSpellChoices"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RebuttalRulesTests.cs",
+          "methods": [
+            "OptionalPowerIsChosenOnlyDuringResolutionAndControlDoesNotCounter",
+            "ModeCanChangeAndNeedsACompleteLegalTargetSet",
+            "FourManaLimitUsesTheSpellsCardCostInsteadOfManaActuallyPaid",
+            "ProtectedSpellCanChangeControlButCannotBeCountered"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·152"
+      ],
+      "text": "若如此做，则你获得此法术的控制权，你可以选择为其做出新的选择。",
+      "scope": "若如此做，则你获得此法术的控制权，你可以选择为其做出新的选择。",
+      "status": "route",
+      "reason": "选择基础法力≤4的当前法术物体，响应后结算中可付1通用符能：付则取得控制并可重做完整合法选择，不重付原出牌费用；不付则共享无效化，不可被无效化的法术仍可被改控制",
+      "rules": "核心355.18 结算中决定、191 控制、355.3／355.6、426 无效化；VEN·152 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "maxTargetManaCost": 4,
+            "mayPayPowerToGainControlAndRemakeSpellChoices": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs",
+          "contains": [
+            "MayPayPowerToGainControlAndRemakeSpellChoices"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RebuttalRulesTests.cs",
+          "methods": [
+            "OptionalPowerIsChosenOnlyDuringResolutionAndControlDoesNotCounter",
+            "ModeCanChangeAndNeedsACompleteLegalTargetSet",
+            "FourManaLimitUsesTheSpellsCardCostInsteadOfManaActuallyPaid",
+            "ProtectedSpellCanChangeControlButCannotBeCountered"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·152"
+      ],
+      "text": "否则将其无效化。",
+      "scope": "否则将其无效化。",
+      "status": "route",
+      "reason": "选择基础法力≤4的当前法术物体，响应后结算中可付1通用符能：付则取得控制并可重做完整合法选择，不重付原出牌费用；不付则共享无效化，不可被无效化的法术仍可被改控制",
+      "rules": "核心355.18 结算中决定、191 控制、355.3／355.6、426 无效化；VEN·152 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "maxTargetManaCost": 4,
+            "mayPayPowerToGainControlAndRemakeSpellChoices": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs",
+          "contains": [
+            "MayPayPowerToGainControlAndRemakeSpellChoices"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RebuttalRulesTests.cs",
+          "methods": [
+            "OptionalPowerIsChosenOnlyDuringResolutionAndControlDoesNotCounter",
+            "ModeCanChangeAndNeedsACompleteLegalTargetSet",
+            "FourManaLimitUsesTheSpellsCardCostInsteadOfManaActuallyPaid",
+            "ProtectedSpellCanChangeControlButCannotBeCountered"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·154"
+      ],
+      "text": "选择一名友方单位。",
+      "scope": "选择一名友方单位。",
+      "status": "route",
+      "reason": "第一目标允许任意位置公开友方单位，作为当前战力基准；第二目标为当前战力严格较低敌方单位，选择及结算均重查控制、位置与代际，不允许用新物体替代",
+      "rules": "核心355.6、359.3.e.4、479；VEN·154 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "destroyTargetIndex": 1,
+            "targetPowerComparison": {
+              "targetIndex": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetPowerComparison.cs",
+          "contains": [
+            "behavior.TargetPowerComparison"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenSignatureFlowSpellTests.cs",
+          "methods": [
+            "PublicExecutionRequiresAStrictlyWeakerEnemyBeforeAnyPayment",
+            "PublicExecutionDoesNotBindANewIncarnationThatReusesEitherObjectId"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·156"
+      ],
+      "text": "查看你主牌堆顶部的三张牌。",
+      "scope": "查看你主牌堆顶部的三张牌。",
+      "status": "route",
+      "reason": "响应后私下查看当前顶部至多3张，可不选或抽取其中任意一张，是真正抽牌且触发第二张观察器；未选牌直接入墓，不回收也不洗牌，短牌库不因查看燃尽",
+      "rules": "核心432.1.c 查看、抽牌与入墓规则；VEN·156 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 3,
+            "drawsSelectedMainDeckTarget": true,
+            "gravesUnselectedMainDeckLookCards": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "DrawSelectedMainDeckTargetsAndRecycleRest("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "behavior.GravesUnselectedMainDeckLookCards"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LightningRushDeckDrawFlowTests.cs",
+          "methods": [
+            "PrivatelyChooseAtResolutionDrawAtMostOneAndPutEveryOtherLookedCardDirectlyInGraveyard"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/LightningRushDeckBoundaryTests.cs",
+          "methods": [
+            "TheSelectedDrawCountsForAnActualSecondDrawObserverWhileDecliningDoesNot",
+            "ShortOrEmptyDeckUsesOnlyAvailableCardsWithoutBurnoutOrShuffle"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·156"
+      ],
+      "text": "你可以选择指定其中一张，并抽取该卡牌。",
+      "scope": "你可以选择指定其中一张，并抽取该卡牌。",
+      "status": "route",
+      "reason": "响应后私下查看当前顶部至多3张，可不选或抽取其中任意一张，是真正抽牌且触发第二张观察器；未选牌直接入墓，不回收也不洗牌，短牌库不因查看燃尽",
+      "rules": "核心432.1.c 查看、抽牌与入墓规则；VEN·156 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 3,
+            "drawsSelectedMainDeckTarget": true,
+            "gravesUnselectedMainDeckLookCards": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "DrawSelectedMainDeckTargetsAndRecycleRest("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "behavior.GravesUnselectedMainDeckLookCards"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LightningRushDeckDrawFlowTests.cs",
+          "methods": [
+            "PrivatelyChooseAtResolutionDrawAtMostOneAndPutEveryOtherLookedCardDirectlyInGraveyard"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/LightningRushDeckBoundaryTests.cs",
+          "methods": [
+            "TheSelectedDrawCountsForAnActualSecondDrawObserverWhileDecliningDoesNot",
+            "ShortOrEmptyDeckUsesOnlyAvailableCardsWithoutBurnoutOrShuffle"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·156"
+      ],
+      "text": "将其余卡牌放进你的废牌堆。",
+      "scope": "将其余卡牌放进你的废牌堆。",
+      "status": "route",
+      "reason": "响应后私下查看当前顶部至多3张，可不选或抽取其中任意一张，是真正抽牌且触发第二张观察器；未选牌直接入墓，不回收也不洗牌，短牌库不因查看燃尽",
+      "rules": "核心432.1.c 查看、抽牌与入墓规则；VEN·156 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 3,
+            "drawsSelectedMainDeckTarget": true,
+            "gravesUnselectedMainDeckLookCards": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "DrawSelectedMainDeckTargetsAndRecycleRest("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "behavior.GravesUnselectedMainDeckLookCards"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LightningRushDeckDrawFlowTests.cs",
+          "methods": [
+            "PrivatelyChooseAtResolutionDrawAtMostOneAndPutEveryOtherLookedCardDirectlyInGraveyard"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/LightningRushDeckBoundaryTests.cs",
+          "methods": [
+            "TheSelectedDrawCountsForAnActualSecondDrawObserverWhileDecliningDoesNot",
+            "ShortOrEmptyDeckUsesOnlyAvailableCardsWithoutBurnoutOrShuffle"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·157"
+      ],
+      "text": "若如此做，则将其打出到此战场。",
+      "scope": "若如此做，则将其打出到此战场。",
+      "status": "route",
+      "reason": "打出龙单位时可支付该战场授予的2通用符能额外费用，从而将来源实际打出到该处，不要求自己控制战场；仍支付印刷和其他额外费用，不能凭位置权限获得反应时机",
+      "rules": "核心204.2、355.2、356–357；VEN·157 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldCosts.cs",
+          "contains": [
+            "Battlefield"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenDragonPeakTests.cs",
+          "methods": [
+            "EitherPlayerCanPayTwoGenericPowerRegardlessOfTheBattlefieldController",
+            "TheAdditionalCostCoexistsWithPrintedPowerAndHaste",
+            "ThePeakGrantsAPlaceButDoesNotGrantReactionTiming"
+          ]
+        }
+      ]
+    }
+  ]
+}

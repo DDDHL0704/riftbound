@@ -1,0 +1,3123 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "UNL-004/219"
+      ],
+      "text": "如果你在本回合消耗了不低于{{4}}的费用来打出一个法术，则我获得{{S}}+4。",
+      "scope": "如果你在本回合消耗了不低于{{4}}的费用来打出一个法术，则我获得{{S}}+4。",
+      "status": "missing",
+      "reason": "条件性被动被做成入场快照：只有 UnitEntry 调用条件加成；先打出信徒后支付4法力法术不会持续获得+4，回合结束也不会重算基础加成",
+      "rules": "核心364.3／365.1 持续条件性被动；UNL-004 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalSourceUnitConditionKind": "CONTROLLER_PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN",
+            "conditionalSourceUnitPowerBonus": 4
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "contains": [
+            "unitPower += ResolveConditionalSourceUnitPowerBonus("
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-007/219"
+      ],
+      "text": "如果该单位在本回合内被摧毁，则改为将其放逐。",
+      "scope": "如果该单位在本回合内被摧毁，则改为将其放逐。",
+      "status": "route",
+      "reason": "伤害前在目标同一代际登记本回合摧毁放逐替换；本次或后续伤害致死均走共享摧毁替换，不触发绝念",
+      "rules": "核心370–373 摧毁替换、359.3.e.4、429；UNL-007 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "banishesIfDestroyedThisTurn": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (behavior.BanishesIfDestroyedThisTurn)",
+            "BanishIfDestroyedThisTurnEffectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+          "contains": [
+            "unit.UntilEndOfTurnEffects.Contains(BanishIfDestroyedThisTurnEffectId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.DamageSpells.cs",
+          "methods": [
+            "CoreRuleEngineBanishesUnitWhenPunishmentDamageWouldDestroyIt",
+            "CoreRuleEngineBanishesPunishmentTargetDestroyedLaterThisTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-010/219"
+      ],
+      "text": "让一名单位本回合内获得{{强攻2}}和{{游走}}。（如果它是进攻方，则{{S}}+2。它可以向其它战场进行移动。）",
+      "scope": "让一名单位本回合内获得{{强攻2}}和{{游走}}。（如果它是进攻方，则{{S}}+2。它可以向其它战场进行移动。）",
+      "status": "missing",
+      "reason": "强攻效果错误地登记为 OVERWHELM 状态和结算时的进攻战力快照；没有授予可供当前强攻数值读取、后续进攻角色变化生效的强攻关键词",
+      "rules": "核心807 强攻、479 当前战力；该卡官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"OVERWHELM_2\"",
+            "\"OVERWHELM_4\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ResolvePowerModifierAmount("
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-017/219"
+      ],
+      "text": "让一名单位本回合内获得{{强攻4}}。（如果它是进攻方，则{{S}}+4。）",
+      "scope": "让一名单位本回合内获得{{强攻4}}。（如果它是进攻方，则{{S}}+4。）",
+      "status": "missing",
+      "reason": "强攻效果错误地登记为 OVERWHELM 状态和结算时的进攻战力快照；没有授予可供当前强攻数值读取、后续进攻角色变化生效的强攻关键词",
+      "rules": "核心807 强攻、479 当前战力；该卡官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"OVERWHELM_2\"",
+            "\"OVERWHELM_4\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ResolvePowerModifierAmount("
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-011/219"
+      ],
+      "text": "当你在法术对决期间打出单位时，你可以选择让此装备变为休眠状态，以此抽一张牌。",
+      "scope": "当你在法术对决期间打出单位时，你可以选择让此装备变为休眠状态，以此抽一张牌。",
+      "status": "missing",
+      "reason": "只有装备打出登记；缺少法术对决期间己方打出单位的监听、可选横置来源费用及响应后抽牌技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsEquipment": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-011/219\"",
+            "\"MAGIC_BEANS_PLAY_EQUIPMENT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-012/219"
+      ],
+      "text": "当你打出我时，让你此处的其他单位本回合内获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）",
+      "scope": "当你打出我时，让你此处的其他单位本回合内获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）",
+      "status": "missing",
+      "reason": "只有基础伏击单位；缺少入场后为此处其他己方单位授予本回合强攻的独立技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-012/219\"",
+            "\"BROMAIN_LORD_AMBUSH_ASSAULT_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-013/219"
+      ],
+      "text": "选择一名单位。",
+      "scope": "选择一名单位。",
+      "status": "route",
+      "reason": "允许选择任意公开在场单位；每次莲花陷阱产生独立本回合伤害翻倍替换，后续每次伤害均应用，重复施放可叠加",
+      "rules": "核心355.6、370–373、433.1.b 伤害翻倍；UNL-013 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "statusEffectId": "DAMAGE_RECEIVED_DOUBLED_THIS_TURN"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "DamageDoublingApplications.NextEffectId("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RepeatedDamageReplacementTests.cs",
+          "methods": [
+            "SeparateLotusTrapsMultiplyEveryLaterRay",
+            "EchoKeepsTwoApplicationsFromOnePhysicalSpell",
+            "TurnEndClearsEveryApplication"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-013/219"
+      ],
+      "text": "本回合该单位受到的所有伤害翻倍。",
+      "scope": "本回合该单位受到的所有伤害翻倍。",
+      "status": "route",
+      "reason": "允许选择任意公开在场单位；每次莲花陷阱产生独立本回合伤害翻倍替换，后续每次伤害均应用，重复施放可叠加",
+      "rules": "核心355.6、370–373、433.1.b 伤害翻倍；UNL-013 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "statusEffectId": "DAMAGE_RECEIVED_DOUBLED_THIS_TURN"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "DamageDoublingApplications.NextEffectId("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RepeatedDamageReplacementTests.cs",
+          "methods": [
+            "SeparateLotusTrapsMultiplyEveryLaterRay",
+            "EchoKeepsTwoApplicationsFromOnePhysicalSpell",
+            "TurnEndClearsEveryApplication"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-014/219"
+      ],
+      "text": "如果你控制着一张正面朝下的卡牌，则改为对该单位造成4点伤害。",
+      "scope": "如果你控制着一张正面朝下的卡牌，则改为对该单位造成4点伤害。",
+      "status": "route",
+      "reason": "共享伤害消费者在结算时按当前控制者实际控制背面卡牌判定，符合时以4替换2，不把其他玩家背面牌算入",
+      "rules": "核心355／359／383；该卡官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "damageConditionKind": "CONTROLLER_HAS_FACE_DOWN_CARD",
+            "conditionalDamageAmount": 4
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.ConditionalDamageAmount > 0",
+            "damageAmount = behavior.ConditionalDamageAmount;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysAbyssalHuntThroughStack",
+            "CoreRuleEngineBoostsAbyssalHuntWhenControllerHasFaceDownCard"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-017/219"
+      ],
+      "text": "— 弃置一张手牌（你可以选择支付此额外费用，以重复此法术效果。）",
+      "scope": "— 弃置一张手牌（你可以选择支付此额外费用，以重复此法术效果。）",
+      "status": "route",
+      "reason": "弃置一张其他手牌作为可选费用，确认付款时即弃置；已支付时生成两次法术指示，不能弃置来源本身",
+      "rules": "核心204.2、356–357、820 回响；UNL-017 官方中文牌面（强攻授予另句缺失）",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectRepeatCountIfDiscardHandCardOptionalCost": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0",
+            "effectRepeatCount = behavior.EffectRepeatCountIfDiscardHandCardOptionalCost;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysRoaringReckoningDiscardEchoOverwhelmAttackingPower",
+            "CoreRuleEngineRejectsRoaringReckoningWhenDiscardOptionalCostTargetsSource"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-020/219"
+      ],
+      "text": "其控制者可以选择支付{{A}}，以此再次打出此法术。",
+      "scope": "其控制者可以选择支付{{A}}，以此再次打出此法术。",
+      "status": "route",
+      "reason": "由实际伤害接受单位的控制者选择从结算链重打来源，以1通用符能替换基础费用但保留额外费用；共享伤害记录只计实际造成伤害的次数，重打可响应",
+      "rules": "核心356.1／356.5 替代基础费用、359.3.e.4、407；UNL-020 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceReplay": {
+              "genericPowerCost": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourceReplay.cs",
+          "contains": [
+            "SourceReplayChoice(",
+            "SourceReplayPowerCost("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "damageAmount += sourceReplayProgress.DamageOccurrences.Count;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DancingGrenadeTests.cs",
+          "methods": [
+            "ActualDamageOffersOnlyTheAffectedUnitsControllerTheSourceReplay",
+            "ActualReplaysPayOneGenericPowerAndDealThreeThenFourDamage",
+            "PreventedDamageIsNotCountedButTheLinkedReplayCanStillBeChosen",
+            "ActualReplayQuotesTheAlternativeBaseCostPlusSpellshield",
+            "TheNewlyPlayedSpellCanBeCounteredBeforeItsNextDamage"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-020/219"
+      ],
+      "text": "若如此做，则此法术在本回合内每造成过一次伤害，便额外造成1点伤害。",
+      "scope": "若如此做，则此法术在本回合内每造成过一次伤害，便额外造成1点伤害。",
+      "status": "route",
+      "reason": "由实际伤害接受单位的控制者选择从结算链重打来源，以1通用符能替换基础费用但保留额外费用；共享伤害记录只计实际造成伤害的次数，重打可响应",
+      "rules": "核心356.1／356.5 替代基础费用、359.3.e.4、407；UNL-020 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceReplay": {
+              "genericPowerCost": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourceReplay.cs",
+          "contains": [
+            "SourceReplayChoice(",
+            "SourceReplayPowerCost("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "damageAmount += sourceReplayProgress.DamageOccurrences.Count;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DancingGrenadeTests.cs",
+          "methods": [
+            "ActualDamageOffersOnlyTheAffectedUnitsControllerTheSourceReplay",
+            "ActualReplaysPayOneGenericPowerAndDealThreeThenFourDamage",
+            "PreventedDamageIsNotCountedButTheLinkedReplayCanStillBeChosen",
+            "ActualReplayQuotesTheAlternativeBaseCostPlusSpellshield",
+            "TheNewlyPlayedSpellCanBeCounteredBeforeItsNextDamage"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-025/219"
+      ],
+      "text": "{{鼓舞>}} 你可以选择支付{{3}}和{{红色}}，将我从废牌堆中打出。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "scope": "{{鼓舞>}} 你可以选择支付{{3}}和{{红色}}，将我从废牌堆中打出。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "status": "route",
+      "reason": "另一张牌已确认打出即满足鼓舞；从自己废牌堆以3法力和1红色符能实际打出单位，可去基地或受控战场，有色费用不可被通用替代",
+      "rules": "核心812 鼓舞、355–357、143；UNL-025 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "selfGraveyardPlay": {
+              "mana": 3,
+              "power": 1,
+              "traits": [
+                "red"
+              ],
+              "requiresPlayedAnotherCard": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.GraveyardPermissions.cs",
+          "contains": [
+            "SelfGraveyardPlaySources(",
+            "behavior.SelfGraveyardPlay is { } spec"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "SelfGraveyardPlay: new(3, 1, [RuneTrait.Red], RequiresPlayedAnotherCard: true)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EncouragedGraveyardPlayTests.cs",
+          "methods": [
+            "AnotherConfirmedCardEnablesThePrintedGraveyardCost",
+            "GraveyardPermissionDoesNotRemoveTheRedPowerCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-031/219"
+      ],
+      "text": "{{等级6>}} 改为让其本回合内{{S}}+3。（如果你拥有不少于6经验，则获得该效果。）",
+      "scope": "{{等级6>}} 改为让其本回合内{{S}}+3。（如果你拥有不少于6经验，则获得该效果。）",
+      "status": "missing",
+      "reason": "仅有固定本回合+1；缺少等级6将增量改为+3的结算时经验检查与数值替换",
+      "rules": "核心824 等级、433／479 数值；UNL-031 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 1,
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "powerModifierAmount": 1,
+            "canPlayDuringPriority": true,
+            "mainDeckSelectionIsDraw": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-031/219\"",
+            "\"PRACTICAL_EXPERIENCE_POWER_PLUS_1\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-032/219"
+      ],
+      "text": "查看你主牌堆顶部的三张牌。",
+      "scope": "查看你主牌堆顶部的三张牌。",
+      "status": "route",
+      "reason": "结算时私下查看顶部3张，允许不选；只有单位可展示并真正抽取，未选牌回收，选择与未选牌身份不泄露给对手",
+      "rules": "核心355.6、417、432.1.c 私下查看及抽牌；UNL-032 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 3,
+            "mainDeckTargetRequiredTag": "CARD_TYPE:UNIT",
+            "drawsSelectedMainDeckTarget": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "DeckChoiceTargetAllowed(",
+            "\"CARD_REVEALED\"",
+            "DrawSelectedMainDeckTargetsAndRecycleRest("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysDragonTigerDrawUnitRecycleRest",
+            "CoreRuleEnginePlaysDragonTigerNoSelectionRecycleAll",
+            "CoreRuleEngineRejectsDragonTigerNonUnitTopDeckTarget"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-032/219"
+      ],
+      "text": "你可以选择从中展示一名单位，并抽取该卡牌。",
+      "scope": "你可以选择从中展示一名单位，并抽取该卡牌。",
+      "status": "route",
+      "reason": "结算时私下查看顶部3张，允许不选；只有单位可展示并真正抽取，未选牌回收，选择与未选牌身份不泄露给对手",
+      "rules": "核心355.6、417、432.1.c 私下查看及抽牌；UNL-032 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 3,
+            "mainDeckTargetRequiredTag": "CARD_TYPE:UNIT",
+            "drawsSelectedMainDeckTarget": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "DeckChoiceTargetAllowed(",
+            "\"CARD_REVEALED\"",
+            "DrawSelectedMainDeckTargetsAndRecycleRest("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysDragonTigerDrawUnitRecycleRest",
+            "CoreRuleEnginePlaysDragonTigerNoSelectionRecycleAll",
+            "CoreRuleEngineRejectsDragonTigerNonUnitTopDeckTarget"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-035/219"
+      ],
+      "text": "如果对手控制着一名被眩晕的单位，则我的费用减少{{2}}，并以活跃状态进场。",
+      "scope": "如果对手控制着一名被眩晕的单位，则我的费用减少{{2}}，并以活跃状态进场。",
+      "status": "missing",
+      "reason": "只有基础6费用休眠单位；缺少对手控制眩晕单位时的2法力减费及活跃进场替换",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 6,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-035/219\"",
+            "\"KENKEN_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-037/219"
+      ],
+      "text": "本回合内，如果一名友方单位在你的开始阶段被摧毁，则我以活跃状态进场。",
+      "scope": "本回合内，如果一名友方单位在你的开始阶段被摧毁，则我以活跃状态进场。",
+      "status": "missing",
+      "reason": "只有基础休眠单位；缺少本回合开始阶段友方单位被摧毁记录及据此活跃进场替换",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 4,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-037/219\"",
+            "\"SHADOW_GUARD_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-038/219"
+      ],
+      "text": "{{等级6>}} {{眩晕}}一名敌方单位。（如果你拥有不少于6经验，则获得该效果。被眩晕的单位在本回合内无法造成战斗伤害。）",
+      "scope": "{{等级6>}} {{眩晕}}一名敌方单位。（如果你拥有不少于6经验，则获得该效果。被眩晕的单位在本回合内无法造成战斗伤害。）",
+      "status": "missing",
+      "reason": "只执行移动到基地；缺少等级6的眩晕敌方单位指示及经验条件",
+      "rules": "核心824 等级与依赖性技能；UNL-038 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "requiredTargetCount": 1,
+            "targetScope": "ENEMY_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "movesTargetsToChosenLocation": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1,
+            "defaultChosenMovementToControllerBase": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-038/219\"",
+            "\"RISING_DRAGON_KICK_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_LEVEL_6\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-043/219"
+      ],
+      "text": "当我据守一处战场时，给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）",
+      "scope": "当我据守一处战场时，给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）",
+      "status": "route",
+      "reason": "来源据守时独立入链；结算向同一真实战场全部公开单位授予增益，包含敌方和来源自身，不波及其他位置",
+      "rules": "核心383.4.d、383.3、702–705 增益；UNL-043 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "BOON_ALL",
+            "amount": 1
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "case \"BOON\": case \"BOON_ALL\":",
+            "HeldUnitsAt(state, field)",
+            "GrantLegendBoon("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/UnlPrintedClauseAuditTests.cs",
+          "methods": [
+            "AnnouncerHoldGrantsBoonOnlyAtTheHeldField"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-044/219"
+      ],
+      "text": "从下列中选择一个 —",
+      "scope": "从下列中选择一个 —",
+      "status": "route",
+      "reason": "打出时明确选择一个模式，反制模式选择当前法术结算链物体，双方响应后才无效化并送入所属废牌堆；不能选择单位入场技能",
+      "rules": "核心355.3 模式／355.6 目标、407、426 无效化；UNL-044 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "CREATE_WARHAWKS"
+          },
+          {
+            "mode": "COUNTER_SPELL",
+            "targetScope": "STACK_SPELL",
+            "countersTargetStackSpell": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardTargetScopes.StackSpell => StackObjectRules.CanChoose(",
+            "TryCounterStackItem("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysFeatherstormCounterSpell"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEngineRejectsFeatherstormCounterAgainstUnitStackItem"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-044/219"
+      ],
+      "text": "- 无效化一个法术。",
+      "scope": "- 无效化一个法术。",
+      "status": "route",
+      "reason": "打出时明确选择一个模式，反制模式选择当前法术结算链物体，双方响应后才无效化并送入所属废牌堆；不能选择单位入场技能",
+      "rules": "核心355.3 模式／355.6 目标、407、426 无效化；UNL-044 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "CREATE_WARHAWKS"
+          },
+          {
+            "mode": "COUNTER_SPELL",
+            "targetScope": "STACK_SPELL",
+            "countersTargetStackSpell": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardTargetScopes.StackSpell => StackObjectRules.CanChoose(",
+            "TryCounterStackItem("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysFeatherstormCounterSpell"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEngineRejectsFeatherstormCounterAgainstUnitStackItem"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-046/219"
+      ],
+      "text": "选择一名单位。",
+      "scope": "选择一名单位。",
+      "status": "route",
+      "reason": "选择任意公开在场单位；结算时数当前己方单位四种指定属性的不同种类，每种至多计一次，合计给目标本回合战力",
+      "rules": "核心355／359／383；该卡官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "powerModifierControlledUnitTags": "鸟类|猫科|犬形|魄罗"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "return CountControlledUnitTagKinds(",
+            "behavior.PowerModifierControlledUnitTags"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysAnimalFriendsPowerPerControlledTag"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-046/219"
+      ],
+      "text": "你的单位中每有一种以下属性标签，则所选择的单位便在本回合内获得{{S}}+1 — “鸟类”、“猫科”、“犬形”、“魄罗”。",
+      "scope": "你的单位中每有一种以下属性标签，则所选择的单位便在本回合内获得{{S}}+1 — “鸟类”、“猫科”、“犬形”、“魄罗”。",
+      "status": "route",
+      "reason": "选择任意公开在场单位；结算时数当前己方单位四种指定属性的不同种类，每种至多计一次，合计给目标本回合战力",
+      "rules": "核心355／359／383；该卡官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT",
+            "powerModifierControlledUnitTags": "鸟类|猫科|犬形|魄罗"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "return CountControlledUnitTagKinds(",
+            "behavior.PowerModifierControlledUnitTags"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysAnimalFriendsPowerPerControlledTag"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-048/219"
+      ],
+      "text": "当我据守一处战场时，在此处打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
+      "scope": "当我据守一处战场时，在此处打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
+      "status": "missing",
+      "reason": "只有基础坚守单位；缺少据守时在来源精确战场打出活跃3战力瞬息精灵的技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 3,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitTags": "约德尔人|坚守",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-048/219\"",
+            "\"TREVOR_DUTTONEL_PLAY_KEYWORD_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-050/219"
+      ],
+      "text": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
+      "scope": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
+      "status": "missing",
+      "reason": "只有基础单位；缺少据守建立的延迟技能、下个主阶段可选敌方单位目标及移动到捕获战场",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 7,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-050/219\"",
+            "\"YASHILA_VANILLA_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-053/219"
+      ],
+      "text": "（0{{S}}的单位可以进行征服和据守。）",
+      "scope": "（0{{S}}的单位可以进行征服和据守。）",
+      "status": "route",
+      "reason": "征服与据守按单位是否位于精确战场判定，不设置正战力门槛；未受伤的0战力单位保留并可取得控制与据守得分",
+      "rules": "核心466–475 战场控制与征服及据守得分；UNL-053 官方说明文字",
+      "runtime": {
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "HeldUnitsAt(state, field, player)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "cardObjects[objectId].Tags.Contains(CardObjectTags.UnitCard)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/UnlPrintedClauseAuditTests.cs",
+          "methods": [
+            "AZeroMightCrabCanConquerAndHoldTheSameBattlefield"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-053/219"
+      ],
+      "text": "{{绝念>}} 选择一名对手。",
+      "scope": "{{绝念>}} 选择一名对手。",
+      "status": "route",
+      "reason": "摧毁时捕获控制者与代际并独立入链，确认所选对手后展示其当前手牌，授予本回合只查看其场上背面牌的权限，并给触发控制者1经验；放逐替换不触发",
+      "rules": "核心808 绝念、383.2.c.3、359.3.e.4、隐藏信息与控制权；UNL-053 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InformationPermissions.cs",
+          "contains": [
+            "\"LAST_BREATH_REVEAL_HAND_LOOK_FACEDOWN\"",
+            "QueueDeathRevealTriggers(",
+            "GrantFaceDownLook(",
+            "GainExperience(state.PlayerExperience, item.ControllerId, 1"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialInformationPermissionTests.cs",
+          "methods": [
+            "DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection",
+            "PermissionIncludesLaterStandbyButExpiresAtActualTurnTransition",
+            "BanishReplacementDoesNotTriggerLastBreath",
+            "OpposingControllerGetsItsOwnChoiceAndExperience"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-053/219"
+      ],
+      "text": "让其展示手牌。",
+      "scope": "{{绝念>}} 选择一名对手。",
+      "status": "route",
+      "reason": "摧毁时捕获控制者与代际并独立入链，确认所选对手后展示其当前手牌，授予本回合只查看其场上背面牌的权限，并给触发控制者1经验；放逐替换不触发",
+      "rules": "核心808 绝念、383.2.c.3、359.3.e.4、隐藏信息与控制权；UNL-053 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InformationPermissions.cs",
+          "contains": [
+            "\"LAST_BREATH_REVEAL_HAND_LOOK_FACEDOWN\"",
+            "QueueDeathRevealTriggers(",
+            "GrantFaceDownLook(",
+            "GainExperience(state.PlayerExperience, item.ControllerId, 1"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialInformationPermissionTests.cs",
+          "methods": [
+            "DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection",
+            "PermissionIncludesLaterStandbyButExpiresAtActualTurnTransition",
+            "BanishReplacementDoesNotTriggerLastBreath",
+            "OpposingControllerGetsItsOwnChoiceAndExperience"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-053/219"
+      ],
+      "text": "本回合内，你可以查看该对手正面朝下的卡牌。",
+      "scope": "{{绝念>}} 选择一名对手。",
+      "status": "route",
+      "reason": "摧毁时捕获控制者与代际并独立入链，确认所选对手后展示其当前手牌，授予本回合只查看其场上背面牌的权限，并给触发控制者1经验；放逐替换不触发",
+      "rules": "核心808 绝念、383.2.c.3、359.3.e.4、隐藏信息与控制权；UNL-053 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InformationPermissions.cs",
+          "contains": [
+            "\"LAST_BREATH_REVEAL_HAND_LOOK_FACEDOWN\"",
+            "QueueDeathRevealTriggers(",
+            "GrantFaceDownLook(",
+            "GainExperience(state.PlayerExperience, item.ControllerId, 1"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialInformationPermissionTests.cs",
+          "methods": [
+            "DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection",
+            "PermissionIncludesLaterStandbyButExpiresAtActualTurnTransition",
+            "BanishReplacementDoesNotTriggerLastBreath",
+            "OpposingControllerGetsItsOwnChoiceAndExperience"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-053/219"
+      ],
+      "text": "获得1经验。（当我被摧毁后，发动此效果。）",
+      "scope": "{{绝念>}} 选择一名对手。",
+      "status": "route",
+      "reason": "摧毁时捕获控制者与代际并独立入链，确认所选对手后展示其当前手牌，授予本回合只查看其场上背面牌的权限，并给触发控制者1经验；放逐替换不触发",
+      "rules": "核心808 绝念、383.2.c.3、359.3.e.4、隐藏信息与控制权；UNL-053 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InformationPermissions.cs",
+          "contains": [
+            "\"LAST_BREATH_REVEAL_HAND_LOOK_FACEDOWN\"",
+            "QueueDeathRevealTriggers(",
+            "GrantFaceDownLook(",
+            "GainExperience(state.PlayerExperience, item.ControllerId, 1"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialInformationPermissionTests.cs",
+          "methods": [
+            "DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection",
+            "PermissionIncludesLaterStandbyButExpiresAtActualTurnTransition",
+            "BanishReplacementDoesNotTriggerLastBreath",
+            "OpposingControllerGetsItsOwnChoiceAndExperience"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-057/219"
+      ],
+      "text": "你此处战力低于我的单位无法被敌方法术或技能选作目标。",
+      "scope": "你此处战力低于我的单位无法被敌方法术或技能选作目标。",
+      "status": "missing",
+      "reason": "只有基础壁垒单位；缺少此处战力低于来源的友方单位不能成为敌方法术／技能目标的持续保护",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 6,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 7,
+            "sourceUnitTags": "猫科|壁垒",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-057/219\"",
+            "\"WILDCLAW_BEASTMASTER_PLAY_KEYWORD_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-060/219"
+      ],
+      "text": "此处战力低于我的敌方单位无法造成战斗伤害。",
+      "scope": "此处战力低于我的敌方单位无法造成战斗伤害。",
+      "status": "missing",
+      "reason": "据守抽牌另句已有路径；本句缺少按当前战力比较此处敌方单位并禁止其造成战斗伤害的被动",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 8,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 8,
+            "sourceUnitTags": "蜘蛛",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-060/219\"",
+            "\"VILEMAW_SPIDER_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-060a/219"
+      ],
+      "text": "此处战力低于我的敌方单位无法在战斗中造成伤害。",
+      "scope": "此处战力低于我的敌方单位无法在战斗中造成伤害。",
+      "status": "missing",
+      "reason": "据守抽牌另句已有路径；本句缺少按当前战力比较此处敌方单位并禁止其造成战斗伤害的被动",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 8,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 8,
+            "sourceUnitTags": "蜘蛛",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-060a/219\"",
+            "\"VILEMAW_ALT_A_AMBUSH_COMBAT_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-062/219"
+      ],
+      "text": "{{绝念>}} {{洞察2}}。（当我被摧毁时，查看主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+      "scope": "{{绝念>}} {{洞察2}}。（当我被摧毁时，查看主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+      "status": "route",
+      "reason": "实际摧毁来源后捕获控制者及独立绝念，响应后私下洞察2，可回收任意子集并排序保留牌；召回或放逐替换不触发",
+      "rules": "核心808、817 洞察、383.2.c.3、432.1.c；UNL-062 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+          "contains": [
+            "\"UNL-062/219\"",
+            "\"LAST_BREATH\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "contains": [
+            "BeginInsight("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialInsightTriggerTests.cs",
+          "methods": [
+            "VisionaryDestructionCostAllowsAnyRecycleSubsetAndRemainingTopOrder",
+            "DamageDeathTriggersButRecallReplacementDoesNot",
+            "ShortDeckInsightDoesAsMuchAsPossibleWithoutBurnout"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-064/219"
+      ],
+      "text": "当你打出我时，查看你主牌堆顶部的四张牌。",
+      "scope": "当你打出我时，查看你主牌堆顶部的四张牌。",
+      "status": "route",
+      "reason": "单位先入场，独立打出技能响应后才私下查看4张；可不选或选择法力至少4的法术，展示并真正抽取，其他牌回收",
+      "rules": "核心383.4.a.2、383.3、432.1.c；UNL-064 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 4,
+            "mainDeckTargetRequiredTag": "CARD_TYPE:SPELL",
+            "mainDeckTargetMinimumManaCost": 4,
+            "drawsSelectedMainDeckTarget": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "behavior.MainDeckTargetMinimumManaCost",
+            "\"CARD_REVEALED\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "PendingPermanentPlayAbility("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FateWeaverDeckChoiceTests.cs",
+          "methods": [
+            "PlayAbilityPrivatelyLooksFourAndOptionallyRevealsAndDrawsAnEligibleSpell",
+            "ShortDeckLooksOnlyAtAvailableCardsAndDoesNotBurnOut"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-064/219"
+      ],
+      "text": "你可以选择从中展示一张法力费用不低于{{4}}的法术牌，并抽取该卡牌。",
+      "scope": "当你打出我时，查看你主牌堆顶部的四张牌。",
+      "status": "route",
+      "reason": "单位先入场，独立打出技能响应后才私下查看4张；可不选或选择法力至少4的法术，展示并真正抽取，其他牌回收",
+      "rules": "核心383.4.a.2、383.3、432.1.c；UNL-064 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 4,
+            "mainDeckTargetRequiredTag": "CARD_TYPE:SPELL",
+            "mainDeckTargetMinimumManaCost": 4,
+            "drawsSelectedMainDeckTarget": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "behavior.MainDeckTargetMinimumManaCost",
+            "\"CARD_REVEALED\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "PendingPermanentPlayAbility("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FateWeaverDeckChoiceTests.cs",
+          "methods": [
+            "PlayAbilityPrivatelyLooksFourAndOptionallyRevealsAndDrawsAnEligibleSpell",
+            "ShortDeckLooksOnlyAtAvailableCardsAndDoesNotBurnOut"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-067/219"
+      ],
+      "text": "{{绝念>}} 对一名敌方单位造成4点伤害。（当我被摧毁后，发动此效果。）",
+      "scope": "{{绝念>}} 对一名敌方单位造成4点伤害。（当我被摧毁后，发动此效果。）",
+      "status": "missing",
+      "reason": "只有基础单位；缺少绝念选择敌方单位并在响应后造成4点伤害的规格与消费者",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 6,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-067/219\"",
+            "\"RUINED_SHARK_CANNON_LAST_BREATH_DAMAGE_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-069/219"
+      ],
+      "text": "打出两名处于活跃状态的3{{S}}“精灵”，它们拥有{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "scope": "打出两名处于活跃状态的3{{S}}“精灵”，它们拥有{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "status": "route",
+      "reason": "共享单位指示物创建消费者依次实际打出两名活跃3战力精灵，保留原生瞬息；可选指示物复制替换不改变原始特征",
+      "rules": "核心440 创建、816 瞬息、370–373；UNL-069 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "createdBaseUnitTokenCount": 2,
+            "createdBaseUnitTokenPower": 3,
+            "createdBaseUnitTokenEntersReady": true,
+            "createdBaseUnitTokenName": "精灵",
+            "createdBaseUnitTokenTags": "瞬息"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.CreatedBaseUnitTokenCount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
+          "contains": [
+            "EligibleTokenReplacements("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialTokenReplacementTests.cs",
+          "methods": [
+            "SharedCreationKeepsFactoryCharacteristicsAndSubsequentDraw",
+            "DecliningFirstOfMultipleTokensCanUseReplacementOnSecond"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-070/219"
+      ],
+      "text": "让一件装备获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "scope": "让一件装备获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "status": "route",
+      "reason": "共享目标限定为装备，结算给其原生规则文本之外附加瞬息；下个控制者开始阶段在得分前由瞬息触发清理",
+      "rules": "核心355.6、816 瞬息；UNL-070 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetAddedTag": "瞬息",
+            "targetScope": "EQUIPMENT"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.TargetAddedTag"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardObjectTags.Ephemeral"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysAshesToAshesEquipmentEphemeral",
+            "CoreRuleEngineRejectsAshesToAshesAgainstUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-071/219"
+      ],
+      "text": "当你打出我时，让你此处的其他单位本回合内获得{{坚守}}。（如果他们是防守方，则{{S}}+1。）",
+      "scope": "当你打出我时，让你此处的其他单位本回合内获得{{坚守}}。（如果他们是防守方，则{{S}}+1。）",
+      "status": "missing",
+      "reason": "只有基础伏击单位；缺少入场后给此处其他己方单位本回合坚守的独立技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 3,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-071/219\"",
+            "\"RINGBLADE_DANCER_AMBUSH_STEADFAST_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-072/219"
+      ],
+      "text": "选择一处战场，以及该处的一名敌方单位。",
+      "scope": "选择一处战场，以及该处的一名敌方单位。",
+      "status": "route",
+      "reason": "共享选择规则要求一个真实战场与该处公开敌方单位成组，基地、己方及场上非单位目标被拒绝，结算复查所选位置",
+      "rules": "核心355／359／383；该卡官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "selectedBattlefieldEffect": {
+              "damagesEnemyUnits": true,
+              "primaryEnemyTargetIndex": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+          "contains": [
+            "SelectedBattlefieldEffect"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "methods": [
+            "CoreRuleEngineRejectsCrescentStrikeAgainstFriendlyOrBaseUnit"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs",
+          "methods": [
+            "CrescentStrikeRejectsEnemyBattlefieldNonUnitWithoutTargetRequiredTag"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-073/219"
+      ],
+      "text": "当该单位在本回合被摧毁时，打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{横置}}：{{获得}}{{A}}。”）",
+      "scope": "当该单位在本回合被摧毁时，打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{横置}}：{{获得}}{{A}}。”）",
+      "status": "route",
+      "reason": "在造成伤害前为目标同一代际建立本回合一次延迟摧毁指示；本次或稍后真正被摧毁后产生可响应技能，为法术控制者打出休眠金币，回合结束失效",
+      "rules": "核心359.3.e.4／359.3.e.16、383.2.c.3、407；UNL-073 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "delayedDestructionReward": {
+              "equipmentTokenName": "金币"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedDestruction.cs",
+          "contains": [
+            "DelayedDestructionReward",
+            "ResolveDelayedDestruction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DeadlyFlourishTests.cs",
+          "methods": [
+            "ActualImmediateAndLaterDeathQueueAnAnswerableDormantGoldForTheSpellController",
+            "ARealTurnEndExpiresTheInstructionBeforeNextTurnsDestruction",
+            "ARealBanishReplacementDoesNotCountAsDestruction",
+            "ARealSpellControlChangeCreatesGoldForTheNewController"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-074/219"
+      ],
+      "text": "当你在每回合内抽第二张牌时，让一名友方单位本回合内{{S}}+2。",
+      "scope": "当你在每回合内抽第二张牌时，让一名友方单位本回合内{{S}}+2。",
+      "status": "route",
+      "reason": "共享每回合逐张抽牌账本捕获精确第二张，确认友方公开单位与法盾费用后可响应，结算授予本回合+2；新回合账本重置",
+      "rules": "核心355／359／383；该卡官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "contains": [
+            "\"SECOND_CARD_DRAWN\"",
+            "\"SECOND_DRAW\"",
+            "\"冰封宝石：本回合战力 +2\""
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialDrawDefenseTests.cs",
+          "methods": [
+            "GemCountsEachCardAndChoosesTargetBeforeResponse",
+            "GemRequiresActiveControlledSource",
+            "GemRechecksTargetAndKeepsSourceIndependent",
+            "TurnStartDrawPausesBeforeMainAndResetsOnlyAtNewTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-078/219"
+      ],
+      "text": "当你打出此牌时，打出一名活跃状态的3{{S}}“精灵”到你的基地，它拥有{{瞬息}}。",
+      "scope": "当你打出此牌时，打出一名活跃状态的3{{S}}“精灵”到你的基地，它拥有{{瞬息}}。",
+      "status": "route",
+      "reason": "装备先进入基地，独立打出效果在响应后打出一个活跃3战力原生瞬息精灵到自己基地",
+      "rules": "核心383.4.a.2、440、816；UNL-078 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "createdBaseUnitTokenCount": 1,
+            "createdBaseUnitTokenPower": 3,
+            "createdBaseUnitTokenEntersReady": true,
+            "createdBaseUnitTokenName": "精灵",
+            "createdBaseUnitTokenTags": "瞬息"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.CreatedBaseUnitTokenCount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.EquipmentPlay.cs",
+          "methods": [
+            "CoreRuleEnginePlaysSpriteLanternEquipmentCreateSprite"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-078/219"
+      ],
+      "text": "{{绝念>}} 重复此装备的打出效果。（当此牌被摧毁后，发动此效果。）",
+      "scope": "{{绝念>}} 重复此装备的打出效果。（当此牌被摧毁后，发动此效果。）",
+      "status": "missing",
+      "reason": "打出指示物已实现，但没有装备绝念重复打出效果的捕获与独立结算；来源被摧毁后不会创建精灵",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "createdBaseUnitTokenCount": 1,
+            "createdBaseUnitTokenEntersReady": true,
+            "createdBaseUnitTokenPower": 3,
+            "createdBaseUnitTokenName": "精灵",
+            "createdBaseUnitTokenTags": "瞬息",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsEquipment": true,
+            "sourceEquipmentTags": "瞬息",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-078/219\"",
+            "\"SPRITE_LANTERN_PLAY_EQUIPMENT_CREATE_SPRITE\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-081/219"
+      ],
+      "text": "当你打出我时，在此处打出两名“映像”。",
+      "scope": "当你打出我时，在此处打出两名“映像”。",
+      "status": "route",
+      "reason": "待命／手牌实际打出的单位先入场；按勘误在来源当前战场创建两名映像，再生成独立内嵌复制技能，复制绑定原物体代际且各映像保留原生瞬息",
+      "rules": "核心359.3.e.4、383.4.a.2、388–389 内嵌触发、816；中国区破限勘误260403第3页（赐面守侍）",
+      "runtime": {
+        "behaviors": [
+          {
+            "createdBaseUnitTokenCount": 2,
+            "createdBaseUnitTokenName": "映像",
+            "createdBaseUnitTokensCopySource": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "copyBehavior.CreatedBaseUnitTokensCopySource"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ReflexiveCopy.cs",
+          "contains": [
+            "ReflexiveCopy"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MaskedAttendantTests.cs",
+          "methods": [
+            "StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages",
+            "ActualResponseReturningSourceToHandCannotUseItsPreviousObject",
+            "CopiesUsePrintedFaceAndPreserveImagesExistingModifications"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MaskedAttendantNativeTests.cs",
+          "methods": [
+            "ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-081/219"
+      ],
+      "text": "然后进行一次：它们变为我的复制体。",
+      "scope": "当你打出我时，在此处打出两名“映像”。",
+      "status": "route",
+      "reason": "待命／手牌实际打出的单位先入场；按勘误在来源当前战场创建两名映像，再生成独立内嵌复制技能，复制绑定原物体代际且各映像保留原生瞬息",
+      "rules": "核心359.3.e.4、383.4.a.2、388–389 内嵌触发、816；中国区破限勘误260403第3页（赐面守侍）",
+      "runtime": {
+        "behaviors": [
+          {
+            "createdBaseUnitTokenCount": 2,
+            "createdBaseUnitTokenName": "映像",
+            "createdBaseUnitTokensCopySource": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "copyBehavior.CreatedBaseUnitTokensCopySource"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ReflexiveCopy.cs",
+          "contains": [
+            "ReflexiveCopy"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MaskedAttendantTests.cs",
+          "methods": [
+            "StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages",
+            "ActualResponseReturningSourceToHandCannotUseItsPreviousObject",
+            "CopiesUsePrintedFaceAndPreserveImagesExistingModifications"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MaskedAttendantNativeTests.cs",
+          "methods": [
+            "ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-083/219"
+      ],
+      "text": "选择一名受你控制的单位和另一名与之位置不同的受你控制的单位。",
+      "scope": "选择一名受你控制的单位和另一名与之位置不同的受你控制的单位。",
+      "status": "route",
+      "reason": "两目标均须由自己控制且位于不同精确位置，公开单位合法性与目标代际在共享成对移动前复查；同位置及敌方目标原子拒绝",
+      "rules": "核心355.6、447–451；UNL-083 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "swapsTargetLocations": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PairedMovement.cs",
+          "contains": [
+            "CanSwapTargetLocations(",
+            "EffectiveFieldControllerId(zones, first, firstUnit) != item.ControllerId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ReflectionsSwapGuardTests.cs",
+          "methods": [
+            "ReflectionsSwapsFriendlyBaseAndBattlefieldUnitsAndDrawsOne",
+            "ReflectionsRejectsSamePositionPairsWithoutMutation",
+            "ReflectionsRejectsInvalidTargetsWithoutMutation"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-084/219"
+      ],
+      "text": "当你打出我时或在你的开始阶段开始时，打出一名处于活跃状态的3{{S}}“精灵”到你的基地，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
+      "scope": "当你打出我时或在你的开始阶段开始时，打出一名处于活跃状态的3{{S}}“精灵”到你的基地，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
+      "status": "missing",
+      "reason": "入场创建精灵已有执行，但同一句的开始阶段触发缺失；来源留场时下个开始阶段不会再打出活跃瞬息精灵",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 7,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "createdBaseUnitTokenCount": 1,
+            "createdBaseUnitTokenEntersReady": true,
+            "createdBaseUnitTokenPower": 3,
+            "createdBaseUnitTokenName": "精灵",
+            "createdBaseUnitTokenTags": "瞬息",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-084/219\"",
+            "\"SPRITE_QUEEN_PLAY_UNIT_CREATE_SPRITE\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-085/219"
+      ],
+      "text": "当一名对手得分时，抽一张牌。",
+      "scope": "当一名对手得分时，抽一张牌。",
+      "status": "missing",
+      "reason": "只有反应／瞬息装备打出；缺少任一对手得分观察器和独立抽1张技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "canPlayDuringPriority": true,
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsEquipment": true,
+            "sourceEquipmentTags": "瞬息",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-085/219\"",
+            "\"SUMPWORKS_MAP_PLAY_EQUIPMENT_EPHEMERAL\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-087/219",
+        "UNL-087a/219"
+      ],
+      "text": "你据守此处时的据守效果额外触发一次。",
+      "scope": "你据守此处时的据守效果额外触发一次。",
+      "status": "route",
+      "reason": "来源仅加倍自己在来源精确战场的单位与战场据守技能；获得通用符能的延迟资源指示在下个主阶段清空资源后自动执行，来源离场不抹除已建指示",
+      "rules": "核心383.4.d、430.2 资源技能；中国区破限裁判FAQ 260511第6页同时包括单位与战场据守",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "BLUE_DELAYED_POWER",
+            "amount": 1
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "var copies = 1 + units.Count(",
+            "if (ability.Kind == \"BLUE_DELAYED_POWER\")",
+            "delayed.Add(new("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialHoldSequenceTests.cs",
+          "methods": [
+            "BlueSentinelAmplifiesUnitAndBattlefieldHoldsAndScheduledGainSurvivesSourceDeparture",
+            "BlueAtAnotherLocationOrControlledByOpponentCannotAmplifyOwnHold",
+            "BlueResourceIsGrantedAfterPoolClearAndCannotBeGrantedTwice"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-087/219",
+        "UNL-087a/219"
+      ],
+      "text": "当我据守一处战场时，你在下一个主阶段开始时{{获得}}{{A}}。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "当我据守一处战场时，你在下一个主阶段开始时{{获得}}{{A}}。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "来源仅加倍自己在来源精确战场的单位与战场据守技能；获得通用符能的延迟资源指示在下个主阶段清空资源后自动执行，来源离场不抹除已建指示",
+      "rules": "核心383.4.d、430.2 资源技能；中国区破限裁判FAQ 260511第6页同时包括单位与战场据守",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "BLUE_DELAYED_POWER",
+            "amount": 1
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "var copies = 1 + units.Count(",
+            "if (ability.Kind == \"BLUE_DELAYED_POWER\")",
+            "delayed.Add(new("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialHoldSequenceTests.cs",
+          "methods": [
+            "BlueSentinelAmplifiesUnitAndBattlefieldHoldsAndScheduledGainSurvivesSourceDeparture",
+            "BlueAtAnotherLocationOrControlledByOpponentCannotAmplifyOwnHold",
+            "BlueResourceIsGrantedAfterPoolClearAndCannotBeGrantedTwice"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-088/219"
+      ],
+      "text": "在你的开始阶段开始时，如果你有且仅有四张手牌，且你在各处战场上有且仅有四名单位，则立即赢得对局。",
+      "scope": "在你的开始阶段开始时，如果你有且仅有四张手牌，且你在各处战场上有且仅有四名单位，则立即赢得对局。",
+      "status": "missing",
+      "reason": "现有装备和弃牌造战鹰主动技能不能替代本句；缺少开始阶段恰四手牌且战场单位总数恰四的立即获胜技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 4,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsEquipment": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-088/219\"",
+            "\"CRUMBLING_PALACE_PLAY_EQUIPMENT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-091/219"
+      ],
+      "text": "{{等级6>}} 此牌的费用减少{{2}}。（如果你拥有不少于6经验，则获得该效果。）",
+      "scope": "{{等级6>}} 此牌的费用减少{{2}}。（如果你拥有不少于6经验，则获得该效果。）",
+      "status": "missing",
+      "reason": "只有固定5法力抽2张；缺少等级6／11减2／4法力的共享报价与付款调整",
+      "rules": "核心824 等级、356.4 减费；UNL-091 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "drawCount": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-091/219\"",
+            "\"CENTER_YOUR_MIND_DRAW_2\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-091/219"
+      ],
+      "text": "{{等级11>}} 改为此牌的费用减少{{4}}。",
+      "scope": "{{等级11>}} 改为此牌的费用减少{{4}}。",
+      "status": "missing",
+      "reason": "只有固定5法力抽2张；缺少等级6／11减2／4法力的共享报价与付款调整",
+      "rules": "核心824 等级、356.4 减费；UNL-091 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "drawCount": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-091/219\"",
+            "\"CENTER_YOUR_MIND_DRAW_2\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-095/219"
+      ],
+      "text": "当该单位在本回合赢得一场战斗时，获得2经验。",
+      "scope": "当该单位在本回合赢得一场战斗时，获得2经验。",
+      "status": "missing",
+      "reason": "只有友方单位本回合+3；缺少绑定目标本回合战斗获胜后获得2经验的延迟技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "requiredTargetCount": 1,
+            "targetScope": "FRIENDLY_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "powerModifierAmount": 3,
+            "mainDeckSelectionIsDraw": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "canPlayDuringSpellDuel": true,
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-095/219\"",
+            "\"LAST_STAND_FRIENDLY_POWER_PLUS_3\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-101/219"
+      ],
+      "text": "然后，选择一名对手。",
+      "scope": "然后，选择一名对手。",
+      "status": "route",
+      "reason": "首先完成自己的移动，再由法术控制者在结算时从当前对手中选择一名；该对手随后自行选合法单位执行其移动，不把对手选择交给施法者",
+      "rules": "核心403.2 确认选择与355.18 结算中选择、447–451；UNL-101 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "commandedMovement": {
+              "destinationControlledByCaster": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CommandedMovement.cs",
+          "contains": [
+            "var opponent = opponents.Length == 1 ? opponents[0] : frame.Choose(item.ControllerId,",
+            "frame.Choose(opponent,"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CommandedMovementNativeTests.cs",
+          "methods": [
+            "NativeOpponentChoiceRestoresAndReplays"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-103/219"
+      ],
+      "text": "从下列中选择一个 —",
+      "scope": "从下列中选择一个 —",
+      "status": "route",
+      "reason": "打出时选抽1张或回收模式；后者可选择0至3张当前对手废牌堆卡牌，按所属者分别回收，不接受自己废牌堆或非废牌堆目标",
+      "rules": "核心355.3／355.6、417 回收；UNL-103 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "DRAW_1"
+          },
+          {
+            "mode": "RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3",
+            "targetScope": "OPPONENT_GRAVEYARD_CARD",
+            "recyclesTargets": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(",
+            "else if (behavior.RecyclesTargets)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysDisposalOrderRecycleMode"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.DamageSpells.cs",
+          "methods": [
+            "CoreRuleEnginePlaysDisposalOrderDrawMode"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-103/219"
+      ],
+      "text": "— 从对手的废牌堆里总共选择最多三张牌。",
+      "scope": "— 从对手的废牌堆里总共选择最多三张牌。",
+      "status": "route",
+      "reason": "打出时选抽1张或回收模式；后者可选择0至3张当前对手废牌堆卡牌，按所属者分别回收，不接受自己废牌堆或非废牌堆目标",
+      "rules": "核心355.3／355.6、417 回收；UNL-103 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "DRAW_1"
+          },
+          {
+            "mode": "RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3",
+            "targetScope": "OPPONENT_GRAVEYARD_CARD",
+            "recyclesTargets": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(",
+            "else if (behavior.RecyclesTargets)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysDisposalOrderRecycleMode"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.DamageSpells.cs",
+          "methods": [
+            "CoreRuleEnginePlaysDisposalOrderDrawMode"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-104/219"
+      ],
+      "text": "当你打出我或其他“龙”属性单位时，让最多两枚符文变为活跃状态。",
+      "scope": "当你打出我或其他“龙”属性单位时，让最多两枚符文变为活跃状态。",
+      "status": "route",
+      "reason": "己方真正打出龙单位后捕获独立技能，包含来源自身；入链前可选至多两枚当时存在的符文，绑定其代际，响应后才活跃",
+      "rules": "核心383.4.a.2、403.2；中国区光耀温驯的宝石龙／卷轴双足龙FAQ",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "FRIENDLY_UNIT_PLAYED",
+          "effect": "PLAYED_UNIT_READY_RUNES",
+          "amount": 2,
+          "optional": true,
+          "anyNumberOfTargets": true,
+          "requiredPlayedUnitTag": "龙"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayedUnitRunes.cs",
+          "contains": [
+            "IsPlayedUnitRuneSpec("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadPlayedUnitRuneFaqTests.cs",
+          "methods": [
+            "NeitherTriggerOrderLetsTheGemDragonReadyRunesCalledLater",
+            "TheGemDragonCanChooseZeroOrTwoExistingRunesWhenItPlaysItself"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-105/219"
+      ],
+      "text": "当我移动时，你可以选择将一名位于此处且战力低于我的敌方单位移动到另一处战场。",
+      "scope": "当我移动时，你可以选择将一名位于此处且战力低于我的敌方单位移动到另一处战场。",
+      "status": "missing",
+      "reason": "只有基础单位；缺少移动后选择此处当前战力较低敌方单位、可选移至另一真实战场的技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-105/219\"",
+            "\"INTIMIDATING_CHALLENGER_MOVE_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-106/219"
+      ],
+      "text": "选择战场上的一名友方单位。",
+      "scope": "选择战场上的一名友方单位。",
+      "status": "route",
+      "reason": "第一目标必须是战场友方单位，第二目标可为敌方法术或技能且必须选中第一目标、不能同时选其他友方单位；共享法盾／保护与反制处理生效",
+      "rules": "核心355.6、407、426 无效化法术／技能；UNL-106 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "countersTargetStackSpell": true,
+            "canCounterAbilities": true,
+            "requiresTargetStackItemControlledByEnemy": true,
+            "requiresTargetStackItemTargetsFirstTarget": true,
+            "requiresTargetStackItemTargetsNoOtherFriendlyUnits": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.RequiresTargetStackItemTargetsNoOtherFriendlyUnits",
+            "TryCounterStackItem("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysRepelCounterEnemySpellTargetingChosenFriendlyUnit",
+            "CoreRuleEngineRejectsRepelAgainstFriendlyControlledStackItem",
+            "CoreRuleEngineRejectsRepelWhenEnemySpellDoesNotTargetChosenUnit",
+            "CoreRuleEngineRejectsRepelWhenEnemySpellTargetsAnotherFriendlyUnitToo"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AbilityCounterAuditTests.cs",
+          "methods": [
+            "ActualRepulseCountersChosenPlayTriggerWithoutDestroyingItsSource"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-106/219"
+      ],
+      "text": "无效化一个以该单位为目标且不以其他友方单位为目标的敌方法术或技能。",
+      "scope": "无效化一个以该单位为目标且不以其他友方单位为目标的敌方法术或技能。",
+      "status": "route",
+      "reason": "第一目标必须是战场友方单位，第二目标可为敌方法术或技能且必须选中第一目标、不能同时选其他友方单位；共享法盾／保护与反制处理生效",
+      "rules": "核心355.6、407、426 无效化法术／技能；UNL-106 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "countersTargetStackSpell": true,
+            "canCounterAbilities": true,
+            "requiresTargetStackItemControlledByEnemy": true,
+            "requiresTargetStackItemTargetsFirstTarget": true,
+            "requiresTargetStackItemTargetsNoOtherFriendlyUnits": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.RequiresTargetStackItemTargetsNoOtherFriendlyUnits",
+            "TryCounterStackItem("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysRepelCounterEnemySpellTargetingChosenFriendlyUnit",
+            "CoreRuleEngineRejectsRepelAgainstFriendlyControlledStackItem",
+            "CoreRuleEngineRejectsRepelWhenEnemySpellDoesNotTargetChosenUnit",
+            "CoreRuleEngineRejectsRepelWhenEnemySpellTargetsAnotherFriendlyUnitToo"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AbilityCounterAuditTests.cs",
+          "methods": [
+            "ActualRepulseCountersChosenPlayTriggerWithoutDestroyingItsSource"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-107/219"
+      ],
+      "text": "选择一名友方单位和一处战场。",
+      "scope": "选择一名友方单位和一处战场。",
+      "status": "route",
+      "reason": "共同确认一名友方公开单位和一处真实战场，按二者当前状态结算，敌方单位或伪造战场／目标形状原子拒绝",
+      "rules": "核心355／359／383；该卡官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "movesWeakerEnemiesAtSelectedBattlefieldToBase": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (behavior.MovesWeakerEnemiesAtSelectedBattlefieldToBase)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FaceOffTests.cs",
+          "methods": [
+            "SelectsUnitAndBattlefieldThenMovesEveryStrictlyWeakerEnemy",
+            "RejectsForgedTargetShapeWithoutMutation",
+            "ExactBattlefieldExcludesOtherLocationAndFriendlyUnits"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-108/219"
+      ],
+      "text": "如果你已在本回合内获得了经验值，则我获得{{S}}+1和{{游走}}。（我可以向其他战场进行移动。）",
+      "scope": "如果你已在本回合内获得了经验值，则我获得{{S}}+1和{{游走}}。（我可以向其他战场进行移动。）",
+      "status": "missing",
+      "reason": "条件性被动只在入场读取本回合获得经验记录，随后经验变化不重算，入场时附加的+1与游走也不会随条件结束消失；缺少持续生效消费者",
+      "rules": "核心364.3／365.1 条件性被动；UNL-108 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalSourceUnitConditionKind": "CONTROLLER_GAINED_EXPERIENCE_THIS_TURN",
+            "conditionalSourceUnitPowerBonus": 1,
+            "conditionalSourceUnitTags": "游走"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "contains": [
+            "ResolveConditionalSourceUnitPowerBonus(",
+            "ResolveConditionalSourceUnitTags("
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-109/219"
+      ],
+      "text": "当你打出一名单位时，你可以选择支付{{1}}来获得1经验。",
+      "scope": "当你打出一名单位时，你可以选择支付{{1}}来获得1经验。",
+      "status": "missing",
+      "reason": "现有支付经验活跃单位的主动技能不覆盖本句；缺少己方打出单位后可选支付1法力并获得1经验的独立触发",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 1,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsEquipment": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-109/219\"",
+            "\"SCARLET_ROSE_PLAY_EQUIPMENT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-111/219"
+      ],
+      "text": "我无法移动到基地。",
+      "scope": "我无法移动到基地。",
+      "status": "missing",
+      "reason": "只有基础约德尔单位；缺少不能移动到基地的来源权限限制，正常移动与效果移动均须遵守",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 1,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 1,
+            "sourceUnitTags": "约德尔人",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-111/219\"",
+            "\"STEADFAST_SENTINEL_YORDLE_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-112/219"
+      ],
+      "text": "当我移动到一处战场时，你可以选择将一名敌方单位移动到该战场。",
+      "scope": "当我移动到一处战场时，你可以选择将一名敌方单位移动到该战场。",
+      "status": "missing",
+      "reason": "只有基础仙灵单位；缺少来源移动到战场后可选敌方单位目标及移动至捕获战场的触发",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 1,
+            "sourceUnitTags": "仙灵",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-112/219\"",
+            "\"ALLURING_FAERIE_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-117/219"
+      ],
+      "text": "如果一处战场上的敌方单位落单，则可以将我打出至该战场。",
+      "scope": "如果一处战场上的敌方单位落单，则可以将我打出至该战场。",
+      "status": "missing",
+      "reason": "只有基础蜘蛛／狩猎单位；缺少敌方落单真实战场的自身和己方单位打出目的地权限",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 6,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitTags": "蜘蛛|狩猎2",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-117/219\"",
+            "\"TERROR_SPIDER_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-117/219"
+      ],
+      "text": "如果一处战场上的敌方单位落单，则可以将友方单位打出至该战场。",
+      "scope": "如果一处战场上的敌方单位落单，则可以将友方单位打出至该战场。",
+      "status": "missing",
+      "reason": "只有基础蜘蛛／狩猎单位；缺少敌方落单真实战场的自身和己方单位打出目的地权限",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 6,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitTags": "蜘蛛|狩猎2",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-117/219\"",
+            "\"TERROR_SPIDER_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-118/219",
+        "UNL-118a/219"
+      ],
+      "text": "你造成的任意数量伤害，都足以将敌方单位摧毁。",
+      "scope": "你造成的任意数量伤害，都足以将敌方单位摧毁。",
+      "status": "route",
+      "reason": "公开受控在场来源使其控制者实际造成且未被防止的正伤害对敌方单位致命；敌方伤害及零伤害不借用此效果，持续检查当前控制与来源存在",
+      "rules": "核心364–365、伤害归属及致死伤害；UNL-118 官方中文牌面与中国区裁判FAQ",
+      "runtime": {
+        "behaviors": [
+          {
+            "makesControllerDamageLethal": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LethalDamage.cs",
+          "contains": [
+            "HasControllerLethalDamage(",
+            "card.Damage > 0",
+            "IsMarkedDamageLethal("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ElderDragonTests.cs",
+          "methods": [
+            "EarlierDamageBecomesLethalAsDragonEntersBeforeItsPlayAbility",
+            "OnlyVisibleControlledDragonMakesItsControllersDamageLethal",
+            "FriendlyDuelUnitDamageUsesItsControllerAndKillsWithOnePoint",
+            "PreventedDamageLeavesNoPlayerMarkAndCannotBecomeLethal"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-118/219",
+        "UNL-118a/219"
+      ],
+      "text": "当你打出我时，在每个位置选择最多一名敌方单位。",
+      "scope": "当你打出我时，在每个位置选择最多一名敌方单位。",
+      "status": "route",
+      "reason": "来源先入场，独立技能在每个精确位置至多选择一名敌方单位，可不选；位置和目标代际在响应后的伤害前复查，不波及同一位置第二名单位",
+      "rules": "核心383.4.a.2、355.6、407；中国区破限裁判FAQ 260511远古巨龙／闪现示例",
+      "runtime": {
+        "behaviors": [
+          {
+            "playDamagePerLocation": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LocationDamage.cs",
+          "contains": [
+            "LocationDamageChoice(",
+            "LocationDamageKey(prior) != LocationDamageKey(state.ObjectLocations[id])"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ElderDragonTests.cs",
+          "methods": [
+            "PlayAbilityChoosesAtMostOneEnemyPerLocationAfterEntry",
+            "ResponseMoveInvalidatesOnlyTheTargetThatLeftItsDeclaredLocation"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-122/219"
+      ],
+      "text": "如果你在本回合打出过法术，则你可以选择支付{{紫色}}，作为打出我的额外费用，以此让我以活跃状态进场。",
+      "scope": "如果你在本回合打出过法术，则你可以选择支付{{紫色}}，作为打出我的额外费用，以此让我以活跃状态进场。",
+      "status": "route",
+      "reason": "仅在本回合已打出法术时允许选择额外1紫色符能，报价和实际付款共同校验，支付后以活跃状态进场，不满足条件拒绝且不扣资源",
+      "rules": "核心204.2、356–357；UNL-122 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceReadyAdditionalPowerCost": 1,
+            "sourceReadyAdditionalPowerTrait": "purple",
+            "sourceReadyConditionKind": "CONTROLLER_PLAYED_SPELL_THIS_TURN"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "SourceReadyConditionApplies(",
+            "powerCost != behavior.SourceReadyAdditionalPowerCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysCrescentGuardReadyAfterSpellPayment",
+            "CoreRuleEngineRejectsCrescentGuardReadyPaymentWithoutSpellMemory"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-124/219"
+      ],
+      "text": "然后，如果该战场上有落单的敌方单位，则抽一张牌。",
+      "scope": "然后，如果该战场上有落单的敌方单位，则抽一张牌。",
+      "status": "missing",
+      "reason": "现有法术只移动一个敌方单位到基地；缺少移动后检查原战场敌方落单并抽1张的后续指示",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "requiredTargetCount": 1,
+            "targetScope": "ENEMY_BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "movesTargetToBase": true,
+            "mainDeckSelectionIsDraw": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-124/219\"",
+            "\"ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-130/219"
+      ],
+      "text": "当你打出我时，选择一名对手。",
+      "scope": "当你打出我时，选择一名对手。",
+      "status": "missing",
+      "reason": "只有基础法盾单位；缺少独立打出技能选择对手，并由该对手实际打出1战力法盾战鹰",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitTags": "法盾",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-130/219\"",
+            "\"MOVING_PERCH_SPELLSHIELD_TOKEN_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-130/219"
+      ],
+      "text": "该玩家打出一名1{{S}}的“战鹰”，它拥有{{法盾}}。",
+      "scope": "当你打出我时，选择一名对手。",
+      "status": "missing",
+      "reason": "只有基础法盾单位；缺少独立打出技能选择对手，并由该对手实际打出1战力法盾战鹰",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6,
+            "sourceUnitTags": "法盾",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-130/219\"",
+            "\"MOVING_PERCH_SPELLSHIELD_TOKEN_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "UNL-131/219"
+      ],
+      "text": "无效化一个法术。",
+      "scope": "无效化一个法术。",
+      "status": "route",
+      "reason": "选择当前法术结算链物体并按共享反制结算；返回该法术所有者手牌，控制者不是所有者时也不误送，流转的放逐替换照常生效",
+      "rules": "核心127.1 所属者、426 无效化、191–192 所属／控制、829 流转；UNL-131 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetScope": "STACK_SPELL",
+            "countersTargetStackSpell": true,
+            "counteredStackItemDestination": "HAND"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "counteringBehavior.CounteredStackItemDestination",
+            "MoveStackSpellToOwnerZone("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysAbandonCounterSpellToHand"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs",
+          "methods": [
+            "CounteredStolenSpellReturnsToOwnerNotItsController"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenBasicFlowSpellTests.cs",
+          "methods": [
+            "AbandonReturnsOrdinarySpellsButBanishesFlowSpells"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-131/219"
+      ],
+      "text": "让其返回所属的手牌，而不是将其放入废牌堆。",
+      "scope": "让其返回所属的手牌，而不是将其放入废牌堆。",
+      "status": "route",
+      "reason": "选择当前法术结算链物体并按共享反制结算；返回该法术所有者手牌，控制者不是所有者时也不误送，流转的放逐替换照常生效",
+      "rules": "核心127.1 所属者、426 无效化、191–192 所属／控制、829 流转；UNL-131 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetScope": "STACK_SPELL",
+            "countersTargetStackSpell": true,
+            "counteredStackItemDestination": "HAND"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "counteringBehavior.CounteredStackItemDestination",
+            "MoveStackSpellToOwnerZone("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysAbandonCounterSpellToHand"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs",
+          "methods": [
+            "CounteredStolenSpellReturnsToOwnerNotItsController"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenBasicFlowSpellTests.cs",
+          "methods": [
+            "AbandonReturnsOrdinarySpellsButBanishesFlowSpells"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-132/219"
+      ],
+      "text": "当你打出我时，让所有不高于2{{S}}的单位返回其所属的手牌。",
+      "scope": "当你打出我时，让所有不高于2{{S}}的单位返回其所属的手牌。",
+      "status": "missing",
+      "reason": "只有基础单位；缺少独立打出技能按当前战力同时返回全部不高于2战力单位到各自所有者手牌",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"UNL-132/219\"",
+            "\"LANTERN_SEA_FIEND_LOW_POWER_BOUNCE_STATIC\""
+          ]
+        }
+      ],
+      "tests": []
+    }
+  ]
+}
