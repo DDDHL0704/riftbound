@@ -25611,7 +25611,7 @@ public sealed partial class FullGameEndToEndTests
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
-                        Assert.Contains(unitEvent.CardNo, new[] { "ARC-004/006", "OGN·159/298", "OGN·186/298", "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
+                        Assert.Contains(unitEvent.CardNo, new[] { "ARC-004/006", "OGN·159/298", "OGN·200/298", "OGN·186/298", "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
                         if (unitEvent.CardNo is "OGN·159/298" or "ARC-004/006")
@@ -25621,6 +25621,34 @@ public sealed partial class FullGameEndToEndTests
                             Assert.False(behavior.UnitEventAbility.Optional);
                             Assert.Empty(item.TargetObjectIds);
                             Assert.Null(item.TargetGenerations);
+                        }
+                        if (unitEvent.CardNo == "OGN·200/298")
+                        {
+                            Assert.Equal("ATTACK", unitEvent.Timing);
+                            Assert.Equal("REVEAL_RECYCLE_RUNE_DOMAIN", behavior.UnitEventAbility.Effect);
+                            Assert.False(behavior.UnitEventAbility.Optional);
+                            Assert.Equal(3, behavior.UnitEventAbility.Modes!.Count);
+                            if (unitEvent.RevealedRune is not { } revealed)
+                            {
+                                Assert.Null(unitEvent.Mode); Assert.Null(unitEvent.ReflexiveTick);
+                                Assert.Empty(item.TargetObjectIds); Assert.Null(item.TargetGenerations);
+                            }
+                            else
+                            {
+                                Assert.Equal(revealed.RevealedTick, unitEvent.ReflexiveTick);
+                                Assert.InRange(revealed.RevealedTick, unitEvent.CapturedTick, result.State.Tick);
+                                Assert.True(result.State.CardObjects.TryGetValue(revealed.Rune.ObjectId, out var rune));
+                                Assert.Contains(CardObjectTags.RuneCard, rune.Tags);
+                                Assert.Equal(revealed.CardNo, rune.CardNo);
+                                Assert.InRange(revealed.Rune.Generation, 0, rune.ObjectGeneration);
+                                Assert.Equal(rune.Tags.Where(t => t.StartsWith("COLOR:", StringComparison.Ordinal))
+                                    .Select(t => t[6..]).Order(StringComparer.Ordinal), revealed.Traits);
+                                if (unitEvent.Mode is { } selected)
+                                {
+                                    var mode = Assert.Single(behavior.UnitEventAbility.Modes, m => m.Id == selected);
+                                    Assert.Contains(mode.RequiredRevealedRuneTrait!, revealed.Traits);
+                                }
+                            }
                         }
                         if (unitEvent.CardNo == "OGN·186/298")
                         {

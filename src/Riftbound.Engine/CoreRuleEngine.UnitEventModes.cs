@@ -16,11 +16,13 @@ public sealed partial class CoreRuleEngine
         return spec with { Effect = mode.Effect, Amount = mode.Amount, Modes = null,
             LeadingPowerCost = mode.LeadingPowerCost, LeadingPowerTrait = mode.LeadingPowerTrait,
             LeadingManaCost = mode.LeadingManaCost, CreatedTokenFactoryCardNo = mode.CreatedTokenFactoryCardNo,
-            ConsumesSourceBoonDuringResolution = mode.ConsumesSourceBoonDuringResolution };
+            ConsumesSourceBoonDuringResolution = mode.ConsumesSourceBoonDuringResolution,
+            OtherEnemyDamageAmount = mode.OtherEnemyDamageAmount };
     }
 
     private static bool NeedsUnitEventMode(StackItemState item) => item.UnitEvent is { Mode: null } context
-        && UnitEventSpec(context.CardNo)?.Modes is { Count: > 0 };
+        && UnitEventSpec(context.CardNo)?.Modes is { Count: > 0 }
+        && (UnitEventSpec(context.CardNo)?.Effect != RuneDomainRevealEffect || context.RevealedRune is not null);
 
     private static RuleTextModeUse UnitEventModeUse(StackItemState item, string mode)
         => new(new(item.SourceObjectId, item.UnitEvent!.SourceGeneration), item.UnitEvent.CardNo, mode, item.UnitEvent.Origin, item.UnitEvent.TokenFactoryCardNo);
@@ -32,8 +34,8 @@ public sealed partial class CoreRuleEngine
 
     private static PendingCardChoiceState UnitEventModeChoice(MatchState state, StackItemState item)
         => new("UNIT-EVENT-MODE:" + item.StackItemId, UnitEventModeWindow, item.ControllerId, 1, 1,
-            UnitEventSpec(item.UnitEvent!.CardNo)!.Modes!.Where(m => !UnitEventModeAlreadyUsed(state, item, m.Id)
-                && (m.Effect != "STUN_ENEMY" || UnitEventTargets(state, item with {
+            UnitEventSpec(item.UnitEvent!.CardNo)!.Modes!.Where(m => RuneDomainModeApplies(item.UnitEvent, m) && !UnitEventModeAlreadyUsed(state, item, m.Id)
+                && (m.Effect is not ("STUN_ENEMY" or RuneDomainDamageEffect) || UnitEventTargets(state, item with {
                     UnitEvent = item.UnitEvent with { Mode = m.Id } }).Length > 0)).Select(m => m.Id).ToArray(), [item.SourceObjectId],
             "选择一个技能效果；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
             { ResolvingStackItemId = item.StackItemId };

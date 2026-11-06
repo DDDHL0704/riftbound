@@ -63,7 +63,8 @@ public sealed partial class CoreRuleEngine
             DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds, ObjectLocations = ReconcileObjectLocations(locations, zones) };
     }
 
-    private static StackResolutionResult ResolveUnitEventAreaDamage(MatchState state, StackItemState item, int amount)
+    private static StackResolutionResult ResolveUnitEventAreaDamage(MatchState state, StackItemState item, int amount,
+        string? primary = null, int? primaryAmount = null)
     {
         var targets = UnitEventEnemiesHere(state, item);
         var cards = state.CardObjects.ToDictionary(); var zones = NormalizeZonesForSeats(state);
@@ -72,7 +73,7 @@ public sealed partial class CoreRuleEngine
         foreach (var target in targets)
         {
             var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target,
-                ApplySpellSkillDamageBonuses(state, item.ControllerId, target, amount, item), destroyed,
+                ApplySpellSkillDamageBonuses(state, item.ControllerId, target, target == primary ? primaryAmount!.Value : amount, item), destroyed,
                 state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
             events.Add(new("DAMAGE_APPLIED", "技能对此处敌方单位造成伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));
         }

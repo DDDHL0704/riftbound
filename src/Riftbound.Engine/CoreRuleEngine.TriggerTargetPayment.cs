@@ -25,9 +25,12 @@ public sealed partial class CoreRuleEngine
                     ? ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                     : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
+                || item.UnitEvent is not null && NeedsUnitEventTarget(item)
+                    && ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)
+                    && ValidUnitEventTargets(item)
                 || item.PermanentPlayTargetsPending && ValidPermanentPlayTargetStack(state, item))
             && (item.HighCostPlayObserver is not null ? item.TargetObjectIds.Count <= (HighCostPlaySpec(item.CardNo!)!.RuneReadyCount ?? 0)
-                : item.CreatedTokenReady is not null || item.LocationDamage is not null || item.DamageDistribution is not null || item.PermanentPlayTargetsPending ? item.TargetObjectIds.Count > 0 : item.TargetObjectIds.Count == 1)
+                : item.CreatedTokenReady is not null || item.LocationDamage is not null || item.DamageDistribution is not null || item.PermanentPlayTargetsPending || item.UnitEvent is not null ? item.TargetObjectIds.Count > 0 : item.TargetObjectIds.Count == 1)
             && item.TargetGenerations is { } generations && generations.Count == item.TargetObjectIds.Count
             && item.TargetObjectIds.All(id => generations.TryGetValue(id, out var generation) && generation >= 0)
             && payment.PaymentId == "TRIGGER-WARD:" + item.StackItemId && payment.PlayerId == item.ControllerId
@@ -73,6 +76,7 @@ public sealed partial class CoreRuleEngine
             : item.LocationDamage is not null ? LocationDamageTargets(state,item)
             : item.ReflexiveDuel is not null ? ReflexiveDuelTargets(state,item)
             : item.UnitConquest is not null ? ConquestDamageTargets(state,item)
+            : item.UnitEvent is not null ? UnitEventTargets(state, item)
             : HasHeldTargetConfirmation(item) ? HeldTargetChoices(state, item)
             : HasLegendConquestTarget(item) ? LegendConquestTargets(state, item)
             : item.FieldContext is not null ? FieldTriggerTargets(state, item) : ReflexiveCopyTargets(state, item);
@@ -90,7 +94,7 @@ public sealed partial class CoreRuleEngine
             item = item with { FieldContext = item.FieldContext with { PaidUnitTrigger = paid with { CostPaid = true } } };
         var completed = CompleteTriggerTargetConfirmation(next, item, [new("COST_PAID", "支付触发技能费用",
             PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools, committed.PlayerExperience,
-                item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind ? new Dictionary<string, object?> {
+                item.UnitEvent is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind ? new Dictionary<string, object?> {
                     ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator) }
                     : new Dictionary<string, object?>()))]);
         return completed.Accepted ? completed : RejectWithCorePrompts(state, completed.ErrorMessage!, ErrorCodes.InvalidTarget);
