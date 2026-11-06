@@ -7507,7 +7507,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targetObjectIds.Count != ability.RequiredTargetCount
             || (IsLegendDuelMovementEffect(ability.EffectKind) || IsLegendUnitKeywordEffect(ability.EffectKind)
-                || IsLegendUnitEffect(ability.EffectKind) || IsLegendEquipmentReadyEffect(ability.EffectKind))
+                || IsLegendUnitEffect(ability.EffectKind) || IsLegendEquipmentReadyEffect(ability.EffectKind)
+                || IsLegendFieldEffect(ability.EffectKind))
                 && targetObjectIds.Count != command.TargetObjectIds.Count
             || IsLegendEquipmentReadyEffect(ability.EffectKind)
                 && targetObjectIds.Distinct(StringComparer.Ordinal).Count() != targetObjectIds.Count)
@@ -7641,6 +7642,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (IsLegendFieldEffect(ability.EffectKind)
+            && !IsLegendFieldTarget(state, intent.PlayerId, targetObjectIds[0], ability))
+            return RejectWithCorePrompts(state, "请选择符合传奇技能范围的公开单位。", ErrorCodes.InvalidTarget);
+
         if (ability.RequiresAnyUnitTarget && !IsLegendUnitEffectTarget(state, intent.PlayerId, targetObjectIds[0], ability.RequiresBattlefieldTarget))
             return RejectWithCorePrompts(state, "请选择符合范围的一名公开单位。", ErrorCodes.InvalidTarget);
         if (ability.CreatedBattlefieldEquipmentTokenCardNo.Length > 0
@@ -7735,6 +7740,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        var legendFieldDestination = IsLegendFieldEffect(ability.EffectKind)
+            ? DeclareLegendFieldDestination(state, intent.PlayerId, targetObjectIds[0], ability) : string.Empty;
+
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -7758,9 +7766,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var runePools = paymentCommit.RunePools;
         var playerExperience = paymentCommit.PlayerExperience;
-        IReadOnlyDictionary<string, int> playerScores = NormalizeScoresForSeats(state);
-        var winnerPlayerId = state.WinnerPlayerId;
-        var rngCursor = state.RngCursor;
         var events = new List<GameEvent>(paymentEvents)
         {
             new(
@@ -7841,6 +7846,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PlayerZones = playerZones, ObjectLocations = objectLocations,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
 
+        if (IsLegendFieldEffect(ability.EffectKind))
+            return QueueLegendFieldEffect(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                PlayerZones = playerZones, ObjectLocations = objectLocations,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
+                targetObjectIds, optionalCosts, spellshieldTax, legendFieldDestination, events);
+
         if (IsLegendDuelMovementEffect(ability.EffectKind))
             return QueueLegendDuelMovement(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 PlayerZones = playerZones, ObjectLocations = objectLocations,
@@ -7859,9 +7870,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
                 targetObjectIds, optionalCosts, spellshieldTax, events);
 
-        if (IsLegendDiscardDrawEffect(ability.EffectKind)
-            && !(ability.EffectKind == LegendAbilityEffectKinds.DrawOne
-                && ability.TimingKind != LegendAbilityTimingKinds.ReactionWindow))
+        if (IsLegendDiscardDrawEffect(ability.EffectKind))
             return QueueLegendDiscardDraw(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 PlayerZones = playerZones, ObjectLocations = objectLocations,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
@@ -7883,81 +7892,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         switch (ability.EffectKind)
         {
-            case LegendAbilityEffectKinds.DrawOne:
-            {
-                var drawApplication = ApplyDrawToPlayer(
-                    state,
-                    playerZones, cardObjects,
-                    playerScores,
-                    intent.PlayerId,
-                    1,
-                    rngCursor,
-                    events);
-                playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                rngCursor = drawApplication.RngCursor;
-                break;
-            }
-            case LegendAbilityEffectKinds.MoveFriendlyUnit:
-            {
-                var movementPools = runePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-                MoveLegendTargetBetweenBaseAndBattlefield(
-                    state with { RunePools = runePools, PlayerExperience = playerExperience },
-                    playerZones, cardObjects, objectLocations, movementPools, targetObjectIds[0],
-                    intent.PlayerId, command.SourceObjectId, command.AbilityId, events);
-                runePools = movementPools;
-                break;
-            }
-            case LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin:
-            {
-                var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
-                    playerZones,
-                    cardObjects,
-                    targetObjectIds[0],
-                    out var battlefieldReturnPlayerId);
-                var returnReplaced = TryReplaceEmpoweredChosenEvent(
-                    state with { PlayerZones = playerZones, CardObjects = cardObjects }, cardObjects[targetObjectIds[0]],
-                    "RETURN_TO_HAND", command.SourceObjectId, sourceState.CardNo, null,
-                    out var returnReplacement, out var returnReplacementEvent);
-                if (returnReplaced)
-                {
-                    cardObjects[targetObjectIds[0]] = returnReplacement;
-                    events.Add(returnReplacementEvent);
-                }
-                else
-                    ReturnLegendTargetToOwnerHand(
-                        playerZones,
-                        cardObjects,
-                        targetObjectIds[0],
-                        intent.PlayerId,
-                        command.SourceObjectId,
-                        command.AbilityId,
-                        events);
-                CreateLegendEquipmentToken(
-                    playerZones,
-                    cardObjects,
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    "金币",
-                    [CardObjectTags.EquipmentCard, "反应"],
-                    isExhausted: true,
-                    events);
-                if (!returnReplaced && canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
-                        playerZones,
-                        cardObjects,
-                        runePools,
-                        battlefieldReturnPlayerId,
-                        targetObjectIds[0],
-                        command.SourceObjectId,
-                        events,
-                        out var battlefieldReturnRunePools))
-                {
-                    runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-                }
-                break;
-            }
             case LegendAbilityEffectKinds.GainMana:
             case LegendAbilityEffectKinds.GainDuelMana:
             case LegendAbilityEffectKinds.GainUnitOnlyMana:
@@ -7985,36 +7919,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     command.AbilityId,
                     events);
                 break;
-            case LegendAbilityEffectKinds.ReturnOwnedTeemoUnitToHand:
-            {
-                var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
-                    playerZones,
-                    cardObjects,
-                    targetObjectIds[0],
-                    out var battlefieldReturnPlayerId);
-                ReturnOwnedTeemoUnitToHand(
-                    playerZones,
-                    cardObjects,
-                    targetObjectIds[0],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
-                if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
-                        playerZones,
-                        cardObjects,
-                        runePools,
-                        battlefieldReturnPlayerId,
-                        targetObjectIds[0],
-                        command.SourceObjectId,
-                        events,
-                        out var battlefieldReturnRunePools))
-                {
-                    runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-                }
-                break;
-            }
+
         }
 
         var nextState = state with
@@ -8025,11 +7930,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
             CardObjects = cardObjects,
-            PlayerExperience = playerExperience,
-            PlayerScores = playerScores,
-            RngCursor = rngCursor,
-            Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
-            WinnerPlayerId = winnerPlayerId
+            PlayerExperience = playerExperience
         };
 
         return new ResolutionResult(
@@ -8647,54 +8548,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static void MoveLegendTargetBetweenBaseAndBattlefield(
-        MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, ObjectLocationState> objectLocations,
-        Dictionary<string, RunePool> runePools,
-        string targetObjectId,
-        string playerId,
-        string sourceObjectId,
-        string abilityId,
-        List<GameEvent> events)
-    {
-        if (!TryGetPreciseFieldLocation(playerZones, objectLocations, targetObjectId, out var origin)
-            || !cardObjects.TryGetValue(targetObjectId, out var unit) || !IsFaceUpNonStandbyUnit(unit)
-            || EffectiveFieldControllerId(playerZones, targetObjectId, unit) != playerId) return;
-        var generation = unit.ObjectGeneration;
-        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
-            ObjectLocations = objectLocations, RunePools = runePools };
-        ObjectLocationState destination;
-        if (origin.Zone == "BASE")
-        {
-            var choices = ChosenMovementDestinations(current, playerId)
-                .Where(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)).ToArray();
-            if (choices.Length == 0) return;
-            var selected = RuleChoices.Value!.Choose(playerId, "选择此单位移动到的战场。",
-                choices.Select(choice => new RuleChoiceOption(choice.Id, choice.Label)).ToArray(),
-                kind: "MOVEMENT_DESTINATION", preview: current);
-            destination = new(playerId, "BATTLEFIELD", selected[12..]);
-        }
-        else destination = new(playerId, "BASE");
-        var item = new StackItemState($"LEGEND-MOVE-{state.Tick + 1}-{sourceObjectId}", playerId, sourceObjectId,
-            LegendAbilityEffectKinds.MoveFriendlyUnit, state.CardObjects[sourceObjectId].CardNo, [targetObjectId]);
-        bool OriginalUnit(MatchState frame) => frame.CardObjects.TryGetValue(targetObjectId, out var mover)
-            && mover.ObjectGeneration == generation && EffectiveFieldControllerId(frame.PlayerZones, targetObjectId, mover) == playerId
-            && TryGetPreciseFieldLocation(frame.PlayerZones, frame.ObjectLocations, targetObjectId, out var at) && at == origin;
-        var firstEvent = events.Count;
-        TryMoveFieldUnitByEffect(current, playerZones, cardObjects, objectLocations, runePools,
-            targetObjectId, destination, playerId, item, events, OriginalUnit);
-        for (var index = firstEvent; index < events.Count; index++)
-            if (events[index].Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD")
-            {
-                var payload = new Dictionary<string, object?>(events[index].Payload) {
-                    ["abilityId"] = abilityId, ["originZone"] = origin.Zone, ["destinationZone"] = destination.Zone };
-                payload.Remove("stackItemId");
-                events[index] = events[index] with { Payload = payload };
-            }
-    }
-
     private static void GrantLegendBoon(
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
@@ -8864,74 +8717,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             KaisaLegendAbilityId => "kaisa-spell-power",
             _ => "legend-resource-bridge"
         };
-    }
-
-    private static void ReturnLegendTargetToOwnerHand(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string targetObjectId,
-        string playerId,
-        string sourceObjectId,
-        string abilityId,
-        List<GameEvent> events)
-    {
-        var location = FindFieldObjectLocation(playerZones, targetObjectId);
-        if (location is null
-            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
-        {
-            return;
-        }
-
-        var ownerPlayerId = !string.IsNullOrWhiteSpace(targetState.OwnerId)
-            && playerZones.ContainsKey(targetState.OwnerId)
-            ? targetState.OwnerId
-            : playerId;
-        RemoveFieldObjectFromLocation(playerZones, location.Value.PlayerId, location.Value.Zone, targetObjectId);
-        var ownerZones = playerZones[ownerPlayerId];
-        playerZones[ownerPlayerId] = ownerZones with
-        {
-            Hand = ownerZones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
-                ? ownerZones.Hand
-                : ownerZones.Hand.Concat([targetObjectId]).ToArray()
-        };
-        cardObjects[targetObjectId] = targetState with
-        {
-            ControllerId = ownerPlayerId,
-            IsAttacking = false,
-            IsDefending = false
-        };
-        events.Add(new GameEvent(
-            "UNIT_RETURNED_TO_HAND",
-            $"{targetObjectId} 被传奇技能返回手牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = sourceObjectId,
-                ["abilityId"] = abilityId,
-                ["targetObjectId"] = targetObjectId,
-                ["originZone"] = location.Value.Zone,
-                ["ownerPlayerId"] = ownerPlayerId,
-                ["destinationZone"] = "HAND"
-            }));
-    }
-
-    private static void ReturnOwnedTeemoUnitToHand(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string targetObjectId,
-        string playerId,
-        string sourceObjectId,
-        string abilityId,
-        List<GameEvent> events)
-    {
-        var originZone = playerZones.Values.Any(z => z.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal))
-            ? "CHAMPION" : playerZones.Values.Any(z => z.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
-                ? MoveUnitBattlefieldZone : MoveUnitBaseZone;
-        if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var owner, out _, includeChampionZone: true)) return;
-        events.Add(new("UNIT_RETURNED_TO_HAND", "拥有的单位返回手牌", new Dictionary<string, object?> {
-            ["playerId"] = playerId, ["sourceObjectId"] = sourceObjectId, ["abilityId"] = abilityId,
-            ["targetObjectId"] = targetObjectId, ["originZone"] = originZone,
-            ["ownerPlayerId"] = owner, ["destinationZone"] = "HAND" }));
     }
 
     private static void CreateLegendEquipmentToken(
@@ -19348,7 +19133,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.BorrowedExhaust is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.LegendFieldEffect is null && resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.BorrowedExhaust is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, ProjectionViewers.Spectator)).ToArray()
                 };
             if (highCostSkillObservers.Length > 0) resolvedPayload[HighCostSkillCaptureKey] = highCostSkillObservers;
@@ -24241,6 +24026,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.AzirMovement is not null) return ResolveAzirMovement(state, stackItem);
         if (stackItem.EffectKind == NamedUnitSwapRules.Effect) return ResolveNamedUnitSwap(state, stackItem);
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
+        if (stackItem.LegendFieldEffect is not null) return ResolveLegendFieldEffect(state, stackItem);
         if (stackItem.LegendDuelMovement is not null) return ResolveLegendDuelMovement(state, stackItem);
         if (stackItem.LegendUnitKeyword is not null) return ResolveLegendUnitKeyword(state, stackItem);
         if (stackItem.LegendUnitEffect is not null) return ResolveLegendUnitEffect(state, stackItem);

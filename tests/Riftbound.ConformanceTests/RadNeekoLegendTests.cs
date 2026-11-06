@@ -14,6 +14,52 @@ public sealed class RadNeekoLegendTests
     private const string Darius = "OGN·253/298";
 
     [Fact]
+    public async Task AQueuedMovementOutlivesItsRealBoundLegendAndMovesTheOriginalTarget()
+    {
+        var setup = await Position("FND-259/298");
+        var initial = setup.State with { CardObjects = new Dictionary<string, CardObjectState>(setup.State.CardObjects) {
+            ["TARGET"] = OfficialGarenConquestBattlefieldCountTests.Printed("TARGET", "OGN·219/298", "P1") } };
+        initial = LocalDestructionRecallTests.At(initial, "TARGET", "P1", "BASE");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new LegendActCommand(legend, LegendActionAbilityCatalog.YasuoLegendAbilityId,
+            ["TARGET"], ["SPEND_MANA:2"]));
+        var choice = game.State.PendingRuleChoice!.Request;
+        var destination = choice.Options[0].Id;
+        await game.Act("P1", new PayCostCommand(choice.Id, "RULE_REPLACEMENT", [destination]));
+        Assert.NotNull(Assert.Single(game.State.StackItems).LegendFieldEffect);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEEKO"]));
+        await game.Top(); Assert.False(game.State.CardObjects.ContainsKey(legend));
+        Assert.Contains("TARGET", game.State.PlayerZones["P1"].Base);
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.Equal(destination[12..], game.State.ObjectLocations["TARGET"].BattlefieldObjectId);
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
+    [Fact]
+    public async Task AQueuedExperienceDrawOutlivesTheRealBoundLegendAfterNeekoReturns()
+    {
+        var setup = await Position("UNL-203/219");
+        var game = new Driver(setup.State with {
+            PlayerExperience = new Dictionary<string, int>(setup.State.PlayerExperience) { ["P1"] = 3 } })
+            { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new LegendActCommand(legend, LegendActionAbilityCatalog.PoppyLegendAbilityId,
+            [], ["SPEND_EXPERIENCE:3"]));
+        Assert.Equal(0, game.State.PlayerExperience["P1"]);
+        Assert.NotNull(Assert.Single(game.State.StackItems).LegendDiscardDraw);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEEKO"]));
+        await game.Top(); Assert.Empty(game.State.PlayerZones["P1"].LegendZone);
+        Assert.False(game.State.CardObjects.ContainsKey(legend));
+        var hand = game.State.PlayerZones["P1"].Hand.Count;
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.Equal(hand + 1, game.State.PlayerZones["P1"].Hand.Count);
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
+    [Fact]
     public async Task RegisteredLegendsRemainPrivateUntilTheResolutionDecisionAndEnterAsRealActiveCards()
     {
         var game = await Position(Viktor, Darius);
