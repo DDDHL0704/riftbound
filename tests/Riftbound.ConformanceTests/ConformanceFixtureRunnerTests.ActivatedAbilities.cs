@@ -558,7 +558,9 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal("PAY_2_RED_DOUBLE_POWER", costPaidEvent.Payload["abilityId"]);
         Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", costPaidEvent.Payload["reason"]);
         Assert.Equal(2, costPaidEvent.Payload["totalManaCost"]);
-        Assert.Equal(1, costPaidEvent.Payload["genericPower"]);
+        Assert.Equal(0, costPaidEvent.Payload["genericPower"]);
+        var typed = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaidEvent.Payload["powerByTrait"]);
+        Assert.Equal(new KeyValuePair<string, int>(RuneTrait.Red, 1), Assert.Single(typed));
         Assert.Equal(1, costPaidEvent.Payload["totalPowerCost"]);
         Assert.Equal(0, costPaidEvent.Payload["remainingMana"]);
         Assert.Equal(0, costPaidEvent.Payload["remainingPower"]);
