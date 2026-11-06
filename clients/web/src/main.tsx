@@ -5,6 +5,7 @@ import { loadCards } from "./game/cards";
 import { client } from "./net/client";
 import "./styles.css";
 import "./polish.css";
+import "./stage.css";
 
 loadCards();
 // Handy for inspecting live protocol state from the devtools console.
