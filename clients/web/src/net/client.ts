@@ -41,9 +41,11 @@ export type ClientState = {
 
 // The room seat lives in sessionStorage so two tabs can hold two different players;
 // handle keys and the last login live in localStorage so a name keeps its identity.
-const SESSION_KEY = "riftbound.web.session";
-const LAST_KEY = "riftbound.web.last";
-const KEYS_KEY = "riftbound.web.keys";
+// A namespace keeps a second client in the same tab (the practice opponent) from touching the player's.
+const storageKeys = (ns: string) => {
+  const base = ns ? `riftbound.web.${ns}.` : "riftbound.web.";
+  return { session: `${base}session`, last: `${base}last`, keys: `${base}keys` };
+};
 
 type Saved = { server: string; handle: string; key: string; roomId?: string; reconnectToken?: string };
 
@@ -65,23 +67,25 @@ function writeJson(storage: () => Storage, key: string, value: unknown) {
   }
 }
 
-function keyFor(handle: string) {
-  return readJson<Record<string, string>>(() => localStorage, KEYS_KEY)?.[handle];
+function keyFor(ns: string, handle: string) {
+  return readJson<Record<string, string>>(() => localStorage, storageKeys(ns).keys)?.[handle];
 }
 
-function loadSaved(): Saved | null {
-  const session = readJson<Saved>(() => sessionStorage, SESSION_KEY);
+function loadSaved(ns: string): Saved | null {
+  const k = storageKeys(ns);
+  const session = readJson<Saved>(() => sessionStorage, k.session);
   if (session) return session;
-  const last = readJson<{ server: string; handle: string }>(() => localStorage, LAST_KEY);
-  return last ? { ...last, key: keyFor(last.handle) ?? "" } : null;
+  const last = readJson<{ server: string; handle: string }>(() => localStorage, k.last);
+  return last ? { ...last, key: keyFor(ns, last.handle) ?? "" } : null;
 }
 
-function save(saved: Saved | null) {
-  writeJson(() => sessionStorage, SESSION_KEY, saved);
+function save(ns: string, saved: Saved | null) {
+  const k = storageKeys(ns);
+  writeJson(() => sessionStorage, k.session, saved);
   if (!saved) return;
-  writeJson(() => localStorage, LAST_KEY, { server: saved.server, handle: saved.handle });
-  const keys = readJson<Record<string, string>>(() => localStorage, KEYS_KEY) ?? {};
-  writeJson(() => localStorage, KEYS_KEY, { ...keys, [saved.handle]: saved.key });
+  writeJson(() => localStorage, k.last, { server: saved.server, handle: saved.handle });
+  const keys = readJson<Record<string, string>>(() => localStorage, k.keys) ?? {};
+  writeJson(() => localStorage, k.keys, { ...keys, [saved.handle]: saved.key });
 }
 
 function randomKey() {
@@ -129,8 +133,9 @@ export class GameClient {
   private key = "";
   state: ClientState;
 
-  constructor() {
-    const saved = loadSaved();
+  /** `ns` namespaces the stored seat and keys; the player's own client uses the default "". */
+  constructor(private readonly ns = "") {
+    const saved = loadSaved(ns);
     this.state = {
       phase: "offline",
       server: saved?.server || defaultServer(),
@@ -176,14 +181,14 @@ export class GameClient {
 
   /** A saved room means a reload mid-match: rejoin it without showing the lobby. */
   hasResumableRoom() {
-    const saved = loadSaved();
+    const saved = loadSaved(this.ns);
     return Boolean(saved?.handle && saved.key && saved.roomId && saved.reconnectToken);
   }
 
   async connect(server: string, handle: string) {
-    const saved = loadSaved();
+    const saved = loadSaved(this.ns);
     const normalized = handle.trim();
-    this.key = keyFor(normalized) || randomKey();
+    this.key = keyFor(this.ns, normalized) || randomKey();
     this.set({ phase: "connecting", server, handle: normalized, connectionNote: "" });
 
     await this.connection?.stop().catch(() => undefined);
@@ -197,7 +202,7 @@ export class GameClient {
     connection.on("Joined", (m: ServerMessage<PlayerSession>) => {
       const session = m.payload;
       this.set({ session, roomId: m.roomId, phase: "room" });
-      save({ server, handle: this.state.handle, key: this.key, roomId: m.roomId, reconnectToken: session.reconnectToken });
+      save(this.ns, { server, handle: this.state.handle, key: this.key, roomId: m.roomId, reconnectToken: session.reconnectToken });
     });
     connection.on("Snapshot", (m: ServerMessage<Snapshot>) => {
       if (m.playerId !== this.state.handle) return;
@@ -242,7 +247,7 @@ export class GameClient {
     connection.onreconnected(async () => {
       this.set({ connectionNote: "" });
       if (!(await this.authenticate())) return;
-      const resume = loadSaved();
+      const resume = loadSaved(this.ns);
       if (this.state.phase === "room" && resume?.roomId && resume.reconnectToken) {
         await connection.invoke("Reconnect", resume.roomId, this.state.handle, resume.reconnectToken);
       }
@@ -261,14 +266,14 @@ export class GameClient {
       this.set({ phase: "room", roomId: saved.roomId });
       await connection.invoke("Reconnect", saved.roomId, normalized, saved.reconnectToken);
     } else {
-      save({ server, handle: normalized, key: this.key });
+      save(this.ns, { server, handle: normalized, key: this.key });
       this.set({ phase: "lobby" });
     }
     return true;
   }
 
   async resume() {
-    const saved = loadSaved();
+    const saved = loadSaved(this.ns);
     if (!saved) return false;
     return this.connect(saved.server, saved.handle);
   }
@@ -344,8 +349,16 @@ export class GameClient {
     this.set({ phase: "lobby" });
   }
 
+  /** Drops the connection and forgets the stored seat; the practice opponent uses this when it is done. */
+  async close() {
+    save(this.ns, null);
+    const connection = this.connection;
+    this.connection = null;
+    await connection?.stop().catch(() => undefined);
+  }
+
   leaveRoom() {
-    save({ server: this.state.server, handle: this.state.handle, key: this.key });
+    save(this.ns, { server: this.state.server, handle: this.state.handle, key: this.key });
     this.set({ phase: "lobby", roomId: "", session: null, snapshot: null, prompt: null, log: [], tally: {} });
   }
 
