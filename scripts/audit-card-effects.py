@@ -665,10 +665,72 @@ def legacy_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     return None
 
 
+def rune_domain_reveal_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    root_text = normalize("当我进攻时，展示你符文牌堆顶部的一张牌，然后将其回收。")
+    if clause["kind"] != "trigger" or normalize(unparenthesize(clause["scope"])) != root_text:
+        return None
+    text = normalize(unparenthesize(clause["text"]))
+    branches = {
+        normalize("{{红色}}—对此处的一名敌方单位造成2点伤害，并对此处所有其他敌方单位造成1点伤害。"): ("red", "DAMAGE_ENEMY_AND_OTHERS_HERE", 2, 1),
+        normalize("{{蓝色}}—抽一张牌。"): ("blue", "DRAW", 1, 0),
+        normalize("{{黄色}}—眩晕一名敌方单位。"): ("yellow", "STUN_ENEMY", 0, 0),
+    }
+    header = text in (normalize("根据展示的符文特性执行以下效果："), normalize("根据展示的符文特性，进行一次："))
+    if text != root_text and not header and text not in branches:
+        return None
+    def consumer(symbol, filename):
+        return [p for p in sources.references(symbol) if Path(p).name == filename]
+    common = consumer("ResolveRuneDomainReveal(", "CoreRuleEngine.UnitEvents.cs")
+    common += consumer("WithUnitEvents(", "CoreRuleEngine.RuneDomainReveal.cs")
+    common += consumer("CaptureRecycleObservers(", "CoreRuleEngine.RuneDomainReveal.cs")
+    root_consumer = all(consumer(symbol, filename) for symbol, filename in [
+        ("ResolveRuneDomainReveal(", "CoreRuleEngine.UnitEvents.cs"),
+        ("WithUnitEvents(", "CoreRuleEngine.RuneDomainReveal.cs"),
+        ("CaptureRecycleObservers(", "CoreRuleEngine.RuneDomainReveal.cs"),
+        ("ValidRevealedRuneContext(", "CoreRuleEngine.UnitEvents.cs"),
+        ("RuneDomainModeApplies(", "CoreRuleEngine.UnitEventModes.cs"),
+    ])
+    events = [card.get("unitEventAbility")] + [b.get("unitEventAbility") for b in card.get("behaviors", [])]
+    for event in events:
+        if not event or event.get("timing") != "ATTACK" or event.get("effect") != "REVEAL_RECYCLE_RUNE_DOMAIN" or not root_consumer:
+            continue
+        if any(meaningful(v) for k, v in event.items() if k not in ("timing", "effect", "modes")):
+            continue
+        modes = event.get("modes") or []
+        if not modes or any(not m.get("id") for m in modes) or len({m["id"] for m in modes}) != len(modes):
+            continue
+        if text == root_text:
+            return result("route", "进攻展示并回收符文，使用共享回收观察器和独立触发", common)
+        if header:
+            if {m.get("requiredRevealedRuneTrait") for m in modes} == {"red", "blue", "yellow"} and len(modes) == 3:
+                return result("route", "依展示符文特性创建三类内嵌式触发", common)
+            continue
+        trait, effect, amount, other = branches[text]
+        selected = [m for m in modes if m.get("requiredRevealedRuneTrait") == trait]
+        if len(selected) != 1:
+            continue
+        mode = selected[0]
+        if mode.get("effect") != effect or mode.get("amount", 0) != amount or mode.get("otherEnemyDamageAmount", 0) != other:
+            continue
+        allowed = {"id", "label", "effect", "amount", "requiredRevealedRuneTrait", "otherEnemyDamageAmount"}
+        if any(meaningful(v) for k, v in mode.items() if k not in allowed):
+            continue
+        required = ([("ResolveRuneDomainDamage(", "CoreRuleEngine.UnitEvents.cs"),
+                     ("spec.OtherEnemyDamageAmount", "CoreRuleEngine.RuneDomainReveal.cs"),
+                     ("ResolveUnitEventAreaDamage(", "CoreRuleEngine.RuneDomainReveal.cs")]
+                    if trait == "red" else [("ApplyDrawToPlayer(", "CoreRuleEngine.UnitEvents.cs")] if trait == "blue"
+                    else [("\"STUN_ENEMY\"", "CoreRuleEngine.UnitEventBoonInstructions.cs")])
+        if all(consumer(symbol, filename) for symbol, filename in required):
+            return result("route", "展示符文后的独立颜色分支及精确效果数值", common + [p for symbol, name in required for p in consumer(symbol, name)])
+    return result("missing", "进攻展示／回收符文或对应颜色的独立技能缺少精确规格及执行消费者")
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
+    if rune := rune_domain_reveal_route(card, clause, sources):
+        return rune
     if counted := counted_behavior_route(card, clause, sources):
         return counted
     if legacy := legacy_route(card, clause, sources):
