@@ -5,6 +5,7 @@ import type { PreconstructedDeck, PublicMatch, SealedPackChoice, SealedSet, Snap
 import { MIX_MAX_PACKS, MIX_MIN_PACKS, packMixLabel } from "../game/sealed";
 import { deckProblems, newDeckFrom, parseDeck, saveDeck, useCustomDecks, type CustomDeck } from "../game/decks";
 import { DeckBuilder } from "./DeckBuilder";
+import { preloadArt } from "../game/art";
 import { enabledCandidate } from "../game/actions";
 
 export function ConnectScreen({ state }: { state: ClientState }) {
@@ -356,6 +357,10 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
   const canReady = Boolean(enabledCandidate(prompt, "READY"));
   const all: PreconstructedDeck[] = [...custom, ...decks];
   const deck = all.find((d) => d.id === deckId);
+  // Fetch the chosen deck's art while the player is still in setup, so the table opens fully drawn.
+  useEffect(() => {
+    if (deck) preloadArt([deck.legendCardNo, deck.championCardNo, ...deck.battlefields, ...deck.mainDeck, ...deck.runeDeck]);
+  }, [deck]);
   const deckIssues = deck && "custom" in deck ? deckProblems(deck) : [];
 
   const submitDeck = () => {
