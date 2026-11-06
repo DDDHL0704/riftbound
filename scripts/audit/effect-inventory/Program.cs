@@ -95,6 +95,30 @@ var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
 };
+var legendDefinitionReader = typeof(CoreRuleEngine).GetMethod("TryGetLegendAbility", BindingFlags.Static | BindingFlags.NonPublic)!;
+var legendFlowReaders = new[] {
+    ("IsLegendFieldEffect", "FIELD_EFFECT"), ("IsLegendUnitEffect", "UNIT_EFFECT"), ("IsLegendUnitKeywordEffect", "UNIT_KEYWORD"),
+    ("IsLegendDuelMovementEffect", "DUEL_MOVEMENT"), ("IsLegendDiscardDrawEffect", "DISCARD_DRAW"),
+    ("IsLegendEquipmentReadyEffect", "EQUIPMENT_READY"), ("IsLegendAttachmentEffect", "ATTACHMENT")
+}.Select(pair => (Method: typeof(CoreRuleEngine).GetMethod(pair.Item1,
+    BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!, Flow: pair.Item2)).ToArray();
+object? LegendDefinition(string abilityId)
+{
+    object?[] args = [abilityId, null];
+    if (!(bool)legendDefinitionReader.Invoke(null, args)!) return null;
+    var value = JsonSerializer.Deserialize<Dictionary<string, object?>>(JsonSerializer.Serialize(args[1], options), options)!;
+    var effect = ((JsonElement)value["effectKind"]!).GetString()!;
+    var flow = legendFlowReaders.FirstOrDefault(reader => (bool)reader.Method.Invoke(null, [effect])!).Flow ?? "IMMEDIATE";
+    object?[] tokenArgs = [effect, null];
+    if ((bool)typeof(CoreRuleEngine).GetMethod("TryGetLegendUnitToken", BindingFlags.Static | BindingFlags.NonPublic)!
+        .Invoke(null, tokenArgs)!) flow = "UNIT_TOKEN";
+    if (effect is "GAIN_MANA" or "GAIN_DUEL_MANA" or "GAIN_UNIT_ONLY_MANA" or "GAIN_POWER") flow = "RESOURCE";
+    value["flow"] = flow;
+    value["exhaustsSourceAsCost"] = true;
+    if (value.TryGetValue("manaGainAmount", out var mana)) value["generatedMana"] = mana;
+    if (value.TryGetValue("powerGainAmount", out var power)) value["generatedPower"] = power;
+    return value;
+}
 var cards = catalog.Cards.OrderBy(c => c.CardNo, StringComparer.Ordinal).Select(card =>
 {
     var spec = specs[card.CardNo];
@@ -110,6 +134,8 @@ var cards = catalog.Cards.OrderBy(c => c.CardNo, StringComparer.Ordinal).Select(
         activations = activations.Where(a => P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(a, card.CardNo)).ToArray(),
         nativeActivations = nativeSpecs.Invoke(null, [card.CardNo]),
         legendActivations = legendAbilities.Where(a => a.Sources.Contains(card.CardNo)).Select(a => a.Id).ToArray(),
+        legendActivationDefinitions = legendAbilities.Where(a => a.Sources.Contains(card.CardNo))
+            .Select(a => LegendDefinition(a.Id)).Where(a => a is not null).ToArray(),
         legacyRoutes = LegacyRoutes(card.CardNo),
         unitEventAbility = unitEventReader.Invoke(null, [card.CardNo]),
         spec.Keywords, spec.ActivatedAbilities, spec.Effects,

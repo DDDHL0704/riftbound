@@ -191,6 +191,9 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         var choices = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(requirement["targetChoicesByIndex"]);
         Assert.Contains(choices["0"], choice => choice.Id == "TEEMO");
         await game.Act("P1", new LegendActCommand("UNIT", LegendActionAbilityCatalog.TeemoLegendAbilityId, ["TEEMO"], ["SPEND_MANA:1"]));
+        Assert.NotNull(Assert.Single(game.State.StackItems).LegendFieldEffect);
+        Assert.DoesNotContain("TEEMO", game.State.PlayerZones["P1"].Hand);
+        await game.Top();
         Assert.Contains("TEEMO", game.State.PlayerZones["P1"].Hand);
         Assert.True(game.State.CardObjects["TEEMO"].ObjectGeneration > initial.CardObjects["TEEMO"].ObjectGeneration);
         Assert.DoesNotContain("TEEMO", game.State.PlayerZones["P2"].Base);
@@ -216,7 +219,8 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         var game = new Driver(initial);
         await game.Act("P1", command);
         Assert.Equal(initial.RunePools["P1"].TotalPower - 1, game.State.RunePools["P1"].TotalPower);
-        if (!native) await game.Top();
+        Assert.DoesNotContain("TEEMO", game.State.PlayerZones["P1"].Hand);
+        await game.Top();
         Assert.Contains("TEEMO", game.State.PlayerZones["P1"].Hand);
         await game.Replay();
     }
