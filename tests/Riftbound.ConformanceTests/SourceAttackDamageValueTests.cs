@@ -223,4 +223,25 @@ public sealed class SourceAttackDamageValueTests
         Assert.DoesNotContain(game.State.TriggerQueue, item => item.SourceObjectId == "ENEMY" && item.FieldContext is not null);
         await game.Replay();
     }
+    [Fact]
+    public async Task ZeroSourceMightDoesNotBecomeDamageThroughAVoidGateBonus()
+    {
+        const string no = "OGN·076/298";
+        var initial = VenConditionalPlayCostTests.Place(Position(no), "UNIT", no, "P1", "BASE");
+        Assert.True(PrintedCardFactory.TryCreate("OTHER", "P2", "OGN·296/298", out var gate));
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { ["OTHER"] = gate } };
+        // Source and battlefield are public opening fixtures for this boundary.
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:OTHER", []));
+        await Choose(game);
+        // Same-incarnation numeric boundary, with the real battlefield bonus.
+        var changed = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+            ["UNIT"] = game.State.CardObjects["UNIT"] with { Power = 0 } } };
+        OfficialInsightAndSpellLockTests.Restore(changed);
+        var resolved = await OfficialGraveyardRecastTests.Top(changed);
+        Assert.Equal(0, resolved.State.CardObjects["ENEMY"].Damage);
+        Assert.DoesNotContain(resolved.Events, ev => ev.Kind == "DAMAGE_APPLIED");
+        OfficialInsightAndSpellLockTests.Restore(resolved.State);
+    }
+
 }
