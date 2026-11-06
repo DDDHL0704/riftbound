@@ -477,6 +477,10 @@ button {
 
 /* ---------- sealed ---------- */
 
+.lobby__select {
+  height: 34px;
+  padding: 0 10px;
+}
 .lobby__options {
   display: flex;
   flex-wrap: wrap;
