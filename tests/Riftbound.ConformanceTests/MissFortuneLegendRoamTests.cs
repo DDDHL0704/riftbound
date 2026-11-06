@@ -32,6 +32,8 @@ public sealed class MissFortuneLegendRoamTests
         Assert.DoesNotContain(targets["0"], t => t.Id == "GEAR");
         var game = new VenBasicFlowSpellTests.Driver(initial);
         await game.Act("P1", Grant("HOST"));
+        Assert.DoesNotContain("ROAM", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        await game.Top();
         Assert.Contains("ROAM", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
         Assert.Equal(initial.RunePools["P1"], game.State.RunePools["P1"]);
@@ -85,6 +87,8 @@ public sealed class MissFortuneLegendRoamTests
             RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(20, 2) } };
         var game = new VenBasicFlowSpellTests.Driver(state);
         await game.Act("P1", Grant("HOST"));
+        Assert.DoesNotContain("ROAM", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        await game.Top();
         Assert.Equal(0, game.State.RunePools["P1"].Power);
         Assert.Contains("ROAM", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         await game.Replay();
