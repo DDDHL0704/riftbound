@@ -216,6 +216,11 @@ export function EventFx({ meId }: { meId: string }) {
         else if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0) cue("hit");
         else if (e.kind === "UNIT_DESTROYED") cue("destroy");
         else if (e.kind === "SCORE_GAINED" && Number(p.amount) > 0) cue(p.playerId === meId ? "score-me" : "score-opp");
+        else if (e.kind === "STACK_ITEM_ADDED" && (Array.isArray(p.targetObjectIds) ? p.targetObjectIds.length : p.targetObjectId))
+          cue(p.controllerId === meId ? "cast" : "cast-opp");
+        else if (e.kind === "BATTLE_DECLARED") cue("clash");
+        else if (e.kind === "BATTLEFIELD_CONQUERED") cue(p.playerId === meId ? "conquer" : "conquer-opp");
+        else if (e.kind === "BATTLEFIELD_HELD") cue("hold");
         if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0) {
           const pos = at(p.targetObjectId, p.battlefieldId);
           push(String(p.targetObjectId), pos, `−${p.damage}`, "damage");
