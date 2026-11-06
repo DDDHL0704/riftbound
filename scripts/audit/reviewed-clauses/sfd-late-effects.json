@@ -1,0 +1,696 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·169/221"
+      ],
+      "text": "当一名友方单位被摧毁时，你可以选择让我变为休眠状态，以此抽一张牌，然后将一张手牌放到主牌堆的顶部或底部。",
+      "scope": "当一名友方单位被摧毁时，你可以选择让我变为休眠状态，以此抽一张牌，然后将一张手牌放到主牌堆的顶部或底部。",
+      "status": "missing",
+      "reason": "只有基础装备登记；缺少友方单位被摧毁后可选横置来源的确认费用，以及独立抽牌后把一张手牌放主牌堆顶／底的私有结算选择",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsEquipment": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·169/221\"",
+            "\"REMEMBRANCE_ALTAR_PLAY_EQUIPMENT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·175/221"
+      ],
+      "text": "当你打出我时，让你的其他单位本回合内{{S}}+2。",
+      "scope": "当你打出我时，让你的其他单位本回合内{{S}}+2。",
+      "status": "missing",
+      "reason": "只有基础单位登记；未接入打出后给予其他友方单位本回合+2战力的无目标群体技能",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 6,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·175/221\"",
+            "\"GAI_BEAST_ENTRY_POWER_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·175/221"
+      ],
+      "text": "如果我从你的主牌堆中被展示，则你{{获得}}{{2}}。",
+      "scope": "如果我从你的主牌堆中被展示，则你{{获得}}{{2}}。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少来源从自己主牌堆被展示这一事件的即时资源替换，不能以普通打出或抽牌代替",
+      "rules": "核心370.1.b.1 明确以垓兽展示获得2法力为例、430.2；SFD·175 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 6,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·175/221\"",
+            "\"GAI_BEAST_ENTRY_POWER_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·184/221"
+      ],
+      "text": "你可以选择为其贴附其控制者的一件武装。",
+      "scope": "你可以选择为其贴附其控制者的一件武装。",
+      "status": "route",
+      "reason": "声明时可带一件所选单位控制者的武装，移动实际完成后再询问是否贴附；改贴到移动后的真实位置，可放弃，移动被禁止时跳过关联贴附",
+      "rules": "核心359 关联目标、435 贴附、447–451 移动；SFD·184 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "optionalEquipmentAfterMovement": true,
+            "optionalEquipmentRequiredTag": "武装",
+            "requiredTargetCount": 2,
+            "minTargetCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementFollowUp.cs",
+          "contains": [
+            "IsMovementEquipmentRelationAllowed(",
+            "followUp.AttachmentChosen == true",
+            "TryAttachEquipment("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RuthlessPursuitTests.cs",
+          "methods": [
+            "DeclaredEquipmentWaitsForThePostMovementOptionalDecision",
+            "OptionalEquipmentChoicesUseActualControllerAndEquipmentType",
+            "AProhibitedMoveSkipsItsLinkedAttachmentAndGrant",
+            "ARealReturnResponseInvalidatesTheUnitAndBothLinkedFollowUps"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·184/221"
+      ],
+      "text": "在本回合内，该单位拥有“当我征服一处战场时，你可以选择将我移动到我的基地”。",
+      "scope": "在本回合内，该单位拥有“当我征服一处战场时，你可以选择将我移动到我的基地”。",
+      "status": "route",
+      "reason": "实际移动后给同一代际单位授予本回合可选征服返基地技能；真实无阻挡或战斗胜利征服均触发并提供响应，回合结束撤销未来权限，响应中离场不改为新单位",
+      "rules": "核心383 征服触发、468.5、447–451 移动及期限；SFD·184 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "grantsConquestReturnToBaseAfterMovement": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.GrantedConquestReturn.cs",
+          "contains": [
+            "CaptureGrantedConquestReturns(",
+            "ResolveGrantedConquestReturn(",
+            "behavior.GrantsConquestReturnToBaseAfterMovement"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RuthlessPursuitTests.cs",
+          "methods": [
+            "RealUnopposedConquestOffersTheGrantedOptionalReturnAndWaitsForResponses",
+            "ActualCombatVictoryCapturesAndResolvesTheGrantedConquestReturn",
+            "TheGrantedAbilityExpiresAtTheActualTurnEnd",
+            "AReturnResponseAfterConquestLeavesTheCapturedAbilityButInvalidatesItsOldUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·188/221"
+      ],
+      "text": "展示你主牌堆顶部的两张牌。",
+      "scope": "展示你主牌堆顶部的两张牌。",
+      "status": "route",
+      "reason": "响应后公开展示当前顶2张，可选放逐一张并将其置为待处理卡牌、其余明确抽取；父法术完成后正常确认所选卡牌，减2法力仍支付其他费用，可在放逐前放弃而抽全部展示牌",
+      "rules": "核心329／337 待处理卡牌、355–359／420.3 效果打出、128 展示；SFD·188 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "deckPlayKind": "SINGLE_PUBLIC_PLAY",
+            "mainDeckLookCount": 2,
+            "effectPlayManaReduction": 2,
+            "effectPlayRevealsCards": true,
+            "deckPlayDrawsUnselected": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "definition.DeckPlayDrawsUnselected",
+            "AddDeckPlayPendingCard(",
+            "ParentCompleted = true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SingleDeckPlaySequenceTests.cs",
+          "methods": [
+            "VoidRushBanishesOneAndDrawsTheOtherBeforeAnySelectedCardIsConfirmed",
+            "DecliningBeforeBanishmentRecyclesOrDrawsExactlyTheViewedCards",
+            "VoidRushActuallyConfirmsEquipmentAndOrdinarySpellsWithTheTwoManaReduction"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DeckPlayPendingBeforeParentTests.cs",
+          "methods": [
+            "FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·188/221"
+      ],
+      "text": "你可以选择放逐其中一张，然后将其打出，其费用减少{{2}}。",
+      "scope": "你可以选择放逐其中一张，然后将其打出，其费用减少{{2}}。",
+      "status": "route",
+      "reason": "响应后公开展示当前顶2张，可选放逐一张并将其置为待处理卡牌、其余明确抽取；父法术完成后正常确认所选卡牌，减2法力仍支付其他费用，可在放逐前放弃而抽全部展示牌",
+      "rules": "核心329／337 待处理卡牌、355–359／420.3 效果打出、128 展示；SFD·188 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "deckPlayKind": "SINGLE_PUBLIC_PLAY",
+            "mainDeckLookCount": 2,
+            "effectPlayManaReduction": 2,
+            "effectPlayRevealsCards": true,
+            "deckPlayDrawsUnselected": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "definition.DeckPlayDrawsUnselected",
+            "AddDeckPlayPendingCard(",
+            "ParentCompleted = true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SingleDeckPlaySequenceTests.cs",
+          "methods": [
+            "VoidRushBanishesOneAndDrawsTheOtherBeforeAnySelectedCardIsConfirmed",
+            "DecliningBeforeBanishmentRecyclesOrDrawsExactlyTheViewedCards",
+            "VoidRushActuallyConfirmsEquipmentAndOrdinarySpellsWithTheTwoManaReduction"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DeckPlayPendingBeforeParentTests.cs",
+          "methods": [
+            "FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·188/221"
+      ],
+      "text": "抽取其中未被放逐的卡牌。",
+      "scope": "抽取其中未被放逐的卡牌。",
+      "status": "route",
+      "reason": "响应后公开展示当前顶2张，可选放逐一张并将其置为待处理卡牌、其余明确抽取；父法术完成后正常确认所选卡牌，减2法力仍支付其他费用，可在放逐前放弃而抽全部展示牌",
+      "rules": "核心329／337 待处理卡牌、355–359／420.3 效果打出、128 展示；SFD·188 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "deckPlayKind": "SINGLE_PUBLIC_PLAY",
+            "mainDeckLookCount": 2,
+            "effectPlayManaReduction": 2,
+            "effectPlayRevealsCards": true,
+            "deckPlayDrawsUnselected": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "definition.DeckPlayDrawsUnselected",
+            "AddDeckPlayPendingCard(",
+            "ParentCompleted = true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SingleDeckPlaySequenceTests.cs",
+          "methods": [
+            "VoidRushBanishesOneAndDrawsTheOtherBeforeAnySelectedCardIsConfirmed",
+            "DecliningBeforeBanishmentRecyclesOrDrawsExactlyTheViewedCards",
+            "VoidRushActuallyConfirmsEquipmentAndOrdinarySpellsWithTheTwoManaReduction"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DeckPlayPendingBeforeParentTests.cs",
+          "methods": [
+            "FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·190/221"
+      ],
+      "text": "{{唯我}}（你的卡组中只能拥有一张同名的此牌。）",
+      "scope": "{{唯我}}（你的卡组中只能拥有一张同名的此牌。）",
+      "status": "route",
+      "reason": "构筑组牌按完整卡名限制唯我最多1张，异画同名合并统计；轮抽／现开按明确赛制例外另行验证，不将对局中可多次控制等同于构筑可多放",
+      "rules": "核心唯我构筑限制、现开赛制已准入例外；SFD·190/221 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/OfficialDeckRules.cs",
+          "contains": [
+            "group.Any(IsUniqueCard) ? 1 : DefaultMaxCopiesByName",
+            "cards.GroupBy(card => card.CardName, StringComparer.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SfdUniqueClauseAuditTests.cs",
+          "methods": [
+            "ConstructedDeckAllowsOneCopyButRejectsTwoCopiesOfEachUniqueEquipment"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/SealedDeckValidationTests.cs",
+          "methods": [
+            "CopyUniqueAndExclusiveCountLimitsAreWaivedWithFullPoolOwnership"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·191/221"
+      ],
+      "text": "{{唯我}}（你的卡组中只能拥有一张同名的此牌。）",
+      "scope": "{{唯我}}（你的卡组中只能拥有一张同名的此牌。）",
+      "status": "route",
+      "reason": "构筑组牌按完整卡名限制唯我最多1张，异画同名合并统计；轮抽／现开按明确赛制例外另行验证，不将对局中可多次控制等同于构筑可多放",
+      "rules": "核心唯我构筑限制、现开赛制已准入例外；SFD·191/221 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/OfficialDeckRules.cs",
+          "contains": [
+            "group.Any(IsUniqueCard) ? 1 : DefaultMaxCopiesByName",
+            "cards.GroupBy(card => card.CardName, StringComparer.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SfdUniqueClauseAuditTests.cs",
+          "methods": [
+            "ConstructedDeckAllowsOneCopyButRejectsTwoCopiesOfEachUniqueEquipment"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/SealedDeckValidationTests.cs",
+          "methods": [
+            "CopyUniqueAndExclusiveCountLimitsAreWaivedWithFullPoolOwnership"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·192/221"
+      ],
+      "text": "{{唯我}}（你的卡组中只能拥有一张同名的此牌。）",
+      "scope": "{{唯我}}（你的卡组中只能拥有一张同名的此牌。）",
+      "status": "route",
+      "reason": "构筑组牌按完整卡名限制唯我最多1张，异画同名合并统计；轮抽／现开按明确赛制例外另行验证，不将对局中可多次控制等同于构筑可多放",
+      "rules": "核心唯我构筑限制、现开赛制已准入例外；SFD·192/221 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/OfficialDeckRules.cs",
+          "contains": [
+            "group.Any(IsUniqueCard) ? 1 : DefaultMaxCopiesByName",
+            "cards.GroupBy(card => card.CardName, StringComparer.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SfdUniqueClauseAuditTests.cs",
+          "methods": [
+            "ConstructedDeckAllowsOneCopyButRejectsTwoCopiesOfEachUniqueEquipment"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/SealedDeckValidationTests.cs",
+          "methods": [
+            "CopyUniqueAndExclusiveCountLimitsAreWaivedWithFullPoolOwnership"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·194/221"
+      ],
+      "text": "选择一名单位，在本回合内，抵挡该单位下一次受到的伤害。",
+      "scope": "选择一名单位，在本回合内，抵挡该单位下一次受到的伤害。",
+      "status": "route",
+      "reason": "目标的本回合下一次正伤害事件全部被抵挡并消耗一次替换，后续伤害仍可造成；多个替换由受影响单位控制者排序，不因0伤害消耗下一次标记",
+      "rules": "核心370–372 替换与排序、418 伤害；SFD·194 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "statusEffectId": "PREVENT_NEXT_DAMAGE_THIS_TURN",
+            "requiredTargetCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DamageReplacement.cs",
+          "contains": [
+            "target.UntilEndOfTurnEffects.Contains(PreventNextDamageThisTurnEffectId)",
+            "if (selected == \"NEXT\") target = target with"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysCounterstormAndPreventsNextDamage"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·198/221"
+      ],
+      "text": "然后让两名“黄沙士兵”变为活跃状态。",
+      "scope": "然后让两名“黄沙士兵”变为活跃状态。",
+      "status": "route",
+      "reason": "先创建本次全部休眠黄沙士兵，之后内嵌技能从这些新物体中选最多2个活跃，现存士兵不混入；确认后响应，来源法术已先完成结算",
+      "rules": "中国区铸魂淬炼勘误260114第2页沙兵现身新文本；核心388–389 内嵌触发、440 创建、403–407",
+      "runtime": {
+        "behaviors": [
+          {
+            "createdTokenReadyCount": 2,
+            "createdBaseUnitTokenPerEquipment": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CreatedTokenReady.cs",
+          "contains": [
+            "PrepareCreatedTokenReady(",
+            "behavior.CreatedTokenReadyCount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SandSoldierEmbeddedReadyTests.cs",
+          "methods": [
+            "RiseCountsCurrentControlledEquipmentThenTargetsOnlyItsNewTokensAfterEntry",
+            "ChoosingZeroRiseRecipientsStillConfirmsAMandatoryEmbeddedAbilityWithResponses"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·202/221"
+      ],
+      "text": "获得战场上一名敌方单位的控制权。",
+      "scope": "获得战场上一名敌方单位的控制权。",
+      "status": "route",
+      "reason": "合法选择敌方战场单位后实际转移控制权并保留原位置、所属权，随后活跃；仍有敌方占位时启动争夺战斗，唯一占位时重新确立战场控制并处理征服",
+      "rules": "核心190.3.a.2 改变控制引发争夺、191–192 控制者；SFD·202 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "gainsControlOfTargetToBattlefield": true,
+            "readiesTarget": true,
+            "requiredTargetCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryGainControlOfTargetToBattlefield(",
+            "behavior.GainsControlOfTargetToBattlefield"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/HostileTakeoverGuardTests.cs",
+          "methods": [
+            "HostileTakeoverGainsControlReadiesEnemyBattlefieldUnitAndSchedulesReturn",
+            "HostileTakeoverPreservesPreciseBattlefieldAndStartsContestTasksWhenOpponentOccupantRemains",
+            "HostileTakeoverPreservesPreciseBattlefieldAndStartsNonBattleContestWhenNoOpponentOccupantRemains"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/UncontrolledConquestTests.cs",
+          "methods": [
+            "HostileTakeoverOfSoleOccupantMatchesOfficialQa"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·202/221"
+      ],
+      "text": "回合结束时，失去该单位的控制权，然后将它召回。（把它送回基地，此行动不算作移动。）",
+      "scope": "回合结束时，失去该单位的控制权，然后将它召回。（把它送回基地，此行动不算作移动。）",
+      "status": "missing",
+      "reason": "回合结束仍由ReturnTemporaryControlAtEndTurn直接改控制并召回，没有独立延迟触发及响应；也未区分结束步骤已开始后打出的本牌不得再次生成该延迟技能",
+      "rules": "核心359.3.e.16 明确以恶意收购为例、390–393／403–407 延迟触发；SFD·202 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "gainsControlOfTargetToBattlefield": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private static TemporaryControlReturnResult ReturnTemporaryControlAtEndTurn(",
+            "ControllerId = ownerPlayerId",
+            "\"UNIT_RECALLED_TO_OWNER_BASE\""
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "P5HostileTakeoverReturnsControlAndRecallsAtEndTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·206/221"
+      ],
+      "text": "选择一名友方单位和一个法术。",
+      "scope": "选择一名友方单位和一个法术。",
+      "status": "route",
+      "reason": "友方单位与已确认法术为两个目标，法术可由任意玩家控制；无效化并以其实际基础法力费用给同一友方单位本回合+S，错类型或敌方单位拒绝",
+      "rules": "核心355.9／355.6 目标、426 无效化、479 当前战力；SFD·206 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "countersTargetStackSpell": true,
+            "appliesPowerModifierToFirstTargetFromSecondStackSpellManaCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysLaurentDuelistCounterSpellPowerBySpellCost",
+            "CoreRuleEngineRejectsLaurentDuelistAgainstUnitStackItem",
+            "CoreRuleEngineRejectsLaurentDuelistWhenFirstTargetIsEnemyUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·206/221"
+      ],
+      "text": "无效化该法术，并让该单位在本回合内获得等同于该法术法力费用的+{{s}}加成。",
+      "scope": "无效化该法术，并让该单位在本回合内获得等同于该法术法力费用的+{{s}}加成。",
+      "status": "route",
+      "reason": "友方单位与已确认法术为两个目标，法术可由任意玩家控制；无效化并以其实际基础法力费用给同一友方单位本回合+S，错类型或敌方单位拒绝",
+      "rules": "核心355.9／355.6 目标、426 无效化、479 当前战力；SFD·206 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "countersTargetStackSpell": true,
+            "appliesPowerModifierToFirstTargetFromSecondStackSpellManaCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysLaurentDuelistCounterSpellPowerBySpellCost",
+            "CoreRuleEngineRejectsLaurentDuelistAgainstUnitStackItem",
+            "CoreRuleEngineRejectsLaurentDuelistWhenFirstTargetIsEnemyUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·219/221"
+      ],
+      "text": "当你据守此处时，每名玩家召出一枚休眠的符文。",
+      "scope": "当你据守此处时，每名玩家召出一枚休眠的符文。",
+      "status": "route",
+      "reason": "实际据守后独立技能响应，再为每名玩家各召出1枚休眠符文；各自从自己的符文牌堆处理，不在据守捕获时立即执行",
+      "rules": "核心383.4.d 据守、403–407、召出符文；SFD·219 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "CHANNEL_ALL",
+            "amount": 1
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "case \"CHANNEL_ALL\": case \"CHANNEL_OPTIONAL\": case UnitHeldRuneKind:",
+            "context.Kind == \"CHANNEL_ALL\" ? state.Seats.Keys.Order().ToArray()"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialHoldSequenceTests.cs",
+          "methods": [
+            "MandatoryHoldEffectsHaveRealStackWindows"
+          ]
+        }
+      ]
+    }
+  ]
+}
