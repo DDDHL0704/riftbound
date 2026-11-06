@@ -22,6 +22,7 @@ import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../
 import { Ambient, Confetti, tiltHandlers } from "./Ambient";
 import { Card, HoverPreview, type CardMark, type HoverHandler } from "./Card";
 import { ChainArrows, Dock, EventFx, Spotlight } from "./Overlay";
+import { Stage, StackShow } from "./Stage";
 import { Rail } from "./Rail";
 import { Battlefield, OpponentHand, ScoreSpine, Side, type RenderObject, type ZoneView } from "./Zones";
 
@@ -778,6 +779,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
           </div>
 
 
+          {!winner && <StackShow snapshot={snapshot} meId={meId} />}
           {!winner && (
             <Dock
               prompt={prompt}
@@ -919,6 +921,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
         <ChainArrows snapshot={snapshot} meId={meId} />
         <EventFx meId={meId} />
+        <Stage meId={meId} />
         <Spotlight meId={meId} />
         <AnimatePresence>{hover && !drag?.active && <HoverPreview key={hover.cardNo + (hover.object?.objectId ?? "")} {...hover} />}</AnimatePresence>
         {drag?.active && (
