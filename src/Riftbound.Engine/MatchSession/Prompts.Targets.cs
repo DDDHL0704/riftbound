@@ -476,15 +476,6 @@ internal static partial class ActionPromptBuilder
             .Select(objectId => ObjectChoice(state, objectId, "己方提莫单位"));
     }
 
-    private static IEnumerable<ActionPromptChoiceDto> LegendActionPendingFriendlyUnitTargetChoices(
-        MatchState state,
-        string playerId)
-    {
-        return ControlledLegendActionObjects(state, playerId)
-            .Where(objectId => LegendActionIsPendingFriendlyUnitTarget(state, playerId, objectId))
-            .Select(objectId => ObjectChoice(state, objectId, "被当前结算链项目指定的友方单位"));
-    }
-
     private static bool LegendActionIsValidFriendlyUnitTarget(
         MatchState state,
         string playerId,
@@ -558,19 +549,6 @@ internal static partial class ActionPromptBuilder
                 UnitIdentityCatalog.TeemoUnitIdentityId,
                 targetState.CardNo)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, targetObjectId);
-    }
-
-    private static bool LegendActionIsPendingFriendlyUnitTarget(
-        MatchState state,
-        string playerId,
-        string targetObjectId)
-    {
-        return LegendActionIsControlledFieldObjectWithTag(state, playerId, targetObjectId, CardObjectTags.UnitCard)
-            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-            && !string.IsNullOrWhiteSpace(targetState.CardNo)
-            && state.StackItems.Any(stackItem =>
-                string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal)
-                && stackItem.TargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal));
     }
 
     private static bool LegendActionIsControlledFieldObjectWithTag(

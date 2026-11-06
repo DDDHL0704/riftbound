@@ -166,16 +166,26 @@ public sealed class IreliaSelfActionTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["IRELIA"] = new("P1", "LEGEND") } };
         var game = new Driver(state);
         await game.Act("P1", new PlayCardCommand("SPELL", "SFD·034/221", ["HOST"]));
-        await game.Top();
-        await game.Act("P1", new LegendActCommand("IRELIA", "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT",
-            ["HOST"], ["SPEND_MANA:1"]));
+        await Order(game);
+        var actions = new List<string>();
+        while (game.State.StackItems.Count > 1)
+        {
+            if (game.State.PendingPayment is { } payment)
+                await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+            else
+            {
+                if (game.State.StackItems[^1].FieldContext?.SelfAction is { } observed) actions.Add(observed.Action);
+                await game.Top();
+                await Order(game);
+            }
+        }
         Assert.False(game.State.CardObjects["HOST"].IsExhausted);
-        Assert.Equal(5, game.State.CardObjects["HOST"].Power);
-        Assert.Equal(2, game.State.TriggerQueue.Count);
-        Assert.Equal(new[] { "READIED", "TARGETED" }, game.State.TriggerQueue
-            .Select(t => t.FieldContext!.SelfAction!.Action).Order(StringComparer.Ordinal).ToArray());
-        await Order(game); await game.Top(); await game.Top();
-        Assert.Equal(7, game.State.CardObjects["HOST"].Power); await game.Replay();
+        Assert.True(game.State.CardObjects["IRELIA"].IsExhausted);
+        // The original spell selected this unit; the legend's "that unit"
+        // instruction only readies it, and never chooses it a second time.
+        Assert.Equal(new[] { "READIED", "TARGETED" }, actions.Order(StringComparer.Ordinal).ToArray());
+        Assert.Equal(6, game.State.CardObjects["HOST"].Power);
+        await game.Replay();
     }
 
     [Theory]

@@ -13,7 +13,7 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
     string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
     bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0,
-    int RuneCallCount = 0, int OtherEnemyDamageAmount = 0);
+    int RuneCallCount = 0, int OtherEnemyDamageAmount = 0, bool SourceInLegendZone = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false,

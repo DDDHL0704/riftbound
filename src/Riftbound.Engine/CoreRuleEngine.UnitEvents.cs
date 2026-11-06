@@ -9,7 +9,8 @@ public sealed record UnitEventContext(string CardNo, long SourceGeneration, long
     ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null,
     BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, MightReductionFact? MightReduction = null, ObjectBinding? DeploymentBattlefield = null, IReadOnlyList<UnitEventOtherObject>? ExhaustedUnits = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PlayedUnitRuneObservation? PlayedUnitRunes = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RevealedRuneFact? RevealedRune = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RevealedRuneFact? RevealedRune = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] TargetSelectionOrigin? TargetSelection = null);
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -22,6 +23,7 @@ public sealed partial class CoreRuleEngine
     private static UnitEventAbilitySpec? UnitEventSpec(string? no)
         => no is null ? null
             : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
+                ?? TargetSelectionLegendEvents.Value.GetValueOrDefault(no)
                 ?? MainPhaseLegendEventSpec(no)
                 ?? DeploymentPlayLegends.Value.GetValueOrDefault(no)
                 ?? PlayedUnitRuneSpecs.Value.GetValueOrDefault(no);
@@ -31,6 +33,8 @@ public sealed partial class CoreRuleEngine
         => sources.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
                 && !card.IsFaceDown && ((IsFaceUpNonStandbyUnit(card) || card.Tags.Contains(CardObjectTags.EquipmentCard))
                     && IsObjectOnField(zones, id)
+                    || UnitEventSpec(card.CardNo) is { SourceInLegendZone: true }
+                        && zones.Values.Any(z => z.LegendZone.Contains(id))
                     || timing == "FRIENDLY_UNIT_PLAYED" && PlayedUnitRuneSpecs.Value.ContainsKey(card.CardNo ?? "")
                         && zones.Values.Any(z => z.LegendZone.Contains(id))
                     || timing == "MAIN" && MainPhaseLegendEventSpec(card.CardNo) is not null
@@ -327,6 +331,7 @@ public sealed partial class CoreRuleEngine
                         && PredictBindingMatches(state, burned.Binding, burned.CardNo, burned.FaceRevision, reflexive, null)
                     : c.ReflexiveTick is null
                 : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
+            && ValidTargetSelectionContext(state, c, spec, controller)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
@@ -335,7 +340,7 @@ public sealed partial class CoreRuleEngine
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
-                : c.Other is null)
+                : spec.Effect == ReadySelectedEventUnit ? c.Other is not null : c.Other is null)
             && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect == "MIGHT_ATTACKERS" ? c.Attackers is { Count: > 0 }
                 && c.Attackers.All(a => a is not null && a.Binding is { Generation: >= 0 }
@@ -357,7 +362,10 @@ public sealed partial class CoreRuleEngine
         && (SelectedUnitEventSpec(c)?.Effect is RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
-        => item.TargetGenerations is null ? item.TargetObjectIds.Count == 0 : NeedsUnitEventTarget(item)
+        => item.UnitEvent?.Timing == FriendlyUnitTargetedTiming
+            ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && !item.SourceConfirmed
+                && item.EffectRepeatCount == 1 && item.DamageAmount == 0 && item.OptionalCosts.Count == 0 && item.Destination.Length == 0
+            : item.TargetGenerations is null ? item.TargetObjectIds.Count == 0 : NeedsUnitEventTarget(item)
             && (item.TargetObjectIds.Count > 0 || UnitEventSpec(item.UnitEvent!.CardNo)!.Effect == PlayedUnitReadyRunes)
             && (UnitEventSpec(item.UnitEvent!.CardNo)!.AnyNumberOfTargets || item.TargetObjectIds.Count == 1)
             && (UnitEventSpec(item.UnitEvent.CardNo)!.Effect != PlayedUnitReadyRunes || item.TargetObjectIds.Count <= UnitEventSpec(item.UnitEvent.CardNo)!.Amount)
@@ -460,6 +468,7 @@ public sealed partial class CoreRuleEngine
         var spec = SelectedUnitEventSpec(context)!;
         if (spec.Effect == RuneDomainRevealEffect && context.RevealedRune is null) return ResolveRuneDomainReveal(state, item);
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
+        if (spec.Effect == ReadySelectedEventUnit) return ResolveSelectedEventUnitReady(state, item);
         if (spec.Effect == RuneDomainDamageEffect) return ResolveRuneDomainDamage(state, item, spec);
         if (spec.Effect == StandbyHandPlayHereEffect)
         {

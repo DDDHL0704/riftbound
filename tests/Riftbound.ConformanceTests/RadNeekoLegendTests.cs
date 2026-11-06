@@ -566,6 +566,28 @@ public sealed class RadNeekoLegendTests
                 foreach (var value in Strings(property.Value)) yield return value;
     }
 
+    [Fact]
+    public async Task ATargetSelectionTriggerAlreadyPaidSurvivesItsActualNeekoBoundLegendLeaving()
+    {
+        var initial = (await Position("SFD·195/221")).State;
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["UNIT"] = initial.CardObjects["UNIT"] with { IsExhausted = true } } };
+        initial = AttackDamageDistributionTests.Spell(initial, "BOOST", "SFD·034/221", "P1");
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new PlayCardCommand("BOOST", "SFD·034/221", ["UNIT"]));
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        Assert.True(game.State.CardObjects[legend].IsExhausted);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEEKO"])); await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey(legend));
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.False(game.State.CardObjects["UNIT"].IsExhausted);
+        await game.Top(); await game.ColdCheckpoint(); await game.Replay();
+    }
+
     private static Task Play(Driver game, string id)
         => game.Act("P1", new PlayCardCommand(id, Neeko, [], Destination: "BASE"));
 

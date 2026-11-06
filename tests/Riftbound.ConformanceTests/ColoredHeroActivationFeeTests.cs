@@ -98,4 +98,36 @@ public sealed class ColoredHeroActivationFeeTests
         Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
         await game.Top(); Assert.Equal(3, game.State.CardObjects["ENEMY"].Damage); await game.Replay();
     }
+    [Fact]
+    public async Task FriendlyXerathTargetKeepsItsNativeBindingWhileIreliaPaysAndReadiesThatUnit()
+    {
+        var initial = IreliaTargetSelectionTriggerTests.Position();
+        initial = VenConditionalPlayCostTests.Place(initial, "XERATH", "UNL-026/219", "P1", "BASE");
+        initial = LocalDestructionRecallTests.At(initial, "XERATH", "P1", "BATTLEFIELD", "F");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["HOST"] = initial.CardObjects["HOST"] with { Power = 10 } },
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = RedPool(0, 1, 1) } };
+        var game = new Driver(initial);
+        await game.Act("P1", new ActivateAbilityCommand("XERATH", P4ActivatedAbilityCatalog.XerathDamageAbilityId, ["HOST"]));
+        Assert.True(game.State.CardObjects["XERATH"].IsExhausted);
+        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Equal(2, game.State.StackItems.Count);
+        Assert.Single(game.State.StackItems, item => item.NativeUnitActivation is not null);
+        Assert.Single(game.State.StackItems, item => item.UnitEvent?.Timing == "FRIENDLY_UNIT_TARGETED");
+        Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Red));
+        Assert.Equal(1, game.State.RunePools["P1"].Power);
+        await IreliaTargetSelectionTriggerTests.Pay(game);
+        OfficialInsightAndSpellLockTests.Restore(game.State);
+        await game.Top();
+        Assert.False(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.NotNull(Assert.Single(game.State.StackItems).NativeUnitActivation);
+        OfficialInsightAndSpellLockTests.Restore(game.State);
+        await game.Top();
+        Assert.Equal(3, game.State.CardObjects["HOST"].Damage);
+        Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Equal(0, game.State.RunePools["P1"].Power);
+        await game.Replay();
+    }
+
 }
