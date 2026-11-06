@@ -8,6 +8,18 @@ internal sealed record ConditionalSourceUnitContribution(RuleTextInstance Instan
 public sealed partial class CoreRuleEngine
 {
     internal const string ConditionalSourceUnitEffect = "CONDITIONAL_SOURCE_UNIT";
+    private static readonly string[] ConditionalSourceUnitHistoryPrefixes = [DiscardedHandCardThisTurnEffectPrefix,
+        GainedExperienceThisTurnEffectPrefix, PlayedFourPlusCostSpellThisTurnEffectPrefix];
+
+    private static string[] PublicConditionalSourceUnitTurnHistory(IReadOnlyList<string> effects, IEnumerable<string> players)
+    {
+        var allowed = players.SelectMany(player => ConditionalSourceUnitHistoryPrefixes.Select(prefix => prefix + player))
+            .ToHashSet(StringComparer.Ordinal);
+        return effects.Where(allowed.Contains).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+    }
+
+    private static bool ValidConditionalSourceUnitTurnHistory(IReadOnlyList<string>? effects, IEnumerable<string> players)
+        => effects is not null && effects.SequenceEqual(PublicConditionalSourceUnitTurnHistory(effects, players));
 
     private static IEnumerable<(RuleTextInstance Instance, CardBehaviorDefinition Behavior)> ConditionalSourceUnitDefinitions(
         MatchState state, CardObjectState source)

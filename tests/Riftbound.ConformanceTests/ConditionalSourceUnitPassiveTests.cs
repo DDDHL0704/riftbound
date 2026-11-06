@@ -129,7 +129,7 @@ public sealed class ConditionalSourceUnitPassiveTests
     [Fact]
     public async Task PayingThreeForADiscountedFourCostSpellDoesNotEnableTheBeliever()
     {
-        var initial = RadGearTestPosition.Put(Position("UNL-004/219"), "DISCOUNT", "OGN·084/298", "P1", "BASE");
+        var initial = RadGearTestPosition.Put(Position("UNL-004/219"), "DISCOUNT", "OGN·084/298", "P1", "BATTLEFIELD", "BF");
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("HOST", "UNL-004/219", []));
         var mana = game.State.RunePools["P1"].Mana;
@@ -183,5 +183,56 @@ public sealed class ConditionalSourceUnitPassiveTests
             Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
             contribution[key] = original;
         }
+    }
+
+    private static async Task<Driver> OpenMighty()
+    {
+        var initial = RadGearTestPosition.Put(Position("UNL-108/219", "BASE"), "FIORA", "SFD·180/221", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { IsExhausted = true } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("ENVOY", "UNL-092/219", []));
+        if (game.State.StackItems.Any(item => item.SourceObjectId == "ENVOY")) await game.Top();
+        return game;
+    }
+
+    [Fact]
+    public async Task GainingExperienceCapturesTheSalamandersFourToFiveMightyCrossing()
+    {
+        var game = await OpenMighty();
+        var crossing = Assert.Single(game.State.StackItems, item => item.MightySkill is not null).MightySkill!;
+        Assert.Equal("HOST", crossing.Unit.ObjectId);
+        Assert.Equal(4, crossing.BeforeMight);
+        Assert.Equal(5, crossing.AfterMight);
+        Assert.Empty(crossing.Before.ConditionalTurnHistory);
+        Assert.Equal([History("UNL-108/219")], crossing.After.ConditionalTurnHistory);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Equal(5, ArmamentMightTests.Might(game.State));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("private-marker")]
+    [InlineData("other-player")]
+    [InlineData("duplicate")]
+    [InlineData("missing")]
+    [InlineData("null")]
+    public async Task RecoveryRejectsForgedConditionalHistoryInCapturedMight(string mutation)
+    {
+        var game = await OpenMighty();
+        var item = Assert.Single(game.State.StackItems, item => item.MightySkill is not null);
+        var context = item.MightySkill!;
+        IReadOnlyList<string> history = mutation switch {
+            "private-marker" => ["PRIVATE_HAND_CARD:SECRET"],
+            "other-player" => [History("UNL-108/219", "P2")],
+            "duplicate" => [History("UNL-108/219"), History("UNL-108/219")],
+            "missing" => [],
+            _ => null! };
+        var changed = game.State with { StackItems = game.State.StackItems.Select(candidate => candidate == item
+            ? candidate with { MightySkill = context with { After = context.After with { ConditionalTurnHistory = history } } }
+            : candidate).ToArray() };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(changed));
     }
 }

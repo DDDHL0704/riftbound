@@ -620,7 +620,7 @@ public static partial class MatchRecoveryValidator
             powerDelta,
             basePower,
             effectivePower,
-            errors);
+            errors, effectKind);
         var sequence = ValidateSnapshotPayloadRequiredPositiveIntValue(
             effectPayload,
             "sequence",

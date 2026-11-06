@@ -300,6 +300,13 @@
           "contains": [
             "ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs",
+          "contains": [
+            "ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys)",
+            "untilEndOfTurnEffects: [..frame.BattleDeclarations, ..frame.ConditionalTurnHistory]"
+          ]
         }
       ],
       "tests": [
@@ -308,7 +315,9 @@
           "methods": [
             "AlreadyPlayedUnitGainsItsPassiveFromARealActionAndLosesItAtTurnEnd",
             "ConditionAlreadyMetOnEntryDoesNotBecomeAPermanentOrDoubleBonus",
-            "AnotherPlayersHistoryDoesNotEnableThePassive"
+            "AnotherPlayersHistoryDoesNotEnableThePassive",
+            "DiscardingAfterEntryEnablesAnActualMoveBetweenBattlefields",
+            "ExpiringTheConditionalLayerPreservesAnIndependentlyGrantedRoam"
           ]
         }
       ]

@@ -2994,8 +2994,10 @@ public static partial class MatchRecoveryValidator
         int? powerDelta,
         int? basePower,
         int? effectivePower,
-        List<string> errors)
+        List<string> errors, string? effectKind = null)
     {
+        var conditionalSourceUnit = effectKind == CoreRuleEngine.ConditionalSourceUnitEffect
+            && scope == "OBJECT" && duration == "WHILE_SOURCE_ON_PUBLIC_FIELD";
         if (scope is null
             || layer is null
             || duration is null
@@ -3006,9 +3008,9 @@ public static partial class MatchRecoveryValidator
             || !IsKnownContinuousEffectLayer(layer)
             || !IsKnownContinuousEffectDuration(duration)
             || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
-            || !string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
-            || (!string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
-                && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal))
+            || (!conditionalSourceUnit && (!string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
+                || (!string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
+                    && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal))))
             || !IsContinuousEffectLayerScopeValid(scope, layer))
         {
             return;
@@ -3021,7 +3023,7 @@ public static partial class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"{effectLabel} battlefield static aura effective power {effectivePower.Value} must equal base power {basePower.Value} plus power delta {powerDelta.Value}");
+            $"{effectLabel} {(conditionalSourceUnit ? "conditional source unit" : "battlefield static aura")} effective power {effectivePower.Value} must equal base power {basePower.Value} plus power delta {powerDelta.Value}");
     }
 
     private static void ValidateSpectatorTriggerQueuePayloads(
