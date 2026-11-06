@@ -1815,6 +1815,14 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        if (effectKind == CoreRuleEngine.ConditionalSourceUnitEffect) {
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_ON_PUBLIC_FIELD" || sourceObjectId != targetObjectId
+                || !effectId.StartsWith($"CONDITIONAL_SOURCE_UNIT:{sourceObjectId}:", StringComparison.Ordinal)
+                || !effectId.EndsWith(":" + targetObjectId, StringComparison.Ordinal))
+                errors.Add($"{effectLabel} conditional source unit identity is invalid");
+            return;
+        }
+
         if (effectKind == CoreRuleEngine.EmpoweredUnitAuraEffect) {
             if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
                 || !effectId.StartsWith($"EMPOWERED_UNIT_AURA:{sourceObjectId}:", StringComparison.Ordinal)
@@ -2218,6 +2226,22 @@ public static partial class MatchRecoveryValidator
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath, "CoreRuleEngine.BoonAmplifiersFor", "Boon amplifier source path", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition, "CURRENT_FRIENDLY_UNIT_HAS_BOON", "Boon amplifier condition", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle, "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON", "Boon amplifier lifecycle", errors);
+            return;
+        }
+
+        if (effectKind == CoreRuleEngine.ConditionalSourceUnitEffect) {
+            var definition = sourceCardNo is not null && CardBehaviorRegistry.TryGetByCardNo(sourceCardNo, out var candidate)
+                ? candidate : null;
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_ON_PUBLIC_FIELD" || definition is null
+                || definition.ConditionalSourceUnitConditionKind == CardConditionalSourceUnitConditionKinds.None
+                || definition.ConditionalSourceUnitPowerBonus <= 0)
+                errors.Add($"{effectLabel} conditional source unit requires a matching official source and scope");
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
+                "CoreRuleEngine.ConditionalSourceUnitContributions", "conditional source unit source path", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
+                definition?.ConditionalSourceUnitConditionKind ?? "", "conditional source unit condition", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle,
+                "RECOMPUTED_FROM_CURRENT_CONTROLLER_TURN_HISTORY", "conditional source unit lifecycle", errors);
             return;
         }
 
@@ -2910,6 +2934,9 @@ public static partial class MatchRecoveryValidator
         }
 
         var staticAuras = StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
+        if (effectKind == CoreRuleEngine.ConditionalSourceUnitEffect
+            && CardBehaviorRegistry.TryGetByCardNo(sourceCardNo, out var conditionalSource))
+            return conditionalSource.ConditionalSourceUnitPowerBonus;
         if (effectKind == StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower
             && staticAuras.FirstOrDefault(a => a.Kind == effectKind) is { } controlledCount)
             return controlledCount.PowerDeltaPerParticipant;

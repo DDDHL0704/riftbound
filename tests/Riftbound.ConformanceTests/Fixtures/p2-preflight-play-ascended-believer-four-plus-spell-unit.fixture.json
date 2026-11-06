@@ -31,7 +31,10 @@
     }
   ],
   "roomId": "p2-preflight-unl-004-ascended-believer-four-plus-spell-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302535,
     "turnNumber": 534,
@@ -39,34 +42,68 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
-    "runePools": {
-      "P1": { "mana": 3, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+    "scores": {
+      "P1": 0,
+      "P2": 0
     },
-    "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1", "PLAYED_SPELL_THIS_TURN:P1"],
-    "players": {
+    "runePools": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-ASCENDED-BELIEVER"],
-        "base": [],
-        "battlefields": [],
-        "graveyard": ["P1-SPELL-PLAYED-EARLIER-001"],
-        "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "mana": 3,
+        "power": 0
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mana": 0,
+        "power": 0
+      }
+    },
+    "untilEndOfTurnEffects": [
+      "PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1",
+      "PLAYED_SPELL_THIS_TURN:P1"
+    ],
+    "players": {
+      "P1": {
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-ASCENDED-BELIEVER"
+        ],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [
+          "P1-SPELL-PLAYED-EARLIER-001"
+        ],
+        "banished": [],
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
+      },
+      "P2": {
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -91,39 +128,76 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 534,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
-      "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+      "scores": {
+        "P1": 0,
+        "P2": 0
       },
-      "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1", "PLAYED_SPELL_THIS_TURN:P1"],
+      "runePools": {
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
+      },
+      "untilEndOfTurnEffects": [
+        "PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1",
+        "PLAYED_SPELL_THIS_TURN:P1"
+      ],
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-ASCENDED-BELIEVER"],
-          "graveyard": ["P1-SPELL-PLAYED-EARLIER-001"]
+          "base": [
+            "P1-UNIT-ASCENDED-BELIEVER"
+          ],
+          "graveyard": [
+            "P1-SPELL-PLAYED-EARLIER-001"
+          ]
         }
       },
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-ASCENDED-BELIEVER": {
-          "power": 5,
-          "tags": ["CARD_TYPE:UNIT"],
+          "power": 1,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }
