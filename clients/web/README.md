@@ -89,6 +89,8 @@ npm run soak -- bot RB-XXXXXX 9
 | `src/net/client.ts` | SignalR 连接、身份认证、房间、意图提交与断线重连 |
 | `src/game/actions.ts` | 把提示候选转为按卡牌归类的操作，并按命令模板组装命令 |
 | `src/ui/Table.tsx` | 对战桌面：交互状态、拖拽、自动付费、选择流程 |
+| `src/ui/table/` | 桌面的组成部分：选择流程（`pick.ts`）、拖拽（`drag.ts`）、桌面钩子（快捷键、回合横幅、自动让过、悬停预览等，`hooks.ts`），以及选择栏、符文栏、操作菜单、起手调度、区域查看、回合横幅、结算界面等面板 |
+| `src/styles.css`、`src/styles/` | 样式入口按顺序引入 `src/styles/` 下按界面区域拆分的样式文件 |
 | `src/ui/Zones.tsx` | 计分轨、双方区域（传奇/英雄、基地、符文、牌堆）、战场与待命位 |
 | `src/ui/DeckBuilder.tsx`、`src/game/decks.ts` | 自定义卡组编辑器、本地保存与构筑规则检查 |
 | `src/ui/Sealed.tsx`、`src/game/sealed.ts` | 现开赛：开包、卡池组牌、先后手与局间换牌、规则检查 |
