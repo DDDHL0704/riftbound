@@ -4,6 +4,23 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    // A supplied location is always authoritative. The ordinary base intent
+    // resolves its destination while declaring the spell, before responses.
+    private static string DeclaredPlayDestination(MatchState state, CardBehaviorDefinition behavior, PlayCardCommand command)
+    {
+        var destination = command.Destination?.Trim() is { Length: > 0 } supplied && supplied != MoveUnitBaseZone
+            ? supplied : string.Empty;
+        destination = StandbyPlayDestination(behavior, destination);
+        if (destination.Length == 0 && behavior.MovesTargetsToChosenLocation
+            && behavior.DefaultChosenMovementToControllerBase)
+        {
+            var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
+            if (targets.Count == 1 && FindFieldObjectLocation(state.PlayerZones, targets[0]) is { } source)
+                destination = "BASE:" + source.PlayerId;
+        }
+        return destination;
+    }
+
     private static IReadOnlyList<string> ChosenMovementTargets(CardBehaviorDefinition behavior, IReadOnlyList<string> targets)
         => behavior.ChosenMovementTargetIndex is { } index
             ? targets.Skip(index).Take(1).ToArray()
