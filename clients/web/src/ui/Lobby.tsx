@@ -6,6 +6,8 @@ import { MIX_MAX_PACKS, MIX_MIN_PACKS, packMixLabel } from "../game/sealed";
 import { deckProblems, newDeckFrom, parseDeck, saveDeck, useCustomDecks, type CustomDeck } from "../game/decks";
 import { DeckBuilder } from "./DeckBuilder";
 import { enabledCandidate } from "../game/actions";
+import { LEVEL_LABEL, startPractice, usePractice } from "../ai/practice";
+import type { Level } from "../ai/policy";
 import { Showcase } from "./Ambient";
 
 export function ConnectScreen({ state }: { state: ClientState }) {
@@ -152,6 +154,7 @@ export function LobbyScreen({ state }: { state: ClientState }) {
             </button>
           </form>
         </div>
+        <PracticeBlock server={state.server} disabled={matching} />
         {sets.length > 0 && (
           <div className="lobby__block lobby__block--wide">
             <h2>现开赛</h2>
@@ -354,6 +357,7 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
 
   const me = snapshot?.players[state.handle];
   const opponent = snapshot ? Object.values(snapshot.players).find((p) => p.id !== state.handle) : undefined;
+  const practice = usePractice();
   const canSubmit = Boolean(enabledCandidate(prompt, "SUBMIT_DECK"));
   const canReady = Boolean(enabledCandidate(prompt, "READY"));
   const all: PreconstructedDeck[] = [...custom, ...decks];
@@ -403,7 +407,11 @@ export function SetupScreen({ state, snapshot, prompt }: { state: ClientState; s
         <div className="setup__seats">
           <Seat name={me?.name ?? state.handle} deck={me?.deckSubmitted} ready={me?.ready} self />
           <span className="setup__vs">对</span>
-          <Seat name={opponent?.name} deck={opponent?.deckSubmitted} ready={opponent?.ready} />
+          <Seat
+            name={opponent?.name && practice?.roomId === state.roomId ? `电脑 · ${LEVEL_LABEL[practice.level]}` : opponent?.name}
+            deck={opponent?.deckSubmitted}
+            ready={opponent?.ready}
+          />
         </div>
         <button className="btn btn--ghost" onClick={() => client.leaveRoom()}>
           返回大厅
@@ -617,6 +625,58 @@ export function Seat({ name, deck, ready, self }: { name?: string; deck?: boolea
     <div className={`seat${self ? " seat--self" : " seat--opp"}`}>
       <span className="seat__name">{name ?? "等待对手加入"}</span>
       <span className="seat__state">{!name ? "空位" : ready ? "已准备" : deck ? "已选卡组" : "选卡组中"}</span>
+    </div>
+  );
+}
+
+/** Practice against the computer: it joins a fresh room with a preconstructed deck. */
+function PracticeBlock({ server, disabled }: { server: string; disabled: boolean }) {
+  const [level, setLevel] = useState<Level>("normal");
+  const [deckId, setDeckId] = useState("random");
+  const [decks, setDecks] = useState<PreconstructedDeck[]>([]);
+  const [starting, setStarting] = useState(false);
+  useEffect(() => {
+    fetch(`${server.replace(/\/$/, "")}/decks/preconstructed`)
+      .then((r) => r.json())
+      .then((d: PreconstructedDeck[]) => setDecks(d))
+      .catch(() => undefined);
+  }, [server]);
+  return (
+    <div className="lobby__block lobby__block--wide lobby__practice">
+      <h2>人机练习</h2>
+      <p>和电脑打一局，熟悉卡组和规则。电脑和真人一样由服务端裁定，只是替你坐在对面。</p>
+      <div className="lobby__options">
+        <div className="lobby__option" role="radiogroup" aria-label="难度">
+          <span className="muted small">难度</span>
+          {(Object.keys(LEVEL_LABEL) as Level[]).map((l) => (
+            <button key={l} role="radio" aria-checked={level === l} className={`chip${level === l ? " chip--on" : ""}`} onClick={() => setLevel(l)}>
+              {LEVEL_LABEL[l]}
+            </button>
+          ))}
+        </div>
+        <label className="lobby__option">
+          <span className="muted small">电脑卡组</span>
+          <select className="input lobby__select" value={deckId} onChange={(e) => setDeckId(e.target.value)}>
+            <option value="random">随机</option>
+            {decks.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="btn btn--primary"
+          disabled={disabled || starting}
+          onClick={() => {
+            setStarting(true);
+            void startPractice(level, deckId).finally(() => setStarting(false));
+          }}
+        >
+          {starting ? "正在准备…" : "开始练习"}
+        </button>
+      </div>
+      <p className="muted small">{level === "easy" ? "简单：随意出牌和移动，适合第一次上手。" : "普通：优先铺场，往能赢下的战场推进，伤害和削弱打向你。"}</p>
     </div>
   );
 }
