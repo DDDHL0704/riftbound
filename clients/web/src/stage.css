@@ -1,0 +1,323 @@
+/* Staging for battles, spells and conquests (see ui/Stage.tsx). Loaded after polish.css. */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 47;
+  pointer-events: none;
+}
+
+/* ---------- spell and ability bolts ---------- */
+
+.stage__bolt {
+  position: absolute;
+  width: 0;
+  height: 0;
+  --c: var(--brass-hi);
+}
+.stage__bolt--opp {
+  --c: var(--glacier);
+}
+.stage__orb {
+  position: absolute;
+  left: -9px;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 15%, var(--c) 55%, transparent 72%);
+  box-shadow:
+    0 0 18px 6px var(--c),
+    0 0 40px 10px color-mix(in srgb, var(--c) 40%, transparent);
+  opacity: 0;
+  animation: bolt-fly 0.55s cubic-bezier(0.45, 0, 0.25, 1) var(--delay) forwards;
+}
+@keyframes bolt-fly {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    scale: 0.4;
+  }
+  15% {
+    opacity: 1;
+    scale: 1.1;
+  }
+  90% {
+    opacity: 1;
+    translate: var(--dx) var(--dy);
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--dx) var(--dy);
+    scale: 1.6;
+  }
+}
+/* A streak that grows from the caster toward the target, then fades. */
+.stage__trail {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  height: 4px;
+  width: var(--len);
+  border-radius: 2px;
+  transform-origin: 0 50%;
+  rotate: var(--angle);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c) 70%, transparent) 60%, #fff);
+  box-shadow: 0 0 12px var(--c);
+  scale: 0 1;
+  opacity: 0;
+  animation: bolt-trail 0.75s ease-out var(--delay) forwards;
+}
+@keyframes bolt-trail {
+  0% {
+    scale: 0 1;
+    opacity: 0.9;
+  }
+  70% {
+    scale: 1 1;
+    opacity: 0.75;
+  }
+  100% {
+    scale: 1 1;
+    opacity: 0;
+  }
+}
+.stage__hit {
+  position: absolute;
+  left: -20px;
+  top: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--c);
+  box-shadow: 0 0 20px var(--c);
+  translate: var(--dx) var(--dy);
+  opacity: 0;
+  animation: bolt-hit 0.6s ease-out calc(var(--delay) + 0.48s) forwards;
+}
+@keyframes bolt-hit {
+  0% {
+    opacity: 1;
+    scale: 0.3;
+  }
+  100% {
+    opacity: 0;
+    scale: 2.6;
+  }
+}
+
+/* ---------- stamps: 交战, 征服, 据守 ---------- */
+
+.stage__mark {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  --c: var(--brass);
+}
+.stage__mark--opp {
+  --c: var(--glacier);
+}
+.stage__mark--clash {
+  --c: var(--ember);
+}
+.stage__mark b {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: 0.3em;
+  padding: 4px 6px 4px 0.4em;
+  color: #fff;
+  white-space: nowrap;
+  text-shadow:
+    0 0 18px var(--c),
+    0 0 4px var(--c),
+    0 2px 8px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  animation: stamp 1.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+}
+.stage__mark--conquer b,
+.stage__mark--hold b {
+  font-size: 44px;
+  border-top: 2px solid var(--c);
+  border-bottom: 2px solid var(--c);
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--c) 35%, transparent), transparent 70%);
+}
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    scale: 2.4;
+  }
+  14% {
+    opacity: 1;
+    scale: 0.92;
+  }
+  22% {
+    opacity: 1;
+    scale: 1;
+  }
+  75% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.08;
+  }
+}
+.stage__blades {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 10px var(--c)) drop-shadow(0 0 3px var(--c));
+  opacity: 0;
+  animation: blades 1.2s cubic-bezier(0.2, 0.9, 0.3, 1.1) forwards;
+}
+@keyframes blades {
+  0% {
+    opacity: 0;
+    scale: 0.3;
+    rotate: -30deg;
+  }
+  25% {
+    opacity: 1;
+    scale: 1.1;
+    rotate: 0deg;
+  }
+  70% {
+    opacity: 0.9;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.4;
+  }
+}
+
+/* ---------- the battlefield and its fighters ---------- */
+
+.field.stage-clash {
+  animation: field-clash 0.9s ease-out;
+}
+@keyframes field-clash {
+  0% {
+    box-shadow:
+      inset 0 0 0 2px var(--ember),
+      inset 0 0 80px rgba(255, 94, 87, 0.55);
+  }
+}
+.obj.stage-lunge {
+  animation: lunge 0.65s cubic-bezier(0.3, 0, 0.2, 1);
+}
+@keyframes lunge {
+  35% {
+    translate: 0 var(--lunge);
+    scale: 1.08;
+  }
+}
+.obj.stage-brace {
+  animation: brace 0.65s ease-out;
+}
+@keyframes brace {
+  30% {
+    scale: 0.94;
+    filter: brightness(1.4);
+  }
+}
+.field__card.stage-flip {
+  animation: field-flip 0.95s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+@keyframes field-flip {
+  45% {
+    transform: perspective(900px) rotateY(90deg);
+    filter: brightness(1.8);
+  }
+  100% {
+    transform: perspective(900px) rotateY(0deg);
+    box-shadow:
+      0 0 0 3px var(--side),
+      0 0 40px var(--side);
+  }
+}
+.field__card.stage-hold {
+  animation: field-hold 1s ease-out;
+}
+@keyframes field-hold {
+  30% {
+    box-shadow:
+      0 0 0 3px var(--side),
+      0 0 46px var(--side);
+    scale: 1.03;
+  }
+}
+
+/* ---------- the chain on the table: what resolves next sits on top ---------- */
+
+.stackshow {
+  position: absolute;
+  right: 14px;
+  top: calc(50% - 270px);
+  width: calc(var(--dock-w) - 28px);
+  height: 170px;
+  z-index: 19;
+  pointer-events: none;
+  display: grid;
+  justify-items: center;
+}
+.stackshow__card {
+  position: absolute;
+  top: 0;
+  width: 96px;
+  aspect-ratio: 1 / 1.398;
+  border-radius: 7px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  --c: var(--brass);
+}
+.stackshow__card--opp {
+  --c: var(--glacier);
+}
+.stackshow__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.stackshow__card.is-top {
+  box-shadow:
+    0 0 0 2px var(--c),
+    0 0 26px var(--c),
+    0 12px 26px rgba(0, 0, 0, 0.6);
+}
+.stackshow__label {
+  position: absolute;
+  top: 146px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: rgba(21, 17, 31, 0.85);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    display: none;
+  }
+  .field.stage-clash,
+  .obj.stage-lunge,
+  .obj.stage-brace,
+  .field__card.stage-flip,
+  .field__card.stage-hold {
+    animation: none;
+  }
+}
