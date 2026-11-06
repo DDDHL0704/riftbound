@@ -6,6 +6,7 @@ import { registerArtCache } from "./game/art";
 import { client } from "./net/client";
 import "./styles.css";
 import "./polish.css";
+import "./stage.css";
 
 loadCards();
 registerArtCache();
