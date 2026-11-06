@@ -7,6 +7,7 @@ import { deckProblems, newDeckFrom, parseDeck, saveDeck, useCustomDecks, type Cu
 import { DeckBuilder } from "./DeckBuilder";
 import { preloadArt } from "../game/art";
 import { enabledCandidate } from "../game/actions";
+import { Showcase } from "./Ambient";
 
 export function ConnectScreen({ state }: { state: ClientState }) {
   const [handle, setHandle] = useState(state.handle);
@@ -102,6 +103,7 @@ export function LobbyScreen({ state }: { state: ClientState }) {
   return (
     <main className="gate gate--lobby">
       <header className="lobby__head">
+        <Showcase />
         <h1 className="gate__title gate__title--small">符文战场</h1>
         <p className="lobby__who">
           以 <strong>{state.handle}</strong> 的身份登录

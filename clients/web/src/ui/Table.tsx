@@ -19,6 +19,7 @@ import { cardInfo, cardName, paymentChoiceLabel } from "../game/cards";
 import { cue } from "../game/sound";
 import { preloadArt } from "../game/art";
 import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../game/types";
+import { Ambient, Confetti, tiltHandlers } from "./Ambient";
 import { Card, HoverPreview, type CardMark, type HoverHandler } from "./Card";
 import { ChainArrows, Dock, EventFx, Spotlight } from "./Overlay";
 import { Rail } from "./Rail";
@@ -639,6 +640,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     if (winner && !seenWinner.current) cue(winner === meId ? "win" : "loss");
     seenWinner.current = winner;
   }, [winner, meId]);
+  const tilt = tiltHandlers();
   const myMainTurn = promptType === "MAIN_ACTION" && (snapshot.timing.turnPlayerId || snapshot.activePlayerId) === meId;
   const heroActions = (id: string) => (actions.get(id) ?? []).filter((a) => a.cmdType !== "MOVE_UNIT");
   const pickOtherActions = pick ? (actions.get(pick.action.sourceObjectId) ?? []).filter((a) => a.key !== pick.action.key) : [];
@@ -650,6 +652,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
         <ScoreSpine me={me} opp={opp} goal={snapshot.timing.winningScore || 8} />
 
         <div className="board">
+          <Ambient variant="table" />
           <div className="board__rift" aria-hidden />
           {opp && <OpponentHand player={opp} />}
           {opp && (
@@ -765,7 +768,8 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
                 <div
                   className="hand__card"
                   key={id}
-                  style={{ transform: `rotate(${angle}deg) translateY(${Math.abs(angle) * 1.6}px)`, ["--fan" as string]: `${angle}deg` }}
+                  style={{ transform: `rotate(${angle}deg) translateY(${Math.abs(angle) * 1.6}px)`, ["--fan" as string]: `${angle}deg`, ["--i" as string]: i }}
+                  {...tilt}
                 >
                   {renderObject(id, "hand")}
                 </div>
@@ -880,6 +884,8 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
           {winner && (
             <motion.div className={`result ${winner === meId ? "result--win" : "result--loss"}`} role="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <span className="result__rays" aria-hidden />
+              {winner === meId && <Confetti />}
               <motion.p className="result__title" initial={{ scale: 1.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
                 {winner === meId ? "胜利" : "落败"}
               </motion.p>

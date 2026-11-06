@@ -1,0 +1,743 @@
+/*
+ * Presentation layer: ambience, card tilt and glare, impact effects, banners and the result screen.
+ * Loaded after styles.css. Everything here is decorative; layout and rules feedback stay in styles.css.
+ */
+
+:root {
+  --mote-a: rgba(255, 214, 140, 0.85);
+  --mote-b: rgba(190, 150, 255, 0.85);
+}
+
+/* ---------- ambience: aurora and rising motes ---------- */
+
+.board {
+  isolation: isolate;
+}
+.ambient {
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient--table {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.ambient--gate {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(226, 176, 74, 0.14), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 50% 100%, rgba(114, 196, 222, 0.1), transparent 70%),
+    var(--ink);
+}
+.gate {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+.ambient__aurora {
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(ellipse 30% 22% at 30% 45%, rgba(183, 139, 255, 0.16), transparent 70%),
+    radial-gradient(ellipse 26% 20% at 70% 55%, rgba(111, 208, 238, 0.12), transparent 70%),
+    radial-gradient(ellipse 34% 18% at 50% 70%, rgba(240, 181, 74, 0.1), transparent 70%);
+  filter: blur(30px);
+  animation: aurora 28s ease-in-out infinite alternate;
+}
+.ambient--gate .ambient__aurora {
+  opacity: 0.9;
+}
+@keyframes aurora {
+  0% {
+    transform: translate3d(-4%, 2%, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -3%, 0) rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: translate3d(5%, 3%, 0) rotate(-6deg) scale(1.02);
+  }
+}
+.ambient__mote {
+  position: absolute;
+  left: var(--x);
+  bottom: -12px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--hue);
+  box-shadow: 0 0 10px 1px var(--hue);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: mote-rise var(--dur) linear var(--delay) infinite;
+}
+@keyframes mote-rise {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.7;
+  }
+  85% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate3d(var(--drift), -105vh, 0);
+    opacity: 0;
+  }
+}
+
+/* The rift seam breathes and a spark of light travels along it. */
+.board__rift {
+  background-size: 200% 100%;
+  animation: rift-flow 7s linear infinite, rift-breathe 4.5s ease-in-out infinite;
+}
+@keyframes rift-flow {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes rift-breathe {
+  50% {
+    opacity: 0.85;
+    box-shadow: 0 0 28px rgba(183, 139, 255, 0.65);
+  }
+}
+
+/* ---------- battlefields: corner brackets in the controller's colour ---------- */
+
+.field {
+  --fc: rgba(237, 230, 214, 0.22);
+  --fl: 22px;
+}
+.field--me {
+  --fc: rgba(240, 181, 74, 0.75);
+  box-shadow: inset 0 -40px 60px -40px rgba(240, 181, 74, 0.28);
+}
+.field--opp {
+  --fc: rgba(111, 208, 238, 0.75);
+  box-shadow: inset 0 40px 60px -40px rgba(111, 208, 238, 0.24);
+}
+.field--contested {
+  --fc: rgba(255, 94, 87, 0.85);
+}
+.field::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 13px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--fc), var(--fc)) top left / var(--fl) 2px no-repeat,
+    linear-gradient(var(--fc), var(--fc)) top left / 2px var(--fl) no-repeat,
+    linear-gradient(var(--fc), var(--fc)) top right / var(--fl) 2px no-repeat,
+    linear-gradient(var(--fc), var(--fc)) top right / 2px var(--fl) no-repeat,
+    linear-gradient(var(--fc), var(--fc)) bottom left / var(--fl) 2px no-repeat,
+    linear-gradient(var(--fc), var(--fc)) bottom left / 2px var(--fl) no-repeat,
+    linear-gradient(var(--fc), var(--fc)) bottom right / var(--fl) 2px no-repeat,
+    linear-gradient(var(--fc), var(--fc)) bottom right / 2px var(--fl) no-repeat;
+  opacity: 0.85;
+  transition: opacity 0.3s;
+}
+.field.is-legal::before {
+  --fc: var(--legal);
+  --fl: 30px;
+  animation: bracket-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes bracket-pulse {
+  to {
+    opacity: 0.4;
+  }
+}
+
+/* ---------- hand: deal-in, 3D tilt toward the pointer, glare ---------- */
+
+.hand__card {
+  animation: deal-in 0.55s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes deal-in {
+  from {
+    translate: 0 70%;
+    scale: 0.75;
+    opacity: 0;
+  }
+}
+.hand__card .card-slot--hand {
+  transform-style: preserve-3d;
+}
+.hand__card:hover .card-slot--hand .card {
+  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.08s linear, box-shadow 0.2s var(--ease-out);
+}
+.hand__card:hover .card-slot--hand .card:not(.card--playable) {
+  box-shadow:
+    0 26px 40px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+.hand__card .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--gx, 50%) var(--gy, 30%), rgba(255, 255, 255, 0.42), transparent 46%),
+    linear-gradient(115deg, transparent 28%, rgba(255, 255, 255, 0.14) 44%, rgba(183, 139, 255, 0.16) 52%, rgba(111, 208, 238, 0.12) 58%, transparent 70%);
+  mix-blend-mode: overlay;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.hand__card:hover .card::before {
+  opacity: 1;
+}
+
+/* ---------- board: arrival ring, hover sheen ---------- */
+
+.board .card-slot--board {
+  animation: arrive-pop 0.5s var(--ease-out);
+}
+/* No opacity here: a unit moving between zones remounts and slides, and must stay visible on the way. */
+@keyframes arrive-pop {
+  from {
+    scale: 1.18;
+    filter: brightness(1.7);
+  }
+}
+.board .card-slot--board::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 236, 190, 0.95);
+  box-shadow: 0 0 22px rgba(255, 210, 122, 0.7);
+  pointer-events: none;
+  opacity: 0;
+  animation: arrive-ring 0.75s ease-out 0.12s;
+}
+@keyframes arrive-ring {
+  from {
+    opacity: 1;
+    scale: 0.8;
+  }
+  to {
+    opacity: 0;
+    scale: 1.45;
+  }
+}
+.board .card-slot--board .card--interactive::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  mix-blend-mode: overlay;
+  opacity: 0;
+}
+.board .card-slot--board .card--interactive:hover::before {
+  opacity: 1;
+  animation: sheen 0.8s ease-out;
+  background-position: -60% 0;
+}
+@keyframes sheen {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}
+.opp-hand__card {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(183, 139, 255, 0.18);
+}
+
+/* ---------- impacts ---------- */
+
+.obj.fx-hit {
+  animation: hit-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+.obj.fx-hit::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 12px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 94, 87, 0.55), transparent 70%);
+  animation: hit-flash 0.5s ease-out forwards;
+}
+@keyframes hit-shake {
+  10%,
+  90% {
+    translate: -1px 0;
+  }
+  20%,
+  80% {
+    translate: 3px 0;
+  }
+  30%,
+  50%,
+  70% {
+    translate: -5px 0;
+  }
+  40%,
+  60% {
+    translate: 5px 0;
+  }
+}
+@keyframes hit-flash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.spine__score.fx-pop {
+  animation: score-pop 0.7s var(--ease-out);
+}
+@keyframes score-pop {
+  30% {
+    scale: 1.6;
+    filter: brightness(1.6);
+  }
+}
+.spine__notch.is-on {
+  animation: notch-on 0.7s var(--ease-out);
+}
+@keyframes notch-on {
+  from {
+    scale: 1.6;
+    filter: brightness(2.2);
+  }
+}
+
+.fx__burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  --c: var(--brass-hi);
+}
+.fx__burst--hit {
+  --c: #ff7a6e;
+}
+.fx__burst--destroy {
+  --c: #ffb36b;
+}
+.fx__burst--score-me {
+  --c: var(--brass-hi);
+}
+.fx__burst--score-opp {
+  --c: var(--glacier);
+}
+.fx__burst--play {
+  --c: #e2c9ff;
+}
+.fx__burst::before {
+  content: "";
+  position: absolute;
+  left: -60px;
+  top: -60px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, var(--c) 22%, color-mix(in srgb, var(--c) 35%, transparent) 45%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: fx-core 0.6s ease-out forwards;
+}
+.fx__burst--hit::before {
+  scale: 0.7;
+}
+@keyframes fx-core {
+  0% {
+    opacity: 0.95;
+    transform: scale(0.2);
+  }
+  35% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+.fx__ring {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--c);
+  box-shadow:
+    0 0 22px var(--c),
+    0 0 6px #fff,
+    inset 0 0 14px var(--c);
+  animation: fx-ring 0.75s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+.fx__burst--destroy .fx__ring,
+.fx__burst--score-me .fx__ring,
+.fx__burst--score-opp .fx__ring {
+  border-width: 4px;
+  animation-duration: 0.95s;
+}
+@keyframes fx-ring {
+  0% {
+    scale: 0.3;
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.9;
+  }
+  100% {
+    scale: 4.2;
+    opacity: 0;
+  }
+}
+.fx__spark {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 20%, var(--c) 60%);
+  box-shadow:
+    0 0 12px 2px var(--c),
+    0 0 4px #fff;
+  scale: var(--s);
+  opacity: 0;
+  animation: fx-spark 0.85s cubic-bezier(0.15, 0.7, 0.3, 1) var(--d) forwards;
+}
+.fx__burst--destroy .fx__spark {
+  width: 12px;
+  height: 4px;
+  border-radius: 1px;
+  rotate: calc(var(--s) * 300deg);
+}
+@keyframes fx-spark {
+  0% {
+    translate: 0 0;
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+    scale: var(--s);
+  }
+  100% {
+    translate: var(--dx) var(--dy);
+    opacity: 0;
+    scale: 0.25;
+  }
+}
+
+/* ---------- turn banner: gilt rules, light sweep, shining title ---------- */
+
+.banner {
+  overflow: hidden;
+  padding: 16px 0 14px;
+}
+.banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+  border-image: linear-gradient(90deg, transparent, var(--bc, var(--brass)) 30%, var(--bc, var(--brass)) 70%, transparent) 1;
+  opacity: 0.7;
+}
+.banner--opp {
+  --bc: var(--glacier);
+}
+.banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 38%, rgba(255, 255, 255, 0.16) 50%, transparent 62%);
+  translate: -100% 0;
+  animation: banner-sweep 1.3s 0.15s ease-out forwards;
+}
+@keyframes banner-sweep {
+  to {
+    translate: 100% 0;
+  }
+}
+.banner span {
+  font-size: 40px;
+  background: linear-gradient(90deg, var(--c1) 0%, var(--c1) 40%, #fff 50%, var(--c1) 60%, var(--c1) 100%);
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 18px var(--glow));
+  animation: banner-shine 1.4s 0.2s ease-out forwards;
+}
+.banner--me span {
+  --c1: var(--brass);
+  --glow: rgba(240, 181, 74, 0.55);
+  color: transparent;
+}
+.banner--opp span {
+  --c1: var(--glacier);
+  --glow: rgba(111, 208, 238, 0.5);
+  color: transparent;
+}
+@keyframes banner-shine {
+  to {
+    background-position: 0% 0;
+  }
+}
+
+/* ---------- dock: the main tempo button breathes while it is yours to press ---------- */
+
+.dock__tempo.btn--primary:not(:disabled) {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+@keyframes breathe {
+  50% {
+    box-shadow:
+      0 8px 30px rgba(240, 181, 74, 0.6),
+      0 0 0 4px rgba(240, 181, 74, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* ---------- result: rays and confetti ---------- */
+
+.result {
+  overflow: hidden;
+}
+.result__rays {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 160vmax;
+  height: 160vmax;
+  margin: -80vmax 0 0 -80vmax;
+  z-index: -1;
+  pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(240, 181, 74, 0.13) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0.6) 12%, transparent 38%);
+  mask: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0.6) 12%, transparent 38%);
+  animation: rays-spin 60s linear infinite, rays-in 1.2s ease-out;
+}
+.result--loss .result__rays {
+  background: repeating-conic-gradient(from 0deg, rgba(111, 208, 238, 0.045) 0deg 4deg, transparent 4deg 18deg);
+  animation-duration: 120s, 1.2s;
+}
+@keyframes rays-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes rays-in {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+.result--win .result__title {
+  background: linear-gradient(180deg, #fff3cf 10%, var(--brass-hi) 45%, var(--brass) 70%, var(--brass-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 32px rgba(240, 181, 74, 0.55));
+}
+.result__score {
+  font-variant-numeric: tabular-nums;
+}
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+.confetti span {
+  position: absolute;
+  top: -24px;
+  left: var(--x);
+  width: var(--w);
+  height: calc(var(--w) * 1.7);
+  border-radius: 1px;
+  background: var(--c);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--c) 60%, transparent);
+  opacity: 0;
+  animation: confetti-fall var(--dur) cubic-bezier(0.25, 0.55, 0.45, 1) var(--delay) 2 forwards;
+}
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg) rotateX(0deg);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--sway), 105vh, 0) rotate(var(--spin)) rotateX(720deg);
+  }
+}
+
+/* ---------- lobby ---------- */
+
+.gate__title {
+  background: linear-gradient(180deg, #fffaf0 20%, #f4e2bb 60%, #c9a66a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 24px rgba(240, 181, 74, 0.25));
+}
+.gate__mark {
+  box-shadow: 0 0 18px rgba(111, 208, 238, 0.4);
+  animation: mark-glow 4s ease-in-out infinite;
+}
+@keyframes mark-glow {
+  50% {
+    box-shadow: 0 0 26px rgba(240, 181, 74, 0.55);
+  }
+}
+
+.showcase {
+  position: relative;
+  height: 196px;
+  width: 520px;
+  max-width: 100%;
+  margin: 0 auto 6px;
+}
+.showcase__card {
+  position: absolute;
+  left: 50%;
+  bottom: 52px;
+  width: 92px;
+  aspect-ratio: 1 / 1.398;
+  margin-left: -46px;
+  border-radius: 7px;
+  overflow: hidden;
+  transform-origin: 50% 160%;
+  transform: rotate(var(--a)) translateY(var(--lift));
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 236, 190, 0.18);
+  animation:
+    showcase-in 0.9s var(--ease-out) backwards,
+    showcase-float 6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 90ms), calc(var(--i) * -1.1s);
+  transition: translate 0.3s var(--ease-out), box-shadow 0.3s;
+}
+.showcase__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.showcase__card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.25) 48%, transparent 62%);
+  background-size: 260% 100%;
+  background-position: 130% 0;
+  mix-blend-mode: overlay;
+  animation: showcase-sheen 7s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.6s);
+}
+@keyframes showcase-in {
+  from {
+    opacity: 0;
+    transform: rotate(0deg) translateY(60px);
+  }
+}
+@keyframes showcase-float {
+  50% {
+    translate: 0 -6px;
+  }
+}
+@keyframes showcase-sheen {
+  0%,
+  60% {
+    background-position: 130% 0;
+  }
+  100% {
+    background-position: -40% 0;
+  }
+}
+
+/* Lobby panels: a gilt hairline on top and a lift on hover. */
+.lobby__grid,
+.records {
+  background: linear-gradient(180deg, rgba(240, 181, 74, 0.28), var(--line) 30%);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(240, 181, 74, 0.08);
+  backdrop-filter: blur(6px);
+}
+.lobby__block {
+  position: relative;
+  background: linear-gradient(180deg, rgba(42, 33, 66, 0.92), rgba(30, 24, 48, 0.94));
+  transition: background-color 0.3s;
+}
+.lobby__block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(240, 181, 74, 0.1), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.lobby__block:hover::before {
+  opacity: 1;
+}
+.lobby__block h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lobby__block h2::before {
+  content: "";
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: linear-gradient(var(--brass-hi), var(--brass-deep));
+  box-shadow: 0 0 10px rgba(240, 181, 74, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase__card,
+  .showcase__card::after {
+    animation: none;
+  }
+  .ambient__mote,
+  .confetti,
+  .fx__burst,
+  .result__rays {
+    display: none;
+  }
+  .ambient__aurora,
+  .board__rift,
+  .hand__card,
+  .board .card-slot--board,
+  .board .card-slot--board::after,
+  .obj.fx-hit,
+  .dock__tempo.btn--primary {
+    animation: none !important;
+  }
+  .banner span {
+    animation: none;
+    background-position: 50% 0;
+  }
+}
