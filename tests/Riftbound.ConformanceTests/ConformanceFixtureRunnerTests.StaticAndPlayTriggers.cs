@@ -1666,74 +1666,57 @@ public sealed partial class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79SharpshooterPirateDamagesEnemyUnitWhenAttackingBattlefield()
     {
-        var state = SharpshooterPirateBattleState(sharpshooterAttacks: true);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-sharpshooter-pirate-attack-trigger", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-SHARPSHOOTER-PIRATE"],
-                ["P2-SHARPSHOOTER-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
-            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
-        Assert.Equal("P1-SHARPSHOOTER-PIRATE", triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal("P2-SHARPSHOOTER-DEFENDER", triggerEvent.Payload["targetObjectId"]);
-        Assert.Equal(1, triggerEvent.Payload["damageAmount"]);
-
-        var triggerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
-            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
-        Assert.Equal("P1-SHARPSHOOTER-PIRATE", triggerDamageEvent.Payload["sourceObjectId"]);
-        Assert.Equal("P2-SHARPSHOOTER-DEFENDER", triggerDamageEvent.Payload["targetObjectId"]);
+        const string no = "OGN·130/298";
+        var initial = PrintedAttackClauseTests.Position(no);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ENEMY"] = initial.CardObjects["ENEMY"] with { Power = 5 } } };
+        var game = new VenBasicFlowSpellTests.Driver(initial);
+        await PrintedAttackClauseTests.Attack(game, no);
+        Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
+        await PrintedAttackClauseTests.SelectEnemy(game);
+        Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
+        await game.Top();
+        var triggerDamageEvent = Assert.Single(game.Events(), entry => entry.Event.Kind == "DAMAGE_APPLIED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("sourceObjectId"), "UNIT")).Event;
+        Assert.Equal("ENEMY", triggerDamageEvent.Payload["targetObjectId"]);
         Assert.Equal(1, triggerDamageEvent.Payload["damage"]);
-        Assert.Equal("ATTACK_TRIGGER", triggerDamageEvent.Payload["reason"]);
-
-        var combatDamageEvent = Assert.Single(result.Events, gameEvent =>
+        for (var steps = 0; game.State.BattleState.IsActive || game.State.SpellDuelState.IsActive; steps++)
+        {
+            Assert.True(steps < 12);
+            if (game.PromptFor("P1").EnabledActions().Contains(CommandTypes.DeclareBattle))
+                await game.Act("P1", new DeclareBattleCommand("OTHER", ["UNIT"], ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
+            else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
+            else if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+            else throw new InvalidOperationException("Expected combat continuation.");
+        }
+        var events = game.Events().Select(entry => entry.Event).ToArray();
+        var combatDamageEvent = Assert.Single(events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SHARPSHOOTER-PIRATE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "UNIT", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P2-SHARPSHOOTER-DEFENDER", combatDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal("ENEMY", combatDamageEvent.Payload["targetObjectId"]);
         Assert.Equal(3, combatDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, combatDamageEvent.Payload["damage"]);
-        var removedDamageEvent = Assert.Single(result.Events, gameEvent =>
+        var removedDamageEvent = Assert.Single(events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(removedDamageEvent.Payload["previousDamageByObject"]);
-        Assert.Equal(4, previousDamageByObject["P2-SHARPSHOOTER-DEFENDER"]);
+        Assert.Equal(4, previousDamageByObject["ENEMY"]);
+        await game.Replay();
     }
 
     [Fact]
     public async Task P79SharpshooterPirateSkipsAttackDamageWhenDefending()
     {
-        var state = SharpshooterPirateBattleState(sharpshooterAttacks: false);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-sharpshooter-pirate-defending-no-trigger", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-SHARPSHOOTER-ATTACKER"],
-                ["P2-SHARPSHOOTER-PIRATE"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
-            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
-            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
+        var initial = VenConditionalPlayCostTests.Place(PrintedAttackClauseTests.Position("OGN·219/298"),
+            "ENEMY", "OGN·130/298", "P2", "BASE");
+        initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER");
+        var game = new VenBasicFlowSpellTests.Driver(initial);
+        await PrintedAttackClauseTests.Attack(game, "OGN·219/298");
+        Assert.DoesNotContain(game.State.StackItems, item => item.SourceObjectId == "ENEMY" && item.FieldContext is not null);
+        Assert.DoesNotContain(game.State.TriggerQueue, item => item.SourceObjectId == "ENEMY" && item.FieldContext is not null);
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "DAMAGE_APPLIED");
+        await game.Replay();
     }
 
     [Fact]

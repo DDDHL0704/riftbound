@@ -12231,14 +12231,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var defendingUnitCount = defenderAssignments.Count;
         var readyEnemyUnitCount = defenderStates.Values.Count(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
-        combatEvents.AddRange(ResolveSourceAttackDamageToFirstDefenderTriggers(
-            combatState, playerZones,
-            cardObjects,
-            intent.PlayerId,
-            battlefieldId,
-            attackerObjectIds,
-            defenderAssignments,
-            damageTriggeredDestroyTargetObjectIds));
+
         if (submittedDamage is null)
         {
             foreach (var attackingObjectId in attackerObjectIds)
@@ -13192,107 +13185,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static IReadOnlyList<GameEvent> ResolveSourceAttackDamageToFirstDefenderTriggers(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        IReadOnlyList<string> attackerObjectIds,
-        IReadOnlyList<BattleDamageAssignmentTarget> defenderAssignments,
-        ISet<string> damageTriggeredDestroyTargetObjectIds)
-    {
-        if (defenderAssignments.Count == 0)
-        {
-            return [];
-        }
-
-        var events = new List<GameEvent>();
-        foreach (var source in SourceAttackDamageToFirstDefenderTriggers(
-                playerZones,
-                cardObjects,
-                playerId,
-                attackerObjectIds)
-            .OrderBy(source => source.ObjectId, StringComparer.Ordinal))
-        {
-            var attackerObjectId = source.ObjectId;
-            var sourceBehavior = source.Behavior;
-            var damageAmount = sourceBehavior.SourceAttackDamageToFirstDefenderAmount;
-            var effectKind = sourceBehavior.SourceAttackDamageToFirstDefenderEffectKind;
-            var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
-                ? attackerObjectId
-                : sourceBehavior.DisplayName;
-
-            var targetObjectId = defenderAssignments
-                .Select(assignment => assignment.ObjectId)
-                .FirstOrDefault(defenderObjectId =>
-                    cardObjects.TryGetValue(defenderObjectId, out var defenderState)
-                    && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    && !defenderState.IsFaceDown
-                    && IsObjectOnField(playerZones, defenderObjectId));
-            if (string.IsNullOrWhiteSpace(targetObjectId))
-            {
-                continue;
-            }
-
-            events.Add(new GameEvent(
-                "TRIGGER_RESOLVED",
-                $"{playerId} 的{sourceDisplayName}进攻触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = attackerObjectId,
-                    ["targetObjectId"] = targetObjectId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["effectKind"] = effectKind,
-                    ["triggeredByEventKind"] = "BATTLE_DECLARED",
-                    ["damageAmount"] = damageAmount
-                }));
-            var damageApplication = ApplyDamageToCardObject(
-                state,
-                cardObjects,
-                playerId,
-                targetObjectId,
-                damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
-            var damagePayload = BuildDamagePayload(attackerObjectId, targetObjectId, damageApplication);
-            damagePayload["battlefieldId"] = battlefieldId;
-            damagePayload["effectKind"] = effectKind;
-            damagePayload["reason"] = "ATTACK_TRIGGER";
-            events.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                $"{sourceDisplayName}进攻触发造成伤害",
-                damagePayload));
-        }
-
-        return events;
-    }
-
-    private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceAttackDamageToFirstDefenderTriggers(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        IReadOnlyList<string> attackerObjectIds)
-    {
-        foreach (var attackerObjectId in attackerObjectIds)
-        {
-            if (!cardObjects.TryGetValue(attackerObjectId, out var attackerState)
-                || !IsFaceUpNonStandbyUnit(attackerState)
-                || !IsObjectOnField(playerZones, attackerObjectId)
-                || !string.Equals(
-                    EffectiveFieldControllerId(playerZones, attackerObjectId, attackerState),
-                    playerId,
-                    StringComparison.Ordinal)
-                || !CardBehaviorRegistry.TryGetByCardNo(attackerState.CardNo ?? "", out var sourceBehavior)
-                || sourceBehavior.SourceAttackDamageToFirstDefenderAmount <= 0
-                || string.IsNullOrWhiteSpace(sourceBehavior.SourceAttackDamageToFirstDefenderEffectKind))
-            {
-                continue;
-            }
-
-            yield return (attackerObjectId, sourceBehavior);
-        }
-    }
 
     private static string? EventPayloadString(GameEvent gameEvent, string key)
     {
