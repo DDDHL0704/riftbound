@@ -1,0 +1,186 @@
+/* ---------- symbols, toast, connection ---------- */
+
+
+.sym {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: -2px;
+  margin: 0 2px;
+}
+.sym--mana {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--ink);
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: 12px;
+}
+.sym--might {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(229, 87, 75, 0.25);
+  font-size: 11px;
+}
+.sym--power {
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  background: var(--muted);
+}
+.sym--exhaust {
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  border: 1px solid var(--text);
+  font-size: 11px;
+}
+.sym--keyword {
+  padding: 0 5px;
+  border-radius: 3px;
+  background: rgba(226, 176, 74, 0.2);
+  color: var(--brass);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: min(520px, 90vw);
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #2c1f2a;
+  border: 1px solid var(--ember);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+.toast--info {
+  border-color: var(--glacier);
+}
+.conn {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 6px 16px;
+  border-radius: 0 0 8px 8px;
+  background: var(--ember);
+  color: #fff;
+  font-size: 13px;
+}
+
+
+/* ---------- chain arrows ---------- */
+
+.arrows {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 45;
+  pointer-events: none;
+}
+.arrows path {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-dasharray: 8 6;
+  animation: march 0.9s linear infinite;
+}
+.arrows circle {
+  fill: none;
+  stroke-width: 2.5;
+}
+.arrow--me path,
+.arrow--me circle {
+  stroke: var(--brass);
+}
+.arrow--opp path,
+.arrow--opp circle {
+  stroke: var(--glacier);
+}
+@keyframes march {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+
+/* ---------- event feedback ---------- */
+
+.fx {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  pointer-events: none;
+}
+.fx__item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: 26px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  animation: fx-rise 1.4s ease-out forwards;
+}
+.fx__item--damage {
+  color: var(--ember);
+}
+.fx__item--destroy {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 4px;
+  background: rgba(229, 87, 75, 0.85);
+}
+.fx__item--score-me {
+  color: var(--brass);
+  font-size: 30px;
+}
+.fx__item--score-opp {
+  color: var(--glacier);
+  font-size: 30px;
+}
+@keyframes fx-rise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -30%) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -140%) scale(1);
+  }
+}
+
+.pickbar__stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pickbar__stepper b {
+  min-width: 1.5em;
+  text-align: center;
+  font-family: var(--font-num);
+}
+
+/* Card names in the log, panels and choices preview the card on hover. */
+.cardref {
+  text-decoration: underline dotted color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 3px;
+  cursor: help;
+}

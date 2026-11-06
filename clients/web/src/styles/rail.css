@@ -1,0 +1,448 @@
+/* ---------- rail preview (top of the chain) ---------- */
+
+.preview {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+}
+.preview__art {
+  width: 96px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.preview__body {
+  min-width: 0;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.preview__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.3;
+}
+.preview__meta {
+  margin: 2px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.preview__errata {
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  font-size: 11px;
+}
+.preview__effect {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1180px) {
+  :root {
+    --rail-w: 268px;
+    --dock-w: 136px;
+  }
+  .hero__acts {
+    width: 124px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .dp__peek {
+    right: 360px;
+  }
+}
+
+@media (max-width: 860px) {
+  .packs__cards {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  }
+  .sealed__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lobby__grid,
+  .records {
+    grid-template-columns: 1fr;
+  }
+  .setup__body {
+    grid-template-columns: 1fr;
+  }
+  .dp {
+    position: static;
+    max-height: none;
+  }
+  .dp__peek {
+    display: none;
+  }
+  .setup__head {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .packs__card.is-foil::after {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- rail ---------- */
+
+.rail {
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(80px, 1fr) auto;
+  min-height: 0;
+  background: var(--ink);
+}
+.rail__head {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--line);
+  border-left: 3px solid transparent;
+}
+.rail__head.is-active {
+  border-left-color: var(--brass);
+  background: linear-gradient(90deg, rgba(226, 176, 74, 0.1), transparent);
+}
+.rail__turn {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.rail__title {
+  margin: 2px 0 4px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 900;
+}
+.rail__msg {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.rail__panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px 18px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.rail__panel:empty {
+  display: none;
+}
+.rail__sub {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.guide {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+}
+.guide__hole {
+  position: fixed;
+  border: 2px solid var(--brass);
+  border-radius: 14px;
+  /* The page outside the outlined region is dimmed by this one huge shadow. */
+  box-shadow: 0 0 0 9999px rgba(8, 6, 14, 0.72), 0 0 30px rgba(240, 181, 74, 0.5);
+  transition: all 0.25s var(--ease-out);
+  pointer-events: none;
+}
+.guide__note,
+.settings {
+  position: fixed;
+  width: 340px;
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: rgba(24, 19, 36, 0.98);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.65);
+  font-size: 13px;
+}
+.guide__note h3,
+.settings h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+.guide__note p {
+  margin: 0;
+}
+.guide__step {
+  font-family: var(--font-num);
+  color: var(--brass);
+  font-size: 12px;
+}
+.guide__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.settings {
+  /* Opens just above the footer button that toggles it. */
+  position: absolute;
+  right: 12px;
+  bottom: calc(100% + 8px);
+  z-index: 110;
+}
+.settings h4 {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.settings__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.settings__row input[type="range"] {
+  flex: 1;
+  accent-color: var(--brass);
+}
+.settings__keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 12px;
+}
+.settings__keys dt {
+  font-family: var(--font-num);
+  color: var(--brass);
+}
+.settings__keys dd {
+  margin: 0;
+}
+.rail__foot {
+  grid-row: 6;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 18px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+.rail__confirm {
+  display: flex;
+  flex: 1 0 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.panel {
+  display: grid;
+  gap: 10px;
+}
+.panel p {
+  margin: 0;
+}
+.panel__group {
+  display: grid;
+  gap: 6px;
+}
+.warn {
+  color: var(--ember);
+}
+.panel__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+}
+.versus {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.versus ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+.dmg {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.22);
+}
+/* Combat damage order for this target: bulwark first, back row last, or either when it has both. */
+.dmg__order {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  color: var(--brass);
+  font-size: 11px;
+}
+.dmg__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.stepper button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+.stepper b {
+  min-width: 16px;
+  text-align: center;
+  font-family: var(--font-num);
+  font-size: 18px;
+}
+.order {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+}
+.order li {
+  padding: 2px 0;
+}
+.order li > span:first-child {
+  display: inline-block;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.order__moves {
+  float: right;
+  display: inline-flex;
+  gap: 4px;
+}
+.order__moves button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.choices--cards {
+  gap: 12px;
+}
+.tempo {
+  display: grid;
+  gap: 8px;
+}
+
+.stack {
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+}
+.stack ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+.stack li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border-left: 3px solid;
+  background: rgba(0, 0, 0, 0.22);
+}
+.stack li.is-me {
+  border-color: var(--brass);
+}
+.stack li.is-opp {
+  border-color: var(--glacier);
+}
+
+.log {
+  /* The record and the footer keep the last two rows however many panels sit above them. */
+  grid-row: 5;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  padding: 12px 18px 0;
+  border-top: 1px solid var(--line);
+}
+.log ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  font-size: 12px;
+}
+.log__item {
+  padding: 3px 0;
+  color: var(--muted);
+  border-bottom: 1px solid rgba(237, 230, 214, 0.05);
+}
+.log__count {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(240, 181, 74, 0.16);
+  color: var(--brass);
+  font-family: var(--font-num);
+  font-size: 12px;
+}
+.log__item--error {
+  color: var(--ember);
+}
+.log__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.log__mode {
+  padding: 1px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.log__mode:hover {
+  color: var(--text);
+}
+.log__turn {
+  margin: 8px 0 2px;
+  padding: 2px 0;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--brass);
+  text-align: center;
+  background: linear-gradient(90deg, transparent, rgba(240, 181, 74, 0.12), transparent);
+}

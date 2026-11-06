@@ -1,0 +1,305 @@
+/* ---------- cards ---------- */
+
+.card-slot {
+  position: relative;
+  flex: none;
+  --w: var(--board-w);
+  width: var(--w);
+  height: calc(var(--w) * var(--card-ratio));
+  transition:
+    width 0.25s var(--ease-out),
+    height 0.25s var(--ease-out);
+}
+.card-slot--hand {
+  --w: var(--hand-w);
+}
+.card-slot--hero {
+  --w: var(--hero-w);
+}
+.card-slot--mini {
+  --w: var(--mini-w);
+}
+.card-slot--rune {
+  --w: var(--rune-w);
+}
+.card-slot--exhausted {
+  width: calc(var(--w) * var(--card-ratio));
+  height: var(--w);
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-card);
+  /* Shows while the card image loads instead of a black hole. */
+  background: linear-gradient(135deg, #2a2142, #17111f 60%, #241c37);
+  overflow: visible;
+  cursor: default;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.18s var(--ease-out),
+    box-shadow 0.2s var(--ease-out),
+    filter 0.2s;
+}
+.card-slot--exhausted .card {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: var(--w);
+  height: calc(var(--w) * var(--card-ratio));
+  transform: translate(-50%, -50%) rotate(90deg);
+  filter: saturate(0.7) brightness(0.88);
+}
+.card--interactive {
+  cursor: pointer;
+}
+.card__art,
+.card__back {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+.card__back {
+  background:
+    radial-gradient(circle at 50% 50%, transparent 26%, rgba(183, 139, 255, 0.35) 27%, transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(240, 181, 74, 0.25), transparent 60%),
+    repeating-linear-gradient(45deg, #2b2042 0 6px, #231a37 6px 12px);
+  border: 2px solid #45365f;
+}
+.card__fallback {
+  display: grid;
+  align-content: space-between;
+  height: 100%;
+  padding: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: inherit;
+  font-size: 11px;
+  text-align: left;
+}
+.card__fallback-cost {
+  font-family: var(--font-num);
+  font-size: 18px;
+}
+.card__power {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2c2342, #17111f);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.card__power--changed {
+  color: var(--brass-hi);
+  border-color: var(--brass);
+}
+.card__damage {
+  position: absolute;
+  left: -6px;
+  bottom: -6px;
+  min-width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--ember);
+  color: #fff;
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 0 10px rgba(255, 94, 87, 0.6);
+}
+/* Empowered: how many times, top-left so it never covers power or damage. */
+.card__empower {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  padding: 0 6px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--brass);
+  color: #1b1405;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(240, 181, 74, 0.55);
+  pointer-events: none;
+}
+/* Boon (+1 might counter): a green seal top-right, clear of power, damage and empower. */
+.card__boon {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #8ee6a8, #2f9d5a 70%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #0c2414;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 0 8px rgba(80, 220, 130, 0.6);
+  pointer-events: none;
+}
+/* Several boons: a pill wide enough for the count. */
+.card__boon--many {
+  width: auto;
+  min-width: 22px;
+  padding: 0 5px;
+  border-radius: 11px;
+}
+/* Own face-down standby: dimmed art and a ribbon so it reads as "set, not in play". */
+.card--peek .card__art {
+  filter: brightness(0.55) saturate(0.6);
+}
+.card--peek {
+  outline: 2px dashed rgba(183, 139, 255, 0.7);
+  outline-offset: -2px;
+}
+.card__ribbon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  padding: 1px 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #7c4dff, #b78bff);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.card__ribbon--opp {
+  background: linear-gradient(90deg, #2a7ea0, #6fd0ee);
+}
+
+.card--playable {
+  box-shadow:
+    0 0 0 2px var(--brass),
+    0 0 18px rgba(240, 181, 74, 0.55),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+  animation: playable 1.8s ease-in-out infinite;
+}
+@keyframes playable {
+  50% {
+    box-shadow:
+      0 0 0 2px var(--brass-hi),
+      0 0 26px rgba(240, 181, 74, 0.8),
+      0 6px 14px rgba(0, 0, 0, 0.35);
+  }
+}
+.card--autopay {
+  box-shadow:
+    0 0 0 2px rgba(240, 181, 74, 0.55),
+    0 0 0 4px rgba(240, 181, 74, 0.12),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.card--legal {
+  cursor: crosshair;
+  box-shadow:
+    0 0 0 2px var(--legal),
+    0 0 20px rgba(255, 241, 184, 0.75);
+  animation: legal 1s ease-in-out infinite alternate;
+}
+@keyframes legal {
+  to {
+    box-shadow:
+      0 0 0 2px var(--legal),
+      0 0 6px rgba(255, 241, 184, 0.3);
+  }
+}
+.card--selected {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 22px rgba(255, 255, 255, 0.55);
+  animation: none;
+}
+.card--dragging {
+  opacity: 0.25;
+}
+/* An opponent's object that just arrived where it is. */
+.card--recent {
+  box-shadow:
+    0 0 0 2px var(--glacier),
+    0 0 22px rgba(111, 208, 238, 0.7);
+  animation: recent 2.5s ease-out forwards;
+}
+@keyframes recent {
+  to {
+    box-shadow:
+      0 0 0 2px rgba(111, 208, 238, 0),
+      0 0 22px rgba(111, 208, 238, 0);
+  }
+}
+.card--attacking::after,
+.card--defending::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 10px;
+  border: 2px dashed var(--ember);
+  pointer-events: none;
+}
+.card--defending::after {
+  border-color: var(--glacier);
+}
+.card--interactive:hover {
+  transform: translateY(-4px) scale(1.04);
+}
+.card-slot--exhausted .card--interactive:hover {
+  transform: translate(-50%, -56%) rotate(90deg) scale(1.04);
+}
+
+.obj {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.obj__attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+  max-width: calc(var(--board-w) + 24px);
+}
+.obj__attachment {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(240, 181, 74, 0.16);
+  border: 1px solid rgba(240, 181, 74, 0.35);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.crowd {
+  min-width: 0;
+}
+.crowd > .obj + .obj {
+  margin-left: calc(var(--crowd-shift, 0px) * -1);
+}
+.crowd > .obj:hover {
+  z-index: 3;
+}
