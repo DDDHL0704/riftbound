@@ -1639,6 +1639,7 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (TargetSelectionSummary(state, trigger.UnitEvent, viewerPlayerId) is { } targeted) return targeted;
         if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
@@ -1686,6 +1687,8 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (TargetSelectionSummary(state, trigger.UnitEvent, viewerPlayerId) is { } targeted)
+            return $"可横置来源并支付所示符能；双方响应后，{targeted}。";
         if (trigger.StandbyObserver is { Draw: null }) return trigger.EffectKind == CoreRuleEngine.StandbyHiddenTokenEffect
             ? "藏匿卡牌后创建指示物；双方响应后结算。"
             : "从背面打出卡牌后，活跃原来源并给予战力；双方响应后结算。";
@@ -1877,6 +1880,11 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "HELD" } heldInsight) view["heldInsight"] = heldInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "EXHAUSTED" } exhaustedInsight) view["exhaustedInsight"] = exhaustedInsight;
+        if (TargetSelectionSubjectObjects(state, item.UnitEvent, viewerPlayerId) is { } subjects)
+        {
+            view["referencedObjectIds"] = subjects;
+            view["abilityLabel"] = TargetSelectionSummary(state, item.UnitEvent, viewerPlayerId);
+        }
         if (item.TemporaryActivation is { } temporary) {
             view["grantedAbilityId"] = CoreRuleEngine.TemporaryActivationId(temporary.Grant);
             view["abilityLabel"] = "本回合获得的活跃技能";
@@ -2092,6 +2100,11 @@ public sealed partial record ResolutionResult(
             ["battlefieldStart"] = item.BattlefieldStart,
             ["triggeredByEventKind"] = item.TriggeredByEventKind
         };
+        if (TargetSelectionSubjectObjects(state, item.UnitEvent, viewerPlayerId) is { } subjects)
+        {
+            view["referencedObjectIds"] = subjects;
+            view["abilityLabel"] = TargetSelectionSummary(state, item.UnitEvent, viewerPlayerId);
+        }
         if (item.BeginningRune is not null) view["beginningRune"] = CoreRuleEngine.PublicBeginningRune(item.BeginningRune);
         if (!hiddenSource && item.NextUnitPlayGrant is not null) view["nextUnitPlayGrant"] = item.NextUnitPlayGrant;
         if (!hiddenSource && item.TurnUnitPlayBoon is not null)
@@ -2518,7 +2531,6 @@ internal static partial class ActionPromptBuilder
         int PowerGainAmount = 0,
         string TimingKind = LegendActionTimingKinds.MainOpen,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
-        bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldStaticAbilityKind = "",
         PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other,
         int PowerCost = 0,
@@ -2546,7 +2558,6 @@ internal static partial class ActionPromptBuilder
     private const string OrnnLegendAbilityId = LegendActionAbilityCatalog.OrnnLegendAbilityId;
     private const string RenektonLegendAbilityId = LegendActionAbilityCatalog.RenektonLegendAbilityId;
     private const string EzrealLegendAbilityId = LegendActionAbilityCatalog.EzrealLegendAbilityId;
-    private const string IreliaLegendAbilityId = LegendActionAbilityCatalog.IreliaLegendAbilityId;
     private const string TeemoLegendAbilityId = LegendActionAbilityCatalog.TeemoLegendAbilityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -3537,18 +3548,6 @@ internal static partial class ActionPromptBuilder
                 TimingKind: LegendActionTimingKinds.ReactionWindow,
                 RequiresEzrealEnemyTargetsThisTurn: true),
             new(
-                IreliaLegendAbilityId,
-                LegendActionAbilityCatalog.SourceCardNosForAbility(IreliaLegendAbilityId),
-                "刀锋舞者传奇反应重置技能",
-                1,
-                0,
-                "SPEND_MANA:1",
-                1,
-                true,
-                "READY_FRIENDLY_UNIT",
-                TimingKind: LegendActionTimingKinds.PriorityWindow,
-                RequiresPendingFriendlyUnitTarget: true),
-            new(
                 TeemoLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(TeemoLegendAbilityId),
                 "迅捷斥候传奇召回技能",
@@ -3634,12 +3633,6 @@ internal static partial class ActionPromptBuilder
             return result;
         }
 
-        if (ability.RequiresPendingFriendlyUnitTarget)
-        {
-            result["0"] = LegendActionPendingFriendlyUnitTargetChoices(state, playerId).ToArray();
-            return result;
-        }
-
         if (ability.RequiresFriendlyUnitTarget)
         {
             result["0"] = LegendActionFriendlyUnitTargetChoices(state, playerId, ability).ToArray();
@@ -3697,7 +3690,6 @@ internal static partial class ActionPromptBuilder
             LegendActionAbilityCatalog.MordekaiserLegendAbilityId => "反应放逐废牌堆中的单位或装备并横置：获得 1 点仅用于打出单位或装备的符能",
             RenektonLegendAbilityId => "支付 2 符能并横置：获得仅用于打出单位或单位主动技能的 2 法力",
             EzrealLegendAbilityId => "反应横置：抽 1 张",
-            IreliaLegendAbilityId => "反应支付 1 并横置：重置被选为目标的友方单位",
             TeemoLegendAbilityId => "支付 1 并横置：召回己方提莫单位",
             LegendActionAbilityCatalog.AzirLegendAbilityId => "支付 1 并横置：打出黄沙士兵",
             LilliaLegendAbilityId => "动态支付并横置：打出精灵",
@@ -3718,11 +3710,6 @@ internal static partial class ActionPromptBuilder
         if (ability.RequiresOwnedTeemoUnitTarget)
         {
             return "己方提莫单位";
-        }
-
-        if (ability.RequiresPendingFriendlyUnitTarget)
-        {
-            return "被当前结算链项目指定的友方单位";
         }
 
         if (ability.RequiresArmamentSecondTarget)

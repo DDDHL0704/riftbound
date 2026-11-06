@@ -36,8 +36,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!IsFaceUpNonStandbyUnit(unit) || !IsObjectOnField(zones, unit.ObjectId)
             || EffectiveFieldControllerId(zones, unit.ObjectId, unit) != actor) return [];
-        var sources = cards.Values.Where(card => EffectiveFieldControllerId(zones, card.ObjectId, card) == actor)
-            .Select(card => card.ObjectId);
+        var sources = PublicStaticAuraSourceObjectIds(zones).Where(id => cards.TryGetValue(id, out var card)
+            && EffectiveFieldControllerId(zones, id, card) == actor);
         return CaptureUnitEvents(zones, cards, sources, FriendlyUnitTargetedTiming)
             .Select(observation => observation with { Context = observation.Context with {
                 Other = new(new(unit.ObjectId, unit.ObjectGeneration), unit.CardNo!,
@@ -63,10 +63,11 @@ public sealed partial class CoreRuleEngine
         UnitEventAbilitySpec spec, string? controller)
         => spec.Timing != FriendlyUnitTargetedTiming ? context.TargetSelection is null
             : spec.Effect == ReadySelectedEventUnit && spec.SourceInLegendZone
-                && context.TargetSelection is { } selection && state.Seats.ContainsKey(selection.Actor)
+                && context.TargetSelection is { } selection && !string.IsNullOrWhiteSpace(selection.Actor)
+                && state.Seats.ContainsKey(selection.Actor)
                 && (controller is null || controller == selection.Actor) && !string.IsNullOrWhiteSpace(selection.CauseId)
                 && context.Other is { Binding.Generation: >= 0, FaceRevision: >= 0 } other
-                && TryPredictEnteredFace(other.CardNo, out var face) && face.Tags.Contains(CardObjectTags.UnitCard)
+                && !string.IsNullOrWhiteSpace(other.CardNo) && TryPredictEnteredFace(other.CardNo, out var face) && face.Tags.Contains(CardObjectTags.UnitCard)
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision,
                     context.CapturedTick, other.TokenFactoryCardNo);
 

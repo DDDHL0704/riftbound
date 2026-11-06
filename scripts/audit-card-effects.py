@@ -853,10 +853,52 @@ def rune_domain_reveal_route(card: dict, clause: dict, sources: Sources) -> dict
     return result("missing", "进攻展示／回收符文或对应颜色的独立技能缺少精确规格及执行消费者")
 
 
+def friendly_target_ready_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    if not re.fullmatch(r"当你将一名友方单位选为目标时你可以选择让我变为休眠状态并支付\{\{A\}\}以此让该单位变为活跃状态", text):
+        return None
+    event = card.get("unitEventAbility") or {}
+    allowed = {"timing", "effect", "amount", "leadingPowerCost", "leadingSourceExhaust", "optional", "sourceInLegendZone"}
+    exact = card.get("cardCategory") == "legendary" and event.get("timing") == "FRIENDLY_UNIT_TARGETED" \
+        and event.get("effect") == "READY_SELECTED_EVENT_UNIT" and event.get("leadingPowerCost") == 1 \
+        and event.get("leadingSourceExhaust") is True and event.get("optional") is True \
+        and event.get("sourceInLegendZone") is True and not event.get("amount") \
+        and not any(meaningful(value) for key, value in event.items() if key not in allowed)
+    exact = exact and any(node_matches(clause, item)
+        and item["node"].get("kind") == "CONTROLLER_TARGETED_FRIENDLY_UNIT_PAY_EXHAUST_READY"
+        and item["node"].get("timing") == "CONTROLLER_TARGETED_FRIENDLY_UNIT"
+        and item["node"].get("targetScope") == "SELECTED_FRIENDLY_EVENT_UNIT"
+        and item["node"].get("powerCost") == 1 and item["node"].get("exhaustsSource") is True
+        and item["node"].get("optional") is True and item["node"].get("unitReadyCount") == 1
+        and not any(meaningful(item["node"].get(key)) for key in ["manaCost", "powerCostTrait", "oncePerTurn"])
+        for item in card.get("triggers", []))
+    requirements = {
+        "CoreRuleEngine.TargetSelectionObservers.cs": ["IsFriendlyUnitTargetedReadyTrigger", "CaptureUnitEvents(",
+            "UnitEventTrigger(", "ApplyReadyState(", "PredictBindingMatches("],
+        "CoreRuleEngine.SelfActionObservers.cs": ["CaptureFriendlyUnitTargetedObservers(", "QueueTargetSelectionObservers(",
+            "HasConfirmedTargets(", "SPELL_CHOICES_REMADE"],
+        "CoreRuleEngine.UnitEvents.cs": ["TargetSelectionLegendEvents.Value.GetValueOrDefault(",
+            "ValidTargetSelectionContext(", "ResolveSelectedEventUnitReady("],
+        "CoreRuleEngine.TriggerCosts.cs": ["exhaustSpec.LeadingPowerCost", "LeadingSourceExhaust", "CompleteTriggerCost("],
+        "MatchRecovery.cs": ["ValidUnitEvent(", "ValidUnitEventTargets("],
+    }
+    evidence = []
+    for filename, symbols in requirements.items():
+        path = "src/Riftbound.Engine/" + filename
+        if not all(symbol in sources.files.get(path, "") for symbol in symbols):
+            exact = False
+        evidence.append(path)
+    if exact:
+        return result("route", "确认友方单位目标时捕获独立触发，横置并付任意符能后活跃原物体", evidence)
+    return result("missing", "缺少选择友方单位时的实际触发、横置及任意符能前置费用，或原物体的独立活跃结算")
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
+    if targeted := friendly_target_ready_route(card, clause, sources):
+        return targeted
     keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
     if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
         if any(b.get("recyclesUnkeptSacredJudgmentCards") for b in card.get("behaviors", [])):

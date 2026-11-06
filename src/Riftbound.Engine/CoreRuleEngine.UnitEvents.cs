@@ -362,7 +362,10 @@ public sealed partial class CoreRuleEngine
         && (SelectedUnitEventSpec(c)?.Effect is RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
-        => item.TargetGenerations is null ? item.TargetObjectIds.Count == 0 : NeedsUnitEventTarget(item)
+        => item.UnitEvent?.Timing == FriendlyUnitTargetedTiming
+            ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && !item.SourceConfirmed
+                && item.EffectRepeatCount == 1 && item.DamageAmount == 0 && item.OptionalCosts.Count == 0 && item.Destination.Length == 0
+            : item.TargetGenerations is null ? item.TargetObjectIds.Count == 0 : NeedsUnitEventTarget(item)
             && (item.TargetObjectIds.Count > 0 || UnitEventSpec(item.UnitEvent!.CardNo)!.Effect == PlayedUnitReadyRunes)
             && (UnitEventSpec(item.UnitEvent!.CardNo)!.AnyNumberOfTargets || item.TargetObjectIds.Count == 1)
             && (UnitEventSpec(item.UnitEvent.CardNo)!.Effect != PlayedUnitReadyRunes || item.TargetObjectIds.Count <= UnitEventSpec(item.UnitEvent.CardNo)!.Amount)

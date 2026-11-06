@@ -2417,28 +2417,20 @@ public sealed partial class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendActIreliaReadiesPendingTargetedFriendlyUnit()
     {
-        var state = IreliaPendingFriendlyTargetState("SFD·195/221", "P1-LEGEND-IRELIA", targetFriendlyUnit: true);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-irelia-targeted-friendly-ready", "P1", "LEGEND_ACT"),
-            new LegendActCommand(
-                "P1-LEGEND-IRELIA",
-                "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT",
-                ["P1-LEGEND-BATTLEFIELD-UNIT"],
-                ["SPEND_MANA:1"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.True(result.State.CardObjects["P1-LEGEND-IRELIA"].IsExhausted);
-        Assert.False(result.State.CardObjects["P1-LEGEND-BATTLEFIELD-UNIT"].IsExhausted);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["abilityId"] as string, "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEGEND-BATTLEFIELD-UNIT", StringComparison.Ordinal));
+        var game = new VenBasicFlowSpellTests.Driver(IreliaTargetSelectionTriggerTests.Position());
+        await IreliaTargetSelectionTriggerTests.Cast(game);
+        Assert.Equal(1, game.State.PendingPayment!.PowerCost);
+        Assert.Equal(0, game.State.PendingPayment.ManaCost);
+        var mana = game.State.RunePools["P1"].Mana;
+        await IreliaTargetSelectionTriggerTests.Pay(game);
+        Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Equal(mana, game.State.RunePools["P1"].Mana);
+        await game.Top();
+        Assert.False(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_READIED"
+            && Equals(e.Event.Payload["targetObjectId"], "HOST"));
+        await game.Replay();
     }
 
     [Fact]
