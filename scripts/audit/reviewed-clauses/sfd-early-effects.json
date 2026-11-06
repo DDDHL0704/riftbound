@@ -1,0 +1,1270 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·001/221"
+      ],
+      "text": "（可在任意时机打出，甚至先于其他法术和技能的结算。）",
+      "scope": "（可在任意时机打出，甚至先于其他法术和技能的结算。）",
+      "status": "route",
+      "reason": "独立排版的反应提示仍属于本牌反应权限；可在对手法术的响应窗口打出并先行结算，不要求处于自己的回合",
+      "rules": "核心813 反应、403–407 确认及响应；SFD·001 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "canPlayDuringPriority": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
+          "contains": [
+            "behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction)",
+            "state.PriorityPlayerId, playerId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SfdPrintedClauseAuditTests.cs",
+          "methods": [
+            "StandDefiantCanRespondToAnOpponentsSpellAndResolvesBeforeIt"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·003/221"
+      ],
+      "text": "让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）",
+      "scope": "让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）",
+      "status": "missing",
+      "reason": "旧实现只加OVERWHELM_2普通状态并在当前为进攻方时直接加战力；没有授予数值强攻2，不能在随后的真实战斗或读取关键词数值时生效",
+      "rules": "核心807 数值强攻、479 当前战力；SFD·003 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "statusEffectId": "OVERWHELM_2",
+            "powerModifierAmount": 2,
+            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardPowerModifierConditionKinds.TargetIsAttacking => targetState.IsAttacking",
+            "var status = behavior.StatusEffectId;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysBloodRushEchoOverwhelmAttackingPower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·004/221"
+      ],
+      "text": "在本回合内，友方单位以活跃状态进场。",
+      "scope": "在本回合内，友方单位以活跃状态进场。",
+      "status": "missing",
+      "reason": "当前仅创建一个休眠金币；未登记本回合友方单位活跃进场的TurnUnitPlayGrantKind，已有共享READY_ENTRY执行器不能由本牌触发",
+      "rules": "核心355–359 打出及进场状态、牌面本回合期限及SFD·004 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "createdBaseEquipmentTokenCount": 1,
+            "createdBaseEquipmentTokenName": "金币",
+            "createdBaseEquipmentTokenTags": "CARD_TYPE:EQUIPMENT",
+            "createdBaseEquipmentTokenIsExhausted": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·004/221\"",
+            "\"JUNGLE_AMBUSH_CREATE_GOLD_EQUIPMENT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·007/221"
+      ],
+      "text": "当你打出我时，让一名单位本回合内获得{{游走}}。（它可以向其他战场进行移动。）",
+      "scope": "当你打出我时，让一名单位本回合内获得{{游走}}。（它可以向其他战场进行移动。）",
+      "status": "route",
+      "reason": "单位入场后确认一名合法场上单位为目标，响应后授予本回合ROAM；正常战场间移动权限实际读取这一状态",
+      "rules": "核心383.4.a.2 入场技能、810 游走；SFD·007 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "statusEffectId": "ROAM",
+            "requiredTargetCount": 1,
+            "targetScope": "ANY_UNIT"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "var status = behavior.StatusEffectId;",
+            "sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitPlay.cs",
+          "methods": [
+            "CoreRuleEnginePlaysHexcoreDisruptorGrantRoam",
+            "CoreRuleEngineRejectsHexcoreDisruptorWhenTargetIsEquipment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·010/221"
+      ],
+      "text": "如果我从你手牌以外的位置被打出，则我的费用减少{{2}}。",
+      "scope": "如果我从你手牌以外的位置被打出，则我的费用减少{{2}}。",
+      "status": "route",
+      "reason": "真实非手牌效果打出保留物理来源位置供报价及付款，减少2法力；正常手牌打出保留3法力原价，资源不足原子拒绝",
+      "rules": "核心356.4 费用减少、效果打出来源；SFD·010 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "PLAYED_OUTSIDE_OWN_HAND",
+            "costReductionMana": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.PlayedOutsideOwnHand",
+            "!own.Hand.Contains(sourceObjectId, StringComparer.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PhysicalOriginCostReductionTests.cs",
+          "methods": [
+            "RealRevealedDeckPlayQuotesOffersAndPaysTheNonHandReduction",
+            "ARealHandPlayKeepsTheFullPrintedManaCost",
+            "ReducedCostStillRejectsOneMissingManaWithoutMutatingThePendingPlay"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·011/221"
+      ],
+      "text": "选择一名单位和其控制者的一件武装。",
+      "scope": "选择一名单位和其控制者的一件武装。",
+      "status": "route",
+      "reason": "以一名单位和该单位控制者的武装为两个目标；结算在同一宿主上则卸除，否则贴附／改贴至该单位，保持实际位置与独立贴附事件",
+      "rules": "核心435 贴附／卸除、718 控制者与武装、355.6 目标；SFD·011 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "targetScope": "UNIT_THEN_ITS_CONTROLLERS_WEAPON",
+            "attachesOrDetachesSecondTargetEquipmentToFirstTarget": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.AttachesOrDetachesSecondTargetEquipmentToFirstTarget",
+            "TryAttachOrDetachSecondTargetEquipmentToFirstTarget(",
+            "!string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysTakeUpAttachWeaponDraw",
+            "CoreRuleEnginePlaysTakeUpDetachWeaponDraw",
+            "CoreRuleEngineRejectsTakeUpInvalidWeaponTargets"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AttachmentObserverTests.cs",
+          "methods": [
+            "TakeUpReattachesFromAnotherHostAtTheNewLocationAndCapturesDrawTrigger"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·011/221"
+      ],
+      "text": "为该单位贴附或卸除该武装。",
+      "scope": "为该单位贴附或卸除该武装。",
+      "status": "route",
+      "reason": "以一名单位和该单位控制者的武装为两个目标；结算在同一宿主上则卸除，否则贴附／改贴至该单位，保持实际位置与独立贴附事件",
+      "rules": "核心435 贴附／卸除、718 控制者与武装、355.6 目标；SFD·011 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "targetScope": "UNIT_THEN_ITS_CONTROLLERS_WEAPON",
+            "attachesOrDetachesSecondTargetEquipmentToFirstTarget": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.AttachesOrDetachesSecondTargetEquipmentToFirstTarget",
+            "TryAttachOrDetachSecondTargetEquipmentToFirstTarget(",
+            "!string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysTakeUpAttachWeaponDraw",
+            "CoreRuleEnginePlaysTakeUpDetachWeaponDraw",
+            "CoreRuleEngineRejectsTakeUpInvalidWeaponTargets"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AttachmentObserverTests.cs",
+          "methods": [
+            "TakeUpReattachesFromAnotherHostAtTheNewLocationAndCapturesDrawTrigger"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·012/221"
+      ],
+      "text": "你在本回合内每打出过一张牌，我的费用便减少{{1}}，不得低于{{1}}。",
+      "scope": "你在本回合内每打出过一张牌，我的费用便减少{{1}}，不得低于{{1}}。",
+      "status": "missing",
+      "reason": "只有5法力基础单位登记；未按本回合已经打出的牌数逐张减费，也未实现本牌最低1法力的限制",
+      "rules": "核心356.4 费用减少；SFD·012 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitTags": "崔法利",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·012/221\"",
+            "\"SIEGE_RAM_TRIFARIAN_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·013/221"
+      ],
+      "text": "你可以选择支付{{1}}和{{红色}}，作为打出我的额外费用。",
+      "scope": "你可以选择支付{{1}}和{{红色}}，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "可选1法力和1红色符能的额外费用在打出确认时一起支付；入场后才选择伤害技能目标，额外减费也不能改变颜色及目标范围",
+      "rules": "核心204.2 额外费用、356–357、383.4.a.2；SFD·013 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetEffectAdditionalManaCost": 1,
+            "targetEffectAdditionalPowerCost": 1,
+            "targetEffectAdditionalPowerTrait": "red"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.TargetEffectAdditionalManaCost",
+            "RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalAdditionalCostReductionTests.cs",
+          "methods": [
+            "ExplicitBlastCrewReductionPaysBeforeAnIndependentEntryTargetIsChosen",
+            "AReductionDoesNotMakeABaseUnitALegalBlastCrewTarget"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysBlastCrewApprenticeOptionalDamage",
+            "CoreRuleEngineBlastCrewApprenticePromptExposesOptionalDamageCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·014/221"
+      ],
+      "text": "所有单位无法移动到基地。",
+      "scope": "所有单位无法移动到基地。",
+      "status": "missing",
+      "reason": "只有基础单位登记；没有对所有单位移动到基地的静态禁止，现有移动目的地消费者未接入本牌限制",
+      "rules": "核心364–365 静态技能、447–451 移动；SFD·014 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 5,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·014/221\"",
+            "\"MINOTAUR_RECKONER_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·017/221"
+      ],
+      "text": "如果它是进攻方，则改为对其造成4点伤害。",
+      "scope": "如果它是进攻方，则改为对其造成4点伤害。",
+      "status": "route",
+      "reason": "伤害条件读取结算时目标的进攻方身份；进攻方4伤害，其他战场单位仍为2，不把条件当作额外目标限制",
+      "rules": "核心418 伤害、466.2 进攻身份；SFD·017 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "damageAmount": 2,
+            "damageConditionKind": "TARGET_IS_ATTACKING",
+            "conditionalDamageAmount": 4
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ResolveDamageAmount(",
+            "behavior.ConditionalDamageAmount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEngineBoostsThunderingDropAgainstAttackingUnit"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "methods": [
+            "CoreRuleEngineUsesBaseThunderingDropDamageAgainstNonAttackingUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·018/221"
+      ],
+      "text": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
+      "scope": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少展示牌堆前的私下查看顶牌、可选回收及随后继续原展示指示的替代／延续流程",
+      "rules": "核心128 私有查看与公开展示、370 替代及417 回收；SFD·018 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 2,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·018/221\"",
+            "\"VOIDLING_SEEDLING_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·018/221"
+      ],
+      "text": "然后继续展示这些卡牌。",
+      "scope": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少展示牌堆前的私下查看顶牌、可选回收及随后继续原展示指示的替代／延续流程",
+      "rules": "核心128 私有查看与公开展示、370 替代及417 回收；SFD·018 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 2,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·018/221\"",
+            "\"VOIDLING_SEEDLING_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·035/221"
+      ],
+      "text": "当我据守一处战场时，你可以选择让你废牌堆里的一名单位或一件装备返回你的手牌。",
+      "scope": "当我据守一处战场时，你可以选择让你废牌堆里的一名单位或一件装备返回你的手牌。",
+      "status": "route",
+      "reason": "据守时确认从自己的废牌堆选择单位或装备，可放弃；响应后仅将同一代际仍在原区域的永久物返手，法术不是合法选择",
+      "rules": "核心383.4.d 据守、403–407 目标确认及响应；SFD·035 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "RETURN_PERMANENT",
+            "amount": 1
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "[\"SFD·035/221\"] = (\"RETURN_PERMANENT\", 1)",
+            "case \"RETURN_PERMANENT\": ReturnToHand(resolvedTarget!);"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialHeldConfirmationTests.cs",
+          "methods": [
+            "EveryDecisionIsConfirmedBeforeFirstResponseAndEffectsWait",
+            "OptionalDeclineRemovesTriggerWithoutOpeningResponse",
+            "TargetThatLeavesAndReturnsAsNewObjectIsNotAffected",
+            "GraveyardOnlyOffersOwnPermanentsAndDoesNotChargeInactiveWard"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·038/221"
+      ],
+      "text": "当我移动到一处战场时，让另一名友方单位在本回合内{{S}}+1。",
+      "scope": "当我移动到一处战场时，让另一名友方单位在本回合内{{S}}+1。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少自身移到战场后的独立触发、另一名友方单位的选择及本回合+1战力",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 3,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·038/221\"",
+            "\"SILK_DANCER_VANILLA_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·041/221"
+      ],
+      "text": "当我移动时，展示你主牌堆顶部的一张牌。",
+      "scope": "当我移动时，展示你主牌堆顶部的一张牌。",
+      "status": "missing",
+      "reason": "只有基础单位登记；现有移动展示技能只覆盖单位／强力单位等其他句型，不支持本牌展示顶牌、装备抽取否则回收的分支",
+      "rules": "核心383 移动触发、128 展示、417 回收；SFD·041 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 2,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·041/221\"",
+            "\"APPRENTICE_BLACKSMITH_MOVE_REVEAL_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·041/221"
+      ],
+      "text": "如果是一张装备牌，则抽取该卡牌，否则将其回收。",
+      "scope": "当我移动时，展示你主牌堆顶部的一张牌。",
+      "status": "missing",
+      "reason": "只有基础单位登记；现有移动展示技能只覆盖单位／强力单位等其他句型，不支持本牌展示顶牌、装备抽取否则回收的分支",
+      "rules": "核心383 移动触发、128 展示、417 回收；SFD·041 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 2,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 2,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·041/221\"",
+            "\"APPRENTICE_BLACKSMITH_MOVE_REVEAL_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·044/221"
+      ],
+      "text": "你必须将一件友方装备返回其所属的手牌，作为打出我的额外费用。",
+      "scope": "你必须将一件友方装备返回其所属的手牌，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "强制把当前控制的一件装备送回其所属者手牌作为打出额外费用；不选择、选择单位或敌方装备均原子拒绝",
+      "rules": "核心127.1 所属者、204.2、356–357、所属者手牌；SFD·044 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiresReturnFriendlyEquipmentAdditionalCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.RequiresReturnFriendlyEquipmentAdditionalCost",
+            "CanReturnFriendlyEquipmentAsAdditionalCost("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitPlay.cs",
+          "methods": [
+            "CoreRuleEnginePlaysLegionQuartermasterReturnFriendlyEquipmentAdditionalCost",
+            "CoreRuleEngineRejectsLegionQuartermasterWithoutAdditionalCost",
+            "CoreRuleEngineRejectsLegionQuartermasterWhenAdditionalCostTargetsUnit",
+            "CoreRuleEngineRejectsLegionQuartermasterWhenAdditionalCostTargetsEnemyEquipment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·045/221"
+      ],
+      "text": "无效化一个将友方单位或友方装备选为目标的敌方法术或技能。",
+      "scope": "无效化一个将友方单位或友方装备选为目标的敌方法术或技能。",
+      "status": "route",
+      "reason": "只允许敌方控制、真实选中友方单位或装备的法术／独立技能为无效化目标；自动引用的入场单位不等于选作目标，技能来源不被摧毁",
+      "rules": "核心403.2 选为目标、无效化行动及独立技能；SFD·045 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "countersTargetStackSpell": true,
+            "canCounterAbilities": true,
+            "requiresTargetStackItemControlledByEnemy": true,
+            "requiresTargetStackItemTargetsFriendlyUnitOrEquipment": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+          "contains": [
+            "behavior.CanCounterAbilities"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AbilityCounterAuditTests.cs",
+          "methods": [
+            "ActualCounterOnConfirmedEnemyArmamentReferenceLeavesAbilitySourceInPlay",
+            "AutomaticallyReferencedEnteringUnitIsNotAChosenCounterTarget"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysQuickCounterEnemySpellTargetingFriendlyUnit",
+            "CoreRuleEngineRejectsQuickCounterAgainstFriendlyControlledStackItem",
+            "CoreRuleEngineRejectsQuickCounterWhenEnemySpellTargetsEnemyObject"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·055/221"
+      ],
+      "text": "在本回合内，你每通过据守获得1分，我的费用就减少{{2}}和{{绿色}}。",
+      "scope": "在本回合内，你每通过据守获得1分，我的费用就减少{{2}}和{{绿色}}。",
+      "status": "missing",
+      "reason": "只有10法力的坚守5／壁垒单位登记；没有累计本回合据守所得分数并逐分减2法力及1绿色符能",
+      "rules": "核心356.4 费用减少、据守得分；SFD·055 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 10,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 5,
+            "sourceUnitTags": "约德尔人|坚守5|壁垒",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·055/221\"",
+            "\"HUGE_YORDLE_PLAY_KEYWORD_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·059/221"
+      ],
+      "text": "在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+      "scope": "在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+      "status": "route",
+      "reason": "实际贴附捕获宿主的印刷文字与代际／贴附版本，多个复制各自独立而不会复制临时效果；卸除即移除未来的复制实例，重新贴附建立新实例",
+      "rules": "核心435／718–719 贴附技能文字、479.1 复制、435／718 贴附期间；SFD·059 官方中文牌面",
+      "runtime": {
+        "armament": {
+          "copiesHostPrintedRulesText": true
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/AttachedRuleText.cs",
+          "contains": [
+            "OfficialArmamentCatalog.Find(no)?.CopiesHostPrintedRulesText == true",
+            "foreach (var copy in Copies(zones, cards, unit)) yield return copy;"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AttachedRuleText.cs",
+          "contains": [
+            "AttachedRuleTextRules.Copies(state, unit)",
+            "StaticAuraSpecRules.GetStaticAuras(instance.CardNo)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AttachedRuleTextTests.cs",
+          "methods": [
+            "SongsCopyOnlyPrintedMundoTextAndGrowLinearly",
+            "CopiedMundoBeginningTextQueuesSeparateMandatoryTriggers",
+            "ActualDetachRemovesCopiedTextAndReattachmentCreatesOneFreshInstance"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·060/221"
+      ],
+      "text": "如果我位于战场上，则对手无法得分。",
+      "scope": "如果我位于战场上，则对手无法得分。",
+      "status": "missing",
+      "reason": "只有基础法盾单位登记；没有来源处于战场时禁止对手得分的静态规则修改",
+      "rules": "核心364–365 静态技能、得分；SFD·060 官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 7,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 4,
+            "sourceUnitTags": "精锐|法盾",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·060/221\"",
+            "\"TIANNA_CROWNGUARD_PLAY_KEYWORD_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·063/221"
+      ],
+      "text": "当你在对手的回合内打出一张法术牌时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
+      "scope": "当你在对手的回合内打出一张法术牌时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
+      "status": "missing",
+      "reason": "只有基础装备登记；缺少对手回合打出法术的监听、可选横置来源费用及独立创建休眠金币的触发",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 1,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsEquipment": true,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·063/221\"",
+            "\"CHEMTECH_BARREL_PLAY_EQUIPMENT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·067/221"
+      ],
+      "text": "你可以选择支付{{蓝色}}，作为打出我的额外费用。",
+      "scope": "你可以选择支付{{蓝色}}，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "可选额外支付1蓝色符能，在打出费用中按颜色校验；不支付则不产生战力-2技能，支付后再确认单位技能目标",
+      "rules": "核心204.2、356–357、383.4.a.2；SFD·067 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetEffectAdditionalPowerCost": 1,
+            "targetEffectAdditionalPowerTrait": "blue",
+            "powerModifierAmount": -2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait)",
+            "behavior.TargetEffectAdditionalPowerCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysFrostcoatCubOptionalPowerMinusTwo",
+            "CoreRuleEngineFrostcoatCubPromptExposesOptionalBluePowerModifierCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·074/221"
+      ],
+      "text": "当你打出我时，你可以选择摧毁一件法力费用不高于{{1}}的装备，以此打出一个休眠的“金币”装备指示物。",
+      "scope": "当你打出我时，你可以选择摧毁一件法力费用不高于{{1}}的装备，以此打出一个休眠的“金币”装备指示物。",
+      "status": "missing",
+      "reason": "只有基础单位登记且效果名明确未实现可选装备；缺少入场后可选摧毁至多1法力装备作为指示费用及创建休眠金币",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 3,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·074/221\"",
+            "\"ALLEY_THIEF_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·075/221"
+      ],
+      "text": "当你使用一件装备的主动技能时，让我本回合内{{S}}+1。",
+      "scope": "当你使用一件装备的主动技能时，让我本回合内{{S}}+1。",
+      "status": "missing",
+      "reason": "只有基础机械单位登记；没有使用装备激活技能的事件监听及来源本回合+1战力的独立触发",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 4,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitTags": "机械",
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·075/221\"",
+            "\"PROGRESS_GLORY_MECHANICAL_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·076/221"
+      ],
+      "text": "如果你控制着“机械”属性单位，则此牌的费用减少{{2}}。",
+      "scope": "如果你控制着“机械”属性单位，则此牌的费用减少{{2}}。",
+      "status": "route",
+      "reason": "报价及付款检查当前控制的机械单位，有则减2法力；没有机械保持原价，创建机器人和抽牌不参与条件",
+      "rules": "核心356.4 费用减少；SFD·076 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "CONTROLLER_CONTROLS_TAGGED_UNIT",
+            "costReductionMana": 2,
+            "costReductionUnitTag": "机械"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.ControllerControlsTaggedUnit",
+            "ControllerControlsTaggedUnit(state, playerId, behavior.CostReductionUnitTag)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEngineReducesProductionSurgeWhenControllerHasMechanicalUnit",
+            "CoreRuleEnginePlaysProductionSurgeCreatesRobotAndDraws"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·077/221"
+      ],
+      "text": "选择一个效果 —",
+      "scope": "选择一个效果 —",
+      "status": "route",
+      "reason": "法术必须从两个真实模式中选一个，各次回响可独立选模式和相应类型目标；非法模式／错类型不支付，合法重复只确认一次法术",
+      "rules": "核心355.3 模式选择、820 回响；SFD·077 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "BASE_UNIT_DAMAGE_4",
+            "damageAmount": 4,
+            "targetScope": "BASE_UNIT"
+          },
+          {
+            "mode": "DESTROY_EQUIPMENT",
+            "destroysTarget": true,
+            "targetScope": "EQUIPMENT"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "command.Mode",
+            "behavior.Mode"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialRepeatAndDeckChoiceTests.cs",
+          "methods": [
+            "RocketBarrageChoosesModesAndTargetsPerExecution",
+            "IllegalRepeatChoiceDoesNotSpendOrChangeState"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "methods": [
+            "P4RocketBarrageMissingModeRejectedFixture"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·078/221"
+      ],
+      "text": "支付{{A}}，{{横置}}：让你本回合打出的下一个法术获得等同于其费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）",
+      "scope": "支付{{A}}，{{横置}}：让你本回合打出的下一个法术获得等同于其费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）",
+      "status": "route",
+      "reason": "激活时支付1任意符能并横置场上装备，独立技能响应后授予本回合下一个法术等于其基础费用的回响，正常法术打出确认时消耗一次权限",
+      "rules": "核心203–204、403–407、820 回响；SFD·078 官方中文牌面及光耀裁判FAQ回响与指示费用例子",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "NEXT_SPELL_ECHO",
+            "powerCost": 1,
+            "exhaustsSourceAsCost": true,
+            "effectKind": "GRANT_NEXT_SPELL_BASE_COST_ECHO"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)",
+            "stackItem.EffectKind == P4ActivatedAbilityCatalog.NextSpellEchoEffectKind"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.NextSpellGrants.cs",
+          "contains": [
+            "EchoCostRules.AddBaseCostGrant("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadJudgeEchoFaqTests.cs",
+          "methods": [
+            "TimeGateEchoAndMeditationsOptionalExhaustDrawExactlyThreeCards",
+            "CombinedEchoAndExhaustRejectsRepeatedOrForgedCostsAtomically"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·081/221"
+      ],
+      "text": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
+      "scope": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
+      "status": "missing",
+      "reason": "只有基础单位登记；没有各玩家分别可选创建金币的结算选择，也没有按实际同意的对手数量给控制者追加金币",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 3,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·081/221\"",
+            "\"BIG_SWINDLER_GOLD_CHOICE_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·081/221"
+      ],
+      "text": "每有一名对手选择打出，你便再打出一个休眠的“金币”装备指示物。",
+      "scope": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
+      "status": "missing",
+      "reason": "只有基础单位登记；没有各玩家分别可选创建金币的结算选择，也没有按实际同意的对手数量给控制者追加金币",
+      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "runtime": {
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "manaCost": 3,
+            "targetScope": "BATTLEFIELD_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD·081/221\"",
+            "\"BIG_SWINDLER_GOLD_CHOICE_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "SFD·083/221"
+      ],
+      "text": "{{横置}}：{{反应}} — 支付任意数量的{{A}}来{{获得}}等量的法力。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}} — 支付任意数量的{{A}}来{{获得}}等量的法力。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "资源技能在当前玩家有行动权或付款窗口立即结算，按选择数量将可用于装备技能的任意符能转为同量法力并横置；0合法，范围可达整数资源上限，不产生普通响应链",
+      "rules": "核心430.2–430.3 资源技能即时结算、401.2 资源例外；SFD·083 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "isResourceSkill": true,
+            "reactionSpeed": true,
+            "exhaustsSourceAsCost": true,
+            "abilityId": "HEXTECH_ANOMALY_REACTION_PAY_GENERIC_POWER_GAIN_MANA"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "ResolveImmediateResourceSkill(",
+            "IsImmediateResourceSource(",
+            "P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "HextechConversionAcceptsColoredPowerAsAnyPowerCost"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoundedResourceQuantityTests.cs",
+          "methods": [
+            "OrdinaryLargeConversionUsesAtMost31UncommittedDecisionsAndCommitsOnce",
+            "ExistingExactNumericCommandsRemainLegalAtLargeBalances"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RestrictedResourceConversionTests.cs",
+          "methods": [
+            "EquipmentPowerCanPayTheActualEquipmentConversionButSpellPowerCannot"
+          ]
+        }
+      ]
+    }
+  ]
+}
