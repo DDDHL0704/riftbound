@@ -16,7 +16,7 @@ import {
   type Selection,
 } from "../game/actions";
 import { cardInfo, cardName, paymentChoiceLabel } from "../game/cards";
-import { cue } from "../game/sound";
+import { cue, wantAmbience } from "../game/sound";
 import { preloadArt } from "../game/art";
 import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../game/types";
 import { Ambient, Confetti, tiltHandlers } from "./Ambient";
@@ -636,6 +636,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const series = snapshot.series;
   const matchContinues = Boolean(series && series.bestOf > 1 && series.phase !== "finished");
   // The closing cue plays once, when the result arrives during this visit to the table.
+  // The ambience bed plays only while the table is open (and only if the player keeps it on).
+  useEffect(() => {
+    wantAmbience(!winner);
+    return () => wantAmbience(false);
+  }, [winner]);
   const seenWinner = useRef(winner);
   useEffect(() => {
     if (winner && !seenWinner.current) cue(winner === meId ? "win" : "loss");

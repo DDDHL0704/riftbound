@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from "react";
-import { cue, setSoundEnabled, setSoundVolume, useSoundEnabled, useSoundVolume } from "../game/sound";
+import { cue, setAmbienceEnabled, setSoundEnabled, setSoundVolume, useAmbienceEnabled, useSoundEnabled, useSoundVolume } from "../game/sound";
 
 // A first-visit tour of the table: each region is outlined where it actually is on screen, with a
 // short note on what it is for. It opens by itself once per browser and from the rail's "?" button.
@@ -86,6 +86,7 @@ export function TableGuide({ onClose }: { onClose: () => void }) {
 export function SettingsPanel({ onClose, onGuide }: { onClose: () => void; onGuide: () => void }) {
   const on = useSoundEnabled();
   const volume = useSoundVolume();
+  const ambience = useAmbienceEnabled();
   return (
     <div className="settings" role="dialog" aria-label="设置" onClick={(e) => e.stopPropagation()}>
       <h3>设置</h3>
@@ -105,6 +106,10 @@ export function SettingsPanel({ onClose, onGuide }: { onClose: () => void; onGui
           onPointerUp={() => cue("score-me")}
         />
         <span className="muted">{Math.round(volume * 100)}%</span>
+      </label>
+      <label className="settings__row">
+        <input type="checkbox" checked={ambience} disabled={!on} onChange={(e) => setAmbienceEnabled(e.target.checked)} />
+        背景氛围
       </label>
       <h4>快捷键</h4>
       <dl className="settings__keys">
