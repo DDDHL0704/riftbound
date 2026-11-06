@@ -10,6 +10,19 @@ public sealed partial class CoreRuleEngine
         UnitEventAbilitySpec spec)
     {
         var context = item.UnitEvent!;
+        // CN383.4.a.2: an independently captured targeted skill survives its
+        // source leaving. An instruction that consumes the source's boon still
+        // needs that source and the cost, as do effects that change the source.
+        if (spec.Effect == "STUN_ENEMY" && !spec.ConsumesSourceBoonDuringResolution)
+        {
+            var selected = item.TargetObjectIds.SingleOrDefault();
+            if (selected is null || !StackObjectRules.ReferencesCurrentObject(state, item, selected)
+                || !UnitEventTargets(state, item).Contains(selected)) return NoopStackResolutionResult(state);
+            var independentCards = state.CardObjects.ToDictionary();
+            var independentEvents = new List<GameEvent>();
+            ApplyUnitEventStun(state, item, NormalizeZonesForSeats(state), independentCards, independentEvents, selected);
+            return NoopStackResolutionResult(state) with { CardObjects = independentCards, Events = independentEvents };
+        }
         if (!state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
             || source.ObjectGeneration != context.SourceGeneration || !IsFaceUpNonStandbyUnit(source)
             || !IsObjectOnField(state.PlayerZones, source.ObjectId)) return NoopStackResolutionResult(state);
@@ -61,14 +74,20 @@ public sealed partial class CoreRuleEngine
                 source.ObjectId, out var readied, zones, cards);
             if (readied is not null) events.Add(readied);
         }
-        else if (target is not null && CanExecuteStun(cards[target])
-            && !TryReplaceEmpoweredStun(state, item, cards, target, events))
-        {
-            cards[target] = cards[target] with { UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(cards[target].UntilEndOfTurnEffects, "STUNNED") };
-            events.Add(CaptureStunObservers(new("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = target,
-                ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" }), zones, cards, item, target));
-        }
+        else if (target is not null) ApplyUnitEventStun(state, item, zones, cards, events, target);
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }
+    private static void ApplyUnitEventStun(MatchState state, StackItemState item,
+        Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
+        List<GameEvent> events, string target)
+    {
+        if (!CanExecuteStun(cards[target]) || TryReplaceEmpoweredStun(state, item, cards, target, events)) return;
+        cards[target] = cards[target] with { UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(cards[target].UntilEndOfTurnEffects, "STUNNED") };
+        events.Add(CaptureStunObservers(new("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
+            ["playerId"] = item.ControllerId,
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
+            ["targetObjectId"] = target, ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED",
+            ["duration"] = "UNTIL_END_OF_TURN" }), zones, cards, item, target));
+    }
+
 }

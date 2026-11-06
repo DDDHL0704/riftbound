@@ -394,7 +394,7 @@ public sealed partial class CoreRuleEngine
                 { ResolvingStackItemId = item.StackItemId, ExperienceCost = experience };
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
             var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付费用或放弃技能", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.UnitEvent is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind
                     ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = checked(mana + highCostMana), ["powerCost"] = tax,
@@ -469,7 +469,7 @@ public sealed partial class CoreRuleEngine
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         var confirmationPayload = new Dictionary<string, object?> {
-            ["sourceObjectId"] = NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind || IsStunObserverKind(field.Kind))
+            ["sourceObjectId"] = item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind || IsStunObserverKind(field.Kind))
                 ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() };
         if (item.BattlefieldConquestReadyEquipment is { } equipment)
         {

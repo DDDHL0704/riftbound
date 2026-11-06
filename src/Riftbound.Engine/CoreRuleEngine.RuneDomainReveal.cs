@@ -9,6 +9,7 @@ public sealed partial class CoreRuleEngine
 {
     internal const string RuneDomainRevealEffect = "REVEAL_RECYCLE_RUNE_DOMAIN";
     internal const string RuneDomainDamageEffect = "DAMAGE_ENEMY_AND_OTHERS_HERE";
+    internal const string RuneDomainReflexiveCreatedEvent = "RUNE_DOMAIN_REFLEXIVE_CREATED";
 
     private static bool RuneDomainModeApplies(UnitEventContext context, UnitEventModeSpec mode)
         => UnitEventSpec(context.CardNo)?.Effect != RuneDomainRevealEffect
@@ -29,8 +30,8 @@ public sealed partial class CoreRuleEngine
             || !PredictBindingMatches(state, revealed.Rune, revealed.CardNo, revealed.FaceRevision, revealed.RevealedTick, null)
             || !state.CardObjects.TryGetValue(revealed.Rune.ObjectId, out var card)
             || controller is not null && card.OwnerId != controller) return false;
-        return context.Mode is null || UnitEventSpec(context.CardNo)!.Modes!.SingleOrDefault(m => m.Id == context.Mode) is { } mode
-            && RuneDomainModeApplies(context, mode);
+        var eligible = (UnitEventSpec(context.CardNo)!.Modes ?? []).Where(mode => RuneDomainModeApplies(context, mode)).ToArray();
+        return context.Mode is null ? eligible.Length > 1 : eligible.Any(mode => mode.Id == context.Mode);
     }
 
     private static StackResolutionResult ResolveRuneDomainReveal(MatchState state, StackItemState item)
@@ -57,7 +58,7 @@ public sealed partial class CoreRuleEngine
         if (modes.Length > 0)
         {
             if (modes.Length == 1) context = context with { Mode = modes[0].Id };
-            events.Add(WithUnitEvents(new("RUNE_DOMAIN_REFLEXIVE_CREATED", "根据展示符文的特性创建后续技能", new Dictionary<string, object?> {
+            events.Add(WithUnitEvents(new(RuneDomainReflexiveCreatedEvent, "根据展示符文的特性创建后续技能", new Dictionary<string, object?> {
                 ["playerId"] = player, ["sourceObjectId"] = source, ["runeObjectId"] = top }),
                 [new(item.SourceObjectId, player, context)]));
         }

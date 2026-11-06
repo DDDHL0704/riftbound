@@ -115,6 +115,9 @@ public sealed class TwistedFateRuneRevealTests
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.Equal(1, payment.PowerCost); Assert.Equal(0, payment.ManaCost);
+        foreach (var forged in new[] { payment with { PowerCost = 2 }, payment with { PowerCost = 0 },
+            payment with { ManaCost = 1 }, payment with { PlayerId = "P2" } })
+            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { PendingPayment = forged }));
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
         Assert.Equal(power - (pay ? 1 : 0), game.State.RunePools["P1"].TotalPower);
         if (pay) await game.Top();
@@ -134,9 +137,19 @@ public sealed class TwistedFateRuneRevealTests
     public async Task TheAttackAndReflexiveSkillKeepTheirCapturedSourceAfterItReturnsToHand(string rune)
     {
         var state = AttackDamageDistributionTests.Spell(WithWard(Position(rune)), "RETURN", "OGN·104/298", "P1");
+        // Reconsider also calls one rune: reserve that real instruction's rune
+        // before the rune intended for the attack's subsequent reveal.
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["RETURN_RUNE"] = Printed("RETURN_RUNE", "OGN·042/298", "P1") },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with { RuneDeck = ["RETURN_RUNE", ..state.PlayerZones["P1"].RuneDeck] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
+                ["RETURN_RUNE"] = new("P1", "RUNE_DECK") } };
         var game = new Driver(state); await Attack(game); var hand = game.State.PlayerZones["P1"].Hand.Count;
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
-        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+        var departure = game.Events().Length;
+        await game.Top();
         Assert.Equal(new[] { "RUNE_NEXT", "RUNE_TOP" }, game.State.PlayerZones["P1"].RuneDeck);
         if (rune == "OGN·007/298")
         {
@@ -156,6 +169,8 @@ public sealed class TwistedFateRuneRevealTests
             Assert.Equal(rune == "OGN·214/298", game.State.CardObjects["BASE_ENEMY"].UntilEndOfTurnEffects.Contains("STUNNED"));
             Assert.Equal(hand + (rune == "OGN·089/298" ? 1 : 0), game.State.PlayerZones["P1"].Hand.Count);
         }
+        Assert.DoesNotContain(game.Events().Skip(departure), e => e.Event.Kind == "STACK_ITEM_RESOLVED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "UNIT"));
         await game.Replay();
     }
 
@@ -172,7 +187,7 @@ public sealed class TwistedFateRuneRevealTests
             context with { RevealedRune = fact with { CardNo = "OGN·089/298" } },
             context with { RevealedRune = fact with { Traits = ["blue"] } },
             context with { RevealedRune = fact with { RevealedTick = game.State.Tick + 1 } },
-            context with { ReflexiveTick = null }, context with { Mode = "RUNE_BLUE" } })
+            context with { ReflexiveTick = null }, context with { Mode = null }, context with { Mode = "RUNE_BLUE" } })
             Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [item with { UnitEvent = invalid }] }));
         await game.Replay();
     }
@@ -187,7 +202,11 @@ public sealed class TwistedFateRuneRevealTests
         if (game.State.PriorityPlayerId != "P2") await game.Act("P1", new PassPriorityCommand());
         await game.Act("P2", new PlayCardCommand("RETURN", "OGN·104/298", ["ENEMY"])); await game.Top(); await game.Top();
         Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Hand);
-        Assert.Equal(0, game.State.CardObjects["OTHER_ENEMY"].Damage); await game.Replay();
+        Assert.Equal(0, game.State.CardObjects["OTHER_ENEMY"].Damage);
+        Assert.All(game.Events().Where(e => e.Event.Kind == "STACK_ITEM_RESOLVED"
+            && Equals(e.Event.Payload.GetValueOrDefault("effectKind"), "CAPTURED_UNIT_EVENT_ABILITY")),
+            e => Assert.DoesNotContain("\"ENEMY\"", System.Text.Json.JsonSerializer.Serialize(e.Event.Payload.GetValueOrDefault("targetObjectIds"))));
+        await game.Replay();
     }
 
     [Theory]
@@ -220,6 +239,33 @@ public sealed class TwistedFateRuneRevealTests
         Assert.Null(game.State.PendingCardChoice); Assert.False(game.State.CardObjects["SIVIR"].IsExhausted);
         Assert.Equal(mana, game.State.RunePools["P1"].Mana); Assert.Equal(power, game.State.RunePools["P1"].TotalPower);
         Assert.Equal(hand + 1, game.State.PlayerZones["P1"].Hand.Count); await game.Replay();
+    }
+
+    [Fact]
+    public async Task CopiedAttackTextStillRevealsTwoRunesAfterTheCopyingGearIsDetached()
+    {
+        var state = AttackDamageDistributionTests.Spell(Position("OGN·089/298"), "COPY", "SFD·059/221", "P1");
+        state = AttackDamageDistributionTests.Spell(state, "DETACH", "SFD·011/221", "P1");
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("UNIT", Fate, []));
+        await game.Act("P1", new PlayCardCommand("COPY", "SFD·059/221", []));
+        if (game.State.StackItems.Count > 0) await game.Top();
+        await game.Act("P1", new AssembleEquipmentCommand("COPY", "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("READY", "UNL-009/219", ["UNIT"])); await game.Top();
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:OTHER"));
+        if (game.PromptFor("P1").EnabledActions().Contains(CommandTypes.OrderTriggers))
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        Assert.Equal(2, game.State.StackItems.Count(i => i.UnitEvent?.CardNo == Fate));
+        Assert.Single(game.State.StackItems, i => i.UnitEvent?.Origin is not null);
+        await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["UNIT", "COPY"])); await game.Top();
+        Assert.Null(game.State.CardObjects["COPY"].AttachedToObjectId);
+        var hand = game.State.PlayerZones["P1"].Hand.Count;
+        for (var i = 0; i < 4 && game.State.StackItems.Count > 0; i++) await game.Top();
+        Assert.Empty(game.State.StackItems); Assert.Equal(hand + 1, game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(new[] { "RUNE_TOP", "RUNE_NEXT" }, game.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "CARDS_REVEALED"
+            && Equals(e.Event.Payload.GetValueOrDefault("zone"), "RUNE_DECK")));
+        await game.Replay();
     }
 
 }
