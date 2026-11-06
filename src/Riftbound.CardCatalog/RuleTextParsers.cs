@@ -459,6 +459,13 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
                 GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
         triggers.AddRange(MovementOrdinalParser.Parse(text));
+        var firstMoveReady = Regex.Match(text,
+            @"(?:^|\n|\\n)每回合首次[：，,]\s*当我移动时，(?<optional>你可以选择)?让一个其他休眠的?物体变为活跃状态(?:（包括传奇和符文）)?。?(?=$|\n|\\n)", RegexOptions.CultureInvariant);
+        if (firstMoveReady.Success)
+            triggers.Add(new(TriggerKinds.UnitFirstMovementReadyOtherObject, TriggerTimings.UnitMoved,
+                firstMoveReady.Value.TrimStart(), "The first movement each turn readies another exhausted object, including legends and runes.",
+                TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, ObjectReadyCount: 1,
+                MovementOrdinal: 1, OncePerTurn: true, Optional: firstMoveReady.Groups["optional"].Success));
         var firstMoveMill = Regex.Match(text,
             @"每回合首次，当我移动时，选择一名玩家。该玩家\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}。?", RegexOptions.CultureInvariant);
         if (firstMoveMill.Success)

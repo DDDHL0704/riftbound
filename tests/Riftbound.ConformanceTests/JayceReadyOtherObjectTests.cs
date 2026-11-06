@@ -190,6 +190,23 @@ public sealed class JayceReadyOtherObjectTests
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [changed] }), e => e.Contains("ready other object"));
     }
 
+    [Theory]
+    [InlineData(true)] [InlineData(false)]
+    public async Task EnemyWardPaymentCanBePaidOrDeclinedAndSurvivesRecovery(bool pay)
+    {
+        var state = Position("VEN·068");
+        state = OfficialHoldSequenceTests.AddUnit(state, "WARD", "OGN·219/298", "F", "P2");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["WARD"] = state.CardObjects["WARD"] with { IsExhausted = true, Tags = [CardObjectTags.UnitCard, "法盾2"] } } };
+        var game = new Driver(state); await game.Act("P1", new PlayCardCommand("HOST", "VEN·068", []));
+        await Confirm(game, "WARD"); var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var before = game.State.RunePools["P1"].TotalPower; Assert.Equal(2, payment.PowerCost);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
+        if (pay) await game.Top();
+        Assert.Equal(before - (pay ? 2 : 0), game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(!pay, game.State.CardObjects["WARD"].IsExhausted); await game.Replay();
+    }
+
     private static MatchState AddEquipment(MatchState state, string id, string player = "P1")
     {
         var zones = state.PlayerZones[player];
