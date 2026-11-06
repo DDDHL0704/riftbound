@@ -152,7 +152,9 @@ public sealed class LegendActionSourceIdentityGuardTests
             "string.Equals(legendState.CardNo, LuxIntroLegendCardNo",
             coreRuleEngineSource,
             StringComparison.Ordinal);
-        Assert.Contains("GarenIntroLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        var conquest = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.LegendConquest.cs"));
+        Assert.Contains("IsLegendConquestMinimumUnitsDrawTrigger", conquest, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryGetGarenIntroLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LuxIntroLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);

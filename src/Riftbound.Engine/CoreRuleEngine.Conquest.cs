@@ -120,7 +120,8 @@ public sealed partial class CoreRuleEngine
         if (conqueredRealBattlefield)
             recastTriggers = recastTriggers.Concat(CaptureLegendImageTriggers(playerZones, cardObjects,
                 playerId, battlefieldId, resolutionTick)).Concat(CaptureIvernTriggers(playerZones, cardObjects,
-                playerId, battlefieldId, resolutionTick)).Concat(CaptureLegendConquest(playerZones, cardObjects,
+                playerId, battlefieldId, resolutionTick)).Concat(CaptureLegendConquest(state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                    ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
                 playerId, battlefieldId, assignedOverkillDamageToEnemyUnits, resolutionTick)).ToArray();
         if (conqueredRealBattlefield)
             recastTriggers = recastTriggers.Concat(CaptureConquestDamage(state, state with {PlayerZones=playerZones,CardObjects=cardObjects},
@@ -258,37 +259,6 @@ public sealed partial class CoreRuleEngine
             assignedOverkillDamageToEnemyUnits,
             events, untilEndOfTurnEffects);
 
-        var garenControlledUnitCount = CountControlledUnitsAtBattlefield(
-            playerZones, cardObjects, ReconcileObjectLocations(state.ObjectLocations, playerZones),
-            playerId, battlefieldId);
-        if (winnerPlayerId is null
-            && garenControlledUnitCount >= 4
-            && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, playerId, out var garenLegendCardNo))
-        {
-            events.Add(new GameEvent(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的德玛西亚之力因征服战场触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["legendCardNo"] = garenLegendCardNo,
-                    ["trigger"] = "BATTLEFIELD_CONQUERED_DRAW_TWO",
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["controlledBattlefieldUnitCount"] = garenControlledUnitCount
-                }));
-            var drawApplication = ApplyDrawToPlayer(
-                state,
-                playerZones, cardObjects,
-                playerScores,
-                playerId,
-                2,
-                rngCursor,
-                events);
-            playerScores = drawApplication.PlayerScores;
-            winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-            rngCursor = drawApplication.RngCursor;
-        }
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         foreach (var objectId in cardObjects.Keys.Where(id => !originalObjectIds.Contains(id)))
         {

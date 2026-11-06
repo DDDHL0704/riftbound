@@ -3,11 +3,14 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record LegendConquestContext(string CardNo, string Kind, string BattlefieldId, long SourceGeneration, int Overkill);
+public sealed record LegendConquestContext(string CardNo, string Kind, string BattlefieldId, long SourceGeneration, int Overkill,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    LegendConquestDrawOrigin? Draw = null);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string LegendConquestEffect = "LEGEND_CONQUEST_READY";
+    internal const string LegendConquestDrawKind = "MINIMUM_UNITS_DRAW";
 
     private static (string Kind, TriggerSpec Spec)? LegendConquestDefinition(string? no)
     {
@@ -17,8 +20,10 @@ public sealed partial class CoreRuleEngine
         if (!LegendConquestTriggerSpecRules.TryGetTrigger(no, t =>
             LegendConquestTriggerSpecRules.IsLegendConquestPayReadySelfTrigger(t)
             || LegendConquestTriggerSpecRules.IsLegendConquestReadySelfTrigger(t)
+            || LegendConquestTriggerSpecRules.IsLegendConquestMinimumUnitsDrawTrigger(t)
             || LegendConquestTriggerSpecRules.IsLegendConquestOverkillExhaustReadyUnitTrigger(t), out var spec)) return null;
-        return (LegendConquestTriggerSpecRules.IsLegendConquestPayReadySelfTrigger(spec) ? "PAY_READY_SELF"
+        return (LegendConquestTriggerSpecRules.IsLegendConquestMinimumUnitsDrawTrigger(spec) ? LegendConquestDrawKind
+            : LegendConquestTriggerSpecRules.IsLegendConquestPayReadySelfTrigger(spec) ? "PAY_READY_SELF"
             : LegendConquestTriggerSpecRules.IsLegendConquestReadySelfTrigger(spec) ? "READY_SELF" : "EXHAUST_READY_UNIT", spec);
     }
 
@@ -26,19 +31,33 @@ public sealed partial class CoreRuleEngine
         => effect == LegendConquestEffect && (no is null || no == context.CardNo) && context.SourceGeneration >= 0
             && !string.IsNullOrWhiteSpace(context.BattlefieldId) && context.Overkill >= 0
             && LegendConquestDefinition(context.CardNo) is { } definition && definition.Kind == context.Kind
-            && context.Overkill >= definition.Spec.RequiredOverkillDamage.GetValueOrDefault();
+            && context.Overkill >= definition.Spec.RequiredOverkillDamage.GetValueOrDefault()
+            && (context.Kind == LegendConquestDrawKind ? ValidLegendConquestDrawShape(context, definition.Spec)
+                : context.Draw is null);
 
     private static IEnumerable<TriggerQueueItemState> CaptureLegendConquest(
-        IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
+        MatchState state,
         string player, string field, int overkill, long tick)
     {
-        foreach (var id in zones[player].LegendZone)
+        foreach (var id in state.PlayerZones[player].LegendZone)
         {
-            if (!cards.TryGetValue(id, out var card) || card.ControllerId != player || card.IsFaceDown
+            if (!state.CardObjects.TryGetValue(id, out var card) || card.ControllerId != player || card.IsFaceDown
                 || LegendConquestDefinition(card.CardNo) is not { } definition
                 || overkill < definition.Spec.RequiredOverkillDamage.GetValueOrDefault()) continue;
+            LegendConquestDrawOrigin? draw = null;
+            if (definition.Kind == LegendConquestDrawKind)
+            {
+                var units = ControlledUnitsAtBattlefield(state.PlayerZones, state.CardObjects, state.ObjectLocations, player, field);
+                if (units.Count < definition.Spec.RequiredUnitCount!.Value) continue;
+                draw = new(player, tick, card.CopyFaceTransitions?.Count ?? 0,
+                    new(field, state.CardObjects[field].ObjectGeneration), units.Select(binding => {
+                        var unit = state.CardObjects[binding.ObjectId];
+                        return new LegendConquestUnitOrigin(binding, unit.CardNo!, unit.CopyFaceTransitions?.Count ?? 0,
+                            unit.TokenFactoryCardNo);
+                    }).ToArray());
+            }
             yield return new TriggerQueueItemState($"conquest-ready-{tick}-{field}-{id}", player, id, LegendConquestEffect, "BATTLEFIELD_CONQUERED") {
-                LegendConquest = new(card.CardNo!, definition.Kind, field, card.ObjectGeneration, overkill) };
+                LegendConquest = new(card.CardNo!, definition.Kind, field, card.ObjectGeneration, overkill, draw) };
         }
     }
 
@@ -83,6 +102,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveLegendConquest(MatchState state, StackItemState item)
     {
         var context = item.LegendConquest!;
+        if (context.Kind == LegendConquestDrawKind) return ResolveLegendConquestDraw(state, item);
         if (context.Kind != "READY_SELF" && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind == "EXHAUST_DECK_PLAY" && !item.EffectPlayCompleted
             && TryGetEffectPlayDefinition(item, out var definition)) return BeginDeckPlaySequence(state, item, definition);
