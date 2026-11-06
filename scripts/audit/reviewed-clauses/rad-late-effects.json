@@ -1,0 +1,1335 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "RAD·111/167"
+      ],
+      "text": "在你的开始阶段开始时，每名玩家展示其主牌堆顶部的一张牌。",
+      "scope": "在你的开始阶段开始时，每名玩家展示其主牌堆顶部的一张牌。",
+      "status": "route",
+      "reason": "自己的开始阶段捕获来源独立技能，响应后每名玩家同时展示当前顶牌；自己所示法力费用最低（包括并列）才抽取该原牌，其余按各自所属者回收；空牌库或展示替换不虚构下一张牌",
+      "rules": "核心383 开始阶段触发、128 展示、417 回收、432.1.c.1；RAD·111 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "BeginningDrawKind": "LOWEST_DECK_TOP_MANA"
+        },
+        "behaviors": [
+          {
+            "beginningDeckTopManaComparison": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDraw.cs",
+          "contains": [
+            "\"LOWEST_DECK_TOP_MANA\"",
+            "ResolveBeginningDeckComparison("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDeckComparison.cs",
+          "contains": [
+            "RecycleLookedMainDeckCards("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadSlotBotTests.cs",
+          "methods": [
+            "LowerOrTiedManaDrawsTheRevealedCardAndHigherManaRecyclesIt",
+            "MultipleSourcesCompareFreshTopsAfterTheChosenEarlierSkillResolves",
+            "AnEmptyDeckRevealsNothingAndDoesNotBurnOutForTheComparison",
+            "RevealingNocturneUsesItsSharedReplacementAndNeverDrawsTheNextCardInstead"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·111/167"
+      ],
+      "text": "如果你展示的卡牌为法力费用最低的一张，则抽取该卡牌。",
+      "scope": "在你的开始阶段开始时，每名玩家展示其主牌堆顶部的一张牌。",
+      "status": "route",
+      "reason": "自己的开始阶段捕获来源独立技能，响应后每名玩家同时展示当前顶牌；自己所示法力费用最低（包括并列）才抽取该原牌，其余按各自所属者回收；空牌库或展示替换不虚构下一张牌",
+      "rules": "核心383 开始阶段触发、128 展示、417 回收、432.1.c.1；RAD·111 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "BeginningDrawKind": "LOWEST_DECK_TOP_MANA"
+        },
+        "behaviors": [
+          {
+            "beginningDeckTopManaComparison": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDraw.cs",
+          "contains": [
+            "\"LOWEST_DECK_TOP_MANA\"",
+            "ResolveBeginningDeckComparison("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDeckComparison.cs",
+          "contains": [
+            "RecycleLookedMainDeckCards("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadSlotBotTests.cs",
+          "methods": [
+            "LowerOrTiedManaDrawsTheRevealedCardAndHigherManaRecyclesIt",
+            "MultipleSourcesCompareFreshTopsAfterTheChosenEarlierSkillResolves",
+            "AnEmptyDeckRevealsNothingAndDoesNotBurnOutForTheComparison",
+            "RevealingNocturneUsesItsSharedReplacementAndNeverDrawsTheNextCardInstead"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·111/167"
+      ],
+      "text": "回收其余的卡牌。",
+      "scope": "在你的开始阶段开始时，每名玩家展示其主牌堆顶部的一张牌。",
+      "status": "route",
+      "reason": "自己的开始阶段捕获来源独立技能，响应后每名玩家同时展示当前顶牌；自己所示法力费用最低（包括并列）才抽取该原牌，其余按各自所属者回收；空牌库或展示替换不虚构下一张牌",
+      "rules": "核心383 开始阶段触发、128 展示、417 回收、432.1.c.1；RAD·111 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "BeginningDrawKind": "LOWEST_DECK_TOP_MANA"
+        },
+        "behaviors": [
+          {
+            "beginningDeckTopManaComparison": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDraw.cs",
+          "contains": [
+            "\"LOWEST_DECK_TOP_MANA\"",
+            "ResolveBeginningDeckComparison("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDeckComparison.cs",
+          "contains": [
+            "RecycleLookedMainDeckCards("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadSlotBotTests.cs",
+          "methods": [
+            "LowerOrTiedManaDrawsTheRevealedCardAndHigherManaRecyclesIt",
+            "MultipleSourcesCompareFreshTopsAfterTheChosenEarlierSkillResolves",
+            "AnEmptyDeckRevealsNothingAndDoesNotBurnOutForTheComparison",
+            "RevealingNocturneUsesItsSharedReplacementAndNeverDrawsTheNextCardInstead"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·113/167"
+      ],
+      "text": "{{T}}：选择一名对手。",
+      "scope": "{{T}}：选择一名对手。",
+      "status": "route",
+      "reason": "横置活跃来源并确认一名对手，响应后该对手自己选择其控制的单位，按合法移动规则移入来源当前战场；不是激活者预选其单位，也不收单位目标法盾",
+      "rules": "核心355.10.e／355.10.f 非控制者强制选择、403–407、447–451 移动；RAD·113 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",
+            "requiredTargetCount": 1,
+            "exhaustsSourceAsCost": true,
+            "simpleEffect": {
+              "commandsOpponentUnitToSourceBattlefield": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "spec.CommandsOpponentUnitToSourceBattlefield"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LanternDragonActivatedAbilityTests.cs",
+          "methods": [
+            "OpponentChoosesAUnitAndMovesItToLanternsBattlefield",
+            "NoLegalOpponentUnitResolvesWithoutMovingAnything",
+            "NonOpponentTargetIsRejectedWithoutExhaustingTheSource"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·113/167"
+      ],
+      "text": "该对手必须将其控制的一名单位移动到我所在的战场。",
+      "scope": "{{T}}：选择一名对手。",
+      "status": "route",
+      "reason": "横置活跃来源并确认一名对手，响应后该对手自己选择其控制的单位，按合法移动规则移入来源当前战场；不是激活者预选其单位，也不收单位目标法盾",
+      "rules": "核心355.10.e／355.10.f 非控制者强制选择、403–407、447–451 移动；RAD·113 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",
+            "requiredTargetCount": 1,
+            "exhaustsSourceAsCost": true,
+            "simpleEffect": {
+              "commandsOpponentUnitToSourceBattlefield": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "spec.CommandsOpponentUnitToSourceBattlefield"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LanternDragonActivatedAbilityTests.cs",
+          "methods": [
+            "OpponentChoosesAUnitAndMovesItToLanternsBattlefield",
+            "NoLegalOpponentUnitResolvesWithoutMovingAnything",
+            "NonOpponentTargetIsRejectedWithoutExhaustingTheSource"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·115/167"
+      ],
+      "text": "你可以选择打出一名战力低于该单位的单位，无视其费用。",
+      "scope": "支付{{紫色}}，{{T}}：让一名友方单位返回其所属的手牌。",
+      "status": "missing",
+      "reason": "后续手牌免费打出错误开启IgnoreAllCosts，免掉额外费用和增费；原文无视其费用仅免基础法力／符能。当前严格低于被返还单位当前战力与可选放弃已有路径，需保留",
+      "rules": "核心356.1.b／356.5.a 区分基础费用与全部费用；RAD·115 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER",
+            "simpleEffect": {
+              "returnsFriendlyUnitThenFreePlayUpToPower": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ReturnUnitPlay.cs",
+          "contains": [
+            "ResolveReturnUnitThenFreePlay(",
+            "IgnoreAllCosts: true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/TranspositionMageActivatedAbilityTests.cs",
+          "methods": [
+            "SourceChangingControllerKeepsTheOriginalPlayersReturnAndFreePlay"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·117/167"
+      ],
+      "text": "选择一处战场。",
+      "scope": "选择一处战场。",
+      "status": "route",
+      "reason": "只把真实战场作为目标，响应后收集其当前友方单位并分别授予本回合坚守2；群体成员不是法盾目标，其他战场与敌方不受影响",
+      "rules": "核心355.6 目标与群体、814 坚守；RAD·117 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetScope": "BATTLEFIELD",
+            "selectedBattlefieldEffect": {
+              "friendlyStatusEffectId": "COMBAT_KEYWORD:坚守2"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+          "contains": [
+            "FriendlyStatusEffectId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadAreaRemovalSpellTests.cs",
+          "methods": [
+            "DemaciaGrantsOnlyCurrentFriendlyUnitsAtTheChosenBattlefieldAndExpires",
+            "DemaciaCanChooseAnEmptyEnemyBattlefield",
+            "DemaciaDoesNotFollowAUnitThatWasReturnedInResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·117/167"
+      ],
+      "text": "给予该处的友方单位在本回合内{{坚守2}}。（只要他们是防守方，便{{S}}+2。）",
+      "scope": "给予该处的友方单位在本回合内{{坚守2}}。（只要他们是防守方，便{{S}}+2。）",
+      "status": "route",
+      "reason": "只把真实战场作为目标，响应后收集其当前友方单位并分别授予本回合坚守2；群体成员不是法盾目标，其他战场与敌方不受影响",
+      "rules": "核心355.6 目标与群体、814 坚守；RAD·117 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetScope": "BATTLEFIELD",
+            "selectedBattlefieldEffect": {
+              "friendlyStatusEffectId": "COMBAT_KEYWORD:坚守2"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+          "contains": [
+            "FriendlyStatusEffectId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadAreaRemovalSpellTests.cs",
+          "methods": [
+            "DemaciaGrantsOnlyCurrentFriendlyUnitsAtTheChosenBattlefieldAndExpires",
+            "DemaciaCanChooseAnEmptyEnemyBattlefield",
+            "DemaciaDoesNotFollowAUnitThatWasReturnedInResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·118/167"
+      ],
+      "text": "当你打出我时，选择一名友方单位。",
+      "scope": "当你打出我时，选择一名友方单位。",
+      "status": "route",
+      "reason": "来源先实际入场，再确认任意友方单位（包含自己），响应后仅把基础战力设为5；既有与后来的修正继续独立计算，回合结束恢复印刷基础战力",
+      "rules": "核心383.4.a.2、475／479 基础战力与修正层；RAD·118 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "basePowerUntilEndOfTurn": 5,
+            "targetScope": "FRIENDLY_UNIT"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.BasePowerUntilEndOfTurn is { } baseMight"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadBasicEffectTests.cs",
+          "methods": [
+            "HeraldChangesBaseMightWhilePreservingEarlierAndLaterModifiersUntilTurnEnd",
+            "HeraldCanChooseItselfAsTheFriendlyUnitAndRestoresItsPrintedBaseAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·118/167"
+      ],
+      "text": "其基础战力在本回合内变为5。",
+      "scope": "当你打出我时，选择一名友方单位。",
+      "status": "route",
+      "reason": "来源先实际入场，再确认任意友方单位（包含自己），响应后仅把基础战力设为5；既有与后来的修正继续独立计算，回合结束恢复印刷基础战力",
+      "rules": "核心383.4.a.2、475／479 基础战力与修正层；RAD·118 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "basePowerUntilEndOfTurn": 5,
+            "targetScope": "FRIENDLY_UNIT"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.BasePowerUntilEndOfTurn is { } baseMight"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadBasicEffectTests.cs",
+          "methods": [
+            "HeraldChangesBaseMightWhilePreservingEarlierAndLaterModifiersUntilTurnEnd",
+            "HeraldCanChooseItselfAsTheFriendlyUnitAndRestoresItsPrintedBaseAtTurnEnd"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·122/167"
+      ],
+      "text": "你每控制一名休眠的单位，我的费用便减少{{1}}。",
+      "scope": "你每控制一名休眠的单位，我的费用便减少{{1}}。",
+      "status": "route",
+      "reason": "报价与实际确认时按当前控制、公开场上的休眠单位计数，每名减1法力，装备／符文不计入；实际移动横置或反应活跃之后重算，旧报价不锁定费用",
+      "rules": "核心356.4 减费及确认时确定费用；RAD·122 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "CONTROLLER_EXHAUSTED_UNIT_COUNT",
+            "costReductionMana": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.ControllerExhaustedUnitCount",
+            "CountControlledExhaustedUnits(state.PlayerZones, state.CardObjects, playerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadExhaustedUnitCountTests.cs",
+          "methods": [
+            "CountsOnlyControlledExhaustedFieldUnitsAndKeepsCostsAndEffectsSeparate",
+            "AQuotedUnitCostIsRecomputedAfterARealMovementExhaustsAnotherUnit",
+            "AReadyReactionInvalidatesAnEarlierUnitCostQuote"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·125/167"
+      ],
+      "text": "你可以选择摧毁一名友方单位，作为打出我的额外费用。",
+      "scope": "你可以选择摧毁一名友方单位，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "可选摧毁一名当前控制的友方单位作为额外费用，固定减2法力而不是依牺牲单位费用浮动；不足、重复或非法费用在任何支付前原子拒绝，来源仍正常付印刷黄色符能",
+      "rules": "核心204.2／356–357 额外费用与减费；RAD·125 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "maySacrificeUnitForPrintedCostReduction": true,
+            "fixedUnitSacrificeManaReduction": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalSacrificeCost.cs",
+          "contains": [
+            "behavior.FixedUnitSacrificeManaReduction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadFixedSacrificeUnitTests.cs",
+          "methods": [
+            "SacrificeAlwaysReducesOnlyTwoManaRegardlessOfTheVictimsPrintedCosts",
+            "InvalidCostsPaymentTimingAndSourcesPreserveTheMatchAndProjections"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·125/167"
+      ],
+      "text": "若如此做，则我的费用减少{{2}}。",
+      "scope": "若如此做，则我的费用减少{{2}}。",
+      "status": "route",
+      "reason": "可选摧毁一名当前控制的友方单位作为额外费用，固定减2法力而不是依牺牲单位费用浮动；不足、重复或非法费用在任何支付前原子拒绝，来源仍正常付印刷黄色符能",
+      "rules": "核心204.2／356–357 额外费用与减费；RAD·125 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "maySacrificeUnitForPrintedCostReduction": true,
+            "fixedUnitSacrificeManaReduction": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalSacrificeCost.cs",
+          "contains": [
+            "behavior.FixedUnitSacrificeManaReduction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadFixedSacrificeUnitTests.cs",
+          "methods": [
+            "SacrificeAlwaysReducesOnlyTwoManaRegardlessOfTheVictimsPrintedCosts",
+            "InvalidCostsPaymentTimingAndSourcesPreserveTheMatchAndProjections"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·127/167"
+      ],
+      "text": "{{亮出}}一张法力费用不低于{{7}}的卡牌。（打出此牌时，你可以选择从手牌中展示一张此类卡牌，或挑选一张友方卡牌。）",
+      "scope": "{{亮出}}一张法力费用不低于{{7}}的卡牌。（打出此牌时，你可以选择从手牌中展示一张此类卡牌，或挑选一张友方卡牌。）",
+      "status": "route",
+      "reason": "可亮出一张印刷法力至少7的手牌或友方场上牌，合法亮出把同一次随从创建由2改为4；低费或伪造亮出拒绝，不亮出仍创建2个基地随从",
+      "rules": "核心亮出、370 替换、440 创建；RAD·127 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "showcase": {
+              "filter": "ANY"
+            },
+            "showcaseMinimumManaCost": 7,
+            "createdBaseUnitTokenCount": 2,
+            "createdBaseUnitTokenCountIfShowcase": 4
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Showcase.cs",
+          "contains": [
+            "behavior.ShowcaseMinimumManaCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CreatedTokenReady.cs",
+          "contains": [
+            "behavior.CreatedBaseUnitTokenCountIfShowcase"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadSpellBatchTests.cs",
+          "methods": [
+            "RadiantUnityCreatesTwoOrFourMinionsDependingOnShowcase"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·127/167"
+      ],
+      "text": "如果你亮出，则改为打出四名到你的基地。",
+      "scope": "如果你亮出，则改为打出四名到你的基地。",
+      "status": "route",
+      "reason": "可亮出一张印刷法力至少7的手牌或友方场上牌，合法亮出把同一次随从创建由2改为4；低费或伪造亮出拒绝，不亮出仍创建2个基地随从",
+      "rules": "核心亮出、370 替换、440 创建；RAD·127 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "showcase": {
+              "filter": "ANY"
+            },
+            "showcaseMinimumManaCost": 7,
+            "createdBaseUnitTokenCount": 2,
+            "createdBaseUnitTokenCountIfShowcase": 4
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Showcase.cs",
+          "contains": [
+            "behavior.ShowcaseMinimumManaCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CreatedTokenReady.cs",
+          "contains": [
+            "behavior.CreatedBaseUnitTokenCountIfShowcase"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadSpellBatchTests.cs",
+          "methods": [
+            "RadiantUnityCreatesTwoOrFourMinionsDependingOnShowcase"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·129/167"
+      ],
+      "text": "当你打出我时，查看你主牌堆顶部的四张牌。",
+      "scope": "当你打出我时，查看你主牌堆顶部的四张牌。",
+      "status": "route",
+      "reason": "来源先入场并开启独立触发，响应后私下查看当时顶部4张，按印刷至多3法力／1符能过滤单位或装备，不让对手提前知道私有牌库内容",
+      "rules": "核心383.4.a.2、128 查看隐私、355.10.a；RAD·129 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 4,
+            "mainDeckTargetAllowedTags": "CARD_TYPE:UNIT|CARD_TYPE:EQUIPMENT",
+            "maxTargetManaCost": 3,
+            "maxTargetPowerCost": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeck.Take(behavior.MainDeckLookCount)",
+            "behavior.MainDeckTargetAllowedTags",
+            "behavior.MaxTargetPowerCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadEntryUnitTests.cs",
+          "methods": [
+            "CaptainRevealsAndDrawsAnEligibleUnitOrEquipmentAndRecyclesTheRest",
+            "CaptainRejectsSpellsExcessManaAndExcessPrintedPower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·129/167"
+      ],
+      "text": "你可以从中展示一张法力费用不高于{{3}}且符能费用不高于{{A}}的单位或装备牌，并抽取该卡牌。",
+      "scope": "当你打出我时，查看你主牌堆顶部的四张牌。",
+      "status": "route",
+      "reason": "最少选择数量为0，所看牌中即使有合法单位／装备也可不展示不抽取，并回收全部所看牌；选择时须满足印刷费用上限，展示并实际抽取所选卡牌",
+      "rules": "核心可选指示、417 回收、128 展示与抽牌；RAD·129 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 4,
+            "drawsSelectedMainDeckTarget": true,
+            "recyclesUnselectedMainDeckLookCards": true,
+            "maxTargetManaCost": 3,
+            "maxTargetPowerCost": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "new(\"RAD·129/167\", \"崔法利队长\", 2, \"RAD_129_PLAY_LOOK_UNIT_OR_EQUIPMENT\", 0, 1,\n            TargetScope: CardTargetScopes.FriendlyMainDeckCard, MinTargetCount: 0,"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "var mandatory = behavior.MinTargetCount != 0 && legal.Length > 0;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadEntryUnitTests.cs",
+          "methods": [
+            "CaptainRevealsAndDrawsAnEligibleUnitOrEquipmentAndRecyclesTheRest"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadCaptainOptionalChoiceAuditTests.cs",
+          "methods": [
+            "CaptainMayDeclineAnEligibleEquipmentAndRecycleEveryLookedCard"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·130/167"
+      ],
+      "text": "当战场上的一件友方装备被摧毁时，你可以选择支付{{1}}，以此让其返回其所属的手牌。",
+      "scope": "当战场上的一件友方装备被摧毁时，你可以选择支付{{1}}，以此让其返回其所属的手牌。",
+      "status": "route",
+      "reason": "场上来源只捕获在战场被摧毁的友方装备，所属者可以不同；确认可选1法力后响应，再将同一被毁代际的装备返其所属手牌，重入后不误返，来源离场不取消已确认技能",
+      "rules": "核心383.2.c.3／383.3 观察摧毁及费用、359.3.e.4；RAD·130 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectKind": "EQUIPMENT_DEATH_RETURN_UNIT"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentDestructionObservers.cs",
+          "contains": [
+            "EquipmentDeathReturnKind",
+            "EquipmentDeathReturnSpecs"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadEquipmentDestructionUnitTests.cs",
+          "methods": [
+            "OnlyFriendlyEquipmentDestroyedOnABattlefieldCanReturnToItsOwner",
+            "TheOptionalPaymentCanBeDeclinedAndUnaffordablePaymentCannotMutateTheGame",
+            "AChangedEquipmentIncarnationIsNotReturnedAndTheCapturedReceiptIsRequired"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·135/167"
+      ],
+      "text": "从你的废牌堆中打出最多三个法力费用不高于{{3}}且符能费用不高于{{A}}的单位和/或装备，无视其费用。",
+      "scope": "从你的废牌堆中打出最多三个法力费用不高于{{3}}且符能费用不高于{{A}}的单位和/或装备，无视其费用。",
+      "status": "missing",
+      "reason": "数量、费用上限及单位／装备过滤已有路径，但EffectPlayIgnoreAllCosts错误把无视其费用扩大为无视全部额外费用和增费；应只免基础法力和符能",
+      "rules": "核心356.1.b／356.5.a 无视费用与无视一切费用；RAD·135 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectPlayIgnoreAllCosts": true,
+            "effectPlaySourceZone": "GRAVEYARD",
+            "effectPlayMaximumManaCost": 3,
+            "effectPlayMaximumPowerCost": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "pending.IgnoreAllCosts == behavior.EffectPlayIgnoreAllCosts",
+            "EffectPlayIgnoreAllCosts"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadSpellBatchTests.cs",
+          "methods": [
+            "UndyingRemembranceReplaysUpToThreeCheapUnitsOrEquipmentWithoutTheirCosts"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·136/167"
+      ],
+      "text": "当你据守此处时，摧毁此牌，以此打出所放逐的卡牌，无视其费用。（指示物不是卡牌。）",
+      "scope": "当你据守此处时，摧毁此牌，以此打出所放逐的卡牌，无视其费用。（指示物不是卡牌。）",
+      "status": "missing",
+      "reason": "据守自毁确认费用及关联放逐牌已有独立触发，但后续打出错误开启IgnoreAllCosts，无视全部额外费用和增费；原文只要求免基础费用，指示物不得成为可重放卡牌",
+      "rules": "核心356.1.b／356.5.a 费用、383.4.d 据守、186 指示物；RAD·136 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "PLAY_LINKED_EXILE"
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "parent.HeldContext?.Kind == LinkedExileHeldKind",
+            "EffectPlayIgnoreAllCosts: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LinkedUnitExile.cs",
+          "contains": [
+            "IgnoreAllCosts: true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadDocksideCageTests.cs",
+          "methods": [
+            "ExactPrintingExilesHereThenPaysSelfDestructionBeforePlayingTheOwnedCardForFree",
+            "ATokenDisappearsAndCannotBecomeALinkedCard"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·140/167"
+      ],
+      "text": "支付任意数量的符能，作为打出此牌的额外费用。",
+      "scope": "支付任意数量的符能，作为打出此牌的额外费用。",
+      "status": "route",
+      "reason": "打出声明时可支付任意数量通用符能作为额外费用，正常基础2法力仍支付；数量0合法，结算前单位数量改变不退还已付费用",
+      "rules": "核心204.2／356–357 额外费用、359 已付费用保持；RAD·140 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mayPayAnyAdditionalPower": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.MayPayAnyAdditionalPower"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadChronobreakTests.cs",
+          "methods": [
+            "DeclarationPaysTwoManaAndTheExactPowerEvenWhenFewerUnitsRemain"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·140/167"
+      ],
+      "text": "放逐同样数量的你所控制的单位，然后，于每个所放逐的单位，其所属者将其打出回到相同位置或到其基地，无视其费用。（顺序由你决定。）",
+      "scope": "放逐同样数量的你所控制的单位，然后，于每个所放逐的单位，其所属者将其打出回到相同位置或到其基地，无视其费用。（顺序由你决定。）",
+      "status": "missing",
+      "reason": "放逐、所属者重放与位置绑定已有路径，但重放权限的IgnoreAllCosts错误免除全部额外费用及施加费用；“无视其费用”只免基础法力与符能，不能免费取得急速等额外费用带来的收益",
+      "rules": "核心356.1.b.1–3 明确急速额外费用例子、356.5.a；RAD·140 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "deckPlayKind": "OWNED_FIELD_UNIT_REPLAY",
+            "effectPlayIgnoreAllCosts": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "definition.EffectPlayIgnoreAllCosts"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "pending.IgnoreAllCosts == behavior.EffectPlayIgnoreAllCosts"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadChronobreakBoundaryTests.cs",
+          "methods": [
+            "IgnoreAllCostsKeepsTheChosenPeakAndHasteBenefitsWithNoResourcesRemaining"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·142/167"
+      ],
+      "text": "在回合结束时，将同样数量的“炸弹”指示物打出到一处单一战场。",
+      "scope": "在回合结束时，将同样数量的“炸弹”指示物打出到一处单一战场。",
+      "status": "route",
+      "reason": "只记录本次指示实际摧毁的合法友方炸弹数，结束步骤以独立延迟技能选择一处单一战场并重建同量炸弹；连锁摧毁的其他炸弹不加数，源法术已回收仍存续，多个法术各自选位置",
+      "rules": "核心390–393 延迟技能、359.3.e.16 时限、440 创建；RAD·142 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "rebuildsDestroyedBombsAtEndStep": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BombRebuild.cs",
+          "contains": [
+            "BombRebuild"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadHextechMinefieldTests.cs",
+          "methods": [
+            "OnlyTheBombsActuallyDestroyedAreRebuiltTogetherAfterAnEndStepChoice"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadMinefieldDelayedBoundaryTests.cs",
+          "methods": [
+            "ChainedBombDeathsDoNotIncreaseTheSpellsCapturedRebuildCount",
+            "SeparateSpellsKeepIndependentCountsAndDestinationsAndTheirDelayedSkillsAreNotSpells"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadMinefieldEndStepTests.cs",
+          "methods": [
+            "RecyclingTheResolvedSourceDoesNotRemoveTheDelayedRebuild"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·146/167"
+      ],
+      "text": "当你打出或移动此牌时，选择一个效果 —",
+      "scope": "当你打出或移动此牌时，选择一个效果 —",
+      "status": "route",
+      "reason": "实际打出或移动后各捕获独立模式技能；确认抽1或对此处当前全部敌方单位各2伤害，响应后执行；来源离场抽牌仍执行，但没有当前此处时不能伤害旧位置，单位化移动同样触发",
+      "rules": "核心383 打出／移动触发、355.3 模式、359 此处引用；RAD·146 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "PLAY_OR_MOVE",
+          "effect": "CHOOSE_MODE",
+          "modes": [
+            {
+              "id": "DRAW",
+              "effect": "DRAW",
+              "amount": 1
+            },
+            {
+              "id": "DAMAGE",
+              "effect": "DAMAGE_ENEMIES_HERE",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"DAMAGE_ENEMIES_HERE\"",
+            "QueueUnitEvents("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "contains": [
+            "PrepareUnitEventMode(result, item)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadExclusiveEquipmentTests.cs",
+          "methods": [
+            "BallChoosesOneModeAfterEntryAndResolvesAfterResponses",
+            "ReturningTheBallInResponsePreservesItsDrawButLeavesNoCurrentHereForDamage",
+            "MovingTheBallAsAUnitCapturesOneModeTriggerAtItsDestination"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·146/167"
+      ],
+      "text": "- 抽一张牌。",
+      "scope": "当你打出或移动此牌时，选择一个效果 —",
+      "status": "route",
+      "reason": "实际打出或移动后各捕获独立模式技能；确认抽1或对此处当前全部敌方单位各2伤害，响应后执行；来源离场抽牌仍执行，但没有当前此处时不能伤害旧位置，单位化移动同样触发",
+      "rules": "核心383 打出／移动触发、355.3 模式、359 此处引用；RAD·146 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "PLAY_OR_MOVE",
+          "effect": "CHOOSE_MODE",
+          "modes": [
+            {
+              "id": "DRAW",
+              "effect": "DRAW",
+              "amount": 1
+            },
+            {
+              "id": "DAMAGE",
+              "effect": "DAMAGE_ENEMIES_HERE",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"DAMAGE_ENEMIES_HERE\"",
+            "QueueUnitEvents("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "contains": [
+            "PrepareUnitEventMode(result, item)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadExclusiveEquipmentTests.cs",
+          "methods": [
+            "BallChoosesOneModeAfterEntryAndResolvesAfterResponses",
+            "ReturningTheBallInResponsePreservesItsDrawButLeavesNoCurrentHereForDamage",
+            "MovingTheBallAsAUnitCapturesOneModeTriggerAtItsDestination"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·146/167"
+      ],
+      "text": "- 对此处的敌方单位各造成2点伤害。",
+      "scope": "当你打出或移动此牌时，选择一个效果 —",
+      "status": "route",
+      "reason": "实际打出或移动后各捕获独立模式技能；确认抽1或对此处当前全部敌方单位各2伤害，响应后执行；来源离场抽牌仍执行，但没有当前此处时不能伤害旧位置，单位化移动同样触发",
+      "rules": "核心383 打出／移动触发、355.3 模式、359 此处引用；RAD·146 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "PLAY_OR_MOVE",
+          "effect": "CHOOSE_MODE",
+          "modes": [
+            {
+              "id": "DRAW",
+              "effect": "DRAW",
+              "amount": 1
+            },
+            {
+              "id": "DAMAGE",
+              "effect": "DAMAGE_ENEMIES_HERE",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"DAMAGE_ENEMIES_HERE\"",
+            "QueueUnitEvents("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "contains": [
+            "PrepareUnitEventMode(result, item)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadExclusiveEquipmentTests.cs",
+          "methods": [
+            "BallChoosesOneModeAfterEntryAndResolvesAfterResponses",
+            "ReturningTheBallInResponsePreservesItsDrawButLeavesNoCurrentHereForDamage",
+            "MovingTheBallAsAUnitCapturesOneModeTriggerAtItsDestination"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·148/167"
+      ],
+      "text": "给予一名友方单位在本回合内{{坚守2}}，然后对一名敌方单位造成等同于该友方单位{{坚守}}数值的伤害。（只要具有坚守的单位是防守方，每点坚守便提供{{S}}+1。）",
+      "scope": "给予一名友方单位在本回合内{{坚守2}}，然后对一名敌方单位造成等同于该友方单位{{坚守}}数值的伤害。（只要具有坚守的单位是防守方，每点坚守便提供{{S}}+1。）",
+      "status": "route",
+      "reason": "先给同一代际友方单位本回合坚守2，再读取包含印刷、真实复制及临时授予的当前坚守总数，对合法敌方单位造成该数值伤害；复制装备的真实拆卸反应会改变后续读取结果",
+      "rules": "核心814 数值坚守、479 当前关键词、418 伤害；RAD·148 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "statusEffectId": "COMBAT_KEYWORD:坚守2",
+            "damageAmountFromFirstTargetCombatKeyword": "坚守",
+            "damageTargetIndex": 1,
+            "targetScope": "FRIENDLY_THEN_ENEMY_UNITS"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.DamageAmountFromFirstTargetCombatKeyword",
+            "ResolveCurrentCountedCombatKeyword(state, reference, behavior.DamageAmountFromFirstTargetCombatKeyword)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadSpinningAxeCopiedKeywordTests.cs",
+          "methods": [
+            "RealSongsAddEachPrintedKeywordOnceBeforeTheSpellsSingleTemporaryGrant",
+            "ARealSongDetachmentResponseRemovesItsKeywordBeforeTheDamageIsCalculated"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·152/167"
+      ],
+      "text": "选择两个效果 —",
+      "scope": "选择两个效果 —",
+      "status": "route",
+      "reason": "必须从四个模式中选两个不同模式，按印刷顺序结算；不同模式可引用同一单位，最多2个战力目标可选0，私有查看暂停后接续，回响为每次选择自己的一对模式",
+      "rules": "核心355.3 模式、逐条指示与820 回响；RAD·152 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "spellModes": {
+              "requiredModes": 2,
+              "modes": [
+                {
+                  "mode": "DAMAGE"
+                },
+                {
+                  "mode": "MINIONS"
+                },
+                {
+                  "mode": "MIGHT"
+                },
+                {
+                  "mode": "LOOK"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellModes.cs",
+          "contains": [
+            "RequiredModes"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadEncoreTests.cs",
+          "methods": [
+            "TokensAndUpToTwoMightTargetsPayOnceAndResolveInPrintedOrder",
+            "DifferentModesMayTargetTheSameUnitAndDamagePrecedesMight",
+            "TokensPrecedePrivateLookAndSourceWaitsForTheDeckChoice",
+            "EchoUsesDifferentModesAndDoesNotRepeatTheFirstPair"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·154/167"
+      ],
+      "text": "你在本回合内打出的下一名单位（包括从正面朝下的状态打出）可被打出到任意战场。",
+      "scope": "你在本回合内打出的下一名单位（包括从正面朝下的状态打出）可被打出到任意战场。",
+      "status": "route",
+      "reason": "授予本回合下一次友方单位打出的任意真实战场位置许可（包含待命打出），但不改变其时机或绕过明确禁止；实际打出后消耗权限并独立给予增益，非法或未付款不消耗，回合结束未用权限失效",
+      "rules": "核心355–359 打出权限、811 待命、383 独立增益触发及本回合期限；RAD·154 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "turnUnitPlayGrantKind": "PLAY_BOON",
+            "turnUnitPlayGrantNextOnly": true,
+            "turnUnitPlayGrantAnyBattlefield": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnUnitPlayGrants.cs",
+          "contains": [
+            "GrantedUnitPlayBattlefieldAllowed(",
+            "TurnUnitPlayGrantNextOnly",
+            "TurnUnitPlayBoonContext"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadNextUnitPlayGrantTests.cs",
+          "methods": [
+            "TheNextUnitCanEnterAnyBattlefieldOrBaseAndGetsOneRespondableBoon",
+            "InvalidLocationsAndAnUnpaidPlayDoNotConsumeTheGrant",
+            "ARealFaceDownUnitCanUseTheNextUnitPermissionAtAnotherBattlefield",
+            "AnUnusedPermissionExpiresBeforeTheNextTurn",
+            "SpellsDoNotConsumeTheNextUnitAndTheGrantDoesNotChangeUnitTiming"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·154/167"
+      ],
+      "text": "当你打出该单位时，给予其{{增益}}。（如果其未拥有增益，则获得一个{{S}}+1增益。）",
+      "scope": "当你打出该单位时，给予其{{增益}}。（如果其未拥有增益，则获得一个{{S}}+1增益。）",
+      "status": "route",
+      "reason": "授予本回合下一次友方单位打出的任意真实战场位置许可（包含待命打出），但不改变其时机或绕过明确禁止；实际打出后消耗权限并独立给予增益，非法或未付款不消耗，回合结束未用权限失效",
+      "rules": "核心355–359 打出权限、811 待命、383 独立增益触发及本回合期限；RAD·154 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "turnUnitPlayGrantKind": "PLAY_BOON",
+            "turnUnitPlayGrantNextOnly": true,
+            "turnUnitPlayGrantAnyBattlefield": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnUnitPlayGrants.cs",
+          "contains": [
+            "GrantedUnitPlayBattlefieldAllowed(",
+            "TurnUnitPlayGrantNextOnly",
+            "TurnUnitPlayBoonContext"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadNextUnitPlayGrantTests.cs",
+          "methods": [
+            "TheNextUnitCanEnterAnyBattlefieldOrBaseAndGetsOneRespondableBoon",
+            "InvalidLocationsAndAnUnpaidPlayDoNotConsumeTheGrant",
+            "ARealFaceDownUnitCanUseTheNextUnitPermissionAtAnotherBattlefield",
+            "AnUnusedPermissionExpiresBeforeTheNextTurn",
+            "SpellsDoNotConsumeTheNextUnitAndTheGrantDoesNotChangeUnitTiming"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·156/167"
+      ],
+      "text": "当你据守此处时，你可以选择让此牌返回其所属的手牌。",
+      "scope": "当你据守此处时，你可以选择让此牌返回其所属的手牌。",
+      "status": "route",
+      "reason": "控制者据守本战场时确认可选返手，响应后将同一代际军旗送回其所属者手牌；不在触发时直接返手，拒绝不属该战场的来源",
+      "rules": "核心383.4.d 据守、403–407 可选确认和响应、359.3.e.4；RAD·156 官方中文牌面",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "OPTIONAL_RETURN_SELF",
+            "amount": 1
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "[\"RAD·156/167\"] = (\"OPTIONAL_RETURN_SELF\", 1)",
+            "case \"OPTIONAL_RETURN_SELF\":"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadExclusiveEquipmentTests.cs",
+          "methods": [
+            "HoldingItsBattlefieldOffersToReturnTheStandardToItsOwner"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·158/167"
+      ],
+      "text": "每名玩家都可以选择在其回合内使用一次此技能。（即使该玩家未控制此战场。）",
+      "scope": "支付{{A}}{{A}}：抽一张牌。",
+      "status": "route",
+      "reason": "每名回合玩家可使用每处实际黑市一次，不要求控制该战场；先支付2通用符能、记录该玩家该回合使用，再普通技能响应后抽1，少符能不消耗次数，下一玩家回合拥有自己的次数",
+      "rules": "核心381.3 非控制者激活权限、403–407、每回合每玩家次数；RAD·158 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "RAD_158_PAY_TWO_POWER_DRAW",
+            "usableByAnyPlayerOnOwnTurn": true,
+            "simpleEffect": {
+              "oncePerTurn": true,
+              "oncePerTurnPerPlayer": true,
+              "drawCount": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "ability.UsableByAnyPlayerOnOwnTurn",
+            "spec.OncePerTurnPerPlayer"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadBattlefieldEffectTests.cs",
+          "methods": [
+            "BlackMarketAllowsTheTurnPlayerWithoutControlAndRejectsASecondUse",
+            "BlackMarketRejectsInsufficientPowerWithoutSpendingMana"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadBattlefieldBoundaryTests.cs",
+          "methods": [
+            "EachBlackMarketOffersItsOwnUseToTheTurnPlayer"
+          ]
+        }
+      ]
+    }
+  ]
+}
