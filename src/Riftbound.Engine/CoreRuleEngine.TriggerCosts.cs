@@ -159,7 +159,7 @@ public sealed partial class CoreRuleEngine
             manaCost: LeadingTriggerCost(item)!.Mana, powerCost: LeadingTriggerCost(item)!.Power,
             powerCostByTrait: LeadingTriggerCost(item)!.PowerTrait is { } trait ? new Dictionary<string, int> { [trait] = LeadingTriggerCost(item)!.Power } : null,
             legalPaymentChoiceIds: ["PAY", "DECLINE"],
-            reason: item.FieldContext?.Kind == EquipmentDeathReturnKind ? "支付法力确认装备返回手牌的技能，或放弃；双方响应后才返回。" : item.UnitEvent is not null ? "支付此单位触发技能的费用，或放弃；确认后双方可以响应。" : item.GraveyardPlay is not null ? "支付 1 法力和 1 炽烈符能确认技能，或放弃；双方响应后，从废牌堆打出原卡牌。" : item.CreatedTokenReady is not null ? "黄沙士兵已进场：支付 1 黄色符能确认后续活跃技能，或放弃；双方响应后才活跃。" : item.BattlefieldConquestMight is not null ? "支付法力以确认征服抽牌技能，或放弃；双方响应后才抽牌。" : item.AttachmentObserver is not null ? "支付法力以确认贴附后的抽牌技能，或放弃；双方响应后才抽牌。" : item.LegendConquest is not null ? "支付 1 法力以确认征服技能，或放弃；双方响应后传奇才变为活跃。" : "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
+            reason: item.FieldContext?.Kind == EquipmentDeathReturnKind ? "支付法力确认装备返回手牌的技能，或放弃；双方响应后才返回。" : item.UnitEvent is not null ? "支付此触发技能的费用，或放弃；确认后双方可以响应。" : item.GraveyardPlay is not null ? "支付 1 法力和 1 炽烈符能确认技能，或放弃；双方响应后，从废牌堆打出原卡牌。" : item.CreatedTokenReady is not null ? "黄沙士兵已进场：支付 1 黄色符能确认后续活跃技能，或放弃；双方响应后才活跃。" : item.BattlefieldConquestMight is not null ? "支付法力以确认征服抽牌技能，或放弃；双方响应后才抽牌。" : item.AttachmentObserver is not null ? "支付法力以确认贴附后的抽牌技能，或放弃；双方响应后才抽牌。" : item.LegendConquest is not null ? "支付 1 法力以确认征服技能，或放弃；双方响应后传奇才变为活跃。" : "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
             { ResolvingStackItemId = item.StackItemId };
 
     private static ResolutionResult PrepareTriggerCostConfirmation(ResolutionResult result, StackItemState item)

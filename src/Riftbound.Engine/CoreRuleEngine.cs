@@ -96,9 +96,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string EzrealLegendAbilityId = LegendActionAbilityCatalog.EzrealLegendAbilityId;
     private const string EzrealEnemyTargetsThisTurnPrefix = "EZREAL_ENEMY_TARGETS_THIS_TURN:";
     private const int EzrealEnemyTargetThreshold = 2;
-    private const string IreliaLegendAbilityId = LegendActionAbilityCatalog.IreliaLegendAbilityId;
-    private const int IreliaLegendManaCost = 1;
-    private const string IreliaLegendManaCostToken = "SPEND_MANA:1";
     private const string TeemoLegendAbilityId = LegendActionAbilityCatalog.TeemoLegendAbilityId;
     private const int TeemoLegendManaCost = 1;
     private const string TeemoLegendManaCostToken = "SPEND_MANA:1";
@@ -7627,16 +7624,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        if (ability.RequiresPendingFriendlyUnitTarget
-            && (targetObjectIds.Count == 0
-                || !IsPendingFriendlyUnitTarget(state, intent.PlayerId, targetObjectIds[0])))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{ability.DisplayName} requires a pending spell or skill targeting that friendly unit.",
-                ErrorCodes.InvalidTarget);
-        }
-
         if (ability.RequiresOwnedTeemoUnitTarget
             && !IsValidOwnedTeemoUnitTarget(state, intent.PlayerId, targetObjectIds[0]))
         {
@@ -7929,15 +7916,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     command.SourceObjectId,
                     sourceState.CardNo ?? string.Empty,
                     ability.SourceCardNos,
-                    command.AbilityId,
-                    events);
-                break;
-            case LegendAbilityEffectKinds.ReadyFriendlyUnit:
-                ReadyLegendFriendlyUnit(
-                    playerZones, cardObjects,
-                    targetObjectIds[0],
-                    intent.PlayerId,
-                    command.SourceObjectId,
                     command.AbilityId,
                     events);
                 break;
@@ -8302,18 +8280,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.DrawOne,
                 TimingKind: LegendAbilityTimingKinds.ReactionWindow,
                 RequiresEzrealEnemyTargetsThisTurn: true),
-            IreliaLegendAbilityId => new LegendAbilityDefinition(
-                IreliaLegendAbilityId,
-                LegendActionAbilityCatalog.SourceCardNosForAbility(IreliaLegendAbilityId),
-                "刀锋舞者传奇反应重置技能",
-                IreliaLegendManaCost,
-                0,
-                IreliaLegendManaCostToken,
-                1,
-                RequiresFriendlyUnitTarget: true,
-                LegendAbilityEffectKinds.ReadyFriendlyUnit,
-                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
-                RequiresPendingFriendlyUnitTarget: true),
             TeemoLegendAbilityId => new LegendAbilityDefinition(
                 TeemoLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(TeemoLegendAbilityId),
@@ -8442,21 +8408,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return !ability.RequiresExhaustedTarget
             || targetState.IsExhausted;
-    }
-
-    private static bool IsPendingFriendlyUnitTarget(
-        MatchState state,
-        string playerId,
-        string targetObjectId)
-    {
-        return IsControlledFieldObject(state, playerId, targetObjectId)
-            && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)
-            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-            && !string.IsNullOrWhiteSpace(targetState.CardNo)
-            && SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
-            && state.StackItems.Any(stackItem =>
-                string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal)
-                && stackItem.TargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal));
     }
 
     private static bool IsValidLegendArmamentSecondTarget(
@@ -34860,7 +34811,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int PowerGainAmount = 0,
         string TimingKind = LegendAbilityTimingKinds.MainOpen,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
-        bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldStaticAbilityKind = "",
         PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other,
         int PowerCost = 0,
@@ -34895,7 +34845,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string GainDuelMana = "GAIN_DUEL_MANA";
         public const string GainUnitOnlyMana = "GAIN_UNIT_ONLY_MANA";
         public const string GainPower = "GAIN_POWER";
-        public const string ReadyFriendlyUnit = "READY_FRIENDLY_UNIT";
         public const string ReturnOwnedTeemoUnitToHand = "RETURN_OWNED_TEEMO_UNIT_TO_HAND";
         public const string CreateSandSoldier = "CREATE_SAND_SOLDIER";
         public const string CreateMinion = "CREATE_MINION";

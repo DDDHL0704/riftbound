@@ -56,8 +56,10 @@ public sealed partial class CoreRuleEngine
     {
         var captures = targets.Distinct(StringComparer.Ordinal).Where(cards.ContainsKey)
             .SelectMany(id => CaptureSelfActions(zones, cards, cards[id], actor, "TARGETED", cause)).ToArray();
-        if (captures.Length > 0) events.Add(new("INTERNAL_TARGET_CONFIRMATION", "",
-            new Dictionary<string, object?> { [SelfReadyCaptureKey] = captures }));
+        var observers = targets.Distinct(StringComparer.Ordinal).Where(cards.ContainsKey)
+            .SelectMany(id => CaptureFriendlyUnitTargetedObservers(zones, cards, cards[id], actor, cause)).ToArray();
+        if (captures.Length > 0 || observers.Length > 0) events.Add(new("INTERNAL_TARGET_CONFIRMATION", "",
+            new Dictionary<string, object?> { [SelfReadyCaptureKey] = captures, [TargetSelectionCaptureKey] = observers }));
     }
 
     private static bool HasConfirmedTargets(MatchState state, StackItemState item)
@@ -70,6 +72,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!result.Accepted) return result;
         var events = result.Events.ToList(); var queue = result.State.TriggerQueue.ToList(); var ordinal = 0;
+        var targetOrdinalStart = RuleChoices.Value?.UnitEventOrdinal ?? 0;
+        var targetOrdinal = targetOrdinalStart;
         void Add(SelfActionCapture capture, string eventKind)
         {
             if (result.State.Status != MatchStatuses.InProgress) return;
@@ -94,9 +98,13 @@ public sealed partial class CoreRuleEngine
                 ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, ProjectionViewers.Spectator) } });
         }
         foreach (var (ev, index) in result.Events.Select((ev, index) => (ev, index))) {
-            if (ev.Payload.GetValueOrDefault(SelfReadyCaptureKey) is not SelfActionCapture[] captures) continue;
-            events[index] = ev with { Payload = ev.Payload.Where(p => p.Key != SelfReadyCaptureKey).ToDictionary(p => p.Key, p => p.Value) };
-            foreach (var capture in captures) Add(capture, capture.Context.SelfAction!.Action == "READIED" ? "UNIT_READY" : "TARGET_CONFIRMED");
+            var captures = ev.Payload.GetValueOrDefault(SelfReadyCaptureKey) as SelfActionCapture[];
+            var targeted = ev.Payload.GetValueOrDefault(TargetSelectionCaptureKey) as UnitEventObservation[];
+            if (captures is null && targeted is null) continue;
+            events[index] = ev with { Payload = ev.Payload.Where(p => p.Key != SelfReadyCaptureKey && p.Key != TargetSelectionCaptureKey)
+                .ToDictionary(p => p.Key, p => p.Value) };
+            foreach (var capture in captures ?? []) Add(capture, capture.Context.SelfAction!.Action == "READIED" ? "UNIT_READY" : "TARGET_CONFIRMED");
+            QueueTargetSelectionObservers(result.State, targeted ?? [], queue, events, ref targetOrdinal);
         }
         foreach (var item in result.State.StackItems.Where(i => HasConfirmedTargets(result.State, i))) {
             var old = before.StackItems.FirstOrDefault(i => i.StackItemId == item.StackItemId);
@@ -109,11 +117,16 @@ public sealed partial class CoreRuleEngine
             foreach (var id in execution.Targets.Distinct(StringComparer.Ordinal))
                 if (result.State.CardObjects.TryGetValue(id, out var unit)
                     && (execution.Bindings is null || execution.Bindings.GetValueOrDefault(id, -1) == unit.ObjectGeneration))
+                {
                     foreach (var capture in CaptureSelfActions(result.State.PlayerZones, result.State.CardObjects,
                         unit, item.ControllerId, "TARGETED", item.StackItemId)) Add(capture, "TARGET_CONFIRMED");
+                    QueueTargetSelectionObservers(result.State, CaptureFriendlyUnitTargetedObservers(result.State.PlayerZones,
+                        result.State.CardObjects, unit, item.ControllerId, item.StackItemId), queue, events, ref targetOrdinal);
+                }
         }
-        if (ordinal == 0 && events.Count == result.Events.Count
-            && !result.Events.Any(ev => ev.Payload.ContainsKey(SelfReadyCaptureKey))) return result;
+        if (RuleChoices.Value is { } frame) frame.UnitEventOrdinal = targetOrdinal;
+        if (ordinal == 0 && targetOrdinal == targetOrdinalStart && events.Count == result.Events.Count
+            && !result.Events.Any(ev => ev.Payload.ContainsKey(SelfReadyCaptureKey) || ev.Payload.ContainsKey(TargetSelectionCaptureKey))) return result;
         events.RemoveAll(ev => ev.Kind == "INTERNAL_TARGET_CONFIRMATION");
         var state = result.State with { TriggerQueue = queue };
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };

@@ -27,15 +27,22 @@ class LegendTargetTriggerClauseAuditTests(unittest.TestCase):
         self.card["legendActivationDefinitions"][0].update(manaCost=0, powerCost=1, flow="UNIT_EFFECT")
         self.assertEqual("missing", self.outcome()["status"])
 
-    def test_an_actual_registered_trigger_consumer_takes_precedence(self):
+    def test_a_symbol_only_trigger_does_not_certify_the_printed_fee_and_continuation(self):
         (self.engine / "CoreRuleEngine.cs").write_text("if (TriggerKinds.FriendlyTargetReady == kind) ResolveTargetReady();")
         self.card["triggers"] = [dict(node=dict(kind="FRIENDLY_TARGET_READY", text=self.TEXT))]
         result = self.outcome([dict(symbol="TriggerKinds.FriendlyTargetReady", value="FRIENDLY_TARGET_READY")])
-        self.assertEqual("route", result["status"])
+        # The implemented family now needs its precise native specification,
+        # cost, target observation and continuation, beyond a symbol reference.
+        self.assertEqual("missing", result["status"])
 
     def test_an_unmapped_new_trigger_shape_is_kept_for_review_without_the_old_manual_route(self):
         self.card["legendActivationDefinitions"] = []
+        self.card["cardEffect"] = self.TEXT.replace("一名友方单位", "两名友方单位")
         self.assertEqual("review", self.outcome()["status"])
+
+    def test_the_known_native_shape_without_a_profile_is_still_missing(self):
+        self.card["legendActivationDefinitions"] = []
+        self.assertEqual("missing", self.outcome()["status"])
 
     def test_a_different_trigger_is_not_mistaken_for_the_target_selection_gap(self):
         self.card["cardEffect"] = "当你征服一处战场时，你可以选择支付{{1}}，以此让我变为活跃状态。"
