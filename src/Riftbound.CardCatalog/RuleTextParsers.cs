@@ -2176,6 +2176,15 @@ public static class TriggerParser
                 LegendReadyCount: 1);
         }
 
+        if (Regex.IsMatch(segment,
+            @"^当你将一名友方单位选为目标时[，,]你可以选择让我变为休眠状态并支付\{\{A\}\}[，,]以此让该单位变为活跃状态[。.]?$",
+            RegexOptions.CultureInvariant))
+            return new(TriggerKinds.ControllerTargetedFriendlyUnitPayExhaustReady,
+                TriggerTimings.ControllerTargetedFriendlyUnit, segment,
+                "Capture the selected friendly unit, pay the optional leading source-exhaust and power cost, then ready that object.",
+                TargetScope: TriggerTargetScopes.SelectedFriendlyEventUnit, ExhaustsSource: true,
+                PowerCost: 1, UnitReadyCount: 1, Optional: true);
+
         var legendConquestPayReadySelfMatch = Regex.Match(
             segment,
             @"当你征服一处战场时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}，以此让我变为活跃状态。?$",
