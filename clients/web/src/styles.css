@@ -3436,3 +3436,37 @@ button {
   text-underline-offset: 3px;
   cursor: help;
 }
+
+/* ---------- card art loading ---------- */
+
+img.img--broken {
+  visibility: hidden;
+}
+/* Art fades in once it arrives; until then the card face shimmers instead of showing a blank. */
+.art {
+  transition: opacity 0.3s ease-out;
+}
+.art--wait {
+  opacity: 0;
+}
+.card:has(> .art--wait),
+.field__card:has(> .art--wait),
+.hoverpreview__face:has(> .art--wait) {
+  background:
+    linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.07) 50%, transparent 70%) 0 0 / 250% 100%,
+    linear-gradient(135deg, #2a2142, #17111f 60%, #241c37);
+  animation: art-shimmer 1.4s linear infinite;
+}
+@keyframes art-shimmer {
+  from {
+    background-position: 125% 0, 0 0;
+  }
+  to {
+    background-position: -125% 0, 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .art {
+    transition: none;
+  }
+}

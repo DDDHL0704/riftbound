@@ -1,0 +1,963 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "OGN·110/298"
+      ],
+      "text": "{{绝念}}—回收我，以此让你的所有符文变为活跃状态。（当我被摧毁后，发动此效果。）",
+      "scope": "{{绝念}}—回收我，以此让你的所有符文变为活跃状态。（当我被摧毁后，发动此效果。）",
+      "status": "missing",
+      "reason": "缺少绝念回收自身的确认费用及全部符文活跃结算；目前仅有急速入场登记（核心383.3.b明确以此牌为例）",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectKind": "EKKO_PLAY_UNIT_NO_OPTIONAL_HASTE",
+            "sourceUnitPower": 5
+          }
+        ],
+        "staticAuras": [],
+        "replacements": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"EKKO_PLAY_UNIT_NO_OPTIONAL_HASTE\"",
+            "SourceUnitTags: \"急速\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心 383.2.c.3、383.3.b（艾克·溯时洄光示例）、808 绝念"
+    },
+    {
+      "cardNos": [
+        "OGN·261/298",
+        "OGN·306/298",
+        "OGN·306*/298"
+      ],
+      "text": "每当你眩晕任意数量的敌方单位时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
+      "scope": "每当你眩晕任意数量的敌方单位时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
+      "status": "route",
+      "reason": "眩晕观察器按敌方眩晕事件分组，确认友方单位目标后独立入链给予一枚增益",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StunObservers.cs",
+          "contains": [
+            "StunBoonFaces.Value.Contains(instance.CardNo)",
+            "legendGroups.Add((birth.EventGroup, capture.SourceId, capture.InstanceId))",
+            "GrantLegendBoon(cards, target, item.ControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "contains": [
+            "StunBoonKind"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/StunObserverTests.cs",
+          "methods": [
+            "LeonaChoosesTheBoonTargetAfterAnActualEnemyStunAndAllowsResponses",
+            "FriendlyOrAlreadyStunnedTargetsDoNotEarnEnemyStunTriggers"
+          ]
+        }
+      ],
+      "rules": "核心 383.2–383.3、702–705；OGN·261／306／306* 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "OGN·263/298",
+        "OGN·307/298",
+        "OGN·263a/298",
+        "OGN·307*/298"
+      ],
+      "text": "你可以选择支付{{1}}来正面朝下放置一张带有{{待命}}属性的卡牌，而不是支付{{A}}。",
+      "scope": "你可以选择支付{{1}}来正面朝下放置一张带有{{待命}}属性的卡牌，而不是支付{{A}}。",
+      "status": "route",
+      "reason": "实际待命放置付款仅在控制对应传奇时提供1法力替代1符能，四个印次均有真实命令与回放",
+      "runtime": {
+        "legendActivations": [
+          "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "HasTeemoStandbyHidePermission(",
+            "LegendCardHasAbility(legendState.CardNo, TeemoLegendAbilityId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Standby.cs",
+          "contains": [
+            "StandbyHideTeemoOptionalCost when teemoPermission && StandbyRules.HasPrintedKeyword(source.CardNo) => \"TEEMO\"",
+            "var mana=permission==\"TEEMO\" ? 1 : 0"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/StandbyPaymentPermissionTests.cs",
+          "methods": [
+            "TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment"
+          ]
+        }
+      ],
+      "rules": "核心 811 待命、203–204／357 付款；迅捷斥候官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "OGN·269/298",
+        "OGN·310/298",
+        "OGN·310*/298"
+      ],
+      "text": "每当一名拥有增益且受你控制的单位被摧毁时，你可以选择支付{{A}}让我变为休眠状态，以此消耗该单位身上的增益，然后改为以休眠状态将其召回。（把该单位送回基地，此行动不算作移动。）",
+      "scope": "每当一名拥有增益且受你控制的单位被摧毁时，你可以选择支付{{A}}让我变为休眠状态，以此消耗该单位身上的增益，然后改为以休眠状态将其召回。（把该单位送回基地，此行动不算作移动。）",
+      "status": "route",
+      "reason": "共享摧毁替换选择中支付1任意符能、休眠传奇、消耗增益并休眠召回，保留控制权且不发移动事件",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+          "contains": [
+            "LegendCardHasIdentity(legend.CardNo, SettLegendIdentityId)",
+            "PayPowerCost(current, traitToSpend is null ? 1 : 0, paymentTraits)",
+            "RecallAttachedGroupToBase(zones, cards, option.Target, player)",
+            "BoonRules.Consume(ExhaustForInstruction(zones, cards, unitState))",
+            "cards[option.Source] = ExhaustForInstruction(zones, cards, cards[option.Source]);"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialSettReplacementTests.cs",
+          "methods": [
+            "OptionalReplacementPausesWithoutDamagePaymentOrDeathThenPaysPower",
+            "RecalledStolenUnitGoesToControllerBaseAndDoesNotChangeObjectGeneration",
+            "ManaAloneCannotPayAndNoChoiceIsOffered"
+          ]
+        }
+      ],
+      "rules": "核心 373 替换、203–204／357 付款、702–705 增益；腕豪官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "OGS·004/024"
+      ],
+      "text": "如果你拥有不少于八枚符文，则我获得{{S}}+4。",
+      "scope": "如果你拥有不少于八枚符文，则我获得{{S}}+4。",
+      "status": "missing",
+      "reason": "缺少场上符文数达到8时自身战力+4的持续计算；入场定义仅提供基础战力4",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectKind": "OGS_YI_EIGHT_RUNES_STATIC_PLAY_UNIT",
+            "sourceUnitPower": 4
+          }
+        ],
+        "staticAbilities": [],
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"OGS_YI_EIGHT_RUNES_STATIC_PLAY_UNIT\",\n            0,\n            0,\n            PlaysSourceToBaseAsUnit: true,\n            SourceUnitPower: 4)"
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心 364.3／365.1 条件性被动技能；OGS·004/024 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "OGS·023/024"
+      ],
+      "text": "当你征服一处战场时，如果你在该战场上拥有不少于四名单位，则抽两张牌。",
+      "scope": "当你征服一处战场时，如果你在该战场上拥有不少于四名单位，则抽两张牌。",
+      "status": "missing",
+      "reason": "触发时机错误：征服流程直接抽两张牌，未创建可响应的触发技能；战场内四单位筛选虽已修复，不能认证整句",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "garenControlledUnitCount >= 4",
+            "\"BATTLEFIELD_CONQUERED_DRAW_TWO\"",
+            "var drawApplication = ApplyDrawToPlayer("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+          "methods": [
+            "GarenCountsOnlyUnitsAtTheConqueredBattlefieldAndOriginalActionsReplay"
+          ]
+        }
+      ],
+      "rules": "核心 383.2.a.1、383.2.c、383.3；OGS·023/024 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·043/167",
+        "RAD·043a/167"
+      ],
+      "text": "当我变为休眠状态时，选择一个本回合未选过的效果 —",
+      "scope": "当我变为休眠状态时，选择一个本回合未选过的效果 —",
+      "status": "route",
+      "reason": "实际休眠事件触发，在确认阶段选择本回合该文本实例尚未选择的模式，并记入回合账本",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "BECAME_EXHAUSTED",
+          "effect": "CHOOSE_MODE",
+          "distinctModesPerTurn": true,
+          "modes": [
+            {
+              "id": "GAIN_BOON",
+              "effect": "BOON_SELF"
+            },
+            {
+              "id": "CONSUME_BOON_STUN",
+              "effect": "STUN_ENEMY",
+              "consumesSourceBoonDuringResolution": true
+            },
+            {
+              "id": "CONSUME_BOON_READY",
+              "effect": "READY_SELF",
+              "consumesSourceBoonDuringResolution": true
+            }
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "contains": [
+            "UnitEventModeAlreadyUsed(state, item, m.Id)",
+            "ledger = new(state.TurnNumber",
+            "UnitEventModeUse(item, selected.Single())"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "spec.ConsumesSourceBoonDuringResolution && !source.Tags.Contains(CardObjectTags.Boon)",
+            "source = BoonRules.Consume(source);",
+            "spec.Effect is \"BOON_SELF\" or \"BOON_SELF_AND_READY\"",
+            "spec.Effect == \"READY_SELF\"",
+            "ApplyUnitEventStun(state, item, zones, cards, events, target)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadRivenBrokenBladeTests.cs",
+          "methods": [
+            "EachModeIsChosenOncePerTextInstanceAndTheLedgerResetsWithTheTurn",
+            "StunConsumesTheBoonAtResolutionAndDoesNothingWithoutOne"
+          ]
+        }
+      ],
+      "rules": "核心 383.3、403.2 模式、702–705 增益；RAD·043／043a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·043/167",
+        "RAD·043a/167"
+      ],
+      "text": "- 给予我{{增益}}。（如果我未拥有增益，则给予我一个{{S}}+1增益。）",
+      "scope": "当我变为休眠状态时，选择一个本回合未选过的效果 —",
+      "status": "route",
+      "reason": "所选给予增益模式在独立技能结算时给予来源一枚增益",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "BECAME_EXHAUSTED",
+          "effect": "CHOOSE_MODE",
+          "distinctModesPerTurn": true,
+          "modes": [
+            {
+              "id": "GAIN_BOON",
+              "effect": "BOON_SELF"
+            },
+            {
+              "id": "CONSUME_BOON_STUN",
+              "effect": "STUN_ENEMY",
+              "consumesSourceBoonDuringResolution": true
+            },
+            {
+              "id": "CONSUME_BOON_READY",
+              "effect": "READY_SELF",
+              "consumesSourceBoonDuringResolution": true
+            }
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "contains": [
+            "UnitEventModeAlreadyUsed(state, item, m.Id)",
+            "ledger = new(state.TurnNumber",
+            "UnitEventModeUse(item, selected.Single())"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "spec.ConsumesSourceBoonDuringResolution && !source.Tags.Contains(CardObjectTags.Boon)",
+            "source = BoonRules.Consume(source);",
+            "spec.Effect is \"BOON_SELF\" or \"BOON_SELF_AND_READY\"",
+            "spec.Effect == \"READY_SELF\"",
+            "ApplyUnitEventStun(state, item, zones, cards, events, target)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadRivenBrokenBladeTests.cs",
+          "methods": [
+            "EachModeIsChosenOncePerTextInstanceAndTheLedgerResetsWithTheTurn",
+            "StunConsumesTheBoonAtResolutionAndDoesNothingWithoutOne"
+          ]
+        }
+      ],
+      "rules": "核心 383.3、403.2 模式、702–705 增益；RAD·043／043a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·043/167",
+        "RAD·043a/167"
+      ],
+      "text": "- 消耗我的增益，以此{{眩晕}}一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
+      "scope": "当我变为休眠状态时，选择一个本回合未选过的效果 —",
+      "status": "route",
+      "reason": "所选眩晕模式在结算时消耗来源增益，不能消耗则不眩晕敌方目标",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "BECAME_EXHAUSTED",
+          "effect": "CHOOSE_MODE",
+          "distinctModesPerTurn": true,
+          "modes": [
+            {
+              "id": "GAIN_BOON",
+              "effect": "BOON_SELF"
+            },
+            {
+              "id": "CONSUME_BOON_STUN",
+              "effect": "STUN_ENEMY",
+              "consumesSourceBoonDuringResolution": true
+            },
+            {
+              "id": "CONSUME_BOON_READY",
+              "effect": "READY_SELF",
+              "consumesSourceBoonDuringResolution": true
+            }
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "contains": [
+            "UnitEventModeAlreadyUsed(state, item, m.Id)",
+            "ledger = new(state.TurnNumber",
+            "UnitEventModeUse(item, selected.Single())"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "spec.ConsumesSourceBoonDuringResolution && !source.Tags.Contains(CardObjectTags.Boon)",
+            "source = BoonRules.Consume(source);",
+            "spec.Effect is \"BOON_SELF\" or \"BOON_SELF_AND_READY\"",
+            "spec.Effect == \"READY_SELF\"",
+            "ApplyUnitEventStun(state, item, zones, cards, events, target)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadRivenBrokenBladeTests.cs",
+          "methods": [
+            "EachModeIsChosenOncePerTextInstanceAndTheLedgerResetsWithTheTurn",
+            "StunConsumesTheBoonAtResolutionAndDoesNothingWithoutOne"
+          ]
+        }
+      ],
+      "rules": "核心 383.3、403.2 模式、702–705 增益；RAD·043／043a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·043/167",
+        "RAD·043a/167"
+      ],
+      "text": "- 消耗我的增益，以此让我变为活跃状态。",
+      "scope": "当我变为休眠状态时，选择一个本回合未选过的效果 —",
+      "status": "route",
+      "reason": "所选活跃模式在结算时消耗来源增益，不能消耗则不活跃来源",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "BECAME_EXHAUSTED",
+          "effect": "CHOOSE_MODE",
+          "distinctModesPerTurn": true,
+          "modes": [
+            {
+              "id": "GAIN_BOON",
+              "effect": "BOON_SELF"
+            },
+            {
+              "id": "CONSUME_BOON_STUN",
+              "effect": "STUN_ENEMY",
+              "consumesSourceBoonDuringResolution": true
+            },
+            {
+              "id": "CONSUME_BOON_READY",
+              "effect": "READY_SELF",
+              "consumesSourceBoonDuringResolution": true
+            }
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "contains": [
+            "UnitEventModeAlreadyUsed(state, item, m.Id)",
+            "ledger = new(state.TurnNumber",
+            "UnitEventModeUse(item, selected.Single())"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "spec.ConsumesSourceBoonDuringResolution && !source.Tags.Contains(CardObjectTags.Boon)",
+            "source = BoonRules.Consume(source);",
+            "spec.Effect is \"BOON_SELF\" or \"BOON_SELF_AND_READY\"",
+            "spec.Effect == \"READY_SELF\"",
+            "ApplyUnitEventStun(state, item, zones, cards, events, target)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadRivenBrokenBladeTests.cs",
+          "methods": [
+            "EachModeIsChosenOncePerTextInstanceAndTheLedgerResetsWithTheTurn",
+            "StunConsumesTheBoonAtResolutionAndDoesNothingWithoutOne"
+          ]
+        }
+      ],
+      "rules": "核心 383.3、403.2 模式、702–705 增益；RAD·043／043a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·061/167",
+        "RAD·061a/167"
+      ],
+      "text": "让一名友方单位返回其所属的手牌，作为打出我的额外费用。",
+      "scope": "让一名友方单位返回其所属的手牌，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "共享额外费用在入场前返还所控制友方单位到所有者手牌，目标与付款校验失败保持原状态",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiresReturnFriendlyUnitAdditionalCost": true,
+            "playsSourceToBaseAsUnit": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.RequiresReturnFriendlyUnitAdditionalCost",
+            "CanReturnFriendlyUnitAsAdditionalCost(",
+            "ReturnFriendlyUnitAdditionalCostPrefix"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadEntryCostHeroTests.cs",
+          "methods": [
+            "EveryOfficialPrintingPaysThreeManaAndReturnsTheChosenUnitBeforeEntering",
+            "ReturningAnOpponentsUnitYouControlUsesItsOwnersHandAndDetachesEquipment",
+            "IllegalAdditionalCostsTargetsPaymentAndTimingPreserveEveryStateAndView"
+          ]
+        }
+      ],
+      "rules": "核心 204.2／356.2.a.1 额外费用、056 非场地区域所有者；RAD·061／061a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·063/167"
+      ],
+      "text": "只要我处于法术对决中，你的法术便具有{{反应}}。（可在任意时机打出，甚至先于其他法术和技能的结算。）",
+      "scope": "只要我处于法术对决中，你的法术便具有{{反应}}。（可在任意时机打出，甚至先于其他法术和技能的结算。）",
+      "status": "route",
+      "reason": "共享打出权限在当前法术对决战场检查来源及附加规则文本，给予友方法术反应速度，离开或对决结束即失效",
+      "runtime": {
+        "staticAbilities": [
+          {
+            "node": {
+              "kind": "UNIT_IN_SPELL_DUEL_FRIENDLY_SPELLS_REACTION"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
+          "contains": [
+            "HasSpellDuelReactionGrant(state, playerId, behavior)",
+            "state.SpellDuelState is not { IsActive: true, BattlefieldObjectId: { } field }",
+            "BattlefieldLocalRules.AtUnit(state, unit.ObjectId)?.ObjectId == field",
+            "StaticAbilityKinds.UnitInSpellDuelFriendlySpellsReaction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadKaisaLocationPermissionTests.cs",
+          "methods": [
+            "RealMovementRecalculatesTheRemainingSourcesWithoutInvalidatingAnAlreadyPlayedSpell",
+            "ClosingTheActualShowdownRevokesPermissionEvenWhileKaisaRemainsAtThatBattlefield"
+          ]
+        }
+      ],
+      "rules": "核心 344.1 法术对决中的单位、813 反应；RAD·063 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·112/167",
+        "RAD·112a/167"
+      ],
+      "text": "支付{{1}}，{{T}}：将一个“炸弹”装备指示物打出到一处战场。（其具有{{部署}}。当其被摧毁时，对该处的一名敌方单位造成2点伤害，并摧毁你在该处的其他“炸弹”。）",
+      "scope": "支付{{1}}，{{T}}：将一个“炸弹”装备指示物打出到一处战场。（其具有{{部署}}。当其被摧毁时，对该处的一名敌方单位造成2点伤害，并摧毁你在该处的其他“炸弹”。）",
+      "status": "route",
+      "reason": "原生激活支付1法力并横置来源，结算在所选战场打出炸弹；炸弹独立死亡技能只伤害该处敌人并摧毁其他友方炸弹",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "RAD_112_EXHAUST_PLAY_BOMB",
+            "manaCost": 1,
+            "requiredTargetCount": 1,
+            "exhaustsSourceAsCost": true,
+            "simpleEffect": {
+              "createdBattlefieldEquipmentTokenCardNo": "RAD·T01"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "spec.CreatedBattlefieldEquipmentTokenCardNo is { } factoryNo",
+            "IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, battlefield, ability)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BombDestruction.cs",
+          "contains": [
+            "CaptureBombDestructionObservers(",
+            "ResolveBombDestruction("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadZiggsBombasticTests.cs",
+          "methods": [
+            "BothPrintingsPayFourAndTheirActivationPaysOneAndExhaustsBeforePlayingABomb"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadBombUnitTests.cs",
+          "methods": [
+            "DestroyedBombOnlyOffersAnEnemyAtItsOwnBattlefieldAndDealsTwoDamage",
+            "BombDestructionDestroysOtherFriendlyBombsAtTheSameBattlefield"
+          ]
+        }
+      ],
+      "rules": "核心 203–204／357 付款、383.2.c.3 离场触发；RAD·112／112a 及炸弹官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·114/167",
+        "RAD·114a/167"
+      ],
+      "text": "此技能每回合仅能使用一次。",
+      "scope": "让一名友方单位变为休眠状态：让一名单位变为活跃状态。",
+      "status": "route",
+      "reason": "原生技能使用账本按来源物体代际与技能文本实例限制每回合一次，执行前检查且确认后记录",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "RAD_114_EXHAUST_FRIENDLY_READY_UNIT",
+            "simpleEffect": {
+              "oncePerTurn": true,
+              "readiesUnitTarget": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(",
+            "var effects = spec.OncePerTurn"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadRivenReformedTests.cs",
+          "methods": [
+            "AnotherFriendlyUnitPaysBeforeTheReadyAndEarnsAnIndependentTurnBonus"
+          ]
+        }
+      ],
+      "rules": "核心 383 技能、回合次数限制；RAD·114／114a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·132/167"
+      ],
+      "text": "如果你将打出一个单位指示物到某一位置，只要我位于战场，你便可以选择改为打出一名3{{S}}的“机器人”单位指示物到该位置。",
+      "scope": "如果你将打出一个单位指示物到某一位置，只要我位于战场，你便可以选择改为打出一名3{{S}}的“机器人”单位指示物到该位置。",
+      "status": "route",
+      "reason": "实际指示物入场替换逐个选择，仅公开受控且位于战场的来源可将原指示物改为同位置3战力机器人",
+      "runtime": {
+        "behaviors": [
+          {
+            "unitTokenReplacementFactoryCardNo": "SFD·T01"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
+          "contains": [
+            "TokenReplacementFactory(state, c) is { } factory",
+            "factories[application.TokenIndex] = application.FactoryCardNo",
+            "factory.CreateObject(original.ObjectId, original.OwnerId!, original.ControllerId!, isExhausted: true)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadHeimerdingerTokenReplacementTests.cs",
+          "methods": [
+            "EachTokenCanBeReplacedIndependentlyAndTheHeroHasNoTurnLimit",
+            "OnlyAVisibleFriendlySourceAtARealBattlefieldCanOfferTheReplacement",
+            "AHereTokenReplacementKeepsItsOriginalBattlefield"
+          ]
+        }
+      ],
+      "rules": "核心 373 替换、375 继承原指示物位置及调整；RAD·132 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·143/167",
+        "RAD·170/167",
+        "RAD·170*/167"
+      ],
+      "text": "此符能仅可用于打出单位或装备。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{反应>}} 从你的废牌堆中放逐一个单位或装备，{{T}}：{{获得}}{{A}}。",
+      "status": "route",
+      "reason": "实际产出的符能进入单位或装备打出专用池，共享付款按用途筛选，不能支付法术",
+      "runtime": {
+        "legendActivations": [
+          "LEGEND_REACTION_BANISH_GRAVEYARD_PERMANENT_EXHAUST_GAIN_PLAY_POWER"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GrantsUnitOrEquipmentPlayOnlyPower: true",
+            "UnitOrEquipmentPlayOnlyPower = checked(currentPool.UnitOrEquipmentPlayOnlyPower + powerAmount)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
+          "contains": [
+            "PowerPaymentPurpose.PlayUnit => pool.UnitOrEquipmentPlayOnlyPower",
+            "PowerPaymentPurpose.PlayEquipment => pool.EquipmentOnlyPower + pool.UnitOrEquipmentPlayOnlyPower"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MordekaiserLegendResourceTests.cs",
+          "methods": [
+            "EachOfficialPrintingBanishesEitherPermanentAsACostAndImmediatelyBanksOneRestrictedPower",
+            "TheActuallyProducedPowerPaysOnlyAUnitOrEquipmentPlay"
+          ]
+        }
+      ],
+      "rules": "核心 203／357 费用资源及用途限制；RAD·143／170／170* 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·145/167",
+        "RAD·171/167",
+        "RAD·171*/167"
+      ],
+      "text": "在你的主阶段开始时，你可以选择支付{{1}}，以此选择一件友方装备。",
+      "scope": "在你的主阶段开始时，你可以选择支付{{1}}，以此选择一件友方装备。",
+      "status": "route",
+      "reason": "仅己方主阶段开始触发，先选友方装备、支付1法力，随后独立技能入链",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "MAIN",
+          "effect": "EQUIPMENT_AS_UNIT_UNTIL_NEXT_SELECTION",
+          "optional": true,
+          "leadingManaCost": 1
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ResolveEquipmentUnitTransformation(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentUnitTransformation.cs",
+          "contains": [
+            "card.ManaCost - printed.Power",
+            "card.ObjectId != selected",
+            "effect.SourceLegend == source",
+            "Tags = target.Tags.Append(CardObjectTags.UnitCard)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OriannaLegendEquipmentUnitTests.cs",
+          "methods": [
+            "EachPrintTriggersOnlyAtOwnMainAndPaysWithoutExhaustingTheLegend",
+            "PayingForAnotherEquipmentEndsTheOldEffectBeforeResponsesAndPreservesOtherTags",
+            "IndependentLegendConversionsEndOnlyTheirOwnDuration"
+          ]
+        }
+      ],
+      "rules": "核心 383.3／403–405 主阶段技能确认、137.3.b／323.6 类型转换清理；RAD·145／171／171* 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·145/167",
+        "RAD·171/167",
+        "RAD·171*/167"
+      ],
+      "text": "该友方装备变为一名战力等同于其法力费用的单位装备，直到你用我选择另一件友方装备为止。",
+      "scope": "在你的主阶段开始时，你可以选择支付{{1}}，以此选择一件友方装备。",
+      "status": "route",
+      "reason": "结算赋予单位类型并按法力费用设定基础战力；同一来源选择另一件装备时结束旧转换，各来源持续时间独立",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "MAIN",
+          "effect": "EQUIPMENT_AS_UNIT_UNTIL_NEXT_SELECTION",
+          "optional": true,
+          "leadingManaCost": 1
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ResolveEquipmentUnitTransformation(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentUnitTransformation.cs",
+          "contains": [
+            "card.ManaCost - printed.Power",
+            "card.ObjectId != selected",
+            "effect.SourceLegend == source",
+            "Tags = target.Tags.Append(CardObjectTags.UnitCard)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OriannaLegendEquipmentUnitTests.cs",
+          "methods": [
+            "EachPrintTriggersOnlyAtOwnMainAndPaysWithoutExhaustingTheLegend",
+            "PayingForAnotherEquipmentEndsTheOldEffectBeforeResponsesAndPreservesOtherTags",
+            "IndependentLegendConversionsEndOnlyTheirOwnDuration"
+          ]
+        }
+      ],
+      "rules": "核心 383.3／403–405 主阶段技能确认、137.3.b／323.6 类型转换清理；RAD·145／171／171* 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·167/167"
+      ],
+      "text": "（中立卡牌可放入任意特性的卡组。）",
+      "scope": "（中立卡牌可放入任意特性的卡组。）",
+      "status": "route",
+      "reason": "实际牌组校验排除中立颜色限制，合法双色传奇套牌中加入官方中立妮蔻仍通过",
+      "runtime": {
+        "cardColorList": [
+          "neutral"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/OfficialDeckRules.cs",
+          "contains": [
+            "!RuneTrait.IsNeutral(color)",
+            "!allowedColors.Contains(color)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AdditionalLegendSelectionTests.cs",
+          "methods": [
+            "ADeckContainingThePermissionCanChooseZeroToThreeOtherLegendNames"
+          ]
+        }
+      ],
+      "rules": "核心 103.2.b.5 中立卡构筑；RAD·167 官方中文中立牌面提示"
+    },
+    {
+      "cardNos": [
+        "RAD·167/167"
+      ],
+      "text": "当你打出我时，选择所选传奇中的其中一名，并于我在场上期间，将其加入你的传奇区域。",
+      "scope": "当你打出我时，选择所选传奇中的其中一名，并于我在场上期间，将其加入你的传奇区域。",
+      "status": "route",
+      "reason": "打出技能结算从登记池选择真实传奇进入技能控制者传奇区；来源离场时按物体绑定结束持续时间并移除传奇",
+      "runtime": {
+        "behaviors": [
+          {
+            "addsRegisteredLegendWhileSourceOnField": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlaySource.cs",
+          "contains": [
+            "if (behavior.AddsRegisteredLegendWhileSourceOnField)",
+            "AddRegisteredLegend(state, item, source, zones, cards, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoundLegends.cs",
+          "contains": [
+            "deck.AdditionalLegendCardNos",
+            "LegendZone = [..zones[item.ControllerId].LegendZone, id]",
+            "RemoveLegendsBoundToDepartingSource(",
+            "cards.Remove(binding.LegendObjectId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadNeekoLegendTests.cs",
+          "methods": [
+            "RegisteredLegendsRemainPrivateUntilTheResolutionDecisionAndEnterAsRealActiveCards",
+            "SourceDepartureCompletelyRemovesTheLegendAndReentryCreatesANewObject",
+            "ActualControlChangePreservesTheOriginalSkillControllerAndItsRegisteredLegend"
+          ]
+        }
+      ],
+      "rules": "核心 383.4.a.2 打出触发、359.3.f.4 技能敌友判定、440.3.b 指定存在时间；RAD·167 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "RAD·181/167",
+        "RAD·181*/167"
+      ],
+      "text": "当我征服一处未受控制的战场时，对基地中的一名敌方单位造成等同于我战力的伤害。",
+      "scope": "当我征服一处未受控制的战场时，对基地中的一名敌方单位造成等同于我战力的伤害。",
+      "status": "route",
+      "reason": "实际征服前的战场控制权必须为空；确认敌方基地单位后提供响应窗口，结算读取来源当前战力并伤害该目标",
+      "runtime": {
+        "behaviors": [
+          {
+            "conquestDamage": {
+              "requiresUncontrolledBattlefield": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitConquest.cs",
+          "contains": [
+            "spec.RequiresUncontrolledBattlefield && battlefield.ControllerId is not null",
+            "state.PlayerZones.Where(p=>p.Key!=item.ControllerId).SelectMany(p=>p.Value.Base)",
+            "ResolveCurrentFieldUnitPower(state,source)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/UncontrolledConquestTests.cs",
+          "methods": [
+            "EveryCurrentPrintingConfirmsEnemyBaseTargetBeforeResponse",
+            "DamageReadsCurrentPowerAfterResponseAndKeepsTriggerController",
+            "EnemyControlledBattlefieldCombatDoesNotMeetUncontrolledCondition"
+          ]
+        }
+      ],
+      "rules": "核心 383.2–383.3；SFD·116／233／233*、RAD·181／181* 官方中文牌面（开放／未受控制）"
+    },
+    {
+      "cardNos": [
+        "SFD·116/221",
+        "SFD·233/221",
+        "SFD·233*/221"
+      ],
+      "text": "当我征服一处开放的战场时，对基地中的一名敌方单位造成等同于我战力的伤害。",
+      "scope": "当我征服一处开放的战场时，对基地中的一名敌方单位造成等同于我战力的伤害。",
+      "status": "route",
+      "reason": "实际征服前的战场控制权必须为空；确认敌方基地单位后提供响应窗口，结算读取来源当前战力并伤害该目标",
+      "runtime": {
+        "behaviors": [
+          {
+            "conquestDamage": {
+              "requiresUncontrolledBattlefield": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitConquest.cs",
+          "contains": [
+            "spec.RequiresUncontrolledBattlefield && battlefield.ControllerId is not null",
+            "state.PlayerZones.Where(p=>p.Key!=item.ControllerId).SelectMany(p=>p.Value.Base)",
+            "ResolveCurrentFieldUnitPower(state,source)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/UncontrolledConquestTests.cs",
+          "methods": [
+            "EveryCurrentPrintingConfirmsEnemyBaseTargetBeforeResponse",
+            "DamageReadsCurrentPowerAfterResponseAndKeepsTriggerController",
+            "EnemyControlledBattlefieldCombatDoesNotMeetUncontrolledCondition"
+          ]
+        }
+      ],
+      "rules": "核心 383.2–383.3；SFD·116／233／233*、RAD·181／181* 官方中文牌面（开放／未受控制）"
+    }
+  ]
+}

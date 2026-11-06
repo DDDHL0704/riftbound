@@ -136,7 +136,7 @@ for (const card of [...base, ...admittedAdditions().filter((c) => !known.has(c.c
     sort: card.listSort ?? undefined,
   };
 }
-// public/ holds only this generated (git-ignored) file, so a fresh checkout has no such folder.
+// public/ also holds the committed art-sw.js; this generated file is git-ignored.
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, JSON.stringify(cards));
 console.log(`cards.json: ${Object.keys(cards).length} cards, ${errataApplied} with reviewed errata`);
