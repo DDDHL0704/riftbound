@@ -227,6 +227,7 @@ def source_fingerprint(root: Path) -> str:
     paths += sorted(p for p in (root / "data/official").rglob("*") if p.is_file() and p.suffix in (".json", ".gz"))
     if (script := root / "scripts/audit-card-effects.py").exists():
         paths.append(script)
+    paths += sorted((root / "scripts/audit/reviewed-clauses").glob("*.json"))
     digest = hashlib.sha256()
     for path in paths:
         digest.update(str(path.relative_to(root)).encode())
@@ -259,6 +260,33 @@ class Sources:
         self.probes = defaultdict(list)
         for probe in probes:
             self.probes[normalize(probe["text"])].append(probe)
+        self.reviewed_clauses = defaultdict(list)
+        for path in sorted((root / "scripts/audit/reviewed-clauses").glob("*.json")):
+            document = json.loads(path.read_text())
+            if document.get("schemaVersion") != 1:
+                raise ValueError("已审逐句补充版本不支持：" + str(path))
+            for record in document["records"]:
+                if (record.get("status") not in ("route", "missing") or not record.get("evidence")
+                        or not record.get("rules") or not record.get("cardNos")
+                        or not record.get("text") or not record.get("scope")):
+                    raise ValueError("已审逐句补充必须包含结论和代码证据：" + str(path))
+                if record["status"] == "route" and not record.get("tests"):
+                    raise ValueError("已实现的逐句补充必须包含规则测试：" + str(path))
+                if any(not entry.get("contains") or not entry["path"].startswith("src/Riftbound.Engine/")
+                       or not entry["path"].endswith(".cs") for entry in record["evidence"]):
+                    raise ValueError("已审代码证据必须指向引擎 C# 及具体代码片段：" + str(path))
+                if record["status"] == "route" and not any(
+                        Path(entry["path"]).name.startswith(("CoreRuleEngine", "CardPermission", "OfficialDeck"))
+                        for entry in record["evidence"]):
+                    raise ValueError("已审路径必须包含执行消费者：" + str(path))
+                if any(not test.get("methods") or not test["path"].startswith("tests/Riftbound.ConformanceTests/")
+                       for test in record.get("tests", [])):
+                    raise ValueError("已审测试证据必须指向规则测试方法：" + str(path))
+                for no in record["cardNos"]:
+                    key = (no, normalize(record["text"]), normalize(record["scope"]))
+                    if self.reviewed_clauses[key]:
+                        raise ValueError("已审逐句补充重复：" + repr(key))
+                    self.reviewed_clauses[key].append(record)
 
     @lru_cache(maxsize=None)
     def references(self, token: str, *, exclude: str = "") -> list[str]:
@@ -482,6 +510,69 @@ def node_matches(clause: dict, item: dict) -> bool:
 
 def result(status: str, reason: str, evidence=()) -> dict:
     return dict(status=status, reason=reason, evidence=sorted(set(evidence)))
+
+
+def inventory_contains(actual, expected) -> bool:
+    """A reviewed route must still have its concrete exported specification.
+
+    Dictionaries select fields; list entries must match distinct actual entries.
+    Scalars (including booleans vs integers) compare exactly. An empty expected
+    list means the runtime list really is empty, not a vacuous match.
+    """
+    if isinstance(expected, dict):
+        return isinstance(actual, dict) and all(key in actual and inventory_contains(actual[key], value)
+                                                for key, value in expected.items())
+    if isinstance(expected, list):
+        if not isinstance(actual, list) or not expected:
+            return actual == expected
+        def match(remaining, candidates):
+            if not remaining:
+                return True
+            return any(inventory_contains(candidate, remaining[0])
+                       and match(remaining[1:], candidates[:i] + candidates[i + 1:])
+                       for i, candidate in enumerate(candidates))
+        return match(expected, actual)
+    return type(actual) is type(expected) and actual == expected
+
+
+def reviewed_clause_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Fallback for individually reviewed clauses, never a card-wide override.
+
+    Evidence is part of the match: exact print, clause and scope; current runtime
+    fields; executable source fragments; and named rule tests. Removing any of
+    these reopens review. Ordinary matchers run first so O-line implementations
+    can supersede a recorded gap without editing the review supplement.
+    """
+    key = (card["cardNo"], normalize(clause["text"]), normalize(clause["scope"]))
+    records = sources.reviewed_clauses.get(key, [])
+    for record in records:
+        if clause.get("location", "upper") != record.get("location", "upper"):
+            continue
+        evidence, stale = [], []
+        if not inventory_contains(card, record.get("runtime", {})):
+            stale.append("运行时规格")
+        for entry in record["evidence"]:
+            path = sources.root / entry["path"]
+            code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(), flags=re.S) if path.exists() else ""
+            if not entry.get("contains") or not all(fragment in code for fragment in entry["contains"]):
+                stale.append(entry["path"])
+            evidence.append(entry["path"])
+        for test in record.get("tests", []):
+            path = sources.root / test["path"]
+            code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(), flags=re.S) if path.exists() else ""
+            for method in test["methods"]:
+                declaration = (r"\[(?:Fact|Theory)\b[^\]]*\]\s*(?:\[[^\]]*\]\s*)*"
+                               r"public\s+(?:async\s+)?(?:Task(?:<[^>]+>)?|void)\s+"
+                               + re.escape(method) + r"\s*\(")
+                if not re.search(declaration, code):
+                    stale.append(test["path"] + "::" + method)
+                evidence.append(test["path"] + "::" + method)
+        if stale:
+            return result("review", "已审证据发生变化，需重新核对：" + "、".join(stale), evidence)
+        answer = result(record["status"], "逐句已审：" + record["reason"], evidence)
+        answer["rules"] = record["rules"]
+        return answer
+    return None
 
 
 def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
@@ -780,12 +871,16 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
             for ability in card.get("legendActivations", []):
                 if routes := sources.value_routes(ability):
                     return result("route", "传奇技能来源及执行分支：" + ability, routes)
+        if reviewed := reviewed_clause_route(card, clause, sources):
+            return reviewed
         if not card.get("activations") and not card.get("legendActivations"):
             # Quoted/granted skills need independent scope review before calling
             # the source's absent activation a real missing implementation.
             if "具有“" not in clause["scope"]:
                 return result("missing", "激活技能目录未找到与本句费用、结算和限制匹配的来源项")
         return result("review", "存在技能来源项；仍需逐句核对费用、结算及限制")
+    if reviewed := reviewed_clause_route(card, clause, sources):
+        return reviewed
     if "不限数量" in clause["text"]:
         return result("missing", "未找到该规则例外的静态规格或执行路径")
     return result("review", "未建立本句到具体执行字段／消费者的对应关系")
