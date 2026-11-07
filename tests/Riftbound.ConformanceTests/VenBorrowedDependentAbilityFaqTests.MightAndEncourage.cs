@@ -16,22 +16,25 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
     [InlineData("OGN·302/298", true)]
     [InlineData("OGN·302*/298", false)]
     [InlineData("OGN·302*/298", true)]
-    public async Task BorrowedReactionManaKeepsEncourageInTheEffectAndPreservesThePendingSpell(string donor, bool encourage)
+    public async Task BorrowedReactionManaRequiresItsEncourageDependencyAndPreservesThePendingSpell(string donor, bool encourage)
     {
         var initial = BorrowedBombPosition(donor);
         initial = AttackDamageDistributionTests.Spell(initial, "CARD", "OGN·048/298", "P1");
         var game = new Driver(initial);
-        var id = TemplateId(initial, "费用资源");
+        var id = Assert.Single(BorrowedExhaustRules.Abilities(initial, "P1", initial.CardObjects["HOST"]),
+            ability => ability.Spec.Kind == "RESOURCE").Id;
         if (encourage)
             await game.Act("P1", new PlayCardCommand("CARD", "OGN·048/298", []));
         var before = game.State;
-        await game.Act("P1", new ActivateAbilityCommand("HOST", id, []));
-        var expected = donor == "OGN·098/298" || encourage ? 1 : 0;
+        var active = donor == "OGN·098/298" || encourage;
+        if (active) await game.Act("P1", new ActivateAbilityCommand("HOST", id, []));
+        else await RadGearTestPosition.Reject(game.State, "P1", new ActivateAbilityCommand("HOST", id, []));
+        var expected = active ? 1 : 0;
         Assert.Equal(before.RunePools["P1"].Mana + expected, game.State.RunePools["P1"].Mana);
         Assert.Equal(before.StackItems, game.State.StackItems);
         Assert.Equal(before.PriorityPlayerId, game.State.PriorityPlayerId);
         Assert.Equal(before.TimingState, game.State.TimingState);
-        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Equal(active, game.State.CardObjects["HOST"].IsExhausted);
         Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
         await RejectBorrowedResource(game.State, "HOST", id, []);
         if (encourage) await game.Top();
@@ -119,9 +122,11 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         Assert.Equal(1, game.State.PlayerCardsPlayedThisTurn["P1"]);
         Assert.Equal("HOST", Assert.Single(game.State.CardPlays.Finalized).Source.ObjectId);
         var before = game.State.RunePools["P1"];
-        await game.Act("P1", new ActivateAbilityCommand("HOST", TemplateId(game.State, "费用资源"), []));
+        var id = Assert.Single(BorrowedExhaustRules.Abilities(game.State, "P1", game.State.CardObjects["HOST"]),
+            ability => ability.Spec.Kind == "RESOURCE").Id;
+        await RadGearTestPosition.Reject(game.State, "P1", new ActivateAbilityCommand("HOST", id, []));
         Assert.Equal(before, game.State.RunePools["P1"]);
-        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.False(game.State.CardObjects["HOST"].IsExhausted);
         await game.Replay();
     }
 

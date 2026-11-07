@@ -328,14 +328,18 @@
       ],
       "text": "{{横置}}：{{鼓舞}}—你在本回合内打出的下一名单位以活跃状态进场。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
       "scope": "{{横置}}：{{鼓舞}}—你在本回合内打出的下一名单位以活跃状态进场。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
-      "status": "missing",
-      "reason": "来源范围被缩窄为只能在基地：共享简单装备技能强制precise.Zone为BASE；奥莉安娜使其成为装备单位并进入战场后，仍应可使用印刷主动技能；另在未满足鼓舞时仍允许横置入链，现有测试明确放行，与中国区破限裁判FAQ260511第1页禁止直接使用的说明不符",
-      "rules": "核心178.1–178.2 多类型保有各自权限、381 主动技能、当前奥莉安娜官方中文牌面；中国区破限裁判FAQ260511第1页太阳圆盘",
+      "status": "route",
+      "reason": "共享简单主动流程允许当前控制者的正面朝上场上装备作为来源；装备变为单位并真实移动到战场后保留技能。鼓舞依赖在原生与借用技能激活前检查，来源自身的打出不满足条件；定向测试包含真实转换、移动、活跃、首次出牌拒绝、授予消耗、恢复及完整回放",
+      "rules": "核心178.1–178.2 多类型权限、381 主动技能、721.2／727.1.b／812.1 依赖性鼓舞；中国区破限裁判FAQ260511第1页太阳圆盘；官方中文牌面",
       "runtime": {
         "activations": [
           {
             "abilityId": "SUN_DISC_NEXT_UNIT_READY",
-            "requiresBaseEquipmentSource": true
+            "sourceRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "simpleEffect": {
+              "grantsNextUnitReady": true,
+              "requiresEncouraged": true
+            }
           }
         ]
       },
@@ -343,27 +347,47 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
           "contains": [
-            "(!ability.RequiresBaseEquipmentSource || precise.Zone == \"BASE\")"
+            "FindFieldObjectLocation(state.PlayerZones, id)",
+            "precise.Zone == at.Zone",
+            "ability.SimpleEffect?.RequiresEncouraged != true || EncourageActive(state, actor, source.ObjectId)"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentUnitTransformation.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Encourage.cs",
           "contains": [
-            "Tags = target.Tags.Append(CardObjectTags.UnitCard)"
+            "state.CardPlays.TurnNumber == state.TurnNumber && state.CardPlays.Finalized",
+            "play.PlayerId == player && play.Source.ObjectId != source"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "!spec.EffectRequiresEncouraged || EncourageActive(state, player, sourceId)"
           ]
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.ActivatedPlayGrants.cs",
           "contains": [
-            "if (!BorrowedEncourageActive(state, item.ControllerId, item.SourceObjectId)) return NoopStackResolutionResult(state)"
+            "if (!EncourageActive(state, item.ControllerId, item.SourceObjectId)) return NoopStackResolutionResult(state)",
+            "CaptureActivatedNextUnitReady(",
+            "ConsumedNextUnitPlayGrants.UnionWith(grants)"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/EquipmentUnitPrintedActivationTests.cs",
+          "methods": [
+            "AnAnimatedEquipmentOnABattlefieldRetainsItsPrintedActivation"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/VenBorrowedDependentAbilityFaqTests.NextUnitReady.cs",
           "methods": [
-            "NextUnitReadyEncourageIsCheckedAtResolutionAndConsumedByOneActualUnit"
+            "NextUnitReadyRequiresEncourageBeforeActivationAndIsConsumedByOneActualUnit",
+            "NextUnitReadyIgnoresItsSourcesOwnPlayAndExpiresAtTurnEnd",
+            "NextUnitReadyKeepsIndependentSourcesAfterRealReturnAndTokenDisappearance",
+            "NextUnitReadyAppliesToARealFreeEffectPlay"
           ]
         }
       ]
@@ -374,14 +398,18 @@
       ],
       "text": "弃置一张手牌，{{横置}}： 选择一名友方单位。",
       "scope": "弃置一张手牌，{{横置}}： 选择一名友方单位。",
-      "status": "missing",
-      "reason": "来源范围被缩窄为只能在基地：共享简单装备技能强制precise.Zone为BASE；奥莉安娜使其成为装备单位并进入战场后，仍应可使用印刷主动技能",
+      "status": "route",
+      "reason": "共享简单主动来源检查覆盖基地与战场的正面朝上友方装备，保留实际弃手牌和横置费用；定向测试真实使用奥莉安娜转换并移动装备到战场，支付费用后按同一来源代际结算召回替换，包含拒绝、冷恢复与完整回放",
       "rules": "核心178.1–178.2 多类型保有各自权限、381 主动技能、当前奥莉安娜官方中文牌面",
       "runtime": {
         "activations": [
           {
             "abilityId": "OGN_023_DISCARD_EXHAUST_GRANT_RED_RECALL",
-            "requiresBaseEquipmentSource": true
+            "sourceRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "simpleEffect": {
+              "discardsHandCardAsCost": true,
+              "grantsMysteriousWeaponRecall": true
+            }
           }
         ]
       },
@@ -389,17 +417,29 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
           "contains": [
-            "(!ability.RequiresBaseEquipmentSource || precise.Zone == \"BASE\")"
-          ]
-        },
-        {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentUnitTransformation.cs",
-          "contains": [
-            "Tags = target.Tags.Append(CardObjectTags.UnitCard)"
+            "FindFieldObjectLocation(state.PlayerZones, id)",
+            "precise.Zone == at.Zone",
+            "SimpleActivationDiscardChoices(state, actor, discard.DiscardsHandCardAsCost)",
+            "spec.GrantsMysteriousWeaponRecall",
+            "MysteriousWeaponRecallMarker("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EquipmentUnitPrintedActivationTests.cs",
+          "methods": [
+            "AnAnimatedEquipmentOnABattlefieldRetainsItsPrintedActivation"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MysteriousWeaponRecallTests.cs",
+          "methods": [
+            "APlayedWeaponCanDiscardAndExhaustToGrantItsFriendlyUnitReplacement",
+            "EkkoEndTurnDestructionCanBeReplacedAndDoesNotRepeatOnLaterTurns"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -409,7 +449,7 @@
       "scope": "在本回合内，当它下次被摧毁时，你可以选择支付{{红色}}，改为以休眠状态将其召回。（把该单位送回基地，此行动不算作移动。）",
       "status": "route",
       "reason": "结算后给目标同一代际添加本回合下一次摧毁的替换凭据；事发时可支付1红符能改为休眠召回，费用／凭据清理与原始动作回放一致",
-      "rules": "核心373 替换、牌面指定持续时间、召回；OGN·023 官方中文牌面；来源激活范围缺口另句登记",
+      "rules": "核心373 替换、牌面指定持续时间、召回；OGN·023 官方中文牌面",
       "runtime": {
         "activations": [
           {

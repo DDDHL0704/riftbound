@@ -65,7 +65,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
     string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
     bool GrantsMysteriousWeaponRecall = false, bool GrantsPaidRecall = false,
-    bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false);
+    bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false,
+    bool RequiresEncouraged = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -438,7 +439,7 @@ public static class P4ActivatedAbilityCatalog
         new("SUN_DISC_NEXT_UNIT_READY", "OGN·021/298", "SUN_DISC_NEXT_UNIT_READY", "太阳圆盘", 0, 0, 0,
             false, true, 0, false, "官方中文：横置，鼓舞时授予本回合下一名单位活跃进场。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
-            SimpleEffect: new(GrantsNextUnitReady: true)),
+            SimpleEffect: new(GrantsNextUnitReady: true, RequiresEncouraged: true)),
         new(ScryingBlossomAbilityId, "UNL-136/219", "INSIGHT_TRIGGER", "占卜花朵 · 洞察 2 后抽牌",
             1, 0, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
             AppliesSpellshieldTargetTax: false, "支付 1 法力、横置并摧毁此牌：洞察 2，然后抽一张牌并获得 1 经验", RequiresBaseEquipmentSource: true),

@@ -9,8 +9,9 @@ public sealed partial class CoreRuleEngine
         => spec.ManaReductionPerFriendlyEphemeralUnit == 0 ? spec.Mana
             : Math.Max(0, spec.Mana - spec.ManaReductionPerFriendlyEphemeralUnit * CountFriendlyEphemeralFieldUnits(state, player));
 
-    internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec)
+    internal static bool CanActivateBorrowedExhaust(MatchState state, string player, BorrowedExhaustSpec spec, string sourceId)
         => (!spec.RequiresPlayedArmamentThisTurn || ControllerPlayedArmamentThisTurn(state, player))
+            && (!spec.EffectRequiresEncouraged || EncourageActive(state, player, sourceId))
             && BorrowedEnemyTargetRequirementMet(state, player, spec)
             && (spec.Reaction ? (spec.Kind == "RESOURCE" ? CanActivateReactionResourceSkill(state, player)
                     : CanActivateReactionAbility(state, player))
@@ -90,8 +91,8 @@ public sealed partial class CoreRuleEngine
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
             || BorrowedExhaustRules.Abilities(state, intent.PlayerId, source).FirstOrDefault(a => a.Id == command.AbilityId) is not { } ability)
             return RejectWithCorePrompts(state, "来源当前不具有所选技能。", ErrorCodes.InvalidTarget);
-        if (!CanActivateBorrowedExhaust(state, intent.PlayerId, ability.Spec))
-            return RejectWithCorePrompts(state, "当前时机不能激活此技能。", ErrorCodes.PhaseNotAllowed);
+        if (!CanActivateBorrowedExhaust(state, intent.PlayerId, ability.Spec, source.ObjectId))
+            return RejectWithCorePrompts(state, "当前时机或依赖条件不允许激活此技能。", ErrorCodes.PhaseNotAllowed);
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targets.Count != ability.Spec.Targets || command.TargetObjectIds.Count != targets.Count
             || targets.Distinct(StringComparer.Ordinal).Count() != targets.Count
@@ -169,7 +170,8 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "支付资源行动后所选单位无法支付休眠费用。", ErrorCodes.InvalidTarget);
         if (recycled.Any(id => !CanRecycleBorrowedAbilityCost(paidState, intent.PlayerId, id, ability.Spec)))
             return RejectWithCorePrompts(state, "所选牌已无法支付回收费用。", ErrorCodes.InvalidTarget);
-        if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id))
+        if (!BorrowedExhaustRules.Abilities(paidState, intent.PlayerId, cards[source.ObjectId]).Any(a => a.Id == ability.Id)
+            || !CanActivateBorrowedExhaust(paidState, intent.PlayerId, ability.Spec, source.ObjectId))
             return RejectWithCorePrompts(state, "支付资源行动后来源已无法使用该技能。", ErrorCodes.InvalidTarget);
         source = cards[source.ObjectId];
         var destructionTriggers = new List<TriggerQueueItemState>();
