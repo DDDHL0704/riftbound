@@ -7,6 +7,7 @@ public sealed partial class CoreRuleEngine
     private static bool HasPendingPermanentPlayAbility(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
         => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
                 && (behavior.Showcase is null || item.Showcase is not null)
+                && !HasImmediateShowcaseResource(behavior)
                 && (!behavior.GrantsSourceEphemeralIfOpponentTurn || state.TurnPlayerId != item.ControllerId)
                 && SourcePlayDrawSpec(behavior.CardNo) is null
                 && PaidUnitStunSpec(behavior.CardNo) is null

@@ -64,7 +64,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static StackResolutionResult ResolveUnitEventAreaDamage(MatchState state, StackItemState item, int amount,
-        string? primary = null, int? primaryAmount = null)
+        string? primary = null, int? primaryAmount = null, bool onlyPrimary = false)
     {
         var targets = UnitEventEnemiesHere(state, item);
         var cards = state.CardObjects.ToDictionary(); var zones = NormalizeZonesForSeats(state);
@@ -72,6 +72,7 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         foreach (var target in targets)
         {
+            if (onlyPrimary && target != primary) continue;
             var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target,
                 ApplySpellSkillDamageBonuses(state, item.ControllerId, target, target == primary ? primaryAmount!.Value : amount, item), destroyed,
                 state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
