@@ -25625,7 +25625,7 @@ public sealed partial class FullGameEndToEndTests
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
-                    if (item.UnitEvent?.Origin?.ArmamentGranted == true)
+                    if (item.UnitEvent?.Origin?.ArmamentGranted == true || item.TimingAlias is not null)
                     {
                         var expectedSource = ResolutionResult.VisibleObjectIdForViewer(result.State, item.SourceObjectId, viewerId);
                         Assert.Equal(expectedSource, row["sourceObjectId"]?.GetValue<string>());
@@ -25640,6 +25640,10 @@ public sealed partial class FullGameEndToEndTests
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
+                        var capturedAbility = Assert.IsType<UnitEventAbilitySpec>(CoreRuleEngine.UnitEventSpec(unitEvent.CardNo));
+                        Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
+                            item.SourceObjectId, item.CardNo, item.ControllerId));
+                        behavior = behavior with { UnitEventAbility = capturedAbility };
                         if (unitEvent.Origin is { ArmamentGranted: true } armamentOrigin)
                         {
                             var grantedAbility = Assert.IsType<UnitEventAbilitySpec>(ArmamentUnitEventRules.Spec(unitEvent.CardNo));
@@ -25651,11 +25655,7 @@ public sealed partial class FullGameEndToEndTests
                             Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
                                 item.SourceObjectId, item.CardNo, item.ControllerId));
                             Assert.Null(row["origin"]); Assert.Null(row["armamentHostCardNo"]);
-                            behavior = behavior with { UnitEventAbility = grantedAbility };
-                        }
-                        else
-                        {
-                        Assert.Contains(unitEvent.CardNo, new[] { "ARC-004/006", "UNL-116/219", "UNL-116a/219", "UNL-143/219", "UNL-143a/219", "OGN·159/298", "OGN·200/298", "OGN·182/298", "OGN·223/298", "OGN·227/298", "OGN·186/298", "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
+                            Assert.Equal(capturedAbility, grantedAbility);
                         }
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
                         if (unitEvent.CardNo == "OGN·227/298")

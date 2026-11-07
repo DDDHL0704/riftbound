@@ -28,7 +28,7 @@ public sealed partial class CoreRuleEngine
     internal const string TookDamageThisTurn = "TOOK_DAMAGE_THIS_TURN";
     private const string UnitEventCaptureKey = "unitEventObservations";
     private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context, string InstructionEventKind = "UNIT_EXHAUSTED");
-    private static UnitEventAbilitySpec? UnitEventSpec(string? no)
+    internal static UnitEventAbilitySpec? UnitEventSpec(string? no)
         => no is null ? null
             : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
                 ?? TargetSelectionLegendEvents.Value.GetValueOrDefault(no)

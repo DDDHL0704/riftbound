@@ -130,7 +130,7 @@ public sealed partial class ArmamentHoldConquestAliasTests
         Assert.All(game.State.StackItems, item => Assert.Equal(game.State.TurnNumber, item.UnitEvent!.FirstConquestTurn));
         Assert.Single(game.State.UntilEndOfTurnEffects, e => e.StartsWith("FIRST_CONQUEST_SKILL:"));
         await Drain(game); Assert.False(game.State.CardObjects["HOST"].IsExhausted); await CloseDuel(game);
-        await game.Act("P1", new MoveUnitCommand("HOST", firstHold ? "BATTLEFIELD:BF" : "BATTLEFIELD:OTHER", "BASE", []));
+        await game.Act("P1", new MoveUnitCommand("HOST", "BATTLEFIELD", "BASE", []));
         await CloseDuel(game); await game.TapRunes("P1", ["PAYRUNE0", "PAYRUNE1"]);
         await game.Act("P1", new PlayCardCommand("READY", "OGN·146/298", ["HOST"])); await game.Top(); await CloseDuel(game);
         var destination = firstHold ? "OTHER" : "THIRD";
@@ -151,7 +151,7 @@ public sealed partial class ArmamentHoldConquestAliasTests
         var game = new Driver(initial); await Conquer(game); await game.Top(); await CloseDuel(game);
         await game.Act("P1", new AssembleEquipmentCommand("SONG", "HOST", ["ASSEMBLE_GREEN"]));
         await game.Top(); await CloseDuel(game); Assert.NotNull(game.State.CardObjects["SONG"].AttachedRuleText);
-        await game.Act("P1", new MoveUnitCommand("HOST", "BATTLEFIELD:OTHER", "BASE", [])); await CloseDuel(game);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BATTLEFIELD", "BASE", [])); await CloseDuel(game);
         await game.Act("P1", new PlayCardCommand("READY", "OGN·146/298", ["HOST"])); await game.Top(); await CloseDuel(game);
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:THIRD", []));
         await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());

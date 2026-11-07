@@ -510,7 +510,7 @@ public sealed class NaturalUnitConquestTriggerTests
     [Fact]
     public async Task CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest()
     {
-        var game = new VenBasicFlowSpellTests.Driver(BuildNaturalConquestTreantState());
+        var game = new VenBasicFlowSpellTests.Driver(BuildNaturalConquestTreantState() with { Tick = 0 });
         await game.Act("P1", new DeclareBattleCommand(BattlefieldId,
             [TreantObjectId], [DefenderObjectId], ["COMBAT_ASSIGNMENT"]));
         Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED"
