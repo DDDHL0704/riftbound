@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-cloth-armor-agile-equipment",
-  "description": "Cloth Armor enters the controller's base and attaches to a controlled unit through the agile direct-play representative path.",
+  "description": "Cloth Armor attaches through agile direct play and provides its lower-box Steadfast 2 keyword to the host.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -23,6 +23,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/armaments.json; 《符文战场》核心规则（2026-10-10）",
+      "locator": "SFD·064/221 武装下栏；CN 719.1 / 814.1",
+      "note": "布甲下栏的坚守2添加到顶部单位的规则文本；不改变非防守方单位当前战力。保留打出、支付、贴附和让过断言。"
     }
   ],
   "roomId": "p2-preflight-cloth-armor-room",
@@ -251,7 +256,8 @@
           "damage": 0,
           "power": 3,
           "tags": [
-            "CARD_TYPE:UNIT"
+            "CARD_TYPE:UNIT",
+            "坚守2"
           ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0

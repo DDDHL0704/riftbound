@@ -2033,6 +2033,11 @@ public sealed partial class ConformanceFixtureRunnerTests
                     Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
                 }
             },
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["P1-BATTLEFIELD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-MAIN"),
+                ["P1-BATTLEFIELD-ATTACHED-EQUIPMENT"] = new("P1", "BATTLEFIELD", "P1-MAIN"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-MAIN"),
+                ["P1-LEGEND-LUCIAN"] = new("P1", "LEGEND") },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
@@ -2044,6 +2049,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-ATTACHED-EQUIPMENT"] = new(
                     "P1-BATTLEFIELD-ATTACHED-EQUIPMENT",
+                    cardNo: "SFD·064/221",
                     tags: [CardObjectTags.EquipmentCard],
                     attachedToObjectId: "P1-BATTLEFIELD-ATTACKER",
                     ownerId: "P1",

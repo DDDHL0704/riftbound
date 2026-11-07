@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 namespace Riftbound.CardCatalog;
 
 public sealed record OfficialArmamentDefinition(string CardNo, string SourceCardNo, int BaseMightBonus, string EffectText, string CardImageUrl)
@@ -19,8 +20,18 @@ public static class OfficialArmamentCatalog
         var path = Path.Combine(Path.GetDirectoryName(OfficialCardCatalog.DefaultCatalogPath())!, "armaments.json");
         var document = JsonSerializer.Deserialize<Document>(File.ReadAllText(path), new JsonSerializerOptions(JsonSerializerDefaults.Web))
             ?? throw new InvalidDataException("Official armament source data is missing.");
-        return document.Records.ToDictionary(record => Normalize(record.CardNo), StringComparer.Ordinal);
+        return document.Records.Select(record => record with {
+            GrantedKeywords = record.GrantedKeywords ?? StandaloneKeywords(record.EffectText)
+        }).ToDictionary(record => Normalize(record.CardNo), StringComparer.Ordinal);
     });
+    // Only a complete keyword line is unconditional. Keywords mentioned by
+    // triggers, level clauses or reminder text are not host keyword grants.
+    private static IReadOnlyList<string> StandaloneKeywords(string text)
+        => Regex.Matches(text, @"(?:^|\r?\n)\{\{(?<keyword>[^{}]+)\}\}(?:（[^）]*）)?[。]?(?=\r?$|\n)")
+            .SelectMany(match => KeywordParser.Parse("{{" + match.Groups["keyword"].Value + "}}", "")
+                .Where(keyword => keyword.RawText == match.Groups["keyword"].Value))
+            .Select(keyword => keyword.RawText).Distinct(StringComparer.Ordinal).ToArray();
+
     public static IReadOnlyList<OfficialArmamentDefinition> All => Definitions.Value.Values.OrderBy(r => r.CardNo, StringComparer.Ordinal).ToArray();
     public static OfficialArmamentDefinition? Find(string? cardNo) => Definitions.Value.GetValueOrDefault(Normalize(cardNo));
     private static string Normalize(string? cardNo) => (cardNo ?? "").Trim().Replace('·', '-').ToUpperInvariant();

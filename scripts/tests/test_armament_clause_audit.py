@@ -28,6 +28,15 @@ class ArmamentClauseAuditTests(unittest.TestCase):
     def outcome(self, card):
         return audit.audit_clause(card, audit.card_clauses(card)[-1], audit.Sources(self.root, []))
 
+    def public_grant_consumer(self):
+        (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('''
+            if (!gear.IsFaceDown && !unit.IsFaceDown
+                && IsObjectOnField(state.PlayerZones, gear.ObjectId)
+                && IsObjectOnField(state.PlayerZones, host)
+                && IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host))
+                Grant(definition.GrantedKeywords);
+        ''')
+
     def document(self, card, **changes):
         path = self.root / 'source.json'
         row = dict(cardNo=card['cardNo'], **card['armamentText'], baseMightBonus=0, **changes)
@@ -56,6 +65,8 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         card['armament']['grantedKeywords'] = ['强攻2']
         self.assertEqual('missing', self.outcome(card)['status'])
         (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('var grants = definition.GrantedKeywords;')
+        self.assertEqual('missing', self.outcome(card)['status'])
+        self.public_grant_consumer()
         self.assertEqual('route', self.outcome(card)['status'])
         card['armament']['grantedKeywords'] = ['强攻']
         self.assertEqual('missing', self.outcome(card)['status'])
@@ -67,7 +78,7 @@ class ArmamentClauseAuditTests(unittest.TestCase):
     def test_default_one_keyword_can_use_explicit_one_grant(self):
         card = equipment(lower='{{法盾}}')
         card['armament']['grantedKeywords'] = ['法盾1']
-        (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('var grants = definition.GrantedKeywords;')
+        self.public_grant_consumer()
         self.assertEqual('route', self.outcome(card)['status'])
 
     def test_upper_draw_and_activation_do_not_certify_lower_death_trigger(self):
@@ -134,7 +145,7 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         card = equipment()
         card['armament']['grantedKeywords'] = ['强攻2']
         alternate = dict(card, cardNo='ALT', armament=dict(baseMightBonus=0))
-        (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('var grants = definition.GrantedKeywords;')
+        self.public_grant_consumer()
         report = audit.build_report(dict(cards=[card, alternate]), audit.Sources(self.root, []))
         lower = report['cards'][0]['clauses'][1]
         self.assertEqual('missing', lower['status'])
