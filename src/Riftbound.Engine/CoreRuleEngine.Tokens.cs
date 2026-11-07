@@ -19,7 +19,10 @@ public sealed partial class CoreRuleEngine
                 || !departed.Contains(activation.Source.ObjectId)
                 || before.CardObjects[activation.Source.ObjectId] is not { } source
                 || source.ObjectGeneration != activation.Source.Generation
-                || !ValidSimpleActivation(before, item)) return item;
+                // Costs or cleanup can remove a token during the command that
+                // confirms its skill. Its prior object is still the witness,
+                // but that new skill must be checked at its confirmation tick.
+                || !ValidSimpleActivation(before with { Tick = result.State.Tick }, item)) return item;
             return item with { SimpleActivation = activation with {
                 CeasedSource = new(source.TokenFactoryCardNo ?? source.CardNo!, result.State.Tick) {
                     SourceFaceRevision = activation.SourceFaceRevision } } };

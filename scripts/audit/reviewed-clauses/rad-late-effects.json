@@ -1311,7 +1311,8 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
           "contains": [
             "ability.UsableByAnyPlayerOnOwnTurn",
-            "spec.OncePerTurnPerPlayer"
+            "ability.SimpleEffect?.OncePerTurnPerPlayer == true ? \":PLAYER:\" + actor",
+            "intent.PlayerId, instance.Origin is null ? null : instance.Id)"
           ]
         }
       ],
