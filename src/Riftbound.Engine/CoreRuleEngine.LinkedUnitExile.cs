@@ -92,7 +92,7 @@ public sealed partial class CoreRuleEngine
             && captured.Binding.ObjectId == source && captured.Binding.Generation == context.SourceGeneration
             && origin.ControllerId == controller && state.Seats.ContainsKey(controller)
             && origin.CapturedTick > 0 && origin.CapturedTick <= state.Tick
-            && controller == state.TurnPlayerId && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "CHANNEL"
+            && IsHeldCaptureTiming(state, context, controller)
             && field.ObjectId == context.BattlefieldObjectId
             && BattlefieldLocalRules.Battlefield(state, field.ObjectId) is { } battlefield && battlefield.ObjectGeneration >= field.Generation
             && PredictBindingMatches(state, captured.Binding, captured.CardNo, captured.FaceRevision, origin.CapturedTick, captured.TokenFactoryCardNo)

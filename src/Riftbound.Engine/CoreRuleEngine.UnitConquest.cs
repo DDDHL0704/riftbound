@@ -25,9 +25,9 @@ public sealed partial class CoreRuleEngine
             && (!spec.RequiresUncontrolledBattlefield || c.PreviousControllerId is null);
 
     private static IEnumerable<TriggerQueueItemState> CaptureConquestDamage(MatchState before,MatchState after,string player,
-        string field,IReadOnlyList<string> units,long tick, NamedConquestActivationOrigin? activation = null)
+        string field,IReadOnlyList<string> units,long tick, NamedConquestActivationOrigin? activation = null, string? observedEventKind = null)
     {
-        var eventKind = ConquestCaptureReason(activation);
+        var eventKind = observedEventKind ?? ConquestCaptureReason(activation);
         if (!before.BattlefieldStates.TryGetValue(field,out var battlefield)) yield break;
         foreach(var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {

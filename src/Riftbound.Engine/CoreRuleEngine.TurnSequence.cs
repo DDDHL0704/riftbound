@@ -22,7 +22,7 @@ public sealed record HeldTriggerContext(string CardNo, string BattlefieldObjectI
 }
 public sealed record HeldUnitSource(long CapturedTick, long FaceRevision, string FaceCardNo,
     string? TokenFactoryCardNo = null, bool Ceased = false);
-public sealed record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
+public sealed partial record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
     string SourceCardNo, string BattlefieldObjectId, int DueTurn, int Power);
 
 public sealed partial class CoreRuleEngine

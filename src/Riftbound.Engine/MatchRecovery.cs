@@ -1221,6 +1221,7 @@ public static partial class MatchRecoveryValidator
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateArmamentUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateNamedConquestActivationHistory(authoritativeState, commands, events, errors);
@@ -4138,6 +4139,7 @@ public static partial class MatchRecoveryValidator
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
         ValidateUnitConquestReturnContinuations(state, errors);
+        ValidateBattlefieldTimingAliases(state, errors);
         ValidateBattlefieldConquestChoiceContinuations(state, errors);
         ValidateHandDiscardObservers(state, errors);
         foreach (var item in state.StackItems)
@@ -4278,7 +4280,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitConquest is { } conquest ? !CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind)
                 || !CoreRuleEngine.ValidCapturedConquestGrant(state, conquest, trigger.SourceObjectId)
-                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(conquest.Activation)
+                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(conquest.Activation, trigger.TimingAlias)
                 : trigger.EffectKind is CoreRuleEngine.ConquestDamageEffect or CoreRuleEngine.GrantedConquestReturnEffect) errors.Add("invalid captured unit conquest");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidConquestDamageStack(state,item)) errors.Add("invalid unit conquest stack");
@@ -4482,7 +4484,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, trigger.EffectKind)
                 || context.Activation is { } activation && !CoreRuleEngine.ValidNamedConquestActivation(state, activation, context.BattlefieldId)
-                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(context.Activation)
+                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(context.Activation, trigger.TimingAlias)
                 : trigger.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid queued effect-play trigger context");
         if (state.PendingEffectPlay is { } recast && recast.SourceReplay is null && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
             errors.Add("invalid spell effect-play continuation");
@@ -4627,7 +4629,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.ConquestToken is { } token
                 ? !CoreRuleEngine.ValidConquestToken(state, token, trigger.SourceObjectId, trigger.EffectKind)
-                    || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(token.Activation)
+                    || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(token.Activation, trigger.TimingAlias)
                 : trigger.EffectKind is TriggerKinds.UnitConquestCreateDormantGold or TriggerKinds.UnitConquestCreateUnitToken)
                 errors.Add("invalid captured conquest token trigger");
         foreach (var item in state.StackItems)
@@ -5008,7 +5010,8 @@ public static partial class MatchRecoveryValidator
         {
             if (string.IsNullOrWhiteSpace(gain.Id) || !ids.Add(gain.Id)
                 || !state.Seats.ContainsKey(gain.ControllerId) || gain.Power != 1
-                || gain.DueTurn != state.TurnNumber || state.TurnStartStep is null
+                || (gain.TimingAlias is null ? gain.DueTurn != state.TurnNumber || state.TurnStartStep is null
+                    : gain.DueTurn < gain.TimingAlias.CapturedTurn || gain.DueTurn > gain.TimingAlias.CapturedTurn + 1)
                 || string.IsNullOrWhiteSpace(gain.SourceObjectId) || string.IsNullOrWhiteSpace(gain.BattlefieldObjectId)
                 || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, gain.SourceCardNo))
                 errors.Add("invalid captured delayed resource gain");

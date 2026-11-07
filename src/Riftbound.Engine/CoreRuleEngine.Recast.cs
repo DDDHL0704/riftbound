@@ -51,9 +51,9 @@ public sealed partial class CoreRuleEngine
             && (spec.RequiresPlayedCardManaCostLessThanCurrentScore != true || EffectiveCardManaCost(card, spell) < state.PlayerScores.GetValueOrDefault(player));
 
     private static IReadOnlyList<TriggerQueueItemState> CaptureConquestRecasts(MatchState state, string player,
-        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null)
+        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null, string? observedEventKind = null)
     {
-        var eventKind = ConquestCaptureReason(activation);
+        var eventKind = observedEventKind ?? ConquestCaptureReason(activation);
         var queue = new List<TriggerQueueItemState>();
         foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
