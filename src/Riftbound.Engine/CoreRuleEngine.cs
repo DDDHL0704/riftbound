@@ -14258,94 +14258,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static int ResolveFriendlyFilteredUnitsResourceKeywordAmount(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string objectId,
-        CardObjectState cardObject,
-        string resourceKeyword)
-    {
-        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || !IsObjectOnField(playerZones, objectId))
-        {
-            return 0;
-        }
-
-        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId))
-        {
-            return 0;
-        }
-
-        var amount = 0;
-        if (state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
-            && string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            && !string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId))
-        {
-            var battlefieldObjectId = objectLocation.BattlefieldObjectId;
-            foreach (var entry in state.ObjectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                var sourceObjectId = entry.Key;
-                if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
-                    || !string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-                    || !string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-                    || !IsObjectOnField(playerZones, sourceObjectId)
-                    || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                    || sourceState.IsFaceDown
-                    || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    || !string.Equals(
-                        EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                        controllerId,
-                        StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
-                    .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
-                    .Where(aura => SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, cardObject)))
-                {
-                    if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
-                    {
-                        continue;
-                    }
-
-                    amount += GrantedResourceKeywordAmount(aura, resourceKeyword);
-                }
-            }
-        }
-
-        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
-        {
-            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || !string.Equals(
-                    EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState),
-                    controllerId,
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
-                .Where(StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura)
-                .Where(aura => PublicFieldFriendlyKeywordStaticAuraAppliesToParticipant(
-                    aura,
-                    sourceObjectId,
-                    objectId,
-                    cardObject)))
-            {
-                if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
-                {
-                    continue;
-                }
-
-                amount += GrantedResourceKeywordAmount(aura, resourceKeyword);
-            }
-        }
-
-        return amount;
-    }
+        MatchState state, IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId, CardObjectState cardObject, string resourceKeyword)
+        => FriendlyResourceKeywordAuraContributions(state, playerZones, cardObject, resourceKeyword).Sum(c => c.Amount);
 
     private static int ResolveSourceParticipantCountPowerStaticAuraBonus(
         MatchState state,
@@ -21667,12 +21582,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         state = RecomputeRuleDerivedKeywords(state);
         if (!IsEnemyFieldObject(state, playerId, objectId) || !state.CardObjects.TryGetValue(objectId, out var card)
             || card.IsFaceDown || TargetsIgnoreSpellshield(state, [objectId])) return 0;
-        return CardResourceKeywordRules.SpellshieldTaxFromTags(NonRuleDerivedTags(card))
-            + CardResourceKeywordRules.SpellshieldTaxFromTags(card.RuleDerivedTags ?? [])
-            + TemporaryCombatKeywordRules.Amount(card, CardResourceKeywordNames.Spellshield)
-            + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
-            + ResolveSourceObjectResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
-            + ResolveEquipmentAuraResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
+        return ResourceKeywordAmountWithoutFriendlyAuras(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveFriendlyFilteredUnitsResourceKeywordAmount(state, state.PlayerZones, objectId, card, CardResourceKeywordNames.Spellshield);
     }
 

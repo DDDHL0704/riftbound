@@ -488,6 +488,7 @@ internal static class StaticAuraSpecRules
 
     private static bool TargetMatchesFilter(string targetFilter, CardObjectState target)
     {
+        if (targetFilter == StaticAuraTargetFilters.Unit) return target.Tags.Contains(CardObjectTags.UnitCard);
         if (targetFilter == StaticAuraTargetFilters.Exhausted) return target.IsExhausted;
         if (targetFilter == StaticAuraTargetFilters.Stunned)
             return target.UntilEndOfTurnEffects.Contains("STUNNED", StringComparer.Ordinal);
