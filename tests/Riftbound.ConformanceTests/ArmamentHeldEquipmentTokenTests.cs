@@ -19,7 +19,7 @@ public sealed class ArmamentHeldEquipmentTokenTests
         for (var i = 0; i < copies; i++)
         {
             var id = "BOOK" + i;
-            state = RadGearTestPosition.Put(state, id, Book, "P1", hostAtBase ? "BASE" : "BATTLEFIELD", hostAtBase ? null : "BF");
+            state = RadGearTestPosition.Put(state, id, Book, "P1", attached && !hostAtBase ? "BATTLEFIELD" : "BASE", attached && !hostAtBase ? "BF" : null);
             if (attached) state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 [id] = state.CardObjects[id] with { AttachedToObjectId = "HOST" } } };
         }
@@ -34,7 +34,8 @@ public sealed class ArmamentHeldEquipmentTokenTests
     }
 
     private static IEnumerable<CardObjectState> Gold(MatchState state)
-        => state.CardObjects.Values.Where(c => c.TokenFactoryCardNo == "UNL·T05");
+        => state.CardObjects.Values.Where(c => c.TokenFactoryCardNo is { } no
+            && P6TokenFactoryCatalog.TryGetByCardNo(no, out var factory) && factory.TokenFamilyName == "金币");
 
     private static async Task Hold(Driver game)
     {
@@ -66,7 +67,7 @@ public sealed class ArmamentHeldEquipmentTokenTests
             "BOOK0", Book, "P1", "HAND");
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("BOOK0", Book, [], Destination: "BASE"));
-        await game.Act("P1", new AssembleEquipmentCommand("BOOK0", "HOST", ["ASSEMBLE_GREEN"])); await game.Top();
+        await game.Act("P1", new AssembleEquipmentCommand("BOOK0", "HOST", ["ASSEMBLE_BLUE"])); await game.Top();
         await CloseDuel(game); await game.Act("P1", new EndTurnCommand()); await Hold(game);
         var item = Assert.Single(game.State.StackItems);
         Assert.Equal("HOLD", item.UnitEvent!.Timing); Assert.Equal(Book, item.CardNo);
@@ -113,16 +114,22 @@ public sealed class ArmamentHeldEquipmentTokenTests
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
-    public async Task ReturningTheBookOrItsHostKeepsTheEarnedTokensAndHidesTheCurrentPrivateSource(bool host)
+    public async Task ReturningTheHostOrDetachingTheBookKeepsTheEarnedTokensAndHidesTheCurrentPrivateSource(bool host)
     {
-        var no = host ? "OGN·104/298" : "SFD·135/221";
+        var no = host ? "OGN·104/298" : "SFD·011/221";
         var initial = RadGearTestPosition.Put(Board(), "RETURN", no, "P1", "HAND");
-        if (!host) initial = RadGearTestPosition.Put(initial, "KAISA", "RAD·063/167", "P1", "BATTLEFIELD", "BF");
+        for (var i = 0; i < 2; i++)
+            initial = RadGearTestPosition.Put(initial, "RESPONSE-RUNE" + i, "VEN·R01", "P1", "BASE");
         var game = new Driver(initial); await Hold(game);
-        await game.Act("P1", new PlayCardCommand("RETURN", no, [host ? "HOST" : "BOOK0"])); await game.Top();
-        Assert.Contains(host ? "HOST" : "BOOK0", game.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain(host ? "\"HOST\"" : "\"BOOK0\"",
-            JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
+        await game.TapRunes("P1", ["RESPONSE-RUNE0", "RESPONSE-RUNE1"]);
+        await game.Act("P1", new PlayCardCommand("RETURN", no, host ? ["HOST"] : ["HOST", "BOOK0"])); await game.Top();
+        if (host) {
+            Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+            Assert.DoesNotContain("\"HOST\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
+        } else {
+            Assert.Null(game.State.CardObjects["BOOK0"].AttachedToObjectId);
+            Assert.Contains("BOOK0", game.State.PlayerZones["P1"].Base);
+        }
         var before = game.Events().Length; await game.Top();
         Assert.Equal(2, Gold(game.State).Count());
         if (host) Assert.DoesNotContain(game.Events().Skip(before), e => Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "HOST"));
