@@ -28,11 +28,62 @@ class ArmamentClauseAuditTests(unittest.TestCase):
     def outcome(self, card):
         return audit.audit_clause(card, audit.card_clauses(card)[-1], audit.Sources(self.root, []))
 
+    def public_grant_consumer(self):
+        (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('''
+            if (!gear.IsFaceDown && !unit.IsFaceDown
+                && IsObjectOnField(state.PlayerZones, gear.ObjectId)
+                && IsObjectOnField(state.PlayerZones, host)
+                && IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host))
+                Grant(definition.GrantedKeywords);
+        ''')
+
     def document(self, card, **changes):
         path = self.root / 'source.json'
         row = dict(cardNo=card['cardNo'], **card['armamentText'], baseMightBonus=0, **changes)
         path.write_text(json.dumps(dict(schemaVersion=1, records=[row])))
         return path
+
+    def reviewed_host_trigger(self, location="armament"):
+        text = "当我进攻或防守时，对此处的一名敌方单位造成2点伤害。"
+        card = equipment(lower=text)
+        card["cardNo"] = "SFD·016/221"
+        (self.engine / "ArmamentUnitEventRules.cs").write_text("var text = definition.EffectText; GrantHostTrigger();")
+        (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text("CaptureHostEvent();")
+        tests = self.root / "tests/Riftbound.ConformanceTests/GrantTests.cs"
+        tests.parent.mkdir(parents=True)
+        tests.write_text("[Fact] public void HostActuallyDealsDamage() { }")
+        directory = self.root / "scripts/audit/reviewed-clauses"
+        directory.mkdir(parents=True)
+        (directory / "grant.json").write_text(json.dumps(dict(schemaVersion=1, records=[dict(
+            cardNos=[card["cardNo"]], text=text, scope=text, location=location, status="route",
+            reason="Bound host skill", rules="Official lower box and core 719",
+            runtime=dict(armament=dict(effectText=text)),
+            evidence=[dict(path="src/Riftbound.Engine/ArmamentUnitEventRules.cs", contains=["GrantHostTrigger();"]),
+                      dict(path="src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs", contains=["CaptureHostEvent();"])],
+            tests=[dict(path="tests/Riftbound.ConformanceTests/GrantTests.cs", methods=["HostActuallyDealsDamage"])])])))
+        return card
+
+    def test_reviewed_lower_trigger_requires_runtime_consumer_and_native_test(self):
+        card = self.reviewed_host_trigger()
+        self.assertEqual("route", self.outcome(card)["status"])
+        (self.engine / "ArmamentUnitEventRules.cs").write_text("var text = definition.EffectText;")
+        self.assertEqual("review", self.outcome(card)["status"])
+
+    def test_upper_review_cannot_certify_the_lower_host_trigger(self):
+        card = self.reviewed_host_trigger(location="upper")
+        self.assertEqual("missing", self.outcome(card)["status"])
+
+    def test_reviewed_lower_route_reopens_if_runtime_or_test_evidence_changes(self):
+        card = self.reviewed_host_trigger()
+        card["armament"]["effectText"] = "造成9点伤害"
+        self.assertEqual("review", self.outcome(card)["status"])
+        card["armament"]["effectText"] = card["armamentText"]["lowerText"]
+        (self.root / "tests/Riftbound.ConformanceTests/GrantTests.cs").write_text("public void HostActuallyDealsDamage() { }")
+        self.assertEqual("review", self.outcome(card)["status"])
+
+    def test_bounded_host_trigger_reader_does_not_reopen_unrelated_missing_rules(self):
+        (self.engine / "ArmamentUnitEventRules.cs").write_text("var text = definition.EffectText; GrantHostTrigger();")
+        self.assertEqual("missing", self.outcome(equipment(lower="我的据守效果也是征服效果，反之亦然。"))["status"])
 
     def test_hold_and_conquer_equivalence_is_a_rule_modification(self):
         row = audit.card_clauses(equipment(lower='我的据守效果也是征服效果，反之亦然。'))[-1]
@@ -56,6 +107,8 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         card['armament']['grantedKeywords'] = ['强攻2']
         self.assertEqual('missing', self.outcome(card)['status'])
         (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('var grants = definition.GrantedKeywords;')
+        self.assertEqual('missing', self.outcome(card)['status'])
+        self.public_grant_consumer()
         self.assertEqual('route', self.outcome(card)['status'])
         card['armament']['grantedKeywords'] = ['强攻']
         self.assertEqual('missing', self.outcome(card)['status'])
@@ -67,7 +120,7 @@ class ArmamentClauseAuditTests(unittest.TestCase):
     def test_default_one_keyword_can_use_explicit_one_grant(self):
         card = equipment(lower='{{法盾}}')
         card['armament']['grantedKeywords'] = ['法盾1']
-        (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('var grants = definition.GrantedKeywords;')
+        self.public_grant_consumer()
         self.assertEqual('route', self.outcome(card)['status'])
 
     def test_upper_draw_and_activation_do_not_certify_lower_death_trigger(self):
@@ -134,7 +187,7 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         card = equipment()
         card['armament']['grantedKeywords'] = ['强攻2']
         alternate = dict(card, cardNo='ALT', armament=dict(baseMightBonus=0))
-        (self.engine / 'CoreRuleEngine.ArmamentKeywords.cs').write_text('var grants = definition.GrantedKeywords;')
+        self.public_grant_consumer()
         report = audit.build_report(dict(cards=[card, alternate]), audit.Sources(self.root, []))
         lower = report['cards'][0]['clauses'][1]
         self.assertEqual('missing', lower['status'])

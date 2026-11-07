@@ -766,6 +766,15 @@ def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
     return result("review", "未找到该关键词的物体／费用／文本消费路径")
 
 
+def has_public_armament_keyword_binding(sources: Sources) -> bool:
+    text = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs', '')
+    required = ['!gear.IsFaceDown', '!unit.IsFaceDown',
+                'IsObjectOnField(state.PlayerZones, gear.ObjectId)', 'IsObjectOnField(state.PlayerZones, host)',
+                'IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host)']
+    return all(token in text for token in required) and not any(
+        name + '.Tags.Contains(CardObjectTags.Standby)' in text for name in ('gear', 'unit'))
+
+
 def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     runtime = card.get("armament", {})
     bare = normalize(unparenthesize(clause["text"]))
@@ -777,6 +786,8 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
         grant_paths = [path for path in sources.references(".GrantedKeywords")
                        if Path(path).name == "CoreRuleEngine.ArmamentKeywords.cs"]
         if matches and grant_paths:
+            if not has_public_armament_keyword_binding(sources):
+                return result('missing', '武装关键词缺少公开区域／背面状态检查，或误将待命关键词当作背面状态', grant_paths)
             return result("route", "贴附武装向宿主授予具体关键词", grant_paths)
     replacement = {
         normalize("如果我被摧毁，则改为摧毁守护天使。"),
@@ -792,7 +803,11 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
              "copiesHostPrintedRulesText", "copiesChosenFriendlyUnit", "replacesHostDestruction", "grantedKeywords"}
     if any(meaningful(value) for key, value in runtime.items() if key not in known):
         return result("review", "存在新增武装规格；需核对下栏句子及宿主执行消费者")
-    if any(sources.references(reader) for reader in ("armament.EffectText", "definition.EffectText", "gearDefinition.EffectText")):
+    # This bounded reader only supports reviewed host unit-event templates.
+    # It does not make other lower-box rules or keywords uncertain again.
+    readers = [path for reader in ("armament.EffectText", "definition.EffectText", "gearDefinition.EffectText")
+               for path in sources.references(reader) if Path(path).name != "ArmamentUnitEventRules.cs"]
+    if readers:
         return result("review", "存在武装文字消费者；需核对本句及宿主范围")
     return result("missing", "未登记与该句匹配的武装宿主效果或关键词；上栏接入不代表下栏生效")
 
@@ -1355,12 +1370,131 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
     return result("missing", "缺少精确的触发条件、原来源活跃／本回合战力或独立经验结算路径")
 
 
+def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause['text']))
+    if text != normalize('你的每件武装都会提供{{强攻}}。'):
+        return None
+    if normalize(unparenthesize(clause['scope'])) != text:
+        return result('missing', '武装提供关键词的范围与句子不一致')
+    provider = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs', '')
+    if not has_public_armament_keyword_binding(sources) or 'source.Tags.Contains(CardObjectTags.Standby)' in provider:
+        return result('missing', '正面单位、武装或来源拥有待命关键词不会失去其公开关键词效果')
+    profile = dict(kind='FRIENDLY_ARMAMENT_PROVIDED_KEYWORD', layer='RULE_TEXT',
+        duration='WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD', targetScope='FRIENDLY_EQUIPMENT',
+        participantScope='FRIENDLY_PUBLIC_FIELD_EQUIPMENT', targetFilter='TAG:武装', grantedKeyword='强攻')
+    candidates = [row['node'] for row in card.get('staticAuras', [])]
+    if not any(all(node.get(key) == value for key, value in profile.items())
+               and not any(meaningful(value) for key, value in node.items()
+                   if key not in set(profile) | {'text', 'status', 'reason'}) for node in candidates):
+        return result('missing', '缺少友方武装向其宿主提供强攻的持续规格；战斗数值加成不能替代关键词')
+    requirements = {
+        'CoreRuleEngine.ArmamentKeywords.cs': [
+            'PublicStaticAuraSourceObjectIds(state.PlayerZones)',
+            'source.IsFaceDown',
+            'var provided = FriendlyArmamentProvidedKeywordGrants(state);',
+            'IsArmamentKeywordProvider(gear)',
+            'EffectiveFieldControllerId(state.PlayerZones, gear.ObjectId, gear)',
+            'EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, sourceId, source)',
+            'aura.Kind != StaticAuraKinds.FriendlyArmamentProvidedKeyword',
+            'keywords.Add(aura.GrantedKeyword)',
+            'IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host)',
+            '.Concat(provided.GetValueOrDefault(',
+        ],
+        'CoreRuleEngine.RuleDerivedKeywords.cs': [
+            'var armamentKeywords = AttachedArmamentKeywordGrants(state);',
+            '.Concat(armamentKeywords.GetValueOrDefault(id) ?? [])',
+            'var amount = keywords.Sum(k => CombatKeywordAmount([k], counted));',
+            'RuleDerivedTags = derived.Length == 0 ? null : derived',
+        ],
+        'CoreRuleEngine.CountedCombatKeywords.cs': [
+            'var evaluated = RecomputeRuleDerivedKeywords(state);',
+            'CombatKeywordAmount(unit.RuleDerivedTags ?? [], keyword)',
+        ],
+        'CoreRuleEngine.cs': [
+            'if (conditionalPowerAuras)\n        {\n            state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });',
+            'cardObject = state.CardObjects.GetValueOrDefault(objectId) ?? cardObject;',
+        ],
+    }
+    evidence = ['src/Riftbound.Engine/' + name for name in requirements]
+    if not all(all(token in sources.files.get('src/Riftbound.Engine/' + name, '') for token in tokens)
+               for name, tokens in requirements.items()):
+        return result('missing', '缺少按武装控制者持续提供宿主关键词及共享当前关键词读取的完整执行路径', evidence)
+    if 'CountLucianLegendEquipmentAssaultBonus(' in sources.files.get('src/Riftbound.Engine/CoreRuleEngine.cs', ''):
+        return result('missing', '旧战斗专用加成尚未移除，可能重复计算武装强攻', evidence)
+    return result('route', '按武装当前控制者持续提供宿主强攻，并复用当前关键词与战斗计算', evidence)
+
+def enemy_death_source_clause_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    bare = normalize(unparenthesize(clause['text']))
+    ready = normalize('当任意数量的敌方单位被摧毁时，让我变为活跃状态。')
+    gold = normalize('每回合限一次，如果我位于战场上，当一名敌方单位被摧毁时，打出一个休眠的“金币”装备指示物。')
+    if bare not in (ready,gold):
+        return None
+    if normalize(unparenthesize(clause['scope'])) != bare:
+        return result('missing','敌方摧毁触发的条件或范围与本句不一致')
+    is_ready = bare == ready
+    profile = dict(kind='SOURCE_ENEMY_BATCH_DESTROYED_READY' if is_ready else 'SOURCE_BATTLEFIELD_ENEMY_DESTROYED_ONCE_GOLD',
+        timing='UNIT_DESTROYED',targetScope='ENEMY_DESTROYED_UNIT')
+    profile.update(dict(readiesSource=True) if is_ready else dict(oncePerTurn=True,createdTokenCount=1,createdTokenName='金币',
+        createdTokenDestination='BASE',createdTokenExhausted=True,requiresSourceBattlefieldAtTrigger=True))
+    if not any(all(row['node'].get(key)==value for key,value in profile.items())
+        and not any(meaningful(value) for key,value in row['node'].items() if key not in set(profile)|{'text','reason','status'})
+        for row in card.get('triggers',[])):
+        return result('missing','缺少匹配敌方关系、批次或每回合限制及来源位置的死亡触发规格')
+    needed={
+        'CoreRuleEngine.DeathObservers.cs':[
+            'var observerController = EffectivePublicStaticAuraSourceControllerId(zones, source.ObjectId, source);',
+            '!source.IsFaceDown',
+            'IsEnemySourceDeathKind(spec.Kind)',
+            'c.SourceGeneration <= currentSource.ObjectGeneration',
+            'zones.Values.Any(zone => zone.LegendZone.Contains(source.ObjectId))',
+            'return ResolveEnemySourceDeathObserver(state, item, c, spec, resolved);',
+        ],
+        'CoreRuleEngine.ConditionalDeathObservers.cs':['return ValidEnemySourceDeathRelation(context, controller);'],
+        'CoreRuleEngine.EnemyDeathSourceTriggers.cs':[
+            'context.Destroyed.ControllerId != controller',
+            'source.ObjectGeneration == context.SourceGeneration' if is_ready else 'CreateLegendEquipmentToken(zones, cards, item.ControllerId',
+        ],
+        'UnitDestroyedTriggerSpecRules.cs':[
+            'IsEnemyBatchReadySourceTrigger' if is_ready else 'IsBattlefieldEnemyDestroyedOnceGoldTrigger',
+        ],
+    }
+    needed['CoreRuleEngine.DeathObservers.cs'] += [
+        'or TriggerKinds.SourceEnemyBatchDestroyedReady',
+        '!observedBatches.Add((death.Batch, observer.ObjectId, observer.Context.RuleTextInstanceId))'] if is_ready else [
+        'spec.RequiresSourceBattlefieldAtTrigger == true && capturedSource.Zone != "BATTLEFIELD"',
+        'or TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold)',
+        'effects.Contains(marker, StringComparer.Ordinal)',
+        'effects = AddUntilEndOfTurnEffect(effects, marker)']
+    paths=['src/Riftbound.Engine/'+name for name in needed]
+    if is_ready:
+        needed['CoreRuleEngine.EnemyDeathSourceTriggers.cs'].append('!source.IsFaceDown')
+    public_source_paths = ['src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs']
+    if is_ready:
+        public_source_paths.append('src/Riftbound.Engine/CoreRuleEngine.EnemyDeathSourceTriggers.cs')
+    if any('!source.Tags.Contains(CardObjectTags.Standby)' in sources.files.get(path, '') for path in public_source_paths):
+        return result('missing','待命关键词不能替代背面状态及区域检查；正面打出的单位仍可拥有待命关键词',paths)
+    if not all(all(token in sources.files.get('src/Riftbound.Engine/'+name,'') for token in tokens) for name,tokens in needed.items()):
+        return result('missing','缺少按死亡时控制关系捕获、限制次数并独立入链结算的共享消费者',paths)
+    if 'ResolveSivirEnemyDestroyedReadyTriggers(' in sources.files.get('src/Riftbound.Engine/CoreRuleEngine.cs',''):
+        return result('missing','仍存在按所属者立即活跃的旧捷径，不能认证可响应触发',paths)
+    return result('route','共享死亡观察：按控制关系捕获，批次或每回合限制，入链后处理活跃或独立金币',paths)
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
-        return audit_armament_clause(card, clause, sources)
+        matched = audit_armament_clause(card, clause, sources)
+        if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
+            return reviewed
+        return matched
     kind = clause["kind"]
     if conditional := conditional_rune_and_conquest_route(card, clause, sources):
         return conditional
+
+    if provided := provided_armament_keyword_route(card, clause, sources):
+        return provided
+
+    if enemy_death := enemy_death_source_clause_route(card, clause, sources):
+        return enemy_death
     if colored := colored_legacy_activation_fee(card, clause, sources):
         if colored["status"] == "route":
             return native_unit_activation_binding(card, clause, sources)
@@ -1376,7 +1510,12 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
     if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
         if any(b.get("recyclesUnkeptSacredJudgmentCards") for b in card.get("behaviors", [])):
-            return result("missing", "仍由施法者预提交双方保留目标；缺少各玩家结算选择及按种类回收")
+            if any(b.get("recyclesUnkeptSacredJudgmentCards") and b.get("requiredTargetCount", 0) != 0
+                   for b in card.get("behaviors", [])):
+                return result("missing", "仍由施法者预提交双方保留目标；缺少各玩家结算选择及按种类回收")
+            if reviewed := reviewed_clause_route(card, clause, sources):
+                return reviewed
+            return result("missing", "缺少已审的逐玩家结算选择、私有手牌与所属牌堆分类回收证据")
         return result("review", "须独立核对各玩家私有保留选择与符文／主牌分类回收，普通回收字段不足以认证")
     if rune := rune_domain_reveal_route(card, clause, sources):
         return rune

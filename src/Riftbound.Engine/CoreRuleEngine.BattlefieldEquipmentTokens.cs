@@ -20,7 +20,8 @@ public sealed partial class CoreRuleEngine
         bool isExhausted,
         string battlefieldId,
         List<GameEvent> events,
-        IReadOnlyDictionary<string, ObjectLocationState> priorLocations)
+        IReadOnlyDictionary<string, ObjectLocationState> priorLocations,
+        string? publicSourceObjectId = null)
     {
         if (tokenCount <= 0) return priorLocations;
 
@@ -32,7 +33,8 @@ public sealed partial class CoreRuleEngine
         var created = new List<string>(tokenCount);
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
-            var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, tokenIndex + 1);
+            var tokenObjectId = NextTokenObjectId(playerZones, cardObjects,
+                publicSourceObjectId == "HIDDEN" ? controllerId + "-PUBLIC" : sourceObjectId, tokenIndex + 1);
             var tokenState = hasTokenDefinition
                 ? tokenDefinition.CreateObject(tokenObjectId, controllerId, controllerId, isExhausted) with
                 {
@@ -61,7 +63,7 @@ public sealed partial class CoreRuleEngine
             var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = controllerId,
-                ["sourceObjectId"] = sourceObjectId,
+                ["sourceObjectId"] = publicSourceObjectId ?? sourceObjectId,
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenName"] = tokenName,
                 ["destinationZone"] = "BATTLEFIELD",

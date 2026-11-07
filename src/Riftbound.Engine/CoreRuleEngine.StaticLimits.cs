@@ -9,6 +9,11 @@ public sealed partial class CoreRuleEngine
             CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var behavior) ? behavior.SourceStaticLimits : null)
             .OfType<SourceStaticLimitsSpec>();
 
+    internal static bool AnySourcePreventsUnitsMovingToBase(MatchState state)
+        => state.CardObjects.Values.Any(source => IsFaceUpNonStandbyUnit(source)
+            && IsObjectOnField(state.PlayerZones, source.ObjectId)
+            && StaticLimitsFor(state, source).Any(spec => spec.PreventsAllUnitsMoveToBase));
+
     internal static bool PrintedPlayTurnAllowed(MatchState state, string player, CardBehaviorDefinition behavior)
         => behavior.SourceStaticLimits is not { UnplayableThroughControllerTurn: > 0 } limit
             || PlayerTurnOrdinal(state, player) > limit.UnplayableThroughControllerTurn;

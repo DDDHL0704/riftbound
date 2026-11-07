@@ -70,7 +70,10 @@ public sealed class RadShowcaseUnitTests
         Assert.Equal(hand ? 1 : 0, game.Events().Count(e => e.Event.Kind == "CARDS_REVEALED"));
         Assert.DoesNotContain("SHOWCASE:SHOWN", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
         Assert.Equal("SHOWN", game.State.CardPlays.Finalized.Single().Showcase!.Object.ObjectId);
-        if (no != Construct) {
+        if (no == Guardian) {
+            Assert.Empty(game.State.StackItems); Assert.Equal(21, game.State.RunePools["P1"].Power);
+            Assert.Contains(game.Events(), e => e.Event.Kind == "POWER_GAINED");
+        } else if (no != Construct) {
             var item = Assert.Single(game.State.StackItems); Assert.Empty(item.OptionalCosts);
             var power = game.State.RunePools["P1"].Power;
             await game.Top();
@@ -128,12 +131,20 @@ public sealed class RadShowcaseUnitTests
     public async Task RecoveryRejectsInventedOrRemovedReceipts(string no)
     {
         var game = new Driver(Position(no, Guardian, true)); await game.Act("P1", Play(no, "SHOWCASE:SHOWN"));
-        var item = Assert.Single(game.State.StackItems); var receipt = item.Showcase!;
+        var play = game.State.CardPlays.Finalized.Single(); var receipt = play.Showcase!;
         foreach (var forged in new ShowcaseReceipt?[] { null,
             receipt with { PowerCost = receipt.PowerCost + 1 }, receipt with { PlayerId = "P2" },
             receipt with { Object = receipt.Object with { Generation = receipt.Object.Generation + 1 } },
-            receipt with { CardNo = Construct }, receipt with { Tick = game.State.Tick + 1 } })
-            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [item with { Showcase = forged }] }));
+            receipt with { CardNo = Construct }, receipt with { Tick = game.State.Tick + 1 } }) {
+            if (no == Guardian) {
+                var invalid = game.State with { CardPlays = game.State.CardPlays with {
+                    Finalized = game.State.CardPlays.Finalized.Select(p => p.PlayId == play.PlayId ? p with { Showcase = forged } : p).ToArray() } };
+                Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(invalid));
+            } else {
+                var item = Assert.Single(game.State.StackItems);
+                Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [item with { Showcase = forged }] }));
+            }
+        }
     }
 
     [Fact]
@@ -231,6 +242,29 @@ public sealed class RadShowcaseUnitTests
         }
         await game.Top();
         if (no == Guardian) Assert.Equal(1, game.State.RunePools["P1"].Power);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(true)] [InlineData(false)]
+    public async Task ShowcaseResourceResolvesInsideThePlayWithoutAResponseWindowAndCanPayTheNextSpell(bool hand)
+    {
+        var state = OfficialCopyIdentityTests.AddSpell(Position(Guardian, Guardian, hand), "NEXT", "OGN·069/298");
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(20, 0) } };
+        var game = new Driver(state);
+        await game.Act("P1", Play(Guardian, "SHOWCASE:SHOWN"));
+        Assert.Equal(1, game.State.RunePools["P1"].Power);
+        Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+        Assert.Null(game.State.PendingCardChoice); Assert.Null(game.State.PendingPayment);
+        var gain = Assert.Single(game.Events(), e => e.Event.Kind == "POWER_GAINED").Event;
+        Assert.True(Assert.IsType<bool>(gain.Payload["resourceSkill"]));
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "UNIT"));
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind is "PRIORITY_PASSED" or "FOCUS_PASSED");
+        await game.Act("P1", new PlayCardCommand("NEXT", "OGN·069/298", ["ALLY"]));
+        await game.Top();
+        Assert.Equal(0, game.State.RunePools["P1"].Power);
+        Assert.Single(game.Events(), e => e.Event.Kind == "POWER_GAINED");
         await game.Replay();
     }
 

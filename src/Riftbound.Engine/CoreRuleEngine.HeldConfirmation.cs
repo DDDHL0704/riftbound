@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool HasHeldTargetConfirmation(StackItemState item)
-        => item.HeldContext?.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT" or "RETURN_HERO";
+        => item.HeldContext?.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT" or "RETURN_HERO" or UnitHeldEquipmentKind;
     private static bool NeedsHeldTargetConfirmation(StackItemState item)
         => HasHeldTargetConfirmation(item) && item.TargetGenerations is null;
 
@@ -13,6 +13,7 @@ public sealed partial class CoreRuleEngine
     {
         var player = item.ControllerId;
         IEnumerable<string> targets = item.HeldContext!.Kind switch {
+            UnitHeldEquipmentKind => state.CardObjects.Keys.Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null),
             "BOON" => HeldUnitsAt(state, item.HeldContext.BattlefieldObjectId),
             // CN359.3.e.6: a prohibition affects execution, not target legality.
             "MOVE_BASE" => state.CardObjects.Keys.Where(id => BattlefieldLocalRules.AtUnit(state, id) is not null),
@@ -30,13 +31,14 @@ public sealed partial class CoreRuleEngine
     {
         var targets = HeldTargetChoices(state, item);
         var reason = item.HeldContext!.Kind switch {
+            UnitHeldEquipmentKind => "选择一处单一战场打出装备指示物；确认后双方可以响应。",
             "BOON" => "选择此战场的一名单位获得增益；确认目标及法盾费用后，双方可以响应。",
             "MOVE_BASE" => "选择任意战场上的一名单位移回其基地；不选则放弃。确认目标及法盾费用后，双方可以响应。",
             "RETURN_HERO" => "选择废牌堆中与选定英雄同名的一张英雄单位返回英雄区；不选则放弃。确认后双方可以响应。",
             _ => "选择自己废牌堆的一名单位或一件装备返回手牌；不选则放弃。确认后双方可以响应。"
         };
         return new("HELD-TARGET:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-            item.HeldContext.Kind == "BOON" ? 1 : 0, 1, targets, [item.HeldContext.BattlefieldObjectId],
+            item.HeldContext.Kind is "BOON" or UnitHeldEquipmentKind ? 1 : 0, 1, targets, [item.HeldContext.BattlefieldObjectId],
             reason, item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
     }
 
@@ -67,7 +69,11 @@ public sealed partial class CoreRuleEngine
             return ValidDeploymentHeldStack(state, item);
         if (!HasHeldTargetConfirmation(item)) return true;
         var context = item.HeldContext!;
-        if (HeldDefinition(context.CardNo) is not { } definition || definition.Kind != context.Kind || definition.Amount != context.Amount
+        if (context.Kind == UnitHeldEquipmentKind) {
+            if (!ValidParsedUnitHeld(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)) return false;
+            if (item.TargetObjectIds.Any(id => state.CardObjects.TryGetValue(id, out var target)
+                && !target.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))) return false;
+        } else if (HeldDefinition(context.CardNo) is not { } definition || definition.Kind != context.Kind || definition.Amount != context.Amount
             || item.CardNo != context.CardNo || item.EffectKind != "HOLD_" + context.Kind) return false;
         return item.TargetGenerations is { } generations
             ? item.TargetObjectIds.Count == 1 && generations.Count == 1 && generations.TryGetValue(item.TargetObjectIds[0], out var generation) && generation >= 0

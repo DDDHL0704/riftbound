@@ -323,6 +323,19 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var enemyBatchReady = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>当任意数量的敌方单位被摧毁时，让我变为活跃状态。?)(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
+        if (enemyBatchReady.Success)
+            triggers.Add(new(TriggerKinds.SourceEnemyBatchDestroyedReady, TriggerTimings.UnitDestroyed,
+                enemyBatchReady.Groups["clause"].Value, TargetScope: TriggerTargetScopes.EnemyDestroyedUnit, ReadiesSource: true));
+        var battlefieldEnemyGold = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>每回合限一次，如果我位于战场上，当一名敌方单位被摧毁时，打出一个休眠的[“「]?金币[”」]?装备指示物。?)(?:（[^）]*）)?(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
+        if (battlefieldEnemyGold.Success)
+            triggers.Add(new(TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold, TriggerTimings.UnitDestroyed,
+                battlefieldEnemyGold.Groups["clause"].Value, TargetScope: TriggerTargetScopes.EnemyDestroyedUnit,
+                OncePerTurn: true, CreatedTokenCount: 1, CreatedTokenName: "金币",
+                CreatedTokenDestination: TriggerZones.Base, CreatedTokenExhausted: true, RequiresSourceBattlefieldAtTrigger: true));
+
         var cardPlayDraw = Regex.Match(text,
             @"(?:^|\n)\s*当你打出一张卡牌时，抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。(?=\s*(?:\n|$))",
             RegexOptions.CultureInvariant);
@@ -1151,6 +1164,15 @@ public static class TriggerParser
                 DiscardSourceZone: TriggerZones.Hand, DiscardDestinationZone: TriggerZones.Graveyard,
                 RuneCallCount: 1, Optional: true);
 
+        var heldEquipment = Regex.Match(segment,
+            @"^当我据守一处战场时，打出(?<count>[0-9一两二三四五六七八九十]+)个“(?<name>[^”]+)”装备指示物到一处单一战场。?$",
+            RegexOptions.CultureInvariant);
+        if (heldEquipment.Success && ParseChineseNumber(heldEquipment.Groups["count"].Value) is > 0 and var equipmentCount)
+            return new(TriggerKinds.UnitBattlefieldHeldCreateEquipment, TriggerTimings.BattlefieldHeld,
+                segment, TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: equipmentCount,
+                CreatedTokenName: heldEquipment.Groups["name"].Value,
+                CreatedTokenDestination: TriggerTokenDestinations.Battlefield, CreatedTokenExhausted: false);
+
         var playedHereToken = Regex.Match(segment,
             @"^(?:(?<play>当你打出我时)|(?<held>当我据守一处战场时))，在此处打出(?:一名|一个)(?<ready>活跃的|处于活跃状态的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”(?:单位指示物)?(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?。?$",
             RegexOptions.CultureInvariant);
@@ -1318,6 +1340,24 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EquipmentOnField,
                 DestroyCount: 1,
                 BoonCount: 1,
+                Optional: true);
+        }
+
+        if (Regex.IsMatch(segment,
+            @"^每当你征服一处战场时，你可以选择弃置一张手牌，以此让此牌从废牌堆返回你的手牌。?$",
+            RegexOptions.CultureInvariant))
+        {
+            return new TriggerSpec(
+                TriggerKinds.ConquestDiscardReturnSelfFromGraveyard,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "CN 385.2: the source observes conquest only from its owner's graveyard; discard is a leading instruction cost.",
+                DiscardCount: 1,
+                DiscardSourceZone: TriggerZones.Hand,
+                DiscardDestinationZone: TriggerZones.Graveyard,
+                ReturnCount: 1,
+                ReturnOriginZone: TriggerZones.Graveyard,
+                ReturnDestinationZone: TriggerZones.Hand,
                 Optional: true);
         }
 
@@ -4761,6 +4801,27 @@ public static class StaticAuraParser
                 @"^友方单位(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
             if (friendlyUnitsKeywordMatch.Success && TryAddFriendlyKeywordAuras(auras, segment,
                 StaticAuraTargetFilters.Unit, friendlyUnitsKeywordMatch.Groups["grants"].Value)) continue;
+
+            var providedArmamentKeywordMatch = Regex.Match(segment,
+                @"^你的每件武装都会提供(?<grants>\{\{[^{}]+\}\}(?:[、和]\{\{[^{}]+\}\})*)。?(?:（[^）]*）)?$",
+                RegexOptions.CultureInvariant);
+            if (providedArmamentKeywordMatch.Success)
+            {
+                foreach (Match keyword in Regex.Matches(providedArmamentKeywordMatch.Groups["grants"].Value,
+                    @"\{\{(?<keyword>[^{}]+)\}\}", RegexOptions.CultureInvariant))
+                {
+                    var grantedKeyword = keyword.Groups["keyword"].Value.Trim();
+                    if (string.IsNullOrWhiteSpace(grantedKeyword) || grantedKeyword == "S") continue;
+                    auras.Add(new StaticAuraSpec(StaticAuraKinds.FriendlyArmamentProvidedKeyword,
+                        RuleTextLayer, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.FriendlyEquipment, StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                        0, segment, BehaviorImplementationStatuses.Implemented,
+                        "Friendly weapons provide each keyword to their attached host through the shared keyword layer.",
+                        StaticAuraTargetFilters.TagPrefix + "武装",
+                        GrantedKeyword: grantedKeyword));
+                }
+                continue;
+            }
 
             var friendlyEquipmentKeywordMatch = Regex.Match(segment,
                 @"^你的装备(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);

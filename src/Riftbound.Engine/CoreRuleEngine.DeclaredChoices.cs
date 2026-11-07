@@ -17,7 +17,6 @@ public sealed partial class CoreRuleEngine
                 && HasRequiredAnyTargetTag(state, behavior, targets)
                 && HasValidSwapTargetLocations(state, behavior, targets)
                 && AreAttachDetachTargetsAllowed(state, behavior, targets)
-                && HasValidSacredJudgmentKeepTargets(state, source, behavior, targets)
                 && IsMainDeckLookWindowControlledByPlayer(state, player, behavior)
                 && targets.Select((id, index) => IsLegalChosenCardTarget(state, player, id, index, targets, scope, behavior)).All(valid => valid);
 

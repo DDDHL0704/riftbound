@@ -208,6 +208,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_PLAYED_NON_TOKEN_UNIT_EQUIPMENT_AND_SPELL_GAIN_SCORE";
     public const string UnitConquestPayReturnSelfToHand =
         "UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND";
+    public const string ConquestDiscardReturnSelfFromGraveyard =
+        "CONQUEST_DISCARD_RETURN_SELF_FROM_GRAVEYARD";
     public const string UnitConquestPlayLowCostGraveyardSpellRecycle =
         "UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit =
@@ -253,6 +255,7 @@ public static class TriggerKinds
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
     public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
     public const string UnitBattlefieldHeldCreateUnitHere = "UNIT_BATTLEFIELD_HELD_CREATE_UNIT_HERE";
+    public const string UnitBattlefieldHeldCreateEquipment = "UNIT_BATTLEFIELD_HELD_CREATE_EQUIPMENT";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -300,6 +303,8 @@ public static class TriggerKinds
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     public const string UnitEnemyDestroyedHereOncePerTurnCallRune =
         "UNIT_ENEMY_DESTROYED_HERE_ONCE_PER_TURN_CALL_RUNE";
+    public const string SourceEnemyBatchDestroyedReady = "SOURCE_ENEMY_BATCH_DESTROYED_READY";
+    public const string SourceBattlefieldEnemyDestroyedOnceGold = "SOURCE_BATTLEFIELD_ENEMY_DESTROYED_ONCE_GOLD";
     public const string UnitStunnedEnemyDestroyedHereDraw = "UNIT_STUNNED_ENEMY_DESTROYED_HERE_DRAW";
     public const string UnitFriendlyBatchDestroyedBoon = "UNIT_FRIENDLY_BATCH_DESTROYED_BOON";
     public const string PlayerDestroysStunnedEnemyDraw = "PLAYER_DESTROYS_STUNNED_ENEMY_EXHAUST_DRAW";
@@ -574,6 +579,7 @@ public static class StaticAuraKinds
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
     public const string FriendlyEquipmentKeyword = "FRIENDLY_EQUIPMENT_KEYWORD";
+    public const string FriendlyArmamentProvidedKeyword = "FRIENDLY_ARMAMENT_PROVIDED_KEYWORD";
     public const string SourceAttackingWithAnotherUnitPower = "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER";
     public const string SourceLoneBattlePower = "SOURCE_LONE_BATTLE_POWER";
     public const string SourceAttackingReadyEnemyUnitPower = "SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER";

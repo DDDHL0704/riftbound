@@ -138,8 +138,15 @@ public sealed class SivirOptionalRecycleTests
                 ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["SIVIR"] } },
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                 ["SIVIR"] = new("SIVIR", cardNo: card, ownerId: "P1", controllerId: "P1") } };
-        var recycled = await Act(initial, "P1", new DeclareBattleCommand("P1-BATTLEFIELD-THUNDER-RUNE",
+        var battle = await Act(initial, "P1", new DeclareBattleCommand("P1-BATTLEFIELD-THUNDER-RUNE",
             ["P1-BATTLEFIELD-RECYCLE-ATTACKER"], ["P2-BATTLEFIELD-RECYCLE-DEFENDER"], ["COMBAT_ASSIGNMENT"]));
+        // CN 383.3 / 468.2: resolve the earned death skill before the
+        // later control/conquest task can recycle the battlefield's rune.
+        Assert.DoesNotContain(battle.Events, e => e.Kind == "CARDS_RECYCLED");
+        Assert.Equal(TriggerKinds.SourceEnemyBatchDestroyedReady,
+            Assert.Single(battle.State.StackItems).DeathObserver!.Kind);
+        Restore(battle.State);
+        var recycled = await Top(battle.State);
         Assert.Contains(recycled.Events, e => e.Kind == "CARDS_RECYCLED");
         Assert.DoesNotContain(recycled.Events.SelectMany(e => e.Payload.Keys), key => key == "sivirRuneObservation");
         Assert.False(recycled.State.CardObjects["SIVIR"].IsExhausted);

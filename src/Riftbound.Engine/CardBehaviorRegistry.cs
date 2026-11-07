@@ -447,7 +447,7 @@ public sealed record OpponentSpellCostIncreaseSpec(int Mana, int GenericPower = 
 public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn = 0,
     bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
     int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
-    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false);
+    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false, bool PreventsAllUnitsMoveToBase = false);
 
 public static class CardDamageConditionKinds
 {
@@ -4668,7 +4668,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            SourceStaticLimits: new(PreventsAllUnitsMoveToBase: true)),
         new(
             "SFD·018/221",
             "虚空兽苗",
@@ -9114,8 +9115,7 @@ public static class CardBehaviorRegistry
             7,
             "JUDGMENT_DAY_RECYCLE_UNKEPT_CARDS",
             0,
-            16,
-            TargetScope: CardTargetScopes.SacredJudgmentKeepCard,
+            0,
             RecyclesUnkeptSacredJudgmentCards: true),
         new(
             "OGN·045/298",
@@ -9696,7 +9696,7 @@ public static class CardBehaviorRegistry
             Mode: "MOVE_DEPLOYED_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyEquipmentThenBattlefield,
             MovesFriendlyEquipmentToChosenBattlefield: true),
         new("RAD·033/167", "指令：攻击", 1, "RAD_033_LOOK_TOP_FIVE_EQUIPMENT", 0, 1,
-            Mode: "LOOK_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyMainDeckCard,
+            Mode: "LOOK_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyMainDeckCard, MinTargetCount: 0,
             MainDeckLookCount: 5, MainDeckTargetRequiredTag: CardObjectTags.EquipmentCard,
             DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true),
         new("RAD·082/167", "洪荒咆哮", 4, "RAD_082_SHOW_UNIT_DAMAGE_POWER", 0, 1,
@@ -9974,11 +9974,8 @@ public static class CardBehaviorRegistry
         new("RAD·019/167", "焰烙劫掠者", 6, "RAD_019_PLAY_READY_ENEMIES", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitIsExhausted: false,
             ReadiesAllEnemyUnitsOnPlay: true, OtherUnitsEnterReady: true, SuppressesAllUnitWake: true),
-        new("RAD·094/167", "爆破猿", 6, "RAD_094_DEFEND_BOMBS", 0, 0,
-            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6,
-            CreatedBattlefieldEquipmentTokenCount: 3,
-            CreatedBattlefieldEquipmentTokenName: "炸弹",
-            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy),
+        new("RAD·094/167", "爆破猿", 6, "UNIT_HOLD_CREATE_BATTLEFIELD_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6),
     ];
 
     private static readonly CardBehaviorDefinition[] RadiantSeraphineUnits =
