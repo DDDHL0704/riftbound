@@ -91,6 +91,40 @@ public sealed class IntroGarenConquestDrawTests
         await game.Replay();
     }
 
+    // Garen's two cards are one draw instruction, including for other-hand-count observers.
+    [Theory]
+    [InlineData(8)] [InlineData(9)]
+    public async Task ConquestDrawKeepsOneInstructionHandCountForTheActualThresholdEquipment(int initialHand)
+    {
+        var state = RadGearTestPosition.Put(Position(), "THRESHOLD", "RAD·069/167", "P1", "BASE");
+        for (var i = 0; i < initialHand; i++)
+            state = RadGearTestPosition.Put(state, "H" + i, "OGN·219/298", "P1", "HAND");
+        var game = new Driver(state); await Conquer(game);
+        Assert.Equal(initialHand, game.State.PlayerZones["P1"].Hand.Count);
+        await game.Top();
+        Assert.Equal(initialHand + 2, game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(2, game.State.DrawLedger.Counts["P1"]);
+        if (initialHand == 8)
+        {
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            Assert.Null(game.State.PendingCardChoice);
+            Assert.Contains("THRESHOLD", game.State.PlayerZones["P1"].Base);
+        }
+        else
+        {
+            var threshold = Assert.Single(game.State.StackItems).DrawHandThreshold!;
+            Assert.Equal(9, threshold.OtherHandCount); Assert.Equal(2, threshold.DrawnCount);
+            var choice = game.State.PendingCardChoice!;
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P2"]));
+            await game.Top();
+            Assert.Empty(game.State.PlayerZones["P1"].Hand);
+            Assert.Contains("THRESHOLD", game.State.PlayerZones["P1"].Graveyard);
+            Assert.Equal(1, game.State.PlayerScores["P2"]);
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+        }
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("missing-origin")] [InlineData("threshold")] [InlineData("duplicate-unit")]
     [InlineData("unknown-unit")] [InlineData("unit-generation")] [InlineData("unit-face")]
