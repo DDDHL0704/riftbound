@@ -1645,70 +1645,39 @@ public sealed partial class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerSivirReadiesWhenEnemyUnitDestroyed()
     {
-        var state = SivirEnemyDestroyState("SFD·250/221", "P1-LEGEND-SIVIR-REPRINT");
-        state = PrintedCostFixture.Add(state, "P1", "UNL-159/219");
-
-        var playResult = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-sivir-play-hunt", "P1", "PLAY_CARD"),
-            new PlayCardCommand("P1-SPELL-HUNT-THE-WEAK", "UNL-159/219", ["P2-SIVIR-DESTROY-TARGET"]),
-            CancellationToken.None);
-
-        Assert.True(playResult.Accepted);
-        var p1Pass = await new CoreRuleEngine().ResolveAsync(
-            playResult.State,
-            new PlayerIntent("intent-p7-9-sivir-destroy-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await new CoreRuleEngine().ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-p7-9-sivir-destroy-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p2Pass.Accepted);
-        Assert.False(p2Pass.State.CardObjects["P1-LEGEND-SIVIR-REPRINT"].IsExhausted);
-        Assert.Equal(["P2-SIVIR-DESTROY-TARGET"], p2Pass.State.PlayerZones["P2"].Graveyard);
-        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "ENEMY_UNIT_DESTROYED_READY", StringComparison.Ordinal));
-        Assert.Equal("SFD·250/221", triggerEvent.Payload["legendCardNo"]);
-        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal));
+        var state = PrintedCostFixture.Add(SivirEnemyDestroyState("SFD·250/221", "P1-LEGEND-SIVIR-REPRINT"), "P1", "UNL-159/219");
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P1", new PlayCardCommand("P1-SPELL-HUNT-THE-WEAK", "UNL-159/219", ["P2-SIVIR-DESTROY-TARGET"]));
+        await game.Top();
+        Assert.True(game.State.CardObjects["P1-LEGEND-SIVIR-REPRINT"].IsExhausted);
+        var skill = Assert.Single(game.State.StackItems);
+        Assert.Equal("SFD·250/221", skill.DeathObserver!.CardNo);
+        Assert.Equal(TriggerKinds.SourceEnemyBatchDestroyedReady, skill.DeathObserver.Kind);
+        await game.Top();
+        Assert.False(game.State.CardObjects["P1-LEGEND-SIVIR-REPRINT"].IsExhausted);
+        Assert.Equal(["P2-SIVIR-DESTROY-TARGET"], game.State.PlayerZones["P2"].Graveyard);
+        Assert.Single(game.Events(), entry => entry.Event.Kind == "LEGEND_READIED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("sourceObjectId"), "P1-LEGEND-SIVIR-REPRINT"));
+        await game.Replay();
     }
 
     [Fact]
     public async Task P79LegendTriggerSivirReadiesWhenOpponentDestroysOwnUnit()
     {
-        var state = SivirOpponentSelfDestroyState("SFD·203/221", "P1-LEGEND-SIVIR");
-        state = PrintedCostFixture.Add(state, "P2", "UNL-159/219");
-
-        var playResult = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-sivir-p2-play-hunt", "P2", "PLAY_CARD"),
-            new PlayCardCommand("P2-SPELL-HUNT-THE-WEAK", "UNL-159/219", ["P2-SIVIR-SELF-DESTROY-TARGET"]),
-            CancellationToken.None);
-
-        Assert.True(playResult.Accepted);
-        var p2Pass = await new CoreRuleEngine().ResolveAsync(
-            playResult.State,
-            new PlayerIntent("intent-p7-9-sivir-self-destroy-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p1Pass = await new CoreRuleEngine().ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-p7-9-sivir-self-destroy-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted);
-        Assert.False(p1Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
-        Assert.Contains("P2-SIVIR-SELF-DESTROY-TARGET", p1Pass.State.PlayerZones["P2"].Graveyard);
-        var triggerEvent = Assert.Single(p1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "ENEMY_UNIT_DESTROYED_READY", StringComparison.Ordinal));
-        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
-        Assert.Equal("SFD·203/221", triggerEvent.Payload["legendCardNo"]);
-        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal));
+        var state = PrintedCostFixture.Add(SivirOpponentSelfDestroyState("SFD·203/221", "P1-LEGEND-SIVIR"), "P2", "UNL-159/219");
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P2", new PlayCardCommand("P2-SPELL-HUNT-THE-WEAK", "UNL-159/219", ["P2-SIVIR-SELF-DESTROY-TARGET"]));
+        await game.Top();
+        Assert.True(game.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
+        var skill = Assert.Single(game.State.StackItems);
+        Assert.Equal("SFD·203/221", skill.DeathObserver!.CardNo);
+        Assert.Equal("P2", skill.DeathObserver.Destroyed.ControllerId);
+        await game.Top();
+        Assert.False(game.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
+        Assert.Contains("P2-SIVIR-SELF-DESTROY-TARGET", game.State.PlayerZones["P2"].Graveyard);
+        Assert.Single(game.Events(), entry => entry.Event.Kind == "LEGEND_READIED"
+            && Equals(entry.Event.Payload.GetValueOrDefault("playerId"), "P1"));
+        await game.Replay();
     }
 
     [Theory]
