@@ -47,37 +47,57 @@
       ],
       "text": "你可以选择将我打出到敌方控制的战场。",
       "scope": "你可以选择将我打出到敌方控制的战场。",
-      "status": "missing",
-      "reason": "只有基础精锐单位登记；没有敌方控制战场的打出位置例外，现有单位目的地与伏击权限不覆盖本牌",
-      "rules": "核心143 单位打出位置及明确例外；SFD·093 官方中文牌面",
+      "status": "route",
+      "reason": "共享位置权限读取真实公开战场的当前控制者，普通出牌、来源候选与未强制位置的效果打出都允许进入敌方控制的战场；保留正常费用和时机，不能借该可选权限绕开效果指定的己方控制战场",
+      "rules": "核心355.2.a–b、355.17、358.4、359.2.c；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 4,
-            "sourceUnitTags": "精锐",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_UNIT_PLAY_TO_ENEMY_CONTROLLED_BATTLEFIELD"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AmbushPermissions.cs",
           "contains": [
-            "\"SFD·093/221\"",
-            "\"FEARLESS_VANGUARD_PLAY_UNIT\""
+            "EnemyControlledBattlefieldPlayAllowed(",
+            "CardStaticAbilitySpecRules.IsSourceUnitPlayToEnemyControlledBattlefield",
+            "BattlefieldLocalRules.ControlledBy(state, opponent)",
+            "EnemyControlledBattlefieldPlayAllowed(state, player, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "!EnemyControlledBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "EnemyControlledBattlefieldPlayAllowed(state, playerId, behavior, destination)",
+            "pending.DestinationPolicy != \"CONTROLLED_BATTLEFIELD\""
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyControlledUnitEntryTests.cs",
+          "methods": [
+            "EachPrintedUnitPaysItsNormalCostAndEntersTheOpponentsControlledBattlefield",
+            "TheOptionalEnemyLocationRetainsBaseAndFriendlyBattlefieldEntry",
+            "EnemyOccupationAloneAndInvalidFieldObjectsCannotGrantThePermission",
+            "BattlefieldControlRatherThanItsOwnerDeterminesEnemyEntry",
+            "LocationPermissionDoesNotGrantReactionTiming",
+            "OrdinaryGraveyardEffectPlayKeepsThePrintedEnemyLocationAndItsPowerCost",
+            "AnEffectRequiringAControlledBattlefieldCannotUseTheOptionalEnemyLocation",
+            "AnOrdinaryUnitCannotBorrowAnotherCardsEnemyLocationPermission"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

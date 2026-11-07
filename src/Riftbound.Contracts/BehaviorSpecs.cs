@@ -249,6 +249,7 @@ public static class TriggerKinds
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
     public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
+    public const string UnitBattlefieldHeldCreateUnitHere = "UNIT_BATTLEFIELD_HELD_CREATE_UNIT_HERE";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -460,6 +461,10 @@ public static class StaticAbilityKinds
 {
     public const string BattlefieldFirstPermanentPlayManaReduction = "BATTLEFIELD_FIRST_PERMANENT_PLAY_MANA_REDUCTION";
     public const string SourceCostReductionPerConqueredBattlefieldThisTurn = "SOURCE_COST_REDUCTION_PER_CONQUERED_BATTLEFIELD_THIS_TURN";
+    public const string SourceCostReductionPerCardPlayedThisTurn = "SOURCE_COST_REDUCTION_PER_CARD_PLAYED_THIS_TURN";
+    public const string SourceConsumeBoonIgnoreBaseCosts = "SOURCE_CONSUME_BOON_IGNORE_BASE_COSTS";
+    public const string SourceMayConsumeAnyBoonsAsAdditionalCost = "SOURCE_MAY_CONSUME_ANY_BOONS_AS_ADDITIONAL_COST";
+    public const string SourcePowerReductionPerConsumedBoon = "SOURCE_POWER_REDUCTION_PER_CONSUMED_BOON";
     public const string BattlefieldFilteredUnitPlayAdditionalPower = "BATTLEFIELD_FILTERED_UNIT_PLAY_ADDITIONAL_POWER";
     public const string UnitPlayOnlyToConqueredBattlefieldThisTurn = "UNIT_PLAY_ONLY_TO_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFirstEquipmentAbilityManaReduction = "BATTLEFIELD_FIRST_EQUIPMENT_ABILITY_MANA_REDUCTION";
@@ -481,6 +486,7 @@ public static class StaticAbilityKinds
     public const string SourceCostReductionPerControlledPowerfulUnit = "SOURCE_COST_REDUCTION_PER_CONTROLLED_POWERFUL_UNIT";
     public const string SourceUnitEnterReady = "SOURCE_UNIT_ENTER_READY";
     public const string SourceUnitPlayToOpenBattlefield = "SOURCE_UNIT_PLAY_TO_OPEN_BATTLEFIELD";
+    public const string SourceUnitPlayToEnemyControlledBattlefield = "SOURCE_UNIT_PLAY_TO_ENEMY_CONTROLLED_BATTLEFIELD";
     public const string FriendlyUnitPlayToOpenBattlefield = "FRIENDLY_UNIT_PLAY_TO_OPEN_BATTLEFIELD";
     public const string FriendlyUnitsEnterReady = "FRIENDLY_UNITS_ENTER_READY";
     public const string OtherFriendlyUnitsEnterReady = "OTHER_FRIENDLY_UNITS_ENTER_READY";
@@ -873,7 +879,11 @@ public sealed record StaticAbilitySpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? MaxOtherControlledUnitCount = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? MaxOpponentWinningScoreDistance = null);
+    int? MaxOpponentWinningScoreDistance = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MinimumManaCost = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? PowerCostTrait = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
