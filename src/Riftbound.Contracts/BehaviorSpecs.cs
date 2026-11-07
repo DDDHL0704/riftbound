@@ -296,6 +296,8 @@ public static class TriggerKinds
         "UNIT_ENEMY_DESTROYED_HERE_ONCE_PER_TURN_CALL_RUNE";
     public const string UnitStunnedEnemyDestroyedHereDraw = "UNIT_STUNNED_ENEMY_DESTROYED_HERE_DRAW";
     public const string UnitFriendlyBatchDestroyedBoon = "UNIT_FRIENDLY_BATCH_DESTROYED_BOON";
+    public const string PlayerDestroysStunnedEnemyDraw = "PLAYER_DESTROYS_STUNNED_ENEMY_EXHAUST_DRAW";
+    public const string FriendlyBoonedUnitDestroyedBoonOther = "FRIENDLY_BOONED_UNIT_DESTROYED_BOON_OTHER";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
         "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     public const string UnitFirstFriendlyDestroyedDrawOne =
@@ -402,6 +404,7 @@ public static class TriggerTargetScopes
     public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
     public const string ControlledUnitInGraveyard = "CONTROLLED_UNIT_IN_GRAVEYARD";
     public const string OtherFriendlyDestroyedUnit = "OTHER_FRIENDLY_DESTROYED_UNIT";
+    public const string EnemyDestroyedUnit = "ENEMY_DESTROYED_UNIT";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
     public const string SurvivingPowerfulUnitAtThisBattlefield = "SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD";
@@ -465,6 +468,8 @@ public static class StaticAbilityKinds
     public const string UnitInSpellDuelFriendlySpellsReaction = "UNIT_IN_SPELL_DUEL_FRIENDLY_SPELLS_REACTION";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
+    public const string BattlefieldOpponentUnitsBaseOnly = "BATTLEFIELD_OPPONENT_UNITS_BASE_ONLY";
+    public const string BattlefieldEnemyUnitEquipmentCannotReadyByEffect = "BATTLEFIELD_ENEMY_UNIT_EQUIPMENT_CANNOT_READY_BY_EFFECT";
     public const string UnitCannotDealCombatDamage = "UNIT_CANNOT_DEAL_COMBAT_DAMAGE";
     public const string UnitFriendlyEquipmentHereCombatDamage = "UNIT_FRIENDLY_EQUIPMENT_HERE_COMBAT_DAMAGE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";

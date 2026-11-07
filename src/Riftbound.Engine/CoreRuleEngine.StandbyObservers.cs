@@ -133,7 +133,8 @@ public sealed partial class CoreRuleEngine
             StandbyPlayedEffect, 0, 0, PowerModifierAmount: amount);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>();
-        if (effect.ReadiesSelf && source.IsExhausted && !AttachedRuleTextRules.Instances(state, source)
+        if (effect.ReadiesSelf && source.IsExhausted && ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, source)
+            && !AttachedRuleTextRules.Instances(state, source)
             .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)))
         {
             AddReadiedObservation(state.PlayerZones, cards, source, events);

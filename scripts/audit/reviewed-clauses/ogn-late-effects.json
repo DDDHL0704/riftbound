@@ -191,8 +191,8 @@
       "text": "你可以选择任意数量拥有增益的友方单位，消耗他们身上的增益，以此让他们变为活跃状态。",
       "scope": "你可以选择任意数量拥有增益的友方单位，消耗他们身上的增益，以此让他们变为活跃状态。",
       "status": "route",
-      "reason": "打出时可选择任意数量有增益的友方单位；结算对同一代际仍合法的每名单位消耗一个增益并活跃，之后无目标的全体增益仍执行",
-      "rules": "核心702.2.b 单个增益、逐条指示及强力变化；OGN·153 官方中文牌面",
+      "reason": "打出时可选择任意数量有增益的友方单位；结算对同一代际仍合法的每名单位消耗一个增益，未被持续规则禁止时活跃；之后无目标的全体增益仍执行",
+      "rules": "核心055、427.1.b、416.3 及逐条指示、强力变化；OGN·153 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
@@ -207,7 +207,9 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.BoonInstructions.cs",
           "contains": [
             "ConsumeChosenBoonsAndReady(",
-            "cards[id] = BoonRules.Consume(unit) with { IsExhausted = false }"
+            "var canReady = ReadyByEffectPermittedByFieldRules(zones, cards, unit);",
+            "var consumed = BoonRules.Consume(unit);",
+            "cards[id] = canReady ? consumed with { IsExhausted = false } : consumed;"
           ]
         }
       ],
@@ -219,6 +221,12 @@
             "ChoosingNoBoonConsumptionStillBuffsAllFriendlyUnitsWithoutARepeatedMightyEvent",
             "IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch",
             "ATargetReturnedInResponseIsSkippedWhileTheUntargetedBoonStillResolves"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldSourceRestrictionTests.cs",
+          "methods": [
+            "PreventingReadyDoesNotPreventConsumingThenGrantingBoonsInTheSameSpell"
           ]
         }
       ]
@@ -918,35 +926,61 @@
       ],
       "text": "每当一名拥有增益的友方单位被摧毁时，给予另一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
       "scope": "每当一名拥有增益的友方单位被摧毁时，给予另一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少拥有增益的友方单位被摧毁后，独立选择另一友方单位并给予增益的触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享死亡观察捕获死亡前友方及已有增益条件；每名单位分别触发，包含同一批同时死亡；独立确认另一友方单位为目标，结算重查代际、当前友方及保护后给予一枚增益",
+      "rules": "核心383.1.b、383.2.a.1／383.2.c.2、403.2、359.3.e.2、427.1.b；OGN·228 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "FRIENDLY_BOONED_UNIT_DESTROYED_BOON_OTHER",
+              "timing": "UNIT_DESTROYED",
+              "targetScope": "OTHER_CONTROLLED_UNIT_ON_FIELD",
+              "boonCount": 1
+            },
+            "predicates": [
+              "UnitDestroyedTriggerSpecRules.IsFriendlyBoonedUnitDestroyedBoonTrigger"
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/UnitDestroyedTriggerSpecRules.cs",
           "contains": [
-            "\"OGN·228/298\"",
-            "\"VANGUARD_HELM_PLAY_EQUIPMENT\""
+            "IsFriendlyBoonedUnitDestroyedBoonTrigger("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalDeathObservers.cs",
+          "contains": [
+            "MatchingDeathObserverRelation(",
+            "ValidAdditionalDeathObserverConditions(",
+            "context.DestroyedHadBoon == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "CaptureUnitDeath(",
+            "spec.Kind == TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther && BoonRules.Count(unit) == 0",
+            "TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConditionalEquipmentDeathObserverTests.cs",
+          "methods": [
+            "HelmetRequiresABoonedFriendlyDeathAndGrantsAnotherUnitARealBoon",
+            "HelmetDoesNotObserveAnUnboonedOrEnemyUnit",
+            "TwoSimultaneousBoonedDeathsEarnTwoIndependentTargetedHelmetSkills",
+            "HelmetUsesTheDeadUnitsControllerAndKeepsItsDifferentOwner",
+            "HelmetCannotBoonTheNewIncarnationOfATargetReturnedInResponse",
+            "RecoveryRejectsForgedHelmetBoonConditions"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

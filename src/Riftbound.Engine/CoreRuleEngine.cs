@@ -1193,12 +1193,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out var entryStaticAbilitySourceObjectId,
             out var entryStaticAbilitySourceState,
             out var entryStaticAbility, entryBattlefieldId: battlefieldObjectId);
-        cardObjects[tokenObjectId] = tokenState;
-        var zones = playerZones[intent.PlayerId];
-        playerZones[intent.PlayerId] = zones with
-        {
-            Battlefields = zones.Battlefields.Concat([tokenObjectId]).ToArray()
-        };
+        var canCreateToken = UnitPlayPermittedByFieldRules(playerZones, cardObjects, intent.PlayerId, "BATTLEFIELD:" + battlefieldObjectId);
+        if (canCreateToken) {
+            cardObjects[tokenObjectId] = tokenState;
+            var zones = playerZones[intent.PlayerId];
+            playerZones[intent.PlayerId] = zones with { Battlefields = zones.Battlefields.Append(tokenObjectId).ToArray() };
+        }
 
         var events = new List<GameEvent>
         {
@@ -1246,6 +1246,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = trigger.Kind
                 })
         };
+        if (!canCreateToken)
+            events[1] = events[1] with { Payload = events[1].Payload
+                .Where(field => field.Key is not ("tokenObjectId" or "tokenCardNo")).ToDictionary() };
         if (canResolveBattlefieldReturnTrigger
             && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                 playerZones,
@@ -1278,10 +1281,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(CaptureUnitEntry(new GameEvent(
+        if (canCreateToken) events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{battlefieldObjectId} 打出黄沙士兵",
             tokenPayload), playerZones, cardObjects, state.UntilEndOfTurnEffects));
+        else events.Add(PreventedUnitPlay(intent.PlayerId, battlefieldObjectId, "BATTLEFIELD:" + battlefieldObjectId));
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -14800,7 +14804,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string abilityId,
         List<GameEvent> events)
     {
-        if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
+        if (!cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState))
         {
             return;
         }
@@ -15448,25 +15453,28 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(nextUntilEndOfTurnEffects, readyEffectId);
             }
 
-            var wasExhausted = unitState.IsExhausted;
-            AddReadiedObservation(playerZones, cardObjects, unitState, events);
-            cardObjects[unitObjectId] = unitState with
+            if (ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, unitState))
             {
-                IsExhausted = false
-            };
-            events.Add(CaptureSelfReady(new GameEvent(
-                "UNIT_READIED",
-                $"{unitObjectId} 因征服效果变为活跃状态",
-                new Dictionary<string, object?>
+                var wasExhausted = unitState.IsExhausted;
+                AddReadiedObservation(playerZones, cardObjects, unitState, events);
+                cardObjects[unitObjectId] = unitState with
                 {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = unitObjectId,
-                    ["targetObjectId"] = unitObjectId,
-                    ["wasExhausted"] = wasExhausted,
-                    ["isExhausted"] = false,
-                    ["effectId"] = readyEffectId,
-                    ["reason"] = unitConquestReadySelfTrigger.Kind
-                }), unitState, playerId, playerZones, cardObjects));
+                    IsExhausted = false
+                };
+                events.Add(CaptureSelfReady(new GameEvent(
+                    "UNIT_READIED",
+                    $"{unitObjectId} 因征服效果变为活跃状态",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["sourceObjectId"] = unitObjectId,
+                        ["targetObjectId"] = unitObjectId,
+                        ["wasExhausted"] = wasExhausted,
+                        ["isExhausted"] = false,
+                        ["effectId"] = readyEffectId,
+                        ["reason"] = unitConquestReadySelfTrigger.Kind
+                    }), unitState, playerId, playerZones, cardObjects));
+            }
             drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
             return true;
         }
@@ -17004,10 +17012,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var detachesArmament = trigger.DetachesArmament == true
             && equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
             && !string.IsNullOrWhiteSpace(previousAttachedToObjectId);
-        AddReadiedObservation(playerZones, cardObjects, equipmentState, events);
+        var canReady = ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, equipmentState);
+        if (canReady) AddReadiedObservation(playerZones, cardObjects, equipmentState, events);
         cardObjects[equipmentObjectId] = equipmentState with
         {
-            IsExhausted = false,
+            IsExhausted = canReady ? false : equipmentState.IsExhausted,
             AttachedToObjectId = detachesArmament ? null : equipmentState.AttachedToObjectId
         };
 
@@ -17025,7 +17034,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["equipmentObjectId"] = equipmentObjectId,
                 ["detachesArmament"] = detachesArmament
             }));
-        events.Add(CaptureSelfReady(new GameEvent(
+        if (canReady) events.Add(CaptureSelfReady(new GameEvent(
             "EQUIPMENT_READIED",
             $"{equipmentObjectId} 变为活跃状态",
             new Dictionary<string, object?>
@@ -17083,6 +17092,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!UnitPlayPermittedByFieldRules(playerZones, cardObjects, playerId, "BATTLEFIELD:" + battlefieldObjectId)) {
+            events.Add(PreventedUnitPlay(playerId, battlefieldObjectId, "BATTLEFIELD:" + battlefieldObjectId));
+            return true;
+        }
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, 1);
         var tokenState = tokenDefinition.CreateObject(
             tokenObjectId,
@@ -23090,6 +23103,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
                 ? sourceObjectId
                 : sourceBehavior.DisplayName;
+            if (!ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, sourceState)) continue;
             var wasExhausted = sourceState.IsExhausted;
             AddReadiedObservation(playerZones, cardObjects, sourceState, events);
             cardObjects[sourceObjectId] = sourceState with
@@ -23468,7 +23482,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var wasExhausted = sourceState.IsExhausted;
-        AddReadiedObservation(playerZones, cardObjects, sourceState, events);
+        var canReady = ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, sourceState);
+        if (canReady) AddReadiedObservation(playerZones, cardObjects, sourceState, events);
         var nextSourceState = ApplyDirectUntilEndPowerModifier(
             sourceState,
             stackItem.SourceObjectId,
@@ -23479,11 +23494,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behavior.SourceReadyPowerModifierAmount,
             sourceState.Power + behavior.SourceReadyPowerModifierAmount) with
             {
-                IsExhausted = false
+                IsExhausted = canReady ? false : sourceState.IsExhausted
             };
         cardObjects[stackItem.SourceObjectId] = nextSourceState;
 
-        events.Add(CaptureSelfReady(new GameEvent(
+        if (canReady) events.Add(CaptureSelfReady(new GameEvent(
             "UNIT_READIED",
             $"{behavior.DisplayName}因可选额外费用变为活跃状态",
             new Dictionary<string, object?>
@@ -24780,7 +24795,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerScores = burn.PlayerScores; rngCursor = burn.RngCursor; winnerPlayerId = burn.WinnerPlayerId;
         }
 
-        if (behavior.DrawsControllerAndOtherPlayers)
+        if (behavior.OtherPlayersChooseDrawOrRune)
+        {
+            var chosen = ResolveOtherPlayersDrawOrCallRune(state, playerZones, cardObjects,
+                playerScores, stackItem, behavior, rngCursor, events);
+            playerScores = chosen.PlayerScores;
+            winnerPlayerId = chosen.WinnerPlayerId;
+            rngCursor = chosen.RngCursor;
+            drawCountOverride = 0;
+        }
+        else if (behavior.DrawsControllerAndOtherPlayers)
         {
             foreach (var drawPlayerId in ControllerAndOtherPlayerIds(state, stackItem.ControllerId))
             {
@@ -24804,27 +24828,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             drawCountOverride = 0;
-        }
-        else if (behavior.CallsRuneForControllerAndOtherPlayers)
-        {
-            foreach (var runePlayerId in ControllerAndOtherPlayerIds(state, stackItem.ControllerId))
-            {
-                var runeCallResult = CallRunes(
-                    playerZones,
-                    cardObjects,
-                    runePlayerId,
-                    behavior.RuneCallCount);
-                events.Add(new GameEvent(
-                    "RUNES_CALLED",
-                    $"{runePlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = runePlayerId,
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
-                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
-                    }));
-            }
         }
         else if (behavior.DrawsSelectedMainDeckTarget && !IsDeferredDeckChoice(behavior))
         {
@@ -27640,7 +27643,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.IsFaceDown
-            && !CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
+            && !CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo)
+            && ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState))
         {
             AddReadiedObservation(playerZones, cardObjects, targetState, events);
             cardObjects[targetObjectId] = targetState with { IsExhausted = false };
@@ -28826,6 +28830,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 shadowField = new(targetBattlefield.ObjectId, targetBattlefield.ObjectGeneration);
             else
                 return;
+        }
+        if (shadowField is not null && !UnitPlayPermittedByFieldRules(playerZones, cardObjects, stackItem.ControllerId, "BATTLEFIELD:" + shadowField.ObjectId)) {
+            events.Add(PreventedUnitPlay(stackItem.ControllerId,
+                ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, ProjectionViewers.Spectator), "BATTLEFIELD:" + shadowField.ObjectId));
+            return;
         }
         if (shadowField is not null && (!cardObjects.TryGetValue(shadowField.ObjectId, out var field)
             || field.ObjectGeneration != shadowField.Generation || !field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)))
@@ -30921,7 +30930,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["resultingPower"] = nextTargetState.Power
                 }));
 
-        if (TryGetUnitBoonGrantedReadySelfTrigger(nextTargetState, stackItem.ControllerId, out var boonGrantedTrigger))
+        if (TryGetUnitBoonGrantedReadySelfTrigger(nextTargetState, stackItem.ControllerId, out var boonGrantedTrigger)
+            && ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, nextTargetState))
         {
             var wasExhausted = nextTargetState.IsExhausted;
             AddReadiedObservation(playerZones, cardObjects, nextTargetState, nextBoonEvents);
@@ -31019,7 +31029,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
-        if (CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
+        if (CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo)
+            || !ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState))
         {
             readyEvent = null;
             return targetState;

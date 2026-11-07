@@ -171,7 +171,7 @@ public sealed partial class CoreRuleEngine
         var target = equipment.ObjectId;
         if (!context.ReadyCompleted)
         {
-            if (equipment.IsExhausted)
+            if (equipment.IsExhausted && ReadyByEffectPermittedByFieldRules(zones, cards, equipment))
             {
                 using var readyInstruction = new MightInstructionScope(state, zones, cards, events);
                 AddReadiedObservation(zones, cards, equipment, events);

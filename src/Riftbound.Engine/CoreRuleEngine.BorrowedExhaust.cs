@@ -412,7 +412,8 @@ public sealed partial class CoreRuleEngine
             var target = cards[id];
             if (spec.Kind == "READY_EQUIPMENT")
             {
-                if (AttachedRuleTextRules.Instances(current, target).Any(i => CardStaticAbilitySpecRules.CardCannotBecomeActive(i.CardNo))) continue;
+                if (!ReadyByEffectPermittedByFieldRules(zones, cards, target)
+                    || AttachedRuleTextRules.Instances(current, target).Any(i => CardStaticAbilitySpecRules.CardCannotBecomeActive(i.CardNo))) continue;
                 AddReadiedObservation(zones, cards, target, events);
                 cards[id] = target with { IsExhausted = false };
                 events.Add(CaptureSelfReady(new("EQUIPMENT_READIED", "装备变为活跃状态", new Dictionary<string, object?> {

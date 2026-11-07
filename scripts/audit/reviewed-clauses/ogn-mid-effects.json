@@ -355,36 +355,61 @@
       ],
       "text": "如果我位于战场上，则对手只能把单位打到自己的基地。",
       "scope": "如果我位于战场上，则对手只能把单位打到自己的基地。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少来源在战场时限制对手单位只能进入其基地，以及禁止敌方单位／装备通过法术或技能活跃的两个持续规则",
-      "rules": "核心364–365、143 打出位置；OGN·070 官方中文牌面",
+      "status": "route",
+      "reason": "公开来源在战场时，按当前控制者限制对手单位打出位置；普通打出、效果打出、目的地候选及固定战场衍生单位共用限制，无法执行的打出不生成对象，其他指示继续",
+      "rules": "核心054.1–054.2、055–055.1、315.1.b、355.17、359.2.c、369.3、416.3；OGN·070 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "BATTLEFIELD_OPPONENT_UNITS_BASE_ONLY"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldRuleRestrictions.cs",
           "contains": [
-            "\"OGN·070/298\"",
-            "\"OGN_MAGESEEKER_WARDEN_BATTLEFIELD_RESTRICTION_PLAY_UNIT\""
+            "HasEnemyBattlefieldRestriction(",
+            "EffectiveFieldControllerId(",
+            "AttachedRuleTextRules.Instances(",
+            "StaticAbilityKinds.BattlefieldOpponentUnitsBaseOnly"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldUnitPlay.cs",
+          "contains": [
+            "UnitPlayPermittedByFieldRules(state.PlayerZones, state.CardObjects, player, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+          "contains": [
+            "UnitPlayPermittedByFieldRules(",
+            "PreventedUnitPlay("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "var canCreateToken = UnitPlayPermittedByFieldRules(",
+            "if (canCreateToken) events.Add(CaptureUnitEntry(",
+            "else events.Add(PreventedUnitPlay("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldSourceRestrictionTests.cs",
+          "methods": [
+            "TheCurrentOpponentCanOnlyPlayUnitsToTheirOwnBaseWhileTheSourceIsOnABattlefield",
+            "RestrictionsFollowTheSourcesCurrentControlInsteadOfItsOwner",
+            "FixedBattlefieldTokenInstructionsRespectTheSameBaseOnlyRestriction",
+            "ImperialShrineStillPaysAndReturnsTheUnitWhenItsFixedTokenPlayIsPrevented"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -392,36 +417,69 @@
       ],
       "text": "如果我位于战场上，则禁止敌方单位和装备通过法术或技能效果变为活跃状态。",
       "scope": "如果我位于战场上，则禁止敌方单位和装备通过法术或技能效果变为活跃状态。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少来源在战场时限制对手单位只能进入其基地，以及禁止敌方单位／装备通过法术或技能活跃的两个持续规则",
-      "rules": "核心364–365、143 打出位置；OGN·070 官方中文牌面",
+      "status": "route",
+      "reason": "效果活跃入口按当前公开战场来源与目标当前控制者重查禁止；原生、借用、给予增益、征服等共享指示均遵守，费用及其他指示照常；唤醒与活跃进场不受该效果限制",
+      "rules": "核心054.1–054.2、055–055.1、315.1.b、355.17、359.2.c、369.3、416.3；OGN·070 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "BATTLEFIELD_ENEMY_UNIT_EQUIPMENT_CANNOT_READY_BY_EFFECT"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldRuleRestrictions.cs",
           "contains": [
-            "\"OGN·070/298\"",
-            "\"OGN_MAGESEEKER_WARDEN_BATTLEFIELD_RESTRICTION_PLAY_UNIT\""
+            "HasEnemyBattlefieldRestriction(",
+            "EffectiveFieldControllerId(",
+            "AttachedRuleTextRules.Instances(",
+            "StaticAbilityKinds.BattlefieldEnemyUnitEquipmentCannotReadyByEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState)",
+            "ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, sourceState)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendEquipmentReady.cs",
+          "contains": [
+            "ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, equipment)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "ReadyByEffectPermittedByFieldRules("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonInstructions.cs",
+          "contains": [
+            "ReadyByEffectPermittedByFieldRules("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldSourceRestrictionTests.cs",
+          "methods": [
+            "ReadyPreventionDependsOnTheUnitsControllerRegardlessOfWhoCastsTheSpell",
+            "ASourceInBaseDoesNotPreventEnemyReadyEffects",
+            "ReturningTheSourceInResponseAllowsThePendingReadyInstruction",
+            "RestrictionsFollowTheSourcesCurrentControlInsteadOfItsOwner",
+            "TheWakeTaskCanStillReadyEnemyUnitsAndEquipment",
+            "ActiveEntryIsAReplacementAndStillWorksInTheOpponentsBase",
+            "NativeAndBorrowedEquipmentReadySkillsPayTheirCostsButCannotReadyEnemyGear",
+            "PreventingReadyDoesNotPreventConsumingThenGrantingBoonsInTheSameSpell"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -429,31 +487,49 @@
       ],
       "text": "让除你之外的其他玩家选择“卡牌”或“符文”。",
       "scope": "让除你之外的其他玩家选择“卡牌”或“符文”。",
-      "status": "missing",
-      "reason": "选择权有误：卡牌或符文由施法者在打出时的Mode预先决定，随后直接让各玩家抽牌或召符文；没有由每名其他玩家分别选择的流程",
-      "rules": "OGN·071 官方中文指定其他玩家选择；核心359.3／403 选择权限",
+      "status": "route",
+      "reason": "法术打出时不由施法者预选模式；结算时通过共享检查点让每名其他玩家分别选择卡牌或符文，收齐选择后先逐对抽牌再逐对召休眠符文；恢复、重试和回放保留原选择者及选择次序",
+      "rules": "OGN·071 官方中文逐条指示；核心055、359.3.d–359.3.e、432.3.c（燃尽与结算完成）",
       "runtime": {
         "behaviors": [
           {
-            "mode": "OTHER_PLAYERS_CHOOSE_CARDS",
-            "drawsControllerAndOtherPlayers": true
-          },
-          {
-            "mode": "OTHER_PLAYERS_CHOOSE_RUNES",
-            "callsRuneForControllerAndOtherPlayers": true
+            "otherPlayersChooseDrawOrRune": true,
+            "drawCount": 1,
+            "runeCallCount": 1
           }
         ]
       },
       "evidence": [
         {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OtherPlayerEffectChoices.cs",
+          "contains": [
+            "ResolveOtherPlayersDrawOrCallRune(",
+            "PlayerIdsStartingAfter(state, item.ControllerId)",
+            "RuleChoices.Value!.Choose(player,",
+            "decision.Choice == \"CARDS\"",
+            "decision.Choice == \"RUNES\"",
+            "ApplyDrawToPlayer(",
+            "CallRunes("
+          ]
+        },
+        {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "if (behavior.DrawsControllerAndOtherPlayers)",
-            "else if (behavior.CallsRuneForControllerAndOtherPlayers)"
+            "if (behavior.OtherPlayersChooseDrawOrRune)",
+            "ResolveOtherPlayersDrawOrCallRune("
           ]
         }
       ],
       "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OtherPlayerEffectChoiceTests.cs",
+          "methods": [
+            "TheOtherPlayerChoosesDuringResolutionAndBothPlayersReceiveTheChosenEffect",
+            "TheCasterCannotPreselectAnOtherPlayersDecisionAsAPlayMode",
+            "CounteringTheSpellNeverAsksTheOtherPlayerToChooseAnEffect",
+            "EmptyRuneDecksDoNotTakeAwayThePrintedRuneChoiceOrTurnItIntoADraw"
+          ]
+        },
         {
           "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
           "methods": [
@@ -469,35 +545,72 @@
       ],
       "text": "每当你摧毁一名被眩晕的敌方单位时，你可以选择让此牌变为休眠状态，以此抽一张牌。",
       "scope": "每当你摧毁一名被眩晕的敌方单位时，你可以选择让此牌变为休眠状态，以此抽一张牌。",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少由你摧毁被眩晕敌方单位的事件、可选横置来源的确认费用和独立抽1牌技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享死亡观察在死亡前捕获敌方及眩晕条件，以实际摧毁责任归因确认由来源控制者负责；确认时可选横置公开来源，响应后独立抽牌，来源离场仍保留已支付技能",
+      "rules": "核心383.2.c.2、383.3.b、412.4–412.5、418.6.b.3–4、429.5.c.1–2；OGN·072 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "PLAYER_DESTROYS_STUNNED_ENEMY_EXHAUST_DRAW",
+              "timing": "UNIT_DESTROYED",
+              "targetScope": "ENEMY_DESTROYED_UNIT",
+              "drawCount": 1,
+              "optional": true,
+              "exhaustsSource": true
+            },
+            "predicates": [
+              "UnitDestroyedTriggerSpecRules.IsControllerStunnedEnemyDestroyedDrawTrigger"
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/UnitDestroyedTriggerSpecRules.cs",
           "contains": [
-            "\"OGN·072/298\"",
-            "\"SOLARI_ALTAR_PLAY_EQUIPMENT\""
+            "IsControllerStunnedEnemyDestroyedDrawTrigger("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalDeathObservers.cs",
+          "contains": [
+            "MatchingDeathObserverRelation(",
+            "ValidAdditionalDeathObserverConditions(",
+            "attribution.ResponsiblePlayerId == controller"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "CaptureUnitDeath(",
+            "if (death.Attribution?.ResponsiblePlayerId != observer.ControllerId) continue;",
+            "TriggerKinds.PlayerDestroysStunnedEnemyDraw"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "HasFieldSourceExhaustCost(",
+            "item.DeathObserver?.SourceGeneration",
+            "cards[source.ObjectId] = fieldSource ? ExhaustForInstruction("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConditionalEquipmentDeathObserverTests.cs",
+          "methods": [
+            "ShrineExhaustsOnlyWhenItsControllerAcceptsAndDrawsAfterResponses",
+            "ShrineDoesNotObserveAnUnstunnedFriendlyOrOtherPlayersKill",
+            "AnExhaustedShrineCannotPayAndItsOptionalDrawIsDiscarded",
+            "ShrineFollowsItsCurrentControllerInsteadOfItsOwner",
+            "NamedUnitDamageBelongsToItsControllerRatherThanTheDuelCaster",
+            "ThePaidShrineDrawSurvivesTheAnimatedSourceReturningInResponse",
+            "RecoveryRejectsForgedShrineDeathConditions"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

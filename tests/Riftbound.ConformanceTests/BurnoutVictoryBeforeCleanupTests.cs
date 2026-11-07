@@ -56,8 +56,6 @@ public sealed class BurnoutVictoryBeforeCleanupTests
             Assert.True(rune.Sequence < Assert.Single(events, e => e.Event.Kind == "MATCH_WON").Sequence);
     }
 
-    // The existing preselected CARDS branch is used only to make an 8:8
-    // tie. This does not certify ownership of Portalpalooza's printed mode.
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -66,8 +64,14 @@ public sealed class BurnoutVictoryBeforeCleanupTests
         var initial = Position(7, portal: true);
         var driver = new Driver(initial);
         await DamageIfRequested(driver, woundedByRealSpell);
-        await driver.Act("P1", new PlayCardCommand("DRAW", "OGN·071/298", [], "OTHER_PLAYERS_CHOOSE_CARDS"));
-        await FinishTop(driver);
+        await driver.Act("P1", new PlayCardCommand("DRAW", "OGN·071/298", []));
+        for (var passes = 0; driver.State.PendingRuleChoice is null; passes++) {
+            Assert.True(passes < 4);
+            await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        var request = driver.State.PendingRuleChoice!.Request;
+        Assert.Equal("P2", request.PlayerId);
+        await driver.Act("P2", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["CARDS"]));
         await driver.Replay();
         Assert.Equal(8, driver.State.PlayerScores["P1"]);
         Assert.Equal(8, driver.State.PlayerScores["P2"]);

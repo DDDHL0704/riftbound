@@ -91,7 +91,8 @@ public sealed partial class CoreRuleEngine
         if (HasLegendConquestTarget(item))
         {
             if (item.TargetObjectIds.SingleOrDefault() is { } target && LegendConquestTargets(state, item).Contains(target)
-                && item.TargetGenerations?.GetValueOrDefault(target, -1) == cards[target].ObjectGeneration && cards[target].IsExhausted)
+                && item.TargetGenerations?.GetValueOrDefault(target, -1) == cards[target].ObjectGeneration && cards[target].IsExhausted
+                && ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, cards[target]))
             {
                 AddReadiedObservation(state.PlayerZones, cards, cards[target], events);
                 var beforeReady = cards[target];
@@ -102,7 +103,8 @@ public sealed partial class CoreRuleEngine
             }
         }
         else if (context.Kind != "EXHAUST_DECK_PLAY" && cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration
-            && state.PlayerZones.Values.Any(z => z.LegendZone.Contains(source.ObjectId)) && source.IsExhausted)
+            && state.PlayerZones.Values.Any(z => z.LegendZone.Contains(source.ObjectId)) && source.IsExhausted
+            && ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, source))
         {
             cards[source.ObjectId] = source with { IsExhausted = false };
             events.Add(new("LEGEND_READIED", "征服技能使传奇活跃", new Dictionary<string, object?> {

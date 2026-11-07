@@ -136,7 +136,8 @@ public sealed partial class CoreRuleEngine
         {
             foreach (var id in item.TargetObjectIds)
                 if (EndRuneTargets(state, item.ControllerId).Contains(id)
-                    && cards[id].ObjectGeneration == item.TargetGenerations!.GetValueOrDefault(id, -1) && cards[id].IsExhausted)
+                    && cards[id].ObjectGeneration == item.TargetGenerations!.GetValueOrDefault(id, -1) && cards[id].IsExhausted
+                    && ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, cards[id]))
                 {
                     cards[id] = cards[id] with { IsExhausted = false };
                     events.Add(new("RUNE_READIED", "弃置装备后让所选符文变为活跃状态", new Dictionary<string,object?> {
