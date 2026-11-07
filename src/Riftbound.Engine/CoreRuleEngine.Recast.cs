@@ -47,7 +47,7 @@ public sealed partial class CoreRuleEngine
             && (spec.RequiresPlayedCardManaCostLessThanCurrentScore != true || EffectiveCardManaCost(card, spell) < state.PlayerScores.GetValueOrDefault(player));
 
     private static IReadOnlyList<TriggerQueueItemState> CaptureConquestRecasts(MatchState state, string player,
-        string battlefield, IReadOnlyList<string> units, long tick)
+        string battlefield, IReadOnlyList<string> units, long tick, string eventKind = "BATTLEFIELD_CONQUERED")
     {
         var queue = new List<TriggerQueueItemState>();
         foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
@@ -56,9 +56,9 @@ public sealed partial class CoreRuleEngine
                 || BattlefieldLocalRules.AtUnit(state, id)?.ObjectId != battlefield || source.CardNo is null
                 || (RecastSpec(source.CardNo, TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle)
                     ?? RecastSpec(source.CardNo, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit)) is not { } spec) continue;
-            var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects, state.ObjectLocations, player, battlefield, "BATTLEFIELD_CONQUERED");
+            var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects, state.ObjectLocations, player, battlefield, eventKind);
             for (var i = 0; i < repeats; i++) queue.Add(new($"recast-{tick}-{battlefield}-{id}-{i}", player, id,
-                RecastTriggerEffect, "BATTLEFIELD_CONQUERED", TimingStates.NeutralOpen)
+                RecastTriggerEffect, eventKind, TimingStates.NeutralOpen)
                 { RecastContext = new(source.CardNo, spec.Kind, source.ObjectGeneration, battlefield) });
         }
         return queue;

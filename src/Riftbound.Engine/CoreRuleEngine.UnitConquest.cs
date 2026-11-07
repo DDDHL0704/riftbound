@@ -21,7 +21,7 @@ public sealed partial class CoreRuleEngine
             && (!spec.RequiresUncontrolledBattlefield || c.PreviousControllerId is null);
 
     private static IEnumerable<TriggerQueueItemState> CaptureConquestDamage(MatchState before,MatchState after,string player,
-        string field,IReadOnlyList<string> units,long tick)
+        string field,IReadOnlyList<string> units,long tick, string eventKind = "BATTLEFIELD_CONQUERED")
     {
         if (!before.BattlefieldStates.TryGetValue(field,out var battlefield)) yield break;
         foreach(var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
@@ -30,8 +30,8 @@ public sealed partial class CoreRuleEngine
                 || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.IsFaceDown
                 || BattlefieldLocalRules.AtUnit(after,id)?.ObjectId!=field || ConquestDamageDefinition(source.CardNo) is not { } spec
                 || spec.RequiresUncontrolledBattlefield && battlefield.ControllerId is not null) continue;
-            var repeats=ResolveUnitConquestEffectRepeatCount(after.PlayerZones,after.CardObjects,after.ObjectLocations,player,field,"BATTLEFIELD_CONQUERED");
-            for(var i=0;i<repeats;i++) yield return new TriggerQueueItemState($"conquest-damage-{tick}-{field}-{id}-{i}",player,id,ConquestDamageEffect,"BATTLEFIELD_CONQUERED") {
+            var repeats=ResolveUnitConquestEffectRepeatCount(after.PlayerZones,after.CardObjects,after.ObjectLocations,player,field,eventKind);
+            for(var i=0;i<repeats;i++) yield return new TriggerQueueItemState($"conquest-damage-{tick}-{field}-{id}-{i}",player,id,ConquestDamageEffect,eventKind) {
                 UnitConquest=new(source.CardNo,source.ObjectGeneration,field,battlefield.ControllerId) };
         }
     }

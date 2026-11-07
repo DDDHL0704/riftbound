@@ -13,7 +13,8 @@ public static partial class MatchRecoveryValidator
         if (trigger.UnitConquestReturn is not { } context
             || !CoreRuleEngine.ValidUnitConquestReturnContext(state, context, trigger.EffectKind,
                 trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo)
-            || trigger.EnqueuedAtTick != context.ConquestTick || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+            || trigger.EnqueuedAtTick != context.ConquestTick
+            || trigger.TriggeredByEventKind != (context.Activation is null ? "BATTLEFIELD_CONQUERED" : "BATTLEFIELD_HELD")
             || trigger.TriggerId != CoreRuleEngine.UnitConquestReturnTriggerId(context)) return false;
         return MatchStateHasher.HashValue(trigger) == MatchStateHasher.HashValue(new TriggerQueueItemState(
             trigger.TriggerId, trigger.ControllerId, trigger.SourceObjectId, trigger.EffectKind,
@@ -82,9 +83,11 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
             var triggerId = CoreRuleEngine.UnitConquestReturnTriggerId(context);
-            var conquests = events.Where(e => e.Tick == context.ConquestTick && e.Event.Kind == "BATTLEFIELD_CONQUERED"
-                && TryReadObjectString(e.Event.Payload, "playerId", out var player) && player == context.ControllerId
-                && TryReadObjectString(e.Event.Payload, "battlefieldId", out var battlefield) && battlefield == context.BattlefieldObjectId)
+            var conquests = events.Where(e => e.Tick == context.ConquestTick && (context.Activation is { } activation
+                ? MatchesNamedConquestActivationEvent(e.Event, activation, context.BattlefieldObjectId)
+                : e.Event.Kind == "BATTLEFIELD_CONQUERED"
+                    && TryReadObjectString(e.Event.Payload, "playerId", out var player) && player == context.ControllerId
+                    && TryReadObjectString(e.Event.Payload, "battlefieldId", out var battlefield) && battlefield == context.BattlefieldObjectId))
                 .Take(2).ToArray();
             var queued = events.Where(e => e.Tick == context.ConquestTick && e.Event.Kind == "TRIGGER_QUEUED"
                 && TryReadObjectString(e.Event.Payload, "triggerId", out var id) && id == triggerId
@@ -97,15 +100,19 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectLong(e.Event.Payload, "occurrence", out var occurrence) && occurrence == context.Occurrence
                 && (context.OriginZone is null ? !TryReadObjectValue(e.Event.Payload, "sourceOriginZone", out _)
                     : TryReadObjectString(e.Event.Payload, "sourceOriginZone", out var zone) && zone == context.OriginZone)
+                && (context.Activation is { } activation ? MatchesNamedConquestActivationPayload(e.Event.Payload, activation)
+                    : !TryReadObjectValue(e.Event.Payload, "activationStackItemId", out _))
                 && (context.TokenFactoryCardNo is null ? !TryReadObjectValue(e.Event.Payload, "tokenFactoryCardNo", out _)
                     : TryReadObjectString(e.Event.Payload, "tokenFactoryCardNo", out var factory) && factory == context.TokenFactoryCardNo)
                 && TryReadObjectString(e.Event.Payload, "effectKind", out var effect) && effect == entry.EffectKind
-                && TryReadObjectString(e.Event.Payload, "triggeredByEventKind", out var origin) && origin == "BATTLEFIELD_CONQUERED")
+                && TryReadObjectString(e.Event.Payload, "triggeredByEventKind", out var origin)
+                    && origin == (context.Activation is null ? "BATTLEFIELD_CONQUERED" : "BATTLEFIELD_HELD"))
                 .Take(2).ToArray();
             if (conquests.Length != 1 || queued.Length != 1 || queued[0].Sequence <= conquests[0].Sequence
                 || !commands.Any(cmd => cmd.Accepted && cmd.CompletedTick == context.ConquestTick
                     && cmd.StartedEventSequence < conquests[0].Sequence && cmd.CompletedEventSequence >= queued[0].Sequence))
-                errors.Add("captured unit conquest return is not bound to accepted conquest history");
+                errors.Add(context.Activation is null ? "captured unit conquest return is not bound to accepted conquest history"
+                    : "captured unit conquest return is not bound to accepted named conquest activation history");
         }
 
         foreach (var item in state.StackItems.Where(i => i.UnitConquestReturn is not null && i.TriggerCost is not null))

@@ -90,7 +90,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static IEnumerable<TriggerQueueItemState> CaptureGrantedConquestReturns(MatchState state, string player,
-        string field, IReadOnlyList<string> unitIds, long tick)
+        string field, IReadOnlyList<string> unitIds, long tick, string eventKind = "BATTLEFIELD_CONQUERED")
     {
         foreach (var id in unitIds.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
@@ -99,12 +99,12 @@ public sealed partial class CoreRuleEngine
                 || BattlefieldLocalRules.AtUnit(state, id)?.ObjectId != field) continue;
             var grants = unit.UntilEndOfTurnEffects.Where(e => e.StartsWith(GrantedConquestReturnPrefix, StringComparison.Ordinal)).ToArray();
             var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects, state.ObjectLocations,
-                player, field, "BATTLEFIELD_CONQUERED");
+                player, field, eventKind);
             for (var i = 0; i < grants.Length; i++)
                 if (ValidConquestGrant(grants[i], unit.ObjectGeneration, state.TurnNumber, unit.ObjectId))
                     for (var repeat = 0; repeat < repeats; repeat++)
                         yield return new TriggerQueueItemState($"granted-conquest-return-{tick}-{field}-{id}-{i}-{repeat}", player, id,
-                            GrantedConquestReturnEffect, "BATTLEFIELD_CONQUERED") {
+                            GrantedConquestReturnEffect, eventKind) {
                             UnitConquest = new(unit.CardNo!, unit.ObjectGeneration, field, null, grants[i]) };
         }
     }

@@ -33,6 +33,8 @@ public sealed record UnitConquestReturnContext(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? OriginZone { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public NamedConquestActivationOrigin? Activation { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -52,6 +54,8 @@ public sealed partial class CoreRuleEngine
             && context.Occurrence >= 0 && context.FaceRevision >= 0 && cardNo == context.CardNo
             && UnitConquestReturnSpec(context.CardNo) is { } spec && RuntimeTriggerEffectKind(spec) == effect
             && (context.OriginZone ?? TriggerZones.Battlefield) == spec.ReturnOriginZone
+            && (context.Activation is null || context.OriginZone is null && context.Occurrence == 0
+                && ValidNamedConquestActivation(state, context.Activation, context.BattlefieldObjectId))
             && (context.OriginZone != TriggerZones.Graveyard || context.TokenFactoryCardNo is null
                 && state.CardObjects.TryGetValue(source, out var ownedSource) && ownedSource.OwnerId == controller)
             && PredictBindingMatches(state, context.Source, context.CardNo, context.FaceRevision,
@@ -341,10 +345,11 @@ public sealed partial class CoreRuleEngine
 
     internal static string UnitConquestReturnTriggerId(UnitConquestReturnContext context)
         => $"UNIT-CONQUEST-RETURN:{context.ConquestTick}:{MatchStateHasher.HashValue(new {
-            context.Source, context.ControllerId, context.BattlefieldObjectId, context.Occurrence })}";
+            context.Source, context.ControllerId, context.BattlefieldObjectId, context.Occurrence })}"
+            + (context.Activation is null ? "" : ":ACTIVATED:" + MatchStateHasher.HashValue(context.Activation));
 
     private static IEnumerable<TriggerQueueItemState> CaptureUnitConquestReturns(MatchState state, string controller,
-        string battlefield, IReadOnlyList<string> units, long tick)
+        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null)
     {
         foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
@@ -352,14 +357,15 @@ public sealed partial class CoreRuleEngine
                 || string.IsNullOrWhiteSpace(source.CardNo)
                 || BattlefieldLocalRules.AtUnit(state, id)?.ObjectId != battlefield
                 || UnitConquestReturnSpec(source.CardNo) is not { } spec) continue;
-            var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects,
-                state.ObjectLocations, controller, battlefield, "BATTLEFIELD_CONQUERED");
+            var repeats = activation is null ? ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects,
+                state.ObjectLocations, controller, battlefield, "BATTLEFIELD_CONQUERED") : 1;
             for (var occurrence = 0; occurrence < repeats; occurrence++)
             {
                 var context = new UnitConquestReturnContext(new(id, source.ObjectGeneration), source.CardNo,
-                    controller, battlefield, tick, occurrence, source.CopyFaceTransitions?.Count ?? 0, source.TokenFactoryCardNo);
+                    controller, battlefield, tick, occurrence, source.CopyFaceTransitions?.Count ?? 0, source.TokenFactoryCardNo) {
+                    Activation = activation };
                 yield return new TriggerQueueItemState(UnitConquestReturnTriggerId(context), controller, id,
-                    RuntimeTriggerEffectKind(spec), "BATTLEFIELD_CONQUERED") {
+                    RuntimeTriggerEffectKind(spec), activation is null ? "BATTLEFIELD_CONQUERED" : "BATTLEFIELD_HELD") {
                     SourceCardNo = source.CardNo, EnqueuedAtTick = tick, UnitConquestReturn = context };
             }
         }

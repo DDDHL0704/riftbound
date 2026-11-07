@@ -5333,6 +5333,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["occurrence"] = conquestReturn.Occurrence;
             if (conquestReturn.OriginZone is not null)
                 payload["sourceOriginZone"] = conquestReturn.OriginZone;
+            if (conquestReturn.Activation is { } activation)
+            {
+                payload["activationStackItemId"] = activation.ParentStackItemId;
+                payload["activationSourceObjectId"] = activation.Source.ObjectId;
+                payload["activationSourceGeneration"] = activation.Source.Generation;
+                payload["activationSourceCardNo"] = activation.CardNo;
+                payload["activationControllerId"] = activation.ControllerId;
+            }
             if (conquestReturn.TokenFactoryCardNo is not null)
                 payload["tokenFactoryCardNo"] = conquestReturn.TokenFactoryCardNo;
         }
@@ -14983,7 +14991,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
         out PendingPaymentState? pendingPayment,
-        bool deferNormalVictory = false)
+        bool deferNormalVictory = false, string activationReason = "BATTLEFIELD_CONQUERED",
+        IReadOnlySet<string>? excludedKinds = null)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15014,7 +15023,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerId,
             battlefieldObjectId,
             battlefieldId,
-            "BATTLEFIELD_CONQUERED",
+            activationReason,
             unitObjectIds,
             assignedOverkillDamageToEnemyUnits,
             rngCursor,
@@ -15022,7 +15031,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out drawApplication,
             out nextUntilEndOfTurnEffects,
             out pendingPayment,
-            deferNormalVictory: deferNormalVictory);
+            deferNormalVictory: deferNormalVictory, excludedKinds: excludedKinds);
     }
 
     private static bool TryResolveUnitConquestTriggerSpecs(
@@ -15043,7 +15052,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
         out PendingPaymentState? pendingPayment,
-        bool deferNormalVictory = false)
+        bool deferNormalVictory = false, IReadOnlySet<string>? excludedKinds = null)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15085,7 +15094,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out var unitDrawApplication,
                     out var unitUntilEndOfTurnEffects,
                     out var unitPendingPayment,
-                    deferNormalVictory: deferNormalVictory))
+                    deferNormalVictory: deferNormalVictory, excludedKinds: excludedKinds))
                 {
                     continue;
                 }
@@ -15125,7 +15134,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
         out PendingPaymentState? pendingPayment,
-        bool deferNormalVictory = false)
+        bool deferNormalVictory = false, IReadOnlySet<string>? excludedKinds = null)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15140,6 +15149,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextRngCursor = rngCursor;
         var unitConquestTriggers = UnitConquestTriggerSpecRules.TriggersForCard(unitState.CardNo)
             .Where(UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger)
+            .Where(trigger => excludedKinds?.Contains(trigger.Kind) != true)
             .ToArray();
         var unitConquestOverkillGoldTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
             string.Equals(trigger.Kind, TriggerKinds.UnitConquestOverkillCreateDormantGold, StringComparison.Ordinal));

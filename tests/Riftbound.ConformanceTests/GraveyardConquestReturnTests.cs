@@ -205,7 +205,7 @@ public sealed class GraveyardConquestReturnTests
         await AssertForgedStoreCannotRestore(frame, "accepted payment history");
     }
 
-    private static async Task AssertForgedStoreCannotRestore(MatchRecoveryFrame frame, string reason)
+    internal static async Task AssertForgedStoreCannotRestore(MatchRecoveryFrame frame, string reason)
     {
         Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance));
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
@@ -223,7 +223,7 @@ public sealed class GraveyardConquestReturnTests
             => ValueTask.FromResult<MatchRecoveryFrame?>(frame);
     }
 
-    private static MatchRecoveryFrame Frame(MatchState initial, Driver game, MatchState state)
+    internal static MatchRecoveryFrame Frame(MatchState initial, Driver game, MatchState state)
     {
         var sequence = game.Commands()[^1].CompletedEventSequence;
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
