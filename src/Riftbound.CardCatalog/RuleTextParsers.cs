@@ -1343,6 +1343,24 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        if (Regex.IsMatch(segment,
+            @"^每当你征服一处战场时，你可以选择弃置一张手牌，以此让此牌从废牌堆返回你的手牌。?$",
+            RegexOptions.CultureInvariant))
+        {
+            return new TriggerSpec(
+                TriggerKinds.ConquestDiscardReturnSelfFromGraveyard,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "CN 385.2: the source observes conquest only from its owner's graveyard; discard is a leading instruction cost.",
+                DiscardCount: 1,
+                DiscardSourceZone: TriggerZones.Hand,
+                DiscardDestinationZone: TriggerZones.Graveyard,
+                ReturnCount: 1,
+                ReturnOriginZone: TriggerZones.Graveyard,
+                ReturnDestinationZone: TriggerZones.Hand,
+                Optional: true);
+        }
+
         var unitConquestPayReturnSelfToHandMatch = Regex.Match(
             segment,
             @"每?当我征服一处战场时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}来让我返回所属的手牌。?$",

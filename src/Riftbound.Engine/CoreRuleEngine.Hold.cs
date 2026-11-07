@@ -220,25 +220,15 @@ public sealed partial class CoreRuleEngine
         switch (context.Kind)
         {
             case "ACTIVATE_CONQUEST":
-                foreach (var unit in HeldUnitsAt(state, field))
-                {
-                    var unitCard = cards[unit];
-                    var scoreController = EffectiveFieldControllerId(state.PlayerZones, unit, unitCard);
-                    var capturedScores = CaptureConquestSources(state, scoreController, field, [unit],
-                        state.Tick + 1, "BATTLEFIELD_HELD").ToArray();
-                    triggers.AddRange(capturedScores); events.AddRange(capturedScores.Select(BuildTriggerQueuedEvent));
-                    var flow = CaptureConquestFlow(state, unitCard.ControllerId ?? player, field, [unit], state.Tick, "BATTLEFIELD_HELD").ToArray();
-                    triggers.AddRange(flow); events.AddRange(flow.Select(BuildTriggerQueuedEvent));
-                    if (!HasSupportedUnitConquestTriggerSpec(unitCard.CardNo)) continue;
-                    var trigger = new TriggerQueueItemState($"activate-conquest-{state.Tick}-{unit}-{item.StackItemId}",
-                        unitCard.ControllerId, unit, "HOLD_CONQUEST_UNIT", "BATTLEFIELD_HELD") {
-                        HeldContext = new(unitCard.CardNo ?? "", field, "CONQUEST_UNIT", 0, unitCard.ObjectGeneration) };
-                    triggers.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
-                }
+                var activated = CaptureNamedUnitConquestAbilities(state, item, state.Tick + 1).ToArray();
+                triggers.AddRange(activated); events.AddRange(activated.Select(BuildTriggerQueuedEvent));
+                events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
+                    ["sourceGeneration"] = context.SourceGeneration, ["sourceCardNo"] = context.CardNo } };
                 break;
             case "CONQUEST_UNIT":
                 TryResolveNaturalUnitConquestTriggerSpecs(state, zones, cards, pools, scores, effects, player, field,
-                    [item.SourceObjectId], 0, rng, events, out var conquestDraw, out var conquestEffects, out payment, deferNormalVictory: true);
+                    [item.SourceObjectId], 0, rng, events, out var conquestDraw, out var conquestEffects, out payment,
+                    deferNormalVictory: true, activationReason: "BATTLEFIELD_HELD", excludedKinds: IndependentConquestKinds);
                 scores = conquestDraw.PlayerScores; winner = conquestDraw.WinnerPlayerId; rng = conquestDraw.RngCursor;
                 effects = conquestEffects;
                 break;

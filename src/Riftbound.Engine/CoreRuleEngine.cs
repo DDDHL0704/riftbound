@@ -5331,8 +5331,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["sourceCardNo"] = conquestReturn.CardNo;
             payload["battlefieldObjectId"] = conquestReturn.BattlefieldObjectId;
             payload["occurrence"] = conquestReturn.Occurrence;
+            if (conquestReturn.OriginZone is not null)
+                payload["sourceOriginZone"] = conquestReturn.OriginZone;
+            if (conquestReturn.Activation is { } activation)
+                AddNamedConquestActivationPayload(payload, activation);
             if (conquestReturn.TokenFactoryCardNo is not null)
                 payload["tokenFactoryCardNo"] = conquestReturn.TokenFactoryCardNo;
+        }
+        if (NamedConquestCaptureOf(trigger.ConquestToken, trigger.UnitConquest, trigger.RecastContext) is { } capture)
+        {
+            payload["sourceGeneration"] = capture.SourceGeneration;
+            payload["sourceCardNo"] = capture.CardNo;
+            payload["battlefieldObjectId"] = capture.BattlefieldId;
+            payload["conquestContextHash"] = capture.ContextHash;
+            if (capture.Activation is { } named) AddNamedConquestActivationPayload(payload, named);
         }
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && TryReadTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
@@ -14985,7 +14997,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
         out PendingPaymentState? pendingPayment,
-        bool deferNormalVictory = false)
+        bool deferNormalVictory = false, string activationReason = "BATTLEFIELD_CONQUERED",
+        IReadOnlySet<string>? excludedKinds = null)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15016,7 +15029,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerId,
             battlefieldObjectId,
             battlefieldId,
-            "BATTLEFIELD_CONQUERED",
+            activationReason,
             unitObjectIds,
             assignedOverkillDamageToEnemyUnits,
             rngCursor,
@@ -15024,7 +15037,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out drawApplication,
             out nextUntilEndOfTurnEffects,
             out pendingPayment,
-            deferNormalVictory: deferNormalVictory);
+            deferNormalVictory: deferNormalVictory, excludedKinds: excludedKinds);
     }
 
     private static bool TryResolveUnitConquestTriggerSpecs(
@@ -15045,7 +15058,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
         out PendingPaymentState? pendingPayment,
-        bool deferNormalVictory = false)
+        bool deferNormalVictory = false, IReadOnlySet<string>? excludedKinds = null)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15087,7 +15100,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out var unitDrawApplication,
                     out var unitUntilEndOfTurnEffects,
                     out var unitPendingPayment,
-                    deferNormalVictory: deferNormalVictory))
+                    deferNormalVictory: deferNormalVictory, excludedKinds: excludedKinds))
                 {
                     continue;
                 }
@@ -15127,7 +15140,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
         out PendingPaymentState? pendingPayment,
-        bool deferNormalVictory = false)
+        bool deferNormalVictory = false, IReadOnlySet<string>? excludedKinds = null)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15142,6 +15155,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextRngCursor = rngCursor;
         var unitConquestTriggers = UnitConquestTriggerSpecRules.TriggersForCard(unitState.CardNo)
             .Where(UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger)
+            .Where(trigger => excludedKinds?.Contains(trigger.Kind) != true)
             .ToArray();
         var unitConquestOverkillGoldTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
             string.Equals(trigger.Kind, TriggerKinds.UnitConquestOverkillCreateDormantGold, StringComparison.Ordinal));
@@ -21604,69 +21618,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && FieldIdentityMatchesZone(equipmentState, equipmentControllerId);
     }
 
-    private static bool HasValidSacredJudgmentKeepTargets(
-        MatchState state,
-        string sourceObjectId,
-        CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds)
-    {
-        if (!behavior.RecyclesUnkeptSacredJudgmentCards)
-        {
-            return true;
-        }
-
-        var targetSet = targetObjectIds.ToHashSet(StringComparer.Ordinal);
-        if (targetSet.Contains(sourceObjectId))
-        {
-            return false;
-        }
-
-        var categorizedTargetIds = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var (playerId, zones) in state.PlayerZones)
-        {
-            if (!HasExactlyTwoSacredJudgmentTargets(
-                    targetSet,
-                    SacredJudgmentFieldUnitIds(state.CardObjects, playerId, zones),
-                    categorizedTargetIds)
-                || !HasExactlyTwoSacredJudgmentTargets(
-                    targetSet,
-                    SacredJudgmentEquipmentIds(state.CardObjects, playerId, zones),
-                    categorizedTargetIds)
-                || !HasExactlyTwoSacredJudgmentTargets(
-                    targetSet,
-                    SacredJudgmentRuneIds(state.CardObjects, playerId, zones),
-                    categorizedTargetIds)
-                || !HasExactlyTwoSacredJudgmentTargets(
-                    targetSet,
-                    zones.Hand.Where(cardId =>
-                        !string.Equals(cardId, sourceObjectId, StringComparison.Ordinal)
-                        && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, playerId, cardId)),
-                    categorizedTargetIds))
-            {
-                return false;
-            }
-        }
-
-        return targetSet.SetEquals(categorizedTargetIds);
-    }
-
-    private static bool HasExactlyTwoSacredJudgmentTargets(
-        ISet<string> targetSet,
-        IEnumerable<string> categoryObjectIds,
-        ISet<string> categorizedTargetIds)
-    {
-        var selectedObjectIds = categoryObjectIds
-            .Where(targetSet.Contains)
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        foreach (var objectId in selectedObjectIds)
-        {
-            categorizedTargetIds.Add(objectId);
-        }
-
-        return selectedObjectIds.Length == 2;
-    }
-
     private static bool PlayCardTargetsExposeKnownCardNumbers(
         MatchState state,
         IReadOnlyList<string> targetObjectIds)
@@ -24743,13 +24694,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.RecyclesUnkeptSacredJudgmentCards)
         {
-            var recycleResult = RecycleUnkeptSacredJudgmentCards(
-                state,
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                stackItem.TargetObjectIds,
-                rngCursor);
+            var recycleResult = ResolveKeepAndRecycle(state, playerZones, cardObjects, stackItem, rngCursor);
             events.AddRange(recycleResult.Events);
             rngCursor = recycleResult.RngCursor;
         }
@@ -25476,7 +25421,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events.Add(readyEvent);
                 }
 
-                var damageAmount = Math.Max(0, readiedTargetState.Power);
+                var damageAmount = ApplySpellSkillDamageBonuses(DamageFrame(), stackItem.ControllerId,
+                    damagedTargetObjectId, Math.Max(0, ResolveCurrentFieldUnitPower(DamageFrame(), readiedTargetState)), stackItem);
                 if (damageAmount > 0
                     && IsFieldObject(playerZones, damagedTargetObjectId)
                     && cardObjects.ContainsKey(damagedTargetObjectId))
@@ -25489,15 +25435,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds,
                         preventDamageFromThisStackItem,
-                        PreventSpellAndSkillDamageThisTurnEffectId, fromUnit: true);
+                        PreventSpellAndSkillDamageThisTurnEffectId);
                     events.Add(new GameEvent(
                         "DAMAGE_APPLIED",
                         $"{behavior.DisplayName}按友方单位战力造成伤害",
                         BuildDamagePayload(
                             stackItem.SourceObjectId,
                             damagedTargetObjectId,
-                            damageApplication,
-                            readyTargetObjectId)));
+                            damageApplication)));
                 }
             }
         }
@@ -27930,41 +27875,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["controllerId"] = gainingStackItem.ControllerId
             });
         return true;
-    }
-
-    private static IEnumerable<string> SacredJudgmentFieldUnitIds(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        PlayerZones zones)
-    {
-        return zones.Base
-            .Concat(zones.Battlefields)
-            .Where(objectId =>
-                CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard)
-                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId));
-    }
-
-    private static IEnumerable<string> SacredJudgmentEquipmentIds(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        PlayerZones zones)
-    {
-        return zones.Base
-            .Concat(zones.Battlefields)
-            .Where(objectId =>
-                CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard)
-                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId));
-    }
-
-    private static IEnumerable<string> SacredJudgmentRuneIds(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        PlayerZones zones)
-    {
-        return zones.Base
-            .Where(objectId =>
-                CardObjectHasTag(cardObjects, objectId, CardObjectTags.RuneCard)
-                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId));
     }
 
     private static bool IsCardObjectControlledByPlayerOrLegacyOwned(
@@ -31178,70 +31088,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = ownerPlayerId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["cardIds"] = randomizedCardIds,
-                    ["count"] = randomizedCardIds.Count
-                }), playerZones, cardObjects));
-        }
-
-        return new RecycleResult(events, rngCursor);
-    }
-
-    private static RecycleResult RecycleUnkeptSacredJudgmentCards(
-        MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string sourceObjectId,
-        IReadOnlyList<string> keptObjectIds,
-        long rngCursor)
-    {
-        var events = new List<GameEvent>();
-        var keptSet = keptObjectIds.ToHashSet(StringComparer.Ordinal);
-        foreach (var (playerId, zones) in playerZones.ToArray())
-        {
-            var recycledCardIds = SacredJudgmentFieldUnitIds(cardObjects, playerId, zones)
-                .Concat(SacredJudgmentEquipmentIds(cardObjects, playerId, zones))
-                .Concat(SacredJudgmentRuneIds(cardObjects, playerId, zones))
-                .Concat(zones.Hand.Where(cardId =>
-                    IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, cardId)))
-                .Where(cardId => !keptSet.Contains(cardId))
-                .Distinct(StringComparer.Ordinal)
-                .ToArray();
-            if (recycledCardIds.Length == 0)
-            {
-                continue;
-            }
-
-            var randomizedCardIds = RandomizeForMainDeckBottom(
-                recycledCardIds,
-                state.Seed,
-                rngCursor,
-                sourceObjectId);
-            if (recycledCardIds.Length > 1)
-            {
-                rngCursor++;
-            }
-
-            foreach (var id in recycledCardIds) CaptureFieldDeparture(playerZones, cardObjects, id);
-            playerZones[playerId] = zones with
-            {
-                MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray(),
-                Hand = zones.Hand
-                    .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
-                    .ToArray(),
-                Base = zones.Base
-                    .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
-                    .ToArray(),
-                Battlefields = zones.Battlefields
-                    .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
-                    .ToArray()
-            };
-            events.Add(CaptureRecycleObservers(new GameEvent(
-                "CARDS_RECYCLED",
-                $"{playerId} 回收 {recycledCardIds.Length} 张牌",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
                     ["cardIds"] = randomizedCardIds,
                     ["count"] = randomizedCardIds.Count

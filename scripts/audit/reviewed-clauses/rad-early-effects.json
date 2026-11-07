@@ -1030,16 +1030,18 @@
       ],
       "text": "你可以选择从中展示一件装备，并抽取该卡牌。",
       "scope": "选择一个效果 —",
-      "status": "missing",
-      "reason": "当前MinTargetCount=-1使查看模式在存在装备时强制选一张，缺少牌面“可以选择”允许不展示不抽取并回收全部所看卡牌的分支",
+      "status": "route",
+      "reason": "查看模式显式声明MinTargetCount=0，使用共享牌库结算选择：即使所看五张中存在一件或多件装备也可不选，不展示、不抽取并回收全部所看卡牌；选一件的原路径仍展示并抽取，移动模式不受影响。 运行时导出省略零值，可选的MinTargetCount=0另由精确源码片段与定向测试验证。",
       "rules": "核心可选指示、128 查看／展示、417 回收；RAD·033 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
             "mode": "LOOK_EQUIPMENT",
-            "minTargetCount": -1,
             "mainDeckLookCount": 5,
-            "drawsSelectedMainDeckTarget": true
+            "drawsSelectedMainDeckTarget": true,
+            "requiredTargetCount": 1,
+            "mainDeckTargetRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "recyclesUnselectedMainDeckLookCards": true
           }
         ]
       },
@@ -1049,6 +1051,12 @@
           "contains": [
             "var mandatory = behavior.MinTargetCount != 0 && legal.Length > 0;"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "Mode: \"LOOK_EQUIPMENT\", TargetScope: CardTargetScopes.FriendlyMainDeckCard, MinTargetCount: 0"
+          ]
         }
       ],
       "tests": [
@@ -1056,6 +1064,12 @@
           "path": "tests/Riftbound.ConformanceTests/RadSpellBatchTests.cs",
           "methods": [
             "AttackOrderMovesAnUnattachedDeployEquipmentOrLooksAtFiveCards"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalEquipmentDeckLookTests.cs",
+          "methods": [
+            "AttackOrderMayDeclineEvenWithEquipmentAndRecyclesAllLookedCardsWithoutRevealingThem"
           ]
         }
       ]
