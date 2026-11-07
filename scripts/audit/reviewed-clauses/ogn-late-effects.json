@@ -1927,11 +1927,11 @@
           "contains": [
             "CaptureNamedUnitConquestAbilities(",
             "EffectiveFieldControllerId(state.PlayerZones, id, state.CardObjects[id])",
-            "CaptureUnitConquestReturns(state, player, field, units, tick, origin)",
-            "CaptureConquestRecasts(state, player, field, units, tick, origin)",
-            "CaptureConquestTokens(state, player, field, units, tick, origin)",
-            "CaptureConquestDamage(state, state, player, field, units, tick, origin)",
-            "CaptureGrantedConquestReturns(state, player, field, units, tick, origin)",
+            "CaptureUnitConquestReturns(state, player, field, units, tick, activation, eventKind)",
+            "CaptureConquestRecasts(state, player, field, units, tick, activation, eventKind)",
+            "CaptureConquestTokens(state, player, field, units, tick, activation, eventKind)",
+            "CaptureConquestDamage(state, state, player, field, units, tick, activation, eventKind)",
+            "CaptureGrantedConquestReturns(state, player, field, units, tick, activation, eventKind)",
             "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
             "HuntAmountFromTags",
             "!IndependentConquestKinds.Contains(spec.Kind)"

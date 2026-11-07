@@ -58,7 +58,7 @@ public sealed partial class CoreRuleEngine
             .Where(row => row.Context is not null).Select(row => (row.Context!, row.Alias));
 
     private static bool IsHeldCaptureTiming(MatchState state, object context, string controller)
-        => controller == state.TurnPlayerId && state.Phase == Riftbound.Contracts.MatchPhases.TurnStart
+        => controller == state.TurnPlayerId && state.Phase == MatchPhases.TurnStart
                 && state.TurnStartStep == "CHANNEL"
             || TimingContexts(state).Any(row => ReferenceEquals(row.Context, context)
                 && row.Alias is { OriginalTiming: "HOLD", EffectiveTiming: "CONQUEST" } alias
