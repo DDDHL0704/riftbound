@@ -1574,6 +1574,14 @@ def last_breath_recycle_runes_route(card: dict, clause: dict, sources: Sources) 
             "UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(instance.CardNo)", "before.ObjectGeneration"]),
         ("UnitDestroyedTriggerSpecRules.cs", "LastBreathRuneCallTriggers", [
             "IsLastBreathRecycleSelfReadyAllRunesTrigger(t)"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["NeedsTriggerCostConfirmation(i)"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "PrepareTriggerConfirmation", [
+            "state.StackItems.FirstOrDefault(NeedsTriggerConfirmation)",
+            "if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "PrepareTriggerCostConfirmation", [
+            "TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyOtherFriendlyPermanents)",
+            "return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item))",
+            "PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null"]),
         ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", [
             "HasLastBreathSourceRecycleCost(item) ? new(RecycleSelf: true)"]),
         ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices", ["LastBreathSourceRecycleChoices(state, item)"]),
@@ -1595,9 +1603,14 @@ def last_breath_recycle_runes_route(card: dict, clause: dict, sources: Sources) 
             "recycled.ObjectGeneration <= receipt.Source.Generation"]),
         ("CoreRuleEngine.TriggerCosts.cs", "CompleteTriggerCost", [
             "HasLastBreathSourceRecycleCost(item) ? ResolutionResult.VisibleObjectIdForViewer("]),
+        ("CoreRuleEngine.cs", "ResolveChooseCardsRuntime", [
+            "if (pendingChoice.ChoiceWindow is TriggerCostWindow or OptionalTriggerWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds)"]),
+        ("CoreRuleEngine.cs", "ApplyReadyState", [
+            "ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState)", "IsExhausted = false",
+            "CaptureReadiedObject(playerZones, cardObjects, targetState)", "return nextTargetState"]),
         ("CoreRuleEngine.cs", "RecycleGraveyardCards", [
             "recyclingPlayerId ?? playerId", "MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray()",
-            "CaptureRecycleObservers(new GameEvent("]),
+            ".Where(objectId => !recycledSet.Contains(objectId))", "CaptureRecycleObservers(new GameEvent("]),
         ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
             "or TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes", "return ResolveUnitLastBreathCallRuneStackItem(state, stackItem)"]),
         ("CoreRuleEngine.cs", "ResolveUnitLastBreathCallRuneStackItem", [

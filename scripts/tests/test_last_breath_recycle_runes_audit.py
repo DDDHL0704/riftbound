@@ -132,6 +132,30 @@ class LastBreathRecycleRunesAuditTests(unittest.TestCase):
         sources.files[path] = code.replace(token, "REMOVED_DISPATCH") + "\n    private static void UnusedParser() { " + token + " }\n"
         self.assertEqual("missing", self.status(sources=sources))
 
+    def test_unused_helpers_cannot_replace_the_real_confirmation_and_command_dispatch(self):
+        for file, token in [
+            ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerCostConfirmation(i)"),
+            ("CoreRuleEngine.FieldTriggers.cs", "state.StackItems.FirstOrDefault(NeedsTriggerConfirmation)"),
+            ("CoreRuleEngine.FieldTriggers.cs", "if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)"),
+            ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyOtherFriendlyPermanents)"),
+            ("CoreRuleEngine.TriggerCosts.cs", "return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item))"),
+            ("CoreRuleEngine.TriggerCosts.cs", "PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null"),
+            ("CoreRuleEngine.cs", "if (pendingChoice.ChoiceWindow is TriggerCostWindow or OptionalTriggerWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds)"),
+        ]:
+            with self.subTest(token=token):
+                self.assertEqual("missing", self.status(sources=self.changed(file, token, decoy=True)))
+
+    def test_unused_state_writes_cannot_replace_readiness_or_removal_from_the_graveyard(self):
+        for token in [
+            "ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState)",
+            "IsExhausted = false",
+            "CaptureReadiedObject(playerZones, cardObjects, targetState)",
+            "return nextTargetState",
+            ".Where(objectId => !recycledSet.Contains(objectId))",
+        ]:
+            with self.subTest(token=token):
+                self.assertEqual("missing", self.status(sources=self.changed("CoreRuleEngine.cs", token, decoy=True)))
+
 
 if __name__ == "__main__":
     unittest.main()
