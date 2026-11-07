@@ -225,6 +225,9 @@ public sealed class BeforeDeckRevealTests
         var game = new Driver(RadGearTestPosition.Put(Position(), "SONG", "SFD·059/221", "P1", "BASE"));
         await game.Act("P1", new AssembleEquipmentCommand("SONG", "SEED", ["ASSEMBLE_GREEN"])); await game.Top();
         await ApprenticeBlacksmithRevealTests.Move(game); await game.Top();
+        var order = game.State.PendingRuleChoice!.Request;
+        Assert.Equal(CoreRuleEngine.BeforeDeckRevealOrderKind, order.Kind);
+        await game.Act("P1", new PayCostCommand(order.Id, CoreRuleEngine.RuleChoiceWindow, ["SOURCE:0"]));
         Assert.Null(game.State.PendingRuleChoice!.Request.Preview!.DeckObservationView!.BeforeReveal!.Origin);
         await Decide(game, false);
         Assert.NotNull(game.State.PendingRuleChoice!.Request.Preview!.DeckObservationView!.BeforeReveal!.Origin);

@@ -33,6 +33,17 @@ public sealed class SilkDancerMovementTests
     private static Task Choose(Driver game, params string[] ids)
         => game.Act("P1", new ChooseCardsCommand(game.State.PendingCardChoice!.ChoiceId, "TRIGGER_CONFIRMATION", ids));
 
+    private static async Task CloseDuel(Driver game)
+    {
+        for (var passes = 0; game.State.SpellDuelState.IsActive; passes++)
+        {
+            Assert.InRange(passes, 0, 7);
+            if (game.State.PriorityPlayerId is { } priority)
+                await game.Act(priority, new PassPriorityCommand());
+            else await game.Act(game.State.SpellDuelState.FocusPlayerId!, new PassFocusCommand());
+        }
+    }
+
     [Fact]
     public async Task ActualPrintingPlaysForThreeThenReadiesMovesAndConfirmsAnotherFriendlyUnit()
     {
@@ -45,7 +56,9 @@ public sealed class SilkDancerMovementTests
         await game.Act("P1", new PlayCardCommand("HOST", Dancer, [], Destination: "BASE"));
         Assert.Equal(mana - 3, game.State.RunePools["P1"].Mana); Assert.Equal(3, game.State.CardObjects["HOST"].Power);
         Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        await CloseDuel(game);
         await game.Act("P1", new PlayCardCommand("READY", "UNL-009/219", ["HOST"])); await game.Top();
+        await CloseDuel(game);
         await Move(game); Assert.Equal(1, game.State.PendingCardChoice!.RequiredCount);
         Assert.Equal(new[] { "ALLY", "REMOTE" }, game.State.PendingCardChoice.LegalObjectIds.Order());
         var before = game.State.CardObjects["ALLY"].Power; await Choose(game, "ALLY");
@@ -79,7 +92,7 @@ public sealed class SilkDancerMovementTests
     public async Task MovingToBaseDoesNotTriggerTheBattlefieldOnlySkill()
     {
         var game = new Driver(LocalDestructionRecallTests.At(Board(), "HOST", "P1", "BATTLEFIELD", "F"));
-        await game.Act("P1", new MoveUnitCommand("HOST", "BATTLEFIELD:F", "BASE", []));
+        await game.Act("P1", new MoveUnitCommand("HOST", "BATTLEFIELD", "BASE", []));
         Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems);
         Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN"); await game.Replay();
     }
@@ -103,6 +116,8 @@ public sealed class SilkDancerMovementTests
         if (returnSource)
             Assert.DoesNotContain("\"HOST\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
         await game.Top(); Assert.Equal(before + (returnSource ? 1 : 0), game.State.CardObjects["ALLY"].Power);
+        if (returnSource)
+            Assert.DoesNotContain("\"HOST\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Timing));
         Assert.Equal(returnSource, game.Events().Any(e => e.Event.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN"));
         if (returnSource) Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "HOST"));
