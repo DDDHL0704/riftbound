@@ -25450,7 +25450,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events.Add(readyEvent);
                 }
 
-                var damageAmount = Math.Max(0, ResolveCurrentFieldUnitPower(DamageFrame(), readiedTargetState));
+                var damageAmount = ApplySpellSkillDamageBonuses(DamageFrame(), stackItem.ControllerId,
+                    damagedTargetObjectId, Math.Max(0, ResolveCurrentFieldUnitPower(DamageFrame(), readiedTargetState)), stackItem);
                 if (damageAmount > 0
                     && IsFieldObject(playerZones, damagedTargetObjectId)
                     && cardObjects.ContainsKey(damagedTargetObjectId))

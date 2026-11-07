@@ -1433,8 +1433,8 @@
       "text": "让一名友方单位变为活跃状态，并对任意战场上的一名敌方单位造成等同于该友方单位战力的伤害。",
       "scope": "让一名友方单位变为活跃状态，并对任意战场上的一名敌方单位造成等同于该友方单位战力的伤害。",
       "status": "route",
-      "reason": "共享活跃后按当前战力伤害流程通过ResolveCurrentFieldUnitPower读取更新状态，包含已装配武装等连续效果；本句未指明由友方单位造成伤害，因此来源保留为原法术，七符文敌方法术／技能伤害免疫仍生效；实际装配长剑与免疫边界均经原始命令、冷恢复和回放验证",
-      "rules": "中国区核心规则2026-10-10：143.2、418.6.a–b.3；OGN·260官方中文牌面；SFD·022武装+2与VEN·025七符文免疫中文牌面",
+      "reason": "共享活跃后按当前战力伤害流程通过ResolveCurrentFieldUnitPower读取更新状态，包含已装配武装等连续效果；本句未指明由友方单位造成伤害，因此来源保留为原法术，七符文敌方法术／技能伤害免疫仍生效；实际装配长剑与免疫边界均经原始命令、冷恢复和回放验证；当前战力计算后仍经共享法术／技能伤害加成（含虚空之门），不会把额外伤害计入单位战力",
+      "rules": "中国区核心规则2026-10-10：143.2、418.6.a–b.3；OGN·260官方中文牌面；SFD·022武装+2与VEN·025七符文免疫中文牌面；418.5／712额外伤害",
       "runtime": {
         "behaviors": [
           {
@@ -1451,7 +1451,8 @@
             "else if (behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower",
             "ResolveCurrentFieldUnitPower(DamageFrame(), readiedTargetState)",
             "cardObjects[readyTargetObjectId] = readiedTargetState;",
-            "PreventSpellAndSkillDamageThisTurnEffectId);"
+            "PreventSpellAndSkillDamageThisTurnEffectId);",
+            "var damageAmount = ApplySpellSkillDamageBonuses(DamageFrame(), stackItem.ControllerId,"
           ]
         },
         {
