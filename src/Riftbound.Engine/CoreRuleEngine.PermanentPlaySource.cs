@@ -20,6 +20,7 @@ public sealed partial class CoreRuleEngine
         var capturedActivation = P4ActivatedAbilityCatalog.TryGetByEffectKind(effect.EffectKind, out var ability)
             && ability.SimpleEffect is not null;
         if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation
+            && effect.EffectKind != TriggerKinds.UnitMovedOtherFriendlyPowerModifier
             && (effect.SourceCardNo is not { } no || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
                 || !behavior.RecyclesSourceIfPlayedFromStandby)) return effect;
         return effect with { SourceObjectId = "HIDDEN" };

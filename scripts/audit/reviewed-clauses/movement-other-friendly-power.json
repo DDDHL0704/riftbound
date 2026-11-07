@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·038/221"
+      ],
+      "text": "当我移动到一处战场时，让另一名友方单位在本回合内{{S}}+1。",
+      "scope": "当我移动到一处战场时，让另一名友方单位在本回合内{{S}}+1。",
+      "status": "route",
+      "reason": "共享完整中文移动规格在进入战场后建立独立可响应技能；必须选择另一名当前场上友方单位，基地及其他战场均可，拒绝自己、敌方、装备及私密区域。结算核对目标原代际及当前合法性，并沿用统一临时战力账本与回合末清除；来源返手不使技能消失，借用文本单独捕获。",
+      "rules": "SFD·038官方中文文本；中国区核心383.2–383.3移动触发及独立技能、目标确认与原代际、临时战力与回合末清除",
+      "runtime": {
+        "triggers": [
+          {
+            "node": {
+              "kind": "UNIT_MOVED_OTHER_FRIENDLY_POWER_MODIFIER",
+              "timing": "UNIT_MOVED",
+              "targetScope": "OTHER_FRIENDLY_UNIT_ON_FIELD",
+              "optional": false,
+              "powerDelta": 1,
+              "duration": "UNTIL_END_OF_TURN",
+              "movementDestinationZone": "BATTLEFIELD"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs",
+          "contains": [
+            "trigger.Kind == TriggerKinds.UnitMovedOtherFriendlyPowerModifier && trigger.Timing == TriggerTimings.UnitMoved",
+            "trigger.TargetScope == TriggerTargetScopes.OtherFriendlyUnitOnField && trigger.Optional == false",
+            "trigger.PowerDelta > 0 && trigger.Duration == TriggerDurations.UntilEndOfTurn",
+            "trigger.MovementDestinationZone == \"BATTLEFIELD\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementDamage.cs",
+          "contains": [
+            "EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) == item.ControllerId",
+            "spec.Optional == true ? 0 : 1",
+            "private static StackResolutionResult ResolveMovementOtherPower",
+            "ApplyPowerModifier(state, cards[target], behavior, item, target, spec.PowerDelta.Value, out var powerEvent)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "context.Kind == TriggerKinds.UnitMovedOtherFriendlyPowerModifier",
+            "ResolveMovementOtherPower(state, item, events)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SilkDancerMovementTests.cs",
+          "methods": [
+            "ActualPrintingPlaysForThreeThenReadiesMovesAndConfirmsAnotherFriendlyUnit",
+            "AnotherFriendlyUnitMayBeAtBaseOrADifferentBattlefield",
+            "MandatoryOtherFriendlyTargetsRejectDeclineSelfEnemiesEquipmentAndHiddenCards",
+            "MovingToBaseDoesNotTriggerTheBattlefieldOnlySkill",
+            "NoOtherFriendlyUnitDoesNotBlockTheCompletedMovement",
+            "ReturningASourceKeepsItsIndependentSkillWhileReturningATargetInvalidatesItsOldGeneration",
+            "CopiedPrintedTextCreatesTwoSeparatelyConfirmedMovementSkills",
+            "TheSharedMightModifierExpiresAtTheEndOfTheTurn",
+            "RecoveryRejectsAForgedDestinationOrTheSourcesOwnTargetIncarnation"
+          ]
+        }
+      ],
+      "location": "upper"
+    }
+  ]
+}
