@@ -29,13 +29,17 @@ public sealed record UnitConquestReturnContext(
     [property: JsonRequired] long ConquestTick,
     [property: JsonRequired] int Occurrence,
     [property: JsonRequired] long FaceRevision,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? OriginZone { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
     internal static TriggerSpec? UnitConquestReturnSpec(string? cardNo)
         => UnitConquestTriggerSpecRules.TryGetTrigger(cardNo,
-            UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger, out var spec) ? spec : null;
+            UnitConquestTriggerSpecRules.IsConquestReturnSelfTrigger, out var spec) ? spec : null;
 
     internal static bool ValidUnitConquestReturnContext(MatchState state, UnitConquestReturnContext context,
         string effect, string source, string controller, string? cardNo)
@@ -47,6 +51,9 @@ public sealed partial class CoreRuleEngine
             && context.ConquestTick >= 0 && context.ConquestTick <= state.Tick
             && context.Occurrence >= 0 && context.FaceRevision >= 0 && cardNo == context.CardNo
             && UnitConquestReturnSpec(context.CardNo) is { } spec && RuntimeTriggerEffectKind(spec) == effect
+            && (context.OriginZone ?? TriggerZones.Battlefield) == spec.ReturnOriginZone
+            && (context.OriginZone != TriggerZones.Graveyard || context.TokenFactoryCardNo is null
+                && state.CardObjects.TryGetValue(source, out var ownedSource) && ownedSource.OwnerId == controller)
             && PredictBindingMatches(state, context.Source, context.CardNo, context.FaceRevision,
                 context.ConquestTick, context.TokenFactoryCardNo);
 
@@ -158,6 +165,11 @@ public sealed partial class CoreRuleEngine
         recastTriggers = recastTriggers.Concat(CaptureUnitConquestReturns(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
+        if (conqueredRealBattlefield)
+            recastTriggers = recastTriggers.Concat(CaptureGraveyardConquestReturns(state with {
+                PlayerZones = playerZones, CardObjects = cardObjects,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+                playerId, battlefieldId, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -359,6 +371,8 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitConquestReturnContext(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo)
             || item.TriggerCost is null || !ValidTriggerCostReceipt(state, item))
             throw new InvalidOperationException("Invalid confirmed unit conquest return.");
+        if (context.OriginZone == TriggerZones.Graveyard)
+            return ResolveGraveyardConquestReturn(state, item);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var ownerId = string.Empty;
