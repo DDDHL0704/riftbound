@@ -34,7 +34,8 @@ public sealed partial class CoreRuleEngine
                 ?? TargetSelectionLegendEvents.Value.GetValueOrDefault(no)
                 ?? MainPhaseLegendEventSpec(no)
                 ?? DeploymentPlayLegends.Value.GetValueOrDefault(no)
-                ?? PlayedUnitRuneSpecs.Value.GetValueOrDefault(no);
+                ?? PlayedUnitRuneSpecs.Value.GetValueOrDefault(no)
+                ?? ArmamentUnitEventRules.Spec(no);
 
     private static bool UnitEventTimingMatches(string? declared, string timing)
         => declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true;
@@ -51,7 +52,9 @@ public sealed partial class CoreRuleEngine
                     || timing == "MAIN" && MainPhaseLegendEventSpec(card.CardNo) is not null
                         && card.Tags.Contains("CARD_TYPE:LEGEND") && zones.Values.Any(z => z.LegendZone.Contains(id))))
             .Select(id => cards[id]).SelectMany(card => AttachedRuleTextRules.Instances(zones, cards, card)
+                .Concat(ArmamentUnitEventRules.Instances(zones, cards, card))
                 .Where(i => UnitEventSpec(i.CardNo) is { } spec
+                    && spec.GrantedByArmament == (i.Origin?.ArmamentGranted == true)
                     && (UnitEventTimingMatches(spec.Timing, timing)
                         || spec.Timing == "PLAY_OR_EXHAUST" && timing == "BECAME_EXHAUSTED")
                     && (!spec.RequiresEmpowered || card.IsEmpowered)
@@ -272,6 +275,8 @@ public sealed partial class CoreRuleEngine
         string eventKind, string? timing = null)
     {
         var captured = observation.Context;
+        if (captured.Origin is { ArmamentGranted: true } armament)
+            captured = captured with { Origin = armament with { CapturedTick = tick } };
         var id = $"unit-event-{tick}-{ordinal}-{observation.Source}-{captured.Timing}";
         if (UnitEventSpec(captured.CardNo) is { Effect: "INSIGHT" } insight)
             return new(id, observation.Controller, observation.Source, InsightTriggerEffect, eventKind, timing) {
@@ -338,6 +343,8 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidUnitEvent(MatchState state, UnitEventContext? c, string effect, string source, string? no = null, string? controller = null)
         => c is null ? effect != UnitEventEffect : effect == UnitEventEffect && (no is null || no == c.CardNo)
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
+            && spec.GrantedByArmament == (c.Origin?.ArmamentGranted == true)
+            && (!spec.GrantedByArmament || c.Origin!.CapturedTick == c.CapturedTick)
             && (c.Mode is null || spec.Modes?.Any(m => m.Id == c.Mode) == true)
             && (c.Mode is null || !spec.DistinctModesPerTurn || state.RuleTextModeUses is { } uses
                 && uses.TurnNumber == state.TurnNumber && uses.Uses.Contains(new RuleTextModeUse(new(source, c.SourceGeneration), c.CardNo, c.Mode, c.Origin, c.TokenFactoryCardNo)))
@@ -382,7 +389,7 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
+        && (SelectedUnitEventSpec(c)?.Effect is ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.UnitEvent?.Timing == FriendlyUnitTargetedTiming
@@ -399,7 +406,7 @@ public sealed partial class CoreRuleEngine
         => state.CardObjects.Values.Where(c => !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && (SelectedUnitEventSpec(item.UnitEvent!)!.Effect switch {
                 PlayedUnitReadyRunes => c.Tags.Contains(CardObjectTags.RuneCard),
-                RuneDomainDamageEffect => IsFaceUpNonStandbyUnit(c)
+                ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
                     && UnitEventTargetIsHere(state, item, c.ObjectId),
                 "STUN_ENEMY" => IsFaceUpNonStandbyUnit(c)
@@ -500,7 +507,8 @@ public sealed partial class CoreRuleEngine
         if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
         if (spec.Effect == ReadySelectedEventUnit) return ResolveSelectedEventUnitReady(state, item);
         if (spec.Effect == BattleDrawRecallEffect) return ResolveBattleDrawRecall(state, item);
-        if (spec.Effect == RuneDomainDamageEffect) return ResolveRuneDomainDamage(state, item, spec);
+        if (spec.Effect is RuneDomainDamageEffect or ArmamentUnitEventRules.FixedDamageEffect)
+            return ResolveRuneDomainDamage(state, item, spec);
         if (spec.Effect == StandbyHandPlayHereEffect)
         {
             if (item.EffectPlayCompleted) return NoopStackResolutionResult(state);

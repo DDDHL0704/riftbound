@@ -34,6 +34,48 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         path.write_text(json.dumps(dict(schemaVersion=1, records=[row])))
         return path
 
+    def reviewed_host_trigger(self, location="armament"):
+        text = "当我进攻或防守时，对此处的一名敌方单位造成2点伤害。"
+        card = equipment(lower=text)
+        card["cardNo"] = "SFD·016/221"
+        (self.engine / "ArmamentUnitEventRules.cs").write_text("var text = definition.EffectText; GrantHostTrigger();")
+        (self.engine / "CoreRuleEngine.UnitEvents.cs").write_text("CaptureHostEvent();")
+        tests = self.root / "tests/Riftbound.ConformanceTests/GrantTests.cs"
+        tests.parent.mkdir(parents=True)
+        tests.write_text("[Fact] public void HostActuallyDealsDamage() { }")
+        directory = self.root / "scripts/audit/reviewed-clauses"
+        directory.mkdir(parents=True)
+        (directory / "grant.json").write_text(json.dumps(dict(schemaVersion=1, records=[dict(
+            cardNos=[card["cardNo"]], text=text, scope=text, location=location, status="route",
+            reason="Bound host skill", rules="Official lower box and core 719",
+            runtime=dict(armament=dict(effectText=text)),
+            evidence=[dict(path="src/Riftbound.Engine/ArmamentUnitEventRules.cs", contains=["GrantHostTrigger();"]),
+                      dict(path="src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs", contains=["CaptureHostEvent();"])],
+            tests=[dict(path="tests/Riftbound.ConformanceTests/GrantTests.cs", methods=["HostActuallyDealsDamage"])])])))
+        return card
+
+    def test_reviewed_lower_trigger_requires_runtime_consumer_and_native_test(self):
+        card = self.reviewed_host_trigger()
+        self.assertEqual("route", self.outcome(card)["status"])
+        (self.engine / "ArmamentUnitEventRules.cs").write_text("var text = definition.EffectText;")
+        self.assertEqual("review", self.outcome(card)["status"])
+
+    def test_upper_review_cannot_certify_the_lower_host_trigger(self):
+        card = self.reviewed_host_trigger(location="upper")
+        self.assertEqual("missing", self.outcome(card)["status"])
+
+    def test_reviewed_lower_route_reopens_if_runtime_or_test_evidence_changes(self):
+        card = self.reviewed_host_trigger()
+        card["armament"]["effectText"] = "造成9点伤害"
+        self.assertEqual("review", self.outcome(card)["status"])
+        card["armament"]["effectText"] = card["armamentText"]["lowerText"]
+        (self.root / "tests/Riftbound.ConformanceTests/GrantTests.cs").write_text("public void HostActuallyDealsDamage() { }")
+        self.assertEqual("review", self.outcome(card)["status"])
+
+    def test_bounded_host_trigger_reader_does_not_reopen_unrelated_missing_rules(self):
+        (self.engine / "ArmamentUnitEventRules.cs").write_text("var text = definition.EffectText; GrantHostTrigger();")
+        self.assertEqual("missing", self.outcome(equipment(lower="我的据守效果也是征服效果，反之亦然。"))["status"])
+
     def test_hold_and_conquer_equivalence_is_a_rule_modification(self):
         row = audit.card_clauses(equipment(lower='我的据守效果也是征服效果，反之亦然。'))[-1]
         self.assertEqual('rule', row['kind'])
