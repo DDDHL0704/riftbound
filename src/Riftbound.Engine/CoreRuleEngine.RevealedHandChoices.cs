@@ -2,7 +2,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public enum RevealedHandAction { Recycle, DiscardDraw, RevealOnly }
+public enum RevealedHandAction { Recycle, DiscardDraw, RevealOnly, Discard }
 public sealed record RevealedHandChoiceSpec(RevealedHandAction Action, string ForbiddenTag = "", int ExperienceCost = 0, bool Optional = false, string RequiredTag = "");
 public sealed record RevealedHandChoiceContext(string StackItemId, int ExecutionIndex, string OwnerId, IReadOnlyDictionary<string, long> Cards);
 
@@ -33,7 +33,8 @@ public sealed partial class CoreRuleEngine
             : spec.Action == RevealedHandAction.Recycle ? string.IsNullOrEmpty(spec.RequiredTag)
                 ? "对手已展示手牌：必须选择一张非单位卡牌让其回收；没有可选牌时继续。"
                 : "对手已展示手牌：必须选择一张具有灵光（蓝色）特性的卡牌让其回收；没有可选牌时继续。"
-            : $"对手已展示手牌：选择一张牌并确认，将支付 {spec.ExperienceCost} 经验，让对手弃置该牌并抽一张；也可以不选放弃。";
+            : spec.Action == RevealedHandAction.Discard ? "对手已展示手牌：必须选择一张牌让其弃置；没有手牌时继续。"
+                : $"对手已展示手牌：选择一张牌并确认，将支付 {spec.ExperienceCost} 经验，让对手弃置该牌并抽一张；也可以不选放弃。";
         if (state.PlayerExperience.GetValueOrDefault(item.ControllerId) < spec.ExperienceCost) reason += " 当前经验不足，只能继续。";
         var choice = new PendingCardChoiceState($"HAND-{item.StackItemId}-{item.CompletedHandExecutions}", "REVEALED_HAND_EFFECT", item.ControllerId,
             !spec.Optional && legal.Length > 0 ? 1 : 0, legal.Length > 0 ? 1 : 0, legal, hand.Keys.ToArray(), reason, item.SourceObjectId, item.EffectKind)
@@ -106,8 +107,10 @@ public sealed partial class CoreRuleEngine
                     ["discardedByPlayerId"] = item.ControllerId, ["destinationZone"] = "GRAVEYARD" }));
                 ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, owner, "CARD_DISCARDED", item.SourceObjectId, selected, events);
                 effects = MarkPlayerDiscardedHandCardsThisTurn(effects, owner, selected, zones);
-                var drawn = ApplyDrawToPlayer(state, zones, cards, scores, owner, 1, rng, events, deferNormalVictory: true);
-                scores = drawn.PlayerScores; rng = drawn.RngCursor; winner = drawn.WinnerPlayerId ?? winner;
+                if (spec.Action == RevealedHandAction.DiscardDraw) {
+                    var drawn = ApplyDrawToPlayer(state, zones, cards, scores, owner, 1, rng, events, deferNormalVictory: true);
+                    scores = drawn.PlayerScores; rng = drawn.RngCursor; winner = drawn.WinnerPlayerId ?? winner;
+                }
             }
         }
         events.Add(new("CARD_CHOICE_RESOLVED", "展示手牌选择完成", new Dictionary<string, object?> {

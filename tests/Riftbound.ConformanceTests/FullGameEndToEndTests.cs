@@ -25611,9 +25611,39 @@ public sealed partial class FullGameEndToEndTests
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
-                        Assert.Contains(unitEvent.CardNo, new[] { "ARC-004/006", "UNL-116/219", "UNL-116a/219", "UNL-143/219", "UNL-143a/219", "OGN·159/298", "OGN·200/298", "OGN·186/298", "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "UNL-056/219", "UNL-058/219", "UNL-058a/219", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
+                        Assert.Contains(unitEvent.CardNo, new[] { "ARC-004/006", "UNL-116/219", "UNL-116a/219", "UNL-143/219", "UNL-143a/219", "OGN·159/298", "OGN·200/298", "OGN·182/298", "OGN·223/298", "OGN·227/298", "OGN·186/298", "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "UNL-056/219", "UNL-058/219", "UNL-058a/219", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
+                        if (unitEvent.CardNo == "OGN·227/298")
+                        {
+                            Assert.Equal("ATTACKING_BATTLE_DRAW", unitEvent.Timing);
+                            Assert.Equal("RECALL_BATTLEFIELD_UNITS", behavior.UnitEventAbility.Effect);
+                            Assert.Equal(0, behavior.UnitEventAbility.Amount);
+                            Assert.False(behavior.UnitEventAbility.Optional);
+                            Assert.NotNull(unitEvent.BattleTieBattlefield);
+                            Assert.Empty(item.TargetObjectIds);
+                            Assert.Null(item.TargetGenerations);
+                        }
+                        if (unitEvent.CardNo == "OGN·223/298")
+                        {
+                            Assert.Equal("PLAY", unitEvent.Timing);
+                            Assert.Equal("BOON_SELF", behavior.UnitEventAbility.Effect);
+                            Assert.Equal(0, behavior.UnitEventAbility.Amount);
+                            Assert.False(behavior.UnitEventAbility.Optional);
+                            Assert.True(behavior.UnitEventAbility.BoonsFriendlyUnitsHereIfPlayedToBattlefield);
+                            Assert.Contains(unitEvent.SourcePlayDestinationZone, new[] { "BASE", "BATTLEFIELD" });
+                            Assert.Empty(item.TargetObjectIds);
+                            Assert.Null(item.TargetGenerations);
+                        }
+                        if (unitEvent.CardNo == "OGN·182/298")
+                        {
+                            Assert.Equal("PLAY_OR_SELF_DISCARDED_OR_DESTROYED", unitEvent.Timing);
+                            Assert.Equal("DRAW", behavior.UnitEventAbility.Effect);
+                            Assert.Equal(1, behavior.UnitEventAbility.Amount);
+                            Assert.False(behavior.UnitEventAbility.Optional);
+                            Assert.Empty(item.TargetObjectIds);
+                            Assert.Null(item.TargetGenerations);
+                        }
                         if (unitEvent.CardNo is "OGN·159/298" or "ARC-004/006")
                         {
                             Assert.Equal("ATTACK", unitEvent.Timing);

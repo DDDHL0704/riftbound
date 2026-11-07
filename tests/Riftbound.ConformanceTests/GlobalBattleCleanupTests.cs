@@ -117,7 +117,7 @@ public sealed class GlobalBattleCleanupTests
         var events = new List<GameEvent>();
         var cleanup = typeof(CoreRuleEngine).GetMethod("ApplyBattleCleanup", BindingFlags.Static | BindingFlags.NonPublic)!;
         cleanup.Invoke(null, [zones, cards, "F", survivors ? new[] { "ATTACKER" } : Array.Empty<string>(),
-            survivors ? new[] { "DEFENDER" } : Array.Empty<string>(), events]);
+            survivors ? new[] { "DEFENDER" } : Array.Empty<string>(), events, null]);
         return events;
     }
 }

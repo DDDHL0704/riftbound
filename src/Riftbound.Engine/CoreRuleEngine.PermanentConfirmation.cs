@@ -14,7 +14,8 @@ public sealed partial class CoreRuleEngine
                 && !SourceUnitTokenSpecs.Value.ContainsKey(behavior.CardNo)
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
                 && !IsPlayedUnitRuneSpec(UnitEventSpec(behavior.CardNo))
-                && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST" or "PLAY_OR_LEAVE" or "PLAY_OR_EXHAUST" or "PLAY_AFTER_ANOTHER_CARD")
+                && !UnitEventTimingMatches(UnitEventSpec(behavior.CardNo)?.Timing, "PLAY")
+                && UnitEventSpec(behavior.CardNo)?.Timing != "PLAY_AFTER_ANOTHER_CARD"
                 && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
                     || ShouldCreateBaseUnitTokens(behavior, item))
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
