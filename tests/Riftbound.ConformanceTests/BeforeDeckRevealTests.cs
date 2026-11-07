@@ -42,8 +42,17 @@ public sealed class BeforeDeckRevealTests
     {
         var game = new Driver(RadGearTestPosition.Put(Position(), "SEED2", Seedling, "P1", "BASE"));
         await ApprenticeBlacksmithRevealTests.Move(game); await game.Top();
+        var order = game.State.PendingRuleChoice!.Request;
+        Assert.Equal(CoreRuleEngine.BeforeDeckRevealOrderKind, order.Kind);
+        var before = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("invalid-before-order", "P1", CommandTypes.PayCost),
+            new PayCostCommand(order.Id, CoreRuleEngine.RuleChoiceWindow, ["SOURCE:99"]), default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events); Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+        await game.Act("P1", new PayCostCommand(order.Id, CoreRuleEngine.RuleChoiceWindow, ["SOURCE:1"]));
+        Assert.Equal("SEED2", game.State.PendingRuleChoice!.Request.Preview!.DeckObservationView!.BeforeReveal!.Source.ObjectId);
         await Decide(game, true);
         Assert.Equal("P1-D1", game.State.PendingRuleChoice!.Request.Preview!.DeckObservationView!.BeforeReveal!.Card.ObjectId);
+        Assert.Equal("SEED", game.State.PendingRuleChoice!.Request.Preview!.DeckObservationView!.BeforeReveal!.Source.ObjectId);
         await Decide(game, false);
         Assert.Contains("P1-D1", game.State.PlayerZones["P1"].Hand);
         Assert.Equal(2, game.Events().Count(e => e.Event.Kind == CoreRuleEngine.BeforeDeckRevealLookEvent));
@@ -176,6 +185,38 @@ public sealed class BeforeDeckRevealTests
         await game.Act("P1", new PlayCardCommand("P2-D1", "OGN·219/298", []));
         Assert.Single(game.Events(), e => e.Event.Kind == CoreRuleEngine.BeforeDeckRevealLookEvent);
         Assert.Equal("P2-D0", game.State.PlayerZones["P2"].MainDeck[^1]); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AControllerRevealingAnOpponentsDeckUsesTheirOwnSeedlingAndKeepsTheForeignPrelookPrivate(bool recycle)
+    {
+        var state = RadGearTestPosition.Put(RadGearTestPosition.Create(), "SEED1", Seedling, "P1", "BASE");
+        state = RadGearTestPosition.Put(state, "SEED2", Seedling, "P2", "BASE");
+        state = RadGearTestPosition.Put(state, "TRAINER", "RAD·018/167", "P1", "HAND");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["P2-D0"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-D0", "OGN·194/298", "P2") } };
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("TRAINER", "RAD·018/167", [], Destination: "BASE")); await game.Top();
+        var peek = game.State.PendingRuleChoice!.Request;
+        Assert.Equal(CoreRuleEngine.BeforeDeckRevealChoiceKind, peek.Kind);
+        Assert.Equal("P1", peek.PlayerId);
+        var view = peek.Preview!.DeckObservationView!;
+        Assert.Equal("P2", view.DeckOwnerId); Assert.Equal("SEED1", view.BeforeReveal!.Source.ObjectId);
+        Assert.Contains("P2-D0", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P1"]));
+        Assert.DoesNotContain("P2-D0", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
+        var forged = game.State with { PendingRuleChoice = game.State.PendingRuleChoice! with { Request = peek with {
+            Preview = peek.Preview! with { DeckObservationView = view with { DeckOwnerId = null } } } } };
+        Assert.NotEmpty(Errors(game, forged));
+        await Decide(game, recycle);
+        Assert.Null(game.State.PendingRuleChoice); // Neither player receives an owned Nocturne observation permission.
+        var choice = game.State.PendingCardChoice!; var selected = recycle ? "P2-D1" : "P2-D0";
+        Assert.Equal("P1", choice.PlayerId); Assert.Equal(new[] { selected }, choice.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [selected]));
+        await game.Act("P1", new PlayCardCommand(selected, recycle ? "OGN·219/298" : "OGN·194/298", []));
+        Assert.Single(game.Events(), e => e.Event.Kind == CoreRuleEngine.BeforeDeckRevealLookEvent);
+        if (recycle) Assert.Equal("P2-D0", game.State.PlayerZones["P2"].MainDeck[^1]);
+        Assert.Empty(game.State.ObservedDeckPlays ?? []); await game.Replay();
     }
 
     [Fact]
@@ -318,10 +359,15 @@ public sealed class BeforeDeckRevealTests
         return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["P1-D1"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-D1", "SFD·022/221", "P1") } };
     }
-    private static Task Decide(Driver game, bool recycle)
+    private static async Task Decide(Driver game, bool recycle)
     {
+        while (game.State.PendingRuleChoice?.Request.Kind == CoreRuleEngine.BeforeDeckRevealOrderKind)
+        {
+            var order = game.State.PendingRuleChoice.Request;
+            await game.Act(order.PlayerId, new PayCostCommand(order.Id, CoreRuleEngine.RuleChoiceWindow, [order.Options[0].Id]));
+        }
         var choice = game.State.PendingRuleChoice!.Request;
-        return game.Act(choice.PlayerId, new PayCostCommand(choice.Id, CoreRuleEngine.RuleChoiceWindow, [recycle ? "RECYCLE" : "KEEP"]));
+        await game.Act(choice.PlayerId, new PayCostCommand(choice.Id, CoreRuleEngine.RuleChoiceWindow, [recycle ? "RECYCLE" : "KEEP"]));
     }
     private static IReadOnlyList<string> Errors(Driver game, MatchState state)
     {

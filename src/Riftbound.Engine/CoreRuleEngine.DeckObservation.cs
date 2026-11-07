@@ -44,9 +44,12 @@ public sealed partial class CoreRuleEngine
     private static string[] ObserveDeckCards(MatchState state, Dictionary<string,PlayerZones> zones,
         Dictionary<string,CardObjectState> cards, StackItemState parent, string player, IReadOnlyList<string> seen,
         string kind, int execution, List<GameEvent> events, bool selectionReveal=false,
-        IReadOnlyDictionary<string,long>? simultaneousReveals=null, BeforeDeckRevealLookContext? beforeReveal=null)
+        IReadOnlyDictionary<string,long>? simultaneousReveals=null, BeforeDeckRevealLookContext? beforeReveal=null, string? actingPlayer=null)
     {
         if(RuleChoices.Value is not { } frame)return seen.ToArray();
+        // A private deck card grants its owner's "you observe me" permission
+        // only when that owner actually performs the look/reveal action.
+        if (actingPlayer is not null && actingPlayer != player) return seen.ToArray();
         var instruction=new DeckObservationInstruction(parent,player,kind,execution,
             seen.Select(id=>new ObjectBinding(id,cards.TryGetValue(id,out var known)?known.ObjectGeneration:0)).ToArray()) {
                 SelectionReveal=selectionReveal, BeforeReveal=beforeReveal };
@@ -205,7 +208,7 @@ public sealed partial class CoreRuleEngine
             && card.ObjectGeneration==generation && (v.DeckZone == "RUNE_DECK"
                 ? state.PlayerZones[v.DeckOwnerId ?? v.PlayerId].RuneDeck.Contains(id) : v.Public
                 ? state.PlayerZones.Values.Any(zone=>zone.MainDeck.Contains(id))
-                : state.PlayerZones[v.PlayerId].MainDeck.Contains(id));
+                : state.PlayerZones[v.DeckOwnerId ?? v.PlayerId].MainDeck.Contains(id));
 
     internal static bool ValidObservedDeckPlay(MatchState state, ObservedDeckPlayContext c)
     {
@@ -244,6 +247,8 @@ public sealed partial class CoreRuleEngine
                 || card.ObjectGeneration!=c.Card.Generation || card.OwnerId!=i.PlayerId || card.ControllerId!=i.PlayerId
                 || !card.Tags.Contains(CardObjectTags.UnitCard)
                 || c.Id!=$"OBSERVED:{c.CapturedTick}:{parent.StackItemId}:{i.ExecutionIndex}:{c.Card.ObjectId}")return false;
+            if (i.BeforeReveal is null && TryGetEffectPlayDefinition(parent, out var actorDefinition)
+                && actorDefinition.DeckPlayKind.Length > 0 && DeckRevealPlayer(parent, i.PlayerId) != i.PlayerId) return false;
             return i.Seen.All(b=>state.CardObjects.TryGetValue(b.ObjectId,out var seen)&&seen.ObjectGeneration>=b.Generation)
                 && (!revealUntilUnit || i.Kind=="REVEAL" && i.Seen.Last().ObjectId==c.Card.ObjectId
                     && i.Seen.Take(i.Seen.Count-1).All(b=>!state.CardObjects[b.ObjectId].Tags.Contains(CardObjectTags.UnitCard)));
