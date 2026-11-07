@@ -2430,7 +2430,7 @@ public static class CardBehaviorRegistry
             "FORESIGHT_MASK_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("FRIENDLY_SOLO_BATTLE_ROLE", "MIGHT_OBSERVED_UNIT", 1)),
         new(
             "OGN·072/298",
             "烈阳圣坛",
@@ -2478,7 +2478,7 @@ public static class CardBehaviorRegistry
             "PIRATE_HIDEOUT_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("FRIENDLY_UNIT_READIED", "MIGHT_OBSERVED_UNIT", 1)),
         new(
             "UNL-045/219",
             "被遗忘的路标",
@@ -2697,7 +2697,8 @@ public static class CardBehaviorRegistry
             "MISTFALL_BLADEYARD_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("FRIENDLY_UNIT_BOON_GRANTED", "READY_OBSERVED_UNIT",
+                LeadingPowerCost: 1, LeadingPowerTrait: RuneTrait.Orange, Optional: true, LeadingSourceExhaust: true)),
         new(
             "OGN·160/298",
             "闪耀极光",

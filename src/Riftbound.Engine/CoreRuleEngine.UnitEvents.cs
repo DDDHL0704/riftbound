@@ -10,7 +10,11 @@ public sealed record UnitEventContext(string CardNo, long SourceGeneration, long
     BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, MightReductionFact? MightReduction = null, ObjectBinding? DeploymentBattlefield = null, IReadOnlyList<UnitEventOtherObject>? ExhaustedUnits = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PlayedUnitRuneObservation? PlayedUnitRunes = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RevealedRuneFact? RevealedRune = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] TargetSelectionOrigin? TargetSelection = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] TargetSelectionOrigin? TargetSelection = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public FriendlyUnitActionOrigin? FriendlyUnitAction { get; init; }
+}
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -204,12 +208,14 @@ public sealed partial class CoreRuleEngine
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
         string timing, string eventKind, long? capturedTick = null)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")
-            .Concat(CaptureFriendlyAttackHere(state, attackers)).Select(o => CaptureUnitEventFacts(state, o))
+            .Concat(CaptureFriendlyAttackHere(state, attackers))
+            .Concat(CaptureSoloRoleObservers(state, attackers, "ATTACK")).Select(o => CaptureUnitEventFacts(state, o))
             .Select((o, i) => UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static TriggerQueueItemState[] CaptureRoleUnitEvents(MatchState state, IEnumerable<string> units,
         string role, string timing, string eventKind, long? capturedTick = null)
-        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role).Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) =>
+        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role)
+            .Concat(CaptureSoloRoleObservers(state, units, role)).Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) =>
             UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static UnitEventObservation CaptureUnitEventFacts(MatchState state, UnitEventObservation o)
@@ -332,6 +338,7 @@ public sealed partial class CoreRuleEngine
                     : c.ReflexiveTick is null
                 : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
             && ValidTargetSelectionContext(state, c, spec, controller)
+            && ValidFriendlyUnitActionContext(state, c, spec, controller)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
@@ -340,7 +347,7 @@ public sealed partial class CoreRuleEngine
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
-                : spec.Effect == ReadySelectedEventUnit ? c.Other is not null : c.Other is null)
+                : spec.Effect == ReadySelectedEventUnit || IsFriendlyObservedUnitSpec(spec) ? c.Other is not null : c.Other is null)
             && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect == "MIGHT_ATTACKERS" ? c.Attackers is { Count: > 0 }
                 && c.Attackers.All(a => a is not null && a.Binding is { Generation: >= 0 }
@@ -468,6 +475,7 @@ public sealed partial class CoreRuleEngine
         var spec = SelectedUnitEventSpec(context)!;
         if (spec.Effect == RuneDomainRevealEffect && context.RevealedRune is null) return ResolveRuneDomainReveal(state, item);
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
+        if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
         if (spec.Effect == ReadySelectedEventUnit) return ResolveSelectedEventUnitReady(state, item);
         if (spec.Effect == RuneDomainDamageEffect) return ResolveRuneDomainDamage(state, item, spec);
         if (spec.Effect == StandbyHandPlayHereEffect)
