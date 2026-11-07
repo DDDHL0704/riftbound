@@ -67,7 +67,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
     bool GrantsMysteriousWeaponRecall = false, bool GrantsPaidRecall = false,
     bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false,
-    bool RequiresEncouraged = false, bool DestroysSourceAsCost = false, bool RecyclesGraveyardTargets = false);
+    bool RequiresEncouraged = false, bool DestroysSourceAsCost = false, bool RecyclesGraveyardTargets = false,
+    bool ConsumesSourceBoonAsCost = false, bool GrantsSourceRoam = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -295,6 +296,24 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("CONSUME_BOON_DAMAGE_2", "OGN·157/298", "CONSUME_BOON_DAMAGE_2", "乌迪尔：造成2点伤害", 0, 0, 1,
+            false, false, 2, true, "消耗我的一个增益：对战场上的一名单位造成2点伤害；每个技能实例每回合限选此模式一次。",
+            SourceRequiredTag: CardObjectTags.UnitCard, TargetScope: CardTargetScopes.BattlefieldUnit,
+            SupportsCopiedRuleText: true,
+            SimpleEffect: new(BattlefieldUnitDamage: 2, OncePerTurn: true, ConsumesSourceBoonAsCost: true)),
+        new("CONSUME_BOON_STUN_UNIT", "OGN·157/298", "CONSUME_BOON_STUN_UNIT", "乌迪尔：眩晕单位", 0, 0, 1,
+            false, false, 0, true, "消耗我的一个增益：眩晕战场上的一名单位；每个技能实例每回合限选此模式一次。",
+            SourceRequiredTag: CardObjectTags.UnitCard, TargetScope: CardTargetScopes.BattlefieldUnit,
+            SupportsCopiedRuleText: true,
+            SimpleEffect: new(StunsTarget: true, OncePerTurn: true, ConsumesSourceBoonAsCost: true)),
+        new("CONSUME_BOON_READY_SELF", "OGN·157/298", "CONSUME_BOON_READY_SELF", "乌迪尔：活跃自身", 0, 0, 0,
+            false, false, 0, false, "消耗我的一个增益：让我变为活跃状态；每个技能实例每回合限选此模式一次。",
+            SourceRequiredTag: CardObjectTags.UnitCard, SupportsCopiedRuleText: true,
+            SimpleEffect: new(ReadiesSource: true, OncePerTurn: true, ConsumesSourceBoonAsCost: true)),
+        new("CONSUME_BOON_ROAM_SELF", "OGN·157/298", "CONSUME_BOON_ROAM_SELF", "乌迪尔：本回合游走", 0, 0, 0,
+            false, false, 0, false, "消耗我的一个增益：使我本回合内获得游走；每个技能实例每回合限选此模式一次。",
+            SourceRequiredTag: CardObjectTags.UnitCard, SupportsCopiedRuleText: true,
+            SimpleEffect: new(GrantsSourceRoam: true, OncePerTurn: true, ConsumesSourceBoonAsCost: true)),
         new("EXHAUST_DECLARED_ATTRIBUTE_MINUS_2", "UNL-138/219", "EXHAUST_DECLARED_ATTRIBUTE_MINUS_2",
             "夺命名单", 0, 0, 1, false, true, 0, true, "横置：具有本组技能宣告的属性标签的单位本回合战力-2。",
             SourceRequiredTag: CardObjectTags.EquipmentCard, SimpleEffect: new(TargetsDeclaredAttribute: true)),
