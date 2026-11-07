@@ -29,13 +29,6 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "contains": [
-            "triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
-            "RevealMatchCardFilter: TriggerCardFilters.TagPrefix + \"CARD_TYPE:EQUIPMENT\""
-          ]
-        },
-        {
           "path": "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs",
           "contains": [
             "trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
@@ -106,13 +99,6 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "contains": [
-            "triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
-            "RevealMatchCardFilter: TriggerCardFilters.TagPrefix + \"CARD_TYPE:EQUIPMENT\""
-          ]
-        },
-        {
           "path": "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs",
           "contains": [
             "trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
@@ -151,6 +137,188 @@
             "RevealsOnlyTheActualTopDrawsEquipmentAndOtherwiseRecyclesWithoutBurnout",
             "RevealedNocturneMayBanishButNeverMakesTheNextCardAnEquipmentDraw",
             "ReturningTheSmithInResponseKeepsTheIndependentRevealAndHidesItsCurrentPrivateSource"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·018/221"
+      ],
+      "text": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
+      "scope": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
+      "location": "upper",
+      "status": "route",
+      "reason": "共享展示前替换流程私下查看主牌堆或符文牌堆顶，可保留或回收，然后继续原展示；每个当前受控来源及借用文本各应用一次，回响各次执行独立处理。魔腾放逐后不虚构原选择对象或替换为下一张牌；私下回收保留正常观察者但不公开牌号，原接受事件约束放逐出牌权限及恢复。",
+      "rules": "SFD·018官方中文文本；中国区核心369.1、370.1.b.1替换／延续、417回收、425.1–425.4展示及原区域、432.1.c空观察、128私密信息",
+      "runtime": {
+        "staticAbilities": [
+          {
+            "node": {
+              "kind": "BEFORE_DECK_REVEAL_LOOK_RECYCLE",
+              "amount": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeforeDeckReveal.cs",
+          "contains": [
+            "StaticAbilityKinds.BeforeDeckRevealLookRecycle && spec.Amount == 1",
+            "ObserveDeckCards(state, zones, cards, parent, player, [top], \"LOOK\"",
+            "if (selected != \"RECYCLE\") continue;",
+            "zone == \"RUNE_DECK\" ? zones[player].RuneDeck : zones[player].MainDeck",
+            "events.Add(recycled with { Payload = recycled.Payload.Where(field => field.Key != \"cardIds\")",
+            "internal static bool ValidBeforeDeckRevealDisclosure(MatchState state)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuneDomainReveal.cs",
+          "contains": [
+            "BeforeDeckReveal(state, zones, cards, item, player, events, zone: \"RUNE_DECK\");"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementReveal.cs",
+          "contains": [
+            "if (previous is null) BeforeDeckReveal(state, zones, cards, item, player, events, execution);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "selectionReveal: true",
+            "selected = selected.Where(id => zones[item.ControllerId].MainDeck.Contains(id)).ToArray();",
+            "choice.ContextObjectIds);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "if (DeckPlaySequenceReveals(item))",
+            "events.Concat(finished.Events).ToArray()"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.DeckObservationHistory.cs",
+          "contains": [
+            "ValidateObservedDeckPlayHistory(",
+            "\"observationHash\"",
+            "c.Accepted && c.CompletedTick == matches[0].Tick"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BeforeDeckRevealTests.cs",
+          "methods": [
+            "ActualSeedlingPlayPrivatelyLooksBeforeTheSmithRevealsAndContinuesWithTheCurrentTop",
+            "EachCurrentSeedlingAppliesOnceBeforeOneRevealInstruction",
+            "OnlyCurrentFieldSourcesControlledByTheRevealingPlayerApplyAndEmptyDecksNeedNoChoice",
+            "ANocturneSeenInThePrivatePrelookMayBanishBeforeTheOriginalRevealContinues",
+            "APrivateRunePeekCanRecycleBeforeFateRevealsAndDoesNotGeneratePower",
+            "BanishingTheOnlyPrivatelyLookedCardPreservesTheBanishWhenTheGuessedRevealIsEmpty",
+            "RecyclingBeforeAFilteredRevealKeepsTheOriginalSelectionAndTheOriginalFiveCardRemainder",
+            "BlindFuryLetsTheInstructedOpponentApplyTheirOwnSeedlingBeforeTheirDeckIsRevealed",
+            "ARealSongCopiesThePrintedReplacementAsOneAdditionalPrivateLook",
+            "ASelectedNocturneBanishedByThePrelookIsNotRevealedDrawnOrReplacedByAnotherCard",
+            "DecliningNocturnesPrivateOfferStillAllowsRecyclingOrItsSeparatePublicRevealOffer",
+            "ARealEchoKeepsEachOriginalSelectionAndRunsItsOwnPrelookAtTheNextExecution",
+            "APrivatePrelookRecycleStillCapturesTheNormalIndependentBoonObserver",
+            "MalformedPrivateDisclosureIsRejectedByItsSemanticValidatorWithoutThrowing",
+            "AChangedPrivatePeekCannotBeRecoveredOrAnsweredAndARejectedAnswerIsAtomic"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·018/221"
+      ],
+      "text": "然后继续展示这些卡牌。",
+      "scope": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
+      "location": "upper",
+      "status": "route",
+      "reason": "共享展示前替换流程私下查看主牌堆或符文牌堆顶，可保留或回收，然后继续原展示；每个当前受控来源及借用文本各应用一次，回响各次执行独立处理。魔腾放逐后不虚构原选择对象或替换为下一张牌；私下回收保留正常观察者但不公开牌号，原接受事件约束放逐出牌权限及恢复。",
+      "rules": "SFD·018官方中文文本；中国区核心369.1、370.1.b.1替换／延续、417回收、425.1–425.4展示及原区域、432.1.c空观察、128私密信息",
+      "runtime": {
+        "staticAbilities": [
+          {
+            "node": {
+              "kind": "BEFORE_DECK_REVEAL_LOOK_RECYCLE",
+              "amount": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeforeDeckReveal.cs",
+          "contains": [
+            "StaticAbilityKinds.BeforeDeckRevealLookRecycle && spec.Amount == 1",
+            "ObserveDeckCards(state, zones, cards, parent, player, [top], \"LOOK\"",
+            "if (selected != \"RECYCLE\") continue;",
+            "zone == \"RUNE_DECK\" ? zones[player].RuneDeck : zones[player].MainDeck",
+            "events.Add(recycled with { Payload = recycled.Payload.Where(field => field.Key != \"cardIds\")",
+            "internal static bool ValidBeforeDeckRevealDisclosure(MatchState state)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuneDomainReveal.cs",
+          "contains": [
+            "BeforeDeckReveal(state, zones, cards, item, player, events, zone: \"RUNE_DECK\");"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementReveal.cs",
+          "contains": [
+            "if (previous is null) BeforeDeckReveal(state, zones, cards, item, player, events, execution);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "selectionReveal: true",
+            "selected = selected.Where(id => zones[item.ControllerId].MainDeck.Contains(id)).ToArray();",
+            "choice.ContextObjectIds);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "if (DeckPlaySequenceReveals(item))",
+            "events.Concat(finished.Events).ToArray()"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.DeckObservationHistory.cs",
+          "contains": [
+            "ValidateObservedDeckPlayHistory(",
+            "\"observationHash\"",
+            "c.Accepted && c.CompletedTick == matches[0].Tick"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BeforeDeckRevealTests.cs",
+          "methods": [
+            "ActualSeedlingPlayPrivatelyLooksBeforeTheSmithRevealsAndContinuesWithTheCurrentTop",
+            "EachCurrentSeedlingAppliesOnceBeforeOneRevealInstruction",
+            "OnlyCurrentFieldSourcesControlledByTheRevealingPlayerApplyAndEmptyDecksNeedNoChoice",
+            "ANocturneSeenInThePrivatePrelookMayBanishBeforeTheOriginalRevealContinues",
+            "APrivateRunePeekCanRecycleBeforeFateRevealsAndDoesNotGeneratePower",
+            "BanishingTheOnlyPrivatelyLookedCardPreservesTheBanishWhenTheGuessedRevealIsEmpty",
+            "RecyclingBeforeAFilteredRevealKeepsTheOriginalSelectionAndTheOriginalFiveCardRemainder",
+            "BlindFuryLetsTheInstructedOpponentApplyTheirOwnSeedlingBeforeTheirDeckIsRevealed",
+            "ARealSongCopiesThePrintedReplacementAsOneAdditionalPrivateLook",
+            "ASelectedNocturneBanishedByThePrelookIsNotRevealedDrawnOrReplacedByAnotherCard",
+            "DecliningNocturnesPrivateOfferStillAllowsRecyclingOrItsSeparatePublicRevealOffer",
+            "ARealEchoKeepsEachOriginalSelectionAndRunsItsOwnPrelookAtTheNextExecution",
+            "APrivatePrelookRecycleStillCapturesTheNormalIndependentBoonObserver",
+            "MalformedPrivateDisclosureIsRejectedByItsSemanticValidatorWithoutThrowing",
+            "AChangedPrivatePeekCannotBeRecoveredOrAnsweredAndARejectedAnswerIsAtomic"
           ]
         }
       ]

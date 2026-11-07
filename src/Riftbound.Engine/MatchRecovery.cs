@@ -1220,6 +1220,7 @@ public static partial class MatchRecoveryValidator
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
+            ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateNamedConquestActivationHistory(authoritativeState, commands, events, errors);
@@ -4693,8 +4694,10 @@ public static partial class MatchRecoveryValidator
                     || !CoreRuleEngine.ValidSequentialMovementPlan(state, execution.EffectKind, execution.TargetObjectIds.Count, execution.MovementDestinations))))
                 errors.Add("invalid spell repeat execution plan");
         }
-        if(state.DeckObservationView is not null && state.PendingRuleChoice is not {Request.Kind:"DECK_OBSERVATION_BANISH"})
+        if(state.DeckObservationView is not null && (state.PendingRuleChoice is not { } visibilityChoice
+            || visibilityChoice.Request.Kind is not ("DECK_OBSERVATION_BANISH" or CoreRuleEngine.BeforeDeckRevealChoiceKind)))
             errors.Add("invalid observed deck visibility outside static choice");
+        if (!CoreRuleEngine.ValidBeforeDeckRevealDisclosure(CoreRuleEngine.VisibleRuleChoiceState(state))) errors.Add("invalid before-reveal private disclosure");
         if(state.ObservedDeckPlays is { } observedHistory && (observedHistory.Any(c=>c is null || c.Card is null || c.Instruction is null)
             || observedHistory.Select(c=>c.Id).Distinct().Count()!=observedHistory.Count
             || observedHistory.Select(c=>c.Card.ObjectId).Distinct().Count()!=observedHistory.Count

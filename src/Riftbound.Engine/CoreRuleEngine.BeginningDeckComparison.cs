@@ -11,6 +11,8 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
+        foreach (var player in state.Seats.Keys.OrderBy(player => player == state.TurnPlayerId ? 0 : 1).ThenBy(player => player, StringComparer.Ordinal))
+            BeforeDeckReveal(state, zones, cards, item, player, events);
         var revealed = state.Seats.Keys.OrderBy(player => player == state.TurnPlayerId ? 0 : 1)
             .ThenBy(player => player, StringComparer.Ordinal)
             .Select(player => (Player: player, Card: zones[player].MainDeck.FirstOrDefault()))

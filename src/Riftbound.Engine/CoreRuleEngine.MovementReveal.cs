@@ -13,7 +13,8 @@ public sealed partial class CoreRuleEngine
         var player = item.ControllerId;
         var execution = item.CompletedDeckExecutions;
         var previous = (state.ObservedDeckPlays ?? []).FirstOrDefault(c => c.Instruction.Parent.StackItemId == item.StackItemId
-            && c.Instruction.PlayerId == player && c.Instruction.ExecutionIndex == execution);
+            && c.Instruction.PlayerId == player && c.Instruction.ExecutionIndex == execution && c.Instruction.BeforeReveal is null);
+        if (previous is null) BeforeDeckReveal(state, zones, cards, item, player, events, execution);
         var seen = previous?.Instruction.Seen.Select(b => b.ObjectId).ToArray()
             ?? TakeControlledMainDeckPrefix(cards, player, zones[player].MainDeck, 1);
         var top = seen.FirstOrDefault();

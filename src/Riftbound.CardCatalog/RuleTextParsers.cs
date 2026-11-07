@@ -3397,6 +3397,12 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        var beforeReveal = Regex.Match(text,
+            @"当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。\s*然后继续展示这些卡牌。",
+            RegexOptions.CultureInvariant);
+        if (beforeReveal.Success)
+            staticSpecs.Add(new(StaticAbilityKinds.BeforeDeckRevealLookRecycle, beforeReveal.Value,
+                BehaviorImplementationStatuses.Implemented, "Before a deck reveal instruction, privately look at its top and optionally recycle it.", Amount: 1));
         var firstPermanent = Regex.Match(text,
             @"于每名玩家，该玩家在其回合内在此处打出的首个单位或装备，其费用减少\{\{(?<amount>[0-9]+)\}\}",
             RegexOptions.CultureInvariant);

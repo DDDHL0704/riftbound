@@ -79,6 +79,10 @@ public sealed partial class CoreRuleEngine
         {
             var players = DeckPlayPlayers(state, item.ControllerId, definition.DeckPlayKind);
             var count = DeckPlayLookCount(definition);
+            var observationZones=NormalizeZonesForSeats(state);var observationCards=state.CardObjects.ToDictionary();
+            if (DeckPlaySequenceReveals(item))
+                foreach (var player in players) BeforeDeckReveal(state, observationZones, observationCards, item, player, events);
+            state=state with {PlayerZones=observationZones,CardObjects=observationCards,ObjectLocations=DeckPlayLocations(state,observationZones,state.StackItems)};
             // Observation order is rule state; JSON object member order is not persistent data.
             var viewed = players.ToDictionary(p => p, p => (IReadOnlyList<ObjectBinding>)(definition.DeckPlayKind == "SINGLE_REVEAL_UNTIL_UNIT"
                 ? state.PlayerZones[p].MainDeck.TakeWhile(id => !state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard))
@@ -91,7 +95,6 @@ public sealed partial class CoreRuleEngine
                     if (viewed[player].Count > 0) events.Add(new("CARDS_REVEALED", "展示原效果看到的顶部卡牌", new Dictionary<string,object?> {
                         ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = viewed[player].Count,
                         ["cards"] = viewed[player].Select(card => new { objectId = card.ObjectId, cardNo = state.CardObjects[card.ObjectId].CardNo }).ToArray() }));
-            var observationZones=NormalizeZonesForSeats(state);var observationCards=state.CardObjects.ToDictionary();
             foreach(var player in definition.DeckPlayKind=="EACH_PLAYER_LOOK_PLAY"?Array.Empty<string>():players)
             {
                 var remaining=ObserveDeckCards(state,observationZones,observationCards,item,player,viewed[player].Select(card=>card.ObjectId).ToArray(),
@@ -175,6 +178,10 @@ public sealed partial class CoreRuleEngine
         if (c.Kind != OwnedUnitReplayKind && c.ExecutionIndex + 1 < item.EffectRepeatCount)
         {
             var count = DeckPlayLookCount(definition);
+            var repeatedZones=NormalizeZonesForSeats(state);var repeatedCards=state.CardObjects.ToDictionary();
+            if (DeckPlaySequenceReveals(item))
+                foreach (var player in c.Players) BeforeDeckReveal(state, repeatedZones, repeatedCards, item, player, events, c.ExecutionIndex + 1);
+            state=state with {PlayerZones=repeatedZones,CardObjects=repeatedCards,ObjectLocations=DeckPlayLocations(state,repeatedZones,state.StackItems)};
             c = c with { ExecutionIndex = c.ExecutionIndex + 1, SelectionIndex = 0,
                 Selected = new Dictionary<string,ObjectBinding>(), ObservedPlayers=[], Viewed = c.Players.ToDictionary(p => p,
                     p => (IReadOnlyList<ObjectBinding>)state.PlayerZones[p].MainDeck.Take(count).Select(id => new ObjectBinding(id,state.CardObjects[id].ObjectGeneration)).ToArray()) };
@@ -183,7 +190,6 @@ public sealed partial class CoreRuleEngine
                     if (c.Viewed[player].Count > 0) events.Add(new("CARDS_REVEALED", "下一次执行展示主牌堆顶部的卡牌", new Dictionary<string,object?> {
                         ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = c.Viewed[player].Count,
                         ["cards"] = c.Viewed[player].Select(card => new { objectId = card.ObjectId, cardNo = state.CardObjects[card.ObjectId].CardNo }).ToArray() }));
-            var repeatedZones=NormalizeZonesForSeats(state);var repeatedCards=state.CardObjects.ToDictionary();
             var repeatedViewed=c.Viewed.ToDictionary();
             foreach(var player in c.Kind=="EACH_PLAYER_LOOK_PLAY"?Array.Empty<string>():c.Players)
             {
@@ -197,7 +203,10 @@ public sealed partial class CoreRuleEngine
             return again with { Events = events.Concat(again.Events).ToArray() };
         }
         if (c.Queue.Count == 0 && !state.StackItems.Any(s => s.DeckPlayReflexive?.ParentStackItemId == item.StackItemId))
-            return ResolveStackItemEffect(state, item with { DeckPlaySequence = c, EffectPlayCompleted = true });
+        {
+            var finished = ResolveStackItemEffect(state, item with { DeckPlaySequence = c, EffectPlayCompleted = true });
+            return finished with { Events = events.Concat(finished.Events).ToArray() };
+        }
         StackResolutionResult? completed = null;
         if (!c.ParentCompleted)
         {
