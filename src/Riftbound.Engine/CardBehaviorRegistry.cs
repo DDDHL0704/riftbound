@@ -2,7 +2,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
+public sealed partial record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
@@ -13,7 +13,9 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
     string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
     bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0,
-    int RuneCallCount = 0, int OtherEnemyDamageAmount = 0, bool SourceInLegendZone = false);
+    int RuneCallCount = 0, int OtherEnemyDamageAmount = 0, bool SourceInLegendZone = false,
+    int IndependentExperienceGain = 0, int RequiredOpponentVictoryDistance = 0,
+    bool RequiresIsolatedEnemyHere = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false,
@@ -200,7 +202,7 @@ public sealed record CardBehaviorDefinition(
     string TargetTokenFactoryCardNo = "",
     bool RebuildsDestroyedBombsAtEndStep = false,
     bool DrawsControllerAndOtherPlayers = false,
-    bool CallsRuneForControllerAndOtherPlayers = false,
+    bool OtherPlayersChooseDrawOrRune = false,
     bool GrantsBoon = false,
     string ChosenMovementDestinationZone = "",
     bool ChosenMovementDestinationRequiresOtherUnitOfTargetController = false,
@@ -326,8 +328,6 @@ public sealed record CardBehaviorDefinition(
     string SourceStunEnemyUnitTriggerEffectKind = "",
     int SourcePowerOnControllerStandbyHiddenAmount = 0,
     string SourcePowerOnControllerStandbyHiddenEffectKind = "",
-    int SourceAttackDamageToFirstDefenderAmount = 0,
-    string SourceAttackDamageToFirstDefenderEffectKind = "",
     string UnitHighCostSpellPowerModifierEffectKind = "",
     string UnitAttackPayPowerModifierEffectKind = "",
     bool GrantsFreeStandbyHidePermission = false,
@@ -430,10 +430,14 @@ public sealed record CardBehaviorDefinition(
     int FriendlyLastBreathAdditionalTriggersHere = 0,
     int FriendlyLastBreathAdditionalTriggers = 0,
     SpellModeSetSpec? SpellModes = null,
-    bool DefaultChosenMovementToControllerBase = false)
+    bool DefaultChosenMovementToControllerBase = false,
+    IReadOnlyList<int>? CostReductionExperienceThresholds = null)
 {
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
+    internal bool IgnoreBasePlayCostFromBoons { get; init; }
+    internal IReadOnlyList<BoonPlayCostPayment>? BoonPlayCostPayments { get; init; }
+    internal IReadOnlyDictionary<string, int>? BoonPlayPowerReductions { get; init; }
 }
 
 public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);
@@ -570,6 +574,7 @@ public static class CardCostReductionConditionKinds
     public const string ControlledFieldEquipmentCount = "CONTROLLED_FIELD_EQUIPMENT_COUNT";
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
     public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
+    public const string ControllerExperienceThresholdCount = "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT";
 }
 
 public static class CardSourceBoonConditionKinds
@@ -1916,22 +1921,12 @@ public static class CardBehaviorRegistry
             "OGN·071/298",
             "次元门狂欢",
             3,
-            "PORTALPALOOZA_OTHER_PLAYERS_CHOOSE_CARDS",
+            "OTHER_PLAYERS_DRAW_OR_RUNE_CHOICE",
             0,
             0,
             DrawCount: 1,
-            Mode: "OTHER_PLAYERS_CHOOSE_CARDS",
-            DrawsControllerAndOtherPlayers: true),
-        new(
-            "OGN·071/298",
-            "次元门狂欢",
-            3,
-            "PORTALPALOOZA_OTHER_PLAYERS_CHOOSE_RUNES",
-            0,
-            0,
             RuneCallCount: 1,
-            Mode: "OTHER_PLAYERS_CHOOSE_RUNES",
-            CallsRuneForControllerAndOtherPlayers: true),
+            OtherPlayersChooseDrawOrRune: true),
         new(
             "SFD·122/221",
             "预判攻势",
@@ -2065,8 +2060,8 @@ public static class CardBehaviorRegistry
             "SCRAP_HEAP_PLAY_EQUIPMENT_DRAW_1",
             0,
             0,
-            DrawCount: 1,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("PLAY_OR_SELF_DISCARDED_OR_DESTROYED", "DRAW", 1)),
         new(
             "UNL-078/219",
             "精灵提灯",
@@ -2430,7 +2425,7 @@ public static class CardBehaviorRegistry
             "FORESIGHT_MASK_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("FRIENDLY_SOLO_BATTLE_ROLE", "MIGHT_OBSERVED_UNIT", 1)),
         new(
             "OGN·072/298",
             "烈阳圣坛",
@@ -2478,7 +2473,7 @@ public static class CardBehaviorRegistry
             "PIRATE_HIDEOUT_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("FRIENDLY_UNIT_READIED", "MIGHT_OBSERVED_UNIT", 1)),
         new(
             "UNL-045/219",
             "被遗忘的路标",
@@ -2697,7 +2692,8 @@ public static class CardBehaviorRegistry
             "MISTFALL_BLADEYARD_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("FRIENDLY_UNIT_BOON_GRANTED", "READY_OBSERVED_UNIT",
+                LeadingPowerCost: 1, LeadingPowerTrait: RuneTrait.Orange, Optional: true, LeadingSourceExhaust: true)),
         new(
             "OGN·160/298",
             "闪耀极光",
@@ -2713,7 +2709,8 @@ public static class CardBehaviorRegistry
             "SOLARI_EMBLEM_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("ATTACKING_BATTLE_DRAW", "RECALL_BATTLEFIELD_UNITS")),
         new(
             "OGN·228/298",
             "先锋之盔",
@@ -3022,11 +3019,6 @@ public static class CardBehaviorRegistry
             "SPRITE_MOTHER_PLAY_UNIT_CREATE_SPRITE",
             0,
             0,
-            CreatedBaseUnitTokenCount: 1,
-            CreatedBaseUnitTokenEntersReady: true,
-            CreatedBaseUnitTokenPower: 3,
-            CreatedBaseUnitTokenName: "精灵",
-            CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
@@ -5146,9 +5138,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "海盗",
-            SourceAttackDamageToFirstDefenderAmount: 1,
-            SourceAttackDamageToFirstDefenderEffectKind: "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1"),
+            SourceUnitTags: "海盗"),
         new(
             "OGN·131/298",
             "沙丘亚龙",
@@ -5664,7 +5654,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new("PLAY", "BOON_SELF") { BoonsFriendlyUnitsHereIfPlayedToBattlefield = true }),
         new(
             "OGN·226/298",
             "幽灵主母",
@@ -5864,7 +5855,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|法盾"),
+            SourceUnitTags: "约德尔人|法盾",
+            UnitEventAbility: new("PLAY", "READY_SELF", IndependentExperienceGain: 3, RequiredOpponentVictoryDistance: 3)),
         new(
             "UNL-116a/219",
             "波比",
@@ -5874,7 +5866,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|法盾"),
+            SourceUnitTags: "约德尔人|法盾",
+            UnitEventAbility: new("PLAY", "READY_SELF", IndependentExperienceGain: 3, RequiredOpponentVictoryDistance: 3)),
         new(
             "UNL-004/219",
             "晋升信徒",
@@ -7490,9 +7483,8 @@ public static class CardBehaviorRegistry
             7,
             "HEARTSPLIT_DRAGON_PLAY_UNIT_DISCARD_OPPONENT_HAND",
             0,
-            1,
-            TargetScope: CardTargetScopes.OpponentHandCard,
-            DiscardsTargetFromOwnerHand: true,
+            0,
+            HandChoice: new(RevealedHandAction.Discard),
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7),
         new(
@@ -7861,7 +7853,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2, IndependentExperienceGain: 2,
+                RequiresIsolatedEnemyHere: true)),
         new(
             "UNL-143a/219",
             "卡兹克",
@@ -7870,7 +7864,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2, IndependentExperienceGain: 2,
+                RequiresIsolatedEnemyHere: true)),
         new(
             "UNL-149/219",
             "黛安娜",
@@ -7944,7 +7940,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExperienceThresholdCount,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Green,
+            CostReductionExperienceThresholds: [3, 6, 11]),
         new(
             "UNL-059a/219",
             "易",
@@ -7953,7 +7952,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExperienceThresholdCount,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Green,
+            CostReductionExperienceThresholds: [3, 6, 11]),
         new(
             "UNL-080/219",
             "彗",

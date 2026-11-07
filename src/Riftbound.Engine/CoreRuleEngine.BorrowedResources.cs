@@ -24,13 +24,9 @@ public sealed partial class CoreRuleEngine
 
     private static BorrowedExhaustSpec EffectiveBorrowedResourceSpec(MatchState state, string player,
         CardObjectState source, BorrowedExhaustSpec spec)
-        => !spec.EffectRequiresEncouraged || BorrowedEncourageActive(state, player, source.ObjectId) ? spec
+        => !spec.EffectRequiresEncouraged || EncourageActive(state, player, source.ObjectId) ? spec
             : spec with { GeneratedMana = 0, EmpoweredMana = null, GeneratedPower = 0,
                 GeneratedTraits = new Dictionary<string, int>() };
-
-    private static bool BorrowedEncourageActive(MatchState state, string player, string source)
-        => state.CardPlays.TurnNumber == state.TurnNumber && state.CardPlays.Finalized
-            .Any(play => play.PlayerId == player && play.Source.ObjectId != source);
 
     internal static bool BorrowedResourceGainSupported(RunePool pool, BorrowedExhaustSpec spec, CardObjectState source)
     {

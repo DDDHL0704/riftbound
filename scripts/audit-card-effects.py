@@ -83,7 +83,23 @@ def segments(text: str) -> list[str]:
     return combined
 
 
+def implicit_recycle_activation_count(text: str) -> int | None:
+    # CN post-event FAQ, Future Forge: this printed instruction is an activated
+    # skill; choose graveyard targets before paying source destruction.
+    if text.lstrip().startswith(("（", "(", "“", "「")):
+        return None
+    match = re.fullmatch(r"你可以选择摧毁此装备[，,]以此从任意废牌堆中回收最多([0-9一二三四五六七八九十]+)张卡牌[。.]?",
+                         unparenthesize(text).strip())
+    if not match:
+        return None
+    raw = match[1]
+    count = int(raw) if raw.isdecimal() else dict(zip("一二三四五六七八九十", range(1, 11))).get(raw, 0)
+    return count if count > 0 else None
+
+
 def is_activation(text: str) -> bool:
+    if implicit_recycle_activation_count(text) is not None:
+        return True
     # Colons in choice menus, granted quoted skills and trigger payments are not
     # independent source activations.
     head = re.split("[：:]", text, maxsplit=1)[0]
@@ -430,6 +446,13 @@ def legend_field_activation_route(card: dict, clause: dict, sources: Sources) ->
 
 
 def activation_cost_matches(ability: dict, clause: dict) -> bool:
+    if implicit_recycle_activation_count(clause["text"]) is not None:
+        simple = ability.get("simpleEffect", {})
+        return (simple.get("destroysSourceAsCost", False) and not ability.get("exhaustsSourceAsCost")
+                and not any(ability.get(key) for key in ("manaCost", "powerCost", "experienceCost", "powerCostByTrait"))
+                and not any(simple.get(key) for key in ("discardsHandCardAsCost", "discardsEquipmentAsCost",
+                    "removesSourceEmpowermentAsCost", "destroyFriendlyTagAsCost"))
+                and simple.get("exhaustFriendlyUnitMinimumPowerAsCost") is None)
     cost = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[0]
     if bool(re.search(r"\{\{(?:横置|T)\}\}", cost)) != bool(ability.get("exhaustsSourceAsCost")):
         return False
@@ -449,6 +472,12 @@ def activation_cost_matches(ability: dict, clause: dict) -> bool:
 def activation_matches(ability: dict, clause: dict) -> bool:
     if not activation_cost_matches(ability, clause):
         return False
+    if (maximum := implicit_recycle_activation_count(clause["text"])) is not None:
+        return (ability.get("kind") == "DESTROY_SOURCE_RECYCLE_GRAVEYARD"
+                and ability.get("simpleEffect", {}).get("recyclesGraveyardTargets", False)
+                and ability.get("sourceRequiredTag") == "CARD_TYPE:EQUIPMENT"
+                and ability.get("requiredTargetCount", 0) == 0 and ability.get("maximumTargetCount") == maximum
+                and not any(ability.get(key) for key in ("reactionSpeed", "swiftSpeed", "requiresBattlefieldSource")))
     _, effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
     numeric_damage = re.search(r"造成([0-9]+)点伤害", effect)
     if numeric_damage and ability.get("damageAmount") and ability["damageAmount"] != int(numeric_damage[1]):
@@ -482,7 +511,10 @@ def activation_matches(ability: dict, clause: dict) -> bool:
 
 
 def legend_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
-    effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[1].strip()
+    parts = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
+    if len(parts) != 2:
+        return None
+    effect = parts[1].strip()
     candidates = [a for a in card.get("legendActivationDefinitions", []) if activation_cost_matches(a, clause)]
     boon = re.fullmatch(r"给予一名(友方)?单位(?:\{\{增益\}\}|增益)[。.]?", effect)
     roam = re.fullmatch(r"让一名单位本回合内获得\{\{游走\}\}[。.]?", effect)
@@ -514,6 +546,11 @@ def event_operations_match(event: dict, text: str) -> bool:
     # A matching timing is not evidence for an unrelated or partial effect.
     # The trigger condition itself is not an instruction (e.g. "becomes ready").
     body = re.sub(r"^.*?时[，,]", "", text, count=1)
+    # A self-boon consumer cannot certify a different clause that grants boons
+    # to a chosen unit or every friendly unit at the source's location.
+    if event.get("effect") in {"BOON_SELF", "BOON_SELF_AND_READY"} and not re.search(
+            r"(?:给予我|给我|我获得|让我获得)[^。；]*增益", body):
+        return False
     capabilities = {
         "DRAW": {"draw"}, "DISCARD_DRAW": {"draw", "discard"},
         "MIGHT_SELF": {"might"}, "MIGHT_FRIENDLY": {"might"}, "MIGHT_ATTACKERS": {"might"},
@@ -558,6 +595,19 @@ def event_operations_match(event: dict, text: str) -> bool:
     return True
 
 
+def event_timing_routes(timing: str, sources: Sources) -> list[str]:
+    direct = sources.references('"' + timing + '"')
+    if direct:
+        return direct
+    if "_OR_" not in timing:
+        return []
+    # Union event names are interpreted by the shared capture matcher. They
+    # need not appear as hard-coded strings in executable routing anymore.
+    return [path for path in sources.references("UnitEventTimingMatches(spec.Timing, timing)")
+            if Path(path).name == "CoreRuleEngine.UnitEvents.cs"
+            and 'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal)' in sources.files[path]]
+
+
 def behavior_operations(card: dict, clause: dict, sources: Sources) -> dict | None:
     bare = unparenthesize(clause["text"])
     scope = unparenthesize(clause["scope"])
@@ -565,7 +615,7 @@ def behavior_operations(card: dict, clause: dict, sources: Sources) -> dict | No
         events = [card.get("unitEventAbility")] + [behavior.get("unitEventAbility") for behavior in card.get("behaviors", [])]
         for event in events:
             if event and re.search(EVENT_TIMINGS.get(event["timing"], r"(?!)"), scope) and event_operations_match(event, bare):
-                timing = sources.references('"' + event["timing"] + '"')
+                timing = event_timing_routes(event["timing"], sources)
                 effect = sources.references('"' + event["effect"] + '"')
                 if timing and effect:
                     return result("route", "事件技能：" + event["timing"] + "/" + event["effect"], timing + effect)
@@ -924,6 +974,163 @@ def rune_domain_reveal_route(card: dict, clause: dict, sources: Sources) -> dict
     return result("missing", "进攻展示／回收符文或对应颜色的独立技能缺少精确规格及执行消费者")
 
 
+def colored_legacy_activation_fee(card: dict, clause: dict, sources: Sources) -> dict | None:
+    if clause["kind"] != "activated" or clause["scope"] != clause["text"]:
+        return None
+    shape = normalize(unparenthesize(clause["text"]))
+    profiles = {
+        normalize("支付{{2}}和{{红色}}：让我本回合内战力翻倍。"): (
+            "PAY_2_RED_DOUBLE_POWER", "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", "ResolveActivateAbility", 0, 0, False),
+        normalize("支付{{红色}}，{{横置}}：对一名单位造成3点伤害。"): (
+            "PAY_RED_EXHAUST_DAMAGE_3", "XERATH_PAY_RED_EXHAUST_DAMAGE_3", "ResolveXerathDamageAbility", 1, 3, True),
+    }
+    if shape not in profiles:
+        return None
+    ability_id, effect, method, targets, damage, battlefield = profiles[shape]
+    candidates = [ability for ability in card.get("activations", [])
+        if ability.get("abilityId") == ability_id and ability.get("effectKind") == effect
+        and activation_matches(ability, clause) and ability.get("requiredTargetCount", 0) == targets
+        and ability.get("damageAmount", 0) == damage and bool(ability.get("requiresBattlefieldSource")) == battlefield
+        and bool(ability.get("appliesSpellshieldTargetTax")) == battlefield
+        and not any(meaningful(ability.get(key)) for key in ["simpleEffect", "kind", "isResourceSkill",
+            "paymentOnlyResource", "reactionSpeed", "swiftSpeed", "sourceRequiredTag", "sourceScope",
+            "requiredControllerCardNoOnField", "requiresBaseEquipmentSource"])]
+    path = "src/Riftbound.Engine/CoreRuleEngine.cs"
+    core = sources.files.get(path, "")
+    def region(name):
+        # Restrict proof to the actual consumer, not a neighboring skill that
+        # happens to read the same fee fields. Engine members use four spaces.
+        found = re.search(r"(?ms)^    private static ResolutionResult " + re.escape(name)
+            + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)", core)
+        return found.group(0) if found else ""
+    consumer = region(method)
+    total = "var totalPowerCost = ability.PowerCost + powerCostByTrait.Values.Sum()" \
+        + (" + spellshieldTaxPower;" if battlefield else ";")
+    generic = "genericPowerCost: " + ("(ability.PowerCost + spellshieldTaxPower)" if battlefield else "ability.PowerCost")
+    required = ["P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability)", total, generic,
+        "totalPowerCost: totalPowerCost", "powerCostByTrait: powerCostByTrait", "TryApplyOrderedPaymentResources(",
+        "PaymentCostRules.AuthorizePayment(", "PaymentCostRules.TryCommitPayment(", "PaymentCostRules.BuildCostPaidPayload("]
+    dispatcher = region("ResolveActivateAbility")
+    routed = "P4ActivatedAbilityCatalog.TryGetByAbilityId(command.AbilityId, out var ability)" in dispatcher
+    if battlefield:
+        routed = routed and "return ResolveXerathDamageAbility(state, intent, command, ability);" in dispatcher
+    if candidates and routed and all(token in consumer for token in required):
+        return result("route", "精确印刷有色费用及共享付款消费者，通用符能按核心163.2.b可代付", [path])
+    return result("missing", "缺少印刷有色费用，或真实激活消费者未将颜色要求交给共享付款校验")
+
+
+def native_unit_activation_binding(card: dict, clause: dict, sources: Sources) -> dict:
+    xerath = normalize(unparenthesize(clause["text"])).startswith(normalize("支付{{红色}}，{{横置}}"))
+    ability_id = "PAY_RED_EXHAUST_DAMAGE_3" if xerath else "PAY_2_RED_DOUBLE_POWER"
+    profiles = [ability for ability in card.get("activations", []) if ability.get("abilityId") == ability_id]
+    if not profiles or not all(ability.get("bindsUnitSource")
+            and bool(ability.get("modifiesUnitSource")) == (not xerath) for ability in profiles):
+        return result("missing", "有色费用已实现；原生技能尚未绑定来源代际及自身效果的场地限制")
+    core_path = "src/Riftbound.Engine/CoreRuleEngine.cs"
+    consumer = re.search(r"(?ms)^    private static ResolutionResult "
+        + ("ResolveXerathDamageAbility" if xerath else "ResolveActivateAbility")
+        + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)", sources.files.get(core_path, ""))
+    if not consumer or "return BindNativeUnitActivationSource(state, new ResolutionResult(" not in consumer.group(0):
+        return result("missing", "有色费用已实现；实际激活消费者未捕获原生来源代际")
+    required = {
+        core_path: [
+            "if (!ValidNativeUnitActivation(state, stackItem))",
+            "nativeAbility.ModifiesUnitSource && !NativeUnitActivationSourceStillOnField(state, stackItem)",
+            "stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);",
+            "!IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.NativeUnitActivation is null",
+            '"targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.NativeUnitActivation is null',
+            "return RedactNativeUnitActivationSource(state, stackItem, Resolve"
+                + ("XerathDamage" if xerath else "ViDoublePower") + "AbilityStackItem(state, stackItem));"],
+        "src/Riftbound.Engine/CoreRuleEngine.NativeUnitActivations.cs": [
+            "if (!result.Accepted || !ability.BindsUnitSource)",
+            "new(source.ObjectId, source.ObjectGeneration)", "source.CopyFaceTransitions?.Count ?? 0",
+            "internal static bool ValidNativeUnitActivation(",
+            "SelfAbilitySourceRules.Valid(state, context.Source, context.CardNo, context.FaceRevision,",
+            "usesPrintedFace: true", "item.TargetGenerations", "MatchStateHasher.HashValue(expected)",
+            "source.ObjectGeneration == context.Source.Generation && IsFaceUpNonStandbyUnit(source)",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)",
+            "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)",
+            'pair.Key is "sourceObjectId" or "unitSourceObjectId"'],
+        "src/Riftbound.Engine/SelfAbilitySourceRules.cs": [
+            "item.NativeUnitActivation is { CeasedSource: null } native",
+            "departed.Contains(native.Source.ObjectId) && ValidNativeUnitActivation(before, item)",
+            "NativeUnitActivation = native with { CeasedSource = SelfAbilitySourceRules.Capture("],
+        "src/Riftbound.Engine/MatchSession.cs": [
+            "NativeUnitActivation = item.NativeUnitActivation",
+            "item.TargetedPowerAbility is not null || item.NativeUnitActivation is not null",
+            "item.TargetedPowerAbility is null && item.NativeUnitActivation is null"],
+        "src/Riftbound.Engine/MatchRecovery/Authoritative.Resources.cs": [
+            "if (!CoreRuleEngine.ValidNativeUnitActivation(authoritativeState, item))"],
+        "src/Riftbound.Engine/MatchRecovery.cs": [
+            "stackItem.NativeUnitActivation is { CeasedSource: not null } && CoreRuleEngine.ValidNativeUnitActivation(authoritativeState, stackItem)",
+            "item.NativeUnitActivation is not null && CoreRuleEngine.ValidNativeUnitActivation(state, item)"],
+    }
+    if all(all(token in sources.files.get(path, "") for token in tokens) for path, tokens in required.items()):
+        return result("route", "印刷有色费用及共享付款；绑定来源代际、独立入链、消失凭据、隐私投影与恢复；目标复用共享代际校验", list(required))
+    return result("missing", "有色费用已实现；仍缺少完整来源代际、离场续接、隐私投影或恢复消费者")
+
+
+def experience_play_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    texts = ["{{等级3>}} 我的费用减少{{2}}和{{绿色}}。",
+             "{{等级6>}} 改为我的费用减少{{4}}和{{绿色}}{{绿色}}。",
+             "{{等级11>}} 改为我的费用减少{{6}}和{{绿色}}{{绿色}}{{绿色}}。"]
+    shapes = {normalize(text) for text in texts}
+    if normalize(unparenthesize(clause["text"])) not in shapes:
+        return None
+    if normalize(unparenthesize(clause["scope"])) != normalize(unparenthesize(clause["text"])):
+        return result("missing", "等级减费句子的适用范围与独立经验报价不一致，不能忽略额外条件")
+    if not shapes.issubset({normalize(unparenthesize(row["text"])) for row in card_clauses(card)}):
+        return result("missing", "等级减费必须匹配完整三档文本，不能授予未印刷的更高档减费")
+    def correct(behavior):
+        steps = behavior.get("costReductionExperienceThresholds")
+        return behavior.get("playsSourceToBaseAsUnit") \
+            and behavior.get("costReductionConditionKind") == "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT" \
+            and behavior.get("costReductionMana") == 2 and behavior.get("costReductionPower") == 1 \
+            and behavior.get("costReductionPowerTrait") == "green" \
+            and isinstance(steps, list) and all(type(step) is int for step in steps) and sorted(steps) == [3, 6, 11]
+    if not any(correct(behavior) for behavior in card.get("behaviors", [])):
+        return result("missing", "缺少经验3／6／11最高档替换为减2／4／6法力及1／2／3绿色符能的规格")
+    counter = sources.files.get("src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs", "")
+    branch = re.search(r"CardCostReductionConditionKinds\.ControllerExperienceThresholdCount\s*=>\s*"
+                       r"(.*?)(?=,\s*CardCostReductionConditionKinds\.|,\s*_\s*=>)", counter, re.S)
+    if not branch or not all(token in branch.group(1) for token in (
+            "behavior.CostReductionExperienceThresholds?.Count(threshold",
+            "state.PlayerExperience.GetValueOrDefault(player) >= threshold")):
+        return result("missing", "实际经验减费分支没有读取当前操作者的有效档位，其他分支或未调用代码不足以认证")
+    requirements = {
+        "CoreRuleEngine.ConditionalPlayCosts.cs": [
+            "CardCostReductionConditionKinds.ControllerExperienceThresholdCount",
+            "behavior.CostReductionExperienceThresholds?.Count(threshold",
+            "state.PlayerExperience.GetValueOrDefault(player) >= threshold",
+            "var reduction = behavior.CostReductionPower * ConditionalPlayCostCount(state, player, behavior);",
+            "Math.Max(0, p.Value - reduction)"],
+        "CoreRuleEngine.cs": [
+            "var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,"],
+        "CoreRuleEngine.PlayManaCost.cs": [
+            "ResolveCostReductionMana(state, playerId, behavior, sourceObjectId)",
+            "var cost = CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,",
+            "Math.Max(0, total - Math.Max(0, reduction.Floor))"],
+        "CoreRuleEngine.EmpoweredSpellCosts.cs": [
+            "PrintedPowerCostRules.OptionsForPlay(behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)",
+            "ConditionalPlayPowerCost(state, player, behavior,"],
+    }
+    evidence = ["src/Riftbound.Engine/" + name for name in requirements]
+    actual_mana = re.search(r"behavior\.CostReductionMana \* ConditionalPlayCostCount\(state, playerId, behavior(?:, sourceObjectId)?\)",
+                            sources.files.get("src/Riftbound.Engine/CoreRuleEngine.cs", ""))
+    # Other printed cost reductions can compose before the level reduction.
+    # Require the live typed-price expression while allowing that composition.
+    actual_power = re.search(
+        r"\.SelectMany\(\s*a\s*=>\s*ReduceSpellPower\(\s*a\.GenericPower,\s*"
+        r"ConditionalPlayPowerCost\(\s*state,\s*player,\s*behavior,\s*"
+        r"(?:ApplyBoonPlayPowerReduction\(\s*behavior,\s*)?"
+        r"ApplySacrificePowerReduction\(\s*a\.TypedPower,\s*sacrificeReduction\)\s*\)?\s*\)",
+        sources.files.get("src/Riftbound.Engine/CoreRuleEngine.EmpoweredSpellCosts.cs", ""), re.S)
+    if not actual_mana or not actual_power or not all(all(token in sources.files.get("src/Riftbound.Engine/" + name, "") for token in tokens)
+                                  for name, tokens in requirements.items()):
+        return result("missing", "经验减费尚未读取当前操作者经验，或未接通共享法力／有色符能的报价与实际付款")
+    return result("route", "当前经验最高档同时减少法力和绿色符能，沿用共享报价／付款和零下限", evidence)
+
+
 def conditional_rune_and_conquest_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     """Require the printed condition and its live or captured shared consumer."""
     text = normalize(unparenthesize(clause["text"]))
@@ -1016,6 +1223,110 @@ def friendly_target_ready_route(card: dict, clause: dict, sources: Sources) -> d
     if exact:
         return result("route", "确认友方单位目标时捕获独立触发，横置并付任意符能后活跃原物体", evidence)
     return result("missing", "缺少选择友方单位时的实际触发、横置及任意符能前置费用，或原物体的独立活跃结算")
+def source_attack_damage_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    if clause['kind'] != 'trigger' or clause['scope'] != clause['text']:
+        return None
+    text = normalize(unparenthesize(clause['text'])).replace('{{强攻}}', '强攻')
+    keyword = text == '当我进攻时对此处的一名敌方单位造成等同于我强攻数值的伤害'
+    fixed = re.fullmatch(r'当我进攻时对此处的一名敌方单位造成([1-9][0-9]*)点伤害', text)
+    if not keyword and not fixed:
+        return None
+    kind = 'UNIT_ATTACK_SOURCE_KEYWORD_DAMAGE' if keyword else 'UNIT_ATTACK_FIXED_DAMAGE'
+    amount = None if keyword else int(fixed[1])
+    allowed = {'kind', 'timing', 'text', 'reason', 'targetScope', 'damageAmount', 'damageSourceKeyword'}
+    precise = any(b.get('playsSourceToBaseAsUnit') for b in card.get('behaviors', [])) and any(
+        n.get('kind') == kind and n.get('timing') == 'UNIT_ATTACK' and n.get('targetScope') == 'ENEMY_UNIT_HERE'
+        and n.get('damageAmount') == amount and n.get('damageSourceKeyword') == ('强攻' if keyword else None)
+        and not any(meaningful(value) for key, value in n.items() if key not in allowed)
+        for item in card.get('triggers', []) for n in [item.get('node', {})])
+    requirements = {
+        'CoreRuleEngine.CombatMight.cs': ['IsSupportedCombatSourceDamage(t)',
+            'TriggerKinds.UnitAttackSourceKeywordDamage' if keyword else 'TriggerKinds.UnitAttackFixedDamage',
+            'CaptureCombatMightTriggers(', 'spec.Timing == TriggerTimings.UnitAttack && !attacking.Contains(id)',
+            'AttachedRuleTextRules.Instances(state, source)', 'source.ObjectGeneration == generation'],
+        'CoreRuleEngine.AttackMightDamage.cs': ['spec.DamageSourceKeyword is { } keyword',
+            'ResolveCurrentCountedCombatKeyword(state, source, keyword)',
+            'spec.DamageAmount ?? ResolveCurrentFieldUnitPower(state, source)',
+            'source.ObjectGeneration != context.SourceGeneration', '!IsObjectOnField(state.PlayerZones, source.ObjectId)',
+            'FieldTriggerTargets(state, item)', 'if (baseAmount <= 0) return result;',
+            'ApplySpellSkillDamageBonuses(state, item.ControllerId, target, baseAmount)'],
+        'CoreRuleEngine.FieldTriggers.cs': ['IsCombatMightTargetHere(state, item, c.ObjectId)',
+            'TargetProtectionRules.IsLegalActivatedSkillTarget(', 'ResolveSourceMightDamage(state, item)'],
+    }
+    evidence = []
+    for name, symbols in requirements.items():
+        path = 'src/Riftbound.Engine/' + name
+        precise = precise and all(symbol in sources.files.get(path, '') for symbol in symbols)
+        evidence.append(path)
+    dispatch = [path for path in sources.references('CaptureCombatMightTriggers(')
+                if Path(path).name != 'CoreRuleEngine.CombatMight.cs']
+    precise = precise and bool(dispatch)
+    evidence += dispatch
+    if fixed and sources.references('ResolveSourceAttackDamageToFirstDefenderTriggers('):
+        precise = False
+    return result('route', '精确进攻／敌方此处规格，共享当前数值／固定伤害、目标代际与法盾响应流程', evidence) if precise else \
+        result('missing', '进攻伤害缺少精确数值来源、目标选择及当前来源位置的独立结算消费者')
+
+
+def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
+    khazix = normalize("当我进攻或防守时，如果此处有一名落单的敌方单位，则让我本回合内{{S}}+2并获得2经验。")
+    if text not in (poppy, khazix):
+        return None
+    ready = text == poppy
+    expected = dict(timing="PLAY" if ready else "ATTACK_OR_DEFEND", effect="READY_SELF" if ready else "MIGHT_SELF",
+                    amount=0 if ready else 2, independentExperienceGain=3 if ready else 2,
+                    requiredOpponentVictoryDistance=3 if ready else 0, requiresIsolatedEnemyHere=not ready)
+    spec = card.get("unitEventAbility") or {}
+    exact = "unit" in card.get("cardCategory", "") and clause["kind"] == "trigger" \
+        and normalize(clause["scope"]) == text \
+        and all(spec.get(key, False if isinstance(value, bool) else 0) == value for key, value in expected.items()) \
+        and not any(meaningful(value) for key, value in spec.items() if key not in expected)
+    prefix = "src/Riftbound.Engine/"
+    units = sources.files.get(prefix + "CoreRuleEngine.UnitEvents.cs", "")
+    experience = sources.files.get(prefix + "CoreRuleEngine.UnitEventExperience.cs", "")
+
+    def method(source, name):
+        # Look inside the live method, so an unused helper elsewhere cannot
+        # certify the event condition or independent resolution continuation.
+        match = re.search(r"(?:private|internal|public) static [^\n]+ " + re.escape(name) + r"\(", source)
+        return re.split(r"\n    (?:private|internal|public) static ", source[match.end():], maxsplit=1)[0] if match else ""
+
+    resolve = method(units, "ResolveUnitEvent")
+    exact = exact and "ResolveUnitEventInstruction(state, item)" in resolve \
+        and "return AppendIndependentUnitEventExperience(state, item, result)" in resolve
+    append = method(experience, "AppendIndependentUnitEventExperience")
+    exact = exact and "GainExperience(result.PlayerExperience, item.ControllerId, spec.IndependentExperienceGain," in append \
+        and "PlayerExperience = experience" in append and "Events = events" in append
+    evidence = [prefix + "CoreRuleEngine.UnitEvents.cs", prefix + "CoreRuleEngine.UnitEventExperience.cs"]
+    if ready:
+        capture = method(units, "CaptureOtherUnitPlayed")
+        check = method(sources.files.get(prefix + "CoreRuleEngine.cs", ""), "OpponentWithinWinningScoreDistance")
+        boon = sources.files.get(prefix + "CoreRuleEngine.UnitEventBoonInstructions.cs", "")
+        exact = exact and all(symbol in capture for symbol in ["RequiredOpponentVictoryDistance > 0",
+            "observations = observations.Where(", "OpponentWithinWinningScoreDistance(current, o.Controller,",
+            "UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance"])
+        exact = exact and "opponentScore >= EffectiveWinningScore(state) - distance" in check \
+            and '"READY_SELF"' in units and "ResolveUnitEventBoonInstruction(state, item, spec)" in units \
+            and "context.SourceGeneration" in boon and "ApplyReadyState(" in boon
+        evidence += [prefix + "CoreRuleEngine.cs", prefix + "CoreRuleEngine.UnitEventBoonInstructions.cs"]
+    else:
+        condition = method(experience, "UnitEventCaptureConditionSatisfied")
+        exact = exact and all(".Where(o => UnitEventCaptureConditionSatisfied(state, o))" in method(units, name)
+            for name in ["CaptureAttackUnitEvents", "CaptureRoleUnitEvents"])
+        exact = exact and all(symbol in condition for symbol in ["RequiresIsolatedEnemyHere", 'here.Zone != "BATTLEFIELD"',
+            "IsFaceUpNonStandbyUnit(card)", "!= observation.Controller", "== here.BattlefieldObjectId",
+            ".GroupBy(card => EffectiveFieldControllerId(", ".Any(group => group.Count() == 1)"])
+        instruction = method(units, "ResolveUnitEventInstruction")
+        exact = exact and all(symbol in instruction for symbol in ['spec.Effect == "MIGHT_SELF"',
+            "source.ObjectGeneration == context.SourceGeneration", "ApplyDirectUntilEndPowerModifier(", "spec.Amount"])
+    recovery = sources.files.get(prefix + "MatchRecovery.cs", "")
+    exact = exact and "ValidUnitEvent(" in recovery and "ValidUnitEventTargets(" in recovery
+    evidence.append(prefix + "MatchRecovery.cs")
+    if exact:
+        return result("route", "触发时检查胜利分差／此处敌方落单，普通结算链处理原来源，独立获得经验", evidence)
+    return result("missing", "缺少精确的触发条件、原来源活跃／本回合战力或独立经验结算路径")
 
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
@@ -1024,9 +1335,18 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     kind = clause["kind"]
     if conditional := conditional_rune_and_conquest_route(card, clause, sources):
         return conditional
-
+    if colored := colored_legacy_activation_fee(card, clause, sources):
+        if colored["status"] == "route":
+            return native_unit_activation_binding(card, clause, sources)
+        return colored
+    if level_cost := experience_play_cost_route(card, clause, sources):
+        return level_cost
+    if experience := conditional_unit_experience_route(card, clause, sources):
+        return experience
     if targeted := friendly_target_ready_route(card, clause, sources):
         return targeted
+    if damage := source_attack_damage_route(card, clause, sources):
+        return damage
     keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
     if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
         if any(b.get("recyclesUnkeptSacredJudgmentCards") for b in card.get("behaviors", [])):
@@ -1079,6 +1399,19 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         if clause["scope"] == clause["text"]:
             for ability in card.get("activations", []):
                 if not activation_matches(ability, clause):
+                    continue
+                if implicit_recycle_activation_count(clause["text"]) is not None:
+                    required = [
+                        ("spec.DestroysSourceAsCost ? source.ObjectId", "CoreRuleEngine.SimpleActivatedAbilities.cs"),
+                        ("!SimpleActivationTargetCountValid(ability, targets.Count)", "CoreRuleEngine.SimpleActivatedAbilities.cs"),
+                        ("if (spec.RecyclesGraveyardTargets) return ResolveActivatedGraveyardRecycle(state, item)", "CoreRuleEngine.SimpleActivatedAbilities.cs"),
+                        ("IsAnyGraveyardCard(", "CoreRuleEngine.ActivatedGraveyardRecycle.cs"),
+                        ("RecycleGraveyardCards(", "CoreRuleEngine.ActivatedGraveyardRecycle.cs")]
+                    paths = [[path for path in sources.references(symbol) if Path(path).name == filename]
+                             for symbol, filename in required]
+                    if all(paths):
+                        return result("route", "先选择目标并支付来源自毁费用，独立回收仍合法的废牌目标",
+                                      sorted({path for row in paths for path in row}))
                     continue
                 routes = sources.value_routes(ability.get("effectKind", "")) + sources.value_routes(ability.get("abilityId", ""))
                 if ability.get("kind"):

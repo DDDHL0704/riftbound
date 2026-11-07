@@ -15,10 +15,21 @@ public sealed partial class CoreRuleEngine
                 && t.TargetScope == TriggerTargetScopes.FriendlyUnitHere && t.Duration == "UNTIL_END_OF_TURN"
                 && t.GrantedKeyword == CardCombatKeywordNames.Steadfast
                 : t.TargetScope == TriggerTargetScopes.EnemyUnitHere
-            && (kind == CombatMightDamageKind ? t.Kind == (t.Timing == TriggerTimings.UnitAttack
-                ? TriggerKinds.UnitAttackSourceMightDamage : TriggerKinds.UnitAttackOrDefendSourceMightDamage)
+            && (kind == CombatMightDamageKind ? IsSupportedCombatSourceDamage(t)
                 : t.Kind == TriggerKinds.UnitAttackOrDefendPowerModifier && t.Duration == "UNTIL_END_OF_TURN"
                     && t.PowerDelta is < 0 && t.MinimumPowerAfterModifier is > 0)));
+
+    private static bool IsSupportedCombatSourceDamage(TriggerSpec spec)
+        => spec.Kind switch {
+            TriggerKinds.UnitAttackSourceMightDamage => spec.Timing == TriggerTimings.UnitAttack,
+            TriggerKinds.UnitAttackOrDefendSourceMightDamage => spec.Timing == TriggerTimings.UnitAttackOrDefend,
+            TriggerKinds.UnitAttackSourceKeywordDamage => spec.Timing == TriggerTimings.UnitAttack
+                && spec.DamageSourceKeyword is CardCombatKeywordNames.Assault or CardCombatKeywordNames.Steadfast
+                && spec.DamageAmount is null && spec.Optional != true,
+            TriggerKinds.UnitAttackFixedDamage => spec.Timing == TriggerTimings.UnitAttack
+                && spec.DamageAmount is > 0 && spec.DamageSourceKeyword is null && spec.Optional != true,
+            _ => false
+        };
 
     private static TriggerQueueItemState[] CaptureCombatMightTriggers(MatchState state, IEnumerable<string> participants,
         string battlefield, string timing, string? returnFocusPlayer = null, IEnumerable<string>? attackers = null)

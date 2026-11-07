@@ -43,8 +43,9 @@ public sealed partial class CoreRuleEngine
             + (ability.SimpleEffect?.OncePerTurnPerPlayer == true ? ":PLAYER:" + actor : "");
     internal static bool SimpleActivationInstanceAvailable(MatchState state, CardObjectState source,
         P4ActivatedAbilityDefinition ability, string actor, RuleTextInstance instance)
-        => ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(
-            SimpleActivationUse(new(source.ObjectId, source.ObjectGeneration), ability, actor, instance.Origin is null ? null : instance.Id));
+        => (ability.SimpleEffect?.RequiresEncouraged != true || EncourageActive(state, actor, source.ObjectId))
+            && (ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(
+                SimpleActivationUse(new(source.ObjectId, source.ObjectGeneration), ability, actor, instance.Origin is null ? null : instance.Id)));
 
     private static bool SelectSimpleActivationInstance(MatchState state, CardObjectState source,
         P4ActivatedAbilityDefinition ability, string? id, out RuleTextInstance instance)
@@ -112,7 +113,6 @@ public sealed partial class CoreRuleEngine
             && FindFieldObjectLocation(state.PlayerZones, id) is { } at && (at.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn)
             && state.ObjectLocations.TryGetValue(id, out var precise) && (precise.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn) && precise.Zone == at.Zone
             && (!ability.RequiresBattlefieldSource || precise.Zone == "BATTLEFIELD" && state.BattlefieldStates.ContainsKey(id))
-            && (!ability.RequiresBaseEquipmentSource || precise.Zone == "BASE")
             && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered)
             && (ability.SimpleEffect?.RequiresEnemyUnitTargetThisTurn != true || state.UntilEndOfTurnEffects.Contains(EnemyUnitTargetMarker(actor)))
             && (!SimpleActivationHasAdditionalCost(ability)
@@ -125,7 +125,8 @@ public sealed partial class CoreRuleEngine
         => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true || SimpleActivationTargetsOpponent(ability);
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability, string? instanceId = null)
-        => ability.SimpleEffect?.TargetsDeclaredAttribute == true
+        => ability.SimpleEffect?.RecyclesGraveyardTargets == true ? IsAnyGraveyardCard(state, id)
+            : ability.SimpleEffect?.TargetsDeclaredAttribute == true
             ? CurrentLinkedAttribute(state, sourceId, instanceId) is { } declaration && IsLinkedAttributeTarget(state, actor, id, declaration)
             : ability.SimpleEffect is { } friendly && (friendly.MovesToExhaustedCostUnit || friendly.GrantsPaidRecall)
             ? state.CardObjects.TryGetValue(id, out var moved) && IsFaceUpNonStandbyUnit(moved)
@@ -175,7 +176,8 @@ public sealed partial class CoreRuleEngine
         if (!(ability.SwiftSpeed ? CanActivateSwiftAbility(state, intent.PlayerId) : CanActivateOrdinaryPowerAbility(state, intent.PlayerId)))
             return RejectWithCorePrompts(state, "当前时机不能打出此技能。", ErrorCodes.PhaseNotAllowed);
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
-        if (targets.Count != command.TargetObjectIds.Count || targets.Count != ability.RequiredTargetCount
+        if (targets.Count != command.TargetObjectIds.Count || targets.Distinct(StringComparer.Ordinal).Count() != targets.Count
+            || !SimpleActivationTargetCountValid(ability, targets.Count)
             || !IsSimpleAbilitySource(state, intent.PlayerId, command.SourceObjectId, ability)
             || !SelectSimpleActivationInstance(state, state.CardObjects[command.SourceObjectId], ability, command.AbilityInstanceId, out var instance)
             || !SimpleActivationInstanceAvailable(state, state.CardObjects[command.SourceObjectId], ability, intent.PlayerId, instance)
@@ -252,13 +254,15 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<TriggerQueueItemState> destructionTriggers = [];
         IReadOnlyList<string> destroyedOwners = [];
         var committedPools = paid.RunePools;
-        if (spec.DestroyFriendlyTagAsCost is not null)
+        if (spec.DestroysSourceAsCost || spec.DestroyFriendlyTagAsCost is not null)
         {
             // CN357.2 permits either nonstandard-cost order. Exhaust first so
             // this very equipment can pay the destruction without being restored.
-            if (!SimpleActivationAdditionalCostChoices(afterResources, intent.PlayerId, source.ObjectId, ability).Contains(extras.Single()))
+            if (!spec.DestroysSourceAsCost
+                && !SimpleActivationAdditionalCostChoices(afterResources, intent.PlayerId, source.ObjectId, ability).Contains(extras.Single()))
                 return RejectWithCorePrompts(state, "所选物体无法支付摧毁费用。", ErrorCodes.InvalidTarget);
-            var destroyedId = extras.Single()[DestroyFriendlyPermanentAdditionalCostPrefix.Length..];
+            var destroyedId = spec.DestroysSourceAsCost ? source.ObjectId
+                : extras.Single()[DestroyFriendlyPermanentAdditionalCostPrefix.Length..];
             var cause = new StackItemState($"cost-{state.Tick + 1}-{source.ObjectId}", intent.PlayerId,
                 source.ObjectId, ability.EffectKind, source.CardNo, []);
             var removal = ResolveFieldDestructions(afterResources, zones, cards, cause, new HashSet<string>(),
@@ -287,7 +291,10 @@ public sealed partial class CoreRuleEngine
                 ReturnTiming = ability.SwiftSpeed && state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : "" };
         var targetGenerations = targets
             .Where(id => cards.ContainsKey(id))
-            .ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal);
+            // Targets were chosen before costs. A resource action or destruction
+            // replacement cannot bind this ability to a newly created object.
+            .ToDictionary(id => id, id => spec.RecyclesGraveyardTargets
+                ? state.CardObjects[id].ObjectGeneration : cards[id].ObjectGeneration, StringComparer.Ordinal);
         var item = SimpleActivationStackItem(context, intent.PlayerId, instance.CardNo, ability, targets)
             with { TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
@@ -343,8 +350,9 @@ public sealed partial class CoreRuleEngine
             || !ValidActivationAttribute(state, context, ability.SimpleEffect!.TargetsDeclaredAttribute)
             || !ValidExhaustedCostUnit(state, context.ExhaustedCostUnit, ability.SimpleEffect!.MovesToExhaustedCostUnit,
                 item.SourceObjectId, item.TargetObjectIds)
-            || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
-            || (item.TargetGenerations?.Count ?? 0) != (SimpleActivationTargetsPlayer(ability) ? 0 : ability.RequiredTargetCount)
+            || !SimpleActivationTargetCountValid(ability, item.TargetObjectIds.Count)
+            || item.TargetObjectIds.Distinct().Count() != item.TargetObjectIds.Count
+            || (item.TargetGenerations?.Count ?? 0) != (SimpleActivationTargetsPlayer(ability) ? 0 : item.TargetObjectIds.Count)
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
                 || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory)
                 || !factory.Tags.Contains(ability.SimpleEffect!.EmpowersOtherEquipment ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard))
@@ -449,6 +457,7 @@ public sealed partial class CoreRuleEngine
         if (spec.MovesToExhaustedCostUnit)
             return ResolveMovementToExhaustedCostUnit(state, item, item.SimpleActivation!.ExhaustedCostUnit!,
                 (frame, id) => IsSimpleAbilityTarget(frame, item.ControllerId, item.SourceObjectId, id, ability));
+        if (spec.RecyclesGraveyardTargets) return ResolveActivatedGraveyardRecycle(state, item);
         if (spec.GrantsNextUnitReady) return ResolveActivatedNextUnitReady(state, item);
         if (spec.GrantsNextSpellDamage) return ResolveActivatedNextSpellDamage(state, item);
         if (spec.GrantsPaidRecall) return ResolveActivatedPaidRecall(state, item);

@@ -749,9 +749,19 @@ internal static partial class ActionPromptBuilder
         string sourceObjectId,
         P4ActivatedAbilityDefinition ability)
     {
-        if (ability.RequiredTargetCount == 0)
+        if ((ability.MaximumTargetCount ?? ability.RequiredTargetCount) == 0)
         {
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        if (ability.SimpleEffect?.RecyclesGraveyardTargets == true)
+        {
+            var choices = state.PlayerZones.Values.SelectMany(zones => zones.Graveyard).Distinct(StringComparer.Ordinal)
+                .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
+                .Order(StringComparer.Ordinal).Select(id => ObjectChoice(state, id, "废牌堆中的卡牌")).ToArray();
+            return Enumerable.Range(0, ability.MaximumTargetCount!.Value).ToDictionary(
+                index => index.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                _ => (IReadOnlyList<ActionPromptChoiceDto>)choices, StringComparer.Ordinal);
         }
 
         if (ability.SimpleEffect is not null)
@@ -1182,7 +1192,10 @@ internal static partial class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+        var powerPool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
+        return new RunePaymentReachability(powerPool, ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability))
+            .CanPay(ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId),
+                P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability));
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
@@ -1423,6 +1436,7 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.DestroySourceRecycleGraveyard) return $"{ability.DisplayName}：摧毁此装备，回收任意废牌堆中最多 {ability.MaximumTargetCount} 张卡牌";
         if (ability.Kind == ActivatedAbilityKinds.GrantSelfBoon) return $"{ability.DisplayName}：横置，给予我增益";
         if (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit) return $"{ability.DisplayName}：横置，眩晕一名敌方单位";
         if (ability.Kind == ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower) return $"{ability.DisplayName}：横置，给予单位增益；已有增益则本回合战力 +{ability.PowerModifierAmount}";
@@ -1435,8 +1449,8 @@ internal static partial class ActionPromptBuilder
             P4ActivatedAbilityCatalog.TranspositionMageAbilityId => "易位法师：支付 1 紫色符能并横置，返回友方单位并免费打出较弱单位",
             P4ActivatedAbilityCatalog.PrismwingFlockAbilityId => "幻彩飞禽：横置，给予单位增益；已有增益则本回合战力+2",
             P4ActivatedAbilityCatalog.RelentlessStalkerAbilityId => "无情潜伏者：横置，眩晕一名敌方单位",
-            P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
-            P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
+            P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 红色符能，战力翻倍",
+            P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付 1 红色符能，造成 3 点伤害",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点任意特性符能",
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
@@ -1461,6 +1475,7 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.DestroySourceRecycleGraveyard) return $"任意废牌堆中最多 {ability.MaximumTargetCount} 张卡牌";
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn) return "任意公开单位";
         if (CoreRuleEngine.SimpleActivationTargetsOpponent(ability)) return "一名对手";
         if (ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true) return "一名友方单位";

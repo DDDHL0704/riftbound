@@ -7,37 +7,76 @@
       ],
       "text": "当你打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视此法术的费用。",
       "scope": "当你打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视此法术的费用。",
-      "status": "missing",
-      "reason": "仅活跃目标的法术登记；没有可选消耗一个增益的额外费用、费用凭据及无视费用的报价／付款流程",
-      "rules": "核心204.2、356–357、702.2.b 消耗单个增益；OGN·146 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用在确认前显式消耗一枚当前控制单位的增益，免除基础法力和基础符能；法盾等额外费用照常报价与付款，响应或反制不会退还已经支付的增益",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 2,
-            "requiredTargetCount": 1,
-            "targetScope": "ANY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "readiesTarget": true,
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "canPlayDuringSpellDuel": true,
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_CONSUME_BOON_IGNORE_BASE_COSTS",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·146/298\"",
-            "\"BEATDOWN_READY_UNIT\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PrintedPowerCostRules.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons ? new(0, [])"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "EachSpellCanConsumeOneControlledBoonToIgnoreItsBaseCostBeforeResponses",
+            "DecliningTheOptionalBoonCostPaysThePrintedManaAndKeepsTheBoon",
+            "IgnoringTheBaseCostStillRequiresTheEnemyTargetsWardPower",
+            "CounteringTheSpellCannotRefundItsAlreadyConsumedAdditionalBoon",
+            "ARealReturnResponseCannotLinkThePrivateBoonPayerOrRevokeThePaidSpell",
+            "InvalidBoonQuantitiesCannotSpendCountersOrResources",
+            "TheSingleBoonWaiverRejectsDuplicateOrMultiplePayers",
+            "TheOtherPlayersBoonAndAnEarlierGenerationCannotPay",
+            "AControlledBoonMayBePaidEvenWhenItsUnitBelongsToTheOpponent",
+            "AnAffordableOptionalBranchDoesNotAutomaticallyConsumeAnUndeclaredBoon",
+            "ACardWithoutThePrintedBoonPermissionCannotUseTheSamePayersChoice"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -45,40 +84,67 @@
       ],
       "text": "当你打出我时，可以选择消耗任意数量的增益作为额外费用。",
       "scope": "当你打出我时，可以选择消耗任意数量的增益作为额外费用。",
-      "status": "missing",
-      "reason": "只有基础急速／强攻单位及急速费用；缺少任意数量增益的可选额外费用和逐个减少1橙符能的共享付款",
-      "rules": "核心204.2、356–357、702.2.b；OGN·150 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用允许显式消耗任意数量受控单位的增益，逐枚减少总费用中的橙色符能，包含急速额外橙色费用；实际法力不变，超过零后的额外增益仍按声明消耗",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitTags": "海盗|急速|强攻",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "hasteReadyManaCost": 1,
-            "hasteReadyPowerCost": 1,
-            "hasteReadyPowerTrait": "orange",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_MAY_CONSUME_ANY_BOONS_AS_ADDITIONAL_COST"
+            }
+          },
+          {
+            "node": {
+              "kind": "SOURCE_POWER_REDUCTION_PER_CONSUMED_BOON",
+              "amount": 1,
+              "powerCostTrait": "orange"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·150/298\"",
-            "\"KRAKEN_HUNTER_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpoweredSpellCosts.cs",
+          "contains": [
+            "ApplyBoonPlayPowerReduction(behavior, ApplySacrificePowerReduction("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "KrakenReducesOrangeInItsTotalCostIncludingHasteAndMayConsumeBeyondZero",
+            "KrakenCanConsumeSeveralRealBoonsFromOnePermittedUnit"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -86,40 +152,67 @@
       ],
       "text": "每消耗一个增益，就让我的费用减少{{橙色}}。",
       "scope": "当你打出我时，可以选择消耗任意数量的增益作为额外费用。",
-      "status": "missing",
-      "reason": "只有基础急速／强攻单位及急速费用；缺少任意数量增益的可选额外费用和逐个减少1橙符能的共享付款",
-      "rules": "核心204.2、356–357、702.2.b；OGN·150 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用允许显式消耗任意数量受控单位的增益，逐枚减少总费用中的橙色符能，包含急速额外橙色费用；实际法力不变，超过零后的额外增益仍按声明消耗",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitTags": "海盗|急速|强攻",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "hasteReadyManaCost": 1,
-            "hasteReadyPowerCost": 1,
-            "hasteReadyPowerTrait": "orange",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_MAY_CONSUME_ANY_BOONS_AS_ADDITIONAL_COST"
+            }
+          },
+          {
+            "node": {
+              "kind": "SOURCE_POWER_REDUCTION_PER_CONSUMED_BOON",
+              "amount": 1,
+              "powerCostTrait": "orange"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·150/298\"",
-            "\"KRAKEN_HUNTER_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpoweredSpellCosts.cs",
+          "contains": [
+            "ApplyBoonPlayPowerReduction(behavior, ApplySacrificePowerReduction("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "KrakenReducesOrangeInItsTotalCostIncludingHasteAndMayConsumeBeyondZero",
+            "KrakenCanConsumeSeveralRealBoonsFromOnePermittedUnit"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -127,35 +220,62 @@
       ],
       "text": "每当你给予一名友方单位增益时，你可以选择支付{{橙色}}让此牌变为休眠状态，以此让该单位变为活跃状态。",
       "scope": "每当你给予一名友方单位增益时，你可以选择支付{{橙色}}让此牌变为休眠状态，以此让该单位变为活跃状态。",
-      "status": "missing",
-      "reason": "只有基础装备登记；没有给予友方增益的事件捕获、可选1橙符能及横置费用、独立活跃该单位的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "所有实际给予增益的共享入口捕获执行者、友方单位及增益前后数量；技能独立确认时可支付1橙符能并横置来源，拒付或来源已休眠不生效。付款后保留响应窗口，按原单位代际活跃，不重新选择目标或重复收取法盾",
+      "rules": "核心383.2–383.3、383.3.b／383.3.b.1 前置可选费用、427.1.b.1–2 给予增益、416.1 活跃；OGN·152 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_UNIT_BOON_GRANTED",
+              "effect": "READY_OBSERVED_UNIT",
+              "leadingPowerCost": 1,
+              "leadingPowerTrait": "orange",
+              "optional": true,
+              "leadingSourceExhaust": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyUnitObservers.cs",
           "contains": [
-            "\"OGN·152/298\"",
-            "\"MISTFALL_BLADEYARD_PLAY_EQUIPMENT\""
+            "TryGrantBoonForInstruction(",
+            "PreviousBoonCount: BoonRules.Count(before), ResultingBoonCount: BoonRules.Count(after)",
+            "LeadingTriggerCost(item) is not null && item.TriggerCost is null",
+            "ApplyReadyState(unit, behavior, item, unit.ObjectId",
+            "PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision",
+            "unit.ObjectGeneration != binding.Generation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidFriendlyUnitActionContext(state, c, spec, controller)",
+            "ResolveObservedFriendlyUnit(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryGrantBoonForInstruction(targetState, playerZones, cardObjects, playerId, out var granted)",
+            "TryGrantBoonForInstruction(targetState, playerZones, cardObjects, stackItem.ControllerId, out var nextTargetState)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlyUnitEquipmentObserverTests.cs",
+          "methods": [
+            "BladeYardRequiresOptionalOrangeAndExhaustBeforeAnIndependentReady",
+            "AnAlreadyExhaustedBladeYardCannotPayItsTriggeredCost",
+            "EquipmentOnlyPowerCanPayTheEquipmentTrigger",
+            "PermanentPlayOnlyPowerCannotPayTheEquipmentTrigger",
+            "BladeYardReadyCreatesASeparateHarborBuff"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -164,8 +284,8 @@
       "text": "你可以选择任意数量拥有增益的友方单位，消耗他们身上的增益，以此让他们变为活跃状态。",
       "scope": "你可以选择任意数量拥有增益的友方单位，消耗他们身上的增益，以此让他们变为活跃状态。",
       "status": "route",
-      "reason": "打出时可选择任意数量有增益的友方单位；结算对同一代际仍合法的每名单位消耗一个增益并活跃，之后无目标的全体增益仍执行",
-      "rules": "核心702.2.b 单个增益、逐条指示及强力变化；OGN·153 官方中文牌面",
+      "reason": "打出时可选择任意数量有增益的友方单位；结算对同一代际仍合法的每名单位消耗一个增益，未被持续规则禁止时活跃；之后无目标的全体增益仍执行",
+      "rules": "核心055、427.1.b、416.3 及逐条指示、强力变化；OGN·153 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
@@ -180,7 +300,9 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.BoonInstructions.cs",
           "contains": [
             "ConsumeChosenBoonsAndReady(",
-            "cards[id] = BoonRules.Consume(unit) with { IsExhausted = false }"
+            "var canReady = ReadyByEffectPermittedByFieldRules(zones, cards, unit);",
+            "var consumed = BoonRules.Consume(unit);",
+            "cards[id] = canReady ? consumed with { IsExhausted = false } : consumed;"
           ]
         }
       ],
@@ -192,6 +314,12 @@
             "ChoosingNoBoonConsumptionStillBuffsAllFriendlyUnitsWithoutARepeatedMightyEvent",
             "IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch",
             "ATargetReturnedInResponseIsSkippedWhileTheUntargetedBoonStillResolves"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldSourceRestrictionTests.cs",
+          "methods": [
+            "PreventingReadyDoesNotPreventConsumingThenGrantingBoonsInTheSameSpell"
           ]
         }
       ]
@@ -240,37 +368,57 @@
       ],
       "text": "你可以选择将我打出到敌方控制的战场。",
       "scope": "你可以选择将我打出到敌方控制的战场。",
-      "status": "missing",
-      "reason": "只有基础法盾单位；未登记可进入敌方控制战场的打出位置例外，现有共享目的地规则仍拒绝该位置",
-      "rules": "核心143 单位打出位置及牌面明确例外；OGN·161 官方中文牌面",
+      "status": "route",
+      "reason": "共享位置权限读取真实公开战场的当前控制者，普通出牌、来源候选与未强制位置的效果打出都允许进入敌方控制的战场；保留正常费用和时机，不能借该可选权限绕开效果指定的己方控制战场",
+      "rules": "核心355.2.a–b、355.17、358.4、359.2.c；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 8,
-            "sourceUnitTags": "法盾",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_UNIT_PLAY_TO_ENEMY_CONTROLLED_BATTLEFIELD"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AmbushPermissions.cs",
           "contains": [
-            "\"OGN·161/298\"",
-            "\"CORPSE_FLOWER_PREDATOR_PLAY_KEYWORD_UNIT\""
+            "EnemyControlledBattlefieldPlayAllowed(",
+            "CardStaticAbilitySpecRules.IsSourceUnitPlayToEnemyControlledBattlefield",
+            "BattlefieldLocalRules.ControlledBy(state, opponent)",
+            "EnemyControlledBattlefieldPlayAllowed(state, player, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "!EnemyControlledBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "EnemyControlledBattlefieldPlayAllowed(state, playerId, behavior, destination)",
+            "pending.DestinationPolicy != \"CONTROLLED_BATTLEFIELD\""
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyControlledUnitEntryTests.cs",
+          "methods": [
+            "EachPrintedUnitPaysItsNormalCostAndEntersTheOpponentsControlledBattlefield",
+            "TheOptionalEnemyLocationRetainsBaseAndFriendlyBattlefieldEntry",
+            "EnemyOccupationAloneAndInvalidFieldObjectsCannotGrantThePermission",
+            "BattlefieldControlRatherThanItsOwnerDeterminesEnemyEntry",
+            "LocationPermissionDoesNotGrantReactionTiming",
+            "OrdinaryGraveyardEffectPlayKeepsThePrintedEnemyLocationAndItsPowerCost",
+            "AnEffectRequiringAControlledBattlefieldCannotUseTheOptionalEnemyLocation",
+            "AnOrdinaryUnitCannotBorrowAnotherCardsEnemyLocationPermission"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -278,36 +426,63 @@
       ],
       "text": "每当有友方单位从我的位置向别处移动时，我可以选择跟随它一起移动。",
       "scope": "每当有友方单位从我的位置向别处移动时，我可以选择跟随它一起移动。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少另一友方单位从来源位置出发的移动观察、可选跟随与同一终点移动",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享移动观察器在真实移动事件捕获来源当前位置及其他友方单位的原始终点，创建可响应的独立技能；结算时可选跟随或放弃，复用统一效果移动、装备跟随与施加费用，原移动单位之后返手或移动不改写已捕获的终点，离场后的新来源代际不能移动",
+      "rules": "核心124、359.3.f.3、383.2.c、383.3、448.3、449.2、451；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 4,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "FRIENDLY_UNIT_MOVED_FROM_HERE_MAY_FOLLOW",
+              "timing": "UNIT_MOVED",
+              "targetScope": "SOURCE_UNIT",
+              "optional": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyMovementFollow.cs",
           "contains": [
-            "\"OGN·177/298\"",
-            "\"HIDDEN_TRACKER_FOLLOW_MOVE_PLAY_UNIT\""
+            "CaptureFriendlyMovementFollowObservers(",
+            "unit.ControllerId == controller && unit.Origin == here",
+            "ValidFriendlyMovementFollowShape(",
+            "ValidFriendlyMovementFollowSource(",
+            "ResolveFriendlyMovementFollow(",
+            "context.Unit.Destination with { PlayerId = controller }",
+            "TryMoveFieldUnitByEffect("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "!UnitMovedTriggerSpecRules.IsFriendlyMovementFollowTrigger(t)",
+            "CaptureFriendlyMovementFollowObservers(before, units)",
+            "ResolveFriendlyMovementFollow(state, item)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlyMovementFollowTests.cs",
+          "methods": [
+            "ASeparateRespondableTriggerMayFollowEachActualFriendlyMovementWithoutExhaustingAgain",
+            "ASourceInHandOrAtAnotherOriginDoesNotObserveTheMove",
+            "MovingThePursuerItselfCannotTriggerItsOwnFollowSkill",
+            "TheCapturedMoveDestinationSurvivesAMoveOrReturnResponseToTheOriginalMover",
+            "ReturningTheSourceCancelsItsMoveWithoutLinkingItsNewPrivateIdentity",
+            "ASourceAlreadyAtTheCapturedDestinationDoesNotMoveASecondTime",
+            "FriendshipUsesTheMovedUnitsControllerInsteadOfItsOwner",
+            "AnotherPlayersUnitAtTheSameBattlefieldDoesNotTriggerFollow",
+            "TwoActualFriendlyMovesCanTriggerTheSameSourceAgainAfterFollowing",
+            "CopiedPrintedTextCreatesIndependentFollowSkillsWithoutMovingTwiceToTheSamePlace",
+            "AnOpponentMovingTheFriendlyUnitStillEarnsTheControllersFollowSkill",
+            "FollowingIsASeparateMovementInstructionThatPaysItsOwnImposedCost",
+            "RecoveryRejectsForgedFollowFactsAndSourceBindings"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -352,36 +527,62 @@
       ],
       "text": "当此牌被打出、弃置或摧毁时，抽一张牌。",
       "scope": "当此牌被打出、弃置或摧毁时，抽一张牌。",
-      "status": "missing",
-      "reason": "当前仅有打出后的抽1牌；缺少此牌被弃置和被摧毁时的独立抽牌触发，不能用其中一个事件认证三个事件",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享卡牌事件按声明时机集合分别捕获实际打出、弃置和未被替换的摧毁；每个物理来源各创建独立抽牌技能，费用弃置先于父效果结算，多牌事件可排序，来源后续改变区域或被重新抽取不抹去已赚得的抽牌",
+      "rules": "核心124、191.5.a、383.2.c／383.3、414、423.1.b、429；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "drawCount": 1,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY_OR_SELF_DISCARDED_OR_DESTROYED",
+              "effect": "DRAW",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"OGN·182/298\"",
-            "\"SCRAP_HEAP_PLAY_EQUIPMENT_DRAW_1\""
+            "UnitEventTimingMatches(",
+            "CaptureSelfDiscardEvents(",
+            "UnitEventTimingMatches(UnitEventSpec(card.CardNo)?.Timing, \"SELF_DISCARDED\")",
+            "spec.Effect == \"DRAW\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CaptureUnitEvents(zones, cards, [id], \"DESTROYED\")",
+            "removed && removal.WasDestroyed",
+            "InstructionUnitEvents.AddRange(destroyedEvents"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "!UnitEventTimingMatches(UnitEventSpec(behavior.CardNo)?.Timing, \"PLAY\")"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CardMultiEventDrawTests.cs",
+          "methods": [
+            "PlayingTheEquipmentCreatesExactlyOneIndependentDrawAfterEntry",
+            "ASpellAdditionalCostDiscardsTheCardNowAndDrawsBeforeTheParentSpellResolves",
+            "ARequiredEmpowerDiscardAlsoCreatesTheDrawBeforeTheEmpowerEffect",
+            "AnEffectDiscardFinishesTheParentInstructionBeforeTheEarnedDraw",
+            "DestructionDrawsForTheCapturedControllerRegardlessOfEquipmentOwnership",
+            "ReturningEquipmentDoesNotCountAsDestructionButARealReplayTriggersAgain",
+            "SimultaneousDiscardsOrDestructionsCreateOneDrawForEachPhysicalCard",
+            "DiscardingAndRedrawingTheCardDuringBurnoutDoesNotEraseTheEarnedDraw",
+            "AnOrdinaryEquipmentDoesNotBorrowTheCardsDiscardOrDestructionDraw"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -432,27 +633,54 @@
       ],
       "text": "当你打出我时，让一名对手展示手牌，然后从中选择一张，让对手将其弃置。",
       "scope": "当你打出我时，让一名对手展示手牌，然后从中选择一张，让对手将其弃置。",
-      "status": "missing",
-      "reason": "选择／隐私流程缺失：旧实现要求打出时预提交对手手牌对象，结算直接弃置；未接入展示当前手牌后由技能控制者选择的流程",
-      "rules": "核心128、383.4.a.2、403.2 选择时机；OGN·192 官方中文牌面",
+      "status": "route",
+      "reason": "来源单位按正常费用和零隐藏手牌目标入场，独立技能响应后展示对手当前手牌，技能控制者必须选择一张令对手弃置；空手继续，单纯弃置不附送抽牌，已赚得技能在来源返手后仍结算，展示权限在选择完成后结束",
+      "rules": "核心128、355.5–355.5.a、359.2.c、383、423、425；官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "discardsTargetFromOwnerHand": true,
-            "requiredTargetCount": 1
+            "playsSourceToBaseAsUnit": true,
+            "handChoice": {
+              "action": 3
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs",
           "contains": [
-            "if (behavior.DiscardsTargetFromOwnerHand)",
-            "foreach (var targetObjectId in stackItem.TargetObjectIds)"
+            "RevealedHandAction.Discard ?",
+            "BeginRevealedHandChoice(",
+            "ValidRevealedHandChoice(",
+            "TryDiscardCardFromHand(zones, cards, owner, selected[0])",
+            "if (spec.Action == RevealedHandAction.DiscardDraw)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InformationPermissions.cs",
+          "contains": [
+            "TryGetRevealedHandChoiceSpec(",
+            "behavior.HandChoice is not null",
+            "item.SourceConfirmed"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DragonRevealedHandDiscardTests.cs",
+          "methods": [
+            "ThePlayedUnitRevealsTheHandOnlyOnResolutionThenDiscardsExactlyOneWithoutDrawing",
+            "ARealOpponentResponseChangesTheHandBeforeItIsRevealedAndChosen",
+            "AnEmptyOpponentHandStillRevealsAndCompletesWithoutInventingADiscardOrDraw",
+            "TheControllersMandatoryChoiceRejectsForeignPlayersAndInvalidSelectionsWithoutMutation",
+            "TheCasterCannotPreselectAnUnrevealedHandCardAsAPlayTarget",
+            "ReturningTheDragonDuringResponsesDoesNotCancelItsIndependentRevealedHandEffect",
+            "DiscardedScrapHeapEarnsItsOwnDrawAfterTheDragonFinishesWithoutGrantingAnExtraDraw",
+            "RecoveryRejectsForgedRevealedHandOwnerAndGeneration"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -615,37 +843,76 @@
       ],
       "text": "打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视本法术的费用。",
       "scope": "打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视本法术的费用。",
-      "status": "missing",
-      "reason": "只有+3战力法术；没有可选消耗一个增益作为额外费用并无视法术费用的报价及付款",
-      "rules": "核心204.2、356–357、702.2.b；OGN·207 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用在确认前显式消耗一枚当前控制单位的增益，免除基础法力和基础符能；法盾等额外费用照常报价与付款，响应或反制不会退还已经支付的增益",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 3,
-            "requiredTargetCount": 1,
-            "targetScope": "ANY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "powerModifierAmount": 3,
-            "canPlayDuringPriority": true,
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_CONSUME_BOON_IGNORE_BASE_COSTS",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·207/298\"",
-            "\"GLORY_CALL_POWER_PLUS_3\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PrintedPowerCostRules.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons ? new(0, [])"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "EachSpellCanConsumeOneControlledBoonToIgnoreItsBaseCostBeforeResponses",
+            "DecliningTheOptionalBoonCostPaysThePrintedManaAndKeepsTheBoon",
+            "IgnoringTheBaseCostStillRequiresTheEnemyTargetsWardPower",
+            "CounteringTheSpellCannotRefundItsAlreadyConsumedAdditionalBoon",
+            "ARealReturnResponseCannotLinkThePrivateBoonPayerOrRevokeThePaidSpell",
+            "InvalidBoonQuantitiesCannotSpendCountersOrResources",
+            "TheSingleBoonWaiverRejectsDuplicateOrMultiplePayers",
+            "TheOtherPlayersBoonAndAnEarlierGenerationCannotPay",
+            "AControlledBoonMayBePaidEvenWhenItsUnitBelongsToTheOpponent",
+            "AnAffordableOptionalBranchDoesNotAutomaticallyConsumeAnUndeclaredBoon",
+            "ACardWithoutThePrintedBoonPermissionCannotUseTheSamePayersChoice"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -689,39 +956,73 @@
       ],
       "text": "你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。",
       "scope": "你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。",
-      "status": "missing",
-      "reason": "只实现打出时创建随从；缺少随后可选摧毁来源的指示费用、任意废牌堆最多4张卡的选择与回收",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "官方新版FAQ明确此句为主动技能：先声明任意废牌堆零至四张目标，后在共享费用流程摧毁来源，独立技能响应后仅回收仍合法的原代际目标到各自拥有者牌堆底；来源不能因支付费用才进入废牌堆而成为本次目标。原生打出随从保留，休眠来源不增收横置费用",
+      "rules": "核心355、356–357、359、383、417、429；中国区全国公开赛复盘FAQ第一问（新版明确先选择后自毁，取代旧FAQ可回收自身的解释）；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "activations": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "createdBaseUnitTokenCount": 1,
-            "createdBaseUnitTokenPower": 1,
-            "createdBaseUnitTokenName": "随从",
-            "createdBaseUnitTokenTags": "CARD_TYPE:UNIT",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "kind": "DESTROY_SOURCE_RECYCLE_GRAVEYARD",
+            "maximumTargetCount": 4,
+            "sourceRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "simpleEffect": {
+              "destroysSourceAsCost": true,
+              "recyclesGraveyardTargets": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
           "contains": [
-            "\"OGN·212/298\"",
-            "\"FUTURE_FORGE_PLAY_EQUIPMENT_CREATE_MINION\""
+            "IsDestroySourceGraveyardRecycleSpec(",
+            "DestroySourceGraveyardRecycleDefinition(",
+            "SimpleEffect: new(DestroysSourceAsCost: true, RecyclesGraveyardTargets: true)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "spec.DestroysSourceAsCost || spec.DestroyFriendlyTagAsCost is not null",
+            "spec.DestroysSourceAsCost ? source.ObjectId",
+            "if (spec.RecyclesGraveyardTargets) return ResolveActivatedGraveyardRecycle(state, item)",
+            "!SimpleActivationTargetCountValid(ability, targets.Count)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ActivatedGraveyardRecycle.cs",
+          "contains": [
+            "IsAnyGraveyardCard(",
+            "state.CardObjects[id].ObjectGeneration == item.TargetGenerations!",
+            "zones.Keys.Order(StringComparer.Ordinal)",
+            "RecycleGraveyardCards(state with { RngCursor = cursor }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Prompts.Targets.cs",
+          "contains": [
+            "ability.SimpleEffect?.RecyclesGraveyardTargets == true",
+            "state.PlayerZones.Values.SelectMany(zones => zones.Graveyard)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FutureForgeActivationTests.cs",
+          "methods": [
+            "DestroyingTheEquipmentPaysNowAndRecyclesZeroToFourChosenCardsIntoTheirOwnersDecksLater",
+            "TargetsAreChosenBeforeDestructionAndInvalidChoicesCannotPayAnyCost",
+            "ThePrintedDestructionCostDoesNotAlsoRequireAnActiveSourceOrExhaustIt",
+            "ARealResponseCanRecycleThePaidSourceAndOneChosenTargetWithoutRetargetingTheEarnedAbility",
+            "TheCurrentControllerCanPayWithEquipmentOwnedByTheOpponent",
+            "PlayingTheCardRetainsItsIndependentOnePowerMinionAndDoesNotAutomaticallySacrificeTheEquipment",
+            "RecoveryRejectsForgedActivationBindingsAndTargetBounds",
+            "AnEquipmentAnimatedAndMovedToABattlefieldRetainsItsSelfDestructionSkill",
+            "TheImplicitActivatedCostAndItsTargetLimitComeFromThePrintedEffect"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -729,36 +1030,47 @@
       ],
       "text": "当你打出我时，给予我增益。",
       "scope": "当你打出我时，给予我增益。",
-      "status": "missing",
-      "reason": "只有基础单位登记；两句来源自身增益及打出到战场时当地所有友方单位增益均无规格或实际结算",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "原代际来源的打出技能独立入链，响应后复用共享自身增益指示；移动保留原物体，返手后新代际不继承效果。群体增益后续指示另有逐句证据。",
+      "rules": "核心124、383.2–383.3、427.1.b；OGN·223官方中文牌面第一句",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "BOON_SELF",
+              "amount": 0,
+              "optional": false
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"OGN·223/298\"",
-            "\"OGN_PEAK_GUARDIAN_BOON_ENTRY_PLAY_UNIT\""
+            "ResolveUnitEventBoonInstruction(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "source.ObjectGeneration != context.SourceGeneration",
+            "spec.Effect is \"BOON_SELF\" or \"BOON_SELF_AND_READY\"",
+            "ApplyBoon(source, behavior, item, source.ObjectId"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GuardianSelfBoonTests.cs",
+          "methods": [
+            "ThePrintedSelfBoonWaitsForItsIndependentPlaySkill",
+            "ARealMoveKeepsTheSelfBoonButAReturnCannotBuffTheNewHandObject",
+            "TheSelfBoonDoesNotLetTheClientPreselectAnUnrelatedUnit"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -766,36 +1078,53 @@
       ],
       "text": "如果你将我打出到一处战场，则给予此处包括我在内的所有友方单位增益。（每名未拥有增益的单位获得一个{{S}}+1增益。）",
       "scope": "当你打出我时，给予我增益。",
-      "status": "missing",
-      "reason": "只有基础单位登记；两句来源自身增益及打出到战场时当地所有友方单位增益均无规格或实际结算",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享打出事件保存此来源本次打入基地或战场的事实；先给予自身增益，再在原打入战场条件满足时按来源结算时当前位置给予此处友方单位增益。友方按技能控制者判断，原来源离场不修改新代际；在别的永久物已打入战场后从基地打出此来源，不会借用其他物体的打出条件。",
+      "rules": "核心124、191.5、359.3.f.2及亚索响应移回基地示例、383、427；OGN·223官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "BOON_SELF",
+          "boonsFriendlyUnitsHereIfPlayedToBattlefield": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"OGN·223/298\"",
-            "\"OGN_PEAK_GUARDIAN_BOON_ENTRY_PLAY_UNIT\""
+            "CaptureConditionalSourcePlayDestination(entered.ObjectId, destinationZone, observations)",
+            "ValidConditionalSourcePlayDestination(c, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "spec.BoonsFriendlyUnitsHereIfPlayedToBattlefield && context.SourcePlayDestinationZone == \"BATTLEFIELD\"",
+            "GrantFriendlyUnitBoonsAtSourceLocation(state, item, zones, cards, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourcePlayBoon.cs",
+          "contains": [
+            "o.Source == entered",
+            "SourcePlayDestinationZone = destination",
+            "EffectiveFieldControllerId(zones, card.ObjectId, card) == item.ControllerId",
+            "at.PlayerId == here.PlayerId : at.BattlefieldObjectId == here.BattlefieldObjectId",
+            "ApplyBoon(cards[id], behavior, item, id, out var granted, zones, cards)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GuardianGroupBoonTests.cs",
+          "methods": [
+            "OnlyABattlefieldPlayGrantsTheAdditionalBoonToFriendlyUnitsHere",
+            "ARealResponseChangesHereWithoutChangingTheOriginalBattlefieldPlay",
+            "ABasePlayCannotBorrowAnotherPermanentsBattlefieldPlayCondition",
+            "RecoveryRejectsMissingInvalidOrUnrelatedSourcePlayFacts"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -855,35 +1184,71 @@
       ],
       "text": "当你作为进攻方时，如果战斗以平局告终，则召回双方所有单位。（把该单位送回基地，此行动不算作移动。平局将在造成战斗伤害后结算。）",
       "scope": "当你作为进攻方时，如果战斗以平局告终，则召回双方所有单位。（把该单位送回基地，此行动不算作移动。平局将在造成战斗伤害后结算。）",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少由己方进攻的战斗平局结果监听，以及双方剩余单位的召回指示",
-      "rules": "核心468.3 战斗结果、召回；OGN·227 官方中文牌面",
+      "status": "route",
+      "reason": "共享战斗清理3d之前检查双方实际战场单位，只为进攻方当前场上来源捕获独立技能；历史战场绑定和原清理标记支持响应与恢复，来源离场不取消技能，结算召回原战场当前全部单位且不产生移动事件；双方全灭及任一方胜利不触发",
+      "rules": "核心383.2–383.3、457–460、468.1.a.2、740.3.a；OGN·227官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 1,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "ATTACKING_BATTLE_DRAW",
+              "effect": "RECALL_BATTLEFIELD_UNITS"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleDraw.cs",
           "contains": [
-            "\"OGN·227/298\"",
-            "\"SOLARI_EMBLEM_PLAY_EQUIPMENT\""
+            "!HasParty(attacker) || !HasParty(defender)",
+            "CaptureUnitEvents(current.PlayerZones, current.CardObjects, sources, AttackingBattleDrawTiming)",
+            "battle.RelatedEventKinds.Contains(BattleDrawEvent, StringComparer.Ordinal)",
+            "RecallAttachedGroupToBase(zones, cards, id, owner)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+          "contains": [
+            "beforeAttackerRecall: () => CaptureAttackingBattleDraw(",
+            "or BattleDrawEvent)",
+            "forceClosureEvent: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "beforeAttackerRecall?.Invoke()",
+            "!forceClosureEvent && clearedObjectIds.Count == 0 && removedObjectIds.Length == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidBattleDrawContext(state, c, spec, controller)",
+            "ResolveBattleDrawRecall(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery/BattlefieldLifecycle.cs",
+          "contains": [
+            "string.Equals(value, CoreRuleEngine.BattleDrawEvent, StringComparison.Ordinal)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AttackingBattleDrawTests.cs",
+          "methods": [
+            "ARealTieCapturesAnIndependentSkillBeforeMandatoryAttackerRecall",
+            "ASourceOutsideTheFieldOrControlledByTheDefenderDoesNotObserve",
+            "MutualDestructionAndEitherWinnerAreNotBattleTies",
+            "ReturningTheSourceAfterTheTieCannotCancelOrRelocateItsEarnedRecall",
+            "DestructionBeforeCleanupCannotEarnTheLaterTieSkill",
+            "RecoveryRejectsForgedTieFieldRoleAndOriginalCleanupMarker"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -891,35 +1256,61 @@
       ],
       "text": "每当一名拥有增益的友方单位被摧毁时，给予另一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
       "scope": "每当一名拥有增益的友方单位被摧毁时，给予另一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少拥有增益的友方单位被摧毁后，独立选择另一友方单位并给予增益的触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享死亡观察捕获死亡前友方及已有增益条件；每名单位分别触发，包含同一批同时死亡；独立确认另一友方单位为目标，结算重查代际、当前友方及保护后给予一枚增益",
+      "rules": "核心383.1.b、383.2.a.1／383.2.c.2、403.2、359.3.e.2、427.1.b；OGN·228 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "FRIENDLY_BOONED_UNIT_DESTROYED_BOON_OTHER",
+              "timing": "UNIT_DESTROYED",
+              "targetScope": "OTHER_CONTROLLED_UNIT_ON_FIELD",
+              "boonCount": 1
+            },
+            "predicates": [
+              "UnitDestroyedTriggerSpecRules.IsFriendlyBoonedUnitDestroyedBoonTrigger"
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/UnitDestroyedTriggerSpecRules.cs",
           "contains": [
-            "\"OGN·228/298\"",
-            "\"VANGUARD_HELM_PLAY_EQUIPMENT\""
+            "IsFriendlyBoonedUnitDestroyedBoonTrigger("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalDeathObservers.cs",
+          "contains": [
+            "MatchingDeathObserverRelation(",
+            "ValidAdditionalDeathObserverConditions(",
+            "context.DestroyedHadBoon == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "CaptureUnitDeath(",
+            "spec.Kind == TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther && BoonRules.Count(unit) == 0",
+            "TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConditionalEquipmentDeathObserverTests.cs",
+          "methods": [
+            "HelmetRequiresABoonedFriendlyDeathAndGrantsAnotherUnitARealBoon",
+            "HelmetDoesNotObserveAnUnboonedOrEnemyUnit",
+            "TwoSimultaneousBoonedDeathsEarnTwoIndependentTargetedHelmetSkills",
+            "HelmetUsesTheDeadUnitsControllerAndKeepsItsDifferentOwner",
+            "HelmetCannotBoonTheNewIncarnationOfATargetReturnedInResponse",
+            "RecoveryRejectsForgedHelmetBoonConditions"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

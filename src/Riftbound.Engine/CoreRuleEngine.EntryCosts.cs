@@ -47,11 +47,12 @@ public sealed partial class CoreRuleEngine
         if (binding is null || !cards.TryGetValue(binding.ObjectId, out var source)
             || source.ObjectGeneration != binding.Generation || !IsObjectOnField(zones, source.ObjectId)) return;
         var wasExhausted = source.IsExhausted;
-        AddReadiedObservation(zones, cards, source, events);
+        var canReady = ReadyByEffectPermittedByFieldRules(zones, cards, source);
+        if (canReady) AddReadiedObservation(zones, cards, source, events);
         var next = mana == 0 ? source : ApplyDirectUntilEndPowerModifier(source, source.ObjectId, source.ObjectId,
             item.CardNo, "RETURNED_EQUIPMENT_MANA_POWER", "CoreRuleEngine.ResolveReturnedEquipmentSourceInstruction", mana, source.Power + mana);
-        cards[source.ObjectId] = next with { IsExhausted = false };
-        events.Add(CaptureSelfReady(new GameEvent("UNIT_READIED", "返回装备费用使单位变为活跃状态",
+        cards[source.ObjectId] = canReady ? next with { IsExhausted = false } : next;
+        if (canReady) events.Add(CaptureSelfReady(new GameEvent("UNIT_READIED", "返回装备费用使单位变为活跃状态",
             new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId,
                 ["targetObjectId"] = source.ObjectId, ["wasExhausted"] = wasExhausted, ["isExhausted"] = false }),
             source, item.ControllerId, cards: cards));

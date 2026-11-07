@@ -65,11 +65,14 @@ internal static class BurnoutActionCompletionSqlAcceptance
             else
             {
                 var portal = branch == "portal-tie";
-                // This is the already implemented, preselected CARDS branch only.
-                // It does not certify the printed card's mode-selection ownership.
-                await Submit("alice", new PlayCardCommand("HAND", portal ? "OGN·071/298" : "OGN·083/298", [],
-                    portal ? "OTHER_PLAYERS_CHOOSE_CARDS" : ""));
+                await Submit("alice", new PlayCardCommand("HAND", portal ? "OGN·071/298" : "OGN·083/298", []));
                 await Top();
+                if (portal) {
+                    var request = state.PendingRuleChoice?.Request;
+                    Check(request is { PlayerId: "bob", Kind: "OTHER_PLAYER_DRAW_OR_RUNE" },
+                        "The other player chooses the printed effect during resolution, including after SQL cold recovery.");
+                    await Submit("bob", new PayCostCommand(request!.Id, "RULE_REPLACEMENT", ["CARDS"]));
+                }
                 Check(state.PlayerZones["alice"].Hand.Count == (branch == "second-burnout" ? 1 : portal ? 1 : 2)
                     && state.PlayerZones["alice"].MainDeck.Count == (branch == "draw-two" ? 1 : 0),
                     "The actual one printed draw instruction retains its completed or partially completed cards.");
@@ -102,9 +105,11 @@ internal static class BurnoutActionCompletionSqlAcceptance
             async Task Top()
             {
                 var top = state.StackItems.Last().StackItemId;
-                for (var step = 0; step < 8 && state.StackItems.Any(i => i.StackItemId == top); step++)
-                    await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
-                Check(!state.StackItems.Any(i => i.StackItemId == top), "The finite original top parent must complete or suspend into its required hand choice.");
+                for (var step = 0; step < 8 && state.StackItems.Any(i => i.StackItemId == top)
+                    && state.PriorityPlayerId is { } actor; step++)
+                    await Submit(actor, new PassPriorityCommand());
+                Check(!state.StackItems.Any(i => i.StackItemId == top) || state.PendingRuleChoice is not null,
+                    "The finite original top parent must complete or suspend into its required resolution choice.");
             }
             var final = (await store.LoadAsync(room, default))!;
             Check(final.OpeningSeed == original.OpeningSeed

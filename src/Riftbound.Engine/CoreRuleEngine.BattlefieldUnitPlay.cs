@@ -88,7 +88,9 @@ public sealed partial class CoreRuleEngine
             || destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
                 && state.BattlefieldConquests is { } history && history.TurnNumber == state.TurnNumber
                 && BattlefieldLocalRules.Battlefield(state, destination[12..]) is { } field
-                && history.Entries.Contains(new(player, new(field.ObjectId, field.ObjectGeneration))));
+                && history.Entries.Contains(new(player, new(field.ObjectId, field.ObjectGeneration))))
+            && (!behavior.PlaysSourceToBaseAsUnit
+                || UnitPlayPermittedByFieldRules(state.PlayerZones, state.CardObjects, player, destination));
 
     private static ResolutionResult RecordBattlefieldConquests(ResolutionResult result)
     {

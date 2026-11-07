@@ -124,7 +124,7 @@ public sealed partial class CoreRuleEngine
         {
             var legal = UnitEventTargets(state, item);
             foreach (var id in item.TargetObjectIds.Where(id => legal.Contains(id) && StackObjectRules.ReferencesCurrentObject(state, item, id)))
-                if (cards[id].IsExhausted)
+                if (cards[id].IsExhausted && ReadyByEffectPermittedByFieldRules(zones, cards, cards[id]))
                 {
                     cards[id] = cards[id] with { IsExhausted = false };
                     events.Add(new("RUNE_READIED", "打出单位触发活跃已选择符文", new Dictionary<string, object?> {

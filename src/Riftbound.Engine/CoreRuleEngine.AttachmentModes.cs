@@ -137,7 +137,7 @@ public sealed partial class CoreRuleEngine
             if (!cards.TryGetValue(binding.ObjectId, out var target) || target.ObjectGeneration != binding.Generation
                 || target.ControllerId != item.ControllerId || target.IsFaceDown || !AttachedRuleTextRules.Field(state, target.ObjectId)) continue;
             if (mode.RuneReadyCount is not null && target.Tags.Contains(CardObjectTags.RuneCard)) {
-                if (!target.IsExhausted) continue; cards[target.ObjectId] = target with { IsExhausted = false };
+                if (!target.IsExhausted || !ReadyByEffectPermittedByFieldRules(zones, cards, target)) continue; cards[target.ObjectId] = target with { IsExhausted = false };
                 events.Add(new("RUNE_READIED", "贴附技能让符文活跃", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = target.ObjectId }));
             } else if (mode.BoonCount is not null && target.Tags.Contains(CardObjectTags.UnitCard))
                 GrantLegendBoon(cards, target.ObjectId, item.ControllerId, item.SourceObjectId, item.EffectKind, events, zones);

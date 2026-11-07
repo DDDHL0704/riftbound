@@ -47,37 +47,57 @@
       ],
       "text": "你可以选择将我打出到敌方控制的战场。",
       "scope": "你可以选择将我打出到敌方控制的战场。",
-      "status": "missing",
-      "reason": "只有基础精锐单位登记；没有敌方控制战场的打出位置例外，现有单位目的地与伏击权限不覆盖本牌",
-      "rules": "核心143 单位打出位置及明确例外；SFD·093 官方中文牌面",
+      "status": "route",
+      "reason": "共享位置权限读取真实公开战场的当前控制者，普通出牌、来源候选与未强制位置的效果打出都允许进入敌方控制的战场；保留正常费用和时机，不能借该可选权限绕开效果指定的己方控制战场",
+      "rules": "核心355.2.a–b、355.17、358.4、359.2.c；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 4,
-            "sourceUnitTags": "精锐",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_UNIT_PLAY_TO_ENEMY_CONTROLLED_BATTLEFIELD"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AmbushPermissions.cs",
           "contains": [
-            "\"SFD·093/221\"",
-            "\"FEARLESS_VANGUARD_PLAY_UNIT\""
+            "EnemyControlledBattlefieldPlayAllowed(",
+            "CardStaticAbilitySpecRules.IsSourceUnitPlayToEnemyControlledBattlefield",
+            "BattlefieldLocalRules.ControlledBy(state, opponent)",
+            "EnemyControlledBattlefieldPlayAllowed(state, player, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "!EnemyControlledBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "EnemyControlledBattlefieldPlayAllowed(state, playerId, behavior, destination)",
+            "pending.DestinationPolicy != \"CONTROLLED_BATTLEFIELD\""
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyControlledUnitEntryTests.cs",
+          "methods": [
+            "EachPrintedUnitPaysItsNormalCostAndEntersTheOpponentsControlledBattlefield",
+            "TheOptionalEnemyLocationRetainsBaseAndFriendlyBattlefieldEntry",
+            "EnemyOccupationAloneAndInvalidFieldObjectsCannotGrantThePermission",
+            "BattlefieldControlRatherThanItsOwnerDeterminesEnemyEntry",
+            "LocationPermissionDoesNotGrantReactionTiming",
+            "OrdinaryGraveyardEffectPlayKeepsThePrintedEnemyLocationAndItsPowerCost",
+            "AnEffectRequiringAControlledBattlefieldCannotUseTheOptionalEnemyLocation",
+            "AnOrdinaryUnitCannotBorrowAnotherCardsEnemyLocationPermission"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -230,36 +250,70 @@
       ],
       "text": "友方单位获得{{法盾}}（对手必须支付{{A}}才能将其选作法术或技能的目标。）",
       "scope": "友方单位获得{{法盾}}（对手必须支付{{A}}才能将其选作法术或技能的目标。）",
-      "status": "missing",
-      "reason": "只有瞬息装备登记；缺少场上友方单位法盾的持续光环与当前法盾费用消费者",
-      "rules": "核心364–365 静态技能、809 法盾；SFD·104 官方中文牌面",
+      "status": "route",
+      "reason": "共享友方单位关键词光环向基地或战场上的当前友方单位授予法盾；普通法盾可与原有法盾及其他普通来源相加，条件补足光环不会再次增加费用。真实打出、对手目标付款、来源摧毁及瞬息到期均有逐卡验证",
+      "rules": "核心364.3／365.1、477–478、809 法盾、816 瞬息；SFD·104 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAuras": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceEquipmentTags": "瞬息",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "FRIENDLY_FILTERED_UNITS_KEYWORD",
+              "layer": "RULE_TEXT",
+              "targetScope": "FRIENDLY_FILTERED_UNITS",
+              "participantScope": "FRIENDLY_FILTERED_PUBLIC_UNITS",
+              "targetFilter": "UNIT",
+              "grantedKeyword": "法盾"
+            },
+            "predicates": [
+              "StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura"
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/StaticAuraSpecRules.cs",
           "contains": [
-            "\"SFD·104/221\"",
-            "\"PETRICITE_MONUMENT_PLAY_EQUIPMENT_EPHEMERAL\""
+            "targetFilter == StaticAuraTargetFilters.Unit",
+            "targetFilter.StartsWith(StaticAuraTargetFilters.TagPrefix",
+            "IsPublicFieldFriendlyKeywordStaticAura("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyResourceKeywordAuras.cs",
+          "contains": [
+            "FriendlyResourceKeywordAuraContributions(",
+            "OnlyIfMissingKeyword != true",
+            "ResourceKeywordAmountWithoutFriendlyAuras(state, target, keyword) == 0",
+            "contributions.Add(conditional)",
+            "MissingResourceKeywordAuraApplies("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "FriendlyResourceKeywordAuraContributions(state, playerZones, cardObject, resourceKeyword)",
+            "ResourceKeywordAmountWithoutFriendlyAuras(state, card, CardResourceKeywordNames.Spellshield)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/State.Auras.cs",
+          "contains": [
+            "CoreRuleEngine.MissingResourceKeywordAuraApplies(state, sourceObjectId, participantObjectId, aura)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlySpellshieldEquipmentAuraTests.cs",
+          "methods": [
+            "ActualEquipmentPlayAddsTheCurrentFriendlySpellshieldAura",
+            "SoulguardOnlySuppliesMissingSpellshieldAndRealTargetPaymentsUseTheTotal",
+            "DestroyingTheSourceEndsTheAuraAfterTheDestructionInstruction",
+            "MonumentStopsProtectingUnitsWhenItExpiresAtItsControllersNextStartPhase"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

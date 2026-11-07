@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-heartsplit-dragon-discard-opponent-hand",
-  "description": "Heartsplit Dragon enters as a unit object and discards one selected opponent hand card.",
+  "description": "Heartsplit Dragon enters first, then reveals the current opponent hand during its independent ability and chooses one discard without drawing.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·192/298 辟心玄龙",
-      "note": "官方卡面：费用 7；单位；战力 7；龙属性；当你打出我时，让一名对手展示手牌，然后从中选择一张，让对手将其弃置。当前 fixture 用目标手牌记录已展示后被选择的对手手牌。"
+      "note": "官方中文牌面要求先展示对手当前手牌，然后由技能控制者选择一张令对手弃置；本夹具在结算展示后的选择窗口提交目标，不在出牌时预选隐藏手牌。旧预选输入保留为 DragonRevealedHandDiscardTests 的拒绝回归。 为展示补齐原先只有区域占位符的两张手牌的官方卡牌身份。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -31,7 +31,10 @@
     }
   ],
   "roomId": "p2-preflight-heartsplit-dragon-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302349,
     "turnNumber": 348,
@@ -39,7 +42,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 7,
@@ -55,29 +61,72 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-HEARTSPLIT-DRAGON"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-HEARTSPLIT-DRAGON"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
-        "hand": ["P2-HEARTSPLIT-DISCARD-001", "P2-HEARTSPLIT-HAND-KEEP-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
+        "hand": [
+          "P2-HEARTSPLIT-DISCARD-001",
+          "P2-HEARTSPLIT-HAND-KEEP-001"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P2-HEARTSPLIT-DISCARD-001": {
+        "cardNo": "OGN·219/298",
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "power": 4,
+        "manaCost": 4
+      },
+      "P2-HEARTSPLIT-HAND-KEEP-001": {
+        "cardNo": "OGN·048/298",
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "manaCost": 2
+      }
+    }
   },
   "commands": [
     {
@@ -87,14 +136,38 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-HEARTSPLIT-DRAGON",
         "cardNo": "OGN·192/298",
-        "targetObjectIds": ["P2-HEARTSPLIT-DISCARD-001"]
+        "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-heartsplit-dragon-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-heartsplit-dragon-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-heartsplit-dragon-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-heartsplit-dragon-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "heartsplit-revealed-hand-choice",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "HAND-STACK-1-P1-UNIT-HEARTSPLIT-DRAGON-0",
+        "choiceWindow": "REVEALED_HAND_EFFECT",
+        "chosenObjectIds": [
+          "P2-HEARTSPLIT-DISCARD-001"
+        ]
+      }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -103,8 +176,11 @@
       "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "CARD_DISCARDED"
+      "STACK_ITEM_SUSPENDED",
+      "HAND_REVEALED",
+      "CARD_DISCARDED",
+      "CARD_CHOICE_RESOLVED",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
       {
@@ -150,7 +226,10 @@
         "kind": "PRIORITY_PASSED"
       },
       {
-        "kind": "STACK_ITEM_RESOLVED"
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
+      {
+        "kind": "HAND_REVEALED"
       },
       {
         "kind": "CARD_DISCARDED",
@@ -161,44 +240,86 @@
           "discardedByPlayerId": "P1",
           "destinationZone": "GRAVEYARD"
         }
+      },
+      {
+        "kind": "CARD_CHOICE_RESOLVED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 348,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-HEARTSPLIT-DRAGON"],
+          "base": [
+            "P1-UNIT-HEARTSPLIT-DRAGON"
+          ],
           "graveyard": []
         },
         "P2": {
-          "hand": ["P2-HEARTSPLIT-HAND-KEEP-001"],
-          "graveyard": ["P2-HEARTSPLIT-DISCARD-001"]
+          "hand": [
+            "P2-HEARTSPLIT-HAND-KEEP-001"
+          ],
+          "graveyard": [
+            "P2-HEARTSPLIT-DISCARD-001"
+          ]
         }
       },
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-HEARTSPLIT-DRAGON": {
           "power": 7,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

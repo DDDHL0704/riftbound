@@ -403,7 +403,7 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         foreach (var id in item.TargetObjectIds)
             if (legal.Contains(id) && cards[id].ObjectGeneration == item.TargetGenerations!.GetValueOrDefault(id, -1)
-                && cards[id].IsExhausted)
+                && cards[id].IsExhausted && ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, cards[id]))
             {
                 cards[id] = cards[id] with { IsExhausted = false };
                 events.Add(new("RUNE_READIED", "触发技能让选择的符文变为活跃状态", new Dictionary<string, object?> {

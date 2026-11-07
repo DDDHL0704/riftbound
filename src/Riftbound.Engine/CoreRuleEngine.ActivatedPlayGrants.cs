@@ -94,9 +94,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveActivatedNextUnitReady(MatchState state, StackItemState item)
     {
-        // Encourage belongs to the effect, so the skill may be paid for even
-        // when it will do nothing. Responses can satisfy it before resolution.
-        if (!BorrowedEncourageActive(state, item.ControllerId, item.SourceObjectId)) return NoopStackResolutionResult(state);
+        if (!EncourageActive(state, item.ControllerId, item.SourceObjectId)) return NoopStackResolutionResult(state);
         var grant = new ActivatedPlayGrant(state.TurnNumber, item.ControllerId, item.CardNo!, item.StackItemId,
             item.BorrowedExhaust, item.SimpleActivation);
         if (!ValidActivatedPlayGrant(state, grant)) throw new InvalidOperationException("Invalid activated play grant source.");

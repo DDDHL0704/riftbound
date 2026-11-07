@@ -281,37 +281,48 @@
       ],
       "text": "你在本回合内每打出过一张牌，我的费用便减少{{1}}，不得低于{{1}}。",
       "scope": "你在本回合内每打出过一张牌，我的费用便减少{{1}}，不得低于{{1}}。",
-      "status": "missing",
-      "reason": "只有5法力基础单位登记；未按本回合已经打出的牌数逐张减费，也未实现本牌最低1法力的限制",
-      "rules": "核心356.4 费用减少；SFD·012 官方中文牌面",
+      "status": "route",
+      "reason": "共享费用报价按当前玩家本回合已完成确认的卡牌次数减费，包含被反制法术而不计指示物；最低1法力仅约束本项减费，统一先于更低下限的减费施加",
+      "rules": "核心356.4／356.4.e、420.4.b（明确以攻城锤为例）；SFD·012 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitTags": "崔法利",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_COST_REDUCTION_PER_CARD_PLAYED_THIS_TURN",
+              "amount": 1,
+              "minimumManaCost": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayCountCosts.cs",
           "contains": [
-            "\"SFD·012/221\"",
-            "\"SIEGE_RAM_TRIFARIAN_PLAY_UNIT\""
+            "ConfirmedCardCountCostReductions(",
+            "state.CardPlays.Finalized.Count(play => play.PlayerId == player)",
+            "reduction.MinimumManaCost!.Value"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "reductions.AddRange(ConfirmedCardCountCostReductions(",
+            "reductions.OrderByDescending(item => item.Floor)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/TurnHistoryCostReductionTests.cs",
+          "methods": [
+            "RamCountsPreviouslyConfirmedCardsAndKeepsItsOwnOneManaFloor",
+            "RamCountsItsControllersCounteredSpellAndDoesNotCountTheOpponentsCounterspell",
+            "RamCountsTheRobotMakerCardButNotThePlayedToken",
+            "RamDoesNotCountItsControllersCardsFromAnEarlierTurn"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

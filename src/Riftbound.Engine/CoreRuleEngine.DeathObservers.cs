@@ -21,6 +21,10 @@ public sealed record DeathObserverContext(string CardNo, string Kind, long Sourc
     public ObjectLocationState? SourceLocation { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ObjectLocationState? DestroyedLocation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? DestroyedHadBoon { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DestructionAttribution? Attribution { get; init; }
 }
 internal sealed record CapturedDeathObserver(string ObjectId, string ControllerId, DeathObserverContext Context);
 internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, DestroyedUnitFact Unit, IReadOnlyList<CapturedDeathObserver> Observers)
@@ -42,7 +46,8 @@ public sealed partial class CoreRuleEngine
         or TriggerKinds.UnitFriendlyDestroyedGainExperience or TriggerKinds.UnitFirstFriendlyDestroyedDrawOne
         or TriggerKinds.UnitDestroyedNonMinionCreateMinion
         or TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw
-        or TriggerKinds.UnitFriendlyBatchDestroyedBoon or TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion;
+        or TriggerKinds.UnitFriendlyBatchDestroyedBoon or TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion
+        or TriggerKinds.PlayerDestroysStunnedEnemyDraw or TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther;
 
     private static bool MatchingLocalDeath(DeathObserverContext c, string controller)
         => !string.IsNullOrWhiteSpace(c.Destroyed.ControllerId) && c.Destroyed.ControllerId != controller
@@ -67,11 +72,8 @@ public sealed partial class CoreRuleEngine
         => effect == DeathObserverEffect && c.SourceGeneration >= 0 && (cardNo is null || cardNo == c.CardNo)
             && c.Destroyed is { Generation: >= 0 } d && !string.IsNullOrWhiteSpace(d.ObjectId) && d.ObjectId != source
             && !string.IsNullOrWhiteSpace(d.CardNo) && !string.IsNullOrWhiteSpace(d.OwnerId)
-            && (c.Kind == TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion
-                ? ValidLocalFriendlyDeath(c, controller, source)
-                : c.Kind is TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw
-                ? MatchingLocalDeath(c, controller) && (c.Kind != TriggerKinds.UnitStunnedEnemyDestroyedHereDraw || d.WasStunned)
-                : d.ControllerId == controller && c.SourceLocation is null && c.DestroyedLocation is null)
+            && MatchingDeathObserverRelation(c, controller, source)
+            && ValidAdditionalDeathObserverConditions(c, controller)
             && IsDeathObserverKind(c.Kind) && UnitDestroyedTriggerSpecRules.TryGetTrigger(c.CardNo,t=>t.Kind==c.Kind,out _)
             && (c.Kind != TriggerKinds.UnitDestroyedNonMinionCreateMinion || !d.WasMinion)
             && (c.Origin is null ? c.RuleTextInstanceId is null
@@ -82,29 +84,32 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidDeathObserver(MatchState state, DeathObserverContext c, string effect,
         string controller, string source, string? cardNo = null)
         => ValidDeathObserver(c, effect, controller, source, cardNo)
-            && (c.Kind is not (TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw)
+            && (c.Kind is not (TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw or TriggerKinds.PlayerDestroysStunnedEnemyDraw)
                 || state.Seats.ContainsKey(controller) && state.Seats.ContainsKey(c.Destroyed.ControllerId))
+            && (c.Attribution is null || ValidDestructionAttribution(state, c.Attribution))
             && AttachedRuleTextRules.ValidCaptured(state, c.Origin, source, c.SourceGeneration, c.CardNo);
 
     // The public death fact is unchanged. Grant bindings belong to authority;
     // the equipment may since have moved into a private zone.
     internal static DeathObserverContext? PublicDeathObserver(DeathObserverContext? c)
-        => c is null || c.Origin is null ? c : c with { RuleTextInstanceId = null, Origin = null };
+        => c is null ? null : c with { RuleTextInstanceId = null, Origin = null, Attribution = null };
 
     internal static string DeathObserverLabel(DeathObserverContext c)
     {
         var source=CardBehaviorRegistry.TryGetByCardNo(c.CardNo,out var card) ? card.DisplayName : c.CardNo;
         var victim=CardBehaviorRegistry.TryGetByCardNo(c.Destroyed.CardNo,out var unit) ? unit.DisplayName : P6TokenFactoryCatalog.TryGetByCardNo(c.Destroyed.CardNo,out var token) ? token.CardName : c.Destroyed.CardNo;
-        var effect=c.Kind switch { TriggerKinds.UnitDestroyedNonMinionCreateMinion or TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion=>"打出随从",TriggerKinds.UnitFriendlyDestroyedGainExperience=>"获得经验",TriggerKinds.UnitFirstFriendlyDestroyedDrawOne=>"本回合首次死亡：抽牌",TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune=>"召出休眠符文", TriggerKinds.UnitStunnedEnemyDestroyedHereDraw=>"眩晕敌方单位被摧毁：抽牌", TriggerKinds.UnitFriendlyBatchDestroyedBoon=>"友方单位被摧毁：给予增益", _=>"本回合战力 +2" };
+        var effect=c.Kind switch { TriggerKinds.UnitDestroyedNonMinionCreateMinion or TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion=>"打出随从",TriggerKinds.UnitFriendlyDestroyedGainExperience=>"获得经验",TriggerKinds.UnitFirstFriendlyDestroyedDrawOne=>"本回合首次死亡：抽牌",TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune=>"召出休眠符文", TriggerKinds.UnitStunnedEnemyDestroyedHereDraw=>"眩晕敌方单位被摧毁：抽牌", TriggerKinds.PlayerDestroysStunnedEnemyDraw=>"摧毁被眩晕的敌方单位：横置并抽牌", TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther=>"拥有增益的友方单位被摧毁：给予另一单位增益", TriggerKinds.UnitFriendlyBatchDestroyedBoon=>"友方单位被摧毁：给予增益", _=>"本回合战力 +2" };
         return $"{source}：{effect}（{victim}被摧毁）";
     }
 
     private static bool NeedsDeathObserverTarget(StackItemState item)
-        => item.DeathObserver?.Kind == TriggerKinds.UnitFriendlyBatchDestroyedBoon;
+        => item.DeathObserver?.Kind is TriggerKinds.UnitFriendlyBatchDestroyedBoon or TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther;
 
     private static string[] DeathObserverTargets(MatchState state, StackItemState item)
         => state.CardObjects.Values.Where(c => IsFaceUpNonStandbyUnit(c) && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
+            && (item.DeathObserver!.Kind != TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther
+                || c.ObjectId != item.DeathObserver.Destroyed.ObjectId || c.ObjectGeneration != item.DeathObserver.Destroyed.Generation)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
@@ -154,7 +159,7 @@ public sealed partial class CoreRuleEngine
         // A nested resource cost has its own destruction batch, before the outer death.
         foreach(var source in cards.Values.OrderBy(c=>c.ObjectId,StringComparer.Ordinal))
             if (source.ObjectId != unit.ObjectId && !frame.CurrentDestructions.Contains(source.ObjectId)
-                && source.Tags.Contains(CardObjectTags.UnitCard) && !source.IsFaceDown
+                && (source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.EquipmentCard)) && !source.IsFaceDown
                 && IsObjectOnField(zones,source.ObjectId))
                 foreach (var instance in AttachedRuleTextRules.Instances(zones, cards, source))
                     if (!(instance.Origin is { } origin && frame.CurrentDestructions.Contains(origin.Equipment.ObjectId))
@@ -163,8 +168,11 @@ public sealed partial class CoreRuleEngine
                     {
                         var observerController = EffectiveFieldControllerId(zones, source.ObjectId, source);
                         var localEnemy = spec.Kind is TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw;
-                        if (spec.Kind == TriggerKinds.UnitStunnedEnemyDestroyedHereDraw && !fact.WasStunned) continue;
-                        if (localEnemy ? observerController == controller || !IsSameFieldLocation(zones, locations, unit.ObjectId, source.ObjectId)
+                        var globalEnemy = spec.Kind == TriggerKinds.PlayerDestroysStunnedEnemyDraw;
+                        if (spec.Kind is TriggerKinds.UnitStunnedEnemyDestroyedHereDraw or TriggerKinds.PlayerDestroysStunnedEnemyDraw
+                            && !fact.WasStunned) continue;
+                        if (spec.Kind == TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther && BoonRules.Count(unit) == 0) continue;
+                        if (localEnemy || globalEnemy ? observerController == controller || localEnemy && !IsSameFieldLocation(zones, locations, unit.ObjectId, source.ObjectId)
                             : observerController != controller) continue;
                         ObjectLocationState? observerLocation = null, destroyedLocation = null;
                         if (localEnemy)
@@ -177,7 +185,8 @@ public sealed partial class CoreRuleEngine
                         observers.Add(new(source.ObjectId, observerController,
                             new(instance.CardNo, spec.Kind, source.ObjectGeneration, fact) {
                                 RuleTextInstanceId = instance.Origin is null ? null : instance.Id, Origin = instance.Origin,
-                                SourceLocation = observerLocation, DestroyedLocation = destroyedLocation }));
+                                SourceLocation = observerLocation, DestroyedLocation = destroyedLocation,
+                                DestroyedHadBoon = spec.Kind == TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther ? true : null }));
                     }
         if (!fact.WasToken && TryGetPreciseFieldLocation(zones, locations, unit.ObjectId, out var battlefieldDeathLocation)
             && battlefieldDeathLocation.Zone == "BATTLEFIELD" && battlefieldDeathLocation.BattlefieldObjectId is { } battlefieldId
@@ -299,8 +308,15 @@ public sealed partial class CoreRuleEngine
                     SourceCardNo = captured.CardNo, LastBreathMight = captured };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
-            foreach(var observer in death.Observers)
+            foreach(var capturedObserver in death.Observers)
             {
+                var observer = capturedObserver;
+                if (observer.Context.Kind == TriggerKinds.PlayerDestroysStunnedEnemyDraw) {
+                    // CN412.4 / 418.6.b.4 / 429.5.c: use the responsible
+                    // player, including named units instructed by another player.
+                    if (death.Attribution?.ResponsiblePlayerId != observer.ControllerId) continue;
+                    observer = observer with { Context = observer.Context with { Attribution = death.Attribution } };
+                }
                 if (observer.Context.Kind == TriggerKinds.UnitFriendlyBatchDestroyedBoon
                     && !observedBatches.Add((death.Batch, observer.ObjectId, observer.Context.RuleTextInstanceId))) continue;
                 if (observer.Context.Kind is TriggerKinds.UnitFirstFriendlyDestroyedDrawOne or TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion
@@ -343,12 +359,14 @@ public sealed partial class CoreRuleEngine
             var batch=CreateUnitTokenBatch(state,item,P6TokenFactoryCatalog.ZaunMinionTokenCardNo,1+AdditionalUnitTokens(item),false,abilityId:c.Kind);
             return batch with { Events=new[] { resolved }.Concat(batch.Events).ToArray() };
         }
-        if (c.Kind is TriggerKinds.UnitFirstFriendlyDestroyedDrawOne or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw) {
+        if (c.Kind is TriggerKinds.UnitFirstFriendlyDestroyedDrawOne or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw or TriggerKinds.PlayerDestroysStunnedEnemyDraw) {
+            if (HasDeathObserverExhaustCost(item) && item.TriggerCost is null)
+                throw new InvalidOperationException("Missing death-observer exhaust receipt.");
             var draw=ResolveLastBreathDrawStackItem(state,item,spec.DrawCount.GetValueOrDefault(1));
             return draw with { Events=draw.Events.Select(e=>e.Kind=="TRIGGER_RESOLVED" ? resolved : e).ToArray() };
         }
         var events=new List<GameEvent> { resolved };
-        if (c.Kind == TriggerKinds.UnitFriendlyBatchDestroyedBoon)
+        if (c.Kind is TriggerKinds.UnitFriendlyBatchDestroyedBoon or TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther)
         {
             var boonCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             if (item.TargetObjectIds.SingleOrDefault() is { } target && DeathObserverTargets(state, item).Contains(target)

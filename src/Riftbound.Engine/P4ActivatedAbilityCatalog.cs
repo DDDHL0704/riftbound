@@ -45,7 +45,10 @@ public sealed record P4ActivatedAbilityDefinition(
     string SourceScope = "",
     string RequiredControllerCardNoOnField = "",
     bool UsableByAnyPlayerOnOwnTurn = false,
-    bool BorrowedSourceAlias = false);
+    bool BorrowedSourceAlias = false,
+    bool BindsUnitSource = false,
+    bool ModifiesUnitSource = false,
+    int? MaximumTargetCount = null);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -63,7 +66,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     string? CreatedBattlefieldEquipmentTokenCardNo = null, bool GrantsNextUnitReady = false, bool GrantsNextSpellDamage = false,
     string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
     bool GrantsMysteriousWeaponRecall = false, bool GrantsPaidRecall = false,
-    bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false);
+    bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false,
+    bool RequiresEncouraged = false, bool DestroysSourceAsCost = false, bool RecyclesGraveyardTargets = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -436,7 +440,7 @@ public static class P4ActivatedAbilityCatalog
         new("SUN_DISC_NEXT_UNIT_READY", "OGN·021/298", "SUN_DISC_NEXT_UNIT_READY", "太阳圆盘", 0, 0, 0,
             false, true, 0, false, "官方中文：横置，鼓舞时授予本回合下一名单位活跃进场。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
-            SimpleEffect: new(GrantsNextUnitReady: true)),
+            SimpleEffect: new(GrantsNextUnitReady: true, RequiresEncouraged: true)),
         new(ScryingBlossomAbilityId, "UNL-136/219", "INSIGHT_TRIGGER", "占卜花朵 · 洞察 2 后抽牌",
             1, 0, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
             AppliesSpellshieldTargetTax: false, "支付 1 法力、横置并摧毁此牌：洞察 2，然后抽一张牌并获得 1 经验", RequiresBaseEquipmentSource: true),
@@ -449,26 +453,30 @@ public static class P4ActivatedAbilityCatalog
             ViDoublePowerAbilityEffectKind,
             "Vi double-power skill",
             ViDoublePowerAbilityManaCost,
-            ViDoublePowerAbilityPowerCost,
+            0,
             0,
             RequiresBattlefieldSource: false,
             ExhaustsSourceAsCost: false,
             0,
             AppliesSpellshieldTargetTax: false,
-            "P4.389 keeps Vi's already verified no-target paid skill behind a registry entry before broader skill migration."),
+            "支付2法力和1红色符能：让我本回合内战力翻倍。",
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = ViDoublePowerAbilityPowerCost },
+            BindsUnitSource: true, ModifiesUnitSource: true),
         new(
             XerathDamageAbilityId,
             XerathCardNo,
             XerathDamageAbilityEffectKind,
             "Xerath damage skill",
             0,
-            XerathDamageAbilityPowerCost,
+            0,
             1,
             RequiresBattlefieldSource: true,
             ExhaustsSourceAsCost: true,
             XerathDamageAbilityDamageAmount,
             AppliesSpellshieldTargetTax: true,
-            "P4.389 keeps Xerath's verified one-target damage skill and spellshield target tax behind a registry entry."),
+            "支付1红色符能并横置：对一名单位造成3点伤害；来源必须位于战场。",
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Red] = XerathDamageAbilityPowerCost },
+            BindsUnitSource: true),
         new(
             MalzaharResourceAbilityId,
             MalzaharCardNo,
@@ -1062,11 +1070,13 @@ public static class P4ActivatedAbilityCatalog
         return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
             .SelectMany(spec => spec.ActivatedAbilities
                 .Where(ability => IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(ability)
+                    || IsDestroySourceGraveyardRecycleSpec(ability) && spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
                     || IsSelfBoonSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedUnitExhaustSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedPowerModifier(ability) && (spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
                         || spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)))
-                .Select(ability => IsSelfBoonSpec(ability) ? SelfBoonDefinition(spec, ability)
+                .Select(ability => IsDestroySourceGraveyardRecycleSpec(ability) ? DestroySourceGraveyardRecycleDefinition(spec, ability)
+                    : IsSelfBoonSpec(ability) ? SelfBoonDefinition(spec, ability)
                     : IsTargetedUnitExhaustSpec(ability) ? TargetedUnitExhaustDefinition(spec, ability)
                     : IsTargetedPowerModifier(ability)
                     ? TargetedPowerModifierDefinition(spec, ability)
@@ -1084,6 +1094,19 @@ public static class P4ActivatedAbilityCatalog
     public static bool IsOrdinaryTargetedExhaustAbility(P4ActivatedAbilityDefinition ability)
         => ability.Kind is ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
             or ActivatedAbilityKinds.StunEnemyUnit or ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower;
+
+    private static bool IsDestroySourceGraveyardRecycleSpec(ActivatedAbilitySpec ability)
+        => ability.Kind == ActivatedAbilityKinds.DestroySourceRecycleGraveyard && ability.DestroysSourceAsCost == true
+            && ability.RequiredTargetCount == 0 && ability.MaximumTargetCount is > 0
+            && ability.TargetScope == "ANY_GRAVEYARD_CARD" && ability.ManaCost == 0 && ability.PowerCost == 0;
+
+    private static P4ActivatedAbilityDefinition DestroySourceGraveyardRecycleDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
+    {
+        var id = BuildBehaviorSpecAbilityId(spec.CardNo, ability.Kind);
+        return new(id, spec.CardNo, id, spec.CardName, 0, 0, 0, false, false, 0, false, ability.Reason,
+            RequiresBaseEquipmentSource: true, Kind: ability.Kind!, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DestroysSourceAsCost: true, RecyclesGraveyardTargets: true), MaximumTargetCount: ability.MaximumTargetCount);
+    }
 
     private static bool IsSelfBoonSpec(ActivatedAbilitySpec ability)
         => ability.Kind == ActivatedAbilityKinds.GrantSelfBoon && ability.ExhaustsSourceAsCost == true

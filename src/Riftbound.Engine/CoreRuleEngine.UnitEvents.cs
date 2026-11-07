@@ -10,7 +10,15 @@ public sealed record UnitEventContext(string CardNo, long SourceGeneration, long
     BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, MightReductionFact? MightReduction = null, ObjectBinding? DeploymentBattlefield = null, IReadOnlyList<UnitEventOtherObject>? ExhaustedUnits = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PlayedUnitRuneObservation? PlayedUnitRunes = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RevealedRuneFact? RevealedRune = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] TargetSelectionOrigin? TargetSelection = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] TargetSelectionOrigin? TargetSelection = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public FriendlyUnitActionOrigin? FriendlyUnitAction { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectBinding? BattleTieBattlefield { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourcePlayDestinationZone { get; init; }
+}
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -28,6 +36,9 @@ public sealed partial class CoreRuleEngine
                 ?? DeploymentPlayLegends.Value.GetValueOrDefault(no)
                 ?? PlayedUnitRuneSpecs.Value.GetValueOrDefault(no);
 
+    private static bool UnitEventTimingMatches(string? declared, string timing)
+        => declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true;
+
     private static UnitEventObservation[] CaptureUnitEvents(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<string> sources, string timing)
         => sources.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
@@ -41,12 +52,8 @@ public sealed partial class CoreRuleEngine
                         && card.Tags.Contains("CARD_TYPE:LEGEND") && zones.Values.Any(z => z.LegendZone.Contains(id))))
             .Select(id => cards[id]).SelectMany(card => AttachedRuleTextRules.Instances(zones, cards, card)
                 .Where(i => UnitEventSpec(i.CardNo) is { } spec
-                    && (spec.Timing == timing || spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"
-                        || spec.Timing == "PLAY_OR_START" && timing is "PLAY" or "START"
-                        || spec.Timing == "PLAY_OR_MOVE" && timing is "PLAY" or "MOVE"
-                        || spec.Timing == "PLAY_OR_CONQUEST" && timing is "PLAY" or "CONQUEST"
-                        || spec.Timing == "PLAY_OR_LEAVE" && timing is "PLAY" or "LEAVE"
-                        || spec.Timing == "PLAY_OR_EXHAUST" && timing is "PLAY" or "BECAME_EXHAUSTED")
+                    && (UnitEventTimingMatches(spec.Timing, timing)
+                        || spec.Timing == "PLAY_OR_EXHAUST" && timing == "BECAME_EXHAUSTED")
                     && (!spec.RequiresEmpowered || card.IsEmpowered)
                     // CN383.2.a.1: an immediately following condition is checked
                     // at the triggering event; later responses do not recheck it.
@@ -125,7 +132,16 @@ public sealed partial class CoreRuleEngine
                     && IsObjectOnField(zones, c.ObjectId)).All(c => ResolveCurrentFieldUnitPower(current, c) < power);
             observations = observations.Where(o => !UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest || strongest).ToArray();
         }
+        if (observations.Any(o => UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance > 0))
+        {
+            var origin = RuleChoices.Value!.ResolutionState ?? RuleChoices.Value.Origin;
+            var current = origin with { PlayerZones = zones, CardObjects = cards };
+            observations = observations.Where(o => UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance <= 0
+                || OpponentWithinWinningScoreDistance(current, o.Controller,
+                    UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance)).ToArray();
+        }
         observations = CapturePlayedUnitRunes(ev, zones, cards, entered, player, turnEffects, observations);
+        observations = CaptureConditionalSourcePlayDestination(entered.ObjectId, destinationZone, observations);
         return WithUnitEvents(ev, observations);
     }
 
@@ -144,9 +160,9 @@ public sealed partial class CoreRuleEngine
         string eventKind, IReadOnlyList<string> discarded, List<GameEvent> events)
     {
         var observations = discarded.Distinct(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
-            && UnitEventSpec(card.CardNo)?.Timing == "SELF_DISCARDED").Select(id => cards[id])
+            && UnitEventTimingMatches(UnitEventSpec(card.CardNo)?.Timing, "SELF_DISCARDED")).Select(id => cards[id])
             .Select(card => new UnitEventObservation(card.ObjectId, player, new(card.CardNo!, card.ObjectGeneration,
-                card.CopyFaceTransitions?.Count ?? 0, 0, "SELF_DISCARDED", card.TokenFactoryCardNo))).ToArray();
+                card.CopyFaceTransitions?.Count ?? 0, 0, UnitEventSpec(card.CardNo)!.Timing, card.TokenFactoryCardNo))).ToArray();
         var index = events.FindLastIndex(e => e.Kind == eventKind);
         if (observations.Length > 0 && index >= 0) events[index] = WithUnitEvents(events[index], observations);
     }
@@ -204,12 +220,16 @@ public sealed partial class CoreRuleEngine
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
         string timing, string eventKind, long? capturedTick = null)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")
-            .Concat(CaptureFriendlyAttackHere(state, attackers)).Select(o => CaptureUnitEventFacts(state, o))
+            .Where(o => UnitEventCaptureConditionSatisfied(state, o))
+            .Concat(CaptureFriendlyAttackHere(state, attackers))
+            .Concat(CaptureSoloRoleObservers(state, attackers, "ATTACK")).Select(o => CaptureUnitEventFacts(state, o))
             .Select((o, i) => UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static TriggerQueueItemState[] CaptureRoleUnitEvents(MatchState state, IEnumerable<string> units,
         string role, string timing, string eventKind, long? capturedTick = null)
-        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role).Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) =>
+        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role)
+            .Where(o => UnitEventCaptureConditionSatisfied(state, o))
+            .Concat(CaptureSoloRoleObservers(state, units, role)).Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) =>
             UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static UnitEventObservation CaptureUnitEventFacts(MatchState state, UnitEventObservation o)
@@ -278,7 +298,7 @@ public sealed partial class CoreRuleEngine
                     timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
                 var captured = observation;
                 var enteredId = ev.Payload.GetValueOrDefault("unitObjectId") as string ?? ev.Payload.GetValueOrDefault("tokenObjectId") as string;
-                if ((captured.Context.Timing is "PLAY" or "PLAY_OR_START" or "PLAY_OR_MOVE" or "PLAY_OR_CONQUEST" or "PLAY_OR_EXHAUST" or "PLAY_OR_LEAVE"
+                if ((UnitEventTimingMatches(captured.Context.Timing, "PLAY")
                         && (ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD" || captured.Source == enteredId)
                         || captured.Context.Timing == "FRIENDLY_UNIT_PLAYED" && captured.Source == enteredId)
                     && before.CardObjects.TryGetValue(captured.Source, out var entering) && !IsObjectOnField(before.PlayerZones, entering.ObjectId))
@@ -332,6 +352,9 @@ public sealed partial class CoreRuleEngine
                     : c.ReflexiveTick is null
                 : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
             && ValidTargetSelectionContext(state, c, spec, controller)
+            && ValidFriendlyUnitActionContext(state, c, spec, controller)
+            && ValidBattleDrawContext(state, c, spec, controller)
+            && ValidConditionalSourcePlayDestination(c, spec)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
@@ -340,7 +363,7 @@ public sealed partial class CoreRuleEngine
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
-                : spec.Effect == ReadySelectedEventUnit ? c.Other is not null : c.Other is null)
+                : spec.Effect == ReadySelectedEventUnit || IsFriendlyObservedUnitSpec(spec) ? c.Other is not null : c.Other is null)
             && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect == "MIGHT_ATTACKERS" ? c.Attackers is { Count: > 0 }
                 && c.Attackers.All(a => a is not null && a.Binding is { Generation: >= 0 }
@@ -462,13 +485,21 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
     {
+        var result = ResolveUnitEventInstruction(state, item);
+        return AppendIndependentUnitEventExperience(state, item, result);
+    }
+
+    private static StackResolutionResult ResolveUnitEventInstruction(MatchState state, StackItemState item)
+    {
         var context = item.UnitEvent!;
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
         if (spec.Effect == RuneDomainRevealEffect && context.RevealedRune is null) return ResolveRuneDomainReveal(state, item);
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
+        if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
         if (spec.Effect == ReadySelectedEventUnit) return ResolveSelectedEventUnitReady(state, item);
+        if (spec.Effect == BattleDrawRecallEffect) return ResolveBattleDrawRecall(state, item);
         if (spec.Effect == RuneDomainDamageEffect) return ResolveRuneDomainDamage(state, item, spec);
         if (spec.Effect == StandbyHandPlayHereEffect)
         {

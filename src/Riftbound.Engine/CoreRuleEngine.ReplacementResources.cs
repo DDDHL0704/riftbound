@@ -103,7 +103,7 @@ public sealed partial class CoreRuleEngine
         foreach (var borrowed in BorrowedExhaustRules.Abilities(state, player, source).Where(a => a.Spec.Kind == "RESOURCE" && a.Spec.Reaction))
         {
             var spec = borrowed.Spec;
-            if (!CanActivateBorrowedExhaust(state, player, spec) || !BorrowedResourceGainSupported(state, player, spec, source)
+            if (!CanActivateBorrowedExhaust(state, player, spec, source.ObjectId) || !BorrowedResourceGainSupported(state, player, spec, source)
                 || PaymentCostRules.AvailableMana(pool, ManaPurposeForActivatedAbility(state, source.ObjectId), state) < spec.Mana
                 || !PaymentCostRules.CanPayPowerCost(pool, spec.Power, spec.TypedPower, BorrowedPowerPurpose(source))
                 || state.PlayerExperience.GetValueOrDefault(player) < spec.Experience) continue;

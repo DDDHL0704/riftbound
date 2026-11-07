@@ -171,14 +171,15 @@ public sealed partial class CoreRuleEngine
         var target = equipment.ObjectId;
         if (!context.ReadyCompleted)
         {
-            if (equipment.IsExhausted)
+            if (equipment.IsExhausted && ReadyByEffectPermittedByFieldRules(zones, cards, equipment))
             {
                 using var readyInstruction = new MightInstructionScope(state, zones, cards, events);
                 AddReadiedObservation(zones, cards, equipment, events);
                 cards[target] = equipment with { IsExhausted = false };
-                events.Add(new GameEvent("EQUIPMENT_READIED", "所选装备变为活跃状态",
+                events.Add(CaptureSelfReady(new GameEvent("EQUIPMENT_READIED", "所选装备变为活跃状态",
                     new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = target,
-                        ["reason"] = item.EffectKind, ["wasExhausted"] = true, ["isExhausted"] = false }));
+                        ["reason"] = item.EffectKind, ["wasExhausted"] = true, ["isExhausted"] = false }),
+                    equipment, item.ControllerId, zones, cards));
             }
             if (equipment.Tags.Contains("武装", StringComparer.Ordinal) && !string.IsNullOrWhiteSpace(equipment.AttachedToObjectId))
             {

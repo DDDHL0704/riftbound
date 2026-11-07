@@ -85,12 +85,15 @@ public sealed partial class CoreRuleEngine
         {
             if (!IsLegendEquipmentReadyTarget(state, item.ControllerId, id)
                 || !cards.TryGetValue(id, out var equipment) || equipment.ObjectGeneration != item.TargetGenerations![id]) continue;
-            if (AttachedRuleTextRules.Instances(state, equipment)
-                .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo))) continue;
+            if (!ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, equipment)
+                || AttachedRuleTextRules.Instances(state, equipment)
+                    .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo))) continue;
+            AddReadiedObservation(state.PlayerZones, cards, equipment, events);
             cards[id] = equipment with { IsExhausted = false };
-            events.Add(new("EQUIPMENT_READIED", "装备变为活跃状态", new Dictionary<string, object?> {
+            events.Add(CaptureSelfReady(new("EQUIPMENT_READIED", "装备变为活跃状态", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
-                ["abilityId"] = context.AbilityId, ["wasExhausted"] = equipment.IsExhausted, ["isExhausted"] = false }));
+                ["abilityId"] = context.AbilityId, ["wasExhausted"] = equipment.IsExhausted, ["isExhausted"] = false }),
+                equipment, item.ControllerId, state.PlayerZones, cards));
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }

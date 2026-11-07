@@ -36,8 +36,6 @@ public sealed class BurnoutActionCompletionTests
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
     }
 
-    // Only the existing preselected CARDS execution branch is under test;
-    // this does not certify who selects the printed card's mode.
     [Fact]
     public async Task BothPlayersFirstBurnoutsCanCreateATieWithoutAnyIntermediateWinner()
     {
@@ -46,8 +44,14 @@ public sealed class BurnoutActionCompletionTests
         initial = AddRecyclableCards(initial, ["P2-REFILL"], "P2") with {
             PlayerScores = new Dictionary<string, int> { ["P1"] = 7, ["P2"] = 7 } };
         var driver = new StandbyDefendObserverTests.Driver(initial);
-        await driver.Act("P1", new PlayCardCommand("HAND", "OGN·071/298", [], "OTHER_PLAYERS_CHOOSE_CARDS"));
-        await driver.Top();
+        await driver.Act("P1", new PlayCardCommand("HAND", "OGN·071/298", []));
+        for (var passes = 0; driver.State.PendingRuleChoice is null; passes++) {
+            Assert.True(passes < 4);
+            await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        var request = driver.State.PendingRuleChoice!.Request;
+        Assert.Equal("P2", request.PlayerId);
+        await driver.Act("P2", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["CARDS"]));
         Assert.Equal(new[] { "P1-REFILL" }, driver.State.PlayerZones["P1"].Hand);
         Assert.Equal(new[] { "P2-REFILL" }, driver.State.PlayerZones["P2"].Hand);
         Assert.Equal(8, driver.State.PlayerScores["P1"]);

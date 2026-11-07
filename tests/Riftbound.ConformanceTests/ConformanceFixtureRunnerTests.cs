@@ -812,7 +812,8 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal("UNL-030/219", viDefinition.SourceCardNo);
         Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", viDefinition.EffectKind);
         Assert.Equal(2, viDefinition.ManaCost);
-        Assert.Equal(1, viDefinition.PowerCost);
+        Assert.Equal(0, viDefinition.PowerCost);
+        Assert.Equal(1, P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(viDefinition)[RuneTrait.Red]);
         Assert.Equal(0, viDefinition.RequiredTargetCount);
         Assert.False(viDefinition.RequiresBattlefieldSource);
         Assert.False(viDefinition.ExhaustsSourceAsCost);
@@ -825,7 +826,8 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal("UNL-026/219", xerathDefinition.SourceCardNo);
         Assert.Equal("XERATH_PAY_RED_EXHAUST_DAMAGE_3", xerathDefinition.EffectKind);
         Assert.Equal(0, xerathDefinition.ManaCost);
-        Assert.Equal(1, xerathDefinition.PowerCost);
+        Assert.Equal(0, xerathDefinition.PowerCost);
+        Assert.Equal(1, P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(xerathDefinition)[RuneTrait.Red]);
         Assert.Equal(1, xerathDefinition.RequiredTargetCount);
         Assert.True(xerathDefinition.RequiresBattlefieldSource);
         Assert.True(xerathDefinition.ExhaustsSourceAsCost);
@@ -992,6 +994,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "OGN_078A_298_GRANT_SELF_BOON",
                 "OGN_078_298_GRANT_SELF_BOON",
                 "OGN_090_298_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN",
+                "OGN_212_298_DESTROY_SOURCE_RECYCLE_GRAVEYARD",
                 "OGN_242_298_DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST",
                 "OGN_DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER",
                 "OGN_FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER",

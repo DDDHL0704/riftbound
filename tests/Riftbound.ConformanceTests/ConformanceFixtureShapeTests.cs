@@ -9637,7 +9637,8 @@ public sealed class ConformanceFixtureShapeTests
             string.Equals(Assert.IsType<string>(requirement["abilityId"]), "PAY_2_RED_DOUBLE_POWER", StringComparison.Ordinal));
         Assert.Equal("P1-UNIT-VI", Assert.IsType<string>(viRequirement["sourceObjectId"]));
         Assert.Equal(2, Assert.IsType<int>(viRequirement["manaCost"]));
-        Assert.Equal(1, Assert.IsType<int>(viRequirement["powerCost"]));
+        Assert.Equal(0, Assert.IsType<int>(viRequirement["powerCost"]));
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(viRequirement["powerCostByTrait"])[RuneTrait.Red]);
         Assert.Equal(0, Assert.IsType<int>(viRequirement["minTargetCount"]));
         Assert.Equal(0, Assert.IsType<int>(viRequirement["maxTargetCount"]));
         Assert.True(Assert.IsType<bool>(viRequirement["composable"]));
@@ -9646,7 +9647,8 @@ public sealed class ConformanceFixtureShapeTests
             string.Equals(Assert.IsType<string>(requirement["abilityId"]), "PAY_RED_EXHAUST_DAMAGE_3", StringComparison.Ordinal));
         Assert.Equal("P1-UNIT-XERATH", Assert.IsType<string>(xerathRequirement["sourceObjectId"]));
         Assert.Equal(0, Assert.IsType<int>(xerathRequirement["manaCost"]));
-        Assert.Equal(1, Assert.IsType<int>(xerathRequirement["powerCost"]));
+        Assert.Equal(0, Assert.IsType<int>(xerathRequirement["powerCost"]));
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(xerathRequirement["powerCostByTrait"])[RuneTrait.Red]);
         Assert.Equal(1, Assert.IsType<int>(xerathRequirement["minTargetCount"]));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             xerathRequirement["targetChoicesByIndex"]);
