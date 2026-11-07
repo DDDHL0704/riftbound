@@ -463,7 +463,9 @@ public sealed partial class CoreRuleEngine
             genericPowerCost: pending.PowerCost - pending.PowerCostByTrait.Values.Sum(), totalPowerCost: pending.PowerCost,
             powerCostByTrait: pending.PowerCostByTrait,
             reason: pending.Reason, sourceObjectId: item.SourceObjectId,
-            powerPurpose: item.GraveyardPlay is not null ? PowerPaymentPurpose.PlayUnit : PowerPaymentPurpose.Other);
+            powerPurpose: item.GraveyardPlay is not null ? PowerPaymentPurpose.PlayUnit
+                : state.CardObjects.TryGetValue(item.SourceObjectId, out var costSource)
+                    && costSource.Tags.Contains(CardObjectTags.EquipmentCard) ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other);
         var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
         if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足，可以先使用符文或反应资源技能，或放弃此技能。", ErrorCodes.InsufficientCost);
         var details = new Dictionary<string, object?> { ["sourceObjectId"] = item.FieldContext?.Kind == EquipmentDeathReturnKind ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId };

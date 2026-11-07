@@ -127,35 +127,62 @@
       ],
       "text": "每当你给予一名友方单位增益时，你可以选择支付{{橙色}}让此牌变为休眠状态，以此让该单位变为活跃状态。",
       "scope": "每当你给予一名友方单位增益时，你可以选择支付{{橙色}}让此牌变为休眠状态，以此让该单位变为活跃状态。",
-      "status": "missing",
-      "reason": "只有基础装备登记；没有给予友方增益的事件捕获、可选1橙符能及横置费用、独立活跃该单位的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "所有实际给予增益的共享入口捕获执行者、友方单位及增益前后数量；技能独立确认时可支付1橙符能并横置来源，拒付或来源已休眠不生效。付款后保留响应窗口，按原单位代际活跃，不重新选择目标或重复收取法盾",
+      "rules": "核心383.2–383.3、383.3.b／383.3.b.1 前置可选费用、427.1.b.1–2 给予增益、416.1 活跃；OGN·152 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_UNIT_BOON_GRANTED",
+              "effect": "READY_OBSERVED_UNIT",
+              "leadingPowerCost": 1,
+              "leadingPowerTrait": "orange",
+              "optional": true,
+              "leadingSourceExhaust": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyUnitObservers.cs",
           "contains": [
-            "\"OGN·152/298\"",
-            "\"MISTFALL_BLADEYARD_PLAY_EQUIPMENT\""
+            "TryGrantBoonForInstruction(",
+            "PreviousBoonCount: BoonRules.Count(before), ResultingBoonCount: BoonRules.Count(after)",
+            "LeadingTriggerCost(item) is not null && item.TriggerCost is null",
+            "ApplyReadyState(unit, behavior, item, unit.ObjectId",
+            "PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision",
+            "unit.ObjectGeneration != binding.Generation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidFriendlyUnitActionContext(state, c, spec, controller)",
+            "ResolveObservedFriendlyUnit(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryGrantBoonForInstruction(targetState, playerZones, cardObjects, playerId, out var granted)",
+            "TryGrantBoonForInstruction(targetState, playerZones, cardObjects, stackItem.ControllerId, out var nextTargetState)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlyUnitEquipmentObserverTests.cs",
+          "methods": [
+            "BladeYardRequiresOptionalOrangeAndExhaustBeforeAnIndependentReady",
+            "AnAlreadyExhaustedBladeYardCannotPayItsTriggeredCost",
+            "EquipmentOnlyPowerCanPayTheEquipmentTrigger",
+            "PermanentPlayOnlyPowerCannotPayTheEquipmentTrigger",
+            "BladeYardReadyCreatesASeparateHarborBuff"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

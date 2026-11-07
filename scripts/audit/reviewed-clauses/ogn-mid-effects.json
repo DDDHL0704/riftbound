@@ -7,35 +7,49 @@
       ],
       "text": "每当一名友方单位独自进攻或防守时，让其本回合内{{S}}+1。",
       "scope": "每当一名友方单位独自进攻或防守时，让其本回合内{{S}}+1。",
-      "status": "missing",
-      "reason": "仅装备入场登记及未实现的通用触发候选；没有友方独自进攻／防守事件捕获、独立入链及本回合+1的消费者",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享战斗角色事件在全部新角色建立后统计当前进攻／防守方；仅独自取得角色的友方单位生成独立无目标技能，按原单位代际结算本回合+1，离场或其他后续事件不改变已捕获条件",
+      "rules": "核心383.2.a.1／383.3 独立触发、317.2.c 回合效果失效；OGN·060 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_SOLO_BATTLE_ROLE",
+              "effect": "MIGHT_OBSERVED_UNIT",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyUnitObservers.cs",
           "contains": [
-            "\"OGN·060/298\"",
-            "\"FORESIGHT_MASK_PLAY_EQUIPMENT\""
+            "CaptureSoloRoleObservers(",
+            "count != 1",
+            "RoleUnitCount: count",
+            "ApplyPowerModifier(state, unit, behavior, item, unit.ObjectId, spec.Amount",
+            "PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision",
+            "unit.ObjectGeneration != binding.Generation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidFriendlyUnitActionContext(state, c, spec, controller)",
+            "ResolveObservedFriendlyUnit(state, item, spec)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlyUnitEquipmentObserverTests.cs",
+          "methods": [
+            "MaskBuffsOnlyTheSoleFriendlyAttackerOrDefenderUntilTurnEnd",
+            "MaskDoesNotTriggerForTwoFriendlyParticipants"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1193,35 +1207,89 @@
       ],
       "text": "每当你让一名友方单位变为活跃状态时，让其本回合内{{S}}+1。",
       "scope": "每当你让一名友方单位变为活跃状态时，让其本回合内{{S}}+1。",
-      "status": "missing",
-      "reason": "仅基础装备登记；缺少由你使友方单位活跃的事件捕获、独立触发及该单位本回合+1",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "在共享活跃指示中捕获实际休眠转活跃及执行者；只观察由你活跃的友方单位，唤醒阶段也适用，已经活跃不产生事件。独立无目标技能按原单位代际给予本回合+1，恢复及回放保持一致；原生传奇、借用技能及新旧征服装备活跃入口同样捕获装备单位的实际活跃，真实转换和控制权转移验证按当前控制者判断",
+      "rules": "核心315.1.b、416.1.b–c／416.3 唤醒与实际活跃、383.2–383.3 独立触发、317.2.c；OGN·143 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_UNIT_READIED",
+              "effect": "MIGHT_OBSERVED_UNIT",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyUnitObservers.cs",
           "contains": [
-            "\"OGN·143/298\"",
-            "\"PIRATE_HIDEOUT_PLAY_EQUIPMENT\""
+            "CaptureFriendlyUnitActionObservers(",
+            "FriendlyUnitReadied",
+            "action.WasExhausted == true",
+            "ApplyPowerModifier(state, unit, behavior, item, unit.ObjectId, spec.Amount",
+            "PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision",
+            "unit.ObjectGeneration != binding.Generation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidFriendlyUnitActionContext(state, c, spec, controller)",
+            "ResolveObservedFriendlyUnit(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelfActionObservers.cs",
+          "contains": [
+            "if (!before.IsExhausted) return ev;",
+            "new(actor, \"READIED\", WasExhausted: true)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BorrowedExhaust.cs",
+          "contains": [
+            "CaptureSelfReady(new(\"EQUIPMENT_READIED\"",
+            "target, item.ControllerId, zones, cards)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendEquipmentReady.cs",
+          "contains": [
+            "CaptureSelfReady(new(\"EQUIPMENT_READIED\"",
+            "equipment, item.ControllerId, state.PlayerZones, cards)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldConquestMoonveil.cs",
+          "contains": [
+            "CaptureSelfReady(new GameEvent(\"EQUIPMENT_READIED\"",
+            "equipment, item.ControllerId, zones, cards)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "AddReadiedObservation(playerZones, cardObjects, equipmentState, events)",
+            "equipmentState, playerId, playerZones, cardObjects)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlyUnitEquipmentObserverTests.cs",
+          "methods": [
+            "HarborObservesAnActualFriendlyReadyOnceAndItsBuffExpires",
+            "AnOpponentReadyingYourUnitDoesNotTriggerYourHarbor",
+            "TheControllersWakeStepAlsoTriggersHarbor",
+            "ReturningTheReadiedUnitDoesNotBuffItsNewGenerationInHand",
+            "RecoveryRejectsForgedFriendlyUnitObservation",
+            "HarborObservesNativeAndBorrowedLegendReadyingAnActuallyAnimatedEquipment",
+            "HarborObservesMoonveilReadyingAnActuallyAnimatedEquipment"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
