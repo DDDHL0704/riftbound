@@ -144,7 +144,10 @@ public sealed class ArmamentHoldConquestAliasTests
         var initial = RadGearTestPosition.Put(Board("SFD·027/221", copies: 0), "ARMAMENT0", Armament, "P1", "HAND");
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("ARMAMENT0", Armament, [], Destination: "BASE"));
-        await game.Act("P1", new AssembleEquipmentCommand("ARMAMENT0", "HOST", ["ASSEMBLE_1_RED"]));
+        var beforeAssembly = game.State.RunePools["P1"];
+        await game.Act("P1", new AssembleEquipmentCommand("ARMAMENT0", "HOST", ["ASSEMBLE_RED"]));
+        Assert.Equal(beforeAssembly.Mana - 1, game.State.RunePools["P1"].Mana);
+        Assert.Equal(beforeAssembly.TotalPower - 1, game.State.RunePools["P1"].TotalPower);
         await game.Top(); await CloseDuel(game); await Conquer(game);
         Assert.Equal("ARMAMENT0", Assert.Single(game.State.StackItems).TimingAlias!.Grant.Equipment.ObjectId);
         Assert.Empty(game.State.PlayerZones["P1"].Hand); await game.Top();
