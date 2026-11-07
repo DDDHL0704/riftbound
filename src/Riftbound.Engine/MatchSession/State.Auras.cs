@@ -763,6 +763,7 @@ public sealed partial record MatchState
                     aura);
                 foreach (var participantObjectId in participantObjectIds)
                 {
+                    if (!CoreRuleEngine.MissingResourceKeywordAuraApplies(state, sourceObjectId, participantObjectId, aura)) continue;
                     effects.Add(new ContinuousEffectState(
                         $"RULE_TEXT:FRIENDLY_FILTERED_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
                         "OBJECT",

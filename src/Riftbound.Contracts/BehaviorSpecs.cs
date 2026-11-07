@@ -617,6 +617,7 @@ public static class StaticAuraTargetFilters
     public const string CardNamePrefix = "CARD_NAME:";
     public const string Token = "TOKEN";
     public const string UnitToken = "UNIT_TOKEN";
+    public const string Unit = "UNIT";
     public const string TagPrefix = "TAG:";
     public const string CurrentKeywordPrefix = "CURRENT_KEYWORD:";
 }
@@ -887,7 +888,9 @@ public sealed record StaticAuraSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? MinimumPowerAfterModifier = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? PowerDeltaIfSourceEmpowered = null);
+    int? PowerDeltaIfSourceEmpowered = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? OnlyIfMissingKeyword = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,
