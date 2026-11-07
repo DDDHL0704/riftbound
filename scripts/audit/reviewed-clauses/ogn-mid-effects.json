@@ -932,32 +932,54 @@
       ],
       "text": "当你打出我时，在此处打出一个处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。（在其控制者的下个回合开始阶段，结算得分之前将其摧毁。）",
       "scope": "当你打出我时，在此处打出一个处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。（在其控制者的下个回合开始阶段，结算得分之前将其摧毁。）",
-      "status": "missing",
-      "reason": "位置有误：旧创建流程的默认位置始终为基地，只为待命或显式目标战场改位置；把精灵之母正常打入受控战场时，其精灵没有在此处创建",
-      "rules": "核心143 单位合法打出战场、355、牌面此处；OGN·106 官方中文牌面",
+      "status": "route",
+      "reason": "移除固定基地旧入口，复用共享来源指示物流程；打出时独立入链，响应后按原来源物体当前位置创建活跃3战力瞬息精灵，来源离场或新代际则不创建",
+      "rules": "核心124、315.2.b、359.3.f.2、383.2–383.3、816；OGN·106/298 官方中文牌面",
       "runtime": {
-        "behaviors": [
+        "triggers": [
           {
-            "createdBaseUnitTokenCount": 1,
-            "createdBaseUnitTokenEntersReady": true,
-            "createdBaseUnitTokenPower": 3
+            "node": {
+              "kind": "SOURCE_UNIT_PLAYED_OR_SCORED_CREATE_UNIT",
+              "timing": "SOURCE_UNIT_PLAYED",
+              "targetScope": "SOURCE_UNIT",
+              "createdTokenCount": 1,
+              "createdTokenName": "精灵",
+              "createdTokenPower": 3,
+              "createdTokenDestination": "SOURCE_LOCATION",
+              "createdTokenExhausted": false,
+              "createdTokenKeywords": [
+                "瞬息"
+              ]
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourceUnitTokens.cs",
           "contains": [
-            "var shadowField = stackItem.PlayedFromStandby?.Battlefield;",
-            "if (behavior.CreatedBaseUnitTokensAtTargetBattlefield)"
+            "SourceUnitTokenFactory(",
+            "CaptureSourceUnitTokens(",
+            "ValidSourceUnitTokens(",
+            "TrySourceUnitTokenDestination(",
+            "CreateUnitTokenBatch("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+          "contains": [
+            "factory.CreateObject(",
+            "CaptureUnitEntry("
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitPlay.cs",
+          "path": "tests/Riftbound.ConformanceTests/SourceHereFaerieTokenTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysSpriteMotherCreateSprite"
+            "MotherCreatesOneActiveEphemeralFaerieHereAfterThePlaySkillResponseWindow",
+            "MotherRechecksHereAfterARealMoveOrReturnResponse",
+            "RecoveryRejectsForgedSourceGenerationAndPlayOrHoldTiming"
           ]
         }
       ]
@@ -1444,9 +1466,9 @@
       ],
       "text": "如果本回合内有一名敌方单位被摧毁，则此牌的费用减少{{2}}。",
       "scope": "如果本回合内有一名敌方单位被摧毁，则此牌的费用减少{{2}}。",
-      "status": "missing",
-      "reason": "敌友判定有误：减费条件读取DestroyedUnitOwnerIdsThisTurn，以被毁单位所属者而非摧毁前控制者判断敌方，异主控制下会误减或漏减",
-      "rules": "核心191–192 控制权与牌面敌方；OGN·144 官方中文牌面",
+      "status": "route",
+      "reason": "共享死亡账本按死亡前控制者捕获单位被摧毁事实；减费条件按当前回合敌方控制者判断，所属者返收卡牌不改变该事件事实，返手及历史回合死亡不计入",
+      "rules": "核心191–192、356.4、740.1.a–b；OGN·144 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
@@ -1459,12 +1481,28 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>",
-            "!string.Equals(ownerPlayerId, playerId, StringComparison.Ordinal)"
+            "EnemyUnitDestroyedThisTurn(",
+            "state.DeathLedger.TurnNumber == state.TurnNumber",
+            "state.DeathLedger.Counts.Any(entry => entry.Key != playerId && entry.Value > 0)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "counts[death.Unit.ControllerId]=prior+1;"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/TurnHistoryCostReductionTests.cs",
+          "methods": [
+            "SpoilsUsesControlAtActualDestructionInsteadOfOwnership",
+            "ReturningAnEnemyUnitDoesNotEarnTheDestructionDiscount",
+            "SpoilsNoLongerCountsDeathsFromThePreviousTurn"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

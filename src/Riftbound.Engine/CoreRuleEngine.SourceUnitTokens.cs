@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
     private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> SourceUnitTokenSpecs = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Select(c => (c.CardNo, Spec: RuleTextParser.Parse(c).Triggers.FirstOrDefault(t =>
-                t.Kind == TriggerKinds.SourceUnitPlayedOrScoredCreateUnit)))
+                t.Kind is TriggerKinds.SourceUnitPlayedOrScoredCreateUnit or TriggerKinds.UnitBattlefieldHeldCreateUnitHere)))
             .Where(c => c.Spec is not null).ToDictionary(c => c.CardNo, c => c.Spec!, StringComparer.Ordinal));
 
     private static P6TokenFactoryDefinition? SourceUnitTokenFactory(string no)
@@ -29,7 +29,9 @@ public sealed partial class CoreRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState source, string player, string timing, string? field = null)
         => source.IsFaceDown ? [] : AttachedRuleTextRules.Instances(zones, cards, source)
             .Where(i => SourceUnitTokenFactory(i.CardNo) is not null
-                && (timing == "PLAY" || SourceUnitTokenSpecs.Value[i.CardNo].Timing == TriggerTimings.SourceUnitPlayedOrScored))
+                && (timing == "PLAY" && SourceUnitTokenSpecs.Value[i.CardNo].Timing is TriggerTimings.SourceUnitPlayed or TriggerTimings.SourceUnitPlayedOrScored
+                    || timing == "SCORE" && SourceUnitTokenSpecs.Value[i.CardNo].Timing == TriggerTimings.SourceUnitPlayedOrScored
+                    || timing == "HOLD" && SourceUnitTokenSpecs.Value[i.CardNo].Timing == TriggerTimings.BattlefieldHeld))
             .Select(i => new SourceUnitTokenContext(i.CardNo, new(source.ObjectId, source.ObjectGeneration), player,
                 0, source.CopyFaceTransitions?.Count ?? 0, timing, field, i.Origin, source.TokenFactoryCardNo)).ToArray();
 
@@ -80,8 +82,11 @@ public sealed partial class CoreRuleEngine
         if (effect != SourceUnitTokenEffect || context.Source is not { Generation: >= 0 } || context.Source.ObjectId != source
             || context.ControllerId != controller || !state.Seats.ContainsKey(controller) || no is not null && no != context.CardNo
             || context.CapturedTick <= 0 || context.CapturedTick > state.Tick || context.FaceRevision < 0
-            || SourceUnitTokenFactory(context.CardNo) is null || context.Timing is not ("PLAY" or "SCORE")
+            || SourceUnitTokenFactory(context.CardNo) is null || context.Timing is not ("PLAY" or "SCORE" or "HOLD")
             || context.Timing == "SCORE" && SourceUnitTokenSpecs.Value[context.CardNo].Timing != TriggerTimings.SourceUnitPlayedOrScored
+            || context.Timing == "PLAY" && SourceUnitTokenSpecs.Value[context.CardNo].Timing is not (TriggerTimings.SourceUnitPlayed or TriggerTimings.SourceUnitPlayedOrScored)
+            || context.Timing == "HOLD" && (SourceUnitTokenSpecs.Value[context.CardNo].Timing != TriggerTimings.BattlefieldHeld
+                || state.Phase != MatchPhases.TurnStart || state.TurnStartStep != "CHANNEL" || controller != state.TurnPlayerId)
             || (context.Timing == "PLAY" ? context.BattlefieldId is not null
                 : context.BattlefieldId is null || !state.BattlefieldStates.ContainsKey(context.BattlefieldId))) return false;
         return context.Origin is { } origin

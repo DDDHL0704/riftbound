@@ -14,6 +14,8 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
     bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0,
     int RuneCallCount = 0, int OtherEnemyDamageAmount = 0, bool SourceInLegendZone = false,
+    int IndependentExperienceGain = 0, int RequiredOpponentVictoryDistance = 0,
+    bool RequiresIsolatedEnemyHere = false,
     bool TargetsAnotherFriendlyHere = false, string? GrantedCombatKeyword = null,
     bool RequiresPlayedUnitToken = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
@@ -430,10 +432,14 @@ public sealed record CardBehaviorDefinition(
     int FriendlyLastBreathAdditionalTriggersHere = 0,
     int FriendlyLastBreathAdditionalTriggers = 0,
     SpellModeSetSpec? SpellModes = null,
-    bool DefaultChosenMovementToControllerBase = false)
+    bool DefaultChosenMovementToControllerBase = false,
+    IReadOnlyList<int>? CostReductionExperienceThresholds = null)
 {
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
+    internal bool IgnoreBasePlayCostFromBoons { get; init; }
+    internal IReadOnlyList<BoonPlayCostPayment>? BoonPlayCostPayments { get; init; }
+    internal IReadOnlyDictionary<string, int>? BoonPlayPowerReductions { get; init; }
 }
 
 public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);
@@ -570,6 +576,7 @@ public static class CardCostReductionConditionKinds
     public const string ControlledFieldEquipmentCount = "CONTROLLED_FIELD_EQUIPMENT_COUNT";
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
     public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
+    public const string ControllerExperienceThresholdCount = "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT";
 }
 
 public static class CardSourceBoonConditionKinds
@@ -3013,11 +3020,6 @@ public static class CardBehaviorRegistry
             "SPRITE_MOTHER_PLAY_UNIT_CREATE_SPRITE",
             0,
             0,
-            CreatedBaseUnitTokenCount: 1,
-            CreatedBaseUnitTokenEntersReady: true,
-            CreatedBaseUnitTokenPower: 3,
-            CreatedBaseUnitTokenName: "精灵",
-            CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
@@ -5853,7 +5855,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|法盾"),
+            SourceUnitTags: "约德尔人|法盾",
+            UnitEventAbility: new("PLAY", "READY_SELF", IndependentExperienceGain: 3, RequiredOpponentVictoryDistance: 3)),
         new(
             "UNL-116a/219",
             "波比",
@@ -5863,7 +5866,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|法盾"),
+            SourceUnitTags: "约德尔人|法盾",
+            UnitEventAbility: new("PLAY", "READY_SELF", IndependentExperienceGain: 3, RequiredOpponentVictoryDistance: 3)),
         new(
             "UNL-004/219",
             "晋升信徒",
@@ -7854,7 +7858,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2, IndependentExperienceGain: 2,
+                RequiresIsolatedEnemyHere: true)),
         new(
             "UNL-143a/219",
             "卡兹克",
@@ -7863,7 +7869,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2, IndependentExperienceGain: 2,
+                RequiresIsolatedEnemyHere: true)),
         new(
             "UNL-149/219",
             "黛安娜",
@@ -7937,7 +7945,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExperienceThresholdCount,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Green,
+            CostReductionExperienceThresholds: [3, 6, 11]),
         new(
             "UNL-059a/219",
             "易",
@@ -7946,7 +7957,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExperienceThresholdCount,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Green,
+            CostReductionExperienceThresholds: [3, 6, 11]),
         new(
             "UNL-080/219",
             "彗",
