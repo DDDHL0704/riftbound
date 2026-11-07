@@ -90,7 +90,13 @@ internal static class UnitMovedTriggerSpecRules
                 && trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.UnitCard
                 && trigger.RevealMatchDestinationZone == TriggerZones.Hand && trigger.RevealMissDestinationZone == TriggerZones.MainDeck;
     public static bool IsTargetedMovementTrigger(TriggerSpec trigger)
-        => IsMovementDamageTrigger(trigger) || IsMovementBaseMightTrigger(trigger);
+        => IsMovementDamageTrigger(trigger) || IsMovementBaseMightTrigger(trigger) || IsMovementOtherFriendlyPowerTrigger(trigger);
+
+    public static bool IsMovementOtherFriendlyPowerTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitMovedOtherFriendlyPowerModifier && trigger.Timing == TriggerTimings.UnitMoved
+            && trigger.TargetScope == TriggerTargetScopes.OtherFriendlyUnitOnField && trigger.Optional == false
+            && trigger.PowerDelta > 0 && trigger.Duration == TriggerDurations.UntilEndOfTurn
+            && trigger.MovementDestinationZone == "BATTLEFIELD";
 
     public static bool IsMovementBaseMightTrigger(TriggerSpec trigger)
         => trigger.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight && trigger.Timing == TriggerTimings.UnitMoved

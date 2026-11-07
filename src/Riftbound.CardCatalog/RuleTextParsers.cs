@@ -1710,6 +1710,13 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit, DiscardCount: ParseChineseNumber(movedDiscardDraw.Groups[1].Value),
                 DrawCount: ParseChineseNumber(movedDiscardDraw.Groups[2].Value));
 
+        var movedOtherPower = Regex.Match(segment,
+            @"^当我移动到一处战场时，让另一名友方单位在本回合内\{\{S\}\}\+(?<power>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedOtherPower.Success)
+            return new(TriggerKinds.UnitMovedOtherFriendlyPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.OtherFriendlyUnitOnField, Optional: false,
+                PowerDelta: ParseChineseNumber(movedOtherPower.Groups["power"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
         var movedBurnPower = Regex.Match(segment,
             @"^当我移动时，你可以选择\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}，以此给予我在本回合内\{\{S\}\}\+(?<power>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
         if (movedBurnPower.Success)

@@ -221,6 +221,7 @@ public static class TriggerKinds
     public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
     public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedSetOtherUnitBaseMight = "UNIT_MOVED_SET_OTHER_UNIT_BASE_MIGHT";
+    public const string UnitMovedOtherFriendlyPowerModifier = "UNIT_MOVED_OTHER_FRIENDLY_POWER_MODIFIER";
     public const string FriendlyUnitMovedFromHereMayFollow = "FRIENDLY_UNIT_MOVED_FROM_HERE_MAY_FOLLOW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementReadyOtherObject = "UNIT_FIRST_MOVEMENT_READY_OTHER_OBJECT";
@@ -407,6 +408,7 @@ public static class TriggerTargetScopes
     public const string SelectedFriendlyEventUnit = "SELECTED_FRIENDLY_EVENT_UNIT";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
     public const string OtherUnitOnField = "OTHER_UNIT_ON_FIELD";
+    public const string OtherFriendlyUnitOnField = "OTHER_FRIENDLY_UNIT_ON_FIELD";
     public const string AnyUnitOnField = "ANY_UNIT_ON_FIELD";
     public const string UnitOrEquipmentOnField = "UNIT_OR_EQUIPMENT_ON_FIELD";
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
