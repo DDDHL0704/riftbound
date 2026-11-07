@@ -31,6 +31,8 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
     public LinkedAttributeDeclaration? LinkedAttribute { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? ReplayCardNo { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectBinding? ConsumedSourceBoon { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -114,6 +116,7 @@ public sealed partial class CoreRuleEngine
             && state.ObjectLocations.TryGetValue(id, out var precise) && (precise.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn) && precise.Zone == at.Zone
             && (!ability.RequiresBattlefieldSource || precise.Zone == "BATTLEFIELD" && state.BattlefieldStates.ContainsKey(id))
             && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered)
+            && (ability.SimpleEffect?.ConsumesSourceBoonAsCost != true || BoonRules.Count(source) > 0)
             && (ability.SimpleEffect?.RequiresEnemyUnitTargetThisTurn != true || state.UntilEndOfTurnEffects.Contains(EnemyUnitTargetMarker(actor)))
             && (!SimpleActivationHasAdditionalCost(ability)
                 || SimpleActivationAdditionalCostChoices(state, actor, id, ability).Length > 0);
@@ -155,6 +158,12 @@ public sealed partial class CoreRuleEngine
                 ? state.CardObjects.TryGetValue(id, out var boonTarget)
                     && !boonTarget.IsFaceDown && boonTarget.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                     && IsObjectOnField(state.PlayerZones, id)
+                    && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
+            : ability.TargetScope == CardTargetScopes.BattlefieldUnit
+                && ability.SimpleEffect is { } battlefield && (battlefield.StunsTarget || battlefield.BattlefieldUnitDamage > 0)
+                ? state.CardObjects.TryGetValue(id, out var battlefieldTarget) && IsFaceUpNonStandbyUnit(battlefieldTarget)
+                    && IsObjectOnField(state.PlayerZones, id)
+                    && state.ObjectLocations.GetValueOrDefault(id)?.Zone == "BATTLEFIELD"
                     && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id)
             : ability.SimpleEffect?.StunsTarget == true
                 ? state.CardObjects.TryGetValue(id, out var stunTarget)
@@ -215,6 +224,7 @@ public sealed partial class CoreRuleEngine
             || afterInstance != instance)
             return RejectWithCorePrompts(state, "资源动作后无法支付技能来源费用。", ErrorCodes.InvalidTarget);
         var source = cards[command.SourceObjectId];
+        ObjectBinding? consumedSourceBoon = null;
         PaidUnitReference? exhaustedCostUnit = null;
         if (spec.ExhaustFriendlyUnitMinimumPowerAsCost is not null)
         {
@@ -244,6 +254,20 @@ public sealed partial class CoreRuleEngine
                 ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
         }
+        if (spec.ConsumesSourceBoonAsCost)
+        {
+            consumedSourceBoon = new(source.ObjectId, source.ObjectGeneration);
+            using (new MightInstructionScope(afterResources, zones, cards, events))
+            {
+                source = BoonRules.Consume(source);
+                cards[source.ObjectId] = source;
+                events.Add(new("BOON_CONSUMED", "消耗来源的一个增益作为主动技能费用", new Dictionary<string, object?> {
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
+                    ["sourceGeneration"] = source.ObjectGeneration, ["targetObjectId"] = source.ObjectId,
+                    ["targetGeneration"] = source.ObjectGeneration, ["previousPower"] = source.Power + 1,
+                    ["power"] = source.Power, ["abilityId"] = ability.AbilityId, ["reason"] = ability.EffectKind }));
+            }
+        }
         if (spec.RemovesSourceEmpowermentAsCost)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(source.ObjectId, source.ObjectGeneration), false, intent.PlayerId);
@@ -254,6 +278,19 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<TriggerQueueItemState> destructionTriggers = [];
         IReadOnlyList<string> destroyedOwners = [];
         var committedPools = paid.RunePools;
+        if (consumedSourceBoon is not null)
+        {
+            // CN 143.2.b / 702.2.b: finish the cost instruction and its lethal
+            // damage cleanup before opening the ability's response window.
+            var costCause = new StackItemState($"cost-{state.Tick + 1}-{source.ObjectId}", intent.PlayerId,
+                source.ObjectId, ability.EffectKind, instance.CardNo, []);
+            var cleanup = RunStateBasedCleanupLoop(afterResources, zones, cards, costCause, committedPools,
+                objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
+            events.AddRange(cleanup.Events);
+            committedPools = cleanup.RunePools;
+            destructionTriggers = cleanup.TriggerQueue;
+            destroyedOwners = cleanup.DestroyedUnitOwnerIds;
+        }
         if (spec.DestroysSourceAsCost || spec.DestroyFriendlyTagAsCost is not null)
         {
             // CN357.2 permits either nonstandard-cost order. Exhaust first so
@@ -274,14 +311,15 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "无法支付所选摧毁费用。", ErrorCodes.InvalidTarget);
             events.AddRange(removal.Events);
             committedPools = removal.RunePools;
-            destructionTriggers = removal.TriggerQueue;
-            destroyedOwners = removal.DestroyedUnitOwnerIds;
+            destructionTriggers = destructionTriggers.Concat(removal.TriggerQueue).ToArray();
+            destroyedOwners = MergeDestroyedUnitOwnerIds(destroyedOwners, removal.DestroyedUnitOwnerIds);
         }
         var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets) {
                 ExhaustedCostUnit = exhaustedCostUnit,
+                ConsumedSourceBoon = consumedSourceBoon,
                 LinkedAttribute = spec.TargetsDeclaredAttribute ? CurrentLinkedAttribute(state, source.ObjectId, instance.Id) : null,
                 SourceFaceRevision = instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
                 RuleTextInstanceId = instance.Id, Origin = instance.Origin,
@@ -300,7 +338,7 @@ public sealed partial class CoreRuleEngine
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
         if (instance.Origin is not null) payload["abilityInstanceId"] = instance.Id;
-        if (spec.OncePerTurnPerPlayer)
+        if (spec.OncePerTurn)
             payload["sourceGeneration"] = source.ObjectGeneration;
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
         if (ability.ExhaustsSourceAsCost)
@@ -347,6 +385,9 @@ public sealed partial class CoreRuleEngine
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsActivationSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
+            || (ability.SimpleEffect!.ConsumesSourceBoonAsCost
+                ? context.ConsumedSourceBoon != context.Source
+                : context.ConsumedSourceBoon is not null)
             || !ValidActivationAttribute(state, context, ability.SimpleEffect!.TargetsDeclaredAttribute)
             || !ValidExhaustedCostUnit(state, context.ExhaustedCostUnit, ability.SimpleEffect!.MovesToExhaustedCostUnit,
                 item.SourceObjectId, item.TargetObjectIds)
@@ -586,9 +627,17 @@ public sealed partial class CoreRuleEngine
             var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 0, PowerModifierAmount: spec.SourcePowerBonus);
             source = ApplyReadyState(source, behavior, item, source.ObjectId, out var ready, zones, cards);
             if (ready is not null) events.Add(ready);
-            source = ApplyPowerModifier(state, source, behavior, item, source.ObjectId, spec.SourcePowerBonus, out var power);
-            events.Add(power); cards[source.ObjectId] = source;
+            if (spec.SourcePowerBonus != 0)
+            {
+                source = ApplyPowerModifier(state, source, behavior, item, source.ObjectId, spec.SourcePowerBonus, out var power);
+                events.Add(power);
+            }
+            cards[source.ObjectId] = source;
         }
+        if (spec.GrantsSourceRoam && cards.TryGetValue(item.SourceObjectId, out var roaming)
+            && roaming.ObjectGeneration == item.SimpleActivation!.Source.Generation && !roaming.IsFaceDown
+            && IsObjectOnField(zones, roaming.ObjectId))
+            GrantLegendRoam(cards, roaming.ObjectId, item.ControllerId, item.SourceObjectId, ability.AbilityId, events);
         if (spec.BattlefieldUnitDamage > 0) {
             var target = item.TargetObjectIds.Single();
             if (IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, target, ability)
