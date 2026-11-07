@@ -449,12 +449,16 @@ public sealed class ArmamentHoldConquestAliasTests
         Assert.Equal(2, game.State.StackItems.Count);
         Assert.Single(game.State.StackItems, i => i.UnitConquest!.Origin is not null);
         Assert.DoesNotContain(game.State.StackItems, i => i.TimingAlias is not null);
-        var might = game.State.CardObjects["HOST"].Power;
+        var might = ArmamentMightTests.Might(game.State);
         for (var i = 0; i < 2; i++) {
             var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
             await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
             await game.Top();
         }
-        Assert.Equal(might * 2, game.State.CardObjects["ENEMY"].Damage); await game.Replay();
+        var damage = game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "HOST")
+            && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "ENEMY"))
+            .Select(e => Convert.ToInt32(e.Event.Payload["damage"])).ToArray();
+        Assert.Equal(new[] { might, might }, damage); await game.Replay();
     }
 }

@@ -53,14 +53,14 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            ": hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true",
+            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent?.Origin?.ArmamentGranted == true",
             "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.OrdinaryPlayPrivacy.cs",
           "contains": [
-            "state.StackItems.Where(i => i.UnitEvent?.Origin?.ArmamentGranted == true",
+            "state.StackItems.Where(i => i.TimingAlias is not null || i.UnitEvent?.Origin?.ArmamentGranted == true",
             "Require(\"sourceObjectId\", hidden ? \"HIDDEN\" : skill.SourceObjectId);"
           ]
         },
@@ -149,14 +149,14 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            ": hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true",
+            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent?.Origin?.ArmamentGranted == true",
             "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.OrdinaryPlayPrivacy.cs",
           "contains": [
-            "state.StackItems.Where(i => i.UnitEvent?.Origin?.ArmamentGranted == true",
+            "state.StackItems.Where(i => i.TimingAlias is not null || i.UnitEvent?.Origin?.ArmamentGranted == true",
             "Require(\"sourceObjectId\", hidden ? \"HIDDEN\" : skill.SourceObjectId);"
           ]
         },
