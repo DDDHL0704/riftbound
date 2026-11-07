@@ -1140,6 +1140,15 @@ def conditional_rune_and_conquest_route(card: dict, clause: dict, sources: Sourc
     conquest = re.fullmatch(r"当你征服一处战场时如果你在该战场上拥有不少于([0-9一两二三四五六七八九十]+)名单位则抽([0-9一两二三四五六七八九十]+)张牌", text)
     if not rune and not conquest:
         return None
+    def method_has(filename, name, *symbols):
+        # Restrict evidence to the named live consumer. A neighboring unused
+        # helper or a surviving registration cannot replace its instruction.
+        text = sources.files.get("src/Riftbound.Engine/" + filename, "")
+        body = re.search(r"(?ms)^    (?:private|internal|public|protected)\s+static\s+"
+            r"[\w<>,?.\[\] ]+\s+" + re.escape(name)
+            + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)", text)
+        return body is not None and all(symbol in body.group(0) for symbol in symbols)
+
     def consumers(requirements):
         evidence = []
         for filename, symbols in requirements.items():
@@ -1164,7 +1173,17 @@ def conditional_rune_and_conquest_route(card: dict, clause: dict, sources: Sourc
             "MatchSession/State.Auras.cs": ["aura.RequiredControllerRuneCount", "StaticAuraControllerRequirementsSatisfied("],
             "CoreRuleEngine.AttachedRuleText.cs": ["SourceObjectKeywordStaticAuraApplies(state, unit, aura)"],
         })
-        if exact and evidence:
+        bound = all(method_has("CoreRuleEngine.cs", name,
+                "aura.RequiredControllerRuneCount.HasValue",
+                "!StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId)")
+            for name in ("SourceObjectPowerStaticAuraApplies", "SourceObjectKeywordStaticAuraApplies")) \
+            and method_has("MatchSession/State.Auras.cs", "SourceObjectPowerStaticAuraApplies",
+                "aura.RequiredControllerRuneCount.HasValue",
+                "!StaticAuraControllerRequirementsSatisfied(aura, state, controllerId)") \
+            and method_has("StaticAuraSpecRules.cs", "ControllerRequirementsSatisfied",
+                "!aura.RequiredControllerRuneCount.HasValue",
+                "EmpowerRules.ControlledRunes(state, controller) >= aura.RequiredControllerRuneCount.Value")
+        if exact and evidence and bound:
             return result("route", "当前控制者场上符文阈值的实时自身加成，含复制文字重算", evidence)
         return result("missing", "缺少精确符文阈值、自身战力规格或实时共享消费者")
     minimum, draws = map(number, conquest.groups())
@@ -1181,7 +1200,14 @@ def conditional_rune_and_conquest_route(card: dict, clause: dict, sources: Sourc
         "CoreRuleEngine.LegendConquestDraw.cs": ["ValidLegendConquestDrawStack(state, item)", "ApplyDrawToPlayer(", "spec.DrawCount!.Value"],
         "MatchRecovery.cs": ["ValidLegendConquestState(", "ValidLegendConquestDrawStack("],
     })
-    if exact and evidence:
+    bound = method_has("CoreRuleEngine.LegendConquest.cs", "CaptureLegendConquest",
+            "ControlledUnitsAtBattlefield(", "units.Count < definition.Spec.RequiredUnitCount",
+            "new TriggerQueueItemState(") \
+        and method_has("CoreRuleEngine.LegendConquest.cs", "ResolveLegendConquest",
+            "context.Kind == LegendConquestDrawKind", "return ResolveLegendConquestDraw(state, item);") \
+        and method_has("CoreRuleEngine.LegendConquestDraw.cs", "ResolveLegendConquestDraw",
+            "ValidLegendConquestDrawStack(state, item)", "ApplyDrawToPlayer(", "spec.DrawCount!.Value")
+    if exact and evidence and bound:
         return result("route", "征服时捕获本战场单位数，普通入链后独立抽牌", evidence)
     return result("missing", "缺少本战场征服时阈值及可响应的独立抽牌触发，登记或即时抽牌不足以认证")
 

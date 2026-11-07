@@ -23,20 +23,30 @@ class ConditionalRuneConquestClauseAuditTests(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
 
+    @staticmethod
+    def consumer(name, body):
+        return '    private static bool ' + name + '(Args args) {\n        ' + body + '\n    }\n'
+
     def rune_consumers(self):
-        self.write('StaticAuraSpecRules.cs', 'aura.RequiredControllerRuneCount; EmpowerRules.ControlledRunes(state, controller);')
-        self.write('CoreRuleEngine.cs', 'aura.RequiredControllerRuneCount; StaticAuraSpecRules.ControllerRequirementsSatisfied(aura);')
+        self.write('StaticAuraSpecRules.cs', self.consumer('ControllerRequirementsSatisfied',
+            '!aura.RequiredControllerRuneCount.HasValue; EmpowerRules.ControlledRunes(state, controller) >= aura.RequiredControllerRuneCount.Value;'))
+        gate = 'aura.RequiredControllerRuneCount.HasValue; !StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId);'
+        self.write('CoreRuleEngine.cs', self.consumer('SourceObjectPowerStaticAuraApplies', gate)
+            + self.consumer('SourceObjectKeywordStaticAuraApplies', gate)
+            + self.consumer('StaticAuraControllerRequirementsSatisfied', 'StaticAuraSpecRules.ControllerRequirementsSatisfied(aura);'))
         self.write('MatchSession/State.Normalization.cs', 'StaticAuraSpecRules.ControllerRequirementsSatisfied(aura);')
-        self.write('MatchSession/State.Auras.cs', 'aura.RequiredControllerRuneCount; StaticAuraControllerRequirementsSatisfied(aura);')
+        self.write('MatchSession/State.Auras.cs', self.consumer('SourceObjectPowerStaticAuraApplies',
+            'aura.RequiredControllerRuneCount.HasValue; !StaticAuraControllerRequirementsSatisfied(aura, state, controllerId);'))
         self.write('CoreRuleEngine.AttachedRuleText.cs', 'SourceObjectKeywordStaticAuraApplies(state, unit, aura);')
 
     def conquest_consumers(self):
         self.write('CoreRuleEngine.Conquest.cs', 'CaptureLegendConquest(state);')
-        self.write('CoreRuleEngine.LegendConquest.cs', 'IsLegendConquestMinimumUnitsDrawTrigger(spec); '
-                   'units.Count < definition.Spec.RequiredUnitCount; new LegendConquestDrawOrigin(); '
-                   'new TriggerQueueItemState(); ResolveLegendConquestDraw(state, item);')
-        self.write('CoreRuleEngine.LegendConquestDraw.cs', 'ValidLegendConquestDrawStack(state, item); '
-                   'ApplyDrawToPlayer(state, spec.DrawCount!.Value);')
+        self.write('CoreRuleEngine.LegendConquest.cs', self.consumer('CaptureLegendConquest',
+            'IsLegendConquestMinimumUnitsDrawTrigger(spec); ControlledUnitsAtBattlefield(state); '
+            'units.Count < definition.Spec.RequiredUnitCount; new LegendConquestDrawOrigin(); new TriggerQueueItemState();')
+            + self.consumer('ResolveLegendConquest', 'if (context.Kind == LegendConquestDrawKind) return ResolveLegendConquestDraw(state, item);'))
+        self.write('CoreRuleEngine.LegendConquestDraw.cs', self.consumer('ResolveLegendConquestDraw',
+            'ValidLegendConquestDrawStack(state, item); ApplyDrawToPlayer(state, spec.DrawCount!.Value);'))
         self.write('MatchRecovery.cs', 'ValidLegendConquestState(state); ValidLegendConquestDrawStack(state);')
 
     @staticmethod
@@ -106,6 +116,27 @@ class ConditionalRuneConquestClauseAuditTests(unittest.TestCase):
         self.rune_consumers(); self.conquest_consumers()
         self.assertEqual('missing', self.outcome(YI, self.rune_node(), 'legendary'))
         self.assertEqual('missing', self.outcome(GAREN, self.conquest_node(), 'hero_unit'))
+
+    def test_an_unused_helper_cannot_replace_the_server_rune_threshold(self):
+        self.rune_consumers()
+        path = self.engine / 'CoreRuleEngine.cs'
+        text = path.read_text()
+        check = '!StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId)'
+        # The copy/keyword path, projection and shared helper still exist. The
+        # printed source's actual might consumer has lost its threshold check.
+        text = text.replace(check, 'false', 1) + self.consumer('UnusedRuneCheck', check)
+        path.write_text(text)
+        self.assertEqual('missing', self.outcome(YI, self.rune_node()))
+
+    def test_an_unused_draw_call_cannot_replace_the_live_conquest_dispatch(self):
+        self.conquest_consumers()
+        path = self.engine / 'CoreRuleEngine.LegendConquest.cs'
+        text = path.read_text()
+        instruction = 'return ResolveLegendConquestDraw(state, item);'
+        text = text.replace(instruction, 'return NoopStackResolutionResult(state);')
+        text += self.consumer('UnusedConquestDraw', instruction)
+        path.write_text(text)
+        self.assertEqual('missing', self.outcome(GAREN, self.conquest_node()))
 
     def test_an_unrelated_condition_remains_under_the_normal_auditor(self):
         card = dict(cardEffect='如果你有八张手牌，则我获得{{S}}+4。')
