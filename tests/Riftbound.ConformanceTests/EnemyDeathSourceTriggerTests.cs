@@ -180,4 +180,48 @@ public sealed class EnemyDeathSourceTriggerTests
                 item.ControllerId, item.SourceObjectId, item.CardNo));
         await game.Replay();
     }
+    [Theory, InlineData("UNL-145/219"), InlineData("UNL-145a/219")]
+    public async Task CopiedDeathTextHasAnIndependentOncePerTurnLimit(string cardNo)
+    {
+        var initial = RadGearTestPosition.Put(Position(cardNo, false), "GEAR", "SFD·059/221", "P1", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "OBSERVER", ["ASSEMBLE_GREEN"]));
+        await game.Top();
+        Assert.Equal(cardNo, game.State.CardObjects["GEAR"].AttachedRuleText!.CardNo);
+        await Kill(game);
+        var contexts = game.State.StackItems.Select(item => item.DeathObserver)
+            .Concat(game.State.TriggerQueue.Select(item => item.DeathObserver)).Where(c => c is not null).Cast<DeathObserverContext>().ToArray();
+        Assert.Equal(2, contexts.Length);
+        Assert.Single(contexts, context => context.Origin is not null);
+        if (game.State.TriggerQueue.Count > 0)
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(item => item.TriggerId).ToArray()));
+        await game.Top(); await game.Top(); Assert.Equal(2, Gold(game.State).Length);
+        await Kill(game, 2); Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+        Assert.Equal(2, Gold(game.State).Length);
+        await game.Replay();
+    }
+
+    [Theory, InlineData("UNL-145/219"), InlineData("UNL-145a/219")]
+    public async Task ARealReturnAndReentryCreatesANewAbilityInstanceInTheSameTurn(string cardNo)
+    {
+        var initial = Position(cardNo, false);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["OBSERVER"] = initial.CardObjects["OBSERVER"] with { OwnerId = "P1" } } };
+        var game = new Driver(initial);
+        await Kill(game); await game.Top(); Assert.Single(Gold(game.State));
+        var generation = game.State.CardObjects["OBSERVER"].ObjectGeneration;
+        var turn = game.State.TurnNumber;
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["OBSERVER"]));
+        await game.Top(); Assert.Contains("OBSERVER", game.State.PlayerZones["P1"].Hand);
+        await game.Act("P1", new PlayCardCommand("OBSERVER", cardNo, [], Destination: "BATTLEFIELD:BF"));
+        Assert.True(game.State.CardObjects["OBSERVER"].ObjectGeneration > generation);
+        Assert.Contains(CardObjectTags.Standby, game.State.CardObjects["OBSERVER"].Tags);
+        Assert.False(game.State.CardObjects["OBSERVER"].IsFaceDown);
+        Assert.Equal("BF", game.State.ObjectLocations["OBSERVER"].BattlefieldObjectId);
+        Assert.Equal(turn, game.State.TurnNumber); Assert.Empty(game.State.StackItems);
+        await Kill(game, 2); Assert.Single(game.State.StackItems); await game.Top();
+        Assert.Equal(2, Gold(game.State).Length);
+        await game.Replay();
+    }
+
 }

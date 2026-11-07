@@ -163,7 +163,7 @@ public sealed partial class CoreRuleEngine
         // A nested resource cost has its own destruction batch, before the outer death.
         foreach(var source in cards.Values.OrderBy(c=>c.ObjectId,StringComparer.Ordinal))
             if (source.ObjectId != unit.ObjectId && !frame.CurrentDestructions.Contains(source.ObjectId)
-                && !source.IsFaceDown && !source.Tags.Contains(CardObjectTags.Standby)
+                && !source.IsFaceDown
                 && ((source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.EquipmentCard))
                         && IsObjectOnField(zones,source.ObjectId)
                     || zones.Values.Any(zone => zone.LegendZone.Contains(source.ObjectId))))

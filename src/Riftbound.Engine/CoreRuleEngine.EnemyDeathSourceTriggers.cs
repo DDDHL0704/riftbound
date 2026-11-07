@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
                 spec.CreatedTokenExhausted.GetValueOrDefault(true), events, capturedSourceCardNo: context.CardNo);
         }
         else if (cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration
-            && !source.IsFaceDown && !source.Tags.Contains(CardObjectTags.Standby)
+            && !source.IsFaceDown
             && (IsObjectOnField(zones, source.ObjectId) || zones.Values.Any(zone => zone.LegendZone.Contains(source.ObjectId)))
             && source.IsExhausted && ReadyByEffectPermittedByFieldRules(zones, cards, source))
         {
