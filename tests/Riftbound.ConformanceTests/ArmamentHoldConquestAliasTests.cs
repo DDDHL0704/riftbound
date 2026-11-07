@@ -455,10 +455,12 @@ public sealed class ArmamentHoldConquestAliasTests
             await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
             await game.Top();
         }
+        await Drain(game);
         var damage = game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "HOST")
             && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "ENEMY"))
             .Select(e => Convert.ToInt32(e.Event.Payload["damage"])).ToArray();
-        Assert.Equal(new[] { might, might }, damage); await game.Replay();
+        Assert.Equal(new[] { might, might }, damage);
+        Assert.Equal(might * 2, game.State.CardObjects["ENEMY"].Damage); await game.Replay();
     }
 }
