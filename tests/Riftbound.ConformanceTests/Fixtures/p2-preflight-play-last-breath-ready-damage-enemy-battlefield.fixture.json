@@ -168,7 +168,6 @@
         "sequence": 8,
         "payload": {
           "sourceObjectId": "P1-SPELL-LAST-BREATH",
-          "damageSourceObjectId": "P1-LAST-BREATH-FRIENDLY-001",
           "targetObjectId": "P2-LAST-BREATH-ENEMY-001",
           "damage": 4
         }
