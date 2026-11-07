@@ -396,4 +396,65 @@ public sealed class ArmamentHoldConquestAliasTests
         await game.Top(); Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
         Assert.Equal(1, game.State.CardObjects["HOST"].ObjectGeneration); await game.Replay();
     }
+    private static MatchState WithCopiedPrintedSkill(MatchState state)
+    {
+        var host = state.CardObjects["HOST"]; var at = state.ObjectLocations["HOST"];
+        state = RadGearTestPosition.Put(state, "SONG", "SFD·059/221", "P1", at.Zone, at.BattlefieldObjectId);
+        return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["SONG"] = state.CardObjects["SONG"] with { AttachedToObjectId = "HOST", AttachmentRevision = 1,
+                AttachedRuleText = new(new("HOST", host.ObjectGeneration), host.CardNo!, 1, 0, host.CopyFaceTransitions?.Count ?? 0) } } };
+    }
+
+    [Fact]
+    public async Task CopiedConquestReturnsEachRetainTheirOwnOptionalPaymentDuringHolding()
+    {
+        var initial = RadGearTestPosition.Put(WithCopiedPrintedSkill(Board("OGN·035/298", hold: true)),
+            "RUNE", "VEN·R01", "P1", "BASE");
+        var game = new Driver(initial); await game.Act("P2", new EndTurnCommand()); await Order(game);
+        Assert.Equal(2, game.State.StackItems.Count);
+        Assert.Single(game.State.StackItems, i => i.UnitConquestReturn!.Origin is not null);
+        Assert.Equal(2, game.State.StackItems.Select(i => i.StackItemId).Distinct().Count());
+        var declined = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(declined.PaymentId, declined.PaymentWindow, ["DECLINE"]));
+        var accepted = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.TapRunes("P1", ["RUNE"]);
+        await game.Act("P1", new PayCostCommand(accepted.PaymentId, accepted.PaymentWindow, ["SPEND_MANA:1"]));
+        await game.Top(); Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task CopiedConquestRecastsUseTheSameEffectPlayAndRecycleContinuationDuringHolding()
+    {
+        var initial = RadGearTestPosition.Put(WithCopiedPrintedSkill(Board("OGN·112/298", hold: true)),
+            "SPELL", "OGN·104/298", "P1", "GRAVEYARD");
+        initial = initial with { PlayerScores = new Dictionary<string, int>(initial.PlayerScores) { ["P1"] = 2 } };
+        var game = new Driver(initial); await game.Act("P2", new EndTurnCommand()); await Order(game);
+        Assert.Equal(2, game.State.StackItems.Count);
+        Assert.Single(game.State.StackItems, i => i.RecastContext!.Origin is not null);
+        await game.Top(); Assert.Equal(["SPELL"], game.State.PendingEffectPlay!.Sources.Keys);
+        await game.Act("P1", new PlayCardCommand("SPELL", "OGN·104/298", ["ALLY"])); await game.Top();
+        await Drain(game);
+        Assert.Contains("ALLY", game.State.PlayerZones["P1"].Hand);
+        Assert.Contains("SPELL", game.State.PlayerZones["P1"].MainDeck); await game.Replay();
+    }
+
+    [Fact]
+    public async Task CopiedConquestDamageKeepsItsTargetAndOpenBattlefieldConditionOnARealConquest()
+    {
+        var initial = WithCopiedPrintedSkill(Board("SFD·116/221"));
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ENEMY"] = initial.CardObjects["ENEMY"] with { Power = 30 } } };
+        var game = new Driver(initial); await Conquer(game);
+        Assert.Equal(2, game.State.StackItems.Count);
+        Assert.Single(game.State.StackItems, i => i.UnitConquest!.Origin is not null);
+        Assert.DoesNotContain(game.State.StackItems, i => i.TimingAlias is not null);
+        var might = game.State.CardObjects["HOST"].Power;
+        for (var i = 0; i < 2; i++) {
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
+            await game.Top();
+        }
+        Assert.Equal(might * 2, game.State.CardObjects["ENEMY"].Damage); await game.Replay();
+    }
 }
