@@ -9113,8 +9113,7 @@ public static class CardBehaviorRegistry
             7,
             "JUDGMENT_DAY_RECYCLE_UNKEPT_CARDS",
             0,
-            16,
-            TargetScope: CardTargetScopes.SacredJudgmentKeepCard,
+            0,
             RecyclesUnkeptSacredJudgmentCards: true),
         new(
             "OGN·045/298",
