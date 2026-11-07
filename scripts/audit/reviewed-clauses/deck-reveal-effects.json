@@ -149,8 +149,8 @@
       "scope": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
       "location": "upper",
       "status": "route",
-      "reason": "共享展示前替换流程私下查看主牌堆或符文牌堆顶，可保留或回收，然后继续原展示；每个当前受控来源及借用文本各应用一次，回响各次执行独立处理。魔腾放逐后不虚构原选择对象或替换为下一张牌；私下回收保留正常观察者但不公开牌号，原接受事件约束放逐出牌权限及恢复。",
-      "rules": "SFD·018官方中文文本；中国区核心369.1、370.1.b.1替换／延续、417回收、425.1–425.4展示及原区域、432.1.c空观察、128私密信息",
+      "reason": "共享展示前替换流程由实际执行展示的玩家私下查看实际所属牌堆顶，可保留或回收后继续原展示；多份当前受控来源及借用文本由玩家选择顺序、每次展示各应用一次。主牌堆与符文牌堆、己方与对手牌堆分离行动者和所属者；对手牌主不能取得未执行观察的魔腾权限。私下回收保留正常观察者但不公开牌号，原接受事件约束放逐出牌权限及恢复；原选择对象被放逐时不替换为下一张牌。",
+      "rules": "SFD·018官方中文文本；中国区核心135.2.b.4–5.a指示与行动主体、191.5.a技能控制者、369.1及370.1.b.1替换／延续、372–373替换应用顺序、417回收、425.1–425.4展示及原区域、432.1.c空观察、128私密信息",
       "runtime": {
         "staticAbilities": [
           {
@@ -168,9 +168,13 @@
             "StaticAbilityKinds.BeforeDeckRevealLookRecycle && spec.Amount == 1",
             "ObserveDeckCards(state, zones, cards, parent, player, [top], \"LOOK\"",
             "if (selected != \"RECYCLE\") continue;",
-            "zone == \"RUNE_DECK\" ? zones[player].RuneDeck : zones[player].MainDeck",
+            "zone == \"RUNE_DECK\" ? zones[deckOwner].RuneDeck : zones[deckOwner].MainDeck",
             "events.Add(recycled with { Payload = recycled.Payload.Where(field => field.Key != \"cardIds\")",
-            "internal static bool ValidBeforeDeckRevealDisclosure(MatchState state)"
+            "internal static bool ValidBeforeDeckRevealDisclosure(MatchState state)",
+            "var player = revealingPlayer ?? deckOwner;",
+            "kind: BeforeDeckRevealOrderKind",
+            "DeckOwnerId = player == deckOwner ? null : deckOwner",
+            "context.PlayerId == DeckRevealPlayer(parent, context.DeckOwnerId)"
           ]
         },
         {
@@ -207,6 +211,22 @@
             "\"observationHash\"",
             "c.Accepted && c.CompletedTick == matches[0].Tick"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "contains": [
+            "if (actingPlayer is not null && actingPlayer != player) return seen.ToArray();",
+            "state.PlayerZones[v.DeckOwnerId ?? v.PlayerId].MainDeck.Contains(id)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "private static string DeckRevealPlayer(StackItemState item, string deckOwner)",
+            "definition.DeckRevealByController",
+            "revealingPlayer: DeckRevealPlayer(item, player)",
+            "actingPlayer: DeckRevealPlayer(item, player)"
+          ]
         }
       ],
       "tests": [
@@ -227,7 +247,8 @@
             "ARealEchoKeepsEachOriginalSelectionAndRunsItsOwnPrelookAtTheNextExecution",
             "APrivatePrelookRecycleStillCapturesTheNormalIndependentBoonObserver",
             "MalformedPrivateDisclosureIsRejectedByItsSemanticValidatorWithoutThrowing",
-            "AChangedPrivatePeekCannotBeRecoveredOrAnsweredAndARejectedAnswerIsAtomic"
+            "AChangedPrivatePeekCannotBeRecoveredOrAnsweredAndARejectedAnswerIsAtomic",
+            "AControllerRevealingAnOpponentsDeckUsesTheirOwnSeedlingAndKeepsTheForeignPrelookPrivate"
           ]
         }
       ]
@@ -240,8 +261,8 @@
       "scope": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。",
       "location": "upper",
       "status": "route",
-      "reason": "共享展示前替换流程私下查看主牌堆或符文牌堆顶，可保留或回收，然后继续原展示；每个当前受控来源及借用文本各应用一次，回响各次执行独立处理。魔腾放逐后不虚构原选择对象或替换为下一张牌；私下回收保留正常观察者但不公开牌号，原接受事件约束放逐出牌权限及恢复。",
-      "rules": "SFD·018官方中文文本；中国区核心369.1、370.1.b.1替换／延续、417回收、425.1–425.4展示及原区域、432.1.c空观察、128私密信息",
+      "reason": "共享展示前替换流程由实际执行展示的玩家私下查看实际所属牌堆顶，可保留或回收后继续原展示；多份当前受控来源及借用文本由玩家选择顺序、每次展示各应用一次。主牌堆与符文牌堆、己方与对手牌堆分离行动者和所属者；对手牌主不能取得未执行观察的魔腾权限。私下回收保留正常观察者但不公开牌号，原接受事件约束放逐出牌权限及恢复；原选择对象被放逐时不替换为下一张牌。",
+      "rules": "SFD·018官方中文文本；中国区核心135.2.b.4–5.a指示与行动主体、191.5.a技能控制者、369.1及370.1.b.1替换／延续、372–373替换应用顺序、417回收、425.1–425.4展示及原区域、432.1.c空观察、128私密信息",
       "runtime": {
         "staticAbilities": [
           {
@@ -259,9 +280,13 @@
             "StaticAbilityKinds.BeforeDeckRevealLookRecycle && spec.Amount == 1",
             "ObserveDeckCards(state, zones, cards, parent, player, [top], \"LOOK\"",
             "if (selected != \"RECYCLE\") continue;",
-            "zone == \"RUNE_DECK\" ? zones[player].RuneDeck : zones[player].MainDeck",
+            "zone == \"RUNE_DECK\" ? zones[deckOwner].RuneDeck : zones[deckOwner].MainDeck",
             "events.Add(recycled with { Payload = recycled.Payload.Where(field => field.Key != \"cardIds\")",
-            "internal static bool ValidBeforeDeckRevealDisclosure(MatchState state)"
+            "internal static bool ValidBeforeDeckRevealDisclosure(MatchState state)",
+            "var player = revealingPlayer ?? deckOwner;",
+            "kind: BeforeDeckRevealOrderKind",
+            "DeckOwnerId = player == deckOwner ? null : deckOwner",
+            "context.PlayerId == DeckRevealPlayer(parent, context.DeckOwnerId)"
           ]
         },
         {
@@ -298,6 +323,22 @@
             "\"observationHash\"",
             "c.Accepted && c.CompletedTick == matches[0].Tick"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "contains": [
+            "if (actingPlayer is not null && actingPlayer != player) return seen.ToArray();",
+            "state.PlayerZones[v.DeckOwnerId ?? v.PlayerId].MainDeck.Contains(id)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "private static string DeckRevealPlayer(StackItemState item, string deckOwner)",
+            "definition.DeckRevealByController",
+            "revealingPlayer: DeckRevealPlayer(item, player)",
+            "actingPlayer: DeckRevealPlayer(item, player)"
+          ]
         }
       ],
       "tests": [
@@ -318,7 +359,8 @@
             "ARealEchoKeepsEachOriginalSelectionAndRunsItsOwnPrelookAtTheNextExecution",
             "APrivatePrelookRecycleStillCapturesTheNormalIndependentBoonObserver",
             "MalformedPrivateDisclosureIsRejectedByItsSemanticValidatorWithoutThrowing",
-            "AChangedPrivatePeekCannotBeRecoveredOrAnsweredAndARejectedAnswerIsAtomic"
+            "AChangedPrivatePeekCannotBeRecoveredOrAnsweredAndARejectedAnswerIsAtomic",
+            "AControllerRevealingAnOpponentsDeckUsesTheirOwnSeedlingAndKeepsTheForeignPrelookPrivate"
           ]
         }
       ]

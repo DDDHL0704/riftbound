@@ -487,43 +487,6 @@
     },
     {
       "cardNos": [
-        "SFD·038/221"
-      ],
-      "text": "当我移动到一处战场时，让另一名友方单位在本回合内{{S}}+1。",
-      "scope": "当我移动到一处战场时，让另一名友方单位在本回合内{{S}}+1。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少自身移到战场后的独立触发、另一名友方单位的选择及本回合+1战力",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
-      "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
-      },
-      "evidence": [
-        {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "contains": [
-            "\"SFD·038/221\"",
-            "\"SILK_DANCER_VANILLA_PLAY_UNIT\""
-          ]
-        }
-      ],
-      "tests": []
-    },
-    {
-      "cardNos": [
         "SFD·044/221"
       ],
       "text": "你必须将一件友方装备返回其所属的手牌，作为打出我的额外费用。",
