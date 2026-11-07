@@ -123,7 +123,8 @@ public sealed partial class CoreRuleEngine
                         var pool = pools.GetValueOrDefault(delayed.ControllerId, RunePool.Empty);
                         pools[delayed.ControllerId] = pool with { Power = pool.Power + delayed.Power };
                         events.Add(new("POWER_GAINED", "延迟资源技能获得符能", new Dictionary<string, object?> {
-                            ["playerId"] = delayed.ControllerId, ["sourceObjectId"] = delayed.SourceObjectId,
+                            ["playerId"] = delayed.ControllerId,
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, delayed.SourceObjectId, ProjectionViewers.Spectator),
                             ["sourceCardNo"] = delayed.SourceCardNo, ["triggerId"] = delayed.Id,
                             ["generatedPower"] = delayed.Power, ["power"] = delayed.Power, ["resourceLifecycle"] = "rune-pool" }));
                     }
