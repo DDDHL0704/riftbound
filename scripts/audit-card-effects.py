@@ -478,7 +478,12 @@ def activation_matches(ability: dict, clause: dict) -> bool:
                 and ability.get("sourceRequiredTag") == "CARD_TYPE:EQUIPMENT"
                 and ability.get("requiredTargetCount", 0) == 0 and ability.get("maximumTargetCount") == maximum
                 and not any(ability.get(key) for key in ("reactionSpeed", "swiftSpeed", "requiresBattlefieldSource")))
-    _, effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
+    parts = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
+    # Modal bullet lines inherit their cost from a separate scope. Their own
+    # binding must audit that scope; they cannot be treated as standalone skills.
+    if len(parts) != 2:
+        return False
+    _, effect = parts
     numeric_damage = re.search(r"造成([0-9]+)点伤害", effect)
     if numeric_damage and ability.get("damageAmount") and ability["damageAmount"] != int(numeric_damage[1]):
         return False
@@ -1332,10 +1337,133 @@ def enemy_death_source_clause_route(card: dict, clause: dict, sources: Sources) 
     return result('route','共享死亡观察：按控制关系捕获，批次或每回合限制，入链后处理活跃或独立金币',paths)
 
 
+def boon_mode_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    header = "消耗我的增益：从以下中选择一个你本回合内尚未选过的效果-"
+    modes = {
+        "·对战场上的一名单位造成2点伤害。":
+            ("CONSUME_BOON_DAMAGE_2", dict(battlefieldUnitDamage=2), 1, 2),
+        "·眩晕战场上的一名单位。":
+            ("CONSUME_BOON_STUN_UNIT", dict(stunsTarget=True), 1, 0),
+        "·让我变为活跃状态。":
+            ("CONSUME_BOON_READY_SELF", dict(readiesSource=True), 0, 0),
+        "·使我本回合内获得{{游走}}。":
+            ("CONSUME_BOON_ROAM_SELF", dict(grantsSourceRoam=True), 0, 0),
+    }
+    text, scope = normalize(unparenthesize(clause["text"])), normalize(unparenthesize(clause["scope"]))
+    head = normalize(header)
+    if clause["kind"] != "activated" or head not in scope:
+        return None
+    if scope != head or text not in {head, *(normalize(t) for t in modes)}:
+        return result("missing", "增益模式必须绑定完整费用及本回合未选过限制；未知选项不能借用其他技能")
+
+    # Zero is meaningful for nullable costs/target limits. In particular an
+    # extra minimum-might-zero exhaustion cost must not disappear as a default.
+    nullable = {"maximumTargetCount", "generatedManaIfSourceEmpowered",
+                "powerModifierAmountIfSourceEmpowered", "exhaustFriendlyUnitMinimumPowerAsCost", "runeCallCount"}
+    metadata = {"sourceCardNo", "displayName", "reason"}
+
+    def signature(spec):
+        return {key: signature(value) if isinstance(value, dict) else value
+                for key, value in spec.items() if key not in metadata
+                and (value is not None if key in nullable else meaningful(value))}
+
+    core = "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs"
+    dispatch = "src/Riftbound.Engine/CoreRuleEngine.cs"
+    recovery = "src/Riftbound.Engine/MatchRecovery.PerPlayerActivationUses.cs"
+    tokens = "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs"
+    paths = [core, dispatch, recovery, tokens]
+
+    def method_has(path, name, *markers):
+        body = re.search(r"(?ms)^    (?:private|internal|public|protected) static [^\n]*\b"
+                         + re.escape(name) + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)",
+                         sources.files.get(path, ""))
+        return body is not None and all(marker in body.group(0) for marker in markers)
+
+    common = (
+        method_has(dispatch, "ResolveActivateAbility",
+                   "if (ability.SimpleEffect is not null)",
+                   "return ResolveSimpleActivation(state, intent, command, ability);")
+        and method_has(dispatch, "ResolveStackItemEffectCore",
+                       "if (stackItem.SimpleActivation is not null",
+                       "return ResolveSimpleActivationEffect(state, stackItem, simpleAbility);")
+        and method_has(core, "IsSimpleAbilitySource",
+                   "ability.SimpleEffect?.ConsumesSourceBoonAsCost != true || BoonRules.Count(source) > 0")
+        and method_has(core, "ResolveSimpleActivation", "IsSimpleAbilitySource(afterResources",
+                       "if (spec.ConsumesSourceBoonAsCost)", "source = BoonRules.Consume(source);",
+                       "ConsumedSourceBoon = consumedSourceBoon", "RunStateBasedCleanupLoop(afterResources",
+                       'payload["sourceGeneration"] = source.ObjectGeneration',
+                       "SimpleActivationUse(new(source.ObjectId, source.ObjectGeneration)")
+        and method_has(core, "SimpleActivationInstanceAvailable",
+                       "ability.SimpleEffect?.OncePerTurn != true", "SimpleActivationUse(new(source.ObjectId",
+                       "instance.Origin is null ? null : instance.Id")
+        and method_has(core, "ValidSimpleActivation", "context.ConsumedSourceBoon != context.Source")
+        and method_has(tokens, "FinalizeTokenDepartures",
+                       "!ValidSimpleActivation(before with { Tick = result.State.Tick }, item)",
+                       "CeasedSource = new(source.TokenFactoryCardNo ?? source.CardNo!, result.State.Tick)")
+        and ".Where(a => a.SimpleEffect is { OncePerTurn: true })" in sources.files.get(recovery, "")
+        and method_has(recovery, "ValidatePerPlayerActivationUseHistory",
+                       "var abilities = PerPlayerActivationAbilities;",
+                       'TryReadObjectString(payload, "abilityInstanceId"', 'TryReadObjectLong(payload, "sourceGeneration"',
+                       "accepted[entry.Tick].Any", "CoreRuleEngine.SimpleActivationUse(",
+                       "expected.SetEquals(actual)")
+    )
+    if not common:
+        return result("missing", "缺少增益费用、付款前目标绑定、技能实例次数或离场恢复的实际共享消费者", paths)
+
+    def bound(mode):
+        ability_id, effect, targets, damage = modes[mode]
+        expected = dict(abilityId=ability_id, effectKind=ability_id, requiredTargetCount=targets,
+                        damageAmount=damage, appliesSpellshieldTargetTax=bool(targets),
+                        targetScope="BATTLEFIELD_UNIT" if targets else "", supportsCopiedRuleText=True,
+                        sourceRequiredTag="CARD_TYPE:UNIT",
+                        simpleEffect=dict(effect, consumesSourceBoonAsCost=True, oncePerTurn=True))
+        candidates = [a for a in card.get("activations", []) if a.get("abilityId") == ability_id]
+        if not candidates or not all(signature(a) == signature(expected) for a in candidates):
+            return False
+        if targets and not (
+            method_has(core, "IsSimpleAbilityTarget",
+                       "ability.TargetScope == CardTargetScopes.BattlefieldUnit",
+                       'state.ObjectLocations.GetValueOrDefault(id)?.Zone == "BATTLEFIELD"')
+            and method_has(core, "ResolveSimpleActivation",
+                           "var tokenTargets = targets.Where(id => state.CardObjects.TryGetValue(id, out var target)",
+                           "state.CardObjects[id].TokenFactoryCardNo ?? state.CardObjects[id].CardNo!",
+                           ".Where(id => state.CardObjects.ContainsKey(id))",
+                           ".ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration, StringComparer.Ordinal);",
+                           "TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations")
+        ):
+            return False
+        consumer = {
+            "CONSUME_BOON_DAMAGE_2": ("if (spec.BattlefieldUnitDamage > 0)",
+                                    "item.TargetGenerations![target] == cards[target].ObjectGeneration",
+                                    "ApplyDamageToCardObject("),
+            "CONSUME_BOON_STUN_UNIT": ("if (spec.StunsTarget)",
+                                     'Concat(["STUNNED"])', "CaptureStunObservers("),
+            "CONSUME_BOON_READY_SELF": ("if (spec.ReadiesSource",
+                                      "source.ObjectGeneration == item.SimpleActivation!.Source.Generation",
+                                      "ApplyReadyState(", "if (spec.SourcePowerBonus != 0)"),
+            "CONSUME_BOON_ROAM_SELF": ("if (spec.GrantsSourceRoam",
+                                     "roaming.ObjectGeneration == item.SimpleActivation!.Source.Generation",
+                                     "GrantLegendRoam("),
+        }[ability_id]
+        return method_has(core, "ResolveSimpleActivationEffect", *consumer)
+
+    if text == head:
+        declared = {normalize(row["text"]) for row in card_clauses(card) if normalize(row["scope"]) == head}
+        ok = declared == {head, *(normalize(t) for t in modes)} and all(bound(mode) for mode in modes)
+    else:
+        ok = bound(next(mode for mode in modes if normalize(mode) == text))
+    return result("route" if ok else "missing",
+                  "共享增益付款、独立模式次数及入链结算；目标和来源保留付款前代际，复制文本分别计数"
+                  if ok else "缺少与本选项的费用、位置、数值和回合限制完全匹配的激活规格／实际结算",
+                  paths)
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         return audit_armament_clause(card, clause, sources)
     kind = clause["kind"]
+    if boon_mode := boon_mode_activation_route(card, clause, sources):
+        return boon_mode
     if enemy_death := enemy_death_source_clause_route(card, clause, sources):
         return enemy_death
     if colored := colored_legacy_activation_fee(card, clause, sources):

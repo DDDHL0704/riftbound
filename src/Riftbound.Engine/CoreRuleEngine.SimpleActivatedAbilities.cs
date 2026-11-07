@@ -314,8 +314,8 @@ public sealed partial class CoreRuleEngine
             destructionTriggers = destructionTriggers.Concat(removal.TriggerQueue).ToArray();
             destroyedOwners = MergeDestroyedUnitOwnerIds(destroyedOwners, removal.DestroyedUnitOwnerIds);
         }
-        var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
-            .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
+        var tokenTargets = targets.Where(id => state.CardObjects.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
+            .ToDictionary(id => id, id => state.CardObjects[id].TokenFactoryCardNo ?? state.CardObjects[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets) {
                 ExhaustedCostUnit = exhaustedCostUnit,
@@ -328,11 +328,11 @@ public sealed partial class CoreRuleEngine
                     ? source.AttachmentUnitCopies?.Basis.CardNo ?? source.CardNo : null,
                 ReturnTiming = ability.SwiftSpeed && state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : "" };
         var targetGenerations = targets
-            .Where(id => cards.ContainsKey(id))
+            .Where(id => state.CardObjects.ContainsKey(id))
             // Targets were chosen before costs. A resource action or destruction
-            // replacement cannot bind this ability to a newly created object.
-            .ToDictionary(id => id, id => spec.RecyclesGraveyardTargets
-                ? state.CardObjects[id].ObjectGeneration : cards[id].ObjectGeneration, StringComparer.Ordinal);
+            // replacement cannot erase a departed token's witness or bind this
+            // ability to a newly created object.
+            .ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration, StringComparer.Ordinal);
         var item = SimpleActivationStackItem(context, intent.PlayerId, instance.CardNo, ability, targets)
             with { TargetGenerations = targetGenerations.Count == 0 ? null : targetGenerations };
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,

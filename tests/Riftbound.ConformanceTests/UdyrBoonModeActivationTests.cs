@@ -134,7 +134,15 @@ public sealed class UdyrBoonModeActivationTests
     [Fact]
     public async Task ARealTurnChangeResetsModesAndRemovesTheTemporaryRoam()
     {
-        var game = new Driver(Spell(Position(), "BOON"));
+        var initial = Spell(Position(), "BOON");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["P2-DRAW"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-DRAW", "OGN·001/298", "P2") },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                ["P2-DRAW"] = new("P2", "MAIN_DECK") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P2"] = initial.PlayerZones["P2"] with { MainDeck = ["P2-DRAW"] } } };
+        var game = new Driver(initial);
         await game.Act("P1", Mode(Roam)); await game.Top(); await Grant(game, "BOON");
         await Reject(game.State, "P1", Mode(Roam));
         await game.Act("P1", new EndTurnCommand());
@@ -228,6 +236,57 @@ public sealed class UdyrBoonModeActivationTests
         await Reject(game.State, "P1", Mode(Ready, copy));
         await game.Act("P1", Mode(Ready)); await game.Top();
         Assert.Equal(3, Uses(game.State).Length); await game.ColdCheckpoint(); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(Damage)] [InlineData(Stun)]
+    public async Task TargetsStayBoundToThePreCostIncarnationWhenTheirOwnBoonCostDestroysThem(string mode)
+    {
+        var initial = LocalDestructionRecallTests.At(Position(), "HOST", "P1", "BATTLEFIELD", "F");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { Damage = 6 } } };
+        var game = new Driver(initial); var generation = game.State.CardObjects["HOST"].ObjectGeneration;
+        await game.Act("P1", new ActivateAbilityCommand("HOST", mode, ["HOST"]));
+        var item = Assert.Single(game.State.StackItems);
+        Assert.Equal("GRAVEYARD", game.State.ObjectLocations["HOST"].Zone);
+        Assert.True(game.State.CardObjects["HOST"].ObjectGeneration > generation);
+        Assert.Equal(generation, item.TargetGenerations!["HOST"]);
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.DoesNotContain("STUNNED", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(Damage, true)] [InlineData(Damage, false)] [InlineData(Ready, false)]
+    public async Task ARealCopiedTokenMayCeaseWhilePayingWithoutInvalidatingTheConfirmedSkill(string mode, bool selfTarget)
+    {
+        var initial = Spell(Spell(Spell(Position(boons: 0), "COPY", "UNL-200/219"), "BOON"), "WOUND", "OGN·085/298");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["HOST"]));
+        await game.Top(); await game.Top();
+        var image = Assert.Single(game.State.CardObjects.Values,
+            card => card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo).ObjectId;
+        await game.Act("P1", new PlayCardCommand("BOON", "OGN·053/298", [image])); await game.Top();
+        await game.Act("P1", new MoveUnitCommand(image, "BASE", "BATTLEFIELD:F", []));
+        while (game.State.SpellDuelState.IsActive)
+            await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        await game.Act("P1", new PlayCardCommand("WOUND", "OGN·085/298", [image])); await game.Top();
+        Assert.Equal(6, game.State.CardObjects[image].Damage);
+        var generation = game.State.CardObjects[image].ObjectGeneration;
+        string[] targets = mode == Damage ? [selfTarget ? image : "TARGET"] : [];
+        await game.Act("P1", new ActivateAbilityCommand(image, mode, targets));
+        Assert.False(game.State.CardObjects.ContainsKey(image));
+        var item = Assert.Single(game.State.StackItems);
+        Assert.NotNull(item.SimpleActivation!.CeasedSource);
+        Assert.Equal(new ObjectBinding(image, generation), item.SimpleActivation.ConsumedSourceBoon);
+        if (selfTarget) {
+            Assert.Equal(generation, item.TargetGenerations![image]);
+            Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, item.SimpleActivation.TargetTokenFactories![image]);
+        }
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey(image));
+        Assert.Equal(mode == Damage && !selfTarget ? 2 : 0, game.State.CardObjects["TARGET"].Damage);
+        await game.Replay();
     }
 
     [Theory]

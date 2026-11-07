@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 public static partial class MatchRecoveryValidator
 {
     // The same accepted-command history authenticates ordinary instance uses
-    // and per-player uses. Copied text has its own instance key (CN FAQ Udyr).
+    // and per-player uses. CN FAQ 260114 p19 gives copied text its own
+    // mode limit; the same wording is used by boon-consuming activations.
     private static readonly IReadOnlyDictionary<string, P4ActivatedAbilityDefinition> PerPlayerActivationAbilities =
         P4ActivatedAbilityCatalog.GetAll()
             .Where(a => a.SimpleEffect is { OncePerTurn: true })
