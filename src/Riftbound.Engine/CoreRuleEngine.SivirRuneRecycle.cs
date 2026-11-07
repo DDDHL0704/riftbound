@@ -20,9 +20,11 @@ public sealed partial class CoreRuleEngine
     // Capture at the recycling instruction, before private identities are removed
     // or later effects change the legend. This metadata never enters the journal.
     private static GameEvent CaptureRecycleObservers(GameEvent ev, Dictionary<string, PlayerZones> zones,
-        IReadOnlyDictionary<string, CardObjectState> cards, IReadOnlyList<string>? recycledIds = null)
+        IReadOnlyDictionary<string, CardObjectState> cards, IReadOnlyList<string>? recycledIds = null,
+        IReadOnlyDictionary<string, PlayerZones>? sourceZones = null,
+        IReadOnlyDictionary<string, CardObjectState>? sourceCards = null)
     {
-        ev = CaptureRecycledCardBoons(ev, zones, cards, recycledIds);
+        ev = CaptureRecycledCardBoons(ev, zones, cards, recycledIds, sourceZones, sourceCards);
         var count = ev.Kind == "RUNE_RECYCLED" ? 1
             : (recycledIds ?? PayloadStringValues(ev, "cardIds")).Count(id =>
                 cards.TryGetValue(id, out var card) && card.Tags.Contains(CardObjectTags.RuneCard));

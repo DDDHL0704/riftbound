@@ -9114,8 +9114,7 @@ public static class CardBehaviorRegistry
             7,
             "JUDGMENT_DAY_RECYCLE_UNKEPT_CARDS",
             0,
-            16,
-            TargetScope: CardTargetScopes.SacredJudgmentKeepCard,
+            0,
             RecyclesUnkeptSacredJudgmentCards: true),
         new(
             "OGN·045/298",
@@ -9696,7 +9695,7 @@ public static class CardBehaviorRegistry
             Mode: "MOVE_DEPLOYED_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyEquipmentThenBattlefield,
             MovesFriendlyEquipmentToChosenBattlefield: true),
         new("RAD·033/167", "指令：攻击", 1, "RAD_033_LOOK_TOP_FIVE_EQUIPMENT", 0, 1,
-            Mode: "LOOK_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyMainDeckCard,
+            Mode: "LOOK_EQUIPMENT", TargetScope: CardTargetScopes.FriendlyMainDeckCard, MinTargetCount: 0,
             MainDeckLookCount: 5, MainDeckTargetRequiredTag: CardObjectTags.EquipmentCard,
             DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true),
         new("RAD·082/167", "洪荒咆哮", 4, "RAD_082_SHOW_UNIT_DAMAGE_POWER", 0, 1,

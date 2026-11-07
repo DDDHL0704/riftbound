@@ -21,7 +21,9 @@ public sealed partial class CoreRuleEngine
     private sealed record CapturedRecycleBoon(string SourceId, string Controller, FieldTriggerContext Context);
 
     private static GameEvent CaptureRecycledCardBoons(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
-        IReadOnlyDictionary<string, CardObjectState> cards, IReadOnlyList<string>? recycledIds)
+        IReadOnlyDictionary<string, CardObjectState> cards, IReadOnlyList<string>? recycledIds,
+        IReadOnlyDictionary<string, PlayerZones>? sourceZones = null,
+        IReadOnlyDictionary<string, CardObjectState>? sourceCards = null)
     {
         if (ev.Kind != "CARDS_RECYCLED" || ev.Payload.GetValueOrDefault("playerId") is not string player
             || !zones.TryGetValue(player, out var own)) return ev;
@@ -29,10 +31,11 @@ public sealed partial class CoreRuleEngine
             own.MainDeck.Contains(id) && cards.TryGetValue(id, out var card) && card.OwnerId == player
                 && !card.Tags.Contains(CardObjectTags.RuneCard) && !IsTokenObject(card));
         if (count == 0) return ev;
-        var sources = cards.Values.Where(c => !c.IsFaceDown && c.Tags.Contains(CardObjectTags.UnitCard)
-            && c.ControllerId == player && IsObjectOnField(zones, c.ObjectId))
+        sourceZones ??= zones; sourceCards ??= cards;
+        var sources = sourceCards.Values.Where(c => !c.IsFaceDown && c.Tags.Contains(CardObjectTags.UnitCard)
+            && c.ControllerId == player && IsObjectOnField(sourceZones, c.ObjectId))
             .OrderBy(c => c.ObjectId, StringComparer.Ordinal)
-            .SelectMany(c => AttachedRuleTextRules.Instances(zones, cards, c).Where(i => HasRecycledCardBoon(i.CardNo))
+            .SelectMany(c => AttachedRuleTextRules.Instances(sourceZones, sourceCards, c).Where(i => HasRecycledCardBoon(i.CardNo))
                 .Select(i => new CapturedRecycleBoon(c.ObjectId, player,
                     new(i.CardNo, "RECYCLE_BOON", c.ObjectGeneration) { Origin = i.Origin,
                         SourceTokenFactoryCardNo = c.TokenFactoryCardNo,

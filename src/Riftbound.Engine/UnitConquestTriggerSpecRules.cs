@@ -152,6 +152,18 @@ internal static class UnitConquestTriggerSpecRules
             && trigger.Optional == true;
     }
 
+    public static bool IsGraveyardConquestDiscardReturnSelfTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.ConquestDiscardReturnSelfFromGraveyard
+            && trigger.Timing == TriggerTimings.BattlefieldConquered
+            && trigger.DiscardCount == 1 && trigger.DiscardSourceZone == TriggerZones.Hand
+            && trigger.DiscardDestinationZone == TriggerZones.Graveyard
+            && trigger.ReturnCount == 1 && trigger.ReturnOriginZone == TriggerZones.Graveyard
+            && trigger.ReturnDestinationZone == TriggerZones.Hand && trigger.Optional == true
+            && trigger.ManaCost is null or 0 && trigger.PowerCost is null or 0;
+
+    public static bool IsConquestReturnSelfTrigger(TriggerSpec trigger)
+        => IsUnitConquestPayReturnSelfToHandTrigger(trigger) || IsGraveyardConquestDiscardReturnSelfTrigger(trigger);
+
     private static string RuntimeEffectKind(TriggerSpec trigger)
     {
         return string.IsNullOrWhiteSpace(trigger.EffectKind)
