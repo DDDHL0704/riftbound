@@ -537,6 +537,9 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
         if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
+            var prevented = new List<GameEvent>();
+            if (TryPreventPointGain(state, item.ControllerId, spec.Amount, item.EffectKind, item.SourceObjectId, prevented))
+                return NoopStackResolutionResult(state) with { Events = prevented };
             var scores = NormalizeScoresForSeats(state).ToDictionary(); scores[item.ControllerId] += spec.Amount;
             return NoopStackResolutionResult(state) with { PlayerScores = scores,
                 WinnerPlayerId = scores[item.ControllerId] >= EffectiveWinningScore(state) ? item.ControllerId : null,

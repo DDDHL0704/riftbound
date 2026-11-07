@@ -146,10 +146,15 @@ public sealed partial class CoreRuleEngine
             events.AddRange(destruction.Events); pools = destruction.RunePools.ToDictionary(p => p.Key, p => p.Value);
             result = result with { TriggerQueue = destruction.TriggerQueue, DestroyedUnitOwnerIds = destruction.DestroyedUnitOwnerIds };
         }
-        var scores = NormalizeScoresForSeats(state); scores[opponent] += DrawHandThresholdDefinition(c.CardNo)!.OpponentScore;
-        events.Add(new("SCORE_GAINED", "抽牌技能让选定对手获得分数", new Dictionary<string, object?> {
-            ["playerId"] = opponent, ["sourceObjectId"] = item.SourceObjectId,
-            ["amount"] = DrawHandThresholdDefinition(c.CardNo)!.OpponentScore, ["score"] = scores[opponent], ["reason"] = item.EffectKind }));
+        var scores = NormalizeScoresForSeats(state);
+        var amount = DrawHandThresholdDefinition(c.CardNo)!.OpponentScore;
+        if (!TryPreventPointGain(state, opponent, amount, item.EffectKind, item.SourceObjectId, events, zones, cards, locations))
+        {
+            scores[opponent] += amount;
+            events.Add(new("SCORE_GAINED", "抽牌技能让选定对手获得分数", new Dictionary<string, object?> {
+                ["playerId"] = opponent, ["sourceObjectId"] = item.SourceObjectId,
+                ["amount"] = amount, ["score"] = scores[opponent], ["reason"] = item.EffectKind }));
+        }
         return result with { PlayerZones = zones, CardObjects = cards, RunePools = pools, PlayerScores = scores,
             UntilEndOfTurnEffects = effects, Events = events, ObjectLocations = ReconcileObjectLocations(locations, zones) };
     }

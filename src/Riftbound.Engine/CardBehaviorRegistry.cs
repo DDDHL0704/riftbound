@@ -448,7 +448,8 @@ public sealed record OpponentSpellCostIncreaseSpec(int Mana, int GenericPower = 
 public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn = 0,
     bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
     int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
-    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false, bool PreventsAllUnitsMoveToBase = false);
+    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false, bool PreventsAllUnitsMoveToBase = false,
+    bool PreventsOpponentsGainingPointsWhileAtBattlefield = false);
 
 public static class CardDamageConditionKinds
 {
@@ -576,6 +577,7 @@ public static class CardCostReductionConditionKinds
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
     public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
     public const string ControllerExperienceThresholdCount = "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT";
+    public const string ControllerHeldBattlefieldCountThisTurn = "CONTROLLER_HELD_BATTLEFIELD_COUNT_THIS_TURN";
 }
 
 public static class CardSourceBoonConditionKinds
@@ -3956,7 +3958,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守5|壁垒"),
+            SourceUnitTags: "约德尔人|坚守5|壁垒",
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerHeldBattlefieldCountThisTurn,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Green),
         new(
             "SFD·060/221",
             "缇亚娜·冕卫",
@@ -3966,7 +3970,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "精锐|法盾"),
+            SourceUnitTags: "精锐|法盾",
+            SourceStaticLimits: new(PreventsOpponentsGainingPointsWhileAtBattlefield: true)),
         new(
             "UNL-022/219",
             "烬",

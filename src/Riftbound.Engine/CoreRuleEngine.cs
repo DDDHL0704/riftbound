@@ -15192,9 +15192,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 scorePlayerId => nextPlayerScores.TryGetValue(scorePlayerId, out var currentScore) ? currentScore : 0,
                 StringComparer.Ordinal);
             var scoreAmount = unitConquestOverkillScoreTrigger.ScoreAmount.Value;
-            mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var score)
-                ? score + scoreAmount
-                : scoreAmount;
+            var pointPrevented = TryPreventPointGain(state, playerId, scoreAmount,
+                unitConquestOverkillScoreTrigger.Kind, unitObjectId, events, playerZones, cardObjects);
+            if (!pointPrevented)
+                mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var score)
+                    ? score + scoreAmount
+                    : scoreAmount;
             winnerPlayerId = WinningPlayerId(mutablePlayerScores, winningScore);
             AddUnitConquestEffectActivatedEvent(
                 events,
@@ -15206,20 +15209,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 activationReason,
                 assignedOverkillDamageToEnemyUnits: assignedOverkillDamageToEnemyUnits,
                 requiredOverkillDamage: unitConquestOverkillScoreTrigger.RequiredOverkillDamage.Value);
-            events.Add(new GameEvent(
-                "SCORE_GAINED",
-                $"{unitObjectId} 的征服效果让 {playerId} 获得 {scoreAmount} 分",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["amount"] = scoreAmount,
-                    ["score"] = mutablePlayerScores[playerId],
-                    ["reason"] = unitConquestOverkillScoreTrigger.Kind,
-                    ["sourceObjectId"] = unitObjectId,
-                    ["battlefieldObjectId"] = battlefieldObjectId,
-                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
-                    ["requiredOverkillDamage"] = unitConquestOverkillScoreTrigger.RequiredOverkillDamage.Value
-                }));
+            if (!pointPrevented)
+            {
+                events.Add(new GameEvent(
+                    "SCORE_GAINED",
+                    $"{unitObjectId} 的征服效果让 {playerId} 获得 {scoreAmount} 分",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["amount"] = scoreAmount,
+                        ["score"] = mutablePlayerScores[playerId],
+                        ["reason"] = unitConquestOverkillScoreTrigger.Kind,
+                        ["sourceObjectId"] = unitObjectId,
+                        ["battlefieldObjectId"] = battlefieldObjectId,
+                        ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
+                        ["requiredOverkillDamage"] = unitConquestOverkillScoreTrigger.RequiredOverkillDamage.Value
+                    }));
+            }
             if (winnerPlayerId is not null
                 && previousWinnerPlayerId is null)
             {
@@ -26509,6 +26515,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var playerZones = NormalizeZonesForSeats(state);
         var playerScores = NormalizeScoresForSeats(state);
+        var prevented = new List<GameEvent>();
+        if (TryPreventPointGain(state, stackItem.ControllerId, amount, stackItem.EffectKind, stackItem.SourceObjectId, prevented))
+            return NoopStackResolutionResult(state) with { Events = prevented };
         playerScores[stackItem.ControllerId] = playerScores.TryGetValue(stackItem.ControllerId, out var score)
             ? score + amount
             : amount;
@@ -33064,6 +33073,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var drawState = state with
         {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
             PlayerScores = playerScores,
             RngCursor = rngCursor
         };
@@ -33103,6 +33115,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["scoredPlayerScore"] = burnout.ScoredPlayerScore,
                     ["burnoutIndex"] = index + 1
                 }));
+            if (burnout.PreventingPointSources.Count > 0)
+                events.Add(PointGainPreventedEvent(state, burnout.ScoredPlayerId, 1, "BURNOUT", playerId, burnout.PreventingPointSources));
         }
 
         if (drawResult.DrawnCards.Count > 0 || drawResult.WinnerPlayerId is null)
@@ -33564,6 +33578,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new ScoreApplicationResult(playerScores, null, [scorePreventedEvent], state.UntilEndOfTurnEffects);
         }
 
+        var prevented = new List<GameEvent>();
+        if (TryPreventPointGain(state, playerId, scoreAmount, TriggerKinds.BattlefieldFirstTurnScore,
+            sourceObjectIds.FirstOrDefault(), prevented))
+            return new ScoreApplicationResult(playerScores, null, prevented, state.UntilEndOfTurnEffects);
+
         playerScores[playerId] = playerScores.TryGetValue(playerId, out var score)
             ? score + scoreAmount
             : scoreAmount;
@@ -33625,6 +33644,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         foreach (var battlefieldObjectId in battlefieldObjectIds)
         {
+            var scoreState = state with
+            {
+                PlayerZones = playerZones,
+                CardObjects = cardObjects,
+                PlayerScores = playerScores,
+                UntilEndOfTurnEffects = untilEndOfTurnEffects, RngCursor = rngCursor
+            };
+            // SFD FAQ: a restriction on the entire scoring action prevents Hold;
+            // a restriction on receiving points is checked after this action starts.
+            if (TryBuildBattlefieldScorePreventedEvent(scoreState, playerId, "BATTLEFIELD_HELD_SCORE",
+                [battlefieldObjectId], out var preventedAction) && preventedAction is not null)
+            {
+                events.Add(preventedAction);
+                continue;
+            }
             events.Add(new GameEvent(
                 "BATTLEFIELD_HELD",
                 $"{playerId} 据守战场",
@@ -33637,13 +33671,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["timing"] = MatchPhases.TurnStart
                 }));
 
-            var scoreState = state with
-            {
-                PlayerZones = playerZones,
-                CardObjects = cardObjects,
-                PlayerScores = playerScores,
-                UntilEndOfTurnEffects = untilEndOfTurnEffects, RngCursor = rngCursor
-            };
             if (!TryApplyBattlefieldScore(
                     scoreState,
                     playerZones,
@@ -33756,6 +33783,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             nextPlayerScores = draw.PlayerScores;
             winnerPlayerId = draw.WinnerPlayerId;
             nextRngCursor = draw.RngCursor;
+            return true;
+        }
+
+        if (TryPreventPointGain(state, playerId, 1, reason, battlefieldObjectId, events, playerZones, cardObjects))
+        {
+            var prevented = events[^1];
+            events[^1] = prevented with { Payload = new Dictionary<string, object?>(prevented.Payload) {
+                ["battlefieldObjectId"] = battlefieldObjectId, ["battlefieldReturnContext"] = returnContext,
+                [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId) } };
             return true;
         }
 
@@ -34051,8 +34087,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 graveyard.RemoveAll(objectId => recycledCardIds.Contains(objectId));
             }
 
-            playerScores[opponentId] = playerScores.TryGetValue(opponentId, out var score) ? score + 1 : 1;
-            burnouts.Add(new BurnoutResult(opponentId, playerScores[opponentId]));
+            // CN 432.2 and UNL judge FAQ 260511: a repeated burnout in this
+            // instruction keeps awarding points through restrictions until victory.
+            string[] preventing = priorBurnoutCount + burnouts.Count + 1 > 1
+                ? [] : PointGainPreventingSources(state, opponentId);
+            if (preventing.Length == 0)
+                playerScores[opponentId] = playerScores.TryGetValue(opponentId, out var score) ? score + 1 : 1;
+            burnouts.Add(new BurnoutResult(opponentId, playerScores[opponentId]) { PreventingPointSources = preventing });
             // CN 432.2.d completes the first replacement's remaining draw.
             // Only a subsequent burnout in this same draw instruction can win
             // immediately, without reaching its ordinary cleanup boundary.
@@ -34338,6 +34379,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["scoredPlayerScore"] = burnout.ScoredPlayerScore,
                     ["burnoutIndex"] = index + 1
                 }));
+            if (burnout.PreventingPointSources.Count > 0)
+                events.Add(PointGainPreventedEvent(state, burnout.ScoredPlayerId, 1, "BURNOUT", state.TurnPlayerId, burnout.PreventingPointSources));
         }
 
         if (drawResult.DrawnCards.Count > 0 || drawResult.WinnerPlayerId is null)
@@ -34419,7 +34462,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private sealed record BurnoutResult(
         string ScoredPlayerId,
-        int ScoredPlayerScore);
+        int ScoredPlayerScore)
+    {
+        public IReadOnlyList<string> PreventingPointSources { get; init; } = [];
+    }
 
     private sealed record DamageApplicationResult(
         int DamageAmount,
