@@ -117,10 +117,10 @@ public sealed partial class CoreRuleEngine
             && alias.CapturedTurn >= 0 && alias.CapturedTurn <= state.TurnNumber && grant.CapturedTick == alias.CapturedTick
             && alias.OriginalTiming is "HOLD" or "CONQUEST" && alias.EffectiveTiming is "HOLD" or "CONQUEST"
             && alias.OriginalTiming != alias.EffectiveTiming && alias.Battlefield is { Generation: >= 0 } field
-            && (alias.OriginalTiming == "HOLD" ? context is HeldTriggerContext { Kind: not "CONQUEST_UNIT" }
+            && (alias.OriginalTiming == "HOLD" ? context is HeldTriggerContext
                 or SourceUnitTokenContext { Timing: "HOLD" } or InsightTriggerContext { Kind: "HELD" } or DelayedResourceGain
                     || context is UnitEventContext heldEvent && UnitEventTimingMatches(heldEvent.Timing, "HOLD")
-                : context is HeldTriggerContext { Kind: "CONQUEST_UNIT" } or ConquestSourceContext or ConquestFlowContext
+                : context is ConquestSourceContext or ConquestFlowContext
                     or ConquestTokenContext or UnitConquestContext or RecastTriggerContext or UnitConquestReturnContext
                     or InsightTriggerContext { Kind: "CONQUEST_LOOK" }
                     || context is UnitEventContext conquestEvent && UnitEventTimingMatches(conquestEvent.Timing, "CONQUEST"))

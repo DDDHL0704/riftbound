@@ -267,13 +267,6 @@ public sealed partial class CoreRuleEngine
                 events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
                     ["sourceGeneration"] = context.SourceGeneration, ["sourceCardNo"] = context.CardNo } };
                 break;
-            case "CONQUEST_UNIT":
-                TryResolveNaturalUnitConquestTriggerSpecs(state, zones, cards, pools, scores, effects, player, field,
-                    [item.SourceObjectId], 0, rng, events, out var conquestDraw, out var conquestEffects, out payment,
-                    deferNormalVictory: true, activationReason: "BATTLEFIELD_HELD", excludedKinds: IndependentConquestKinds);
-                scores = conquestDraw.PlayerScores; winner = conquestDraw.WinnerPlayerId; rng = conquestDraw.RngCursor;
-                effects = conquestEffects;
-                break;
             case "DRAW": case "EXACT_OTHER_DRAW": Draw(context.Amount); break;
             case "BURN":
                 var burned = ApplyBurnToPlayer(state, zones, cards, scores, player, context.Amount, rng, item, events);

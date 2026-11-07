@@ -1903,7 +1903,7 @@
       "text": "当你据守此处时，激活此处所有单位的征服效果。",
       "scope": "当你据守此处时，激活此处所有单位的征服效果。",
       "status": "route",
-      "reason": "据守技能结算时按各自控制者捕获此处当前单位的征服技能，共用得分、流转、返手、重施、指示物、伤害、临时授予和旧规格消费者；确认费用、目标后仍可响应。具名条件视为满足，其余条件仍检查，不产生实际征服事件，也不受绯红印记树怪额外触发影响；新捕获的独立家族绑定竞技场父技能、来源代际和已接受事件历史，持久化恢复拒绝删除或伪造来源。",
+      "reason": "据守技能结算时按各自控制者捕获此处当前单位的征服技能，共用得分、流转、返手、重施、指示物、伤害、临时授予和统一单位事件技能消费者；确认费用、目标后仍可响应。具名条件视为满足，其余条件仍检查，不产生实际征服事件，也不受绯红印记树怪额外触发影响；新捕获的独立家族绑定竞技场父技能、来源代际和已接受事件历史，持久化恢复拒绝删除或伪造来源。",
       "rules": "中国区官方中文核心规则2026-10-10：383.4.g.1–g.2（清算人竞技场与绯红原文例）、383.3–383.4.a.2、204.1.c、124、385.2、420.3；OGN·286官方中文牌面。 闭环时机与效果打出依据159.2、309.1.a、055与420.3。",
       "runtime": {
         "legacyRoutes": {
@@ -1919,7 +1919,7 @@
           "contains": [
             "case \"ACTIVATE_CONQUEST\":",
             "CaptureNamedUnitConquestAbilities(state, item, state.Tick + 1)",
-            "activationReason: \"BATTLEFIELD_HELD\", excludedKinds: IndependentConquestKinds"
+            "events.AddRange(activated.AdditionalEvents); delayedResources = activated.DelayedResourceGains;"
           ]
         },
         {
@@ -1932,9 +1932,9 @@
             "CaptureConquestTokens(state, player, field, units, tick, activation, eventKind)",
             "CaptureConquestDamage(state, state, player, field, units, tick, activation, eventKind)",
             "CaptureGrantedConquestReturns(state, player, field, units, tick, activation, eventKind)",
-            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
+            "CaptureConquestEventObservations(state, units)",
             "HuntAmountFromTags",
-            "!IndependentConquestKinds.Contains(spec.Kind)"
+            "CaptureConquestSources(state, player, field, units, tick, eventKind)"
           ]
         },
         {

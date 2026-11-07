@@ -42,11 +42,6 @@ public sealed partial class CoreRuleEngine
             && state.CardObjects.TryGetValue(source.ObjectId, out var current) && current.ObjectGeneration >= source.Generation
             && (current.ObjectGeneration > source.Generation || current.CardNo == origin.CardNo);
 
-    private static readonly IReadOnlySet<string> IndependentConquestKinds = new HashSet<string>(StringComparer.Ordinal) {
-        TriggerKinds.UnitConquestCreateUnitToken, TriggerKinds.UnitConquestCreateDormantGold,
-        TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle,
-        TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit };
-
     private sealed record NamedConquestCaptures(IReadOnlyList<TriggerQueueItemState> Triggers,
         IReadOnlyList<DelayedResourceGain> DelayedResourceGains, IReadOnlyList<GameEvent> AdditionalEvents);
 
@@ -99,15 +94,6 @@ public sealed partial class CoreRuleEngine
                 yield return new($"activated-conquest-hunt-{tick}-{id}-{activation?.ParentStackItemId}", player, id,
                     "HOLD_EXPERIENCE", eventKind) {
                     HeldContext = new(state.CardObjects[id].CardNo!, field, "EXPERIENCE", hunt,
-                        state.CardObjects[id].ObjectGeneration) };
-            if (UnitConquestTriggerSpecRules.TriggersForCard(state.CardObjects[id].CardNo)
-                .Any(spec => UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger(spec)
-                    && !IndependentConquestKinds.Contains(spec.Kind)
-                    && !CapturedConquestInstructionKinds.Contains(spec.Kind)
-                    && spec.RequiredOverkillDamage is null or <= 0))
-                yield return new($"activate-conquest-{tick}-{id}-{activation?.ParentStackItemId}", player, id,
-                    "HOLD_CONQUEST_UNIT", eventKind) {
-                    HeldContext = new(state.CardObjects[id].CardNo!, field, "CONQUEST_UNIT", 0,
                         state.CardObjects[id].ObjectGeneration) };
         }
     }
