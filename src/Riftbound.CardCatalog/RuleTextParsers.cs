@@ -1159,15 +1159,18 @@ public static class TriggerParser
                 RuneCallCount: 1, Optional: true);
 
         var playedHereToken = Regex.Match(segment,
-            @"^当你打出我时，在此处打出(?:一名|一个)(?<ready>活跃的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”单位指示物。?$",
+            @"^(?:(?<play>当你打出我时)|(?<held>当我据守一处战场时))，在此处打出(?:一名|一个)(?<ready>活跃的|处于活跃状态的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”(?:单位指示物)?(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?。?$",
             RegexOptions.CultureInvariant);
         if (playedHereToken.Success)
-            return new(TriggerKinds.SourceUnitPlayedOrScoredCreateUnit, TriggerTimings.SourceUnitPlayed, segment,
-                TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: 1,
+            return new(playedHereToken.Groups["held"].Success ? TriggerKinds.UnitBattlefieldHeldCreateUnitHere
+                    : TriggerKinds.SourceUnitPlayedOrScoredCreateUnit,
+                playedHereToken.Groups["held"].Success ? TriggerTimings.BattlefieldHeld : TriggerTimings.SourceUnitPlayed,
+                segment, TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: 1,
                 CreatedTokenName: playedHereToken.Groups["name"].Value,
                 CreatedTokenPower: int.Parse(playedHereToken.Groups["might"].Value, CultureInfo.InvariantCulture),
                 CreatedTokenDestination: TriggerTokenDestinations.SourceLocation,
-                CreatedTokenExhausted: !playedHereToken.Groups["ready"].Success);
+                CreatedTokenExhausted: !playedHereToken.Groups["ready"].Success,
+                CreatedTokenKeywords: playedHereToken.Groups["keyword"].Success ? [playedHereToken.Groups["keyword"].Value] : null);
         if (segment == "当你打出我时，或每回合首次你打出一件非指示物装备时，你可以选择让除我以外且处于休眠状态的一个物体变为活跃状态")
             return new(TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject, TriggerTimings.SourcePlayedOrFirstEquipmentPlayed,
                 segment, TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, Optional: true,
@@ -3454,6 +3457,12 @@ public static class StaticAbilityParser
                     BehaviorImplementationStatuses.Implemented, "The source unit can be played to an unoccupied, uncontrolled battlefield."));
                 continue;
             }
+            if (Regex.IsMatch(segment, @"^你可以选择将我打出到敌方控制的战场[。.]?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new(StaticAbilityKinds.SourceUnitPlayToEnemyControlledBattlefield, segment,
+                    BehaviorImplementationStatuses.Implemented, "The source unit may be played to a battlefield currently controlled by an opponent."));
+                continue;
+            }
             if (Regex.IsMatch(segment, @"^当我在场上时，你可以选择将友方单位打出到一处开放的战场[。.]?$", RegexOptions.CultureInvariant))
             {
                 staticSpecs.Add(new(StaticAbilityKinds.FriendlyUnitPlayToOpenBattlefield, segment,
@@ -3733,6 +3742,47 @@ public static class StaticAbilityParser
                         GrantedKeywords: grantedKeywords));
                     continue;
                 }
+            }
+
+            var boonWaiver = Regex.IsMatch(segment,
+                @"^(?:当你打出此牌时|打出此牌时)，你可以选择消耗一个增益作为额外费用，以此无视(?:此法术|本法术)的费用。?$",
+                RegexOptions.CultureInvariant);
+            if (boonWaiver)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceConsumeBoonIgnoreBaseCosts,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "A selected controlled-unit boon is an additional play cost; only base mana and power are ignored.", Amount: 1));
+                continue;
+            }
+            if (Regex.IsMatch(segment, @"^当你打出我时，可以选择消耗任意数量的增益作为额外费用。?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceMayConsumeAnyBoonsAsAdditionalCost,
+                    segment, BehaviorImplementationStatuses.Unimplemented, "Any number of controlled-unit boons may be consumed as additional costs."));
+                continue;
+            }
+            var boonReduction = Regex.Match(segment,
+                @"^每消耗一个增益，就让我的费用减少\{\{(?<trait>红色|绿色|蓝色|橙色|紫色|黄色)\}\}。?$", RegexOptions.CultureInvariant);
+            if (boonReduction.Success)
+            {
+                var trait = boonReduction.Groups["trait"].Value switch {
+                    "红色" => "red", "绿色" => "green", "蓝色" => "blue", "橙色" => "orange", "紫色" => "purple", _ => "yellow" };
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourcePowerReductionPerConsumedBoon,
+                    segment, BehaviorImplementationStatuses.Unimplemented, "Each selected boon reduces that trait in the total play cost.",
+                    Amount: 1, PowerCostTrait: trait));
+                continue;
+            }
+
+            var playCountCost = Regex.Match(segment,
+                @"^你在本回合内每打出过一张牌，我的费用便减少\{\{(?<amount>[0-9一两二三四五六七八九十]+)\}\}，不得低于\{\{(?<minimum>[0-9一两二三四五六七八九十]+)\}\}。?$",
+                RegexOptions.CultureInvariant);
+            if (playCountCost.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceCostReductionPerCardPlayedThisTurn,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Self cost reduction counts this player's confirmed cards in this turn; its floor belongs only to this reducer.",
+                    Amount: ParseChineseNumber(playCountCost.Groups["amount"].Value),
+                    MinimumManaCost: ParseChineseNumber(playCountCost.Groups["minimum"].Value)));
+                continue;
             }
 
             var conquestCost = Regex.Match(segment,

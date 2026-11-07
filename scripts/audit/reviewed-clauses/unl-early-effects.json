@@ -970,37 +970,67 @@
       ],
       "text": "当我据守一处战场时，在此处打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
       "scope": "当我据守一处战场时，在此处打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
-      "status": "missing",
-      "reason": "只有基础坚守单位；缺少据守时在来源精确战场打出活跃3战力瞬息精灵的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享来源指示物流程在据守事件捕获当前控制者及原来源代际，形成可响应独立技能；结算时按原物体当前位置创建活跃3战力瞬息精灵，支持附加复制文本与蓝哨兵复制技能",
+      "rules": "核心124、315.2.b、359.3.f.2、383.2–383.3、816；UNL-048/219 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitTags": "约德尔人|坚守",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "UNIT_BATTLEFIELD_HELD_CREATE_UNIT_HERE",
+              "timing": "BATTLEFIELD_HELD",
+              "targetScope": "SOURCE_UNIT",
+              "createdTokenCount": 1,
+              "createdTokenName": "精灵",
+              "createdTokenPower": 3,
+              "createdTokenDestination": "SOURCE_LOCATION",
+              "createdTokenExhausted": false,
+              "createdTokenKeywords": [
+                "瞬息"
+              ]
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourceUnitTokens.cs",
           "contains": [
-            "\"UNL-048/219\"",
-            "\"TREVOR_DUTTONEL_PLAY_KEYWORD_UNIT\""
+            "SourceUnitTokenFactory(",
+            "CaptureSourceUnitTokens(",
+            "ValidSourceUnitTokens(",
+            "TrySourceUnitTokenDestination(",
+            "CreateUnitTokenBatch("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+          "contains": [
+            "factory.CreateObject(",
+            "CaptureUnitEntry("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "CaptureSourceUnitTokens(state.PlayerZones, state.CardObjects, card, player, \"HOLD\", field)",
+            "SourceUnitTokens = context"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SourceHereFaerieTokenTests.cs",
+          "methods": [
+            "TrevorDoesNotCreateAFaerieWhenPlayed",
+            "TrevorCreatesHisActiveEphemeralFaerieOnlyWhenHeHoldsTheBattlefield",
+            "TrevorUsesTheOriginalObjectsCurrentLocationAfterARealResponse",
+            "TrevorInBaseDoesNotTriggerFromAnotherFriendlyUnitsHold",
+            "CopiedTrevorTextAndBlueSentinelCreateIndependentHereSkills",
+            "RecoveryRejectsForgedSourceGenerationAndPlayOrHoldTiming"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

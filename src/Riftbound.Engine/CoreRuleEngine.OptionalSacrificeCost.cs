@@ -83,14 +83,16 @@ public sealed partial class CoreRuleEngine
         var choices = OptionalSacrificeSelections(state, player, behavior);
         var extraTyped = string.IsNullOrWhiteSpace(additionalTrait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [additionalTrait] = additionalPower };
-        return choices.Select(costs => {
-            var reduction = SelectedSacrificeCostReduction(state, player, behavior, costs);
-            var mana = CalculatePlayManaCost(state, player, behavior, additionalMana,
+        return choices.SelectMany(sacrifice => OptionalBoonPlaySelections(state, player, behavior)
+            .Select(boons => (IReadOnlyList<string>)sacrifice.Concat(boons).ToArray())).Select(costs => {
+            if (!TryApplyBoonPlayCosts(state, player, behavior, costs, out var priced)) return null;
+            var reduction = SelectedSacrificeCostReduction(state, player, priced, costs);
+            var mana = CalculatePlayManaCost(state, player, priced, additionalMana,
                 optionalCosts: costs, sourceObjectId: source);
-            TrySelectPlayPowerCost(state, player, behavior, null, pool,
+            TrySelectPlayPowerCost(state, player, priced, null, pool,
                 SourceReplayPowerCost(state, player) + (additionalTrait.Length == 0 ? additionalPower : 0), extraTyped,
                 out var generic, out var typed);
-            return new OptionalSacrificePlayCost(costs, mana, generic, ApplySacrificePowerReduction(typed, reduction.Power), ManaPurposeForPlay(behavior));
-        }).ToArray();
+            return new OptionalSacrificePlayCost(costs, mana, generic, ApplySacrificePowerReduction(typed, reduction.Power), ManaPurposeForPlay(priced));
+        }).OfType<OptionalSacrificePlayCost>().ToArray();
     }
 }
