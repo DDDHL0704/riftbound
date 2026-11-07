@@ -1418,6 +1418,61 @@ def paid_source_ready_might_route(card: dict, clause: dict, sources: Sources) ->
     return result("route", "已付额外费才捕获独立入场技能，按成功打出回执核验场上原代际后活跃并授予本回合战力", evidence) if exact else result(
         "missing", "缺少已付额外费用触发条件、独立技能消费者，或来源打出回执／场上原代际检查")
 
+def enemy_death_source_clause_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    bare = normalize(unparenthesize(clause['text']))
+    ready = normalize('当任意数量的敌方单位被摧毁时，让我变为活跃状态。')
+    gold = normalize('每回合限一次，如果我位于战场上，当一名敌方单位被摧毁时，打出一个休眠的“金币”装备指示物。')
+    if bare not in (ready,gold):
+        return None
+    if normalize(unparenthesize(clause['scope'])) != bare:
+        return result('missing','敌方摧毁触发的条件或范围与本句不一致')
+    is_ready = bare == ready
+    profile = dict(kind='SOURCE_ENEMY_BATCH_DESTROYED_READY' if is_ready else 'SOURCE_BATTLEFIELD_ENEMY_DESTROYED_ONCE_GOLD',
+        timing='UNIT_DESTROYED',targetScope='ENEMY_DESTROYED_UNIT')
+    profile.update(dict(readiesSource=True) if is_ready else dict(oncePerTurn=True,createdTokenCount=1,createdTokenName='金币',
+        createdTokenDestination='BASE',createdTokenExhausted=True,requiresSourceBattlefieldAtTrigger=True))
+    if not any(all(row['node'].get(key)==value for key,value in profile.items())
+        and not any(meaningful(value) for key,value in row['node'].items() if key not in set(profile)|{'text','reason','status'})
+        for row in card.get('triggers',[])):
+        return result('missing','缺少匹配敌方关系、批次或每回合限制及来源位置的死亡触发规格')
+    needed={
+        'CoreRuleEngine.DeathObservers.cs':[
+            'var observerController = EffectivePublicStaticAuraSourceControllerId(zones, source.ObjectId, source);',
+            '!source.IsFaceDown',
+            'IsEnemySourceDeathKind(spec.Kind)',
+            'c.SourceGeneration <= currentSource.ObjectGeneration',
+            'zones.Values.Any(zone => zone.LegendZone.Contains(source.ObjectId))',
+            'return ResolveEnemySourceDeathObserver(state, item, c, spec, resolved);',
+        ],
+        'CoreRuleEngine.ConditionalDeathObservers.cs':['return ValidEnemySourceDeathRelation(context, controller);'],
+        'CoreRuleEngine.EnemyDeathSourceTriggers.cs':[
+            'context.Destroyed.ControllerId != controller',
+            'source.ObjectGeneration == context.SourceGeneration' if is_ready else 'CreateLegendEquipmentToken(zones, cards, item.ControllerId',
+        ],
+        'UnitDestroyedTriggerSpecRules.cs':[
+            'IsEnemyBatchReadySourceTrigger' if is_ready else 'IsBattlefieldEnemyDestroyedOnceGoldTrigger',
+        ],
+    }
+    needed['CoreRuleEngine.DeathObservers.cs'] += [
+        'or TriggerKinds.SourceEnemyBatchDestroyedReady',
+        '!observedBatches.Add((death.Batch, observer.ObjectId, observer.Context.RuleTextInstanceId))'] if is_ready else [
+        'spec.RequiresSourceBattlefieldAtTrigger == true && capturedSource.Zone != "BATTLEFIELD"',
+        'or TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold)',
+        'effects.Contains(marker, StringComparer.Ordinal)',
+        'effects = AddUntilEndOfTurnEffect(effects, marker)']
+    paths=['src/Riftbound.Engine/'+name for name in needed]
+    if is_ready:
+        needed['CoreRuleEngine.EnemyDeathSourceTriggers.cs'].append('!source.IsFaceDown')
+    public_source_paths = ['src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs']
+    if is_ready:
+        public_source_paths.append('src/Riftbound.Engine/CoreRuleEngine.EnemyDeathSourceTriggers.cs')
+    if any('!source.Tags.Contains(CardObjectTags.Standby)' in sources.files.get(path, '') for path in public_source_paths):
+        return result('missing','待命关键词不能替代背面状态及区域检查；正面打出的单位仍可拥有待命关键词',paths)
+    if not all(all(token in sources.files.get('src/Riftbound.Engine/'+name,'') for token in tokens) for name,tokens in needed.items()):
+        return result('missing','缺少按死亡时控制关系捕获、限制次数并独立入链结算的共享消费者',paths)
+    if 'ResolveSivirEnemyDestroyedReadyTriggers(' in sources.files.get('src/Riftbound.Engine/CoreRuleEngine.cs',''):
+        return result('missing','仍存在按所属者立即活跃的旧捷径，不能认证可响应触发',paths)
+    return result('route','共享死亡观察：按控制关系捕获，批次或每回合限制，入链后处理活跃或独立金币',paths)
 
 
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
@@ -1430,6 +1485,9 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return token_play
     if paid_source := paid_source_ready_might_route(card, clause, sources):
         return paid_source
+
+    if enemy_death := enemy_death_source_clause_route(card, clause, sources):
+        return enemy_death
     if colored := colored_legacy_activation_fee(card, clause, sources):
         if colored["status"] == "route":
             return native_unit_activation_binding(card, clause, sources)

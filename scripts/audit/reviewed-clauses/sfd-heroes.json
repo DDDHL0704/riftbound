@@ -1267,21 +1267,36 @@
       ],
       "text": "当任意数量的敌方单位被摧毁时，让我变为活跃状态。",
       "scope": "当任意数量的敌方单位被摧毁时，让我变为活跃状态。",
-      "status": "missing",
-      "reason": "敌方摧毁活跃仍由清理流程立即执行，没有独立触发和响应窗口；并以被毁单位所有者而非控制者判断敌方",
+      "status": "route",
+      "reason": "共享死亡观察器按死亡时控制者捕获敌方关系，同批任意数量只生成一次可响应技能；结算时仅活跃原来源代际",
       "runtime": {},
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
           "contains": [
-            "private static IReadOnlyList<GameEvent> ResolveSivirEnemyDestroyedReadyTriggers(",
-            "destroyedUnitOwnerIds.Any(ownerId => !string.Equals(ownerId, playerId",
-            "cardObjects[legendObjectId] = legendState with { IsExhausted = false }"
+            "EffectivePublicStaticAuraSourceControllerId(zones, source.ObjectId, source)",
+            "!observedBatches.Add((death.Batch, observer.ObjectId, observer.Context.RuleTextInstanceId))",
+            "return ResolveEnemySourceDeathObserver(state, item, c, spec, resolved);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EnemyDeathSourceTriggers.cs",
+          "contains": [
+            "context.Destroyed.ControllerId != controller",
+            "source.ObjectGeneration == context.SourceGeneration"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心383.2–383.3／407.4 触发响应、191–192 控制者及所属者；SFD·203／250 官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyDeathSourceTriggerTests.cs",
+          "methods": [
+            "ACurrentEnemyDeathQueuesTheLegendSkillBeforeAnyReadying",
+            "SimultaneousEnemyDeathsQueueOneLegendSkillForTheWholeBatch"
+          ]
+        }
+      ],
+      "rules": "核心124、191–192、383.2–383.3及407.4；SFD·203／250官方中文牌面"
     }
   ]
 }
