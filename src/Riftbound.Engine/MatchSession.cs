@@ -3893,7 +3893,7 @@ internal static partial class ActionPromptBuilder
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
                 >= PromptMinimumManaCost(state, playerId, behavior, objectId))
-            .Where(behavior => !behavior.MaySacrificeUnitForPrintedCostReduction
+            .Where(behavior => !CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)
                 || AffordableOptionalSacrificePlayCosts(state, playerId, behavior, objectId).Count > 0)
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
@@ -4307,7 +4307,8 @@ internal static partial class ActionPromptBuilder
 
         if (behavior.MaySacrificeUnitForPrintedCostReduction)
             choices.AddRange(AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId)
-                .SelectMany(cost => cost.Choices.Select(choice => (cost, choice))).DistinctBy(item => item.choice)
+                .SelectMany(cost => cost.Choices.Where(choice => !choice.StartsWith(CoreRuleEngine.BoonPlayCostPrefix, StringComparison.Ordinal))
+                    .Select(choice => (cost, choice))).DistinctBy(item => item.choice)
                 .Select(item => {
                     var target = ObjectChoice(state, item.choice.Split(':', 2)[1], "可选额外费用；不是技能目标");
                     return new ActionPromptChoiceDto(item.choice, $"摧毁友方单位：{target.Label}",
@@ -4315,6 +4316,8 @@ internal static partial class ActionPromptBuilder
                             ? $"可选择任意数量；每名减少 {behavior.FixedYellowPowerReductionPerSacrificedUnit} 黄色符能，仍支付完整法力费用"
                             : $"支付后 {item.cost.Mana.Total} 法力 / {item.cost.GenericPower + item.cost.TypedPower.Values.Sum()} 符能");
                 }));
+
+        choices.AddRange(CoreRuleEngine.BoonPlayCostChoices(state, playerId, behavior));
 
         if (HasSourceStealEnemyEquipmentOptionalCost(behavior))
         {
@@ -4362,7 +4365,7 @@ internal static partial class ActionPromptBuilder
             var hasteReadyPowerTrait = haste.Value;
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [haste.Key], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (!ignoresAllCosts && !reduced && (behavior.MaySacrificeUnitForPrintedCostReduction
+            if (!ignoresAllCosts && !reduced && (CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
                 : PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
@@ -5492,8 +5495,9 @@ internal static partial class ActionPromptBuilder
         CoreRuleEngine.TrySelectPlayPowerCost(state, playerId, behavior, null, runePool, CoreRuleEngine.SourceReplayPowerCost(state, playerId), new Dictionary<string, int>(),
             out var printedGenericCost, out var printedTypedCost,
             optionalPlayReduction: CoreRuleEngine.AvailableOptionalPlayPowerReduction(state, playerId, behavior));
-        if (behavior.MaySacrificeUnitForPrintedCostReduction
-            && AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId).MinBy(cost => cost.Mana.Total) is { } sacrifice)
+        if (CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)
+            && AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId)
+                .OrderBy(cost => cost.Mana.Total).ThenBy(cost => cost.GenericPower + cost.TypedPower.Values.Sum()).FirstOrDefault() is { } sacrifice)
         {
             manaCost = sacrifice.Mana;
             minimumManaCost = manaCost.Total;
@@ -5566,6 +5570,7 @@ internal static partial class ActionPromptBuilder
             ["destinationLabel"] = behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null ? "移动目的地" : "入场位置",
             ["optionalCostChoices"] = optionalCostChoices,
             ["optionalPlayCostReductionGroups"] = CoreRuleEngine.OptionalPlayCostReductionGroups(state, playerId, behavior),
+            ["boonAdditionalCostGroups"] = CoreRuleEngine.BoonPlayCostGroups(state, playerId, behavior),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = AvailablePlayMana(state, runePool, behavior),

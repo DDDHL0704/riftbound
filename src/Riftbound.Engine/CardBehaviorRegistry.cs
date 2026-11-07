@@ -432,6 +432,9 @@ public sealed record CardBehaviorDefinition(
 {
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
+    internal bool IgnoreBasePlayCostFromBoons { get; init; }
+    internal IReadOnlyList<BoonPlayCostPayment>? BoonPlayCostPayments { get; init; }
+    internal IReadOnlyDictionary<string, int>? BoonPlayPowerReductions { get; init; }
 }
 
 public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);
@@ -3012,11 +3015,6 @@ public static class CardBehaviorRegistry
             "SPRITE_MOTHER_PLAY_UNIT_CREATE_SPRITE",
             0,
             0,
-            CreatedBaseUnitTokenCount: 1,
-            CreatedBaseUnitTokenEntersReady: true,
-            CreatedBaseUnitTokenPower: 3,
-            CreatedBaseUnitTokenName: "精灵",
-            CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(

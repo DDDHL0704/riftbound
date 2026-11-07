@@ -7,37 +7,76 @@
       ],
       "text": "当你打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视此法术的费用。",
       "scope": "当你打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视此法术的费用。",
-      "status": "missing",
-      "reason": "仅活跃目标的法术登记；没有可选消耗一个增益的额外费用、费用凭据及无视费用的报价／付款流程",
-      "rules": "核心204.2、356–357、702.2.b 消耗单个增益；OGN·146 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用在确认前显式消耗一枚当前控制单位的增益，免除基础法力和基础符能；法盾等额外费用照常报价与付款，响应或反制不会退还已经支付的增益",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 2,
-            "requiredTargetCount": 1,
-            "targetScope": "ANY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "readiesTarget": true,
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "canPlayDuringSpellDuel": true,
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_CONSUME_BOON_IGNORE_BASE_COSTS",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·146/298\"",
-            "\"BEATDOWN_READY_UNIT\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PrintedPowerCostRules.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons ? new(0, [])"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "EachSpellCanConsumeOneControlledBoonToIgnoreItsBaseCostBeforeResponses",
+            "DecliningTheOptionalBoonCostPaysThePrintedManaAndKeepsTheBoon",
+            "IgnoringTheBaseCostStillRequiresTheEnemyTargetsWardPower",
+            "CounteringTheSpellCannotRefundItsAlreadyConsumedAdditionalBoon",
+            "ARealReturnResponseCannotLinkThePrivateBoonPayerOrRevokeThePaidSpell",
+            "InvalidBoonQuantitiesCannotSpendCountersOrResources",
+            "TheSingleBoonWaiverRejectsDuplicateOrMultiplePayers",
+            "TheOtherPlayersBoonAndAnEarlierGenerationCannotPay",
+            "AControlledBoonMayBePaidEvenWhenItsUnitBelongsToTheOpponent",
+            "AnAffordableOptionalBranchDoesNotAutomaticallyConsumeAnUndeclaredBoon",
+            "ACardWithoutThePrintedBoonPermissionCannotUseTheSamePayersChoice"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -45,40 +84,67 @@
       ],
       "text": "当你打出我时，可以选择消耗任意数量的增益作为额外费用。",
       "scope": "当你打出我时，可以选择消耗任意数量的增益作为额外费用。",
-      "status": "missing",
-      "reason": "只有基础急速／强攻单位及急速费用；缺少任意数量增益的可选额外费用和逐个减少1橙符能的共享付款",
-      "rules": "核心204.2、356–357、702.2.b；OGN·150 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用允许显式消耗任意数量受控单位的增益，逐枚减少总费用中的橙色符能，包含急速额外橙色费用；实际法力不变，超过零后的额外增益仍按声明消耗",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitTags": "海盗|急速|强攻",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "hasteReadyManaCost": 1,
-            "hasteReadyPowerCost": 1,
-            "hasteReadyPowerTrait": "orange",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_MAY_CONSUME_ANY_BOONS_AS_ADDITIONAL_COST"
+            }
+          },
+          {
+            "node": {
+              "kind": "SOURCE_POWER_REDUCTION_PER_CONSUMED_BOON",
+              "amount": 1,
+              "powerCostTrait": "orange"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·150/298\"",
-            "\"KRAKEN_HUNTER_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpoweredSpellCosts.cs",
+          "contains": [
+            "ApplyBoonPlayPowerReduction(behavior, ApplySacrificePowerReduction("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "KrakenReducesOrangeInItsTotalCostIncludingHasteAndMayConsumeBeyondZero",
+            "KrakenCanConsumeSeveralRealBoonsFromOnePermittedUnit"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -86,40 +152,67 @@
       ],
       "text": "每消耗一个增益，就让我的费用减少{{橙色}}。",
       "scope": "当你打出我时，可以选择消耗任意数量的增益作为额外费用。",
-      "status": "missing",
-      "reason": "只有基础急速／强攻单位及急速费用；缺少任意数量增益的可选额外费用和逐个减少1橙符能的共享付款",
-      "rules": "核心204.2、356–357、702.2.b；OGN·150 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用允许显式消耗任意数量受控单位的增益，逐枚减少总费用中的橙色符能，包含急速额外橙色费用；实际法力不变，超过零后的额外增益仍按声明消耗",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitTags": "海盗|急速|强攻",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "hasteReadyManaCost": 1,
-            "hasteReadyPowerCost": 1,
-            "hasteReadyPowerTrait": "orange",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_MAY_CONSUME_ANY_BOONS_AS_ADDITIONAL_COST"
+            }
+          },
+          {
+            "node": {
+              "kind": "SOURCE_POWER_REDUCTION_PER_CONSUMED_BOON",
+              "amount": 1,
+              "powerCostTrait": "orange"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·150/298\"",
-            "\"KRAKEN_HUNTER_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpoweredSpellCosts.cs",
+          "contains": [
+            "ApplyBoonPlayPowerReduction(behavior, ApplySacrificePowerReduction("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "KrakenReducesOrangeInItsTotalCostIncludingHasteAndMayConsumeBeyondZero",
+            "KrakenCanConsumeSeveralRealBoonsFromOnePermittedUnit"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -275,37 +368,57 @@
       ],
       "text": "你可以选择将我打出到敌方控制的战场。",
       "scope": "你可以选择将我打出到敌方控制的战场。",
-      "status": "missing",
-      "reason": "只有基础法盾单位；未登记可进入敌方控制战场的打出位置例外，现有共享目的地规则仍拒绝该位置",
-      "rules": "核心143 单位打出位置及牌面明确例外；OGN·161 官方中文牌面",
+      "status": "route",
+      "reason": "共享位置权限读取真实公开战场的当前控制者，普通出牌、来源候选与未强制位置的效果打出都允许进入敌方控制的战场；保留正常费用和时机，不能借该可选权限绕开效果指定的己方控制战场",
+      "rules": "核心355.2.a–b、355.17、358.4、359.2.c；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 8,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 8,
-            "sourceUnitTags": "法盾",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_UNIT_PLAY_TO_ENEMY_CONTROLLED_BATTLEFIELD"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AmbushPermissions.cs",
           "contains": [
-            "\"OGN·161/298\"",
-            "\"CORPSE_FLOWER_PREDATOR_PLAY_KEYWORD_UNIT\""
+            "EnemyControlledBattlefieldPlayAllowed(",
+            "CardStaticAbilitySpecRules.IsSourceUnitPlayToEnemyControlledBattlefield",
+            "BattlefieldLocalRules.ControlledBy(state, opponent)",
+            "EnemyControlledBattlefieldPlayAllowed(state, player, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "!EnemyControlledBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "EnemyControlledBattlefieldPlayAllowed(state, playerId, behavior, destination)",
+            "pending.DestinationPolicy != \"CONTROLLED_BATTLEFIELD\""
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyControlledUnitEntryTests.cs",
+          "methods": [
+            "EachPrintedUnitPaysItsNormalCostAndEntersTheOpponentsControlledBattlefield",
+            "TheOptionalEnemyLocationRetainsBaseAndFriendlyBattlefieldEntry",
+            "EnemyOccupationAloneAndInvalidFieldObjectsCannotGrantThePermission",
+            "BattlefieldControlRatherThanItsOwnerDeterminesEnemyEntry",
+            "LocationPermissionDoesNotGrantReactionTiming",
+            "OrdinaryGraveyardEffectPlayKeepsThePrintedEnemyLocationAndItsPowerCost",
+            "AnEffectRequiringAControlledBattlefieldCannotUseTheOptionalEnemyLocation",
+            "AnOrdinaryUnitCannotBorrowAnotherCardsEnemyLocationPermission"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -730,37 +843,76 @@
       ],
       "text": "打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视本法术的费用。",
       "scope": "打出此牌时，你可以选择消耗一个增益作为额外费用，以此无视本法术的费用。",
-      "status": "missing",
-      "reason": "只有+3战力法术；没有可选消耗一个增益作为额外费用并无视法术费用的报价及付款",
-      "rules": "核心204.2、356–357、702.2.b；OGN·207 官方中文牌面",
+      "status": "route",
+      "reason": "共享可选额外费用在确认前显式消耗一枚当前控制单位的增益，免除基础法力和基础符能；法盾等额外费用照常报价与付款，响应或反制不会退还已经支付的增益",
+      "rules": "核心356.1.b.1–3、356.2.b、356.4.f、427.1.b.1–2、702.2.b.1–2；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 3,
-            "requiredTargetCount": 1,
-            "targetScope": "ANY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "powerModifierAmount": 3,
-            "canPlayDuringPriority": true,
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "SOURCE_CONSUME_BOON_IGNORE_BASE_COSTS",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
           "contains": [
-            "\"OGN·207/298\"",
-            "\"GLORY_CALL_POWER_PLUS_3\""
+            "OptionalBoonPlaySpec(",
+            "TrySelectBoonPlayCosts(",
+            "TryApplyBoonPlayCosts(",
+            "TryCommitBoonPlayCosts(",
+            "BoonRules.Consume(before)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts",
+            "TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CoreRuleEngine.BoonPlayCostChoices(",
+            "CoreRuleEngine.HasOptionalUnitPaymentSelection(behavior)",
+            "CoreRuleEngine.BoonPlayCostGroups("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PrintedPowerCostRules.cs",
+          "contains": [
+            "behavior.IgnoreBasePlayCostFromBoons ? new(0, [])"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BoonAdditionalPlayCostTests.cs",
+          "methods": [
+            "EachSpellCanConsumeOneControlledBoonToIgnoreItsBaseCostBeforeResponses",
+            "DecliningTheOptionalBoonCostPaysThePrintedManaAndKeepsTheBoon",
+            "IgnoringTheBaseCostStillRequiresTheEnemyTargetsWardPower",
+            "CounteringTheSpellCannotRefundItsAlreadyConsumedAdditionalBoon",
+            "ARealReturnResponseCannotLinkThePrivateBoonPayerOrRevokeThePaidSpell",
+            "InvalidBoonQuantitiesCannotSpendCountersOrResources",
+            "TheSingleBoonWaiverRejectsDuplicateOrMultiplePayers",
+            "TheOtherPlayersBoonAndAnEarlierGenerationCannotPay",
+            "AControlledBoonMayBePaidEvenWhenItsUnitBelongsToTheOpponent",
+            "AnAffordableOptionalBranchDoesNotAutomaticallyConsumeAnUndeclaredBoon",
+            "ACardWithoutThePrintedBoonPermissionCannotUseTheSamePayersChoice"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
