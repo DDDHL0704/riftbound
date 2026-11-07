@@ -129,6 +129,14 @@ public sealed partial class CoreRuleEngine
                     && IsObjectOnField(zones, c.ObjectId)).All(c => ResolveCurrentFieldUnitPower(current, c) < power);
             observations = observations.Where(o => !UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest || strongest).ToArray();
         }
+        if (observations.Any(o => UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance > 0))
+        {
+            var origin = RuleChoices.Value!.ResolutionState ?? RuleChoices.Value.Origin;
+            var current = origin with { PlayerZones = zones, CardObjects = cards };
+            observations = observations.Where(o => UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance <= 0
+                || OpponentWithinWinningScoreDistance(current, o.Controller,
+                    UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance)).ToArray();
+        }
         observations = CapturePlayedUnitRunes(ev, zones, cards, entered, player, turnEffects, observations);
         return WithUnitEvents(ev, observations);
     }
@@ -208,6 +216,7 @@ public sealed partial class CoreRuleEngine
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
         string timing, string eventKind, long? capturedTick = null)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")
+            .Where(o => UnitEventCaptureConditionSatisfied(state, o))
             .Concat(CaptureFriendlyAttackHere(state, attackers))
             .Concat(CaptureSoloRoleObservers(state, attackers, "ATTACK")).Select(o => CaptureUnitEventFacts(state, o))
             .Select((o, i) => UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
@@ -215,6 +224,7 @@ public sealed partial class CoreRuleEngine
     private static TriggerQueueItemState[] CaptureRoleUnitEvents(MatchState state, IEnumerable<string> units,
         string role, string timing, string eventKind, long? capturedTick = null)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role)
+            .Where(o => UnitEventCaptureConditionSatisfied(state, o))
             .Concat(CaptureSoloRoleObservers(state, units, role)).Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) =>
             UnitEventTrigger(o, capturedTick ?? state.Tick + 1, i, eventKind, timing)).ToArray();
 
@@ -468,6 +478,12 @@ public sealed partial class CoreRuleEngine
             ? ResolveCurrentFieldUnitPower(state, state.CardObjects[item.SourceObjectId]) : item.UnitEvent.LastKnownPower!.Value;
 
     private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
+    {
+        var result = ResolveUnitEventInstruction(state, item);
+        return AppendIndependentUnitEventExperience(state, item, result);
+    }
+
+    private static StackResolutionResult ResolveUnitEventInstruction(MatchState state, StackItemState item)
     {
         var context = item.UnitEvent!;
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
