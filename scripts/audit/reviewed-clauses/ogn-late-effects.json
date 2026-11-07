@@ -1483,36 +1483,89 @@
       ],
       "text": "每当你征服一处战场时，你可以选择弃置一张手牌，以此让此牌从废牌堆返回你的手牌。",
       "scope": "每当你征服一处战场时，你可以选择弃置一张手牌，以此让此牌从废牌堆返回你的手牌。",
-      "status": "missing",
-      "reason": "只实现正面5点伤害；缺少在废牌堆中的征服事件监听、可选弃1张手牌费用和独立返手技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "385.2限定来源位于自己废牌堆才观察真实征服；共享征服回手技能捕获所属者、来源代际和原征服记录，弃1张手牌在确认时作为基础费用支付，响应后仅让仍处原废牌堆的旧代际返手；放弃／无手牌不支付，多个副本分别弃牌，竞技场据守激活单位征服不构成此法术的真实征服；来源新牌库编号隐藏，持久化恢复校验绑定已接受的征服与弃牌命令",
+      "rules": "中国区核心规则2026-10-10：124、128、191.5.a.1、203、204.1.c、204.3、383.2–383.3、383.4.g.2、385.2；OGN·252官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 4,
-            "damageAmount": 5,
-            "requiredTargetCount": 1,
-            "targetScope": "ANY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "kind": "CONQUEST_DISCARD_RETURN_SELF_FROM_GRAVEYARD",
+            "timing": "BATTLEFIELD_CONQUERED",
+            "discardCount": 1,
+            "discardSourceZone": "HAND",
+            "discardDestinationZone": "GRAVEYARD",
+            "returnCount": 1,
+            "returnOriginZone": "GRAVEYARD",
+            "returnDestinationZone": "HAND",
+            "optional": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
           "contains": [
-            "\"OGN·252/298\"",
-            "\"SUPER_MEGA_DEATH_ROCKET_DAMAGE_5\""
+            "CaptureGraveyardConquestReturns(state with {",
+            "(context.OriginZone ?? TriggerZones.Battlefield) == spec.ReturnOriginZone",
+            "ResolveGraveyardConquestReturn(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.GraveyardConquestReturn.cs",
+          "contains": [
+            "foreach (var id in own.Graveyard.",
+            "source.OwnerId != controller",
+            "new UnitConquestReturnContext(new(id, source.ObjectGeneration)",
+            "OriginZone = TriggerZones.Graveyard",
+            "current.ObjectGeneration == context.Source.Generation",
+            "TryReturnGraveyardCardToHand(zones, cards, context.ControllerId, context.Source.ObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "HasGraveyardConquestDiscardCost(item) ? new(Discard: true)",
+            "Discard: true, Exhaust: false",
+            "TryDiscardCardFromHand(zones, cards, item.ControllerId, card.ObjectId)",
+            "if (LeadingTriggerCost(item)!.Exhaust)",
+            "[\"targetGeneration\"] = card.ObjectGeneration"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ConquestDiscardReturn.cs",
+          "contains": [
+            "ValidateConquestDiscardReceiptHistory(",
+            "command.CommandType == CommandTypes.ChooseCards",
+            "command.StartedEventSequence < discarded[0].Sequence",
+            "discard receipt is not bound to accepted payment history"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "VisiblePublicSkillSourceObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId)",
+            "VisiblePublicSkillSourceObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GraveyardConquestReturnTests.cs",
+          "methods": [
+            "TheGraveyardOwnerDiscardsAtConfirmationAndReturnsTheOriginalCardAfterResponses",
+            "DecliningTheDiscardKeepsBothTheHandAndGraveyardUnchanged",
+            "NoHandCardCannotConfirmTheOptionalReturn",
+            "TheOfficial385Point2ConditionDoesNotObserveConquestFromAnotherZone",
+            "ARealRecycleResponseCannotReturnTheSourcesNewDeckIncarnation",
+            "TheOpponentAndAnUnrelatedOrStaleHandChoiceCannotPayTheCost",
+            "AnOpponentsConquestDoesNotObserveYourGraveyardCard",
+            "TwoGraveyardCopiesEarnIndependentSkillsAndPaySeparateHandCards",
+            "HoldingAnArenaDoesNotCountAsActuallyConqueringForAGraveyardSpell",
+            "RecoveryBindsTheOriginalGraveyardGenerationToAcceptedConquestHistory",
+            "APaidDiscardReceiptWithoutTheAcceptedDiscardCommandCannotRestore"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1557,12 +1610,14 @@
       ],
       "text": "让一名友方单位变为活跃状态，并对任意战场上的一名敌方单位造成等同于该友方单位战力的伤害。",
       "scope": "让一名友方单位变为活跃状态，并对任意战场上的一名敌方单位造成等同于该友方单位战力的伤害。",
-      "status": "missing",
-      "reason": "伤害量有误：活跃后直接读取readiedTargetState.Power，而未计算装备、光环和战斗身份产生的当前战力；不能按普通战力字段认证等同战力伤害",
-      "rules": "核心479 当前战力、418 伤害；OGN·260 官方中文牌面",
+      "status": "route",
+      "reason": "共享活跃后按当前战力伤害流程通过ResolveCurrentFieldUnitPower读取更新状态，包含已装配武装等连续效果；本句未指明由友方单位造成伤害，因此来源保留为原法术，七符文敌方法术／技能伤害免疫仍生效；实际装配长剑与免疫边界均经原始命令、冷恢复和回放验证；当前战力计算后仍经共享法术／技能伤害加成（含虚空之门），不会把额外伤害计入单位战力",
+      "rules": "中国区核心规则2026-10-10：143.2、418.6.a–b.3；OGN·260官方中文牌面；SFD·022武装+2与VEN·025七符文免疫中文牌面；418.5／712额外伤害",
       "runtime": {
         "behaviors": [
           {
+            "effectKind": "LAST_BREATH_READY_FRIENDLY_DAMAGE_ENEMY_BY_POWER",
+            "requiredTargetCount": 2,
             "readiesFirstTargetAndDamagesSecondByFirstPower": true
           }
         ]
@@ -1571,15 +1626,26 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "var damageAmount = Math.Max(0, readiedTargetState.Power);"
+            "else if (behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower",
+            "ResolveCurrentFieldUnitPower(DamageFrame(), readiedTargetState)",
+            "cardObjects[readyTargetObjectId] = readiedTargetState;",
+            "PreventSpellAndSkillDamageThisTurnEffectId);",
+            "var damageAmount = ApplySpellSkillDamageBonuses(DamageFrame(), stackItem.ControllerId,"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
+          "contains": [
+            "PreventedByRuneDamageImmunity(",
+            "EnemySpellSkillDamageImmunityMinimumRunes"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "path": "tests/Riftbound.ConformanceTests/ReadyCurrentMightDamageTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysLastBreathReadyThenPowerDamage"
+            "LastBreathReadiesThenUsesCurrentMightAndTheSpellRemainsTheDamageSource"
           ]
         }
       ]
@@ -1836,9 +1902,9 @@
       ],
       "text": "当你据守此处时，激活此处所有单位的征服效果。",
       "scope": "当你据守此处时，激活此处所有单位的征服效果。",
-      "status": "missing",
-      "reason": "征服技能分派不完整：据守结算只接少数旧家族、得分来源和流转，没有调用真实征服使用的CaptureUnitConquestReturns；薇恩的征服支付1返手等新家族不会激活",
-      "rules": "核心383.3 触发与官方牌面所有单位的征服效果；OGN·286；例OGN·035／SFD·223薇恩",
+      "status": "route",
+      "reason": "据守技能结算时按各自控制者捕获此处当前单位的征服技能，共用得分、流转、返手、重施、指示物、伤害、临时授予和旧规格消费者；确认费用、目标后仍可响应。具名条件视为满足，其余条件仍检查，不产生实际征服事件，也不受绯红印记树怪额外触发影响；新捕获的独立家族绑定竞技场父技能、来源代际和已接受事件历史，持久化恢复拒绝删除或伪造来源。",
+      "rules": "中国区官方中文核心规则2026-10-10：383.4.g.1–g.2（清算人竞技场与绯红原文例）、383.3–383.4.a.2、204.1.c、124、385.2、420.3；OGN·286官方中文牌面。 闭环时机与效果打出依据159.2、309.1.a、055与420.3。",
       "runtime": {
         "legacyRoutes": {
           "HeldDefinition": {
@@ -1852,17 +1918,81 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
           "contains": [
             "case \"ACTIVATE_CONQUEST\":",
-            "if (!HasSupportedUnitConquestTriggerSpec(unitCard.CardNo)) continue;"
+            "CaptureNamedUnitConquestAbilities(state, item, state.Tick + 1)",
+            "activationReason: \"BATTLEFIELD_HELD\", excludedKinds: IndependentConquestKinds"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.NamedConquestActivation.cs",
           "contains": [
-            "CaptureUnitConquestReturns("
+            "CaptureNamedUnitConquestAbilities(",
+            "EffectiveFieldControllerId(state.PlayerZones, id, state.CardObjects[id])",
+            "CaptureUnitConquestReturns(state, player, field, units, tick, origin)",
+            "CaptureConquestRecasts(state, player, field, units, tick, origin)",
+            "CaptureConquestTokens(state, player, field, units, tick, origin)",
+            "CaptureConquestDamage(state, state, player, field, units, tick, origin)",
+            "CaptureGrantedConquestReturns(state, player, field, units, tick, origin)",
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
+            "HuntAmountFromTags",
+            "!IndependentConquestKinds.Contains(spec.Kind)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.NamedConquestActivation.cs",
+          "contains": [
+            "ValidateNamedConquestActivationHistory(",
+            "MatchesNamedConquestActivationEvent(",
+            "MatchesNamedConquestCapturePayload(",
+            "captured conquest skill is not bound to accepted actual or named conquest activation history",
+            "state.StackItems.Append(pending.Parent)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitConquestReturn.cs",
+          "contains": [
+            "MatchesNamedConquestActivationEvent(e.Event, activation, context.BattlefieldObjectId)",
+            "captured unit conquest return is not bound to accepted named conquest activation history"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "NamedConquestCaptureOf(trigger.ConquestToken, trigger.UnitConquest, trigger.RecastContext)",
+            "payload[\"conquestContextHash\"] = capture.ContextHash"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamedConquestActivationTests.cs",
+          "methods": [
+            "HoldingTheArenaEarnsAnIndependentVaynePaymentAndReturnsToTheOwnerAfterResponses",
+            "AReturnResponseAfterPaymentCannotReturnTheSourcesNewHandIncarnation",
+            "TheArenaChoosesTheUnitsPresentWhenItsOwnSkillResolves",
+            "SharedTokenReturnAndLegacyFamiliesActivateOnceWithoutInventingAConquestOrObservingTheGraveyard",
+            "HuntEarnsItsNormalHoldAndOneAdditionalNamedConquestWithoutARealConquest",
+            "CrimsonDoesNotRepeatLegacyConquestInstructionsActivatedByHolding",
+            "AChildCannotInventItsParentActivationInAnOtherwiseConsistentColdFrame",
+            "ARealRecastBetweenArenaCopiesGrantsAnOptionalConquestReturn",
+            "NamedRecastChecksTheCurrentScoreAfterHoldingAndRecyclesTheRealSpell",
+            "NamedActivationDoesNotSatisfyTheSeparateUncontrolledBattlefieldCondition",
+            "TokenRecoveryRejectsAChangedOrRemovedNamedOrigin",
+            "PendingRecastCannotDropItsNamedParentWhenItLeavesTheStack"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConquestSourceHeroesTests.cs",
+          "methods": [
+            "HoldActivationOfConquestAlsoUsesARespondableDrawSkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConquestScoreHeroesTests.cs",
+          "methods": [
+            "ReckonerArenaActivatesNasusConquestEffectOnlyWhileEmpowered"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

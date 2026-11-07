@@ -3,7 +3,11 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record ConquestTokenContext(string CardNo, long SourceGeneration, string BattlefieldId,
-    long CapturedTick, long FaceRevision, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null);
+    long CapturedTick, long FaceRevision, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public NamedConquestActivationOrigin? Activation { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -23,6 +27,7 @@ public sealed partial class CoreRuleEngine
         => ConquestTokenSpec(context.CardNo) is { } spec && effect == spec.Kind && context.SourceGeneration >= 0
             && !string.IsNullOrWhiteSpace(context.BattlefieldId)
             && context.CapturedTick > 0 && context.CapturedTick <= state.Tick && context.FaceRevision >= 0
+            && (context.Activation is null || ValidNamedConquestActivation(state, context.Activation, context.BattlefieldId))
             && (cardNo is null || cardNo == context.CardNo)
             && state.BattlefieldStates.ContainsKey(context.BattlefieldId)
             && (context.Origin is { } origin
@@ -31,15 +36,16 @@ public sealed partial class CoreRuleEngine
                     context.FaceRevision, context.CapturedTick, context.TokenFactoryCardNo));
 
     private static IEnumerable<TriggerQueueItemState> CaptureConquestTokens(MatchState state, string player,
-        string battlefield, IReadOnlyList<string> units, long tick)
+        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null)
     {
+        var eventKind = ConquestCaptureReason(activation);
         foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(id, out var source) || source.ControllerId != player
                 || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard)
                 || BattlefieldLocalRules.AtUnit(state, id)?.ObjectId != battlefield) continue;
             var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects,
-                state.ObjectLocations, player, battlefield, "BATTLEFIELD_CONQUERED");
+                state.ObjectLocations, player, battlefield, eventKind);
             var instances = AttachedRuleTextRules.Instances(state, source).ToArray();
             for (var ordinal = 0; ordinal < instances.Length; ordinal++)
             {
@@ -47,9 +53,10 @@ public sealed partial class CoreRuleEngine
                 if (ConquestTokenSpec(instance.CardNo) is not { } spec) continue;
                 for (var i = 0; i < repeats; i++)
                     yield return new TriggerQueueItemState($"conquest-token-{tick}-{battlefield}-{id}-{i}"
-                        + (ordinal == 0 ? "" : $"-instance-{ordinal}"), player, id, spec.Kind, "BATTLEFIELD_CONQUERED") {
+                        + (ordinal == 0 ? "" : $"-instance-{ordinal}"), player, id, spec.Kind, eventKind) {
                         ConquestToken = new(instance.CardNo, source.ObjectGeneration, battlefield, tick,
-                            source.CopyFaceTransitions?.Count ?? 0, source.TokenFactoryCardNo, instance.Origin) };
+                            source.CopyFaceTransitions?.Count ?? 0, source.TokenFactoryCardNo, instance.Origin) {
+                            Activation = activation } };
             }
         }
     }
@@ -62,7 +69,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
         AddUnitConquestEffectActivatedEvent(events, item.ControllerId, item.SourceObjectId, context.CardNo,
-            spec.Kind, context.BattlefieldId, "BATTLEFIELD_CONQUERED");
+            spec.Kind, context.BattlefieldId, ConquestCaptureReason(context.Activation));
         if (spec.Kind == TriggerKinds.UnitConquestCreateUnitToken)
         {
             var factory = ConquestUnitTokenFactory(spec)!;

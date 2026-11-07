@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "OGN·244/298"
+      ],
+      "text": "每名玩家分别选择自己的两名单位、两件装备、两枚符文和两张手牌留在原位，然后回收其余卡牌。",
+      "scope": "每名玩家分别选择自己的两名单位、两件装备、两枚符文和两张手牌留在原位，然后回收其余卡牌。",
+      "status": "route",
+      "reason": "无宣告目标；各玩家在结算时分别保留当前单位、装备、符文和手牌至多两张，全部选择完成后统一回收；多类型物体可在两个类别中保留。共享回收按拥有者分流主牌／符文牌堆，主牌随机置底、符文由拥有者安排顺序，处理指示物消失、卸除／召回和离场／回收观察技能，并隐藏已回收来源的新私有物体标识",
+      "rules": "中国区核心规则2026-10-10：055、056、124、128、133.1–133.3、191、359.3.e.11、383、417.1.a–c／417.5.a／417.6、459.1、719.5；OGN·244官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectKind": "JUDGMENT_DAY_RECYCLE_UNKEPT_CARDS",
+            "recyclesUnkeptSacredJudgmentCards": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "else if (behavior.RecyclesUnkeptSacredJudgmentCards)",
+            "ResolveKeepAndRecycle(state, playerZones, cardObjects, stackItem, rngCursor)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.KeepAndRecycle.cs",
+          "contains": [
+            "foreach (var player in players)",
+            "KeepAndRecycleCategories(current, player)",
+            "category.Objects.Count <= 2",
+            "RuleChoices.Value!.Choose(player",
+            "category.Private ? \"HAND:\" + index : id",
+            "kind: \"KEEP_TWO_\" + category.Kind",
+            "RecycleCardsToOwnersDecks(",
+            "NonFieldDestinationOwner(zones, cards[id], recyclingPlayers[id])",
+            "kind: \"RUNE_RECYCLE_ORDER\"",
+            "RandomizeForMainDeckBottom(ids, state.Seed, rngCursor, source)",
+            "RuneDeck = zones[batch.Owner].RuneDeck.Concat(batch.Ids)",
+            "CaptureFieldDeparture(zones, cards, id)",
+            "DetachEquipmentFromRemovedHost(cards, id)",
+            "ResetCardOutsidePlay(zones, cards, id, beforeCards[id], batch.Owner)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+          "contains": [
+            "sourceZones ??= zones",
+            "sourceCards ??= cards",
+            "IsObjectOnField(sourceZones, c.ObjectId)",
+            "AttachedRuleTextRules.Instances(sourceZones, sourceCards, c)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "VisiblePublicSkillSourceObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId)",
+            "VisiblePublicSkillSourceObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId)",
+            "回收卡牌后选择友方单位，双方响应后给予增益。"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "contains": [
+            "or \"RECYCLE_BOON\"",
+            "CoreRuleEngine.ValidFieldContextState(state, field,"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Projection.Timing.cs",
+          "contains": [
+            "VisiblePublicSkillSourceObjectIdForViewer(",
+            "zones.MainDeck.Contains(objectId, StringComparer.Ordinal)",
+            "CoreRuleEngine.CanViewObservedDeckCard(state, objectId, viewer)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.RecycledBoonDisclosure.cs",
+          "contains": [
+            "HasValidatedPublicRecycledBoonEffect(",
+            "trigger.TriggeredByEventKind == \"CARDS_RECYCLED\"",
+            "CoreRuleEngine.ValidFieldContextState(state, context, trigger.SourceObjectId,"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EachPlayerKeepAndRecycleTests.cs",
+          "methods": [
+            "EachPlayerKeepsUpToTwoOfEveryCategoryAtResolutionAndRunesUseTheirOwnDeck",
+            "PredeclaredKeepTargetsAndAnotherPlayersResolutionDecisionsAreRejectedWithoutMutation",
+            "ARealReactionChangesTheAvailablePermanentsBeforeTheirControllersChoose",
+            "BorrowedUnitsAndRunesGoToTheirOwnersDecksAndTheRuneOwnerOrdersTheCombinedBatch",
+            "ARealCreatedMinionIsRecycledAndThenCeasesToExistWithoutBecomingADeckCard",
+            "ObserversRecycledInTheSameInstructionStillEarnIndependentSkillsWithPrivateSources",
+            "AKeptArmamentDetachesFromItsRecycledHostAndRecallsWithoutLeavingTheField",
+            "ARealAnimatedEquipmentCanBeKeptInEitherOrBothOfItsCategories"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadRunebladeAnvilTests.cs",
+          "methods": [
+            "ARecycledSourceStillEarnsTheCapturedBanishSkill"
+          ]
+        }
+      ]
+    }
+  ]
+}

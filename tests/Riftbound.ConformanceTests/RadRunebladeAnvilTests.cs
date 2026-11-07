@@ -214,7 +214,12 @@ public sealed class RadRunebladeAnvilTests
         state = AttackDamageDistributionTests.Spell(state, "RECYCLE", "OGN·244/298", "P1");
         state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(30, 30) } };
         var game = new Driver(state);
-        await game.Act("P1", new PlayCardCommand("RECYCLE", "OGN·244/298", keep)); await game.Top();
+        await game.Act("P1", new PlayCardCommand("RECYCLE", "OGN·244/298", [])); await game.Top();
+        while (game.State.PendingRuleChoice is { } pending)
+        {
+            var option = pending.Request.Options.First(row => row.ObjectIds?.Any(keep.Contains) == true);
+            await game.Act(pending.Request.PlayerId, new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", [option.Id]));
+        }
         Assert.Contains("ANVIL", game.State.PlayerZones["P1"].MainDeck);
         Assert.Equal("PLAY_OR_LEAVE", Assert.Single(game.State.StackItems).UnitEvent!.Timing);
         await game.Top(); AssertGrant(game.State, "P1", "TOP");

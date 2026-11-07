@@ -1334,6 +1334,24 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        if (Regex.IsMatch(segment,
+            @"^每当你征服一处战场时，你可以选择弃置一张手牌，以此让此牌从废牌堆返回你的手牌。?$",
+            RegexOptions.CultureInvariant))
+        {
+            return new TriggerSpec(
+                TriggerKinds.ConquestDiscardReturnSelfFromGraveyard,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "CN 385.2: the source observes conquest only from its owner's graveyard; discard is a leading instruction cost.",
+                DiscardCount: 1,
+                DiscardSourceZone: TriggerZones.Hand,
+                DiscardDestinationZone: TriggerZones.Graveyard,
+                ReturnCount: 1,
+                ReturnOriginZone: TriggerZones.Graveyard,
+                ReturnDestinationZone: TriggerZones.Hand,
+                Optional: true);
+        }
+
         var unitConquestPayReturnSelfToHandMatch = Regex.Match(
             segment,
             @"每?当我征服一处战场时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}来让我返回所属的手牌。?$",
@@ -4749,6 +4767,27 @@ public static class StaticAuraParser
                 @"^友方单位(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
             if (friendlyUnitsKeywordMatch.Success && TryAddFriendlyKeywordAuras(auras, segment,
                 StaticAuraTargetFilters.Unit, friendlyUnitsKeywordMatch.Groups["grants"].Value)) continue;
+
+            var providedArmamentKeywordMatch = Regex.Match(segment,
+                @"^你的每件武装都会提供(?<grants>\{\{[^{}]+\}\}(?:[、和]\{\{[^{}]+\}\})*)。?(?:（[^）]*）)?$",
+                RegexOptions.CultureInvariant);
+            if (providedArmamentKeywordMatch.Success)
+            {
+                foreach (Match keyword in Regex.Matches(providedArmamentKeywordMatch.Groups["grants"].Value,
+                    @"\{\{(?<keyword>[^{}]+)\}\}", RegexOptions.CultureInvariant))
+                {
+                    var grantedKeyword = keyword.Groups["keyword"].Value.Trim();
+                    if (string.IsNullOrWhiteSpace(grantedKeyword) || grantedKeyword == "S") continue;
+                    auras.Add(new StaticAuraSpec(StaticAuraKinds.FriendlyArmamentProvidedKeyword,
+                        RuleTextLayer, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.FriendlyEquipment, StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                        0, segment, BehaviorImplementationStatuses.Implemented,
+                        "Friendly weapons provide each keyword to their attached host through the shared keyword layer.",
+                        StaticAuraTargetFilters.TagPrefix + "武装",
+                        GrantedKeyword: grantedKeyword));
+                }
+                continue;
+            }
 
             var friendlyEquipmentKeywordMatch = Regex.Match(segment,
                 @"^你的装备(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
