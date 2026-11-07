@@ -13,11 +13,13 @@ public sealed partial class CoreRuleEngine
         var player = item.ControllerId;
         var execution = item.CompletedDeckExecutions;
         var previous = (state.ObservedDeckPlays ?? []).FirstOrDefault(c => c.Instruction.Parent.StackItemId == item.StackItemId
-            && c.Instruction.PlayerId == player && c.Instruction.ExecutionIndex == execution);
+            && c.Instruction.PlayerId == player && c.Instruction.ExecutionIndex == execution && c.Instruction.BeforeReveal is null);
+        if (previous is null) BeforeDeckReveal(state, zones, cards, item, player, events, execution);
         var seen = previous?.Instruction.Seen.Select(b => b.ObjectId).ToArray()
             ?? TakeControlledMainDeckPrefix(cards, player, zones[player].MainDeck, 1);
         var top = seen.FirstOrDefault();
-        var unit = top is not null && cards.TryGetValue(top, out var revealed) && revealed.Tags.Contains(CardObjectTags.UnitCard)
+        var matchTag = spec.RevealMatchCardFilter![TriggerCardFilters.TagPrefix.Length..];
+        var matches = top is not null && cards.TryGetValue(top, out var revealed) && revealed.Tags.Contains(matchTag)
             && (spec.RequiredPowerThreshold is null || revealed.Power >= spec.RequiredPowerThreshold);
         if (seen.Length > 0 && previous is null)
             events.Add(new("CARDS_REVEALED", "移动技能展示主牌堆顶部一张牌", new Dictionary<string, object?> {
@@ -25,7 +27,7 @@ public sealed partial class CoreRuleEngine
                 ["count"] = seen.Length, ["zone"] = TriggerZones.MainDeck }));
         var remaining = ObserveDeckCards(state, zones, cards, item, player, seen, "REVEAL", execution, events);
         var result = NoopStackResolutionResult(state);
-        if (unit)
+        if (matches)
         {
             // Keep the original revealed identity if its observation ability banishes it.
             // Never draw the replacement top card, or turn that removal into the else branch.

@@ -9,6 +9,8 @@ public sealed record DeckObservationInstruction(StackItemState Parent, string Pl
     IReadOnlyList<ObjectBinding> Seen)
 {
     public bool SelectionReveal {get;init;}
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BeforeDeckRevealLookContext? BeforeReveal { get; init; }
 }
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record ObservedDeckPlayContext(string Id, DeckObservationInstruction Instruction, ObjectBinding Card,
@@ -17,10 +19,22 @@ public sealed record ObservedDeckPlayContext(string Id, DeckObservationInstructi
 public sealed record ObservedDeckPlayPermission(ObservedDeckPlayContext Context,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PendingEffectPlayState? Suspended = null);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record DeckObservationView(string PlayerId, bool Public, IReadOnlyDictionary<string,long> Cards);
+public sealed record DeckObservationView(string PlayerId, bool Public, IReadOnlyDictionary<string,long> Cards)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? DeckZone { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? DeckOwnerId { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BeforeDeckRevealLookContext? BeforeReveal { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
+    private static bool IsMovementRevealObservation(StackItemState parent)
+        => parent.MovementObserver is { } movement
+            && UnitMovedTriggerSpecRules.TryGetTrigger(movement.CardNo,
+                spec => spec.Kind == movement.Kind && UnitMovedTriggerSpecRules.IsMovementRevealTrigger(spec), out _);
     internal const string ObservedDeckPlayEffect="OBSERVED_DECK_UNIT_PLAY_PERMISSION";
     private static readonly Lazy<IReadOnlyDictionary<string,int>> ObservationPlayCosts=new(()=>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.Select(c=>new {
@@ -30,11 +44,15 @@ public sealed partial class CoreRuleEngine
     private static string[] ObserveDeckCards(MatchState state, Dictionary<string,PlayerZones> zones,
         Dictionary<string,CardObjectState> cards, StackItemState parent, string player, IReadOnlyList<string> seen,
         string kind, int execution, List<GameEvent> events, bool selectionReveal=false,
-        IReadOnlyDictionary<string,long>? simultaneousReveals=null)
+        IReadOnlyDictionary<string,long>? simultaneousReveals=null, BeforeDeckRevealLookContext? beforeReveal=null, string? actingPlayer=null)
     {
         if(RuleChoices.Value is not { } frame)return seen.ToArray();
+        // A private deck card grants its owner's "you observe me" permission
+        // only when that owner actually performs the look/reveal action.
+        if (actingPlayer is not null && actingPlayer != player) return seen.ToArray();
         var instruction=new DeckObservationInstruction(parent,player,kind,execution,
-            seen.Select(id=>new ObjectBinding(id,cards.TryGetValue(id,out var known)?known.ObjectGeneration:0)).ToArray()) {SelectionReveal=selectionReveal};
+            seen.Select(id=>new ObjectBinding(id,cards.TryGetValue(id,out var known)?known.ObjectGeneration:0)).ToArray()) {
+                SelectionReveal=selectionReveal, BeforeReveal=beforeReveal };
         foreach(var id in seen)
         {
             if(!cards.TryGetValue(id,out var card))continue;
@@ -48,7 +66,7 @@ public sealed partial class CoreRuleEngine
                     .ToDictionary(x=>x,x=>cards[x].ObjectGeneration,StringComparer.Ordinal);
             var preview=state with {PlayerZones=zones.ToDictionary(),CardObjects=cards.ToDictionary(),
                 ObjectLocations=ReconcileObjectLocations(state.ObjectLocations,zones),
-                DeckObservationView=new(player,kind=="REVEAL",visible)};
+                DeckObservationView=new(player,kind=="REVEAL",visible) { BeforeReveal=beforeReveal }};
             var observedVerb = kind == "REVEAL" ? "展示" : "查看";
             var decision=frame.Choose(player,$"所{observedVerb}的卡牌提供可选放逐出牌权限。",[new("KEEP","保留给原效果处理"),new("BANISH","放逐，原效果完成后可支付符能打出")],
                 kind:"DECK_OBSERVATION_BANISH",preview:preview,privateReason:$"所{observedVerb}的《{DeckCardNames.Value.GetValueOrDefault(card.CardNo!,card.CardNo!)}》可选择放逐，原效果完成后可支付一个任意符能打出。");
@@ -56,12 +74,33 @@ public sealed partial class CoreRuleEngine
             var restored=PrintedCardFactory.TryRestoreOutsidePlay(card,player,out var printed)?printed:card;
             cards[id]=restored with {ControllerId=player,ObjectGeneration=checked(card.ObjectGeneration+1)};
             zones[player]=zones[player] with {MainDeck=RemoveFromZone(zones[player].MainDeck,id),Banished=zones[player].Banished.Append(id).ToArray()};
-            frame.ObservedPlays.Add(new($"OBSERVED:{state.Tick}:{parent.StackItemId}:{execution}:{id}",instruction,
-                new(id,cards[id].ObjectGeneration),card.CardNo!,cost,state.Tick));
+            var captured = new ObservedDeckPlayContext($"OBSERVED:{state.Tick}:{parent.StackItemId}:{execution}:{id}",instruction,
+                new(id,cards[id].ObjectGeneration),card.CardNo!,cost,state.Tick);
+            frame.ObservedPlays.Add(captured);
             events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED",$"所{observedVerb}的卡牌以静态能力放逐，开始待确认出牌",new Dictionary<string,object?> {
-                ["playerId"]=player,["sourceObjectId"]=id,["targetObjectId"]=id,["cardNo"]=card.CardNo,["destinationZone"]="BANISHED"}), zones, cards, player, [id]));
+                ["playerId"]=player,["sourceObjectId"]=id,["targetObjectId"]=id,["cardNo"]=card.CardNo,["destinationZone"]="BANISHED",
+                ["observationHash"] = ObservedDeckCaptureHash(captured) }), zones, cards, player, [id]));
         }
         return seen.Where(id=>zones[player].MainDeck.Contains(id)).ToArray();
+    }
+
+    internal static string ObservedDeckCaptureHash(ObservedDeckPlayContext context)
+    {
+        var instruction = context.Instruction; var before = instruction.BeforeReveal;
+        // Bind the public capture facts. Other privately looked cards and the
+        // parent's private continuation do not belong in a public digest.
+        return MatchStateHasher.HashValue(new {
+            ParentStackItemId = instruction.Parent?.StackItemId, ParentCardNo = instruction.Parent?.CardNo,
+            ParentControllerId = instruction.Parent?.ControllerId, ParentEffectKind = instruction.Parent?.EffectKind,
+            instruction.PlayerId, instruction.Kind, instruction.ExecutionIndex, instruction.SelectionReveal,
+            context.CardNo, context.PowerCost, context.CapturedTick, CardObjectId = context.Card.ObjectId,
+            BanishedOriginal = instruction.Seen?.FirstOrDefault(b => b is not null && b.ObjectId == context.Card.ObjectId),
+            BeforeReveal = before is null ? null : new {
+                before.PlayerId, before.DeckOwnerId, before.DeckZone, before.Source, before.SourceCardNo,
+                before.SourceFaceRevision, before.CapturedTick, before.Card, before.CardNo,
+                before.ExecutionIndex, before.InstanceIndex, before.Origin, before.SourceTokenFactoryCardNo,
+                before.SelectionReveal }
+        });
     }
 
     private static ResolutionResult CollectObservedDeckPlays(ResolutionResult result)
@@ -157,7 +196,7 @@ public sealed partial class CoreRuleEngine
     internal static string[]? ObservedRemainingDeckCards(MatchState state, StackItemState parent, string player,int execution)
     {
         var observed=(state.ObservedDeckPlays??[]).Where(c=>CompleteObservationShape(c) && c.Instruction.Parent.StackItemId==parent.StackItemId
-            && c.Instruction.PlayerId==player && c.Instruction.ExecutionIndex==execution).ToArray();
+            && c.Instruction.PlayerId==player && c.Instruction.ExecutionIndex==execution && c.Instruction.BeforeReveal is null).ToArray();
         if(observed.Length==0)return null;
         var removed=observed.Select(c=>c.Card.ObjectId).ToHashSet(StringComparer.Ordinal);
         return observed[0].Instruction.Seen.Where(b=>!removed.Contains(b.ObjectId)).Select(b=>b.ObjectId).ToArray();
@@ -166,21 +205,22 @@ public sealed partial class CoreRuleEngine
     internal static bool CanViewObservedDeckCard(MatchState state,string id,string viewer)
         => state.DeckObservationView is { } v && (v.Public || v.PlayerId==viewer)
             && v.Cards.TryGetValue(id,out var generation) && state.CardObjects.TryGetValue(id,out var card)
-            && card.ObjectGeneration==generation && (v.Public
+            && card.ObjectGeneration==generation && (v.DeckZone == "RUNE_DECK"
+                ? state.PlayerZones[v.DeckOwnerId ?? v.PlayerId].RuneDeck.Contains(id) : v.Public
                 ? state.PlayerZones.Values.Any(zone=>zone.MainDeck.Contains(id))
-                : state.PlayerZones[v.PlayerId].MainDeck.Contains(id));
+                : state.PlayerZones[v.DeckOwnerId ?? v.PlayerId].MainDeck.Contains(id));
 
     internal static bool ValidObservedDeckPlay(MatchState state, ObservedDeckPlayContext c)
     {
         try
         {
             var i=c.Instruction;var parent=i.Parent;
-            var count=TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0?DeckPlayLookCount(play)
+            var count=i.BeforeReveal is not null ? 1 : TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0?DeckPlayLookCount(play)
                 : TryGetDeckChoiceBehavior(state,parent,out var choice)?choice.MainDeckLookCount
                 : parent.InsightContext is { } insight?insight.Count
                 : parent.BeginningDraw?.Kind == "LOWEST_DECK_TOP_MANA" ? 1
                 : IsGuessedDeckTopObservation(parent) ? 1
-                : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?1
+                : IsMovementRevealObservation(parent)?1
                 : CardBehaviorRegistry.TryGetByCardNo(parent.CardNo??"",out var printed)
                     ? printed.PerformsInsight?printed.InsightCount:Math.Max(printed.DefendTriggerMainDeckLookCount,printed.StandbyReactionMainDeckLookCount)
                     : BattlefieldTriggerSpecRules.TryGetTrigger(parent.CardNo,
@@ -190,7 +230,12 @@ public sealed partial class CoreRuleEngine
             if(c.Card is null || i is null || parent is null || parent.ObservedDeckPlay is not null || parent.ObservedPlayPermission is not null
                 || c.CapturedTick<0 || c.CapturedTick>state.Tick || !state.Seats.ContainsKey(i.PlayerId)
                 || i.Kind is not ("LOOK" or "REVEAL") || i.ExecutionIndex<0 || i.ExecutionIndex>=parent.EffectRepeatCount
-                || (i.SelectionReveal ? i.Kind!="REVEAL" || i.Seen.Count!=1
+                || (i.BeforeReveal is { } before ? i.Kind!="LOOK" || i.SelectionReveal || i.Seen.Count!=1
+                    || before.DeckZone!="MAIN_DECK" || before.PlayerId!=i.PlayerId || before.DeckOwnerId!=i.PlayerId
+                    || before.ExecutionIndex!=i.ExecutionIndex || before.Card!=i.Seen[0]
+                    || MatchStateHasher.HashValue(before.Parent)!=MatchStateHasher.HashValue(parent)
+                    || !ValidBeforeDeckRevealLook(state,before)
+                    : i.SelectionReveal ? i.Kind!="REVEAL" || i.Seen.Count!=1
                     || !TryGetDeckChoiceBehavior(state,parent,out var selectedBehavior) || selectedBehavior.MainDeckTargetRequiredTag!=CardObjectTags.UnitCard
                     : i.Kind!=ExpectedObservationKind(parent))
                 || !ObservationPlayCosts.Value.TryGetValue(c.CardNo,out var cost) || cost!=c.PowerCost || cost!=1
@@ -202,6 +247,8 @@ public sealed partial class CoreRuleEngine
                 || card.ObjectGeneration!=c.Card.Generation || card.OwnerId!=i.PlayerId || card.ControllerId!=i.PlayerId
                 || !card.Tags.Contains(CardObjectTags.UnitCard)
                 || c.Id!=$"OBSERVED:{c.CapturedTick}:{parent.StackItemId}:{i.ExecutionIndex}:{c.Card.ObjectId}")return false;
+            if (i.BeforeReveal is null && TryGetEffectPlayDefinition(parent, out var actorDefinition)
+                && actorDefinition.DeckPlayKind.Length > 0 && DeckRevealPlayer(parent, i.PlayerId) != i.PlayerId) return false;
             return i.Seen.All(b=>state.CardObjects.TryGetValue(b.ObjectId,out var seen)&&seen.ObjectGeneration>=b.Generation)
                 && (!revealUntilUnit || i.Kind=="REVEAL" && i.Seen.Last().ObjectId==c.Card.ObjectId
                     && i.Seen.Take(i.Seen.Count-1).All(b=>!state.CardObjects[b.ObjectId].Tags.Contains(CardObjectTags.UnitCard)));
@@ -216,8 +263,8 @@ public sealed partial class CoreRuleEngine
                 ? BorrowedExhaustRules.Valid(state, parent) : ValidSimpleActivation(state,parent)
             : parent.EndAbility is not null ? ValidEndAbility(state,parent)
             : parent.DestroyDeckPlay is not null ? ValidDestroyDeckPlayContext(state,parent)
-            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle} movement
-                ? ValidMovementObserver(state,movement,parent.EffectKind,parent.ControllerId,parent.SourceObjectId,parent.CardNo)
+            : IsMovementRevealObservation(parent)
+                ? ValidMovementObserver(state,parent.MovementObserver!,parent.EffectKind,parent.ControllerId,parent.SourceObjectId,parent.CardNo)
             : parent.FieldContext is { } field ? ValidFieldContextState(state,field,parent.SourceObjectId,parent.ControllerId,parent.EffectKind,parent.CardNo)
             : parent.InsightContext is { } insight ? ValidInsightTrigger(insight,parent.EffectKind,parent.ControllerId,parent.CardNo)
                 && ValidConquestLookSource(state,insight,parent.SourceObjectId)
@@ -236,7 +283,7 @@ public sealed partial class CoreRuleEngine
         => parent.BeginningDraw?.Kind == "LOWEST_DECK_TOP_MANA" ? "REVEAL"
             : IsGuessedDeckTopObservation(parent) ? "REVEAL"
             : parent.InsightContext is { } insight ? insight.Kind=="DUEL" && parent.InsightCompleted?"REVEAL":"LOOK"
-            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?"REVEAL"
+            : IsMovementRevealObservation(parent)?"REVEAL"
             : TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0
                 ? DeckPlaySequenceReveals(parent)?"REVEAL":"LOOK"
             : parent.FieldContext is {Kind:"STANDBY_DEFEND"}?"REVEAL"

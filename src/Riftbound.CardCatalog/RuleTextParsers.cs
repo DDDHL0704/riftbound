@@ -571,6 +571,15 @@ public static class TriggerParser
                 DrawCount: 1, RevealCount: 1, RequiredPowerThreshold: PowerfulUnitPowerThreshold,
                 RevealSourceZone: TriggerZones.MainDeck, RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:UNIT",
                 RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.MainDeck));
+        var movedEquipmentReveal = Regex.Match(text,
+            @"当我移动时，展示你主牌堆顶部的一张牌。\s*如果是一张装备牌，则抽取该卡牌，否则将其回收。",
+            RegexOptions.CultureInvariant);
+        if (movedEquipmentReveal.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle, TriggerTimings.UnitMoved,
+                movedEquipmentReveal.Value, "Move trigger: reveal one, draw that equipment or recycle it.",
+                TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: 1, RevealCount: 1,
+                RevealSourceZone: TriggerZones.MainDeck, RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:EQUIPMENT",
+                RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.MainDeck));
         var endReveal = Regex.Match(text, @"在你的回合结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，将其放逐，然后将其打出，无视费用，并回收其余的卡牌。", RegexOptions.CultureInvariant);
         if (endReveal.Success) triggers.Add(new(TriggerKinds.TurnEndRevealUntilUnit, TriggerTimings.TurnEnd, endReveal.Value,
             "End-step reveal until first unit, banish and normal free pending play.", RevealSourceZone: TriggerZones.MainDeck,
@@ -1729,6 +1738,13 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit, DiscardCount: ParseChineseNumber(movedDiscardDraw.Groups[1].Value),
                 DrawCount: ParseChineseNumber(movedDiscardDraw.Groups[2].Value));
 
+        var movedOtherPower = Regex.Match(segment,
+            @"^当我移动到一处战场时，让另一名友方单位在本回合内\{\{S\}\}\+(?<power>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedOtherPower.Success)
+            return new(TriggerKinds.UnitMovedOtherFriendlyPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.OtherFriendlyUnitOnField, Optional: false,
+                PowerDelta: ParseChineseNumber(movedOtherPower.Groups["power"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
         var movedBurnPower = Regex.Match(segment,
             @"^当我移动时，你可以选择\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}，以此给予我在本回合内\{\{S\}\}\+(?<power>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
         if (movedBurnPower.Success)
@@ -3416,6 +3432,12 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        var beforeReveal = Regex.Match(text,
+            @"当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。\s*然后继续展示这些卡牌。",
+            RegexOptions.CultureInvariant);
+        if (beforeReveal.Success)
+            staticSpecs.Add(new(StaticAbilityKinds.BeforeDeckRevealLookRecycle, beforeReveal.Value,
+                BehaviorImplementationStatuses.Implemented, "Before a deck reveal instruction, privately look at its top and optionally recycle it.", Amount: 1));
         var firstPermanent = Regex.Match(text,
             @"于每名玩家，该玩家在其回合内在此处打出的首个单位或装备，其费用减少\{\{(?<amount>[0-9]+)\}\}",
             RegexOptions.CultureInvariant);

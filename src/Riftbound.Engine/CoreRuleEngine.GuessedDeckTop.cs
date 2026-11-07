@@ -34,8 +34,10 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var player = item.ControllerId;
+        BeforeDeckReveal(state, zones, cards, item, player, events);
         var seen = TakeControlledMainDeckPrefix(cards, player, zones[player].MainDeck, 1);
-        if (seen.Length == 0) return result with { Events = events }; // CN432.1.c.1: no absent card to draw.
+        if (seen.Length == 0) return result with { PlayerZones = zones, CardObjects = cards,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events }; // CN432.1.c.1
         var top = seen[0];
         var tag = guessed switch { "UNIT" => CardObjectTags.UnitCard, "EQUIPMENT" => CardObjectTags.EquipmentCard,
             _ => CardObjectTags.SpellCard };

@@ -90,6 +90,8 @@ public sealed partial class CoreRuleEngine
             var rng = state.RngCursor;
             string? winner = null;
             var shouldDraw = context?.Kind == "ACTIVATED" || borrowed is not null;
+            if (context is { Kind: "DUEL", PaymentAccepted: true })
+                BeforeDeckReveal(state, triggerZones, triggerCards, item with { InsightCompleted = true }, item.ControllerId, triggerEvents);
             if (context is { Kind: "DUEL", PaymentAccepted: true }
                 && triggerZones[item.ControllerId].MainDeck.FirstOrDefault() is { } top)
             {

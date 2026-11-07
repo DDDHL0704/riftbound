@@ -79,13 +79,24 @@ internal static class UnitMovedTriggerSpecRules
 
     public static bool IsMovementRevealTrigger(TriggerSpec trigger)
         => IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
+            || trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle && trigger.Timing == TriggerTimings.UnitMoved
+                && trigger.TargetScope == TriggerTargetScopes.SourceUnit && trigger.RevealCount == 1 && trigger.DrawCount == 1
+                && trigger.RequiredPowerThreshold is null && trigger.RevealSourceZone == TriggerZones.MainDeck
+                && trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.EquipmentCard
+                && trigger.RevealMatchDestinationZone == TriggerZones.Hand && trigger.RevealMissDestinationZone == TriggerZones.MainDeck
             || trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle && trigger.Timing == TriggerTimings.UnitMoved
                 && trigger.TargetScope == TriggerTargetScopes.SourceUnit && trigger.RevealCount == 1 && trigger.DrawCount == 1
                 && trigger.RequiredPowerThreshold > 0 && trigger.RevealSourceZone == TriggerZones.MainDeck
                 && trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.UnitCard
                 && trigger.RevealMatchDestinationZone == TriggerZones.Hand && trigger.RevealMissDestinationZone == TriggerZones.MainDeck;
     public static bool IsTargetedMovementTrigger(TriggerSpec trigger)
-        => IsMovementDamageTrigger(trigger) || IsMovementBaseMightTrigger(trigger);
+        => IsMovementDamageTrigger(trigger) || IsMovementBaseMightTrigger(trigger) || IsMovementOtherFriendlyPowerTrigger(trigger);
+
+    public static bool IsMovementOtherFriendlyPowerTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitMovedOtherFriendlyPowerModifier && trigger.Timing == TriggerTimings.UnitMoved
+            && trigger.TargetScope == TriggerTargetScopes.OtherFriendlyUnitOnField && trigger.Optional == false
+            && trigger.PowerDelta > 0 && trigger.Duration == TriggerDurations.UntilEndOfTurn
+            && trigger.MovementDestinationZone == "BATTLEFIELD";
 
     public static bool IsMovementBaseMightTrigger(TriggerSpec trigger)
         => trigger.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight && trigger.Timing == TriggerTimings.UnitMoved
