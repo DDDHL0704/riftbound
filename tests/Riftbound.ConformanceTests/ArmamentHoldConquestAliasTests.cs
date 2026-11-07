@@ -99,6 +99,10 @@ public sealed class ArmamentHoldConquestAliasTests
         await Conquer(game);
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top();
         Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        var publicSkill = Assert.IsType<Dictionary<string, object?>>(Assert.Single(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
+        Assert.Equal("HIDDEN", publicSkill["sourceObjectId"]);
+        Assert.Equal("SFD·027/221", publicSkill["cardNo"]); Assert.Equal("HOLD_DRAW", publicSkill["effectKind"]);
+        Assert.False(publicSkill.ContainsKey("timingAlias"));
         await game.Top();
         Assert.All(top, id => Assert.Contains(id, game.State.PlayerZones["P1"].Hand));
         await game.Replay();

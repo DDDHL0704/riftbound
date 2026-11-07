@@ -6,7 +6,7 @@ public static partial class MatchRecoveryValidator
         RecoveredPlayerView view, MatchState state, List<string> errors)
     {
         if (view.SnapshotTick != state.Tick) return;
-        foreach (var skill in state.StackItems.Where(i => i.UnitEvent?.Origin?.ArmamentGranted == true || i.StandbyObserver is not null
+        foreach (var skill in state.StackItems.Where(i => i.TimingAlias is not null || i.UnitEvent?.Origin?.ArmamentGranted == true || i.StandbyObserver is not null
             || i.SourceConfirmed && i.PermanentPlaySource is null
                 && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, i)))
         {
@@ -37,7 +37,7 @@ public static partial class MatchRecoveryValidator
             Require("cardNo", skill.CardNo);
             Require("effectKind", skill.EffectKind);
             Require("controllerId", skill.ControllerId);
-            if (skill.UnitEvent?.Origin?.ArmamentGranted != true && skill.StandbyObserver is null
+            if (skill.TimingAlias is null && skill.UnitEvent?.Origin?.ArmamentGranted != true && skill.StandbyObserver is null
                 && (!TryReadObjectBool(payload, "playAbility", out var playAbility) || !playAbility))
                 errors.Add($"snapshot for {view.PlayerId} ordinary play skill {skill.StackItemId} must retain playAbility");
         }
