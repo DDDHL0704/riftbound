@@ -320,6 +320,8 @@ public static class TriggerKinds
         "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     public const string UnitLastBreathCallRunesThenDraw =
         "UNIT_LAST_BREATH_CALL_DORMANT_RUNES_THEN_DRAW";
+    public const string UnitLastBreathRecycleSelfReadyAllRunes =
+        "UNIT_LAST_BREATH_RECYCLE_SELF_READY_ALL_RUNES";
     public const string UnitLastBreathCreateDormantGold =
         "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     public const string UnitLastBreathDiscardDraw =

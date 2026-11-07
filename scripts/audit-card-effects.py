@@ -1530,6 +1530,103 @@ def boon_mode_activation_route(card: dict, clause: dict, sources: Sources) -> di
                   paths)
 
 
+def last_breath_recycle_runes_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize("{{绝念}}—回收我，以此让你的所有符文变为活跃状态。")
+    if normalize(unparenthesize(clause["text"])) != sentence:
+        return None
+    expected = dict(kind="UNIT_LAST_BREATH_RECYCLE_SELF_READY_ALL_RUNES", timing="UNIT_DESTROYED",
+                    targetScope="SOURCE_UNIT", recycleCount=1, recycleSourceZone="GRAVEYARD",
+                    recycleDestinationZone="MAIN_DECK", runeReadyCount=None, runeCallCount=None, drawCount=None)
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == sentence \
+        and card.get("cardCategory") in {"unit", "hero_unit"} \
+        and any(b.get("playsSourceToBaseAsUnit") for b in card.get("behaviors", []))
+    exact = exact and any(
+        all(entry.get("node", {}).get(k) == v for k, v in expected.items())
+        and normalize(unparenthesize(entry["node"].get("text", ""))) == sentence
+        and not any(meaningful(v) for k, v in entry["node"].items() if k not in {*expected, "text", "reason"})
+        and "UnitDestroyedTriggerSpecRules.IsLastBreathRecycleSelfReadyAllRunesTrigger" in entry.get("predicates", [])
+        for entry in card.get("triggers", []))
+
+    def member(path, name, class_marker=None):
+        if path in sources.files:
+            code = sources.files[path]
+        elif path == "src/Riftbound.CardCatalog/RuleTextParsers.cs":
+            try:
+                code = re.sub(r"/\*.*?\*/|//[^\n]*", "", (sources.root / path).read_text(), flags=re.S)
+            except OSError:
+                code = ""
+        else:
+            code = ""
+        if class_marker:
+            code = code.split(class_marker, 1)[-1]
+        start = re.search(r"(?m)^    (?:private|internal|public) static [^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        rest = code[start.start():]
+        end = re.search(r"(?m)^    (?:private|internal|public) static ", rest[start.end() - start.start():])
+        return rest[:start.end() - start.start() + end.start()] if end else rest
+
+    engine = "src/Riftbound.Engine/"
+    checks = [
+        ("CoreRuleEngine.DeathObservers.cs", "CaptureUnitDeath", [
+            "RuneCalls = CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId)"]),
+        ("CoreRuleEngine.LastBreathRuneCall.cs", "CaptureLastBreathRuneCalls", [
+            "UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(instance.CardNo)", "before.ObjectGeneration"]),
+        ("UnitDestroyedTriggerSpecRules.cs", "LastBreathRuneCallTriggers", [
+            "IsLastBreathRecycleSelfReadyAllRunesTrigger(t)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", [
+            "HasLastBreathSourceRecycleCost(item) ? new(RecycleSelf: true)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices", ["LastBreathSourceRecycleChoices(state, item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoice", ["RecycleSelf: false", "? OptionalTriggerWindow : TriggerCostWindow"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostChoice", ["!HasLastBreathSourceRecycleCost(item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostSourceGeneration", ["item.LastBreathRuneCall!.Source.Generation + 1"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ResolveTriggerCostChoice", ["PayLastBreathSourceRecycleCost(state, item, selected)"]),
+        ("CoreRuleEngine.TriggerRecycleCost.cs", "HasLastBreathSourceRecycleCost", [
+            "TryGetLastBreathRuneCallSpec(context, out var spec)", "IsLastBreathRecycleSelfReadyAllRunesTrigger(spec)"]),
+        ("CoreRuleEngine.TriggerRecycleCost.cs", "LastBreathSourceRecycleChoices", [
+            "ValidLastBreathRuneCallStack(state, item)", "IsTokenObject(source)",
+            "source.ObjectGeneration != TriggerCostSourceGeneration(item)", "owner.Graveyard.Contains(source.ObjectId"]),
+        ("CoreRuleEngine.TriggerRecycleCost.cs", "PayLastBreathSourceRecycleCost", [
+            "selected.Count != 1", "selected.SequenceEqual(LastBreathSourceRecycleChoices(state, item))",
+            "RecycleGraveyardCards(state, zones, cards, source.OwnerId!, source.ObjectId,",
+            "recyclingPlayerId: item.ControllerId", "SourceWasRecycled = true", "return CompleteTriggerCost("]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostReceipt", [
+            "receipt.Source.Generation != TriggerCostSourceGeneration(item)", "receipt.SourceWasRecycled != cost.RecycleSelf",
+            "recycled.ObjectGeneration <= receipt.Source.Generation"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "CompleteTriggerCost", [
+            "HasLastBreathSourceRecycleCost(item) ? ResolutionResult.VisibleObjectIdForViewer("]),
+        ("CoreRuleEngine.cs", "RecycleGraveyardCards", [
+            "recyclingPlayerId ?? playerId", "MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray()",
+            "CaptureRecycleObservers(new GameEvent("]),
+        ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
+            "or TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes", "return ResolveUnitLastBreathCallRuneStackItem(state, stackItem)"]),
+        ("CoreRuleEngine.cs", "ResolveUnitLastBreathCallRuneStackItem", [
+            "stackItem.EffectKind == TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes", "return ResolveLastBreathReadyAllRunes(state, stackItem)"]),
+        ("CoreRuleEngine.LastBreathRuneCall.cs", "ResolveLastBreathReadyAllRunes", [
+            "item.TriggerCost is not { SourceWasRecycled: true }", "ValidTriggerCostReceipt(state, item)",
+            "z.Base.Concat(z.Battlefields)", "CardObjectTags.RuneCard", "!rune.IsFaceDown",
+            "EffectiveFieldControllerId(zones, id, rune) == item.ControllerId",
+            "ApplyReadyState(cards[id], behavior, visible, id", "ResolutionResult.VisibleObjectIdForViewer("]),
+        ("MatchRecovery.cs", "Validate", ["ValidateFrame("]),
+        ("MatchRecovery.cs", "ValidateFrame", ["ValidateLastBreathRecycleCostHistory(authoritativeState, commands, events, errors)"]),
+        ("MatchRecovery.LastBreathRecycleCost.cs", "ValidateLastBreathRecycleCostHistory", [
+            'e.Event.Kind == "CARDS_RECYCLED"', '"sourceGeneration"', '"deathId"', '"cardIds"',
+            'e.Event.Kind == "TRIGGER_CONFIRMED"', "command.Accepted", "CommandTypes.ChooseCards",
+            "command.CompletedTick == recycled[0].Tick", "command.CompletedEventSequence >= confirmed[0].Sequence",
+            "choices[0].Trim() == receipt.Source.ObjectId"]),
+    ]
+    exact = exact and all(all(token in member(engine + file, name) for token in tokens)
+                          for file, name, tokens in checks)
+    parser = "src/Riftbound.CardCatalog/RuleTextParsers.cs"
+    exact = exact and "TryParseUnitLastBreathRecycleSelfReadyAllRunes(text, out var recycledSourceRunes)" \
+        in member(parser, "Parse", "public static class TriggerParser")
+    exact = exact and "UnitLastBreathRecycleSelfReadyAllRunes" \
+        in sources.files.get(engine + "MatchRecovery.LastBreathRuneCall.cs", "")
+    evidence = sorted({engine + file for file, _, _ in checks} | {parser})
+    return result("route", "确认时回收同一死亡后的原来源，保留已付历史，响应后活跃技能控制者当前场上全部符文", evidence) if exact else result(
+        "missing", "缺少原死亡废牌代际的回收确认费用、已接受付款凭据或全部当前友方场上符文的独立活跃结算", evidence)
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
@@ -1537,6 +1634,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
             return reviewed
         return matched
     kind = clause["kind"]
+    if recycle_runes := last_breath_recycle_runes_route(card, clause, sources):
+        return recycle_runes
     if boon_mode := boon_mode_activation_route(card, clause, sources):
         return boon_mode
     if provided := provided_armament_keyword_route(card, clause, sources):

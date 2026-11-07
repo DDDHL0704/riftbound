@@ -1224,6 +1224,7 @@ public static partial class MatchRecoveryValidator
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateNamedConquestActivationHistory(authoritativeState, commands, events, errors);
+            ValidateLastBreathRecycleCostHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
             ValidateStandbyHandPlayPaymentHistory(authoritativeState, commands, events, errors);
             errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));

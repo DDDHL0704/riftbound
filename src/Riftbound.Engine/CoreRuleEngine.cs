@@ -4581,7 +4581,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> recycledObjectIds,
-        string reason = "ADDITIONAL_COST")
+        string reason = "ADDITIONAL_COST",
+        string? recyclingPlayerId = null)
     {
         var events = new List<GameEvent>();
         var rngCursor = state.RngCursor;
@@ -4611,10 +4612,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         events.Add(CaptureRecycleObservers(new GameEvent(
             "CARDS_RECYCLED",
-            $"{playerId} 回收 {randomizedCardIds.Count} 张牌",
+            $"{recyclingPlayerId ?? playerId} 回收 {randomizedCardIds.Count} 张牌",
             new Dictionary<string, object?>
             {
-                ["playerId"] = playerId,
+                ["playerId"] = recyclingPlayerId ?? playerId,
                 ["sourceObjectId"] = sourceObjectId,
                 ["cardIds"] = recycledObjectIds.Order(StringComparer.Ordinal).ToArray(),
                 ["count"] = randomizedCardIds.Count,
@@ -23892,7 +23893,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
         }
 
-        if (stackItem.EffectKind is TriggerKinds.UnitLastBreathCallRuneOne or TriggerKinds.UnitLastBreathCallRunesThenDraw)
+        if (stackItem.EffectKind is TriggerKinds.UnitLastBreathCallRuneOne or TriggerKinds.UnitLastBreathCallRunesThenDraw
+            or TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes)
         {
             return ResolveUnitLastBreathCallRuneStackItem(state, stackItem);
         }
@@ -26851,6 +26853,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        if (stackItem.EffectKind == TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes)
+            return ResolveLastBreathReadyAllRunes(state, stackItem);
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>

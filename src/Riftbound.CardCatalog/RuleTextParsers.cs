@@ -675,6 +675,11 @@ public static class TriggerParser
             triggers.Add(unitLastBreathRuneDrawTrigger);
         }
 
+        if (TryParseUnitLastBreathRecycleSelfReadyAllRunes(text, out var recycledSourceRunes))
+        {
+            triggers.Add(recycledSourceRunes);
+        }
+
         var hasUnitLastBreathCreateDormantGoldTrigger =
             TryParseUnitLastBreathCreateDormantGold(text, out var unitLastBreathCreateDormantGoldTrigger);
         if (hasUnitLastBreathCreateDormantGoldTrigger)
@@ -930,6 +935,20 @@ public static class TriggerParser
             TriggerTimings.UnitDestroyed, match.Value.Trim(),
             "One mandatory last-breath skill calls dormant runes, then draws within the same resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit, RuneCallCount: runes, DrawCount: draws);
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathRecycleSelfReadyAllRunes(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(text,
+            @"(?:^|[\r\n])[ \t]*\{\{绝念>?\}\}\s*[—-]?\s*回收我，以此让你的所有符文变为活跃状态(?=[。（(\r\n]|$)",
+            RegexOptions.CultureInvariant);
+        if (!match.Success) return false;
+        trigger = new(TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes, TriggerTimings.UnitDestroyed,
+            match.Value.Trim(), "CN 383.3.b: recycle the destroyed source while confirming, then ready the controller's runes on resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit, RecycleCount: 1,
+            RecycleSourceZone: TriggerZones.Graveyard, RecycleDestinationZone: TriggerZones.MainDeck);
         return true;
     }
 

@@ -12,7 +12,8 @@ public static partial class MatchRecoveryValidator
     private static void ValidateLastBreathRuneCallState(MatchState state, List<string> errors)
     {
         bool NeedsCapturedBirth(string? cardNo, string kind)
-            => kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathCallRunesThenDraw
+            => kind is Riftbound.Contracts.TriggerKinds.UnitLastBreathCallRunesThenDraw
+                    or Riftbound.Contracts.TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes
                 || UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(cardNo).Any(t => t.Kind == kind && t.RequiresSourceEmpowered is not null);
         foreach (var item in state.StackItems)
             if (item.LastBreathRuneCall is not null ? !CoreRuleEngine.ValidLastBreathRuneCallStack(state, item)
