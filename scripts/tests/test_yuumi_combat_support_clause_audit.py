@@ -58,6 +58,28 @@ class YuumiCombatSupportClauseAuditTests(unittest.TestCase):
         self.assertEqual("route", audit.audit_clause(value, audit.card_clauses(value)[0],
             audit.Sources(audit.ROOT, []))["status"])
 
+    def test_shared_exact_timing_dispatch_is_followed_and_must_be_used(self):
+        direct = 'spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"'
+        call = 'UnitEventTimingMatches(spec.Timing, timing)'
+        body = 'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true'
+        shared = UNITS.replace(direct, call) + '\n    private static bool UnitEventTimingMatches(string declared, string timing) => ' + body + ';\n'
+        self.units.write_text(shared)
+        self.assertEqual("route", self.outcome())
+        for token in (call, body):
+            with self.subTest(token=token):
+                self.units.write_text(shared.replace(token, "disabled"))
+                self.assertEqual("missing", self.outcome())
+
+    def test_substring_timing_or_an_unused_exact_matcher_cannot_certify_both_roles(self):
+        direct = 'spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"'
+        body = 'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true'
+        shared = UNITS.replace(direct, 'UnitEventTimingMatches(spec.Timing, timing)')
+        for wrong in ('declared?.Contains(timing) == true', 'declared == "ATTACK"', 'false'):
+            with self.subTest(wrong=wrong):
+                self.units.write_text(shared + '\n    private static bool UnitEventTimingMatches(string declared, string timing) => ' + wrong
+                    + ';\n    private static bool Unused(string declared, string timing) => ' + body + ';\n')
+                self.assertEqual("missing", self.outcome())
+
     def test_a_base_registration_or_a_might_only_trigger_is_missing(self):
         self.profile = None; self.assertEqual("missing", self.outcome())
         self.profile = dict(timing="ATTACK_OR_DEFEND", effect="MIGHT_FRIENDLY", amount=3)

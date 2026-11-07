@@ -1337,7 +1337,11 @@ def another_friendly_here_grant_route(card: dict, clause: dict, sources: Sources
         resolve = method(units, "ResolveUnitEventInstruction")
     permanent = sources.files.get(prefix + "CoreRuleEngine.PermanentUnitEvents.cs", "")
     here = method(permanent, "UnitEventTargetIsHere")
-    exact = exact and 'spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"' in capture \
+    role_timing = 'spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"' in capture \
+        or 'UnitEventTimingMatches(spec.Timing, timing)' in capture \
+            and 'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true' \
+                in method(units, "UnitEventTimingMatches")
+    exact = exact and role_timing \
         and 'CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")' in method(units, "CaptureAttackUnitEvents") \
         and "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role)" in method(units, "CaptureRoleUnitEvents")
     exact = exact and all(symbol in targets for symbol in [".TargetsAnotherFriendlyHere", "c.ObjectId != item.SourceObjectId",
