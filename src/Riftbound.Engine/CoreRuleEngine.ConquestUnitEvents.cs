@@ -102,14 +102,17 @@ public sealed partial class CoreRuleEngine
             state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), state.RunePools,
             explicitDestroyObjectIds: new HashSet<string> { gear }, explicitDestroyReason: "SKILL_EFFECT",
             objectLocations: locations);
-        var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, destruction.RunePools,
-            objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn:
-                state.DestroyedUnitOwnerIdsThisTurn.Concat(destruction.DestroyedUnitOwnerIds));
-        var events = destruction.Events.Concat(cleanup.Events).ToList();
+        var events = destruction.Events.ToList();
         if (destruction.DestroyedObjectIds.Contains(gear)
             && cards.TryGetValue(item.SourceObjectId, out var host) && host.ObjectGeneration == item.UnitEvent!.SourceGeneration
             && IsFaceUpNonStandbyUnit(host) && IsObjectOnField(zones, host.ObjectId))
             GrantLegendBoon(cards, host.ObjectId, item.ControllerId, host.ObjectId, item.EffectKind, events, zones);
+        // Complete the dependent boon instruction before state-based cleanup:
+        // losing an armament's might must not kill a host saved by this boon.
+        var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, destruction.RunePools,
+            objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn:
+                state.DestroyedUnitOwnerIdsThisTurn.Concat(destruction.DestroyedUnitOwnerIds));
+        events.AddRange(cleanup.Events);
         for (var i = 0; i < events.Count; i++)
             if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))
                 events[i] = events[i] with { Payload = new Dictionary<string, object?>(events[i].Payload) { ["sourceObjectId"] = source } };

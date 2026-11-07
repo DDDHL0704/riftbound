@@ -86,6 +86,22 @@ public sealed partial class ArmamentHoldConquestAliasTests
     }
 
     [Fact]
+    public async Task DestroyingItsOwnArmamentGrantsTheSavingBoonBeforeStateBasedCleanup()
+    {
+        var initial = Board("OGN·056/298");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { Damage = 3 } } };
+        var game = new Driver(initial); await Conquer(game);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ARMAMENT0"]));
+        await game.Top();
+        Assert.Contains("ARMAMENT0", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("HOST", game.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(1, game.State.CardObjects["HOST"].BoonCount);
+        Assert.Equal(4, Power(game.State, "HOST")); await game.Replay();
+    }
+
+    [Fact]
     public async Task EquipmentDestructionSurvivesTheSourceButDoesNotGiveABoonToItsNewHandIncarnation()
     {
         var initial = RadGearTestPosition.Put(Board("OGN·056/298"), "ENEMY-GEAR", "SFD·022/221", "P2", "BASE");
