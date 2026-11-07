@@ -23518,6 +23518,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem)
     {
+        // Parsed source play skills own this instruction and resolve it after
+        // responses. The legacy permanent declaration must not also create a
+        // token while the source is being confirmed (CN 359.2, 383.2-383.3).
+        if (behavior.PlaysSourceToBaseAsUnit
+            && SourceUnitTokenSpecs.Value.TryGetValue(behavior.CardNo, out var sourceTokens)
+            && sourceTokens.Timing is TriggerTimings.SourceUnitPlayed or TriggerTimings.SourceUnitPlayedOrScored)
+            return false;
+
         return behavior.CreatedBaseUnitTokenConditionKind switch
         {
             CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid

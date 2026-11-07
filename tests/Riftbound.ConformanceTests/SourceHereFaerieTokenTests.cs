@@ -13,6 +13,27 @@ public sealed class SourceHereFaerieTokenTests
 
     [Theory]
     [InlineData("BASE")] [InlineData("BATTLEFIELD:BF")]
+    public async Task HunterCreatesOnlyOneDormantWarhawkThroughTheSharedHereSkill(string destination)
+    {
+        const string hunter = "UNL-033/219";
+        var game = new Driver(VenUnitEntryBasicTests.Position(hunter));
+        await game.Act("P1", new PlayCardCommand("UNIT", hunter, [], Destination: destination));
+        Assert.DoesNotContain(game.State.CardObjects.Values, card => card.TokenFactoryCardNo == P6TokenFactoryCatalog.WarhawkTokenCardNo);
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "UNIT_TOKEN_CREATED");
+        Assert.Equal("PLAY", Assert.Single(game.State.StackItems).SourceUnitTokens!.Timing);
+        var expected = game.State.ObjectLocations["UNIT"];
+        await game.Top();
+        var warhawk = Assert.Single(game.State.CardObjects.Values,
+            card => card.TokenFactoryCardNo == P6TokenFactoryCatalog.WarhawkTokenCardNo);
+        Assert.Equal(1, warhawk.Power); Assert.True(warhawk.IsExhausted);
+        Assert.Contains(CardObjectTags.Spellshield, warhawk.Tags);
+        Assert.Equal(expected, game.State.ObjectLocations[warhawk.ObjectId]);
+        Assert.Single(game.Events(), entry => entry.Event.Kind == "UNIT_TOKEN_CREATED");
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("BASE")] [InlineData("BATTLEFIELD:BF")]
     public async Task MotherCreatesOneActiveEphemeralFaerieHereAfterThePlaySkillResponseWindow(string destination)
     {
         var game = new Driver(VenUnitEntryBasicTests.Position(Mother));
