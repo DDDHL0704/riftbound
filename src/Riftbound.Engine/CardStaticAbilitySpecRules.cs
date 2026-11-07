@@ -39,6 +39,9 @@ internal static class CardStaticAbilitySpecRules
     public static bool IsSourceUnitPlayToOpenBattlefield(StaticAbilitySpec ability)
         => ability.Kind == StaticAbilityKinds.SourceUnitPlayToOpenBattlefield;
 
+    public static bool IsSourceUnitPlayToEnemyControlledBattlefield(StaticAbilitySpec ability)
+        => ability.Kind == StaticAbilityKinds.SourceUnitPlayToEnemyControlledBattlefield;
+
     public static bool IsFriendlyUnitPlayToOpenBattlefield(StaticAbilitySpec ability)
         => ability.Kind == StaticAbilityKinds.FriendlyUnitPlayToOpenBattlefield;
 

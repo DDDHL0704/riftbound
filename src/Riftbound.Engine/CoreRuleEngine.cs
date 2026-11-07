@@ -3702,6 +3702,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration, ControllerId = intent.PlayerId };
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryCommitBoonPlayCosts(state, intent.PlayerId, command.SourceObjectId, behavior, playerZones, cardObjects, paymentEvents))
+            return RejectWithCorePrompts(state, "无法支付所选增益额外费用。", ErrorCodes.InvalidTarget);
         if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, plan.PaymentResourceActions,
                 playerZones, ref cardObjects, objectLocations, ref runePools, paymentEvents, paymentWindow, paymentId))
             return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
@@ -18130,6 +18132,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!TryApplyBoonPlayCosts(state, intent.PlayerId, behavior, command.OptionalCosts ?? [], out behavior))
+        {
+            rejection = Reject(state, "无效的增益额外费用。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (!TryBuildOptionalCostPlan(
                 state,
                 intent.PlayerId,
@@ -18312,6 +18320,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !DeployedEquipmentDestinationAllowed(state, behavior, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
                 && !OpenBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
+                && !EnemyControlledBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                     && !GrantedUnitPlayBattlefieldAllowed(state, intent.PlayerId, behavior, destination)
                 && !PaidBattlefieldUnitPlayDestination(optionalCosts, destination)
                 && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
@@ -21995,6 +22004,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         returnedAdditionalCostTargetObjectIds = [];
         discardedOptionalCostTargetObjectIds = [];
 
+        var boonChoices = normalizedOptionalCosts.Where(IsBoonPlayCost).ToArray();
+        if (boonChoices.Length > 0)
+        {
+            if (!TrySelectBoonPlayCosts(state, playerId, behavior, optionalCosts ?? [], out _)) return false;
+            return TryBuildOptionalCostPlan(state, playerId, normalizedOptionalCosts.Where(cost => !IsBoonPlayCost(cost)).ToArray(),
+                behavior, out _, out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds, out discardedOptionalCostTargetObjectIds);
+        }
+
         if (!VariableAdditionalPowerCostRules.TryExtract(optionalCosts ?? [], behavior.MayPayAnyAdditionalPower,
                 out var remainingVariableCosts, out var variablePower, out var variablePowerDeclared)
             || EffectPlayIgnoresAllCosts(state, playerId) && variablePower != 0) return false;
@@ -23512,8 +23531,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool EnemyUnitDestroyedThisTurn(MatchState state, string playerId)
     {
-        return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
-            !string.Equals(ownerPlayerId, playerId, StringComparison.Ordinal));
+        // CN 740.1.b: enemy means opposition of controllers at the event.
+        // The shared death ledger captures that relation before the owner receives
+        // the card in a non-field zone and clears it at the next turn boundary.
+        return state.DeathLedger.TurnNumber == state.TurnNumber
+            && state.DeathLedger.Counts.Any(entry => entry.Key != playerId && entry.Value > 0);
     }
 
     private static int HighestControlledUnitPower(MatchState state, string playerId)
