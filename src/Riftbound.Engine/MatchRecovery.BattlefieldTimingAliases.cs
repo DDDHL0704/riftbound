@@ -21,14 +21,17 @@ public static partial class MatchRecoveryValidator
     private static void ValidateBattlefieldTimingAliases(MatchState state, List<string> errors)
     {
         foreach (var item in state.StackItems)
-            if (!CoreRuleEngine.ValidTimingAlias(state, item.TimingAlias, item.SourceObjectId,
+            if (!CoreRuleEngine.ValidTimingCopiedOrigin(state, CoreRuleEngine.TimingCaptureContext(item), item.SourceObjectId)
+                || !CoreRuleEngine.ValidTimingAlias(state, item.TimingAlias, item.SourceObjectId,
                 item.ControllerId, CoreRuleEngine.TimingCaptureContext(item))) errors.Add("invalid battlefield timing alias stack");
         foreach (var trigger in state.TriggerQueue)
-            if (!CoreRuleEngine.ValidTimingAlias(state, trigger.TimingAlias, trigger.SourceObjectId,
+            if (!CoreRuleEngine.ValidTimingCopiedOrigin(state, CoreRuleEngine.TimingCaptureContext(trigger), trigger.SourceObjectId)
+                || !CoreRuleEngine.ValidTimingAlias(state, trigger.TimingAlias, trigger.SourceObjectId,
                 trigger.ControllerId, CoreRuleEngine.TimingCaptureContext(trigger))) errors.Add("invalid battlefield timing alias queue");
         if (state.PendingEffectPlay?.Parent is { } parent
-            && !CoreRuleEngine.ValidTimingAlias(state, parent.TimingAlias, parent.SourceObjectId,
-                parent.ControllerId, CoreRuleEngine.TimingCaptureContext(parent))) errors.Add("invalid battlefield timing alias effect-play parent");
+            && (!CoreRuleEngine.ValidTimingCopiedOrigin(state, CoreRuleEngine.TimingCaptureContext(parent), parent.SourceObjectId)
+                || !CoreRuleEngine.ValidTimingAlias(state, parent.TimingAlias, parent.SourceObjectId,
+                    parent.ControllerId, CoreRuleEngine.TimingCaptureContext(parent)))) errors.Add("invalid battlefield timing alias effect-play parent");
         foreach (var gain in state.DelayedResourceGains)
             if (!CoreRuleEngine.ValidTimingAlias(state, gain.TimingAlias, gain.SourceObjectId, gain.ControllerId, gain))
                 errors.Add("invalid battlefield timing alias delayed ability");

@@ -77,6 +77,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidCapturedConquestGrant(MatchState state, UnitConquestContext context, string unitId)
     {
+        if (context.Origin is { } copied && (context.TemporaryGrant is not null
+            || !AttachedRuleTextRules.ValidCaptured(state, copied, unitId, context.SourceGeneration, context.CardNo))) return false;
         if (context.Activation is { } activation && !ValidNamedConquestActivation(state, activation, context.BattlefieldId)) return false;
         if (context.TemporaryGrant is null) return true;
         if (!ValidConquestGrant(context.TemporaryGrant, context.SourceGeneration, state.TurnNumber, unitId)) return false;

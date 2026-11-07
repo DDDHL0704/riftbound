@@ -9,6 +9,8 @@ public sealed record UnitConquestContext(string CardNo, long SourceGeneration, s
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public NamedConquestActivationOrigin? Activation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RuleTextInstanceBinding? Origin { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -24,20 +26,27 @@ public sealed partial class CoreRuleEngine
             && (no is null || no==c.CardNo) && ConquestDamageDefinition(c.CardNo) is { } spec
             && (!spec.RequiresUncontrolledBattlefield || c.PreviousControllerId is null);
 
-    private static IEnumerable<TriggerQueueItemState> CaptureConquestDamage(MatchState before,MatchState after,string player,
-        string field,IReadOnlyList<string> units,long tick, NamedConquestActivationOrigin? activation = null, string? observedEventKind = null)
+    private static IEnumerable<TriggerQueueItemState> CaptureConquestDamage(MatchState before, MatchState after, string player,
+        string field, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null,
+        string? observedEventKind = null)
     {
         var eventKind = observedEventKind ?? ConquestCaptureReason(activation);
-        if (!before.BattlefieldStates.TryGetValue(field,out var battlefield)) yield break;
-        foreach(var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        if (!before.BattlefieldStates.TryGetValue(field, out var battlefield)) yield break;
+        foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
-            if (!after.CardObjects.TryGetValue(id,out var source) || source.CardNo is null || source.ControllerId!=player
-                || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.IsFaceDown
-                || BattlefieldLocalRules.AtUnit(after,id)?.ObjectId!=field || ConquestDamageDefinition(source.CardNo) is not { } spec
-                || spec.RequiresUncontrolledBattlefield && battlefield.ControllerId is not null) continue;
-            var repeats=ResolveUnitConquestEffectRepeatCount(after.PlayerZones,after.CardObjects,after.ObjectLocations,player,field,eventKind);
-            for(var i=0;i<repeats;i++) yield return new TriggerQueueItemState($"conquest-damage-{tick}-{field}-{id}-{i}",player,id,ConquestDamageEffect,eventKind) {
-                UnitConquest=new(source.CardNo,source.ObjectGeneration,field,battlefield.ControllerId) { Activation = activation } };
+            if (!after.CardObjects.TryGetValue(id, out var source) || source.ControllerId != player
+                || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard)
+                || BattlefieldLocalRules.AtUnit(after, id)?.ObjectId != field) continue;
+            foreach (var instance in AttachedRuleTextRules.Instances(after, source))
+            {
+                if (ConquestDamageDefinition(instance.CardNo) is not { } spec
+                    || spec.RequiresUncontrolledBattlefield && battlefield.ControllerId is not null) continue;
+                var repeats = ResolveUnitConquestEffectRepeatCount(after.PlayerZones, after.CardObjects, after.ObjectLocations, player, field, eventKind);
+                for (var i = 0; i < repeats; i++) yield return new TriggerQueueItemState($"conquest-damage-{tick}-{field}-{id}-{i}"
+                    + (instance.Origin is null ? "" : ":" + instance.Id), player, id, ConquestDamageEffect, eventKind) {
+                    UnitConquest = new(instance.CardNo, source.ObjectGeneration, field, battlefield.ControllerId) {
+                        Activation = activation, Origin = instance.Origin } };
+            }
         }
     }
     private static string[] ConquestDamageTargets(MatchState state,StackItemState item)

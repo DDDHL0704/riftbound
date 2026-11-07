@@ -2128,7 +2128,7 @@ public sealed partial record ResolutionResult(
             ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
             ["deathObserver"] = CoreRuleEngine.PublicDeathObserver(item.DeathObserver),
             ["movementObserver"] = CoreRuleEngine.PublicMovementObserver(item.MovementObserver),
-            ["unitConquest"] = item.UnitConquest,
+            ["unitConquest"] = item.UnitConquest is { } conquest ? conquest with { Origin = null } : null,
             ["reflexiveDuel"] = item.ReflexiveDuel,
             ["beginningRecycle"] = item.BeginningRecycle,
             ["beginningDraw"] = item.BeginningDraw,

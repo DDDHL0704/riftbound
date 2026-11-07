@@ -96,6 +96,10 @@ public sealed partial class CoreRuleEngine
 
     internal static string DelayedTimingCaptureHash(DelayedResourceGain gain) => MatchStateHasher.HashValue(gain);
 
+    internal static bool ValidTimingCopiedOrigin(MatchState state, object? context, string source)
+        => context is not RecastTriggerContext { Origin: { } origin } recast
+            || AttachedRuleTextRules.ValidCaptured(state, origin, source, recast.SourceGeneration, recast.CardNo);
+
     internal static bool ValidTimingAlias(MatchState state, BattlefieldTimingAlias? alias, string source,
         string controller, object? context)
     {
