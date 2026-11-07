@@ -193,7 +193,8 @@ public sealed partial class CoreRuleEngine
         return result with { State = state, Events = item.AttachmentObserver is not null
             ? result.Events.Append(AttachmentPaymentOpened(item, state.PendingPayment!)).ToArray()
             : item.BattlefieldConquestMight is not null ? result.Events.Append(BattlefieldConquestMightPaymentOpened(item, state.PendingPayment!)).ToArray()
-            : item.UnitConquestReturn is not null ? result.Events.Append(UnitConquestReturnPaymentOpened(item, state.PendingPayment!)).ToArray() : result.Events,
+            : item.UnitConquestReturn is not null && state.PendingPayment is not null
+                ? result.Events.Append(UnitConquestReturnPaymentOpened(item, state.PendingPayment)).ToArray() : result.Events,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
@@ -214,8 +215,10 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTriggerCostChoice(MatchState state, PendingCardChoiceState choice)
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
-        if (item is null || item.HeldContext is null && item.BattlefieldStart is null && item.BattlefieldConquestConsumeBoon is null && item.LegendConquest?.Kind != "EXHAUST_DECK_PLAY" && item.SivirRuneRecycle is null && item.UnitEvent is null && !HasFieldSourceExhaustCost(item) && !HasPlayGraveyardBanishCost(item) || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0, Mana: 0 }
+        if (item is null || item.HeldContext is null && item.BattlefieldStart is null && item.BattlefieldConquestConsumeBoon is null && item.LegendConquest?.Kind != "EXHAUST_DECK_PLAY" && item.SivirRuneRecycle is null && item.UnitEvent is null && !HasFieldSourceExhaustCost(item) && !HasPlayGraveyardBanishCost(item) && !HasGraveyardConquestDiscardCost(item) || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0, Mana: 0 }
             || item.BattlefieldConquestConsumeBoon is { } boon && !ValidBattlefieldConquestConsumeBoonContext(state, boon,
+                item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo)
+            || item.UnitConquestReturn is { } returned && !ValidUnitConquestReturnContext(state, returned,
                 item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo)) return false;
         var expected = TriggerCostChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
@@ -388,6 +391,11 @@ public sealed partial class CoreRuleEngine
             events.Add(new("CARD_DISCARDED", "弃置所选手牌作为触发技能费用", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = card.ObjectId,
                 ["destinationZone"] = "GRAVEYARD", ["reason"] = TriggerCostWindow }));
+            if (HasGraveyardConquestDiscardCost(item))
+                events[^1] = events[^1] with { Payload = new Dictionary<string, object?>(events[^1].Payload) {
+                    ["sourceGeneration"] = TriggerCostSourceGeneration(item), ["targetGeneration"] = card.ObjectGeneration,
+                    ["stackItemId"] = item.StackItemId, ["choiceId"] = "TRIGGER-COST:" + item.StackItemId,
+                    ["choiceWindow"] = TriggerCostWindow } };
         }
         if (LeadingTriggerCost(item)!.Exhaust)
         {

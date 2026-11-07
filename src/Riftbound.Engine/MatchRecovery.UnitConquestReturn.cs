@@ -6,7 +6,7 @@ public static partial class MatchRecoveryValidator
 {
     private static bool IsUnitConquestReturnEffect(string? effect)
         => UnitConquestTriggerSpecRules.TryGetTriggerByEffectKind(effect,
-            UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger, out _);
+            UnitConquestTriggerSpecRules.IsConquestReturnSelfTrigger, out _);
 
     private static bool ValidUnitConquestReturnQueue(MatchState state, TriggerQueueItemState trigger)
     {
@@ -95,6 +95,8 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectString(e.Event.Payload, "sourceCardNo", out var cardNo) && cardNo == context.CardNo
                 && TryReadObjectString(e.Event.Payload, "battlefieldObjectId", out var battlefield) && battlefield == context.BattlefieldObjectId
                 && TryReadObjectLong(e.Event.Payload, "occurrence", out var occurrence) && occurrence == context.Occurrence
+                && (context.OriginZone is null ? !TryReadObjectValue(e.Event.Payload, "sourceOriginZone", out _)
+                    : TryReadObjectString(e.Event.Payload, "sourceOriginZone", out var zone) && zone == context.OriginZone)
                 && (context.TokenFactoryCardNo is null ? !TryReadObjectValue(e.Event.Payload, "tokenFactoryCardNo", out _)
                     : TryReadObjectString(e.Event.Payload, "tokenFactoryCardNo", out var factory) && factory == context.TokenFactoryCardNo)
                 && TryReadObjectString(e.Event.Payload, "effectKind", out var effect) && effect == entry.EffectKind
@@ -108,6 +110,11 @@ public static partial class MatchRecoveryValidator
 
         foreach (var item in state.StackItems.Where(i => i.UnitConquestReturn is not null && i.TriggerCost is not null))
         {
+            if (item.UnitConquestReturn!.OriginZone == TriggerZones.Graveyard)
+            {
+                ValidateConquestDiscardReceiptHistory(item, commands, events, errors);
+                continue;
+            }
             var receipt = item.TriggerCost!;
             var paymentId = "TRIGGER-COST:" + item.StackItemId;
             var payments = events.Where(e => e.Event.Kind == "COST_PAID" && e.Tick >= item.UnitConquestReturn!.ConquestTick

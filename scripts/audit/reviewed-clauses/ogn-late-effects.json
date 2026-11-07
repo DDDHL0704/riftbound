@@ -1305,36 +1305,89 @@
       ],
       "text": "每当你征服一处战场时，你可以选择弃置一张手牌，以此让此牌从废牌堆返回你的手牌。",
       "scope": "每当你征服一处战场时，你可以选择弃置一张手牌，以此让此牌从废牌堆返回你的手牌。",
-      "status": "missing",
-      "reason": "只实现正面5点伤害；缺少在废牌堆中的征服事件监听、可选弃1张手牌费用和独立返手技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "385.2限定来源位于自己废牌堆才观察真实征服；共享征服回手技能捕获所属者、来源代际和原征服记录，弃1张手牌在确认时作为基础费用支付，响应后仅让仍处原废牌堆的旧代际返手；放弃／无手牌不支付，多个副本分别弃牌，竞技场据守激活单位征服不构成此法术的真实征服；来源新牌库编号隐藏，持久化恢复校验绑定已接受的征服与弃牌命令",
+      "rules": "中国区核心规则2026-10-10：124、128、191.5.a.1、203、204.1.c、204.3、383.2–383.3、383.4.g.2、385.2；OGN·252官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 4,
-            "damageAmount": 5,
-            "requiredTargetCount": 1,
-            "targetScope": "ANY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "kind": "CONQUEST_DISCARD_RETURN_SELF_FROM_GRAVEYARD",
+            "timing": "BATTLEFIELD_CONQUERED",
+            "discardCount": 1,
+            "discardSourceZone": "HAND",
+            "discardDestinationZone": "GRAVEYARD",
+            "returnCount": 1,
+            "returnOriginZone": "GRAVEYARD",
+            "returnDestinationZone": "HAND",
+            "optional": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
           "contains": [
-            "\"OGN·252/298\"",
-            "\"SUPER_MEGA_DEATH_ROCKET_DAMAGE_5\""
+            "CaptureGraveyardConquestReturns(state with {",
+            "(context.OriginZone ?? TriggerZones.Battlefield) == spec.ReturnOriginZone",
+            "ResolveGraveyardConquestReturn(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.GraveyardConquestReturn.cs",
+          "contains": [
+            "foreach (var id in own.Graveyard.",
+            "source.OwnerId != controller",
+            "new UnitConquestReturnContext(new(id, source.ObjectGeneration)",
+            "OriginZone = TriggerZones.Graveyard",
+            "current.ObjectGeneration == context.Source.Generation",
+            "TryReturnGraveyardCardToHand(zones, cards, context.ControllerId, context.Source.ObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "HasGraveyardConquestDiscardCost(item) ? new(Discard: true)",
+            "Discard: true, Exhaust: false",
+            "TryDiscardCardFromHand(zones, cards, item.ControllerId, card.ObjectId)",
+            "if (LeadingTriggerCost(item)!.Exhaust)",
+            "[\"targetGeneration\"] = card.ObjectGeneration"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ConquestDiscardReturn.cs",
+          "contains": [
+            "ValidateConquestDiscardReceiptHistory(",
+            "command.CommandType == CommandTypes.ChooseCards",
+            "command.StartedEventSequence < discarded[0].Sequence",
+            "discard receipt is not bound to accepted payment history"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "VisiblePublicSkillSourceObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId)",
+            "VisiblePublicSkillSourceObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GraveyardConquestReturnTests.cs",
+          "methods": [
+            "TheGraveyardOwnerDiscardsAtConfirmationAndReturnsTheOriginalCardAfterResponses",
+            "DecliningTheDiscardKeepsBothTheHandAndGraveyardUnchanged",
+            "NoHandCardCannotConfirmTheOptionalReturn",
+            "TheOfficial385Point2ConditionDoesNotObserveConquestFromAnotherZone",
+            "ARealRecycleResponseCannotReturnTheSourcesNewDeckIncarnation",
+            "TheOpponentAndAnUnrelatedOrStaleHandChoiceCannotPayTheCost",
+            "AnOpponentsConquestDoesNotObserveYourGraveyardCard",
+            "TwoGraveyardCopiesEarnIndependentSkillsAndPaySeparateHandCards",
+            "HoldingAnArenaDoesNotCountAsActuallyConqueringForAGraveyardSpell",
+            "RecoveryBindsTheOriginalGraveyardGenerationToAcceptedConquestHistory",
+            "APaidDiscardReceiptWithoutTheAcceptedDiscardCommandCannotRestore"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

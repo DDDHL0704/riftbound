@@ -5331,6 +5331,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["sourceCardNo"] = conquestReturn.CardNo;
             payload["battlefieldObjectId"] = conquestReturn.BattlefieldObjectId;
             payload["occurrence"] = conquestReturn.Occurrence;
+            if (conquestReturn.OriginZone is not null)
+                payload["sourceOriginZone"] = conquestReturn.OriginZone;
             if (conquestReturn.TokenFactoryCardNo is not null)
                 payload["tokenFactoryCardNo"] = conquestReturn.TokenFactoryCardNo;
         }
