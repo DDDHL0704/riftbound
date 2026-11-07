@@ -23259,25 +23259,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryResolveSourceUnitOptionalReadyPower(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         Dictionary<string, CardObjectState> cardObjects,
         List<GameEvent> events)
     {
-        if (behavior.SourceReadyPowerModifierAdditionalPowerCost <= 0
-            || behavior.SourceReadyPowerModifierAmount == 0)
-        {
-            return false;
-        }
-
-        var requiredTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
-        if (string.IsNullOrWhiteSpace(requiredTrait)
-            || !stackItem.OptionalCosts.Any(optionalCost =>
-                TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var powerTrait)
-                && powerCost == behavior.SourceReadyPowerModifierAdditionalPowerCost
-                && string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal))
-            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
+        if (!SourceOptionalReadyPowerCostWasPaid(behavior, stackItem)
+            || !stackItem.SourceConfirmed || PlayInstructionSource(state, stackItem) is not { } source
+            || !cardObjects.TryGetValue(source.ObjectId, out var sourceState)
+            || sourceState.ObjectGeneration != source.Generation || !IsFaceUpNonStandbyUnit(sourceState)
+            || !IsObjectOnField(playerZones, source.ObjectId))
         {
             return false;
         }
@@ -24253,6 +24246,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ResolveReturnedEquipmentSourceInstruction(state, behavior, stackItem, playerZones, cardObjects, events);
 
             TryResolveSourceUnitOptionalReadyPower(
+                state,
                 playerZones,
                 behavior,
                 stackItem,
