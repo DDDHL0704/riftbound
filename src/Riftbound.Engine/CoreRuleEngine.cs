@@ -5315,6 +5315,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.UnitEvent is { Origin.ArmamentGranted: true } armamentEvent)
+            payload["armamentGrantHash"] = ArmamentUnitEventRules.CaptureHash(armamentEvent);
         if (trigger.DrawHandThreshold is { } threshold) payload["drawHandThreshold"] = threshold;
         if (trigger.BattlefieldConquestMill is { } conquestMill)
             payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;

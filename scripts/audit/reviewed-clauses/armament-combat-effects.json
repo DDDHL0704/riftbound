@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·016/221"
+      ],
+      "text": "当我进攻或防守时，对此处的一名敌方单位造成2点伤害。",
+      "scope": "当我进攻或防守时，对此处的一名敌方单位造成2点伤害。",
+      "location": "armament",
+      "status": "route",
+      "reason": "武装下栏通过共享授予绑定交给当前宿主；真实装配后在宿主进攻或防守时捕获独立单位技能，确认一名此处敌方目标及法盾费用，双方响应后只对该目标造成2点技能伤害。多把弓各自捕获，印刷文本复制不复制其他武装下栏；原始队列哈希约束授予武装、宿主代际与捕获时机。",
+      "rules": "中国区核心718.3、718.5.e–g及719.1（武装效果文本添加至宿主，双方可不同控制者）、383进攻／防守触发、403目标确认、359.3.f.2当前此处、418技能伤害；SFD·016官方中文武装下栏",
+      "runtime": {
+        "armament": {
+          "cardNo": "SFD·016/221",
+          "sourceCardNo": "SFD-016/221",
+          "effectText": "当我进攻或防守时，对此处的一名敌方单位造成2点伤害。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "OfficialArmamentCatalog.All.Select(definition =>",
+            "Regex.Match(definition.EffectText.Trim()",
+            "GrantedByArmament = true",
+            "g.AttachedToObjectId == host.ObjectId",
+            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)",
+            "@\"^当我进攻或防守时[，,]\\s*对此处的一名敌方单位造成(?<amount>[1-9][0-9]*)点伤害[。.]?$\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            ".Concat(ArmamentUnitEventRules.Instances(zones, cards, card))",
+            "spec.GrantedByArmament == (i.Origin?.ArmamentGranted == true)",
+            "ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect => IsFaceUpNonStandbyUnit(c)",
+            "id = \"armament-unit-event-\" + MatchStateHasher.HashValue"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuneDomainReveal.cs",
+          "contains": [
+            "onlyPrimary: spec.Effect == ArmamentUnitEventRules.FixedDamageEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ArmamentUnitEvents.cs",
+          "contains": [
+            "hash != ArmamentUnitEventRules.CaptureHash(context)",
+            "captured armament unit skill differs from its original accepted grant event"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "var sourceId = hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.OrdinaryPlayPrivacy.cs",
+          "contains": [
+            "state.StackItems.Where(i => i.UnitEvent?.Origin?.ArmamentGranted == true",
+            "Require(\"sourceObjectId\", hidden ? \"HIDDEN\" : skill.SourceObjectId);"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentGrantedCombatTriggerTests.cs",
+          "methods": [
+            "NativeBowPlayAndAssemblyGrantTheHostOneIndependentAttackOrDefendDamageSkill",
+            "AnUnattachedBowDoesNotGiveItsEquipmentTextToAnUnarmedUnit",
+            "TwoBowsGrantTwoIndependentSkillsAndCopyingPrintedHostTextDoesNotAddAnother",
+            "ReturningTheHostDetachesTheGrantButKeepsTheEarnedSkillUntilItsCurrentHereBecomesUnavailable",
+            "RecoveryBindsTheGrantToTheOriginalAcceptedQueueAndRejectsForgedBindings",
+            "TargetConfirmationRequiresExactlyOneEnemyHereAndRejectsWrongChoicesAtomically",
+            "GrantedDamagePaysNativeSpellshieldAndAddsDamageBonusesOnlyToTheChosenEnemy"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentGrantedAreaCombatTriggerTests.cs",
+          "methods": [
+            "BowAndCloakKeepTheirIndependentTargetedAndUntargetedInstructions",
+            "TheHostControlsTheGrantedSkillEvenWhenItsArmamentHasADifferentController"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·190/221"
+      ],
+      "text": "当我进攻及防守时，对此处的所有敌方单位各造成2点伤害。",
+      "scope": "当我进攻及防守时，对此处的所有敌方单位各造成2点伤害。",
+      "location": "armament",
+      "status": "route",
+      "reason": "官方武装下栏通过共享授予绑定交给当前宿主；宿主进攻或防守时捕获独立、无目标的全体此处敌方伤害技能，沿用当前此处及共享技能伤害／增伤／清理流程，不支付法盾费用。与反曲之弓同时贴附时分别执行单目标和群体伤害；来源返手不泄露私有对象标识，原始接受的入队事件约束授予来源。",
+      "rules": "中国区核心718.3、718.5.e–g、719.1，383进攻／防守触发，403仅目标指示才选择，359.3.f.2当前此处，418技能伤害；SFD·190官方中文武装下栏",
+      "runtime": {
+        "armament": {
+          "cardNo": "SFD·190/221",
+          "sourceCardNo": "SFD-190/221",
+          "effectText": "当我进攻及防守时，对此处的所有敌方单位各造成2点伤害。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "OfficialArmamentCatalog.All.Select(definition =>",
+            "internal const string AreaDamageEffect = \"DAMAGE_ENEMIES_HERE\";",
+            "new UnitEventAbilitySpec(\"ATTACK_OR_DEFEND\", AreaDamageEffect",
+            "GrantedByArmament = true",
+            "g.AttachedToObjectId == host.ObjectId",
+            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            ".Concat(ArmamentUnitEventRules.Instances(zones, cards, card))",
+            "spec.GrantedByArmament == (i.Origin?.ArmamentGranted == true)",
+            "if (spec.Effect == \"DAMAGE_ENEMIES_HERE\") return ResolveUnitEventAreaDamage(state, item, spec.Amount);",
+            "id = \"armament-unit-event-\" + MatchStateHasher.HashValue"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeployedEquipment.cs",
+          "contains": [
+            "var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);",
+            "var targets = UnitEventEnemiesHere(state, item);",
+            "ApplySpellSkillDamageBonuses(state, item.ControllerId, target,",
+            "RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ArmamentUnitEvents.cs",
+          "contains": [
+            "hash != ArmamentUnitEventRules.CaptureHash(context)",
+            "captured armament unit skill differs from its original accepted grant event"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "var sourceId = hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.OrdinaryPlayPrivacy.cs",
+          "contains": [
+            "state.StackItems.Where(i => i.UnitEvent?.Origin?.ArmamentGranted == true",
+            "Require(\"sourceObjectId\", hidden ? \"HIDDEN\" : skill.SourceObjectId);"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentGrantedAreaCombatTriggerTests.cs",
+          "methods": [
+            "NativeCloakPlayAndAssemblyDamageEveryEnemyHereWithoutTargetingOrSpellshieldPayment",
+            "UnattachedCloakDoesNotGrantItsLowerTextToTheUnit",
+            "BowAndCloakKeepTheirIndependentTargetedAndUntargetedInstructions",
+            "ADepartedCloakHostKeepsItsEarnedIndependentSkillButCannotSupplyHereOrLeakPrivateIds",
+            "RecoveryCannotEraseTheCloakGrantOrInventTargetsForItsUntargetedInstruction",
+            "TheHostControlsTheGrantedSkillEvenWhenItsArmamentHasADifferentController"
+          ]
+        }
+      ]
+    }
+  ]
+}
