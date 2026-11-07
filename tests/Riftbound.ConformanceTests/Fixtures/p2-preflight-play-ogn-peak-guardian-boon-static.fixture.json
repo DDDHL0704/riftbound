@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-peak-guardian-boon-static",
-  "description": "OGN 223 Peak Guardian enters as a unit while boon entry text is deferred.",
+  "description": "OGN 223 Peak Guardian enters exhausted, then its independent play skill gives itself a boon.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·223/298 巅峰守护者",
-      "note": "官方卡面：费用 6；单位；战力 5；打出时给予自身增益，若打出到战场则给予此处所有友方单位增益。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；自身增益、战场目的地和同处友方单位增益路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 5；打出时给予自身增益，若打出到战场则给予此处所有友方单位增益。本 fixture 保留原始打出与让过命令，验证先进入基地、独立打出技能结算后自身获得一个增益，战力成为 6。战场内群体增益另由 GuardianGroupBoonTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "CN 383.4.a.2 / 427.1.b / 702.3 / 703",
+      "note": "打出时技能独立进入结算链；没有增益的原来源在该技能结算时获得一个增益及其 +1 战力。基地打出没有满足后续战场条件。"
     }
   ],
   "roomId": "p2-preflight-ogn-peak-guardian-boon-room",
@@ -101,9 +106,12 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "STACK_ITEM_RESOLVED",
+      "OBJECT_TAG_ADDED",
+      "BOON_GRANTED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
@@ -128,8 +136,8 @@
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-OGN-PEAK-GUARDIAN": {
-          "power": 5,
-          "tags": ["CARD_TYPE:UNIT"],
+          "power": 6,
+          "tags": ["CARD_TYPE:UNIT", "增益"],
           "isExhausted": true
         }
       }

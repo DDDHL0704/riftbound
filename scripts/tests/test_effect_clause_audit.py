@@ -30,6 +30,77 @@ class EffectClauseAuditTests(unittest.TestCase):
         c = card("unused")
         self.assertEqual(["missing", "missing"], [audit.audit_clause(c, r, self.sources)["status"] for r in clauses[1:]])
 
+    def test_a_self_boon_path_cannot_certify_a_later_group_or_targeted_boon_clause(self):
+        self_boon = "当你打出我时，给予我增益。"
+        source = self.engine / "CoreRuleEngine.UnitEvents.cs"
+        source.write_text('var timing = "PLAY"; if (spec.Effect == "BOON_SELF") ResolveSelfBoon();')
+        for other in ["如果你将我打出到一处战场，则给予此处包括我在内的所有友方单位增益。",
+                      "给予一名友方单位增益。"]:
+            with self.subTest(other=other):
+                c = card(self_boon + other, unitEventAbility=dict(timing="PLAY", effect="BOON_SELF"))
+                rows = audit.split_clauses(c["cardEffect"])
+                self.assertEqual(2, len(rows))
+                self.assertEqual("route", audit.audit_clause(c, rows[0], audit.Sources(self.root, []))["status"])
+                self.assertNotEqual("route", audit.audit_clause(c, rows[1], audit.Sources(self.root, []))["status"])
+
+    def test_union_event_timing_requires_the_shared_split_and_capture_consumer(self):
+        text = "当我进攻或防守时，让我的战力提升至与其相同，然后本回合{{S}}+1。"
+        c = card(text)
+        c["unitEventAbility"] = dict(timing="ATTACK_OR_DEFEND", effect="MATCH_POWER_THEN_BUFF")
+        row = audit.split_clauses(text)[0]
+        source = self.engine / "CoreRuleEngine.UnitEvents.cs"
+        split = 'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal)'
+        source.write_text(split + '; if (spec.Effect == "MATCH_POWER_THEN_BUFF") Resolve();')
+        self.assertNotEqual("route", audit.audit_clause(c, row, audit.Sources(self.root, []))["status"])
+        source.write_text(split + '; UnitEventTimingMatches(spec.Timing, timing); '
+                          'if (spec.Effect == "MATCH_POWER_THEN_BUFF") Resolve();')
+        self.assertEqual("route", audit.audit_clause(c, row, audit.Sources(self.root, []))["status"])
+
+    def test_implicit_self_destruction_recycle_is_a_source_activation(self):
+        text = "你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。"
+        row = audit.split_clauses(text, "equipment")[0]
+        self.assertEqual("activated", row["kind"])
+        self.assertEqual(text, row["scope"])
+        ability = dict(kind="DESTROY_SOURCE_RECYCLE_GRAVEYARD", requiredTargetCount=0, maximumTargetCount=4,
+                       sourceRequiredTag="CARD_TYPE:EQUIPMENT",
+                       simpleEffect=dict(destroysSourceAsCost=True, recyclesGraveyardTargets=True))
+        self.assertTrue(audit.activation_matches(ability, row))
+        for change in [dict(maximumTargetCount=3), dict(requiredTargetCount=1), dict(manaCost=1),
+                       dict(exhaustsSourceAsCost=True), dict(sourceRequiredTag="CARD_TYPE:UNIT"), dict(reactionSpeed=True),
+                       dict(simpleEffect=dict(destroysSourceOnResolution=True, recyclesGraveyardTargets=True)),
+                       dict(simpleEffect=dict(destroysSourceAsCost=True)),
+                       dict(simpleEffect=dict(destroysSourceAsCost=True, recyclesGraveyardTargets=True, discardsHandCardAsCost=True))]:
+            with self.subTest(change=change):
+                self.assertFalse(audit.activation_matches(ability | change, row))
+
+    def test_implicit_recycle_requires_specific_cost_target_and_recycle_consumers(self):
+        text = "你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。"
+        ability = dict(abilityId="RECYCLE", kind="DESTROY_SOURCE_RECYCLE_GRAVEYARD", maximumTargetCount=4,
+                       sourceRequiredTag="CARD_TYPE:EQUIPMENT",
+                       simpleEffect=dict(destroysSourceAsCost=True, recyclesGraveyardTargets=True))
+        c = card(text)
+        c["activations"] = [ability]
+        row = audit.split_clauses(text)[0]
+        simple = self.engine / "CoreRuleEngine.SimpleActivatedAbilities.cs"
+        simple.write_text("ability.SimpleEffect; spec.DestroysSourceAsCost ? source.ObjectId; "
+                          "!SimpleActivationTargetCountValid(ability, targets.Count); "
+                          "if (spec.RecyclesGraveyardTargets) return ResolveActivatedGraveyardRecycle(state, item);")
+        self.assertNotEqual("route", audit.audit_clause(c, row, audit.Sources(self.root, []))["status"])
+        recycle = self.engine / "CoreRuleEngine.ActivatedGraveyardRecycle.cs"
+        recycle.write_text("IsAnyGraveyardCard(state, id); RecycleGraveyardCards(state, zones, cards);")
+        self.assertEqual("route", audit.audit_clause(c, row, audit.Sources(self.root, []))["status"])
+        simple.write_text("ability.SimpleEffect; spec.DestroysSourceOnResolution;")
+        self.assertNotEqual("route", audit.audit_clause(c, row, audit.Sources(self.root, []))["status"])
+
+    def test_implicit_recycle_parser_does_not_turn_triggers_or_granted_text_into_activations(self):
+        for text in ["（你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。）",
+                     "当我离场时，你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。",
+                     "我具有“你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。”",
+                     "你可以选择摧毁一名单位，以此从任意废牌堆中回收最多四张卡牌。"]:
+            with self.subTest(text=text):
+                self.assertFalse(audit.is_activation(text))
+        self.assertEqual(3, audit.implicit_recycle_activation_count("你可以选择摧毁此装备，以此从任意废牌堆中回收最多3张卡牌。"))
+
     def test_quotes_reminders_and_modal_colons_do_not_create_source_activations(self):
         texts = ["此处的单位获得“{{横置}}：获得1经验。”", "所有友方传奇具有“{{T}}：给予一名单位在本回合内{{S}}+3。”",
                  "装配{{1}}（支付{{1}}：将此牌贴附到你控制的一名单位上。）", "从以下中选择一个：抽一张牌。"]

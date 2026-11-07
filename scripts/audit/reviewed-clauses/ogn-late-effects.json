@@ -426,36 +426,63 @@
       ],
       "text": "每当有友方单位从我的位置向别处移动时，我可以选择跟随它一起移动。",
       "scope": "每当有友方单位从我的位置向别处移动时，我可以选择跟随它一起移动。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少另一友方单位从来源位置出发的移动观察、可选跟随与同一终点移动",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享移动观察器在真实移动事件捕获来源当前位置及其他友方单位的原始终点，创建可响应的独立技能；结算时可选跟随或放弃，复用统一效果移动、装备跟随与施加费用，原移动单位之后返手或移动不改写已捕获的终点，离场后的新来源代际不能移动",
+      "rules": "核心124、359.3.f.3、383.2.c、383.3、448.3、449.2、451；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 4,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "FRIENDLY_UNIT_MOVED_FROM_HERE_MAY_FOLLOW",
+              "timing": "UNIT_MOVED",
+              "targetScope": "SOURCE_UNIT",
+              "optional": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyMovementFollow.cs",
           "contains": [
-            "\"OGN·177/298\"",
-            "\"HIDDEN_TRACKER_FOLLOW_MOVE_PLAY_UNIT\""
+            "CaptureFriendlyMovementFollowObservers(",
+            "unit.ControllerId == controller && unit.Origin == here",
+            "ValidFriendlyMovementFollowShape(",
+            "ValidFriendlyMovementFollowSource(",
+            "ResolveFriendlyMovementFollow(",
+            "context.Unit.Destination with { PlayerId = controller }",
+            "TryMoveFieldUnitByEffect("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "!UnitMovedTriggerSpecRules.IsFriendlyMovementFollowTrigger(t)",
+            "CaptureFriendlyMovementFollowObservers(before, units)",
+            "ResolveFriendlyMovementFollow(state, item)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlyMovementFollowTests.cs",
+          "methods": [
+            "ASeparateRespondableTriggerMayFollowEachActualFriendlyMovementWithoutExhaustingAgain",
+            "ASourceInHandOrAtAnotherOriginDoesNotObserveTheMove",
+            "MovingThePursuerItselfCannotTriggerItsOwnFollowSkill",
+            "TheCapturedMoveDestinationSurvivesAMoveOrReturnResponseToTheOriginalMover",
+            "ReturningTheSourceCancelsItsMoveWithoutLinkingItsNewPrivateIdentity",
+            "ASourceAlreadyAtTheCapturedDestinationDoesNotMoveASecondTime",
+            "FriendshipUsesTheMovedUnitsControllerInsteadOfItsOwner",
+            "AnotherPlayersUnitAtTheSameBattlefieldDoesNotTriggerFollow",
+            "TwoActualFriendlyMovesCanTriggerTheSameSourceAgainAfterFollowing",
+            "CopiedPrintedTextCreatesIndependentFollowSkillsWithoutMovingTwiceToTheSamePlace",
+            "AnOpponentMovingTheFriendlyUnitStillEarnsTheControllersFollowSkill",
+            "FollowingIsASeparateMovementInstructionThatPaysItsOwnImposedCost",
+            "RecoveryRejectsForgedFollowFactsAndSourceBindings"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -500,36 +527,62 @@
       ],
       "text": "当此牌被打出、弃置或摧毁时，抽一张牌。",
       "scope": "当此牌被打出、弃置或摧毁时，抽一张牌。",
-      "status": "missing",
-      "reason": "当前仅有打出后的抽1牌；缺少此牌被弃置和被摧毁时的独立抽牌触发，不能用其中一个事件认证三个事件",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享卡牌事件按声明时机集合分别捕获实际打出、弃置和未被替换的摧毁；每个物理来源各创建独立抽牌技能，费用弃置先于父效果结算，多牌事件可排序，来源后续改变区域或被重新抽取不抹去已赚得的抽牌",
+      "rules": "核心124、191.5.a、383.2.c／383.3、414、423.1.b、429；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "drawCount": 1,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY_OR_SELF_DISCARDED_OR_DESTROYED",
+              "effect": "DRAW",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"OGN·182/298\"",
-            "\"SCRAP_HEAP_PLAY_EQUIPMENT_DRAW_1\""
+            "UnitEventTimingMatches(",
+            "CaptureSelfDiscardEvents(",
+            "UnitEventTimingMatches(UnitEventSpec(card.CardNo)?.Timing, \"SELF_DISCARDED\")",
+            "spec.Effect == \"DRAW\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CaptureUnitEvents(zones, cards, [id], \"DESTROYED\")",
+            "removed && removal.WasDestroyed",
+            "InstructionUnitEvents.AddRange(destroyedEvents"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "!UnitEventTimingMatches(UnitEventSpec(behavior.CardNo)?.Timing, \"PLAY\")"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CardMultiEventDrawTests.cs",
+          "methods": [
+            "PlayingTheEquipmentCreatesExactlyOneIndependentDrawAfterEntry",
+            "ASpellAdditionalCostDiscardsTheCardNowAndDrawsBeforeTheParentSpellResolves",
+            "ARequiredEmpowerDiscardAlsoCreatesTheDrawBeforeTheEmpowerEffect",
+            "AnEffectDiscardFinishesTheParentInstructionBeforeTheEarnedDraw",
+            "DestructionDrawsForTheCapturedControllerRegardlessOfEquipmentOwnership",
+            "ReturningEquipmentDoesNotCountAsDestructionButARealReplayTriggersAgain",
+            "SimultaneousDiscardsOrDestructionsCreateOneDrawForEachPhysicalCard",
+            "DiscardingAndRedrawingTheCardDuringBurnoutDoesNotEraseTheEarnedDraw",
+            "AnOrdinaryEquipmentDoesNotBorrowTheCardsDiscardOrDestructionDraw"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -580,27 +633,54 @@
       ],
       "text": "当你打出我时，让一名对手展示手牌，然后从中选择一张，让对手将其弃置。",
       "scope": "当你打出我时，让一名对手展示手牌，然后从中选择一张，让对手将其弃置。",
-      "status": "missing",
-      "reason": "选择／隐私流程缺失：旧实现要求打出时预提交对手手牌对象，结算直接弃置；未接入展示当前手牌后由技能控制者选择的流程",
-      "rules": "核心128、383.4.a.2、403.2 选择时机；OGN·192 官方中文牌面",
+      "status": "route",
+      "reason": "来源单位按正常费用和零隐藏手牌目标入场，独立技能响应后展示对手当前手牌，技能控制者必须选择一张令对手弃置；空手继续，单纯弃置不附送抽牌，已赚得技能在来源返手后仍结算，展示权限在选择完成后结束",
+      "rules": "核心128、355.5–355.5.a、359.2.c、383、423、425；官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "discardsTargetFromOwnerHand": true,
-            "requiredTargetCount": 1
+            "playsSourceToBaseAsUnit": true,
+            "handChoice": {
+              "action": 3
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs",
           "contains": [
-            "if (behavior.DiscardsTargetFromOwnerHand)",
-            "foreach (var targetObjectId in stackItem.TargetObjectIds)"
+            "RevealedHandAction.Discard ?",
+            "BeginRevealedHandChoice(",
+            "ValidRevealedHandChoice(",
+            "TryDiscardCardFromHand(zones, cards, owner, selected[0])",
+            "if (spec.Action == RevealedHandAction.DiscardDraw)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InformationPermissions.cs",
+          "contains": [
+            "TryGetRevealedHandChoiceSpec(",
+            "behavior.HandChoice is not null",
+            "item.SourceConfirmed"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DragonRevealedHandDiscardTests.cs",
+          "methods": [
+            "ThePlayedUnitRevealsTheHandOnlyOnResolutionThenDiscardsExactlyOneWithoutDrawing",
+            "ARealOpponentResponseChangesTheHandBeforeItIsRevealedAndChosen",
+            "AnEmptyOpponentHandStillRevealsAndCompletesWithoutInventingADiscardOrDraw",
+            "TheControllersMandatoryChoiceRejectsForeignPlayersAndInvalidSelectionsWithoutMutation",
+            "TheCasterCannotPreselectAnUnrevealedHandCardAsAPlayTarget",
+            "ReturningTheDragonDuringResponsesDoesNotCancelItsIndependentRevealedHandEffect",
+            "DiscardedScrapHeapEarnsItsOwnDrawAfterTheDragonFinishesWithoutGrantingAnExtraDraw",
+            "RecoveryRejectsForgedRevealedHandOwnerAndGeneration"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -876,39 +956,73 @@
       ],
       "text": "你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。",
       "scope": "你可以选择摧毁此装备，以此从任意废牌堆中回收最多四张卡牌。",
-      "status": "missing",
-      "reason": "只实现打出时创建随从；缺少随后可选摧毁来源的指示费用、任意废牌堆最多4张卡的选择与回收",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "官方新版FAQ明确此句为主动技能：先声明任意废牌堆零至四张目标，后在共享费用流程摧毁来源，独立技能响应后仅回收仍合法的原代际目标到各自拥有者牌堆底；来源不能因支付费用才进入废牌堆而成为本次目标。原生打出随从保留，休眠来源不增收横置费用",
+      "rules": "核心355、356–357、359、383、417、429；中国区全国公开赛复盘FAQ第一问（新版明确先选择后自毁，取代旧FAQ可回收自身的解释）；官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "activations": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "createdBaseUnitTokenCount": 1,
-            "createdBaseUnitTokenPower": 1,
-            "createdBaseUnitTokenName": "随从",
-            "createdBaseUnitTokenTags": "CARD_TYPE:UNIT",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "kind": "DESTROY_SOURCE_RECYCLE_GRAVEYARD",
+            "maximumTargetCount": 4,
+            "sourceRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "simpleEffect": {
+              "destroysSourceAsCost": true,
+              "recyclesGraveyardTargets": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
           "contains": [
-            "\"OGN·212/298\"",
-            "\"FUTURE_FORGE_PLAY_EQUIPMENT_CREATE_MINION\""
+            "IsDestroySourceGraveyardRecycleSpec(",
+            "DestroySourceGraveyardRecycleDefinition(",
+            "SimpleEffect: new(DestroysSourceAsCost: true, RecyclesGraveyardTargets: true)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "spec.DestroysSourceAsCost || spec.DestroyFriendlyTagAsCost is not null",
+            "spec.DestroysSourceAsCost ? source.ObjectId",
+            "if (spec.RecyclesGraveyardTargets) return ResolveActivatedGraveyardRecycle(state, item)",
+            "!SimpleActivationTargetCountValid(ability, targets.Count)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ActivatedGraveyardRecycle.cs",
+          "contains": [
+            "IsAnyGraveyardCard(",
+            "state.CardObjects[id].ObjectGeneration == item.TargetGenerations!",
+            "zones.Keys.Order(StringComparer.Ordinal)",
+            "RecycleGraveyardCards(state with { RngCursor = cursor }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Prompts.Targets.cs",
+          "contains": [
+            "ability.SimpleEffect?.RecyclesGraveyardTargets == true",
+            "state.PlayerZones.Values.SelectMany(zones => zones.Graveyard)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FutureForgeActivationTests.cs",
+          "methods": [
+            "DestroyingTheEquipmentPaysNowAndRecyclesZeroToFourChosenCardsIntoTheirOwnersDecksLater",
+            "TargetsAreChosenBeforeDestructionAndInvalidChoicesCannotPayAnyCost",
+            "ThePrintedDestructionCostDoesNotAlsoRequireAnActiveSourceOrExhaustIt",
+            "ARealResponseCanRecycleThePaidSourceAndOneChosenTargetWithoutRetargetingTheEarnedAbility",
+            "TheCurrentControllerCanPayWithEquipmentOwnedByTheOpponent",
+            "PlayingTheCardRetainsItsIndependentOnePowerMinionAndDoesNotAutomaticallySacrificeTheEquipment",
+            "RecoveryRejectsForgedActivationBindingsAndTargetBounds",
+            "AnEquipmentAnimatedAndMovedToABattlefieldRetainsItsSelfDestructionSkill",
+            "TheImplicitActivatedCostAndItsTargetLimitComeFromThePrintedEffect"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -916,36 +1030,47 @@
       ],
       "text": "当你打出我时，给予我增益。",
       "scope": "当你打出我时，给予我增益。",
-      "status": "missing",
-      "reason": "只有基础单位登记；两句来源自身增益及打出到战场时当地所有友方单位增益均无规格或实际结算",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "原代际来源的打出技能独立入链，响应后复用共享自身增益指示；移动保留原物体，返手后新代际不继承效果。群体增益后续指示另有逐句证据。",
+      "rules": "核心124、383.2–383.3、427.1.b；OGN·223官方中文牌面第一句",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "BOON_SELF",
+              "amount": 0,
+              "optional": false
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"OGN·223/298\"",
-            "\"OGN_PEAK_GUARDIAN_BOON_ENTRY_PLAY_UNIT\""
+            "ResolveUnitEventBoonInstruction(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "source.ObjectGeneration != context.SourceGeneration",
+            "spec.Effect is \"BOON_SELF\" or \"BOON_SELF_AND_READY\"",
+            "ApplyBoon(source, behavior, item, source.ObjectId"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GuardianSelfBoonTests.cs",
+          "methods": [
+            "ThePrintedSelfBoonWaitsForItsIndependentPlaySkill",
+            "ARealMoveKeepsTheSelfBoonButAReturnCannotBuffTheNewHandObject",
+            "TheSelfBoonDoesNotLetTheClientPreselectAnUnrelatedUnit"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -953,36 +1078,53 @@
       ],
       "text": "如果你将我打出到一处战场，则给予此处包括我在内的所有友方单位增益。（每名未拥有增益的单位获得一个{{S}}+1增益。）",
       "scope": "当你打出我时，给予我增益。",
-      "status": "missing",
-      "reason": "只有基础单位登记；两句来源自身增益及打出到战场时当地所有友方单位增益均无规格或实际结算",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享打出事件保存此来源本次打入基地或战场的事实；先给予自身增益，再在原打入战场条件满足时按来源结算时当前位置给予此处友方单位增益。友方按技能控制者判断，原来源离场不修改新代际；在别的永久物已打入战场后从基地打出此来源，不会借用其他物体的打出条件。",
+      "rules": "核心124、191.5、359.3.f.2及亚索响应移回基地示例、383、427；OGN·223官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "BOON_SELF",
+          "boonsFriendlyUnitsHereIfPlayedToBattlefield": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"OGN·223/298\"",
-            "\"OGN_PEAK_GUARDIAN_BOON_ENTRY_PLAY_UNIT\""
+            "CaptureConditionalSourcePlayDestination(entered.ObjectId, destinationZone, observations)",
+            "ValidConditionalSourcePlayDestination(c, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventBoonInstructions.cs",
+          "contains": [
+            "spec.BoonsFriendlyUnitsHereIfPlayedToBattlefield && context.SourcePlayDestinationZone == \"BATTLEFIELD\"",
+            "GrantFriendlyUnitBoonsAtSourceLocation(state, item, zones, cards, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourcePlayBoon.cs",
+          "contains": [
+            "o.Source == entered",
+            "SourcePlayDestinationZone = destination",
+            "EffectiveFieldControllerId(zones, card.ObjectId, card) == item.ControllerId",
+            "at.PlayerId == here.PlayerId : at.BattlefieldObjectId == here.BattlefieldObjectId",
+            "ApplyBoon(cards[id], behavior, item, id, out var granted, zones, cards)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GuardianGroupBoonTests.cs",
+          "methods": [
+            "OnlyABattlefieldPlayGrantsTheAdditionalBoonToFriendlyUnitsHere",
+            "ARealResponseChangesHereWithoutChangingTheOriginalBattlefieldPlay",
+            "ABasePlayCannotBorrowAnotherPermanentsBattlefieldPlayCondition",
+            "RecoveryRejectsMissingInvalidOrUnrelatedSourcePlayFacts"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1042,35 +1184,71 @@
       ],
       "text": "当你作为进攻方时，如果战斗以平局告终，则召回双方所有单位。（把该单位送回基地，此行动不算作移动。平局将在造成战斗伤害后结算。）",
       "scope": "当你作为进攻方时，如果战斗以平局告终，则召回双方所有单位。（把该单位送回基地，此行动不算作移动。平局将在造成战斗伤害后结算。）",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少由己方进攻的战斗平局结果监听，以及双方剩余单位的召回指示",
-      "rules": "核心468.3 战斗结果、召回；OGN·227 官方中文牌面",
+      "status": "route",
+      "reason": "共享战斗清理3d之前检查双方实际战场单位，只为进攻方当前场上来源捕获独立技能；历史战场绑定和原清理标记支持响应与恢复，来源离场不取消技能，结算召回原战场当前全部单位且不产生移动事件；双方全灭及任一方胜利不触发",
+      "rules": "核心383.2–383.3、457–460、468.1.a.2、740.3.a；OGN·227官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 1,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "ATTACKING_BATTLE_DRAW",
+              "effect": "RECALL_BATTLEFIELD_UNITS"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleDraw.cs",
           "contains": [
-            "\"OGN·227/298\"",
-            "\"SOLARI_EMBLEM_PLAY_EQUIPMENT\""
+            "!HasParty(attacker) || !HasParty(defender)",
+            "CaptureUnitEvents(current.PlayerZones, current.CardObjects, sources, AttackingBattleDrawTiming)",
+            "battle.RelatedEventKinds.Contains(BattleDrawEvent, StringComparer.Ordinal)",
+            "RecallAttachedGroupToBase(zones, cards, id, owner)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+          "contains": [
+            "beforeAttackerRecall: () => CaptureAttackingBattleDraw(",
+            "or BattleDrawEvent)",
+            "forceClosureEvent: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "beforeAttackerRecall?.Invoke()",
+            "!forceClosureEvent && clearedObjectIds.Count == 0 && removedObjectIds.Length == 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidBattleDrawContext(state, c, spec, controller)",
+            "ResolveBattleDrawRecall(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery/BattlefieldLifecycle.cs",
+          "contains": [
+            "string.Equals(value, CoreRuleEngine.BattleDrawEvent, StringComparison.Ordinal)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AttackingBattleDrawTests.cs",
+          "methods": [
+            "ARealTieCapturesAnIndependentSkillBeforeMandatoryAttackerRecall",
+            "ASourceOutsideTheFieldOrControlledByTheDefenderDoesNotObserve",
+            "MutualDestructionAndEitherWinnerAreNotBattleTies",
+            "ReturningTheSourceAfterTheTieCannotCancelOrRelocateItsEarnedRecall",
+            "DestructionBeforeCleanupCannotEarnTheLaterTieSkill",
+            "RecoveryRejectsForgedTieFieldRoleAndOriginalCleanupMarker"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

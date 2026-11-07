@@ -56,6 +56,8 @@ public sealed partial class CoreRuleEngine
                     source.ObjectId, out var readied, zones, cards);
                 if (readied is not null) events.Add(readied);
             }
+            if (spec.BoonsFriendlyUnitsHereIfPlayedToBattlefield && context.SourcePlayDestinationZone == "BATTLEFIELD")
+                GrantFriendlyUnitBoonsAtSourceLocation(state, item, zones, cards, events);
         }
         else if (spec.Effect == "READY_SELF")
         {

@@ -115,7 +115,9 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(resultState);
         var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
         var cleanupStart = events.Count;
-        ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
+        ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events,
+            beforeAttackerRecall: () => CaptureAttackingBattleDraw(resultState with { PlayerZones = zones, CardObjects = cards },
+                battlefield, attacker, defender, events));
         // A response can remove an earlier role unit before the actual damage participants are declared.
         var bindings = TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
             ? declaration.PublicObjectBindings?.Where(b => attackers.Contains(b.ObjectId) || defenders.Contains(b.ObjectId)).ToArray()
@@ -129,7 +131,7 @@ public sealed partial class CoreRuleEngine
             SurvivingBattleUnitObjectIds(zones, cards, defenders),
             events.Where(e => e.Kind == "UNIT_DESTROYED").Select(e => EventPayloadString(e, "targetObjectId")!)
                 .Where(id => attackers.Concat(defenders).Contains(id)).Distinct(StringComparer.Ordinal).ToArray(),
-            events.Where(e => e.Kind is "DAMAGE_APPLIED" or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE")
+            events.Where(e => e.Kind is "DAMAGE_APPLIED" or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE" or BattleDrawEvent)
                 .Select(e => e.Kind).Distinct(StringComparer.Ordinal).ToArray(), bindings ?? [], overkill, "CLEANUP_TRIGGERS")
         {
             AttackerRecalledByBattleCleanup = events.Skip(cleanupStart).Any(e => e.Kind == "UNIT_RECALLED_TO_BASE"
@@ -265,7 +267,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
         CloseResolvedBattle(zones, cards, state.ObjectLocations, continuation.BattlefieldId, continuation.AttackerObjectIds,
-            continuation.DefenderObjectIds, events);
+            continuation.DefenderObjectIds, events, forceClosureEvent: true);
         var resultKind = continuation.WinnerPlayerId is null ? "NO_RESULT" : "CLOSED";
         var resultReason = BattleResultReason(continuation);
         var history = new BattleResolutionState(

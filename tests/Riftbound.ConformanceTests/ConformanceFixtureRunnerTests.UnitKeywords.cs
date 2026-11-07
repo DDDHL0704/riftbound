@@ -114,7 +114,6 @@ public sealed partial class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ogn-malzahar-tap-rune-static.fixture.json", "P1-UNIT-OGN-MALZAHAR-TAP", 3)]
     [InlineData("p2-preflight-play-ogn-udyr-boon-stance-static.fixture.json", "P1-UNIT-OGN-UDYR-BOON", 6)]
     [InlineData("p2-preflight-play-ogn-twisted-fate-rune-reveal-static.fixture.json", "P1-UNIT-OGN-TWISTED-FATE", 4)]
-    [InlineData("p2-preflight-play-ogn-peak-guardian-boon-static.fixture.json", "P1-UNIT-OGN-PEAK-GUARDIAN", 5)]
     [InlineData("p2-preflight-play-ogn-viktor-destroyed-unit-token-static.fixture.json", "P1-UNIT-OGN-VIKTOR-DESTROYED-UNIT", 4)]
     [InlineData("p2-preflight-play-ogn-viktor-alt-a-destroyed-unit-token-static.fixture.json", "P1-UNIT-OGN-VIKTOR-DESTROYED-UNIT-A", 4)]
     [InlineData("p2-preflight-play-ogs-annie-damage-plus-static.fixture.json", "P1-UNIT-OGS-ANNIE-DAMAGE-PLUS", 4)]
