@@ -226,17 +226,17 @@ public sealed class ArmamentHoldConquestAliasTests
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
-    public async Task AHiddenHereConditionIsRetainedWhenTheHoldSkillIsEarnedByConquest(bool hidden)
+    public async Task AHiddenHereConditionCannotBeSatisfiedByACardAtAnotherBattlefield(bool hidden)
     {
         var initial = Board("RAD·109/167");
         if (hidden) {
-            initial = RadGearTestPosition.Put(initial, "PRIVATE-STANDBY", "OGN·057/298", "P1", "BATTLEFIELD", "OTHER");
+            initial = RadGearTestPosition.Put(initial, "PRIVATE-STANDBY", "OGN·057/298", "P1", "BATTLEFIELD", "BF");
             initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                 ["PRIVATE-STANDBY"] = initial.CardObjects["PRIVATE-STANDBY"] with { IsFaceDown = true } } };
         }
         var game = new Driver(initial); await Conquer(game);
-        Assert.Equal(hidden ? 1 : 0, game.State.StackItems.Count(i => i.TimingAlias is not null));
-        await Drain(game); Assert.Equal(hidden ? 2 : 1, game.State.PlayerScores["P1"]); await game.Replay();
+        Assert.DoesNotContain(game.State.StackItems, i => i.TimingAlias is not null);
+        await Drain(game); Assert.Equal(1, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
     [Theory]
