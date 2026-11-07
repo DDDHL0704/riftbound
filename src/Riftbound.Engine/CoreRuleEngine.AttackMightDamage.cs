@@ -101,7 +101,7 @@ public sealed partial class CoreRuleEngine
     {
         var context = item.FieldContext!;
         var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
-        var result = NoopStackResolutionResult(state) with { Events = [new("TRIGGER_RESOLVED", "战力伤害技能结算",
+        var result = NoopStackResolutionResult(state) with { Events = [new("TRIGGER_RESOLVED", "进攻伤害技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = visibleSource, ["effectKind"] = context.Kind })] };
         // CN 359.3.e.12: a departed source has no field Might or location.
         if (item.TargetObjectIds.SingleOrDefault() is not { } target
@@ -109,7 +109,13 @@ public sealed partial class CoreRuleEngine
             || !FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal)
             || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
             || source.ObjectGeneration != context.SourceGeneration || !IsObjectOnField(state.PlayerZones, source.ObjectId)) return result;
-        var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, ResolveCurrentFieldUnitPower(state, source));
+        var spec = context.Kind == CombatMightDamageKind ? CombatMightSpec(context.CardNo, CombatMightDamageKind)!
+            : AttackMightDamageSpec(context.CardNo)!;
+        var baseAmount = spec.DamageSourceKeyword is { } keyword
+            ? ResolveCurrentCountedCombatKeyword(state, source, keyword)
+            : spec.DamageAmount ?? ResolveCurrentFieldUnitPower(state, source);
+        if (baseAmount <= 0) return result;
+        var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, baseAmount);
         if (amount <= 0) return result;
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
@@ -118,7 +124,7 @@ public sealed partial class CoreRuleEngine
         var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target, amount, destroyed,
             state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
         var events = result.Events.ToList();
-        events.Add(new("DAMAGE_APPLIED", "进攻技能造成等同于来源战力的伤害", BuildDamagePayload(visibleSource, target, damage)));
+        events.Add(new("DAMAGE_APPLIED", "进攻技能造成伤害", BuildDamagePayload(visibleSource, target, damage)));
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,
             damageTriggeredDestroyTargetObjectIds: destroyed, objectLocations: locations,
             destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);

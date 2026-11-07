@@ -5560,6 +5560,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             command.AbilityId);
         var orderedPaymentResources = renektonResourceAction is null ? paymentResourceActions
             : OrderedRenektonPaymentResources(normalizedOptionalCosts, paymentResourceActions, renektonResourceAction);
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var totalPowerCost = ability.PowerCost + powerCostByTrait.Values.Sum();
         var paymentPlan = new PaymentCostRules.PaymentPlan(
             paymentId,
             paymentWindow,
@@ -5567,7 +5569,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             baseManaCost: ability.ManaCost,
             totalManaCost: ability.ManaCost,
             genericPowerCost: ability.PowerCost,
-            totalPowerCost: ability.PowerCost,
+            totalPowerCost: totalPowerCost,
+            powerCostByTrait: powerCostByTrait,
             paymentResourceActionIds: orderedPaymentResources,
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
@@ -5671,7 +5674,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = intent.PlayerId,
                 ["mana"] = ability.ManaCost,
-                ["power"] = ability.PowerCost,
+                ["power"] = totalPowerCost,
                 ["abilityId"] = command.AbilityId
             });
         if (ability.ManaCost > 0 && (adjustedPool.UnitPlayOrUnitAbilityOnlyMana > 0 || renektonResourceAction is not null))
@@ -5713,13 +5716,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         ]);
 
-        return new ResolutionResult(
+        return BindNativeUnitActivationSource(state, new ResolutionResult(
             true,
             null,
             nextState,
             events,
             ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+            BuildCorePrompts(nextState)), ability);
     }
 
     private static ResolutionResult ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestAbility(
@@ -8900,6 +8903,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 command.TargetObjectIds,
                 out spellshieldTaxTargetObjectIds);
         }
+        var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var totalPowerCost = ability.PowerCost + powerCostByTrait.Values.Sum() + spellshieldTaxPower;
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -8914,7 +8919,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             baseManaCost: 0,
             totalManaCost: 0,
             genericPowerCost: (ability.PowerCost + spellshieldTaxPower),
-            totalPowerCost: (ability.PowerCost + spellshieldTaxPower),
+            totalPowerCost: totalPowerCost,
+            powerCostByTrait: powerCostByTrait,
             paymentResourceActionIds: paymentResourceActions,
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
@@ -9023,7 +9029,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = 0,
-                    ["power"] = (ability.PowerCost + spellshieldTaxPower),
+                    ["power"] = totalPowerCost,
                     ["abilityId"] = command.AbilityId,
                     ["spellshieldTaxPower"] = spellshieldTaxPower,
                     ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()
@@ -9054,13 +9060,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         ]);
 
-        return new ResolutionResult(
+        return BindNativeUnitActivationSource(state, new ResolutionResult(
             true,
             null,
             nextState,
             events,
             ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+            BuildCorePrompts(nextState)), ability);
     }
 
     private static ResolutionResult ResolveCrimsonRoseReadyAbility(
@@ -12186,14 +12192,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var defendingUnitCount = defenderAssignments.Count;
         var readyEnemyUnitCount = defenderStates.Values.Count(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
-        combatEvents.AddRange(ResolveSourceAttackDamageToFirstDefenderTriggers(
-            combatState, playerZones,
-            cardObjects,
-            intent.PlayerId,
-            battlefieldId,
-            attackerObjectIds,
-            defenderAssignments,
-            damageTriggeredDestroyTargetObjectIds));
+
         if (submittedDamage is null)
         {
             foreach (var attackingObjectId in attackerObjectIds)
@@ -13147,107 +13146,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static IReadOnlyList<GameEvent> ResolveSourceAttackDamageToFirstDefenderTriggers(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        IReadOnlyList<string> attackerObjectIds,
-        IReadOnlyList<BattleDamageAssignmentTarget> defenderAssignments,
-        ISet<string> damageTriggeredDestroyTargetObjectIds)
-    {
-        if (defenderAssignments.Count == 0)
-        {
-            return [];
-        }
-
-        var events = new List<GameEvent>();
-        foreach (var source in SourceAttackDamageToFirstDefenderTriggers(
-                playerZones,
-                cardObjects,
-                playerId,
-                attackerObjectIds)
-            .OrderBy(source => source.ObjectId, StringComparer.Ordinal))
-        {
-            var attackerObjectId = source.ObjectId;
-            var sourceBehavior = source.Behavior;
-            var damageAmount = sourceBehavior.SourceAttackDamageToFirstDefenderAmount;
-            var effectKind = sourceBehavior.SourceAttackDamageToFirstDefenderEffectKind;
-            var sourceDisplayName = string.IsNullOrWhiteSpace(sourceBehavior.DisplayName)
-                ? attackerObjectId
-                : sourceBehavior.DisplayName;
-
-            var targetObjectId = defenderAssignments
-                .Select(assignment => assignment.ObjectId)
-                .FirstOrDefault(defenderObjectId =>
-                    cardObjects.TryGetValue(defenderObjectId, out var defenderState)
-                    && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    && !defenderState.IsFaceDown
-                    && IsObjectOnField(playerZones, defenderObjectId));
-            if (string.IsNullOrWhiteSpace(targetObjectId))
-            {
-                continue;
-            }
-
-            events.Add(new GameEvent(
-                "TRIGGER_RESOLVED",
-                $"{playerId} 的{sourceDisplayName}进攻触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = attackerObjectId,
-                    ["targetObjectId"] = targetObjectId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["effectKind"] = effectKind,
-                    ["triggeredByEventKind"] = "BATTLE_DECLARED",
-                    ["damageAmount"] = damageAmount
-                }));
-            var damageApplication = ApplyDamageToCardObject(
-                state,
-                cardObjects,
-                playerId,
-                targetObjectId,
-                damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
-            var damagePayload = BuildDamagePayload(attackerObjectId, targetObjectId, damageApplication);
-            damagePayload["battlefieldId"] = battlefieldId;
-            damagePayload["effectKind"] = effectKind;
-            damagePayload["reason"] = "ATTACK_TRIGGER";
-            events.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                $"{sourceDisplayName}进攻触发造成伤害",
-                damagePayload));
-        }
-
-        return events;
-    }
-
-    private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceAttackDamageToFirstDefenderTriggers(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        IReadOnlyList<string> attackerObjectIds)
-    {
-        foreach (var attackerObjectId in attackerObjectIds)
-        {
-            if (!cardObjects.TryGetValue(attackerObjectId, out var attackerState)
-                || !IsFaceUpNonStandbyUnit(attackerState)
-                || !IsObjectOnField(playerZones, attackerObjectId)
-                || !string.Equals(
-                    EffectiveFieldControllerId(playerZones, attackerObjectId, attackerState),
-                    playerId,
-                    StringComparison.Ordinal)
-                || !CardBehaviorRegistry.TryGetByCardNo(attackerState.CardNo ?? "", out var sourceBehavior)
-                || sourceBehavior.SourceAttackDamageToFirstDefenderAmount <= 0
-                || string.IsNullOrWhiteSpace(sourceBehavior.SourceAttackDamageToFirstDefenderEffectKind))
-            {
-                continue;
-            }
-
-            yield return (attackerObjectId, sourceBehavior);
-        }
-    }
 
     private static string? EventPayloadString(GameEvent gameEvent, string key)
     {
@@ -19058,12 +18956,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.BorrowedExhaust is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.UnitEvent is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.NativeUnitActivation is null && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.BorrowedExhaust is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.UnitEvent is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.LegendFieldEffect is null && resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.BorrowedExhaust is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.UnitEvent is null && resolvedItem.NativeUnitActivation is null && resolvedItem.LegendFieldEffect is null && resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null && resolvedItem.BorrowedExhaust is null && resolvedItem.FieldContext?.Kind is not (PaidUnitStunKind or PaidUnitDestroyKind or StunBoonKind) ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, ProjectionViewers.Spectator)).ToArray()
                 };
             if (highCostSkillObservers.Length > 0) resolvedPayload[HighCostSkillCaptureKey] = highCostSkillObservers;
@@ -24049,6 +23947,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var simpleAbility)
             && simpleAbility.SimpleEffect is not null)
             return ResolveSimpleActivationEffect(state, stackItem, simpleAbility);
+        if (!ValidNativeUnitActivation(state, stackItem))
+            throw new InvalidOperationException("Invalid native unit activation context.");
+        if (stackItem.NativeUnitActivation is not null
+            && P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var nativeAbility)
+            && nativeAbility.ModifiesUnitSource && !NativeUnitActivationSourceStillOnField(state, stackItem))
+            return NoopStackResolutionResult(state);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal))
@@ -24099,12 +24003,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
-            return ResolveViDoublePowerAbilityStackItem(state, stackItem);
+            return RedactNativeUnitActivationSource(state, stackItem, ResolveViDoublePowerAbilityStackItem(state, stackItem));
         }
 
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.XerathDamageAbilityEffectKind, StringComparison.Ordinal))
         {
-            return ResolveXerathDamageAbilityStackItem(state, stackItem);
+            return RedactNativeUnitActivationSource(state, stackItem, ResolveXerathDamageAbilityStackItem(state, stackItem));
         }
 
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, StringComparison.Ordinal))

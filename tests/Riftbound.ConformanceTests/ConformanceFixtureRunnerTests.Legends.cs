@@ -2802,12 +2802,14 @@ public sealed partial class ConformanceFixtureRunnerTests
     public async Task P79LegendTriggerSettReplacementDebitsPowerAfterXerathSkillCleanup()
     {
         var state = OfficialSettReplacementTests.Position();
-        state = state with { TimingState = TimingStates.NeutralClosed, PriorityPlayerId = "P1", PassedPriorityPlayerIds = ["P2"],
+        state = LocalDestructionRecallTests.At(state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["A"] = state.CardObjects["A"] with { CardNo = P4ActivatedAbilityCatalog.XerathCardNo } },
-            StackItems = [new StackItemState("xerath", "P1", "A", P4ActivatedAbilityCatalog.XerathDamageAbilityEffectKind,
-                P4ActivatedAbilityCatalog.XerathCardNo, ["D"], damageAmount: P4ActivatedAbilityCatalog.XerathDamageAbilityDamageAmount)] };
-        var opened = await OfficialGraveyardRecastTests.Act(state, "P1", new PassPriorityCommand());
+                ["A"] = state.CardObjects["A"] with { CardNo = P4ActivatedAbilityCatalog.XerathCardNo } } },
+            "A", "P1", "BATTLEFIELD", "BF");
+        var activated = await OfficialGraveyardRecastTests.Act(state, "P1",
+            new ActivateAbilityCommand("A", P4ActivatedAbilityCatalog.XerathDamageAbilityId, ["D"]));
+        Assert.NotNull(Assert.Single(activated.State.StackItems).NativeUnitActivation);
+        var opened = await OfficialGraveyardRecastTests.Top(activated.State);
         var done = await OfficialSettReplacementTests.Choose(opened.State);
         Assert.Contains("D", done.State.PlayerZones["P2"].Base);
         Assert.Equal(7, done.State.RunePools["P2"].Mana); Assert.Equal(0, done.State.RunePools["P2"].Power);

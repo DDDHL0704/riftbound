@@ -45,67 +45,6 @@ public sealed partial class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState SharpshooterPirateBattleState(bool sharpshooterAttacks)
-    {
-        var p1Battlefields = sharpshooterAttacks
-            ? new[] { "P1-SHARPSHOOTER-PIRATE" }
-            : new[] { "P1-SHARPSHOOTER-ATTACKER" };
-        var p2Battlefields = sharpshooterAttacks
-            ? new[] { "P2-SHARPSHOOTER-DEFENDER" }
-            : new[] { "P2-SHARPSHOOTER-PIRATE" };
-        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
-        if (sharpshooterAttacks)
-        {
-            cardObjects["P1-SHARPSHOOTER-PIRATE"] = new(
-                "P1-SHARPSHOOTER-PIRATE",
-                cardNo: "OGN·130/298",
-                power: 3,
-                tags: [CardObjectTags.UnitCard, "海盗"],
-                ownerId: "P1",
-                controllerId: "P1");
-            cardObjects["P2-SHARPSHOOTER-DEFENDER"] = new(
-                "P2-SHARPSHOOTER-DEFENDER",
-                cardNo: "SFD·125/221",
-                power: 5,
-                tags: [CardObjectTags.UnitCard],
-                ownerId: "P2",
-                controllerId: "P2");
-        }
-        else
-        {
-            cardObjects["P1-SHARPSHOOTER-ATTACKER"] = new(
-                "P1-SHARPSHOOTER-ATTACKER",
-                cardNo: "SFD·125/221",
-                power: 1,
-                tags: [CardObjectTags.UnitCard],
-                ownerId: "P1",
-                controllerId: "P1");
-            cardObjects["P2-SHARPSHOOTER-PIRATE"] = new(
-                "P2-SHARPSHOOTER-PIRATE",
-                cardNo: "OGN·130/298",
-                power: 3,
-                tags: [CardObjectTags.UnitCard, "海盗"],
-                ownerId: "P2",
-                controllerId: "P2");
-        }
-
-        return PunishmentState(mana: 0) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = p1Battlefields
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = p2Battlefields
-                }
-            },
-            CardObjects = cardObjects
-        };
-    }
-
     private static MatchState DuneDrakeBattleState(bool duneDrakeAttacks)
     {
         var p1Battlefields = duneDrakeAttacks

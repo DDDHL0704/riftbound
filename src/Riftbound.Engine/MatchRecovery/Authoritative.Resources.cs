@@ -270,7 +270,10 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
         ValidateTargetedPowerAbilityStackValues(authoritativeState, errors);
         foreach (var item in authoritativeState.StackItems.Where(i => i is not null))
+        {
             if (!CoreRuleEngine.ValidSimpleActivation(authoritativeState, item)) errors.Add($"stack item {item.StackItemId} printed activation context is invalid");
+            if (!CoreRuleEngine.ValidNativeUnitActivation(authoritativeState, item)) errors.Add($"stack item {item.StackItemId} native unit activation context is invalid");
+        }
         ValidateAuthoritativeStateTriggerQueueValues(
             authoritativeState.TriggerQueue,
             knownObjectIds,

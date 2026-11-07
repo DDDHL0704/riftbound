@@ -1182,7 +1182,10 @@ internal static partial class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+        var powerPool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
+        return new RunePaymentReachability(powerPool, ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability))
+            .CanPay(ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId),
+                P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability));
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
@@ -1435,8 +1438,8 @@ internal static partial class ActionPromptBuilder
             P4ActivatedAbilityCatalog.TranspositionMageAbilityId => "易位法师：支付 1 紫色符能并横置，返回友方单位并免费打出较弱单位",
             P4ActivatedAbilityCatalog.PrismwingFlockAbilityId => "幻彩飞禽：横置，给予单位增益；已有增益则本回合战力+2",
             P4ActivatedAbilityCatalog.RelentlessStalkerAbilityId => "无情潜伏者：横置，眩晕一名敌方单位",
-            P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
-            P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
+            P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 红色符能，战力翻倍",
+            P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付 1 红色符能，造成 3 点伤害",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点任意特性符能",
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
