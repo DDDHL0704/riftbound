@@ -26,7 +26,8 @@ public static class PrintedPowerCostRules
         => Costs.Value.TryGetValue(cardNo, out var cost) ? cost : new(0, []);
 
     public static Cost ForPlay(CardBehaviorDefinition behavior)
-        => behavior.AppliedSelfGraveyardPlay is { } graveyard ? new(graveyard.Power, graveyard.Traits)
+        => behavior.IgnoreBasePlayCostFromBoons ? new(0, [])
+            : behavior.AppliedSelfGraveyardPlay is { } graveyard ? new(graveyard.Power, graveyard.Traits)
             : behavior.AppliedFlowCost is { } flow ? new(flow.Power, flow.Traits)
             : ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo);
 

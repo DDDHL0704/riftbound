@@ -116,6 +116,15 @@ public sealed partial class CoreRuleEngine
                             abilities.Add((exact.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE",
                                 exact.DrawCount ?? exact.ScoreAmount!.Value, instance, exact.RequiredExactOtherFriendlyBattlefieldUnits));
                 if (units.Contains(source))
+                    foreach (var capture in CaptureSourceUnitTokens(state.PlayerZones, state.CardObjects, card, player, "HOLD", field))
+                        for (var copy = 0; copy < copies; copy++) {
+                            var context = capture with { CapturedTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
+                            var tokenTrigger = new TriggerQueueItemState($"source-token-held-{state.Tick}-{source}-{context.Origin?.Equipment.ObjectId}-{copy}",
+                                player, source, SourceUnitTokenEffect, "BATTLEFIELD_HELD") {
+                                SourceCardNo = context.CardNo, SourceUnitTokens = context };
+                            queue.Add(tokenTrigger); events.Add(BuildTriggerQueuedEvent(tokenTrigger));
+                        }
+                if (units.Contains(source))
                     foreach (var instance in AttachedRuleTextRules.Instances(state, card))
                         if (UnitHeldSpec(instance.CardNo) is { } held
                             && (held.RequiresControlledFaceDownCardHere != true || ControlsFaceDownCardHere(state, player, field)))

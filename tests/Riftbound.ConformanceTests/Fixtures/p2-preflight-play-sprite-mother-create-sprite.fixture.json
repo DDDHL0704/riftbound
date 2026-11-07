@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-sprite-mother-create-sprite",
-  "description": "Sprite Mother enters as a unit object and creates one active ephemeral Sprite token in the controller's base.",
+  "description": "Sprite Mother enters the base, then her independent play skill creates one active ephemeral Faerie at her current location after responses.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·106/298 精灵之母",
-      "note": "官方卡面：费用 4；单位；战力 3；当你打出我时，在此处打出一个处于活跃状态的 3 战力“精灵”，它拥有瞬息。当前 fixture 在目的地受限模型下覆盖单位源牌入场与基地精灵创建路径，瞬息到期暂缓。"
+      "note": "官方中文牌面：4法力、1蓝色符能，3战力单位；打出触发独立入链，响应后按来源当前位置打出活跃3战力瞬息精灵。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -30,13 +30,16 @@
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     },
     {
-      "source": "中国区核心规则 143.4、184.1；官方指示物卡面",
-      "locator": "UNIT token default entry / factory characteristics",
-      "note": "单位指示物默认休眠；精灵相关牌面明确活跃。保留实际工厂的单位类型与关键词；当前此入口采用 OGN·274/298，官方条目未列仙灵属性，不混入 UNL·T07 的属性。"
+      "source": "中国区核心规则 2026-10-10",
+      "locator": "124、359.3.f.2、383.2–383.3、816",
+      "note": "共享来源技能按结算时原物体当前位置执行此处；精灵使用共享UNL·T07指示物工厂，包含仙灵属性及瞬息。"
     }
   ],
   "roomId": "p2-preflight-sprite-mother-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302318,
     "turnNumber": 318,
@@ -63,26 +66,46 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-SPRITE-MOTHER"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-SPRITE-MOTHER"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -121,6 +144,7 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
@@ -164,6 +188,9 @@
         "kind": "TRIGGER_QUEUED"
       },
       {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
         "kind": "PRIORITY_PASSED"
       },
       {
@@ -181,13 +208,21 @@
           "tokenName": "精灵",
           "power": 3,
           "destinationZone": "BASE",
-          "tokenTags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"]
+          "tokenTags": [
+            "CARD_TYPE:UNIT",
+            "仙灵",
+            "瞬息"
+          ]
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 318,
@@ -200,13 +235,22 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-UNIT-SPRITE-MOTHER", "P1-UNIT-SPRITE-MOTHER-TOKEN-001"],
+          "base": [
+            "P1-UNIT-SPRITE-MOTHER",
+            "P1-UNIT-SPRITE-MOTHER-TOKEN-001"
+          ],
           "graveyard": []
         }
       },
@@ -214,19 +258,35 @@
       "cardObjects": {
         "P1-UNIT-SPRITE-MOTHER": {
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         },
         "P1-UNIT-SPRITE-MOTHER-TOKEN-001": {
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "仙灵",
+            "瞬息"
+          ],
           "isExhausted": false
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

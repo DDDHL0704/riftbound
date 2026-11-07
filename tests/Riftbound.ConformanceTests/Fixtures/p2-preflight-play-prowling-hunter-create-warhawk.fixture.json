@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-033/219 调皮猎手",
-      "note": "官方卡面：费用 4；单位；战力 3；当你打出我时，在此处打出一名 1 战力“战鹰”，它拥有法盾。当前 fixture 覆盖单位源牌入场与战鹰指示物创建路径，精确“此处”目的地暂缓。"
+      "note": "官方卡面：费用 4；单位；战力 3；当你打出我时，在此处打出一名 1 战力“战鹰”，它拥有法盾。打出触发通过共享来源技能独立入链，响应后仅在原物体当前所在地创建一名休眠战鹰。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -112,6 +112,7 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
@@ -153,6 +154,9 @@
       },
       {
         "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
       },
       {
         "kind": "PRIORITY_PASSED"
