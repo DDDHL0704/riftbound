@@ -777,6 +777,7 @@ public sealed partial record ResolutionResult
 
         if (!ownView) ids.AddRange(zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)).Order(StringComparer.Ordinal));
         ids.AddRange(zones.MainDeck.Where(id => CoreRuleEngine.CanViewObservedDeckCard(state,id,viewerPlayerId) || CoreRuleEngine.IsPubliclyRevealedDeckCard(state, id)));
+        ids.AddRange(zones.RuneDeck.Where(id => CoreRuleEngine.CanViewObservedDeckCard(state,id,viewerPlayerId)));
         ids.AddRange(zones.Base);
         ids.AddRange(zones.Battlefields.Where(objectId =>
             !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId)));

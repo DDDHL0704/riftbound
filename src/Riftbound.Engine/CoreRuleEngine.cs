@@ -15800,6 +15800,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
+        var observer=new StackItemState($"field-defend-observe-{state.Tick}-{battlefieldObjectId}",playerId,battlefieldObjectId,
+            trigger.Kind,battlefieldState.CardNo);
+        BeforeDeckReveal(state, playerZones, cardObjects, observer, playerId, events);
+        zones=playerZones[playerId];
         var revealedObjectIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 1);
         if (revealedObjectIds.Length == 0)
         {
@@ -15835,8 +15839,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["zone"] = trigger.RevealSourceZone
             }));
 
-        var observer=new StackItemState($"field-defend-observe-{state.Tick}-{battlefieldObjectId}",playerId,battlefieldObjectId,
-            trigger.Kind,battlefieldState.CardNo);
         var remaining=ObserveDeckCards(state,playerZones,cardObjects,observer,playerId,revealedObjectIds,"REVEAL",0,events);
         if(remaining.Length==0)return new RecycleResult(events,rngCursor);
         zones=playerZones[playerId];
@@ -30889,6 +30891,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent> events, bool preventDamage, string preventionEffectId, long rngCursor)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)) return new RecycleResult([], rngCursor);
+        BeforeDeckReveal(state, playerZones, cardObjects, stackItem, stackItem.ControllerId, events);
+        zones = playerZones[stackItem.ControllerId];
         var viewedCardIds = zones.MainDeck
             .Take(lookCount)
             .ToArray();
@@ -31081,7 +31085,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> selectedObjectIds,
-        int lookCount)
+        int lookCount,
+        IReadOnlyList<string>? viewedObjectIds = null)
     {
         var events = new List<GameEvent>();
         var rngCursor = state.RngCursor;
@@ -31092,7 +31097,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var viewedCardIds = zones.MainDeck.Take(lookCount).ToArray();
+        var viewedCardIds = (viewedObjectIds ?? zones.MainDeck.Take(lookCount).ToArray())
+            .Where(id => zones.MainDeck.Contains(id)).ToArray();
         var recycledCardIds = selectedObjectIds
             .Where(cardId => viewedCardIds.Contains(cardId, StringComparer.Ordinal))
             .Distinct(StringComparer.Ordinal)
@@ -31144,7 +31150,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> selectedObjectIds,
         int lookCount,
         bool recycleUnselectedCards,
-        bool graveUnselectedCards = false)
+        bool graveUnselectedCards = false,
+        IReadOnlyList<string>? viewedObjectIds = null)
     {
         var events = new List<GameEvent>();
         var rngCursor = state.RngCursor;
@@ -31154,7 +31161,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var viewedCardIds = zones.MainDeck.Take(lookCount).ToArray();
+        var viewedCardIds = (viewedObjectIds ?? zones.MainDeck.Take(lookCount).ToArray())
+            .Where(id => zones.MainDeck.Contains(id)).ToArray();
         var selectedCardIds = selectedObjectIds
             .Where(cardId => viewedCardIds.Contains(cardId, StringComparer.Ordinal))
             .Distinct(StringComparer.Ordinal)

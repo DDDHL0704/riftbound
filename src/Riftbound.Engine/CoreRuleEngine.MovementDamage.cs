@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool HasTargetedMovementSkill(StackItemState item)
-        => item.MovementObserver?.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight;
+        => item.MovementObserver?.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier;
 
     // CN 359.3.f.3: the origin and destination are properties of the movement
     // that triggered the skill, even if the source subsequently moves or leaves.
@@ -17,10 +17,12 @@ public sealed partial class CoreRuleEngine
             .Select(location => location.BattlefieldObjectId!).ToHashSet(StringComparer.Ordinal);
         return state.CardObjects.Values.Where(card => IsFaceUpNonStandbyUnit(card)
             && IsObjectOnField(state.PlayerZones, card.ObjectId)
-            && (item.MovementObserver.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight
+            && (item.MovementObserver.Kind is TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier
                 ? card.ObjectId != item.SourceObjectId || card.ObjectGeneration != item.MovementObserver.SourceGeneration
                 : state.ObjectLocations.TryGetValue(card.ObjectId, out var location)
                     && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId is not null && (item.MovementObserver.Kind == TriggerKinds.UnitMovedSourceKeywordDamage || fields.Contains(location.BattlefieldObjectId)))
+            && (item.MovementObserver.Kind != TriggerKinds.UnitMovedOtherFriendlyPowerModifier
+                || EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) == item.ControllerId)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, card.ObjectId))
             .Select(card => card.ObjectId).Order(StringComparer.Ordinal).ToArray();
     }
@@ -28,13 +30,16 @@ public sealed partial class CoreRuleEngine
     private static PendingCardChoiceState TargetedMovementChoice(MatchState state, StackItemState item)
     {
         var legal = TargetedMovementTargets(state, item);
-        var reason = item.MovementObserver!.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight
+        var spec = UnitMovedTriggerSpecRules.MovementTriggers(item.CardNo).Single(UnitMovedTriggerSpecRules.IsTargetedMovementTrigger);
+        var reason = item.MovementObserver!.Kind == TriggerKinds.UnitMovedOtherFriendlyPowerModifier
+            ? "选择另一名友方单位，让其本回合战力增加；确认后双方可以响应。"
+            : item.MovementObserver.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight
             ? "选择另一名单位，或不选以放弃；确认目标和法盾费用后双方可以响应。"
             : item.MovementObserver.Kind == TriggerKinds.UnitMovedSourceKeywordDamage
             ? "选择战场上的一名单位，或不选以放弃；确认目标和法盾费用后双方可以响应。"
             : "选择移动起点或终点战场的一名单位，或不选以放弃；确认目标和法盾费用后双方可以响应。";
         return new("MOVEMENT-DAMAGE:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-            0, 1, legal, legal, reason, item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
+            spec.Optional == true ? 0 : 1, 1, legal, legal, reason, item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
     }
 
     private static StackResolutionResult ResolveMovementBaseMight(MatchState state, StackItemState item, List<GameEvent> events)
@@ -88,13 +93,31 @@ public sealed partial class CoreRuleEngine
         if (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
             || string.IsNullOrWhiteSpace(item.TargetObjectIds[0])
             || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var generation) || generation < 0) return false;
-        if (context.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight && item.TargetObjectIds[0] == item.SourceObjectId
+        if ((context.Kind is TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier)
+            && item.TargetObjectIds[0] == item.SourceObjectId
             && generation == context.SourceGeneration) return false;
         var factory = context.TargetTokenFactoryCardNo;
         if (factory is not null && !P6TokenFactoryCatalog.IsUnitTokenFactory(factory)) return false;
         if (!state.CardObjects.TryGetValue(item.TargetObjectIds[0], out var target)) return factory is not null;
         return generation <= target.ObjectGeneration && (generation != target.ObjectGeneration
             || factory == (TokenObjectRules.IsToken(target) ? target.TokenFactoryCardNo ?? target.CardNo : null));
+    }
+
+    private static StackResolutionResult ResolveMovementOtherPower(MatchState state, StackItemState item, List<GameEvent> events)
+    {
+        if (!ValidTargetedMovementStack(state, item)) throw new InvalidOperationException("Invalid captured movement Might skill.");
+        var result = NoopStackResolutionResult(state);
+        if (item.TargetObjectIds.SingleOrDefault() is not { } target
+            || item.TargetGenerations?.GetValueOrDefault(target, -1) != state.CardObjects.GetValueOrDefault(target)?.ObjectGeneration
+            || !TargetedMovementTargets(state, item).Contains(target)) return result with { Events = events };
+        var spec = UnitMovedTriggerSpecRules.MovementTriggers(item.CardNo).Single(UnitMovedTriggerSpecRules.IsMovementOtherFriendlyPowerTrigger);
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        var behavior = new CardBehaviorDefinition(item.CardNo, OfficialCardSourceIdentityGroups.DisplayName(item.CardNo),
+            0, spec.Kind, 0, 0, PowerModifierAmount: spec.PowerDelta!.Value);
+        cards[target] = ApplyPowerModifier(state, cards[target], behavior, item, target, spec.PowerDelta.Value, out var powerEvent);
+        events.Add(powerEvent with { Payload = new Dictionary<string, object?>(powerEvent.Payload) {
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) } });
+        return result with { CardObjects = cards, Events = events };
     }
 
     private static StackResolutionResult ResolveMovementDamage(MatchState state, StackItemState item, List<GameEvent> events)

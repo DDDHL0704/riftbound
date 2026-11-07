@@ -88,15 +88,18 @@ public sealed partial class CoreRuleEngine
         var remainingCount=choice.ContextObjectIds.Count;
         if((!string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag) || behavior.MainDeckTargetAllowedTags.Length > 0) && selected.Count>0)
         {
-            revealEvents.Add(new("CARD_REVEALED","展示选择的卡牌",new Dictionary<string,object?> {
+            BeforeDeckReveal(state, zones, cards, item, item.ControllerId, revealEvents, item.CompletedDeckExecutions, selectionReveal: true);
+            selected = selected.Where(id => zones[item.ControllerId].MainDeck.Contains(id)).ToArray();
+            if (selected.Count > 0) revealEvents.Add(new("CARD_REVEALED","展示选择的卡牌",new Dictionary<string,object?> {
                 ["playerId"]=item.ControllerId,["sourceObjectId"]=item.SourceObjectId,["objectId"]=selected[0],["cardNo"]=cards[selected[0]].CardNo}));
             var kept=ObserveDeckCards(state,zones,cards,item,item.ControllerId,selected,"REVEAL",item.CompletedDeckExecutions,revealEvents,selectionReveal:true);
             remainingCount-=selected.Count-kept.Length;selected=kept;
         }
         var result = behavior.RecyclesSelectedMainDeckTargets
-            ? RecycleSelectedMainDeckTargets(state,zones, cards,item.ControllerId,item.SourceObjectId,selected,remainingCount)
+            ? RecycleSelectedMainDeckTargets(state,zones, cards,item.ControllerId,item.SourceObjectId,selected,remainingCount,choice.ContextObjectIds)
             : DrawSelectedMainDeckTargetsAndRecycleRest(state, zones, cards, item.ControllerId, item.SourceObjectId,
-                selected, remainingCount, behavior.RecyclesUnselectedMainDeckLookCards, behavior.GravesUnselectedMainDeckLookCards);
+                selected, remainingCount, behavior.RecyclesUnselectedMainDeckLookCards, behavior.GravesUnselectedMainDeckLookCards,
+                choice.ContextObjectIds);
         var events = revealEvents.Concat(result.Events.Select(e => e.Kind == "CARDS_RECYCLED"
             ? e with { Payload = e.Payload.Where(field => field.Key != "cardIds").ToDictionary(field => field.Key, field => field.Value) }
             : e)).ToList();
