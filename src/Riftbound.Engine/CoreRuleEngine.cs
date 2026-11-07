@@ -15826,7 +15826,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
+            || BattlefieldLocalRules.PreventsMoveToBase(state with { PlayerZones = playerZones, CardObjects = cardObjects }, targetObjectId))
         {
             return false;
         }
@@ -23234,7 +23235,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId, events)
+            || !TryMoveTargetToOwnerBase(state, playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId, events)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
@@ -26238,7 +26239,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetToBase
-                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
+                        && TryMoveTargetToOwnerBase(state, playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BASE",
@@ -32465,6 +32466,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryMoveTargetToOwnerBase(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string movingPlayerId,
@@ -32473,7 +32475,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent>? events = null)
     {
         ownerPlayerId = string.Empty;
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
+        if (BattlefieldLocalRules.PreventsMoveToBase(current, targetObjectId)
+            || !MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
         foreach (var (playerId, zones) in playerZones)
         {
             if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)

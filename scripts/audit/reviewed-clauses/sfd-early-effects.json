@@ -417,6 +417,13 @@
           "contains": [
             "BattlefieldLocalRules.PreventsMoveToBase(state, sourceObjectId)"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private static bool TryMoveTargetToOwnerBase(\n        MatchState state,",
+            "if (BattlefieldLocalRules.PreventsMoveToBase(current, targetObjectId)"
+          ]
         }
       ],
       "tests": [
