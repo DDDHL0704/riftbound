@@ -60,6 +60,16 @@ public sealed partial class CoreRuleEngine
                 CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
                     CardStaticAbilitySpecRules.IsFriendlyUnitPlayToOpenBattlefield, out _)));
 
+    // 355.2.b adds a location permission, without granting Ambush's timing.
+    private static bool EnemyControlledBattlefieldPlayAllowed(MatchState state, string player,
+        CardBehaviorDefinition behavior, string destination)
+        => behavior.PlaysSourceToBaseAsUnit && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
+                CardStaticAbilitySpecRules.IsSourceUnitPlayToEnemyControlledBattlefield, out _)
+            && state.PlayerZones.Keys.Where(opponent => opponent != player)
+                .SelectMany(opponent => BattlefieldLocalRules.ControlledBy(state, opponent))
+                .Any(field => field.ObjectId == destination[12..]);
+
     internal static IReadOnlyList<ActionPromptChoiceDto> UnitPlayDestinationChoices(MatchState state, string player,
         CardBehaviorDefinition behavior)
     {
@@ -77,6 +87,7 @@ public sealed partial class CoreRuleEngine
                     || IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
                     || GrantedUnitPlayBattlefieldAllowed(state, player, behavior, destination)
                     || OpenBattlefieldPlayAllowed(state, player, behavior, destination)
+                    || EnemyControlledBattlefieldPlayAllowed(state, player, behavior, destination)
                     || BattlefieldUnitPlayGrants(state, player, behavior).Any(g => g.Field.ObjectId == field.ObjectId)
                     || AmbushLocationAllowed(state, player, behavior, destination)
                     || RengarAttackingBattlefieldPlayAllowed(state, player, behavior, destination)

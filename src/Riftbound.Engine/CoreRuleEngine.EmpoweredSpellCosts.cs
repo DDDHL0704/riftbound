@@ -70,7 +70,7 @@ public sealed partial class CoreRuleEngine
             + BattlefieldReactionPowerIncrease(state, player, behavior);
         return PrintedPowerCostRules.OptionsForPlay(behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)
             .SelectMany(a => ReduceSpellPower(a.GenericPower,
-                ConditionalPlayPowerCost(state, player, behavior, ApplySacrificePowerReduction(a.TypedPower, sacrificeReduction)), reduction))
+                ConditionalPlayPowerCost(state, player, behavior, ApplyBoonPlayPowerReduction(behavior, ApplySacrificePowerReduction(a.TypedPower, sacrificeReduction))), reduction))
             .DistinctBy(a => (a.ChoiceId, a.GenericPower, PrintedPowerCostRules.ChoiceId(a.TypedPower))).ToArray();
     }
 
