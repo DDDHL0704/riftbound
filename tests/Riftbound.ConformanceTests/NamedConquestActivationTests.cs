@@ -112,6 +112,13 @@ public sealed class NamedConquestActivationTests
     {
         var state = RadGearTestPosition.Put(OfficialHoldSequenceTests.State("OGN·286/298"),
             "HUNT", "UNL-100/219", "P1", "BATTLEFIELD", "F");
+        // PrintedCardFactory restores the outside-play face. This midgame
+        // position also needs the keyword tags materialized by playing it.
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-100/219", out var definition));
+        var hunt = state.CardObjects["HUNT"];
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["HUNT"] = hunt with { Tags = hunt.Tags.Concat(definition.SourceUnitTags!.Split('|',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)).Distinct().ToArray() } } };
         var game = new Driver(state); await OpenArena(game); await game.Top();
         while (game.State.StackItems.Count > 0) await game.Top();
         Assert.Equal(6, game.State.PlayerExperience["P1"]);
@@ -127,7 +134,7 @@ public sealed class NamedConquestActivationTests
         var game = new Driver(state); await OpenArena(game); await game.Top(); await game.Top();
         var activated = Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_CONQUEST_EFFECT_ACTIVATED"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "TREE"));
-        Assert.Equal("BATTLEFIELD_HELD", activated.Event.Payload["activationReason"]);
+        Assert.Equal("BATTLEFIELD_HELD", activated.Event.Payload["reason"]);
         Assert.Equal(1, game.State.CardObjects["TREE"].BoonCount);
         await game.Replay();
     }

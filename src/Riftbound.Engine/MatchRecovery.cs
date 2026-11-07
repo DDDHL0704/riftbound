@@ -4623,7 +4623,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.ConquestToken is { } token
                 ? !CoreRuleEngine.ValidConquestToken(state, token, trigger.SourceObjectId, trigger.EffectKind)
-                    || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+                    || trigger.TriggeredByEventKind != (token.ActivationReason ?? "BATTLEFIELD_CONQUERED")
                 : trigger.EffectKind is TriggerKinds.UnitConquestCreateDormantGold or TriggerKinds.UnitConquestCreateUnitToken)
                 errors.Add("invalid captured conquest token trigger");
         foreach (var item in state.StackItems)
