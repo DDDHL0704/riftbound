@@ -2,7 +2,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
+public sealed partial record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
     int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
@@ -2053,8 +2053,8 @@ public static class CardBehaviorRegistry
             "SCRAP_HEAP_PLAY_EQUIPMENT_DRAW_1",
             0,
             0,
-            DrawCount: 1,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("PLAY_OR_SELF_DISCARDED_OR_DESTROYED", "DRAW", 1)),
         new(
             "UNL-078/219",
             "精灵提灯",
@@ -2702,7 +2702,8 @@ public static class CardBehaviorRegistry
             "SOLARI_EMBLEM_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("ATTACKING_BATTLE_DRAW", "RECALL_BATTLEFIELD_UNITS")),
         new(
             "OGN·228/298",
             "先锋之盔",
@@ -5651,7 +5652,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new("PLAY", "BOON_SELF") { BoonsFriendlyUnitsHereIfPlayedToBattlefield = true }),
         new(
             "OGN·226/298",
             "幽灵主母",
@@ -7477,9 +7479,8 @@ public static class CardBehaviorRegistry
             7,
             "HEARTSPLIT_DRAGON_PLAY_UNIT_DISCARD_OPPONENT_HAND",
             0,
-            1,
-            TargetScope: CardTargetScopes.OpponentHandCard,
-            DiscardsTargetFromOwnerHand: true,
+            0,
+            HandChoice: new(RevealedHandAction.Discard),
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7),
         new(

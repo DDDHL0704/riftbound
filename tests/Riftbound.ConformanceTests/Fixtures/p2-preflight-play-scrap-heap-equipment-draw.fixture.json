@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·182/298 废料堆",
-      "note": "官方卡面：费用 2；装备；当此牌被打出、弃置或摧毁时抽一张牌。当前 fixture 覆盖从手牌打出成为装备对象并抽 1 的路径，弃置和摧毁触发分支暂缓。"
+      "note": "官方卡面：费用2；装备；当此牌被打出、弃置或摧毁时抽一张牌。本夹具覆盖实际装备打出后的独立抽牌技能；CardMultiEventDrawTests 另覆盖弃置、实际摧毁、同时事件、费用触发与冷恢复／原始回放。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -26,7 +26,10 @@
     }
   ],
   "roomId": "p2-preflight-scrap-heap-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302212,
     "turnNumber": 212,
@@ -39,31 +42,57 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 2,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-DRAW-SCRAP-HEAP-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-EQUIPMENT-SCRAP-HEAP"],
+        "mainDeck": [
+          "P1-DRAW-SCRAP-HEAP-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-EQUIPMENT-SCRAP-HEAP"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -102,9 +131,11 @@
       "PERMANENT_CONFIRMED",
       "EQUIPMENT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
+      "TRIGGER_RESOLVED",
       "CARD_DRAWN"
     ],
     "events": [
@@ -144,6 +175,9 @@
         "kind": "TRIGGER_QUEUED"
       },
       {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
         "kind": "PRIORITY_PASSED"
       },
       {
@@ -151,6 +185,9 @@
       },
       {
         "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "TRIGGER_RESOLVED"
       },
       {
         "kind": "CARD_DRAWN",
@@ -161,8 +198,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 212,
@@ -175,14 +216,24 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "mainDeck": [],
-          "hand": ["P1-DRAW-SCRAP-HEAP-001"],
-          "base": ["P1-EQUIPMENT-SCRAP-HEAP"],
+          "hand": [
+            "P1-DRAW-SCRAP-HEAP-001"
+          ],
+          "base": [
+            "P1-EQUIPMENT-SCRAP-HEAP"
+          ],
           "graveyard": []
         }
       },
@@ -190,7 +241,9 @@
         "P1-EQUIPMENT-SCRAP-HEAP": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "tags": [
+            "CARD_TYPE:EQUIPMENT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false
@@ -199,8 +252,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

@@ -83,7 +83,23 @@ def segments(text: str) -> list[str]:
     return combined
 
 
+def implicit_recycle_activation_count(text: str) -> int | None:
+    # CN post-event FAQ, Future Forge: this printed instruction is an activated
+    # skill; choose graveyard targets before paying source destruction.
+    if text.lstrip().startswith(("（", "(", "“", "「")):
+        return None
+    match = re.fullmatch(r"你可以选择摧毁此装备[，,]以此从任意废牌堆中回收最多([0-9一二三四五六七八九十]+)张卡牌[。.]?",
+                         unparenthesize(text).strip())
+    if not match:
+        return None
+    raw = match[1]
+    count = int(raw) if raw.isdecimal() else dict(zip("一二三四五六七八九十", range(1, 11))).get(raw, 0)
+    return count if count > 0 else None
+
+
 def is_activation(text: str) -> bool:
+    if implicit_recycle_activation_count(text) is not None:
+        return True
     # Colons in choice menus, granted quoted skills and trigger payments are not
     # independent source activations.
     head = re.split("[：:]", text, maxsplit=1)[0]
@@ -430,6 +446,13 @@ def legend_field_activation_route(card: dict, clause: dict, sources: Sources) ->
 
 
 def activation_cost_matches(ability: dict, clause: dict) -> bool:
+    if implicit_recycle_activation_count(clause["text"]) is not None:
+        simple = ability.get("simpleEffect", {})
+        return (simple.get("destroysSourceAsCost", False) and not ability.get("exhaustsSourceAsCost")
+                and not any(ability.get(key) for key in ("manaCost", "powerCost", "experienceCost", "powerCostByTrait"))
+                and not any(simple.get(key) for key in ("discardsHandCardAsCost", "discardsEquipmentAsCost",
+                    "removesSourceEmpowermentAsCost", "destroyFriendlyTagAsCost"))
+                and simple.get("exhaustFriendlyUnitMinimumPowerAsCost") is None)
     cost = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[0]
     if bool(re.search(r"\{\{(?:横置|T)\}\}", cost)) != bool(ability.get("exhaustsSourceAsCost")):
         return False
@@ -449,6 +472,12 @@ def activation_cost_matches(ability: dict, clause: dict) -> bool:
 def activation_matches(ability: dict, clause: dict) -> bool:
     if not activation_cost_matches(ability, clause):
         return False
+    if (maximum := implicit_recycle_activation_count(clause["text"])) is not None:
+        return (ability.get("kind") == "DESTROY_SOURCE_RECYCLE_GRAVEYARD"
+                and ability.get("simpleEffect", {}).get("recyclesGraveyardTargets", False)
+                and ability.get("sourceRequiredTag") == "CARD_TYPE:EQUIPMENT"
+                and ability.get("requiredTargetCount", 0) == 0 and ability.get("maximumTargetCount") == maximum
+                and not any(ability.get(key) for key in ("reactionSpeed", "swiftSpeed", "requiresBattlefieldSource")))
     _, effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
     numeric_damage = re.search(r"造成([0-9]+)点伤害", effect)
     if numeric_damage and ability.get("damageAmount") and ability["damageAmount"] != int(numeric_damage[1]):
@@ -482,7 +511,10 @@ def activation_matches(ability: dict, clause: dict) -> bool:
 
 
 def legend_activation_route(card: dict, clause: dict, sources: Sources) -> dict | None:
-    effect = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)[1].strip()
+    parts = re.split("[：:]", unparenthesize(clause["text"]), maxsplit=1)
+    if len(parts) != 2:
+        return None
+    effect = parts[1].strip()
     candidates = [a for a in card.get("legendActivationDefinitions", []) if activation_cost_matches(a, clause)]
     boon = re.fullmatch(r"给予一名(友方)?单位(?:\{\{增益\}\}|增益)[。.]?", effect)
     roam = re.fullmatch(r"让一名单位本回合内获得\{\{游走\}\}[。.]?", effect)
@@ -514,6 +546,11 @@ def event_operations_match(event: dict, text: str) -> bool:
     # A matching timing is not evidence for an unrelated or partial effect.
     # The trigger condition itself is not an instruction (e.g. "becomes ready").
     body = re.sub(r"^.*?时[，,]", "", text, count=1)
+    # A self-boon consumer cannot certify a different clause that grants boons
+    # to a chosen unit or every friendly unit at the source's location.
+    if event.get("effect") in {"BOON_SELF", "BOON_SELF_AND_READY"} and not re.search(
+            r"(?:给予我|给我|我获得|让我获得)[^。；]*增益", body):
+        return False
     capabilities = {
         "DRAW": {"draw"}, "DISCARD_DRAW": {"draw", "discard"},
         "MIGHT_SELF": {"might"}, "MIGHT_FRIENDLY": {"might"}, "MIGHT_ATTACKERS": {"might"},
@@ -558,6 +595,19 @@ def event_operations_match(event: dict, text: str) -> bool:
     return True
 
 
+def event_timing_routes(timing: str, sources: Sources) -> list[str]:
+    direct = sources.references('"' + timing + '"')
+    if direct:
+        return direct
+    if "_OR_" not in timing:
+        return []
+    # Union event names are interpreted by the shared capture matcher. They
+    # need not appear as hard-coded strings in executable routing anymore.
+    return [path for path in sources.references("UnitEventTimingMatches(spec.Timing, timing)")
+            if Path(path).name == "CoreRuleEngine.UnitEvents.cs"
+            and 'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal)' in sources.files[path]]
+
+
 def behavior_operations(card: dict, clause: dict, sources: Sources) -> dict | None:
     bare = unparenthesize(clause["text"])
     scope = unparenthesize(clause["scope"])
@@ -565,7 +615,7 @@ def behavior_operations(card: dict, clause: dict, sources: Sources) -> dict | No
         events = [card.get("unitEventAbility")] + [behavior.get("unitEventAbility") for behavior in card.get("behaviors", [])]
         for event in events:
             if event and re.search(EVENT_TIMINGS.get(event["timing"], r"(?!)"), scope) and event_operations_match(event, bare):
-                timing = sources.references('"' + event["timing"] + '"')
+                timing = event_timing_routes(event["timing"], sources)
                 effect = sources.references('"' + event["effect"] + '"')
                 if timing and effect:
                     return result("route", "事件技能：" + event["timing"] + "/" + event["effect"], timing + effect)
@@ -1165,6 +1215,19 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         if clause["scope"] == clause["text"]:
             for ability in card.get("activations", []):
                 if not activation_matches(ability, clause):
+                    continue
+                if implicit_recycle_activation_count(clause["text"]) is not None:
+                    required = [
+                        ("spec.DestroysSourceAsCost ? source.ObjectId", "CoreRuleEngine.SimpleActivatedAbilities.cs"),
+                        ("!SimpleActivationTargetCountValid(ability, targets.Count)", "CoreRuleEngine.SimpleActivatedAbilities.cs"),
+                        ("if (spec.RecyclesGraveyardTargets) return ResolveActivatedGraveyardRecycle(state, item)", "CoreRuleEngine.SimpleActivatedAbilities.cs"),
+                        ("IsAnyGraveyardCard(", "CoreRuleEngine.ActivatedGraveyardRecycle.cs"),
+                        ("RecycleGraveyardCards(", "CoreRuleEngine.ActivatedGraveyardRecycle.cs")]
+                    paths = [[path for path in sources.references(symbol) if Path(path).name == filename]
+                             for symbol, filename in required]
+                    if all(paths):
+                        return result("route", "先选择目标并支付来源自毁费用，独立回收仍合法的废牌目标",
+                                      sorted({path for row in paths for path in row}))
                     continue
                 routes = sources.value_routes(ability.get("effectKind", "")) + sources.value_routes(ability.get("abilityId", ""))
                 if ability.get("kind"):
