@@ -21,7 +21,7 @@ public sealed class SilkDancerMovementTests
             state = OfficialHoldSequenceTests.AddUnit(state, "REMOTE", "OGN·001/298", "OTHER", "P1");
             state = OfficialHoldSequenceTests.AddUnit(state, "ENEMY", "OGN·001/298", "OTHER", "P2");
             state = LocalDestructionRecallTests.At(state, "ENEMY", "P2", "BASE");
-            state = RadGearTestPosition.Put(state, "HIDDEN", "OGN·001/298", "P1", "HAND");
+            state = RadGearTestPosition.Put(state, "HAND_UNIT", "OGN·001/298", "P1", "HAND");
         }
         return state with { RoomId = "SILK-DANCER-MOVEMENT", CardObjects = state.CardObjects.ToDictionary(pair => pair.Key,
             pair => pair.Key == "HOST" ? OfficialGarenConquestBattlefieldCountTests.Printed("HOST", Dancer, "P1")
@@ -64,7 +64,7 @@ public sealed class SilkDancerMovementTests
     }
 
     [Theory]
-    [InlineData("")] [InlineData("HOST")] [InlineData("ENEMY")] [InlineData("GEAR")] [InlineData("HIDDEN")]
+    [InlineData("")] [InlineData("HOST")] [InlineData("ENEMY")] [InlineData("GEAR")] [InlineData("HAND_UNIT")]
     public async Task MandatoryOtherFriendlyTargetsRejectDeclineSelfEnemiesEquipmentAndHiddenCards(string target)
     {
         var game = new Driver(Board()); await Move(game);
