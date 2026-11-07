@@ -106,7 +106,8 @@ public sealed partial class CoreRuleEngine
             cards[id] = ApplyPowerModifier(state, target, behavior, item, id, ability.PowerModifierAmount, out var modified);
             events.Add(modified);
         }
-        else if (!AttachedRuleTextRules.Instances(state, target)
+        else if (ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, target)
+            && !AttachedRuleTextRules.Instances(state, target)
             .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)))
         {
             AddReadiedObservation(state.PlayerZones, cards, target, events);

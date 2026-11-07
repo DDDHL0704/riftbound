@@ -268,6 +268,7 @@ public sealed partial class CoreRuleEngine
             var id = item.SourceObjectId;
             if (cards.TryGetValue(id, out var card) && IsObjectOnField(zones, id)
                 && card.ObjectGeneration == context.SourceGeneration && IsFaceUpNonStandbyUnit(card)
+                && ReadyByEffectPermittedByFieldRules(zones, cards, card)
                 && !CardStaticAbilitySpecRules.CardCannotBecomeActive(card.CardNo))
             {
                 AddReadiedObservation(zones, cards, card, events);

@@ -64,7 +64,8 @@ public sealed partial class CoreRuleEngine
             .OrderBy(card => card.ObjectId, StringComparer.Ordinal))
         {
             var destination = "BATTLEFIELD:" + field.ObjectId;
-            if (!BattlefieldLocalRules.PreventsUnitPlay(context, destination)
+            if (UnitPlayPermittedByFieldRules(zones, cards, player, destination)
+                && !BattlefieldLocalRules.PreventsUnitPlay(context, destination)
                 && (anywhere || IsOpenBattlefield(context, field.ObjectId) && FriendlyUnitPlayToOpenBattlefieldGranted(context, player)
                     || IsPlayCardUnitBattlefieldDestinationAllowed(context, player, destination)
                     && HasControlledUnitAtBattlefield(context, player, field.ObjectId)))

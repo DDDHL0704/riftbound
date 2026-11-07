@@ -180,7 +180,8 @@ public sealed partial class CoreRuleEngine
         }
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); var events = new List<GameEvent>();
         foreach (var id in item.TargetObjectIds)
-            if (EndRuneTargets(state, item.ControllerId).Contains(id) && cards[id].ObjectGeneration == item.TargetGenerations!.GetValueOrDefault(id, -1))
+            if (EndRuneTargets(state, item.ControllerId).Contains(id) && cards[id].ObjectGeneration == item.TargetGenerations!.GetValueOrDefault(id, -1)
+                && ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, cards[id]))
             {
                 cards[id] = cards[id] with { IsExhausted = false };
                 events.Add(new("RUNE_READIED", "结束步骤让选择的符文变为活跃状态", new Dictionary<string,object?> {

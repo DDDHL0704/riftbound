@@ -18,6 +18,8 @@ public sealed partial class CoreRuleEngine
         if (!P6TokenFactoryCatalog.TryGetByCardNo(factoryCardNo, out var factory))
             throw new InvalidOperationException($"Missing official unit token factory: {factoryCardNo}");
         var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
+        if (battlefieldId is not null && !UnitPlayPermittedByFieldRules(zones, cards, item.ControllerId, "BATTLEFIELD:" + battlefieldId))
+            return NoopStackResolutionResult(state) with { Events = [PreventedUnitPlay(item.ControllerId, visibleSource, "BATTLEFIELD:" + battlefieldId)] };
         for (var i = 0; i < count; i++)
         {
             var id = NextTokenObjectId(zones, cards, visibleSource == "HIDDEN" ? item.ControllerId + "-PUBLIC" : visibleSource, i + 1);

@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-portalpalooza-cards-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302189,
     "turnNumber": 89,
@@ -34,31 +37,55 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 3,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-PORTAL-DRAW-001"],
-        "runeDeck": ["P1-RUNE-001"],
-        "hand": ["P1-SPELL-PORTALPALOOZA"],
+        "mainDeck": [
+          "P1-PORTAL-DRAW-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
+        "hand": [
+          "P1-SPELL-PORTALPALOOZA"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-PORTAL-DRAW-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-PORTAL-DRAW-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -72,7 +99,6 @@
         "sourceObjectId": "P1-SPELL-PORTALPALOOZA",
         "cardNo": "OGN·071/298",
         "targetObjectIds": [],
-        "mode": "OTHER_PLAYERS_CHOOSE_CARDS",
         "optionalCosts": []
       }
     },
@@ -89,22 +115,38 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "portal-cards-actual-other-player-choice",
+      "cmd": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "CARDS"
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
+      "RULE_CHOICE_REQUESTED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
+      "OTHER_PLAYER_EFFECT_CHOICE",
       "CARD_DRAWN",
       "CARD_DRAWN"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "tick": 1,
@@ -125,17 +167,41 @@
           "sourceObjectId": "P1-SPELL-PORTALPALOOZA",
           "cardNo": "OGN·071/298",
           "targetObjectIds": [],
-          "effectKind": "PORTALPALOOZA_OTHER_PLAYERS_CHOOSE_CARDS",
-          "mode": "OTHER_PLAYERS_CHOOSE_CARDS"
+          "effectKind": "OTHER_PLAYERS_DRAW_OR_RUNE_CHOICE"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "RULE_CHOICE_REQUESTED",
+        "tick": 3,
+        "sequence": 5,
+        "payload": {
+          "playerId": "P2",
+          "choiceId": "REPLACEMENT:2:0"
+        }
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "OTHER_PLAYER_EFFECT_CHOICE",
+        "tick": 4,
+        "sequence": 8,
+        "payload": {
+          "playerId": "P2",
+          "selection": "CARDS",
+          "sourceObjectId": "P1-SPELL-PORTALPALOOZA"
+        }
+      },
       {
         "kind": "CARD_DRAWN",
-        "tick": 3,
-        "sequence": 7,
+        "tick": 4,
+        "sequence": 9,
         "payload": {
           "playerId": "P1",
           "count": 1
@@ -143,8 +209,8 @@
       },
       {
         "kind": "CARD_DRAWN",
-        "tick": 3,
-        "sequence": 8,
+        "tick": 4,
+        "sequence": 10,
         "payload": {
           "playerId": "P2",
           "count": 1
@@ -152,8 +218,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 89,
@@ -166,25 +236,47 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "mainDeck": [],
-          "hand": ["P1-PORTAL-DRAW-001"],
-          "graveyard": ["P1-SPELL-PORTALPALOOZA"]
+          "hand": [
+            "P1-PORTAL-DRAW-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-PORTALPALOOZA"
+          ]
         },
         "P2": {
           "mainDeck": [],
-          "hand": ["P2-PORTAL-DRAW-001"]
+          "hand": [
+            "P2-PORTAL-DRAW-001"
+          ]
         }
       },
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

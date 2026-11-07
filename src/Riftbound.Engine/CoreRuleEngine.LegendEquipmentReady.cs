@@ -85,8 +85,9 @@ public sealed partial class CoreRuleEngine
         {
             if (!IsLegendEquipmentReadyTarget(state, item.ControllerId, id)
                 || !cards.TryGetValue(id, out var equipment) || equipment.ObjectGeneration != item.TargetGenerations![id]) continue;
-            if (AttachedRuleTextRules.Instances(state, equipment)
-                .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo))) continue;
+            if (!ReadyByEffectPermittedByFieldRules(state.PlayerZones, cards, equipment)
+                || AttachedRuleTextRules.Instances(state, equipment)
+                    .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo))) continue;
             AddReadiedObservation(state.PlayerZones, cards, equipment, events);
             cards[id] = equipment with { IsExhausted = false };
             events.Add(CaptureSelfReady(new("EQUIPMENT_READIED", "装备变为活跃状态", new Dictionary<string, object?> {

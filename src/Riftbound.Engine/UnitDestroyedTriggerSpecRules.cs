@@ -68,6 +68,17 @@ internal static class UnitDestroyedTriggerSpecRules
             && trigger.ExperienceCount is > 0;
     }
 
+    public static bool IsControllerStunnedEnemyDestroyedDrawTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.PlayerDestroysStunnedEnemyDraw
+            && trigger.Timing == TriggerTimings.UnitDestroyed
+            && trigger.TargetScope == TriggerTargetScopes.EnemyDestroyedUnit
+            && trigger.DrawCount is > 0 && trigger.ExhaustsSource == true && trigger.Optional == true;
+
+    public static bool IsFriendlyBoonedUnitDestroyedBoonTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther
+            && trigger.Timing == TriggerTimings.UnitDestroyed
+            && trigger.TargetScope == TriggerTargetScopes.OtherControlledUnitOnField && trigger.BoonCount == 1;
+
     public static bool IsFriendlyDestroyedPowerUntilEndTrigger(TriggerSpec trigger)
     {
         return string.Equals(

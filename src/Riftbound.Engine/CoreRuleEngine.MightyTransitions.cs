@@ -336,7 +336,8 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         if (context.Kind == MightyReadyEffect) {
             if (cards.TryGetValue(context.Unit.ObjectId, out var target) && target.ObjectGeneration == context.Unit.Generation
-                && IsVisibleFieldUnitObject(cards, target.ObjectId) && IsObjectOnField(zones, target.ObjectId)) {
+                && IsVisibleFieldUnitObject(cards, target.ObjectId) && IsObjectOnField(zones, target.ObjectId)
+                && ReadyByEffectPermittedByFieldRules(zones, cards, target)) {
                 AddReadiedObservation(zones, cards, target, events);
                 cards[target.ObjectId] = target with { IsExhausted = false };
                 events.Add(CaptureSelfReady(new("UNIT_READIED", "强力技能结算活跃单位", new Dictionary<string, object?> {

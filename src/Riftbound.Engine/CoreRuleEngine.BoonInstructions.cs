@@ -14,12 +14,14 @@ public sealed partial class CoreRuleEngine
                 || !cards.TryGetValue(id, out var unit) || !unit.Tags.Contains(CardObjectTags.Boon)
                 || item.TargetGenerations is null || !item.TargetGenerations.TryGetValue(id, out var generation)
                 || unit.ObjectGeneration != generation) continue;
-            AddReadiedObservation(zones, cards, unit, events);
-            cards[id] = BoonRules.Consume(unit) with { IsExhausted = false };
+            var canReady = ReadyByEffectPermittedByFieldRules(zones, cards, unit);
+            if (canReady) AddReadiedObservation(zones, cards, unit, events);
+            var consumed = BoonRules.Consume(unit);
+            cards[id] = canReady ? consumed with { IsExhausted = false } : consumed;
             events.Add(new("BOON_CONSUMED", "消耗所选单位的增益", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = id, ["previousPower"] = unit.Power, ["power"] = unit.Power - 1 }));
-            if (unit.IsExhausted) events.Add(CaptureSelfReady(new("UNIT_READIED", "消耗增益后让所选单位活跃", new Dictionary<string, object?> {
+            if (canReady && unit.IsExhausted) events.Add(CaptureSelfReady(new("UNIT_READIED", "消耗增益后让所选单位活跃", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = id, ["reason"] = item.EffectKind, ["wasExhausted"] = unit.IsExhausted }), unit, item.ControllerId, zones, cards));
         }

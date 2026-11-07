@@ -1377,6 +1377,20 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var controllerStunnedEnemyDraw = Regex.Match(segment,
+            @"^每当你摧毁一名被眩晕的敌方单位时，你可以选择让(?:此牌|我)变为休眠状态，以此抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?$",
+            RegexOptions.CultureInvariant);
+        if (controllerStunnedEnemyDraw.Success)
+            return new TriggerSpec(TriggerKinds.PlayerDestroysStunnedEnemyDraw, TriggerTimings.UnitDestroyed, segment,
+                TargetScope: TriggerTargetScopes.EnemyDestroyedUnit,
+                DrawCount: ParseChineseNumber(controllerStunnedEnemyDraw.Groups["draw"].Value),
+                ExhaustsSource: true, Optional: true);
+        if (Regex.IsMatch(segment,
+                @"^每当一名拥有(?:\{\{)?增益(?:\}\})?的友方单位被摧毁时，给予另一名友方单位(?:\{\{)?增益(?:\}\})?。?$",
+                RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther, TriggerTimings.UnitDestroyed, segment,
+                TargetScope: TriggerTargetScopes.OtherControlledUnitOnField, BoonCount: 1);
+
         var stunnedEnemyDraw = Regex.Match(segment,
             @"^当一名被眩晕的敌方单位在此处被摧毁时，抽([0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
         if (stunnedEnemyDraw.Success)
@@ -3563,6 +3577,17 @@ public static class StaticAbilityParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Unconditional source-unit active-entry static ability parsed for spec-driven unit-entry routing."));
+                continue;
+            }
+
+            if (segment.TrimEnd('。') == "如果我位于战场上，则对手只能把单位打到自己的基地") {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.BattlefieldOpponentUnitsBaseOnly,
+                    segment, BehaviorImplementationStatuses.Implemented, "Shared public battlefield source play restriction."));
+                continue;
+            }
+            if (segment.TrimEnd('。') == "如果我位于战场上，则禁止敌方单位和装备通过法术或技能效果变为活跃状态") {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.BattlefieldEnemyUnitEquipmentCannotReadyByEffect,
+                    segment, BehaviorImplementationStatuses.Implemented, "Shared public battlefield source effect-ready restriction."));
                 continue;
             }
 
