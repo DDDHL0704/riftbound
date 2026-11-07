@@ -135,26 +135,19 @@ public sealed class RadJarvanLegendTests
     [InlineData("SFD·135/221")]
     public async Task AResponseRemovingTheEquipmentDoesNotChangeTheCapturedBattlefield(string no)
     {
-        var state = LocalDestructionRecallTests.At(Position(equipment: "RAD·094/167"), "UNIT", "P1", "BATTLEFIELD", "BF");
-        state = OfficialCopyIdentityTests.AddSpell(state, "REMOVE", no);
-        // Kai'Sa grants Reaction during this battlefield's duel, so both
-        // printed Swift removal spells can legally respond to the legend.
+        var state = OfficialCopyIdentityTests.AddSpell(Position(), "REMOVE", no);
+        // The champion grants Swift to Deployment equipment during a real
+        // battlefield duel. Kai'Sa then grants Reaction to the removal spells.
+        state = LastBreathDrawBoundaryTests.Add(state, "JARVAN", "RAD·091/167", "P1", "BASE");
+        state = LocalDestructionRecallTests.At(state, "JARVAN", "P1", "BATTLEFIELD", "BF");
         state = LastBreathDrawBoundaryTests.Add(state, "KAISA", "RAD·063/167", "P1", "BASE");
         state = LocalDestructionRecallTests.At(state, "KAISA", "P1", "BATTLEFIELD", "BF");
-        state = state with {
-            TurnPlayerId = "P2", ActivePlayerId = "P2",
-            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
-                ["P1"] = state.PlayerZones["P1"] with { Hand = ["REMOVE"] } },
-            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["UNIT"] = state.CardObjects["UNIT"] with { IsExhausted = true }
-            }
-        };
+        state = state with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
         var game = new Driver(state);
         await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
-        for (var i = 0; game.State.FocusPlayerId is not null; i++) {
-            Assert.InRange(i, 0, 3); await game.Act(game.State.FocusPlayerId, new PassFocusCommand());
-        }
-        await game.Top(); // Defending Bomb Monkey plays three deployment equipment tokens.
+        if (game.State.FocusPlayerId != "P1")
+            await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        await game.Act("P1", new PlayCardCommand("UNIT", Standard, [], Destination: "BATTLEFIELD:BF"));
         if (game.State.TriggerQueue.Count > 0)
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         for (var i = 0; game.State.PendingCardChoice is not null || game.State.PendingPayment is not null; i++) {
@@ -169,23 +162,10 @@ public sealed class RadJarvanLegendTests
             await game.Act(priority, new PassPriorityCommand());
         await game.Act("P1", new PlayCardCommand("REMOVE", no, [equipment]));
         var legendItem = Assert.Single(game.State.StackItems, i => i.UnitEvent?.DeploymentBattlefield is not null).StackItemId;
-        await game.Top(); Assert.False(game.State.CardObjects.ContainsKey(equipment));
-        // Destruction also triggers the Bomb's printed damage skill. Resolve
-        // that earned skill before the captured movement below it.
-        for (var i = 0; game.State.StackItems.Any(item => item.StackItemId == legendItem); i++) {
-            // Three Bombs can require three target choices, three resolutions,
-            // one ordering command and the legend's final resolution.
-            Assert.InRange(i, 0, 7);
-            var tick = game.State.Tick;
-            if (game.State.PendingCardChoice is { } choice) {
-                Assert.Contains("ENEMY", choice.LegalObjectIds);
-                await Choose(game, "ENEMY");
-            }
-            else if (game.State.TriggerQueue.Count > 0)
-                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
-            else await game.Top();
-            Assert.True(game.State.Tick > tick, "The Bomb response must advance its pending choice or resolve an item.");
-        }
+        await game.Top();
+        Assert.Contains(equipment, no == "SFD·135/221" ? game.State.PlayerZones["P1"].Hand : game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(game.State.StackItems, item => item.StackItemId == legendItem);
+        await game.Top();
         Assert.Equal("BF", game.State.ObjectLocations["ALLY"].BattlefieldObjectId); await game.Replay();
     }
 
