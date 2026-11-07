@@ -571,6 +571,15 @@ public static class TriggerParser
                 DrawCount: 1, RevealCount: 1, RequiredPowerThreshold: PowerfulUnitPowerThreshold,
                 RevealSourceZone: TriggerZones.MainDeck, RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:UNIT",
                 RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.MainDeck));
+        var movedEquipmentReveal = Regex.Match(text,
+            @"当我移动时，展示你主牌堆顶部的一张牌。\s*如果是一张装备牌，则抽取该卡牌，否则将其回收。",
+            RegexOptions.CultureInvariant);
+        if (movedEquipmentReveal.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle, TriggerTimings.UnitMoved,
+                movedEquipmentReveal.Value, "Move trigger: reveal one, draw that equipment or recycle it.",
+                TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: 1, RevealCount: 1,
+                RevealSourceZone: TriggerZones.MainDeck, RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:EQUIPMENT",
+                RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.MainDeck));
         var endReveal = Regex.Match(text, @"在你的回合结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，将其放逐，然后将其打出，无视费用，并回收其余的卡牌。", RegexOptions.CultureInvariant);
         if (endReveal.Success) triggers.Add(new(TriggerKinds.TurnEndRevealUntilUnit, TriggerTimings.TurnEnd, endReveal.Value,
             "End-step reveal until first unit, banish and normal free pending play.", RevealSourceZone: TriggerZones.MainDeck,

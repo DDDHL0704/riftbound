@@ -79,6 +79,11 @@ internal static class UnitMovedTriggerSpecRules
 
     public static bool IsMovementRevealTrigger(TriggerSpec trigger)
         => IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
+            || trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle && trigger.Timing == TriggerTimings.UnitMoved
+                && trigger.TargetScope == TriggerTargetScopes.SourceUnit && trigger.RevealCount == 1 && trigger.DrawCount == 1
+                && trigger.RequiredPowerThreshold is null && trigger.RevealSourceZone == TriggerZones.MainDeck
+                && trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.EquipmentCard
+                && trigger.RevealMatchDestinationZone == TriggerZones.Hand && trigger.RevealMissDestinationZone == TriggerZones.MainDeck
             || trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle && trigger.Timing == TriggerTimings.UnitMoved
                 && trigger.TargetScope == TriggerTargetScopes.SourceUnit && trigger.RevealCount == 1 && trigger.DrawCount == 1
                 && trigger.RequiredPowerThreshold > 0 && trigger.RevealSourceZone == TriggerZones.MainDeck

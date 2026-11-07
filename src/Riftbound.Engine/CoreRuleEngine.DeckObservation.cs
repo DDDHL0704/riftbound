@@ -21,6 +21,10 @@ public sealed record DeckObservationView(string PlayerId, bool Public, IReadOnly
 
 public sealed partial class CoreRuleEngine
 {
+    private static bool IsMovementRevealObservation(StackItemState parent)
+        => parent.MovementObserver is { } movement
+            && UnitMovedTriggerSpecRules.TryGetTrigger(movement.CardNo,
+                spec => spec.Kind == movement.Kind && UnitMovedTriggerSpecRules.IsMovementRevealTrigger(spec), out _);
     internal const string ObservedDeckPlayEffect="OBSERVED_DECK_UNIT_PLAY_PERMISSION";
     private static readonly Lazy<IReadOnlyDictionary<string,int>> ObservationPlayCosts=new(()=>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.Select(c=>new {
@@ -180,7 +184,7 @@ public sealed partial class CoreRuleEngine
                 : parent.InsightContext is { } insight?insight.Count
                 : parent.BeginningDraw?.Kind == "LOWEST_DECK_TOP_MANA" ? 1
                 : IsGuessedDeckTopObservation(parent) ? 1
-                : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?1
+                : IsMovementRevealObservation(parent)?1
                 : CardBehaviorRegistry.TryGetByCardNo(parent.CardNo??"",out var printed)
                     ? printed.PerformsInsight?printed.InsightCount:Math.Max(printed.DefendTriggerMainDeckLookCount,printed.StandbyReactionMainDeckLookCount)
                     : BattlefieldTriggerSpecRules.TryGetTrigger(parent.CardNo,
@@ -216,8 +220,8 @@ public sealed partial class CoreRuleEngine
                 ? BorrowedExhaustRules.Valid(state, parent) : ValidSimpleActivation(state,parent)
             : parent.EndAbility is not null ? ValidEndAbility(state,parent)
             : parent.DestroyDeckPlay is not null ? ValidDestroyDeckPlayContext(state,parent)
-            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle} movement
-                ? ValidMovementObserver(state,movement,parent.EffectKind,parent.ControllerId,parent.SourceObjectId,parent.CardNo)
+            : IsMovementRevealObservation(parent)
+                ? ValidMovementObserver(state,parent.MovementObserver!,parent.EffectKind,parent.ControllerId,parent.SourceObjectId,parent.CardNo)
             : parent.FieldContext is { } field ? ValidFieldContextState(state,field,parent.SourceObjectId,parent.ControllerId,parent.EffectKind,parent.CardNo)
             : parent.InsightContext is { } insight ? ValidInsightTrigger(insight,parent.EffectKind,parent.ControllerId,parent.CardNo)
                 && ValidConquestLookSource(state,insight,parent.SourceObjectId)
@@ -236,7 +240,7 @@ public sealed partial class CoreRuleEngine
         => parent.BeginningDraw?.Kind == "LOWEST_DECK_TOP_MANA" ? "REVEAL"
             : IsGuessedDeckTopObservation(parent) ? "REVEAL"
             : parent.InsightContext is { } insight ? insight.Kind=="DUEL" && parent.InsightCompleted?"REVEAL":"LOOK"
-            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?"REVEAL"
+            : IsMovementRevealObservation(parent)?"REVEAL"
             : TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0
                 ? DeckPlaySequenceReveals(parent)?"REVEAL":"LOOK"
             : parent.FieldContext is {Kind:"STANDBY_DEFEND"}?"REVEAL"

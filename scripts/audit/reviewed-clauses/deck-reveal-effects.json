@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·041/221"
+      ],
+      "text": "当我移动时，展示你主牌堆顶部的一张牌。",
+      "scope": "当我移动时，展示你主牌堆顶部的一张牌。",
+      "location": "upper",
+      "status": "route",
+      "reason": "共享移动规格解析完整中文句型；实际移动后捕获独立技能并开放响应，结算时展示原牌顶。装备沿用抽牌流程，其他牌沿用回收流程，空牌堆不燃尽；魔腾放逐不替换为下一张牌，来源返手后技能保持独立且隐藏当前私密来源。",
+      "rules": "中国区核心383移动触发及独立技能、425展示、416抽牌、417回收、432.1.c空观察；SFD·041官方中文文本",
+      "runtime": {
+        "triggers": [
+          {
+            "node": {
+              "kind": "UNIT_MOVED_REVEAL_TOP_DRAW_EQUIPMENT_OR_RECYCLE",
+              "timing": "UNIT_MOVED",
+              "targetScope": "SOURCE_UNIT",
+              "revealCount": 1,
+              "drawCount": 1,
+              "revealMatchCardFilter": "TAG:CARD_TYPE:EQUIPMENT",
+              "revealMatchDestinationZone": "HAND",
+              "revealMissDestinationZone": "MAIN_DECK"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+          "contains": [
+            "triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
+            "RevealMatchCardFilter: TriggerCardFilters.TagPrefix + \"CARD_TYPE:EQUIPMENT\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs",
+          "contains": [
+            "trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
+            "trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.EquipmentCard"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "UnitMovedTriggerSpecRules.IsMovementRevealTrigger(unitSpec)",
+            "return ResolveMovementReveal(state, item, unitSpec!, events);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementReveal.cs",
+          "contains": [
+            "var matchTag = spec.RevealMatchCardFilter![TriggerCardFilters.TagPrefix.Length..];",
+            "revealed.Tags.Contains(matchTag)",
+            "if (top is not null && remaining.Contains(top))",
+            "spec.RevealMissDestinationZone == TriggerZones.MainDeck"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "contains": [
+            "private static bool IsMovementRevealObservation(StackItemState parent)",
+            "spec => spec.Kind == movement.Kind && UnitMovedTriggerSpecRules.IsMovementRevealTrigger(spec)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ApprenticeBlacksmithRevealTests.cs",
+          "methods": [
+            "ActualPlayThenReadyAndMoveQueuesAnIndependentEquipmentRevealSkill",
+            "RevealsOnlyTheActualTopDrawsEquipmentAndOtherwiseRecyclesWithoutBurnout",
+            "RevealedNocturneMayBanishButNeverMakesTheNextCardAnEquipmentDraw",
+            "ReturningTheSmithInResponseKeepsTheIndependentRevealAndHidesItsCurrentPrivateSource"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·041/221"
+      ],
+      "text": "如果是一张装备牌，则抽取该卡牌，否则将其回收。",
+      "scope": "当我移动时，展示你主牌堆顶部的一张牌。",
+      "location": "upper",
+      "status": "route",
+      "reason": "共享移动规格解析完整中文句型；实际移动后捕获独立技能并开放响应，结算时展示原牌顶。装备沿用抽牌流程，其他牌沿用回收流程，空牌堆不燃尽；魔腾放逐不替换为下一张牌，来源返手后技能保持独立且隐藏当前私密来源。",
+      "rules": "中国区核心383移动触发及独立技能、425展示、416抽牌、417回收、432.1.c空观察；SFD·041官方中文文本",
+      "runtime": {
+        "triggers": [
+          {
+            "node": {
+              "kind": "UNIT_MOVED_REVEAL_TOP_DRAW_EQUIPMENT_OR_RECYCLE",
+              "timing": "UNIT_MOVED",
+              "targetScope": "SOURCE_UNIT",
+              "revealCount": 1,
+              "drawCount": 1,
+              "revealMatchCardFilter": "TAG:CARD_TYPE:EQUIPMENT",
+              "revealMatchDestinationZone": "HAND",
+              "revealMissDestinationZone": "MAIN_DECK"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+          "contains": [
+            "triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
+            "RevealMatchCardFilter: TriggerCardFilters.TagPrefix + \"CARD_TYPE:EQUIPMENT\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs",
+          "contains": [
+            "trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle",
+            "trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.EquipmentCard"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "UnitMovedTriggerSpecRules.IsMovementRevealTrigger(unitSpec)",
+            "return ResolveMovementReveal(state, item, unitSpec!, events);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementReveal.cs",
+          "contains": [
+            "var matchTag = spec.RevealMatchCardFilter![TriggerCardFilters.TagPrefix.Length..];",
+            "revealed.Tags.Contains(matchTag)",
+            "if (top is not null && remaining.Contains(top))",
+            "spec.RevealMissDestinationZone == TriggerZones.MainDeck"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "contains": [
+            "private static bool IsMovementRevealObservation(StackItemState parent)",
+            "spec => spec.Kind == movement.Kind && UnitMovedTriggerSpecRules.IsMovementRevealTrigger(spec)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ApprenticeBlacksmithRevealTests.cs",
+          "methods": [
+            "ActualPlayThenReadyAndMoveQueuesAnIndependentEquipmentRevealSkill",
+            "RevealsOnlyTheActualTopDrawsEquipmentAndOtherwiseRecyclesWithoutBurnout",
+            "RevealedNocturneMayBanishButNeverMakesTheNextCardAnEquipmentDraw",
+            "ReturningTheSmithInResponseKeepsTheIndependentRevealAndHidesItsCurrentPrivateSource"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -163,6 +163,7 @@ public sealed partial class CoreRuleEngine
                     _ => "：移动后选择每名玩家各抽牌或弃牌" },
                 TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower => "：移动后展示顶牌，抽取单位或放入废牌堆并增加战力",
                 TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle => "：移动后展示顶牌，抽取强力单位或回收",
+                TriggerKinds.UnitMovedRevealTopDrawEquipmentOrRecycle => "：移动后展示顶牌，抽取装备或回收",
                 TriggerKinds.UnitMovedGainExperience => "：移动后获得经验",
                 TriggerKinds.UnitMovedPowerModifier => "：离开战场后本回合增加战力",
                 _ => "：离开此处的单位本回合战力 +1" });

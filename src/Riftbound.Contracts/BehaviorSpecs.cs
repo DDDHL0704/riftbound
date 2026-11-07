@@ -228,6 +228,7 @@ public static class TriggerKinds
     public const string UnitMovedAllPlayersDrawOrDiscard = "UNIT_MOVED_ALL_PLAYERS_DRAW_OR_DISCARD";
     public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
     public const string UnitMovedRevealTopDrawPowerfulUnitOrRecycle = "UNIT_MOVED_REVEAL_TOP_DRAW_POWERFUL_UNIT_OR_RECYCLE";
+    public const string UnitMovedRevealTopDrawEquipmentOrRecycle = "UNIT_MOVED_REVEAL_TOP_DRAW_EQUIPMENT_OR_RECYCLE";
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedDrawDiscardTypes = "UNIT_MOVED_DRAW_DISCARD_TYPES";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
