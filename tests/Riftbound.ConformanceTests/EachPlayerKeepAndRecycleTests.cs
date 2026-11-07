@@ -154,20 +154,93 @@ public sealed class EachPlayerKeepAndRecycleTests
         await game.Replay();
     }
 
-    [Fact]
-    public async Task AnObserverRecycledInTheSameInstructionStillEarnsOneIndependentBoonSkill()
+    [Theory]
+    [InlineData(1)] [InlineData(2)]
+    public async Task ObserversRecycledInTheSameInstructionStillEarnIndependentSkillsWithPrivateSources(int count)
     {
-        var state = RadGearTestPosition.Put(Position(3), "ZZ-OBSERVER", "OGN·235/298", "P1", "BASE");
+        var state = Position(3);
+        for (var i = 0; i < count; i++)
+            state = RadGearTestPosition.Put(state, "ZZ-OBSERVER" + i, "OGN·235/298", "P1", "BASE");
         var game = new Driver(state); await game.Act("P1", new PlayCardCommand("UNIT", Judgment, [])); await game.Top();
         await KeepFirstTwo(game);
-        Assert.Contains("ZZ-OBSERVER", game.State.PlayerZones["P1"].MainDeck);
-        var item = Assert.Single(game.State.StackItems);
-        Assert.Equal("RECYCLE_BOON", item.FieldContext!.Kind);
-        Assert.Equal(4, item.FieldContext.RecycledBoon!.CardCount);
-        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-U0"]));
-        await game.Top();
+        for (var i = 0; i < count; i++) Assert.Contains("ZZ-OBSERVER" + i, game.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(count, game.State.StackItems.Count + game.State.TriggerQueue.Count);
+        foreach (var row in ResolutionResult.OrderTriggerViews(game.State, "P2"))
+        {
+            Assert.Equal("HIDDEN", row["sourceObjectId"]);
+            Assert.DoesNotContain("ZZ-OBSERVER", JsonSerializer.Serialize(row));
+        }
+        var steps = 0;
+        while (game.State.StackItems.Count > 0 || game.State.TriggerQueue.Count > 0)
+        {
+            Assert.True(steps++ < 12);
+            if (ResolutionResult.HasOpenOrderTriggersWindow(game.State))
+                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
+            else if (game.State.PendingCardChoice is { } choice)
+                await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-U0"]));
+            else
+            {
+                var item = game.State.StackItems[^1];
+                Assert.Equal("RECYCLE_BOON", item.FieldContext!.Kind);
+                Assert.Equal(3 + count, item.FieldContext.RecycledBoon!.CardCount);
+                await game.Top();
+            }
+        }
         Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["P1-U0"].Tags);
+        Assert.Equal(1, game.State.CardObjects["P1-U0"].BoonCount);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AKeptArmamentDetachesFromItsRecycledHostAndRecallsWithoutLeavingTheField()
+    {
+        var state = RadGearTestPosition.Put(Position(3), "P1-G0", "SFD·022/221", "P1", "BASE");
+        state = RadUnitEffectTestFixture.Place(state, "P1-U1", "P1", "BATTLEFIELD", "BF");
+        state = RadUnitEffectTestFixture.Place(state, "P1-U2", "P1", "BATTLEFIELD", "BF");
+        var game = new Driver(state);
+        await game.Act("P1", new AssembleEquipmentCommand("P1-G0", "P1-U2", ["ASSEMBLE_RED"])); await game.Top();
+        Assert.Equal("P1-U2", game.State.CardObjects["P1-G0"].AttachedToObjectId);
+        Assert.Equal("BF", game.State.ObjectLocations["P1-G0"].BattlefieldObjectId);
+        var generation = game.State.CardObjects["P1-G0"].ObjectGeneration;
+        await game.Act("P1", new PlayCardCommand("UNIT", Judgment, [])); await game.Top(); await KeepFirstTwo(game);
+        Assert.Contains("P1-U2", game.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-G0", game.State.PlayerZones["P1"].Base);
+        Assert.Null(game.State.CardObjects["P1-G0"].AttachedToObjectId);
+        Assert.Equal(generation, game.State.CardObjects["P1-G0"].ObjectGeneration);
+        Assert.Contains(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_RECALLED_TO_BASE"
+            && Equals(entry.Event.Payload.GetValueOrDefault("equipmentObjectId"), "P1-G0"));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("unit")] [InlineData("equipment")] [InlineData("both")]
+    public async Task ARealAnimatedEquipmentCanBeKeptInEitherOrBothOfItsCategories(string selectedAs)
+    {
+        var initial = RadGearTestPosition.Put(Position(3), "LEGEND", "RAD·145/167", "P1", "BASE");
+        initial = initial with {
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { Base = initial.PlayerZones["P1"].Base.Where(id => id != "LEGEND").ToArray(), LegendZone = ["LEGEND"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") } };
+        var game = new Driver(OriannaEquipmentConsumerFixture.WithResources(initial));
+        await OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "P1-G2");
+        var keptUnits = selectedAs == "equipment" ? new[] { "P1-U0", "P1-U1" } : ["P1-G2", "P1-U0"];
+        var keptEquipment = selectedAs == "unit" ? new[] { "P1-G0", "P1-G1" } : ["P1-G0", "P1-G2"];
+        await game.Act("P1", new PlayCardCommand("UNIT", Judgment, [])); await game.Top();
+        var steps = 0;
+        while (game.State.PendingRuleChoice is { } pending)
+        {
+            Assert.True(steps++ < 80);
+            var wanted = pending.Request.PlayerId == "P1" ? pending.Request.Kind switch {
+                "KEEP_TWO_UNIT" => keptUnits, "KEEP_TWO_EQUIPMENT" => keptEquipment, _ => null } : null;
+            var option = wanted is null ? pending.Request.Options[0]
+                : pending.Request.Options.First(row => row.ObjectIds?.Any(wanted.Contains) == true);
+            await Choose(game, option.Id);
+        }
+        foreach (var id in new[] { "P1-U0", "P1-U1", "P1-U2", "P1-G0", "P1-G1", "P1-G2" })
+            Assert.Equal(keptUnits.Contains(id) || keptEquipment.Contains(id), game.State.PlayerZones["P1"].Base.Contains(id));
+        Assert.NotNull(game.State.CardObjects["P1-G2"].LegendEquipmentUnit);
+        Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["P1-G2"].Tags);
+        Assert.Contains(CardObjectTags.EquipmentCard, game.State.CardObjects["P1-G2"].Tags);
         await game.Replay();
     }
 }

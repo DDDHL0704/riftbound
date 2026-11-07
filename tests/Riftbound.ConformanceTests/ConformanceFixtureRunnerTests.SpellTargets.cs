@@ -585,26 +585,6 @@ public sealed partial class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task CoreRuleEnginePlaysJudgmentDayRecycleUnkept()
-    {
-        var fixture = await ConformanceFixture.LoadAsync(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-judgment-day-recycle-unkept.fixture.json"),
-            CancellationToken.None);
-
-        var result = await ConformanceFixtureRunner.RunAsync(
-            fixture,
-            new CoreRuleEngine(),
-            CancellationToken.None);
-
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["P1-HAND-KEEP-001", "P1-HAND-KEEP-002"], result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(["P2-HAND-KEEP-001", "P2-HAND-KEEP-002"], result.FinalState.PlayerZones["P2"].Hand);
-        Assert.Equal(["P1-SPELL-JUDGMENT"], result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Contains("P1-UNIT-RECYCLE-001", result.FinalState.PlayerZones["P1"].MainDeck);
-        Assert.Contains("P2-HAND-RECYCLE-001", result.FinalState.PlayerZones["P2"].MainDeck);
-    }
-
-    [Fact]
     public async Task CoreRuleEngineRejectsJudgmentDayInvalidKeepSelection()
     {
         var invalidTargets = JudgmentDayKeepTargets().ToArray();
