@@ -728,33 +728,86 @@
       ],
       "text": "当我据守一处战场时，打出三个“炸弹”装备指示物到一处单一战场。（它们具有{{部署}}。当每个“炸弹”被摧毁时，对该处的一名敌方单位造成2点伤害，并摧毁你在该处的其他“炸弹”。）",
       "scope": "当我据守一处战场时，打出三个“炸弹”装备指示物到一处单一战场。（它们具有{{部署}}。当每个“炸弹”被摧毁时，对该处的一名敌方单位造成2点伤害，并摧毁你在该处的其他“炸弹”。）",
-      "status": "missing",
-      "reason": "触发时机及选择范围均有误：现有专门路径在防守身份建立时触发，并固定把3炸弹创建于来源战场；官方中文要求据守后选择一处单一战场，不是防守时固定此处",
-      "rules": "核心383.4.d 据守与466.2 防守分别定义、403.2 选择；RAD·094 官方中文牌面",
+      "status": "route",
+      "reason": "共享单位据守规格捕获原生或武装借用文本；确认时必须选择一处单一战场，双方响应后通过共享装备指示物工厂打出三个活跃炸弹；来源离场后技能独立存续，公有事件与新指示物身份不泄露私有来源。旧防守触发已删除，炸弹原生部署及摧毁连锁复用现有路径。",
+      "rules": "中国区核心383.4.d 据守、383.4.a.2 独立技能、403.2及403.4.b 选择、128隐藏信息；RAD·094 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "effectKind": "RAD_094_DEFEND_BOMBS",
-            "createdBattlefieldEquipmentTokenCount": 3,
-            "createdBattlefieldEquipmentTokenName": "炸弹"
+            "effectKind": "UNIT_HOLD_CREATE_BATTLEFIELD_EQUIPMENT",
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 6
+          }
+        ],
+        "triggers": [
+          {
+            "node": {
+              "kind": "UNIT_BATTLEFIELD_HELD_CREATE_EQUIPMENT",
+              "timing": "BATTLEFIELD_HELD",
+              "targetScope": "SOURCE_UNIT",
+              "createdTokenCount": 3,
+              "createdTokenName": "炸弹",
+              "createdTokenDestination": "BATTLEFIELD"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.StandbyDefend.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitHold.cs",
           "contains": [
-            "string.Equals(behavior.CardNo, \"RAD·094/167\"",
-            "\"BATTLE_ROLES_ESTABLISHED\"",
-            "var battlefieldId = item.FieldContext?.BattlefieldId;"
+            "t.Kind == TriggerKinds.UnitBattlefieldHeldCreateEquipment",
+            "CreatedTokenDestination == TriggerTokenDestinations.Battlefield",
+            "var kind = UnitHeldKind(spec);",
+            "context.Amount != UnitHeldAmount(spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "var trigger = CaptureUnitHeld(state, source, player, field, card, instance, held, copy);",
+            "if (context.Kind == UnitHeldEquipmentKind) return ResolveUnitHeldEquipment(state, item);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.HeldConfirmation.cs",
+          "contains": [
+            "UnitHeldEquipmentKind => state.CardObjects.Keys.Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)",
+            "item.HeldContext.Kind is \"BOON\" or UnitHeldEquipmentKind ? 1 : 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.HeldEquipment.cs",
+          "contains": [
+            "var target = HeldResolvedTarget(state, item);",
+            "CreateBattlefieldEquipmentTokenBatch(zones, cards, item.ControllerId, item.SourceObjectId,",
+            "factory.TokenFamilyName, factory.Tags, context.Amount,",
+            "publicSourceObjectId: visibleSource)"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/HeldEquipmentTokenTests.cs",
+          "methods": [
+            "OfficialHoldEquipmentTemplateRetainsCountDestinationAndTokenIdentity",
+            "HoldingCreatesThreeActiveDeployBombsAtTheSingleConfirmedBattlefieldAfterResponses",
+            "HoldDestinationIsMandatorySingleBattlefieldAndWrongChoicesAreAtomic",
+            "SourceReturningToHandDuringResponsesKeepsTheSkillWithoutPublishingPrivateIdentity",
+            "RecoveryRejectsForgedHeldEquipmentContextOrTargetBindings",
+            "BorrowedHeldTextAndBlueSentinelEachEarnTheirOwnDestinationChoice"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/RadNextBatchUnitTests.cs",
           "methods": [
-            "BombMonkeyDefendingAFieldCreatesExactlyThreeActiveBombsThere"
+            "BombMonkeyDefendingAFieldDoesNotCreateItsHoldBombs"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadBombUnitTests.cs",
+          "methods": [
+            "BombDestructionDestroysOtherFriendlyBombsAtTheSameBattlefield"
           ]
         }
       ]
@@ -1009,9 +1062,9 @@
       ],
       "text": "当你打出我时，如果你亮出，则{{获得}}{{A}}。",
       "scope": "当你打出我时，如果你亮出，则{{获得}}{{A}}。",
-      "status": "missing",
-      "reason": "纯资源触发时序错误：亮出后获得1符能仍由普通入场技能留在结算链，双方传递优先权后才结算；430.2要求获得资源的触发式技能立即确认结算，不产生普通响应窗口",
-      "rules": "核心430.2–430.2.a 纯资源触发即时结算；RAD·103 官方中文牌面",
+      "status": "route",
+      "reason": "纯亮出获得资源通过共享确认流程在同一打出命令内立即结算，不进入普通响应链或传递优先权；未亮出不获得符能。原手牌／场上亮出收据与待命反应打出保持共用。",
+      "rules": "中国区核心401.2、430.2及430.2.a 资源技能立即确认结算且不传递优先权／焦点；RAD·103 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
@@ -1024,16 +1077,25 @@
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Showcase.cs",
           "contains": [
-            "stackItem.SourceConfirmed && stackItem.Showcase is not null && behavior.Showcase is { GenericPower: > 0 } showcased"
+            "private static bool HasImmediateShowcaseResource(CardBehaviorDefinition behavior)",
+            "GenericPower: > 0, ReadyEntry: false, InsightFromPowerCost: false, DrawAfter: 0"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
           "contains": [
-            "private static bool IsImmediateResourceTrigger(",
-            "trigger.ConquestSource?.Kind == TriggerKinds.UnitConquestGainResources"
+            "&& !HasImmediateShowcaseResource(behavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if ((confirmPermanent || stackItem.SourceConfirmed) && stackItem.Showcase is not null",
+            "&& HasImmediateShowcaseResource(behavior) && behavior.Showcase is { } showcased)",
+            "pool with { Power = checked(pool.Power + showcased.GenericPower) }",
+            "events.Add(new(\"POWER_GAINED\", \"亮出技能获得符能\", resourcePayload));"
           ]
         }
       ],
@@ -1041,7 +1103,11 @@
         {
           "path": "tests/Riftbound.ConformanceTests/RadShowcaseUnitTests.cs",
           "methods": [
-            "HandAndFriendlyFieldShowcaseShareConfirmationAndIndependentResolution"
+            "ShowcaseResourceResolvesInsideThePlayWithoutAResponseWindowAndCanPayTheNextSpell",
+            "HandAndFriendlyFieldShowcaseShareConfirmationAndIndependentResolution",
+            "DecliningShowcaseCreatesNoAbilityOrExtraChoice",
+            "StandbyPlayUsesTheSameShowcaseAndPostEntryTargetFlows",
+            "RecoveryRejectsInventedOrRemovedReceipts"
           ]
         }
       ]

@@ -374,36 +374,63 @@
       ],
       "text": "所有单位无法移动到基地。",
       "scope": "所有单位无法移动到基地。",
-      "status": "missing",
-      "reason": "只有基础单位登记；没有对所有单位移动到基地的静态禁止，现有移动目的地消费者未接入本牌限制",
-      "rules": "核心364–365 静态技能、447–451 移动；SFD·014 官方中文牌面",
+      "status": "route",
+      "reason": "共享场上来源静态限制按当前公开单位及其借用文本生效，来源处于基地或任意战场均禁止双方单位移到基地；普通移动提示、移动命令和法术／技能移动复用同一终点禁令。来源离场即时解除；合法目标仍可选择，结算时受禁止的移动不执行。召回不是移动，仍正常执行。",
+      "rules": "中国区核心364–365 静态技能、359.3.e.6 尽可能执行、421及448–451 移动、458.3 移动限制不影响召回；SFD·014 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
+            "effectKind": "MINOTAUR_RECKONER_PLAY_UNIT",
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "sourceStaticLimits": {
+              "preventsAllUnitsMoveToBase": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
           "contains": [
-            "\"SFD·014/221\"",
-            "\"MINOTAUR_RECKONER_PLAY_UNIT\""
+            "internal static bool AnySourcePreventsUnitsMovingToBase(MatchState state)",
+            "IsFaceUpNonStandbyUnit(source)",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)",
+            "StaticLimitsFor(state, source).Any(spec => spec.PreventsAllUnitsMoveToBase)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/BattlefieldLocalRules.cs",
+          "contains": [
+            "public static bool PreventsMoveToBase(MatchState state, string unitId)",
+            "CoreRuleEngine.AnySourcePreventsUnitsMovingToBase(state)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "BattlefieldLocalRules.PreventsMoveToBase(current, id)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Prompts.Targets.cs",
+          "contains": [
+            "BattlefieldLocalRules.PreventsMoveToBase(state, sourceObjectId)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GlobalMoveToBaseProhibitionTests.cs",
+          "methods": [
+            "PlayingReckonerAppliesTheRestrictionAndReturningItToHandImmediatelyRemovesIt",
+            "AVisibleSourceAtAnyLocationRestrictsUnitsOfEitherController",
+            "ASourceOutsideTheFieldOrFaceDownDoesNotProhibitMovement",
+            "MoveEffectsKeepTheirLegalTargetButObserveTheCurrentProhibitionOnResolution",
+            "ARecallStillTransfersAUnitToTheNewControllersBase"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

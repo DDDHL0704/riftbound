@@ -24274,13 +24274,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
 
-            if (stackItem.SourceConfirmed && stackItem.Showcase is not null && behavior.Showcase is { GenericPower: > 0 } showcased)
+            if ((confirmPermanent || stackItem.SourceConfirmed) && stackItem.Showcase is not null
+                && HasImmediateShowcaseResource(behavior) && behavior.Showcase is { } showcased)
             {
                 var pool = runePools[stackItem.ControllerId];
                 runePools[stackItem.ControllerId] = pool with { Power = checked(pool.Power + showcased.GenericPower) };
-                events.Add(new("POWER_GAINED", "亮出技能获得符能", new Dictionary<string, object?> {
+                var resourcePayload = new Dictionary<string, object?> {
                     ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["amount"] = showcased.GenericPower, ["powerAfter"] = runePools[stackItem.ControllerId].Power }));
+                    ["effectKind"] = stackItem.EffectKind, ["resourceSkill"] = true,
+                    ["amount"] = showcased.GenericPower, ["powerAfter"] = runePools[stackItem.ControllerId].Power };
+                events.Add(new("TRIGGER_RESOLVED", "亮出资源技能立即结算", resourcePayload));
+                events.Add(new("POWER_GAINED", "亮出技能获得符能", resourcePayload));
             }
 
             if (TryResolveSourceStealEnemyEquipment(
