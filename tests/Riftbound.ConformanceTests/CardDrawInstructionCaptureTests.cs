@@ -37,7 +37,8 @@ public sealed class CardDrawInstructionCaptureTests
     {
         var state = Position(9); var zones = state.PlayerZones.ToDictionary(); var cards = state.CardObjects.ToDictionary();
         var result = Invoke("DrawSelectedMainDeckTargetsAndRecycleRest", state, zones, cards,
-            "P1", "ALLY", zones["P1"].MainDeck.Take(2).ToArray(), 3, true, false);
+            "P1", "ALLY", zones["P1"].MainDeck.Take(2).ToArray(), 3, true, false,
+            zones["P1"].MainDeck.Take(3).ToArray());
         var events = (IReadOnlyList<GameEvent>)Property(result, "Events");
         Assert.Equal(11, zones["P1"].Hand.Count);
         AssertCapture(Assert.Single(events, e => e.Kind == "CARD_DRAWN"), 9, 2);
