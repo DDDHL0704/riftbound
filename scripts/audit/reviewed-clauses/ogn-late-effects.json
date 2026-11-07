@@ -1432,12 +1432,14 @@
       ],
       "text": "让一名友方单位变为活跃状态，并对任意战场上的一名敌方单位造成等同于该友方单位战力的伤害。",
       "scope": "让一名友方单位变为活跃状态，并对任意战场上的一名敌方单位造成等同于该友方单位战力的伤害。",
-      "status": "missing",
-      "reason": "伤害量有误：活跃后直接读取readiedTargetState.Power，而未计算装备、光环和战斗身份产生的当前战力；不能按普通战力字段认证等同战力伤害",
-      "rules": "核心479 当前战力、418 伤害；OGN·260 官方中文牌面",
+      "status": "route",
+      "reason": "共享活跃后按当前战力伤害流程通过ResolveCurrentFieldUnitPower读取更新状态，包含已装配武装等连续效果；本句未指明由友方单位造成伤害，因此来源保留为原法术，七符文敌方法术／技能伤害免疫仍生效；实际装配长剑与免疫边界均经原始命令、冷恢复和回放验证",
+      "rules": "中国区核心规则2026-10-10：143.2、418.6.a–b.3；OGN·260官方中文牌面；SFD·022武装+2与VEN·025七符文免疫中文牌面",
       "runtime": {
         "behaviors": [
           {
+            "effectKind": "LAST_BREATH_READY_FRIENDLY_DAMAGE_ENEMY_BY_POWER",
+            "requiredTargetCount": 2,
             "readiesFirstTargetAndDamagesSecondByFirstPower": true
           }
         ]
@@ -1446,15 +1448,25 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "var damageAmount = Math.Max(0, readiedTargetState.Power);"
+            "else if (behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower",
+            "ResolveCurrentFieldUnitPower(DamageFrame(), readiedTargetState)",
+            "cardObjects[readyTargetObjectId] = readiedTargetState;",
+            "PreventSpellAndSkillDamageThisTurnEffectId);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
+          "contains": [
+            "PreventedByRuneDamageImmunity(",
+            "EnemySpellSkillDamageImmunityMinimumRunes"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "path": "tests/Riftbound.ConformanceTests/ReadyCurrentMightDamageTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysLastBreathReadyThenPowerDamage"
+            "LastBreathReadiesThenUsesCurrentMightAndTheSpellRemainsTheDamageSource"
           ]
         }
       ]

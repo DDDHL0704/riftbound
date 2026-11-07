@@ -25450,7 +25450,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events.Add(readyEvent);
                 }
 
-                var damageAmount = Math.Max(0, readiedTargetState.Power);
+                var damageAmount = Math.Max(0, ResolveCurrentFieldUnitPower(DamageFrame(), readiedTargetState));
                 if (damageAmount > 0
                     && IsFieldObject(playerZones, damagedTargetObjectId)
                     && cardObjects.ContainsKey(damagedTargetObjectId))
@@ -25463,15 +25463,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds,
                         preventDamageFromThisStackItem,
-                        PreventSpellAndSkillDamageThisTurnEffectId, fromUnit: true);
+                        PreventSpellAndSkillDamageThisTurnEffectId);
                     events.Add(new GameEvent(
                         "DAMAGE_APPLIED",
                         $"{behavior.DisplayName}按友方单位战力造成伤害",
                         BuildDamagePayload(
                             stackItem.SourceObjectId,
                             damagedTargetObjectId,
-                            damageApplication,
-                            readyTargetObjectId)));
+                            damageApplication)));
                 }
             }
         }
