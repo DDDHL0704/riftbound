@@ -55,7 +55,8 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            "var sourceId = hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true"
+            ": hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true",
+            "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },
         {
@@ -145,7 +146,8 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            "var sourceId = hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true"
+            ": hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true",
+            "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },
         {
