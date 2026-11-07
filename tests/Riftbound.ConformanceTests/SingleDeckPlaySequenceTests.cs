@@ -113,8 +113,14 @@ public sealed class SingleDeckPlaySequenceTests
         await driver.Act("P1",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[]));
         Assert.Empty(driver.State.PlayerZones["P1"].Banished);Assert.Null(driver.State.PendingEffectPlay);Assert.Empty(driver.State.StackItems);
         Assert.DoesNotContain(driver.Events(),e=>e.Event.Kind=="CARD_BANISHED");
-        if(card==VoidRush)Assert.Equal(["P1_TOP","N1"],driver.State.PlayerZones["P1"].Hand);
-        else { Assert.Empty(driver.State.PlayerZones["P1"].Hand);Assert.Equal("TAIL",driver.State.PlayerZones["P1"].MainDeck[0]); }
+        if(card==VoidRush) {
+            Assert.Equal(["P1_TOP","N1"],driver.State.PlayerZones["P1"].Hand);
+            Assert.Equal(2,Assert.Single(driver.Events(),e=>e.Event.Kind=="CARD_DRAWN").Event.Payload["count"]);
+        }
+        else {
+            Assert.Empty(driver.State.PlayerZones["P1"].Hand);Assert.Equal("TAIL",driver.State.PlayerZones["P1"].MainDeck[0]);
+            Assert.Single(driver.Events(),e=>e.Event.Kind=="CARDS_RECYCLED");
+        }
         await RideTheWindCurrentMovementTests.Replay(initial,driver);
     }
 

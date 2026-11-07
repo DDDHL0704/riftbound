@@ -521,7 +521,7 @@ public static partial class MatchRecoveryValidator
     {
         var hasPayment = TryReadObjectValue(timing, "pendingPayment", out var payment) && IsSnapshotPlayerPayloadObject(payment);
         var hasKind = hasPayment && TryReadObjectValue(payment, "deckObservationKind", out _);
-        if (state.PendingRuleChoice is not { Request.Kind: "DECK_OBSERVATION_BANISH" } pending)
+        if (state.PendingRuleChoice is not { } pending || pending.Request.Kind is not ("DECK_OBSERVATION_BANISH" or CoreRuleEngine.BeforeDeckRevealChoiceKind))
         {
             if (hasKind) errors.Add($"{label} deck observation disclosure kind is not allowed outside its choice");
             return;

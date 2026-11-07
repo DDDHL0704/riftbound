@@ -37,6 +37,9 @@ public sealed class DeckObservationPlayTests
         var initial=Position();var driver=Driver(initial,banish?"aurora-self-banish":"aurora-free");
         await driver.Act("P1",new EndTurnCommand());await driver.Top();await Decide(driver,banish);
         Assert.NotNull(driver.State.PendingEffectPlay);
+        Assert.Single(driver.Events(),e=>e.Event.Kind=="CARDS_REVEALED");
+        Assert.Single(driver.Events(),e=>e.Event.Kind=="CARD_BANISHED"
+            && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"),"NOCT"));
         Assert.DoesNotContain("END_UNIT",System.Text.Json.JsonSerializer.Serialize(driver.Events().Where(e=>e.Event.Kind=="CARDS_REVEALED").Select(e=>e.Event.Payload)));
         var power=driver.State.RunePools["P1"].Power;
         await driver.Act("P1",new PlayCardCommand("NOCT",Nocturne,[]));Assert.Equal("P2",driver.State.TurnPlayerId);
@@ -158,6 +161,9 @@ public sealed class DeckObservationPlayTests
         await driver.Act("P1",new PlayCardCommand("PARENT",DeckPlaySequenceTests.BlindFury,[]));await driver.Top();
         Assert.Equal("P2",driver.State.PendingRuleChoice!.Request.PlayerId);await Decide(driver,banish);
         if(!banish)await DeckPlaySequenceTests.Select(driver,"P2_TOP");
+        Assert.Single(driver.Events(),e=>e.Event.Kind=="CARDS_REVEALED");
+        Assert.Single(driver.Events(),e=>e.Event.Kind=="CARD_BANISHED"
+            && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"),"P2_TOP"));
         var player=banish?"P2":"P1";Assert.Equal(player,driver.State.PendingEffectPlay!.PlayerId);
         await driver.Act(player,new PlayCardCommand("P2_TOP",Nocturne,[]));
         Assert.Equal("P2",driver.State.CardObjects["P2_TOP"].OwnerId);

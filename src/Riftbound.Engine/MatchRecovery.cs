@@ -1221,6 +1221,7 @@ public static partial class MatchRecoveryValidator
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateArmamentUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             ValidateNamedConquestActivationHistory(authoritativeState, commands, events, errors);
@@ -4694,8 +4695,10 @@ public static partial class MatchRecoveryValidator
                     || !CoreRuleEngine.ValidSequentialMovementPlan(state, execution.EffectKind, execution.TargetObjectIds.Count, execution.MovementDestinations))))
                 errors.Add("invalid spell repeat execution plan");
         }
-        if(state.DeckObservationView is not null && state.PendingRuleChoice is not {Request.Kind:"DECK_OBSERVATION_BANISH"})
+        if(state.DeckObservationView is not null && (state.PendingRuleChoice is not { } visibilityChoice
+            || visibilityChoice.Request.Kind is not ("DECK_OBSERVATION_BANISH" or CoreRuleEngine.BeforeDeckRevealChoiceKind)))
             errors.Add("invalid observed deck visibility outside static choice");
+        if (!CoreRuleEngine.ValidBeforeDeckRevealDisclosure(CoreRuleEngine.VisibleRuleChoiceState(state))) errors.Add("invalid before-reveal private disclosure");
         if(state.ObservedDeckPlays is { } observedHistory && (observedHistory.Any(c=>c is null || c.Card is null || c.Instruction is null)
             || observedHistory.Select(c=>c.Id).Distinct().Count()!=observedHistory.Count
             || observedHistory.Select(c=>c.Card.ObjectId).Distinct().Count()!=observedHistory.Count
@@ -5566,7 +5569,7 @@ public static partial class MatchRecoveryValidator
             if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                 && RengarPlayRecoveryRules.ValidStack(authoritativeState, stackItem))
                 foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
-            if (stackItem.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight, TargetTokenFactoryCardNo: not null }
+            if (stackItem.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier, TargetTokenFactoryCardNo: not null }
                 && CoreRuleEngine.ValidTargetedMovementStack(authoritativeState, stackItem))
                 foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
             if (stackItem.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, stackItem, destroyDeck.Target.ObjectId))
@@ -5889,7 +5892,7 @@ public static partial class MatchRecoveryValidator
                 if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                     && RengarPlayRecoveryRules.ValidStack(authoritativeState, original))
                     foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
-                if (original.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight, TargetTokenFactoryCardNo: not null }
+                if (original.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier, TargetTokenFactoryCardNo: not null }
                     && CoreRuleEngine.ValidTargetedMovementStack(authoritativeState, original))
                     foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
                 if (original.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, original, destroyDeck.Target.ObjectId))

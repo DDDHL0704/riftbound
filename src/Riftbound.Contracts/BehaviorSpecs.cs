@@ -221,6 +221,7 @@ public static class TriggerKinds
     public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
     public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedSetOtherUnitBaseMight = "UNIT_MOVED_SET_OTHER_UNIT_BASE_MIGHT";
+    public const string UnitMovedOtherFriendlyPowerModifier = "UNIT_MOVED_OTHER_FRIENDLY_POWER_MODIFIER";
     public const string FriendlyUnitMovedFromHereMayFollow = "FRIENDLY_UNIT_MOVED_FROM_HERE_MAY_FOLLOW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementReadyOtherObject = "UNIT_FIRST_MOVEMENT_READY_OTHER_OBJECT";
@@ -230,6 +231,7 @@ public static class TriggerKinds
     public const string UnitMovedAllPlayersDrawOrDiscard = "UNIT_MOVED_ALL_PLAYERS_DRAW_OR_DISCARD";
     public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
     public const string UnitMovedRevealTopDrawPowerfulUnitOrRecycle = "UNIT_MOVED_REVEAL_TOP_DRAW_POWERFUL_UNIT_OR_RECYCLE";
+    public const string UnitMovedRevealTopDrawEquipmentOrRecycle = "UNIT_MOVED_REVEAL_TOP_DRAW_EQUIPMENT_OR_RECYCLE";
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedDrawDiscardTypes = "UNIT_MOVED_DRAW_DISCARD_TYPES";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
@@ -407,6 +409,7 @@ public static class TriggerTargetScopes
     public const string SelectedFriendlyEventUnit = "SELECTED_FRIENDLY_EVENT_UNIT";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
     public const string OtherUnitOnField = "OTHER_UNIT_ON_FIELD";
+    public const string OtherFriendlyUnitOnField = "OTHER_FRIENDLY_UNIT_ON_FIELD";
     public const string AnyUnitOnField = "ANY_UNIT_ON_FIELD";
     public const string UnitOrEquipmentOnField = "UNIT_OR_EQUIPMENT_ON_FIELD";
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
@@ -477,6 +480,7 @@ public static class StaticAbilityKinds
     public const string BattlefieldFirstEquipmentAbilityManaReduction = "BATTLEFIELD_FIRST_EQUIPMENT_ABILITY_MANA_REDUCTION";
     public const string ControllerRuneCallExtraExhausted = "CONTROLLER_RUNE_CALL_EXTRA_EXHAUSTED";
     public const string DeckObservationBanishPlay = "DECK_OBSERVATION_BANISH_PLAY";
+    public const string BeforeDeckRevealLookRecycle = "BEFORE_DECK_REVEAL_LOOK_RECYCLE";
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string FriendlyEquipmentSkillDamageBonus = "FRIENDLY_EQUIPMENT_SKILL_DAMAGE_BONUS";
     public const string UnitInSpellDuelFriendlySpellsReaction = "UNIT_IN_SPELL_DUEL_FRIENDLY_SPELLS_REACTION";
