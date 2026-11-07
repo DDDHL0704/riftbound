@@ -207,6 +207,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_PLAYED_NON_TOKEN_UNIT_EQUIPMENT_AND_SPELL_GAIN_SCORE";
     public const string UnitConquestPayReturnSelfToHand =
         "UNIT_CONQUEST_PAY_1_RETURN_SELF_TO_HAND";
+    public const string ConquestDiscardReturnSelfFromGraveyard =
+        "CONQUEST_DISCARD_RETURN_SELF_FROM_GRAVEYARD";
     public const string UnitConquestPlayLowCostGraveyardSpellRecycle =
         "UNIT_CONQUEST_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit =

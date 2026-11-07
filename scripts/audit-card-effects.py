@@ -1353,7 +1353,12 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     keep_recycle = r"每名玩家分别选择自己的(?:两|2)名单位(?:两|2)件装备(?:两|2)枚符文和(?:两|2)张手牌留在原位然后回收其余卡牌"
     if re.fullmatch(keep_recycle, normalize(unparenthesize(clause["text"]))):
         if any(b.get("recyclesUnkeptSacredJudgmentCards") for b in card.get("behaviors", [])):
-            return result("missing", "仍由施法者预提交双方保留目标；缺少各玩家结算选择及按种类回收")
+            if any(b.get("recyclesUnkeptSacredJudgmentCards") and b.get("requiredTargetCount", 0) != 0
+                   for b in card.get("behaviors", [])):
+                return result("missing", "仍由施法者预提交双方保留目标；缺少各玩家结算选择及按种类回收")
+            if reviewed := reviewed_clause_route(card, clause, sources):
+                return reviewed
+            return result("missing", "缺少已审的逐玩家结算选择、私有手牌与所属牌堆分类回收证据")
         return result("review", "须独立核对各玩家私有保留选择与符文／主牌分类回收，普通回收字段不足以认证")
     if rune := rune_domain_reveal_route(card, clause, sources):
         return rune
