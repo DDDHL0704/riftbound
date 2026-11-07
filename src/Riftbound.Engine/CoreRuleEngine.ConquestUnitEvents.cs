@@ -45,9 +45,10 @@ public sealed partial class CoreRuleEngine
     private static UnitEventAbilitySpec? ConquestInstructionSpec(string no)
         => ConquestInstructionSpecs.Value.GetValueOrDefault(no);
 
+    // CN383.1: the ordinal belongs to the unit's event. Copies of its printed
+    // skill share that event; acquiring another copy later cannot reset it.
     internal static string FirstConquestUse(string source, UnitEventContext context)
-        => FirstConquestUsePrefix + MatchStateHasher.HashValue(new {
-            Source = new ObjectBinding(source, context.SourceGeneration), context.CardNo, context.Origin });
+        => FirstConquestUsePrefix + MatchStateHasher.HashValue(new ObjectBinding(source, context.SourceGeneration));
 
     private static IEnumerable<UnitEventObservation> CaptureConquestEventObservations(MatchState state, IEnumerable<string> units)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")

@@ -116,22 +116,44 @@ public sealed partial class ArmamentHoldConquestAliasTests
     }
 
     [Theory]
-    [InlineData(false)] [InlineData(true)]
-    public async Task FirstConquestReadinessIsConsumedAtCaptureAcrossBothTimingsAndRealSubsequentMoves(bool firstHold)
+    [InlineData(false, false)] [InlineData(true, false)]
+    [InlineData(false, true)] [InlineData(true, true)]
+    public async Task FirstConquestReadinessIsConsumedAtCaptureAcrossBothTimingsAndRealSubsequentMoves(bool firstHold, bool copied)
     {
         var initial = Board("SFD·113/221", hold: firstHold);
+        if (copied) initial = WithCopiedPrintedSkill(initial);
         initial = RadGearTestPosition.Put(initial, "THIRD", "OGN·296/298", "P2", "BATTLEFIELD", "THIRD");
         initial = RadGearTestPosition.Put(initial, "READY", "OGN·146/298", "P1", "HAND");
         for (var i = 0; i < 2; i++) initial = RadGearTestPosition.Put(initial, "PAYRUNE" + i, "VEN·R01", "P1", "BASE");
         var game = new Driver(initial); await OpenConquestInstruction(game, firstHold);
-        Assert.Equal(game.State.TurnNumber, Assert.Single(game.State.StackItems).UnitEvent!.FirstConquestTurn);
+        Assert.Equal(copied ? 2 : 1, game.State.StackItems.Count);
+        Assert.All(game.State.StackItems, item => Assert.Equal(game.State.TurnNumber, item.UnitEvent!.FirstConquestTurn));
         Assert.Single(game.State.UntilEndOfTurnEffects.Where(e => e.StartsWith("FIRST_CONQUEST_SKILL:")));
-        await game.Top(); Assert.False(game.State.CardObjects["HOST"].IsExhausted); await CloseDuel(game);
+        await Drain(game); Assert.False(game.State.CardObjects["HOST"].IsExhausted); await CloseDuel(game);
         await game.Act("P1", new MoveUnitCommand("HOST", firstHold ? "BATTLEFIELD:BF" : "BATTLEFIELD:OTHER", "BASE", []));
         await CloseDuel(game); await game.TapRunes("P1", ["PAYRUNE0", "PAYRUNE1"]);
         await game.Act("P1", new PlayCardCommand("READY", "OGN·146/298", ["HOST"])); await game.Top(); await CloseDuel(game);
         var destination = firstHold ? "OTHER" : "THIRD";
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:" + destination, []));
+        await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
+        Assert.Empty(game.State.StackItems); Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Equal(copied ? 2 : 1, game.Events().Count(e => e.Event.Kind == "TRIGGER_QUEUED" && e.Event.Payload.ContainsKey("firstConquestUse")));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task CopyingThePrintedSkillAfterTheFirstConquestCannotMakeTheNextEventFirstAgain()
+    {
+        var initial = Board("SFD·113/221");
+        initial = RadGearTestPosition.Put(initial, "SONG", "SFD·059/221", "P1", "BASE");
+        initial = RadGearTestPosition.Put(initial, "THIRD", "OGN·296/298", "P2", "BATTLEFIELD", "THIRD");
+        initial = RadGearTestPosition.Put(initial, "READY", "OGN·146/298", "P1", "HAND");
+        var game = new Driver(initial); await Conquer(game); await game.Top(); await CloseDuel(game);
+        await game.Act("P1", new AssembleEquipmentCommand("SONG", "HOST", ["ASSEMBLE_GREEN"]));
+        await game.Top(); await CloseDuel(game); Assert.NotNull(game.State.CardObjects["SONG"].AttachedRuleText);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BATTLEFIELD:OTHER", "BASE", [])); await CloseDuel(game);
+        await game.Act("P1", new PlayCardCommand("READY", "OGN·146/298", ["HOST"])); await game.Top(); await CloseDuel(game);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:THIRD", []));
         await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
         Assert.Empty(game.State.StackItems); Assert.True(game.State.CardObjects["HOST"].IsExhausted);
         Assert.Single(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED" && e.Event.Payload.ContainsKey("firstConquestUse"));
