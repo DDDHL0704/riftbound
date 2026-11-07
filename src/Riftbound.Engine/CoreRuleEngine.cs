@@ -5334,15 +5334,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (conquestReturn.OriginZone is not null)
                 payload["sourceOriginZone"] = conquestReturn.OriginZone;
             if (conquestReturn.Activation is { } activation)
-            {
-                payload["activationStackItemId"] = activation.ParentStackItemId;
-                payload["activationSourceObjectId"] = activation.Source.ObjectId;
-                payload["activationSourceGeneration"] = activation.Source.Generation;
-                payload["activationSourceCardNo"] = activation.CardNo;
-                payload["activationControllerId"] = activation.ControllerId;
-            }
+                AddNamedConquestActivationPayload(payload, activation);
             if (conquestReturn.TokenFactoryCardNo is not null)
                 payload["tokenFactoryCardNo"] = conquestReturn.TokenFactoryCardNo;
+        }
+        if (NamedConquestCaptureOf(trigger.ConquestToken, trigger.UnitConquest, trigger.RecastContext) is { } capture)
+        {
+            payload["sourceGeneration"] = capture.SourceGeneration;
+            payload["sourceCardNo"] = capture.CardNo;
+            payload["battlefieldObjectId"] = capture.BattlefieldId;
+            payload["conquestContextHash"] = capture.ContextHash;
+            if (capture.Activation is { } named) AddNamedConquestActivationPayload(payload, named);
         }
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && TryReadTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))

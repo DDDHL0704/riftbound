@@ -152,4 +152,142 @@ public sealed class NamedConquestActivationTests
         Assert.Contains(frame.ValidationErrors, e => e.Contains("accepted named conquest activation history", StringComparison.Ordinal));
         await GraveyardConquestReturnTests.AssertForgedStoreCannotRestore(frame, "accepted named conquest activation history");
     }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ARealRecastBetweenArenaCopiesGrantsAnOptionalConquestReturn(bool accept)
+    {
+        var initial = RadGearTestPosition.Put(OfficialHoldSequenceTests.State("OGN·286/298"),
+            "HOST", "OGN·001/298", "P1", "BASE");
+        initial = RadGearTestPosition.Put(initial, "PURSUIT", RuthlessPursuitTests.Card, "P1", "GRAVEYARD");
+        initial = RadGearTestPosition.Put(initial, "BLUE", "UNL-087/219", "P1", "BATTLEFIELD", "F");
+        initial = RadGearTestPosition.Put(initial, "KAISA", "OGN·112/298", "P1", "BATTLEFIELD", "F");
+        initial = RadGearTestPosition.Put(initial, "RUNE", "VEN·R01", "P1", "BASE");
+        initial = initial with { PlayerScores = new Dictionary<string, int>(initial.PlayerScores) { ["P1"] = 2 } };
+        var game = new Driver(initial); await OpenArena(game);
+        Assert.Equal(2, game.State.StackItems.Count(item => item.HeldContext?.Kind == "ACTIVATE_CONQUEST"));
+        // Closed beginning-step chains permit reactions, not an ordinary Swift
+        // response. Kai'Sa's actual effect-play permission casts the movement
+        // between the two Arena skills earned through Blue Sentinel.
+        await game.Top(); await game.Top();
+        Assert.Equal(["PURSUIT"], game.State.PendingEffectPlay!.Sources.Keys);
+        await game.Act("P1", new RecycleRuneCommand("RUNE"));
+        await game.Act("P1", new PlayCardCommand("PURSUIT", RuthlessPursuitTests.Card, ["HOST"], Destination: "BATTLEFIELD:F"));
+        await game.Top();
+        Assert.Contains(game.State.CardObjects["HOST"].UntilEndOfTurnEffects, e => e.StartsWith("GRANTED_CONQUEST_RETURN_BASE|"));
+        var parent = Assert.Single(game.State.StackItems, item => item.HeldContext?.Kind == "ACTIVATE_CONQUEST");
+        await game.Top();
+        for (var i = 0; game.State.PendingCardChoice?.EffectKind != "UNIT_GRANTED_CONQUEST_RETURN_BASE"; i++)
+        {
+            Assert.True(i < 5, "The newly granted return did not reach confirmation.");
+            if (game.State.TriggerQueue.Count > 0)
+                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            else await game.Top();
+        }
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("UNIT_GRANTED_CONQUEST_RETURN_BASE", choice.EffectKind);
+        var skill = Assert.Single(game.State.StackItems, item => item.UnitConquest is not null);
+        Assert.Equal(parent.StackItemId, skill.UnitConquest!.Activation!.ParentStackItemId);
+        var forged = game.State with { StackItems = game.State.StackItems.Select(item => item.StackItemId == skill.StackItemId
+            ? item with { UnitConquest = item.UnitConquest! with { Activation = null } } : item).ToArray() };
+        var frame = GraveyardConquestReturnTests.Frame(initial, game, forged);
+        Assert.Contains(frame.ValidationErrors, e => e.Contains("named conquest activation", StringComparison.Ordinal));
+        await GraveyardConquestReturnTests.AssertForgedStoreCannotRestore(frame, "named conquest activation");
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, accept ? ["HOST"] : []));
+        Assert.Equal("F", game.State.ObjectLocations["HOST"].BattlefieldObjectId);
+        if (accept)
+            for (var i = 0; game.State.StackItems.Any(item => item.StackItemId == skill.StackItemId); i++)
+            {
+                Assert.True(i < 4); await game.Top();
+            }
+        Assert.Equal(accept ? "BASE" : "BATTLEFIELD", game.State.ObjectLocations["HOST"].Zone);
+        Assert.Equal(accept ? 2 : 1, game.State.CardObjects["HOST"].MovementCountThisTurn);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        await game.Replay();
+    }
+
+    private static MatchState KaisaPosition(int score = 2)
+    {
+        var initial = RadGearTestPosition.Put(OfficialHoldSequenceTests.State("OGN·286/298"),
+            "KAISA", "OGN·112/298", "P1", "BATTLEFIELD", "F");
+        initial = RadGearTestPosition.Put(initial, "SPELL", "OGN·048/298", "P1", "GRAVEYARD");
+        return initial with { PlayerScores = new Dictionary<string, int>(initial.PlayerScores) { ["P1"] = score } };
+    }
+
+    [Theory]
+    [InlineData(1, false)] [InlineData(2, true)]
+    public async Task NamedRecastChecksTheCurrentScoreAfterHoldingAndRecyclesTheRealSpell(int score, bool eligible)
+    {
+        var game = new Driver(KaisaPosition(score)); await OpenArena(game); await game.Top();
+        var skill = Assert.Single(game.State.StackItems, item => item.RecastContext is not null);
+        Assert.NotNull(skill.RecastContext!.Activation);
+        Assert.Equal(score + 1, game.State.PlayerScores["P1"]);
+        await game.Top();
+        if (eligible)
+        {
+            var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+            Assert.Equal(["SPELL"], pending.Sources.Keys);
+            await game.Act("P1", new PlayCardCommand("SPELL", "OGN·048/298", []));
+            var cast = Assert.Single(game.State.StackItems, item => item.SourceObjectId == "SPELL");
+            Assert.Equal(0, cast.PlayCost!.PaidMana);
+            await game.Top();
+            Assert.Contains("SPELL", game.State.PlayerZones["P1"].MainDeck);
+        }
+        else
+        {
+            Assert.Null(game.State.PendingEffectPlay);
+            Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
+        }
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task NamedActivationDoesNotSatisfyTheSeparateUncontrolledBattlefieldCondition()
+    {
+        var initial = RadGearTestPosition.Put(OfficialHoldSequenceTests.State("OGN·286/298"),
+            "YONE", "SFD·233/221", "P1", "BATTLEFIELD", "F");
+        initial = RadGearTestPosition.Put(initial, "ENEMY", "OGN·001/298", "P2", "BASE");
+        var game = new Driver(initial); await OpenArena(game); await game.Top();
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(e.Event.Payload.GetValueOrDefault("effectKind"), "UNIT_CONQUEST_SOURCE_POWER_DAMAGE"));
+        Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("parent")] [InlineData("remove")] [InlineData("fieldGeneration")] [InlineData("unitGeneration")]
+    [InlineData("eraseAndRename")]
+    public async Task TokenRecoveryRejectsAChangedOrRemovedNamedOrigin(string mutation)
+    {
+        var initial = RadGearTestPosition.Put(OfficialHoldSequenceTests.State("OGN·286/298"),
+            "TOKEN", "SFD·069/221", "P1", "BATTLEFIELD", "F");
+        var game = new Driver(initial); await OpenArena(game); await game.Top();
+        var skill = Assert.Single(game.State.StackItems, item => item.ConquestToken is not null);
+        var context = skill.ConquestToken!;
+        var changed = mutation switch {
+            "parent" => context with { Activation = context.Activation! with { ParentStackItemId = "not-accepted" } },
+            "remove" or "eraseAndRename" => context with { Activation = null },
+            "fieldGeneration" => context with { Activation = context.Activation! with { Source = new("F", 1) } },
+            _ => context with { SourceGeneration = context.SourceGeneration + 1 } };
+        var forged = game.State with { StackItems = game.State.StackItems.Select(item => item.StackItemId == skill.StackItemId
+            ? item with { ConquestToken = changed,
+                StackItemId = mutation == "eraseAndRename" ? "ordered-forged-conquest" : item.StackItemId } : item).ToArray() };
+        var frame = GraveyardConquestReturnTests.Frame(initial, game, forged);
+        Assert.Contains(frame.ValidationErrors, e => e.Contains("named conquest activation", StringComparison.Ordinal));
+        await GraveyardConquestReturnTests.AssertForgedStoreCannotRestore(frame, "named conquest activation");
+    }
+
+    [Fact]
+    public async Task PendingRecastCannotDropItsNamedParentWhenItLeavesTheStack()
+    {
+        var initial = KaisaPosition(); var game = new Driver(initial); await OpenArena(game); await game.Top(); await game.Top();
+        var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        var forged = game.State with { PendingEffectPlay = pending with {
+            Parent = pending.Parent with { RecastContext = pending.Parent.RecastContext! with { Activation = null } } } };
+        var frame = GraveyardConquestReturnTests.Frame(initial, game, forged);
+        Assert.Contains(frame.ValidationErrors, e => e.Contains("named conquest activation", StringComparison.Ordinal));
+        await GraveyardConquestReturnTests.AssertForgedStoreCannotRestore(frame, "named conquest activation");
+    }
 }

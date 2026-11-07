@@ -1222,6 +1222,7 @@ public static partial class MatchRecoveryValidator
             ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
+            ValidateNamedConquestActivationHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
             ValidateStandbyHandPlayPaymentHistory(authoritativeState, commands, events, errors);
             errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));
@@ -4276,7 +4277,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitConquest is { } conquest ? !CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind)
                 || !CoreRuleEngine.ValidCapturedConquestGrant(state, conquest, trigger.SourceObjectId)
-                || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(conquest.Activation)
                 : trigger.EffectKind is CoreRuleEngine.ConquestDamageEffect or CoreRuleEngine.GrantedConquestReturnEffect) errors.Add("invalid captured unit conquest");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidConquestDamageStack(state,item)) errors.Add("invalid unit conquest stack");
@@ -4468,6 +4469,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidConquestFlowStack(state, item)) errors.Add("invalid conquest flow stack");
             if (item.RecycledUnit is not null && !CoreRuleEngine.ValidRecycledUnit(item)) errors.Add("invalid recycled unit receipt");
             if (item.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, item.EffectKind, item.CardNo)
+                || context.Activation is { } activation && !CoreRuleEngine.ValidNamedConquestActivation(state, activation, context.BattlefieldId)
                 : item.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid effect-play trigger context");
             if (item.AfterPlayRecycle is { } recycle && (item.PlayCost is null || !CoreRuleEngine.ValidRecycleInstruction(recycle)
                 || !state.CardObjects.ContainsKey(recycle.SourceObjectId))) errors.Add("invalid after-play recycle instruction");
@@ -4478,7 +4480,8 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid queued conquest flow context");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, trigger.EffectKind)
-                || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+                || context.Activation is { } activation && !CoreRuleEngine.ValidNamedConquestActivation(state, activation, context.BattlefieldId)
+                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(context.Activation)
                 : trigger.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid queued effect-play trigger context");
         if (state.PendingEffectPlay is { } recast && recast.SourceReplay is null && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
             errors.Add("invalid spell effect-play continuation");
@@ -4623,7 +4626,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.ConquestToken is { } token
                 ? !CoreRuleEngine.ValidConquestToken(state, token, trigger.SourceObjectId, trigger.EffectKind)
-                    || trigger.TriggeredByEventKind != (token.ActivationReason ?? "BATTLEFIELD_CONQUERED")
+                    || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(token.Activation)
                 : trigger.EffectKind is TriggerKinds.UnitConquestCreateDormantGold or TriggerKinds.UnitConquestCreateUnitToken)
                 errors.Add("invalid captured conquest token trigger");
         foreach (var item in state.StackItems)

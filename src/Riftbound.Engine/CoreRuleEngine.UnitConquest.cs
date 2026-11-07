@@ -5,7 +5,11 @@ namespace Riftbound.Engine;
 // Damage uses source Might on execution; conquest eligibility uses the event's pre-control state.
 public sealed record ConquestDamageSpec(bool RequiresUncontrolledBattlefield);
 public sealed record UnitConquestContext(string CardNo, long SourceGeneration, string BattlefieldId, string? PreviousControllerId,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TemporaryGrant = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TemporaryGrant = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public NamedConquestActivationOrigin? Activation { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -21,8 +25,9 @@ public sealed partial class CoreRuleEngine
             && (!spec.RequiresUncontrolledBattlefield || c.PreviousControllerId is null);
 
     private static IEnumerable<TriggerQueueItemState> CaptureConquestDamage(MatchState before,MatchState after,string player,
-        string field,IReadOnlyList<string> units,long tick, string eventKind = "BATTLEFIELD_CONQUERED")
+        string field,IReadOnlyList<string> units,long tick, NamedConquestActivationOrigin? activation = null)
     {
+        var eventKind = ConquestCaptureReason(activation);
         if (!before.BattlefieldStates.TryGetValue(field,out var battlefield)) yield break;
         foreach(var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
@@ -32,7 +37,7 @@ public sealed partial class CoreRuleEngine
                 || spec.RequiresUncontrolledBattlefield && battlefield.ControllerId is not null) continue;
             var repeats=ResolveUnitConquestEffectRepeatCount(after.PlayerZones,after.CardObjects,after.ObjectLocations,player,field,eventKind);
             for(var i=0;i<repeats;i++) yield return new TriggerQueueItemState($"conquest-damage-{tick}-{field}-{id}-{i}",player,id,ConquestDamageEffect,eventKind) {
-                UnitConquest=new(source.CardNo,source.ObjectGeneration,field,battlefield.ControllerId) };
+                UnitConquest=new(source.CardNo,source.ObjectGeneration,field,battlefield.ControllerId) { Activation = activation } };
         }
     }
     private static string[] ConquestDamageTargets(MatchState state,StackItemState item)

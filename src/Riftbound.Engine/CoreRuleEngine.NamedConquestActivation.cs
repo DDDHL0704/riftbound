@@ -10,8 +10,30 @@ public sealed record NamedConquestActivationOrigin(
     [property: JsonRequired] string ControllerId,
     [property: JsonRequired] string ParentStackItemId);
 
+internal sealed record NamedConquestCaptureInfo(NamedConquestActivationOrigin? Activation,
+    long SourceGeneration, string CardNo, string BattlefieldId, string ContextHash, long? CapturedTick = null);
+
 public sealed partial class CoreRuleEngine
 {
+    internal static string ConquestCaptureReason(NamedConquestActivationOrigin? activation)
+        => activation is null ? "BATTLEFIELD_CONQUERED" : "BATTLEFIELD_HELD";
+
+    internal static NamedConquestCaptureInfo? NamedConquestCaptureOf(ConquestTokenContext? token,
+        UnitConquestContext? unit, RecastTriggerContext? recast)
+        => token is not null ? new(token.Activation, token.SourceGeneration, token.CardNo, token.BattlefieldId, MatchStateHasher.HashValue(token), token.CapturedTick)
+            : unit is not null ? new(unit.Activation, unit.SourceGeneration, unit.CardNo, unit.BattlefieldId, MatchStateHasher.HashValue(unit))
+            : recast is not null ? new(recast.Activation, recast.SourceGeneration, recast.CardNo, recast.BattlefieldId, MatchStateHasher.HashValue(recast)) : null;
+
+    private static void AddNamedConquestActivationPayload(Dictionary<string, object?> payload,
+        NamedConquestActivationOrigin activation)
+    {
+        payload["activationStackItemId"] = activation.ParentStackItemId;
+        payload["activationSourceObjectId"] = activation.Source.ObjectId;
+        payload["activationSourceGeneration"] = activation.Source.Generation;
+        payload["activationSourceCardNo"] = activation.CardNo;
+        payload["activationControllerId"] = activation.ControllerId;
+    }
+
     internal static bool ValidNamedConquestActivation(MatchState state, NamedConquestActivationOrigin origin, string field)
         => origin.Source is { Generation: >= 0 } source && source.ObjectId == field
             && !string.IsNullOrWhiteSpace(origin.ControllerId) && state.Seats.ContainsKey(origin.ControllerId)
@@ -41,10 +63,10 @@ public sealed partial class CoreRuleEngine
             var captures = CaptureConquestSources(state, player, field, units, tick, "BATTLEFIELD_HELD")
                 .Concat(CaptureConquestFlow(state, player, field, units, tick, "BATTLEFIELD_HELD"))
                 .Concat(CaptureUnitConquestReturns(state, player, field, units, tick, origin))
-                .Concat(CaptureConquestRecasts(state, player, field, units, tick, "BATTLEFIELD_HELD"))
-                .Concat(CaptureConquestTokens(state, player, field, units, tick, "BATTLEFIELD_HELD"))
-                .Concat(CaptureConquestDamage(state, state, player, field, units, tick, "BATTLEFIELD_HELD"))
-                .Concat(CaptureGrantedConquestReturns(state, player, field, units, tick, "BATTLEFIELD_HELD"))
+                .Concat(CaptureConquestRecasts(state, player, field, units, tick, origin))
+                .Concat(CaptureConquestTokens(state, player, field, units, tick, origin))
+                .Concat(CaptureConquestDamage(state, state, player, field, units, tick, origin))
+                .Concat(CaptureGrantedConquestReturns(state, player, field, units, tick, origin))
                 .Concat(CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")
                     .Select(o => CaptureUnitEventFacts(state, o))
                     .Select((o, ordinal) => UnitEventTrigger(o, tick, ordinal, "BATTLEFIELD_HELD")));

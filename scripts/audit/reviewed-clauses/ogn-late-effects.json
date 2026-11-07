@@ -1724,9 +1724,9 @@
       ],
       "text": "当你据守此处时，激活此处所有单位的征服效果。",
       "scope": "当你据守此处时，激活此处所有单位的征服效果。",
-      "status": "missing",
-      "reason": "征服技能分派不完整：据守结算只接少数旧家族、得分来源和流转，没有调用真实征服使用的CaptureUnitConquestReturns；薇恩的征服支付1返手等新家族不会激活",
-      "rules": "核心383.3 触发与官方牌面所有单位的征服效果；OGN·286；例OGN·035／SFD·223薇恩",
+      "status": "route",
+      "reason": "据守技能结算时按各自控制者捕获此处当前单位的征服技能，共用得分、流转、返手、重施、指示物、伤害、临时授予和旧规格消费者；确认费用、目标后仍可响应。具名条件视为满足，其余条件仍检查，不产生实际征服事件，也不受绯红印记树怪额外触发影响；新捕获的独立家族绑定竞技场父技能、来源代际和已接受事件历史，持久化恢复拒绝删除或伪造来源。",
+      "rules": "中国区官方中文核心规则2026-10-10：383.4.g.1–g.2（清算人竞技场与绯红原文例）、383.3–383.4.a.2、204.1.c、124、385.2、420.3；OGN·286官方中文牌面。 闭环时机与效果打出依据159.2、309.1.a、055与420.3。",
       "runtime": {
         "legacyRoutes": {
           "HeldDefinition": {
@@ -1740,17 +1740,81 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
           "contains": [
             "case \"ACTIVATE_CONQUEST\":",
-            "if (!HasSupportedUnitConquestTriggerSpec(unitCard.CardNo)) continue;"
+            "CaptureNamedUnitConquestAbilities(state, item, state.Tick + 1)",
+            "activationReason: \"BATTLEFIELD_HELD\", excludedKinds: IndependentConquestKinds"
           ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.NamedConquestActivation.cs",
           "contains": [
-            "CaptureUnitConquestReturns("
+            "CaptureNamedUnitConquestAbilities(",
+            "EffectiveFieldControllerId(state.PlayerZones, id, state.CardObjects[id])",
+            "CaptureUnitConquestReturns(state, player, field, units, tick, origin)",
+            "CaptureConquestRecasts(state, player, field, units, tick, origin)",
+            "CaptureConquestTokens(state, player, field, units, tick, origin)",
+            "CaptureConquestDamage(state, state, player, field, units, tick, origin)",
+            "CaptureGrantedConquestReturns(state, player, field, units, tick, origin)",
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
+            "HuntAmountFromTags",
+            "!IndependentConquestKinds.Contains(spec.Kind)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.NamedConquestActivation.cs",
+          "contains": [
+            "ValidateNamedConquestActivationHistory(",
+            "MatchesNamedConquestActivationEvent(",
+            "MatchesNamedConquestCapturePayload(",
+            "captured conquest skill is not bound to accepted actual or named conquest activation history",
+            "state.StackItems.Append(pending.Parent)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitConquestReturn.cs",
+          "contains": [
+            "MatchesNamedConquestActivationEvent(e.Event, activation, context.BattlefieldObjectId)",
+            "captured unit conquest return is not bound to accepted named conquest activation history"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "NamedConquestCaptureOf(trigger.ConquestToken, trigger.UnitConquest, trigger.RecastContext)",
+            "payload[\"conquestContextHash\"] = capture.ContextHash"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamedConquestActivationTests.cs",
+          "methods": [
+            "HoldingTheArenaEarnsAnIndependentVaynePaymentAndReturnsToTheOwnerAfterResponses",
+            "AReturnResponseAfterPaymentCannotReturnTheSourcesNewHandIncarnation",
+            "TheArenaChoosesTheUnitsPresentWhenItsOwnSkillResolves",
+            "SharedTokenReturnAndLegacyFamiliesActivateOnceWithoutInventingAConquestOrObservingTheGraveyard",
+            "HuntEarnsItsNormalHoldAndOneAdditionalNamedConquestWithoutARealConquest",
+            "CrimsonDoesNotRepeatLegacyConquestInstructionsActivatedByHolding",
+            "AChildCannotInventItsParentActivationInAnOtherwiseConsistentColdFrame",
+            "ARealRecastBetweenArenaCopiesGrantsAnOptionalConquestReturn",
+            "NamedRecastChecksTheCurrentScoreAfterHoldingAndRecyclesTheRealSpell",
+            "NamedActivationDoesNotSatisfyTheSeparateUncontrolledBattlefieldCondition",
+            "TokenRecoveryRejectsAChangedOrRemovedNamedOrigin",
+            "PendingRecastCannotDropItsNamedParentWhenItLeavesTheStack"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConquestSourceHeroesTests.cs",
+          "methods": [
+            "HoldActivationOfConquestAlsoUsesARespondableDrawSkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConquestScoreHeroesTests.cs",
+          "methods": [
+            "ReckonerArenaActivatesNasusConquestEffectOnlyWhileEmpowered"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
