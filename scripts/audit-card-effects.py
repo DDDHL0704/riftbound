@@ -1137,7 +1137,7 @@ def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) 
             'CombatKeywordAmount(unit.RuleDerivedTags ?? [], keyword)',
         ],
         'CoreRuleEngine.cs': [
-            'state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });',
+            'if (conditionalPowerAuras)\n        {\n            state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });',
             'cardObject = state.CardObjects.GetValueOrDefault(objectId) ?? cardObject;',
         ],
     }

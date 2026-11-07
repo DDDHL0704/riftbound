@@ -157,6 +157,34 @@ public sealed class LucianLegendArmamentKeywordTests
     }
 
     [Theory]
+    [InlineData("SFD·009/221", "ASSEMBLE_RED", "强攻2")]
+    [InlineData("SFD·064/221", "ASSEMBLE_BLUE", "坚守2")]
+    [InlineData("SFD·033/221", "ASSEMBLE_GREEN", "壁垒")]
+    [InlineData("SFD·102/221", "ASSEMBLE_ORANGE", "法盾")]
+    [InlineData("SFD·133/221", "ASSEMBLE_PURPLE", "游走")]
+    [InlineData("UNL-096/219", "ASSEMBLE_ORANGE", "狩猎")]
+    [InlineData("RAD·150/167", "ASSEMBLE_ANY_POWER", "游走")]
+    public async Task StandaloneLowerBoxKeywordsUseRealAssemblyAndDetachment(
+        string cardNo, string assemblyCost, string keyword)
+    {
+        var initial = ArmamentMightTests.Position(cardNo);
+        Assert.True(PrintedCardFactory.TryCreate("GEAR", "P1", cardNo, out var gear));
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = gear } };
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "DETACH", "SFD·011/221");
+        var game = new Driver(initial);
+        Assert.DoesNotContain(keyword, CoreRuleEngine.RecomputeRuleDerivedKeywords(game.State).CardObjects["HOST"].Tags);
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", [assemblyCost]));
+        await game.Top();
+        Assert.Contains(keyword, CoreRuleEngine.RecomputeRuleDerivedKeywords(game.State).CardObjects["HOST"].RuleDerivedTags ?? []);
+        await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"]));
+        await game.Top();
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.DoesNotContain(keyword, CoreRuleEngine.RecomputeRuleDerivedKeywords(game.State).CardObjects["HOST"].Tags);
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData("SFD·009/221", "强攻2")]
     [InlineData("SFD·064/221", "坚守2")]
     [InlineData("SFD·033/221", "壁垒")]

@@ -62,6 +62,11 @@ class ProvidedArmamentKeywordAuditTests(unittest.TestCase):
         self.assertEqual('missing', self.outcome(sources=self.changed('CoreRuleEngine.cs',
             'state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });')))
 
+    def test_battle_refresh_must_not_reenter_its_own_keyword_dependencies(self):
+        self.assertEqual('missing', self.outcome(sources=self.changed('CoreRuleEngine.cs',
+            'if (conditionalPowerAuras)\n        {\n            state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });',
+            'state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });')))
+
     def test_weapons_must_still_be_qualified_and_attached_at_the_same_public_location(self):
         for token in ['IsArmamentKeywordProvider(gear)',
                       'IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host)']:
