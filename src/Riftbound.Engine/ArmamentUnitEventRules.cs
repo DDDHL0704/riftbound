@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Riftbound.CardCatalog;
+using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
@@ -26,6 +27,14 @@ internal static class ArmamentUnitEventRules
             var spec = match.Success
                 ? new UnitEventAbilitySpec("ATTACK_OR_DEFEND", FixedDamageEffect, int.Parse(match.Groups["amount"].Value))
                 : area.Success ? new UnitEventAbilitySpec("ATTACK_OR_DEFEND", AreaDamageEffect, int.Parse(area.Groups["amount"].Value)) : null;
+            if (spec is null && TriggerParser.Parse(definition.EffectText).FirstOrDefault(t =>
+                    t.Kind == TriggerKinds.UnitBattlefieldHeldCreateEquipment && t.Timing == TriggerTimings.BattlefieldHeld
+                    && t.TargetScope == TriggerTargetScopes.SourceUnit && t.CreatedTokenCount > 0
+                    && t.CreatedTokenExhausted == true && t.CreatedTokenDestination == TriggerTokenDestinations.OwnerBase) is { } held
+                && P6TokenFactoryCatalog.GetAll().FirstOrDefault(f => f.Tags.Contains(CardObjectTags.EquipmentCard)
+                    && f.TokenFamilyName == held.CreatedTokenName) is { } factory)
+                spec = new("HOLD", "CREATE_EQUIPMENT_TOKEN", held.CreatedTokenCount!.Value,
+                    CreatedTokenFactoryCardNo: factory.CardNo);
             return (definition.CardNo, Spec: spec is null ? null : spec with { GrantedByArmament = true });
         }).Where(row => row.Spec is not null).ToDictionary(row => row.CardNo, row => row.Spec!, StringComparer.Ordinal));
 

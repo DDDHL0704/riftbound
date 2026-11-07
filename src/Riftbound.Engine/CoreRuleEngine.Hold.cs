@@ -85,10 +85,19 @@ public sealed partial class CoreRuleEngine
         var queue = state.TriggerQueue.ToList();
         var delayed = state.DelayedResourceGains.ToList();
         var player = state.TurnPlayerId;
+        var frame = RuleChoices.Value;
+        var unitEventOrdinal = frame?.UnitEventOrdinal ?? 0;
         foreach (var field in fields)
         {
             var units = HeldUnitsAt(state, field, player);
             var copies = 1 + units.Count(id => HeldDefinition(state.CardObjects[id].CardNo)?.Kind == "BLUE_DELAYED_POWER");
+            foreach (var observation in CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "HOLD"))
+                for (var copy = 0; copy < copies; copy++)
+                {
+                    var trigger = UnitEventTrigger(observation, frame?.CompletionTick ?? state.Tick,
+                        unitEventOrdinal++, "BATTLEFIELD_HELD");
+                    queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                }
             var equipment = state.CardObjects.Values.Where(c => !c.IsFaceDown && c.Tags.Contains(CardObjectTags.EquipmentCard)
                 && IsObjectOnField(state.PlayerZones, c.ObjectId) && c.ControllerId == player
                 && state.ObjectLocations.TryGetValue(c.ObjectId, out var at) && at.Zone == "BATTLEFIELD" && at.BattlefieldObjectId == field)
@@ -169,6 +178,7 @@ public sealed partial class CoreRuleEngine
                     }
             }
         }
+        if (frame is not null) frame.UnitEventOrdinal = unitEventOrdinal;
         return QueueDeploymentHeldAbilities(state with { TriggerQueue = queue, DelayedResourceGains = delayed }, fields, events);
     }
 

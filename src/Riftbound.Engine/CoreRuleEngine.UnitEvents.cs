@@ -575,6 +575,11 @@ public sealed partial class CoreRuleEngine
             for (var i = 0; i < spec.Amount; i++)
                 CreateLegendEquipmentToken(zones, cards, item.ControllerId, item.SourceObjectId, item.EffectKind,
                     factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);
+            var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
+            for (var i = 0; i < events.Count; i++)
+                if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))
+                    events[i] = events[i] with { Payload = new Dictionary<string, object?>(events[i].Payload) {
+                        ["sourceObjectId"] = publicSource } };
             return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
         }
