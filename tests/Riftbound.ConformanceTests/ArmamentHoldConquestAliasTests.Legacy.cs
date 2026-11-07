@@ -128,7 +128,7 @@ public sealed partial class ArmamentHoldConquestAliasTests
         var game = new Driver(initial); await OpenConquestInstruction(game, firstHold);
         Assert.Equal(copied ? 2 : 1, game.State.StackItems.Count);
         Assert.All(game.State.StackItems, item => Assert.Equal(game.State.TurnNumber, item.UnitEvent!.FirstConquestTurn));
-        Assert.Single(game.State.UntilEndOfTurnEffects.Where(e => e.StartsWith("FIRST_CONQUEST_SKILL:")));
+        Assert.Single(game.State.UntilEndOfTurnEffects, e => e.StartsWith("FIRST_CONQUEST_SKILL:"));
         await Drain(game); Assert.False(game.State.CardObjects["HOST"].IsExhausted); await CloseDuel(game);
         await game.Act("P1", new MoveUnitCommand("HOST", firstHold ? "BATTLEFIELD:BF" : "BATTLEFIELD:OTHER", "BASE", []));
         await CloseDuel(game); await game.TapRunes("P1", ["PAYRUNE0", "PAYRUNE1"]);
