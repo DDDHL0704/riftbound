@@ -1069,37 +1069,40 @@
       ],
       "text": "每回合限一次，如果我位于战场上，当一名敌方单位被摧毁时，打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{横置}}：{{获得}}{{A}}。”）",
       "scope": "每回合限一次，如果我位于战场上，当一名敌方单位被摧毁时，打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{横置}}：{{获得}}{{A}}。”）",
-      "status": "missing",
-      "reason": "只有基础待命／法盾单位；缺少位于战场时敌方单位被摧毁的每回合一次监听及独立创建休眠金币",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
-      "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitTags": "待命|后排",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
-      },
+      "status": "route",
+      "reason": "共享死亡观察器在死亡时捕获来源位于战场及敌方控制者，每个原印或复制技能实例每回合一次；独立入链后创建休眠金币，来源返手不撤销，真实返场的新代际重新计算限制",
+      "rules": "核心124、191–192、383.2–383.3及407.4；UNL-145／145a官方中文牌面",
+      "runtime": {},
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
           "contains": [
-            "\"UNL-145/219\"",
-            "\"PYKE_STANDBY_BACK_ROW_GOLD_STATIC\""
+            "EffectivePublicStaticAuraSourceControllerId(zones, source.ObjectId, source)",
+            "or TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold)",
+            "return ResolveEnemySourceDeathObserver(state, item, c, spec, resolved);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EnemyDeathSourceTriggers.cs",
+          "contains": [
+            "context.Destroyed.ControllerId != controller",
+            "CreateLegendEquipmentToken(zones, cards, item.ControllerId"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyDeathSourceTriggerTests.cs",
+          "methods": [
+            "PykeCapturesHisBattlefieldConditionAndTheDeadUnitsController",
+            "PykeCreatesTheEarnedGoldAfterARealSourceReturnToItsOwnersHand",
+            "PykeUsesTheLimitOncePerTurnAndResetsItThroughActualTurnChanges",
+            "CopiedDeathTextHasAnIndependentOncePerTurnLimit",
+            "ARealReturnAndReentryCreatesANewAbilityInstanceInTheSameTurn",
+            "PykeRecoveryRejectsAChangedEnemyRelationOrCapturedSourceZone"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

@@ -20236,56 +20236,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static IReadOnlyList<GameEvent> ResolveSivirEnemyDestroyedReadyTriggers(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        IReadOnlyList<string> destroyedUnitOwnerIds)
-    {
-        if (destroyedUnitOwnerIds.Count == 0)
-        {
-            return [];
-        }
-
-        var events = new List<GameEvent>();
-        foreach (var playerId in playerZones.Keys.OrderBy(playerId => playerId, StringComparer.Ordinal))
-        {
-            if (!destroyedUnitOwnerIds.Any(ownerId => !string.Equals(ownerId, playerId, StringComparison.Ordinal))
-                || !TryGetSivirLegend(
-                    playerZones,
-                    cardObjects,
-                    playerId,
-                    out var legendObjectId,
-                    out var legendState)
-                || !legendState.IsExhausted)
-            {
-                continue;
-            }
-
-            cardObjects[legendObjectId] = legendState with { IsExhausted = false };
-            events.Add(new GameEvent(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的战争女神敌方单位被摧毁触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["legendObjectId"] = legendObjectId,
-                    ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = "ENEMY_UNIT_DESTROYED_READY"
-                }));
-            events.Add(new GameEvent(
-                "LEGEND_READIED",
-                $"{legendObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = "ENEMY_UNIT_DESTROYED_READY"
-                }));
-        }
-
-        return events;
-    }
-
     private static bool IsStateBasedCleanupDestroyedEvent(GameEvent gameEvent)
     {
         return TryGetPayloadString(gameEvent, "reason", out var reason)
@@ -26496,11 +26446,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         ResolvePermanentPlaySourceInstructions(state, stackItem, behavior, playerZones, cardObjects, events);
-
-        events.AddRange(ResolveSivirEnemyDestroyedReadyTriggers(
-            playerZones,
-            cardObjects,
-            destroyedUnitOwnerIds));
 
         if ((!deferCompletion && sourceReplayChoice is null || winnerPlayerId is not null)
             && !(sourceReplayProgress is not null && state.StackItems.Any(i => i.StackItemId != stackItem.StackItemId && i.SourceObjectId == stackItem.SourceObjectId)))

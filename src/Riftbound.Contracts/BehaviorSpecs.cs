@@ -300,6 +300,8 @@ public static class TriggerKinds
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     public const string UnitEnemyDestroyedHereOncePerTurnCallRune =
         "UNIT_ENEMY_DESTROYED_HERE_ONCE_PER_TURN_CALL_RUNE";
+    public const string SourceEnemyBatchDestroyedReady = "SOURCE_ENEMY_BATCH_DESTROYED_READY";
+    public const string SourceBattlefieldEnemyDestroyedOnceGold = "SOURCE_BATTLEFIELD_ENEMY_DESTROYED_ONCE_GOLD";
     public const string UnitStunnedEnemyDestroyedHereDraw = "UNIT_STUNNED_ENEMY_DESTROYED_HERE_DRAW";
     public const string UnitFriendlyBatchDestroyedBoon = "UNIT_FRIENDLY_BATCH_DESTROYED_BOON";
     public const string PlayerDestroysStunnedEnemyDraw = "PLAYER_DESTROYS_STUNNED_ENEMY_EXHAUST_DRAW";

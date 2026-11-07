@@ -24,6 +24,14 @@ public sealed class RuneRecycleDestinationNativeTests
         }
         Export("initial.json", initial);
         await Submit("battle", "P1", RuneRecycleDestinationTests.Battle());
+        // CN 468.2: the enemy-death skill precedes conquest rune recycling.
+        Assert.Equal(initial.PlayerZones["P1"].RuneDeck, current.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(TriggerKinds.SourceEnemyBatchDestroyedReady,
+            Assert.Single(current.StackItems).DeathObserver!.Kind);
+        await Submit("death-pass-first", current.PriorityPlayerId!, new PassPriorityCommand());
+        Assert.Single(current.StackItems);
+        Assert.Equal(initial.PlayerZones["P1"].RuneDeck, current.PlayerZones["P1"].RuneDeck);
+        await Submit("death-pass-second", current.PriorityPlayerId!, new PassPriorityCommand());
         Assert.Equal(initial.PlayerZones["P1"].MainDeck, current.PlayerZones["P1"].MainDeck);
         Assert.Equal(new[] { "BOTTOM", "RUNE" }, current.PlayerZones["P1"].RuneDeck);
         Assert.Equal("RUNE_DECK", current.ObjectLocations["RUNE"].Zone); Assert.False(current.CardObjects["RUNE"].IsExhausted);
