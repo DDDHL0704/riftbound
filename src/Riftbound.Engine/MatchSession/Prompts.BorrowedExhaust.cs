@@ -11,7 +11,7 @@ internal static partial class ActionPromptBuilder
         var powerPool = PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.BorrowedPowerPurpose(source));
         foreach (var ability in BorrowedExhaustRules.Abilities(state, player, source))
         {
-            if (!CoreRuleEngine.CanActivateBorrowedExhaust(state, player, ability.Spec)) continue;
+            if (!CoreRuleEngine.CanActivateBorrowedExhaust(state, player, ability.Spec, source.ObjectId)) continue;
             if (ability.Spec.Kind == "RESOURCE" && !CoreRuleEngine.BorrowedResourceGainSupported(state, player, ability.Spec, source)) continue;
             var discardsHandCard = ability.Spec.DiscardsEquipmentAsCost || ability.Spec.DiscardsHandCardAsCost;
             var discardChoices = discardsHandCard

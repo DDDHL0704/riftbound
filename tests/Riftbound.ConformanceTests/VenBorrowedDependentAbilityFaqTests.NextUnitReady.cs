@@ -20,59 +20,45 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
     }
 
     private static string NextUnitReadyAbility(MatchState state, bool borrowed)
-        => borrowed ? TemplateId(state, "下一名单位") : "SUN_DISC_NEXT_UNIT_READY";
+        => borrowed ? Assert.Single(BorrowedExhaustRules.Abilities(state, "P1", state.CardObjects["HOST"]),
+            ability => ability.Spec.Kind == "GRANT_NEXT_UNIT_READY").Id : "SUN_DISC_NEXT_UNIT_READY";
 
     private static string[] NextUnitReadyGrants(MatchState state)
         => state.UntilEndOfTurnEffects.Where(m => m.StartsWith("ACTIVATED_NEXT_UNIT_READY:", StringComparison.Ordinal)).ToArray();
 
     [Theory]
-    [InlineData(false, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, false)]
-    [InlineData(true, true, false)]
-    [InlineData(true, true, true)]
-    public async Task NextUnitReadyEncourageIsCheckedAtResolutionAndConsumedByOneActualUnit(bool borrowed, bool encourage, bool response)
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task NextUnitReadyRequiresEncourageBeforeActivationAndIsConsumedByOneActualUnit(bool borrowed)
     {
         var initial = NextUnitReadyPosition();
         var source = borrowed ? "HOST" : "UNIT";
         var id = NextUnitReadyAbility(initial, borrowed);
         await RadGearTestPosition.Reject(initial, "P2", new ActivateAbilityCommand(source, id, []));
-        await RadGearTestPosition.Reject(initial, "P1", new ActivateAbilityCommand(source, id, ["ALLY"]));
+        await RadGearTestPosition.Reject(initial, "P1", new ActivateAbilityCommand(source, id, []));
         var game = new Driver(initial);
-        if (encourage && !response)
-        {
-            await game.Act("P1", new PlayCardCommand("ENCOURAGE", "OGN·048/298", []));
-            await game.Top();
-        }
+        await game.Act("P1", new PlayCardCommand("ENCOURAGE", "OGN·048/298", []));
+        await game.Top();
+        await RadGearTestPosition.Reject(game.State, "P1", new ActivateAbilityCommand(source, id, ["ALLY"]));
         await game.Act("P1", new ActivateAbilityCommand(source, id, []));
         Assert.True(game.State.CardObjects[source].IsExhausted);
         Assert.Empty(NextUnitReadyGrants(game.State));
-        if (response)
-        {
-            await game.Act("P1", new PlayCardCommand("ENCOURAGE", "OGN·048/298", []));
-            await game.Top();
-        }
         await game.Top();
-        Assert.Equal(encourage ? 1 : 0, NextUnitReadyGrants(game.State).Length);
-        if (encourage)
+        var marker = Assert.Single(NextUnitReadyGrants(game.State));
+        Assert.DoesNotContain(marker, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
+        Assert.Contains("invalid activated next play grant", OfficialInsightAndSpellLockTests.Errors(game.State with {
+            UntilEndOfTurnEffects = [..game.State.UntilEndOfTurnEffects, marker] }));
+        var grant = JsonSerializer.Deserialize<ActivatedPlayGrant>(Convert.FromBase64String(marker["ACTIVATED_NEXT_UNIT_READY:".Length..]))!;
+        foreach (var forged in new[] { grant with { TurnNumber = grant.TurnNumber + 1 },
+            grant with { CardNo = "FORGED" }, grant with { StackItemId = "FORGED" },
+            grant with { Borrowed = null, Printed = null } })
         {
-            var marker = Assert.Single(NextUnitReadyGrants(game.State));
-            Assert.DoesNotContain(marker, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
+            var bad = "ACTIVATED_NEXT_UNIT_READY:" + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(forged));
             Assert.Contains("invalid activated next play grant", OfficialInsightAndSpellLockTests.Errors(game.State with {
-                UntilEndOfTurnEffects = [..game.State.UntilEndOfTurnEffects, marker] }));
-            var grant = JsonSerializer.Deserialize<ActivatedPlayGrant>(Convert.FromBase64String(marker["ACTIVATED_NEXT_UNIT_READY:".Length..]))!;
-            foreach (var forged in new[] { grant with { TurnNumber = grant.TurnNumber + 1 },
-                grant with { CardNo = "FORGED" }, grant with { StackItemId = "FORGED" },
-                grant with { Borrowed = null, Printed = null } })
-            {
-                var bad = "ACTIVATED_NEXT_UNIT_READY:" + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(forged));
-                Assert.Contains("invalid activated next play grant", OfficialInsightAndSpellLockTests.Errors(game.State with {
-                    UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(m => m == marker ? bad : m).ToArray() }));
-            }
+                UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(m => m == marker ? bad : m).ToArray() }));
         }
         await game.Act("P1", new PlayCardCommand("FIRST-UNIT", "OGN·001/298", [], Destination: "BASE"));
-        Assert.Equal(!encourage, game.State.CardObjects["FIRST-UNIT"].IsExhausted);
+        Assert.False(game.State.CardObjects["FIRST-UNIT"].IsExhausted);
         Assert.Empty(NextUnitReadyGrants(game.State));
         await game.Act("P1", new PlayCardCommand("SECOND-UNIT", "OGN·001/298", [], Destination: "BASE"));
         Assert.True(game.State.CardObjects["SECOND-UNIT"].IsExhausted);
@@ -91,8 +77,9 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand(source, cardNo, [], Destination: "BASE"));
         Assert.False(game.State.CardObjects[source].IsExhausted);
-        await game.Act("P1", new ActivateAbilityCommand(source, NextUnitReadyAbility(game.State, borrowed), []));
-        await game.Top();
+        await RadGearTestPosition.Reject(game.State, "P1",
+            new ActivateAbilityCommand(source, NextUnitReadyAbility(game.State, borrowed), []));
+        Assert.False(game.State.CardObjects[source].IsExhausted);
         Assert.Empty(NextUnitReadyGrants(game.State));
         await game.Replay();
 

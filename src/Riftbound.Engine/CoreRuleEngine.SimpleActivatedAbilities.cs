@@ -43,8 +43,9 @@ public sealed partial class CoreRuleEngine
             + (ability.SimpleEffect?.OncePerTurnPerPlayer == true ? ":PLAYER:" + actor : "");
     internal static bool SimpleActivationInstanceAvailable(MatchState state, CardObjectState source,
         P4ActivatedAbilityDefinition ability, string actor, RuleTextInstance instance)
-        => ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(
-            SimpleActivationUse(new(source.ObjectId, source.ObjectGeneration), ability, actor, instance.Origin is null ? null : instance.Id));
+        => (ability.SimpleEffect?.RequiresEncouraged != true || EncourageActive(state, actor, source.ObjectId))
+            && (ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(
+                SimpleActivationUse(new(source.ObjectId, source.ObjectGeneration), ability, actor, instance.Origin is null ? null : instance.Id)));
 
     private static bool SelectSimpleActivationInstance(MatchState state, CardObjectState source,
         P4ActivatedAbilityDefinition ability, string? id, out RuleTextInstance instance)
@@ -112,7 +113,6 @@ public sealed partial class CoreRuleEngine
             && FindFieldObjectLocation(state.PlayerZones, id) is { } at && (at.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn)
             && state.ObjectLocations.TryGetValue(id, out var precise) && (precise.PlayerId == actor || ability.UsableByAnyPlayerOnOwnTurn) && precise.Zone == at.Zone
             && (!ability.RequiresBattlefieldSource || precise.Zone == "BATTLEFIELD" && state.BattlefieldStates.ContainsKey(id))
-            && (!ability.RequiresBaseEquipmentSource || precise.Zone == "BASE")
             && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered)
             && (ability.SimpleEffect?.RequiresEnemyUnitTargetThisTurn != true || state.UntilEndOfTurnEffects.Contains(EnemyUnitTargetMarker(actor)))
             && (!SimpleActivationHasAdditionalCost(ability)
