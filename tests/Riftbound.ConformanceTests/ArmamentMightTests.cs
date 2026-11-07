@@ -16,7 +16,9 @@ public sealed class ArmamentMightTests
             RunePools=new Dictionary<string,RunePool>(s.RunePools) {["P1"]=new(20,20)}};
         if (attached && gear == "SFD·059/221") s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             ["GEAR"] = s.CardObjects["GEAR"] with { AttachmentRevision = 1, AttachedRuleText = new(new("HOST", 0), unit, 1, s.Tick, 0) } } };
-        return At(At(s,"HOST","P1","BASE"),"GEAR","P1","BASE");
+        // Declared openings with an already attached weapon must include its
+        // current lower-box keyword layer before recovery is validated.
+        return CoreRuleEngine.RecomputeRuleDerivedKeywords(At(At(s,"HOST","P1","BASE"),"GEAR","P1","BASE"));
     }
     internal static int Might(MatchState s)=>CurrentPowerTargetTests.Snapshot(s).GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty("HOST").GetProperty("effectivePower").GetInt32();
     [Fact]
@@ -114,6 +116,10 @@ public sealed class ArmamentMightTests
     {
         var s=Position(card,attached:true);Assert.Equal(4+bonus,Might(s));PublicRecovery(s);Restore(s);
         s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {["GEAR"]=s.CardObjects["GEAR"] with {AttachedToObjectId=null,AttachedRuleText=null}}};
+        // This branch declares a detached fixture directly rather than issuing
+        // a command. Refresh its keyword cache before validating recovery.
+        s=CoreRuleEngine.RecomputeRuleDerivedKeywords(s);
+        Assert.Empty(s.CardObjects["HOST"].RuleDerivedTags ?? []);
         Assert.Equal(4,Might(s));PublicRecovery(s);Restore(s);
     }
     [Fact]

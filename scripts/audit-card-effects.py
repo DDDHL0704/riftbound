@@ -771,6 +771,15 @@ def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
     return result("review", "未找到该关键词的物体／费用／文本消费路径")
 
 
+def has_public_armament_keyword_binding(sources: Sources) -> bool:
+    text = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs', '')
+    required = ['!gear.IsFaceDown', '!unit.IsFaceDown',
+                'IsObjectOnField(state.PlayerZones, gear.ObjectId)', 'IsObjectOnField(state.PlayerZones, host)',
+                'IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host)']
+    return all(token in text for token in required) and not any(
+        name + '.Tags.Contains(CardObjectTags.Standby)' in text for name in ('gear', 'unit'))
+
+
 def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     runtime = card.get("armament", {})
     bare = normalize(unparenthesize(clause["text"]))
@@ -782,6 +791,8 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
         grant_paths = [path for path in sources.references(".GrantedKeywords")
                        if Path(path).name == "CoreRuleEngine.ArmamentKeywords.cs"]
         if matches and grant_paths:
+            if not has_public_armament_keyword_binding(sources):
+                return result('missing', '武装关键词缺少公开区域／背面状态检查，或误将待命关键词当作背面状态', grant_paths)
             return result("route", "贴附武装向宿主授予具体关键词", grant_paths)
     replacement = {
         normalize("如果我被摧毁，则改为摧毁守护天使。"),
@@ -1280,6 +1291,59 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
     return result("missing", "缺少精确的触发条件、原来源活跃／本回合战力或独立经验结算路径")
 
 
+def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause['text']))
+    if text != normalize('你的每件武装都会提供{{强攻}}。'):
+        return None
+    if normalize(unparenthesize(clause['scope'])) != text:
+        return result('missing', '武装提供关键词的范围与句子不一致')
+    provider = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs', '')
+    if not has_public_armament_keyword_binding(sources) or 'source.Tags.Contains(CardObjectTags.Standby)' in provider:
+        return result('missing', '正面单位、武装或来源拥有待命关键词不会失去其公开关键词效果')
+    profile = dict(kind='FRIENDLY_ARMAMENT_PROVIDED_KEYWORD', layer='RULE_TEXT',
+        duration='WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD', targetScope='FRIENDLY_EQUIPMENT',
+        participantScope='FRIENDLY_PUBLIC_FIELD_EQUIPMENT', targetFilter='TAG:武装', grantedKeyword='强攻')
+    candidates = [row['node'] for row in card.get('staticAuras', [])]
+    if not any(all(node.get(key) == value for key, value in profile.items())
+               and not any(meaningful(value) for key, value in node.items()
+                   if key not in set(profile) | {'text', 'status', 'reason'}) for node in candidates):
+        return result('missing', '缺少友方武装向其宿主提供强攻的持续规格；战斗数值加成不能替代关键词')
+    requirements = {
+        'CoreRuleEngine.ArmamentKeywords.cs': [
+            'PublicStaticAuraSourceObjectIds(state.PlayerZones)',
+            'source.IsFaceDown',
+            'var provided = FriendlyArmamentProvidedKeywordGrants(state);',
+            'IsArmamentKeywordProvider(gear)',
+            'EffectiveFieldControllerId(state.PlayerZones, gear.ObjectId, gear)',
+            'EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, sourceId, source)',
+            'aura.Kind != StaticAuraKinds.FriendlyArmamentProvidedKeyword',
+            'keywords.Add(aura.GrantedKeyword)',
+            'IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host)',
+            '.Concat(provided.GetValueOrDefault(',
+        ],
+        'CoreRuleEngine.RuleDerivedKeywords.cs': [
+            'var armamentKeywords = AttachedArmamentKeywordGrants(state);',
+            '.Concat(armamentKeywords.GetValueOrDefault(id) ?? [])',
+            'var amount = keywords.Sum(k => CombatKeywordAmount([k], counted));',
+            'RuleDerivedTags = derived.Length == 0 ? null : derived',
+        ],
+        'CoreRuleEngine.CountedCombatKeywords.cs': [
+            'var evaluated = RecomputeRuleDerivedKeywords(state);',
+            'CombatKeywordAmount(unit.RuleDerivedTags ?? [], keyword)',
+        ],
+        'CoreRuleEngine.cs': [
+            'if (conditionalPowerAuras)\n        {\n            state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });',
+            'cardObject = state.CardObjects.GetValueOrDefault(objectId) ?? cardObject;',
+        ],
+    }
+    evidence = ['src/Riftbound.Engine/' + name for name in requirements]
+    if not all(all(token in sources.files.get('src/Riftbound.Engine/' + name, '') for token in tokens)
+               for name, tokens in requirements.items()):
+        return result('missing', '缺少按武装控制者持续提供宿主关键词及共享当前关键词读取的完整执行路径', evidence)
+    if 'CountLucianLegendEquipmentAssaultBonus(' in sources.files.get('src/Riftbound.Engine/CoreRuleEngine.cs', ''):
+        return result('missing', '旧战斗专用加成尚未移除，可能重复计算武装强攻', evidence)
+    return result('route', '按武装当前控制者持续提供宿主强攻，并复用当前关键词与战斗计算', evidence)
+
 def enemy_death_source_clause_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     bare = normalize(unparenthesize(clause['text']))
     ready = normalize('当任意数量的敌方单位被摧毁时，让我变为活跃状态。')
@@ -1464,6 +1528,9 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     kind = clause["kind"]
     if boon_mode := boon_mode_activation_route(card, clause, sources):
         return boon_mode
+    if provided := provided_armament_keyword_route(card, clause, sources):
+        return provided
+
     if enemy_death := enemy_death_source_clause_route(card, clause, sources):
         return enemy_death
     if colored := colored_legacy_activation_fee(card, clause, sources):
