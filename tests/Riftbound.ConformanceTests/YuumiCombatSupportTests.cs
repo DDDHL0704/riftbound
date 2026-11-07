@@ -125,6 +125,43 @@ public sealed class YuumiCombatSupportTests
         await game.Replay();
     }
 
+    [Fact]
+    public async Task ARealBowAndYuumisPrintedTextKeepSeparateFriendlyAndEnemyConfirmationScopes()
+    {
+        const string bow = "SFD·016/221";
+        var initial = RadGearTestPosition.Put(Position(), "GEAR", bow, "P1", "HAND");
+        initial = RadGearTestPosition.Put(initial, "ENEMY", "OGN·219/298", "P2", "BATTLEFIELD", "BF");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("GEAR", bow, [], Destination: "BASE"));
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_RED"]));
+        while (game.State.StackItems.Count > 0) await game.Top();
+        await Challenge(game);
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        for (var index = 0; index < 2; index++)
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            var target = choice.LegalObjectIds.Contains("ALLY") ? "ALLY" : "ENEMY";
+            Assert.Equal(new[] { target }, choice.LegalObjectIds);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+        }
+        Assert.Equal(2, game.State.StackItems.Count);
+        Assert.Equal(new[] { "ALLY" }, Assert.Single(game.State.StackItems, item => item.CardNo == Yuumi).TargetObjectIds);
+        var granted = Assert.Single(game.State.StackItems, item => item.CardNo == bow);
+        Assert.True(granted.UnitEvent!.Origin!.ArmamentGranted);
+        Assert.Equal(new[] { "ENEMY" }, granted.TargetObjectIds);
+        Assert.Equal(4, game.State.CardObjects["ALLY"].Power);
+        Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
+        await game.ColdCheckpoint();
+        await game.Top(); await game.Top();
+        Assert.Equal(7, game.State.CardObjects["ALLY"].Power);
+        Assert.Contains(Bulwark, game.State.CardObjects["ALLY"].UntilEndOfTurnEffects);
+        Assert.True(game.State.CardObjects["ENEMY"].Damage > 0);
+        Assert.Single(game.Events(), ev => ev.Event.Kind == "DAMAGE_APPLIED");
+        await game.Replay();
+    }
+
     private static async Task CloseBattle(Driver game)
     {
         for (var step = 0; !game.Events().Any(e => e.Event.Kind == "BATTLE_CLOSED"); step++)
