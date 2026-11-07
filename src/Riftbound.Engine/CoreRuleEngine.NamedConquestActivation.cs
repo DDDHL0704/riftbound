@@ -88,7 +88,7 @@ public sealed partial class CoreRuleEngine
             .Concat(CaptureConquestTokens(state, player, field, units, tick, activation, eventKind))
             .Concat(CaptureConquestDamage(state, state, player, field, units, tick, activation, eventKind))
             .Concat(CaptureGrantedConquestReturns(state, player, field, units, tick, activation, eventKind))
-            .Concat(CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")
+            .Concat(CaptureConquestEventObservations(state, units)
                 .Where(o => includeHunt || !UnitEventTimingMatches(o.Context.Timing, "HOLD"))
                 .Select(o => CaptureUnitEventFacts(state, o))
                 .Select((o, ordinal) => UnitEventTrigger(o, tick, ordinal, eventKind)));
@@ -102,7 +102,9 @@ public sealed partial class CoreRuleEngine
                         state.CardObjects[id].ObjectGeneration) };
             if (UnitConquestTriggerSpecRules.TriggersForCard(state.CardObjects[id].CardNo)
                 .Any(spec => UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger(spec)
-                    && !IndependentConquestKinds.Contains(spec.Kind)))
+                    && !IndependentConquestKinds.Contains(spec.Kind)
+                    && !CapturedConquestInstructionKinds.Contains(spec.Kind)
+                    && spec.RequiredOverkillDamage is null or <= 0))
                 yield return new($"activate-conquest-{tick}-{id}-{activation?.ParentStackItemId}", player, id,
                     "HOLD_CONQUEST_UNIT", eventKind) {
                     HeldContext = new(state.CardObjects[id].CardNo!, field, "CONQUEST_UNIT", 0,

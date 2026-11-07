@@ -7,7 +7,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 namespace Riftbound.ConformanceTests;
 
 // CN 383.4.c-d, 718 and SFD judge FAQ260114 p11.
-public sealed class ArmamentHoldConquestAliasTests
+public sealed partial class ArmamentHoldConquestAliasTests
 {
     private const string Armament = "SFD·030/221";
 
@@ -125,7 +125,11 @@ public sealed class ArmamentHoldConquestAliasTests
     private static async Task Drain(Driver game)
     {
         for (var i = 0; game.State.StackItems.Count > 0 || game.State.TriggerQueue.Count > 0; i++) {
-            Assert.InRange(i, 0, 20); await Order(game); await game.Top();
+            Assert.InRange(i, 0, 30); await Order(game);
+            if (game.State.PendingCardChoice is { } choice)
+                await game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                    choice.LegalObjectIds.Take(choice.RequiredCount).ToArray()));
+            else await game.Top();
         }
     }
 

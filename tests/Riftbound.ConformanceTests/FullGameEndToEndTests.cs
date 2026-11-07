@@ -6062,18 +6062,16 @@ public sealed partial class FullGameEndToEndTests
 
         var conquestTriggers = result.Events
             .Where(gameEvent =>
-                string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+                string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
                 && string.Equals(gameEvent.Payload["sourceObjectId"] as string, treantObjectId, StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["effectId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal))
+                && string.Equals(gameEvent.Payload["triggeredByEventKind"] as string, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal))
             .ToArray();
         Assert.Equal(2, conquestTriggers.Length);
 
         var boonEvents = result.Events
             .Where(gameEvent =>
                 string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, treantObjectId, StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal))
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, treantObjectId, StringComparison.Ordinal))
             .ToArray();
         Assert.Equal(2, boonEvents.Length);
         var boonTargetObjectId = Assert.IsType<string>(boonEvents[0].Payload["targetObjectId"]);
@@ -16269,8 +16267,32 @@ public sealed partial class FullGameEndToEndTests
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        var allEvents = result.Events.ToList();
+        // Both earned skills are confirmed before response priority. Keep every
+        // original command in the journal; the final replay checks this history.
+        if (result.State.TriggerQueue.Count > 0) {
+            var orderingPlayer = PlayerWithEnabledCandidate(result, CommandTypes.OrderTriggers)!;
+            var candidateOrder = result.Prompts[orderingPlayer].Candidates!.Single(c => c.Action == CommandTypes.OrderTriggers);
+            var metadata = JsonSerializer.SerializeToElement(candidateOrder.Metadata);
+            var order = new OrderTriggersCommand(OrderedTriggerIds: metadata.GetProperty("orderedTriggerIds")
+                .EnumerateArray().Select(id => id.GetString()!).ToArray());
+            result = await session.SubmitAsync(orderingPlayer, intentId + "-order-conquest", order, RawCommand(order), default);
+            AssertAccepted(result); allEvents.AddRange(result.Events);
+        }
+        for (var index = 0; index < 2; index++) {
+            var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+            Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+            Assert.Contains(treantObjectId, choice.LegalObjectIds);
+            var choose = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [treantObjectId]);
+            result = await session.SubmitAsync(choice.PlayerId, intentId + "-conquest-target-" + index, choose, RawCommand(choose), default);
+            AssertAccepted(result); allEvents.AddRange(result.Events);
+        }
+        for (var index = 0; index < 2; index++) {
+            result = await ResolveOneStackItemPassPassAsync(session, result, intentId + "-conquest-response-" + index);
+            allEvents.AddRange(result.Events);
+        }
         AssertNoHiddenZoneLeak(result);
-        return result;
+        return result with { Events = allEvents };
     }
 
     private static async ValueTask<ResolutionResult> SubmitVayneConquestReturnDeclareBattleAsync(

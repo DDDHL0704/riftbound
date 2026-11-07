@@ -5314,6 +5314,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.UnitEvent is { FirstConquestTurn: { } firstTurn } firstConquest)
+        {
+            payload["firstConquestUse"] = FirstConquestUse(trigger.SourceObjectId, firstConquest);
+            payload["firstConquestTurn"] = firstTurn;
+        }
         if (TimingCaptureContext(trigger) is { } timingContext)
             payload["timingCaptureHash"] = TimingCaptureHash(timingContext, trigger.TimingAlias);
         if (trigger.UnitEvent is { Origin.ArmamentGranted: true } armamentEvent)
@@ -15135,6 +15140,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextRngCursor = rngCursor;
         var unitConquestTriggers = UnitConquestTriggerSpecRules.TriggersForCard(unitState.CardNo)
             .Where(UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger)
+            .Where(trigger => !CapturedConquestInstructionKinds.Contains(trigger.Kind))
             .Where(trigger => excludedKinds?.Contains(trigger.Kind) != true)
             .ToArray();
         var unitConquestOverkillGoldTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
@@ -15522,21 +15528,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
                 && TryGetPreciseFieldLocation(playerZones, objectLocations, objectId, out var location)
                 && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-                && string.Equals(location.BattlefieldObjectId, battlefieldPositionObjectId, StringComparison.Ordinal)
-                && UnitConquestTriggerSpecRules.TryGetTrigger(
-                    sourceState.CardNo,
-                    UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger,
-                    out _))
+                && string.Equals(location.BattlefieldObjectId, battlefieldPositionObjectId, StringComparison.Ordinal))
             .Distinct(StringComparer.Ordinal)
             .Sum(objectId =>
             {
                 var sourceState = cardObjects[objectId];
-                return UnitConquestTriggerSpecRules.TryGetTrigger(
-                        sourceState.CardNo,
-                        UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger,
-                        out var trigger)
-                    ? Math.Max(0, trigger.AdditionalTriggerCount.GetValueOrDefault(0))
-                    : 0;
+                return AttachedRuleTextRules.Instances(playerZones, cardObjects, sourceState)
+                    .Sum(instance => UnitConquestTriggerSpecRules.TriggersForCard(instance.CardNo)
+                        .Where(UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger)
+                        .Sum(trigger => Math.Max(0, trigger.AdditionalTriggerCount.GetValueOrDefault(0))));
             });
 
         return Math.Max(1, 1 + additionalTriggerCount);

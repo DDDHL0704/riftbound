@@ -56,6 +56,17 @@ public static partial class MatchRecoveryValidator
                     && TryReadObjectStringList(e.Event.Payload, "stackItemIds", out var ids) && ids.Contains("ordered-" + item.Id))
                 || item.Alias is { } alias && !MatchesAcceptedTimingAlias(queued[0], alias, events))
                 errors.Add("battlefield timing skill differs from its original accepted capture");
+            if (item.Context is UnitEventContext unitEvent
+                && unitEvent.Timing.Split("_OR_", StringSplitOptions.None).Contains("CONQUEST", StringComparer.Ordinal))
+            {
+                var modes = events.Where(e => e.Event.Kind == "TRIGGER_MODE_CONFIRMED"
+                    && TryReadObjectString(e.Event.Payload, "stackItemId", out var id) && id == "ordered-" + item.Id
+                    && commands.Any(c => c.Accepted && c.CompletedTick == e.Tick
+                        && c.StartedEventSequence < e.Sequence && c.CompletedEventSequence >= e.Sequence)).ToArray();
+                if (unitEvent.Mode is null ? modes.Length != 0 : modes.Length != 1
+                    || !TryReadObjectString(modes[0].Event.Payload, "mode", out var mode) || mode != unitEvent.Mode)
+                    errors.Add("conquest skill mode differs from its original accepted confirmation");
+            }
         }
         foreach (var gain in state.DelayedResourceGains)
         {
