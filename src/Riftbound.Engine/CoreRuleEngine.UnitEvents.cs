@@ -278,6 +278,9 @@ public sealed partial class CoreRuleEngine
         if (captured.Origin is { ArmamentGranted: true } armament)
             captured = captured with { Origin = armament with { CapturedTick = tick } };
         var id = $"unit-event-{tick}-{ordinal}-{observation.Source}-{captured.Timing}";
+        if (captured.Origin is { ArmamentGranted: true })
+            id = "armament-unit-event-" + MatchStateHasher.HashValue(new {
+                tick, ordinal, observation.Source, captured.CardNo, captured.Origin });
         if (UnitEventSpec(captured.CardNo) is { Effect: "INSIGHT" } insight)
             return new(id, observation.Controller, observation.Source, InsightTriggerEffect, eventKind, timing) {
                 SourceCardNo = captured.CardNo,
