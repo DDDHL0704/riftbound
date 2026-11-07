@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "《符文战场》核心规则_20261010.pdf",
+      "locator": "CN 383.2.a.1 / 359.2",
+      "note": "未支付额外费用不满足触发条件；常驻牌确认直接入场，不创建空技能，也不要求双方让过。此处只更新新建测试场景，不改写已接受的对局命令。"
     }
   ],
   "roomId": "p2-preflight-pyke-alt-a-room",
@@ -80,21 +85,15 @@
         "cardNo": "UNL-028a/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-pyke-alt-a-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-pyke-alt-a-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
       {
@@ -131,18 +130,6 @@
             "游走"
           ]
         }
-      },
-      {
-        "kind": "TRIGGER_QUEUED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },

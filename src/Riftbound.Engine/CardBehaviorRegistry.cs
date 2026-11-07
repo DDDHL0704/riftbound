@@ -13,7 +13,9 @@ public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amou
     string? LeadingDestroyOtherFriendlyPermanentsRequiredTag = null,
     string? RequiredPlayedUnitTag = null, int? MinimumPlayedUnitPower = null,
     bool LeadingConsumeBoon = false, bool LeadingConsumeAnyNumberOfBoons = false, int MinimumControlledEquipment = 0,
-    int RuneCallCount = 0, int OtherEnemyDamageAmount = 0, bool SourceInLegendZone = false);
+    int RuneCallCount = 0, int OtherEnemyDamageAmount = 0, bool SourceInLegendZone = false,
+    bool TargetsAnotherFriendlyHere = false, string? GrantedCombatKeyword = null,
+    bool RequiresPlayedUnitToken = false);
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false,
@@ -6763,7 +6765,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "仙灵|猫科"),
+            SourceUnitTags: "仙灵|猫科",
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_FRIENDLY", 3,
+                TargetsAnotherFriendlyHere: true, GrantedCombatKeyword: CardCombatKeywordNames.Bulwark)),
         new(
             "UNL-058/219",
             "莉莉娅",
@@ -6773,7 +6777,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "仙灵"),
+            SourceUnitTags: "仙灵",
+            UnitEventAbility: new("FRIENDLY_UNIT_PLAYED", "MIGHT_SELF", 1, RequiresPlayedUnitToken: true)),
         new(
             "UNL-058a/219",
             "莉莉娅",
@@ -6783,7 +6788,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "仙灵"),
+            SourceUnitTags: "仙灵",
+            UnitEventAbility: new("FRIENDLY_UNIT_PLAYED", "MIGHT_SELF", 1, RequiresPlayedUnitToken: true)),
         new(
             "UNL-060/219",
             "卑鄙之喉",

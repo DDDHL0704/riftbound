@@ -31,6 +31,9 @@ internal static class PermanentPlayTriggerRecoveryRules
                 && binding.Value > target.ObjectGeneration)) return false;
         if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var sacrificed)
             && sacrificed.PlayAbilityRequiresPermanentDestructionCost && !CoreRuleEngine.OptionalPermanentDestructionWasPaid(item)) return false;
+        if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var optionalReady)
+            && optionalReady.SourceReadyPowerModifierAdditionalPowerCost > 0
+            && !CoreRuleEngine.SourceOptionalReadyPowerCostWasPaid(optionalReady, item)) return false;
         if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var returnedEquipment)
             && returnedEquipment.ReadiesSourceAndAddsReturnedEquipmentManaPower && item.ReturnedEquipmentManaCost is null) return false;
         if (item.ReturnedEquipmentManaCost is { } mana
@@ -54,7 +57,7 @@ internal static class PermanentPlayTriggerRecoveryRules
         var sourceInstruction = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var instruction)
             && item.EffectKind == instruction.EffectKind
             && (instruction.RecyclesSourceIfPlayedFromStandby || instruction.GrantsSourceEphemeralIfOpponentTurn
-                || instruction.AddsRegisteredLegendWhileSourceOnField
+                || instruction.AddsRegisteredLegendWhileSourceOnField || instruction.SourceReadyPowerModifierAdditionalPowerCost > 0
                 || instruction.PlayTargetsAtSourceLocation && battlefield);
         if (sourceInstruction && (CoreRuleEngine.PlayInstructionSource(state, item) is not { } receipt
             || !state.CardObjects.TryGetValue(receipt.ObjectId, out var entered) || entered.ObjectGeneration < receipt.Generation

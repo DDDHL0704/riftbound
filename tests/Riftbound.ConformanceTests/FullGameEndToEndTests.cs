@@ -25611,7 +25611,7 @@ public sealed partial class FullGameEndToEndTests
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
-                        Assert.Contains(unitEvent.CardNo, new[] { "ARC-004/006", "OGN·159/298", "OGN·200/298", "OGN·186/298", "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
+                        Assert.Contains(unitEvent.CardNo, new[] { "ARC-004/006", "OGN·159/298", "OGN·200/298", "OGN·186/298", "OGN·067/298", "OGN·107/298", "OGN·139/298", "OGN·147/298", "OGN·230/298", "RAD·012/167", "RAD·038/167", "RAD·043/167", "RAD·043a/167", "RAD·046/167", "RAD·053/167", "RAD·065/167", "RAD·065a/167", "RAD·073/167", "RAD·089/167", "RAD·105/167", "RAD·138/167", "RAD·138a/167", "RAD·146/167", "RAD·SP1/005", "RAD·SP5/005", "SFD·072/221", "T1S·005/005", "UNL-056/219", "UNL-058/219", "UNL-058a/219", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·044", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·094", "VEN·102", "VEN·108", "VEN·121" });
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
                         if (unitEvent.CardNo is "OGN·159/298" or "ARC-004/006")
@@ -25621,6 +25621,28 @@ public sealed partial class FullGameEndToEndTests
                             Assert.False(behavior.UnitEventAbility.Optional);
                             Assert.Empty(item.TargetObjectIds);
                             Assert.Null(item.TargetGenerations);
+                        }
+                        if (unitEvent.CardNo == "UNL-056/219")
+                        {
+                            Assert.Equal("ATTACK_OR_DEFEND", unitEvent.Timing);
+                            Assert.Equal("MIGHT_FRIENDLY", behavior.UnitEventAbility.Effect);
+                            Assert.Equal(3, behavior.UnitEventAbility.Amount);
+                            Assert.True(behavior.UnitEventAbility.TargetsAnotherFriendlyHere);
+                            Assert.Equal(CardCombatKeywordNames.Bulwark, behavior.UnitEventAbility.GrantedCombatKeyword);
+                            Assert.False(behavior.UnitEventAbility.Optional);
+                            Assert.Null(item.TriggerCost);
+                            Assert.Single(item.TargetObjectIds);
+                            Assert.NotEqual(item.SourceObjectId, item.TargetObjectIds[0]);
+                            Assert.NotNull(item.TargetGenerations);
+                        }
+                        if (unitEvent.CardNo is "UNL-058/219" or "UNL-058a/219")
+                        {
+                            Assert.Equal(new UnitEventAbilitySpec("FRIENDLY_UNIT_PLAYED", "MIGHT_SELF", 1,
+                                RequiresPlayedUnitToken: true), behavior.UnitEventAbility);
+                            Assert.Empty(item.TargetObjectIds); Assert.Null(item.TargetGenerations); Assert.Null(item.TriggerCost);
+                            Assert.Null(unitEvent.Other); Assert.Null(unitEvent.Here); Assert.Null(unitEvent.Mode);
+                            Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
+                                item.SourceObjectId, item.CardNo, item.ControllerId));
                         }
                         if (unitEvent.CardNo == "OGN·200/298")
                         {
