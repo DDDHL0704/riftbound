@@ -104,7 +104,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
-    private const string LucianLegendIdentityId = LegendIdentityCatalog.LucianLegendIdentityId;
     private const string MasterYiLevelLegendIdentityId = LegendIdentityCatalog.MasterYiLevelLegendIdentityId;
     private const string DravenLegendIdentityId = LegendIdentityCatalog.DravenLegendIdentityId;
     private const string GarenIntroLegendIdentityId = LegendIdentityCatalog.GarenIntroLegendIdentityId;
@@ -13643,6 +13642,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool conditionalPowerAuras = true,
         bool clampResult = true)
     {
+        // Battle assignment and the legacy direct battle path share the same
+        // live keyword layer; neither depends on a previous command's cache.
+        if (conditionalPowerAuras)
+        {
+            state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });
+            cardObject = state.CardObjects.GetValueOrDefault(objectId) ?? cardObject;
+        }
         keywordBonus = 0;
         staticPowerBonus = 0;
         // Damage restrictions suppress damage contribution, not actual Might
@@ -13654,10 +13660,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var combatKeyword = isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast;
         keywordBonus = ResolveCountedCombatKeywordFromLayer(state, playerZones, cardObject, battlefieldId, combatKeyword);
-        if (isAttacking)
-        {
-            keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
-        }
 
         keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
             state,
@@ -14463,32 +14465,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return defendingPlayerId;
-    }
-
-    private static int CountLucianLegendEquipmentAssaultBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string objectId)
-    {
-        var location = FindFieldObjectLocation(playerZones, objectId);
-        if (location is null
-            || !playerZones.TryGetValue(location.Value.PlayerId, out var zones)
-            || !zones.LegendZone.Any(legendObjectId =>
-                state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-                && LegendCardHasIdentity(legendState.CardNo, LucianLegendIdentityId)))
-        {
-            return 0;
-        }
-
-        return AttachedEquipmentObjectIds(state.CardObjects, objectId)
-            .Count(equipmentObjectId =>
-            {
-                var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
-                return equipmentLocation is not null
-                    && string.Equals(equipmentLocation.Value.PlayerId, location.Value.PlayerId, StringComparison.Ordinal)
-                    && state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
-                    && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
-            });
     }
 
     private static int ResolveFriendlySingleDefendingUnitPowerBonus(

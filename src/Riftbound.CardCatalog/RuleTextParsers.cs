@@ -4665,6 +4665,27 @@ public static class StaticAuraParser
             if (friendlyUnitsKeywordMatch.Success && TryAddFriendlyKeywordAuras(auras, segment,
                 StaticAuraTargetFilters.Unit, friendlyUnitsKeywordMatch.Groups["grants"].Value)) continue;
 
+            var providedArmamentKeywordMatch = Regex.Match(segment,
+                @"^你的每件武装都会提供(?<grants>\{\{[^{}]+\}\}(?:[、和]\{\{[^{}]+\}\})*)。?(?:（[^）]*）)?$",
+                RegexOptions.CultureInvariant);
+            if (providedArmamentKeywordMatch.Success)
+            {
+                foreach (Match keyword in Regex.Matches(providedArmamentKeywordMatch.Groups["grants"].Value,
+                    @"\{\{(?<keyword>[^{}]+)\}\}", RegexOptions.CultureInvariant))
+                {
+                    var grantedKeyword = keyword.Groups["keyword"].Value.Trim();
+                    if (string.IsNullOrWhiteSpace(grantedKeyword) || grantedKeyword == "S") continue;
+                    auras.Add(new StaticAuraSpec(StaticAuraKinds.FriendlyArmamentProvidedKeyword,
+                        RuleTextLayer, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.FriendlyEquipment, StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                        0, segment, BehaviorImplementationStatuses.Implemented,
+                        "Friendly weapons provide each keyword to their attached host through the shared keyword layer.",
+                        StaticAuraTargetFilters.TagPrefix + "武装",
+                        GrantedKeyword: grantedKeyword));
+                }
+                continue;
+            }
+
             var friendlyEquipmentKeywordMatch = Regex.Match(segment,
                 @"^你的装备(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
             if (friendlyEquipmentKeywordMatch.Success

@@ -565,6 +565,7 @@ public static class StaticAuraKinds
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
     public const string FriendlyEquipmentKeyword = "FRIENDLY_EQUIPMENT_KEYWORD";
+    public const string FriendlyArmamentProvidedKeyword = "FRIENDLY_ARMAMENT_PROVIDED_KEYWORD";
     public const string SourceAttackingWithAnotherUnitPower = "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER";
     public const string SourceLoneBattlePower = "SOURCE_LONE_BATTLE_POWER";
     public const string SourceAttackingReadyEnemyUnitPower = "SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER";
