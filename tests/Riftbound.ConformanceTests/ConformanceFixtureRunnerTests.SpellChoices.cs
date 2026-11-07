@@ -1817,6 +1817,9 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.False(result.FinalState.CardObjects["P1-LAST-BREATH-FRIENDLY-001"].IsExhausted);
         Assert.Equal(4, result.FinalState.CardObjects["P2-LAST-BREATH-ENEMY-001"].Damage);
+        var damage = Assert.Single(result.Events, e => e.Kind == "DAMAGE_APPLIED").Payload;
+        Assert.Equal("P1-SPELL-LAST-BREATH", damage["sourceObjectId"]);
+        Assert.False(damage.ContainsKey("damageSourceObjectId"));
     }
 
     [Fact]

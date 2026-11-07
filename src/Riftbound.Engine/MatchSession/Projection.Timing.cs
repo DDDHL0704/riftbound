@@ -604,6 +604,16 @@ public sealed partial record ResolutionResult
         return true;
     }
 
+    // A public captured skill must not disclose a source's later deck object,
+    // including to its owner. An active observation/reveal retains its normal
+    // viewer-specific permission; no deck position is inferred from the skill.
+    private static string VisiblePublicSkillSourceObjectIdForViewer(MatchState state, string objectId, string viewer)
+        => state.PlayerZones.Values.Any(zones => zones.MainDeck.Contains(objectId, StringComparer.Ordinal)
+                || zones.RuneDeck.Contains(objectId, StringComparer.Ordinal))
+            && !CoreRuleEngine.CanViewObservedDeckCard(state, objectId, viewer)
+            && !CoreRuleEngine.IsPubliclyRevealedDeckCard(state, objectId)
+            ? "HIDDEN" : VisibleObjectIdForViewer(state, objectId, viewer);
+
     internal static string VisibleObjectIdForViewer(
         MatchState state,
         string? objectId,
