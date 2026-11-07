@@ -323,6 +323,19 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var enemyBatchReady = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>当任意数量的敌方单位被摧毁时，让我变为活跃状态。?)(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
+        if (enemyBatchReady.Success)
+            triggers.Add(new(TriggerKinds.SourceEnemyBatchDestroyedReady, TriggerTimings.UnitDestroyed,
+                enemyBatchReady.Groups["clause"].Value, TargetScope: TriggerTargetScopes.EnemyDestroyedUnit, ReadiesSource: true));
+        var battlefieldEnemyGold = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>每回合限一次，如果我位于战场上，当一名敌方单位被摧毁时，打出一个休眠的[“「]?金币[”」]?装备指示物。?)(?:（[^）]*）)?(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
+        if (battlefieldEnemyGold.Success)
+            triggers.Add(new(TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold, TriggerTimings.UnitDestroyed,
+                battlefieldEnemyGold.Groups["clause"].Value, TargetScope: TriggerTargetScopes.EnemyDestroyedUnit,
+                OncePerTurn: true, CreatedTokenCount: 1, CreatedTokenName: "金币",
+                CreatedTokenDestination: TriggerZones.Base, CreatedTokenExhausted: true, RequiresSourceBattlefieldAtTrigger: true));
+
         var cardPlayDraw = Regex.Match(text,
             @"(?:^|\n)\s*当你打出一张卡牌时，抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。(?=\s*(?:\n|$))",
             RegexOptions.CultureInvariant);

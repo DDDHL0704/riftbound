@@ -51,6 +51,12 @@ internal static class RuneRecycleDestinationSqlAcceptance
         await File.WriteAllTextAsync(Path.Combine(output, "explicit-fixture-initial.json"), JsonSerializer.Serialize(initial, json));
         try {
             await Submit("P1", new DeclareBattleCommand("THUNDER", ["ATTACKER"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"], BattlefieldTargetObjectIds: []));
+            // CN 468.2: persist and recover the intervening death-skill window.
+            Check(current.StackItems.Count == 1
+                && current.StackItems[0].DeathObserver?.Kind == TriggerKinds.SourceEnemyBatchDestroyedReady
+                && current.PlayerZones["P1"].RuneDeck.SequenceEqual(["BOTTOM"]), "Death skill must precede conquest rune recycling.");
+            await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+            await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
             Check(current.PlayerZones["P1"].MainDeck.SequenceEqual(["D1"]) && current.PlayerZones["P1"].RuneDeck.SequenceEqual(["BOTTOM", "RUNE"]), "Preserve main deck and return rune to rune-deck bottom.");
             Check(current.ObjectLocations["RUNE"].Zone == "RUNE_DECK" && !current.CardObjects["RUNE"].IsExhausted, "Returned rune location/readiness mismatch.");
             Check(current.RunePools["P1"] == initial.RunePools["P1"], "Effect recycling must not create resource power.");

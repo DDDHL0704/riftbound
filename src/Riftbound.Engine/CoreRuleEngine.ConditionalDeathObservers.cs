@@ -11,6 +11,8 @@ public sealed partial class CoreRuleEngine
 
     private static bool MatchingDeathObserverRelation(DeathObserverContext context, string controller, string source)
     {
+        if (IsEnemySourceDeathKind(context.Kind))
+            return ValidEnemySourceDeathRelation(context, controller);
         if (context.Kind == TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion)
             return ValidLocalFriendlyDeath(context, controller, source);
         if (context.Kind is TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw)

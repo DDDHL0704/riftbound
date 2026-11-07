@@ -60,6 +60,17 @@ internal static class UnitDestroyedTriggerSpecRules
         return true;
     }
 
+    public static bool IsEnemyBatchReadySourceTrigger(TriggerSpec spec)
+        => spec.Kind == TriggerKinds.SourceEnemyBatchDestroyedReady && spec.Timing == TriggerTimings.UnitDestroyed
+            && spec.TargetScope == TriggerTargetScopes.EnemyDestroyedUnit && spec.ReadiesSource == true;
+
+    public static bool IsBattlefieldEnemyDestroyedOnceGoldTrigger(TriggerSpec spec)
+        => spec.Kind == TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold && spec.Timing == TriggerTimings.UnitDestroyed
+            && spec.TargetScope == TriggerTargetScopes.EnemyDestroyedUnit && spec.OncePerTurn == true
+            && spec.RequiresSourceBattlefieldAtTrigger == true && spec.CreatedTokenCount == 1
+            && spec.CreatedTokenName == "金币" && spec.CreatedTokenDestination == TriggerZones.Base
+            && spec.CreatedTokenExhausted == true;
+
     public static bool IsFriendlyDestroyedGainExperienceTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)

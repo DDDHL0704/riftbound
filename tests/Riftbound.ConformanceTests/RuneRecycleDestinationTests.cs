@@ -28,21 +28,30 @@ public sealed class RuneRecycleDestinationTests
     {
         var initial = ConquestPosition(runeCount, exhausted);
         var before = initial.PlayerZones["P1"];
-        var done = await Act(initial, "P1", Battle());
+        var battle = await Act(initial, "P1", Battle());
+        // CN 468.2: death skills resolve before the control/conquest task.
+        Assert.DoesNotContain(battle.Events, e => e.Kind == "CARDS_RECYCLED");
+        Assert.Equal(before.RuneDeck, battle.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(TriggerKinds.SourceEnemyBatchDestroyedReady,
+            Assert.Single(battle.State.StackItems).DeathObserver!.Kind);
+        Restore(battle.State);
+        var passed = await Act(battle.State, battle.State.PriorityPlayerId!, new PassPriorityCommand());
+        var done = await Act(passed.State, passed.State.PriorityPlayerId!, new PassPriorityCommand());
+        var events = battle.Events.Concat(passed.Events).Concat(done.Events).ToArray();
         Assert.Equal(before.MainDeck, done.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(runeCount == 0 ? before.RuneDeck : before.RuneDeck.Concat(["RUNE"]).ToArray(), done.State.PlayerZones["P1"].RuneDeck);
         Assert.Equal(initial.RunePools["P1"], done.State.RunePools["P1"]);
-        Assert.DoesNotContain(done.Events, e => e.Kind is "POWER_GAINED" or "RUNE_RECYCLED");
+        Assert.DoesNotContain(events, e => e.Kind is "POWER_GAINED" or "RUNE_RECYCLED");
         if (runeCount > 0)
         {
             Assert.Equal("RUNE_DECK", done.State.ObjectLocations["RUNE"].Zone);
             Assert.False(done.State.CardObjects["RUNE"].IsExhausted);
-            var recycled = Assert.Single(done.Events, e => e.Kind == "CARDS_RECYCLED");
+            var recycled = Assert.Single(events, e => e.Kind == "CARDS_RECYCLED");
             Assert.Equal("RUNE_DECK", recycled.Payload["destinationZone"]);
             Assert.Equal(["RUNE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycled.Payload["cardIds"]));
             Assert.Equal("TRIGGER_COST_CONFIRMATION", done.State.PendingCardChoice?.ChoiceWindow);
         }
-        else Assert.DoesNotContain(done.Events, e => e.Kind == "CARDS_RECYCLED");
+        else Assert.DoesNotContain(events, e => e.Kind == "CARDS_RECYCLED");
         Restore(done.State);
     }
 
