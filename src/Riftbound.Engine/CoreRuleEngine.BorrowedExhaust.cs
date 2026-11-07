@@ -413,10 +413,11 @@ public sealed partial class CoreRuleEngine
             if (spec.Kind == "READY_EQUIPMENT")
             {
                 if (AttachedRuleTextRules.Instances(current, target).Any(i => CardStaticAbilitySpecRules.CardCannotBecomeActive(i.CardNo))) continue;
+                AddReadiedObservation(zones, cards, target, events);
                 cards[id] = target with { IsExhausted = false };
-                events.Add(new("EQUIPMENT_READIED", "装备变为活跃状态", new Dictionary<string, object?> {
+                events.Add(CaptureSelfReady(new("EQUIPMENT_READIED", "装备变为活跃状态", new Dictionary<string, object?> {
                     ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
-                    ["wasExhausted"] = target.IsExhausted, ["isExhausted"] = false }));
+                    ["wasExhausted"] = target.IsExhausted, ["isExhausted"] = false }), target, item.ControllerId, zones, cards));
             }
             else if (spec.Kind == "STUN_ENEMY")
             {

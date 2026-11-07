@@ -8563,7 +8563,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var alreadyHadBoon = BoonRules.Count(targetState) > 0;
-        if (BoonRules.TryGrant(targetState, playerZones, cardObjects, out var granted))
+        if (TryGrantBoonForInstruction(targetState, playerZones, cardObjects, playerId, out var granted))
             cardObjects[targetObjectId] = granted;
         events.Add(new GameEvent(
             "BOON_GRANTED",
@@ -17089,6 +17089,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var detachesArmament = trigger.DetachesArmament == true
             && equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
             && !string.IsNullOrWhiteSpace(previousAttachedToObjectId);
+        AddReadiedObservation(playerZones, cardObjects, equipmentState, events);
         cardObjects[equipmentObjectId] = equipmentState with
         {
             IsExhausted = false,
@@ -17109,7 +17110,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["equipmentObjectId"] = equipmentObjectId,
                 ["detachesArmament"] = detachesArmament
             }));
-        events.Add(new GameEvent(
+        events.Add(CaptureSelfReady(new GameEvent(
             "EQUIPMENT_READIED",
             $"{equipmentObjectId} 变为活跃状态",
             new Dictionary<string, object?>
@@ -17119,7 +17120,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["reason"] = abilityId,
                 ["wasExhausted"] = equipmentState.IsExhausted,
                 ["isExhausted"] = false
-            }));
+            }), equipmentState, playerId, playerZones, cardObjects));
         if (detachesArmament)
         {
             events.Add(new GameEvent(
@@ -30981,7 +30982,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
-        if (!BoonRules.TryGrant(targetState, playerZones, cardObjects, out var nextTargetState))
+        if (!TryGrantBoonForInstruction(targetState, playerZones, cardObjects, stackItem.ControllerId, out var nextTargetState))
         {
             boonEvents = [];
             return targetState;

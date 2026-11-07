@@ -43,7 +43,8 @@ public sealed partial class CoreRuleEngine
         var frame = RuleChoices.Value?.ResolutionState;
         zones ??= frame?.PlayerZones; cards ??= frame?.CardObjects;
         if (zones is null || cards is null) return ev;
-        ev = WithUnitEvents(ev, CaptureUnitEvents(zones, cards, [before.ObjectId], "BECAME_READY"));
+        ev = WithUnitEvents(ev, CaptureUnitEvents(zones, cards, [before.ObjectId], "BECAME_READY")
+            .Concat(CaptureFriendlyUnitActionObservers(zones, cards, before, new(actor, "READIED", WasExhausted: true))).ToArray());
         var captures = CaptureSelfActions(zones, cards, before, actor, "READIED",
             RuleChoices.Value?.ResolutionItem?.StackItemId ?? $"READY:{before.ObjectId}");
         return captures.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
