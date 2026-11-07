@@ -1429,6 +1429,7 @@ public static partial class MatchRecoveryValidator
             || string.Equals(value, "UNIT_DESTROYED", StringComparison.Ordinal)
             || string.Equals(value, "DAMAGE_REMOVED", StringComparison.Ordinal)
             || string.Equals(value, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(value, CoreRuleEngine.BattleDrawEvent, StringComparison.Ordinal)
             || string.Equals(value, "BATTLE_CLOSED", StringComparison.Ordinal)
             || string.Equals(value, "BATTLE_NO_RESULT", StringComparison.Ordinal);
     }

@@ -35,8 +35,13 @@ internal static class UnitMovedTriggerSpecRules
         => cardNo is not null && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
             ? triggers.Where(IsImplementedMovementTrigger).ToArray() : [];
 
+    public static bool IsFriendlyMovementFollowTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.FriendlyUnitMovedFromHereMayFollow && trigger.Timing == TriggerTimings.UnitMoved
+            && trigger.TargetScope == TriggerTargetScopes.SourceUnit && trigger.Optional == true;
+
     public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
         => IsUnitMovedCreateDormantGoldTrigger(trigger) || IsOpponentMovementDrawTrigger(trigger)
+            || IsFriendlyMovementFollowTrigger(trigger)
             || IsTargetedMovementTrigger(trigger) || IsMovementRevealTrigger(trigger)
             || IsUnitMovedDrawDiscardTypesTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit

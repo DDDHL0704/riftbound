@@ -3150,7 +3150,7 @@ internal static partial class ActionPromptBuilder
                 ability.ExperienceCost,
                 powerCostByTrait,
                 ability.RequiredTargetCount,
-                azirArmamentReattachChoicesByTargetObjectId.Values.Any(choices => choices.Count > 0) ? 2 : ability.RequiredTargetCount,
+                azirArmamentReattachChoicesByTargetObjectId.Values.Any(choices => choices.Count > 0) ? 2 : ability.MaximumTargetCount ?? ability.RequiredTargetCount,
                 ActivateAbilityTargetScopeLabel(ability),
                 targetChoicesByIndex,
                 isResourceConversionAbility

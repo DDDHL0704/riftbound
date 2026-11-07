@@ -12669,7 +12669,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string battlefieldId,
         IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        Action? beforeAttackerRecall = null)
     {
         var survivingAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
         var survivingDefenderObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds);
@@ -12704,6 +12705,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = "BATTLE_CLEANUP"
                 }));
         }
+
+        beforeAttackerRecall?.Invoke();
 
         if (survivingDefenderObjectIds.Length == 0)
         {
@@ -12775,7 +12778,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string battlefieldId,
         IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        bool forceClosureEvent = false)
     {
         var participantObjectIds = attackerObjectIds
             .Concat(defenderObjectIds)
@@ -12811,7 +12815,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             clearedObjectIds.Add(objectId);
         }
 
-        if (clearedObjectIds.Count == 0 && removedObjectIds.Length == 0)
+        if (!forceClosureEvent && clearedObjectIds.Count == 0 && removedObjectIds.Length == 0)
         {
             return;
         }
@@ -31692,7 +31696,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
         var equipmentDraws = before is null ? [] : CaptureEquipmentLastBreathDraws(state, zones, cards, before);
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(state, zones, cards, before, controller);
+        var destroyedEvents = CaptureUnitEvents(zones, cards, [id], "DESTROYED");
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
+        if (removed && removal.WasDestroyed)
+        {
+            var eventKind = removal.WasEquipment && !removal.WasUnit ? "EQUIPMENT_DESTROYED" : "UNIT_DESTROYED";
+            RuleChoices.Value!.InstructionUnitEvents.AddRange(destroyedEvents.Select(observation => observation with {
+                InstructionEventKind = eventKind }));
+        }
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
             Death = removed && removal.WasDestroyed && removal.WasUnit
                 ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [], RuneCalls = [] }

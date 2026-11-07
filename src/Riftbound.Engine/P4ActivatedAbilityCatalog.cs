@@ -47,7 +47,8 @@ public sealed record P4ActivatedAbilityDefinition(
     bool UsableByAnyPlayerOnOwnTurn = false,
     bool BorrowedSourceAlias = false,
     bool BindsUnitSource = false,
-    bool ModifiesUnitSource = false);
+    bool ModifiesUnitSource = false,
+    int? MaximumTargetCount = null);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -66,7 +67,7 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     string? CreatedUnitTokenCardNo = null, int CreatedUnitTokenCount = 0, bool MovesToExhaustedCostUnit = false,
     bool GrantsMysteriousWeaponRecall = false, bool GrantsPaidRecall = false,
     bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false,
-    bool RequiresEncouraged = false);
+    bool RequiresEncouraged = false, bool DestroysSourceAsCost = false, bool RecyclesGraveyardTargets = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -1069,11 +1070,13 @@ public static class P4ActivatedAbilityCatalog
         return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
             .SelectMany(spec => spec.ActivatedAbilities
                 .Where(ability => IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(ability)
+                    || IsDestroySourceGraveyardRecycleSpec(ability) && spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
                     || IsSelfBoonSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedUnitExhaustSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedPowerModifier(ability) && (spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
                         || spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)))
-                .Select(ability => IsSelfBoonSpec(ability) ? SelfBoonDefinition(spec, ability)
+                .Select(ability => IsDestroySourceGraveyardRecycleSpec(ability) ? DestroySourceGraveyardRecycleDefinition(spec, ability)
+                    : IsSelfBoonSpec(ability) ? SelfBoonDefinition(spec, ability)
                     : IsTargetedUnitExhaustSpec(ability) ? TargetedUnitExhaustDefinition(spec, ability)
                     : IsTargetedPowerModifier(ability)
                     ? TargetedPowerModifierDefinition(spec, ability)
@@ -1091,6 +1094,19 @@ public static class P4ActivatedAbilityCatalog
     public static bool IsOrdinaryTargetedExhaustAbility(P4ActivatedAbilityDefinition ability)
         => ability.Kind is ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
             or ActivatedAbilityKinds.StunEnemyUnit or ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower;
+
+    private static bool IsDestroySourceGraveyardRecycleSpec(ActivatedAbilitySpec ability)
+        => ability.Kind == ActivatedAbilityKinds.DestroySourceRecycleGraveyard && ability.DestroysSourceAsCost == true
+            && ability.RequiredTargetCount == 0 && ability.MaximumTargetCount is > 0
+            && ability.TargetScope == "ANY_GRAVEYARD_CARD" && ability.ManaCost == 0 && ability.PowerCost == 0;
+
+    private static P4ActivatedAbilityDefinition DestroySourceGraveyardRecycleDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
+    {
+        var id = BuildBehaviorSpecAbilityId(spec.CardNo, ability.Kind);
+        return new(id, spec.CardNo, id, spec.CardName, 0, 0, 0, false, false, 0, false, ability.Reason,
+            RequiresBaseEquipmentSource: true, Kind: ability.Kind!, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(DestroysSourceAsCost: true, RecyclesGraveyardTargets: true), MaximumTargetCount: ability.MaximumTargetCount);
+    }
 
     private static bool IsSelfBoonSpec(ActivatedAbilitySpec ability)
         => ability.Kind == ActivatedAbilityKinds.GrantSelfBoon && ability.ExhaustsSourceAsCost == true
