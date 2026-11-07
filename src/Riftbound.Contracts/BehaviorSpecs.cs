@@ -46,6 +46,7 @@ public static class ActivatedAbilityKinds
     public const string StunEnemyUnit = "STUN_ENEMY_UNIT";
     public const string GrantUnitBoonOrTemporaryPower = "GRANT_UNIT_BOON_OR_TEMPORARY_POWER";
     public const string GrantSelfBoon = "GRANT_SELF_BOON";
+    public const string DestroySourceRecycleGraveyard = "DESTROY_SOURCE_RECYCLE_GRAVEYARD";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
         "DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST";
@@ -218,6 +219,7 @@ public static class TriggerKinds
     public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
     public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedSetOtherUnitBaseMight = "UNIT_MOVED_SET_OTHER_UNIT_BASE_MIGHT";
+    public const string FriendlyUnitMovedFromHereMayFollow = "FRIENDLY_UNIT_MOVED_FROM_HERE_MAY_FOLLOW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementReadyOtherObject = "UNIT_FIRST_MOVEMENT_READY_OTHER_OBJECT";
     public const string UnitFirstMovementMillPlayer = "UNIT_FIRST_MOVEMENT_MILL_PLAYER";
@@ -297,6 +299,8 @@ public static class TriggerKinds
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     public const string UnitEnemyDestroyedHereOncePerTurnCallRune =
         "UNIT_ENEMY_DESTROYED_HERE_ONCE_PER_TURN_CALL_RUNE";
+    public const string SourceEnemyBatchDestroyedReady = "SOURCE_ENEMY_BATCH_DESTROYED_READY";
+    public const string SourceBattlefieldEnemyDestroyedOnceGold = "SOURCE_BATTLEFIELD_ENEMY_DESTROYED_ONCE_GOLD";
     public const string UnitStunnedEnemyDestroyedHereDraw = "UNIT_STUNNED_ENEMY_DESTROYED_HERE_DRAW";
     public const string UnitFriendlyBatchDestroyedBoon = "UNIT_FRIENDLY_BATCH_DESTROYED_BOON";
     public const string PlayerDestroysStunnedEnemyDraw = "PLAYER_DESTROYS_STUNNED_ENEMY_EXHAUST_DRAW";
@@ -852,7 +856,11 @@ public sealed record ActivatedAbilitySpec(
     int? MinimumPowerAfterModifier = null,
     string? TargetUnitName = null,
     string? SourceScope = null,
-    string? RequiredControllerCardNoOnField = null);
+    string? RequiredControllerCardNoOnField = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? DestroysSourceAsCost = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MaximumTargetCount = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

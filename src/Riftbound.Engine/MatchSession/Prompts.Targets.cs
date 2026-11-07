@@ -749,9 +749,19 @@ internal static partial class ActionPromptBuilder
         string sourceObjectId,
         P4ActivatedAbilityDefinition ability)
     {
-        if (ability.RequiredTargetCount == 0)
+        if ((ability.MaximumTargetCount ?? ability.RequiredTargetCount) == 0)
         {
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        if (ability.SimpleEffect?.RecyclesGraveyardTargets == true)
+        {
+            var choices = state.PlayerZones.Values.SelectMany(zones => zones.Graveyard).Distinct(StringComparer.Ordinal)
+                .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
+                .Order(StringComparer.Ordinal).Select(id => ObjectChoice(state, id, "废牌堆中的卡牌")).ToArray();
+            return Enumerable.Range(0, ability.MaximumTargetCount!.Value).ToDictionary(
+                index => index.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                _ => (IReadOnlyList<ActionPromptChoiceDto>)choices, StringComparer.Ordinal);
         }
 
         if (ability.SimpleEffect is not null)
@@ -1426,6 +1436,7 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.DestroySourceRecycleGraveyard) return $"{ability.DisplayName}：摧毁此装备，回收任意废牌堆中最多 {ability.MaximumTargetCount} 张卡牌";
         if (ability.Kind == ActivatedAbilityKinds.GrantSelfBoon) return $"{ability.DisplayName}：横置，给予我增益";
         if (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit) return $"{ability.DisplayName}：横置，眩晕一名敌方单位";
         if (ability.Kind == ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower) return $"{ability.DisplayName}：横置，给予单位增益；已有增益则本回合战力 +{ability.PowerModifierAmount}";
@@ -1464,6 +1475,7 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.DestroySourceRecycleGraveyard) return $"任意废牌堆中最多 {ability.MaximumTargetCount} 张卡牌";
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn) return "任意公开单位";
         if (CoreRuleEngine.SimpleActivationTargetsOpponent(ability)) return "一名对手";
         if (ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true) return "一名友方单位";

@@ -323,6 +323,19 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var enemyBatchReady = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>当任意数量的敌方单位被摧毁时，让我变为活跃状态。?)(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
+        if (enemyBatchReady.Success)
+            triggers.Add(new(TriggerKinds.SourceEnemyBatchDestroyedReady, TriggerTimings.UnitDestroyed,
+                enemyBatchReady.Groups["clause"].Value, TargetScope: TriggerTargetScopes.EnemyDestroyedUnit, ReadiesSource: true));
+        var battlefieldEnemyGold = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>每回合限一次，如果我位于战场上，当一名敌方单位被摧毁时，打出一个休眠的[“「]?金币[”」]?装备指示物。?)(?:（[^）]*）)?(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
+        if (battlefieldEnemyGold.Success)
+            triggers.Add(new(TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold, TriggerTimings.UnitDestroyed,
+                battlefieldEnemyGold.Groups["clause"].Value, TargetScope: TriggerTargetScopes.EnemyDestroyedUnit,
+                OncePerTurn: true, CreatedTokenCount: 1, CreatedTokenName: "金币",
+                CreatedTokenDestination: TriggerZones.Base, CreatedTokenExhausted: true, RequiresSourceBattlefieldAtTrigger: true));
+
         var cardPlayDraw = Regex.Match(text,
             @"(?:^|\n)\s*当你打出一张卡牌时，抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。(?=\s*(?:\n|$))",
             RegexOptions.CultureInvariant);
@@ -458,6 +471,12 @@ public static class TriggerParser
                 attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
                 TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
                 GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
+        var friendlyMoveFollow = Regex.Match(text,
+            @"每当有友方单位从我的位置向别处移动时，我可以选择跟随它一起移动[。.]?", RegexOptions.CultureInvariant);
+        if (friendlyMoveFollow.Success)
+            triggers.Add(new(TriggerKinds.FriendlyUnitMovedFromHereMayFollow, TriggerTimings.UnitMoved,
+                friendlyMoveFollow.Value, "After another friendly unit moves from here, the source may follow to that movement's destination.",
+                TargetScope: TriggerTargetScopes.SourceUnit, Optional: true));
         triggers.AddRange(MovementOrdinalParser.Parse(text));
         var firstMoveReady = Regex.Match(text,
             @"(?:^|\n|\\n)每回合首次[：，,]\s*当我移动时，(?<optional>你可以选择)?让一个其他休眠的?物体变为活跃状态(?:（包括传奇和符文）)?。?(?=$|\n|\\n)", RegexOptions.CultureInvariant);
@@ -3070,6 +3089,22 @@ public static class ActivatedAbilityParser
             .ToList();
         if (TryParseFriendlyLegendPowerGrant(text, out var friendlyLegendPowerGrant))
             abilities.Add(friendlyLegendPowerGrant);
+        var sacrificeRecycle = Regex.Match(text,
+            @"(?:^|\n)你可以选择摧毁此装备，以此从任意废牌堆中回收最多(?<count>[0-9一二三四五六七八九十]+)张卡牌。[\s]*$",
+            RegexOptions.CultureInvariant);
+        if (sacrificeRecycle.Success)
+        {
+            var raw = sacrificeRecycle.Groups["count"].Value;
+            var maximum = int.TryParse(raw, NumberStyles.None, CultureInfo.InvariantCulture, out var number)
+                ? number : raw.Length == 1 ? "零一二三四五六七八九十".IndexOf(raw, StringComparison.Ordinal) : -1;
+            if (maximum > 0)
+                abilities.Add(new("摧毁此装备", $"从任意废牌堆中回收最多{raw}张卡牌。", [],
+                    BehaviorImplementationStatuses.Implemented,
+                    "Choose graveyard targets before paying source destruction; resolve the independently captured recycle ability.",
+                    Kind: ActivatedAbilityKinds.DestroySourceRecycleGraveyard, ExhaustsSourceAsCost: false,
+                    ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0, MaximumTargetCount: maximum,
+                    TargetScope: "ANY_GRAVEYARD_CARD", RequiresBaseEquipmentSource: true, DestroysSourceAsCost: true));
+        }
         return abilities;
     }
 

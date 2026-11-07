@@ -66,6 +66,7 @@ public sealed partial class CoreRuleEngine
                     || c.Origin.Revision <= 0 || c.RuleTextInstanceId != $"ATTACHED:{equipment.ObjectId}:{equipment.Generation}:{c.Origin.Revision}")) return false;
         var unit = c.Unit;
         if (c.Kind == MovedEnemyStunKind) return ValidMovedEnemyStunShape(c, controller);
+        if (c.Kind == TriggerKinds.FriendlyUnitMovedFromHereMayFollow) return ValidFriendlyMovementFollowShape(c, controller, source);
         if (c.SourceFaceRevision is not null || c.CapturedTick is not null) return false;
         if (!ValidMovementInstructionShape(c)) return false;
         if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
@@ -102,6 +103,7 @@ public sealed partial class CoreRuleEngine
         => ValidMovementObserver(c, effect, controller, source, cardNo)
             && (c.SelectedPlayerId is null || state.Seats.ContainsKey(c.SelectedPlayerId))
             && (c.Kind != MovedEnemyStunKind || ValidMovedEnemyStunSource(state, c, source))
+            && (c.Kind != TriggerKinds.FriendlyUnitMovedFromHereMayFollow || ValidFriendlyMovementFollowSource(state, c, source))
             && AttachedRuleTextRules.ValidCaptured(state, c.Origin, source, c.SourceGeneration, c.CardNo);
 
     internal static bool ValidMovementInstanceId(MovementObserverContext c, string? id, bool stack = false)
@@ -142,6 +144,7 @@ public sealed partial class CoreRuleEngine
             : c.Kind switch {
                 MovementScoreKind => "：第三次移动后获得 1 分",
                 MovedEnemyStunKind => "：可横置来源，以此眩晕刚移动的敌方单位",
+                TriggerKinds.FriendlyUnitMovedFromHereMayFollow => "：可跟随刚从此处移走的友方单位",
                 TriggerKinds.UnitMovedSetOtherUnitBaseMight => "：移动后可设置另一名单位本回合的基础战力",
                 TriggerKinds.UnitMovedDamageAtOriginOrDestination => "：移动后可对起点或终点战场的一名单位造成伤害",
                 TriggerKinds.UnitMovedSourceKeywordDamage => "：移动后可对战场上的一名单位造成等同于坚守数值的伤害",
@@ -196,7 +199,8 @@ public sealed partial class CoreRuleEngine
                 if (MovementScoreDefinition(instance.CardNo) is { } score && ordinal == score.Ordinal)
                     Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, MovementScoreKind, unit.ObjectGeneration, fact, MovementOrdinal: ordinal));
                 foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(instance.CardNo)
-                    .Where(t => (t.TargetScope == TriggerTargetScopes.SourceUnit || UnitMovedTriggerSpecRules.IsTargetedMovementTrigger(t))
+                    .Where(t => !UnitMovedTriggerSpecRules.IsFriendlyMovementFollowTrigger(t)
+                        && (t.TargetScope == TriggerTargetScopes.SourceUnit || UnitMovedTriggerSpecRules.IsTargetedMovementTrigger(t))
                         && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)
                         && (t.RequiresSourceEmpowered != true || unit.IsEmpowered)
                         && (t.OncePerTurn != true || ordinal == 1)
@@ -235,6 +239,7 @@ public sealed partial class CoreRuleEngine
                     Add(source.ObjectId, field.PlayerId, instance, new(instance.CardNo, spec.Kind, source.ObjectGeneration, group.First(), units.ToArray(), after));
         }
         observers.AddRange(CaptureMovedEnemyStunObservers(before, units));
+        observers.AddRange(CaptureFriendlyMovementFollowObservers(before, units));
         var readyObjects = CaptureMovementReadyObjects(before, units);
         foreach(var fact in units) cards[fact.ObjectId] = cards[fact.ObjectId] with {MovementCountThisTurn=checked(cards[fact.ObjectId].MovementCountThisTurn+1)};
         return WithReadyObjectObservations(WithUnitEvents(new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() }),
@@ -279,6 +284,7 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid captured movement observer.");
         if (context.DiscardInline is not null) return ResolveMovementDiscardInline(state, item);
         if (context.Kind == MovedEnemyStunKind) return ResolveMovedEnemyStun(state, item);
+        if (context.Kind == TriggerKinds.FriendlyUnitMovedFromHereMayFollow) return ResolveFriendlyMovementFollow(state, item);
         if (context.Kind == MovementScoreKind) return ResolveMovementScore(state,item);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);

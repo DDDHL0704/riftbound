@@ -20,14 +20,22 @@ public sealed class RuneDestinationConquestPreconditionTests
         Assert.Equal("P1", initial.CardObjects["THUNDER"].OwnerId);
         Assert.Equal(alreadyControlled ? "P1" : "P2", initial.CardObjects["THUNDER"].ControllerId);
         var driver = new StandbyDefendObserverTests.Driver(initial);
-        var declared = await driver.Act("P1", new DeclareBattleCommand("THUNDER", ["ATTACKER"], ["DEFENDER"],
+        var battle = await driver.Act("P1", new DeclareBattleCommand("THUNDER", ["ATTACKER"], ["DEFENDER"],
             ["COMBAT_ASSIGNMENT"], BattlefieldTargetObjectIds: []));
+        // CN 468.2: finish the death skill before checking new control.
+        Assert.DoesNotContain(battle.Events, e => e.Kind is "BATTLEFIELD_CONQUERED" or "CARDS_RECYCLED");
+        Assert.Equal(new[] { "BOTTOM" }, driver.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(TriggerKinds.SourceEnemyBatchDestroyedReady,
+            Assert.Single(driver.State.StackItems).DeathObserver!.Kind);
+        var passed = await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
+        var declared = await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
+        var events = battle.Events.Concat(passed.Events).Concat(declared.Events).ToArray();
         Assert.Equal(new[] { "D1" }, driver.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(initial.RunePools["P1"], driver.State.RunePools["P1"]);
-        Assert.DoesNotContain(declared.Events, e => e.Kind is "MANA_GAINED" or "POWER_GAINED");
+        Assert.DoesNotContain(events, e => e.Kind is "MANA_GAINED" or "POWER_GAINED");
         if (alreadyControlled)
         {
-            Assert.DoesNotContain(declared.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
+            Assert.DoesNotContain(events, e => e.Kind == "BATTLEFIELD_CONQUERED");
             Assert.Equal(new[] { "BOTTOM" }, driver.State.PlayerZones["P1"].RuneDeck);
             Assert.Equal("BASE", driver.State.ObjectLocations["RUNE"].Zone);
             Assert.True(driver.State.CardObjects["RUNE"].IsExhausted);
@@ -35,7 +43,7 @@ public sealed class RuneDestinationConquestPreconditionTests
         }
         else
         {
-            Assert.Single(declared.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
+            Assert.Single(events, e => e.Kind == "BATTLEFIELD_CONQUERED");
             Assert.Equal(new[] { "BOTTOM", "RUNE" }, driver.State.PlayerZones["P1"].RuneDeck);
             Assert.Equal("RUNE_DECK", driver.State.ObjectLocations["RUNE"].Zone);
             Assert.False(driver.State.CardObjects["RUNE"].IsExhausted);
