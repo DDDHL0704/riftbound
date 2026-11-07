@@ -74,11 +74,13 @@ public sealed partial class ArmamentHoldConquestAliasTests
             foreach (var viewer in new[] { "P1", "P2" }) {
                 var snapshot = JsonSerializer.SerializeToElement(views[viewer], new JsonSerializerOptions(JsonSerializerDefaults.Web));
                 var effects = snapshot.GetProperty("timing").GetProperty("continuousEffects").EnumerateArray()
-                    .Where(e => e.GetProperty("effectKind").GetString() == CoreRuleEngine.UnitEventEffect
-                        && e.GetProperty("sourceCardNo").GetString() == "UNL-027/219").ToArray();
+                    .Where(e => ledger.Any(entry => entry.EffectId == e.GetProperty("effectId").GetString())).ToArray();
                 Assert.Equal(count, effects.Length);
-                Assert.All(effects, effect => Assert.Equal(viewer == "P1" ? "HOST" : "HIDDEN",
-                    effect.GetProperty("sourceObjectId").GetString()));
+                Assert.All(effects, effect => {
+                    Assert.Equal(CoreRuleEngine.UnitEventEffect, effect.GetProperty("effectKind").GetString());
+                    Assert.Equal("UNL-027/219", effect.GetProperty("sourceCardNo").GetString());
+                    Assert.Equal(viewer == "P1" ? "HOST" : "HIDDEN", effect.GetProperty("sourceObjectId").GetString());
+                });
             }
         }
         await game.Replay();
