@@ -119,7 +119,8 @@ public sealed partial record ResolutionResult
             .Select(trigger => new ActionPromptChoiceDto(
                 trigger.TriggerId,
                 OrderTriggerSummary(state, trigger, viewerPlayerId),
-                OrderTriggerVisibleText(state, trigger, viewerPlayerId)))
+                OrderTriggerVisibleText(state, trigger, viewerPlayerId),
+                TargetSelectionSubjectObjects(state, trigger.UnitEvent, viewerPlayerId)))
             .ToArray();
     }
 

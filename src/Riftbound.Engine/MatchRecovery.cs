@@ -1815,6 +1815,14 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        if (effectKind == CoreRuleEngine.ConditionalSourceUnitEffect) {
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_ON_PUBLIC_FIELD" || sourceObjectId != targetObjectId
+                || !effectId.StartsWith($"CONDITIONAL_SOURCE_UNIT:{sourceObjectId}:", StringComparison.Ordinal)
+                || !effectId.EndsWith(":" + targetObjectId, StringComparison.Ordinal))
+                errors.Add($"{effectLabel} conditional source unit identity is invalid");
+            return;
+        }
+
         if (effectKind == CoreRuleEngine.EmpoweredUnitAuraEffect) {
             if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
                 || !effectId.StartsWith($"EMPOWERED_UNIT_AURA:{sourceObjectId}:", StringComparison.Ordinal)
@@ -2218,6 +2226,22 @@ public static partial class MatchRecoveryValidator
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath, "CoreRuleEngine.BoonAmplifiersFor", "Boon amplifier source path", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition, "CURRENT_FRIENDLY_UNIT_HAS_BOON", "Boon amplifier condition", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle, "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON", "Boon amplifier lifecycle", errors);
+            return;
+        }
+
+        if (effectKind == CoreRuleEngine.ConditionalSourceUnitEffect) {
+            var definition = sourceCardNo is not null && CardBehaviorRegistry.TryGetByCardNo(sourceCardNo, out var candidate)
+                ? candidate : null;
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_ON_PUBLIC_FIELD" || definition is null
+                || definition.ConditionalSourceUnitConditionKind == CardConditionalSourceUnitConditionKinds.None
+                || definition.ConditionalSourceUnitPowerBonus <= 0)
+                errors.Add($"{effectLabel} conditional source unit requires a matching official source and scope");
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
+                "CoreRuleEngine.ConditionalSourceUnitContributions", "conditional source unit source path", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
+                definition?.ConditionalSourceUnitConditionKind ?? "", "conditional source unit condition", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle,
+                "RECOMPUTED_FROM_CURRENT_CONTROLLER_TURN_HISTORY", "conditional source unit lifecycle", errors);
             return;
         }
 
@@ -2914,6 +2938,9 @@ public static partial class MatchRecoveryValidator
         }
 
         var staticAuras = StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
+        if (effectKind == CoreRuleEngine.ConditionalSourceUnitEffect
+            && CardBehaviorRegistry.TryGetByCardNo(sourceCardNo, out var conditionalSource))
+            return conditionalSource.ConditionalSourceUnitPowerBonus;
         if (effectKind == StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower
             && staticAuras.FirstOrDefault(a => a.Kind == effectKind) is { } controlledCount)
             return controlledCount.PowerDeltaPerParticipant;
@@ -2971,8 +2998,10 @@ public static partial class MatchRecoveryValidator
         int? powerDelta,
         int? basePower,
         int? effectivePower,
-        List<string> errors)
+        List<string> errors, string? effectKind = null)
     {
+        var conditionalSourceUnit = effectKind == CoreRuleEngine.ConditionalSourceUnitEffect
+            && scope == "OBJECT" && duration == "WHILE_SOURCE_ON_PUBLIC_FIELD";
         if (scope is null
             || layer is null
             || duration is null
@@ -2983,9 +3012,9 @@ public static partial class MatchRecoveryValidator
             || !IsKnownContinuousEffectLayer(layer)
             || !IsKnownContinuousEffectDuration(duration)
             || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
-            || !string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
-            || (!string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
-                && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal))
+            || (!conditionalSourceUnit && (!string.Equals(scope, "BATTLEFIELD", StringComparison.Ordinal)
+                || (!string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
+                    && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal))))
             || !IsContinuousEffectLayerScopeValid(scope, layer))
         {
             return;
@@ -2998,7 +3027,7 @@ public static partial class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"{effectLabel} battlefield static aura effective power {effectivePower.Value} must equal base power {basePower.Value} plus power delta {powerDelta.Value}");
+            $"{effectLabel} {(conditionalSourceUnit ? "conditional source unit" : "battlefield static aura")} effective power {effectivePower.Value} must equal base power {basePower.Value} plus power delta {powerDelta.Value}");
     }
 
     private static void ValidateSpectatorTriggerQueuePayloads(
@@ -4918,6 +4947,7 @@ public static partial class MatchRecoveryValidator
             if (!RecycleMightRules.Valid(state, item)) errors.Add("invalid captured recycle-cost ability");
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
             if (!CoreRuleEngine.ValidLegendDuelMovement(state, item)) errors.Add("invalid captured legend duel movement");
+            if (!CoreRuleEngine.ValidLegendFieldEffect(state, item)) errors.Add("invalid captured legend field effect");
             if (!CoreRuleEngine.ValidLegendUnitKeyword(state, item)) errors.Add("invalid captured legend unit keyword");
             if (!CoreRuleEngine.ValidLegendUnitEffect(state, item)) errors.Add("invalid captured legend unit effect");
             if (!BorrowedExhaustRules.Valid(state, item)) errors.Add("invalid captured borrowed skill");
@@ -5095,7 +5125,7 @@ public static partial class MatchRecoveryValidator
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
                 || item.UnitEvent is not null || item.EmpowerInteraction is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
-                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.LegendEquipmentReady is not null || item.LegendDiscardDraw is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
+                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendFieldEffect is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.LegendEquipmentReady is not null || item.LegendDiscardDraw is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
                 || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null

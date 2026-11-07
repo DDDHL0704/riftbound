@@ -117,7 +117,7 @@
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-SLY-SALAMANDER": {
-          "power": 5,
+          "power": 4,
           "tags": ["CARD_TYPE:UNIT", "游走"],
           "isExhausted": true
         }

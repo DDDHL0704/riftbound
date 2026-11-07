@@ -1,0 +1,1300 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "OGN·002/298"
+      ],
+      "text": "打出我时，你可以选择额外弃置一张手牌，以此让我的费用减少{{2}}。",
+      "scope": "打出我时，你可以选择额外弃置一张手牌，以此让我的费用减少{{2}}。",
+      "status": "route",
+      "reason": "可选弃置另一张自己手牌的费用与正常打出付款一同确认，减少2法力；不可弃置来源或敌方牌",
+      "rules": "核心204.2、356–357；OGN·002 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "manaReductionIfDiscardHandCardOptionalCost": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "optionalReduction += behavior.ManaReductionIfDiscardHandCardOptionalCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryParseDiscardHandCardOptionalCost("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.StaticAndPlayTriggers.cs",
+          "methods": [
+            "P79RudePirateDiscardOptionalCostReducesManaAndDiscards",
+            "P79RudePirateRejectsDiscardingSourceAsOptionalCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·004/298"
+      ],
+      "text": "让一名单位本回合内获得{{强攻3}}。（如果它是进攻方，则{{S}}+3。）",
+      "scope": "让一名单位本回合内获得{{强攻3}}。（如果它是进攻方，则{{S}}+3。）",
+      "status": "missing",
+      "reason": "错误地使用无消费者的OVERWHELM_3标记并仅在结算时已进攻才加普通战力；基地施放后再进攻没有强攻，角色结束也不按强攻移除",
+      "rules": "核心807 强攻、466.2 战斗角色；OGN·004 官方中文牌面；O线已有同类漏报条目",
+      "runtime": {
+        "behaviors": [
+          {
+            "statusEffectId": "OVERWHELM_3",
+            "powerModifierAmount": 3,
+            "powerModifierConditionKind": "TARGET_IS_ATTACKING"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"CLEAVE_OVERWHELM_3\"",
+            "StatusEffectId: \"OVERWHELM_3\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardPowerModifierConditionKinds.TargetIsAttacking"
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "OGN·005/298"
+      ],
+      "text": "如果该单位被此法术摧毁，则抽一张牌。",
+      "scope": "如果该单位被此法术摧毁，则抽一张牌。",
+      "status": "route",
+      "reason": "记录本法术结算实际摧毁的目标，只有摧毁成功才抽1张；目标存活时不抽",
+      "rules": "核心383.2 条件、摧毁限定行动；OGN·005 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "drawCount": 1,
+            "drawConditionKind": "TARGET_DESTROYED_BY_THIS_EFFECT",
+            "damageAmount": 3
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardDrawConditionKinds.TargetDestroyedByThisEffect => destroyedObjectIds.Count > 0"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.DamageSpells.cs",
+          "methods": [
+            "CoreRuleEngineDrawsWhenShatteredFireDestroysTarget",
+            "CoreRuleEngineDoesNotDrawWhenShatteredFireTargetSurvives"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·006/298"
+      ],
+      "text": "当你弃置我时，你可以选择支付{{红色}}，改为将我打出到场上。",
+      "scope": "当你弃置我时，你可以选择支付{{红色}}，改为将我打出到场上。",
+      "status": "route",
+      "reason": "弃牌指示执行前提供可选1红符能替换；支付后以真实单位打出进入基地，记录已打出而不是弃牌，拒绝其他颜色与无费用",
+      "rules": "核心373 替换、355–357 打出；OGN·006 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectKind": "OGN_FLAME_CHOMPERS_DISCARD_ALT_PLAY_UNIT"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryResolveFlameChompersDiscardReplacement(",
+            "\"FLAME_CHOMPERS_DISCARD_REPLACEMENT\"",
+            "new(FlameChompersDiscardReplacementPayChoice, \"支付1点红色符能，改为打出到基地\")"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadFlameChompersDiscardTests.cs",
+          "methods": [
+            "RedPowerMayReplaceTheMonasteryDiscardWithARealBasePlay",
+            "DecliningTheReplacementKeepsTheOrdinaryDiscardAndCallRuneFlow",
+            "OnlyRedPowerOffersTheReplacement"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·008/298"
+      ],
+      "text": "对战场上的一名单位造成等同于被弃置手牌的法力费用的伤害。（无视其符能费用。）",
+      "scope": "对战场上的一名单位造成等同于被弃置手牌的法力费用的伤害。（无视其符能费用。）",
+      "status": "route",
+      "reason": "已弃置的关联手牌在同一法术内提供其印刷法力数值，作为第二个战场单位目标的伤害基础，不把符能费用计入",
+      "rules": "核心398 关联指示、418 伤害；OGN·008 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 2,
+            "discardsTargetFromHand": true,
+            "damageAmountFromFirstTargetManaCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "else if (behavior.DamageAmountFromFirstTargetManaCost)",
+            "damageAmount = firstTargetState.ManaCost;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysSinfulPleasureDiscardDamageByManaCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·012/298"
+      ],
+      "text": "{{鼓舞}}—我的费用减少{{2}}。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "scope": "{{鼓舞}}—我的费用减少{{2}}。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "status": "route",
+      "reason": "费用计算读取本回合已打出其他牌的服务端记录，满足鼓舞才减2法力；不把本牌自身当作先前牌",
+      "rules": "核心356.4 减费、812 鼓舞；OGN·012 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN",
+            "costReductionMana": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn",
+            "ControllerPlayedAnotherCardThisTurn(state, playerId, sourceObjectId) ? behavior.CostReductionMana : 0"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.KeywordCosts.cs",
+          "methods": [
+            "P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn",
+            "CoreRuleEngineRejectsNoxianRecruitEncourageReductionWithoutPriorCardThisTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·014/298"
+      ],
+      "text": "将我的法力费用减去你所控制单位中的最高战力值，即为打出我所需的法力。",
+      "scope": "将我的法力费用减去你所控制单位中的最高战力值，即为打出我所需的法力。",
+      "status": "route",
+      "reason": "共享报价和付款实时读取当前控制单位的最高战力，从基础8法力扣除且不低于0",
+      "rules": "核心356.4、479 当前战力；OGN·014 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "CONTROLLER_HIGHEST_UNIT_POWER",
+            "manaCost": 8
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.ControllerHighestUnitPower",
+            "HighestControlledUnitPower(state, playerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEngineReducesThunderingSkyByHighestControlledUnitPower"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "methods": [
+            "CoreRuleEngineRejectsThunderingSkyWithoutEnoughReducedCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·019/298"
+      ],
+      "text": "如果你本回合内已经弃置过手牌，则我获得{{强攻}}和{{游走}}。（如果我是进攻方，则{{S}}+1。我可以向其他战场进行移动。）",
+      "scope": "如果你本回合内已经弃置过手牌，则我获得{{强攻}}和{{游走}}。（如果我是进攻方，则{{S}}+1。我可以向其他战场进行移动。）",
+      "status": "route",
+      "reason": "共享持续条件重算读取当前控制者的本回合历史；入场后达成条件立即生效，回合结束撤销该层，基础战力及独立授予的关键词不变；定向规则测试覆盖三张牌的真实行动、入场前已满足条件和对手历史隔离",
+      "rules": "核心364.3／365.1 条件性被动技能持续生效；OGN·019 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "conditionalSourceUnitConditionKind": "CONTROLLER_DISCARDED_HAND_CARD_THIS_TURN",
+            "conditionalSourceUnitTags": "强攻|游走"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalSourceUnits.cs",
+          "contains": [
+            "ConditionalSourceUnitContributions(",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "HasConditionalSourceUnitKeywords(state, card)",
+            "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs",
+          "contains": [
+            "ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys)",
+            "untilEndOfTurnEffects: [..frame.BattleDeclarations, ..frame.ConditionalTurnHistory]"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConditionalSourceUnitPassiveTests.cs",
+          "methods": [
+            "AlreadyPlayedUnitGainsItsPassiveFromARealActionAndLosesItAtTurnEnd",
+            "ConditionAlreadyMetOnEntryDoesNotBecomeAPermanentOrDoubleBonus",
+            "AnotherPlayersHistoryDoesNotEnableThePassive",
+            "DiscardingAfterEntryEnablesAnActualMoveBetweenBattlefields",
+            "ExpiringTheConditionalLayerPreservesAnIndependentlyGrantedRoam"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·021/298"
+      ],
+      "text": "{{横置}}：{{鼓舞}}—你在本回合内打出的下一名单位以活跃状态进场。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "scope": "{{横置}}：{{鼓舞}}—你在本回合内打出的下一名单位以活跃状态进场。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "status": "missing",
+      "reason": "来源范围被缩窄为只能在基地：共享简单装备技能强制precise.Zone为BASE；奥莉安娜使其成为装备单位并进入战场后，仍应可使用印刷主动技能；另在未满足鼓舞时仍允许横置入链，现有测试明确放行，与中国区破限裁判FAQ260511第1页禁止直接使用的说明不符",
+      "rules": "核心178.1–178.2 多类型保有各自权限、381 主动技能、当前奥莉安娜官方中文牌面；中国区破限裁判FAQ260511第1页太阳圆盘",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "SUN_DISC_NEXT_UNIT_READY",
+            "requiresBaseEquipmentSource": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "(!ability.RequiresBaseEquipmentSource || precise.Zone == \"BASE\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentUnitTransformation.cs",
+          "contains": [
+            "Tags = target.Tags.Append(CardObjectTags.UnitCard)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ActivatedPlayGrants.cs",
+          "contains": [
+            "if (!BorrowedEncourageActive(state, item.ControllerId, item.SourceObjectId)) return NoopStackResolutionResult(state)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenBorrowedDependentAbilityFaqTests.NextUnitReady.cs",
+          "methods": [
+            "NextUnitReadyEncourageIsCheckedAtResolutionAndConsumedByOneActualUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·023/298"
+      ],
+      "text": "弃置一张手牌，{{横置}}： 选择一名友方单位。",
+      "scope": "弃置一张手牌，{{横置}}： 选择一名友方单位。",
+      "status": "missing",
+      "reason": "来源范围被缩窄为只能在基地：共享简单装备技能强制precise.Zone为BASE；奥莉安娜使其成为装备单位并进入战场后，仍应可使用印刷主动技能",
+      "rules": "核心178.1–178.2 多类型保有各自权限、381 主动技能、当前奥莉安娜官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "OGN_023_DISCARD_EXHAUST_GRANT_RED_RECALL",
+            "requiresBaseEquipmentSource": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "(!ability.RequiresBaseEquipmentSource || precise.Zone == \"BASE\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentUnitTransformation.cs",
+          "contains": [
+            "Tags = target.Tags.Append(CardObjectTags.UnitCard)"
+          ]
+        }
+      ],
+      "tests": []
+    },
+    {
+      "cardNos": [
+        "OGN·023/298"
+      ],
+      "text": "在本回合内，当它下次被摧毁时，你可以选择支付{{红色}}，改为以休眠状态将其召回。（把该单位送回基地，此行动不算作移动。）",
+      "scope": "在本回合内，当它下次被摧毁时，你可以选择支付{{红色}}，改为以休眠状态将其召回。（把该单位送回基地，此行动不算作移动。）",
+      "status": "route",
+      "reason": "结算后给目标同一代际添加本回合下一次摧毁的替换凭据；事发时可支付1红符能改为休眠召回，费用／凭据清理与原始动作回放一致",
+      "rules": "核心373 替换、牌面指定持续时间、召回；OGN·023 官方中文牌面；来源激活范围缺口另句登记",
+      "runtime": {
+        "activations": [
+          {
+            "simpleEffect": {
+              "grantsMysteriousWeaponRecall": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "spec.GrantsMysteriousWeaponRecall",
+            "MysteriousWeaponRecallMarker("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MysteriousWeaponRecall.cs",
+          "contains": [
+            "MysteriousWeaponRecallPrefix"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MysteriousWeaponRecallTests.cs",
+          "methods": [
+            "APlayedWeaponCanDiscardAndExhaustToGrantItsFriendlyUnitReplacement",
+            "EkkoEndTurnDestructionCanBeReplacedAndDoesNotRepeatOnLaterTurns"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·025/298"
+      ],
+      "text": "每名对手展示其主牌堆顶部的一张牌。",
+      "scope": "每名对手展示其主牌堆顶部的一张牌。",
+      "status": "route",
+      "reason": "法术响应后才展示每名对手当前主牌堆顶，进入独立牌库打出序列",
+      "rules": "核心398 关联、417 回收、355–357 效果打出与隐私；当前两人赛制；OGN·025 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "deckPlayKind": "OPPONENT_REVEAL_PLAY",
+            "effectPlayAllowsAnyCard": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "OPPONENT_REVEAL_PLAY",
+            "Recycl"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "EffectPlay"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BerserkImpulseGuardTests.cs",
+          "methods": [
+            "BerserkImpulsePlaysOpponentTopMainDeckUnitToControllerBaseAndResetsState"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·025/298"
+      ],
+      "text": "你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。",
+      "scope": "你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。",
+      "status": "route",
+      "reason": "控制者可选其中一张先放逐，再以自身控制免费打出，单位进入自己的基地且重置原卡牌状态",
+      "rules": "核心398 关联、417 回收、355–357 效果打出与隐私；当前两人赛制；OGN·025 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "deckPlayKind": "OPPONENT_REVEAL_PLAY",
+            "effectPlayAllowsAnyCard": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "OPPONENT_REVEAL_PLAY",
+            "Recycl"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "EffectPlay"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BerserkImpulseGuardTests.cs",
+          "methods": [
+            "BerserkImpulsePlaysOpponentTopMainDeckUnitToControllerBaseAndResetsState"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·025/298"
+      ],
+      "text": "然后回收其余的卡牌。",
+      "scope": "然后回收其余的卡牌。",
+      "status": "route",
+      "reason": "关联展示序列结束时回收未选择牌，显式恢复对手牌库隐私，不暴露新的未知顺序",
+      "rules": "核心398 关联、417 回收、355–357 效果打出与隐私；当前两人赛制；OGN·025 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "deckPlayKind": "OPPONENT_REVEAL_PLAY",
+            "effectPlayAllowsAnyCard": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "OPPONENT_REVEAL_PLAY",
+            "Recycl"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "EffectPlay"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BerserkImpulseGuardTests.cs",
+          "methods": [
+            "BerserkImpulsePlaysOpponentTopMainDeckUnitToControllerBaseAndResetsState"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·026/298"
+      ],
+      "text": "当你打出我时，对手本回合内不能打出卡牌。",
+      "scope": "当你打出我时，对手本回合内不能打出卡牌。",
+      "status": "route",
+      "reason": "入场技能响应后才生成对手本回合不能打牌的规则效果，涵盖单位／装备／法术及效果打出，回合结束到期",
+      "rules": "核心383.4.a.2、364–365 禁止性被动与牌面持续时间；OGN·026 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "preventsOpponentCardPlayThisTurn": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.PreventsOpponentCardPlayThisTurn"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BrinhilCardPlayProhibitionTests.cs",
+          "methods": [
+            "ResponsesAreLegalBeforeTheAbilityResolvesAndAllCardTypesAreBlockedAfterwards",
+            "TheRestrictionExpiresBeforeTheOpponentsTurnAndNormalPlaysResume",
+            "ReturningTheSourceDoesNotCancelTheIndependentAbilityOrItsTurnDuration"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·029/298"
+      ],
+      "text": "进行两次：",
+      "scope": "进行两次：",
+      "status": "route",
+      "reason": "依中国区铸魂淬炼勘误260114第1页，星落的新文本为两条连续造成3伤害指示，图鉴“进行两次”为旧文；当前确认两个可重复单位目标，并在同一法术结算内依次伤害，符合有效文本",
+      "rules": "中国区铸魂淬炼勘误260114第1页星落新文本（两个独立指示，无进行两次）；核心355.6、359.3.e、418",
+      "runtime": {
+        "behaviors": [
+          {
+            "damageAmount": 3,
+            "requiredTargetCount": 2,
+            "allowsRepeatedTargets": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ShouldApplyDamageToTarget(behavior, targetIndex)",
+            "ResolveDamageAmount("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.DamageSpells.cs",
+          "methods": [
+            "CoreRuleEnginePlaysStarfallAgainstTwoUnits",
+            "CoreRuleEngineAllowsStarfallToDamageSameUnitTwice"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·031/298"
+      ],
+      "text": "当你打出我时，你在本回合内打出的下一个法术费用减少{{5}}。",
+      "scope": "当你打出我时，你在本回合内打出的下一个法术费用减少{{5}}。",
+      "status": "route",
+      "reason": "独立入场技能结算后创建减5法力的下一法术权限；真实下一次打出时在报价／付款消费，回合结束到期",
+      "rules": "核心383.4.a.2、356.4、牌面指定持续时间；OGN·031 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceNextSpellCostReductionMana": 5
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.SourceNextSpellCostReductionMana",
+            "NextSpellCostReduction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.StaticAndPlayTriggers.cs",
+          "methods": [
+            "P79RagingDrakeCreatesNextSpellCostReductionAfterResolution",
+            "P79RagingDrakeNextSpellCostReductionPaysReducedSpellCostAndConsumesMarker"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·033/298"
+      ],
+      "text": "选择一名敌方单位。",
+      "scope": "选择一名敌方单位。",
+      "status": "route",
+      "reason": "打出时选择一名敌方单位并支付法盾；结算时由该单位当前控制者选择给施法者抽2张或承受6伤害，控制者不能伪造另一玩家选择",
+      "rules": "核心355.6 选目标、355.18 结算指示中的选择；OGN·033 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "damageAmount": 6,
+            "damageAlternativeDrawCount": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "BeginDamageAlternative(state, stackItem, behavior)",
+            "behavior.DamageAlternativeDrawCount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/HighwayRobberyCurrentTests.cs",
+          "methods": [
+            "ActualResolutionWaitsForTheTargetsControllerToChooseDamageOrCasterDraw",
+            "ActualReturnResponseSkipsDamageAndTheDependentOpponentChoice",
+            "NoPlayerCanBypassOrForgeTheActiveResolutionDecision"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·033/298"
+      ],
+      "text": "除非其控制者选择让你抽两张牌，否则对该单位造成6点伤害。",
+      "scope": "除非其控制者选择让你抽两张牌，否则对该单位造成6点伤害。",
+      "status": "route",
+      "reason": "打出时选择一名敌方单位并支付法盾；结算时由该单位当前控制者选择给施法者抽2张或承受6伤害，控制者不能伪造另一玩家选择",
+      "rules": "核心355.6 选目标、355.18 结算指示中的选择；OGN·033 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "requiredTargetCount": 1,
+            "damageAmount": 6,
+            "damageAlternativeDrawCount": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "BeginDamageAlternative(state, stackItem, behavior)",
+            "behavior.DamageAlternativeDrawCount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/HighwayRobberyCurrentTests.cs",
+          "methods": [
+            "ActualResolutionWaitsForTheTargetsControllerToChooseDamageOrCasterDraw",
+            "ActualReturnResponseSkipsDamageAndTheDependentOpponentChoice",
+            "NoPlayerCanBypassOrForgeTheActiveResolutionDecision"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·038/298"
+      ],
+      "text": "当你打出我时，你场上每有一名{{强力}}单位，就抽一张牌。（战力达到5或以上时，即为强力单位。）",
+      "scope": "当你打出我时，你场上每有一名{{强力}}单位，就抽一张牌。（战力达到5或以上时，即为强力单位。）",
+      "status": "route",
+      "reason": "单位入场后独立技能结算时统计当前控制且战力至少5的场上单位（包括自身），按实际数量抽牌",
+      "rules": "核心383.4.a.2、强力的当前战力、抽牌；OGN·038 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "dynamicDrawCountKind": "CONTROLLER_POWERFUL_UNITS"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardDynamicDrawCountKinds.ControllerPowerfulUnits => CountControlledUnitsWithPowerAtLeast(",
+            "PowerfulUnitPowerThreshold"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitPlay.cs",
+          "methods": [
+            "CoreRuleEnginePlaysKadregrinDrawPowerfulUnits"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·040/298",
+        "SFD·222/221"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{红色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{红色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "受控公开活跃装备在自己具有反应资源行动权时横置，立即将1点指定颜色符能放入资源池，不入普通响应链；不能重复横置使用",
+      "rules": "核心166–168、430.2／430 资源技能即时结算；对应颜色之印官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "isResourceSkill": true,
+            "exhaustsSourceAsCost": true,
+            "reactionSpeed": true,
+            "generatedPowerByTrait": {
+              "red": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "ResolveImmediateResourceSkill(",
+            "P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability)",
+            "CanActivateReactionResourceSkill(state, intent.PlayerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "ResourceAbilitiesWorkInEveryOwnedActionWindowAndKeepActionRights"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·081/298",
+        "SFD·226/221"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{绿色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{绿色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "受控公开活跃装备在自己具有反应资源行动权时横置，立即将1点指定颜色符能放入资源池，不入普通响应链；不能重复横置使用",
+      "rules": "核心166–168、430.2／430 资源技能即时结算；对应颜色之印官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "isResourceSkill": true,
+            "exhaustsSourceAsCost": true,
+            "reactionSpeed": true,
+            "generatedPowerByTrait": {
+              "green": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "ResolveImmediateResourceSkill(",
+            "P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability)",
+            "CanActivateReactionResourceSkill(state, intent.PlayerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "ResourceAbilitiesWorkInEveryOwnedActionWindowAndKeepActionRights"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·120/298",
+        "SFD·229/221"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{蓝色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{蓝色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "受控公开活跃装备在自己具有反应资源行动权时横置，立即将1点指定颜色符能放入资源池，不入普通响应链；不能重复横置使用",
+      "rules": "核心166–168、430.2／430 资源技能即时结算；对应颜色之印官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "isResourceSkill": true,
+            "exhaustsSourceAsCost": true,
+            "reactionSpeed": true,
+            "generatedPowerByTrait": {
+              "blue": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "ResolveImmediateResourceSkill(",
+            "P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability)",
+            "CanActivateReactionResourceSkill(state, intent.PlayerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "ResourceAbilitiesWorkInEveryOwnedActionWindowAndKeepActionRights"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·163/298",
+        "SFD·231/221"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{橙色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{橙色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "受控公开活跃装备在自己具有反应资源行动权时横置，立即将1点指定颜色符能放入资源池，不入普通响应链；不能重复横置使用",
+      "rules": "核心166–168、430.2／430 资源技能即时结算；对应颜色之印官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "isResourceSkill": true,
+            "exhaustsSourceAsCost": true,
+            "reactionSpeed": true,
+            "generatedPowerByTrait": {
+              "orange": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "ResolveImmediateResourceSkill(",
+            "P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability)",
+            "CanActivateReactionResourceSkill(state, intent.PlayerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "ResourceAbilitiesWorkInEveryOwnedActionWindowAndKeepActionRights"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·204/298",
+        "SFD·234/221"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{紫色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{紫色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "受控公开活跃装备在自己具有反应资源行动权时横置，立即将1点指定颜色符能放入资源池，不入普通响应链；不能重复横置使用",
+      "rules": "核心166–168、430.2／430 资源技能即时结算；对应颜色之印官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "isResourceSkill": true,
+            "exhaustsSourceAsCost": true,
+            "reactionSpeed": true,
+            "generatedPowerByTrait": {
+              "purple": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "ResolveImmediateResourceSkill(",
+            "P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability)",
+            "CanActivateReactionResourceSkill(state, intent.PlayerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "ResourceAbilitiesWorkInEveryOwnedActionWindowAndKeepActionRights"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·245/298",
+        "SFD·238/221"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{黄色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{黄色}}，用以支付符能费用。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "受控公开活跃装备在自己具有反应资源行动权时横置，立即将1点指定颜色符能放入资源池，不入普通响应链；不能重复横置使用",
+      "rules": "核心166–168、430.2／430 资源技能即时结算；对应颜色之印官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "isResourceSkill": true,
+            "exhaustsSourceAsCost": true,
+            "reactionSpeed": true,
+            "generatedPowerByTrait": {
+              "yellow": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "ResolveImmediateResourceSkill(",
+            "P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability)",
+            "CanActivateReactionResourceSkill(state, intent.PlayerId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "ResourceAbilitiesWorkInEveryOwnedActionWindowAndKeepActionRights"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·044/298"
+      ],
+      "text": "打出我时，你可以选择额外支付{{绿色}}来抽一张牌。",
+      "scope": "打出我时，你可以选择额外支付{{绿色}}来抽一张牌。",
+      "status": "route",
+      "reason": "打出付款可选额外1绿色符能；独立入场技能依据实际已支付凭据抽1张，未支付不抽",
+      "rules": "核心204.2、356–357、383.4.a.2；OGN·044 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceDrawAdditionalPowerCost": 1,
+            "sourceDrawAdditionalPowerTrait": "green",
+            "sourceDrawCountIfOptionalPowerCostPaid": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.SourceDrawAdditionalPowerCost",
+            "behavior.SourceDrawAdditionalPowerTrait",
+            "TryResolveSourceUnitOptionalPowerDraw("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitKeywords.cs",
+          "methods": [
+            "CoreRuleEnginePlaysTinyGuardianOptionalDraw",
+            "CoreRuleEngineTinyGuardianPromptExposesOptionalGreenDrawCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·045/298"
+      ],
+      "text": "无效化一个法术，但其费用不得高于{{4}}，也不得高于{{A}}。",
+      "scope": "无效化一个法术，但其费用不得高于{{4}}，也不得高于{{A}}。",
+      "status": "route",
+      "reason": "目标必须是真实法术结算项，分别核对其法力费用至多4和印刷符能费用至多1，通过后以共享无效化结算",
+      "rules": "核心355.6 目标合法性、无效化；OGN·045 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "countersTargetStackSpell": true,
+            "maxTargetManaCost": 4,
+            "maxTargetPowerCost": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.MaxTargetPowerCost is not { } max",
+            "behavior.MaxTargetManaCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEngineRejectsDefianceAgainstUnitStackItem",
+            "CoreRuleEngineRejectsDefianceWhenStackSpellCostExceedsFour",
+            "CoreRuleEngineAcceptsDefianceWhenTargetManaExceedsRemainingPower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·047/298"
+      ],
+      "text": "如果对手得分距离胜利得分不超过3分，则此法术的费用减少{{2}}。",
+      "scope": "如果对手得分距离胜利得分不超过3分，则此法术的费用减少{{2}}。",
+      "status": "route",
+      "reason": "费用报价与付款检查任一对手距离当前胜利分差不超过3，满足减2法力，不满足仍支付3法力",
+      "rules": "核心356.4 费用与当前胜利分；OGN·047 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "OPPONENT_WITHIN_THREE_OF_WINNING_SCORE",
+            "costReductionMana": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.OpponentWithinThreeOfWinningScore",
+            "OpponentWithinWinningScoreDistance(state, playerId, 3) ? behavior.CostReductionMana : 0"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellTargets.cs",
+          "methods": [
+            "CoreRuleEnginePlaysMindAndBalanceReducedDrawThenCallRune"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "methods": [
+            "CoreRuleEngineRejectsMindAndBalanceWithoutOpponentScoreReduction"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·048/298"
+      ],
+      "text": "你可以选择让一名友方单位变为休眠状态作为额外费用，以此再抽一张牌。",
+      "scope": "你可以选择让一名友方单位变为休眠状态作为额外费用，以此再抽一张牌。",
+      "status": "route",
+      "reason": "可选横置合法友方活跃单位作为额外费用，记录已支付后令抽1牌指示执行两次；敌方费用对象原子拒绝",
+      "rules": "核心204.2、356–357、抽牌；OGN·048 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "drawCount": 1,
+            "effectRepeatCountIfExhaustFriendlyUnitOptionalCost": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost",
+            "ExhaustFriendlyUnitOptionalCostPrefix"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysMeditationExhaustFriendlyUnitExtraDraw",
+            "CoreRuleEngineRejectsMeditationWhenOptionalCostTargetIsEnemyUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·053/298"
+      ],
+      "text": "在本回合内，所有增益可额外给予友方单位{{S}}+1。",
+      "scope": "在本回合内，所有增益可额外给予友方单位{{S}}+1。",
+      "status": "route",
+      "reason": "法术结算建立本回合独立的友方增益战力放大效果，立即及随后增益均按当前控制权计算，回合结束到期",
+      "rules": "核心702–705 增益、479 当前战力；OGN·053 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "friendlyBoonBonusUntilEndOfTurn": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonAmplifiers.cs",
+          "contains": [
+            "b.FriendlyBoonBonusUntilEndOfTurn",
+            "UNTIL_END_OF_TURN"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SecretArtMercyCurrentTests.cs",
+          "methods": [
+            "ActualSpellAmplifiesAllCurrentFriendlyBoonsAcrossLocations",
+            "LaterBoonGainsUseTheExistingAmplifierAndItsBonusExpiresAtRealTurnEnd",
+            "ActualControlChangeAppliesTheNewControllersBonusToTheMovedUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·057/298"
+      ],
+      "text": "让一名单位在本回合内获得{{坚守3}}和{{壁垒}}。（如果它是防守方，则{{S}}+3。它在战斗中首先承担伤害。）",
+      "scope": "让一名单位在本回合内获得{{坚守3}}和{{壁垒}}。（如果它是防守方，则{{S}}+3。它在战斗中首先承担伤害。）",
+      "status": "route",
+      "reason": "为所选单位授予本回合坚守3和壁垒两个独立临时关键词；普通战力不直接加3，坚守只在防守期间影响当前战力",
+      "rules": "核心814 坚守、815 壁垒、466.2 战斗角色；OGN·057 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "statusEffectId": "COMBAT_KEYWORD:坚守3",
+            "secondaryStatusEffectId": "COMBAT_KEYWORD:壁垒"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ResolveStatusEffectIds(behavior, targetState",
+            "TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
+          "methods": [
+            "CoreRuleEnginePlaysParrySteadfastBarrierDefendingPower",
+            "CoreRuleEngineParryDoesNotModifyPowerWhenTargetIsNotDefending"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/CurrentKeywordAuraCommandTests.cs",
+          "methods": [
+            "OrdinaryBirthGrantAndLossUseColdRestoreDuplicatesAndTheOriginalActionLog"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·059/298"
+      ],
+      "text": "每当你眩晕一名敌方单位时，让我变为活跃状态，且本回合{{S}}+1。",
+      "scope": "每当你眩晕一名敌方单位时，让我变为活跃状态，且本回合{{S}}+1。",
+      "status": "route",
+      "reason": "真实敌方眩晕事件逐名捕获来源独立触发，响应后来源同一在场代际活跃并本回合+1；重复眩晕已经眩晕的对象不触发",
+      "rules": "核心383.2／383.3、眩晕限定行动；OGN·059 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceReadiesWhenControllerStunsEnemyUnit": true,
+            "sourcePowerOnControllerStunsEnemyUnitAmount": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StunObservers.cs",
+          "contains": [
+            "SourceReadiesWhenControllerStunsEnemyUnit",
+            "SourcePowerOnControllerStunsEnemyUnitAmount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/StunObserverTests.cs",
+          "methods": [
+            "EclipseVanguardReadiesOnlyAfterItsOwnIndependentTriggerResolves"
+          ]
+        }
+      ]
+    }
+  ]
+}

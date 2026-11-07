@@ -281,6 +281,11 @@ public sealed class VenTargetedReplacementFaqTests
         await game.Act("P1", new LegendActCommand("PYKE", LegendActionAbilityCatalog.PykeLegendAbilityId,
             ["HOST"], ["SPEND_MANA:1"]));
         Assert.True(game.State.CardObjects["PYKE"].IsExhausted);
+        // Historical method identity retained; the paid skill now resolves after responses.
+        Assert.Single(game.State.StackItems);
+        Assert.DoesNotContain(game.State.PlayerZones["P1"].Base, id => id.StartsWith("PYKE-TOKEN-", StringComparison.Ordinal));
+        Assert.Contains("HOST", game.State.PlayerZones["P1"].Battlefields);
+        await game.Top();
         var coin = Assert.Single(game.State.PlayerZones["P1"].Base, id => id.StartsWith("PYKE-TOKEN-", StringComparison.Ordinal));
         Assert.True(game.State.CardObjects[coin].IsExhausted);
         Assert.Contains(CardObjectTags.EquipmentCard, game.State.CardObjects[coin].Tags);

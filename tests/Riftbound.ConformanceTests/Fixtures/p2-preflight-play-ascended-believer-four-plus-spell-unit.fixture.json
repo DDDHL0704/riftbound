@@ -115,7 +115,7 @@
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-ASCENDED-BELIEVER": {
-          "power": 5,
+          "power": 1,
           "tags": ["CARD_TYPE:UNIT"],
           "isExhausted": true
         }

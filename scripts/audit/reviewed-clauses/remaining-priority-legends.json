@@ -1,0 +1,1689 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "VEN·023",
+        "VEN·169",
+        "VEN·023a"
+      ],
+      "text": "你可以选择弃置一张手牌，作为打出我的额外费用。",
+      "scope": "你可以选择弃置一张手牌，作为打出我的额外费用。",
+      "status": "route",
+      "reason": "可选弃牌在打出付款期间选择另一张自己的手牌并放入废牌堆；拒绝非法来源或重复弃牌，未选择时不创建条件指示物技能",
+      "rules": "核心204.2、356–357 额外费用；VEN·023／023a／169 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "createdBaseUnitTokenConditionKind": "DISCARD_HAND_CARD_OPTIONAL_COST_PAID"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryParseDiscardHandCardOptionalCost(",
+            "behavior.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ZedShadowCloneTests.cs",
+          "methods": [
+            "AllForbiddenShadowPrintingsPayTheirExactCostAndCreateOnlyAfterThePaidTriggerResolves",
+            "DecliningTheAdditionalCostDoesNotDiscardCreateATokenOrTriggerTheConditionalAbility",
+            "InvalidAdditionalCostsOrInsufficientResourcesChangeNothing"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·069",
+        "VEN·069a",
+        "VEN·069b"
+      ],
+      "text": "如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+      "scope": "如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+      "status": "route",
+      "reason": "公开受控且已强化的每个梅尔文本实例只替换自己法术／技能对选定当前单位实际发生的负战力指示，额外-1，并继承原指示下限",
+      "rules": "核心373 替换、442 强化、479 效果层；VEN·069／069a／069b 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/EmpoweredSpellRules.cs",
+          "contains": [
+            "internal static ChosenNegativeMightContext? Replace(",
+            "StackObjectRules.ReferencesCurrentObject(state, item, target.ObjectId)",
+            "context.OriginalDelta - context.Contributors.Sum"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "EmpoweredSpellRules.Replace(powerState, stackItem, targetState, powerModifierAmount)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MelRulesTests.cs",
+          "methods": [
+            "RealEntryAndEmpowerEnableOnlyTheChosenNegativeMightEvent",
+            "ReplacingStupefyInheritsItsMinimumAndNeverCreatesAnExtraReductionFromZero",
+            "TargetedExhaustAbilityReceivesTheReplacementAndCounterProtection"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·110",
+        "VEN·110a"
+      ],
+      "text": "当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+      "scope": "当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+      "status": "route",
+      "reason": "实际已强化转变捕获来源文本实例，后续选择当前战力不高于3的敌方战场单位，费用确认和双方响应后独立放逐；已入链来源离场不取消技能",
+      "rules": "核心442 强化、383.2.c／383.3、359.3.e.4；VEN·110／110a／188 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpoweredBanish.cs",
+          "contains": [
+            "EmpoweredBanishFaces",
+            "当我变为",
+            "<= EmpoweredBanishFaces.Value[item.FieldContext!.CardNo]",
+            "ResolveEmpoweredBanish("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenMelPhysicalPrintsTests.cs",
+          "methods": [
+            "EachPrintingDiscardsARealSpellThenBanishesOnlyAnEligibleEnemy"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EmpoweredBanishBoundaryTests.cs",
+          "methods": [
+            "WardIsPaidAfterSelectionOrTheIndependentSkillIsDeclined",
+            "ResponsesRecheckCurrentMightAndTheBoundTargetIncarnation"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven110EmpoweredBanishConsumerTests.cs",
+          "methods": [
+            "AnEarnedBanishOutlivesItsSourceReturningWithoutRefundingTheDiscard"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·188"
+      ],
+      "text": "当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+      "scope": "当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+      "status": "route",
+      "reason": "实际已强化转变捕获来源文本实例，后续选择当前战力不高于3的敌方战场单位，费用确认和双方响应后独立放逐；已入链来源离场不取消技能",
+      "rules": "核心442 强化、383.2.c／383.3、359.3.e.4；VEN·110／110a／188 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpoweredBanish.cs",
+          "contains": [
+            "EmpoweredBanishFaces",
+            "当我变为",
+            "<= EmpoweredBanishFaces.Value[item.FieldContext!.CardNo]",
+            "ResolveEmpoweredBanish("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenMelPhysicalPrintsTests.cs",
+          "methods": [
+            "EachPrintingDiscardsARealSpellThenBanishesOnlyAnEligibleEnemy"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EmpoweredBanishBoundaryTests.cs",
+          "methods": [
+            "WardIsPaidAfterSelectionOrTheIndependentSkillIsDeclined",
+            "ResponsesRecheckCurrentMightAndTheBoundTargetIncarnation"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven110EmpoweredBanishConsumerTests.cs",
+          "methods": [
+            "AnEarnedBanishOutlivesItsSourceReturningWithoutRefundingTheDiscard"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·113",
+        "VEN·113a"
+      ],
+      "text": "当我征服一处战场时，给予你废牌堆中的一个法术在本回合内等同于其费用的{{流转}}。（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "scope": "当我征服一处战场时，给予你废牌堆中的一个法术在本回合内等同于其费用的{{流转}}。（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "status": "route",
+      "reason": "征服后选择自己废牌堆的一张法术，独立技能响应后才授予按印刷费用支付的本回合流转；以物体代际绑定，流转打出结算后放逐",
+      "rules": "核心383.3、流转、359.3.e.4；VEN·113／113a 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "grantsPrintedCostFlowOnConquest": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestFlow.cs",
+          "contains": [
+            "CaptureConquestFlow(",
+            "ResolveConquestFlow(",
+            "b.GrantsPrintedCostFlowOnConquest"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/KennenConquestFlowTests.cs",
+          "methods": [
+            "ConquestConfirmsOneGraveyardSpellThenGrantsFlowOnlyAfterResponses",
+            "TargetThatChangesGenerationBeforeResolutionDoesNotReceiveFlow",
+            "GrantExpiresAtTheEndOfTheTurnAndCannotFollowAReenteredGraveyardObject",
+            "SourceCanBeDestroyedInResponseWithoutRevokingTheSkillOrPermission"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·141",
+        "VEN·190",
+        "VEN·190*"
+      ],
+      "text": "此法力仅能用于打出单位或单位的主动技能。",
+      "scope": "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。",
+      "status": "route",
+      "reason": "传奇资源记入UnitPlayOrUnitAbilityOnlyMana，真实单位打出及单位主动技能可用，装备技能或法术付款不能使用，未花部分维持限制",
+      "rules": "核心166–168 受限资源、430.2 资源技能；VEN·141／190／190* 官方中文牌面",
+      "runtime": {
+        "legendActivations": [
+          "LEGEND_REACTION_PAY_2_POWER_EXHAUST_GAIN_2_UNIT_MANA"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "unitOnly: ability.EffectKind == LegendAbilityEffectKinds.GainUnitOnlyMana",
+            "UnitPlayOrUnitAbilityOnlyMana = currentPool.UnitPlayOrUnitAbilityOnlyMana + manaAmount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RenektonUnitManaProducerTests.cs",
+          "methods": [
+            "ExactLegendPaysPowerAndBanksManaForARealUnitPlay"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RenektonUnitAbilityInlineTests.cs",
+          "methods": [
+            "AUnitAbilityCanUseTheLegendResourceDuringItsOwnPayment",
+            "EquipmentAbilityCannotSpendTheManaButCanBankIt"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RenektonInlinePaymentSecurityTests.cs",
+          "methods": [
+            "LegendResourceAcquiredDuringSpellPaymentCannotPayTheSpell"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·179"
+      ],
+      "text": "我可以{{伏击}}到有敌方单位的战场，即使你在该处没有单位。",
+      "scope": "我可以{{伏击}}到有敌方单位的战场，即使你在该处没有单位。",
+      "status": "route",
+      "reason": "共享伏击目的地流程按实际敌方单位允许无己方单位的真实战场，正常手牌付款及响应时机保持一致",
+      "rules": "核心143、伏击许可、355–357；VEN·179 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "allowsAmbushToEnemyOccupiedBattlefield": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AmbushPermissions.cs",
+          "contains": [
+            "behavior.AllowsAmbushToEnemyOccupiedBattlefield"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VendettaAmbushTests.cs",
+          "methods": [
+            "VendettaRengarRetainsTheEnemyOccupiedLocationPermission"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·SP6"
+      ],
+      "text": "此法力仅能用于打出法术。",
+      "scope": "{{横置}}：{{反应}} — {{获得}}{{2}}。",
+      "status": "route",
+      "reason": "真实反应资源技能只把所得2法力存入法术专用资源池；主阶段可取得并为法术付款，不能支付单位费用，余量维持限制",
+      "rules": "核心166–168／430.2 受限资源；VEN·SP6 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "LUX_REACTION_EXHAUST_GAIN_2_SPELL_ONLY_MANA",
+            "isResourceSkill": true,
+            "generatedMana": 2,
+            "resourceRestriction": "PLAY_SPELLS_ONLY"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ResolveLuxRestrictedMana("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RestrictedManaLifecycleTests.cs",
+          "methods": [
+            "LuxCanAcquireRestrictedManaInAnOrdinaryReactionResourceWindow",
+            "InlineLuxManaSurplusRemainsRestrictedAndCanPayAnotherSpellBeforePoolClearing"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "FND-265/298",
+        "OGN·265/298",
+        "OGN·308/298",
+        "OGN·308*/298"
+      ],
+      "text": "支付{{1}}，{{横置}}：打出一名1{{S}}的“随从”。",
+      "scope": "支付{{1}}，{{横置}}：打出一名1{{S}}的“随从”。",
+      "status": "route",
+      "reason": "四个印次共用完整1法力及横置费用，非资源技能独立入链，响应后通过随从工厂创建休眠1战力单位",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_PAY_1_EXHAUST_CREATE_MINION",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "effectKind": "CREATE_MINION",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_TOKEN",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendTokens.cs",
+          "contains": [
+            "TryGetLegendUnitToken(",
+            "ResolveLegendUnitToken("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendTokenTests.cs",
+          "methods": [
+            "ActivationPaysOnceThenRespondsBeforeReplacementAndEntry",
+            "ReplacementEligibilityIsEvaluatedAtResolutionAfterOpponentResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·247/298",
+        "OGN·299/298",
+        "OGN·299*/298"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{A}}，但仅可用于打出法术。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{A}}，但仅可用于打出法术。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "横置传奇立即获得1点仅可打出法术的符能，允许正常资源窗口提前取得及支付指示中取得，不要求已有已付款法术",
+      "rules": "核心166–168、430.2–430.3 资源确认与结算、812 鼓舞（适用时）；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL",
+            "requiredCostToken": "",
+            "effectKind": "GAIN_POWER",
+            "manaCostReductionKind": "",
+            "powerGainAmount": 1,
+            "timingKind": "RESOURCE_ACTION",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedPowerPurpose": 1,
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "RESOURCE",
+            "exhaustsSourceAsCost": true,
+            "generatedPower": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GainLegendMana(",
+            "GainLegendPower(",
+            "LegendAbilityTimingKinds.ResourceAction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RestrictedLegendResourceTimingTests.cs",
+          "methods": [
+            "ARestrictedResourceSkillDoesNotRequireAnAlreadyPaidCardOnTheStack"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/PendingLegendResourceTests.cs",
+          "methods": [
+            "ARealFizzRecastCanAcquireLegendPowerAndOnlySpellPowerPaysTheRetainedFee"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·253/298",
+        "OGN·302/298",
+        "OGN·302*/298"
+      ],
+      "text": "{{横置}}：{{反应}}，{{鼓舞}}—{{获得}}{{1}}。（获得费用资源的技能无法成为其他法术的反应目标。如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "scope": "{{横置}}：{{反应}}，{{鼓舞}}—{{获得}}{{1}}。（获得费用资源的技能无法成为其他法术的反应目标。如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+      "status": "route",
+      "reason": "检查本回合已完成确认的另一张卡牌满足鼓舞，横置后立即获得1法力，资源技能不传递行动权",
+      "rules": "核心166–168、430.2–430.3 资源确认与结算、812 鼓舞（适用时）；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA",
+            "requiredCostToken": "",
+            "effectKind": "GAIN_MANA",
+            "requiresPlayedAnotherCardThisTurn": true,
+            "manaCostReductionKind": "",
+            "manaGainAmount": 1,
+            "timingKind": "RESOURCE_ACTION",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "RESOURCE",
+            "exhaustsSourceAsCost": true,
+            "generatedMana": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GainLegendMana(",
+            "GainLegendPower(",
+            "LegendAbilityTimingKinds.ResourceAction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PendingLegendResourceTests.cs",
+          "methods": [
+            "ActualEncourageEnablesDariusReactionResourceInsidePaymentAndResolution"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendActDariusGainsManaAfterAnotherCardThisTurn",
+            "P79LegendActDariusRequiresAnotherCardPlayedThisTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·143/167",
+        "RAD·170/167",
+        "RAD·170*/167"
+      ],
+      "text": "{{反应>}} 从你的废牌堆中放逐一个单位或装备，{{T}}：{{获得}}{{A}}。",
+      "scope": "{{反应>}} 从你的废牌堆中放逐一个单位或装备，{{T}}：{{获得}}{{A}}。",
+      "status": "route",
+      "reason": "三个印次均先从自己的废牌堆放逐真实单位或装备并横置传奇，立即获得1点仅用于单位／装备打出的受限符能；非法费用原子拒绝",
+      "rules": "核心166–168、430.2–430.3 资源确认与结算、812 鼓舞（适用时）；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REACTION_BANISH_GRAVEYARD_PERMANENT_EXHAUST_GAIN_PLAY_POWER",
+            "requiredCostToken": "",
+            "effectKind": "GAIN_POWER",
+            "manaCostReductionKind": "",
+            "powerGainAmount": 1,
+            "timingKind": "RESOURCE_ACTION",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "banishesGraveyardPermanentAsCost": true,
+            "grantsUnitOrEquipmentPlayOnlyPower": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "RESOURCE",
+            "exhaustsSourceAsCost": true,
+            "generatedPower": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GainLegendMana(",
+            "GainLegendPower(",
+            "LegendAbilityTimingKinds.ResourceAction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MordekaiserLegendResourceTests.cs",
+          "methods": [
+            "EachOfficialPrintingBanishesEitherPermanentAsACostAndImmediatelyBanksOneRestrictedPower",
+            "InvalidCostSourceAndUnrepresentableGainRejectWithoutBanishmentOrExhaustion"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·189/221",
+        "SFD·244/221"
+      ],
+      "text": "{{横置}}：{{反应}}—{{获得}}{{A}}，仅可用于打出装备或使用装备技能。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "scope": "{{横置}}：{{反应}}—{{获得}}{{A}}，仅可用于打出装备或使用装备技能。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "status": "route",
+      "reason": "横置传奇立即取得1点装备专用符能，装备牌打出及装备主动技能可用，其他费用不能借用",
+      "rules": "核心166–168、430.2–430.3 资源确认与结算、812 鼓舞（适用时）；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT",
+            "requiredCostToken": "",
+            "effectKind": "GAIN_POWER",
+            "manaCostReductionKind": "",
+            "powerGainAmount": 1,
+            "timingKind": "RESOURCE_ACTION",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedPowerPurpose": 2,
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "RESOURCE",
+            "exhaustsSourceAsCost": true,
+            "generatedPower": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GainLegendMana(",
+            "GainLegendPower(",
+            "LegendAbilityTimingKinds.ResourceAction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RestrictedLegendResourceTimingTests.cs",
+          "methods": [
+            "ARestrictedResourceSkillDoesNotRequireAnAlreadyPaidCardOnTheStack"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RestrictedPowerPlayTests.cs",
+          "methods": [
+            "OnlyEquipmentResourceCanPayAnActualEquipmentAssembly"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/PendingLegendResourceTests.cs",
+          "methods": [
+            "ARealTemperedPaymentCanAcquireLegendPowerAndOnlyEquipmentPowerPays"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-197/219",
+        "UNL-234/219",
+        "UNL-234*/219"
+      ],
+      "text": "{{反应>}} {{横置}}：{{获得}}{{1}}。",
+      "scope": "{{反应>}} {{横置}}：{{获得}}{{1}}。",
+      "status": "route",
+      "reason": "横置传奇立即取得1点法术对决专用法力，不开放普通响应，也不要求取得时已经处于对决；实际支付仍受法术对决限制",
+      "rules": "核心166–168、430.2–430.3 资源确认与结算、812 鼓舞（适用时）；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA",
+            "requiredCostToken": "",
+            "effectKind": "GAIN_DUEL_MANA",
+            "manaCostReductionKind": "",
+            "manaGainAmount": 1,
+            "timingKind": "RESOURCE_ACTION",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "RESOURCE",
+            "exhaustsSourceAsCost": true,
+            "generatedMana": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GainLegendMana(",
+            "GainLegendPower(",
+            "LegendAbilityTimingKinds.ResourceAction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DianaDuelManaBoundaryTests.cs",
+          "methods": [
+            "ReactionResourceCanBeBankedInMainButCannotPayItsOrdinaryEquipment",
+            "TheSameActualDuelManaCanPayAReactionEquipmentWhileTheDuelIsStillOpen"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·141",
+        "VEN·190",
+        "VEN·190*"
+      ],
+      "text": "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。",
+      "scope": "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。",
+      "status": "route",
+      "reason": "真实支付2通用符能并横置传奇后立即取得2点单位／单位主动技能专用法力，费用与资源容量不足原子拒绝",
+      "rules": "核心166–168、430.2–430.3 资源确认与结算、812 鼓舞（适用时）；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REACTION_PAY_2_POWER_EXHAUST_GAIN_2_UNIT_MANA",
+            "requiredCostToken": "",
+            "effectKind": "GAIN_UNIT_ONLY_MANA",
+            "manaCostReductionKind": "",
+            "manaGainAmount": 2,
+            "timingKind": "RESOURCE_ACTION",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "powerCost": 2,
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "RESOURCE",
+            "exhaustsSourceAsCost": true,
+            "generatedMana": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GainLegendMana(",
+            "GainLegendPower(",
+            "LegendAbilityTimingKinds.ResourceAction"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RenektonUnitManaProducerTests.cs",
+          "methods": [
+            "ExactLegendPaysPowerAndBanksManaForARealUnitPlay",
+            "LegendPowerCostUsesThePlayersSelectedActualResources",
+            "InsufficientPowerOrUnrepresentableGainDoesNotSpendOrExhaust"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "OGN·263/298",
+        "OGN·307/298",
+        "OGN·263a/298",
+        "OGN·307*/298"
+      ],
+      "text": "支付{{1}}，{{横置}}：将你拥有的一张位于英雄区域或场上的提莫单位牌放入你的手牌。",
+      "scope": "支付{{1}}，{{横置}}：将你拥有的一张位于英雄区域或场上的提莫单位牌放入你的手牌。",
+      "status": "missing",
+      "reason": "普通返手技能仍直接在传奇激活命令内完成；虽然检查拥有的提莫、英雄区／场地与1法力费用，但未独立入链及提供响应",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "requiredTargetCount": 1,
+            "effectKind": "RETURN_OWNED_TEEMO_UNIT_TO_HAND",
+            "requiresOwnedTeemoUnitTarget": true,
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "IMMEDIATE",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "case LegendAbilityEffectKinds.ReturnOwnedTeemoUnitToHand:",
+            "ReturnOwnedTeemoUnitToHand("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendActTeemoRecallsOwnedChampionZoneTeemoUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·139/167",
+        "RAD·168/167",
+        "RAD·168*/167"
+      ],
+      "text": "解除我的强化，{{T}}：你在本回合内打出的下一名单位的费用减少{{2}}和{{A}}，并给予其“在回合结束时，将我摧毁。”",
+      "scope": "解除我的强化，{{T}}：你在本回合内打出的下一名单位的费用减少{{2}}和{{A}}，并给予其“在回合结束时，将我摧毁。”",
+      "status": "route",
+      "reason": "先解除传奇强化并横置，独立技能响应后为本回合下一名单位减2法力与1符能，实际打出时为该单位创建独立回合结束摧毁技能",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REMOVE_EMPOWER_EXHAUST_NEXT_UNIT_DISCOUNT_DESTROY",
+            "requiredCostToken": "",
+            "effectKind": "LEGEND_TIME_ASSASSIN_NEXT_UNIT_REDUCTION",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "removesSourceEmpowerAsCost": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_EFFECT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitEffect("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TimeAssassin.cs",
+          "contains": [
+            "TimeAssassin"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadTimeAssassinLegendTests.cs",
+          "methods": [
+            "EmpoweredTimeAssassinCreatesOneNextUnitReductionAndRemovesItsEmpower",
+            "NextUnitPaysTwoLessManaAndOneLessTypedPowerThenDiesThroughTheEndStep",
+            "ActualReturnClearsTheMarkerAndTheOldEndSkillCannotDestroyTheNewGeneration"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·141/167",
+        "RAD·169/167",
+        "RAD·169*/167"
+      ],
+      "text": "支付{{1}}和{{A}}，{{T}}：将一个“炸弹”装备指示物打出到一处战场。（其具有{{部署}}。当其被摧毁时，对该处的一名敌方单位造成2点伤害，并摧毁你在该处的其他“炸弹”。）",
+      "scope": "支付{{1}}和{{A}}，{{T}}：将一个“炸弹”装备指示物打出到一处战场。（其具有{{部署}}。当其被摧毁时，对该处的一名敌方单位造成2点伤害，并摧毁你在该处的其他“炸弹”。）",
+      "status": "route",
+      "reason": "支付1法力、1通用符能并横置，独立入链后才在所选战场打出炸弹；炸弹的部署和连锁摧毁／2伤害共用既有指示物流程",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_PAY_1_AND_POWER_EXHAUST_CREATE_BOMB",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "requiredTargetCount": 1,
+            "effectKind": "LEGEND_CREATE_BATTLEFIELD_EQUIPMENT_TOKEN",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "powerCost": 1,
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "RAD·T01",
+            "flow": "UNIT_EFFECT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitEffect("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendEquipmentTokens.cs",
+          "contains": [
+            "CreateBattlefieldEquipmentToken",
+            "ResolveLegendBattlefieldEquipmentToken("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadZiggsLegendTests.cs",
+          "methods": [
+            "EveryPrintingPaysThenPlaysABombToEitherBattlefieldAfterResponses",
+            "CreatedBombUsesTheSharedDestructionDamageAndTokenRemoval"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "RAD·147/167",
+        "RAD·172/167",
+        "RAD·172*/167"
+      ],
+      "text": "支付{{1}}，{{T}}：给予一名友方单位在本回合内“我具有等同于自身{{坚守}}的{{强攻}}。”（只要它是进攻方，每点强攻便提供{{S}}+1。）",
+      "scope": "支付{{1}}，{{T}}：给予一名友方单位在本回合内“我具有等同于自身{{坚守}}的{{强攻}}。”（只要它是进攻方，每点强攻便提供{{S}}+1。）",
+      "status": "route",
+      "reason": "支付1法力和横置后独立入链，为一名友方单位授予本回合动态文本；之后坚守增减会实时改变这项独立强攻授予",
+      "rules": "核心399–407、807 强攻／814 坚守与动态规则文本；RAD·147／172／172*",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_PAY_1_EXHAUST_GRANT_ASSAULT_EQUAL_TO_STEADFAST",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "requiredTargetCount": 1,
+            "requiresFriendlyUnitTarget": true,
+            "effectKind": "LEGEND_GRANT_UNIT_KEYWORD",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "强攻等同于坚守",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_KEYWORD",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitKeyword("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendUnitKeyword.cs",
+          "contains": [
+            "ResolveLegendUnitKeyword("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadNazumahHonorLegendTests.cs",
+          "methods": [
+            "EveryPrintingPaysBeforeResponsesAndGrantsToAFriendlyUnitInBaseOrBattlefield",
+            "LaterSteadfastGrantsChangeAssaultAndTurnCleanupRemovesTheGrantedText",
+            "LeavingASteadfastAuraImmediatelyUpdatesTheGrantedAssault",
+            "RepeatedDynamicGrantsAndExistingAssaultAddIndependently"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·193/221",
+        "SFD·245/221"
+      ],
+      "text": "支付{{1}}，{{横置}}：将你控制的一件未贴附的武装贴附到你控制的一名单位上。",
+      "scope": "支付{{1}}，{{横置}}：将你控制的一件未贴附的武装贴附到你控制的一名单位上。",
+      "status": "route",
+      "reason": "支付1法力并横置传奇，绑定未贴附的己方武装及己方单位，响应后才贴附，目标或贴附状态变化均重新检查",
+      "rules": "核心399–407、435／718 贴附；SFD·193／245",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "requiredTargetCount": 2,
+            "requiresFriendlyUnitTarget": true,
+            "effectKind": "ATTACH_ARMAMENT",
+            "requiresArmamentSecondTarget": true,
+            "requiresUnattachedArmamentSecondTarget": true,
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "ATTACHMENT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendAttachment("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendAttachment.cs",
+          "contains": [
+            "ResolveLegendAttachment("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LegendAttachmentTests.cs",
+          "methods": [
+            "LegendAttachmentPaysAndExhaustsBeforeBothResponsePasses",
+            "SameHostReattachmentIsLegalButDoesNotAttachOrTriggerDraw",
+            "ReattachmentDetachesOldHostAndMovesEquipmentToNewHost",
+            "ActualTakeUpResponseMakesThePreviouslyUnattachedTargetIllegal"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·193/221",
+        "SFD·245/221"
+      ],
+      "text": "{{横置}}：将你控制的一件已贴附的武装贴附到你控制的一名单位上。",
+      "scope": "{{横置}}：将你控制的一件已贴附的武装贴附到你控制的一名单位上。",
+      "status": "route",
+      "reason": "横置传奇，绑定已贴附的己方武装和己方单位，响应后重贴附；同宿主重贴合法且不虚构新的贴附事件",
+      "rules": "核心399–407、435／718 贴附；SFD·193／245",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT",
+            "requiredCostToken": "",
+            "requiredTargetCount": 2,
+            "requiresFriendlyUnitTarget": true,
+            "effectKind": "REATTACH_ARMAMENT",
+            "requiresArmamentSecondTarget": true,
+            "requiresAttachedArmamentSecondTarget": true,
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "ATTACHMENT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendAttachment("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendAttachment.cs",
+          "contains": [
+            "ResolveLegendAttachment("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LegendAttachmentTests.cs",
+          "methods": [
+            "LegendAttachmentPaysAndExhaustsBeforeBothResponsePasses",
+            "SameHostReattachmentIsLegalButDoesNotAttachOrTriggerDraw",
+            "ReattachmentDetachesOldHostAndMovesEquipmentToNewHost",
+            "ActualTakeUpResponseMakesThePreviouslyUnattachedTargetIllegal"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·197/221",
+        "SFD·247/221"
+      ],
+      "text": "支付{{1}}，{{横置}}：打出一名2{{S}}的“黄沙士兵”到你的基地。",
+      "scope": "支付{{1}}，{{横置}}：打出一名2{{S}}的“黄沙士兵”到你的基地。",
+      "status": "route",
+      "reason": "支付1法力并横置，须已在本回合打出武装；普通技能响应后通过黄沙士兵工厂创建休眠2战力单位于基地，百炼持续授予另句核对",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "effectKind": "CREATE_SAND_SOLDIER",
+            "requiresPlayedArmamentThisTurn": true,
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_TOKEN",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendTokens.cs",
+          "contains": [
+            "TryGetLegendUnitToken(",
+            "ResolveLegendUnitToken("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendTokenTests.cs",
+          "methods": [
+            "ActivationPaysOnceThenRespondsBeforeReplacementAndEntry",
+            "ReplacementEligibilityIsEvaluatedAtResolutionAfterOpponentResponse"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendActAzirRequiresArmamentPlayedThisTurn",
+            "P79LegendAzirTracksArmamentPlayedThisTurnFromWeaponPlay"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·199/221",
+        "SFD·248/221"
+      ],
+      "text": "{{横置}}：{{反应}} — 抽一张牌。",
+      "scope": "{{横置}}：{{反应}} — 抽一张牌。",
+      "status": "route",
+      "reason": "满足本回合两次敌方单位／装备指目标事件后可在反应窗口横置，普通抽牌技能独立入链并响应后抽1，不把抽牌技能当作资源立即执行",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS",
+            "requiredCostToken": "",
+            "effectKind": "DRAW_ONE",
+            "manaCostReductionKind": "",
+            "timingKind": "REACTION_WINDOW",
+            "requiresEzrealEnemyTargetsThisTurn": true,
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "DISCARD_DRAW",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendDiscardDraw("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendDiscardDraw.cs",
+          "contains": [
+            "ResolveLegendDiscardDraw("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenBorrowedDependentAbilityFaqTests.NativeExplorerResponse.cs",
+          "methods": [
+            "NativeExplorerReactionKeepsAnIndependentResponseWindowBeforeDrawing",
+            "NativeExplorerReactionCanStartAChainAtOpenPriorityOrDuelFocus"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "UNL-189/219",
+        "UNL-230/219",
+        "UNL-230*/219"
+      ],
+      "text": "支付{{4}}，{{横置}}：打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。",
+      "scope": "支付{{4}}，{{横置}}：打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。",
+      "status": "route",
+      "reason": "共享瞬息友方单位减费后支付至多4法力并横置，普通技能响应后创建活跃3战力瞬息精灵；减费的实时数量另句核对",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE",
+            "manaCost": 4,
+            "requiredCostToken": "",
+            "effectKind": "CREATE_FAERIE",
+            "manaCostReductionKind": "FRIENDLY_EPHEMERAL_FIELD_OBJECTS",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_TOKEN",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendTokens.cs",
+          "contains": [
+            "TryGetLegendUnitToken(",
+            "ResolveLegendUnitToken("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendTokenTests.cs",
+          "methods": [
+            "ActivationPaysOnceThenRespondsBeforeReplacementAndEntry",
+            "ReplacementEligibilityIsEvaluatedAtResolutionAfterOpponentResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·139",
+        "VEN·189",
+        "VEN·189*"
+      ],
+      "text": "{{迅捷>}}{{横置}}：如果这是你的回合，则将一名处于法术对决中的友方单位移动到基地，且如果我{{已强化}}，则让该单位变为活跃状态。",
+      "scope": "{{迅捷>}}{{横置}}：如果这是你的回合，则将一名处于法术对决中的友方单位移动到基地，且如果我{{已强化}}，则让该单位变为活跃状态。",
+      "status": "route",
+      "reason": "迅捷窗口允许横置并绑定处于真实法术对决中的友方单位；只在自己回合执行移动，且结算时传奇已强化才额外活跃；对手回合仍可使用但不执行指示",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_QUICK_EXHAUST_MOVE_DUEL_UNIT",
+            "requiredCostToken": "",
+            "requiredTargetCount": 1,
+            "requiresFriendlyUnitTarget": true,
+            "effectKind": "LEGEND_MOVE_DUEL_UNIT",
+            "requiresBattlefieldTarget": true,
+            "manaCostReductionKind": "",
+            "timingKind": "QUICK_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "resolveOnlyOnControllerTurn": true,
+            "readyTargetIfSourceEmpowered": true,
+            "grantedCombatKeyword": "",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "DUEL_MOVEMENT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendDuelMovement("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendDuelMovement.cs",
+          "contains": [
+            "ResolveLegendDuelMovement("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkaliLegendDuelMovementTests.cs",
+          "methods": [
+            "SwiftSkillMovesFriendlyDuelUnitAndReadiesItOnlyWhileEmpowered",
+            "OpponentsTurnAllowsTheSwiftSkillButNeitherInstructionExecutes"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·143",
+        "VEN·191",
+        "VEN·191*"
+      ],
+      "text": "{{迅捷>}}解除我的强化，{{横置}}：弃置一张手牌，然后抽一张牌。",
+      "scope": "{{迅捷>}}解除我的强化，{{横置}}：弃置一张手牌，然后抽一张牌。",
+      "status": "route",
+      "reason": "迅捷窗口先解除强化和横置，独立技能响应后才私下弃1张手牌再抽1；空手不虚构弃牌选择但仍抽牌",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_QUICK_REMOVE_EMPOWER_EXHAUST_DISCARD_DRAW",
+            "requiredCostToken": "",
+            "effectKind": "LEGEND_DISCARD_DRAW",
+            "manaCostReductionKind": "",
+            "timingKind": "QUICK_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "removesSourceEmpowerAsCost": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "DISCARD_DRAW",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendDiscardDraw("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendDiscardDraw.cs",
+          "contains": [
+            "ResolveLegendDiscardDraw("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ZedLegendDiscardDrawTests.cs",
+          "methods": [
+            "EveryPrintingSpendsTheCostsThenDiscardsAndDrawsAfterResponses",
+            "EmptyHandStillDrawsWithoutAChoice"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·147",
+        "VEN·193",
+        "VEN·193*"
+      ],
+      "text": "{{迅捷>}}{{横置}}：给予一名友方单位在本回合内{{壁垒}}。（其在战斗中首先承担伤害。）",
+      "scope": "{{迅捷>}}{{横置}}：给予一名友方单位在本回合内{{壁垒}}。（其在战斗中首先承担伤害。）",
+      "status": "route",
+      "reason": "迅捷窗口横置传奇并绑定一名友方单位，普通技能响应后给予本回合壁垒；响应返手的新代际不能获得旧技能授予",
+      "rules": "核心399–407、815 壁垒、359.3.e.4；VEN·147／193／193*",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_QUICK_EXHAUST_GRANT_BULWARK",
+            "requiredCostToken": "",
+            "requiredTargetCount": 1,
+            "requiresFriendlyUnitTarget": true,
+            "effectKind": "LEGEND_GRANT_UNIT_KEYWORD",
+            "manaCostReductionKind": "",
+            "timingKind": "QUICK_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "壁垒",
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_KEYWORD",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitKeyword("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendUnitKeyword.cs",
+          "contains": [
+            "ResolveLegendUnitKeyword("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ShenLegendBulwarkTests.cs",
+          "methods": [
+            "AllPhysicalPrintsExhaustAndQueueTheFriendlyKeywordUntilBothPlayersPass",
+            "ActualResponseReturnsTheTargetWithoutGrantingTheNewHandObjectOrRefundingTheLegend"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·149",
+        "VEN·194",
+        "VEN·194*"
+      ],
+      "text": "支付{{1}}，{{横置}}：让一件装备变为活跃状态。",
+      "scope": "支付{{1}}，{{横置}}：让一件装备变为活跃状态。",
+      "status": "route",
+      "reason": "支付1法力和横置后绑定一件装备；已强化时额外拥有两件装备模式，原一件模式仍保留。响应后逐个重验并活跃仍合法目标，敌方装备法盾在确认时支付",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_PAY_1_EXHAUST_READY_ONE_EQUIPMENT",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "requiredTargetCount": 1,
+            "effectKind": "LEGEND_READY_EQUIPMENT",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "requiresAnyEquipmentTarget": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "EQUIPMENT_READY",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendEquipmentReady("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendEquipmentReady.cs",
+          "contains": [
+            "ResolveLegendEquipmentReady("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/JayceLegendEquipmentReadyTests.cs",
+          "methods": [
+            "PhysicalPrintsPayOneAndReadyOneOrTwoTargetsAfterResponses",
+            "EmpowermentAddsTheTwoTargetSkillWithoutRemovingTheOriginalSkill",
+            "OneDepartingTargetDoesNotPreventTheOtherEquipmentFromReadying",
+            "EnemyEquipmentSpellshieldIsPaidForTheConfirmedTargets"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·149",
+        "VEN·194",
+        "VEN·194*"
+      ],
+      "text": "{{已强化>}} 支付{{1}}，{{横置}}：让两件装备变为活跃状态。",
+      "scope": "{{已强化>}} 支付{{1}}，{{横置}}：让两件装备变为活跃状态。",
+      "status": "route",
+      "reason": "支付1法力和横置后绑定一件装备；已强化时额外拥有两件装备模式，原一件模式仍保留。响应后逐个重验并活跃仍合法目标，敌方装备法盾在确认时支付",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_EMPOWERED_PAY_1_EXHAUST_READY_TWO_EQUIPMENT",
+            "manaCost": 1,
+            "requiredCostToken": "SPEND_MANA:1",
+            "requiredTargetCount": 2,
+            "effectKind": "LEGEND_READY_EQUIPMENT",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "requiresAnyEquipmentTarget": true,
+            "requiresSourceEmpowered": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "EQUIPMENT_READY",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendEquipmentReady("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendEquipmentReady.cs",
+          "contains": [
+            "ResolveLegendEquipmentReady("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/JayceLegendEquipmentReadyTests.cs",
+          "methods": [
+            "PhysicalPrintsPayOneAndReadyOneOrTwoTargetsAfterResponses",
+            "EmpowermentAddsTheTwoTargetSkillWithoutRemovingTheOriginalSkill",
+            "OneDepartingTargetDoesNotPreventTheOtherEquipmentFromReadying",
+            "EnemyEquipmentSpellshieldIsPaidForTheConfirmedTargets"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·151",
+        "VEN·195",
+        "VEN·195*"
+      ],
+      "text": "解除我的强化，{{横置}}：给予战场上的一名单位在本回合内{{S}}-2。",
+      "scope": "解除我的强化，{{横置}}：给予战场上的一名单位在本回合内{{S}}-2。",
+      "status": "route",
+      "reason": "先支付印刷费用、解除强化并横置，绑定允许的敌我单位及代际，普通技能响应后才减2战力（只限战场）或活跃单位；敌方法盾在费用之外照付",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REMOVE_EMPOWER_EXHAUST_BATTLEFIELD_UNIT_MINUS_TWO",
+            "requiredCostToken": "",
+            "requiredTargetCount": 1,
+            "effectKind": "LEGEND_UNIT_POWER_MODIFIER",
+            "requiresBattlefieldTarget": true,
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "",
+            "requiresAnyUnitTarget": true,
+            "removesSourceEmpowerAsCost": true,
+            "powerModifierAmount": -2,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_EFFECT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitEffect("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendUnitEffect.cs",
+          "contains": [
+            "ResolveLegendUnitEffect("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LegendEmpowerSpentEffectTests.cs",
+          "methods": [
+            "PrintedAbilityPaysCostsBeforeResponsesAndResolvesOnTheUnit",
+            "EnemySpellshieldIsPaidOnTopOfThePrintedCost",
+            "TargetLeavingInResponseDoesNotApplyEffectOrRefundCosts",
+            "MelTargetMovedToBaseInResponseIsNoLongerEligible"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·153"
+      ],
+      "text": "解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。",
+      "scope": "解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。",
+      "status": "route",
+      "reason": "先支付印刷费用、解除强化并横置，绑定允许的敌我单位及代际，普通技能响应后才减2战力（只限战场）或活跃单位；敌方法盾在费用之外照付",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REMOVE_EMPOWER_PAY_ONE_POWER_EXHAUST_READY_UNIT",
+            "requiredCostToken": "",
+            "requiredTargetCount": 1,
+            "effectKind": "LEGEND_READY_UNIT",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "powerCost": 1,
+            "grantedCombatKeyword": "",
+            "requiresAnyUnitTarget": true,
+            "removesSourceEmpowerAsCost": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_EFFECT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitEffect("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendUnitEffect.cs",
+          "contains": [
+            "ResolveLegendUnitEffect("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LegendEmpowerSpentEffectTests.cs",
+          "methods": [
+            "PrintedAbilityPaysCostsBeforeResponsesAndResolvesOnTheUnit",
+            "EnemySpellshieldIsPaidOnTopOfThePrintedCost",
+            "TargetLeavingInResponseDoesNotApplyEffectOrRefundCosts",
+            "MelTargetMovedToBaseInResponseIsNoLongerEligible"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·196",
+        "VEN·196*"
+      ],
+      "text": "解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。",
+      "scope": "解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。",
+      "status": "route",
+      "reason": "先支付印刷费用、解除强化并横置，绑定允许的敌我单位及代际，普通技能响应后才减2战力（只限战场）或活跃单位；敌方法盾在费用之外照付",
+      "rules": "核心399–407 技能费用、确认与响应；该传奇官方中文牌面",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_REMOVE_EMPOWER_PAY_ONE_POWER_EXHAUST_READY_UNIT",
+            "requiredCostToken": "",
+            "requiredTargetCount": 1,
+            "effectKind": "LEGEND_READY_UNIT",
+            "manaCostReductionKind": "",
+            "timingKind": "MAIN_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "powerCost": 1,
+            "grantedCombatKeyword": "",
+            "requiresAnyUnitTarget": true,
+            "removesSourceEmpowerAsCost": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_EFFECT",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitEffect("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendUnitEffect.cs",
+          "contains": [
+            "ResolveLegendUnitEffect("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LegendEmpowerSpentEffectTests.cs",
+          "methods": [
+            "PrintedAbilityPaysCostsBeforeResponsesAndResolvesOnTheUnit",
+            "EnemySpellshieldIsPaidOnTopOfThePrintedCost",
+            "TargetLeavingInResponseDoesNotApplyEffectOrRefundCosts",
+            "MelTargetMovedToBaseInResponseIsNoLongerEligible"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·155",
+        "VEN·197",
+        "VEN·155a",
+        "VEN·197*"
+      ],
+      "text": "{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。（如果其为进攻方，则{{S}}+2。）",
+      "scope": "{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。（如果其为进攻方，则{{S}}+2。）",
+      "status": "route",
+      "reason": "迅捷窗口解除强化和横置，允许敌我合法单位；普通技能响应后授予本回合强攻2，敌方法盾正常支付，不把强攻当作持续普通+2",
+      "rules": "核心399–407、807 强攻、809 法盾；VEN·155／155a／197／197*",
+      "runtime": {
+        "legendActivationDefinitions": [
+          {
+            "abilityId": "LEGEND_QUICK_REMOVE_EMPOWER_EXHAUST_GRANT_ASSAULT_TWO",
+            "requiredCostToken": "",
+            "requiredTargetCount": 1,
+            "effectKind": "LEGEND_GRANT_UNIT_KEYWORD",
+            "manaCostReductionKind": "",
+            "timingKind": "QUICK_OPEN",
+            "requiredControlledBattlefieldStaticAbilityKind": "",
+            "grantedCombatKeyword": "强攻2",
+            "requiresAnyUnitTarget": true,
+            "removesSourceEmpowerAsCost": true,
+            "createdBattlefieldEquipmentTokenCardNo": "",
+            "flow": "UNIT_KEYWORD",
+            "exhaustsSourceAsCost": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "QueueLegendUnitKeyword("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendUnitKeyword.cs",
+          "contains": [
+            "ResolveLegendUnitKeyword("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/KennenLegendOutsideHandTests.cs",
+          "methods": [
+            "QuickAbilitySpendsEmpowermentAndExhaustionThenGrantsAssaultTwo",
+            "EnemyWardIsPaidAndTheOpponentCanBeGivenAssault"
+          ]
+        }
+      ]
+    }
+  ]
+}

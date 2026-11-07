@@ -23,7 +23,9 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.Contains("AzirLegendAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("EzrealLegendAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("TeemoLegendAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("IreliaLegendAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IreliaLegendAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
+        var targetSource = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.TargetSelectionObservers.cs"));
+        Assert.Contains("IsFriendlyUnitTargetedReadyTrigger", targetSource, StringComparison.Ordinal);
         Assert.Contains("TryGetLegendAbility", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
@@ -348,9 +350,7 @@ public sealed class LegendActionSourceIdentityGuardTests
         AssertSourceCardNosEquivalent(
             ["SFD·199/221", "SFD·248/221"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.EzrealLegendAbilityId));
-        AssertSourceCardNosEquivalent(
-            ["SFD·195/221", "SFD·195a/221·P", "SFD·246/221"],
-            LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.IreliaLegendAbilityId));
+        Assert.Empty(LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.IreliaLegendAbilityId));
         AssertSourceCardNosEquivalent(
             ["OGN·263/298", "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
             LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.TeemoLegendAbilityId));

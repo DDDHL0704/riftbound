@@ -1,0 +1,68 @@
+/* ---------- dock ---------- */
+
+.dock {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 20;
+  width: calc(var(--dock-w) - 28px);
+  display: grid;
+  gap: 10px;
+}
+.dock__warn {
+  margin: 0;
+  max-width: calc(var(--dock-w) - 28px);
+  padding: 6px 10px;
+  border: 1px solid rgba(232, 120, 90, 0.5);
+  border-radius: 10px;
+  background: rgba(60, 24, 20, 0.85);
+  color: #f3c3b4;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.dock .btn {
+  min-height: 46px;
+  padding: 0 10px;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+.dock .btn--primary {
+  min-height: 54px;
+  font-size: 15px;
+}
+.dock__auto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.dock__auto input {
+  accent-color: var(--brass);
+}
+.dock [data-hotkey] {
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.2;
+}
+.dock kbd {
+  margin-top: 2px;
+  padding: 0 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(42, 26, 2, 0.35);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.dock__runes {
+  font-size: 13px;
+}
+.dock__runes b {
+  font-family: var(--font-num);
+  font-size: 17px;
+  color: var(--brass);
+}

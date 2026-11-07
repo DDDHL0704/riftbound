@@ -1,0 +1,2050 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "VEN·004"
+      ],
+      "text": "你在此处的战斗伤害分配无视{{壁垒}}。",
+      "scope": "你在此处的战斗伤害分配无视{{壁垒}}。",
+      "status": "route",
+      "reason": "共享战斗伤害分配只在来源真实战场忽略敌方壁垒优先级；来源控制者整侧适用，别处不适用，伤害量及单位战力不变",
+      "rules": "核心815 壁垒、466–468 战斗伤害分配；VEN·004 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStaticLimits": {
+              "combatDamageIgnoresBulwarkHere": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
+          "contains": [
+            "BulwarkIgnoredForTarget(",
+            "spec.CombatDamageIgnoresBulwarkHere"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenStaticLimitUnitTests.cs",
+          "methods": [
+            "SurferChangesTheSharedSidesAssignmentPriorityOnlyAtItsOwnBattlefield"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·005"
+      ],
+      "text": "在你的开始阶段开始时，如果你控制的符文数量少于任一对手，则给予我在本回合内{{S}}+1。",
+      "scope": "在你的开始阶段开始时，如果你控制的符文数量少于任一对手，则给予我在本回合内{{S}}+1。",
+      "status": "route",
+      "reason": "自己开始阶段按各玩家当前实际控制符文数量比较，少于对手才捕获独立技能；响应后给同代际来源本回合印刷战力加成，006同时授予游走，回合结束撤销",
+      "rules": "核心383.2／383.3、166–168 符文、810 游走；VEN·005 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRune.cs",
+          "contains": [
+            "BeginningRune"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven005And006PaidBeginningConsumers.cs",
+          "methods": [
+            "PaidPhysicalEntryFeedsTheNextRealBeginningCondition"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·006"
+      ],
+      "text": "在你的开始阶段开始时，如果你控制的符文数量少于任一对手，则给予我在本回合内{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+      "scope": "在你的开始阶段开始时，如果你控制的符文数量少于任一对手，则给予我在本回合内{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+      "status": "route",
+      "reason": "自己开始阶段按各玩家当前实际控制符文数量比较，少于对手才捕获独立技能；响应后给同代际来源本回合印刷战力加成，006同时授予游走，回合结束撤销",
+      "rules": "核心383.2／383.3、166–168 符文、810 游走；VEN·006 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRune.cs",
+          "contains": [
+            "BeginningRune"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven005And006PaidBeginningConsumers.cs",
+          "methods": [
+            "PaidPhysicalEntryFeedsTheNextRealBeginningCondition"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·009"
+      ],
+      "text": "当我进攻时，你可以选择支付{{红色}}，以此给予我在本回合内{{强攻2}}。（如果我是进攻方，则{{S}}+2。）",
+      "scope": "当我进攻时，你可以选择支付{{红色}}，以此给予我在本回合内{{强攻2}}。（如果我是进攻方，则{{S}}+2。）",
+      "status": "route",
+      "reason": "进攻角色建立捕获来源技能，选择支付1红色符能后响应，结算授予本回合真正强攻2；不能用其他颜色替代，角色变化按共享关键词计算战力",
+      "rules": "核心383.3.b、466.2、807 强攻；VEN·009 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "ATTACK",
+          "effect": "ASSAULT_SELF",
+          "amount": 2,
+          "leadingPowerCost": 1,
+          "leadingPowerTrait": "red"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ASSAULT_SELF"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "LeadingPowerCost"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenUnitEventTests.cs",
+          "methods": [
+            "ReaperMayPayOneRedBeforeResponsesForTemporaryAssault"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·015"
+      ],
+      "text": "此牌无法被无效化。",
+      "scope": "此牌无法被无效化。",
+      "status": "route",
+      "reason": "共享反制消费者在移动法术来源和设置反制标记前检查不可被无效化；反制法术仍可合法打出并支付，结算无法无效化此法术",
+      "rules": "核心426 无效化、禁止性规则；VEN·015 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "cannotBeCountered": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "targetBehavior.CannotBeCountered"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenInvocationSpellTests.cs",
+          "methods": [
+            "FuryCannotBeCounteredButTheCounterCanStillBePlayedAndResolve"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·022"
+      ],
+      "text": "跳过你的抽牌阶段。",
+      "scope": "跳过你的抽牌阶段。",
+      "status": "route",
+      "reason": "每次正常抽牌阶段按当前公开受控来源跳过，仅跳过正常抽牌，其他效果抽牌继续；来源返手后后续抽牌阶段恢复",
+      "rules": "核心回合开始抽牌阶段、364–365；VEN·022 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "skipsDrawPhase": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs",
+          "contains": [
+            "Any(b => b.SkipsDrawPhase)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEndlessHoardTests.cs",
+          "methods": [
+            "OnlyTheDrawPhaseIsSkippedWhileEffectDrawsStillWork",
+            "ReturningHoardRemovesBothGraveyardPermissionAndTheSkippedDrawPhase"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·022"
+      ],
+      "text": "你可以选择从你的废牌堆中打出卡牌。",
+      "scope": "你可以选择从你的废牌堆中打出卡牌。",
+      "status": "route",
+      "reason": "当前公开受控来源授予自己废牌堆卡牌的普通打出权限，仍付正常费用并遵守速度／目标；与流转替代费用是不同选择，来源离场则权限撤销",
+      "rules": "核心355–357、364–365、829 流转；VEN·022 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "grantsNormalGraveyardPlay": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.GraveyardPermissions.cs",
+          "contains": [
+            "NormalGraveyardPlaySources(",
+            "b.GrantsNormalGraveyardPlay"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEndlessHoardTests.cs",
+          "methods": [
+            "GraveyardCardsUseNormalTimingAndCostsAndSpellsAreBanishedAfterResolving",
+            "PrintedAndFlowCostsRemainSeparateChoices",
+            "NormalGraveyardPermissionDoesNotBypassOwnershipTimingOrPayment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·022"
+      ],
+      "text": "如果一张卡牌将从除你的主牌堆以外的任何位置进入你的废牌堆，则改为将其放逐。",
+      "scope": "如果一张卡牌将从除你的主牌堆以外的任何位置进入你的废牌堆，则改为将其放逐。",
+      "status": "route",
+      "reason": "共享入墓替换只处理所属者为自己且来自主牌堆外的入墓，放逐替换在区域变化前捕获；同时牺牲含来源本身也保持整批替换，牌堆燃烧照常入墓",
+      "rules": "核心370–373 替换、383.2.c.3；VEN·022 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "banishesNonDeckGraveyardEntries": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.GraveyardPermissions.cs",
+          "contains": [
+            "b.BanishesNonDeckGraveyardEntries"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEndlessHoardTests.cs",
+          "methods": [
+            "SimultaneousSacrificeBanishesTheWholeGroupEvenWhenHoardLeavesFirstAndStillPays",
+            "APlayerChoosesBetweenTheBanishAndHourglassRecallReplacements",
+            "ReplacedDiscardStillPaysTheCostWithoutDiscardObserversOrDiscardHistory"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·025"
+      ],
+      "text": "如果你控制的符文不少于七枚，则抵挡所有敌方法术和技能将对我造成的伤害。",
+      "scope": "如果你控制的符文不少于七枚，则抵挡所有敌方法术和技能将对我造成的伤害。",
+      "status": "route",
+      "reason": "共享伤害防止在当前控制者至少7枚符文时抵挡敌方法术／技能对来源的伤害；不抵挡单位造成的伤害，响应中回收第7枚符文会取消保护",
+      "rules": "核心364–365、伤害来源、防止伤害；VEN·025 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStaticLimits": {
+              "enemySpellSkillDamageImmunityMinimumRunes": 7
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
+          "contains": [
+            "PreventedByRuneDamageImmunity(",
+            "spec.EnemySpellSkillDamageImmunityMinimumRunes"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenStaticLimitUnitTests.cs",
+          "methods": [
+            "SacredElderPreventsOnlyEnemySpellDamageWithAtLeastSevenControlledRunes",
+            "ASeventhRuneRecycledInResponseRemovesTheEldersProtectionBeforeDamage",
+            "UnitsInstructedByASpellStillDealTheirOwnDamageToTheElder"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·028"
+      ],
+      "text": "当我参与的战斗结束时，强化我。（如果我未被强化，则变为已强化状态。）",
+      "scope": "当我参与的战斗结束时，强化我。（如果我未被强化，则变为已强化状态。）",
+      "status": "route",
+      "reason": "来源曾参加的实际战斗结束后捕获独立强化技能，不因先失去进攻／防守角色而漏触发；普通脱离战场或空场法术对决不能充作结束战斗",
+      "rules": "核心468.7 战斗结束、442 强化、383.3；VEN·028 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "BATTLE_END",
+          "effect": "EMPOWER_SELF"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"EMPOWER_SELF\""
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenUnitEventTests.cs",
+          "methods": [
+            "BattleEndAbilitiesTriggerForSurvivorsAfterBattleClosesAndThePoroRequiresNoActualDamage",
+            "TheWitnessDoesNotGainAnotherBonusWhenAlreadyEmpowered"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·029"
+      ],
+      "text": "我无法在你的第一、第二或第三个回合中被打出。",
+      "scope": "我无法在你的第一、第二或第三个回合中被打出。",
+      "status": "route",
+      "reason": "共享出牌合法性按控制者自己的回合序号检查，双方先后手均须超过第3回合才允许打出；额外效果打出也经过同一权限",
+      "rules": "核心355 合法打出与玩家回合计数；VEN·029 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStaticLimits": {
+              "unplayableThroughControllerTurn": 3
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
+          "contains": [
+            "PlayerTurnOrdinal(state, player) > limit.UnplayableThroughControllerTurn"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenStaticLimitUnitTests.cs",
+          "methods": [
+            "ElderPoroCountsItsControllersOwnTurnsIncludingBothSeatOrders"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·031"
+      ],
+      "text": "其在本回合内无法被敌方法术和技能选作目标。",
+      "scope": "其在本回合内无法被敌方法术和技能选作目标。",
+      "status": "route",
+      "reason": "共享目标保护为目标同代际授予本回合敌方法术／技能不可选择，己方目标不受禁；回合结束撤销，重新进场的新物体不继承",
+      "rules": "核心355.6、359.3.e.4、364–365、回合结束；VEN·031 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "statusEffectId": "ENEMY_SPELL_SKILL_TARGET_PROTECTION_THIS_TURN"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.StatusEffectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TemporaryUnitEffectRules.cs",
+          "contains": [
+            "ENEMY_SPELL_SKILL_TARGET_PROTECTION_THIS_TURN"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenTemporaryEffectSpellTests.cs",
+          "methods": [
+            "ShroudBlocksEnemySpellsAndSkillsAndStillAllowsFriendlyTargets",
+            "ReturningTheTargetBeforeResolutionCannotApplyTheEffectToItsNewHandGeneration"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·032"
+      ],
+      "text": "你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）",
+      "scope": "你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）",
+      "status": "route",
+      "reason": "共享强化报价及付款按当前控制的公开场上符文逐枚减1法力，最低0，不按所属者或符文池资源计数；确认后的费用不会因付款内回收符文而反向重算",
+      "rules": "核心356.4 减费、442 强化；VEN·032 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldCosts.cs",
+          "contains": [
+            "EmpowerRules.Mana("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/EmpowerRules.cs",
+          "contains": [
+            "spec.ReduceManaPerRune ? runes : 0"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven032EmpoweredSelfConsumerTests.cs",
+          "methods": [
+            "ActualActivationCountsOnlyControlledFieldRunesAndFloorsItsManaAtZero"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·050"
+      ],
+      "text": "你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）",
+      "scope": "你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）",
+      "status": "route",
+      "reason": "共享强化报价及付款按当前控制的公开场上符文逐枚减1法力，最低0，不按所属者或符文池资源计数；确认后的费用不会因付款内回收符文而反向重算",
+      "rules": "核心356.4 减费、442 强化；VEN·050 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldCosts.cs",
+          "contains": [
+            "EmpowerRules.Mana("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/EmpowerRules.cs",
+          "contains": [
+            "spec.ReduceManaPerRune ? runes : 0"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven050PhysicalRuneDiscountConsumerTests.cs",
+          "methods": [
+            "ActualFourManaPlayPaysFourOrZeroAndLaterRecyclingCannotRepriceIt"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·034"
+      ],
+      "text": "选择一处受你控制的战场，和一名位于其他位置且受你控制的单位。",
+      "scope": "选择一处受你控制的战场，和一名位于其他位置且受你控制的单位。",
+      "status": "route",
+      "reason": "确认受控真实战场和位于其他位置的受控公开单位，响应后尝试移动到该战场，再独立给仍合法的同代际单位本回合+2；移动受限或战场失去控制不会取消仍合法的单位增益",
+      "rules": "核心355.4／355.6、447–451；VEN·034 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetReferencedMovement": {
+              "movingTargetIndex": 1,
+              "referenceIsBattlefield": true,
+              "referenceMustBeControlled": true,
+              "movingUnitPowerBonus": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetReferencedMovement.cs",
+          "contains": [
+            "ReferenceMustBeControlled",
+            "MovingUnitPowerBonus"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenLocationEffectTests.cs",
+          "methods": [
+            "EchoingStrikeMovesFromAnotherLocationThenBuffsUntilTurnEnd",
+            "MovementProhibitionDoesNotSkipTheIndependentMightInstruction",
+            "LostBattlefieldControlInvalidatesOnlyThatTargetAndStillBuffsTheUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·034"
+      ],
+      "text": "将该单位移动到该战场，并给予其在本回合内{{S}}+2。",
+      "scope": "将该单位移动到该战场，并给予其在本回合内{{S}}+2。",
+      "status": "route",
+      "reason": "确认受控真实战场和位于其他位置的受控公开单位，响应后尝试移动到该战场，再独立给仍合法的同代际单位本回合+2；移动受限或战场失去控制不会取消仍合法的单位增益",
+      "rules": "核心355.4／355.6、447–451；VEN·034 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetReferencedMovement": {
+              "movingTargetIndex": 1,
+              "referenceIsBattlefield": true,
+              "referenceMustBeControlled": true,
+              "movingUnitPowerBonus": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetReferencedMovement.cs",
+          "contains": [
+            "ReferenceMustBeControlled",
+            "MovingUnitPowerBonus"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenLocationEffectTests.cs",
+          "methods": [
+            "EchoingStrikeMovesFromAnotherLocationThenBuffsUntilTurnEnd",
+            "MovementProhibitionDoesNotSkipTheIndependentMightInstruction",
+            "LostBattlefieldControlInvalidatesOnlyThatTargetAndStillBuffsTheUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·035"
+      ],
+      "text": "选择一个效果 —",
+      "scope": "选择一个效果 —",
+      "status": "route",
+      "reason": "确认时选二模式之一；强化模式可选任意单位，解除模式要求已强化。结算改变该物体强化状态并创建本回合结束独立反向技能，绑定代际；结束窗口已经过去时不创建将来的反向动作",
+      "rules": "核心355.3、359.3.e.4／359.3.e.16、442 强化、383.3；VEN·035 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "EMPOWER_THEN_REMOVE"
+          },
+          {
+            "mode": "REMOVE_THEN_EMPOWER"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedEmpower.cs",
+          "contains": [
+            "ScheduleDelayedEmpower(",
+            "CaptureDelayedEmpowerEndAbilities(",
+            "ResolveDelayedEmpower("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven035DelayedEmpowerConsumerTests.cs",
+          "methods": [
+            "AnActualModePaysOneGreenAndReversesItsCapturedUnitAtThisTurnsEnd",
+            "TheRemovalModeRejectsAnActuallyUnempoweredUnitWithoutSpendingOrChangingState",
+            "ResolvingAfterTheActualEndWindowKeepsTheImmediateModeWithoutSchedulingAnInverseForALaterTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·035"
+      ],
+      "text": "- 强化一名单位。",
+      "scope": "选择一个效果 —",
+      "status": "route",
+      "reason": "确认时选二模式之一；强化模式可选任意单位，解除模式要求已强化。结算改变该物体强化状态并创建本回合结束独立反向技能，绑定代际；结束窗口已经过去时不创建将来的反向动作",
+      "rules": "核心355.3、359.3.e.4／359.3.e.16、442 强化、383.3；VEN·035 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "EMPOWER_THEN_REMOVE"
+          },
+          {
+            "mode": "REMOVE_THEN_EMPOWER"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedEmpower.cs",
+          "contains": [
+            "ScheduleDelayedEmpower(",
+            "CaptureDelayedEmpowerEndAbilities(",
+            "ResolveDelayedEmpower("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven035DelayedEmpowerConsumerTests.cs",
+          "methods": [
+            "AnActualModePaysOneGreenAndReversesItsCapturedUnitAtThisTurnsEnd",
+            "TheRemovalModeRejectsAnActuallyUnempoweredUnitWithoutSpendingOrChangingState",
+            "ResolvingAfterTheActualEndWindowKeepsTheImmediateModeWithoutSchedulingAnInverseForALaterTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·035"
+      ],
+      "text": "回合结束时，解除其强化。",
+      "scope": "选择一个效果 —",
+      "status": "route",
+      "reason": "确认时选二模式之一；强化模式可选任意单位，解除模式要求已强化。结算改变该物体强化状态并创建本回合结束独立反向技能，绑定代际；结束窗口已经过去时不创建将来的反向动作",
+      "rules": "核心355.3、359.3.e.4／359.3.e.16、442 强化、383.3；VEN·035 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "EMPOWER_THEN_REMOVE"
+          },
+          {
+            "mode": "REMOVE_THEN_EMPOWER"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedEmpower.cs",
+          "contains": [
+            "ScheduleDelayedEmpower(",
+            "CaptureDelayedEmpowerEndAbilities(",
+            "ResolveDelayedEmpower("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven035DelayedEmpowerConsumerTests.cs",
+          "methods": [
+            "AnActualModePaysOneGreenAndReversesItsCapturedUnitAtThisTurnsEnd",
+            "TheRemovalModeRejectsAnActuallyUnempoweredUnitWithoutSpendingOrChangingState",
+            "ResolvingAfterTheActualEndWindowKeepsTheImmediateModeWithoutSchedulingAnInverseForALaterTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·035"
+      ],
+      "text": "- 解除一名{{已强化}}单位的强化。",
+      "scope": "选择一个效果 —",
+      "status": "route",
+      "reason": "确认时选二模式之一；强化模式可选任意单位，解除模式要求已强化。结算改变该物体强化状态并创建本回合结束独立反向技能，绑定代际；结束窗口已经过去时不创建将来的反向动作",
+      "rules": "核心355.3、359.3.e.4／359.3.e.16、442 强化、383.3；VEN·035 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "EMPOWER_THEN_REMOVE"
+          },
+          {
+            "mode": "REMOVE_THEN_EMPOWER"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedEmpower.cs",
+          "contains": [
+            "ScheduleDelayedEmpower(",
+            "CaptureDelayedEmpowerEndAbilities(",
+            "ResolveDelayedEmpower("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven035DelayedEmpowerConsumerTests.cs",
+          "methods": [
+            "AnActualModePaysOneGreenAndReversesItsCapturedUnitAtThisTurnsEnd",
+            "TheRemovalModeRejectsAnActuallyUnempoweredUnitWithoutSpendingOrChangingState",
+            "ResolvingAfterTheActualEndWindowKeepsTheImmediateModeWithoutSchedulingAnInverseForALaterTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·035"
+      ],
+      "text": "在回合结束时，强化该单位。",
+      "scope": "选择一个效果 —",
+      "status": "route",
+      "reason": "确认时选二模式之一；强化模式可选任意单位，解除模式要求已强化。结算改变该物体强化状态并创建本回合结束独立反向技能，绑定代际；结束窗口已经过去时不创建将来的反向动作",
+      "rules": "核心355.3、359.3.e.4／359.3.e.16、442 强化、383.3；VEN·035 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "EMPOWER_THEN_REMOVE"
+          },
+          {
+            "mode": "REMOVE_THEN_EMPOWER"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedEmpower.cs",
+          "contains": [
+            "ScheduleDelayedEmpower(",
+            "CaptureDelayedEmpowerEndAbilities(",
+            "ResolveDelayedEmpower("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven035DelayedEmpowerConsumerTests.cs",
+          "methods": [
+            "AnActualModePaysOneGreenAndReversesItsCapturedUnitAtThisTurnsEnd",
+            "TheRemovalModeRejectsAnActuallyUnempoweredUnitWithoutSpendingOrChangingState",
+            "ResolvingAfterTheActualEndWindowKeepsTheImmediateModeWithoutSchedulingAnInverseForALaterTurn"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·036"
+      ],
+      "text": "如果我位于战场上，则所有玩家在其召出阶段开始时只能召出一枚符文。",
+      "scope": "如果我位于战场上，则所有玩家在其召出阶段开始时只能召出一枚符文。",
+      "status": "route",
+      "reason": "公开在场来源只有位于真实战场时全局限制双方正常召出阶段最多1枚，来源在基地不限制；独立法术或技能召出指示不属于该阶段上限",
+      "rules": "核心召出阶段、364–365 禁止性持续规则；VEN·036 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStaticLimits": {
+              "battlefieldStageRuneCallLimit": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
+          "contains": [
+            "StageRuneCallLimit(",
+            "spec.BattlefieldStageRuneCallLimit"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenStaticLimitUnitTests.cs",
+          "methods": [
+            "ChimeraLimitsBothPlayersNormalChannelOnlyWhileAtABattlefield",
+            "ChimerasStageLimitIncludesExtraRunesButDoesNotLimitASpellsCallInstruction"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·037"
+      ],
+      "text": "当你打出我时，如果你控制的符文不少于七枚，则选择一件敌方装备。",
+      "scope": "当你打出我时，如果你控制的符文不少于七枚，则选择一件敌方装备。",
+      "status": "route",
+      "reason": "打出时捕获至少7枚己方符文条件，单位入场后独立选择敌方装备与响应；结算时读目标当前强化，已强化则解除，否则摧毁，不把解除当作摧毁",
+      "rules": "核心383.4.a.2／383.3、442 强化、429 摧毁；VEN·037 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "PLAY",
+              "effect": "DISENCHANT_OR_DESTROY_EQUIPMENT",
+              "minimumRunes": 7
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "DISENCHANT_OR_DESTROY_EQUIPMENT"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "BarbaraChecksSevenRunesAtPlayAndEitherDisenchantsOrDestroysEnemyEquipment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·037"
+      ],
+      "text": "如果该装备{{已强化}}，则解除其强化。",
+      "scope": "当你打出我时，如果你控制的符文不少于七枚，则选择一件敌方装备。",
+      "status": "route",
+      "reason": "打出时捕获至少7枚己方符文条件，单位入场后独立选择敌方装备与响应；结算时读目标当前强化，已强化则解除，否则摧毁，不把解除当作摧毁",
+      "rules": "核心383.4.a.2／383.3、442 强化、429 摧毁；VEN·037 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "PLAY",
+              "effect": "DISENCHANT_OR_DESTROY_EQUIPMENT",
+              "minimumRunes": 7
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "DISENCHANT_OR_DESTROY_EQUIPMENT"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "BarbaraChecksSevenRunesAtPlayAndEitherDisenchantsOrDestroysEnemyEquipment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·037"
+      ],
+      "text": "否则将其摧毁。",
+      "scope": "当你打出我时，如果你控制的符文不少于七枚，则选择一件敌方装备。",
+      "status": "route",
+      "reason": "打出时捕获至少7枚己方符文条件，单位入场后独立选择敌方装备与响应；结算时读目标当前强化，已强化则解除，否则摧毁，不把解除当作摧毁",
+      "rules": "核心383.4.a.2／383.3、442 强化、429 摧毁；VEN·037 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "PLAY",
+              "effect": "DISENCHANT_OR_DESTROY_EQUIPMENT",
+              "minimumRunes": 7
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "DISENCHANT_OR_DESTROY_EQUIPMENT"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "BarbaraChecksSevenRunesAtPlayAndEitherDisenchantsOrDestroysEnemyEquipment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·039"
+      ],
+      "text": "如果对手在本回合内打出过其他法术，则无效化一个法术。",
+      "scope": "如果对手在本回合内打出过其他法术，则无效化一个法术。",
+      "status": "route",
+      "reason": "法术可打出，但只有对手本回合确认过除当前所选对象之外的另一法术时才无效化目标；同一链上后确认和随后被反制的其他法术也计入，未满足则不反制",
+      "rules": "核心355／359 打出确认、426 无效化；VEN·039 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "counterRequiresOpponentOtherSpellThisTurn": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.CounterRequiresOpponentOtherSpellThisTurn"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCombatAndHandSpellTests.cs",
+          "methods": [
+            "SandsCanBePlayedButOnlyCountersIfAnOpponentConfirmedAnotherSpell",
+            "SandsCountsAnEarlierCounteredSpellAndDoesNotRequireItToResolve",
+            "SandsCanCounterTheFirstSpellAfterTheLaterConfirmedSpellWasCountered"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·040"
+      ],
+      "text": "选择一名正在与具有炽烈（{{红色}}）特性的敌方单位进行战斗、或被敌方具有炽烈特性的法术选为目标的友方单位。",
+      "scope": "选择一名正在与具有炽烈（{{红色}}）特性的敌方单位进行战斗、或被敌方具有炽烈特性的法术选为目标的友方单位。",
+      "status": "route",
+      "reason": "目标须为友方公开单位，且当前与红色敌方单位战斗或被红色敌方法术选中；在确认及结算均复查实际威胁，威胁被反制则失去合法性",
+      "rules": "核心355.6、466.2 战斗角色；VEN·040 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "targetRequiresEnemyTraitThreat": "red"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+          "contains": [
+            "TemporaryUnitEffectRules.ThreatAllowsTarget("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TemporaryUnitEffectRules.cs",
+          "contains": [
+            "behavior.TargetRequiresEnemyTraitThreat"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenTemporaryEffectSpellTests.cs",
+          "methods": [
+            "FocusMantraRespondsToARedEnemySpellAndRechecksThatThreatAtResolution",
+            "FocusMantraAllowsCombatAgainstARedEnemyAndRejectsOtherTraits",
+            "CounteringTheThreatBeforeFocusResolvesRemovesItsTargetEligibility"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·044"
+      ],
+      "text": "当你打出每回合你的首张卡牌时，如果我位于战场上，则你在本回合内打出的下一张卡牌的费用减少{{2}}和{{A}}{{A}}。",
+      "scope": "当你打出每回合你的首张卡牌时，如果我位于战场上，则你在本回合内打出的下一张卡牌的费用减少{{2}}和{{A}}{{A}}。",
+      "status": "route",
+      "reason": "共享历史在首张牌完成打出时观察战场来源，来源自己作为首张牌进入战场也可捕获；确认未完成或被无效化法术不触发。独立技能响应后授予下张卡牌减2法力及2通用符能，所有卡牌类型可消耗一次",
+      "rules": "核心383.4.a.2、356.4 减费；中国区化神争锋勘误260724第4页星界灵鹭（限制本回合下一张）",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "FIRST_CARD_PLAYED",
+          "effect": "NEXT_CARD_COST_REDUCTION"
+        },
+        "behaviors": [
+          {
+            "sourceNextSpellCostReductionMana": 2,
+            "sourceNextSpellCostReductionAppliesToAllCards": true,
+            "sourceNextSpellCostReductionGenericPower": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+          "contains": [
+            "CaptureFirstCardObservers("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"NEXT_CARD_COST_REDUCTION\""
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCardObserverTests.cs",
+          "methods": [
+            "HeronDiscountsTheNextCardOfEveryTypeAfterItsSkillResolvesAndConsumesTheWholeDiscount",
+            "HeronChecksItsBattlefieldAtPlayCompletionAndAnEarnedDiscountExpiresAtTurnEnd",
+            "FirstCardCompletionQueuesItsObserverOnceAndConfirmationDoesNotQueueIt",
+            "PlayingTheHeronItselfAsTheFirstCardToABattlefieldCapturesItsNewFieldIncarnation"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·045"
+      ],
+      "text": "对手的法术费用增加{{1}}。",
+      "scope": "对手的法术费用增加{{1}}。",
+      "status": "route",
+      "reason": "每个敌方公开在场来源使法术总费用加1法力，来源已强化再加1通用符能；当前控制者优先于所属者，单位／装备不增费，总减费在增费后应用",
+      "rules": "核心356.3–356.4 增减费、442；VEN·045 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "opponentSpellCostIncrease": {
+              "mana": 1,
+              "genericPowerIfEmpowered": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "contains": [
+            "OpponentSpellCostIncreases(",
+            "source.IsEmpowered ? tax.GenericPowerIfEmpowered"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenOpponentSpellCostTests.cs",
+          "methods": [
+            "EachEnemyHelmIncreasesTheSameQuotePromptAndCommittedSpellCost",
+            "OnlyEnemyPublicFieldSourcesIncreaseTheCost",
+            "EnemyHelmsDoNotIncreaseUnitsOrEquipment",
+            "TotalReductionsApplyAfterTheHelmsManaAndGenericPowerIncreases"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·045"
+      ],
+      "text": "如果此牌{{已强化}}，则改为对手的法术费用增加{{1}}和{{A}}。",
+      "scope": "如果此牌{{已强化}}，则改为对手的法术费用增加{{1}}和{{A}}。",
+      "status": "route",
+      "reason": "每个敌方公开在场来源使法术总费用加1法力，来源已强化再加1通用符能；当前控制者优先于所属者，单位／装备不增费，总减费在增费后应用",
+      "rules": "核心356.3–356.4 增减费、442；VEN·045 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "opponentSpellCostIncrease": {
+              "mana": 1,
+              "genericPowerIfEmpowered": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "contains": [
+            "OpponentSpellCostIncreases(",
+            "source.IsEmpowered ? tax.GenericPowerIfEmpowered"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenOpponentSpellCostTests.cs",
+          "methods": [
+            "EachEnemyHelmIncreasesTheSameQuotePromptAndCommittedSpellCost",
+            "OnlyEnemyPublicFieldSourcesIncreaseTheCost",
+            "EnemyHelmsDoNotIncreaseUnitsOrEquipment",
+            "TotalReductionsApplyAfterTheHelmsManaAndGenericPowerIncreases"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·047"
+      ],
+      "text": "当我变为{{已强化}}时，进行{{洞察2}}。（查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+      "scope": "当我变为{{已强化}}时，进行{{洞察2}}。（查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+      "status": "route",
+      "reason": "真正成为已强化时捕获每个当前文本实例的独立洞察2，响应后私下选择任意回收子集与保留牌顺序；已强化状态不重复触发，来源离场不抹除已经捕获的洞察",
+      "rules": "核心442 强化、383.2／383.3、817 洞察；VEN·047 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+          "contains": [
+            "\"VEN·047\"",
+            "\"EMPOWERED\""
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EmpoweredInsightTests.cs",
+          "methods": [
+            "RealEmpowerResolutionTriggersPrivateInsightTwoAndRetainedTopOrder",
+            "EachCurrentPrintedTextInstanceCapturesItsOwnEmpoweredInsightAndCurrentDeck",
+            "ActualReactionSourceDepartureDistinguishesAnUnresolvedActivationFromAlreadyCapturedInsight"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·052"
+      ],
+      "text": "选择一个效果 —",
+      "scope": "选择一个效果 —",
+      "status": "route",
+      "reason": "打出确认时选择返还友方单位或敌方单位-2中的一个模式，使用所选模式自己的目标与合法性；不能拼接两个效果或凭旧提示改变模式",
+      "rules": "核心355.3 模式与355.6 目标；VEN·052 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mode": "RETURN_FRIENDLY"
+          },
+          {
+            "mode": "REDUCE_ENEMY"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CardBehaviorRegistry.TryGetByCardNoAndMode("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalRemovalSpellTests.cs",
+          "methods": [
+            "MindTwistPaysItsPrintedCostAndResolvesOnlyTheSelectedMode"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·053"
+      ],
+      "text": "如果一名玩家将在其第一或第二个回合期间通过征服或据守获得1分，则改为该玩家抽一张牌。",
+      "scope": "如果一名玩家将在其第一或第二个回合期间通过征服或据守获得1分，则改为该玩家抽一张牌。",
+      "status": "route",
+      "reason": "共享得分替换按当前得分玩家自己的前两回合计数，只替换征服／据守的1分为正常抽1张，双方据守也适用，抽空牌库执行燃尽",
+      "rules": "核心370–373、469–475 得分、432 燃尽；VEN·053 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStaticLimits": {
+              "battlefieldScoreDrawThroughPlayerTurn": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StaticLimits.cs",
+          "contains": [
+            "EarlyBattlefieldScoreBecomesDraw(",
+            "PlayerTurnOrdinal(state, player) <= spec.BattlefieldScoreDrawThroughPlayerTurn"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenStaticLimitUnitTests.cs",
+          "methods": [
+            "OtterpusReplacesConquestForTheScoringPlayersFirstTwoTurns",
+            "OtterpusAlsoReplacesAnOpponentsHoldAndTheDrawCompletesBurnoutBeforeTheNormalDraw"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·061"
+      ],
+      "text": "支付此法术的费用时，无视{{法盾}}。",
+      "scope": "支付此法术的费用时，无视{{法盾}}。",
+      "status": "route",
+      "reason": "只对本法术付款忽略目标法盾，报价与付款保持0法盾附加费；目标特性与其他打出费用仍需满足，不会移除单位自身的法盾",
+      "rules": "核心809 法盾、356–357；VEN·061 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "ignoresSpellshield": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.IgnoresSpellshield"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenInvocationSpellTests.cs",
+          "methods": [
+            "InsightOffersQuotesAndPaysItsWardTargetWithNoPowerInTheWallet"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·062"
+      ],
+      "text": "{{横置}}：强化另一件装备。（如果其未被强化，则变为已强化状态。）",
+      "scope": "{{横置}}：强化另一件装备。（如果其未被强化，则变为已强化状态。）",
+      "status": "route",
+      "reason": "横置装备费用确认后选择另一件公开装备，双方响应后强化同代际目标；可选已经强化的装备但不重复成为已强化，不能选择来源自身",
+      "rules": "核心399–407、442；VEN·062 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "HEXTECH_EQUATION_EMPOWER_EQUIPMENT",
+            "exhaustsSourceAsCost": true,
+            "simpleEffect": {
+              "empowersOtherEquipment": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId",
+            "if (spec.EmpowersOtherEquipment)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenActivatedEquipmentTests.cs",
+          "methods": [
+            "EquationCanEmpowerAnotherEquipmentIncludingOneAlreadyEmpowered",
+            "ASpentTargetTokenDoesNotInvalidateThePendingEquationSkillOrRecoverAsANewTarget"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·064"
+      ],
+      "text": "你每控制一件装备，我的费用便减少{{1}}。",
+      "scope": "你每控制一件装备，我的费用便减少{{1}}。",
+      "status": "route",
+      "reason": "共享出牌费用按当前受控公开在场装备逐件减1法力，包含合法装备单位，隐藏／离场及敌方装备不计，最低0且不减符能",
+      "rules": "核心356.4、188–192 控制；VEN·064 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "costReductionConditionKind": "CONTROLLED_FIELD_EQUIPMENT_COUNT",
+            "costReductionMana": 1
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.ControlledFieldEquipmentCount",
+            "CountControlledPublicFieldEquipmentObjects("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenConditionalPlayCostTests.cs",
+          "methods": [
+            "CountedEquipmentAndSameNameGravesQuoteAndPayTheCurrentCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·066"
+      ],
+      "text": "放逐一名单位，然后让其拥有者将其打出到同一位置，无视其费用。",
+      "scope": "放逐一名单位，然后让其拥有者将其打出到同一位置，无视其费用。",
+      "status": "route",
+      "reason": "先放逐公开在场单位，再由其所有者实际重打到捕获的同一精确位置；只免基础法力与符能，额外费用照付，重打按印刷特征形成新物体并正常触发入场",
+      "rules": "核心359.3.e.4、355.2、356.1.b；VEN·066 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectPlaySourceZone": "BANISHED",
+            "effectPlayIgnoreBaseMana": true,
+            "effectPlayIgnoreBasePower": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "ORIGINAL_LOCATION"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandPlay.cs",
+          "contains": [
+            "same.PlayerId == playerId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenTimeFissureTests.cs",
+          "methods": [
+            "OwnerReplaysTheNewObjectToExactlyItsResolutionLocationWithBaseCostsWaived"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·067"
+      ],
+      "text": "在你的主阶段开始时，你可以选择摧毁另外三个友方单位或装备，以此获得1分。",
+      "scope": "在你的主阶段开始时，你可以选择摧毁另外三个友方单位或装备，以此获得1分。",
+      "status": "route",
+      "reason": "自己的主阶段开始捕获可选技能，支付摧毁另外三个公开受控单位／装备的费用后才响应并获得1分；替换摧毁仍视为支付，来源自己不能充费用",
+      "rules": "核心203／204 费用、383.3.b、469 得分；VEN·067 官方中文牌面",
+      "runtime": {
+        "unitEventAbility": {
+          "timing": "MAIN",
+          "effect": "SCORE",
+          "amount": 1,
+          "leadingDestroyOtherFriendlyPermanents": 3
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "LeadingDestroyOtherFriendlyPermanents"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenSacrificeEquipmentTests.cs",
+          "methods": [
+            "MainPhaseSacrificePaysThreeOtherPermanentsBeforeResponsesAndCanScoreTheWinningPoint",
+            "TriggerCanBeDeclinedAndCannotPayWithFewerThanThreeOtherFriendlyPermanents",
+            "AReplacementForTheDestructionStillPaysTheCost"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·072"
+      ],
+      "text": "如果该单位{{已强化}}，则改为给予其在本回合内{{S}}+4。",
+      "scope": "如果该单位{{已强化}}，则改为给予其在本回合内{{S}}+4。",
+      "status": "route",
+      "reason": "结算时读取目标当前强化状态，以4替代默认+2战力，不叠加为+6；费用支付后改变强化会相应改变结算增量",
+      "rules": "核心442 强化、479 当前修正、407；VEN·072 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "powerModifierAmount": 2,
+            "powerModifierAmountIfTargetEmpowered": 4
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.PowerModifierAmountIfTargetEmpowered is { } empoweredAmount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven072ConditionalMightConsumerTests.cs",
+          "methods": [
+            "ARealHowlUsesTwoOrFourMightFromTheActualEmpoweredTarget"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·073"
+      ],
+      "text": "装配{{橙色}}（支付{{橙色}}：将此牌贴附到你控制的一名单位上。）",
+      "scope": "装配{{橙色}}（支付{{橙色}}：将此牌贴附到你控制的一名单位上。）",
+      "status": "route",
+      "reason": "共享装配目录解析印刷的1橙色符能费用，付款后选择己方单位并独立入链，响应后贴附，不能用其他颜色替代橙色",
+      "rules": "核心356–357、818 装配、435／718 贴附；VEN·073 官方中文牌面",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "AssembleEquipmentAnyPowerCost(",
+            "AssembleEquipmentManaCost("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenPlainArmamentTests.cs",
+          "methods": [
+            "PaidPlayAndAssemblyUseThePrintedColorAndOnlyGrantMightAfterResponses",
+            "IllegalPaymentAndTargetsNeverChangeState"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·075"
+      ],
+      "text": "{{反应>}} {{横置}}：{{获得}}{{1}}。",
+      "scope": "{{反应>}} {{横置}}：{{获得}}{{1}}。",
+      "status": "route",
+      "reason": "反应资源技能在资源支付窗口或普通可响应时确认横置，立即获得1法力，当前来源已强化则以2替代；不传递焦点或优先权，不开放普通结算链响应",
+      "rules": "核心430.2–430.3 资源例外、813 反应、442；VEN·075 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "EGG_REACTION_GAIN_MANA",
+            "isResourceSkill": true,
+            "reactionSpeed": true,
+            "generatedMana": 1,
+            "generatedManaIfSourceEmpowered": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "source?.IsEmpowered == true ? ability.GeneratedManaIfSourceEmpowered ?? ability.GeneratedMana"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenActivatedEquipmentTests.cs",
+          "methods": [
+            "AnEggIsAReactionResourceActionAndUsesItsCurrentEmpowerment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·075"
+      ],
+      "text": "如果此牌{{已强化}}，则改为{{获得}}{{2}}。",
+      "scope": "{{反应>}} {{横置}}：{{获得}}{{1}}。",
+      "status": "route",
+      "reason": "反应资源技能在资源支付窗口或普通可响应时确认横置，立即获得1法力，当前来源已强化则以2替代；不传递焦点或优先权，不开放普通结算链响应",
+      "rules": "核心430.2–430.3 资源例外、813 反应、442；VEN·075 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "EGG_REACTION_GAIN_MANA",
+            "isResourceSkill": true,
+            "reactionSpeed": true,
+            "generatedMana": 1,
+            "generatedManaIfSourceEmpowered": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "source?.IsEmpowered == true ? ability.GeneratedManaIfSourceEmpowered ?? ability.GeneratedMana"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenActivatedEquipmentTests.cs",
+          "methods": [
+            "AnEggIsAReactionResourceActionAndUsesItsCurrentEmpowerment"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·077"
+      ],
+      "text": "如果此牌{{已强化}}，则改为给予该单位在本回合内{{S}}+4。",
+      "scope": "{{横置}}：给予一名单位在本回合内{{S}}+2。",
+      "status": "route",
+      "reason": "共享指目标战力技能在结算时读来源当前强化，来源离场则读捕获的最后强化状态，以4替代2；目标同代际授予本回合增量并于回合结束撤销",
+      "rules": "核心359 最后已知信息、442、383.3；VEN·077 官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "IMPERIAL_TOOL_POWER",
+            "powerModifierAmount": 2,
+            "powerModifierAmountIfSourceEmpowered": 4
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetedPowerAbility.cs",
+          "contains": [
+            "ability.PowerModifierAmountIfSourceEmpowered is { } upgraded && empowered == true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenActivatedEquipmentTests.cs",
+          "methods": [
+            "ImperialToolReadsCurrentOrLastKnownEmpowermentAndItsBonusExpires",
+            "ImperialToolTracksAnEmpowermentChangeBeforeItsResolution"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·082"
+      ],
+      "text": "当你打出我时，你可以选择解除一个受你控制的物体的强化，以此强化一个传奇、单位、或装备。",
+      "scope": "当你打出我时，你可以选择解除一个受你控制的物体的强化，以此强化一个传奇、单位、或装备。",
+      "status": "route",
+      "reason": "独立入场技能可拒绝，或以解除自己控制的真实强化作为费用，之后选择传奇／单位／装备并响应后强化；可付传奇的强化但不能付敌方状态",
+      "rules": "核心383.3.b／383.4.a.2、442；VEN·082 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "empowerInteraction": {
+              "timing": "PLAY",
+              "effect": "TRANSFER_EMPOWER"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpowerInteractions.cs",
+          "contains": [
+            "TRANSFER_EMPOWER"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenEmpowerInteractionTests.cs",
+          "methods": [
+            "MerchantPaysControlledEmpowerRemovalBeforeResponsesAndCanEmpowerEitherSide",
+            "MerchantCanPayByRemovingEmpowerFromItsControllersLegend",
+            "MerchantCanDeclineWithoutRemovingEmpowerAndCannotPayWithAnOpponentsStatus"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·083"
+      ],
+      "text": "打出此牌时，你可以选择支付{{橙色}}作为额外费用。",
+      "scope": "打出此牌时，你可以选择支付{{橙色}}作为额外费用。",
+      "status": "route",
+      "reason": "确认选择一友方与一敌方公开单位，可额外支付1橙色符能；支付凭据保留，结算先给友方本回合+2再以当前战力互相造成伤害，未付则无增量",
+      "rules": "核心204.2、356–357、479 当前战力；VEN·083 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "dealsMutualTargetPowerDamage": true,
+            "optionalPowerModifier": {
+              "powerCost": 1,
+              "trait": "orange",
+              "amount": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.OptionalPowerModifier"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCombatAndHandSpellTests.cs",
+          "methods": [
+            "RampagePaysItsChosenCostAndUsesCurrentMightForBothDamageSources",
+            "RampageRequiresOneFriendlyAndOneEnemyUnit",
+            "RampageCannotSpendAnotherTraitInPlaceOfItsOptionalOrangePower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·083"
+      ],
+      "text": "选择一名友方单位和一名敌方单位。",
+      "scope": "选择一名友方单位和一名敌方单位。",
+      "status": "route",
+      "reason": "确认选择一友方与一敌方公开单位，可额外支付1橙色符能；支付凭据保留，结算先给友方本回合+2再以当前战力互相造成伤害，未付则无增量",
+      "rules": "核心204.2、356–357、479 当前战力；VEN·083 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "dealsMutualTargetPowerDamage": true,
+            "optionalPowerModifier": {
+              "powerCost": 1,
+              "trait": "orange",
+              "amount": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.OptionalPowerModifier"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCombatAndHandSpellTests.cs",
+          "methods": [
+            "RampagePaysItsChosenCostAndUsesCurrentMightForBothDamageSources",
+            "RampageRequiresOneFriendlyAndOneEnemyUnit",
+            "RampageCannotSpendAnotherTraitInPlaceOfItsOptionalOrangePower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·083"
+      ],
+      "text": "如果你支付了该额外费用，则给予该友方单位在本回合内{{S}}+2。",
+      "scope": "如果你支付了该额外费用，则给予该友方单位在本回合内{{S}}+2。",
+      "status": "route",
+      "reason": "确认选择一友方与一敌方公开单位，可额外支付1橙色符能；支付凭据保留，结算先给友方本回合+2再以当前战力互相造成伤害，未付则无增量",
+      "rules": "核心204.2、356–357、479 当前战力；VEN·083 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "dealsMutualTargetPowerDamage": true,
+            "optionalPowerModifier": {
+              "powerCost": 1,
+              "trait": "orange",
+              "amount": 2
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.OptionalPowerModifier"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCombatAndHandSpellTests.cs",
+          "methods": [
+            "RampagePaysItsChosenCostAndUsesCurrentMightForBothDamageSources",
+            "RampageRequiresOneFriendlyAndOneEnemyUnit",
+            "RampageCannotSpendAnotherTraitInPlaceOfItsOptionalOrangePower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·085"
+      ],
+      "text": "选择一名对手。",
+      "scope": "选择一名对手。",
+      "status": "route",
+      "reason": "当前双人房间的唯一对手在法术响应后展示全部当前手牌，施法者只可选蓝色特性卡牌，由对手回收；无蓝色时仍展示但不伪造选择，窗口后重新隐藏",
+      "rules": "核心355.18 结算中选择、417 回收、隐藏信息；VEN·085 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "handChoice": {
+              "requiredTag": "COLOR:blue"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs",
+          "contains": [
+            "RequiredTag",
+            "RevealedHand"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCombatAndHandSpellTests.cs",
+          "methods": [
+            "InvocationRevealsTheWholeHandButCanRecycleOnlyABlueCardIncludingAUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·085"
+      ],
+      "text": "让其展示手牌，你从中选择一张具有灵光（{{蓝色}}）特性的卡牌。",
+      "scope": "让其展示手牌，你从中选择一张具有灵光（{{蓝色}}）特性的卡牌。",
+      "status": "route",
+      "reason": "当前双人房间的唯一对手在法术响应后展示全部当前手牌，施法者只可选蓝色特性卡牌，由对手回收；无蓝色时仍展示但不伪造选择，窗口后重新隐藏",
+      "rules": "核心355.18 结算中选择、417 回收、隐藏信息；VEN·085 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "handChoice": {
+              "requiredTag": "COLOR:blue"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs",
+          "contains": [
+            "RequiredTag",
+            "RevealedHand"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCombatAndHandSpellTests.cs",
+          "methods": [
+            "InvocationRevealsTheWholeHandButCanRecycleOnlyABlueCardIncludingAUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·085"
+      ],
+      "text": "让其将该卡牌回收。",
+      "scope": "让其将该卡牌回收。",
+      "status": "route",
+      "reason": "当前双人房间的唯一对手在法术响应后展示全部当前手牌，施法者只可选蓝色特性卡牌，由对手回收；无蓝色时仍展示但不伪造选择，窗口后重新隐藏",
+      "rules": "核心355.18 结算中选择、417 回收、隐藏信息；VEN·085 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "handChoice": {
+              "requiredTag": "COLOR:blue"
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs",
+          "contains": [
+            "RequiredTag",
+            "RevealedHand"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VenCombatAndHandSpellTests.cs",
+          "methods": [
+            "InvocationRevealsTheWholeHandButCanRecycleOnlyABlueCardIncludingAUnit"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·089"
+      ],
+      "text": "查看你主牌堆顶部的五张牌。",
+      "scope": "查看你主牌堆顶部的五张牌。",
+      "status": "route",
+      "reason": "响应后私下查看顶部5张，可选择一单位或装备先放逐再按正常费用减5法力实际打出，额外费用保留；未选牌回收，然后独立可选内嵌强化绑定同一打出物体代际",
+      "rules": "核心432.1.c 查看、417 回收、356.4、388–389 内嵌触发、442；VEN·089 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 5,
+            "deckPlayKind": "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY",
+            "effectPlayManaReduction": 5,
+            "effectPlayOptional": true,
+            "deckPlayOptionalReflexiveEmpower": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlayReflexive.cs",
+          "contains": [
+            "DeckPlayReflexive"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WildClawReflexiveBoundaryTests.cs",
+          "methods": [
+            "FiveManaReductionDoesNotWaiveTheSelectedUnitsRealMandatoryEquipmentReturnCost",
+            "ActualRecallOrBanishReentryCannotMakeTheOldAbilityEmpowerANewObject",
+            "NonTargetedEmpowerDoesNotAskForWardOrAdditionalResources"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven089PhysicalPaidPeekConsumerTests.cs",
+          "methods": [
+            "SevenActualManaAndOrangePowerPrivatelySelectThenPlayBeforeOptionalIndependentEmpower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·089"
+      ],
+      "text": "你可以选择从中放逐一个单位或装备，将其法力费用减少{{5}}后打出。",
+      "scope": "你可以选择从中放逐一个单位或装备，将其法力费用减少{{5}}后打出。",
+      "status": "route",
+      "reason": "响应后私下查看顶部5张，可选择一单位或装备先放逐再按正常费用减5法力实际打出，额外费用保留；未选牌回收，然后独立可选内嵌强化绑定同一打出物体代际",
+      "rules": "核心432.1.c 查看、417 回收、356.4、388–389 内嵌触发、442；VEN·089 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 5,
+            "deckPlayKind": "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY",
+            "effectPlayManaReduction": 5,
+            "effectPlayOptional": true,
+            "deckPlayOptionalReflexiveEmpower": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlayReflexive.cs",
+          "contains": [
+            "DeckPlayReflexive"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WildClawReflexiveBoundaryTests.cs",
+          "methods": [
+            "FiveManaReductionDoesNotWaiveTheSelectedUnitsRealMandatoryEquipmentReturnCost",
+            "ActualRecallOrBanishReentryCannotMakeTheOldAbilityEmpowerANewObject",
+            "NonTargetedEmpowerDoesNotAskForWardOrAdditionalResources"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven089PhysicalPaidPeekConsumerTests.cs",
+          "methods": [
+            "SevenActualManaAndOrangePowerPrivatelySelectThenPlayBeforeOptionalIndependentEmpower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·089"
+      ],
+      "text": "回收其余的卡牌。",
+      "scope": "回收其余的卡牌。",
+      "status": "route",
+      "reason": "响应后私下查看顶部5张，可选择一单位或装备先放逐再按正常费用减5法力实际打出，额外费用保留；未选牌回收，然后独立可选内嵌强化绑定同一打出物体代际",
+      "rules": "核心432.1.c 查看、417 回收、356.4、388–389 内嵌触发、442；VEN·089 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 5,
+            "deckPlayKind": "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY",
+            "effectPlayManaReduction": 5,
+            "effectPlayOptional": true,
+            "deckPlayOptionalReflexiveEmpower": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlayReflexive.cs",
+          "contains": [
+            "DeckPlayReflexive"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WildClawReflexiveBoundaryTests.cs",
+          "methods": [
+            "FiveManaReductionDoesNotWaiveTheSelectedUnitsRealMandatoryEquipmentReturnCost",
+            "ActualRecallOrBanishReentryCannotMakeTheOldAbilityEmpowerANewObject",
+            "NonTargetedEmpowerDoesNotAskForWardOrAdditionalResources"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven089PhysicalPaidPeekConsumerTests.cs",
+          "methods": [
+            "SevenActualManaAndOrangePowerPrivatelySelectThenPlayBeforeOptionalIndependentEmpower"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·089"
+      ],
+      "text": "然后你可以选择进行一次：强化该牌。（如果其未被强化，则变为已强化状态。）",
+      "scope": "然后你可以选择进行一次：强化该牌。（如果其未被强化，则变为已强化状态。）",
+      "status": "route",
+      "reason": "响应后私下查看顶部5张，可选择一单位或装备先放逐再按正常费用减5法力实际打出，额外费用保留；未选牌回收，然后独立可选内嵌强化绑定同一打出物体代际",
+      "rules": "核心432.1.c 查看、417 回收、356.4、388–389 内嵌触发、442；VEN·089 官方中文牌面",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 5,
+            "deckPlayKind": "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY",
+            "effectPlayManaReduction": 5,
+            "effectPlayOptional": true,
+            "deckPlayOptionalReflexiveEmpower": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlayReflexive.cs",
+          "contains": [
+            "DeckPlayReflexive"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/WildClawReflexiveBoundaryTests.cs",
+          "methods": [
+            "FiveManaReductionDoesNotWaiveTheSelectedUnitsRealMandatoryEquipmentReturnCost",
+            "ActualRecallOrBanishReentryCannotMakeTheOldAbilityEmpowerANewObject",
+            "NonTargetedEmpowerDoesNotAskForWardOrAdditionalResources"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Ven089PhysicalPaidPeekConsumerTests.cs",
+          "methods": [
+            "SevenActualManaAndOrangePowerPrivatelySelectThenPlayBeforeOptionalIndependentEmpower"
+          ]
+        }
+      ]
+    }
+  ]
+}

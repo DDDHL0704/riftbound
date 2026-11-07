@@ -1,0 +1,1287 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·020/221",
+        "SFD·020a/221"
+      ],
+      "text": "当我赢得战斗时，打出一个休眠的“金币”装备指示物。",
+      "scope": "当我赢得战斗时，打出一个休眠的“金币”装备指示物。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少战斗获胜打金币及进攻／防守支付红色符能后本回合+2的触发规格和结算",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_020_DRAVEN_VANILLA_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心383.2–383.3；该卡官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·020/221",
+        "SFD·020a/221"
+      ],
+      "text": "当我进攻或防守时，你可以选择支付{{红色}}，以此让我在本回合内{{S}}+2。",
+      "scope": "当我进攻或防守时，你可以选择支付{{红色}}，以此让我在本回合内{{S}}+2。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少战斗获胜打金币及进攻／防守支付红色符能后本回合+2的触发规格和结算",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_020_DRAVEN_VANILLA_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心383.2–383.3；该卡官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·024/221"
+      ],
+      "text": "当我进攻时，你可以选择打出一件法力费用不高于{{2}}的武装，无视其费用，然后将其贴附到我身上。",
+      "scope": "当我进攻时，你可以选择打出一件法力费用不高于{{2}}的武装，无视其费用，然后将其贴附到我身上。",
+      "status": "missing",
+      "reason": "只有壁垒单位登记；缺少进攻时可选打出法力不高于2的武装并无视基础费用的触发；按中国区铸魂淬炼勘误260114第6页，随后贴附到来源还须另一个独立内嵌式触发，两部分均未接入",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"RELL_PLAY_KEYWORD_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "中国区铸魂淬炼勘误260114第6页芮尔新文本；核心383.2–383.3、388–389、356.1.b、435／718–719"
+    },
+    {
+      "cardNos": [
+        "SFD·025/221",
+        "SFD·025a/221·P"
+      ],
+      "text": "我可以被打出到你正在进攻的战场。",
+      "scope": "我可以被打出到你正在进攻的战场。",
+      "status": "route",
+      "reason": "共享出牌目的地校验只允许来源两印次进入当前玩家具有进攻方身份的精确战场；与反应速度权限独立",
+      "runtime": {
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "canPlayDuringPriority": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RengarAttackingPermission.cs",
+          "contains": [
+            "behavior.CardNo is not (\"SFD·025/221\" or \"SFD·025a/221·P\")",
+            "battle.BattlefieldId == field && battle.InitialAttackingPlayerId == player"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "RengarAttackingBattlefieldPlayAllowed("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RengarAttackingBattlefieldPermissionTests.cs",
+          "methods": [
+            "PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField"
+          ]
+        }
+      ],
+      "rules": "核心143 单位打出位置、466.2 战斗角色；SFD·025／025a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·028/221",
+        "SFD·028a/221"
+      ],
+      "text": "当我进攻时，对此处的一名敌方单位造成等同于我{{强攻}}数值的伤害。",
+      "scope": "当我进攻时，对此处的一名敌方单位造成等同于我{{强攻}}数值的伤害。",
+      "status": "missing",
+      "reason": "只有强攻关键词登记；缺少进攻时以来源当前强攻数值为伤害量、选择此处敌方单位的触发",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_LUCIAN_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心383.2–383.3；该卡官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·029/221",
+        "SFD·029a/221"
+      ],
+      "text": "从手牌以外位置被打出的友方单位获得{{急速}}。",
+      "scope": "从手牌以外位置被打出的友方单位获得{{急速}}。",
+      "status": "route",
+      "reason": "出牌报价与付款前检查场上受控来源及手牌外来源区域，授予共享急速费用，已经支付的入场替换不因来源离场丢失",
+      "runtime": {
+        "behaviors": [
+          {
+            "grantsHasteToFriendlyUnitsPlayedOutsideHand": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
+          "contains": [
+            "zones.Hand.Contains(source, StringComparer.Ordinal) || !HasOutsideHandHasteGrant(state, player)",
+            "HasteReadyManaCost = 1, HasteReadyPowerCost = 1",
+            "grant.GrantsHasteToFriendlyUnitsPlayedOutsideHand"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GrantedOriginHasteTests.cs",
+          "methods": [
+            "ARealDeckPlayOffersOptionalHasteAndPaysOnlyWhenSelected",
+            "HandPlayCannotBuyAnOutsideHandGrant",
+            "DestroyingTheGrantAsAMandatoryCostKeepsThePaidEntryReplacement"
+          ]
+        }
+      ],
+      "rules": "核心805 急速、356–357 付款；SFD·029／029a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·050/221",
+        "SFD·050a/221"
+      ],
+      "text": "如果该单位已配有武装，则你可以选择将其中一件武装贴附到我身上。",
+      "scope": "支付{{绿色}}：{{迅捷}} — 选择一个受你控制的单位，将我移动到它的位置，再将它移动到我原来的位置。",
+      "status": "route",
+      "reason": "交换技能先完成两次共享移动，再在结算中决定是否贴附此前绑定且仍合法的武装",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT",
+            "powerCostByTrait": {
+              "green": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AzirAttachmentChoice.cs",
+          "contains": [
+            "ResolveAzirAttachmentChoice(",
+            "AzirAttachmentWindow"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "AzirSwiftSwapUsedThisTurnEffectId(",
+            "state.UntilEndOfTurnEffects.Contains(oncePerTurnEffectId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirMovementNativeTests.cs",
+          "methods": [
+            "ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirSwiftSwapActivatedAbilityTests.cs",
+          "methods": [
+            "AzirOncePerTurnRejectsSecondActivationAndClearsAtTurnEnd"
+          ]
+        }
+      ],
+      "rules": "核心447–451 移动、403.2 确认选择、435／718 贴附；SFD·050／050a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·050/221",
+        "SFD·050a/221"
+      ],
+      "text": "每回合仅可使用一次。",
+      "scope": "支付{{绿色}}：{{迅捷}} — 选择一个受你控制的单位，将我移动到它的位置，再将它移动到我原来的位置。",
+      "status": "route",
+      "reason": "每个来源物体／文本实例的本回合使用标记在确认时记录，第二次激活原子拒绝，回合结束清除",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT",
+            "powerCostByTrait": {
+              "green": 1
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.AzirAttachmentChoice.cs",
+          "contains": [
+            "ResolveAzirAttachmentChoice(",
+            "AzirAttachmentWindow"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "AzirSwiftSwapUsedThisTurnEffectId(",
+            "state.UntilEndOfTurnEffects.Contains(oncePerTurnEffectId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirMovementNativeTests.cs",
+          "methods": [
+            "ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirSwiftSwapActivatedAbilityTests.cs",
+          "methods": [
+            "AzirOncePerTurnRejectsSecondActivationAndClearsAtTurnEnd"
+          ]
+        }
+      ],
+      "rules": "核心447–451 移动、403.2 确认选择、435／718 贴附；SFD·050／050a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·054/221",
+        "SFD·054a/221"
+      ],
+      "text": "你手牌中的每一件武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）",
+      "scope": "你手牌中的每一件武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）",
+      "status": "missing",
+      "reason": "按中国区铸魂淬炼勘误260114第5页，范围为各处武装；缺少为其授予灵便的持续规格，现有特定装备的迅捷授予不能替代反应权限及打出后贴附",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_JAX_PLAY_KEYWORD_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "中国区铸魂淬炼勘误260114第5页贾克斯新文本；核心364–365、819 灵便、435／718–719"
+    },
+    {
+      "cardNos": [
+        "SFD·058/221",
+        "SFD·058a/221"
+      ],
+      "text": "当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌。",
+      "scope": "当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌。",
+      "status": "route",
+      "reason": "打出技能与据守技能均在响应后使用同一个查看牌库消费者，精确查看顶部4张且不公开给对手",
+      "runtime": {
+        "behaviors": [
+          {
+            "mainDeckLookCount": 4,
+            "drawsSelectedMainDeckTarget": true,
+            "recyclesUnselectedMainDeckLookCards": true
+          }
+        ],
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "LOOK_EQUIPMENT"
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "context.Kind == \"LOOK_EQUIPMENT\"",
+            "BeginDeckChoice(state, item, deckBehavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeck.Take(behavior.MainDeckLookCount)",
+            "ObserveDeckCards(state,zones,cards,item,item.ControllerId,viewed,\"LOOK\""
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialOrnnHoldTests.cs",
+          "methods": [
+            "OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendDeckPlayTests.cs",
+          "methods": [
+            "UnitMayEnterControlledBattlefieldAndPlayAbilityWaitsForResponses"
+          ]
+        }
+      ],
+      "rules": "核心383.3.a.3（奥恩示例）、383.4.a／383.4.d；SFD·058／058a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·079/221",
+        "SFD·228/221",
+        "SFD·228*/221"
+      ],
+      "text": "你可以选择让你的传奇卡牌进入休眠状态，作为打出我的额外费用。",
+      "scope": "你可以选择让你的传奇卡牌进入休眠状态，作为打出我的额外费用。",
+      "status": "missing",
+      "reason": "仅基础单位登记；缺少可选横置传奇额外费用、该费用凭据及打出后任意己方单位向同一开放战场移动",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_BARD_NO_OPTIONAL_LEGEND_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心204.2、356–357、383.4.a.2、447 移动；巴德·幻神官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·079/221",
+        "SFD·228/221",
+        "SFD·228*/221"
+      ],
+      "text": "当你打出我时，如果你支付了该额外费用，则可以将你任意数量的单位移动到一处开放的战场。",
+      "scope": "当你打出我时，如果你支付了该额外费用，则可以将你任意数量的单位移动到一处开放的战场。",
+      "status": "missing",
+      "reason": "仅基础单位登记；缺少可选横置传奇额外费用、该费用凭据及打出后任意己方单位向同一开放战场移动",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_BARD_NO_OPTIONAL_LEGEND_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心204.2、356–357、383.4.a.2、447 移动；巴德·幻神官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·084/221",
+        "VEN·175"
+      ],
+      "text": "若如此做，则在本回合内，你可以选择从手牌中打出一件法力费用不高于{{7}}的装备，无视其法力费用（仍需支付所有符能费用）。",
+      "scope": "当你打出我时，你可以选择摧毁一件友方装备。",
+      "status": "route",
+      "reason": "真正摧毁所选装备后生成独立本回合一次权限；后续从手牌打出至多7法力装备只免基础法力，符能及额外费用照付",
+      "runtime": {
+        "behaviors": [
+          {
+            "destroyedEquipmentGrantsTurnPlayMaximumMana": 7
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "GrantEquipmentPlayAfterDestruction(state, stackItem, behavior, destroyedObjectIds, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/TurnEquipmentPlayRules.cs",
+          "contains": [
+            "g.MaximumManaCost >= behavior.ManaCost",
+            "zones.Hand.Contains(sourceId)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/JayceEquipmentPlayPermissionTests.cs",
+          "methods": [
+            "BothPrintingsDestroyOnResolutionThenGrantOneLaterSevenManaEquipmentPlay",
+            "GoldGrantsPermissionOnlyIfTheSkillActuallyDestroysIt",
+            "UnusedPermissionExpiresWhenTheTurnEnds"
+          ]
+        }
+      ],
+      "rules": "核心204.3、383.3.a.3、356–357；SFD·084／VEN·175 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·109/221"
+      ],
+      "text": "你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。",
+      "scope": "你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。",
+      "status": "missing",
+      "reason": "可选两橙符能费用与敌方装备目标绑定，必须预先提交装备ID；缺少独立声明费用并在入场后触发确认目标的流程",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStealEnemyEquipmentAdditionalPowerCost": 2,
+            "sourceStealEnemyEquipmentAdditionalPowerTrait": "orange"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryBuildSourceStealEnemyEquipmentOptionalCost(",
+            "TryParseSourceStealEnemyEquipmentOptionalCost(",
+            "\"AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心204.2／356–357 额外费用、383.4.a.2／403.2 打出后触发选择；SFD·109 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·109/221"
+      ],
+      "text": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
+      "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
+      "status": "missing",
+      "reason": "抢夺结算错误地要求来源仍在基地；合法将阿克尚打出到受控战场并支付费用时，直接跳过移动装备",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStealEnemyEquipmentAdditionalPowerCost": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private static bool TryResolveSourceStealEnemyEquipment(",
+            "!zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心143 单位打出位置、383.4.a.2；SFD·109 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·109/221"
+      ],
+      "text": "你控制这件装备，直到我离场为止。",
+      "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
+      "status": "route",
+      "reason": "已取得的装备控制权以来源离场为截止，来源移动仍维持，离场清理将装备送回所有者基地",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStealEnemyEquipmentAdditionalPowerCost": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "equipmentState.Tags.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal)",
+            "AddSourceStolenEquipmentMarker(",
+            "ReturnSourceStolenEquipmentForMissingSources("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
+          "methods": [
+            "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
+            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach",
+            "AkshanLeavingFieldReturnsStolenEquipmentToOwnerBase"
+          ]
+        }
+      ],
+      "rules": "核心435／718 贴附、359.3.e.16 延迟被动生成及来源离场持续时间；SFD·109 官方中文牌面；抢夺的付款和来源位置缺陷另句登记"
+    },
+    {
+      "cardNos": [
+        "SFD·109/221"
+      ],
+      "text": "如果它是一件武装，则将其贴附到我身上。",
+      "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
+      "status": "route",
+      "reason": "成功取得装备时只对武装执行共享贴附；普通装备保持未贴附",
+      "runtime": {
+        "behaviors": [
+          {
+            "sourceStealEnemyEquipmentAdditionalPowerCost": 2
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "equipmentState.Tags.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal)",
+            "AddSourceStolenEquipmentMarker(",
+            "ReturnSourceStolenEquipmentForMissingSources("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
+          "methods": [
+            "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
+            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach",
+            "AkshanLeavingFieldReturnsStolenEquipmentToOwnerBase"
+          ]
+        }
+      ],
+      "rules": "核心435／718 贴附、359.3.e.16 延迟被动生成及来源离场持续时间；SFD·109 官方中文牌面；抢夺的付款和来源位置缺陷另句登记"
+    },
+    {
+      "cardNos": [
+        "SFD·110/221",
+        "SFD·110a/221"
+      ],
+      "text": "当我进行一对一的进攻或防守时，在这场战斗中，我的战力翻倍。",
+      "scope": "当我进行一对一的进攻或防守时，在这场战斗中，我的战力翻倍。",
+      "status": "route",
+      "reason": "在首次取得进攻／防守角色时捕获一对一条件，响应后按当前战力生成本场战斗的翻倍调整，战斗结束移除",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/BattleLimitedMarkers.cs",
+          "contains": [
+            "cardNo is \"SFD·110/221\" or \"SFD·110a/221\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleLimitedRoleSkills.cs",
+          "contains": [
+            "if (oneOnOne) foreach",
+            "BattleLimitedMarkers.DoubleAttack"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleLimitedResolution.cs",
+          "contains": [
+            "snapshot = beforeConditionalAuras",
+            "Duration = BattleLimitedMarkers.Duration",
+            "ExpireClosedBattleLimitedEffects("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattleLimitedResolutionTests.cs",
+          "methods": [
+            "CurrentMightSnapshotAndBattleDuration"
+          ]
+        }
+      ],
+      "rules": "核心383.2–383.3、433.1 翻倍、466.2 战斗角色、468.7.c 战斗结束；SFD·110／110a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·120/221",
+        "SFD·120a/221"
+      ],
+      "text": "当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。",
+      "scope": "当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。",
+      "status": "missing",
+      "reason": "只有法盾2单位登记；缺少进攻征服且过量伤害至少5的条件捕获，以及按该次过量伤害数值伤害敌方单位的独立技能",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_SIVIR_SPELLSHIELD2_PLAY_KEYWORD_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心383.2–383.3；该卡官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·141/221",
+        "SFD·141a/221"
+      ],
+      "text": "你以我为目标的法术费用减少{{1}}或{{A}}。",
+      "scope": "你以我为目标的法术费用减少{{1}}或{{A}}。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少以此单位为目标的己方法术1法力或1符能减费选择及共享报价／付款消费者",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_141_IRELIA_SPELL_COST_STATIC_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心364–365、356.4 减费；SFD·141／141a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·143/221",
+        "SFD·143a/221"
+      ],
+      "text": "在本回合内，如果你至少支付了{{A}}{{A}}，则我获得{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+      "scope": "在本回合内，如果你至少支付了{{A}}{{A}}，则我获得{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+      "status": "missing",
+      "reason": "只有急速入场登记；缺少本回合已支付至少2符能的持续条件、来源+2战力和游走授予",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心364.3／365.1 条件性被动技能；SFD·143／143a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·146/221"
+      ],
+      "text": "如果我处于战斗中，则所有友方法术的费用减少{{1}}和{{A}}，不得低于{{1}}，而所有敌方法术的费用增加{{1}}和{{A}}。",
+      "scope": "如果我处于战斗中，则所有友方法术的费用减少{{1}}和{{A}}，不得低于{{1}}，而所有敌方法术的费用增加{{1}}和{{A}}。",
+      "status": "missing",
+      "reason": "只有基础单位登记；缺少来源处于战斗中时友方法术1法力及1符能减费（法力下限1）与敌方法术同量增费",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"SFD_VEX_COMBAT_SPELL_COST_PLAY_UNIT\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心364.3／365.1、356.3–356.4 增减费；SFD·146 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·148/221",
+        "SFD·148a/221"
+      ],
+      "text": "当我在战斗中被摧毁时，选择一名对手，让其获得1分。",
+      "scope": "当我在战斗中被摧毁时，选择一名对手，让其获得1分。",
+      "status": "route",
+      "reason": "实际战斗中被摧毁捕获离场实例，确认选择对手后独立入链，结算给该对手1分；替换了摧毁则不触发",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+          "contains": [
+            "CaptureDravenBattleDeath",
+            "ResolveDravenBattleDeath"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/DravenBattleDeathRecoveryRules.cs",
+          "contains": [
+            "c.CardNo is \"SFD·148/221\" or \"SFD·148a/221\"",
+            "c.Role is \"ATTACKER\" or \"DEFENDER\""
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleDeathScoreTests.cs",
+          "methods": [
+            "ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot"
+          ]
+        }
+      ],
+      "rules": "核心383.2.c.3 离场触发、466.2 战斗角色；SFD·148／148a 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·149/221",
+        "VEN·SP5",
+        "SFD·149a/221"
+      ],
+      "text": "你支付的可选额外费用，其费用减少{{1}}或{{A}}。",
+      "scope": "你支付的可选额外费用，其费用减少{{1}}或{{A}}。",
+      "status": "route",
+      "reason": "场上受控来源逐项为可选额外费用选择减1法力或1符能，不能同一项同时减两种资源，也不能溢出减基础费用",
+      "runtime": {
+        "behaviors": [
+          {
+            "mayReduceOtherCardOptionalAdditionalCostByOneManaOrPower": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalCostReductions.cs",
+          "contains": [
+            "behavior.MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower",
+            "OptionalCostReductionChoice(",
+            "OptionalCostComponents("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalAdditionalCostReductionTests.cs",
+          "methods": [
+            "ExplicitManaReductionMakesEchoAffordableAndKeepsTheDeclaredRepeat",
+            "GenericEchoPowerReductionPreservesTheSpellsPrintedPowerFee",
+            "OneSourceCannotChooseBothManaAndPowerForTheSameHasteFee",
+            "ExcessComponentReductionsNeverSpillIntoBaseMana"
+          ]
+        }
+      ],
+      "rules": "核心204.2、356.4.f、820 回响、805 急速；SFD·149／149a／VEN·SP5 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·177/221",
+        "SFD·177a/221"
+      ],
+      "text": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
+      "scope": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
+      "status": "missing",
+      "reason": "只有急速入场登记；缺少进攻时选择任意数量己方指示物单位并移动到来源战场的技能",
+      "runtime": {
+        "staticAuras": []
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "contains": [
+            "\"AZIR_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心383.2–383.3；该卡官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·183/221",
+        "SFD·241/221"
+      ],
+      "text": "你的每件武装都会提供{{强攻}}。（如果配装的单位是进攻方，则{{S}}+1。）",
+      "scope": "你的每件武装都会提供{{强攻}}。（如果配装的单位是进攻方，则{{S}}+1。）",
+      "status": "missing",
+      "reason": "只有战斗数值加成而未授予可被当前关键词读取的强攻；并按宿主所在玩家的传奇而非武装控制者判断，异主贴附时会错算",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private static int CountLucianLegendEquipmentAssaultBonus(",
+            "equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendStaticLucianGrantsAssaultFromAttachedEquipment"
+          ]
+        }
+      ],
+      "rules": "核心807 强攻、718.3／718.5.e–g 贴附技能及独立控制权；SFD·183／241 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·185/221",
+        "SFD·242/221"
+      ],
+      "text": "当你赢得一场战斗时，抽一张牌。（若战斗结束后只剩下你的单位，则视为你赢得战斗。）",
+      "scope": "当你赢得一场战斗时，抽一张牌。（若战斗结束后只剩下你的单位，则视为你赢得战斗。）",
+      "status": "route",
+      "reason": "战斗结果确定时为获胜玩家的受控传奇捕获抽1张触发，在征服前提供独立响应和结算；无战斗的征服不触发",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+          "contains": [
+            "card.ControllerId == winner && LegendCardHasIdentity(card.CardNo, DravenLegendIdentityId)",
+            "LegendBattleWinDrawEffect, \"BATTLE_RESULT_DETERMINED\"",
+            "context.ControllerId, 1,"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs",
+          "methods": [
+            "BattleWinDrawPrecedesConquestAndEmptyConquestDoesNotTrigger",
+            "ResponseSpellRemovingDefenderStillResolvesBattleWinBeforeControl"
+          ]
+        }
+      ],
+      "rules": "核心383.3、468.3–468.5 战斗结果与征服；SFD·185／242 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·187/221",
+        "SFD·243/221"
+      ],
+      "text": "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。",
+      "scope": "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。",
+      "status": "route",
+      "reason": "征服时捕获两张牌展示技能，确认并横置传奇后提供响应，结算才读取和展示当前牌库顶部两张",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendConquest.cs",
+          "contains": [
+            "\"EXHAUST_DECK_PLAY\"",
+            "ExhaustsSource: true, RevealCount: 2",
+            "return BeginDeckPlaySequence(state, item, definition)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "parent.LegendConquest is { Kind: \"EXHAUST_DECK_PLAY\" }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "Recycl"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendDeckPlayTests.cs",
+          "methods": [
+            "ConquestFirstOffersCostAndDoesNotRevealOrPlay",
+            "CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost",
+            "DecliningAfterRevealRecyclesAllAndWithdrawsPublicVisibility",
+            "ShortDeckFinishesWithoutInventingCards"
+          ]
+        }
+      ],
+      "rules": "核心383.3.b、403–407、417 回收；SFD·187／243 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·187/221",
+        "SFD·243/221"
+      ],
+      "text": "你可以选择放逐其中一张，然后将其打出。",
+      "scope": "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。",
+      "status": "route",
+      "reason": "展示后可选放逐任意一张并按正常费用与时机许可打出，允许单位、装备或法术，不限单位",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendConquest.cs",
+          "contains": [
+            "\"EXHAUST_DECK_PLAY\"",
+            "ExhaustsSource: true, RevealCount: 2",
+            "return BeginDeckPlaySequence(state, item, definition)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "parent.LegendConquest is { Kind: \"EXHAUST_DECK_PLAY\" }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "Recycl"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendDeckPlayTests.cs",
+          "methods": [
+            "ConquestFirstOffersCostAndDoesNotRevealOrPlay",
+            "CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost",
+            "DecliningAfterRevealRecyclesAllAndWithdrawsPublicVisibility",
+            "ShortDeckFinishesWithoutInventingCards"
+          ]
+        }
+      ],
+      "rules": "核心383.3.b、403–407、417 回收；SFD·187／243 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·187/221",
+        "SFD·243/221"
+      ],
+      "text": "回收其余的卡牌。",
+      "scope": "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。",
+      "status": "route",
+      "reason": "独立牌库打出序列回收未选择的展示牌；放弃时回收全部，短牌库不虚构卡牌",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendConquest.cs",
+          "contains": [
+            "\"EXHAUST_DECK_PLAY\"",
+            "ExhaustsSource: true, RevealCount: 2",
+            "return BeginDeckPlaySequence(state, item, definition)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "parent.LegendConquest is { Kind: \"EXHAUST_DECK_PLAY\" }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "Recycl"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendDeckPlayTests.cs",
+          "methods": [
+            "ConquestFirstOffersCostAndDoesNotRevealOrPlay",
+            "CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost",
+            "DecliningAfterRevealRecyclesAllAndWithdrawsPublicVisibility",
+            "ShortDeckFinishesWithoutInventingCards"
+          ]
+        }
+      ],
+      "rules": "核心383.3.b、403–407、417 回收；SFD·187／243 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·195/221",
+        "SFD·195a/221·P",
+        "SFD·246/221"
+      ],
+      "text": "当你将一名友方单位选为目标时，你可以选择让我变为休眠状态并支付{{A}}，以此让该单位变为活跃状态。",
+      "scope": "当你将一名友方单位选为目标时，你可以选择让我变为休眠状态并支付{{A}}，以此让该单位变为活跃状态。",
+      "status": "missing",
+      "reason": "目标选取触发误做为手动传奇行动：当前支付1法力而非1符能，且付款后立即活跃；缺少真正指目标触发、符能费用及响应窗口",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private const int IreliaLegendManaCost = 1;",
+            "LegendAbilityEffectKinds.ReadyFriendlyUnit,",
+            "RequiresPendingFriendlyUnitTarget: true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendActIreliaReadiesPendingTargetedFriendlyUnit"
+          ]
+        }
+      ],
+      "rules": "核心383.4.b 指目标触发、383.3.b／405 触发费用、407.4 响应；SFD·195／195a／246 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·197/221",
+        "SFD·247/221"
+      ],
+      "text": "你的“黄沙士兵”获得{{百炼}}。",
+      "scope": "你的“黄沙士兵”获得{{百炼}}。",
+      "status": "route",
+      "reason": "共享黄沙士兵创建流程与持续标签重算在控制沙漠皇帝时授予百炼，附加传奇离场即撤销持续授予",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ApplyAzirSandSoldierTemperedTags(",
+            "ControllerHasAzirLegend(playerZones, cardObjects, playerId)",
+            "Concat([CardEquipmentKeywordNames.Tempered])"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadNeekoLegendTests.cs",
+          "methods": [
+            "ExistingSandSoldiersKeepTheStaticGrantOnlyWhileTheAddedLegendRemains"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendActAzirCreatesTemperedSandSoldierAfterArmamentPlayedThisTurn"
+          ]
+        }
+      ],
+      "rules": "核心364–365 被动技能、821 百炼；SFD·197／247 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·197/221",
+        "SFD·247/221"
+      ],
+      "text": "只能在你本回合打出了一件武装后使用。",
+      "scope": "支付{{1}}，{{横置}}：打出一名2{{S}}的“黄沙士兵”到你的基地。",
+      "status": "route",
+      "reason": "传奇技能确认前检查本回合已打出武装的服务端记录，未打出时原子拒绝，打出真实武装后可使用",
+      "runtime": {
+        "legendActivations": [
+          "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "ability.RequiresPlayedArmamentThisTurn",
+            "!ControllerPlayedArmamentThisTurn(state, intent.PlayerId)",
+            "RequiresPlayedArmamentThisTurn: true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendActAzirRequiresArmamentPlayedThisTurn",
+            "P79LegendAzirTracksArmamentPlayedThisTurnFromWeaponPlay"
+          ]
+        }
+      ],
+      "rules": "核心381／403 技能合法性；SFD·197／247 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·199/221",
+        "SFD·248/221"
+      ],
+      "text": "只有当你在本回合内，两次将敌方单位或装备选为法术或单位技能的目标后，才能使用此技能。",
+      "scope": "{{横置}}：{{反应}} — 抽一张牌。",
+      "status": "route",
+      "reason": "技能前检查本回合敌方单位或装备的合法法术／单位技能指目标事件已达2次，未达时拒绝且不横置",
+      "runtime": {
+        "legendActivations": [
+          "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS"
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private const int EzrealEnemyTargetThreshold = 2;",
+            "ability.RequiresEzrealEnemyTargetsThisTurn",
+            "EzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, intent.PlayerId) < EzrealEnemyTargetThreshold"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "contains": [
+            "MarkEzrealEnemyTargetsThisTurnForUnitAbility("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendActEzrealDrawsAfterSecondEnemyTargetThisTurn",
+            "P79LegendActEzrealRequiresTwoEnemyTargetsThisTurn"
+          ]
+        }
+      ],
+      "rules": "核心355.6／383.4.b 指目标事件；SFD·199／248 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·201/221",
+        "SFD·249/221"
+      ],
+      "text": "当你或一名友方玩家据守一处战场时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
+      "scope": "当你或一名友方玩家据守一处战场时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
+      "status": "route",
+      "reason": "据守捕获自方传奇的可选横置技能，在响应后用共享传奇装备指示物流程打出休眠金币",
+      "runtime": {
+        "legacyRoutes": {
+          "HeldDefinition": {
+            "kind": "RENATA",
+            "amount": 1
+          }
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "[\"SFD·201/221\"] = (\"RENATA\", 1)",
+            "case \"GOLD\": case \"RENATA\":",
+            "CreateLegendEquipmentToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "\"VEX\" or \"RENATA\" or \"IVERN\" => new(Exhaust: true)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.Legends.cs",
+          "methods": [
+            "P79LegendTriggerRenataCreatesDormantGoldWhenControllerHoldsBattlefieldDoesNotTriggerOnDefensiveVictory",
+            "P79LegendTriggerRenataRequiresActiveLegend"
+          ]
+        }
+      ],
+      "rules": "核心383.3.b、383.4.d 据守；SFD·201／249 官方中文牌面（当前两人对局）"
+    },
+    {
+      "cardNos": [
+        "SFD·201/221",
+        "SFD·249/221"
+      ],
+      "text": "如果你的得分距离胜利得分不超过3分，则你的“金币”装备指示物的{{获得}}效果额外产生{{1}}。",
+      "scope": "如果你的得分距离胜利得分不超过3分，则你的“金币”装备指示物的{{获得}}效果额外产生{{1}}。",
+      "status": "route",
+      "reason": "金币资源技能按当前得分、控制权和公开来源判断胜利分差不超过3时额外产生1法力，实时读取，不在创建金币时锁定",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+          "contains": [
+            "RenataGoldBonusActive(state, intent.PlayerId) ? 1 : 0",
+            "PlayerWithinWinningScoreDistance(state.PlayerScores, EffectiveWinningScore(state), player, RenataGoldBonusWinningScoreDistance)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "RenataGoldBonusWinningScoreDistance = 3;"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+          "methods": [
+            "RenataGoldBonusTracksCurrentScoreControllerAndVisibility"
+          ]
+        }
+      ],
+      "rules": "核心135.2.e.5.b 金币资源、166–168 符文池；SFD·201／249 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·203/221",
+        "SFD·250/221"
+      ],
+      "text": "当你回收一枚符文时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
+      "scope": "当你回收一枚符文时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
+      "status": "route",
+      "reason": "共享符文回收观察器逐枚捕获，确认横置传奇后提供响应，结算才创建休眠金币；回收作为其他费用也捕获并等待原付款完成",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+          "contains": [
+            "private static GameEvent CaptureRecycleObservers(",
+            "for (var ordinal = 0; ordinal < observation.Count; ordinal++)",
+            "CreateLegendEquipmentToken("
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SivirOptionalRecycleTests.cs",
+          "methods": [
+            "BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow",
+            "BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs",
+          "methods": [
+            "RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion"
+          ]
+        }
+      ],
+      "rules": "核心383.3.b、417 回收；SFD·203／250 官方中文牌面"
+    },
+    {
+      "cardNos": [
+        "SFD·203/221",
+        "SFD·250/221"
+      ],
+      "text": "当任意数量的敌方单位被摧毁时，让我变为活跃状态。",
+      "scope": "当任意数量的敌方单位被摧毁时，让我变为活跃状态。",
+      "status": "missing",
+      "reason": "敌方摧毁活跃仍由清理流程立即执行，没有独立触发和响应窗口；并以被毁单位所有者而非控制者判断敌方",
+      "runtime": {},
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private static IReadOnlyList<GameEvent> ResolveSivirEnemyDestroyedReadyTriggers(",
+            "destroyedUnitOwnerIds.Any(ownerId => !string.Equals(ownerId, playerId",
+            "cardObjects[legendObjectId] = legendState with { IsExhausted = false }"
+          ]
+        }
+      ],
+      "tests": [],
+      "rules": "核心383.2–383.3／407.4 触发响应、191–192 控制者及所属者；SFD·203／250 官方中文牌面"
+    }
+  ]
+}

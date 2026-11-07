@@ -56,7 +56,6 @@ public static class LegendActionAbilityCatalog
             [KaisaLegendAbilityId] = "OGN·247/298",
             [OrnnLegendAbilityId] = "SFD·189/221",
             [EzrealLegendAbilityId] = "SFD·199/221",
-            [IreliaLegendAbilityId] = "SFD·195/221",
             [TeemoLegendAbilityId] = "OGN·263/298",
             [AzirLegendAbilityId] = "SFD·197/221",
             [LilliaLegendAbilityId] = "UNL-189/219"

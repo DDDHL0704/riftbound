@@ -1,0 +1,76 @@
+:root {
+  --ink: #15111f;
+  --felt: #1e1830;
+  --felt-hi: #2a2142;
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-hi: rgba(255, 255, 255, 0.08);
+  --line: rgba(237, 230, 214, 0.1);
+  --line-strong: rgba(237, 230, 214, 0.24);
+  --text: #f1ebdf;
+  --muted: #a49cb6;
+  --brass: #f0b54a;
+  --brass-hi: #ffd27a;
+  --brass-deep: #a8761f;
+  --glacier: #6fd0ee;
+  --glacier-deep: #2a7ea0;
+  --ember: #ff5e57;
+  --legal: #fff1b8;
+  --rift: #b78bff;
+
+  --font-ui: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-display: "Noto Serif SC", "Songti SC", serif;
+  --font-num: "Barlow Condensed", "DIN Condensed", var(--font-ui);
+
+  --card-ratio: 1.398;
+  /* Card sizes follow the window height so the table fills a laptop and a big monitor alike. */
+  --board-w: clamp(56px, 8.4vh, 90px);
+  --hero-w: clamp(62px, 9.4vh, 100px);
+  --rune-w: clamp(36px, 4.9vh, 50px);
+  --mini-w: clamp(36px, 4.9vh, 50px);
+  --hand-w: clamp(96px, 13.6vh, 140px);
+  --field-card-w: clamp(170px, 27vh, 290px);
+  --rail-w: 304px;
+  --spine-w: 60px;
+  --dock-w: 160px;
+  --radius-card: 7px;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 12px;
+}

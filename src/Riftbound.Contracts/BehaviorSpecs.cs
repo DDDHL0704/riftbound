@@ -82,6 +82,7 @@ public static class TriggerKinds
     public const string ControllerCardPlayBasePowerSource = "CONTROLLER_CARD_PLAY_BASE_POWER_SOURCE";
     public const string ControllerHighCostGraveyardPlaySource = "CONTROLLER_HIGH_COST_GRAVEYARD_PLAY_SOURCE";
     public const string SourceUnitPlayedDestroyEquipmentGrantTurnPlay = "SOURCE_UNIT_PLAYED_DESTROY_EQUIPMENT_GRANT_TURN_PLAY";
+    public const string ControllerTargetedFriendlyUnitPayExhaustReady = "CONTROLLER_TARGETED_FRIENDLY_UNIT_PAY_EXHAUST_READY";
     public const string ControllerTargetedOrReadiedSourcePower = "CONTROLLER_TARGETED_OR_READIED_SOURCE_POWER";
     public const string SourceReadiedChooseKeyword = "SOURCE_READIED_CHOOSE_KEYWORD";
     public const string SourcePlayedOrFirstEquipmentReadyOtherObject = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
@@ -334,6 +335,7 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string ControllerTargetedFriendlyUnit = "CONTROLLER_TARGETED_FRIENDLY_UNIT";
     public const string ControllerTargetedOrReadiedSource = "CONTROLLER_TARGETED_OR_READIED_SOURCE";
     public const string SourceMightReached = "SOURCE_MIGHT_REACHED";
     public const string SourceReadied = "SOURCE_READIED";
@@ -391,6 +393,7 @@ public static class TriggerTargetScopes
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
     public const string AnyFieldRune = "ANY_FIELD_RUNE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
+    public const string SelectedFriendlyEventUnit = "SELECTED_FRIENDLY_EVENT_UNIT";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
     public const string OtherUnitOnField = "OTHER_UNIT_ON_FIELD";
     public const string AnyUnitOnField = "ANY_UNIT_ON_FIELD";
