@@ -38,12 +38,14 @@ public sealed partial class CoreRuleEngine
     {
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary();
         var player = item.ControllerId;
+        var events = new List<GameEvent>();
+        BeforeDeckReveal(state, zones, cards, item, player, events, zone: "RUNE_DECK");
         if (zones[player].RuneDeck.FirstOrDefault() is not { } top || !cards.TryGetValue(top, out var rune)
             || !rune.Tags.Contains(CardObjectTags.RuneCard)) return NoopStackResolutionResult(state);
         var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
-        var events = new List<GameEvent> { new("CARDS_REVEALED", "展示符文牌堆顶部的一张牌", new Dictionary<string, object?> {
+        events.Add(new("CARDS_REVEALED", "展示符文牌堆顶部的一张牌", new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = source, ["cardIds"] = new[] { top },
-            ["cardNo"] = rune.CardNo, ["count"] = 1, ["zone"] = "RUNE_DECK" }) };
+            ["cardNo"] = rune.CardNo, ["count"] = 1, ["zone"] = "RUNE_DECK" }));
         // Reordering within this deck creates no new incarnation and generates
         // no Power. It still is a recycle instruction for ordinary observers.
         zones[player] = zones[player] with { RuneDeck = [..zones[player].RuneDeck.Skip(1), top] };

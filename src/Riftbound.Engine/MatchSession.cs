@@ -2198,7 +2198,7 @@ public sealed partial record ResolutionResult(
             ["paymentChoices"] = privateChoice ? Array.Empty<string>() : payment.LegalPaymentChoiceIds,
             ["paymentResourceActions"] = privateChoice ? Array.Empty<string>() : PendingPaymentResourceActionIds(state, payment)
         };
-        if (state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" && state.DeckObservationView is { } observation)
+        if (state.PendingRuleChoice?.Request.Kind is "DECK_OBSERVATION_BANISH" or CoreRuleEngine.BeforeDeckRevealChoiceKind && state.DeckObservationView is { } observation)
             view["deckObservationKind"] = observation.Public ? "REVEAL" : "LOOK";
         return view;
     }

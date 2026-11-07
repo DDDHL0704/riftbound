@@ -25929,11 +25929,26 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(observedGeneration,result.State.CardObjects[objectId].ObjectGeneration);
                         Assert.Contains(objectId,exposedStringValues);
                     }
+                    else if (result.State.DeckObservationView is { Public: false, BeforeReveal: { } beforeReveal } privateLook
+                        && privateLook.PlayerId == viewerId && privateLook.DeckOwnerId == playerId
+                        && privateLook.Cards.TryGetValue(objectId, out var lookedGeneration))
+                    {
+                        // Only the exact top-card binding in a semantically valid
+                        // private prelook is visible to the instructed viewer.
+                        Assert.True(CoreRuleEngine.ValidBeforeDeckRevealDisclosure(result.State));
+                        Assert.Single(privateLook.Cards);
+                        Assert.Equal(viewerId, beforeReveal.PlayerId);
+                        Assert.Equal(playerId, beforeReveal.DeckOwnerId);
+                        Assert.Equal(objectId, beforeReveal.Card.ObjectId);
+                        Assert.Equal(lookedGeneration, beforeReveal.Card.Generation);
+                        Assert.Equal(lookedGeneration, result.State.CardObjects[objectId].ObjectGeneration);
+                        Assert.Contains(objectId, exposedStringValues);
+                    }
                     else if (result.State.StackItems.SingleOrDefault(i => i.StackItemId == result.State.PendingCardChoice?.DeckContext?.StackItemId)
                         is { DeckPlaySequence: { Kind: "OPPONENT_REVEAL_PLAY" or "SINGLE_PUBLIC_PLAY" } revealed } parent
                         && revealed.Viewed.TryGetValue(playerId, out var cards) && cards.FirstOrDefault(c => c.ObjectId == objectId) is { } binding)
                     {
-                        if (revealed.Kind == "OPPONENT_REVEAL_PLAY") { Assert.Equal("OGN·025/298", parent.CardNo); Assert.Single(cards); }
+                        if (revealed.Kind == "OPPONENT_REVEAL_PLAY") { Assert.Contains(parent.CardNo, new[] { "OGN·025/298", "RAD·018/167" }); Assert.Single(cards); }
                         else { Assert.Contains(parent.CardNo, new[]{"SFD·188/221","SFD·187/221","SFD·243/221","SFD·170/221","SFD·170a/221"}); Assert.True(cards.Count <= 2); }
                         Assert.Equal(parent.ControllerId, revealed.ControllerId);
                         Assert.Equal(parent.SourceObjectId, revealed.Source.ObjectId);
