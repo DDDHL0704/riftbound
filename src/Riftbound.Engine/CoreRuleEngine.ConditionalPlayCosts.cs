@@ -20,10 +20,14 @@ public sealed partial class CoreRuleEngine
         return (mana, power);
     }
 
-    // Count only public in-play objects; a face-down standby card has no unit or equipment type.
+    // Re-evaluate the current controller's condition on every quote and payment.
+    // In-play object counts exclude face-down cards, which have no unit or equipment type.
     private static int ConditionalPlayCostCount(MatchState state, string player, CardBehaviorDefinition behavior)
         => behavior.CostReductionConditionKind switch
         {
+            CardCostReductionConditionKinds.ControllerExperienceThresholdCount
+                => behavior.CostReductionExperienceThresholds?.Count(threshold
+                    => state.PlayerExperience.GetValueOrDefault(player) >= threshold) ?? 0,
             CardCostReductionConditionKinds.ControlledFieldEquipmentCount
                 => CountControlledPublicFieldEquipmentObjects(state.PlayerZones, state.CardObjects, player),
             CardCostReductionConditionKinds.SameNameInControllerGraveyard
