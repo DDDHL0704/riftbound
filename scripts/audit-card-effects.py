@@ -1640,12 +1640,171 @@ def last_breath_recycle_runes_route(card: dict, clause: dict, sources: Sources) 
         "missing", "缺少原死亡废牌代际的回收确认费用、已接受付款凭据或全部当前友方场上符文的独立活跃结算", evidence)
 
 
+def battle_win_and_paid_combat_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    paid_text = normalize("当我进攻或防守时，你可以选择支付{{红色}}，以此让我在本回合内{{S}}+2。")
+    gold_text = normalize("当我赢得战斗时，打出一个休眠的“金币”装备指示物。")
+    draw = re.fullmatch(r"每?当我赢得(?:一场)?战斗时抽([一两二三四五六七八九十0-9]+)张牌", text)
+    if text not in {paid_text, gold_text} and not draw:
+        return None
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} \
+        and any(b.get("playsSourceToBaseAsUnit") for b in card.get("behaviors", []))
+    engine = "src/Riftbound.Engine/"
+
+    def member(path, name, class_marker=None):
+        code = sources.files.get(path, "")
+        if not code and path == "src/Riftbound.CardCatalog/RuleTextParsers.cs":
+            try:
+                code = re.sub(r"/\*.*?\*/|//[^\n]*", "", (sources.root / path).read_text(), flags=re.S)
+            except OSError:
+                pass
+        if class_marker:
+            if class_marker not in code:
+                return ""
+            code = code.split(class_marker, 1)[1]
+        start = re.search(r"(?m)^    (?:private|internal|public) static [^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        rest = code[start.start():]
+        end = re.search(r"(?m)^    (?:private|internal|public) static ", rest[start.end() - start.start():])
+        return rest[:start.end() - start.start() + end.start()] if end else rest
+
+    checks = []
+    if text == paid_text:
+        expected = dict(timing="ATTACK_OR_DEFEND", effect="MIGHT_SELF", amount=2,
+                        leadingPowerCost=1, leadingPowerTrait="red", optional=True)
+        event = card.get("unitEventAbility") or {}
+        exact = exact and all(event.get(k) == v for k, v in expected.items()) \
+            and not any(meaningful(v) for k, v in event.items() if k not in expected)
+        checks = [
+            ("CoreRuleEngine.UnitEvents.cs", "UnitEventSpec", ["card.UnitEventAbility"]),
+            ("CoreRuleEngine.UnitEvents.cs", "CaptureUnitEvents", [
+                "AttachedRuleTextRules.Instances(zones, cards, card)", "UnitEventTimingMatches(spec.Timing, timing)"]),
+            ("CoreRuleEngine.UnitEvents.cs", "UnitEventTimingMatches", [
+                'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal)']),
+            ("CoreRuleEngine.BattleStartRoles.cs", "RecordBattleDuelRoles", ["CaptureAttackUnitEvents(", "CaptureRoleUnitEvents("]),
+            ("CoreRuleEngine.UnitEvents.cs", "CaptureAttackUnitEvents", [
+                'CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")']),
+            ("CoreRuleEngine.UnitEvents.cs", "CaptureRoleUnitEvents", [
+                "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["NeedsTriggerCostConfirmation(i)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "PrepareTriggerConfirmation", [
+                "state.StackItems.FirstOrDefault(NeedsTriggerConfirmation)",
+                "if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", [
+                "SelectedUnitEventSpec(unitEvent)", "Power: eventSpec.LeadingPowerCost", "PowerTrait: eventSpec.LeadingPowerTrait"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "PrepareTriggerCostConfirmation", [
+                "PendingPayment = cost.Power + cost.Mana > 0 ? TriggerCostPayment(item) : null"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostPayment", [
+                "TriggerCostWindow, item.ControllerId", "powerCost: LeadingTriggerCost(item)!.Power",
+                "powerCostByTrait: LeadingTriggerCost(item)!.PowerTrait", 'legalPaymentChoiceIds: ["PAY", "DECLINE"]']),
+            ("CoreRuleEngine.cs", "ResolvePendingPayCost", [
+                "intent.PlayerId, pendingPayment.PlayerId", "pendingPayment.PaymentWindow == TriggerCostWindow",
+                "return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count)"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "ResolveTriggerCostPayment", [
+                'choices[0] == "DECLINE"', "CompleteTriggerCost(state, item, null, [])",
+                "powerCostByTrait: pending.PowerCostByTrait", "PaymentCostRules.TryCommitPayment(",
+                "RunePools = committed.RunePools", "Power: pending.PowerCost", "return CompleteTriggerCost(paid, item"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "CompleteTriggerCost", [
+                "item with { TriggerCost = receipt }", '"TRIGGER_CONFIRMED"']),
+            ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostReceipt", [
+                "receipt.Source.Generation != TriggerCostSourceGeneration(item)", "receipt.Power == cost.Power"]),
+            ("CoreRuleEngine.UnitEvents.cs", "ResolveUnitEvent", ["ResolveUnitEventInstruction(state, item)"]),
+            ("CoreRuleEngine.UnitEvents.cs", "ResolveUnitEventInstruction", [
+                'spec.Effect == "MIGHT_SELF"', "source.ObjectGeneration == context.SourceGeneration",
+                "IsObjectOnField(zones, source.ObjectId)", "ApplyDirectUntilEndPowerModifier(",
+                "spec.Amount, source.Power + spec.Amount"]),
+            ("CoreRuleEngine.cs", "ApplyDirectUntilEndPowerModifier", [
+                '"UNTIL_END_OF_TURN"', "Power = resultingPower", "UntilEndOfTurnPowerModifiers = powerModifierLedger"]),
+            ("CoreRuleEngine.cs", "ApplyTurnEndCleanup", [
+                "Power = objectState.Power - objectState.UntilEndOfTurnPowerModifier", "UntilEndOfTurnPowerModifiers = []"]),
+        ]
+        description = "进攻／防守时按原来源确认可选红色费用，响应后给予同代场上来源本回合+2"
+    else:
+        gold = text == gold_text
+        digits = dict(zip("一二三四五六七八九十", range(1, 11)), 两=2)
+        count = 1 if gold else int(draw[1]) if draw[1].isdigit() else digits.get(draw[1])
+        exact = exact and count is not None and count > 0
+        expected = dict(kind="UNIT_BATTLE_WIN_CREATE_DORMANT_GOLD" if gold else "UNIT_BATTLE_WIN_DRAW",
+                        timing="UNIT_BATTLE_WON", targetScope="SOURCE_UNIT")
+        expected.update(dict(createdTokenCount=1, createdTokenName="金币", createdTokenDestination="BASE", createdTokenExhausted=True)
+                        if gold else dict(drawCount=count))
+        predicate = "UnitBattleWinTriggerSpecRules." + ("IsUnitBattleWinDormantGoldTrigger" if gold else "IsUnitBattleWinDrawTrigger")
+        exact = exact and any(all(t.get("node", {}).get(k) == v for k, v in expected.items())
+            and normalize(unparenthesize(t["node"].get("text", ""))) == text and predicate in t.get("predicates", [])
+            and not any(meaningful(v) for k, v in t["node"].items() if k not in {*expected, "text", "reason"})
+            for t in card.get("triggers", []))
+        parser = member("src/Riftbound.CardCatalog/RuleTextParsers.cs", "Parse", "public static class TriggerParser")
+        exact = exact and ("TriggerKinds.UnitBattleWinCreateDormantGold" if gold else "TriggerKinds.UnitBattleWinDraw") in parser
+        checks = [
+            ("CoreRuleEngine.BattleResultContinuation.cs", "DetermineBattleResultAfterCleanup", [
+                "CaptureUnitBattleWinDrawObservations(resultState, battlefield, winner", "attackers, defenders, resultState.Tick)"]),
+            ("CoreRuleEngine.BattleWinTriggers.cs", "CaptureUnitBattleWinDrawObservations", [
+                "card.ControllerId != winnerPlayerId", "IsVisibleFieldUnitObject(state.CardObjects, id)",
+                'location.Zone != "BATTLEFIELD" || location.BattlefieldObjectId != battlefieldId',
+                "AttachedRuleTextRules.Instances(state, card)", "UnitBattleWinTriggerSpecRules.Rewards(instance.CardNo)",
+                "new(id, card.ObjectGeneration)", "Origin: instance.Origin", "TriggerIndex = index"]),
+            ("CoreRuleEngine.BattleWinTriggers.cs", "HasValidUnitBattleWinDrawShape", [
+                "UnitBattleWinTriggerSpecRules.TryGet(context.CardNo, context.TriggerIndex, out var spec)",
+                "context.DrawCount == spec.DrawCount.GetValueOrDefault()", "context.GoldCount == spec.CreatedTokenCount.GetValueOrDefault()"]),
+            ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
+                "if (stackItem.UnitBattleWinDraw is { } unitBattleWin) return ResolveUnitBattleWinDraw(state, stackItem, unitBattleWin)"]),
+            ("CoreRuleEngine.BattleWinTriggers.cs", "ResolveUnitBattleWinDraw", [
+                "HasValidUnitBattleWinDrawShape(context)", "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)"]),
+            ("BattleResultRecoveryRules.cs", "ValidSkill", [
+                "CoreRuleEngine.HasValidUnitBattleWinDrawShape(unit)", "AttachedRuleTextRules.ValidCaptured(state, unit.Origin",
+                "c.SurvivingAttackerObjectIds : c.SurvivingDefenderObjectIds).Contains(source)"]),
+            ("BattleResultRecoveryRules.cs", "ValidateOriginalTriggers", [
+                'e.Event.Kind == "TRIGGER_QUEUED"', '"battleWinContext"', "HasOriginalCommand(origins.SingleOrDefault())"]),
+            ("MatchRecovery.cs", "ValidateRecoveryFrameAsync", ["BattleResultRecoveryRules.ValidateOriginalTriggers(recovery)"]),
+            ("MatchRecovery.cs", "ValidateSpectatorSnapshotStackObjectReferences", [
+                "BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, drawSkill)",
+                "!CapturedBattleSourceIsPrivate(authoritativeState, drawSkill)",
+                "sourceReferences = knownObjectIds.Append(drawSkill.SourceObjectId)"]),
+        ]
+        if gold:
+            checks += [
+                ("UnitBattleWinTriggerSpecRules.cs", "IsUnitBattleWinDormantGoldTrigger", [
+                    "spec.Kind == TriggerKinds.UnitBattleWinCreateDormantGold", "spec.Timing == TriggerTimings.UnitBattleWon",
+                    "spec.CreatedTokenDestination == TriggerZones.Base", "spec.CreatedTokenExhausted == true"]),
+                ("CoreRuleEngine.BattleWinTriggers.cs", "ResolveUnitBattleWinDraw", [
+                    "if (context.GoldCount > 0)", "i < context.GoldCount", "CreateLegendEquipmentToken(zones, cards, context.ControllerId",
+                    "spec.CreatedTokenExhausted == true", "publicSourceObjectId: visibleSource"]),
+                ("CoreRuleEngine.cs", "CreateLegendEquipmentToken", [
+                    "tokenDefinition.CreateObject(", "ApplyTokenEntryStaticAbility(",
+                    "Base = zones.Base.Concat([tokenObjectId]).ToArray()", "CaptureEquipmentPlayed(",
+                    '["sourceObjectId"] = publicSourceObjectId ?? sourceObjectId']),
+            ]
+        else:
+            checks += [
+                ("UnitBattleWinTriggerSpecRules.cs", "IsUnitBattleWinDrawTrigger", [
+                    "spec.Kind == TriggerKinds.UnitBattleWinDraw", "spec.DrawCount is > 0"]),
+                ("CoreRuleEngine.BattleWinTriggers.cs", "ResolveUnitBattleWinDraw", [
+                    "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, context.ControllerId,",
+                    "context.DrawCount, state.RngCursor, events, deferNormalVictory: true)"]),
+                ("CoreRuleEngine.cs", "ApplyDrawToPlayer", [
+                    "MainDeck = drawResult.MainDeck", "Hand = drawPlayerZones.Hand.Concat(drawResult.DrawnCards).ToArray()",
+                    "playerZones[playerId] = drawPlayerZones", "BuildCardDrawEvents("]),
+            ]
+        description = "实际获胜且存活的参战单位逐份捕获奖励，保留原结果和技能出生；金币／抽牌在控制和征服前独立结算"
+    exact = exact and all(all(token in member(engine + file, name) for token in tokens)
+                          for file, name, tokens in checks)
+    evidence = sorted({engine + file for file, _, _ in checks})
+    if text != paid_text:
+        evidence.append("src/Riftbound.CardCatalog/RuleTextParsers.cs")
+    return result("route" if exact else "missing", description if exact else
+                  "缺少与本句数值、费用和来源绑定完全匹配的事件规格、真实确认／结算或原始结果校验", evidence)
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if battle_reward := battle_win_and_paid_combat_route(card, clause, sources):
+        return battle_reward
     kind = clause["kind"]
     if recycle_runes := last_breath_recycle_runes_route(card, clause, sources):
         return recycle_runes

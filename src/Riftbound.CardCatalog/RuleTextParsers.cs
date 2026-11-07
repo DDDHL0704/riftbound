@@ -323,6 +323,21 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var battleDraw = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>(?:每)?当我赢得(?:一场)?战斗时，抽(?<count>[0-9一两二三四五六七八九十]+)张牌。)(?:（[^）]*）)?(?=\s*(?:\r?\n|$))",
+            RegexOptions.CultureInvariant);
+        if (battleDraw.Success && ParseChineseNumber(battleDraw.Groups["count"].Value) is > 0 and var battleDrawCount)
+            triggers.Add(new(TriggerKinds.UnitBattleWinDraw, TriggerTimings.UnitBattleWon,
+                battleDraw.Groups["clause"].Value, TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: battleDrawCount));
+        var battleGold = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>(?:每)?当我赢得(?:一场)?战斗时，打出(?<count>[0-9一两二三四五六七八九十]+)个休眠的[“「]?金币[”」]?装备指示物。)(?:（[^）]*）)?(?=\s*(?:\r?\n|$))",
+            RegexOptions.CultureInvariant);
+        if (battleGold.Success && ParseChineseNumber(battleGold.Groups["count"].Value) is > 0 and var battleGoldCount)
+            triggers.Add(new(TriggerKinds.UnitBattleWinCreateDormantGold, TriggerTimings.UnitBattleWon,
+                battleGold.Groups["clause"].Value, TargetScope: TriggerTargetScopes.SourceUnit,
+                CreatedTokenCount: battleGoldCount, CreatedTokenName: "金币",
+                CreatedTokenDestination: TriggerZones.Base, CreatedTokenExhausted: true));
+
         var enemyBatchReady = Regex.Match(text,
             @"(?:^|\r?\n)\s*(?<clause>当任意数量的敌方单位被摧毁时，让我变为活跃状态。?)(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
         if (enemyBatchReady.Success)

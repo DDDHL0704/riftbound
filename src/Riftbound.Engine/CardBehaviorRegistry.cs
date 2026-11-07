@@ -6245,7 +6245,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
+                LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true)),
         new(
             "SFD·020a/221",
             "德莱文",
@@ -6254,7 +6256,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
+                LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true)),
         new(
             "SFD·069/221",
             "坏坏魄罗",

@@ -5820,7 +5820,8 @@ public static partial class MatchRecoveryValidator
                 && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
                 sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } drawSkill
-                && (DrawHandThresholdRecoveryRules.IsCapturedSkill(authoritativeState, drawSkill)
+                && (BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, drawSkill)
+                    || DrawHandThresholdRecoveryRules.IsCapturedSkill(authoritativeState, drawSkill)
                     || drawSkill.OutsideHandPlayObserver is not null && CoreRuleEngine.ValidOutsideHandPlayStack(authoritativeState, drawSkill))
                 && !CapturedBattleSourceIsPrivate(authoritativeState, drawSkill))
                 sourceReferences = knownObjectIds.Append(drawSkill.SourceObjectId).ToHashSet(StringComparer.Ordinal);

@@ -8752,7 +8752,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> tokenTags,
         bool isExhausted,
         List<GameEvent> events,
-        string? capturedSourceCardNo = null)
+        string? capturedSourceCardNo = null,
+        string? publicSourceObjectId = null)
     {
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
@@ -8797,7 +8798,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var payload = new Dictionary<string, object?>
         {
             ["playerId"] = playerId,
-            ["sourceObjectId"] = sourceObjectId,
+            ["sourceObjectId"] = publicSourceObjectId ?? sourceObjectId,
             ["abilityId"] = abilityId,
             ["tokenObjectId"] = tokenObjectId,
             ["tokenName"] = tokenName,
@@ -8817,7 +8818,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entryStaticAbilitySourceState.CardNo);
         events.Add(CaptureEquipmentPlayed(new GameEvent(
             "EQUIPMENT_TOKEN_CREATED",
-            $"{sourceObjectId} 打出装备指示物",
+            $"{publicSourceObjectId ?? sourceObjectId} 打出装备指示物",
             payload), playerZones, cardObjects, tokenState, playerId));
     }
 

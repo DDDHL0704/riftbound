@@ -1666,6 +1666,7 @@ public sealed partial record ResolutionResult(
     {
         if (TargetSelectionSummary(state, trigger.UnitEvent, viewerPlayerId) is { } targeted) return targeted;
         if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
+        if (trigger.UnitBattleWinDraw is { GoldCount: > 0 } gold) return $"赢得战斗：打出 {gold.GoldCount} 个休眠的金币装备指示物；双方响应后结算。";
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DrawHandThreshold is not null) return "抽牌且满足手牌阈值：弃置手牌、摧毁来源并令选定对手得分；双方响应后结算。";
@@ -1719,6 +1720,7 @@ public sealed partial record ResolutionResult(
             ? "藏匿卡牌后创建指示物；双方响应后结算。"
             : "从背面打出卡牌后，活跃原来源并给予战力；双方响应后结算。";
         if (CoreRuleEngine.IsParsedUnitHeldContext(trigger.HeldContext)) return CoreRuleEngine.UnitHeldLabel(trigger.HeldContext!);
+        if (trigger.UnitBattleWinDraw is { GoldCount: > 0 } gold) return $"赢得战斗：打出 {gold.GoldCount} 个休眠的金币装备指示物；双方响应后结算。";
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DrawHandThreshold is not null) return "抽牌且满足手牌阈值：弃置手牌、摧毁来源并令选定对手得分；双方响应后结算。";
