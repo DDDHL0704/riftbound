@@ -207,37 +207,71 @@
       ],
       "text": "所有拥有增益的友方单位如未拥有{{法盾}}，则额外获得{{法盾}}。（对手必须支付{{A}}才能将其选作法术或技能的目标。）",
       "scope": "所有拥有增益的友方单位如未拥有{{法盾}}，则额外获得{{法盾}}。（对手必须支付{{A}}才能将其选作法术或技能的目标。）",
-      "status": "missing",
-      "reason": "只实现装备入场给予增益；没有为所有当前拥有增益且无法盾的友方单位授予法盾的持续消费者",
-      "rules": "核心364–365、809 法盾；OGN·063 官方中文牌面",
+      "status": "route",
+      "reason": "共享当前资源关键词光环持续检查场上友方单位的增益；无法盾时才补足法盾。先计算印刷、临时、装备和普通光环的法盾，多个魂佑不会叠加，失去增益或来源离场立即撤销；真实敌方法术收取当前费用，恢复与回放一致",
+      "rules": "核心364.3／365.1 持续效果、477–478 文本层、480–481 依赖、809 法盾；OGN·063 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAuras": [
           {
-            "manaCost": 2,
-            "requiredTargetCount": 1,
-            "targetScope": "FRIENDLY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "grantsBoon": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "FRIENDLY_FILTERED_UNITS_KEYWORD",
+              "layer": "RULE_TEXT",
+              "targetScope": "FRIENDLY_FILTERED_UNITS",
+              "participantScope": "FRIENDLY_FILTERED_PUBLIC_UNITS",
+              "targetFilter": "TAG:增益",
+              "grantedKeyword": "法盾",
+              "onlyIfMissingKeyword": true
+            },
+            "predicates": [
+              "StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura"
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/StaticAuraSpecRules.cs",
           "contains": [
-            "\"OGN·063/298\"",
-            "\"SECRET_ART_SOULGUARD_PLAY_EQUIPMENT_GRANT_BOON\""
+            "targetFilter == StaticAuraTargetFilters.Unit",
+            "targetFilter.StartsWith(StaticAuraTargetFilters.TagPrefix",
+            "IsPublicFieldFriendlyKeywordStaticAura("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyResourceKeywordAuras.cs",
+          "contains": [
+            "FriendlyResourceKeywordAuraContributions(",
+            "OnlyIfMissingKeyword != true",
+            "ResourceKeywordAmountWithoutFriendlyAuras(state, target, keyword) == 0",
+            "contributions.Add(conditional)",
+            "MissingResourceKeywordAuraApplies("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "FriendlyResourceKeywordAuraContributions(state, playerZones, cardObject, resourceKeyword)",
+            "ResourceKeywordAmountWithoutFriendlyAuras(state, card, CardResourceKeywordNames.Spellshield)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/State.Auras.cs",
+          "contains": [
+            "CoreRuleEngine.MissingResourceKeywordAuraApplies(state, sourceObjectId, participantObjectId, aura)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FriendlySpellshieldEquipmentAuraTests.cs",
+          "methods": [
+            "ActualEquipmentPlayAddsTheCurrentFriendlySpellshieldAura",
+            "SoulguardOnlySuppliesMissingSpellshieldAndRealTargetPaymentsUseTheTotal",
+            "SoulguardLosesItsConditionalGrantWhenTheActualBoonCostConsumesTheLastBoon",
+            "DestroyingTheSourceEndsTheAuraAfterTheDestructionInstruction"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

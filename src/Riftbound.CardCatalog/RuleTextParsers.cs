@@ -4606,6 +4606,24 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var missingFriendlyKeywordMatch = Regex.Match(segment,
+                @"^所有拥有(?<tag>[^，。]+)的友方单位如未拥有\{\{(?<keyword>法盾)\}\}，则额外获得\{\{\k<keyword>\}\}",
+                RegexOptions.CultureInvariant);
+            if (missingFriendlyKeywordMatch.Success) {
+                auras.Add(new StaticAuraSpec(StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+                    RuleTextLayer, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.FriendlyFilteredUnits, StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                    0, segment, BehaviorImplementationStatuses.Implemented, "Shared missing-keyword friendly aura.",
+                    StaticAuraTargetFilters.TagPrefix + missingFriendlyKeywordMatch.Groups["tag"].Value,
+                    GrantedKeyword: missingFriendlyKeywordMatch.Groups["keyword"].Value, OnlyIfMissingKeyword: true));
+                continue;
+            }
+
+            var friendlyUnitsKeywordMatch = Regex.Match(segment,
+                @"^友方单位(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
+            if (friendlyUnitsKeywordMatch.Success && TryAddFriendlyKeywordAuras(auras, segment,
+                StaticAuraTargetFilters.Unit, friendlyUnitsKeywordMatch.Groups["grants"].Value)) continue;
+
             var friendlyEquipmentKeywordMatch = Regex.Match(segment,
                 @"^你的装备(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
             if (friendlyEquipmentKeywordMatch.Success
