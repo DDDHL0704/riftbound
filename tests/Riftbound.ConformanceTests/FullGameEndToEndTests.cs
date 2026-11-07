@@ -25603,7 +25603,13 @@ public sealed partial class FullGameEndToEndTests
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
-                    Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
+                    if (item.UnitEvent?.Origin?.ArmamentGranted == true)
+                    {
+                        var expectedSource = ResolutionResult.VisibleObjectIdForViewer(result.State, item.SourceObjectId, viewerId);
+                        Assert.Equal(expectedSource, row["sourceObjectId"]?.GetValue<string>());
+                        Assert.Equal(expectedSource == "HIDDEN" ? "HIDDEN" : "VISIBLE", row["sourceVisibility"]?.GetValue<string>());
+                    }
+                    else Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
                     Assert.Equal((item.SimpleActivation is not null ? item.CardNo : null) ?? item.UnitEvent?.CardNo ?? item.EmpowerInteraction?.CardNo ?? item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo

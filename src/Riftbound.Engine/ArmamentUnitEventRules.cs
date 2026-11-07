@@ -14,14 +14,19 @@ public sealed partial record UnitEventAbilitySpec
 internal static class ArmamentUnitEventRules
 {
     internal const string FixedDamageEffect = "GRANTED_FIXED_DAMAGE_HERE";
+    internal const string AreaDamageEffect = "DAMAGE_ENEMIES_HERE";
     private static readonly Lazy<IReadOnlyDictionary<string, UnitEventAbilitySpec>> Specs = new(() =>
         OfficialArmamentCatalog.All.Select(definition => {
             var match = Regex.Match(definition.EffectText.Trim(),
                 @"^当我进攻或防守时[，,]\s*对此处的一名敌方单位造成(?<amount>[1-9][0-9]*)点伤害[。.]?$",
                 RegexOptions.CultureInvariant);
-            return (definition.CardNo, Spec: match.Success
-                ? new UnitEventAbilitySpec("ATTACK_OR_DEFEND", FixedDamageEffect, int.Parse(match.Groups["amount"].Value)) {
-                    GrantedByArmament = true } : null);
+            var area = Regex.Match(definition.EffectText.Trim(),
+                @"^当我进攻(?:及|或)防守时[，,]\s*对此处的所有敌方单位各造成(?<amount>[1-9][0-9]*)点伤害[。.]?$",
+                RegexOptions.CultureInvariant);
+            var spec = match.Success
+                ? new UnitEventAbilitySpec("ATTACK_OR_DEFEND", FixedDamageEffect, int.Parse(match.Groups["amount"].Value))
+                : area.Success ? new UnitEventAbilitySpec("ATTACK_OR_DEFEND", AreaDamageEffect, int.Parse(area.Groups["amount"].Value)) : null;
+            return (definition.CardNo, Spec: spec is null ? null : spec with { GrantedByArmament = true });
         }).Where(row => row.Spec is not null).ToDictionary(row => row.CardNo, row => row.Spec!, StringComparer.Ordinal));
 
     internal static UnitEventAbilitySpec? Spec(string no) => Specs.Value.GetValueOrDefault(no);

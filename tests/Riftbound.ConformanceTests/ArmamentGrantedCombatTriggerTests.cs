@@ -148,9 +148,9 @@ public sealed class ArmamentGrantedCombatTriggerTests
         Assert.False(result.Accepted); Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(result.State));
     }
 
-    private static MatchState Position(bool defend = false)
+    internal static MatchState Position(bool defend = false, string gear = Bow)
     {
-        var state = ArmamentMightTests.Position(Bow, "OGN·219/298", 4);
+        var state = ArmamentMightTests.Position(gear, "OGN·219/298", 4);
         state = RadUnitEffectTestFixture.Place(state, "GEAR", "P1", "HAND");
         state = RadGearTestPosition.Put(state, "ENEMY1", "OGN·082/298", "P2", defend ? "BASE" : "BATTLEFIELD", defend ? null : "F");
         state = RadGearTestPosition.Put(state, "ENEMY2", "OGN·082/298", "P2", "BATTLEFIELD", defend ? "OTHER" : "F");
@@ -161,24 +161,24 @@ public sealed class ArmamentGrantedCombatTriggerTests
         return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["F"] = state.CardObjects["F"] with { ControllerId = defend ? "P1" : "P2" } } };
     }
-    private static async Task Attach(Driver game, string id = "GEAR")
+    internal static async Task Attach(Driver game, string id = "GEAR", string cardNo = Bow, string cost = "ASSEMBLE_RED")
     {
-        await game.Act("P1", new PlayCardCommand(id, Bow, [], Destination: "BASE"));
-        await game.Act("P1", new AssembleEquipmentCommand(id, "HOST", ["ASSEMBLE_RED"])); await game.Top();
+        await game.Act("P1", new PlayCardCommand(id, cardNo, [], Destination: "BASE"));
+        await game.Act("P1", new AssembleEquipmentCommand(id, "HOST", [cost])); await game.Top();
         Assert.Equal("HOST", game.State.CardObjects[id].AttachedToObjectId);
     }
-    private static async Task Battle(Driver game, bool defend)
+    internal static async Task Battle(Driver game, bool defend)
     {
         if (defend) await game.Act("P1", new EndTurnCommand());
         await game.Act(defend ? "P2" : "P1", new MoveUnitCommand(defend ? "ENEMY1" : "HOST", "BASE", "BATTLEFIELD:F", []));
         for (var i = 0; i < 4 && game.State.FocusPlayerId is { } focus; i++) await game.Act(focus, new PassFocusCommand());
     }
-    private static Task Choose(Driver game, string id)
+    internal static Task Choose(Driver game, string id)
     {
         var choice = game.State.PendingCardChoice!;
         return game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [id]));
     }
-    private static IReadOnlyList<string> Errors(Driver game, MatchState state)
+    internal static IReadOnlyList<string> Errors(Driver game, MatchState state)
     {
         var sequence = game.Commands().Last().CompletedEventSequence;
         var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence,
