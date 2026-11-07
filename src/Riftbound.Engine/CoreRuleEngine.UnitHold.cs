@@ -6,12 +6,14 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal const string UnitHeldEquipmentKind = "UNIT_CREATE_BATTLEFIELD_EQUIPMENT";
     internal const string UnitHeldRuneKind = "UNIT_CHANNEL";
     internal const string UnitHeldHiddenScoreKind = "UNIT_HIDDEN_HERE_SCORE";
     internal static bool IsParsedUnitHeldContext(HeldTriggerContext? context)
-        => context?.Kind is UnitHeldRuneKind or UnitHeldHiddenScoreKind;
+        => context?.Kind is UnitHeldRuneKind or UnitHeldHiddenScoreKind or UnitHeldEquipmentKind;
     internal static string UnitHeldLabel(HeldTriggerContext context)
-        => context.Kind == UnitHeldRuneKind ? "据守战场：召出一枚符文；双方响应后结算。"
+        => context.Kind == UnitHeldEquipmentKind ? "据守战场：向选择的一处单一战场打出装备指示物；确认后双方可以响应。"
+            : context.Kind == UnitHeldRuneKind ? "据守战场：召出一枚符文；双方响应后结算。"
             : "据守战场且此处控制背面卡牌：获得1分；双方响应后结算。";
 
     private static TriggerSpec? UnitHeldSpec(string cardNo)
@@ -21,7 +23,19 @@ public sealed partial class CoreRuleEngine
             && (t.Kind == TriggerKinds.UnitBattlefieldHeldCallRune && t.RuneCallCount is > 0
                 && t.RequiresControlledFaceDownCardHere is null
                 || t.Kind == TriggerKinds.UnitBattlefieldHeldScore && t.ScoreAmount is > 0
-                    && t.RequiresControlledFaceDownCardHere == true), out var spec) ? spec : null;
+                    && t.RequiresControlledFaceDownCardHere == true
+                || t.Kind == TriggerKinds.UnitBattlefieldHeldCreateEquipment && t.CreatedTokenCount is > 0
+                    && t.CreatedTokenDestination == TriggerTokenDestinations.Battlefield
+                    && t.CreatedTokenExhausted == false && t.RequiresControlledFaceDownCardHere is null
+                    && TryGetEquipmentTokenDefinition(t.CreatedTokenName ?? "", [], cardNo, out _)), out var spec) ? spec : null;
+
+    private static string UnitHeldKind(TriggerSpec spec) => spec.Kind switch {
+        TriggerKinds.UnitBattlefieldHeldCreateEquipment => UnitHeldEquipmentKind,
+        TriggerKinds.UnitBattlefieldHeldCallRune => UnitHeldRuneKind,
+        _ => UnitHeldHiddenScoreKind
+    };
+    private static int UnitHeldAmount(TriggerSpec spec)
+        => spec.CreatedTokenCount ?? spec.RuneCallCount ?? spec.ScoreAmount!.Value;
 
     private static bool ControlsFaceDownCardHere(MatchState state, string controller, string field)
         => state.CardObjects.Values.Any(c => c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
@@ -32,12 +46,12 @@ public sealed partial class CoreRuleEngine
     private static TriggerQueueItemState CaptureUnitHeld(MatchState state, string sourceId, string player,
         string field, CardObjectState source, RuleTextInstance instance, TriggerSpec spec, int copy)
     {
-        var kind = spec.Kind == TriggerKinds.UnitBattlefieldHeldCallRune ? UnitHeldRuneKind : UnitHeldHiddenScoreKind;
+        var kind = UnitHeldKind(spec);
         var key = $"{state.TurnNumber}:{state.Tick}:{field}:{sourceId}:{source.ObjectGeneration}:{instance.Id}:{kind}:{copy}";
         var id = "unit-held-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(key)));
         return new(id, player, sourceId, "HOLD_" + kind, "BATTLEFIELD_HELD") {
             SourceCardNo = instance.CardNo,
-            HeldContext = new(instance.CardNo, field, kind, spec.RuneCallCount ?? spec.ScoreAmount!.Value,
+            HeldContext = new(instance.CardNo, field, kind, UnitHeldAmount(spec),
                 source.ObjectGeneration, Origin: instance.Origin, RuleTextInstanceId: instance.Id,
                 UnitSource: new(state.Tick, source.CopyFaceTransitions?.Count ?? 0, AttachedRuleTextRules.Face(source)!,
                     IsTokenObject(source) ? source.TokenFactoryCardNo ?? source.CardNo : null))
@@ -48,8 +62,8 @@ public sealed partial class CoreRuleEngine
         string controller, string sourceId, string? cardNo)
     {
         if (!IsParsedUnitHeldContext(context) || context.Deployment is not null || UnitHeldSpec(context.CardNo) is not { } spec
-            || context.Kind != (spec.RuneCallCount is > 0 ? UnitHeldRuneKind : UnitHeldHiddenScoreKind)
-            || context.Amount != (spec.RuneCallCount ?? spec.ScoreAmount) || context.RequiredExactOtherFriendlyBattlefieldUnits is not null
+            || context.Kind != UnitHeldKind(spec)
+            || context.Amount != UnitHeldAmount(spec) || context.RequiredExactOtherFriendlyBattlefieldUnits is not null
             || effect != "HOLD_" + context.Kind || cardNo != context.CardNo || controller != state.TurnPlayerId
             || state.Phase != MatchPhases.TurnStart || state.TurnStartStep != "CHANNEL"
             || context.SourceGeneration < 0 || string.IsNullOrWhiteSpace(sourceId)

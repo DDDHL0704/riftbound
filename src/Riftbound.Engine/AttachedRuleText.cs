@@ -4,7 +4,10 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record AttachedRuleTextState(ObjectBinding Unit, string CardNo, long Revision, long? CapturedTick, long? FaceRevision);
-public sealed record RuleTextInstanceBinding(string CardNo, ObjectBinding Unit, ObjectBinding Equipment, long Revision, long? CapturedTick, long? FaceRevision);
+public sealed record RuleTextInstanceBinding(string CardNo, ObjectBinding Unit, ObjectBinding Equipment, long Revision, long? CapturedTick, long? FaceRevision,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] bool ArmamentGranted = false,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? ArmamentHostCardNo = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? ArmamentEquipmentFactory = null);
 internal sealed record RuleTextInstance(string Id, string CardNo, RuleTextInstanceBinding? Origin = null);
 
 // Enumerate printed text sets, never the host's materialized tags, temporary
@@ -112,6 +115,8 @@ internal static class AttachedRuleTextRules
         string unitId, long generation, string cardNo)
     {
         if (origin is null) return true;
+        if (origin.ArmamentGranted) return ArmamentUnitEventRules.ValidCaptured(state, origin, unitId, generation, cardNo);
+        if (origin.ArmamentHostCardNo is not null || origin.ArmamentEquipmentFactory is not null) return false;
         if (origin.Unit is null || origin.Equipment is null || origin.CardNo != cardNo || origin.Unit.ObjectId != unitId || origin.Unit.Generation != generation
             || generation < 0 || origin.Revision <= 0 || origin.Equipment.Generation < 0
             || origin.CapturedTick is not >= 0 || origin.CapturedTick > state.Tick || origin.FaceRevision is not >= 0

@@ -256,6 +256,7 @@ public static class TriggerKinds
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
     public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
     public const string UnitBattlefieldHeldCreateUnitHere = "UNIT_BATTLEFIELD_HELD_CREATE_UNIT_HERE";
+    public const string UnitBattlefieldHeldCreateEquipment = "UNIT_BATTLEFIELD_HELD_CREATE_EQUIPMENT";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =

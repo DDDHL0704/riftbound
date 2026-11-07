@@ -26,6 +26,11 @@ public sealed record ShowcaseReceipt(
 public sealed partial class CoreRuleEngine
 {
     internal const string ShowcaseChoicePrefix = "SHOWCASE:";
+    // CN 401.2 / 430.2: a pure resource skill confirms and resolves as part of
+    // the play task; it does not hand off priority to an ordinary entry skill.
+    private static bool HasImmediateShowcaseResource(CardBehaviorDefinition behavior)
+        => behavior.Showcase is { GenericPower: > 0, ReadyEntry: false, InsightFromPowerCost: false, DrawAfter: 0 };
+
     private static readonly Lazy<IReadOnlySet<string>> PrintedStandbyCards = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Where(c => c.CardEffect.Split('\n').Any(line => line.TrimStart().StartsWith("{{待命}}", StringComparison.Ordinal)))
