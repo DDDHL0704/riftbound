@@ -5314,6 +5314,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.UnitEvent is { Origin.ArmamentGranted: true } armamentEvent)
+            payload["armamentGrantHash"] = ArmamentUnitEventRules.CaptureHash(armamentEvent);
         if (trigger.DrawHandThreshold is { } threshold) payload["drawHandThreshold"] = threshold;
         if (trigger.BattlefieldConquestMill is { } conquestMill)
             payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
@@ -15816,7 +15818,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
+            || BattlefieldLocalRules.PreventsMoveToBase(state with { PlayerZones = playerZones, CardObjects = cardObjects }, targetObjectId))
         {
             return false;
         }
@@ -23111,7 +23114,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId, events)
+            || !TryMoveTargetToOwnerBase(state, playerZones, cardObjects, playerId, targetObjectId, out var targetPlayerId, events)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
@@ -24151,13 +24154,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
 
-            if (stackItem.SourceConfirmed && stackItem.Showcase is not null && behavior.Showcase is { GenericPower: > 0 } showcased)
+            if ((confirmPermanent || stackItem.SourceConfirmed) && stackItem.Showcase is not null
+                && HasImmediateShowcaseResource(behavior) && behavior.Showcase is { } showcased)
             {
                 var pool = runePools[stackItem.ControllerId];
                 runePools[stackItem.ControllerId] = pool with { Power = checked(pool.Power + showcased.GenericPower) };
-                events.Add(new("POWER_GAINED", "亮出技能获得符能", new Dictionary<string, object?> {
+                var resourcePayload = new Dictionary<string, object?> {
                     ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["amount"] = showcased.GenericPower, ["powerAfter"] = runePools[stackItem.ControllerId].Power }));
+                    ["effectKind"] = stackItem.EffectKind, ["resourceSkill"] = true,
+                    ["amount"] = showcased.GenericPower, ["powerAfter"] = runePools[stackItem.ControllerId].Power };
+                events.Add(new("TRIGGER_RESOLVED", "亮出资源技能立即结算", resourcePayload));
+                events.Add(new("POWER_GAINED", "亮出技能获得符能", resourcePayload));
             }
 
             if (TryResolveSourceStealEnemyEquipment(
@@ -26105,7 +26112,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetToBase
-                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
+                        && TryMoveTargetToOwnerBase(state, playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BASE",
@@ -32228,6 +32235,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryMoveTargetToOwnerBase(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string movingPlayerId,
@@ -32236,7 +32244,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent>? events = null)
     {
         ownerPlayerId = string.Empty;
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
+        if (BattlefieldLocalRules.PreventsMoveToBase(current, targetObjectId)
+            || !MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
         foreach (var (playerId, zones) in playerZones)
         {
             if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)

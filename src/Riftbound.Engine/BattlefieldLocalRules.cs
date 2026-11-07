@@ -48,7 +48,8 @@ internal static class BattlefieldLocalRules
         battlefield is not null && BattlefieldStaticAbilitySpecRules.TryGetAbility(battlefield.CardNo, predicate, out _);
 
     public static bool PreventsMoveToBase(MatchState state, string unitId) =>
-        HasAbility(AtUnit(state, unitId), BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility);
+        CoreRuleEngine.AnySourcePreventsUnitsMovingToBase(state)
+        || HasAbility(AtUnit(state, unitId), BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility);
 
     public static bool PreventsUnitPlay(MatchState state, string destination) =>
         destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)

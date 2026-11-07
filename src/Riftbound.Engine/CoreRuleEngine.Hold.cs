@@ -180,6 +180,7 @@ public sealed partial class CoreRuleEngine
             && !ValidParsedUnitHeld(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured unit Hold effect.");
         if (context.Kind == DeploymentHeldKind) return ResolveDeploymentHeld(state, item);
+        if (context.Kind == UnitHeldEquipmentKind) return ResolveUnitHeldEquipment(state, item);
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);
         if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);

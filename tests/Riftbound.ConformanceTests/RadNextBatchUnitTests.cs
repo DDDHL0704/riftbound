@@ -69,9 +69,11 @@ public sealed class RadNextBatchUnitTests
         }
         else
         {
-            Assert.Equal(3, behavior.CreatedBattlefieldEquipmentTokenCount);
-            Assert.Equal("炸弹", behavior.CreatedBattlefieldEquipmentTokenName);
-            Assert.Equal(CardEquipmentKeywordNames.Deploy, behavior.CreatedBattlefieldEquipmentTokenTags);
+            var held = Assert.Single(RuleTextParser.Parse(card).Triggers,
+                t => t.Kind == TriggerKinds.UnitBattlefieldHeldCreateEquipment);
+            Assert.Equal(3, held.CreatedTokenCount);
+            Assert.Equal("炸弹", held.CreatedTokenName);
+            Assert.Equal(TriggerTokenDestinations.Battlefield, held.CreatedTokenDestination);
             Assert.True(behavior.SourceUnitIsExhausted);
         }
     }
@@ -294,7 +296,7 @@ public sealed class RadNextBatchUnitTests
     }
 
     [Fact]
-    public async Task BombMonkeyDefendingAFieldCreatesExactlyThreeActiveBombsThere()
+    public async Task BombMonkeyDefendingAFieldDoesNotCreateItsHoldBombs()
     {
         var initial = BombPosition();
         var cards = initial.CardObjects.ToDictionary();
@@ -319,21 +321,9 @@ public sealed class RadNextBatchUnitTests
             Assert.InRange(i, 0, 3);
             await game.Act(game.State.FocusPlayerId, new PassFocusCommand());
         }
-        Assert.Equal("STANDBY_DEFEND_BOMBS", Assert.Single(game.State.StackItems).FieldContext!.Kind);
-        await game.Top();
-
-        var bombs = Bombs(game.State);
-        Assert.Equal(3, bombs.Length);
-        Assert.All(bombs, id =>
-        {
-            var bomb = game.State.CardObjects[id];
-            Assert.Equal(P6TokenFactoryCatalog.BombTokenCardNo, bomb.TokenFactoryCardNo);
-            Assert.False(bomb.IsExhausted);
-            Assert.Contains(CardEquipmentKeywordNames.Deploy, bomb.Tags);
-            Assert.Equal(Battlefield, game.State.ObjectLocations[id].BattlefieldObjectId);
-        });
-        Assert.Equal(3, game.Events().Count(entry => entry.Event.Kind == "EQUIPMENT_TOKEN_CREATED"
-            && Equals(entry.Event.Payload.GetValueOrDefault("tokenCardNo"), P6TokenFactoryCatalog.BombTokenCardNo)));
+        Assert.DoesNotContain(game.State.StackItems, i => i.HeldContext is not null);
+        Assert.Empty(Bombs(game.State));
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "EQUIPMENT_TOKEN_CREATED");
         await game.Replay();
     }
 
