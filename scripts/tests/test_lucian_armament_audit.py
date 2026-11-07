@@ -81,3 +81,25 @@ class ProvidedArmamentKeywordAuditTests(unittest.TestCase):
         card = self.card(); clause = audit.card_clauses(card)[0]
         clause['scope'] = '如果我处于战场上，则' + clause['scope']
         self.assertEqual('missing', audit.audit_clause(card,clause,self.sources)['status'])
+
+    def test_standby_keywords_do_not_disable_face_up_weapons_hosts_or_sources(self):
+        for name in ('gear', 'unit', 'source'):
+            with self.subTest(name=name):
+                old = name + '.IsFaceDown'
+                new = old + (' || ' if name == 'source' else ' && !') + name + '.Tags.Contains(CardObjectTags.Standby)'
+                self.assertEqual('missing', self.outcome(sources=self.changed('CoreRuleEngine.ArmamentKeywords.cs', old, new)))
+
+    def test_lower_box_keywords_require_public_binding_without_standby_keyword_exclusions(self):
+        card = dict(armament=dict(grantedKeywords=['强攻2']))
+        clause = dict(text='{{强攻2}}', kind='keyword', scope='{{强攻2}}', location='armament')
+        self.assertEqual('route', audit.audit_armament_clause(card, clause, self.sources)['status'])
+        for token in ['!gear.IsFaceDown', '!unit.IsFaceDown',
+                      'IsObjectOnField(state.PlayerZones, gear.ObjectId)', 'IsObjectOnField(state.PlayerZones, host)']:
+            with self.subTest(token=token):
+                sources = self.changed('CoreRuleEngine.ArmamentKeywords.cs', token)
+                self.assertEqual('missing', audit.audit_armament_clause(card, clause, sources)['status'])
+        for name in ('gear', 'unit'):
+            token = '!' + name + '.IsFaceDown'
+            sources = self.changed('CoreRuleEngine.ArmamentKeywords.cs', token,
+                token + ' && !' + name + '.Tags.Contains(CardObjectTags.Standby)')
+            self.assertEqual('missing', audit.audit_armament_clause(card, clause, sources)['status'])

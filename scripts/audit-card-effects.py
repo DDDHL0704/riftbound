@@ -716,6 +716,15 @@ def keyword_route(card: dict, clause: dict, sources: Sources) -> dict:
     return result("review", "未找到该关键词的物体／费用／文本消费路径")
 
 
+def has_public_armament_keyword_binding(sources: Sources) -> bool:
+    text = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs', '')
+    required = ['!gear.IsFaceDown', '!unit.IsFaceDown',
+                'IsObjectOnField(state.PlayerZones, gear.ObjectId)', 'IsObjectOnField(state.PlayerZones, host)',
+                'IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host)']
+    return all(token in text for token in required) and not any(
+        name + '.Tags.Contains(CardObjectTags.Standby)' in text for name in ('gear', 'unit'))
+
+
 def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     runtime = card.get("armament", {})
     bare = normalize(unparenthesize(clause["text"]))
@@ -727,6 +736,8 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
         grant_paths = [path for path in sources.references(".GrantedKeywords")
                        if Path(path).name == "CoreRuleEngine.ArmamentKeywords.cs"]
         if matches and grant_paths:
+            if not has_public_armament_keyword_binding(sources):
+                return result('missing', '武装关键词缺少公开区域／背面状态检查，或误将待命关键词当作背面状态', grant_paths)
             return result("route", "贴附武装向宿主授予具体关键词", grant_paths)
     replacement = {
         normalize("如果我被摧毁，则改为摧毁守护天使。"),
@@ -1231,6 +1242,9 @@ def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) 
         return None
     if normalize(unparenthesize(clause['scope'])) != text:
         return result('missing', '武装提供关键词的范围与句子不一致')
+    provider = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.ArmamentKeywords.cs', '')
+    if not has_public_armament_keyword_binding(sources) or 'source.Tags.Contains(CardObjectTags.Standby)' in provider:
+        return result('missing', '正面单位、武装或来源拥有待命关键词不会失去其公开关键词效果')
     profile = dict(kind='FRIENDLY_ARMAMENT_PROVIDED_KEYWORD', layer='RULE_TEXT',
         duration='WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD', targetScope='FRIENDLY_EQUIPMENT',
         participantScope='FRIENDLY_PUBLIC_FIELD_EQUIPMENT', targetFilter='TAG:武装', grantedKeyword='强攻')
@@ -1241,6 +1255,8 @@ def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) 
         return result('missing', '缺少友方武装向其宿主提供强攻的持续规格；战斗数值加成不能替代关键词')
     requirements = {
         'CoreRuleEngine.ArmamentKeywords.cs': [
+            'PublicStaticAuraSourceObjectIds(state.PlayerZones)',
+            'source.IsFaceDown',
             'var provided = FriendlyArmamentProvidedKeywordGrants(state);',
             'IsArmamentKeywordProvider(gear)',
             'EffectiveFieldControllerId(state.PlayerZones, gear.ObjectId, gear)',

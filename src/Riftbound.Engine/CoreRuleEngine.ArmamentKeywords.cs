@@ -11,11 +11,10 @@ public sealed partial class CoreRuleEngine
     {
         var provided = FriendlyArmamentProvidedKeywordGrants(state);
         return state.CardObjects.Values.Where(gear => gear.AttachedToObjectId is { } host
-                && !gear.IsFaceDown && !gear.Tags.Contains(CardObjectTags.Standby)
+                && !gear.IsFaceDown
                 && gear.Tags.Contains(CardObjectTags.EquipmentCard) && IsArmamentKeywordProvider(gear)
                 && IsObjectOnField(state.PlayerZones, gear.ObjectId)
                 && state.CardObjects.TryGetValue(host, out var unit) && !unit.IsFaceDown
-                && !unit.Tags.Contains(CardObjectTags.Standby)
                 && (unit.Tags.Contains(CardObjectTags.UnitCard) || unit.Tags.Contains(CardObjectTags.EquipmentCard))
                 && IsObjectOnField(state.PlayerZones, host)
                 && IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, host))
@@ -35,8 +34,7 @@ public sealed partial class CoreRuleEngine
         var grants = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         foreach (var sourceId in PublicStaticAuraSourceObjectIds(state.PlayerZones))
         {
-            if (!state.CardObjects.TryGetValue(sourceId, out var source) || source.IsFaceDown
-                || source.Tags.Contains(CardObjectTags.Standby)) continue;
+            if (!state.CardObjects.TryGetValue(sourceId, out var source) || source.IsFaceDown) continue;
             var controller = EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, sourceId, source);
             if (string.IsNullOrWhiteSpace(controller)) continue;
             foreach (var instance in AttachedRuleTextRules.Instances(state, source))

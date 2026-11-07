@@ -48,6 +48,29 @@ public sealed class LucianLegendArmamentKeywordTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData("SFD·183/221", false)] [InlineData("SFD·241/221", false)]
+    [InlineData("SFD·183/221", true)] [InlineData("SFD·241/221", true)]
+    public async Task FaceUpPlaysOfStandbyUnitsAndWeaponsStillProvideCurrentKeywords(string legend, bool standbyWeapon)
+    {
+        var no = standbyWeapon ? "SFD·139/221" : "UNL-145/219";
+        var game = new Driver(OfficialCopyIdentityTests.AddSpell(Board(legend), "STANDBY", no));
+        await game.Act("P1", new PlayCardCommand("STANDBY", no, []));
+        if (!standbyWeapon)
+            Assert.Contains(CardObjectTags.Standby, game.State.CardObjects["STANDBY"].Tags);
+        Assert.False(game.State.CardObjects["STANDBY"].IsFaceDown);
+        var host = standbyWeapon ? "HOST" : "STANDBY";
+        var gear = standbyWeapon ? "STANDBY" : "GEAR";
+        await game.Act("P1", new AssembleEquipmentCommand(gear, host,
+            [standbyWeapon ? "ASSEMBLE_PURPLE" : "ASSEMBLE_BLUE"]));
+        await game.Top();
+        var unit = CoreRuleEngine.RecomputeRuleDerivedKeywords(game.State).CardObjects[host];
+        Assert.Equal(1, CardCombatKeywordRules.KeywordAmount(unit.Tags, CardCombatKeywordNames.Assault));
+        if (!standbyWeapon)
+            Assert.Equal(2, CardCombatKeywordRules.KeywordAmount(unit.Tags, CardCombatKeywordNames.Steadfast));
+        await game.Replay();
+    }
+
     [Theory, InlineData("SFD·183/221"), InlineData("SFD·241/221")]
     public async Task PrintedLowerKeywordsAndEachSeparateWeaponGrantAddTogether(string legend)
     {
