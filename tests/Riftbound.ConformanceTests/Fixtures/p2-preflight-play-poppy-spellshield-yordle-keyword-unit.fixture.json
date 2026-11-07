@@ -17,7 +17,7 @@
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+      "note": "单位是游戏对象并可记录关键词标签；永久物在确认时进场，满足条件的打出技能才加入结算链；条件不满足时不生成空技能或优先权窗口。"
     },
     {
       "source": "data/official/upstream/2026-10-04/rules-manifest.json",
@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "核心383.2.a.1；UNL-116／116a 波比·刚毅典范",
+      "note": "双方0分不满足距胜利不超过3分的入场触发条件，不创建空触发，也不提交无优先权窗口的让过命令；实际满足与不满足条件、动态胜利分差和独立经验由ConditionalHeroExperienceTests覆盖。"
     }
   ],
   "roomId": "p2-preflight-unl-116-poppy-room",
@@ -80,21 +85,15 @@
         "cardNo": "UNL-116/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-116-poppy-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-116-poppy-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
