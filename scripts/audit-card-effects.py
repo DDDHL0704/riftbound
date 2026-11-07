@@ -1443,6 +1443,9 @@ def boon_mode_activation_route(card: dict, clause: dict, sources: Sources) -> di
                          sources.files.get(path, ""))
         return body is not None and all(marker in body.group(0) for marker in markers)
 
+    tracked_uses = re.search(
+        r"(?ms)^    private static readonly [^;\n]*\bPerPlayerActivationAbilities\s*=.*?;",
+        sources.files.get(recovery, ""))
     common = (
         method_has(dispatch, "ResolveActivateAbility",
                    "if (ability.SimpleEffect is not null)",
@@ -1464,7 +1467,8 @@ def boon_mode_activation_route(card: dict, clause: dict, sources: Sources) -> di
         and method_has(tokens, "FinalizeTokenDepartures",
                        "!ValidSimpleActivation(before with { Tick = result.State.Tick }, item)",
                        "CeasedSource = new(source.TokenFactoryCardNo ?? source.CardNo!, result.State.Tick)")
-        and ".Where(a => a.SimpleEffect is { OncePerTurn: true })" in sources.files.get(recovery, "")
+        and tracked_uses is not None
+        and ".Where(a => a.SimpleEffect is { OncePerTurn: true })" in tracked_uses.group(0)
         and method_has(recovery, "ValidatePerPlayerActivationUseHistory",
                        "var abilities = PerPlayerActivationAbilities;",
                        'TryReadObjectString(payload, "abilityInstanceId"', 'TryReadObjectLong(payload, "sourceGeneration"',

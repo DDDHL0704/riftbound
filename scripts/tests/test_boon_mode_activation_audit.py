@@ -94,6 +94,19 @@ class BoonModeActivationAuditTests(unittest.TestCase):
                                "source = BoonRules.Consume(source);", decoy=True)
         self.assertEqual(["missing"] * 5, self.statuses(sources=sources))
 
+    def test_unused_correct_filter_cannot_certify_the_recovery_table(self):
+        sources = copy.copy(self.sources)
+        sources.files = dict(self.sources.files)
+        path = "src/Riftbound.Engine/MatchRecovery.PerPlayerActivationUses.cs"
+        correct = ".Where(a => a.SimpleEffect is { OncePerTurn: true })"
+        self.assertIn(correct, sources.files[path])
+        text = sources.files[path].replace(correct,
+            ".Where(a => a.SimpleEffect is { OncePerTurn: true, OncePerTurnPerPlayer: true })")
+        end = text.rfind("}")
+        sources.files[path] = (text[:end] + "\n    private static void UnusedCorrectFilter() { "
+            "_ = P4ActivatedAbilityCatalog.GetAll()" + correct + "; }\n" + text[end:])
+        self.assertEqual(["missing"] * 5, self.statuses(sources=sources))
+
     def test_an_unused_correct_dispatch_cannot_replace_the_real_activation_call(self):
         sources = self.changed("CoreRuleEngine.cs",
                                "return ResolveSimpleActivation(state, intent, command, ability);", decoy=True)
