@@ -531,9 +531,12 @@ public sealed class NaturalUnitConquestTriggerTests
         var boons = game.Events().Where(e => e.Event.Kind == "BOON_GRANTED"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), TreantObjectId)
             && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), TreantObjectId)).ToArray();
-        Assert.Equal(2, boons.Length);
-        Assert.False(Assert.IsType<bool>(boons[0].Event.Payload["alreadyHadBoon"]));
-        Assert.True(Assert.IsType<bool>(boons[1].Event.Payload["alreadyHadBoon"]));
+        Assert.Single(boons);
+        Assert.Equal(1, boons[0].Event.Payload["boonCount"]);
+        Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "STACK_ITEM_RESOLVED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), TreantObjectId)
+            && Equals(e.Event.Payload.GetValueOrDefault("effectKind"), CoreRuleEngine.UnitEventEffect)));
+        Assert.Empty(game.State.StackItems);
         var treant = game.State.CardObjects[TreantObjectId];
         Assert.Equal(5, treant.Power); Assert.Equal(1, treant.BoonCount);
         Assert.Contains(CardObjectTags.Boon, treant.Tags);

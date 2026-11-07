@@ -6073,11 +6073,12 @@ public sealed partial class FullGameEndToEndTests
                 string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
                 && string.Equals(gameEvent.Payload["sourceObjectId"] as string, treantObjectId, StringComparison.Ordinal))
             .ToArray();
-        Assert.Equal(2, boonEvents.Length);
+        Assert.Single(boonEvents);
         var boonTargetObjectId = Assert.IsType<string>(boonEvents[0].Payload["targetObjectId"]);
-        Assert.Equal(boonTargetObjectId, Assert.IsType<string>(boonEvents[1].Payload["targetObjectId"]));
-        Assert.False(Assert.IsType<bool>(boonEvents[0].Payload["alreadyHadBoon"]));
-        Assert.True(Assert.IsType<bool>(boonEvents[1].Payload["alreadyHadBoon"]));
+        Assert.Equal(1, boonEvents[0].Payload["boonCount"]);
+        Assert.Equal(2, result.Events.Count(gameEvent => gameEvent.Kind == "STACK_ITEM_RESOLVED"
+            && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), treantObjectId)
+            && Equals(gameEvent.Payload.GetValueOrDefault("effectKind"), CoreRuleEngine.UnitEventEffect)));
 
         var boonTarget = result.State.CardObjects[boonTargetObjectId];
         Assert.Contains(CardObjectTags.Boon, boonTarget.Tags);

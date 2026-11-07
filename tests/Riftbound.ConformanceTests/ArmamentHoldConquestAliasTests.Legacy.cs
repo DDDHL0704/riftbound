@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -65,6 +66,21 @@ public sealed partial class ArmamentHoldConquestAliasTests
         Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
         await Drain(game);
         Assert.Equal(before + (might ? 8 * count : 1), Power(game.State, "ALLY"));
+        if (might) {
+            var ledger = game.State.CardObjects["ALLY"].UntilEndOfTurnPowerModifiers
+                .Where(m => m.EffectKind == CoreRuleEngine.UnitEventEffect && m.SourceCardNo == "UNL-027/219").ToArray();
+            Assert.Equal(count, ledger.Length); Assert.All(ledger, entry => Assert.Equal("HOST", entry.SourceObjectId));
+            var views = ResolutionResult.BuildSnapshots(game.State);
+            foreach (var viewer in new[] { "P1", "P2" }) {
+                var snapshot = JsonSerializer.SerializeToElement(views[viewer], new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                var effects = snapshot.GetProperty("timing").GetProperty("continuousEffects").EnumerateArray()
+                    .Where(e => e.GetProperty("effectKind").GetString() == CoreRuleEngine.UnitEventEffect
+                        && e.GetProperty("sourceCardNo").GetString() == "UNL-027/219").ToArray();
+                Assert.Equal(count, effects.Length);
+                Assert.All(effects, effect => Assert.Equal(viewer == "P1" ? "HOST" : "HIDDEN",
+                    effect.GetProperty("sourceObjectId").GetString()));
+            }
+        }
         await game.Replay();
     }
 
