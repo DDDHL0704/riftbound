@@ -153,4 +153,21 @@ public sealed class EachPlayerKeepAndRecycleTests
         Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind is "UNIT_DESTROYED" or "EQUIPMENT_DESTROYED");
         await game.Replay();
     }
+
+    [Fact]
+    public async Task AnObserverRecycledInTheSameInstructionStillEarnsOneIndependentBoonSkill()
+    {
+        var state = RadGearTestPosition.Put(Position(3), "ZZ-OBSERVER", "OGN·235/298", "P1", "BASE");
+        var game = new Driver(state); await game.Act("P1", new PlayCardCommand("UNIT", Judgment, [])); await game.Top();
+        await KeepFirstTwo(game);
+        Assert.Contains("ZZ-OBSERVER", game.State.PlayerZones["P1"].MainDeck);
+        var item = Assert.Single(game.State.StackItems);
+        Assert.Equal("RECYCLE_BOON", item.FieldContext!.Kind);
+        Assert.Equal(4, item.FieldContext.RecycledBoon!.CardCount);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-U0"]));
+        await game.Top();
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["P1-U0"].Tags);
+        await game.Replay();
+    }
 }
