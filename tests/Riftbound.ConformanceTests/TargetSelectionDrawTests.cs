@@ -96,6 +96,36 @@ public sealed class TargetSelectionDrawTests
         await game.Top(); await game.Replay();
     }
 
+    [Fact]
+    public async Task WheelObservesTheFriendlyTargetConfirmedForAnEarnedMovementSkill()
+    {
+        var s = RadGearTestPosition.Put(Position(Wheel), "KATO", "SFD·112/221", "P1", "BASE");
+        var game = new Driver(s);
+        await game.Act("P1", new MoveUnitCommand("KATO", "BASE", "BATTLEFIELD:BF", []));
+        var confirmation = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("KATO", confirmation.SourceObjectId);
+        Assert.Null(game.State.PendingPayment);
+        await game.Act("P1", new ChooseCardsCommand(confirmation.ChoiceId, confirmation.ChoiceWindow, ["ALLY"]));
+        Assert.Equal(1, game.State.PendingPayment!.ManaCost);
+        Assert.Equal("SOURCE", game.State.PendingPayment.SourceObjectId);
+        var mana = game.State.RunePools["P1"].Mana;
+        var before = game.State.CardObjects["ALLY"].Power;
+        await Pay(game);
+        Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
+        Assert.True(game.State.CardObjects["SOURCE"].IsExhausted);
+        var wheel = game.State.StackItems[^1];
+        Assert.Equal("SOURCE", wheel.SourceObjectId);
+        Assert.False(wheel.UnitEvent!.TargetSelection!.Spell);
+        Assert.Equal("ALLY", wheel.UnitEvent.Other!.Binding.ObjectId);
+        await game.Top();
+        Assert.Contains("P1-D0", game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(before, game.State.CardObjects["ALLY"].Power);
+        await game.Top();
+        Assert.Equal(before + 3, game.State.CardObjects["ALLY"].Power);
+        Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DRAWN");
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("decline")] [InlineData("no-mana")] [InlineData("exhausted")]
     [InlineData("enemy-target")] [InlineData("opponent")]
