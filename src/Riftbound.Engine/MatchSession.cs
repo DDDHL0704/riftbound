@@ -1459,8 +1459,10 @@ public sealed partial record MatchState
             return (
                 "STATIC_AURA:SOURCE_OBJECT_POWER",
                 "CoreRuleEngine.ResolveSourceObjectPowerBonus",
-                "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
-                "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE");
+                aura.RequiredControllerRuneCount.HasValue ? "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_RUNE_COUNT"
+                    : "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+                aura.RequiredControllerRuneCount.HasValue ? "RECOMPUTED_FROM_CURRENT_CONTROLLER_RUNES"
+                    : "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE");
         }
 
         return (
@@ -1959,7 +1961,7 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.BattlefieldConquestDiscardDraw is not null) view["abilityLabel"] = "征服：弃一张牌，然后抽一张牌";
         if (!hiddenSource && item.BattlefieldConquestReadyEquipment is not null) view["abilityLabel"] = "征服：活跃友方装备";
         if (!hiddenSource && item.BattlefieldConquestConsumeBoon is not null) view["abilityLabel"] = "征服：消耗增益后抽牌";
-        if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_DECK_PLAY" ? "征服展示并打出" : conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : "征服活跃传奇";
+        if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_DECK_PLAY" ? "征服展示并打出" : conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : conquest.Kind == CoreRuleEngine.LegendConquestDrawKind ? "征服条件抽牌" : "征服活跃传奇";
         if (!hiddenSource && item.MovementObserver is { } movement) view["abilityLabel"] = CoreRuleEngine.MovementObserverLabel(movement);
         if (!hiddenSource && item.DelayedDestruction is { } delayed) view["abilityLabel"] = "延迟摧毁：" + CoreRuleEngine.DelayedDestructionRewardLabel(delayed);
         if (!hiddenSource && item.DamageDestruction is not null) view["abilityLabel"] = "受伤后摧毁原单位";

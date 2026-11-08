@@ -52,6 +52,12 @@ internal static class LegendConquestTriggerSpecRules
             && trigger.ReadiesSource is true;
     }
 
+    public static bool IsLegendConquestMinimumUnitsDrawTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.LegendConquestMinimumUnitsDraw
+            && trigger.Timing == TriggerTimings.BattlefieldConquered
+            && trigger.TargetScope == TriggerTargetScopes.ControlledUnitsAtThisBattlefield
+            && trigger.RequiredUnitCount is > 0 && trigger.DrawCount is > 0;
+
     public static bool IsLegendConquestOverkillExhaustReadyUnitTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.LegendConquestOverkillExhaustReadyUnit, StringComparison.Ordinal)
@@ -64,7 +70,7 @@ internal static class LegendConquestTriggerSpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(
