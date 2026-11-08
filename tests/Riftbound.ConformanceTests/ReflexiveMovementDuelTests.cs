@@ -118,15 +118,15 @@ public sealed class ReflexiveMovementDuelTests
         Assert.Equal(2,result.State.TriggerQueue.Count(t=>t.ReflexiveDuel is not null));Restore(result.State);
         var queued=result.State;var queuedViews=queued.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,queued.Tick,0,result.Snapshots[id],queued.Tick,0,result.Prompts[id]));
         var spectator=MatchReplayRedactor.BuildSpectatorFrame(queued.RoomId,queued.Tick,0,[],queued);
-        var errors=MatchRecoveryValidator.Validate(queued.RoomId,0,[],[],queuedViews,queued,queued.Tick,spectator);Assert.True(errors.Count==0,string.Join("; ",errors));
+        var errors=MatchRecoveryValidator.ValidateComponentStateAndViews(queued,queuedViews,spectator);Assert.True(errors.Count==0,string.Join("; ",errors));
         var publicQueue=Assert.IsAssignableFrom<IEnumerable<object>>(result.Snapshots["P2"].Timing!["triggerQueue"]);
         var projected=Assert.IsType<Dictionary<string,object?>>(publicQueue.First());var original=projected["reflexiveDuel"];
         projected["reflexiveDuel"]=queued.TriggerQueue[0].ReflexiveDuel! with {Destination=new("P2","BATTLEFIELD","BF2")};
-        Assert.Contains(MatchRecoveryValidator.Validate(queued.RoomId,0,[],[],queuedViews,queued,queued.Tick),e=>e.Contains("reflexive movement duel differs"));
+        Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(queued,queuedViews),e=>e.Contains("reflexive movement duel differs"));
         projected["reflexiveDuel"]=original;
         result=await Act(result.State,"P1",new OrderTriggersCommand(OrderedTriggerIds:result.State.TriggerQueue.Select(t=>t.TriggerId).ToArray()));
         var views=result.State.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,result.State.Tick,0,result.Snapshots[id],result.State.Tick,0,result.Prompts[id]));
-        Assert.Empty(MatchRecoveryValidator.Validate(result.State.RoomId,0,[],[],views,result.State,result.State.Tick));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(result.State,views));
         for(var i=0;i<2;i++)result=await Choose(result.State);
         Assert.Equal(0,result.State.CardObjects["E"].Damage);
         result=await Top(result.State);result=await Top(result.State);
@@ -139,7 +139,7 @@ public sealed class ReflexiveMovementDuelTests
         for(var i=0;i<2;i++) {
             var state=result.State;
             var views=state.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,state.Tick,0,result.Snapshots[id],state.Tick,0,result.Prompts[id]));
-            Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId,0,[],[],views,state,state.Tick));
+            Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state,views));
             if(i==0)result=await Choose(state);
         }
     }

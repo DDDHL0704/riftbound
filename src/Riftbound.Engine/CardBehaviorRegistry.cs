@@ -439,6 +439,8 @@ public sealed record CardBehaviorDefinition(
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
     public CombatSpellCostAdjustmentSpec? CombatSpellCostAdjustment { get; init; }
+    public SpellManaAlternativeCostSpec? SpellManaAlternativeCost { get; init; }
+    internal SpellManaAlternativeCostSpec? AppliedSpellManaAlternativeCost { get; init; }
     internal bool IgnoreBasePlayCostFromBoons { get; init; }
     internal IReadOnlyList<BoonPlayCostPayment>? BoonPlayCostPayments { get; init; }
     internal IReadOnlyDictionary<string, int>? BoonPlayPowerReductions { get; init; }
@@ -7068,7 +7070,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "预知"),
+            SourceUnitTags: "预知") { SpellManaAlternativeCost = new(4, 1, [RuneTrait.Blue]) },
         new(
             "UNL-089a/219",
             "烬",
@@ -7078,7 +7080,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "预知"),
+            SourceUnitTags: "预知") { SpellManaAlternativeCost = new(4, 1, [RuneTrait.Blue]) },
         new(
             "SFD·006/221",
             "好斗的龙犬",

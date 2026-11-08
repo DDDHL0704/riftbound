@@ -258,12 +258,12 @@ public sealed class DeckPlaySequenceTests
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
-        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
         foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot))
         {
             var row = Assert.IsType<Dictionary<string,object?>>(snapshot.Stack[0]); var original = row["deckPlayPendingCard"];
             row["deckPlayPendingCard"] = bad;
-            Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator), e => e.Contains("deck pending card"));
+            Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator), e => e.Contains("deck pending card"));
             row["deckPlayPendingCard"] = original;
         }
     }
