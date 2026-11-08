@@ -23,9 +23,17 @@ public static partial class MatchRecoveryValidator
         IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
         var expected = new HashSet<BattlefieldHoldRecord>();
+        // Turn numbers restart in each game. Between games the room has
+        // already discarded its game-local state; a finished series retains
+        // the final game's state and therefore its holds.
+        var gameBoundary = events.Where(record => record.Event.Kind == "MATCH_STARTED"
+                || state.Status == MatchStatuses.Seating && record.Event.Kind == "SERIES_GAME_COMPLETED")
+            .Where(record => commands.Any(command => command.Accepted && command.CompletedTick == record.Tick
+                && command.StartedEventSequence < record.Sequence && command.CompletedEventSequence >= record.Sequence))
+            .Select(record => record.Sequence).DefaultIfEmpty().Max();
         foreach (var record in events)
         {
-            if (record.Event.Kind != "BATTLEFIELD_HELD") continue;
+            if (record.Sequence <= gameBoundary || record.Event.Kind != "BATTLEFIELD_HELD") continue;
             var payload = JsonSerializer.SerializeToElement(record.Event.Payload);
             if (!payload.TryGetProperty("holdTurnNumber", out var turn) || !turn.TryGetInt32(out var number)
                 || number != state.TurnNumber) continue;
