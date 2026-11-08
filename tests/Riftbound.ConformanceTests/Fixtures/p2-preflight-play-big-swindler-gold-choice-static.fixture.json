@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-big-swindler-gold-choice-static",
-  "description": "SFD 081 Big Swindler enters as a unit while its player gold choice trigger is deferred.",
+  "description": "SFD 081 Big Swindler enters during confirmation, then both players independently decline its gold choices at resolution.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·081/221 大老千",
-      "note": "官方卡面：费用 3；单位；战力 3；当控制者打出其时，控制者和每名对手都可以选择打出一个休眠的“金币”装备指示物，每有一名对手选择打出，控制者便再打出一个休眠“金币”装备指示物。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；玩家选择和金币装备指示物路径暂缓。"
+      "note": "官方卡面：费用 3；单位；战力 3；当控制者打出其时，控制者和每名对手都可以选择打出一个休眠的“金币”装备指示物，每有一名对手选择打出，控制者便再打出一个休眠“金币”装备指示物。本 fixture 覆盖普通入场及双方在独立技能结算时各自放弃金币。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -82,19 +82,26 @@
       }
     },
     { "playerId": "P1", "clientIntentId": "intent-p2-preflight-big-swindler-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-big-swindler-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-big-swindler-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P1", "clientIntentId": "intent-big-swindler-p1-decline", "cmd": { "cmdType": "PAY_COST", "paymentId": "REPLACEMENT:2:0", "paymentWindow": "RULE_REPLACEMENT", "paymentChoiceIds": ["DECLINE"] } },
+    { "playerId": "P2", "clientIntentId": "intent-big-swindler-p2-decline", "cmd": { "cmdType": "PAY_COST", "paymentId": "REPLACEMENT:2:1", "paymentWindow": "RULE_REPLACEMENT", "paymentChoiceIds": ["DECLINE"] } }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 5,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
+      "RULE_CHOICE_REQUESTED",
+      "RULE_CHOICE_REQUESTED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "STACK_ITEM_RESOLVED",
+      "PLAYER_EQUIPMENT_TOKEN_CHOICE",
+      "PLAYER_EQUIPMENT_TOKEN_CHOICE"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
