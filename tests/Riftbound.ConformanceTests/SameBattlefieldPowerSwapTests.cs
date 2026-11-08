@@ -53,20 +53,14 @@ public sealed class SameBattlefieldPowerSwapTests
     }
 
     [Fact]
-    public async Task AResponseMovingOneTargetToAnotherBattlefieldRechecksTheOriginalGroup()
+    public async Task AResponseMovingOneTargetToBaseStopsTheExchange()
     {
-        var initial = AttackDamageDistributionTests.Spell(Position(), "WIND", "OGN·173/298", "P1");
-        initial = initial with { TimingState = TimingStates.SpellDuelOpen, FocusPlayerId = "P1" };
+        var initial = AttackDamageDistributionTests.Spell(Position(), "BLINK", "OGS·011/024", "P1");
         var game = new Driver(initial); var power = Power(game.State, "ALLY");
         await game.Act("P1", new PlayCardCommand("SWAP", Swap, ["ALLY", "SECOND"]));
-        await game.Act("P1", new PlayCardCommand("WIND", "OGN·173/298", ["SECOND"], Destination: "BATTLEFIELD:OTHER"));
-        await game.Top(); Assert.Equal("OTHER", game.State.ObjectLocations["SECOND"].BattlefieldObjectId);
-        await game.Top(); Assert.Equal("TARGET_GROUP", game.State.PendingRuleChoice!.Request.Kind);
-        async Task Choose(string option) {
-            var request = game.State.PendingRuleChoice!.Request;
-            await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [option]));
-        }
-        await Choose("REMOVE:SECOND"); await Choose("CONFIRM");
+        await game.Act("P1", new PlayCardCommand("BLINK", "OGS·011/024", ["SECOND"]));
+        await game.Top(); Assert.Equal("BASE", game.State.ObjectLocations["SECOND"].Zone);
+        await game.Top();
         Assert.Equal(power, Power(game.State, "ALLY")); Assert.Empty(game.State.StackItems); await game.Replay();
     }
 }
