@@ -82,32 +82,53 @@
       ],
       "text": "选择一处敌方占领的战场。",
       "scope": "选择一处敌方占领的战场。",
-      "status": "missing",
-      "reason": "目标条件错误：ENEMY_BATTLEFIELD消费者按战场控制者或物理区域玩家判断，而非检查敌方单位占领；亦未要求被选对象本身是战场牌，普通战场单位可能混入",
-      "rules": "核心170.11.a 被占领表示存在单位、355.9／355.6 目标限制；RAD·007 官方中文牌面",
+      "status": "route",
+      "reason": "敌方占领战场的共享目标谓词要求对象确为公开战场牌，并且同一战场上存在当前由对手控制的正面朝上单位。服务端、费用预览和操作提示共用该谓词，不按战场牌物理所属者或陈旧控制字段判断；空战场、只有友方单位的战场和普通敌方单位对象均不能替代。响应中最后一名敌方单位真实返手后，原目标失效，后续指示不会在基地兜底生成随从。",
+      "rules": "中国区核心170.11.a 战场被单位占领、355.8/355.9 目标条件、359.3.e.5–8 非法目标的独立指示；RAD·007 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
             "targetScope": "ENEMY_BATTLEFIELD",
+            "createdBaseUnitTokenCount": 3,
             "createdBaseUnitTokensAtTargetBattlefield": true
           }
         ]
       },
       "evidence": [
         {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldTargets.cs",
+          "contains": [
+            "BattlefieldLocalRules.Battlefield(state, field) is not null",
+            "BattlefieldLocalRules.AtUnit(state, unit.ObjectId)?.ObjectId == field",
+            "controller != player"
+          ]
+        },
+        {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "private static bool IsEnemyBattlefieldObject(",
-            "BattlefieldLocalRules.AtObject(state, objectId)?.ControllerId ?? location.Value.PlayerId",
-            "SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.Value.PlayerId)"
+            "CardTargetScopes.EnemyBattlefield => IsEnemyOccupiedBattlefield(state, playerId, objectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "contains": [
+            "CardTargetScopes.EnemyBattlefield => CoreRuleEngine.IsEnemyOccupiedBattlefield(state, playerId, objectId)"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/EnemyOccupiedBattlefieldTests.cs",
+          "methods": [
+            "EnemyOccupationAllowsEitherPhysicalOwnersBattlefield",
+            "EmptyFriendlyOccupiedAndOrdinaryUnitObjectsCannotSupplyTheBattlefieldTarget"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/RadSpellBatchTests.cs",
           "methods": [
-            "WarGatheringCreatesThreeMinionsAtAnEnemyBattlefield"
+            "WarGatheringCreatesThreeMinionsAtAnEnemyBattlefield",
+            "WarGatheringDoesNotCreateMinionsInBaseWhenItsBattlefieldTargetBecomesIllegal"
           ]
         }
       ]

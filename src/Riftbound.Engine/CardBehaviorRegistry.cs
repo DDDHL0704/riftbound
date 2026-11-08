@@ -453,6 +453,9 @@ public sealed record CardBehaviorDefinition(
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
     public CombatSpellCostAdjustmentSpec? CombatSpellCostAdjustment { get; init; }
+    public bool FirstTargetRequiresArmament { get; init; }
+    public bool DetachesArmamentFromFirstTarget { get; init; }
+    public bool ReferencedPowerDamageIsFromSpell { get; init; }
     public SpellManaAlternativeCostSpec? SpellManaAlternativeCost { get; init; }
     internal SpellManaAlternativeCostSpec? AppliedSpellManaAlternativeCost { get; init; }
     internal bool IgnoreBasePlayCostFromBoons { get; init; }
@@ -1417,7 +1420,9 @@ public static class CardBehaviorRegistry
             2,
             TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            DamagesSecondTargetByFirstTargetPower: true),
+            DamagesSecondTargetByFirstTargetPower: true) {
+                FirstTargetRequiresArmament = true, DetachesArmamentFromFirstTarget = true,
+                ReferencedPowerDamageIsFromSpell = true },
         new(
             "UNL-192/219",
             "阿尔法突袭",
@@ -8230,7 +8235,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_BIRD",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "鸟类"),
+            SourceUnitTags: "鸟类") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177/219",
             "艾翁",
@@ -8241,7 +8246,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_CAT",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "猫科"),
+            SourceUnitTags: "猫科") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177/219",
             "艾翁",
@@ -8252,7 +8257,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_DOG",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177/219",
             "艾翁",
@@ -8263,7 +8268,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_PORO",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "魄罗"),
+            SourceUnitTags: "魄罗") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8274,7 +8279,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_BIRD",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "鸟类"),
+            SourceUnitTags: "鸟类") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8285,7 +8290,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_CAT",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "猫科"),
+            SourceUnitTags: "猫科") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8296,7 +8301,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_DOG",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8307,7 +8312,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_PORO",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "魄罗"),
+            SourceUnitTags: "魄罗") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-196/219",
             "小菊！",

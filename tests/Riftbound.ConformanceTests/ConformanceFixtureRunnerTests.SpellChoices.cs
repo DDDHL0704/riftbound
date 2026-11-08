@@ -125,8 +125,10 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal(5, result.FinalState.CardObjects["P2-KNOCKDOWN-ENEMY-001"].Damage);
+        Assert.Null(result.FinalState.CardObjects["P1-KNOCKDOWN-WEAPON-001"].AttachedToObjectId);
         Assert.Equal(["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-WEAPON-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(
             1,
@@ -143,7 +145,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Hand = ["P1-SPELL-KNOCKDOWN"],
-                    Base = ["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-FRIENDLY-002"]
+                    Base = ["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-FRIENDLY-002", "GEAR"]
                 },
                 ["P2"] = PlayerZones.Empty
             },
@@ -156,7 +158,9 @@ public sealed partial class ConformanceFixtureRunnerTests
                 ["P1-KNOCKDOWN-FRIENDLY-002"] = new(
                     "P1-KNOCKDOWN-FRIENDLY-002",
                     power: 3,
-                    tags: [CardObjectTags.UnitCard])
+                    tags: [CardObjectTags.UnitCard]),
+                ["GEAR"] = new("GEAR", tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon]) {
+                    AttachedToObjectId = "P1-KNOCKDOWN-FRIENDLY-001" }
             }
         };
 
@@ -175,7 +179,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-KNOCKDOWN"], result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-FRIENDLY-002"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-FRIENDLY-002", "GEAR"], result.State.PlayerZones["P1"].Base);
         Assert.Empty(result.State.StackItems);
     }
 

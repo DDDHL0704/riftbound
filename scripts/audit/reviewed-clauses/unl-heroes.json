@@ -1720,80 +1720,96 @@
       ],
       "text": "当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。",
       "scope": "当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。",
-      "status": "missing",
-      "reason": "四个属性选择模式已实现，但不存在征服／据守额外得分规格或消费者；须在技能结算时检查四类属性齐备，而非触发时锁定",
-      "rules": "中国区破限裁判FAQ 260511第12页明确结算时检查属性；核心383.2–383.3；UNL-177／177a",
+      "status": "route",
+      "reason": "每份实际来源文本在征服／据守时独立触发；在结算时检查当前公开场上友方单位合计的鸟类、猫科、犬形、魄罗标签，沿用得分限制及胜负消费者；原始捕获与日志绑定不变；映像消失后保留技能时，还须匹配原始已接受的指示物消失事件",
+      "rules": "中国区 UNL 裁判 FAQ260511 第4节／第12页（艾翁·万物之友：四种属性在结算时检查）；核心383.2–383.3（独立触发）、得分限制与胜负共享流程；UNL-177／177a官方中文牌面",
       "runtime": {
-        "staticAuras": [],
+        "unitEventAbility": {
+          "timing": "CONQUEST_OR_HOLD",
+          "effect": "SCORE_IF_FRIENDLY_UNITS_HAVE_ALL_TAGS",
+          "amount": 1,
+          "requiredFriendlyUnitTagsForScore": [
+            "鸟类",
+            "猫科",
+            "犬形",
+            "魄罗"
+          ]
+        },
         "behaviors": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "mode": "CHOOSE_BIRD",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitTags": "鸟类",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          },
-          {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "mode": "CHOOSE_CAT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitTags": "猫科",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          },
-          {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "mode": "CHOOSE_DOG",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitTags": "犬形",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          },
-          {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "mode": "CHOOSE_PORO",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitTags": "魄罗",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "CONQUEST_OR_HOLD",
+              "effect": "SCORE_IF_FRIENDLY_UNITS_HAVE_ALL_TAGS",
+              "amount": 1,
+              "requiredFriendlyUnitTagsForScore": [
+                "鸟类",
+                "猫科",
+                "犬形",
+                "魄罗"
+              ]
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTraitScore.cs",
           "contains": [
-            "\"UNL-177/219\"",
-            "\"IVERN_CHOOSE_BIRD_SCORE_STATIC\""
+            "HasRequiredFriendlyUnitTags(state, item.ControllerId, spec.RequiredFriendlyUnitTagsForScore!)",
+            "GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)",
+            "Where(card => IsFaceUpNonStandbyUnit(card))",
+            "required.All(tags.Contains)",
+            "TryPreventPointGain(state, item.ControllerId, amount,",
+            "scores[item.ControllerId] += amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ResolveFriendlyUnitTraitScore(state, item, spec)",
+            "ValidFriendlyUnitTraitScoreStack(item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.BattlefieldTimingAliases.cs",
+          "contains": [
+            "CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)",
+            "c.Accepted && c.CompletedTick == queued[0].Tick",
+            "HasValidatedCeasedBattlefieldUnitEventSource",
+            "e.Event.Kind == \"TOKEN_CEASED_TO_EXIST\"",
+            "target == item.Source"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/IvernTraitScoreTests.cs",
+          "methods": [
+            "BothPrintingsEarnAnIndependentScoreAfterNaturalConquestAndResponses",
+            "EachMissingTagStillQueuesTheSkillButDoesNotScoreAtResolution",
+            "ARealReturnResponseRechecksTheCurrentTagsInsteadOfTheirCapturedTruth",
+            "ARealStandbyRevealCanSupplyTheMissingTagDuringTheResponseWindow",
+            "ReturningTheSourceDoesNotCancelItsEarnedSkillWhenOtherAlliesHaveEveryTag",
+            "TheActualOwnTurnHoldAlsoQueuesTheSameIndependentScore",
+            "RecoveryBindsTheSkillToTheOriginalAcceptedConquestWithoutRewritingAnyJournal"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/IvernTraitScoreTests.Copies.cs",
+          "methods": [
+            "AnActuallyAssembledSongEarnsTwoSeparatelyRespondableTraitScoreSkills",
+            "AnActualImageEarnsTheScoreAndItsPendingSkillSurvivesTheTokenCeasing"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/IvernTraitScoreTests.Points.cs",
+          "methods": [
+            "TheSharedPointRestrictionIsRecheckedAfterAnActualReturnResponse",
+            "TheIndependentSkillCanWinAfterTheLastConquestPointWasReplacedByADraw"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
