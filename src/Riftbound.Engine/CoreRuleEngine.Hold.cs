@@ -129,7 +129,7 @@ public sealed partial class CoreRuleEngine
                 foreach (var instance in AttachedRuleTextRules.Instances(state, card))
                     if (CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var linkedBehavior) && linkedBehavior.HeldPlaysLinkedExile)
                         abilities.Add((LinkedExileHeldKind, 0, instance, null));
-                if (aliasUnits is null && units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
+                if (aliasUnits is null && units.Contains(source) && CurrentHuntAmount(card) is > 0 and var hunt)
                     abilities.Add(("EXPERIENCE", hunt, null, null));
                 if (units.Contains(source))
                     foreach (var instance in AttachedRuleTextRules.Instances(state, card))

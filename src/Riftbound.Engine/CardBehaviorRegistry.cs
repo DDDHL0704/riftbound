@@ -28,6 +28,7 @@ public static class UnitEventTimings
     public const string OpponentTurnSpellPlayed = "OPPONENT_TURN_SPELL_PLAYED";
     public const string PrintedPowerCardPlayed = "PRINTED_POWER_CARD_PLAYED";
     public const string BoonConsumed = "FRIENDLY_BOON_CONSUMED";
+    public const string PlayerDefend = "PLAYER_DEFEND";
 }
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
@@ -6123,7 +6124,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形",
+            UnitEventAbility: new(UnitEventTimings.PlayerDefend, "MOVE_SELF_TO_DEFENDED_BATTLEFIELD",
+                Optional: true, Modes: [new("MOVE_SELF", "移动到防守的战场", "MOVE_SELF_TO_DEFENDED_BATTLEFIELD")])),
         new(
             "UNL-002/219",
             "伊焚娜",
