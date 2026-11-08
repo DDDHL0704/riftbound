@@ -567,6 +567,35 @@ public sealed class RadNeekoLegendTests
     }
 
     [Fact]
+    public async Task AnActualConquestDrawSurvivesTheDepartureOfItsNeekoBoundLegend()
+    {
+        var initial = (await Position("OGS·023/024")).State;
+        foreach (var id in new[] { "EXTRA1", "EXTRA2", "EXTRA3" })
+        {
+            initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, "OGN·219/298", "P1") } };
+            initial = LocalDestructionRecallTests.At(initial, id, "P1", "BASE");
+        }
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
+        await Play(game, "NEEKO"); await game.Top();
+        var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", [],
+            ["UNIT", "EXTRA1", "EXTRA2", "EXTRA3"]));
+        await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
+        Assert.Equal(legend, Assert.Single(game.State.StackItems).SourceObjectId);
+        Assert.Equal("MINIMUM_UNITS_DRAW", game.State.StackItems.Single().LegendConquest!.Kind);
+        var draws = game.State.PlayerZones["P1"].MainDeck.Take(2).ToArray();
+        Assert.Equal(2, draws.Length);
+        await game.ColdCheckpoint();
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["NEEKO"])); await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey(legend));
+        Assert.NotNull(Assert.Single(game.State.BoundLegends!).DepartedAtTick);
+        await game.ColdCheckpoint(); await game.Top();
+        Assert.All(draws, id => Assert.Contains(id, game.State.PlayerZones["P1"].Hand));
+        await game.ColdCheckpoint(); await game.Replay();
+    }
+
+    [Fact]
     public async Task ATargetSelectionTriggerAlreadyPaidSurvivesItsActualNeekoBoundLegendLeaving()
     {
         var initial = (await Position("SFD·195/221")).State;

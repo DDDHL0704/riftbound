@@ -2322,13 +2322,19 @@ public sealed partial class ConformanceFixtureRunnerTests
             CancellationToken.None);
         result = await CombatTestDriver.FinishAsync(result);
 
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("MINIMUM_UNITS_DRAW", Assert.Single(result.State.StackItems).LegendConquest!.Kind);
+        var conquestEvents = result.Events;
+        result = await OfficialGraveyardRecastTests.Top(result.State);
+        result = result with { Events = conquestEvents.Concat(result.Events).ToArray() };
+
         Assert.True(result.Accepted);
         Assert.Equal(["P1-GAREN-DRAW-001", "P1-GAREN-DRAW-002"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_DRAW_TWO", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.LegendConquestMinimumUnitsDraw, StringComparison.Ordinal));
         var drawEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Equal(2, drawEvent.Payload["count"]);
         Assert.Null(result.State.WinnerPlayerId);

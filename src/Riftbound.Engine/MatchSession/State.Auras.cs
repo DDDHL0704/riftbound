@@ -24,6 +24,7 @@ public sealed partial record MatchState
         }
 
         if (aura.RequiredPlayerExperience.HasValue
+            || aura.RequiredControllerRuneCount.HasValue
             || string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
         {
             var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
@@ -101,7 +102,7 @@ public sealed partial record MatchState
             return false;
         }
 
-        if (aura.RequiredPlayerExperience.HasValue)
+        if (aura.RequiredPlayerExperience.HasValue || aura.RequiredControllerRuneCount.HasValue)
         {
             var controllerId = EffectiveFieldControllerId(state, objectId, cardObject);
             if (string.IsNullOrWhiteSpace(controllerId)

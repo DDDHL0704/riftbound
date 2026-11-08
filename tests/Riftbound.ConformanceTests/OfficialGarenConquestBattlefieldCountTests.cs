@@ -19,45 +19,7 @@ public sealed class OfficialGarenConquestBattlefieldCountTests
     {
         var units = new[] { "U1", "U2", "U3", "U4" };
         var moving = units.Take(movingCount).ToArray();
-        var other = units.Skip(movingCount).ToArray();
-        var cards = new Dictionary<string, CardObjectState>();
-        var locations = new Dictionary<string, ObjectLocationState>();
-        void Put(string id, string no, string owner, string zone, string? field = null)
-        {
-            cards[id] = Printed(id, no, owner);
-            locations[id] = new(owner, zone, field);
-        }
-
-        Put("GAREN", "OGS·023/024", "P1", "LEGEND");
-        Put("TARGET", "OGN·296/298", "P2", "BATTLEFIELD", "TARGET");
-        Put("OTHER", "OGN·280/298", "P1", "BATTLEFIELD", "OTHER");
-        cards["OTHER"] = cards["OTHER"] with { ControllerId = "P1" };
-        for (var i = 0; i < units.Length; i++)
-            Put(units[i], i == 0 ? "OGN·142/298" : "OGN·219/298", "P1",
-                i < movingCount ? "BASE" : "BATTLEFIELD", i < movingCount ? null : "OTHER");
-        Put("DRAW1", "OGN·142/298", "P1", "MAIN_DECK");
-        Put("DRAW2", "OGN·142/298", "P1", "MAIN_DECK");
-        Assert.Equal(10, cards["U1"].Power);
-        Assert.All(units.Skip(1), id => Assert.Equal(4, cards[id].Power));
-        Assert.All(cards.Values.GroupBy(card => card.CardNo), copies => Assert.InRange(copies.Count(), 1, 3));
-
-        var initial = new MatchState("GAREN-FIELD-COUNT-" + movingCount, 0, 5, "P1",
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
-            status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1",
-            phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
-            playerZones: new Dictionary<string, PlayerZones>
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    LegendZone = ["GAREN"], Base = moving,
-                    Battlefields = new[] { "OTHER" }.Concat(other).ToArray(), MainDeck = ["DRAW1", "DRAW2"]
-                },
-                ["P2"] = PlayerZones.Empty with { Battlefields = ["TARGET"] }
-            },
-            cardObjects: cards, objectLocations: locations,
-            playerScores: new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 0 },
-            runePools: new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty },
-            seed: 424242) with { CardPlays = new(5, [], []) };
+        var initial = Position(movingCount);
         Assert.Empty(initial.BattlefieldTasks);
         var journal = new Journal();
         var session = new MatchSession(initial, new CoreRuleEngine(), journal);
@@ -68,13 +30,23 @@ public sealed class OfficialGarenConquestBattlefieldCountTests
         Assert.Equal("P2", state.FocusPlayerId);
         await Act("P2", new PassFocusCommand());
 
+        Assert.Empty(state.PlayerZones["P1"].Hand);
+        if (expectedDraw > 0)
+        {
+            Assert.Equal("MINIMUM_UNITS_DRAW", Assert.Single(state.StackItems).LegendConquest!.Kind);
+            await Act(state.PriorityPlayerId!, new PassPriorityCommand());
+            Assert.Empty(state.PlayerZones["P1"].Hand);
+            await Act(state.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        else Assert.Empty(state.StackItems);
+
         var commands = journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId,
             entry.CommandType, entry.RawCommand, entry.StartedTick, entry.CompletedTick,
             entry.StartedEventSequence, entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage)
             { ErrorCode = entry.ErrorCode, TypedCommand = entry.TypedCommand, RuleInputs = entry.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(entry => entry.Events.Select((ev, i) =>
             new RecoveredEvent(entry.StartedEventSequence + i + 1, entry.CompletedTick, i, ev))).ToArray();
-        Assert.Equal(3, commands.Length);
+        Assert.Equal(expectedDraw > 0 ? 5 : 3, commands.Length);
         Assert.All(commands, command => Assert.True(command.Accepted));
         Assert.Equal("P1", state.CardObjects["TARGET"].ControllerId);
         Assert.Equal(1, state.PlayerScores["P1"]);
@@ -101,7 +73,7 @@ public sealed class OfficialGarenConquestBattlefieldCountTests
             .Sum(e => Convert.ToInt32(e.Event.Payload["count"])));
         Assert.Equal(2 - expectedDraw, state.PlayerZones["P1"].MainDeck.Count);
         var triggers = events.Where(e => e.Event.Kind == "LEGEND_TRIGGER_RESOLVED"
-            && Equals(e.Event.Payload.GetValueOrDefault("trigger"), "BATTLEFIELD_CONQUERED_DRAW_TWO")).ToArray();
+            && Equals(e.Event.Payload.GetValueOrDefault("trigger"), TriggerKinds.LegendConquestMinimumUnitsDraw)).ToArray();
         if (expectedDraw == 0) Assert.Empty(triggers);
         else
         {
@@ -123,6 +95,51 @@ public sealed class OfficialGarenConquestBattlefieldCountTests
             Assert.True(result.Accepted, result.ErrorMessage);
             state = result.State;
         }
+    }
+
+    internal static MatchState Position(int movingCount = 4)
+    {
+        var units = new[] { "U1", "U2", "U3", "U4" };
+        var moving = units.Take(movingCount).ToArray();
+        var other = units.Skip(movingCount).ToArray();
+        var cards = new Dictionary<string, CardObjectState>();
+        var locations = new Dictionary<string, ObjectLocationState>();
+        void Put(string id, string no, string owner, string zone, string? field = null)
+        {
+            cards[id] = Printed(id, no, owner);
+            locations[id] = new(owner, zone, field);
+        }
+
+        Put("GAREN", "OGS·023/024", "P1", "LEGEND");
+        Put("TARGET", "OGN·296/298", "P2", "BATTLEFIELD", "TARGET");
+        Put("OTHER", "OGN·280/298", "P1", "BATTLEFIELD", "OTHER");
+        cards["OTHER"] = cards["OTHER"] with { ControllerId = "P1" };
+        for (var i = 0; i < units.Length; i++)
+            Put(units[i], i == 0 ? "OGN·142/298" : "OGN·219/298", "P1",
+                i < movingCount ? "BASE" : "BATTLEFIELD", i < movingCount ? null : "OTHER");
+        Put("DRAW1", "OGN·142/298", "P1", "MAIN_DECK");
+        Put("DRAW2", "OGN·142/298", "P1", "MAIN_DECK");
+        Assert.Equal(10, cards["U1"].Power);
+        Assert.All(units.Skip(1), id => Assert.Equal(4, cards[id].Power));
+        Assert.All(cards.Values.GroupBy(card => card.CardNo), copies => Assert.InRange(copies.Count(), 1, 3));
+
+        return new MatchState("GAREN-FIELD-COUNT-" + movingCount, 0, 5, "P1",
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
+            status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1",
+            phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    LegendZone = ["GAREN"], Base = moving,
+                    Battlefields = new[] { "OTHER" }.Concat(other).ToArray(), MainDeck = ["DRAW1", "DRAW2"]
+                },
+                ["P2"] = PlayerZones.Empty with { Battlefields = ["TARGET"] }
+            },
+            cardObjects: cards, objectLocations: locations,
+            playerScores: new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 0 },
+            runePools: new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty },
+            seed: 424242) with { CardPlays = new(5, [], []) };
     }
 
     internal static CardObjectState Printed(string id, string cardNo, string owner)

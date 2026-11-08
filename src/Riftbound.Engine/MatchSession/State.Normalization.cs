@@ -42,16 +42,7 @@ public sealed partial record MatchState
         StaticAuraSpec aura,
         MatchState state,
         string controllerId)
-    {
-        if (aura.RequiredPlayerExperience.HasValue
-            && (!state.PlayerExperience.TryGetValue(controllerId, out var experience)
-                || experience < aura.RequiredPlayerExperience.Value))
-        {
-            return false;
-        }
-
-        return true;
-    }
+        => StaticAuraSpecRules.ControllerRequirementsSatisfied(aura, state, controllerId);
 
     private static IReadOnlyList<string> PublicStaticAuraSourceObjectIds(MatchState state)
     {
