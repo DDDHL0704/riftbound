@@ -438,9 +438,9 @@ public sealed partial class CoreRuleEngine
         cards[option.Source] = ExhaustForInstruction(zones, cards, cards[option.Source]);
         events.Add(new("COST_PAID", "支付腕豪替换费用：1 点任意符能", new Dictionary<string, object?> {
             ["playerId"] = player, ["mana"] = 0, ["power"] = 1, ["reason"] = SettRecallEffect }));
-        events.Add(new("BOON_CONSUMED", "消耗增益", new Dictionary<string, object?> {
+        events.Add(CaptureBoonConsumption(new("BOON_CONSUMED", "消耗增益", new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = option.Source, ["targetObjectId"] = option.Target,
-            ["previousPower"] = unitState.Power, ["power"] = unitState.Power - 1 }));
+            ["previousPower"] = unitState.Power, ["power"] = unitState.Power - 1 }), zones, cards));
         events.Add(new("LEGEND_EXHAUSTED", "腕豪变为休眠状态", new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = option.Source, ["reason"] = SettRecallEffect }));
         events.Add(new("UNIT_RECALLED_TO_BASE", "腕豪将单位改为休眠召回", new Dictionary<string, object?> {

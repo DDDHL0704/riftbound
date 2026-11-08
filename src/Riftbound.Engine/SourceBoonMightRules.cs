@@ -128,9 +128,9 @@ public sealed partial class CoreRuleEngine
         var item = new StackItemState($"STACK-{state.Tick + 1}-SOURCE-BOON-MIGHT", intent.PlayerId,
             source.ObjectId, SourceBoonMightRules.Effect, ability.Instance.CardNo, [], 0, 1, []) { SourceBoonMight = context };
         var events = new List<GameEvent> {
-            new("BOON_CONSUMED", "消耗来源增益以支付技能费用", new Dictionary<string, object?> {
+            CaptureBoonConsumption(new("BOON_CONSUMED", "消耗来源增益以支付技能费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = source.ObjectId,
-                ["previousPower"] = source.Power, ["power"] = source.Power - 1, ["abilityId"] = ability.Id }),
+                ["previousPower"] = source.Power, ["power"] = source.Power - 1, ["abilityId"] = ability.Id }), zones, cards),
             new("COST_PAID", "支付消耗自身增益费用", new Dictionary<string, object?> {
                 ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["abilityId"] = ability.Id,
                 ["consumedBoonObjectIds"] = new[] { source.ObjectId } }),
