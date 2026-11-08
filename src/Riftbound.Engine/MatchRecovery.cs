@@ -157,6 +157,12 @@ public static class MatchActionLogReplayer
             inputErrors.Add("action-log command rule input identity is missing or differs from running inputs");
         if (inputErrors.Count > 0) return inputErrors;
 
+        if (recovery.AuthoritativeState is { } paymentState)
+        {
+            var paymentErrors = SpellManaPaymentHistoryRules.ValidateOriginalPayments(paymentState, recovery.Commands, recovery.Events);
+            if (paymentErrors.Count > 0) return paymentErrors;
+        }
+
         var drawErrors = DrawHandThresholdRecoveryRules.ValidateOriginalTriggers(recovery);
         if (drawErrors.Count > 0) return drawErrors;
         var deathErrors = DravenBattleDeathRecoveryRules.ValidateOriginalTriggers(recovery);
@@ -1213,6 +1219,7 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
+            errors.AddRange(SpellManaPaymentHistoryRules.ValidateOriginalPayments(authoritativeState, commands, events));
             ValidateLinkedExileHistory(authoritativeState, commands, events, errors);
             ValidateBoundLegendHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldPermanentPlayUses(authoritativeState, commands, events, errors);
