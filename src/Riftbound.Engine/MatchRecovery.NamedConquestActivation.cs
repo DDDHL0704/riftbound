@@ -10,12 +10,12 @@ public static partial class MatchRecoveryValidator
     private static IEnumerable<NamedConquestContinuation> NamedConquestContinuations(MatchState state)
     {
         foreach (var trigger in state.TriggerQueue)
-            if (CoreRuleEngine.NamedConquestCaptureOf(trigger.ConquestToken, trigger.UnitConquest, trigger.RecastContext) is { } capture)
+            if (trigger.TimingAlias is null && CoreRuleEngine.NamedConquestCaptureOf(trigger.ConquestToken, trigger.UnitConquest, trigger.RecastContext) is { } capture)
                 yield return new(trigger.TriggerId, trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind, capture);
         var items = state.PendingEffectPlay is { } pending
             ? state.StackItems.Append(pending.Parent) : state.StackItems;
         foreach (var item in items)
-            if (CoreRuleEngine.NamedConquestCaptureOf(item.ConquestToken, item.UnitConquest, item.RecastContext) is { } capture)
+            if (item.TimingAlias is null && CoreRuleEngine.NamedConquestCaptureOf(item.ConquestToken, item.UnitConquest, item.RecastContext) is { } capture)
                 yield return new(item.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
                     ? item.StackItemId["ordered-".Length..] : item.StackItemId,
                     item.SourceObjectId, item.ControllerId, item.EffectKind, capture);

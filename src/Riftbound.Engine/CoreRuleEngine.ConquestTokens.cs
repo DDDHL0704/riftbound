@@ -36,9 +36,9 @@ public sealed partial class CoreRuleEngine
                     context.FaceRevision, context.CapturedTick, context.TokenFactoryCardNo));
 
     private static IEnumerable<TriggerQueueItemState> CaptureConquestTokens(MatchState state, string player,
-        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null)
+        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null, string? observedEventKind = null)
     {
-        var eventKind = ConquestCaptureReason(activation);
+        var eventKind = observedEventKind ?? ConquestCaptureReason(activation);
         foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(id, out var source) || source.ControllerId != player
@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
         AddUnitConquestEffectActivatedEvent(events, item.ControllerId, item.SourceObjectId, context.CardNo,
-            spec.Kind, context.BattlefieldId, ConquestCaptureReason(context.Activation));
+            spec.Kind, context.BattlefieldId, ConquestCaptureReason(context.Activation, item.TimingAlias));
         if (spec.Kind == TriggerKinds.UnitConquestCreateUnitToken)
         {
             var factory = ConquestUnitTokenFactory(spec)!;

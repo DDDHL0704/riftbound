@@ -510,45 +510,37 @@ public sealed class NaturalUnitConquestTriggerTests
     [Fact]
     public async Task CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest()
     {
-        var result = await new CoreRuleEngine().ResolveAsync(
-            BuildNaturalConquestTreantState(),
-            new PlayerIntent("intent-natural-unit-conquest-treant-repeat", "P1", CommandTypes.DeclareBattle),
-            new DeclareBattleCommand(
-                BattlefieldId,
-                [TreantObjectId],
-                [DefenderObjectId],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TreantObjectId, StringComparison.Ordinal));
-
-        var conquestTriggers = result.Events
-            .Where(gameEvent =>
-                string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TreantObjectId, StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["effectId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal))
-            .ToArray();
-        Assert.Equal(2, conquestTriggers.Length);
-
-        var boonEvents = result.Events
-            .Where(gameEvent =>
-                string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TreantObjectId, StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["targetObjectId"] as string, TreantObjectId, StringComparison.Ordinal))
-            .ToArray();
-        Assert.Equal(2, boonEvents.Length);
-        Assert.False(Assert.IsType<bool>(boonEvents[0].Payload["alreadyHadBoon"]));
-        Assert.True(Assert.IsType<bool>(boonEvents[1].Payload["alreadyHadBoon"]));
-
-        var treant = result.State.CardObjects[TreantObjectId];
-        Assert.Equal(5, treant.Power);
-        Assert.Equal(1, treant.BoonCount);
+        var game = new VenBasicFlowSpellTests.Driver(BuildNaturalConquestTreantState() with { Tick = 0 });
+        await game.Act("P1", new DeclareBattleCommand(BattlefieldId,
+            [TreantObjectId], [DefenderObjectId], ["COMBAT_ASSIGNMENT"]));
+        Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), TreantObjectId));
+        var captures = game.Events().Where(e => e.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), TreantObjectId)).ToArray();
+        Assert.Equal(2, captures.Length);
+        Assert.All(captures, e => Assert.Equal("BATTLEFIELD_CONQUERED", e.Event.Payload["triggeredByEventKind"]));
+        Assert.Equal(0, game.State.CardObjects[TreantObjectId].BoonCount);
+        if (game.State.TriggerQueue.Count > 0)
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        for (var i = 0; i < 2; i++) {
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [TreantObjectId]));
+        }
+        Assert.Equal(0, game.State.CardObjects[TreantObjectId].BoonCount);
+        await game.Top(); await game.Top();
+        var boons = game.Events().Where(e => e.Event.Kind == "BOON_GRANTED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), TreantObjectId)
+            && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), TreantObjectId)).ToArray();
+        Assert.Single(boons);
+        Assert.Equal(1, boons[0].Event.Payload["boonCount"]);
+        Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "STACK_ITEM_RESOLVED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), TreantObjectId)
+            && Equals(e.Event.Payload.GetValueOrDefault("effectKind"), CoreRuleEngine.UnitEventEffect)));
+        Assert.Empty(game.State.StackItems);
+        var treant = game.State.CardObjects[TreantObjectId];
+        Assert.Equal(5, treant.Power); Assert.Equal(1, treant.BoonCount);
         Assert.Contains(CardObjectTags.Boon, treant.Tags);
+        await game.Replay();
     }
 
     [Fact]

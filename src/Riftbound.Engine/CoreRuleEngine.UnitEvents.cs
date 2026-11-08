@@ -4,7 +4,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
+public sealed partial record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
     string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
     ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null,
     BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null, IReadOnlyList<UnitEventOtherObject>? Attackers = null, MightReductionFact? MightReduction = null, ObjectBinding? DeploymentBattlefield = null, IReadOnlyList<UnitEventOtherObject>? ExhaustedUnits = null,
@@ -35,7 +35,8 @@ public sealed partial class CoreRuleEngine
                 ?? MainPhaseLegendEventSpec(no)
                 ?? DeploymentPlayLegends.Value.GetValueOrDefault(no)
                 ?? PlayedUnitRuneSpecs.Value.GetValueOrDefault(no)
-                ?? ArmamentUnitEventRules.Spec(no);
+                ?? ArmamentUnitEventRules.Spec(no)
+                ?? ConquestInstructionSpec(no);
 
     private static bool UnitEventTimingMatches(string? declared, string timing)
         => declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true;
@@ -254,10 +255,14 @@ public sealed partial class CoreRuleEngine
             && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == player
             && state.ObjectLocations.TryGetValue(c.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
             && at.BattlefieldObjectId == battlefield).Select(c => c.ObjectId);
-        return CaptureUnitEvents(state.PlayerZones, state.CardObjects, conquerors, "CONQUEST")
+        var observations = CaptureConquestEventObservations(state, conquerors)
             .Concat(CaptureUnitEvents(state.PlayerZones, state.CardObjects, observers, "CONQUEST")
                 .Where(o => o.Context.Timing == "PLAY_OR_CONQUEST"))
-            .Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) => UnitEventTrigger(o, tick, i, "BATTLEFIELD_CONQUERED")).ToArray();
+            .Select(o => CaptureUnitEventFacts(state, o)).ToArray();
+        var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects, state.ObjectLocations,
+            player, battlefield, "BATTLEFIELD_CONQUERED");
+        return observations.SelectMany(o => Enumerable.Range(0, repeats).Select(_ => o))
+            .Select((o, i) => UnitEventTrigger(o, tick, i, "BATTLEFIELD_CONQUERED")).ToArray();
     }
 
     private static ResolutionResult RecordUnitEventSourceFacts(MatchState before, ResolutionResult result)
@@ -327,10 +332,10 @@ public sealed partial class CoreRuleEngine
             }
         }
         if (RuleChoices.Value is { } frame) frame.UnitEventOrdinal = ordinal;
-        if (events.Count == result.Events.Count) return QueueInstructionUnitEvents(before, result);
+        if (events.Count == result.Events.Count) return RecordFirstConquestUses(QueueInstructionUnitEvents(before, result));
         var next = result.State with { TriggerQueue = queue };
-        return QueueInstructionUnitEvents(before, result with { State = next, Events = events,
-            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
+        return RecordFirstConquestUses(QueueInstructionUnitEvents(before, result with { State = next, Events = events,
+            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) }));
     }
 
     private static ResolutionResult QueueInstructionUnitEvents(MatchState before, ResolutionResult result, int start = 0)
@@ -352,6 +357,7 @@ public sealed partial class CoreRuleEngine
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
             && spec.GrantedByArmament == (c.Origin?.ArmamentGranted == true)
             && (!spec.GrantedByArmament || c.Origin!.CapturedTick == c.CapturedTick)
+            && (spec.FirstConquestOfTurn ? c.FirstConquestTurn == state.TurnNumber : c.FirstConquestTurn is null)
             && (c.Mode is null || spec.Modes?.Any(m => m.Id == c.Mode) == true)
             && (c.Mode is null || !spec.DistinctModesPerTurn || state.RuleTextModeUses is { } uses
                 && uses.TurnNumber == state.TurnNumber && uses.Uses.Contains(new RuleTextModeUse(new(source, c.SourceGeneration), c.CardNo, c.Mode, c.Origin, c.TokenFactoryCardNo)))
@@ -396,7 +402,7 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
+        && (SelectedUnitEventSpec(c)?.Effect is ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.UnitEvent?.Timing == FriendlyUnitTargetedTiming
@@ -463,7 +469,7 @@ public sealed partial class CoreRuleEngine
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
     private static PendingCardChoiceState UnitEventChoice(MatchState state, StackItemState item)
     {
-        var legal = UnitEventTargets(state, item);
+        var legal = UnitEventInstructionTargets(state, item);
         return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
             UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1,
             UnitEventSpec(item.UnitEvent.CardNo)!.Effect == PlayedUnitReadyRunes ? Math.Min(legal.Length, UnitEventSpec(item.UnitEvent.CardNo)!.Amount)
@@ -503,7 +509,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
     {
-        var result = ResolveUnitEventInstruction(state, item);
+        var result = ResolveConquestUnitEventInstruction(state, item) ?? ResolveUnitEventInstruction(state, item);
         result = AppendIndependentUnitEventExperience(state, item, result);
         var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         return source == item.SourceObjectId ? result : result with { Events = result.Events.Select(e =>
@@ -588,6 +594,11 @@ public sealed partial class CoreRuleEngine
             for (var i = 0; i < spec.Amount; i++)
                 CreateLegendEquipmentToken(zones, cards, item.ControllerId, item.SourceObjectId, item.EffectKind,
                     factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);
+            var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
+            for (var i = 0; i < events.Count; i++)
+                if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))
+                    events[i] = events[i] with { Payload = new Dictionary<string, object?>(events[i].Payload) {
+                        ["sourceObjectId"] = publicSource } };
             return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
         }

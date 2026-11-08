@@ -14,13 +14,13 @@ public static partial class MatchRecoveryValidator
             || !CoreRuleEngine.ValidUnitConquestReturnContext(state, context, trigger.EffectKind,
                 trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo)
             || trigger.EnqueuedAtTick != context.ConquestTick
-            || trigger.TriggeredByEventKind != (context.Activation is null ? "BATTLEFIELD_CONQUERED" : "BATTLEFIELD_HELD")
+            || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(context.Activation, trigger.TimingAlias)
             || trigger.TriggerId != CoreRuleEngine.UnitConquestReturnTriggerId(context)) return false;
         return MatchStateHasher.HashValue(trigger) == MatchStateHasher.HashValue(new TriggerQueueItemState(
             trigger.TriggerId, trigger.ControllerId, trigger.SourceObjectId, trigger.EffectKind,
             trigger.TriggeredByEventKind, trigger.TimingContext) { EnqueuedAtTick = trigger.EnqueuedAtTick,
             ControllerOrderConfirmed = trigger.ControllerOrderConfirmed, SourceCardNo = trigger.SourceCardNo,
-            UnitConquestReturn = context });
+            UnitConquestReturn = context, TimingAlias = trigger.TimingAlias });
     }
 
     private static bool ValidUnitConquestReturnStack(MatchState state, StackItemState item)
@@ -31,7 +31,7 @@ public static partial class MatchRecoveryValidator
             || item.StackItemId != "ordered-" + CoreRuleEngine.UnitConquestReturnTriggerId(context)) return false;
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(new StackItemState(
             item.StackItemId, item.ControllerId, item.SourceObjectId, item.EffectKind, item.CardNo,
-            timingContext: item.TimingContext) { UnitConquestReturn = context, TriggerCost = item.TriggerCost });
+            timingContext: item.TimingContext) { UnitConquestReturn = context, TriggerCost = item.TriggerCost, TimingAlias = item.TimingAlias });
     }
 
     private static void ValidateUnitConquestReturnContinuations(MatchState state, List<string> errors)
@@ -71,9 +71,9 @@ public static partial class MatchRecoveryValidator
     private static void ValidateUnitConquestReturnHistory(MatchState state,
         IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
-        var pending = state.TriggerQueue.Select(t => (Context: t.UnitConquestReturn, t.EffectKind))
-            .Concat(state.StackItems.Select(i => (Context: i.UnitConquestReturn, i.EffectKind)))
-            .Where(entry => entry.Context is not null);
+        var pending = state.TriggerQueue.Select(t => (Context: t.UnitConquestReturn, t.EffectKind, t.TimingAlias))
+            .Concat(state.StackItems.Select(i => (Context: i.UnitConquestReturn, i.EffectKind, i.TimingAlias)))
+            .Where(entry => entry.Context is not null && entry.TimingAlias is null);
         foreach (var entry in pending)
         {
             var context = entry.Context!;
