@@ -51,7 +51,7 @@ internal static class TimedBanishPlayRules
             || behavior.UnitEventAbility?.Effect != "BANISH_TOP_TIMED_PLAY"
             || !CoreRuleEngine.ValidUnitEvent(state, context, CoreRuleEngine.UnitEventEffect, origin.SourceObjectId)) return false;
         var prefix = $"ordered-unit-event-{context.CapturedTick}-";
-        var suffix = $"-{origin.SourceObjectId}-{context.Timing}";
+        var suffix = "-" + CoreRuleEngine.UnitEventSourceIdentity(origin.SourceObjectId, context.Timing);
         return grant.ResolvingStackItemId.StartsWith(prefix, StringComparison.Ordinal)
             && grant.ResolvingStackItemId.EndsWith(suffix, StringComparison.Ordinal)
             && grant.ResolvingStackItemId.Length > prefix.Length + suffix.Length
