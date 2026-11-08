@@ -56,13 +56,14 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidLinkedUnitExile(MatchState state, LinkedExileGroup group)
     {
+        if (group.ArmamentOrigin is not null) return ValidLinkedArmamentExile(state, group);
         if (group.GraveyardOrigin is not null) return ValidLinkedGraveyardExile(state, group);
         if (group.UnitEventOrigin is not { } origin)
             return state.CardObjects.TryGetValue(group.SourceObjectId, out var legacySource)
                 && SpellTriggerSpec(legacySource.CardNo ?? "", TriggerKinds.LegendHighCostSpellBanishCompletion) is not null;
         var context = origin.Ability;
         var prefix = $"ordered-unit-event-{context.CapturedTick}-";
-        var suffix = $"-{group.SourceObjectId}-{context.Timing}";
+        var suffix = "-" + UnitEventSourceIdentity(group.SourceObjectId, context.Timing);
         return context.SourceGeneration == group.SourceGeneration
             && UnitEventSpec(context.CardNo)?.Effect == "BANISH_LINKED_UNIT_HERE"
             && ValidUnitEvent(state, context, UnitEventEffect, group.SourceObjectId, context.CardNo)

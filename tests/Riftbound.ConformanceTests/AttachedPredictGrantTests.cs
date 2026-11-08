@@ -121,6 +121,13 @@ public sealed class AttachedPredictGrantTests
         var driver = new StandbyDefendObserverTests.Driver(initial);
         await Attach(driver);
         Assert.Empty(driver.State.TriggerQueue);
+        var growth = Assert.Single(driver.State.StackItems);
+        Assert.Null(growth.InsightContext);
+        Assert.Equal("SFD·075/221", growth.UnitEvent!.CardNo);
+        Assert.Equal("FRIENDLY_EQUIPMENT_SKILL_RESOLVED", growth.UnitEvent.Timing);
+        var before = driver.State.CardObjects["MECH"].Power;
+        await driver.Top();
+        Assert.Equal(before + 1, driver.State.CardObjects["MECH"].Power);
         Assert.Empty(driver.State.StackItems);
         Assert.Null(driver.State.PendingCardChoice);
         await RideTheWindCurrentMovementTests.Replay(initial, driver);

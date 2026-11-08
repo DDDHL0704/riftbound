@@ -85,6 +85,18 @@ class ArmamentClauseAuditTests(unittest.TestCase):
         (self.engine / "ArmamentUnitEventRules.cs").write_text("var text = definition.EffectText; GrantHostTrigger();")
         self.assertEqual("missing", self.outcome(equipment(lower="我的据守效果也是征服效果，反之亦然。"))["status"])
 
+    def test_bounded_death_reader_does_not_reopen_unimplemented_host_effects(self):
+        (self.engine / "CoreRuleEngine.ArmamentLastBreath.cs").write_text("var text = definition.EffectText;")
+        for text in ("当我征服一处战场时，给予我增益。", "我拥有“机械”属性。"):
+            with self.subTest(text=text):
+                self.assertEqual("missing", self.outcome(equipment(lower=text))["status"])
+
+    def test_bounded_death_reader_and_runtime_spec_need_reviewed_native_evidence(self):
+        (self.engine / "CoreRuleEngine.ArmamentLastBreath.cs").write_text("var text = definition.EffectText;")
+        card = equipment(lower="{{绝念}}——抽一张牌。", unitEventAbility=dict(
+            timing="LAST_BREATH", effect="DRAW", amount=1))
+        self.assertEqual("missing", self.outcome(card)["status"])
+
     def test_hold_and_conquer_equivalence_is_a_rule_modification(self):
         row = audit.card_clauses(equipment(lower='我的据守效果也是征服效果，反之亦然。'))[-1]
         self.assertEqual('rule', row['kind'])

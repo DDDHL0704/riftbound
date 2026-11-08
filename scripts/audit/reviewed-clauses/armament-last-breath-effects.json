@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·090/221"
+      ],
+      "text": "{{绝念}}——放逐我。（当我被摧毁后，发动此效果。）",
+      "scope": "{{绝念}}——放逐我。（当我被摧毁后，发动此效果。）",
+      "location": "armament",
+      "status": "route",
+      "reason": "宿主摧毁前捕获武装授予的绝念并独立进入响应；结算只放逐所属废牌堆中同一被摧毁对象，保持所属者，记录本装备代际与各放逐单位的关联。指示物消失后不能成为可重放的卡牌，重复绝念不重复放逐新对象；账本以原始接受事件的私有哈希绑定，装备后来返手不擦除关联。上栏重放技能仍列缺失，不以此条认证上栏。",
+      "rules": "中国区核心718.3／718.5（下栏授予宿主及卸除）、719.1（附着对象）、383.2.c.3（摧毁前文本与位置）、383.3／403–407（独立确认与响应）、808.1.c/d（绝念）、186.1（指示物消失）；铸魂淬炼裁判FAQ260114第10页（Z型驱动可关联对手拥有的单位）；该卡官方中文下栏",
+      "runtime": {
+        "armament": {
+          "cardNo": "SFD·090/221",
+          "effectText": "{{绝念}}——放逐我。（当我被摧毁后，发动此效果。）"
+        },
+        "unitEventAbility": {
+          "timing": "LAST_BREATH",
+          "effect": "BANISH_ARMAMENT_DEAD_SOURCE",
+          "amount": 1
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
+          "contains": [
+            "CaptureArmamentLastBreaths(",
+            "CurrentDestructionDrawFrame",
+            "observation.Context.Origin?.ArmamentGranted == true",
+            "CaptureLastBreathRepetitions(",
+            "QueueArmamentLastBreaths(",
+            "UnitEventTrigger(new(death.Unit.ObjectId, death.Unit.ControllerId, context)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "?? ArmamentLastBreathRules.Spec(no)",
+            "context.ArmamentDeath is null ? binding",
+            "MatchStateHasher.HashValue(new { binding, context.ArmamentDeath })"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "ArmamentLastBreaths = CaptureArmamentLastBreaths(state, zones, cards, unit, deathId, fact)",
+            "QueueArmamentLastBreaths(state, death, queue, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.CeasedLastBreathSource.cs",
+          "contains": [
+            "queue.UnitEvent is { ArmamentDeath.Unit.WasToken: true, TokenFactoryCardNo: not null }",
+            "stack.UnitEvent is { ArmamentDeath.Unit.WasToken: true, TokenFactoryCardNo: not null }",
+            "CoreRuleEngine.ValidUnitEvent(state, stack.UnitEvent"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == ArmamentLastBreathRules.BanishEffect",
+            "return ResolveArmamentDeathBanish(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
+          "contains": [
+            "card.ObjectGeneration != context.SourceGeneration + 1",
+            "!state.PlayerZones[death.OwnerId].Graveyard.Contains(card.ObjectId)",
+            "TokenObjectRules.IsToken(card)",
+            "ArmamentOrigin = new(instance,",
+            "ARMAMENT_LINKED_EXILE_CREATED",
+            "[\"linkHash\"] = MatchStateHasher.HashValue(group)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ArmamentLinkedExiles.cs",
+          "contains": [
+            "ValidateArmamentLinkedExileHistory(",
+            "command.Accepted && command.CompletedTick == entry.Tick",
+            "armament linked exile ledger differs from its original accepted banishment history"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentLastBreathTests.cs",
+          "methods": [
+            "ARealAttachmentGrantsTheDestroyedHostsControllerOneIndependentLastBreath",
+            "UnattachedEquipmentDoesNotGrantItsLowerBoxToAnotherUnit",
+            "ReturningTheGrantingEquipmentAfterResolutionPreservesItsPrivateExileAssociation",
+            "ATokenHostKeepsItsEarnedDrawButCannotBecomeALinkedExiledCard",
+            "ALastBreathAmplifierAddsSeparateGrantedSkillsWithoutExilingTheSameCardTwice",
+            "RecoveryBindsTheEquipmentAndExiledUnitToTheOriginalAcceptedDeathInstruction"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·172/221"
+      ],
+      "text": "{{绝念}}——抽一张牌。（当我被摧毁后，发动此效果。）",
+      "scope": "{{绝念}}——抽一张牌。（当我被摧毁后，发动此效果。）",
+      "location": "armament",
+      "status": "route",
+      "reason": "宿主摧毁前捕获下栏授予的绝念，按摧毁前控制者独立响应后抽一张牌；装备在宿主死亡后卸除不抹掉捕获，原宿主是已消失的指示物仍保留抽牌技能。共享绝念放大器为每个原有实例增加独立技能；未贴附装备不授予下栏，原始已接受授予事件约束恢复时的来源与指示物工厂。",
+      "rules": "中国区核心718.3／718.5（下栏授予宿主及卸除）、719.1（附着对象）、383.2.c.3（摧毁前文本与位置）、383.3／403–407（独立确认与响应）、808.1.c/d（绝念）、186.1（指示物消失）；铸魂淬炼裁判FAQ260114第10页（Z型驱动可关联对手拥有的单位）；该卡官方中文下栏",
+      "runtime": {
+        "armament": {
+          "cardNo": "SFD·172/221",
+          "effectText": "{{绝念}}——抽一张牌。（当我被摧毁后，发动此效果。）"
+        },
+        "unitEventAbility": {
+          "timing": "LAST_BREATH",
+          "effect": "DRAW",
+          "amount": 1
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
+          "contains": [
+            "CaptureArmamentLastBreaths(",
+            "CurrentDestructionDrawFrame",
+            "observation.Context.Origin?.ArmamentGranted == true",
+            "CaptureLastBreathRepetitions(",
+            "QueueArmamentLastBreaths(",
+            "UnitEventTrigger(new(death.Unit.ObjectId, death.Unit.ControllerId, context)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "?? ArmamentLastBreathRules.Spec(no)",
+            "context.ArmamentDeath is null ? binding",
+            "MatchStateHasher.HashValue(new { binding, context.ArmamentDeath })"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "ArmamentLastBreaths = CaptureArmamentLastBreaths(state, zones, cards, unit, deathId, fact)",
+            "QueueArmamentLastBreaths(state, death, queue, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.CeasedLastBreathSource.cs",
+          "contains": [
+            "queue.UnitEvent is { ArmamentDeath.Unit.WasToken: true, TokenFactoryCardNo: not null }",
+            "stack.UnitEvent is { ArmamentDeath.Unit.WasToken: true, TokenFactoryCardNo: not null }",
+            "CoreRuleEngine.ValidUnitEvent(state, stack.UnitEvent"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"DRAW\"",
+            "ApplyDrawToPlayer",
+            "item.ControllerId, spec.Amount"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentLastBreathTests.cs",
+          "methods": [
+            "ARealAttachmentGrantsTheDestroyedHostsControllerOneIndependentLastBreath",
+            "UnattachedEquipmentDoesNotGrantItsLowerBoxToAnotherUnit",
+            "ReturningTheGrantingEquipmentAfterResolutionPreservesItsPrivateExileAssociation",
+            "ATokenHostKeepsItsEarnedDrawButCannotBecomeALinkedExiledCard",
+            "ALastBreathAmplifierAddsSeparateGrantedSkillsWithoutExilingTheSameCardTwice",
+            "RecoveryRejectsAnInventedFactoryForACeasedArmamentHost"
+          ]
+        }
+      ]
+    }
+  ]
+}
