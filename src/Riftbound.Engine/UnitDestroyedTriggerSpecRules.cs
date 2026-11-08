@@ -157,6 +157,14 @@ internal static class UnitDestroyedTriggerSpecRules
             && trigger.TargetScope == TriggerTargetScopes.SourceUnit
             && trigger.RuneCallCount is > 0 && trigger.DrawCount is > 0;
 
+    public static bool IsLastBreathRecycleSelfReadyAllRunesTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes
+            && trigger.Timing == TriggerTimings.UnitDestroyed
+            && trigger.TargetScope == TriggerTargetScopes.SourceUnit
+            && trigger.RecycleCount == 1 && trigger.RecycleSourceZone == TriggerZones.Graveyard
+            && trigger.RecycleDestinationZone == TriggerZones.MainDeck
+            && trigger.RuneCallCount is null && trigger.RuneReadyCount is null && trigger.DrawCount is null;
+
     public static bool IsLastBreathCreateDormantGoldTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal)
@@ -224,7 +232,8 @@ internal static class UnitDestroyedTriggerSpecRules
 
     internal static IReadOnlyList<TriggerSpec> LastBreathRuneCallTriggers(string? cardNo)
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
-            ? triggers.Where(t => IsLastBreathCallRuneOneTrigger(t) || IsLastBreathCallRunesThenDrawTrigger(t)).ToArray() : [];
+            ? triggers.Where(t => IsLastBreathCallRuneOneTrigger(t) || IsLastBreathCallRunesThenDrawTrigger(t)
+                || IsLastBreathRecycleSelfReadyAllRunesTrigger(t)).ToArray() : [];
 
     internal static IReadOnlyList<TriggerSpec> LastBreathBattlefieldDamageTriggers(string? cardNo)
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)

@@ -89,7 +89,7 @@ public sealed partial class CoreRuleEngine
             ["playerId"] = item.ControllerId,
             ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["targetObjectId"] = target, ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED",
-            ["duration"] = "UNTIL_END_OF_TURN" }), zones, cards, item, target));
+            ["duration"] = "UNTIL_END_OF_TURN" }), zones, cards, item, target, state.ObjectLocations));
     }
 
 }
