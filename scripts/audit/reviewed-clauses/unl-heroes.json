@@ -539,7 +539,10 @@
             "ARealImageCopiesNamiAfterEntryWithoutRetroactivelyPayingOrTriggeringHerPlayAbility",
             "RecoveryCannotReplaceThePaidDeclarationWithOtherSnapshotChoices",
             "RecoveryCannotSilentlyEraseTheStillPendingPaidSkill",
-            "AnUnpaidOriginalPlayCannotBorrowAnotherGamesValidPaidSkillSnapshot"
+            "AnUnpaidOriginalPlayCannotBorrowAnotherGamesValidPaidSkillSnapshot",
+            "AnActualNamiStunEarnsVexMovementOnlyForAnEnemyOnABattlefield",
+            "ARealOptionalFeeReducerCanPayTheExtraGreenAsZeroWithoutLosingTheStunOrOriginalReceipt",
+            "AResolvedPaidSkillCannotBeResurrectedFromItsPreviouslyValidSnapshot"
           ]
         }
       ]
@@ -621,7 +624,10 @@
             "ARealImageCopiesNamiAfterEntryWithoutRetroactivelyPayingOrTriggeringHerPlayAbility",
             "RecoveryCannotReplaceThePaidDeclarationWithOtherSnapshotChoices",
             "RecoveryCannotSilentlyEraseTheStillPendingPaidSkill",
-            "AnUnpaidOriginalPlayCannotBorrowAnotherGamesValidPaidSkillSnapshot"
+            "AnUnpaidOriginalPlayCannotBorrowAnotherGamesValidPaidSkillSnapshot",
+            "AnActualNamiStunEarnsVexMovementOnlyForAnEnemyOnABattlefield",
+            "ARealOptionalFeeReducerCanPayTheExtraGreenAsZeroWithoutLosingTheStunOrOriginalReceipt",
+            "AResolvedPaidSkillCannotBeResurrectedFromItsPreviouslyValidSnapshot"
           ]
         }
       ]

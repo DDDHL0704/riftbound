@@ -99,7 +99,12 @@ public sealed class NamiAdditionalPlayCostTests
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.Equal(CoreRuleEngine.TriggerTargetCostWindow, payment.PaymentWindow);
         Assert.Equal(1, payment.PowerCost);
-        if (pay) await game.Act("P1", new RecycleRuneCommand("PAYMENT-RUNE"));
+        if (pay)
+        {
+            await RadGearTestPosition.Reject(game.State, "P1",
+                new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+            await game.Act("P1", new RecycleRuneCommand("PAYMENT-RUNE"));
+        }
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
         if (pay) await game.Top();
         Assert.Equal(pay, game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects.Contains("STUNNED"));
@@ -229,6 +234,73 @@ public sealed class NamiAdditionalPlayCostTests
             PassedPriorityPlayerIds = [], TimingState = TimingStates.NeutralClosed };
         Assert.Empty(ValidateOriginalHistory(unpaid, unpaid.State));
         Assert.NotEmpty(ValidateOriginalHistory(unpaid, forged));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task AnActualNamiStunEarnsVexMovementOnlyForAnEnemyOnABattlefield(bool enemyOnField)
+    {
+        var initial = RadGearTestPosition.Put(Position(enemyOnField: enemyOnField), "VEX", "UNL-055/219", "P1", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
+        await ConfirmEnemy(game);
+        await game.Top();
+        Assert.Contains("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        if (enemyOnField)
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal(CoreRuleEngine.OptionalTriggerWindow, choice.ChoiceWindow);
+            Assert.Equal("VEX", choice.SourceObjectId);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["VEX"]));
+            Assert.Equal("ENEMY_STUNNED_MOVE_SOURCE_TO_BATTLEFIELD", Assert.Single(game.State.StackItems).FieldContext!.Kind);
+            await game.Top();
+            Assert.Equal("OTHER", game.State.ObjectLocations["VEX"].BattlefieldObjectId);
+        }
+        else
+        {
+            Assert.Empty(game.State.StackItems);
+            Assert.Null(game.State.PendingCardChoice);
+            Assert.Contains("VEX", game.State.PlayerZones["P1"].Base);
+        }
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ARealOptionalFeeReducerCanPayTheExtraGreenAsZeroWithoutLosingTheStunOrOriginalReceipt()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "EZREAL", "SFD·149/221", "P1", "BASE");
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P1"] = new(3, PrintedPowerCostRules.ForCard(Nami).Amount) } };
+        const string reduction = "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-green";
+        var game = new Driver(initial);
+        var command = new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee, reduction]);
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(3, quote.Cost!.Mana);
+        Assert.Equal(PrintedPowerCostRules.ForCard(Nami).Amount,
+            quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+        await game.Act("P1", command);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+        await ConfirmEnemy(game);
+        await game.Top();
+        Assert.Contains("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AResolvedPaidSkillCannotBeResurrectedFromItsPreviouslyValidSnapshot()
+    {
+        var game = new Driver(Position());
+        await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
+        await ConfirmEnemy(game);
+        var captured = Assert.Single(game.State.StackItems);
+        await game.Top();
+        Assert.Empty(game.State.StackItems);
+        Assert.Contains(game.Events(), entry => entry.Event.Kind == CoreRuleEngine.PaidPermanentPlayRetired);
+        var forged = game.State with { StackItems = [captured], PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [], TimingState = TimingStates.NeutralClosed };
+        Assert.Contains(ValidateOriginalHistory(game, forged),
+            error => error == "paid permanent play skill differs from original accepted payment choices");
     }
 
     private static IReadOnlyList<string> ValidateOriginalHistory(Driver game, MatchState state)
