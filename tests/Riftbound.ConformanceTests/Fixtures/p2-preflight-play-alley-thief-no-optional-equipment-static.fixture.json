@@ -95,6 +95,7 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "TRIGGER_NOT_CONFIRMED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
