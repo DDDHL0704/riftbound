@@ -90,8 +90,17 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
         "cardNo": "SFD·091/221",
-        "mode": "DRAW_1",
         "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-buhru-draw-trigger-mode",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "UNIT-EVENT-MODE:ordered-unit-event-1-0-P1-UNIT-BUHRU-CAPTAIN-PLAY",
+        "choiceWindow": "UNIT_EVENT_MODE_CONFIRMATION",
+        "chosenObjectIds": ["DRAW_1"]
       }
     },
     {
@@ -110,16 +119,19 @@
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_MODE_CONFIRMED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
+      "TRIGGER_RESOLVED",
       "CARD_DRAWN"
     ],
     "events": [
@@ -139,7 +151,7 @@
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
-          "effectKind": "BUHRU_CAPTAIN_PLAY_UNIT_DRAW_MODE"
+          "effectKind": "BUHRU_CAPTAIN_PLAY_UNIT"
         }
       },
       {
@@ -160,6 +172,13 @@
         "kind": "TRIGGER_QUEUED"
       },
       {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
+        "kind": "TRIGGER_MODE_CONFIRMED",
+        "payload": { "mode": "DRAW_1" }
+      },
+      {
         "kind": "PRIORITY_PASSED"
       },
       {
@@ -167,6 +186,9 @@
       },
       {
         "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "TRIGGER_RESOLVED"
       },
       {
         "kind": "CARD_DRAWN",

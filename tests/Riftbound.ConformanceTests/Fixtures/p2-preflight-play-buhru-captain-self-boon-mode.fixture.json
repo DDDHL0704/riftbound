@@ -90,8 +90,17 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
         "cardNo": "SFD·091/221",
-        "mode": "SELF_BOON",
         "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-buhru-self-boon-trigger-mode",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "UNIT-EVENT-MODE:ordered-unit-event-1-0-P1-UNIT-BUHRU-CAPTAIN-PLAY",
+        "choiceWindow": "UNIT_EVENT_MODE_CONFIRMATION",
+        "chosenObjectIds": ["SELF_BOON"]
       }
     },
     {
@@ -110,13 +119,15 @@
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_MODE_CONFIRMED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
@@ -140,7 +151,7 @@
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
-          "effectKind": "BUHRU_CAPTAIN_PLAY_UNIT_SELF_BOON_MODE"
+          "effectKind": "BUHRU_CAPTAIN_PLAY_UNIT"
         }
       },
       {
@@ -159,6 +170,13 @@
       },
       {
         "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
+        "kind": "TRIGGER_MODE_CONFIRMED",
+        "payload": { "mode": "SELF_BOON" }
       },
       {
         "kind": "PRIORITY_PASSED"

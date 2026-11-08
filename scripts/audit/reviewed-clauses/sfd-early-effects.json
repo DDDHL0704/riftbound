@@ -840,37 +840,70 @@
       ],
       "text": "当你使用一件装备的主动技能时，让我本回合内{{S}}+1。",
       "scope": "当你使用一件装备的主动技能时，让我本回合内{{S}}+1。",
-      "status": "missing",
-      "reason": "只有基础机械单位登记；没有使用装备激活技能的事件监听及来源本回合+1战力的独立触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享技能完成流程在装备主动技能实际结算后捕获当前控制者的监听来源，普通装配与立即结算的金币资源技能均生成独立可响应的本回合+1战力技能；被无效化的原技能、对手装备技能以及百炼仅引用装配费用不触发。来源返手不强化新对象，原始已接受队列事件绑定捕获事实，拒绝改写、删除、复制或重复使用已结算技能。",
+      "rules": "核心148.2.b 装备类型适用于所有区域、377.2.a 使用主动技能在结算时触发、401.2 资源技能立即结算、403–407 技能独立响应与结算、818.1/818.4 装配是主动技能、821.1.c.2.a 百炼只引用装配费用而不使用装备技能；SFD·075 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitTags": "机械",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_EQUIPMENT_SKILL_RESOLVED",
+              "effect": "MIGHT_SELF",
+              "amount": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentSkillCompletions.cs",
           "contains": [
-            "\"SFD·075/221\"",
-            "\"PROGRESS_GLORY_MECHANICAL_PLAY_UNIT\""
+            "CaptureCompletedEquipmentSkill(",
+            "StackObjectRules.IsAbility(item)",
+            "source.Tags.Contains(CardObjectTags.EquipmentCard)",
+            "ability.IsResourceSkill",
+            "CaptureEquipmentSkillObservers(result.State.PlayerZones",
+            "result.State.Status == MatchStatuses.InProgress"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "CaptureCompletedEquipmentSkill(state, resolvedItem, resolvedPlayerZones, resolvedCardObjects)",
+            "WithEquipmentSkillCompletion(completionEvent,",
+            "equipmentSkillObservationHash"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+          "contains": [
+            "RecordEquipmentSkillCompletions(state, result, roleEventOffset);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.EquipmentSkillObservations.cs",
+          "contains": [
+            "ValidateEquipmentSkillObservationHistory(",
+            "command.Accepted && command.CompletedTick == entry.Tick",
+            "expected.ExceptWith(retired);",
+            "pending equipment skill observers differ from original accepted queue and completion history"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EquipmentAbilityCompletionObserverTests.cs",
+          "methods": [
+            "AResourceEquipmentAbilityFinishesBeforeTheIndependentMightSkill",
+            "OnlyAnEquipmentAbilityThatActuallyResolvesEarnsTheMightSkill",
+            "AssemblyTriggersAtResolutionAndItsObserverDoesNotBuffANewIncarnation",
+            "TemperedPaysAnAssemblyCostWithoutUsingTheEquipmentActivatedAbility",
+            "RecoveryRejectsChangedOrMissingOriginalEquipmentCompletionSkills",
+            "OnlyTheEquipmentAbilityControllersObserversEarnTheMightSkill"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1007,36 +1040,52 @@
       ],
       "text": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
       "scope": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记；没有各玩家分别可选创建金币的结算选择，也没有按实际同意的对手数量给控制者追加金币",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享结算指示让各玩家从回合玩家起依序独立选择；同意才为该玩家创建休眠金币，再按同意的对手数量给触发控制者追加金币，不依赖控制者自己的选择；来源响应后返手不取消独立技能，各次选择保持隐私、原子拒绝和原始命令回放",
+      "rules": "核心303.2.a 多人依序行动、355.18 结算时进行选择、383.4.a.2 入场触发、403–407 响应与结算；SFD·081 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "EACH_PLAYER_OPTIONAL_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "controllerTokensPerAcceptingOpponent": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PerPlayerEquipmentTokens.cs",
           "contains": [
-            "\"SFD·081/221\"",
-            "\"BIG_SWINDLER_GOLD_CHOICE_PLAY_UNIT\""
+            "ResolveEachPlayerEquipmentTokens(",
+            "new[] { state.TurnPlayerId }",
+            "RuleChoices.Value!.Choose(player,",
+            "if (player != item.ControllerId) acceptingOpponents++;",
+            "acceptingOpponents * spec.ControllerTokensPerAcceptingOpponent",
+            "factory.TokenFamilyName, factory.Tags, true, events"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == EachPlayerEquipmentTokenEffect) return ResolveEachPlayerEquipmentTokens(state, item, spec);"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalPlayUnitChoiceTests.cs",
+          "methods": [
+            "EachPlayerDecidesAtResolutionAndOpponentAcceptanceAloneEarnsTheExtraGold",
+            "MultiplayerCountsOnlyAcceptingOpponentsInCurrentTurnOrder",
+            "ReturningTheSwindlerDuringResponsesPreservesEveryPlayersDecisionAndGold"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1044,36 +1093,52 @@
       ],
       "text": "每有一名对手选择打出，你便再打出一个休眠的“金币”装备指示物。",
       "scope": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记；没有各玩家分别可选创建金币的结算选择，也没有按实际同意的对手数量给控制者追加金币",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享结算指示让各玩家从回合玩家起依序独立选择；同意才为该玩家创建休眠金币，再按同意的对手数量给触发控制者追加金币，不依赖控制者自己的选择；来源响应后返手不取消独立技能，各次选择保持隐私、原子拒绝和原始命令回放",
+      "rules": "核心303.2.a 多人依序行动、355.18 结算时进行选择、383.4.a.2 入场触发、403–407 响应与结算；SFD·081 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "EACH_PLAYER_OPTIONAL_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "controllerTokensPerAcceptingOpponent": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PerPlayerEquipmentTokens.cs",
           "contains": [
-            "\"SFD·081/221\"",
-            "\"BIG_SWINDLER_GOLD_CHOICE_PLAY_UNIT\""
+            "ResolveEachPlayerEquipmentTokens(",
+            "new[] { state.TurnPlayerId }",
+            "RuleChoices.Value!.Choose(player,",
+            "if (player != item.ControllerId) acceptingOpponents++;",
+            "acceptingOpponents * spec.ControllerTokensPerAcceptingOpponent",
+            "factory.TokenFamilyName, factory.Tags, true, events"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == EachPlayerEquipmentTokenEffect) return ResolveEachPlayerEquipmentTokens(state, item, spec);"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalPlayUnitChoiceTests.cs",
+          "methods": [
+            "EachPlayerDecidesAtResolutionAndOpponentAcceptanceAloneEarnsTheExtraGold",
+            "MultiplayerCountsOnlyAcceptingOpponentsInCurrentTurnOrder",
+            "ReturningTheSwindlerDuringResponsesPreservesEveryPlayersDecisionAndGold"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

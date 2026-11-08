@@ -30,6 +30,7 @@ public sealed partial class CoreRuleEngine
             result = RecordBattlefieldConquests(result);
             result = RecordEquipmentAbilityPlays(state, result);
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
+            result = RecordEquipmentSkillCompletions(state, result, roleEventOffset);
             result = QueueSelfActionObservers(state, result);
             result = RecordHandDiscardObservers(result);
             result = QueueStunObservers(state, result);
