@@ -40,7 +40,7 @@ public sealed partial class AzirTokenAttackMovementTests
         var image = Assert.Single(game.State.CardObjects.Values, c => c.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo);
         Assert.Equal("SFD·177/221", image.CardNo);
         await game.Act("P1", new MoveUnitCommand(image.ObjectId, "BASE", "BATTLEFIELD:OTHER", []));
-        Assert.DoesNotContain(image.ObjectId, game.State.PendingCardChoice!.LegalObjectIds);
+        Assert.Contains(image.ObjectId, game.State.PendingCardChoice!.LegalObjectIds);
         await Select(game, tokens);
         var skill = Assert.Single(game.State.StackItems); Assert.Equal(image.ObjectId, skill.SourceObjectId);
         if (sourceLeaves)

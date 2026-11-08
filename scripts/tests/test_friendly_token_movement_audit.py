@@ -53,10 +53,28 @@ class FriendlyTokenMovementAuditTests(unittest.TestCase):
 
     def test_only_current_public_friendly_unit_tokens_can_be_targets(self):
         for token in ['IsFaceUpNonStandbyUnit(c) && IsTokenObject(c)',
-                'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId',
-                'IsUnitMovementDestination(state, c.ObjectId, tokenDestination)',
-                'MovementRestrictionRules.CanMove(c, item.ControllerId)']:
+                'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId']:
             with self.subTest(token=token):self.missing_consumer('CoreRuleEngine.UnitEvents.cs',token)
+
+    def test_target_scope_cannot_exclude_immovable_already_here_or_source_tokens(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs'
+        original = self.sources.files[path]
+        scope = ('FriendlyUnitTokensMoveHere => IsFaceUpNonStandbyUnit(c) && IsTokenObject(c)\n'
+                 '                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId')
+        self.assertIn(scope, original)
+        for restriction in ['MovementRestrictionRules.CanMove(c, item.ControllerId)',
+                'IsUnitMovementDestination(state, c.ObjectId, "BATTLEFIELD:OTHER")',
+                'c.ObjectId != item.SourceObjectId', 'false']:
+            with self.subTest(restriction=restriction):
+                self.sources.files[path] = original.replace(scope, scope + ' && ' + restriction)
+                self.assertEqual('missing', self.status())
+        self.sources.files[path] = original.replace(scope, scope.replace('&& IsTokenObject(c)', '&& !IsTokenObject(c)'))
+        self.assertEqual('missing', self.status())
+
+    def test_movement_feasibility_must_still_be_checked_by_the_shared_executor(self):
+        for token in ['IsUnitMovementDestination(current, id, destination)',
+                'MovementRestrictionRules.CanMove(unit, item.ControllerId)']:
+            with self.subTest(token=token):self.missing_consumer('CoreRuleEngine.ChosenMovement.cs',token)
 
     def test_actual_attack_producer_and_root_resolution_dispatch_are_required(self):
         for filename, token in [('CoreRuleEngine.UnitEvents.cs','CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")'),

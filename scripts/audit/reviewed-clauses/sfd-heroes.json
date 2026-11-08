@@ -957,7 +957,7 @@
       "text": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
       "scope": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
       "status": "route",
-      "reason": "进攻产生独立技能，确认任意数量友方单位指示物；结算按原代际来源的当前战场，重查各目标后通过共享整组移动、装备跟随与施加费用执行；进攻与防守捕获沿用共享原始记录，目标、数量和代际须匹配实际接受的确认，覆盖法盾付款及暂停续结算",
+      "reason": "进攻产生独立技能，确认任意数量友方单位指示物，移动受限、已在此战场和来源自身仍可作为目标；结算按原代际来源的当前战场，重查各目标与移动限制后通过共享整组移动、装备跟随与施加费用执行；进攻与防守捕获沿用共享原始记录，目标、数量和代际须匹配实际接受的确认，覆盖法盾付款及暂停续结算",
       "runtime": {
         "behaviors": [
           {
@@ -1041,9 +1041,16 @@
           "methods": [
             "AnotherUnitEventLocksTheOriginalEnemyBeforeWardAndKeepsItAfterPayment"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Eligibility.cs",
+          "methods": [
+            "AnActualVexMovementRestrictionDoesNotRemoveFriendlyTokensFromTheTargetChoices",
+            "AnActualAzirImageMayTargetItselfEvenThoughItIsAlreadyAtTheDestination"
+          ]
         }
       ],
-      "rules": "核心383.2–383.3、359.3.e.2、359.3.e.12、359.3.f.2、430.3；官方中文牌面；Vendetta 官方 FAQ 对 Azir, Sovereign 的结算时当前位置说明"
+      "rules": "核心383.2–383.3、355.9、355.9.c、359.3.e.2、359.3.e.6、359.3.e.12、359.3.f.2、430.3；官方中文牌面；Vendetta 官方 FAQ 对 Azir, Sovereign 的结算时当前位置说明"
     },
     {
       "cardNos": [

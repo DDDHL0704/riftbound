@@ -447,10 +447,7 @@ public sealed partial class CoreRuleEngine
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 "BANISH_LINKED_UNIT_HERE" or "READY_HERE" => IsFaceUpNonStandbyUnit(c) && UnitEventTargetIsHere(state, item, c.ObjectId),
                 FriendlyUnitTokensMoveHere => IsFaceUpNonStandbyUnit(c) && IsTokenObject(c)
-                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
-                    && UnitEventHereDestination(state, item) is { } tokenDestination
-                    && IsUnitMovementDestination(state, c.ObjectId, tokenDestination)
-                    && MovementRestrictionRules.CanMove(c, item.ControllerId),
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 "MOVE_ENEMY_HERE" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
                     && UnitEventHereDestination(state, item) is { } destination
