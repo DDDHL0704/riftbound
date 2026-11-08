@@ -11,8 +11,12 @@ public sealed partial class NamiHeldNextUnitTests
     public async Task FourActuallyPlayedWarhawksConsumeOnlyTheFirstActualTokenPlay()
     {
         var initial = RadGearTestPosition.Put(Position(), "BIRDS", "UNL-044/219", "P1", "HAND");
+        // Featherstorm costs four mana and two green power, paid by real runes.
+        initial = RadGearTestPosition.Put(initial, "FUNDS-0", "UNL-R02", "P1", "BASE");
+        initial = RadGearTestPosition.Put(initial, "FUNDS-1", "UNL-R02", "P1", "BASE");
         var game = new Driver(initial);
-        await EarnHold(game); await game.Top(); await Fund(game, blue: true);
+        await EarnHold(game); await game.Top(); await Fund(game);
+        await game.Act("P1", new RecycleRuneCommand("FUNDS-0"));
         await game.Act("P1", new RecycleRuneCommand("FUNDS-1"));
         var prefix = game.Events().Length;
         await game.Act("P1", new PlayCardCommand("BIRDS", "UNL-044/219", [], Mode: "CREATE_WARHAWKS"));

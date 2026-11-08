@@ -16,7 +16,14 @@ public sealed partial class NamiHeldNextUnitTests
         await EarnHold(game);
         var capturedGeneration = game.State.CardObjects["HOST"].ObjectGeneration;
         if (!beforeCreation) await game.Top();
-        await Fund(game, blue: true);
+        // CN167: the main phase clears pools. Leave physical runes ready
+        // when returning Nami during her held skill, then tap them in main.
+        if (beforeCreation)
+        {
+            await game.TapRunes("P1", ["FUNDS-0", "FUNDS-1"]);
+            await game.Act("P1", new RecycleRuneCommand("FUNDS-0"));
+        }
+        else await Fund(game, blue: true);
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"]));
         await game.Top();
         Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
@@ -25,6 +32,7 @@ public sealed partial class NamiHeldNextUnitTests
         {
             Assert.Single(game.State.StackItems, item => item.UnitEvent?.CardNo == Nami);
             await game.Top();
+            await Fund(game);
         }
         await game.ColdCheckpoint();
         await game.Act("P1", new PlayCardCommand("FIRST", Unit, []));

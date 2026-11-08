@@ -87,7 +87,8 @@ public static partial class MatchRecoveryValidator
     private static bool HasValidatedCeasedUnitEventTurnPlaySource(MatchState? state, string? id,
         string? controller, string? source, string? effect)
     {
-        if (state is null || string.IsNullOrWhiteSpace(source) || source == "HIDDEN" || state.CardObjects.ContainsKey(source)) return false;
+        if (state is null || string.IsNullOrWhiteSpace(source) || source == "HIDDEN"
+            || state.CardObjects is null || state.CardObjects.ContainsKey(source)) return false;
         var skill = CoreRuleEngine.UnitEventTurnPlaySkills(state).FirstOrDefault(skill =>
             (skill.Id == id || "ordered-" + skill.Id == id) && skill.Controller == controller && skill.Source == source);
         return skill?.Context.Grant.UnitEventOrigin?.Context.TokenFactoryCardNo is { } factory

@@ -61,11 +61,13 @@ public sealed partial class CoreRuleEngine
     internal static UnitEventTurnPlaySkill[] UnitEventTurnPlaySkills(MatchState state)
     {
         return new[] { state, state.PendingRuleChoice?.Origin }.OfType<MatchState>().SelectMany(frame => {
-            var stack = frame.StackItems.Concat(frame.PendingEffectPlay?.Parent is { } parent ? [parent] : []);
-            return stack.Where(i => i.TurnUnitPlayBoon?.Grant?.UnitEventOrigin is not null)
+            var stack = (frame.StackItems ?? []).OfType<StackItemState>()
+                .Concat(frame.PendingEffectPlay?.Parent is { } parent ? [parent] : []);
+            return stack.Where(i => i.StackItemId is not null && i.TurnUnitPlayBoon?.Grant?.UnitEventOrigin is not null)
                 .Select(i => new UnitEventTurnPlaySkill(i.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
                     ? i.StackItemId[8..] : i.StackItemId, i.ControllerId, i.SourceObjectId, i.TurnUnitPlayBoon!))
-                .Concat(frame.TriggerQueue.Where(i => i.TurnUnitPlayBoon?.Grant?.UnitEventOrigin is not null)
+                .Concat((frame.TriggerQueue ?? []).OfType<TriggerQueueItemState>()
+                    .Where(i => i.TriggerId is not null && i.TurnUnitPlayBoon?.Grant?.UnitEventOrigin is not null)
                     .Select(i => new UnitEventTurnPlaySkill(i.TriggerId, i.ControllerId, i.SourceObjectId, i.TurnUnitPlayBoon!)));
         }).DistinctBy(skill => MatchStateHasher.HashValue(skill)).ToArray();
     }

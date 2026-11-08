@@ -542,36 +542,105 @@
       ],
       "text": "当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。",
       "scope": "当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少可选绿色符能额外费用、已支付后的入场眩晕及据守授予下个单位活跃／增益的共享流程",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "据守产生独立技能并创建本回合下一次单位打出的延迟授权；新单位先正常进场，再由独立技能按原代际活跃并给予增益；支持来源返手或真实映像消失、同批多个指示物只消费首个打出、原始创建／使用／结束记录与私有来源投影",
+      "rules": "核心355.10.c、383.2–383.3、391.2、392、393、359.3.e／359.3.f、718；官方中文牌面；SFD据守／征服互换沿用共享时机别名",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "HOLD",
+              "effect": "CREATE_TURN_UNIT_PLAY_GRANT"
+            },
+            "turnUnitPlayGrantKind": "PLAY_READY_BOON",
+            "turnUnitPlayGrantNextOnly": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventTurnPlayGrants.cs",
           "contains": [
-            "\"UNL-052/219\"",
-            "\"NAMI_NO_GREEN_PAYMENT_STATIC\""
+            "new UnitEventTurnPlayGrantOrigin(context, item.TimingAlias)",
+            "item.SourceObjectId, context.SourceGeneration",
+            "RecordUnitEventTurnPlayHistory("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnUnitPlayGrants.cs",
+          "contains": [
+            "b.UnitEventAbility?.Effect == UnitEventTurnPlayGrantEffect",
+            "ActiveUnitPlayGrants(effects, controller, UnitEventReadyBoonGrantKind)",
+            "ApplyReadyState(unit, instruction",
+            "ApplyBoon(cards[unit.ObjectId]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTurnPlayGrants.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "expectedGrants.SetEquals(",
+            "expectedUses.SetEquals(",
+            "expectedSkills.SetEquals("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Projection.Timing.cs",
+          "contains": [
+            "\"TURN_UNIT_PLAY_GRANT_HASH:\" + MatchStateHasher.HashValue(context.Grant)",
+            "UnitEventOrigin = null"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.cs",
+          "methods": [
+            "AnActualHoldCreatesAnIndependentReadyAndBoonSkillForOnlyTheNextUnitPlay"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Responses.cs",
+          "methods": [
+            "ARealReturnOfNamiBeforeOrAfterCreatingTheGrantKeepsTheEarnedDelayedSkill",
+            "ReturningThePlayedUnitDoesNotRefundTheGrantOrAffectItsNextIncarnation",
+            "AnUnusedGrantExpiresAndCannotAffectTheNextTurn"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Copies.cs",
+          "methods": [
+            "AnActualAssembledAliasLetsAnImageEarnTheHeldGrantAndThenCease"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Tokens.cs",
+          "methods": [
+            "FourActuallyPlayedWarhawksConsumeOnlyTheFirstActualTokenPlay"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.History.cs",
+          "methods": [
+            "OriginalAcceptedHistoryRejectsDeletingOrCoherentlyReplacingAnUnusedGrant",
+            "ConsumedUsesAndEarnedSkillsCannotBeSilentlyDeletedRefundedOrResurrected"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.PlayBoundary.cs",
+          "methods": [
+            "MerelyPlayingNamiDoesNotCreateHerHoldGrant"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Counters.cs",
+          "methods": [
+            "AConditionalCounterCannotChooseEitherUntargetedEarnedSkill"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

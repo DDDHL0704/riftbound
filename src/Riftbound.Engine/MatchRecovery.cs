@@ -5547,6 +5547,7 @@ public static partial class MatchRecoveryValidator
             // Only validated official contexts permit a missing source.
             if (!CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, stackItem.SourceObjectId, stackItem.CardNo)
                 && !CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.EffectKind)
+                && !HasValidatedCeasedUnitEventTurnPlaySource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.EffectKind)
                 && !HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId,
                     stackItem.SourceObjectId, stackItem.EffectKind)
                 && !(stackItem.SimpleActivation is { CeasedSource: not null } && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
