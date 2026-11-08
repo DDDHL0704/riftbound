@@ -453,6 +453,9 @@ public sealed record CardBehaviorDefinition(
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
     public CombatSpellCostAdjustmentSpec? CombatSpellCostAdjustment { get; init; }
+    public bool FirstTargetRequiresArmament { get; init; }
+    public bool DetachesArmamentFromFirstTarget { get; init; }
+    public bool ReferencedPowerDamageIsFromSpell { get; init; }
     public SpellManaAlternativeCostSpec? SpellManaAlternativeCost { get; init; }
     internal SpellManaAlternativeCostSpec? AppliedSpellManaAlternativeCost { get; init; }
     internal bool IgnoreBasePlayCostFromBoons { get; init; }
@@ -1417,7 +1420,9 @@ public static class CardBehaviorRegistry
             2,
             TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            DamagesSecondTargetByFirstTargetPower: true),
+            DamagesSecondTargetByFirstTargetPower: true) {
+                FirstTargetRequiresArmament = true, DetachesArmamentFromFirstTarget = true,
+                ReferencedPowerDamageIsFromSpell = true },
         new(
             "UNL-192/219",
             "阿尔法突袭",

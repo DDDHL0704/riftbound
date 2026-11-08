@@ -4102,7 +4102,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.FriendlyEquipmentThenBattlefield => targetIndex == 0
                 ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
-            CardTargetScopes.EnemyBattlefield => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyBattlefield => CoreRuleEngine.IsEnemyOccupiedBattlefield(state, playerId, objectId),
             CardTargetScopes.FriendlyBaseUnitThenBattlefield => targetIndex == 0
                 ? IsPromptControlledBaseObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,

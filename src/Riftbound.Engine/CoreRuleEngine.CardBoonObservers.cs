@@ -16,11 +16,4 @@ public sealed partial class CoreRuleEngine
                 .Select(card => card.ObjectId), UnitEventTimings.BoonConsumed));
     }
 
-    internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)
-        => context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed;
-
-    internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
-        => MatchStateHasher.HashValue(new { source, controller, context.CardNo, context.Timing,
-            context.SourceGeneration, context.FaceRevision, context.CapturedTick,
-            context.TokenFactoryCardNo, context.Origin });
 }

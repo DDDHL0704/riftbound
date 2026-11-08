@@ -312,8 +312,10 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult DiscardUnconfirmedTrigger(ResolutionResult result, StackItemState item)
     {
         var state = RestoreAfterTriggerConfirmation(result.State with { StackItems = result.State.StackItems.Where(i => i.StackItemId != item.StackItemId).ToArray() }, item);
-        var discarded = result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
-            new Dictionary<string, object?> { ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) })).ToArray(),
+        var payload = new Dictionary<string, object?> { ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) };
+        if (RequiresObservedUnitEventHistory(item.UnitEvent))
+            payload["discardedObservedUnitEventHash"] = MatchStateHasher.HashValue(item.StackItemId);
+        var discarded = result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能", payload)).ToArray(),
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
         return ResumeDuelChainFocus(discarded);
     }
