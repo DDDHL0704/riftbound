@@ -17,6 +17,9 @@ public sealed class CounterHoldContinuationTests
             "counter" => OfficialCounterRepeatTests.Position("OGN·064/298"),
             "ornn" => OfficialOrnnHoldTests.Position("SFD·058/221"),
             _ => OfficialReinforcementsTests.Position("SFD·125/221") };
+        // This fixture starts a new original journal; establish its genesis
+        // before accepting any commands instead of rebasing accepted history.
+        state = state with { Tick = 0 };
         var engine = new CoreRuleEngine();
         var journal = new Journal();
         var session = new MatchSession(state, engine, journal);
@@ -41,7 +44,10 @@ public sealed class CounterHoldContinuationTests
             Assert.True(result.Accepted, result.ErrorMessage);
             var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(result.State))!;
             Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(restored));
-            var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(restored);
+            var events = journal.Events();
+            var sequence = events.Length == 0 ? 0 : events[^1].Sequence;
+            var errors = MatchRecoveryValidator.Validate(restored.RoomId, sequence, journal.Commands(), events,
+                new Dictionary<string,RecoveredPlayerView>(), restored, restored.Tick);
             Assert.True(errors.Count == 0, string.Join("; ", errors));
             return result;
         }
@@ -80,8 +86,7 @@ public sealed class CounterHoldContinuationTests
         if (scenario == "counter") Assert.Equal(["SPELL1","SPELL2"], result.State.PlayerZones["P2"].Graveyard);
         else if (scenario == "ornn") { Assert.Contains("E2", result.State.PlayerZones["P1"].Hand); Assert.Equal(MatchPhases.Main, result.State.Phase); }
         else Assert.Contains("U", result.State.PlayerZones["P1"].Base);
-        var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
-        var events = journal.Entries.SelectMany(e => e.Events.Select((ev,i) => new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
+        var commands = journal.Commands(); var events = journal.Events();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(state,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));
         Export(scenario + "-replay.json",replay);
@@ -105,5 +110,11 @@ public sealed class CounterHoldContinuationTests
     {
         public List<MatchJournalEntry> Entries { get; }=[];
         public ValueTask RecordAsync(MatchJournalEntry entry,CancellationToken token) { Entries.Add(entry);return ValueTask.CompletedTask; }
+        public RecoveredCommand[] Commands() => Entries.Select(e => new RecoveredCommand(e.PlayerId,
+            e.ClientIntentId, e.CommandType, e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence,
+            e.CompletedEventSequence, e.Accepted, e.ErrorMessage) {
+                ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+        public RecoveredEvent[] Events() => Entries.SelectMany(e => e.Events.Select((ev, i) =>
+            new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
     }
 }

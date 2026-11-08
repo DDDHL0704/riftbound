@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·030/221"
+      ],
+      "text": "我的据守效果也是征服效果，反之亦然。",
+      "scope": "我的据守效果也是征服效果，反之亦然。",
+      "location": "armament",
+      "status": "route",
+      "reason": "下栏是授予当前宿主的静态时机分类变更。共享据守和单位征服捕获流程在真实事件或具名激活时捕获另一类原有技能，保留额外条件、印刷及复制实例、其他武装授予；多件本武装不重复已兼有两种时机的效果，放大依据实际据守／征服事件。捕获后不依赖装备继续贴附，绑定原始授予、时机、战场与已接受入队记录；苍蓝延迟收益按官方勘误等到控制者下一个主阶段。 旧即时征服指示迁入统一模式／目标确认和响应流程；首次触发以原始已接受入队事件绑定本回合使用记录，过量伤害等附加条件不会由据守凭空满足。 首次条件按单位事件统一计数，首次时已有的副本各自捕获，但稍后新获得的副本不重置本回合首次。",
+      "rules": "中国区核心383.4.c/d、383.4.g.1–2、383.2、393、718.3及718.5.e–g、719.1；铸魂淬炼裁判FAQ260114第11页永恩／阿瑞昂示例；破限勘误260403第6页苍蓝雕纹魔像；SFD·030官方中文下栏；核心383.1.b、383.3.a/d、403.2；破限裁判FAQ260511第19页易／阿瑞昂（狩猎已含两种时机）",
+      "runtime": {
+        "armament": {
+          "cardNo": "SFD·030/221",
+          "sourceCardNo": "SFD-030/221",
+          "effectText": "我的据守效果也是征服效果，反之亦然。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldTimingAliases.cs",
+          "contains": [
+            "OfficialArmamentCatalog.All.Where",
+            "== \"我的据守效果也是征服效果，反之亦然\"",
+            "QueueHeldAliasesForConquest",
+            "CaptureConquestAliasesForHold",
+            "ArmamentRuleTextRules.ValidCaptured(state, grant",
+            "TimingCaptureHash(object context, BattlefieldTimingAlias? alias)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/ArmamentRuleTextRules.cs",
+          "contains": [
+            "g.AttachedToObjectId == host.ObjectId",
+            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "var copies = aliasUnits is null ? HeldEffectCopies(state, field, player)",
+            "CaptureConquestAliasesForHold",
+            "!UnitEventTimingMatches(o.Context.Timing, \"CONQUEST\")",
+            "state.TurnNumber + (state.Phase == MatchPhases.TurnStart && player == state.TurnPlayerId ? 0 : 1)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "QueueHeldAliasesForConquest(conquered, playerId, battlefieldId, conqueringUnitObjectIds, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.NamedConquestActivation.cs",
+          "contains": [
+            "CaptureCurrentUnitConquestAbilities",
+            "QueueHeldAliasesForConquest(current, player, field, units, captureEvents, origin)",
+            "!UnitEventTimingMatches(o.Context.Timing, \"HOLD\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.BattlefieldTimingAliases.cs",
+          "contains": [
+            "hash != CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)",
+            "MatchesAcceptedTimingAlias",
+            "battlefield timing skill differs from its original accepted capture",
+            "hash != CoreRuleEngine.DelayedTimingCaptureHash(gain)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "contains": [
+            "CapturedConquestInstructionKinds",
+            "CaptureConquestEventObservations",
+            "RecordFirstConquestUses",
+            "UnitEventInstructionTargets",
+            "ResolveConquestUnitEventInstruction",
+            "FirstConquestTurn = UnitEventSpec",
+            "destruction.DestroyedObjectIds.Contains(gear)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ConquestUnitEvents.cs",
+          "contains": [
+            "ValidateFirstConquestUseHistory",
+            "expected.SetEquals(actual)",
+            "c.Accepted && c.CompletedTick == e.Tick"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "AttachedRuleTextRules.Instances(playerZones, cardObjects, sourceState)",
+            "!CapturedConquestInstructionKinds.Contains(trigger.Kind)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "AttachedRuleTextRules.Instances(state, source)",
+            "Activation = activation, Origin = instance.Origin"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlaySource.cs",
+          "contains": [
+            "var capturedBattlefieldSkill = effect.EffectKind == UnitEventEffect",
+            "UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, \"CONQUEST\")",
+            "UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, \"HOLD\")",
+            "return effect with { SourceObjectId = \"HIDDEN\" };"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentHoldConquestAliasTests.cs",
+          "methods": [
+            "ActualPlayAndRedAssemblyTurnTheHostsHoldIntoAnIndependentConquestSkill",
+            "AHoldDrawIsEarnedByNaturalConquestAndMultipleAliasArmamentsDoNotDuplicateIt",
+            "AConquestDrawIsEarnedByNaturalHoldBeforeNormalChannelAndDraw",
+            "AHoldGrantedByAnotherArmamentAlsoTriggersOnConquestWithoutCopyingEitherLowerBox",
+            "RealSongAssemblyCopiesThePrintedSkillAndEachInstanceChangesTimingIndependently",
+            "OnlyTheActualEventSelectsBlueOrCrimsonTriggerAmplification",
+            "ExactOtherFriendlyConditionsRemainRequiredWhenHoldingTextBecomesConquest",
+            "AHiddenHereConditionCannotBeSatisfiedByACardAtAnotherBattlefield",
+            "AnEmpoweredConquestConditionIsStillCheckedWhenTheUnitHolds",
+            "HuntAlreadyHasBothTimingsAndDoesNotGainADuplicateFromTheArmament",
+            "TheOfficialYoneOpenBattlefieldConditionStillFailsDuringHolding",
+            "TheConvertedBlueDelayWaitsForTheNextOwnMainEvenAfterItsSourceLeaves",
+            "NamedConquestActivationIncludesConvertedHoldTextWithoutInventingAConquestOrCrimsonRepeat",
+            "ColdRecoveryRejectsChangedTimingOrGrantAgainstTheOriginalAcceptedCommands",
+            "ConvertedConquestReturnRetainsItsOptionalPaymentAndResponseWindow",
+            "ConvertedSourceUnitTokenCreationRetainsTheConqueredBattlefieldAndReadyStatus",
+            "ConvertedBattlefieldEquipmentStillRequiresItsOwnDestinationConfirmation",
+            "TheDelayedConversionAlsoRemainsBoundToItsAcceptedRegistration",
+            "CopiedConquestReturnsEachRetainTheirOwnOptionalPaymentDuringHolding",
+            "CopiedConquestRecastsUseTheSameEffectPlayAndRecycleContinuationDuringHolding",
+            "CopiedConquestDamageKeepsItsTargetAndOpenBattlefieldConditionOnARealConquest"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentHoldConquestAliasTests.Legacy.cs",
+          "methods": [
+            "ConquestDrawOrRuneUsesTheSameMandatoryModeAndResponsesAtEitherTiming",
+            "PrintedAndCopiedConquestBoonsAndMightConfirmTargetsAndSurviveSourceReturn",
+            "OptionalConquestEquipmentDestructionRequiresAConfirmedChoiceAndSuccessfulDestruction",
+            "DestroyingItsOwnArmamentGrantsTheSavingBoonBeforeStateBasedCleanup",
+            "EquipmentDestructionSurvivesTheSourceButDoesNotGiveABoonToItsNewHandIncarnation",
+            "FirstConquestReadinessIsConsumedAtCaptureAcrossBothTimingsAndRealSubsequentMoves",
+            "CopyingThePrintedSkillAfterTheFirstConquestCannotMakeTheNextEventFirstAgain",
+            "FirstConquestUseCannotBeRemovedOrInventedInASelfConsistentRecoveryFrame",
+            "AConfirmedConquestModeCannotBeChangedOrErasedAgainstTheAcceptedHistory",
+            "HoldingCannotInventTheOverkillConditionOfAConvertedConquestSkill"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "SFD·086/221"
+      ],
+      "text": "当我据守一处战场时，打出两个休眠的“金币”装备指示物。",
+      "scope": "当我据守一处战场时，打出两个休眠的“金币”装备指示物。",
+      "location": "armament",
+      "status": "route",
+      "reason": "共享武装授予绑定把下栏据守技能交给当前宿主，在据守事件捕获两个休眠金币的独立单位技能，双方响应后沿用装备指示物工厂打出到控制者基地。逐件武装各自产生技能，复制印刷文本不复制下栏；响应中返还宿主或卸除图鉴不会取消已捕获技能，原始接受的队列哈希约束授予武装与宿主代际。",
+      "rules": "中国区核心383.4.d、383.2、403、718.3及718.5.e–g、719.1；SFD·086官方中文下栏",
+      "runtime": {
+        "armament": {
+          "cardNo": "SFD·086/221",
+          "sourceCardNo": "SFD-086/221",
+          "effectText": "当我据守一处战场时，打出两个休眠的“金币”装备指示物。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "t.Kind == TriggerKinds.UnitBattlefieldHeldCreateEquipment",
+            "new(\"HOLD\", \"CREATE_EQUIPMENT_TOKEN\", held.CreatedTokenCount!.Value",
+            "GrantedByArmament = true",
+            "TriggerParser.Parse(definition.EffectText)",
+            "t.CreatedTokenExhausted == true && t.CreatedTokenDestination == TriggerTokenDestinations.OwnerBase",
+            "f.Tags.Contains(CardObjectTags.EquipmentCard)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/ArmamentRuleTextRules.cs",
+          "contains": [
+            "g.AttachedToObjectId == host.ObjectId",
+            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, \"HOLD\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")",
+            "factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);",
+            "[\"sourceObjectId\"] = publicSource"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ArmamentUnitEvents.cs",
+          "contains": [
+            "hash != ArmamentUnitEventRules.CaptureHash(context)",
+            "captured armament unit skill differs from its original accepted grant event"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentHeldEquipmentTokenTests.cs",
+          "methods": [
+            "ActualPlayAssemblyAndNaturalHoldGrantTwoDormantGoldOnlyAfterResponses",
+            "AnUnattachedBookOrAHostAtBaseDoesNotTrigger",
+            "TwoBooksGrantTwoSkillsAndCopiedPrintedTextDoesNotCopyTheirLowerBoxes",
+            "NaturalConquestDoesNotEarnTheHoldSkillWithoutATimingAlias",
+            "ReturningTheHostOrDetachingTheBookKeepsTheEarnedTokensAndHidesTheCurrentPrivateSource",
+            "TheHoldingHostControlsTheSkillWhenItsBookHasADifferentOwnerAndController",
+            "RecoveryBindsTheSkillToTheOriginalAcceptedHoldAndGrant"
+          ]
+        }
+      ]
+    }
+  ]
+}

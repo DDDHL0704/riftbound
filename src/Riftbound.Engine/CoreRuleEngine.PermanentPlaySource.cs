@@ -31,7 +31,10 @@ public sealed partial class CoreRuleEngine
             || ResolutionResult.VisibleObjectIdForViewer(state, id, viewer) != "HIDDEN") return effect;
         var capturedActivation = P4ActivatedAbilityCatalog.TryGetByEffectKind(effect.EffectKind, out var ability)
             && ability.SimpleEffect is not null;
-        if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation
+        var capturedBattlefieldSkill = effect.EffectKind == UnitEventEffect
+            && (UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "CONQUEST")
+                || UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "HOLD"));
+        if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation && !capturedBattlefieldSkill
             && effect.EffectKind != TriggerKinds.UnitMovedOtherFriendlyPowerModifier
             && (effect.SourceCardNo is not { } no || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
                 || !behavior.RecyclesSourceIfPlayedFromStandby)) return effect;

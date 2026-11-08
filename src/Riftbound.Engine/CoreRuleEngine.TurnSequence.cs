@@ -22,7 +22,7 @@ public sealed record HeldTriggerContext(string CardNo, string BattlefieldObjectI
 }
 public sealed record HeldUnitSource(long CapturedTick, long FaceRevision, string FaceCardNo,
     string? TokenFactoryCardNo = null, bool Ceased = false);
-public sealed record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
+public sealed partial record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
     string SourceCardNo, string BattlefieldObjectId, int DueTurn, int Power);
 
 public sealed partial class CoreRuleEngine
@@ -123,7 +123,8 @@ public sealed partial class CoreRuleEngine
                         var pool = pools.GetValueOrDefault(delayed.ControllerId, RunePool.Empty);
                         pools[delayed.ControllerId] = pool with { Power = pool.Power + delayed.Power };
                         events.Add(new("POWER_GAINED", "延迟资源技能获得符能", new Dictionary<string, object?> {
-                            ["playerId"] = delayed.ControllerId, ["sourceObjectId"] = delayed.SourceObjectId,
+                            ["playerId"] = delayed.ControllerId,
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, delayed.SourceObjectId, ProjectionViewers.Spectator),
                             ["sourceCardNo"] = delayed.SourceCardNo, ["triggerId"] = delayed.Id,
                             ["generatedPower"] = delayed.Power, ["power"] = delayed.Power, ["resourceLifecycle"] = "rune-pool" }));
                     }

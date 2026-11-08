@@ -25,8 +25,6 @@
             "OfficialArmamentCatalog.All.Select(definition =>",
             "Regex.Match(definition.EffectText.Trim()",
             "GrantedByArmament = true",
-            "g.AttachedToObjectId == host.ObjectId",
-            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)",
             "@\"^当我进攻或防守时[，,]\\s*对此处的一名敌方单位造成(?<amount>[1-9][0-9]*)点伤害[。.]?$\""
           ]
         },
@@ -55,15 +53,22 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            ": hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true",
+            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent?.Origin?.ArmamentGranted == true",
             "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.OrdinaryPlayPrivacy.cs",
           "contains": [
-            "state.StackItems.Where(i => i.UnitEvent?.Origin?.ArmamentGranted == true",
+            "state.StackItems.Where(i => i.TimingAlias is not null || i.UnitEvent?.Origin?.ArmamentGranted == true",
             "Require(\"sourceObjectId\", hidden ? \"HIDDEN\" : skill.SourceObjectId);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/ArmamentRuleTextRules.cs",
+          "contains": [
+            "g.AttachedToObjectId == host.ObjectId",
+            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)"
           ]
         }
       ],
@@ -113,9 +118,7 @@
             "OfficialArmamentCatalog.All.Select(definition =>",
             "internal const string AreaDamageEffect = \"DAMAGE_ENEMIES_HERE\";",
             "new UnitEventAbilitySpec(\"ATTACK_OR_DEFEND\", AreaDamageEffect",
-            "GrantedByArmament = true",
-            "g.AttachedToObjectId == host.ObjectId",
-            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)"
+            "GrantedByArmament = true"
           ]
         },
         {
@@ -146,15 +149,22 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            ": hiddenSource ? \"HIDDEN\" : item.UnitEvent?.Origin?.ArmamentGranted == true",
+            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent?.Origin?.ArmamentGranted == true",
             "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.OrdinaryPlayPrivacy.cs",
           "contains": [
-            "state.StackItems.Where(i => i.UnitEvent?.Origin?.ArmamentGranted == true",
+            "state.StackItems.Where(i => i.TimingAlias is not null || i.UnitEvent?.Origin?.ArmamentGranted == true",
             "Require(\"sourceObjectId\", hidden ? \"HIDDEN\" : skill.SourceObjectId);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/ArmamentRuleTextRules.cs",
+          "contains": [
+            "g.AttachedToObjectId == host.ObjectId",
+            "ArmamentGranted: true, ArmamentHostCardNo: AttachedRuleTextRules.Face(host)"
           ]
         }
       ],
