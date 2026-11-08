@@ -164,7 +164,7 @@ public sealed class OfficialRepeatAndDeckChoiceTests
             Assert.True(result.Accepted, result.ErrorMessage);
             var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(result.State))!;
             Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(restored));
-            Assert.Empty(MatchRecoveryValidator.Validate(restored.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), restored, restored.Tick));
+            Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(restored));
             return result;
         }
         var result = await Submit("P1", command);
@@ -179,7 +179,7 @@ public sealed class OfficialRepeatAndDeckChoiceTests
             Assert.DoesNotContain("\"D1\"", JsonSerializer.Serialize(result.Snapshots["P2"]));
             var choice = result.State.PendingCardChoice!;
             var forged = result.State with { PendingCardChoice = choice with { RequiredCount = 0 } };
-            Assert.Contains(MatchRecoveryValidator.Validate(forged.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), forged, forged.Tick), e => e.Contains("deck choice permissions"));
+            Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(forged), e => e.Contains("deck choice permissions"));
             GameCommand select = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["D2"]);
             if (!string.IsNullOrEmpty(root) && File.Exists(Path.Combine(root, "native-deck-choice-command.json")))
             {

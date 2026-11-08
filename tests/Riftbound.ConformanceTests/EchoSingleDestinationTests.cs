@@ -69,19 +69,19 @@ public sealed class EchoSingleDestinationTests
         var result=await Act(Position(),"P1",Command());var state=result.State;
         var views=state.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,state.Tick,0,result.Snapshots[id],state.Tick,0,result.Prompts[id]));
         var spectator=MatchReplayRedactor.BuildSpectatorFrame(state.RoomId,state.Tick,0,[],state);
-        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId,0,[],[],views,state,state.Tick,spectator));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
         foreach(var view in views.Values) {
             var stack=Assert.IsType<Dictionary<string,object?>>(Assert.Single(view.Snapshot.Stack));
             var executions=Assert.IsType<Dictionary<string,object?>[]>(stack["repeatExecutions"]);
             Assert.Equal("BATTLEFIELD:BF2",executions[1]["destination"]);
             executions[1]["destination"]="BASE:P2";
-            Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId,0,[],[],views,state,state.Tick),e=>e.Contains("spell repeat destinations differ"));
+            Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views),e=>e.Contains("spell repeat destinations differ"));
             executions[1]["destination"]="BATTLEFIELD:BF2";
         }
         var publicItem=Assert.IsType<Dictionary<string,object?>>(Assert.Single(spectator.SpectatorSnapshot.Stack));
         var publicExecutions=Assert.IsType<Dictionary<string,object?>[]>(publicItem["repeatExecutions"]);
         publicExecutions[1]["destination"]="BASE:P2";
-        Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId,0,[],[],views,state,state.Tick,spectator),e=>e.Contains("spell repeat destinations differ"));
+        Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator),e=>e.Contains("spell repeat destinations differ"));
     }
     [Fact]
     public async Task ResponseInvalidationOfOneTargetDoesNotRedirectTheOtherExecution()
