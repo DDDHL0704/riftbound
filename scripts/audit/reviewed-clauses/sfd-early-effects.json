@@ -613,9 +613,9 @@
       ],
       "text": "在本回合内，你每通过据守获得1分，我的费用就减少{{2}}和{{绿色}}。",
       "scope": "在本回合内，你每通过据守获得1分，我的费用就减少{{2}}和{{绿色}}。",
-      "status": "missing",
-      "reason": "只有10法力的坚守5／壁垒单位登记；没有累计本回合据守所得分数并逐分减2法力及1绿色符能",
-      "rules": "核心356.4 费用减少、据守得分；SFD·055 官方中文牌面",
+      "status": "route",
+      "reason": "共享本回合据守行动记录按玩家、战场代际及原始已接受事件校验；每次据守减少2法力与1绿色符能，报价与实际付款共用条件计算。官方裁判FAQ问题2.2明确：缇亚娜只阻止获得分数时仍可减费；遗忘丰碑禁止整个得分动作时不计据守。对手、前一回合和征服不提供此减费。",
+      "rules": "中国区核心356.4、469–472、383.4.d；铸魂淬炼裁判FAQ260114问题2.2（超大型约德尔人／缇亚娜、遗忘丰碑）；SFD·055官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -630,20 +630,71 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "costReductionConditionKind": "CONTROLLER_HELD_BATTLEFIELD_COUNT_THIS_TURN",
+            "costReductionMana": 2,
+            "costReductionPower": 1,
+            "costReductionPowerTrait": "green"
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldHolds.cs",
           "contains": [
-            "\"SFD·055/221\"",
-            "\"HUGE_YORDLE_PLAY_KEYWORD_UNIT\""
+            "RecordBattlefieldScoringActions",
+            "if (e.Kind != \"BATTLEFIELD_HELD\") continue;",
+            "[\"holdTurnNumber\"] = state.TurnNumber",
+            "[\"heldBattlefieldGeneration\"] = card.ObjectGeneration"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.ControllerHeldBattlefieldCountThisTurn",
+            "holds.TurnNumber == state.TurnNumber",
+            "behavior.CostReductionPower * ConditionalPlayCostCount(state, player, behavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "behavior.CostReductionMana * ConditionalPlayCostCount(state, playerId, behavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.BattlefieldHolds.cs",
+          "contains": [
+            "ValidateBattlefieldHoldHistory",
+            "c.Accepted && c.CompletedTick == record.Tick",
+            "expected.SetEquals(state.BattlefieldHolds?.Entries ?? [])"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/HeldBattlefieldPlayCostTests.cs",
+          "methods": [
+            "NaturalHoldingReducesTheSameManaAndGreenInQuotesAndRealPayments",
+            "APreviousTurnsHoldOrAnotherPlayersHoldDoesNotReduceTheCost",
+            "TheMonumentsEntirelyPreventedScoringActionDoesNotCountAsAHoldForTheDiscount",
+            "AReprojectedDiscountStillRequiresTheOriginalAcceptedHoldingHistory"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/TiannaPointGainTests.cs",
+          "methods": [
+            "NaturalHoldKeepsItsDrawSkillAndGiantDiscountEvenWhenPointsArePrevented",
+            "APreventedConquestPointStillEarnsItsSkillAndConsumesTheScoringAction"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EarlySfdScoringIntegrationTests.cs",
+          "methods": [
+            "AConquestThatEarnsAnAliasedHoldSkillDoesNotDiscountTheGiant"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -692,9 +743,9 @@
       ],
       "text": "如果我位于战场上，则对手无法得分。",
       "scope": "如果我位于战场上，则对手无法得分。",
-      "status": "missing",
-      "reason": "只有基础法盾单位登记；没有来源处于战场时禁止对手得分的静态规则修改",
-      "rules": "核心364–365 静态技能、得分；SFD·060 官方中文牌面",
+      "status": "route",
+      "reason": "共享持续限制按当前有效文本、控制者及实时战场位置阻止对手获得分数，接入普通战场、主动／触发技能及燃尽的分数入口；据守和征服动作、独立触发、指示物与已经替代为抽牌的效果照常进行。来源在响应中返手后立即停止限制，已付费用不返还；依官方FAQ，循环燃尽从第二次起继续获得分数直至获胜。",
+      "rules": "中国区核心364–365、383.4.c/d、432.2、469–473；铸魂淬炼官方FAQ260114缇亚娜修订文本、裁判FAQ问题2.2；破限裁判FAQ260511缇亚娜／循环燃尽问答；SFD·060官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -709,20 +760,99 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "sourceStaticLimits": {
+              "preventsOpponentsGainingPointsWhileAtBattlefield": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PointGains.cs",
           "contains": [
-            "\"SFD·060/221\"",
-            "\"TIANNA_CROWNGUARD_PLAY_KEYWORD_UNIT\""
+            "PointGainPreventingSources",
+            "EffectiveFieldControllerId(state.PlayerZones, id, source) != player",
+            "at.Zone == \"BATTLEFIELD\"",
+            "StaticLimitsFor(state, source).Any(spec => spec.PreventsOpponentsGainingPointsWhileAtBattlefield)",
+            "\"SCORE_GAIN_PREVENTED\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryPreventPointGain(state, stackItem.ControllerId, amount",
+            "TryPreventPointGain(state, playerId, 1, reason",
+            "CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId)",
+            "priorBurnoutCount + burnouts.Count + 1 > 1",
+            "PointGainPreventingSources(state, opponentId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "TryPreventPointGain(state, player, scoreAmount",
+            "TryPreventPointGain(state, player, context.Amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "TryPreventPointGain(state, item.ControllerId, spec.Amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestSource.cs",
+          "contains": [
+            "TryPreventPointGain(state, item.ControllerId, amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementScore.cs",
+          "contains": [
+            "TryPreventPointGain(state, item.ControllerId, amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+          "contains": [
+            "TryPreventPointGain(state, context.ControllerId, 1"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+          "contains": [
+            "TryPreventPointGain(state, chosenOpponent, 1"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DrawHandThreshold.cs",
+          "contains": [
+            "TryPreventPointGain(state, opponent, amount"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/TiannaPointGainTests.cs",
+          "methods": [
+            "NaturalHoldKeepsItsDrawSkillAndGiantDiscountEvenWhenPointsArePrevented",
+            "TheCurrentControllerKeepsItsOwnPointsAndPreventsTheOwnersOpposingPoints",
+            "APreventedConquestPointStillEarnsItsSkillAndConsumesTheScoringAction",
+            "ALastPointReplacedByDrawingStillDrawsWhileThePointRestrictionIsPresent",
+            "APreventedHoldingPointStillEarnsTheUnitsScoringActionToken",
+            "ThePaidPointSkillChecksTheRestrictionAfterActualReturnResponses",
+            "TheFirstBurnoutIsPreventedButCyclicBurnoutContinuesToVictory",
+            "APreventedConquestPointStillEarnsTheFourUnitLegendDraw"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EarlySfdScoringIntegrationTests.cs",
+          "methods": [
+            "AConquestThatEarnsAnAliasedHoldSkillDoesNotDiscountTheGiant"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -730,35 +860,69 @@
       ],
       "text": "当你在对手的回合内打出一张法术牌时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
       "scope": "当你在对手的回合内打出一张法术牌时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少对手回合打出法术的监听、可选横置来源费用及独立创建休眠金币的触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享成功打出记录仅在对手回合的己方法术牌完成结算后捕获独立技能；确认时可选横置当前控制的活跃来源，响应后创建休眠金币；自己的回合、无效化和资源技能均不触发",
+      "rules": "核心204.1.c/204.3、404.1.b/405.2 指示费用及确认，420.4.a/a.1 成功打出后触发及无效化不触发；SFD·063 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 1,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "OPPONENT_TURN_SPELL_PLAYED",
+              "effect": "CREATE_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "optional": true,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "leadingSourceExhaust": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
           "contains": [
-            "\"SFD·063/221\"",
-            "\"CHEMTECH_BARREL_PLAY_EQUIPMENT\""
+            "NeedsTriggerCostConfirmation(",
+            "CompleteTriggerCost(",
+            "DestructionCostReceiptHash(receipt)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "CREATE_EQUIPMENT_TOKEN",
+            "CreateLegendEquipmentToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.InstructionCosts.cs",
+          "contains": [
+            "ValidateInstructionCostHistory(",
+            "InstructionCostCaptureHash(context, item.Source, item.Controller)",
+            "destruction cost receipt differs from its original accepted payment"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+          "contains": [
+            "entry.PlayerId != before.TurnPlayerId",
+            "observer.Context.Timing == UnitEventTimings.OpponentTurnSpellPlayed",
+            "PlayedCardPlayId = entry.PlayId"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalEquipmentGoldCostTests.cs",
+          "methods": [
+            "APlayedBarrelObservesAnOpponentTurnSpellButNotRuneResourceActivations",
+            "BarrelRequiresSuccessfulCompletionOfYourSpellDuringTheOpponentsTurn",
+            "ABarrelThatCannotPayOrDoesNotObserveYourPlayCannotProduceGold",
+            "DecliningTheBarrelsExhaustionKeepsItReadyAndProducesNoGold",
+            "TheBarrelsCurrentControllerPaysAndOwnsItsGoldEvenWhenTheBarrelHasAnotherOwner"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -803,36 +967,82 @@
       ],
       "text": "当你打出我时，你可以选择摧毁一件法力费用不高于{{1}}的装备，以此打出一个休眠的“金币”装备指示物。",
       "scope": "当你打出我时，你可以选择摧毁一件法力费用不高于{{1}}的装备，以此打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记且效果名明确未实现可选装备；缺少入场后可选摧毁至多1法力装备作为指示费用及创建休眠金币",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享类型化摧毁费用允许任意控制者的场上正面装备，以当前印刷或复制法力费用不高于1筛选；确认时支付后进入响应窗口，结算独立创建休眠金币；费用回执绑定原始已接受历史，金币费用0合法，来源返手后效果仍结算",
+      "rules": "核心204.1.c/204.3、404.1.b/405.2 指示费用及确认，206 印刷或复制费用，355.6 费用不选取目标，357.2.a 替换费用；铸魂淬炼官方FAQ及裁判FAQ暗巷神偷：可以摧毁费用为0的金币指示物；SFD·074 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "CREATE_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "optional": true,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "leadingDestruction": {
+                "count": 1,
+                "requiredTag": "CARD_TYPE:EQUIPMENT",
+                "maximumMana": 1,
+                "anyController": true,
+                "allowsSource": true
+              }
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
           "contains": [
-            "\"SFD·074/221\"",
-            "\"ALLEY_THIEF_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT\""
+            "NeedsTriggerCostConfirmation(",
+            "CompleteTriggerCost(",
+            "DestructionCostReceiptHash(receipt)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "CREATE_EQUIPMENT_TOKEN",
+            "CreateLegendEquipmentToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.InstructionCosts.cs",
+          "contains": [
+            "ValidateInstructionCostHistory(",
+            "InstructionCostCaptureHash(context, item.Source, item.Controller)",
+            "destruction cost receipt differs from its original accepted payment"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionCosts.cs",
+          "contains": [
+            "IsDestructionChoice(",
+            "cost.AnyController || EffectiveFieldControllerId",
+            "card.ManaCost <= maximum"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "SelectedUnitEventSpec(destroying)?.LeadingDestruction",
+            "DestructionUsesLastKnownMana: true",
+            "ids.Select(id => cards[id].ManaCost)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalEquipmentGoldCostTests.cs",
+          "methods": [
+            "ThiefPaysAnyPlayersCheapEquipmentBeforeResponsesAndCreatesDormantGoldOnlyAtResolution",
+            "ThiefCanDeclineAndInvalidCostObjectsOrTheWrongPlayerAreRejectedAtomically",
+            "ReturningTheThiefAfterPaymentPreservesTheGoldAndHidesTheCurrentPrivateSource",
+            "RecoveryBindsTheDestructionReceiptAndCaptureToTheirUnmodifiedAcceptedHistory"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -901,6 +1111,12 @@
             "TemperedPaysAnAssemblyCostWithoutUsingTheEquipmentActivatedAbility",
             "RecoveryRejectsChangedOrMissingOriginalEquipmentCompletionSkills",
             "OnlyTheEquipmentAbilityControllersObserversEarnTheMightSkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EquipmentAbilityCompletionIntegrationTests.cs",
+          "methods": [
+            "DestroyingGoldAsTheThiefsIndicatedCostDoesNotUseAGoldAbility"
           ]
         }
       ]
