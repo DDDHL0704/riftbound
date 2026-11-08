@@ -6,6 +6,8 @@ public sealed record RecastTriggerContext(string CardNo, string Kind, long Sourc
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public NamedConquestActivationOrigin? Activation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public RuleTextInstanceBinding? Origin { get; init; }
 }
 public sealed record AfterPlayRecycleInstruction(string SourceObjectId, string CardNo, string TriggerKind, long SourceGeneration);
 
@@ -51,20 +53,28 @@ public sealed partial class CoreRuleEngine
             && (spec.RequiresPlayedCardManaCostLessThanCurrentScore != true || EffectiveCardManaCost(card, spell) < state.PlayerScores.GetValueOrDefault(player));
 
     private static IReadOnlyList<TriggerQueueItemState> CaptureConquestRecasts(MatchState state, string player,
-        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null)
+        string battlefield, IReadOnlyList<string> units, long tick, NamedConquestActivationOrigin? activation = null,
+        string? observedEventKind = null)
     {
-        var eventKind = ConquestCaptureReason(activation);
+        var eventKind = observedEventKind ?? ConquestCaptureReason(activation);
         var queue = new List<TriggerQueueItemState>();
         foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
-            if (!state.CardObjects.TryGetValue(id, out var source) || source.ControllerId != player
-                || BattlefieldLocalRules.AtUnit(state, id)?.ObjectId != battlefield || source.CardNo is null
-                || (RecastSpec(source.CardNo, TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle)
-                    ?? RecastSpec(source.CardNo, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit)) is not { } spec) continue;
-            var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects, state.ObjectLocations, player, battlefield, eventKind);
-            for (var i = 0; i < repeats; i++) queue.Add(new($"recast-{tick}-{battlefield}-{id}-{i}", player, id,
-                RecastTriggerEffect, eventKind, TimingStates.NeutralOpen)
-                { RecastContext = new(source.CardNo, spec.Kind, source.ObjectGeneration, battlefield) { Activation = activation } });
+            if (!state.CardObjects.TryGetValue(id, out var source) || source.IsFaceDown
+                || !source.Tags.Contains(CardObjectTags.UnitCard) || source.ControllerId != player
+                || BattlefieldLocalRules.AtUnit(state, id)?.ObjectId != battlefield) continue;
+            foreach (var instance in AttachedRuleTextRules.Instances(state, source))
+            {
+                var spec = RecastSpec(instance.CardNo, TriggerKinds.UnitConquestPlayLowCostGraveyardSpellRecycle)
+                    ?? RecastSpec(instance.CardNo, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit);
+                if (spec is null) continue;
+                var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects, state.ObjectLocations, player, battlefield, eventKind);
+                for (var i = 0; i < repeats; i++) queue.Add(new($"recast-{tick}-{battlefield}-{id}-{i}"
+                    + (instance.Origin is null ? "" : ":" + instance.Id), player, id,
+                    RecastTriggerEffect, eventKind, TimingStates.NeutralOpen) {
+                    RecastContext = new(instance.CardNo, spec.Kind, source.ObjectGeneration, battlefield) {
+                        Activation = activation, Origin = instance.Origin } });
+            }
         }
         return queue;
     }

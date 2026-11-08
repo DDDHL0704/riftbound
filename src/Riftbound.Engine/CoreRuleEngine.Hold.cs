@@ -59,12 +59,14 @@ public sealed partial class CoreRuleEngine
             && context.SourceGeneration >= 0 && source == context.BattlefieldObjectId
             && BattlefieldLocalRules.Battlefield(state, source) is { } battlefield && battlefield.CardNo == context.CardNo
             && battlefield.ObjectGeneration >= context.SourceGeneration;
-        if (!conditional) return context.RequiredExactOtherFriendlyBattlefieldUnits is null && context.Origin is null && context.RuleTextInstanceId is null;
+        if (!conditional) return context.RequiredExactOtherFriendlyBattlefieldUnits is null
+            && (context.Origin is null ? context.RuleTextInstanceId is null
+                : context.RuleTextInstanceId == $"ATTACHED:{context.Origin.Equipment.ObjectId}:{context.Origin.Equipment.Generation}:{context.Origin.Revision}"
+                    && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo));
         var spec = ExactOtherFriendlyHeldSpec(context.CardNo);
         return spec is not null && context.Kind == (spec.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE")
             && context.Amount == (spec.DrawCount ?? spec.ScoreAmount) && context.RequiredExactOtherFriendlyBattlefieldUnits == spec.RequiredExactOtherFriendlyBattlefieldUnits
-            && effect == "HOLD_" + context.Kind && cardNo == context.CardNo && controller == state.TurnPlayerId
-            && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "CHANNEL"
+            && effect == "HOLD_" + context.Kind && cardNo == context.CardNo && IsHeldCaptureTiming(state, context, controller)
             && context.RuleTextInstanceId == (context.Origin is { } origin
                 ? $"ATTACHED:{origin.Equipment?.ObjectId}:{origin.Equipment?.Generation}:{origin.Revision}"
                 : $"PRINTED:{source}:{context.SourceGeneration}")
@@ -80,34 +82,54 @@ public sealed partial class CoreRuleEngine
             && state.ObjectLocations.TryGetValue(e.Key, out var location) && location.Zone == MoveUnitBattlefieldZone
             && location.BattlefieldObjectId == field).Select(e => e.Key).Order(StringComparer.Ordinal).ToArray();
 
-    private static MatchState QueueHeldAbilities(MatchState state, IReadOnlyList<string> fields, List<GameEvent> events)
+    private static MatchState QueueHeldAbilities(MatchState state, IReadOnlyList<string> fields, List<GameEvent> events,
+        string? aliasPlayer = null, IReadOnlySet<string>? aliasUnits = null, string eventKind = "BATTLEFIELD_HELD",
+        NamedConquestActivationOrigin? activation = null)
     {
         var queue = state.TriggerQueue.ToList();
         var delayed = state.DelayedResourceGains.ToList();
-        var player = state.TurnPlayerId;
+        var player = aliasPlayer ?? state.TurnPlayerId;
+        var frame = RuleChoices.Value;
+        var unitEventOrdinal = frame?.UnitEventOrdinal ?? 0;
         foreach (var field in fields)
         {
             var units = HeldUnitsAt(state, field, player);
-            var copies = 1 + units.Count(id => HeldDefinition(state.CardObjects[id].CardNo)?.Kind == "BLUE_DELAYED_POWER");
+            var copies = aliasUnits is null ? HeldEffectCopies(state, field, player)
+                : activation is null ? ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects,
+                    state.ObjectLocations, player, field, eventKind) : 1;
+            var selectedUnits = aliasUnits is null ? units : units.Where(aliasUnits.Contains).ToArray();
+            foreach (var observation in CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")
+                .Where(o => aliasUnits is null || !UnitEventTimingMatches(o.Context.Timing, "CONQUEST")))
+                for (var copy = 0; copy < copies; copy++)
+                {
+                    var trigger = UnitEventTrigger(observation, frame?.CompletionTick ?? state.Tick,
+                        unitEventOrdinal++, eventKind);
+                    Add(trigger);
+                }
             var equipment = state.CardObjects.Values.Where(c => !c.IsFaceDown && c.Tags.Contains(CardObjectTags.EquipmentCard)
                 && IsObjectOnField(state.PlayerZones, c.ObjectId) && c.ControllerId == player
                 && state.ObjectLocations.TryGetValue(c.ObjectId, out var at) && at.Zone == "BATTLEFIELD" && at.BattlefieldObjectId == field)
                 .Select(c => c.ObjectId);
-            var sources = new[] { field }.Concat(units).Concat(equipment).Concat(state.PlayerZones[player].LegendZone).Distinct().ToArray();
+            var sources = aliasUnits is null
+                ? new[] { field }.Concat(units).Concat(equipment).Concat(state.PlayerZones[player].LegendZone).Distinct().ToArray()
+                : selectedUnits;
             foreach (var source in sources)
             {
                 if (!state.CardObjects.TryGetValue(source, out var card) || card.IsFaceDown
                     || (source != field && card.ControllerId != player)) continue;
                 var abilities = new List<(string Kind, int Amount, RuleTextInstance? Instance, int? ExactCount)>();
-                if (HeldDefinition(card.CardNo) is { } definition
+                foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                    if (HeldDefinition(instance.CardNo) is { } definition
                     && definition.Kind != LinkedExileHeldKind
+                    && (aliasUnits is null || definition.Kind != "EXPERIENCE")
                     && (definition.Kind != "SEVEN_WIN" || units.Length >= definition.Amount)
                     && (definition.Kind != "EMPTY_RUNE_SCORE" || state.PlayerZones[player].RuneDeck.Count == 0)
-                    && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player))) abilities.Add((definition.Kind, definition.Amount, null, null));
+                    && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player)))
+                        abilities.Add((definition.Kind, definition.Amount, instance.Origin is null ? null : instance, null));
                 foreach (var instance in AttachedRuleTextRules.Instances(state, card))
                     if (CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var linkedBehavior) && linkedBehavior.HeldPlaysLinkedExile)
                         abilities.Add((LinkedExileHeldKind, 0, instance, null));
-                if (units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
+                if (aliasUnits is null && units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
                     abilities.Add(("EXPERIENCE", hunt, null, null));
                 if (units.Contains(source))
                     foreach (var instance in AttachedRuleTextRules.Instances(state, card))
@@ -120,9 +142,9 @@ public sealed partial class CoreRuleEngine
                         for (var copy = 0; copy < copies; copy++) {
                             var context = capture with { CapturedTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
                             var tokenTrigger = new TriggerQueueItemState($"source-token-held-{state.Tick}-{source}-{context.Origin?.Equipment.ObjectId}-{copy}",
-                                player, source, SourceUnitTokenEffect, "BATTLEFIELD_HELD") {
+                                player, source, SourceUnitTokenEffect, eventKind) {
                                 SourceCardNo = context.CardNo, SourceUnitTokens = context };
-                            queue.Add(tokenTrigger); events.Add(BuildTriggerQueuedEvent(tokenTrigger));
+                            Add(tokenTrigger);
                         }
                 if (units.Contains(source))
                     foreach (var instance in AttachedRuleTextRules.Instances(state, card))
@@ -131,7 +153,7 @@ public sealed partial class CoreRuleEngine
                             for (var copy = 0; copy < copies; copy++)
                             {
                                 var trigger = CaptureUnitHeld(state, source, player, field, card, instance, held, copy);
-                                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                                Add(trigger);
                             }
                 if (units.Contains(source))
                     foreach (var instance in AttachedRuleTextRules.Instances(state, card))
@@ -139,10 +161,10 @@ public sealed partial class CoreRuleEngine
                             for (var copy = 0; copy < copies; copy++)
                             {
                                 var trigger = new TriggerQueueItemState($"held-insight-{state.TurnNumber}-{state.Tick}-{field}-{instance.Id}-{copy}",
-                                    player, source, InsightTriggerEffect, "BATTLEFIELD_HELD") {
+                                    player, source, InsightTriggerEffect, eventKind) {
                                     InsightContext = new(instance.CardNo, player, insight.RevealCount.Value, card.ObjectGeneration, "HELD", field,
                                         Origin: instance.Origin, SourceTokenFactoryCardNo: card.TokenFactoryCardNo), SourceCardNo = instance.CardNo };
-                                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                                Add(trigger);
                             }
                 foreach (var ability in abilities)
                     for (var copy = 0; copy < copies; copy++)
@@ -151,25 +173,44 @@ public sealed partial class CoreRuleEngine
                             + (ability.Instance is null ? "" : "-" + ability.Instance.Id);
                         if (ability.Kind == "BLUE_DELAYED_POWER")
                         {
-                            delayed.Add(new(id, player, source, card.CardNo ?? "", field, state.TurnNumber, ability.Amount));
+                            var gain = new DelayedResourceGain(id, player, source, ability.Instance?.CardNo ?? card.CardNo ?? "",
+                                field, state.TurnNumber + (state.Phase == MatchPhases.TurnStart && player == state.TurnPlayerId ? 0 : 1), ability.Amount) {
+                                TimingAlias = aliasUnits is null ? null : CaptureTimingAlias(state, source, player, field,
+                                    frame?.CompletionTick ?? state.Tick, "HOLD", activation) };
+                            delayed.Add(gain);
                             events.Add(new("DELAYED_ABILITY_CREATED", "已登记下一个主阶段的资源技能",
                                 new Dictionary<string, object?> { ["triggerId"] = id, ["controllerId"] = player,
-                                    ["sourceObjectId"] = source, ["battlefieldObjectId"] = field }));
+                                    ["sourceObjectId"] = source, ["battlefieldObjectId"] = field,
+                                    ["timingCaptureHash"] = DelayedTimingCaptureHash(gain) }));
                         }
                         else
                         {
-                            var trigger = new TriggerQueueItemState(id, player, source, "HOLD_" + ability.Kind, "BATTLEFIELD_HELD") {
+                            var trigger = new TriggerQueueItemState(id, player, source, "HOLD_" + ability.Kind, eventKind) {
                                 HeldContext = new(ability.Instance?.CardNo ?? card.CardNo ?? "", field, ability.Kind, ability.Amount, card.ObjectGeneration, ability.ExactCount, ability.Instance?.Origin, ability.Instance?.Id) {
                                     LinkedExile = ability.Kind == LinkedExileHeldKind ? new(
                                         new(new(source, card.ObjectGeneration), card.CardNo!, card.CopyFaceTransitions?.Count ?? 0, card.TokenFactoryCardNo),
                                         new(field, state.CardObjects[field].ObjectGeneration), player, state.Tick) : null },
                                 SourceCardNo = ability.Instance?.CardNo };
-                            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                            Add(trigger);
                         }
                     }
             }
+            if (aliasUnits is null)
+                foreach (var conquest in CaptureConquestAliasesForHold(state, player, field, frame?.CompletionTick ?? state.Tick))
+                    Add(conquest);
+
+            void Add(TriggerQueueItemState trigger)
+            {
+                if (aliasUnits is not null)
+                    trigger = trigger with { TriggeredByEventKind = eventKind,
+                        TimingAlias = CaptureTimingAlias(state, trigger.SourceObjectId, player, field,
+                            frame?.CompletionTick ?? state.Tick, "HOLD", activation) };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
         }
-        return QueueDeploymentHeldAbilities(state with { TriggerQueue = queue, DelayedResourceGains = delayed }, fields, events);
+        if (frame is not null) frame.UnitEventOrdinal = unitEventOrdinal;
+        var result = state with { TriggerQueue = queue, DelayedResourceGains = delayed };
+        return aliasUnits is null ? QueueDeploymentHeldAbilities(result, fields, events) : result;
     }
 
     private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item)
@@ -201,12 +242,12 @@ public sealed partial class CoreRuleEngine
         var experience = NormalizeExperienceForSeats(state);
         var effects = state.UntilEndOfTurnEffects;
         var player = item.ControllerId;
-        var visibleSource = IsParsedUnitHeldContext(context)
-            ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId;
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
         var field = context.BattlefieldObjectId;
         var events = new List<GameEvent>();
         var triggers = new List<TriggerQueueItemState>();
         var rng = state.RngCursor;
+        IReadOnlyList<DelayedResourceGain>? delayedResources = null;
         string? winner = null;
         PendingPaymentState? payment = null;
         var sourceExists = cards.TryGetValue(item.SourceObjectId, out var source)
@@ -220,17 +261,11 @@ public sealed partial class CoreRuleEngine
         switch (context.Kind)
         {
             case "ACTIVATE_CONQUEST":
-                var activated = CaptureNamedUnitConquestAbilities(state, item, state.Tick + 1).ToArray();
-                triggers.AddRange(activated); events.AddRange(activated.Select(BuildTriggerQueuedEvent));
+                var activated = CaptureNamedUnitConquestAbilities(state, item, state.Tick + 1);
+                triggers.AddRange(activated.Triggers); events.AddRange(activated.Triggers.Select(BuildTriggerQueuedEvent));
+                events.AddRange(activated.AdditionalEvents); delayedResources = activated.DelayedResourceGains;
                 events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
                     ["sourceGeneration"] = context.SourceGeneration, ["sourceCardNo"] = context.CardNo } };
-                break;
-            case "CONQUEST_UNIT":
-                TryResolveNaturalUnitConquestTriggerSpecs(state, zones, cards, pools, scores, effects, player, field,
-                    [item.SourceObjectId], 0, rng, events, out var conquestDraw, out var conquestEffects, out payment,
-                    deferNormalVictory: true, activationReason: "BATTLEFIELD_HELD", excludedKinds: IndependentConquestKinds);
-                scores = conquestDraw.PlayerScores; winner = conquestDraw.WinnerPlayerId; rng = conquestDraw.RngCursor;
-                effects = conquestEffects;
                 break;
             case "DRAW": case "EXACT_OTHER_DRAW": Draw(context.Amount); break;
             case "BURN":
@@ -352,7 +387,7 @@ public sealed partial class CoreRuleEngine
         }
         StackResolutionResult Result() => new(zones, cards, scores, experience, pools, effects, winner,
             events, [], null, [], null, triggers, rng, PendingPayment: payment,
-            ObjectLocations: HoldResultLocations());
+            ObjectLocations: HoldResultLocations(), DelayedResourceGains: delayedResources);
     }
 
 }

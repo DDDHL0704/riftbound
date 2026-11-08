@@ -1173,6 +1173,15 @@ public static class TriggerParser
                 DiscardSourceZone: TriggerZones.Hand, DiscardDestinationZone: TriggerZones.Graveyard,
                 RuneCallCount: 1, Optional: true);
 
+        var heldDormantEquipment = Regex.Match(segment,
+            @"^当我据守一处战场时，打出(?<count>[0-9一两二三四五六七八九十]+)个休眠的“(?<name>[^”]+)”装备指示物。?$",
+            RegexOptions.CultureInvariant);
+        if (heldDormantEquipment.Success && ParseChineseNumber(heldDormantEquipment.Groups["count"].Value) is > 0 and var dormantEquipmentCount)
+            return new(TriggerKinds.UnitBattlefieldHeldCreateEquipment, TriggerTimings.BattlefieldHeld,
+                segment, TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: dormantEquipmentCount,
+                CreatedTokenName: heldDormantEquipment.Groups["name"].Value,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true);
+
         var heldEquipment = Regex.Match(segment,
             @"^当我据守一处战场时，打出(?<count>[0-9一两二三四五六七八九十]+)个“(?<name>[^”]+)”装备指示物到一处单一战场。?$",
             RegexOptions.CultureInvariant);

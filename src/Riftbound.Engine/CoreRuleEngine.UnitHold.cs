@@ -64,8 +64,7 @@ public sealed partial class CoreRuleEngine
         if (!IsParsedUnitHeldContext(context) || context.Deployment is not null || UnitHeldSpec(context.CardNo) is not { } spec
             || context.Kind != UnitHeldKind(spec)
             || context.Amount != UnitHeldAmount(spec) || context.RequiredExactOtherFriendlyBattlefieldUnits is not null
-            || effect != "HOLD_" + context.Kind || cardNo != context.CardNo || controller != state.TurnPlayerId
-            || state.Phase != MatchPhases.TurnStart || state.TurnStartStep != "CHANNEL"
+            || effect != "HOLD_" + context.Kind || cardNo != context.CardNo || !IsHeldCaptureTiming(state, context, controller)
             || context.SourceGeneration < 0 || string.IsNullOrWhiteSpace(sourceId)
             || BattlefieldLocalRules.Battlefield(state, context.BattlefieldObjectId) is null
             || context.UnitSource is not { CapturedTick: >= 0, FaceRevision: >= 0 } captured
