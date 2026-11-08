@@ -1033,7 +1033,7 @@
         {
           "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Defend.cs",
           "methods": [
-            "ASeparateDefendSkillKeepsItsConfirmedAllyAfterTheActualImageSourceCeases"
+            "AnActualImageDefendingAsYuumiKeepsItsEarnedSkillButHasNoHereAfterCeasing"
           ]
         },
         {

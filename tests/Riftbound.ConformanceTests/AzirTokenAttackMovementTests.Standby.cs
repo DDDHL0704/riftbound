@@ -17,7 +17,7 @@ public sealed partial class AzirTokenAttackMovementTests
         initial = RadGearTestPosition.Put(initial, "TEMPLATE", "OGN·219/298", "P2", "BASE");
         var runes = Enumerable.Range(0, 15).Select(i => "RUNE-" + i).ToArray();
         for (var i = 0; i < runes.Length; i++)
-            initial = RadGearTestPosition.Put(initial, runes[i], i < 7 ? "UNL-R06" : "UNL-R02", "P1", "BASE");
+            initial = RadGearTestPosition.Put(initial, runes[i], i < 7 ? "UNL-R06" : "UNL-R03", "P1", "BASE");
         // Validate every command frame/retry; audit the complete original
         // replay at each native setup and response boundary.
         var game = new Driver(initial) { RecoverAfterEveryCommand = false };
@@ -27,14 +27,18 @@ public sealed partial class AzirTokenAttackMovementTests
         Assert.Equal(MatchPhases.Main, game.State.Phase);
         await game.ColdCheckpoint();
         await game.TapRunes("P1", runes);
-        foreach (var id in new[] { runes[0], runes[7], runes[1] })
+        foreach (var id in new[] { runes[0], runes[7], runes[8] })
             await game.Act("P1", new RecycleRuneCommand(id));
-        await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["TEMPLATE"]));
+        Assert.Equal(2, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Blue));
+        Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Yellow));
+        await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["TEMPLATE"],
+            OptionalCosts: [PrintedPowerCostRules.ChoiceId(new Dictionary<string, int> { [RuneTrait.Blue] = 2 })]));
         await game.Top(); await game.Top();
         var image = Assert.Single(game.State.CardObjects.Values, c => c.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo);
         Assert.Contains(CardObjectTags.Ephemeral, image.Tags);
         await game.Act("P1", new MoveUnitCommand(image.ObjectId, "BASE", "BATTLEFIELD:BF", []));
         var tokens = await CreateTokens(game);
+        Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Yellow));
         await game.ColdCheckpoint();
         await EnterAndAttack(game, "SFD·177/221"); await Select(game, tokens);
         await game.ColdCheckpoint();
