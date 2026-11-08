@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
             var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕移动的单位", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = visibleSource, ["targetObjectId"] = unit.ObjectId,
                 ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
-            events.Add(CaptureStunObservers(applied, state.PlayerZones, cards, item, unit.ObjectId));
+            events.Add(CaptureStunObservers(applied, state.PlayerZones, cards, item, unit.ObjectId, state.ObjectLocations));
         }
         events.Add(new("TRIGGER_RESOLVED", "移动后眩晕技能结算完成", new Dictionary<string, object?> {
             ["sourceObjectId"] = visibleSource }));
