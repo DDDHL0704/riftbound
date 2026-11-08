@@ -64,7 +64,7 @@ public sealed partial class AzirTokenAttackMovementTests
         Assert.Empty(ValidateAttackHistory(game, game.State));
         var item = Assert.Single(game.State.StackItems);
         var forged = item with { TargetObjectIds = [tokens[1]],
-            TargetGenerations = new Dictionary<string, int> { [tokens[1]] = game.State.CardObjects[tokens[1]].ObjectGeneration } };
+            TargetGenerations = new Dictionary<string, long> { [tokens[1]] = game.State.CardObjects[tokens[1]].ObjectGeneration } };
         Assert.NotEmpty(ValidateAttackHistory(game, game.State with { StackItems = [forged] }));
         await game.Top();
         Assert.Equal("OTHER", game.State.ObjectLocations[tokens[0]].BattlefieldObjectId);
