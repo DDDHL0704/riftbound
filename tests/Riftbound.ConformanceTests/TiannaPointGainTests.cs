@@ -111,14 +111,21 @@ public sealed class TiannaPointGainTests
     public async Task APreventedConquestPointStillEarnsTheFourUnitLegendDraw()
     {
         var initial = WithOpponentTianna(OfficialGarenConquestBattlefieldCountTests.Position());
+        initial = RadUnitEffectTestFixture.Place(initial, "OTHER", "P2", "BATTLEFIELD", "OTHER");
         var game = new Driver(initial);
         await game.Act("P1", new MoveUnitCommand("U1", "BASE", "BATTLEFIELD:TARGET", [], ["U1", "U2", "U3", "U4"]));
-        await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
+        for (var passes = 0; !game.State.StackItems.Any(i => i.LegendConquest?.Draw is not null)
+            && game.State.SpellDuelState.IsActive; passes++) {
+            Assert.InRange(passes, 0, 5);
+            if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+            else await game.Act(game.State.SpellDuelState.FocusPlayerId!, new PassFocusCommand());
+        }
         Assert.Equal(0, game.State.PlayerScores["P1"]);
         Assert.Single(game.Events(), e => e.Event.Kind == "SCORE_GAIN_PREVENTED");
         Assert.Single(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
         var skill = Assert.Single(game.State.StackItems);
         Assert.Equal("OGS·023/024", skill.LegendConquest!.CardNo);
+        Assert.Equal("TARGET", skill.LegendConquest.BattlefieldId);
         Assert.Equal(4, skill.LegendConquest.Draw!.CountedUnits.Count);
         Assert.Empty(game.State.PlayerZones["P1"].Hand);
         await game.Top();
