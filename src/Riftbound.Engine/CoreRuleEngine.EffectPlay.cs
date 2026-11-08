@@ -26,6 +26,7 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (TryGetUnitEventGraveyardPlayDefinition(parent, out definition)) return true;
         if (PlaysAllLinkedArmamentUnits(parent))
         {
             definition = new(parent.CardNo, "打出所有关联放逐单位", 0, parent.EffectKind, 0, 0,
@@ -164,7 +165,8 @@ public sealed partial class CoreRuleEngine
 
     // Restore the same policy selected by the registered effect, never client-supplied waivers.
     internal static bool ValidGraveyardUnitEffectPlay(MatchState state, PendingEffectPlayState pending)
-        => pending.Parent.EmpowerInteraction is not null ? ValidEmpowerInteractionPlay(state, pending)
+        => IsUnitEventGraveyardPlay(pending.Parent) ? ValidUnitEventGraveyardPlay(state, pending)
+            : pending.Parent.EmpowerInteraction is not null ? ValidEmpowerInteractionPlay(state, pending)
             : pending.SourcePlayerId is null && TryGetEffectPlayDefinition(pending.Parent, out var behavior)
             && behavior.CardNo == pending.Parent.CardNo && behavior.EffectPlaySourceZone == "GRAVEYARD"
             && pending.SourceZone == behavior.EffectPlaySourceZone && pending.PlayerId == pending.Parent.ControllerId
@@ -392,7 +394,8 @@ public sealed partial class CoreRuleEngine
         });
     }
 
-    private static StackResolutionResult BeginEffectPlay(MatchState state, StackItemState parent, CardBehaviorDefinition behavior)
+    private static StackResolutionResult BeginEffectPlay(MatchState state, StackItemState parent, CardBehaviorDefinition behavior,
+        IReadOnlyList<string>? permittedSources = null)
     {
         if (behavior.EffectPlaySourceZone == "OPPONENT_HAND") return BeginRevealedHandPlay(state, parent, behavior);
         var zones = NormalizeZonesForSeats(state);
@@ -405,8 +408,8 @@ public sealed partial class CoreRuleEngine
         string? sourcePlayer = null;
         ObjectLocationState? originalLocation = null;
         ObjectBinding? originalBattlefield = null;
-        IReadOnlyList<string> sources = selfReplay ? [parent.SourceObjectId]
-            : sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
+        IReadOnlyList<string> sources = permittedSources ?? (selfReplay ? [parent.SourceObjectId]
+            : sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray());
         if (sourceZone == "GRAVEYARD" && behavior.EffectPlayRequiresUnitOrEquipment
             && zones.TryGetValue(actor, out var graveyardOwner))
         {

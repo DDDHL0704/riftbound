@@ -403,7 +403,7 @@ public sealed partial class CoreRuleEngine
                     && PredictBindingMatches(state, a.Binding, a.CardNo, a.FaceRevision, c.CapturedTick, a.TokenFactoryCardNo))
                 && c.Attackers.Select(a => a.Binding.ObjectId).Distinct(StringComparer.Ordinal).Count() == c.Attackers.Count
                 : c.Attackers is null)
-            && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "MOVE_ENEMIES_TO_BASE" || spec.Timing == "PLAY_OR_MOVE" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
+            && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "MOVE_ENEMIES_TO_BASE" || UnitEventTimingMatches(spec.Timing, "MOVE") ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
                 && (here.Zone == "BASE" && here.BattlefieldObjectId is null
                     || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is not null)
                 : c.Here is null)
@@ -551,6 +551,7 @@ public sealed partial class CoreRuleEngine
             TryGetEffectPlayDefinition(item, out var definition);
             return BeginEffectPlay(state, item, definition);
         }
+        if (spec.Effect == UnitEventGraveyardPlayEffect) return ResolveUnitEventGraveyardPlay(state, item);
         if (spec.Effect == "DECLARE_ATTRIBUTE") return ResolveAttributeDeclaration(state, item);
         if (IsPlayedUnitRuneSpec(spec)) return ResolvePlayedUnitRunes(state, item, spec);
         if (spec.Effect == "CALL_RUNES_PER_CONSUMED_BOON") return ResolvePaidBoonRuneInstruction(state, item, spec);

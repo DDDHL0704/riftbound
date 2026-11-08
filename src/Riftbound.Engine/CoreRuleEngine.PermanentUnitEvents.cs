@@ -48,8 +48,19 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state);
         if (spec.Effect == "CREATE_UNIT_TOKEN")
         {
+            string? field = null;
+            if (spec.CreatesUnitTokenHere)
+            {
+                var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);
+                if (here is null || here.Zone is not ("BASE" or "BATTLEFIELD")
+                    || here.Zone == "BASE" && here.PlayerId != item.ControllerId
+                    || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is null)
+                    return NoopStackResolutionResult(state);
+                field = here.BattlefieldObjectId;
+            }
             if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
-            return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), false);
+            return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), false,
+                field, instructionAllowsLocationChoice: spec.CreatesUnitTokenHere ? false : null);
         }
         if (item.TargetObjectIds.SingleOrDefault() is not { } target
             || !StackObjectRules.ReferencesCurrentObject(state, item, target)

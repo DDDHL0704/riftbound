@@ -13,5 +13,5 @@ public sealed partial class CoreRuleEngine
         => MatchStateHasher.HashValue(new { source, controller, context.CardNo, context.Timing,
             context.SourceGeneration, context.FaceRevision, context.CapturedTick,
             context.TokenFactoryCardNo, context.Origin, context.ArmamentDeath, context.DefendedBattlefield,
-            context.TargetSelection, context.Other });
+            context.TargetSelection, context.Other, context.Here });
 }
