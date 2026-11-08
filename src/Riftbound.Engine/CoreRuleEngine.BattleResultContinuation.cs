@@ -27,7 +27,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = ReconcileBoundLegends(result);
-            result = RecordBattlefieldConquests(result);
+            result = RecordBattlefieldScoringActions(result);
             result = RecordEquipmentAbilityPlays(state, result);
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
             result = QueueSelfActionObservers(state, result);
@@ -85,7 +85,7 @@ public sealed partial class CoreRuleEngine
             // are published. Observe those selections before opening responses.
             completed = QueueSelfActionObservers(collected.State, completed);
             return NormalizeTurnEffectMarkers(StampNewTriggerQueueTimes(state,
-                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldConquests(PrepareTriggerConfirmation(PublishPendingTriggers(completed)))))));
+                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldScoringActions(PrepareTriggerConfirmation(PublishPendingTriggers(completed)))))));
     }
 
     // MatchState uses a sorted set of turn markers when deserializing. Publish
