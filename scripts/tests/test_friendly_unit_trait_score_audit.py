@@ -41,6 +41,19 @@ class FriendlyUnitTraitScoreAuditTests(unittest.TestCase):
             with self.subTest(no=no):
                 card = self.card(); card['cardNo'] = no
                 self.assertEqual('route', self.status(card))
+                for profile in card['behaviors']:
+                    profile['unitEventAbility']['requiredFriendlyUnitTagsForScore'].reverse()
+                self.assertEqual('route', self.status(card))
+
+    def test_null_specs_and_boolean_or_float_amounts_cannot_certify_a_typed_score(self):
+        for spec in [None, [], {}, True]:
+            with self.subTest(spec=spec):
+                card = self.card(); card['behaviors'][0]['unitEventAbility'] = spec
+                self.assertEqual('missing', self.status(card))
+        for amount in [True, 1.0, '1']:
+            with self.subTest(amount=amount):
+                card = self.card(); card['behaviors'][0]['unitEventAbility']['amount'] = amount
+                self.assertEqual('missing', self.status(card))
 
     def test_a_missing_mode_or_wrong_tags_amount_timing_or_hidden_cost_cannot_certify_the_sentence(self):
         for missing in range(4):
@@ -79,6 +92,10 @@ class FriendlyUnitTraitScoreAuditTests(unittest.TestCase):
             ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'UnitEventTimingMatches(unitEvent.Timing, "HOLD")'),
             ('MatchRecovery.BattlefieldTimingAliases.cs', 'c.Accepted && c.CompletedTick == queued[0].Tick'),
             ('MatchRecovery.BattlefieldTimingAliases.cs', 'CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)'),
+            ('MatchRecovery.BattlefieldTimingAliases.cs', 'e.Event.Kind == "TOKEN_CEASED_TO_EXIST"'),
+            ('MatchRecovery.BattlefieldTimingAliases.cs', 'c.Accepted && c.CompletedTick == e.Tick'),
+            ('MatchRecovery.BattlefieldTimingAliases.cs', 'CoreRuleEngine.ValidUnitEventTargets(stack)'),
+            ('MatchRecovery.cs', 'HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, stackItemId,'),
             ('MatchRecovery.cs', 'ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors)'),
         ]
         for filename, token in checks:

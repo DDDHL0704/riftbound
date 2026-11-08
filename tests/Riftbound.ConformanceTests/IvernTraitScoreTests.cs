@@ -98,19 +98,28 @@ public sealed partial class IvernTraitScoreTests
     {
         var state = Position(no, "猫科");
         state = RadGearTestPosition.Put(state, "OTHER", "OGN·296/298", "P1", "BATTLEFIELD", "OTHER");
+        state = RadUnitEffectTestFixture.Place(state, "BIRD", "P1", "BATTLEFIELD", "OTHER");
         state = RadGearTestPosition.Put(state, "CAT", "OGN·135/298", "P1", "HAND");
+        for (var i = 0; i < 4; i++)
+            state = RadGearTestPosition.Put(state, "P2-DRAW-" + i, "OGN·219/298", "P2", "MAIN_DECK");
         var game = new Driver(state);
         await game.Act("P1", new HideCardCommand("CAT", "OGN·135/298", "BATTLEFIELD:OTHER", ["STANDBY_A"]));
         Assert.True(game.State.CardObjects["CAT"].IsFaceDown);
+        // Keep an actual public occupant and complete the placement turn.
+        // A newly hidden standby card cannot be played in that same turn.
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new EndTurnCommand());
+        Assert.True(game.State.CardObjects["CAT"].IsFaceDown);
+        var priorScore = game.State.PlayerScores["P1"];
         await Conquer(game);
         Assert.NotNull(ScoreSkill(game));
         await game.Act("P1", new RevealCardCommand("CAT", "OGN·135/298", []));
         // The real face-down unit enters the field before the score skill.
         while (game.State.StackItems[^1].UnitEvent is null) await game.Top();
         Assert.False(game.State.CardObjects["CAT"].IsFaceDown);
-        Assert.Equal(1, game.State.PlayerScores["P1"]);
+        Assert.Equal(priorScore + 1, game.State.PlayerScores["P1"]);
         await game.Top();
-        Assert.Equal(2, game.State.PlayerScores["P1"]);
+        Assert.Equal(priorScore + 2, game.State.PlayerScores["P1"]);
         await game.ColdCheckpoint();
     }
 

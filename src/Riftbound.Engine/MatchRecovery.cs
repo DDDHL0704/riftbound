@@ -1605,6 +1605,7 @@ public static partial class MatchRecoveryValidator
             && !ceasedInsight
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBombSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
@@ -3691,6 +3692,7 @@ public static partial class MatchRecoveryValidator
             && !ceasedInsight
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBombSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
@@ -5829,6 +5831,10 @@ public static partial class MatchRecoveryValidator
                 ReadNormalizedPayloadString(stackItem, "effectKind")))
                 sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);
             if (CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, stackItemId,
+                ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
+                ReadNormalizedPayloadString(stackItem, "effectKind")))
+                sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);
+            if (HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, stackItemId,
                 ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
                 ReadNormalizedPayloadString(stackItem, "effectKind")))
                 sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);

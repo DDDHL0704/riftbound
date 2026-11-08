@@ -57,6 +57,29 @@ public sealed partial class IvernTraitScoreTests
             Assert.False(game.State.CardObjects.ContainsKey(copy));
             Assert.NotNull(ScoreSkill(game));
             await game.ColdCheckpoint();
+            var original = ScoreSkill(game); var captured = original.UnitEvent!;
+            var history = MatchStateHasher.HashValue(new { commands = game.Commands(), events = game.Events() });
+            foreach (var forged in new[] {
+                original with { SourceObjectId = "COPY-TOKEN-FORGED" },
+                original with { UnitEvent = captured with { SourceGeneration = captured.SourceGeneration + 1 } },
+                original with { UnitEvent = captured with { TokenFactoryCardNo = P6TokenFactoryCatalog.WarhawkTokenCardNo } },
+                original with { UnitEvent = captured with { CapturedTick = captured.CapturedTick + 1 } } })
+                Assert.Contains(ValidateOriginalHistory(game, game.State with { StackItems = [forged] }),
+                    error => error == "battlefield timing skill differs from its original accepted capture");
+            Assert.Equal(history, MatchStateHasher.HashValue(new { commands = game.Commands(), events = game.Events() }));
+        }
+        else
+        {
+            // Keep the accepted journal intact. Merely deleting a live token
+            // from a snapshot must not invent a proved departure.
+            var missing = game.State with {
+                CardObjects = game.State.CardObjects.Where(p => p.Key != copy).ToDictionary(p => p.Key, p => p.Value),
+                ObjectLocations = game.State.ObjectLocations.Where(p => p.Key != copy).ToDictionary(p => p.Key, p => p.Value),
+                PlayerZones = game.State.PlayerZones.ToDictionary(p => p.Key, p => p.Value with {
+                    Battlefields = p.Value.Battlefields.Where(id => id != copy).ToArray() }) };
+            Assert.Contains(ValidateOriginalHistory(game, missing),
+                error => error == "battlefield unit event source disappearance lacks its original accepted token cessation");
+            await game.ColdCheckpoint();
         }
         await game.Top();
         Assert.Equal(2, game.State.PlayerScores["P1"]);

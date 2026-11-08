@@ -1939,14 +1939,19 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
     profiles = card.get('behaviors', [])
     expected = dict(timing='CONQUEST_OR_HOLD', effect='SCORE_IF_FRIENDLY_UNITS_HAVE_ALL_TAGS',
                     amount=1, requiredFriendlyUnitTagsForScore=tags)
+    def exact_profile(profile):
+        spec = profile.get('unitEventAbility')
+        return isinstance(spec, dict) and inventory_contains(spec, expected) \
+            and len(spec['requiredFriendlyUnitTagsForScore']) == len(tags) \
+            and profile.get('playsSourceToBaseAsUnit') is True \
+            and profile.get('sourceUnitTags') == modes.get(profile.get('mode')) \
+            and not any(meaningful(v) for k, v in spec.items() if k not in expected)
+
     exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == sentence \
-        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 4 \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and isinstance(profiles, list) and len(profiles) == 4 \
+        and all(isinstance(p, dict) and type(p.get('mode')) is str for p in profiles) \
         and {p.get('mode') for p in profiles} == set(modes)
-    exact = exact and all(p.get('playsSourceToBaseAsUnit') is True
-        and p.get('sourceUnitTags') == modes.get(p.get('mode'))
-        and all(p.get('unitEventAbility', {}).get(k) == v for k, v in expected.items())
-        and not any(meaningful(v) for k, v in p.get('unitEventAbility', {}).items() if k not in expected)
-        for p in profiles)
+    exact = exact and all(exact_profile(p) for p in profiles)
     prefix = 'src/Riftbound.Engine/'
 
     def members(filename, name):
@@ -2013,7 +2018,20 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
         ('MatchRecovery.BattlefieldTimingAliases.cs', 'ValidateBattlefieldTimingHistory', [
             'BattlefieldTimingContinuations(state)', '"timingCaptureHash"',
             'CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)', 'c.Accepted && c.CompletedTick == queued[0].Tick',
-            '"TRIGGERS_MOVED_TO_STACK"']),
+            '"TRIGGERS_MOVED_TO_STACK"', 'e.Event.Kind == "TOKEN_CEASED_TO_EXIST"',
+            'e.Tick >= ceasedUnit.CapturedTick', 'target == item.Source',
+            'c.Accepted && c.CompletedTick == e.Tick']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'HasValidatedCeasedBattlefieldUnitEventSource', [
+            'state.CardObjects.ContainsKey(source)', 'P6TokenFactoryCatalog.IsTokenFactory(token)',
+            'CoreRuleEngine.TimingCaptureContext(stack) is UnitEventContext',
+            'CoreRuleEngine.ValidUnitEvent(state, context, stack.EffectKind, source, stack.CardNo, controller)',
+            'CoreRuleEngine.ValidUnitEventTargets(stack)']),
+        ('MatchRecovery.cs', 'ValidateSpectatorSnapshotStackObjectReferences', [
+            'HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, stackItemId,']),
+        ('MatchRecovery.cs', 'ValidateSnapshotTimingTriggerQueuePayloadValues', [
+            'HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId,']),
+        ('MatchRecovery.cs', 'ValidateSpectatorTriggerQueuePayloadValues', [
+            'HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId,']),
         ('MatchRecovery.cs', 'ValidateFrame', [
             'ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors)']),
     ]

@@ -1514,7 +1514,7 @@
       "text": "当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。",
       "scope": "当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。",
       "status": "route",
-      "reason": "每份实际来源文本在征服／据守时独立触发；在结算时检查当前公开场上友方单位合计的鸟类、猫科、犬形、魄罗标签，沿用得分限制及胜负消费者；原始捕获与日志绑定不变",
+      "reason": "每份实际来源文本在征服／据守时独立触发；在结算时检查当前公开场上友方单位合计的鸟类、猫科、犬形、魄罗标签，沿用得分限制及胜负消费者；原始捕获与日志绑定不变；映像消失后保留技能时，还须匹配原始已接受的指示物消失事件",
       "rules": "中国区 UNL 裁判 FAQ260511 第4节／第12页（艾翁·万物之友：四种属性在结算时检查）；核心383.2–383.3（独立触发）、得分限制与胜负共享流程；UNL-177／177a官方中文牌面",
       "runtime": {
         "unitEventAbility": {
@@ -1568,7 +1568,10 @@
           "path": "src/Riftbound.Engine/MatchRecovery.BattlefieldTimingAliases.cs",
           "contains": [
             "CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)",
-            "c.Accepted && c.CompletedTick == queued[0].Tick"
+            "c.Accepted && c.CompletedTick == queued[0].Tick",
+            "HasValidatedCeasedBattlefieldUnitEventSource",
+            "e.Event.Kind == \"TOKEN_CEASED_TO_EXIST\"",
+            "target == item.Source"
           ]
         }
       ],
