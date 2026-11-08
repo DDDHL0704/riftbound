@@ -56,6 +56,13 @@ public static partial class MatchRecoveryValidator
                     && TryReadObjectStringList(e.Event.Payload, "stackItemIds", out var ids) && ids.Contains("ordered-" + item.Id))
                 || item.Alias is { } alias && !MatchesAcceptedTimingAlias(queued[0], alias, events))
                 errors.Add("battlefield timing skill differs from its original accepted capture");
+            if (item.Context is UnitEventContext { TokenFactoryCardNo: not null } ceasedUnit
+                && !state.CardObjects.ContainsKey(item.Source)
+                && !events.Any(e => e.Event.Kind == "TOKEN_CEASED_TO_EXIST" && e.Tick >= ceasedUnit.CapturedTick
+                    && TryReadObjectString(e.Event.Payload, "targetObjectId", out var target) && target == item.Source
+                    && commands.Any(c => c.Accepted && c.CompletedTick == e.Tick
+                        && c.StartedEventSequence < e.Sequence && c.CompletedEventSequence >= e.Sequence)))
+                errors.Add("battlefield unit event source disappearance lacks its original accepted token cessation");
             if (item.Context is UnitEventContext unitEvent
                 && unitEvent.Timing.Split("_OR_", StringSplitOptions.None).Contains("CONQUEST", StringComparer.Ordinal))
             {
@@ -80,6 +87,28 @@ public static partial class MatchRecoveryValidator
                 || gain.TimingAlias is { } alias && !MatchesAcceptedTimingAlias(registered[0], alias, events))
                 errors.Add("delayed battlefield timing skill differs from its original accepted registration");
         }
+    }
+
+    // This reference exception is restricted to captured battlefield UnitEvents.
+    // ValidateBattlefieldTimingHistory still requires both the original capture
+    // and an accepted token-cessation event; a missing registry row is not proof.
+    private static bool HasValidatedCeasedBattlefieldUnitEventSource(MatchState? state, string? id,
+        string? controller, string? source, string? effect)
+    {
+        if (state is null || string.IsNullOrWhiteSpace(source) || source == "HIDDEN"
+            || state.CardObjects.ContainsKey(source)) return false;
+        var stack = (state.PendingEffectPlay?.Parent is { } parent ? state.StackItems.Append(parent) : state.StackItems)
+            .FirstOrDefault(i => i.StackItemId == id && i.ControllerId == controller
+            && i.SourceObjectId == source && i.EffectKind == effect);
+        if (stack?.UnitEvent is { TokenFactoryCardNo: { } token } context
+            && P6TokenFactoryCatalog.IsTokenFactory(token) && CoreRuleEngine.TimingCaptureContext(stack) is UnitEventContext
+            && CoreRuleEngine.ValidUnitEvent(state, context, stack.EffectKind, source, stack.CardNo, controller)
+            && CoreRuleEngine.ValidUnitEventTargets(stack)) return true;
+        var trigger = state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id && i.ControllerId == controller
+            && i.SourceObjectId == source && i.EffectKind == effect);
+        return trigger?.UnitEvent is { TokenFactoryCardNo: { } factory } captured
+            && P6TokenFactoryCatalog.IsTokenFactory(factory) && CoreRuleEngine.TimingCaptureContext(trigger) is UnitEventContext
+            && CoreRuleEngine.ValidUnitEvent(state, captured, trigger.EffectKind, source, trigger.SourceCardNo, controller);
     }
 
     private static bool MatchesAcceptedTimingAlias(RecoveredEvent queued, BattlefieldTimingAlias alias,
