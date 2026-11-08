@@ -1930,12 +1930,119 @@ def boon_mode_activation_route(card: dict, clause: dict, sources: Sources) -> di
                   paths)
 
 
+def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize('当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。')
+    if normalize(unparenthesize(clause['text'])) != sentence:
+        return None
+    tags = ['鸟类', '猫科', '犬形', '魄罗']
+    modes = {'CHOOSE_BIRD': '鸟类', 'CHOOSE_CAT': '猫科', 'CHOOSE_DOG': '犬形', 'CHOOSE_PORO': '魄罗'}
+    profiles = card.get('behaviors', [])
+    expected = dict(timing='CONQUEST_OR_HOLD', effect='SCORE_IF_FRIENDLY_UNITS_HAVE_ALL_TAGS',
+                    amount=1, requiredFriendlyUnitTagsForScore=tags)
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == sentence \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 4 \
+        and {p.get('mode') for p in profiles} == set(modes)
+    exact = exact and all(p.get('playsSourceToBaseAsUnit') is True
+        and p.get('sourceUnitTags') == modes.get(p.get('mode'))
+        and all(p.get('unitEventAbility', {}).get(k) == v for k, v in expected.items())
+        and not any(meaningful(v) for k, v in p.get('unitEventAbility', {}).items() if k not in expected)
+        for p in profiles)
+    prefix = 'src/Riftbound.Engine/'
+
+    def members(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        starts = re.finditer(r'(?m)^    (?:private|internal|public) (?:static )?[^\n{;=]*\b'
+                            + re.escape(name) + r'\s*\(', code)
+        bodies = []
+        for match in starts:
+            tail = code[match.end():]
+            end = re.search(r'(?m)^    (?:private|internal|public) ', tail)
+            bodies.append(code[match.start():match.end()] + (tail[:end.start()] if end else tail))
+        return bodies
+
+    checks = [
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', [
+            'IsFaceUpNonStandbyUnit(card)', 'IsObjectOnField(zones, id)',
+            'AttachedRuleTextRules.Instances(zones, cards, card)', 'UnitEventTimingMatches(spec.Timing, timing)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestUnitEvents', ['CaptureConquestEventObservations(state, conquerors)']),
+        ('CoreRuleEngine.Conquest.cs', 'ResolveConquestTriggerEffects', [
+            'CaptureConquestUnitEvents(state with', 'conqueringUnitObjectIds, resolutionTick, playerId, battlefieldId)',
+            'events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent))']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTrigger', [
+            'observation.Controller, observation.Source, UnitEventEffect, eventKind, timing',
+            'UnitEvent = captured with { CapturedTick = captured.CapturedTick > 0 ? captured.CapturedTick : tick }']),
+        ('CoreRuleEngine.cs', 'BuildTriggerQueuedEvent', [
+            'TimingCaptureContext(trigger)', 'payload["timingCaptureHash"] = TimingCaptureHash(timingContext, trigger.TimingAlias)']),
+        ('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureConquestEventObservations', [
+            'CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")']),
+        ('CoreRuleEngine.Hold.cs', 'QueueHeldAbilities', [
+            'HeldUnitsAt(state, field, player)', 'CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")',
+            'UnitEventTrigger(observation,', 'Add(trigger)']),
+        ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', ['QueueUnitEvents(state, result)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'QueueUnitEvents', [
+            'UnitEventTrigger(captured, result.State.Tick,', 'queue.Add(trigger)', 'BuildTriggerQueuedEvent(trigger)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', [
+            'ResolveUnitEventInstruction(state, item)', 'ResolutionResult.VisibleObjectIdForViewer(']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'ValidUnitEvent(state, context,', 'SelectedUnitEventSpec(context)',
+            'spec.Effect == FriendlyUnitTraitScoreEffect', 'ResolveFriendlyUnitTraitScore(state, item, spec)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
+            'SelectedUnitEventSpec(traitScore)?.Effect == FriendlyUnitTraitScoreEffect',
+            'ValidFriendlyUnitTraitScoreStack(item)']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'IsFriendlyUnitTraitScoreSpec', [
+            'Effect: FriendlyUnitTraitScoreEffect, Amount: > 0', 'RequiredFriendlyUnitTagsForScore: { Count: > 0 } tags',
+            'tags.Distinct(StringComparer.Ordinal).Count() == tags.Count']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'HasRequiredFriendlyUnitTags', [
+            'GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)',
+            'Where(card => IsFaceUpNonStandbyUnit(card))', 'SelectMany(card => card.Tags)', 'required.All(tags.Contains)']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'ResolveFriendlyUnitTraitScore', [
+            'ValidFriendlyUnitTraitScoreStack(item)',
+            'HasRequiredFriendlyUnitTags(state, item.ControllerId, spec.RequiredFriendlyUnitTagsForScore!)',
+            '? ResolveUnitEventPointGain(state, item, spec.Amount)', ': NoopStackResolutionResult(state)']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'ValidFriendlyUnitTraitScoreStack', [
+            'item.TargetObjectIds.Count == 0 && item.TargetGenerations is null',
+            'item.TriggerCost is null && item.DamageAmount == 0 && item.EffectRepeatCount == 1']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'ResolveUnitEventPointGain', [
+            'TryPreventPointGain(state, item.ControllerId, amount,',
+            'NormalizeScoresForSeats(state)', 'scores[item.ControllerId] += amount',
+            'scores[item.ControllerId] >= EffectiveWinningScore(state)',
+            'ResolutionResult.VisibleObjectIdForViewer(']),
+        ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext', []),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'BattlefieldTimingContinuations', [
+            'CoreRuleEngine.TimingCaptureContext(trigger)', 'CoreRuleEngine.TimingCaptureContext(item)']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'ValidateBattlefieldTimingHistory', [
+            'BattlefieldTimingContinuations(state)', '"timingCaptureHash"',
+            'CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)', 'c.Accepted && c.CompletedTick == queued[0].Tick',
+            '"TRIGGERS_MOVED_TO_STACK"']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors)']),
+    ]
+    exact = exact and all((bodies := members(filename, name))
+        and all(all(token in body for token in tokens) for body in bodies) for filename, name, tokens in checks)
+    exact = exact and any('UnitEventTimingMatches(unitEvent.Timing, "HOLD")' in body
+        and 'UnitEventTimingMatches(unitEvent.Timing, "CONQUEST")' in body and '? unitEvent : null' in body
+        for body in members('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext'))
+    # A precondition at capture would miss a tag supplied by an actual response.
+    exact = exact and all('HasRequiredFriendlyUnitTags(' not in body
+        for filename, name in [('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents'),
+                               ('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureConquestEventObservations'),
+                               ('CoreRuleEngine.Hold.cs', 'QueueHeldAbilities')]
+        for body in members(filename, name))
+    return result('route' if exact else 'missing',
+        '共享征服／坚守按每份文本独立捕获；结算时检查当前公开友方场上单位的四类标签，经得分限制与胜负消费者，并核验原始时机捕获'
+        if exact else '缺少每份文本的征服／坚守独立捕获、结算时当前友方四类标签检查或共享得分／原始历史消费者',
+        sorted({prefix + filename for filename, _, _ in checks}))
+
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if trait_score := friendly_unit_trait_score_route(card, clause, sources):
+        return trait_score
     kind = clause["kind"]
     if conditional := conditional_rune_and_conquest_route(card, clause, sources):
         return conditional
