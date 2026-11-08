@@ -537,9 +537,9 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
-        if (spec.Effect == UnitEventTurnPlayGrantEffect) return ResolveUnitEventTurnPlayGrant(state, item);
         if (spec.Effect == RuneDomainRevealEffect && context.RevealedRune is null) return ResolveRuneDomainReveal(state, item);
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
+        if (spec.Effect == UnitEventTurnPlayGrantEffect) return ResolveUnitEventTurnPlayGrant(state, item);
         if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
         if (spec.Effect == ReadySelectedEventUnit) return ResolveSelectedEventUnitReady(state, item);
         if (spec.Effect == BattleDrawRecallEffect) return ResolveBattleDrawRecall(state, item);

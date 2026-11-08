@@ -144,7 +144,7 @@ public sealed partial class CoreRuleEngine
     private static void AddTurnUnitPlayGrants(MatchState state, StackItemState item, CardBehaviorDefinition b,
         List<string> effects, List<GameEvent> events)
     {
-        if (b.TurnUnitPlayGrantKind.Length == 0) return;
+        if (b.TurnUnitPlayGrantKind.Length == 0 || b.UnitEventAbility?.Effect == UnitEventTurnPlayGrantEffect) return;
         var source = state.CardObjects[item.SourceObjectId];
         var perExecution = b.TurnUnitPlayGrantCount > 0 ? b.TurnUnitPlayGrantCount : 1;
         var repeatCount = Math.Max(1, item.EffectRepeatCount);

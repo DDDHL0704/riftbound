@@ -26039,21 +26039,41 @@ public sealed partial class FullGameEndToEndTests
                 var sourceId = queue ? trigger!.SourceObjectId : item!.SourceObjectId;
                 var controller = queue ? trigger!.ControllerId : item!.ControllerId;
                 Assert.Equal("DELAYED_FRIENDLY_UNIT_PLAYED_BOON", queue ? trigger!.EffectKind : item!.EffectKind);
-                Assert.Contains(c.Grant.CardNo, new[] { "SFD·166/221", "RAD·154/167" });
+                Assert.True(CardBehaviorRegistry.TryGetByCardNo(c.Grant.CardNo, out var behavior));
+                Assert.Equal(c.Grant.Kind, behavior.TurnUnitPlayGrantKind);
+                var unitOrigin = c.Grant.UnitEventOrigin;
+                Assert.Equal(unitOrigin is null ? "PLAY_BOON" : CoreRuleEngine.UnitEventReadyBoonGrantKind, c.Grant.Kind);
                 Assert.Equal(controller, c.Grant.ControllerId); Assert.Equal(controller, c.UnitControllerId);
                 Assert.Contains(c.Grant.Marker, state.UntilEndOfTurnEffects);
                 var fields = c.Grant.Marker.Split('|');
-                Assert.Equal(9, fields.Length); Assert.Equal("TURN_UNIT_PLAY_GRANT", fields[0]);
-                Assert.Equal(state.TurnNumber.ToString(), fields[1]); Assert.Equal("PLAY_BOON", fields[8]);
+                Assert.Equal(unitOrigin is null ? 9 : 10, fields.Length); Assert.Equal("TURN_UNIT_PLAY_GRANT", fields[0]);
+                Assert.Equal(state.TurnNumber.ToString(), fields[1]); Assert.Equal(c.Grant.Kind, fields[8]);
                 Assert.Equal(controller, Encoding.UTF8.GetString(Convert.FromBase64String(fields[2])));
                 Assert.Equal(sourceId, Encoding.UTF8.GetString(Convert.FromBase64String(fields[3])));
                 Assert.Equal(c.Grant.Source.Generation, long.Parse(fields[4]));
                 Assert.Equal(c.Grant.CardNo, Encoding.UTF8.GetString(Convert.FromBase64String(fields[5])));
                 Assert.Equal(c.Grant.StackItemId, Encoding.UTF8.GetString(Convert.FromBase64String(fields[6])));
                 Assert.Equal(c.Grant.ExecutionIndex, int.Parse(fields[7])); Assert.True(c.Grant.ExecutionIndex >= 0);
-                Assert.StartsWith("STACK-", c.Grant.StackItemId); Assert.EndsWith("-" + sourceId, c.Grant.StackItemId);
-                var tick = long.Parse(c.Grant.StackItemId[6..^(sourceId.Length + 1)]);
-                Assert.InRange(tick, 1, state.Tick); Assert.Equal($"STACK-{tick}-{sourceId}", c.Grant.StackItemId);
+                if (unitOrigin is null)
+                {
+                    Assert.StartsWith("STACK-", c.Grant.StackItemId); Assert.EndsWith("-" + sourceId, c.Grant.StackItemId);
+                    var tick = long.Parse(c.Grant.StackItemId[6..^(sourceId.Length + 1)]);
+                    Assert.InRange(tick, 1, state.Tick); Assert.Equal($"STACK-{tick}-{sourceId}", c.Grant.StackItemId);
+                }
+                else
+                {
+                    Assert.Equal(CoreRuleEngine.UnitEventTurnPlayGrantEffect, behavior.UnitEventAbility?.Effect);
+                    Assert.Equal("HOLD", behavior.UnitEventAbility?.Timing); Assert.True(behavior.TurnUnitPlayGrantNextOnly);
+                    Assert.StartsWith("ordered-", c.Grant.StackItemId); Assert.Equal(0, c.Grant.ExecutionIndex);
+                    Assert.Equal(c.Grant.CardNo, unitOrigin.Context.CardNo);
+                    Assert.Equal(c.Grant.Source.Generation, unitOrigin.Context.SourceGeneration);
+                    Assert.Equal(MatchStateHasher.HashValue(unitOrigin), MatchStateHasher.HashValue(
+                        JsonSerializer.Deserialize<UnitEventTurnPlayGrantOrigin>(Convert.FromBase64String(fields[9]))));
+                    Assert.True(CoreRuleEngine.ValidTurnUnitPlayGrant(state, c.Grant));
+                    Assert.Null(publicPayload["grant"]?["unitEventOrigin"]);
+                    Assert.Equal("TURN_UNIT_PLAY_GRANT_HASH:" + MatchStateHasher.HashValue(c.Grant),
+                        publicPayload["grant"]?["marker"]?.GetValue<string>());
+                }
                 Assert.Equal(publicContext.Grant.Source.ObjectId, publicPayload["grant"]?["source"]?["objectId"]?.GetValue<string>());
                 Assert.Equal(publicContext.Unit.ObjectId, publicPayload["unit"]?["objectId"]?.GetValue<string>());
                 var unit = state.CardObjects.GetValueOrDefault(c.Unit.ObjectId);
@@ -26069,15 +26089,22 @@ public sealed partial class FullGameEndToEndTests
                         publicPayload["unit"]!["objectId"] = "CHECKED_CAPTURED_PLAYED_UNIT";
                     else Assert.Equal(c.UnitCardNo, unit.CardNo ?? "");
                 }
-                var source = state.CardObjects[sourceId];
+                var source = state.CardObjects.GetValueOrDefault(sourceId);
                 if (publicContext.Grant.Source.ObjectId == "HIDDEN")
                 {
                     Assert.Equal("HIDDEN", publicPayload["grant"]?["cardNo"]?.GetValue<string>());
                     Assert.Equal("HIDDEN", publicPayload["grant"]?["source"]?["objectId"]?.GetValue<string>());
-                    Assert.Equal("HIDDEN", publicPayload["grant"]?["marker"]?.GetValue<string>());
+                    if (unitOrigin is null) Assert.Equal("HIDDEN", publicPayload["grant"]?["marker"]?.GetValue<string>());
                 }
-                else if (source.ObjectGeneration != c.Grant.Source.Generation)
+                else if (source is null || source.ObjectGeneration != c.Grant.Source.Generation)
                 {
+                    if (source is null)
+                    {
+                        Assert.NotNull(unitOrigin?.Context.TokenFactoryCardNo);
+                        Assert.True(P6TokenFactoryCatalog.IsTokenFactory(unitOrigin!.Context.TokenFactoryCardNo));
+                        Assert.True(CoreRuleEngine.ValidTurnUnitPlayBoon(state, c,
+                            queue ? trigger!.EffectKind : item!.EffectKind, sourceId, controller, c.Grant.CardNo));
+                    }
                     row["sourceObjectId"] = "CHECKED_CAPTURED_TURN_GRANT_SOURCE";
                     publicPayload["grant"]!["source"]!["objectId"] = "CHECKED_CAPTURED_TURN_GRANT_SOURCE";
                 }
