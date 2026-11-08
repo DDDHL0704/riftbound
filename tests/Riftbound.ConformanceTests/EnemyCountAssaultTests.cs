@@ -78,13 +78,22 @@ public sealed class EnemyCountAssaultTests
     [Fact]
     public async Task FriendshipUsesCurrentControlAndPhysicalOwnershipDoesNotAddAnEnemy()
     {
-        var initial = RadGearTestPosition.Put(Position(), "TAKE", "SFD·202/221", "P1", "HAND");
-        var game = new Driver(initial); await Attack(game);
-        Assert.Equal(2, Assault(game.State));
-        await game.Act("P1", new PlayCardCommand("TAKE", "SFD·202/221", ["SECOND"])); await game.Top();
+        // A coherent declared opening: the previously acquired unit is friendly
+        // at this field, while its physical ownership still belongs to P2.
+        var initial = RadUnitEffectTestFixture.Place(Position(), "HOST", "P1", "BATTLEFIELD", "BF");
+        initial = RadUnitEffectTestFixture.Place(initial, "ENEMY", "P2", "BASE");
+        initial = RadUnitEffectTestFixture.Place(initial, "SECOND", "P1", "BATTLEFIELD", "BF");
+        initial = initial with { TurnPlayerId = "P2", ActivePlayerId = "P2",
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["BF"] = initial.CardObjects["BF"] with { ControllerId = "P1" },
+                ["SECOND"] = initial.CardObjects["SECOND"] with { OwnerId = "P2", ControllerId = "P1" } } };
+        var game = new Driver(CoreRuleEngine.RecomputeRuleDerivedKeywords(initial));
+        Assert.Equal(0, Assault(game.State));
+        await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
         Assert.Equal("P2", game.State.CardObjects["SECOND"].OwnerId);
         Assert.Equal("P1", game.State.CardObjects["SECOND"].ControllerId);
-        Assert.Equal(1, Assault(game.State)); Assert.Equal(5, ArmamentMightTests.Might(game.State)); await game.Replay();
+        Assert.Equal(1, Assault(game.State)); Assert.True(game.State.CardObjects["HOST"].IsDefending);
+        Assert.Equal(4, ArmamentMightTests.Might(game.State)); await game.Replay();
     }
 
     [Fact]
