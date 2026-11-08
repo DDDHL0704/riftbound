@@ -58,7 +58,7 @@ public sealed partial class CoreRuleEngine
             resolved && zones is not null && cards is not null ? CaptureOutsideHandPlayObservers(zones, cards, player) : [],
             resolved && zones is not null && cards is not null ? CaptureHighCostPlayObservers(zones, cards, player) : [],
             resolved && zones is not null && cards is not null
-                ? CaptureCardPlayUnitEvents(zones, cards, player, card.ObjectId) : []);
+                ? CaptureCardPlayUnitEvents(zones, cards, player, card.ObjectId, no) : []);
         return ev with { Payload = payload };
     }
 
@@ -66,13 +66,16 @@ public sealed partial class CoreRuleEngine
     // An entering unit can observe its own play (Origins judge FAQ 7.1).
     private static UnitEventObservation[] CaptureCardPlayUnitEvents(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
-        string player, string playedSource)
+        string player, string playedSource, string playedCardNo)
     {
         var friendly = cards.Values.Where(card => EffectiveFieldControllerId(zones, card.ObjectId, card) == player)
             .Select(card => card.ObjectId);
         return CaptureUnitEvents(zones, cards, friendly, "SECOND_CARD_PLAYED")
             .Concat(CaptureUnitEvents(zones, cards, [playedSource], "PLAY_AFTER_ANOTHER_CARD"))
             .Concat(CaptureUnitEvents(zones, cards, friendly, UnitEventTimings.OpponentTurnSpellPlayed))
+            .Concat(CaptureUnitEvents(zones, cards, friendly, UnitEventTimings.PrintedPowerCardPlayed)
+                .Where(observation => PrintedPowerCostRules.ForCard(playedCardNo).Amount
+                    >= UnitEventSpec(observation.Context.CardNo)!.MinimumPlayedCardPowerCost))
             .Where(observation => observation.Controller == player).ToArray();
     }
 
@@ -171,6 +174,9 @@ public sealed partial class CoreRuleEngine
                 }
                 if (result.State.Status == MatchStatuses.InProgress)
                 {
+                    cardPlayObservers.AddRange(observation.CardPlayObservers.Where(observer =>
+                        observer.Context.Timing == UnitEventTimings.PrintedPowerCardPlayed)
+                        .Select(observer => observer with { PlayedCardPlayId = entry.PlayId }));
                     // CN 420.4: this observes completion, including effect plays,
                     // and never a countered spell's earlier confirmation.
                     if ((entry.Types & 4) != 0 && entry.PlayerId != before.TurnPlayerId

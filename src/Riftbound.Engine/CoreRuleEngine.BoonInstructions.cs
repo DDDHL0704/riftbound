@@ -18,9 +18,9 @@ public sealed partial class CoreRuleEngine
             if (canReady) AddReadiedObservation(zones, cards, unit, events);
             var consumed = BoonRules.Consume(unit);
             cards[id] = canReady ? consumed with { IsExhausted = false } : consumed;
-            events.Add(new("BOON_CONSUMED", "消耗所选单位的增益", new Dictionary<string, object?> {
+            events.Add(CaptureBoonConsumption(new("BOON_CONSUMED", "消耗所选单位的增益", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                ["targetObjectId"] = id, ["previousPower"] = unit.Power, ["power"] = unit.Power - 1 }));
+                ["targetObjectId"] = id, ["previousPower"] = unit.Power, ["power"] = unit.Power - 1 }), zones, cards));
             if (canReady && unit.IsExhausted) events.Add(CaptureSelfReady(new("UNIT_READIED", "消耗增益后让所选单位活跃", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = id, ["reason"] = item.EffectKind, ["wasExhausted"] = unit.IsExhausted }), unit, item.ControllerId, zones, cards));

@@ -4051,6 +4051,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             discardedOptionalCostObjectIds, playerZones);
 
+        if (behavior.BoonPlayCostPayments is { Count: > 0 })
+        {
+            // Paying a boon can reduce its unit's might below marked damage.
+            // Finish this shared cost cleanup before confirming target triggers
+            // or entering a permanent; observations earned during payment survive.
+            var paid = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                ObjectLocations = objectLocations, RunePools = runePools, PlayerExperience = playerExperience,
+                UntilEndOfTurnEffects = untilEndOfTurnEffects };
+            var cleanup = RunStateBasedCleanupLoop(paid, playerZones, cardObjects, stackItem, runePools,
+                objectLocations: objectLocations,
+                destroyedUnitOwnerIdsAlreadyThisTurn: MergeDestroyedUnitOwnerIds(
+                    state.DestroyedUnitOwnerIdsThisTurn, destroyedAdditionalCostOwnerIds));
+            runePools = cleanup.RunePools.ToDictionary();
+            nextState = nextState with { RunePools = runePools,
+                TriggerQueue = nextState.TriggerQueue.Concat(cleanup.TriggerQueue).ToArray() };
+            destroyedAdditionalCostOwnerIds.AddRange(cleanup.DestroyedUnitOwnerIds);
+            events.AddRange(cleanup.Events);
+        }
+
         var targetSelectionTriggers = CaptureSpellTriggers(state with { PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = objectLocations, UntilEndOfTurnEffects = untilEndOfTurnEffects }, stackItem, behavior,
             out var targetSelectionMarkers, targetSelection: true);
@@ -5327,6 +5346,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["armamentGrantHash"] = ArmamentUnitEventRules.CaptureHash(armamentEvent);
         if (RequiresInstructionCostHistory(trigger.UnitEvent))
             payload["instructionCostCaptureHash"] = InstructionCostCaptureHash(trigger.UnitEvent!,
+                trigger.SourceObjectId, trigger.ControllerId);
+        if (RequiresObservedUnitEventHistory(trigger.UnitEvent))
+            payload["observedUnitEventCaptureHash"] = ObservedUnitEventCaptureHash(trigger.UnitEvent!,
                 trigger.SourceObjectId, trigger.ControllerId);
         if (trigger.UnitEvent is { EquipmentSkillTriggerHash: { } completionKey } equipmentSkill)
         {
@@ -16082,7 +16104,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["drawCount"] = drawCount
             }));
-        events.Add(new GameEvent(
+        events.Add(CaptureBoonConsumption(new GameEvent(
             "BOON_CONSUMED",
             $"{targetObjectId} 因征服战场消耗增益",
             new Dictionary<string, object?>
@@ -16093,7 +16115,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["previousPower"] = targetState.Power,
                 ["power"] = nextPower,
                 ["reason"] = TriggerKinds.BattlefieldConquerConsumeBoonDraw
-            }));
+            }), playerZones, cardObjects));
 
         drawApplication = ApplyDrawToPlayer(
             state,
