@@ -5627,6 +5627,7 @@ internal static partial class ActionPromptBuilder
         if (paymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
             requirement["paymentResourceOrderMatters"] = true;
         if (manaCost.EmpoweredSpellReduction > 0) requirement["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
+        if (manaCost.CombatSpellReduction > 0) requirement["combatSpellCostReductionMana"] = manaCost.CombatSpellReduction;
         if (showPowerSources) requirement["availableWildcardSources"] = sourceBalances;
         if (reductionGroups.Count > 0)
             requirement["optionalCostReductionGroups"] = reductionGroups
