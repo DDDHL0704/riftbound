@@ -798,7 +798,15 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "TryPreventPointGain(state, item.ControllerId, spec.Amount"
+            "spec.Effect == \"SCORE\" && item.TriggerCost is not null",
+            "ResolveUnitEventPointGain(state, item, spec.Amount)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTraitScore.cs",
+          "contains": [
+            "TryPreventPointGain(state, item.ControllerId, amount,",
+            "return NoopStackResolutionResult(state) with { Events = events }"
           ]
         },
         {
