@@ -86,7 +86,7 @@ public sealed partial class CoreRuleEngine
             || context.Timing == "SCORE" && SourceUnitTokenSpecs.Value[context.CardNo].Timing != TriggerTimings.SourceUnitPlayedOrScored
             || context.Timing == "PLAY" && SourceUnitTokenSpecs.Value[context.CardNo].Timing is not (TriggerTimings.SourceUnitPlayed or TriggerTimings.SourceUnitPlayedOrScored)
             || context.Timing == "HOLD" && (SourceUnitTokenSpecs.Value[context.CardNo].Timing != TriggerTimings.BattlefieldHeld
-                || state.Phase != MatchPhases.TurnStart || state.TurnStartStep != "CHANNEL" || controller != state.TurnPlayerId)
+                || !IsHeldCaptureTiming(state, context, controller))
             || (context.Timing == "PLAY" ? context.BattlefieldId is not null
                 : context.BattlefieldId is null || !state.BattlefieldStates.ContainsKey(context.BattlefieldId))) return false;
         return context.Origin is { } origin

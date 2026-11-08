@@ -70,7 +70,7 @@ public sealed partial class CoreRuleEngine
         var legal = item.HighCostPlayObserver is not null ? HighCostRuneTargets(state, item)
             : NeedsLastBreathHereTarget(item) ? LastBreathHereTargets(state, item)
             : HasTargetedMovementSkill(item) ? TargetedMovementTargets(state, item)
-            : item.UnitEvent is not null ? UnitEventTargets(state, item)
+            : item.UnitEvent is not null ? UnitEventInstructionTargets(state, item)
             : item.ReadyObjectTrigger is not null ? ReadyOtherObjectTargets(state, item)
             : item.UnitPlayMight is not null ? UnitPlayMightTargets(state, item.ControllerId)
             : item.CreatedTokenReady is not null ? CreatedTokenReadyTargets(state, item)
