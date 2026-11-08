@@ -29,7 +29,8 @@ public sealed class OptionalEquipmentGoldCostTests
     }
 
     private static CardObjectState[] Gold(MatchState state)
-        => state.CardObjects.Values.Where(c => c.TokenFactoryCardNo == "UNL·T05"
+        => state.CardObjects.Values.Where(c => c.TokenFactoryCardNo is { } no
+            && P6TokenFactoryCatalog.TryGetByCardNo(no, out var factory) && factory.TokenFamilyName == "金币"
             && state.PlayerZones.Values.Any(z => z.Base.Contains(c.ObjectId) || z.Battlefields.Contains(c.ObjectId))).ToArray();
 
     private static async Task Pay(Driver game, string id)
