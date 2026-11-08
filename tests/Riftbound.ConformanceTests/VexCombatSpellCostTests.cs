@@ -13,6 +13,7 @@ public sealed class VexCombatSpellCostTests
 {
     private const string Vex = "SFD·146/221";
     private const string Smoke = "OGN·093/298";
+    private const string SpellObject = "VEX-PRIVATE-SPELL";
     private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
     private static MatchState Position(bool defending = false, string spell = Smoke)
@@ -21,7 +22,7 @@ public sealed class VexCombatSpellCostTests
         state = RadGearTestPosition.Put(state, "BF", "OGN·296/298", defending ? "P1" : "P2", "BATTLEFIELD", "BF");
         state = RadGearTestPosition.Put(state, "HOST", Vex, "P1", defending ? "BATTLEFIELD" : "BASE", defending ? "BF" : null);
         state = RadGearTestPosition.Put(state, "ENEMY", "OGN·219/298", "P2", defending ? "BASE" : "BATTLEFIELD", defending ? null : "BF");
-        state = RadGearTestPosition.Put(state, "SPELL", spell, "P1", "HAND");
+        state = RadGearTestPosition.Put(state, SpellObject, spell, "P1", "HAND");
         state = RadGearTestPosition.Put(state, "NEXT", Smoke, "P1", "HAND");
         state = RadGearTestPosition.Put(state, "OPP-SPELL", Smoke, "P2", "HAND");
         state = RadGearTestPosition.Put(state, "RETURN", "OGN·104/298", "P1", "HAND");
@@ -42,7 +43,7 @@ public sealed class VexCombatSpellCostTests
         => new CoreRuleEngine().PreviewPlayCard(state, player,
             new("vex-cost", ResolutionResult.BuildPrompts(state)[player].PromptId!, state.Tick, command));
 
-    private static PlayCardCommand Cast(string source = "SPELL", string target = "ENEMY") => new(source, Smoke, [target]);
+    private static PlayCardCommand Cast(string source = SpellObject, string target = "ENEMY") => new(source, Smoke, [target]);
 
     private static void Balanced(PlayCostQuoteDto quote)
     {
@@ -75,8 +76,8 @@ public sealed class VexCombatSpellCostTests
         Assert.Equal(0, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
         var candidate = Assert.Single(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.PlayCard);
         var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
-        Assert.Equal(1, Assert.Single(requirements, r => Equals(r["sourceObjectId"], "SPELL"))["minimumManaCost"]);
-        Assert.DoesNotContain("SPELL", JsonSerializer.Serialize(game.PromptFor("P2"), Web));
+        Assert.Equal(1, Assert.Single(requirements, r => Equals(r["sourceObjectId"], SpellObject))["minimumManaCost"]);
+        Assert.DoesNotContain(SpellObject, JsonSerializer.Serialize(game.PromptFor("P2"), Web));
         await RadGearTestPosition.Reject(game.State, "P1", Cast() with { OptionalCosts = ["SPELL_POWER_REDUCTION:blue:2"] });
         await game.Act("P1", Cast() with { OptionalCosts = ["SPELL_POWER_REDUCTION:blue:1"] });
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
@@ -110,6 +111,17 @@ public sealed class VexCombatSpellCostTests
         state = RadGearTestPosition.Put(state, "HOST", Vex, "P1", zone, zone == "BATTLEFIELD" ? "BF" : null);
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["HOST"] = state.CardObjects["HOST"] with { IsFaceDown = branch == "face-down", IsAttacking = branch == "unstarted" } } };
+        if (branch is "unstarted" or "face-down")
+        {
+            // Such a seed has no legal play window. Inspect the common cost
+            // kernel without granting permission to skip the battle task.
+            Assert.True(CardBehaviorRegistry.TryGetByCardNo(Smoke, out var spell));
+            Assert.Equal(2, CoreRuleEngine.CalculatePlayManaCost(state, "P1", spell).Total);
+            Assert.True(CoreRuleEngine.TrySelectPlayPowerCost(state, "P1", spell, null, new(30, 30), 0,
+                new Dictionary<string, int>(), out var generic, out var typed));
+            Assert.Equal(1, generic + typed.Values.Sum());
+            return;
+        }
         var quote = Quote(state, "P1", Cast()); Balanced(quote);
         Assert.Equal(2, quote.Cost!.Mana); Assert.Equal(1, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
         Assert.DoesNotContain(quote.Cost.Adjustments, a => a.Label == "战斗中单位法术减费");
@@ -133,11 +145,15 @@ public sealed class VexCombatSpellCostTests
     public async Task TheManaFloorAndColoredPowerReductionApplyToTheCombinedEchoCost(bool echo)
     {
         var game = new Driver(Position(spell: "SFD·080/221")); await Challenge(game);
-        var command = new PlayCardCommand("SPELL", "SFD·080/221", ["ENEMY"], OptionalCosts: echo ? ["ECHO"] : []);
+        var command = new PlayCardCommand(SpellObject, "SFD·080/221", ["ENEMY"], OptionalCosts: echo ? ["ECHO"] : []);
         var quote = Quote(game.State, "P1", command); Balanced(quote);
         Assert.Equal(1, quote.Cost!.Mana); Assert.Equal(echo ? 1 : 0, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
         await game.Act("P1", command); Assert.Equal(echo ? 2 : 1, Assert.Single(game.State.StackItems).EffectRepeatCount);
-        await game.Top(); Assert.Equal(echo ? 2 : 1, game.State.CardObjects["ENEMY"].Damage);
+        await game.Top();
+        // Each hit is amplified by the actual Void Gate battlefield. Two
+        // hits destroy this four-Might unit and reset its graveyard face.
+        if (echo) Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+        else Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage);
         await game.ColdCheckpoint();
     }
 
@@ -147,7 +163,7 @@ public sealed class VexCombatSpellCostTests
         var initial = Position(spell: "SFD·122/221") with { RunePools = new Dictionary<string, RunePool> {
             ["P1"] = RunePool.Empty, ["P2"] = new(30, 30) } };
         var game = new Driver(initial); await Challenge(game);
-        var command = new PlayCardCommand("SPELL", "SFD·122/221", []); var quote = Quote(game.State, "P1", command); Balanced(quote);
+        var command = new PlayCardCommand(SpellObject, "SFD·122/221", []); var quote = Quote(game.State, "P1", command); Balanced(quote);
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(0, quote.Cost!.Mana);
         Assert.Equal(0, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
         await game.Act("P1", command); await game.Top();
@@ -161,9 +177,12 @@ public sealed class VexCombatSpellCostTests
     [Fact]
     public async Task GenericReductionCanRemoveColoredPowerInsteadOfWardForASpellTargetingAnotherLocation()
     {
-        var initial = RadGearTestPosition.Put(Position(), "WARDED", "OGN·013/298", "P2", "BASE") with {
+        var initial = RadGearTestPosition.Put(Position(defending: true), "WARDED", "OGN·013/298", "P2", "HAND") with {
             RunePools = new Dictionary<string, RunePool> { ["P1"] = new(1, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 }), ["P2"] = new(30, 30) } };
-        var game = new Driver(initial); await Challenge(game);
+        var game = new Driver(initial);
+        await game.Act("P2", new PlayCardCommand("WARDED", "OGN·013/298", []));
+        Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["WARDED"].Tags);
+        await Challenge(game, defending: true); await Focus(game, "P1");
         var command = Cast(target: "WARDED"); var quote = Quote(game.State, "P1", command); Balanced(quote);
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(1, quote.Cost!.GenericPower); Assert.Empty(quote.Cost.PowerByTrait);
         Assert.Equal(new[] { "SPELL_POWER_REDUCTION:any:1", "SPELL_POWER_REDUCTION:blue:1" },
@@ -180,6 +199,8 @@ public sealed class VexCombatSpellCostTests
         if (alreadyPaid) await game.Act("P1", Cast());
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top();
         Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        if (game.State.StackItems.Count == 0 && game.State.FocusPlayerId == "P2")
+            await game.Act("P2", new PassFocusCommand());
         var future = Quote(game.State, "P1", Cast("NEXT")); Balanced(future); Assert.Equal(2, future.Cost!.Mana);
         if (alreadyPaid) await game.Top(); else { await game.Act("P1", Cast("NEXT")); await game.Top(); }
         Assert.Equal(alreadyPaid ? 28 : 27, game.State.RunePools["P1"].Mana);
@@ -193,7 +214,7 @@ public sealed class VexCombatSpellCostTests
         var game = new Driver(initial); await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_GREEN"]));
         while (game.State.StackItems.Count > 0) await game.Top();
         await Challenge(game);
-        var echo = new PlayCardCommand("SPELL", "SFD·080/221", ["ENEMY"], OptionalCosts: ["ECHO"]);
+        var echo = new PlayCardCommand(SpellObject, "SFD·080/221", ["ENEMY"], OptionalCosts: ["ECHO"]);
         var quote = Quote(game.State, "P1", echo); Balanced(quote);
         Assert.Equal(1, quote.Cost!.Mana); Assert.Equal(0, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
         Assert.Equal(-2, Assert.Single(quote.Cost.Adjustments, a => a.Label == "战斗中单位法术减费").Power);
@@ -228,7 +249,8 @@ public sealed class VexCombatSpellCostTests
     [Fact]
     public async Task AnActualHeronReductionCombinesWithTheCombatFloorWithoutDuplicatingItsPowerCredit()
     {
-        var initial = RadGearTestPosition.Put(Position(), "HERON", "VEN·044", "P1", "BASE");
+        var initial = RadGearTestPosition.Put(Position(), "OTHER", "OGN·296/298", "P1", "BATTLEFIELD", "OTHER");
+        initial = RadGearTestPosition.Put(initial, "HERON", "VEN·044", "P1", "BATTLEFIELD", "OTHER");
         var game = new Driver(initial);
         await game.Act("P1", Cast());
         while (game.State.StackItems.Count > 0) await game.Top();
