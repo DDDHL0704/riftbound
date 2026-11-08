@@ -115,11 +115,11 @@ public sealed class OptionalPlayUnitChoiceTests
         Assert.Equal(0, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
         Assert.Equal(new[] { "DRAW_1", "SELF_BOON" }, choice.LegalObjectIds);
         Assert.Equal(beforeHand, game.State.PlayerZones["P1"].Hand);
-        Assert.False(game.State.CardObjects["SOURCE"].Tags.Contains(CardObjectTags.Boon));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["SOURCE"].Tags);
         await RadGearTestPosition.Reject(game.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["DRAW_1"]));
         await RadGearTestPosition.Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["INVALID"]));
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, mode.Length == 0 ? [] : [mode]));
-        Assert.Equal(beforeHand, game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects["SOURCE"].Tags.Contains(CardObjectTags.Boon));
+        Assert.Equal(beforeHand, game.State.PlayerZones["P1"].Hand); Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["SOURCE"].Tags);
         Assert.Null(game.State.PendingPayment); Assert.Null(game.State.PendingCardChoice);
         if (mode.Length > 0) await game.Top();
         Assert.Equal(beforeHand.Length + (mode == "DRAW_1" ? 1 : 0), game.State.PlayerZones["P1"].Hand.Count);
@@ -141,7 +141,7 @@ public sealed class OptionalPlayUnitChoiceTests
         var hand = game.State.PlayerZones["P1"].Hand.Count;
         await game.Top();
         Assert.Equal(hand + (mode == "DRAW_1" ? 1 : 0), game.State.PlayerZones["P1"].Hand.Count);
-        Assert.False(game.State.CardObjects["SOURCE"].Tags.Contains(CardObjectTags.Boon));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["SOURCE"].Tags);
         await game.Replay();
     }
 
