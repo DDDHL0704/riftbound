@@ -28,7 +28,7 @@ public sealed class EarlySfdScoringIntegrationTests
         for (var pass = 0; game.State.SpellDuelState.IsActive && pass < 6; pass++)
             await game.Act(game.State.PriorityPlayerId ?? game.State.FocusPlayerId!, new PassFocusCommand());
         Assert.False(game.State.SpellDuelState.IsActive);
-        Assert.Equal(preventPoints ? 0 : 1, game.State.PlayerScores["P1"]);
+        Assert.Equal(preventPoints ? 0 : 1, game.State.PlayerScores.GetValueOrDefault("P1"));
         Assert.Equal("HOLD_DRAW", Assert.Single(game.State.StackItems).EffectKind);
         Assert.Equal(new[] { "GIANT" }, game.State.PlayerZones["P1"].Hand);
         await game.Top();
