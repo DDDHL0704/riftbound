@@ -1350,6 +1350,8 @@ def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> d
             '["standbyUnitCaptureHash"] = StandbyUnitCaptureHash(context)', "queue.Add(trigger)"]),
         ("CoreRuleEngine.StandbyObservers.cs", "ValidStandbyObserver", ["ValidStandbyUnitObservation(state, c, effect, source, controller)"]),
         ("CoreRuleEngine.StandbyObservers.cs", "ResolveStandbyObserver", ["ResolveStandbyUnitObserver(state, item)"]),
+        ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
+            "if (stackItem.StandbyObserver is not null) return ResolveStandbyObserver(state, stackItem)"]),
         ("CoreRuleEngine.StandbyUnitObservers.cs", "ValidStandbyUnitObservation", [
             "birth.ControllerId", "birth.CapturedTick > state.Tick", "AttachedRuleTextRules.ValidCaptured(",
             "PredictBindingMatches(state, context.Source", 'birth.RuleTextInstanceId == $"PRINTED:']),
@@ -1374,6 +1376,8 @@ def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> d
     else:
         checks += [
             ("CoreRuleEngine.StandbyObservers.cs", "CaptureStandbyPlayed", ["CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEnemyDamageEffect)"]),
+            ("CoreRuleEngine.BattleResultContinuation.cs", "CollectResolutionEffects", ["collected = QueueStandbyPlayedObservers(collected)"]),
+            ("CoreRuleEngine.cs", "PlaySourceEquipmentToBase", ["CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId)"]),
             ("CoreRuleEngine.cs", "ResolvePlayCard", ["CaptureStandbyPlayed(events[index], playerZones, cardObjects, intent.PlayerId)"]),
             ("CoreRuleEngine.UnitEntryTriggers.cs", "CaptureUnitEntry", ["CaptureStandbyPlayed(ev, zones, cards, player)"]),
             ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["StandbyPlayedEnemyDamageEffect", "i.TargetGenerations is null"]),

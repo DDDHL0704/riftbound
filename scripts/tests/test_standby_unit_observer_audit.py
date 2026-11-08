@@ -45,6 +45,10 @@ class StandbyUnitObserverAuditTests(unittest.TestCase):
 
     def test_unused_decoys_cannot_replace_original_action_confirmation_or_resolution(self):
         checks = [
+            (READY, 'CoreRuleEngine.cs', 'if (stackItem.StandbyObserver is not null) return ResolveStandbyObserver(state, stackItem)'),
+            (DAMAGE, 'CoreRuleEngine.cs', 'if (stackItem.StandbyObserver is not null) return ResolveStandbyObserver(state, stackItem)'),
+            (DAMAGE, 'CoreRuleEngine.BattleResultContinuation.cs', 'collected = QueueStandbyPlayedObservers(collected)'),
+            (DAMAGE, 'CoreRuleEngine.cs', 'CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId)'),
             (READY, 'CoreRuleEngine.Standby.cs', 'QueueStandbyHiddenUnitObservers(QueueStandbyHiddenTokens('),
             (READY, 'CoreRuleEngine.StandbyUnitObservers.cs', 'IsFaceUpNonStandbyUnit(source)'),
             (READY, 'CoreRuleEngine.StandbyUnitObservers.cs', 'AttachedRuleTextRules.Instances(zones, cards, source)'),
