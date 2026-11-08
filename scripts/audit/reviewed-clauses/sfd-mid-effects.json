@@ -1116,7 +1116,8 @@
             "EffectiveFieldControllerId(zones, unit.ObjectId, unit) != actor",
             "!spec.TargetSelectionRequiresSpell || spell",
             "!spec.TargetSelectionRequiresSource || observation.Source == unit.ObjectId",
-            "RuleChoices.Value?.CompletionTick ?? state.Tick"
+            "RuleChoices.Value?.CompletionTick ?? state.Tick",
+            "selection.EquipmentUnit && face.Tags.Contains(CardObjectTags.EquipmentCard)"
           ]
         },
         {
@@ -1160,8 +1161,8 @@
       "text": "当你将一名友方单位选为目标时，你可以选择支付{{1}}并让此牌变为休眠状态，以此抽一张牌。",
       "scope": "当你将一名友方单位选为目标时，你可以选择支付{{1}}并让此牌变为休眠状态，以此抽一张牌。",
       "status": "route",
-      "reason": "己方确认法术或技能的友方单位目标时捕获可选抽1；确认阶段支付1法力并横置来源，随后可响应独立抽牌。可放弃，休眠或无费用不能付款，重复目标逐次捕获但同一来源横置只能支付一次；不按打出卡牌的可选额外费用处理。",
-      "rules": "中国区核心355.6–355.11、383.4.b 指目标触发、383.2–383.3 独立技能、403–407 确认与响应；该卡官方中文文本；铸魂淬炼裁判FAQ260114第18页：灵魂之轮的费用不是打出卡牌的可选额外费用",
+      "reason": "己方确认法术或技能的友方单位目标时捕获可选抽1；确认阶段支付1法力并横置来源，随后可响应独立抽牌。可放弃，休眠或无费用不能付款，重复目标逐次捕获但同一来源横置只能支付一次；不按打出卡牌的可选额外费用处理。 真实转化为单位的装备同样属于友方单位目标；捕获时保留类型依据，并由原始事件哈希约束。",
+      "rules": "中国区核心355.6–355.11、383.4.b 指目标触发、383.2–383.3 独立技能、403–407 确认与响应；该卡官方中文文本；铸魂淬炼裁判FAQ260114第18页：灵魂之轮的费用不是打出卡牌的可选额外费用；核心178.1–178.2 多类型保有各自类型",
       "runtime": {
         "behaviors": [
           {
@@ -1184,7 +1185,8 @@
             "EffectiveFieldControllerId(zones, unit.ObjectId, unit) != actor",
             "!spec.TargetSelectionRequiresSpell || spell",
             "!spec.TargetSelectionRequiresSource || observation.Source == unit.ObjectId",
-            "RuleChoices.Value?.CompletionTick ?? state.Tick"
+            "RuleChoices.Value?.CompletionTick ?? state.Tick",
+            "selection.EquipmentUnit && face.Tags.Contains(CardObjectTags.EquipmentCard)"
           ]
         },
         {
@@ -1222,7 +1224,9 @@
           "methods": [
             "WheelPaysOneManaAndExhaustsForSpellOrAbilityTargetsBeforeDrawing",
             "WheelRequiresTheFriendlyTargetAndAnAcceptedPayableCost",
-            "RepeatedTargetSelectionsEarnSeparateWheelTriggersButCanOnlyExhaustOnce"
+            "RepeatedTargetSelectionsEarnSeparateWheelTriggersButCanOnlyExhaustOnce",
+            "AnEquipmentActuallyAnimatedByOriannaIsAFriendlyUnitTargetForTheWheel",
+            "OrdinaryEquipmentCannotBeSubmittedAsAUnitTargetToInventADraw"
           ]
         }
       ]
