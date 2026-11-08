@@ -76,11 +76,12 @@ public sealed partial class CoreRuleEngine
                         UntilEndOfTurnEffects = firstScore.UntilEndOfTurnEffects };
                     if (state.WinnerPlayerId is null)
                     {
-                        // Capture before scoring changes anything. Prevented/replaced scoring still causes Hold.
+                        // Capture actual Hold actions before points change. Point prevention and draw replacement retain Hold.
                         var heldFields = zones.Values.SelectMany(z => z.Battlefields).Distinct(StringComparer.Ordinal)
                             .Where(id => cards.TryGetValue(id, out var card) && IsBattlefieldCardObject(card)
                                 && EffectiveFieldControllerId(zones, id, card) == player
-                                && !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, id, player)).ToArray();
+                                && !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, id, player)
+                                && !TryBuildBattlefieldScorePreventedEvent(state, player, "BATTLEFIELD_HELD_SCORE", [id], out _)).ToArray();
                         var heldScore = ApplyBattlefieldHeldScoresAtTurnStart(state, zones, cards, player);
                         events.AddRange(heldScore.Events);
                         state = state with { PlayerScores = heldScore.PlayerScores, WinnerPlayerId = heldScore.WinnerPlayerId,

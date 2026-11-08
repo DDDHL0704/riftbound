@@ -100,11 +100,11 @@ public sealed class CounterHoldContinuationTests
         Assert.True(played.Accepted,played.ErrorMessage);
         var gone = played.State with { StackItems=played.State.StackItems.Where(s=>s.StackItemId!="S1").ToArray(),
             PlayerZones=new Dictionary<string,PlayerZones>(played.State.PlayerZones) { ["P2"]=played.State.PlayerZones["P2"] with { Graveyard=["SPELL1"] } } };
-        Assert.Empty(MatchRecoveryValidator.Validate(gone.RoomId,0,[],[],new Dictionary<string,RecoveredPlayerView>(),gone,gone.Tick));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(gone));
         var stack = played.State.StackItems.ToArray();
         stack[^1] = stack[^1] with { TargetStackSources=new Dictionary<string,string> { ["S1"]="SPELL2" } };
         var forged=played.State with { StackItems=stack };
-        Assert.Contains(MatchRecoveryValidator.Validate(forged.RoomId,0,[],[],new Dictionary<string,RecoveredPlayerView>(),forged,forged.Tick),e=>e.Contains("captured stack target identity"));
+        Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(forged),e=>e.Contains("captured stack target identity"));
     }
     private sealed class Journal : IMatchJournal
     {

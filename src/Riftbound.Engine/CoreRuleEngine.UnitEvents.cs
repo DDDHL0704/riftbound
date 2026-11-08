@@ -27,7 +27,8 @@ public sealed partial class CoreRuleEngine
     internal const string UnitEventEffect = "CAPTURED_UNIT_EVENT_ABILITY";
     internal const string TookDamageThisTurn = "TOOK_DAMAGE_THIS_TURN";
     private const string UnitEventCaptureKey = "unitEventObservations";
-    private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context, string InstructionEventKind = "UNIT_EXHAUSTED");
+    private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context,
+        string InstructionEventKind = "UNIT_EXHAUSTED", string? PlayedCardPlayId = null);
     internal static UnitEventAbilitySpec? UnitEventSpec(string? no)
         => no is null ? null
             : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
@@ -555,6 +556,9 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
         if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
+            var prevented = new List<GameEvent>();
+            if (TryPreventPointGain(state, item.ControllerId, spec.Amount, item.EffectKind, item.SourceObjectId, prevented))
+                return NoopStackResolutionResult(state) with { Events = prevented };
             var scores = NormalizeScoresForSeats(state).ToDictionary(); scores[item.ControllerId] += spec.Amount;
             return NoopStackResolutionResult(state) with { PlayerScores = scores,
                 WinnerPlayerId = scores[item.ControllerId] >= EffectiveWinningScore(state) ? item.ControllerId : null,
@@ -574,7 +578,7 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.Effect == "EMPOWER_SELF") return ApplyEmpowerAction(state, new(item.SourceObjectId, context.SourceGeneration), item.ControllerId);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
-        var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
+        var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
         if (spec.Effect == "DESTROY_SELF") {
             if (!cards.TryGetValue(item.SourceObjectId, out var self) || self.ObjectGeneration != context.SourceGeneration

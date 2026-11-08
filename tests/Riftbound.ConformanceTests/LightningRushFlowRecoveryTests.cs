@@ -61,14 +61,14 @@ public sealed class LightningRushFlowRecoveryTests
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
-        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
         foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
             var row = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
             Assert.Equal(true, row["playedWithFlow"]);
             if (branch == "missing") row.Remove("playedWithFlow");
             else if (branch == "private-receipt") row["flowPlay"] = state.StackItems[0].FlowPlay;
             else row["playedWithFlow"] = branch == "false" ? false : "true";
-            Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator), error => error.Contains("flow play", StringComparison.Ordinal));
+            Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator), error => error.Contains("flow play", StringComparison.Ordinal));
             row["playedWithFlow"] = true; row.Remove("flowPlay");
         }
     }

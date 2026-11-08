@@ -145,6 +145,8 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
         }
         var scores = NormalizeScoresForSeats(state); var amount = spec.ScoreAmount!.Value;
+        if (TryPreventPointGain(state, item.ControllerId, amount, context.Kind, item.SourceObjectId, events))
+            return NoopStackResolutionResult(state) with { Events = events };
         scores[item.ControllerId] += amount;
         events.Add(new("SCORE_GAINED", "征服触发技能获得分数", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = publicSource,

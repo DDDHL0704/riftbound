@@ -204,7 +204,7 @@ public sealed class ReplacementResourceTests
             Answers = [pending.Answers[0] with { OptionId = "DECLINE" }] } }));
         var views = s.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,s.Tick,0,generated.Snapshots[id],s.Tick,0,generated.Prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(s.RoomId,s.Tick,0,[],s);
-        var errors = MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator);
+        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(s, views, spectator);
         Assert.True(errors.Count==0,string.Join("; ",errors));
         var publicJson = System.Text.Json.JsonSerializer.Serialize(new { views,spectator });
         Assert.DoesNotContain("pendingRuleChoice",publicJson,StringComparison.OrdinalIgnoreCase);
