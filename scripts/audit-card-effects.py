@@ -1151,6 +1151,86 @@ def experience_play_cost_route(card: dict, clause: dict, sources: Sources) -> di
     return result("route", "当前经验最高档同时减少法力和绿色符能，沿用共享报价／付款和零下限", evidence)
 
 
+def conditional_rune_and_conquest_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Require the printed condition and its live or captured shared consumer."""
+    text = normalize(unparenthesize(clause["text"]))
+    number = lambda value: int(value) if value.isdigit() else {"一": 1, "两": 2, "二": 2, "三": 3,
+        "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}.get(value, -1)
+    rune = re.fullmatch(r"如果你拥有不少于([0-9一两二三四五六七八九十]+)枚符文则我获得\{\{S\}\}\+([0-9]+)", text)
+    conquest = re.fullmatch(r"当你征服一处战场时如果你在该战场上拥有不少于([0-9一两二三四五六七八九十]+)名单位则抽([0-9一两二三四五六七八九十]+)张牌", text)
+    if not rune and not conquest:
+        return None
+    def method_has(filename, name, *symbols):
+        # Restrict evidence to the named live consumer. A neighboring unused
+        # helper or a surviving registration cannot replace its instruction.
+        text = sources.files.get("src/Riftbound.Engine/" + filename, "")
+        body = re.search(r"(?ms)^    (?:private|internal|public|protected)\s+static\s+"
+            r"[\w<>,?.\[\] ]+\s+" + re.escape(name)
+            + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)", text)
+        return body is not None and all(symbol in body.group(0) for symbol in symbols)
+
+    def consumers(requirements):
+        evidence = []
+        for filename, symbols in requirements.items():
+            path = "src/Riftbound.Engine/" + filename
+            if not all(symbol in sources.files.get(path, "") for symbol in symbols):
+                return []
+            evidence.append(path)
+        return evidence
+    if rune:
+        minimum, amount = map(number, rune.groups())
+        nodes = [item["node"] for item in card.get("staticAuras", []) if node_matches(clause, item)]
+        exact = card.get("cardCategory") in ("unit", "hero_unit") and minimum > 0 and amount > 0 and any(
+            n.get("kind") == "SOURCE_OBJECT_POWER" and n.get("layer") == "STATIC_AURA"
+            and n.get("duration") == "WHILE_SOURCE_ON_PUBLIC_FIELD" and n.get("targetScope") == "SOURCE_OBJECT"
+            and n.get("participantScope") == "SOURCE_OBJECT" and n.get("powerDeltaPerParticipant") == amount
+            and n.get("requiredControllerRuneCount") == minimum and not n.get("requiredPlayerExperience")
+            and not n.get("targetFilter") for n in nodes)
+        evidence = consumers({
+            "StaticAuraSpecRules.cs": ["aura.RequiredControllerRuneCount", "EmpowerRules.ControlledRunes(state, controller)"],
+            "CoreRuleEngine.cs": ["aura.RequiredControllerRuneCount", "StaticAuraSpecRules.ControllerRequirementsSatisfied("],
+            "MatchSession/State.Normalization.cs": ["StaticAuraSpecRules.ControllerRequirementsSatisfied("],
+            "MatchSession/State.Auras.cs": ["aura.RequiredControllerRuneCount", "StaticAuraControllerRequirementsSatisfied("],
+            "CoreRuleEngine.AttachedRuleText.cs": ["SourceObjectKeywordStaticAuraApplies(state, unit, aura)"],
+        })
+        bound = all(method_has("CoreRuleEngine.cs", name,
+                "aura.RequiredControllerRuneCount.HasValue",
+                "!StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId)")
+            for name in ("SourceObjectPowerStaticAuraApplies", "SourceObjectKeywordStaticAuraApplies")) \
+            and method_has("MatchSession/State.Auras.cs", "SourceObjectPowerStaticAuraApplies",
+                "aura.RequiredControllerRuneCount.HasValue",
+                "!StaticAuraControllerRequirementsSatisfied(aura, state, controllerId)") \
+            and method_has("StaticAuraSpecRules.cs", "ControllerRequirementsSatisfied",
+                "!aura.RequiredControllerRuneCount.HasValue",
+                "EmpowerRules.ControlledRunes(state, controller) >= aura.RequiredControllerRuneCount.Value")
+        if exact and evidence and bound:
+            return result("route", "当前控制者场上符文阈值的实时自身加成，含复制文字重算", evidence)
+        return result("missing", "缺少精确符文阈值、自身战力规格或实时共享消费者")
+    minimum, draws = map(number, conquest.groups())
+    nodes = [item["node"] for item in card.get("triggers", []) if node_matches(clause, item)]
+    exact = card.get("cardCategory") == "legendary" and minimum > 0 and draws > 0 and any(
+        n.get("kind") == "LEGEND_CONQUEST_MINIMUM_UNITS_DRAW" and n.get("timing") == "BATTLEFIELD_CONQUERED"
+        and n.get("targetScope") == "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD" and n.get("requiredUnitCount") == minimum
+        and n.get("drawCount") == draws and not any(n.get(key) for key in
+            ("optional", "manaCost", "powerCost", "experienceCost", "exhaustsSource", "requiredOverkillDamage")) for n in nodes)
+    evidence = consumers({
+        "CoreRuleEngine.Conquest.cs": ["CaptureLegendConquest(state"],
+        "CoreRuleEngine.LegendConquest.cs": ["IsLegendConquestMinimumUnitsDrawTrigger", "units.Count < definition.Spec.RequiredUnitCount",
+            "LegendConquestDrawOrigin", "TriggerQueueItemState(", "ResolveLegendConquestDraw(state, item)"],
+        "CoreRuleEngine.LegendConquestDraw.cs": ["ValidLegendConquestDrawStack(state, item)", "ApplyDrawToPlayer(", "spec.DrawCount!.Value"],
+        "MatchRecovery.cs": ["ValidLegendConquestState(", "ValidLegendConquestDrawStack("],
+    })
+    bound = method_has("CoreRuleEngine.LegendConquest.cs", "CaptureLegendConquest",
+            "ControlledUnitsAtBattlefield(", "units.Count < definition.Spec.RequiredUnitCount",
+            "new TriggerQueueItemState(") \
+        and method_has("CoreRuleEngine.LegendConquest.cs", "ResolveLegendConquest",
+            "context.Kind == LegendConquestDrawKind", "return ResolveLegendConquestDraw(state, item);") \
+        and method_has("CoreRuleEngine.LegendConquestDraw.cs", "ResolveLegendConquestDraw",
+            "ValidLegendConquestDrawStack(state, item)", "ApplyDrawToPlayer(", "spec.DrawCount!.Value")
+    if exact and evidence and bound:
+        return result("route", "征服时捕获本战场单位数，普通入链后独立抽牌", evidence)
+    return result("missing", "缺少本战场征服时阈值及可响应的独立抽牌触发，登记或即时抽牌不足以认证")
+
 def friendly_target_ready_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     if not re.fullmatch(r"当你将一名友方单位选为目标时你可以选择让我变为休眠状态并支付\{\{A\}\}以此让该单位变为活跃状态", text):
@@ -1681,6 +1761,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
             return reviewed
         return matched
     kind = clause["kind"]
+    if conditional := conditional_rune_and_conquest_route(card, clause, sources):
+        return conditional
     if grant := another_friendly_here_grant_route(card, clause, sources):
         return grant
     if token_play := token_play_observer_route(card, clause, sources):

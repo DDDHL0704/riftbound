@@ -258,6 +258,12 @@ internal static class StaticAuraSpecRules
             : aura.PowerMultiplierZone == "GRAVEYARD"
                 ? state.PlayerZones.GetValueOrDefault(source.ControllerId ?? "")?.Graveyard.Count ?? 0 : 1);
 
+    internal static bool ControllerRequirementsSatisfied(StaticAuraSpec aura, MatchState state, string controller)
+        => (!aura.RequiredPlayerExperience.HasValue
+                || state.PlayerExperience.TryGetValue(controller, out var experience) && experience >= aura.RequiredPlayerExperience.Value)
+            && (!aura.RequiredControllerRuneCount.HasValue
+                || EmpowerRules.ControlledRunes(state, controller) >= aura.RequiredControllerRuneCount.Value);
+
     public static bool IsSourceObjectPowerStaticAura(StaticAuraSpec aura)
     {
         return string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)

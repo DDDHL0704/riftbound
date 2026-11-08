@@ -2316,6 +2316,8 @@ public static partial class MatchRecoveryValidator
                 }
                 if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
                 {
+                    var requiresRunes = sourceCardNo is not null && StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                        .Any(a => a.Kind == effectKind && a.RequiredControllerRuneCount.HasValue);
                     ValidateContinuousEffectStaticAuraSourceObjectPowerSourceCardSpecConsistency(
                         effectLabel,
                         sourceCardNo,
@@ -2329,13 +2331,15 @@ public static partial class MatchRecoveryValidator
                     ValidateContinuousEffectStaticAuraMetadataValue(
                         effectLabel,
                         condition,
-                        "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+                        requiresRunes ? "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_RUNE_COUNT"
+                            : "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
                         "object static aura condition",
                         errors);
                     ValidateContinuousEffectStaticAuraMetadataValue(
                         effectLabel,
                         lifecycle,
-                        "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE",
+                        requiresRunes ? "RECOMPUTED_FROM_CURRENT_CONTROLLER_RUNES"
+                            : "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE",
                         "object static aura lifecycle",
                         errors);
                     return;
@@ -4284,11 +4288,12 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidConquestDamageStack(state,item)) errors.Add("invalid unit conquest stack");
         foreach (var trigger in state.TriggerQueue)
-            if (trigger.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquest(context, trigger.EffectKind)
+            if (trigger.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquestState(state, context, trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
                 || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
                 : trigger.EffectKind == CoreRuleEngine.LegendConquestEffect) errors.Add("invalid captured legend conquest");
         foreach (var item in state.StackItems)
-            if (item.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquest(context, item.EffectKind, item.CardNo)
+            if (item.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquestState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
+                || !CoreRuleEngine.ValidLegendConquestDrawStack(state, item)
                 || context.Kind == "EXHAUST_READY_UNIT" && item.TriggerCost is not null && (item.TargetObjectIds.Count != 1
                     || item.TargetGenerations is not { Count: 1 } generations || !generations.ContainsKey(item.TargetObjectIds[0]))
                 : item.EffectKind == CoreRuleEngine.LegendConquestEffect) errors.Add("invalid legend conquest stack");

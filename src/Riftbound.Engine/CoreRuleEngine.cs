@@ -106,7 +106,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const string MasterYiLevelLegendIdentityId = LegendIdentityCatalog.MasterYiLevelLegendIdentityId;
     private const string DravenLegendIdentityId = LegendIdentityCatalog.DravenLegendIdentityId;
-    private const string GarenIntroLegendIdentityId = LegendIdentityCatalog.GarenIntroLegendIdentityId;
     private const string LuxIntroLegendIdentityId = LegendIdentityCatalog.LuxIntroLegendIdentityId;
     private const string AnnieLegendIdentityId = LegendIdentityCatalog.AnnieLegendIdentityId;
     private const string PowerfulUnitRuneLegendIdentityId = LegendIdentityCatalog.PowerfulUnitRuneLegendIdentityId;
@@ -13865,7 +13864,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (aura.RequiredPlayerExperience.HasValue)
+        if (aura.RequiredPlayerExperience.HasValue || aura.RequiredControllerRuneCount.HasValue)
         {
             if (string.IsNullOrWhiteSpace(cardObject.ControllerId)
                 || !StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId))
@@ -13912,6 +13911,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (aura.RequiredPlayerExperience.HasValue
+            || aura.RequiredControllerRuneCount.HasValue
             || string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
         {
             if (string.IsNullOrWhiteSpace(cardObject.ControllerId)
@@ -14544,16 +14544,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StaticAuraSpec aura,
         MatchState state,
         string controllerId)
-    {
-        if (aura.RequiredPlayerExperience.HasValue
-            && (!state.PlayerExperience.TryGetValue(controllerId, out var experience)
-                || experience < aura.RequiredPlayerExperience.Value))
-        {
-            return false;
-        }
-
-        return true;
-    }
+        => StaticAuraSpecRules.ControllerRequirementsSatisfied(aura, state, controllerId);
 
     private static GameEvent BuildBattleNoResultEvent(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -14656,32 +14647,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 cardNo = legendState.CardNo
                     ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(DravenLegendIdentityId);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool TryGetGarenIntroLegendCardNo(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string cardNo)
-    {
-        cardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(GarenIntroLegendIdentityId);
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var legendObjectId in zones.LegendZone)
-        {
-            if (cardObjects.TryGetValue(legendObjectId, out var legendState)
-                && LegendCardHasIdentity(legendState.CardNo, GarenIntroLegendIdentityId))
-            {
-                cardNo = legendState.CardNo
-                    ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(GarenIntroLegendIdentityId);
                 return true;
             }
         }
@@ -17345,7 +17310,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-    private static int CountControlledUnitsAtBattlefield(
+    private static IReadOnlyList<ObjectBinding> ControlledUnitsAtBattlefield(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
@@ -17354,10 +17319,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (string.IsNullOrWhiteSpace(playerId) || string.IsNullOrWhiteSpace(battlefieldObjectId))
         {
-            return 0;
+            return [];
         }
 
-        return objectLocations.Count(entry =>
+        return objectLocations.Where(entry =>
             string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
             && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
             && IsObjectOnField(playerZones, entry.Key)
@@ -17367,7 +17332,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && string.Equals(
                 EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
                 playerId,
-                StringComparison.Ordinal));
+                StringComparison.Ordinal))
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => new ObjectBinding(entry.Key, cardObjects[entry.Key].ObjectGeneration)).ToArray();
     }
 
     private static int CombatKeywordAmount(
