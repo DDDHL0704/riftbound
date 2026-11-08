@@ -77,7 +77,11 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(unit.ControllerId) || !state.Seats.ContainsKey(unit.OwnerId)
             || !state.Seats.ContainsKey(unit.ControllerId)
             || controller is not null && controller != unit.ControllerId) return false;
-        return ValidLastBreathRepetition(state, death.Repetition, new(source, context.SourceGeneration),
+        return (unit.WasToken ? context.TokenFactoryCardNo is { } factoryNo
+                && P6TokenFactoryCatalog.TryGetByCardNo(factoryNo, out var factory)
+                && factory.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.EquipmentCard)
+                : context.TokenFactoryCardNo is null)
+            && ValidLastBreathRepetition(state, death.Repetition, new(source, context.SourceGeneration),
             unit.ControllerId, context.CardNo, $"ARMAMENT:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}");
     }
 

@@ -77,16 +77,18 @@ public sealed class ArmamentLastBreathTests
 
     [Theory]
     [InlineData(Drive)] [InlineData(Shears)]
-    public async Task ReturningTheGrantingEquipmentAfterDeathKeepsTheCapturedSkillAndHidesItsPrivateBinding(string gear)
+    public async Task ReturningTheGrantingEquipmentAfterResolutionPreservesItsPrivateExileAssociation(string gear)
     {
         var game = new Driver(Position(gear)); await Attach(game, gear); await DestroyHost(game);
-        await game.Act("P1", new PlayCardCommand("RETURN", "SFD·135/221", ["GEAR"]));
-        await game.Top();
-        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
         var hand = game.State.PlayerZones["P1"].Hand.Count;
         await game.Top();
         Assert.Equal(hand + (gear == Shears ? 1 : 0), game.State.PlayerZones["P1"].Hand.Count);
         Assert.Equal(gear == Drive, game.State.PlayerZones["P1"].Banished.Contains("ALLY"));
+        var link = MatchStateHasher.HashValue(game.State.LinkedExiles);
+        await game.Act("P1", new PlayCardCommand("RETURN", "SFD·135/221", ["GEAR"]));
+        await game.Top();
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(link, MatchStateHasher.HashValue(game.State.LinkedExiles));
         await game.Replay();
     }
 
@@ -119,6 +121,22 @@ public sealed class ArmamentLastBreathTests
         Assert.Contains(ArmamentGrantedCombatTriggerTests.Errors(game, forged),
             error => error.Contains("armament linked exile ledger", StringComparison.Ordinal));
         await game.Replay();
+    }
+
+    [Fact]
+    public async Task RecoveryRejectsAnInventedFactoryForACeasedArmamentHost()
+    {
+        var state = Position(Shears);
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.ZaunMinionTokenCardNo, out var factory));
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["ALLY"] = factory.CreateObject("ALLY", "P1", "P1") } };
+        var game = new Driver(state); await Attach(game, Shears); await DestroyHost(game);
+        var skill = Assert.Single(game.State.StackItems);
+        var forged = game.State with { StackItems = [skill with {
+            UnitEvent = skill.UnitEvent! with { TokenFactoryCardNo = "INVENTED-FACTORY" } }] };
+        Assert.Contains(ArmamentGrantedCombatTriggerTests.Errors(game, forged),
+            error => error.Contains("original accepted grant event", StringComparison.Ordinal));
+        await game.Top(); await game.Replay();
     }
 
     [Theory]
