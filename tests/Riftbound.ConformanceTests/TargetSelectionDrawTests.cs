@@ -131,16 +131,43 @@ public sealed class TargetSelectionDrawTests
         await game.Top(); Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DRAWN"); await game.Replay();
     }
 
+    [Fact]
+    public async Task AnEquipmentActuallyAnimatedByOriannaIsAFriendlyUnitTargetForTheWheel()
+    {
+        var initial = Position(Wheel);
+        initial = OriannaEquipmentConsumerFixture.WithResources(initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "RAD·145/167", "P1") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                ["LEGEND"] = new("P1", "LEGEND") } });
+        var game = new Driver(initial);
+        await OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "SOURCE");
+        Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["SOURCE"].Tags);
+        Assert.Contains(CardObjectTags.EquipmentCard, game.State.CardObjects["SOURCE"].Tags);
+        await game.Act("P1", new PlayCardCommand("SPELL", Boost, ["SOURCE"]));
+        Assert.True(game.State.StackItems[^1].UnitEvent!.TargetSelection!.EquipmentUnit);
+        await Pay(game); await game.Top(); await game.Top();
+        Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DRAWN"); await game.Replay();
+    }
+
+    [Fact]
+    public async Task OrdinaryEquipmentCannotBeSubmittedAsAUnitTargetToInventADraw()
+        => await RadGearTestPosition.Reject(Position(Wheel), "P1", new PlayCardCommand("SPELL", Boost, ["SOURCE"]));
+
     [Theory]
-    [InlineData("erase")] [InlineData("duplicate")] [InlineData("not-spell")]
+    [InlineData("erase")] [InlineData("duplicate")] [InlineData("not-spell")] [InlineData("equipment-flag")]
     public async Task RecoveryRejectsErasedDuplicatedOrForgedTargetSelectionCaptures(string branch)
     {
         var game = new Driver(Position(Jar)); await game.Act("P1", new PlayCardCommand("SPELL", Boost, ["SOURCE"]));
         var state = game.State; var spell = state.StackItems[0]; var skill = state.StackItems[1];
+        var selection = branch == "equipment-flag" ? skill.UnitEvent!.TargetSelection! with { EquipmentUnit = true }
+            : skill.UnitEvent!.TargetSelection! with { Spell = false };
         var forged = state with { StackItems = branch switch {
             "erase" => [spell], "duplicate" => [spell, skill, skill],
             _ => [spell, skill with { UnitEvent = skill.UnitEvent! with {
-                TargetSelection = skill.UnitEvent.TargetSelection! with { Spell = false } } }] } };
+                TargetSelection = selection } }] } };
         Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, forged));
     }
 }

@@ -6,7 +6,8 @@ namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record TargetSelectionOrigin(string Actor, string CauseId,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Spell = false);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Spell = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool EquipmentUnit = false);
 
 public sealed partial record UnitEventAbilitySpec
 {
@@ -52,7 +53,7 @@ public sealed partial class CoreRuleEngine
             .Select(observation => observation with { Context = observation.Context with {
                 Other = new(new(unit.ObjectId, unit.ObjectGeneration), unit.CardNo!,
                     unit.CopyFaceTransitions?.Count ?? 0, unit.TokenFactoryCardNo),
-                TargetSelection = new(actor, cause, spell) } }).ToArray();
+                TargetSelection = new(actor, cause, spell, unit.Tags.Contains(CardObjectTags.EquipmentCard)) } }).ToArray();
     }
 
     private static void QueueTargetSelectionObservers(MatchState state, IEnumerable<UnitEventObservation> observations,
@@ -82,7 +83,9 @@ public sealed partial class CoreRuleEngine
                 && context.Other is { Binding.Generation: >= 0, FaceRevision: >= 0 } other
                 && (!spec.TargetSelectionRequiresSource
                     || other.Binding.ObjectId == source && other.Binding.Generation == context.SourceGeneration)
-                && !string.IsNullOrWhiteSpace(other.CardNo) && TryPredictEnteredFace(other.CardNo, out var face) && face.Tags.Contains(CardObjectTags.UnitCard)
+                && !string.IsNullOrWhiteSpace(other.CardNo) && TryPredictEnteredFace(other.CardNo, out var face)
+                && (face.Tags.Contains(CardObjectTags.UnitCard)
+                    || selection.EquipmentUnit && face.Tags.Contains(CardObjectTags.EquipmentCard))
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision,
                     context.CapturedTick, other.TokenFactoryCardNo);
 
