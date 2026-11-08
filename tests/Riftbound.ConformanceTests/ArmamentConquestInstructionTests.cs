@@ -86,6 +86,7 @@ public sealed class ArmamentConquestInstructionTests
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["ALLY"])); await game.Top();
         Assert.Contains("ALLY", game.State.PlayerZones["P1"].Hand);
         Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.DoesNotContain("\"ALLY\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
         var deck = game.State.PlayerZones["P1"].MainDeck.Count;
         var runes = game.State.PlayerZones["P1"].RuneDeck.Count;
         await Resolve(game);
@@ -93,7 +94,7 @@ public sealed class ArmamentConquestInstructionTests
         else if (gear == Gold)
         {
             Assert.DoesNotContain("ALLY", Assert.Single(GoldTokens(game.State)).ObjectId);
-            Assert.DoesNotContain("\"ALLY\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
+
         }
         else if (gear == Rune) Assert.Equal(runes - 1, game.State.PlayerZones["P1"].RuneDeck.Count);
         else Assert.Equal(deck - 1, game.State.PlayerZones["P1"].MainDeck.Count);
@@ -106,7 +107,9 @@ public sealed class ArmamentConquestInstructionTests
         var game = new Driver(RadGearTestPosition.Put(Position(Loot), "KEEP", "OGN·219/298", "P1", "HAND"));
         await Conquer(game);
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["ALLY"])); await game.Top();
-        Assert.Contains("ALLY", game.State.PlayerZones["P1"].Hand); await game.Top();
+        Assert.Contains("ALLY", game.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("\"ALLY\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
+        await game.Top();
         var pending = game.State.PendingRuleChoice!; Assert.NotNull(pending);
         Assert.Equal("PRIVATE_HAND_DISCARD", pending.Request.Kind);
         Assert.Contains(pending.Request.Options, option => option.Id == "HAND:1");
@@ -115,7 +118,7 @@ public sealed class ArmamentConquestInstructionTests
         var discarded = Assert.Single(game.Events(), entry => entry.Event.Kind == "CARD_DISCARDED"
             && Equals(entry.Event.Payload.GetValueOrDefault("targetObjectId"), "KEEP"));
         Assert.Equal("HIDDEN", discarded.Event.Payload["sourceObjectId"]);
-        Assert.DoesNotContain("\"ALLY\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
+
         await game.Replay();
     }
 
