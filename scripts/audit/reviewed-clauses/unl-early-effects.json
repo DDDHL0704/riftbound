@@ -2073,9 +2073,9 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
           "contains": [
-            "var copies = 1 + units.Count(",
+            "var copies = aliasUnits is null ? HeldEffectCopies(state, field, player)",
             "if (ability.Kind == \"BLUE_DELAYED_POWER\")",
-            "delayed.Add(new("
+            "delayed.Add(gain);"
           ]
         }
       ],
@@ -2112,9 +2112,9 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
           "contains": [
-            "var copies = 1 + units.Count(",
+            "var copies = aliasUnits is null ? HeldEffectCopies(state, field, player)",
             "if (ability.Kind == \"BLUE_DELAYED_POWER\")",
-            "delayed.Add(new("
+            "delayed.Add(gain);"
           ]
         }
       ],

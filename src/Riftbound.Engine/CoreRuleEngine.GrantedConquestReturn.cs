@@ -77,6 +77,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidCapturedConquestGrant(MatchState state, UnitConquestContext context, string unitId)
     {
+        if (context.Origin is { } copied && (context.TemporaryGrant is not null
+            || !AttachedRuleTextRules.ValidCaptured(state, copied, unitId, context.SourceGeneration, context.CardNo))) return false;
         if (context.Activation is { } activation && !ValidNamedConquestActivation(state, activation, context.BattlefieldId)) return false;
         if (context.TemporaryGrant is null) return true;
         if (!ValidConquestGrant(context.TemporaryGrant, context.SourceGeneration, state.TurnNumber, unitId)) return false;
@@ -91,9 +93,9 @@ public sealed partial class CoreRuleEngine
     }
 
     private static IEnumerable<TriggerQueueItemState> CaptureGrantedConquestReturns(MatchState state, string player,
-        string field, IReadOnlyList<string> unitIds, long tick, NamedConquestActivationOrigin? activation = null)
+        string field, IReadOnlyList<string> unitIds, long tick, NamedConquestActivationOrigin? activation = null, string? observedEventKind = null)
     {
-        var eventKind = ConquestCaptureReason(activation);
+        var eventKind = observedEventKind ?? ConquestCaptureReason(activation);
         foreach (var id in unitIds.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(id, out var unit) || !IsFaceUpNonStandbyUnit(unit)
