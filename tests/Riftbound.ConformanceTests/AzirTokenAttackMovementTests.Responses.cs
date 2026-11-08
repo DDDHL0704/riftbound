@@ -13,6 +13,12 @@ public sealed partial class AzirTokenAttackMovementTests
         {
             await game.Act("P1", new PlayCardCommand("MAKE-" + i, Sand, []));
             await game.Top();
+            while (game.State.PendingRuleChoice is { } pending)
+            {
+                Assert.Equal(CoreRuleEngine.UnitTokenDestinationChoiceKind, pending.Request.Kind);
+                Assert.Contains(pending.Request.Options, option => option.Id == "BASE");
+                await game.Act("P1", new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", ["BASE"]));
+            }
         }
         var ids = game.State.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.SandSoldier))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
@@ -99,7 +105,7 @@ public sealed partial class AzirTokenAttackMovementTests
         Assert.Equal(pay ? "OTHER" : null, game.State.ObjectLocations["SONG"].BattlefieldObjectId);
         Assert.Equal(pay ? 0 : 1, game.State.RunePools["P1"].TotalPower);
         Assert.Equal(pay ? 1 : 0, game.Events().Count(e => e.Event.Kind == "COST_PAID"
-            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "IMPOSED_MOVEMENT_COST")));
+            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "MAGESEEKER_PATROL_MOVE_TAX_STATIC")));
         var moved = game.Events().Where(e => e.Event.Kind == "UNIT_MOVED_TO_BATTLEFIELD"
             && e.Event.Payload.GetValueOrDefault("targetObjectId") is string target && tokens.Contains(target)).ToArray();
         Assert.Equal(pay ? 2 : 0, moved.Length);

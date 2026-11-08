@@ -18,11 +18,14 @@ public sealed partial class AzirTokenAttackMovementTests
         var runes = Enumerable.Range(0, 15).Select(i => "RUNE-" + i).ToArray();
         for (var i = 0; i < runes.Length; i++)
             initial = RadGearTestPosition.Put(initial, runes[i], i < 7 ? "UNL-R06" : "UNL-R02", "P1", "BASE");
-        var game = new Driver(initial);
+        // Validate every command frame/retry; audit the complete original
+        // replay at each native setup and response boundary.
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         await game.Act("P1", new HideCardCommand("SWAP", swap, "BATTLEFIELD:BF", ["STANDBY_A"]));
         await game.Act("P1", new EndTurnCommand());
         await game.Act("P2", new EndTurnCommand());
         Assert.Equal(MatchPhases.Main, game.State.Phase);
+        await game.ColdCheckpoint();
         await game.TapRunes("P1", runes);
         foreach (var id in new[] { runes[0], runes[7], runes[1] })
             await game.Act("P1", new RecycleRuneCommand(id));
@@ -32,7 +35,9 @@ public sealed partial class AzirTokenAttackMovementTests
         Assert.Contains(CardObjectTags.Ephemeral, image.Tags);
         await game.Act("P1", new MoveUnitCommand(image.ObjectId, "BASE", "BATTLEFIELD:BF", []));
         var tokens = await CreateTokens(game);
+        await game.ColdCheckpoint();
         await EnterAndAttack(game, "SFD·177/221"); await Select(game, tokens);
+        await game.ColdCheckpoint();
         var skill = Assert.Single(game.State.StackItems).StackItemId;
         await game.Act("P1", new RevealCardCommand("SWAP", swap, ["HOST", image.ObjectId],
             "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
@@ -40,6 +45,7 @@ public sealed partial class AzirTokenAttackMovementTests
         Assert.Equal("BF", game.State.ObjectLocations["HOST"].BattlefieldObjectId);
         Assert.Equal("OTHER", game.State.ObjectLocations[image.ObjectId].BattlefieldObjectId);
         Assert.Equal(skill, Assert.Single(game.State.StackItems).StackItemId);
+        await game.ColdCheckpoint();
         await game.Top();
         Assert.All(tokens, id => Assert.Equal("BF", game.State.ObjectLocations[id].BattlefieldObjectId));
         await game.ColdCheckpoint();
