@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -74,19 +75,45 @@ public sealed class OptionalPlayUnitChoiceTests
     [InlineData(false, false)] [InlineData(false, true)] [InlineData(true, true)]
     public async Task MultiplayerCountsOnlyAcceptingOpponentsInCurrentTurnOrder(bool first, bool second)
     {
-        var game = new Driver(Position(Swindler, "P2", multiplayer: true));
-        await game.Act("P2", new PlayCardCommand("SOURCE", Swindler, []));
-        await game.Top();
-        await Decide(game, "P2", false);
-        await Decide(game, "P3", first);
-        await Decide(game, "P1", second);
-        Assert.Equal((first ? 1 : 0) + (second ? 1 : 0), Gold(game.State, "P2").Length);
-        Assert.Equal(first ? 1 : 0, Gold(game.State, "P3").Length);
-        Assert.Equal(second ? 1 : 0, Gold(game.State, "P1").Length);
-        Assert.Equal(new[] { "P2", "P3", "P1" }, game.Events()
-            .Where(entry => entry.Event.Kind == "PLAYER_EQUIPMENT_TOKEN_CHOICE")
-            .Select(entry => (string)entry.Event.Payload["playerId"]!));
-        await game.Replay();
+        // Persisted rooms currently use two seats. The two-seat cases above
+        // exercise native recovery/retry; this component case checks the shared
+        // instruction with additional opponents and replays original commands.
+        var origin = Position(Swindler, "P2", multiplayer: true);
+        var state = origin;
+        var engine = new CoreRuleEngine();
+        var transcript = new List<(PlayerIntent Intent, GameCommand Command, string Events, string Hash)>();
+        async Task Act(string player, GameCommand command)
+        {
+            var intent = new PlayerIntent("multi-" + transcript.Count, player, command.CmdType);
+            var result = await engine.ResolveAsync(state, intent, command, default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            state = result.State;
+            transcript.Add((intent, command, JsonSerializer.Serialize(result.Events), MatchStateHasher.Hash(state)));
+        }
+        await Act("P2", new PlayCardCommand("SOURCE", Swindler, []));
+        for (var pass = 0; state.PendingRuleChoice is null && state.StackItems.Count > 0 && pass < 6; pass++)
+            await Act(state.PriorityPlayerId!, new PassPriorityCommand());
+        foreach (var decision in new[] { ("P2", false), ("P3", first), ("P1", second) })
+        {
+            var pending = Assert.IsType<RuleChoiceContinuation>(state.PendingRuleChoice);
+            Assert.Equal(decision.Item1, pending.Request.PlayerId);
+            await Act(decision.Item1, new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT",
+                [decision.Item2 ? "PLAY" : "DECLINE"]));
+        }
+        Assert.Null(state.PendingRuleChoice);
+        Assert.Equal((first ? 1 : 0) + (second ? 1 : 0), Gold(state, "P2").Length);
+        Assert.Equal(first ? 1 : 0, Gold(state, "P3").Length);
+        Assert.Equal(second ? 1 : 0, Gold(state, "P1").Length);
+        var replay = origin;
+        foreach (var accepted in transcript)
+        {
+            var result = await engine.ResolveAsync(replay, accepted.Intent, accepted.Command, default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Equal(accepted.Events, JsonSerializer.Serialize(result.Events));
+            Assert.Equal(accepted.Hash, MatchStateHasher.Hash(result.State));
+            replay = result.State;
+        }
     }
 
     [Fact]

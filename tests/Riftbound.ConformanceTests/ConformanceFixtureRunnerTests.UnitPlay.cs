@@ -3145,7 +3145,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(["P1-BUHRU-CAPTAIN-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-BUHRU-CAPTAIN"].Power);
@@ -3163,7 +3164,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-BUHRU-CAPTAIN"].Power);

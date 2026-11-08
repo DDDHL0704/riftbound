@@ -126,10 +126,12 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "TRIGGER_MODE_CONFIRMED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
+      "TRIGGER_RESOLVED",
       "CARD_DRAWN"
     ],
     "events": [
@@ -170,6 +172,9 @@
         "kind": "TRIGGER_QUEUED"
       },
       {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
         "kind": "TRIGGER_MODE_CONFIRMED",
         "payload": { "mode": "DRAW_1" }
       },
@@ -181,6 +186,9 @@
       },
       {
         "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "TRIGGER_RESOLVED"
       },
       {
         "kind": "CARD_DRAWN",
