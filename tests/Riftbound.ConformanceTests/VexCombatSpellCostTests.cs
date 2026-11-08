@@ -110,11 +110,12 @@ public sealed class VexCombatSpellCostTests
         var state = Position(); var zone = branch is "unstarted" or "face-down" ? "BATTLEFIELD" : branch;
         state = RadGearTestPosition.Put(state, "HOST", Vex, "P1", zone, zone == "BATTLEFIELD" ? "BF" : null);
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["HOST"] = state.CardObjects["HOST"] with { IsFaceDown = branch == "face-down", IsAttacking = branch == "unstarted" } } };
+            ["HOST"] = state.CardObjects["HOST"] with { IsFaceDown = branch == "face-down" } } };
         if (branch is "unstarted" or "face-down")
         {
             // Such a seed has no legal play window. Inspect the common cost
             // kernel without granting permission to skip the battle task.
+            Assert.False(state.BattleState.IsActive);
             Assert.True(CardBehaviorRegistry.TryGetByCardNo(Smoke, out var spell));
             Assert.Equal(2, CoreRuleEngine.CalculatePlayManaCost(state, "P1", spell).Total);
             Assert.True(CoreRuleEngine.TrySelectPlayPowerCost(state, "P1", spell, null, new(30, 30), 0,
