@@ -590,6 +590,12 @@
             "SourceMovementUsesTheExistingImposedPaymentContinuationAndCanBeDeclined",
             "ACoherentProjectionCannotReplaceTheCapturedStunWithAnotherValidFieldOrIdentity"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VexStunMovementTests.Copies.cs",
+          "methods": [
+            "AnActuallyPlayedImageKeepsTheCapturedSkillWhenItsSourceTokenCeases"
+          ]
         }
       ]
     },
