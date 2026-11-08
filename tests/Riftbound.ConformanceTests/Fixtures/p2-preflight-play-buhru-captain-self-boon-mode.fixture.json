@@ -98,7 +98,7 @@
       "clientIntentId": "intent-buhru-self-boon-trigger-mode",
       "cmd": {
         "cmdType": "CHOOSE_CARDS",
-        "choiceId": "UNIT-EVENT-MODE:ordered-unit-event-1-0-P1-UNIT-BUHRU-CAPTAIN-PLAY",
+        "choiceId": "UNIT-EVENT-MODE:ordered-unit-event-1-0-c58affd03513dfcefeb15d5639946da2ec85b9157dcbe919d7ed567b230ce4ea",
         "choiceWindow": "UNIT_EVENT_MODE_CONFIRMATION",
         "chosenObjectIds": ["SELF_BOON"]
       }
