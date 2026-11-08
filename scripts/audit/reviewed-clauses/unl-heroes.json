@@ -521,37 +521,77 @@
       ],
       "text": "当你{{眩晕}}战场上的一名敌方单位时，你可以选择将我移动到该战场。",
       "scope": "当你{{眩晕}}战场上的一名敌方单位时，你可以选择将我移动到该战场。",
-      "status": "missing",
-      "reason": "眩晕观察器未登记此来源；缺少眩晕敌方战场单位后可选将来源移动到该精确战场的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享眩晕观察按实际施加者捕获敌方所在战场、原来源代次及每份复制文本；可选确认后独立响应并用效果移动，保留施加费用、贴附跟随、隐藏来源及原始接受历史绑定",
+      "rules": "核心191.5.b（独立技能控制者）、359.3.e／359.3.f.3（来源代次及触发时战场引用）、383.2–383.3.a（可选确认与独立响应）、424.1.a.1（眩晕二元状态）、204.4.b／430.3（移动施加费用）；UNL-055／055a 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitTags": "约德尔人|坚守|壁垒",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "sourceMayMoveToStunnedEnemyBattlefield": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StunObservers.cs",
           "contains": [
-            "\"UNL-055/219\"",
-            "\"VEX_PLAY_KEYWORD_UNIT\""
+            "StunMoveSourceKind",
+            "CaptureStunObservers",
+            "stunningPlayerId",
+            "StunSourceMovementCaptureHash(context)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "StunMoveSourceKind ? new()",
+            "StunMoveSourceKind ? ValidStunSourceMovementStack(item)",
+            "OptionalTriggerWindow"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StunSourceMovement.cs",
+          "contains": [
+            "ValidStunSourceMovementStack",
+            "ResolveStunSourceMovement",
+            "TryMoveFieldUnitByEffect",
+            "source.ObjectGeneration != birth.Source.Generation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.StunSourceMovement.cs",
+          "contains": [
+            "ValidateStunSourceMovementHistory",
+            "command.Accepted",
+            "stunSourceMovementCaptureHash",
+            "selected.SequenceEqual(new[] { item.SourceObjectId })"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VexStunMovementTests.cs",
+          "methods": [
+            "EachActualPrintingUsesTheSharedEnemyStunMovementProfile",
+            "TheIndependentOptionalSkillMovesTheSameUnitAfterResponsesWithoutExhaustingIt",
+            "DecliningRemovesOnlyTheMovementSkillAndKeepsTheActualStun",
+            "AnInactivePrintingDoesNotObserveAnActualEnemyStun",
+            "OnlyANewStunOfAnEnemyBattlefieldUnitByTheSourceControllerEarnsTheSkill",
+            "ReturningTheStunnedUnitInResponseRetainsItsOriginalBattlefield",
+            "ReturningTheSourceInResponseCannotMoveItsHiddenNewIncarnation",
+            "ActualSongCopiesEarnIndependentSkillsButMovingTheSourceTwiceToTheSameFieldIsOneMove",
+            "CounteringTheActualStunDoesNotEarnAMovementSkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VexStunMovementTests.Payments.cs",
+          "methods": [
+            "SourceMovementUsesTheExistingImposedPaymentContinuationAndCanBeDeclined",
+            "ACoherentProjectionCannotReplaceTheCapturedStunWithAnotherValidFieldOrIdentity"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
