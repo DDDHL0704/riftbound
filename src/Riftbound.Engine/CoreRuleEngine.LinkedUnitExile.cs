@@ -63,7 +63,7 @@ public sealed partial class CoreRuleEngine
                 && SpellTriggerSpec(legacySource.CardNo ?? "", TriggerKinds.LegendHighCostSpellBanishCompletion) is not null;
         var context = origin.Ability;
         var prefix = $"ordered-unit-event-{context.CapturedTick}-";
-        var suffix = $"-{group.SourceObjectId}-{context.Timing}";
+        var suffix = "-" + UnitEventSourceIdentity(group.SourceObjectId, context.Timing);
         return context.SourceGeneration == group.SourceGeneration
             && UnitEventSpec(context.CardNo)?.Effect == "BANISH_LINKED_UNIT_HERE"
             && ValidUnitEvent(state, context, UnitEventEffect, group.SourceObjectId, context.CardNo)
