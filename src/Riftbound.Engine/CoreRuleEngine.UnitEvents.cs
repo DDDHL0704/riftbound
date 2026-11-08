@@ -415,7 +415,9 @@ public sealed partial class CoreRuleEngine
         && (SelectedUnitEventSpec(c)?.Effect is ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
-        => item.UnitEvent is { } traitScore && SelectedUnitEventSpec(traitScore)?.Effect == FriendlyUnitTraitScoreEffect
+        => item.UnitEvent is { } grant && SelectedUnitEventSpec(grant)?.Effect == UnitEventTurnPlayGrantEffect
+            ? ValidUnitEventTurnPlayGrantStack(item)
+            : item.UnitEvent is { } traitScore && SelectedUnitEventSpec(traitScore)?.Effect == FriendlyUnitTraitScoreEffect
             ? ValidFriendlyUnitTraitScoreStack(item)
             : item.UnitEvent?.Timing == FriendlyUnitTargetedTiming
             ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && !item.SourceConfirmed
@@ -535,6 +537,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
+        if (spec.Effect == UnitEventTurnPlayGrantEffect) return ResolveUnitEventTurnPlayGrant(state, item);
         if (spec.Effect == RuneDomainRevealEffect && context.RevealedRune is null) return ResolveRuneDomainReveal(state, item);
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
         if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);

@@ -7976,7 +7976,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            UnitEventAbility: new("HOLD", CoreRuleEngine.UnitEventTurnPlayGrantEffect),
+            TurnUnitPlayGrantKind: CoreRuleEngine.UnitEventReadyBoonGrantKind,
+            TurnUnitPlayGrantNextOnly: true),
         new(
             "UNL-059/219",
             "易",
