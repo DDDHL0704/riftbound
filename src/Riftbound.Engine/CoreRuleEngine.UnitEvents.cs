@@ -288,6 +288,11 @@ public sealed partial class CoreRuleEngine
         if (captured.Origin is { ArmamentGranted: true } armament)
             captured = captured with { Origin = armament with { CapturedTick = tick } };
         var id = $"unit-event-{tick}-{ordinal}-{observation.Source}-{captured.Timing}";
+        // Observers can remain pending after their source returns to a private
+        // zone. Public stack/choice identities must not embed that object id.
+        if (RequiresObservedUnitEventHistory(captured))
+            id = "observed-unit-event-" + MatchStateHasher.HashValue(new {
+                tick, ordinal, observation.Source, observation.Controller, captured });
         if (captured.Origin is { ArmamentGranted: true })
             id = "armament-unit-event-" + MatchStateHasher.HashValue(new {
                 tick, ordinal, observation.Source, captured.CardNo, captured.Origin });

@@ -74,6 +74,8 @@ public sealed class PlayerDefenseMovementTests
     {
         var state = RadUnitEffectTestFixture.Place(Position(), "ALLY", "P1", "BASE");
         state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "BF");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["BF"] = state.CardObjects["BF"] with { ControllerId = "P2" } } };
         var game = new Driver(state with { TurnPlayerId = "P1", ActivePlayerId = "P1" });
         await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
         Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);

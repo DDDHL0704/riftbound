@@ -17,6 +17,8 @@ public sealed class EnemyCountAssaultTests
         state = RadGearTestPosition.Put(state, "SECOND", "OGN·219/298", "P2", "BATTLEFIELD", enemies > 1 ? "BF" : "OTHER");
         state = RadGearTestPosition.Put(state, "RETURN1", "OGN·104/298", "P2", "HAND");
         state = RadGearTestPosition.Put(state, "RETURN2", "OGN·104/298", "P2", "HAND");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["BF"] = state.CardObjects["BF"] with { ControllerId = enemies > 0 ? "P2" : "P1" } } };
         return CoreRuleEngine.RecomputeRuleDerivedKeywords(state);
     }
 
@@ -52,6 +54,7 @@ public sealed class EnemyCountAssaultTests
         var game = new Driver(Position(enemies)); Assert.Equal(0, Assault(game.State));
         Assert.Equal(4, ArmamentMightTests.Might(game.State));
         await Attack(game); Assert.Equal(enemies, Assault(game.State));
+        Assert.Equal(enemies > 0, game.State.CardObjects["HOST"].IsAttacking);
         Assert.Equal(4 + enemies, ArmamentMightTests.Might(game.State));
         await game.Replay();
     }
@@ -73,8 +76,8 @@ public sealed class EnemyCountAssaultTests
     [Fact]
     public async Task FriendshipUsesCurrentControlAndPhysicalOwnershipDoesNotAddAnEnemy()
     {
-        var initial = Position() with { CardObjects = new Dictionary<string, CardObjectState>(Position().CardObjects) {
-            ["SECOND"] = Position().CardObjects["SECOND"] with { ControllerId = "P1" } } };
+        var initial = Position(); initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["SECOND"] = initial.CardObjects["SECOND"] with { ControllerId = "P1" } } };
         var game = new Driver(CoreRuleEngine.RecomputeRuleDerivedKeywords(initial)); await Attack(game);
         Assert.Equal(1, Assault(game.State)); Assert.Equal(5, ArmamentMightTests.Might(game.State)); await game.Replay();
     }
