@@ -1314,6 +1314,86 @@ def source_attack_damage_route(card: dict, clause: dict, sources: Sources) -> di
         result('missing', '进攻伤害缺少精确数值来源、目标选择及当前来源位置的独立结算消费者')
 
 
+def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    hidden = text == normalize("当你正面朝下放置一张卡牌时，让我变为活跃状态。")
+    damage = re.fullmatch(r"当你将一张卡牌从正面朝下的状态打出时对一名敌方单位造成([1-9][0-9]*)点伤害", text)
+    if not hidden and not damage:
+        return None
+    behaviors = card.get("behaviors", [])
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True
+    if exact:
+        exact = behaviors[0].get("sourceReadiesWhenControllerHidesCard") is True if hidden else \
+            type(behaviors[0].get("controllerFaceDownPlayEnemyDamage")) is int \
+                and behaviors[0]["controllerFaceDownPlayEnemyDamage"] == int(damage[1])
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        tail = code[start.end():]
+        end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+        return code[start.start():start.end()] + (tail[:end.start()] if end else tail)
+
+    checks = [
+        ("CoreRuleEngine.StandbyUnitObservers.cs", "CaptureStandbyUnitObservers", [
+            "GetControlledFieldUnitObjectIds(zones, cards, controller)", "IsFaceUpNonStandbyUnit(source)",
+            "AttachedRuleTextRules.Instances(zones, cards, source)", "source.ObjectGeneration", "instance.Origin",
+            "behavior.SourceReadiesWhenControllerHidesCard" if hidden else "behavior.ControllerFaceDownPlayEnemyDamage",
+            "StandbyUnitActionHash(action)"]),
+        ("CoreRuleEngine.StandbyObservers.cs", "QueueStandbyPlayedObservers", [
+            "observed with", "CapturedTick = result.State.Tick", "StandbyObserverEventKind(effect)",
+            '["standbyUnitCaptureHash"] = StandbyUnitCaptureHash(context)', "queue.Add(trigger)"]),
+        ("CoreRuleEngine.StandbyObservers.cs", "ValidStandbyObserver", ["ValidStandbyUnitObservation(state, c, effect, source, controller)"]),
+        ("CoreRuleEngine.StandbyObservers.cs", "ResolveStandbyObserver", ["ResolveStandbyUnitObserver(state, item)"]),
+        ("CoreRuleEngine.StandbyUnitObservers.cs", "ValidStandbyUnitObservation", [
+            "birth.ControllerId", "birth.CapturedTick > state.Tick", "AttachedRuleTextRules.ValidCaptured(",
+            "PredictBindingMatches(state, context.Source", 'birth.RuleTextInstanceId == $"PRINTED:']),
+        ("CoreRuleEngine.StandbyUnitObservers.cs", "ResolveStandbyUnitObserver", [
+            "ValidStandbyUnitObserverStack(state, item)", "source.ObjectGeneration == context.Source.Generation",
+            "ApplyReadyState(source," if hidden else "ApplySpellSkillDamageBonuses(state, item.ControllerId, target,",
+            "CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)" if hidden else "ApplyDamageToCardObject(state, cards, item.ControllerId, target,",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)" if hidden else "RunStateBasedCleanupLoop(state, zones, cards, item,"]),
+        ("MatchRecovery.cs", "ValidateTurnSequenceState", [
+            "CoreRuleEngine.ValidStandbyUnitObserverStack(state, item)", "CoreRuleEngine.StandbyObserverEventKind(trigger.EffectKind)"]),
+        ("MatchRecovery.cs", "ValidateFrame", ["ValidateStandbyUnitObserverHistory(authoritativeState, commands, events, errors)"]),
+        ("MatchRecovery.StandbyUnitObservers.cs", "ValidateStandbyUnitObserverHistory", [
+            'ev.Event.Kind == "TRIGGER_QUEUED"', "CoreRuleEngine.StandbyUnitCaptureHash(context)",
+            "command.Accepted", "command.CompletedTick == queued[0].Tick", "CoreRuleEngine.StandbyUnitActionHash(action.Event) == birth.ActionHash"]),
+    ]
+    if hidden:
+        checks += [
+            ("CoreRuleEngine.Standby.cs", "ResolveStandbyHide", ["QueueStandbyHiddenUnitObservers(QueueStandbyHiddenTokens("]),
+            ("CoreRuleEngine.StandbyUnitObservers.cs", "QueueStandbyHiddenUnitObservers", [
+                'action.Kind != "CARD_HIDDEN"', "StandbyHiddenReadyEffect", "QueueStandbyPlayedObservers(result with"]),
+        ]
+    else:
+        checks += [
+            ("CoreRuleEngine.StandbyObservers.cs", "CaptureStandbyPlayed", ["CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEnemyDamageEffect)"]),
+            ("CoreRuleEngine.cs", "ResolvePlayCard", ["CaptureStandbyPlayed(events[index], playerZones, cardObjects, intent.PlayerId)"]),
+            ("CoreRuleEngine.UnitEntryTriggers.cs", "CaptureUnitEntry", ["CaptureStandbyPlayed(ev, zones, cards, player)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["StandbyPlayedEnemyDamageEffect", "i.TargetGenerations is null"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "PrepareTriggerConfirmation", ["PrepareStandbyUnitDamage(result, item)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "ValidTriggerChoice", ["ValidStandbyUnitDamageChoice(state, choice)"]),
+            ("CoreRuleEngine.TriggerTargetPayment.cs", "ValidTriggerTargetPayment", ["StandbyPlayedEnemyDamageEffect && ValidStandbyUnitObserverStack(state, item)"]),
+            ("CoreRuleEngine.TriggerTargetPayment.cs", "ResolveTriggerTargetPayment", ["StandbyUnitDamageTargets(state, item)"]),
+            ("CoreRuleEngine.StandbyUnitObservers.cs", "StandbyUnitDamageTargets", [
+                "EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) != item.ControllerId",
+                "TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, card.ObjectId)"]),
+            ("MatchRecovery.StandbyUnitObservers.cs", "ValidateStandbyUnitObserverHistory", [
+                '"PAYMENT_WINDOW_OPENED" : "TRIGGER_CONFIRMED"', '"targetGenerations"',
+                "MatchStateHasher.HashValue(item.TargetGenerations)"]),
+        ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route" if exact else "missing", "按实际藏匿／背面打出行动捕获控制者、来源及每份复制文本，独立确认并结算；恢复核对原始行动与目标代次"
+                  if exact else "缺少精确的待命行动监听规格、独立结算、目标付款或原始历史核验消费者", paths)
+
+
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
@@ -1767,6 +1847,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     kind = clause["kind"]
     if conditional := conditional_rune_and_conquest_route(card, clause, sources):
         return conditional
+    if standby_unit := standby_unit_observer_route(card, clause, sources):
+        return standby_unit
     if grant := another_friendly_here_grant_route(card, clause, sources):
         return grant
     if token_play := token_play_observer_route(card, clause, sources):

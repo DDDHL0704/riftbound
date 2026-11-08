@@ -4915,10 +4915,11 @@ public static partial class MatchRecoveryValidator
         if (state.StackItems.Any(item => !StandbyRules.ValidPlayedOrigin(state, item))) errors.Add("invalid played standby origin");
         foreach (var item in state.StackItems)
             if (item.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId)
+                    || !CoreRuleEngine.ValidStandbyUnitObserverStack(state, item)
                 : CoreRuleEngine.IsStandbyObserverEffect(item.EffectKind)) errors.Add("invalid captured standby play observer");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, trigger.EffectKind, trigger.SourceObjectId, trigger.SourceCardNo, trigger.ControllerId)
-                    || trigger.TriggeredByEventKind != (trigger.EffectKind == CoreRuleEngine.StandbyHiddenTokenEffect ? "CARD_HIDDEN" : "CARD_PLAYED_FROM_FACE_DOWN")
+                    || trigger.TriggeredByEventKind != CoreRuleEngine.StandbyObserverEventKind(trigger.EffectKind)
                 : CoreRuleEngine.IsStandbyObserverEffect(trigger.EffectKind)) errors.Add("invalid queued standby play observer");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow is not (CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.TriggerTargetCostWindow)))

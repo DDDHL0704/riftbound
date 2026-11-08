@@ -143,7 +143,8 @@ public sealed partial class CoreRuleEngine
                 ["destinationZone"]="BATTLEFIELD",["battlefieldObjectId"]=fieldId,["isFaceDown"]=true }) });
         var next=state with {Tick=state.Tick+1,PlayerZones=zones,CardObjects=cards,ObjectLocations=locations,
             RunePools=committed.RunePools,PlayerExperience=committed.PlayerExperience};
-        return QueueStandbyHiddenTokens(new(true,null,next,events,ResolutionResult.BuildSnapshots(next),BuildCorePrompts(next)),
-            intent.PlayerId, fieldId);
+        return QueueStandbyHiddenUnitObservers(QueueStandbyHiddenTokens(
+            new(true,null,next,events,ResolutionResult.BuildSnapshots(next),BuildCorePrompts(next)),
+            intent.PlayerId, fieldId), intent.PlayerId);
     }
 }
