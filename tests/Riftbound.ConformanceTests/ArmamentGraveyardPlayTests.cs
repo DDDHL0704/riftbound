@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class ArmamentGraveyardPlayTests
 {
-    private const string Gear = "SFD·150/221", Unit = "OGN·219/298";
+    private const string Gear = "SFD·150/221", Unit = "OGN·041/298";
 
     private static MatchState Position(bool attached = true, bool holding = false)
     {
@@ -27,27 +27,37 @@ public sealed class ArmamentGraveyardPlayTests
     {
         await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:OTHER", []));
         await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
+        if (game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(
+            OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+    }
+
+    private static Task Confirm(Driver game, bool accept = true)
+    {
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(new[] { "DEAD", "SECOND-DEAD" }, choice.LegalObjectIds.Order(StringComparer.Ordinal));
+        return game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, accept ? ["DEAD"] : []));
     }
 
     [Theory]
     [InlineData(false, false)] [InlineData(false, true)] [InlineData(true, true)]
-    public async Task ActualConquestOrHoldEarnsAnOptionalPaidPlayFromItsControllersGraveyard(bool holding, bool decline)
+    public async Task ActualConquestOrHoldConfirmsAGraveyardTargetBeforeResponsesAndPaysBothBaseCosts(bool holding, bool decline)
     {
         var game = new Driver(Position(holding: holding));
         if (holding) {
             await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
         } else await Conquer(game);
-        var skill = Assert.Single(game.State.StackItems); Assert.Equal(Gear, skill.UnitEvent!.CardNo);
-        Assert.Empty(skill.TargetObjectIds); Assert.Null(game.State.PendingEffectPlay);
-        await game.Top(); var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
-        Assert.Equal(new[] { "DEAD", "SECOND-DEAD" }, pending.Sources.Keys.Order(StringComparer.Ordinal));
-        Assert.False(pending.IgnoreBaseMana); Assert.False(pending.IgnoreBasePower); Assert.False(pending.IgnoreAllCosts);
-        Assert.Empty(pending.Parent.TargetObjectIds);
-        if (decline) await game.Act("P1", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
+        Assert.Null(game.State.PendingEffectPlay); await Confirm(game, !decline);
+        if (decline) Assert.Empty(game.State.StackItems);
         else {
+            var skill = Assert.Single(game.State.StackItems); Assert.Equal(Gear, skill.UnitEvent!.CardNo);
+            Assert.Equal(["DEAD"], skill.TargetObjectIds); Assert.Equal(0, skill.TargetGenerations!["DEAD"]);
+            await game.Top(); var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+            Assert.Equal(["DEAD"], pending.Sources.Keys);
+            Assert.False(pending.IgnoreBaseMana); Assert.False(pending.IgnoreBasePower); Assert.False(pending.IgnoreAllCosts);
             var pool = game.State.RunePools["P1"]; var mana = game.State.CardObjects["DEAD"].ManaCost;
             await game.Act("P1", new PlayCardCommand("DEAD", Unit, [], Destination: "BASE"));
             Assert.Equal(pool.Mana - mana, game.State.RunePools["P1"].Mana);
+            Assert.Equal(pool.TotalPower - 2, game.State.RunePools["P1"].TotalPower);
             Assert.Contains("DEAD", game.State.PlayerZones["P1"].Base); Assert.True(game.State.CardObjects["DEAD"].IsExhausted);
         }
         Assert.Null(game.State.PendingEffectPlay); Assert.Empty(game.State.StackItems); await game.Replay();
@@ -63,7 +73,7 @@ public sealed class ArmamentGraveyardPlayTests
     [Fact]
     public async Task ReturningTheHostAfterConquestKeepsTheIndependentPlayPermissionAndMasksItsSource()
     {
-        var game = new Driver(Position()); await Conquer(game);
+        var game = new Driver(Position()); await Conquer(game); await Confirm(game);
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["ALLY"])); await game.Top();
         Assert.Contains("ALLY", game.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("ALLY", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
@@ -72,12 +82,13 @@ public sealed class ArmamentGraveyardPlayTests
         Assert.Contains("DEAD", game.State.PlayerZones["P1"].Base); await game.Replay();
     }
 
-    [Fact]
-    public async Task NoManaCannotWaiveTheUnitsCostOrConsumeThePermissionButItCanBeDeclined()
+    [Theory]
+    [InlineData(true)] [InlineData(false)]
+    public async Task MissingManaOrPowerCannotWaiveTheConfirmedUnitsCostButThePaymentCanBeDeclined(bool mana)
     {
         var initial = Position(); initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
-            ["P1"] = RunePool.Empty } };
-        var game = new Driver(initial); await Conquer(game); await game.Top();
+            ["P1"] = mana ? new(0, 30) : new(30, 0) } };
+        var game = new Driver(initial); await Conquer(game); await Confirm(game); await game.Top();
         var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
         await RadGearTestPosition.Reject(game.State, "P1", new PlayCardCommand("DEAD", Unit, [], Destination: "BASE"));
         await game.Act("P1", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
@@ -85,16 +96,30 @@ public sealed class ArmamentGraveyardPlayTests
     }
 
     [Theory]
-    [InlineData("waiver")] [InlineData("remove-source")] [InlineData("opponent-source")] [InlineData("extra-target")]
-    public async Task RecoveryBindsThePermissionToTheOriginalSourcesWithoutInventingTargetsOrFreeCosts(string branch)
+    [InlineData("waiver")] [InlineData("different-source")] [InlineData("opponent-source")] [InlineData("extra-target")]
+    public async Task RecoveryRequiresTheConfirmedGraveyardTargetAndNormalCostPolicy(string branch)
     {
-        var game = new Driver(Position()); await Conquer(game); await game.Top();
+        var game = new Driver(Position()); await Conquer(game); await Confirm(game); await game.Top();
         var pending = game.State.PendingEffectPlay!;
         var forged = game.State with { PendingEffectPlay = branch switch {
             "waiver" => pending with { IgnoreBaseMana = true },
-            "remove-source" => pending with { Sources = new Dictionary<string, long> { ["DEAD"] = pending.Sources["DEAD"] } },
+            "different-source" => pending with { Sources = new Dictionary<string, long> { ["SECOND-DEAD"] = pending.Sources["DEAD"] } },
             "opponent-source" => pending with { Sources = new Dictionary<string, long> { ["THEIR-DEAD"] = 0 } },
-            _ => pending with { Parent = pending.Parent with { TargetObjectIds = ["DEAD"] } } } };
+            _ => pending with { Parent = pending.Parent with { TargetObjectIds = ["DEAD", "SECOND-DEAD"] } } } };
         Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, forged));
+    }
+
+    [Fact]
+    public async Task ATargetPlayedByTheFirstSkillCannotBeReplacedWithAnotherCardForTheSecondSkill()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "SECOND-GEAR", Gear, "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["SECOND-GEAR"] = initial.CardObjects["SECOND-GEAR"] with { AttachedToObjectId = "ALLY" } } };
+        var game = new Driver(initial); await Conquer(game); await Confirm(game); await Confirm(game);
+        Assert.Equal(2, game.State.StackItems.Count); await game.Top();
+        await game.Act("P1", new PlayCardCommand("DEAD", Unit, [], Destination: "BASE"));
+        Assert.Contains("DEAD", game.State.PlayerZones["P1"].Base); await game.Top();
+        Assert.Null(game.State.PendingEffectPlay); Assert.Empty(game.State.StackItems);
+        Assert.Contains("SECOND-DEAD", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
 }

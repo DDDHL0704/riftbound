@@ -394,8 +394,7 @@ public sealed partial class CoreRuleEngine
         });
     }
 
-    private static StackResolutionResult BeginEffectPlay(MatchState state, StackItemState parent, CardBehaviorDefinition behavior,
-        IReadOnlyList<string>? permittedSources = null)
+    private static StackResolutionResult BeginEffectPlay(MatchState state, StackItemState parent, CardBehaviorDefinition behavior)
     {
         if (behavior.EffectPlaySourceZone == "OPPONENT_HAND") return BeginRevealedHandPlay(state, parent, behavior);
         var zones = NormalizeZonesForSeats(state);
@@ -408,8 +407,8 @@ public sealed partial class CoreRuleEngine
         string? sourcePlayer = null;
         ObjectLocationState? originalLocation = null;
         ObjectBinding? originalBattlefield = null;
-        IReadOnlyList<string> sources = permittedSources ?? (selfReplay ? [parent.SourceObjectId]
-            : sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray());
+        IReadOnlyList<string> sources = selfReplay ? [parent.SourceObjectId]
+            : sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
         if (sourceZone == "GRAVEYARD" && behavior.EffectPlayRequiresUnitOrEquipment
             && zones.TryGetValue(actor, out var graveyardOwner))
         {
