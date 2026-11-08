@@ -244,6 +244,9 @@ public sealed class AhriCombatMightTests
         // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
+            // CN SFD official FAQ 260114, p11: Kato chooses another friendly unit.
+            ["SFD·112/221"] = ("{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当我移动到一处战场时，让一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成。",
+                "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当我移动到一处战场时，让另一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成。"),
             // CN31411: targets face-down cards, not cards with Standby.
             ["OGN·181/298"] = ("{{横置}}：让另一张友方装备、单位或{{待命}}卡牌返回其所属的手牌。",
                 "{{横置}}：让另一张友方装备、单位或正面朝下的卡牌返回其所属的手牌。"),
@@ -321,6 +324,7 @@ public sealed class AhriCombatMightTests
             Assert.Equal(exact.Id, historical.Cards.Single(c => c.CardNo == exact.No).Id);
             errata[exact.No] = (ezrealBefore, ezrealAfter);
         }
+        Assert.Equal(33198L, historical.Cards.Single(c => c.CardNo == "SFD·112/221").Id);
         foreach (var card in historical.Cards)
         {
             var actual = current.Cards.Single(c => c.CardNo == card.CardNo);
