@@ -72,7 +72,7 @@ public sealed class WildClawReflexiveRecoveryTests
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
-        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
         object? forged = mutation switch {
             "execution" => new DeckPlayReflexiveView(1, false), "confirmation" => new DeckPlayReflexiveView(0, true),
             "missing" => null, "malformed" => "forged", "omitted-confirmation" => new { executionIndex = 0 },
@@ -80,7 +80,7 @@ public sealed class WildClawReflexiveRecoveryTests
         foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
             var row = Assert.IsType<Dictionary<string, object?>>(snapshot.Stack.Single(p => JsonSerializer.SerializeToElement(p).TryGetProperty("deckPlayReflexive", out _)));
             var old = row["deckPlayReflexive"]; row["deckPlayReflexive"] = forged;
-            Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator), e => e.Contains("deck"));
+            Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator), e => e.Contains("deck"));
             row["deckPlayReflexive"] = old;
         }
     }

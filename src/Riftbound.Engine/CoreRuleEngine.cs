@@ -3864,6 +3864,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
+                    ["playId"] = stackItem.StackItemId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = command.CardNo,
+                    ["turnNumber"] = state.TurnNumber,
                     ["mana"] = plan.TotalManaCost,
                     ["spellOnlyManaSpent"] = spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana,
                     ["duelOnlyManaSpent"] = duelOnlyBeforePayment - runePools[intent.PlayerId].DuelOnlyMana,
@@ -17622,6 +17626,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         command = command with { OptionalCosts = costsWithoutFlow };
+        if (!TrySelectSpellManaAlternativeCost(state, intent.PlayerId, behavior, command.OptionalCosts,
+                out behavior, out var costsWithoutSpellManaAlternative))
+        {
+            rejection = Reject(state, "所选替代费用不存在，或本回合尚未确认支付足够法力的法术。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        command = command with { OptionalCosts = costsWithoutSpellManaAlternative };
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
             || !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))
         {

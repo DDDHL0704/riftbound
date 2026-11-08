@@ -24,7 +24,7 @@ public sealed class OfficialReinforcementsTests
         Assert.DoesNotContain("\"N1\"", JsonSerializer.Serialize(opened.Events));
         var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(state))!;
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(restored));
-        Assert.Empty(MatchRecoveryValidator.Validate(restored.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), restored, restored.Tick));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(restored));
         var command = new PlayCardCommand("U", unit, []);
         var quote = new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
         Assert.True(quote.CanPay, quote.Message);
@@ -59,7 +59,7 @@ public sealed class OfficialReinforcementsTests
         Assert.False(unpaid.Accepted); Assert.Equal(MatchStateHasher.Hash(chosen.State), MatchStateHasher.Hash(unpaid.State));
         var pending = chosen.State.PendingEffectPlay!;
         var forged = chosen.State with { PendingEffectPlay = pending with { ManaReduction = 100 } };
-        Assert.Contains(MatchRecoveryValidator.Validate(forged.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), forged, forged.Tick), e => e.Contains("deck play"));
+        Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(forged), e => e.Contains("deck play"));
         var choice = state.PendingCardChoice!;
         var declined = await Act(state, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
         Assert.Null(declined.State.PendingEffectPlay);
