@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·115/221"
+      ],
+      "text": "当我据守一处战场时，获得的分数+1。",
+      "scope": "当我据守一处战场时，获得的分数+1。",
+      "location": "armament",
+      "status": "route",
+      "reason": "完整下栏模板向宿主授予独立据守得分技能；正常据守得分后，经双方响应再获得1分，多件分别捕获。共享SCORE指示支持没有前置费用的技能，使用统一禁止得分与胜负流程。来源返手或卸除武装后，已赚得的技能仍独立结算；原始武装授予哈希及待结算完整性拒绝擦除和篡改。",
+      "rules": "中国区核心383.1/383.3–383.4.a.2、471.2/472–473、718.3/719；三相之力官方中文下栏；缇亚娜官方FAQ260114。",
+      "runtime": {
+        "armament": {
+          "effectText": "当我据守一处战场时，获得的分数+1。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "\"当我据守一处战场时，获得的分数+1。\" => new(\"HOLD\", \"SCORE\", 1)",
+            "GrantedByArmament = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+          "contains": [
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, \"HOLD\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == \"SCORE\" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null))",
+            "return ResolveUnitEventPointGain(state, item, spec.Amount);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTraitScore.cs",
+          "contains": [
+            "TryPreventPointGain(state, item.ControllerId, amount,",
+            "scores[item.ControllerId] += amount",
+            "scores[item.ControllerId] >= EffectiveWinningScore(state)"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentHoldScoreTests.cs",
+          "methods": [
+            "EachAttachedTrinityEarnsOneIndependentPointAfterTheNormalHoldAndResponses",
+            "AnUnattachedWeaponOrAHostAtBaseDoesNotEarnThePoint",
+            "ReturningTheHostOrDetachingTheWeaponPreservesAnAlreadyEarnedPoint",
+            "TheSharedPointGainPreventionAlsoAppliesToTheExtraHoldPoint",
+            "TheExtraHoldPointCanBeTheWinningPoint",
+            "ActualOrangeAssemblyAlsoGrantsTheNextNaturalHoldPoint",
+            "RecoveryRejectsErasingTheOriginalGrantedHoldPoint"
+          ]
+        }
+      ]
+    }
+  ]
+}

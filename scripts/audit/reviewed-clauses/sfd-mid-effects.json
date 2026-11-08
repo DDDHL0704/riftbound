@@ -529,39 +529,90 @@
       "cardNos": [
         "SFD·112/221"
       ],
-      "text": "当我移动到一处战场时，让一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成。",
-      "scope": "当我移动到一处战场时，让一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成。",
-      "status": "missing",
-      "reason": "只有基础法盾单位登记；没有来源移到战场后，选择友方单位并授予来源当前关键词及当前战力的独立触发",
-      "rules": "核心383 移动触发、479 当前战力及关键词；SFD·112 官方中文牌面",
+      "text": "当我移动到一处战场时，让另一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成。",
+      "scope": "当我移动到一处战场时，让另一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成。",
+      "status": "route",
+      "reason": "官方FAQ勘误禁止选择自己。共享移动捕获在确认阶段选择另一名友方单位，双方响应后读取仍在场的同代际来源当前战力与关键词；授予值锁定至回合结束。包括武装和其他来源提供的数值关键词、普通关键词、狩猎经验和独立缴械技能；来源其后离场不撤销授予。来源或目标离场后，不把旧特性或效果移交给新代际对象，恢复校验原始授予记录，私有来源的战力摘要脱敏。",
+      "rules": "中国区核心355.8/355.9、359.3.e.12、383.3–383.4、479–481、801、809、814、815、823、831；铸魂淬炼官方FAQ260114第11页：另一名友方单位，分享结算时当前关键词及当前战力且随后锁定。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 3,
-            "sourceUnitTags": "法盾",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "sourceUnitTags": "法盾"
+          }
+        ],
+        "triggers": [
+          {
+            "node": {
+              "kind": "UNIT_MOVED_GRANT_SOURCE_KEYWORDS_AND_POWER",
+              "timing": "UNIT_MOVED",
+              "targetScope": "OTHER_FRIENDLY_UNIT_ON_FIELD",
+              "duration": "UNTIL_END_OF_TURN",
+              "optional": false,
+              "movementDestinationZone": "BATTLEFIELD"
+            },
+            "predicates": [
+              "UnitMovedTriggerSpecRules.IsImplementedMovementTrigger",
+              "UnitMovedTriggerSpecRules.IsTargetedMovementTrigger"
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs",
           "contains": [
-            "\"SFD·112/221\"",
-            "\"GIANT_ARM_KATO_PLAY_KEYWORD_UNIT\""
+            "IsMovementSourceKeywordPowerTrigger(trigger)",
+            "trigger.Kind == TriggerKinds.UnitMovedGrantSourceKeywordsAndPower"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "ResolveMovementSourceKeywordPower(state, item, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SnapshotKeywordGrants.cs",
+          "contains": [
+            "source.ObjectGeneration != item.MovementObserver!.SourceGeneration",
+            "ResolveCurrentFieldUnitPower(state, source)",
+            "CurrentSnapshotKeywords(state, source)",
+            "SNAPSHOT_KEYWORDS_GRANTED",
+            "SnapshotKeywordGrantRules.Effect(k, application)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlaySource.cs",
+          "contains": [
+            "TriggerKinds.UnitMovedGrantSourceKeywordsAndPower",
+            "SourceObjectId = \"HIDDEN\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.SnapshotKeywordGrants.cs",
+          "contains": [
+            "expected.SetEquals(current.Select(e => e.effect))",
+            "original.Target != e.card.ObjectId",
+            "snapshotDisarmCaptureHash"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/KatoMovementKeywordGrantTests.cs",
+          "methods": [
+            "OfficialFaqErratumChoosesAnotherUnitAndTheNativeMovementSkill",
+            "CurrentArmamentMightAndGrantedKeywordsAreLockedOnlyWhenTheSkillResolves",
+            "ReturningTheReferencedIncarnationOrTargetDoesNotGiveHistoricalCharacteristicsToANewObject",
+            "ASharedHuntKeywordActuallyGrantsExperienceOnTheRecipientsOwnConquest",
+            "ASharedDisarmKeywordCreatesItsOwnIndependentAttackSkillAfterTheDonorLeaves",
+            "SharedNonNumericKeywordsEnableActualRoamAfterTheDonorLeavesAndExpireNormally",
+            "RecoveryRejectsErasingOrDuplicatingAnOriginalKeywordGrant"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -831,37 +882,66 @@
       ],
       "text": "当你防守一处战场时，可以选择将我移动到此战场。",
       "scope": "当你防守一处战场时，可以选择将我移动到此战场。",
-      "status": "missing",
-      "reason": "只有基础犬形单位登记；缺少控制者防守任意战场时，可选将来源移动到该战场的触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "玩家首次获得防守身份时，从各处场地捕获其控制的来源并锁定防守战场；确认时可放弃，选择移动后双方响应。来源必须仍是同一代际的场上单位，效果移动统一执行禁止、附加费用、附件移动和移动监听，不要求游走或标准移动的横置费用；来源加入战斗不会再次触发玩家防守。原始接受捕获约束删除、重复和更换战场，来源返手的投影脱敏。",
+      "rules": "中国区核心383.4.f、466.2.c–d 玩家首次防守身份；421.2–421.3、448 效果移动；383、403–407 独立触发与确认；SFD·126 官方中文文本",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 3,
-            "sourceUnitTags": "犬形",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAYER_DEFEND",
+              "effect": "MOVE_SELF_TO_DEFENDED_BATTLEFIELD",
+              "optional": true,
+              "modes": [
+                {
+                  "id": "MOVE_SELF",
+                  "effect": "MOVE_SELF_TO_DEFENDED_BATTLEFIELD"
+                }
+              ]
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleStartRoles.cs",
           "contains": [
-            "\"SFD·126/221\"",
-            "\"LOYAL_HOUND_DOG_PLAY_UNIT\""
+            "if (newScope) queue.AddRange(CapturePlayerDefenseUnitEvents"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayerDefenseMovement.cs",
+          "contains": [
+            "scope.DefendingPlayerId",
+            "DefendedBattlefield = new(field.ObjectId, field.ObjectGeneration)",
+            "source.ObjectGeneration != context.SourceGeneration",
+            "MoveFieldUnitsToChosenLocation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "UnitEventTimings.PlayerDefend",
+            "context.DefendedBattlefield"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PlayerDefenseMovementTests.cs",
+          "methods": [
+            "APlayerDefendingAnywhereMayMoveAnActiveOrExhaustedHoundWithoutRoam",
+            "DecliningTheOptionalMovementRetiresTheEarnedSkillAndKeepsItsOriginalPosition",
+            "ASourceOutsideTheFieldDoesNotObservePlayerDefense",
+            "TheAttackersHoundDoesNotObserveTheOtherPlayersDefense",
+            "AnAlreadyPresentHoundCannotMoveToTheSamePositionOrRetriggerThePlayersRole",
+            "ARealResponseReturningTheSourceLeavesItsIndependentSkillButCannotMoveANewGeneration",
+            "RecoveryRequiresTheOriginalPlayerDefenseCaptureAndItsBattlefield"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -906,40 +986,67 @@
       ],
       "text": "我拥有等同于此处敌方单位数量的{{强攻}}数值。（如果我是进攻方，则每点强攻提供{{S}}+1。）",
       "scope": "我拥有等同于此处敌方单位数量的{{强攻}}数值。（如果我是进攻方，则每点强攻提供{{S}}+1。）",
-      "status": "missing",
-      "reason": "只有基础急速单位登记；没有按来源所在位置的当前敌方单位数量持续计算数值强攻",
-      "rules": "核心364–365 静态技能、807 数值强攻；SFD·131 官方中文牌面",
+      "status": "route",
+      "reason": "共享持续关键词层按来源的实际场地位置和当前控制者计数此处公开敌方单位，持续提供相应数值强攻；单位移动、离场或控制变化后重算，只有当前进攻身份产生战力加成。复制文本的每个实例分别计数，独立关键词授予相加，保留原有急速。",
+      "rules": "中国区核心364–365 静态技能、807.1–807.3 数值强攻与独立来源相加；SFD·131 官方中文文本",
       "runtime": {
-        "staticAuras": [],
+        "staticAbilities": [
+          {
+            "node": {
+              "kind": "UNIT_ENEMY_COUNT_HERE_SELF_KEYWORDS",
+              "grantedKeywords": [
+                "强攻"
+              ]
+            }
+          }
+        ],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 4,
-            "sourceUnitTags": "灵体|急速",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
             "hasteReadyManaCost": 1,
             "hasteReadyPowerCost": 1,
-            "hasteReadyPowerTrait": "purple",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "hasteReadyPowerTrait": "purple"
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CardStaticAbilitySpecRules.cs",
           "contains": [
-            "\"SFD·131/221\"",
-            "\"ANCIENT_BERSERKER_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+            "StaticAbilityKinds.UnitEnemyCountHereSelfKeywords"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs",
+          "contains": [
+            "ConditionalSelfKeywordValues(current, card, s.Spec)",
+            "StaticAbilityKinds.UnitEnemyCountHereSelfKeywords =>",
+            "CountEnemyUnitsHere(state, source)",
+            "EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) != controller",
+            "at.BattlefieldObjectId == here.BattlefieldObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CountedCombatKeywords.cs",
+          "contains": [
+            "CombatKeywordAmount(unit.RuleDerivedTags ?? [], keyword)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EnemyCountAssaultTests.cs",
+          "methods": [
+            "TheOfficialTextParsesALiveCountRatherThanAnEntryOrCombatSnapshot",
+            "CurrentEnemiesAtTheActualLocationSupplyAssaultOnlyWhileAttacking",
+            "ActualEnemyDepartureContinuouslyReducesTheKeywordAndEndsTheCombatBonus",
+            "FriendshipUsesCurrentControlAndPhysicalOwnershipDoesNotAddAnEnemy",
+            "AnIndependentAssaultGrantAddsToTheLiveEnemyCount",
+            "AnActuallyCopiedPrintedAbilityContributesItsOwnLiveValueAndDetachingRemovesOnlyThatInstance"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

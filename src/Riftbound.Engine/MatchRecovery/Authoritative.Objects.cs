@@ -84,7 +84,7 @@ public static partial class MatchRecoveryValidator
                 attachedToObjectId,
                 errors);
 
-            if (cardObject.UntilEndOfTurnEffects.Any(effect => !TemporaryCombatKeywordRules.IsValid(effect)))
+            if (cardObject.UntilEndOfTurnEffects.Any(effect => !TemporaryCombatKeywordRules.IsValid(effect) || !SnapshotKeywordGrantRules.IsValid(effect)))
                 errors.Add($"authoritative state card object {objectId} has invalid temporary combat keyword grant");
             if (!DamageDoublingApplications.IsValid(cardObject))
                 errors.Add($"authoritative state card object {objectId} has invalid damage doubling applications");
