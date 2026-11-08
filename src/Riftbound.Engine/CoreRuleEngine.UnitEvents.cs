@@ -27,7 +27,8 @@ public sealed partial class CoreRuleEngine
     internal const string UnitEventEffect = "CAPTURED_UNIT_EVENT_ABILITY";
     internal const string TookDamageThisTurn = "TOOK_DAMAGE_THIS_TURN";
     private const string UnitEventCaptureKey = "unitEventObservations";
-    private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context, string InstructionEventKind = "UNIT_EXHAUSTED");
+    private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context,
+        string InstructionEventKind = "UNIT_EXHAUSTED", string? PlayedCardPlayId = null);
     private static UnitEventAbilitySpec? UnitEventSpec(string? no)
         => no is null ? null
             : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
@@ -504,7 +505,11 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
     {
         var result = ResolveUnitEventInstruction(state, item);
-        return AppendIndependentUnitEventExperience(state, item, result);
+        result = AppendIndependentUnitEventExperience(state, item, result);
+        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
+        return source == item.SourceObjectId ? result : result with { Events = result.Events.Select(e =>
+            Equals(e.Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId)
+                ? e with { Payload = new Dictionary<string, object?>(e.Payload) { ["sourceObjectId"] = source } } : e).ToArray() };
     }
 
     private static StackResolutionResult ResolveUnitEventInstruction(MatchState state, StackItemState item)
@@ -567,7 +572,7 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.Effect == "EMPOWER_SELF") return ApplyEmpowerAction(state, new(item.SourceObjectId, context.SourceGeneration), item.ControllerId);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
-        var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
+        var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
         if (spec.Effect == "DESTROY_SELF") {
             if (!cards.TryGetValue(item.SourceObjectId, out var self) || self.ObjectGeneration != context.SourceGeneration

@@ -5315,6 +5315,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         if (trigger.UnitEvent is { Origin.ArmamentGranted: true } armamentEvent)
             payload["armamentGrantHash"] = ArmamentUnitEventRules.CaptureHash(armamentEvent);
+        if (RequiresInstructionCostHistory(trigger.UnitEvent))
+            payload["instructionCostCaptureHash"] = InstructionCostCaptureHash(trigger.UnitEvent!,
+                trigger.SourceObjectId, trigger.ControllerId);
         if (trigger.DrawHandThreshold is { } threshold) payload["drawHandThreshold"] = threshold;
         if (trigger.BattlefieldConquestMill is { } conquestMill)
             payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
