@@ -9,6 +9,8 @@ public sealed record DisarmContribution(ObjectBinding Source, string CardNo, lon
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CeasedSelfAbilitySource? CeasedSource { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? SnapshotKeywordGrant { get; init; }
 }
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
 public sealed record DisarmOrigin(long CapturedTick, long FaceRevision, IReadOnlyList<DisarmContribution> Contributions);

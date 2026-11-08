@@ -15,6 +15,10 @@ public sealed partial class CoreRuleEngine
                 contributions.Add(new(new(unit.ObjectId, unit.ObjectGeneration), instance.CardNo,
                     instance.Origin?.FaceRevision ?? unit.CopyFaceTransitions?.Count ?? 0,
                     unit.TokenFactoryCardNo, instance.Origin, false, spec.PrintedValue));
+        foreach (var grant in unit.UntilEndOfTurnEffects.Where(e => SnapshotKeywordGrantRules.IsGrant(e) && SnapshotKeywordGrantRules.IsValid(e)))
+            if (CardCombatKeywordRules.KeywordAmount([SnapshotKeywordGrantRules.Keyword(grant)], "缴械") is > 0 and var value)
+                contributions.Add(new(new(unit.ObjectId, unit.ObjectGeneration), AttachedRuleTextRules.Face(unit)!,
+                    unit.CopyFaceTransitions?.Count ?? 0, unit.TokenFactoryCardNo, null, false, value) { SnapshotKeywordGrant = grant });
         foreach (var giver in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
             if (!IsFaceUpNonStandbyUnit(giver) || !IsObjectOnField(state.PlayerZones, giver.ObjectId)
@@ -38,7 +42,7 @@ public sealed partial class CoreRuleEngine
         // The characteristic is inspectable even before its attack trigger exists (CN 831.3).
         if (!state.CardObjects.Values.Any(c => DisarmSourceSpecifications.TryGet(AttachedRuleTextRules.Face(c) ?? "", out _)
             || c.AttachedRuleText is { } copy && DisarmSourceSpecifications.TryGet(copy.CardNo, out _)
-            || c.RuleDerivedTags?.Any(IsDisarmTag) == true)) return state;
+            || c.RuleDerivedTags?.Any(IsDisarmTag) == true || SnapshotKeywordGrantRules.Keywords(c).Any(IsDisarmTag))) return state;
         Dictionary<string, CardObjectState>? cards = null;
         foreach (var unit in state.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.UnitCard)))
         {
@@ -91,10 +95,13 @@ public sealed partial class CoreRuleEngine
                 && (g.TokenFactoryCardNo is null || P6TokenFactoryCatalog.IsTokenFactory(g.TokenFactoryCardNo))
                 && (g.Origin is null || g.Origin.CardNo == g.CardNo && g.Origin.Unit == g.Source
                     && g.Origin.FaceRevision == g.FaceRevision && g.Origin.CapturedTick <= d.CapturedTick)
-                && DisarmSourceSpecifications.TryGet(g.CardNo, out var spec)
+                && (g.SnapshotKeywordGrant is { } snapshot ? !g.FriendlyGrant && g.Origin is null
+                    && SnapshotKeywordGrantRules.IsGrant(snapshot) && SnapshotKeywordGrantRules.IsValid(snapshot)
+                    && CardCombatKeywordRules.KeywordAmount([SnapshotKeywordGrantRules.Keyword(snapshot)], "缴械") == g.Value
+                    : DisarmSourceSpecifications.TryGet(g.CardNo, out var spec)
                 && (g.FriendlyGrant ? TryPredictEnteredFace(c.CardNo, out var entered)
                     && spec.FriendlyGrants.Any(grant => grant.Value == g.Value && entered.Tags.Contains(grant.RequiredUnitTag))
-                    : spec.PrintedValue == g.Value))
+                    : spec.PrintedValue == g.Value)))
             // A departure receipt preserves a contribution; it does not give it another identity.
             && d.Contributions.Select(g => MatchStateHasher.HashValue(g with { CeasedSource = null }))
                 .Distinct(StringComparer.Ordinal).Count() == d.Contributions.Count

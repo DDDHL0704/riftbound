@@ -560,7 +560,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "DESTROY_DAMAGED_ENEMIES_HERE") return ResolveUnitEventDamagedEnemyDestruction(state, item);
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
-        if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
+        if (spec.Effect == "SCORE" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)) {
             var prevented = new List<GameEvent>();
             if (TryPreventPointGain(state, item.ControllerId, spec.Amount, item.EffectKind, item.SourceObjectId, prevented))
                 return NoopStackResolutionResult(state) with { Events = prevented };
@@ -568,7 +568,7 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state) with { PlayerScores = scores,
                 WinnerPlayerId = scores[item.ControllerId] >= EffectiveWinningScore(state) ? item.ControllerId : null,
                 Events = [new("SCORE_GAINED", "触发技能获得分数", new Dictionary<string, object?> {
-                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
                     ["amount"] = spec.Amount, ["score"] = scores[item.ControllerId] })] };
         }
         if (spec.Effect == "NEXT_CARD_COST_REDUCTION") {

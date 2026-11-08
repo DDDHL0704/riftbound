@@ -91,7 +91,7 @@ public sealed partial class CoreRuleEngine
         var huntConquerSources = conqueringUnitObjectIds
             .Where(cardObjects.ContainsKey)
             .Select(objectId => new { ObjectId = objectId, CardObject = cardObjects[objectId],
-                HuntAmount = CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags) })
+                HuntAmount = CurrentHuntAmount(cardObjects[objectId]) })
             .Where(source => source.HuntAmount > 0).ToArray();
         var huntAmount = huntConquerSources.Sum(source => source.HuntAmount);
         var conquestStackItem = new StackItemState($"conquest-{resolutionTick}-{battlefieldId}", playerId,

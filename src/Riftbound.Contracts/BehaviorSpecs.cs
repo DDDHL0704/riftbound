@@ -223,6 +223,7 @@ public static class TriggerKinds
     public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedSetOtherUnitBaseMight = "UNIT_MOVED_SET_OTHER_UNIT_BASE_MIGHT";
     public const string UnitMovedOtherFriendlyPowerModifier = "UNIT_MOVED_OTHER_FRIENDLY_POWER_MODIFIER";
+    public const string UnitMovedGrantSourceKeywordsAndPower = "UNIT_MOVED_GRANT_SOURCE_KEYWORDS_AND_POWER";
     public const string FriendlyUnitMovedFromHereMayFollow = "FRIENDLY_UNIT_MOVED_FROM_HERE_MAY_FOLLOW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementReadyOtherObject = "UNIT_FIRST_MOVEMENT_READY_OTHER_OBJECT";

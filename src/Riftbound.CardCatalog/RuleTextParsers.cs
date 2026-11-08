@@ -1728,6 +1728,10 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit, DiscardCount: ParseChineseNumber(movedDiscardDraw.Groups[1].Value),
                 DrawCount: ParseChineseNumber(movedDiscardDraw.Groups[2].Value));
 
+        if (segment.TrimEnd('。') == "当我移动到一处战场时，让另一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成")
+            return new(TriggerKinds.UnitMovedGrantSourceKeywordsAndPower, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.OtherFriendlyUnitOnField, Optional: false,
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
         var movedOtherPower = Regex.Match(segment,
             @"^当我移动到一处战场时，让另一名友方单位在本回合内\{\{S\}\}\+(?<power>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
         if (movedOtherPower.Success)
