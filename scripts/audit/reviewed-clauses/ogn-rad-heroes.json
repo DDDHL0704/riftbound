@@ -7,28 +7,73 @@
       ],
       "text": "{{绝念}}—回收我，以此让你的所有符文变为活跃状态。（当我被摧毁后，发动此效果。）",
       "scope": "{{绝念}}—回收我，以此让你的所有符文变为活跃状态。（当我被摧毁后，发动此效果。）",
-      "status": "missing",
-      "reason": "缺少绝念回收自身的确认费用及全部符文活跃结算；目前仅有急速入场登记（核心383.3.b明确以此牌为例）",
+      "status": "route",
+      "reason": "绝念在确认前以同一墓场实体回收自身支付费用，入链后独立结算，让技能控制者当前公开场上的全部符文活跃；费用、来源代际及原始回收日志均绑定",
       "runtime": {
         "behaviors": [
           {
             "effectKind": "EKKO_PLAY_UNIT_NO_OPTIONAL_HASTE",
+            "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 5
           }
         ],
-        "staticAuras": [],
-        "replacements": []
+        "triggers": [
+          {
+            "node": {
+              "kind": "UNIT_LAST_BREATH_RECYCLE_SELF_READY_ALL_RUNES",
+              "timing": "UNIT_DESTROYED",
+              "text": "{{绝念}}—回收我，以此让你的所有符文变为活跃状态",
+              "reason": "CN 383.3.b: recycle the destroyed source while confirming, then ready the controller's runes on resolution.",
+              "targetScope": "SOURCE_UNIT",
+              "recycleCount": 1,
+              "recycleSourceZone": "GRAVEYARD",
+              "recycleDestinationZone": "MAIN_DECK"
+            },
+            "predicates": [
+              "UnitDestroyedTriggerSpecRules.IsLastBreathRecycleSelfReadyAllRunesTrigger"
+            ]
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerRecycleCost.cs",
           "contains": [
-            "\"EKKO_PLAY_UNIT_NO_OPTIONAL_HASTE\"",
-            "SourceUnitTags: \"急速\""
+            "SourceWasRecycled = true",
+            "TriggerCostSourceGeneration(item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LastBreathRuneCall.cs",
+          "contains": [
+            "ResolveLastBreathReadyAllRunes",
+            "ValidTriggerCostReceipt(state, item)",
+            "ApplyReadyState",
+            "EffectiveFieldControllerId(zones, id, rune) == item.ControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.LastBreathRecycleCost.cs",
+          "contains": [
+            "ValidateLastBreathRecycleCostHistory"
           ]
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EkkoRecycledLastBreathTests.cs",
+          "methods": [
+            "ARealDeathRecyclesAtConfirmationAndReadiesOnlyControlledFieldRunesAfterResponses",
+            "RejectingTheCostOrChoosingADifferentCardCannotRecycleOrReadyAnything",
+            "ARealResponseDrawsTheRecycledSourceAndTheEarnedSkillAlsoReadiesTheNewlyCalledRune",
+            "AnotherOwnersSourceReturnsToItsDeckButOnlyTheSkillControllerReadiesRunes",
+            "TwoRealSongLastBreathsCanOnlyPayWithTheSameCorpseOnce",
+            "ARealImageOfEkkoCannotRecycleItsCeasedTokenToPayTheLeadingCost",
+            "RecoveryRejectsForgedOrMissingRecycleReceipts",
+            "RecoveryBindsThePaidReceiptToTheOriginalAcceptedRecycleCommandAndEvents"
+          ]
+        }
+      ],
       "rules": "核心 383.2.c.3、383.3.b（艾克·溯时洄光示例）、808 绝念"
     },
     {

@@ -8,12 +8,14 @@ namespace Riftbound.Engine;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record StunObserverOrigin(ObjectBinding Source, ObjectBinding Stunned, string StunnedCardNo,
     string Actor, string EventGroup, long CapturedTick, long SourceFaceRevision, long StunnedFaceRevision,
-    string RuleTextInstanceId, bool SourceIsLegend, string? StunnedTokenFactoryCardNo = null, CeasedEmpoweredSource? CeasedSource = null);
+    string RuleTextInstanceId, bool SourceIsLegend, string? StunnedTokenFactoryCardNo = null, CeasedEmpoweredSource? CeasedSource = null,
+    ObjectBinding? Battlefield = null);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string StunReadyPowerKind = "ENEMY_STUNNED_SOURCE_READY_POWER";
     internal const string StunBoonKind = "ENEMY_STUNNED_FRIENDLY_BOON";
+    internal const string StunMoveSourceKind = "ENEMY_STUNNED_MOVE_SOURCE_TO_BATTLEFIELD";
     private const string StunCaptureKey = "stunObserverSources";
     private sealed record CapturedStunObserver(string SourceId, string Controller, string InstanceId, FieldTriggerContext Context);
 
@@ -24,7 +26,9 @@ public sealed partial class CoreRuleEngine
                 RegexOptions.CultureInvariant))
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
 
-    private static bool IsStunObserverKind(string kind) => kind is StunReadyPowerKind or StunBoonKind;
+    internal static bool IsStunObserverKind(string kind) => kind is StunReadyPowerKind or StunBoonKind or StunMoveSourceKind;
+    private static bool StunMoveSourceBehavior(string cardNo)
+        => CardBehaviorRegistry.TryGetByCardNo(cardNo, out var behavior) && behavior.SourceMayMoveToStunnedEnemyBattlefield;
     private static CardBehaviorDefinition? StunReadyBehavior(string? cardNo)
         => CardBehaviorRegistry.TryGetByCardNo(cardNo ?? "", out var behavior)
             && behavior.SourceReadiesWhenControllerStunsEnemyUnit
@@ -34,26 +38,36 @@ public sealed partial class CoreRuleEngine
     // Capture the responsible player and every active text instance at the
     // actual stun instruction, before later instructions can move or copy them.
     private static GameEvent CaptureStunObservers(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
-        Dictionary<string, CardObjectState> cards, StackItemState cause, string targetId)
+        Dictionary<string, CardObjectState> cards, StackItemState cause, string targetId,
+        IReadOnlyDictionary<string, ObjectLocationState> locations)
     {
         var actor = cause.ControllerId;
+        ev = ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
+            ["stunningPlayerId"] = actor } };
         if (!cards.TryGetValue(targetId, out var target) || !IsEnemyFieldUnit(zones, cards, actor, targetId)
             || target.CardNo is not { Length: > 0 } targetCard) return ev;
         var observed = new ObjectBinding(targetId, target.ObjectGeneration);
+        var field = TryGetPreciseFieldLocation(zones, locations, targetId, out var at) && at.Zone == "BATTLEFIELD"
+            && at.BattlefieldObjectId is { } fieldId && cards.TryGetValue(fieldId, out var fieldCard)
+            && fieldCard.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)
+            ? new ObjectBinding(fieldId, fieldCard.ObjectGeneration) : null;
         var captures = new List<CapturedStunObserver>();
         void Add(CardObjectState source, RuleTextInstance instance, bool isLegend, string kind)
         {
             var birth = new StunObserverOrigin(new(source.ObjectId, source.ObjectGeneration), observed, targetCard, actor,
                 cause.StackItemId, 0, instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
-                target.CopyFaceTransitions?.Count ?? 0, instance.Id, isLegend, target.TokenFactoryCardNo);
+                target.CopyFaceTransitions?.Count ?? 0, instance.Id, isLegend, target.TokenFactoryCardNo,
+                Battlefield: kind == StunMoveSourceKind ? field : null);
             captures.Add(new(source.ObjectId, actor, instance.Id, new(instance.CardNo, kind, source.ObjectGeneration) {
-                Origin = instance.Origin, SourceTokenFactoryCardNo = source.TokenFactoryCardNo, StunObserver = birth }));
+                Origin = instance.Origin, SourceTokenFactoryCardNo = source.TokenFactoryCardNo, StunObserver = birth,
+                BattlefieldId = birth.Battlefield?.ObjectId }));
         }
         foreach (var id in GetControlledFieldUnitObjectIds(zones, cards, actor).Order(StringComparer.Ordinal)) {
             if (!cards.TryGetValue(id, out var source) || !IsFaceUpNonStandbyUnit(source)) continue;
             foreach (var instance in AttachedRuleTextRules.Instances(zones, cards, source)) {
                 if (StunReadyBehavior(instance.CardNo) is not null) Add(source, instance, false, StunReadyPowerKind);
                 if (StunBoonFaces.Value.Contains(instance.CardNo)) Add(source, instance, false, StunBoonKind);
+                if (field is not null && StunMoveSourceBehavior(instance.CardNo)) Add(source, instance, false, StunMoveSourceKind);
             }
         }
         if (zones.TryGetValue(actor, out var own))
@@ -85,15 +99,19 @@ public sealed partial class CoreRuleEngine
                     && !IsObjectOnField(before.PlayerZones, capture.SourceId) && !birth.SourceIsLegend)
                     generation = Math.Max(generation, old.ObjectGeneration + 1);
                 birth = birth with { Source = birth.Source with { Generation = generation },
-                    CapturedTick = RuleChoices.Value?.CompletionTick ?? result.State.Tick,
+                    CapturedTick = context.Kind == StunMoveSourceKind ? result.State.Tick
+                        : RuleChoices.Value?.CompletionTick ?? result.State.Tick,
                     RuleTextInstanceId = context.Origin is null ? $"PRINTED:{capture.SourceId}:{generation}" : capture.InstanceId };
                 context = context with { SourceGeneration = generation, StunObserver = birth };
                 var trigger = new TriggerQueueItemState($"stun-observer-{result.State.Tick}-{index}-{ordinal}", capture.Controller,
                     capture.SourceId, FieldTriggerEffect, "STATUS_EFFECT_APPLIED") { FieldContext = context, SourceCardNo = context.CardNo };
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
-                events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
-                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, ProjectionViewers.Spectator) } });
+                var payload = new Dictionary<string, object?>(queued.Payload) {
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, capture.SourceId, ProjectionViewers.Spectator) };
+                if (context.Kind == StunMoveSourceKind)
+                    payload["stunSourceMovementCaptureHash"] = StunSourceMovementCaptureHash(context);
+                events.Add(queued with { Payload = payload });
             }
         }
         if (!found) return result;
@@ -109,12 +127,17 @@ public sealed partial class CoreRuleEngine
             || source.Generation != context.SourceGeneration || string.IsNullOrWhiteSpace(source.ObjectId)
             || string.IsNullOrWhiteSpace(stunned.ObjectId) || string.IsNullOrWhiteSpace(origin.StunnedCardNo)
             || string.IsNullOrWhiteSpace(origin.Actor) || string.IsNullOrWhiteSpace(origin.EventGroup)
-            || string.IsNullOrWhiteSpace(origin.RuleTextInstanceId) || context.BattlefieldId is not null
+            || string.IsNullOrWhiteSpace(origin.RuleTextInstanceId)
+            || (context.Kind == StunMoveSourceKind
+                ? origin.SourceIsLegend || !StunMoveSourceBehavior(context.CardNo)
+                    || origin.Battlefield is not { Generation: >= 0, ObjectId.Length: > 0 } capturedField
+                    || context.BattlefieldId != capturedField.ObjectId
+                : context.BattlefieldId is not null || origin.Battlefield is not null)
             || context.ReturnFocusPlayerId is not null || context.RecycledBoon is not null || context.EmpoweredTransition is not null
             || context.SourceLocation is not null || context.AffectedUnit is not null || context.AffectedUnitCeasedToExist
             || context.AttackConditionFrame is not null
             || (context.Kind == StunReadyPowerKind ? origin.SourceIsLegend || StunReadyBehavior(context.CardNo) is null
-                : !StunBoonFaces.Value.Contains(context.CardNo))
+                : context.Kind == StunBoonKind && !StunBoonFaces.Value.Contains(context.CardNo))
             || origin.SourceIsLegend && (context.Origin is not null || context.SourceTokenFactoryCardNo is not null)
             || context.SourceTokenFactoryCardNo is null && (context.SourceCeasedToExist || origin.CeasedSource is not null)
             || context.SourceTokenFactoryCardNo is not null && (!P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
@@ -128,6 +151,10 @@ public sealed partial class CoreRuleEngine
         if (birth.Source.ObjectId != sourceId || birth.Actor != controller || !state.Seats.ContainsKey(controller)
             || birth.CapturedTick > state.Tick || !PredictBindingMatches(state, birth.Stunned, birth.StunnedCardNo,
                 birth.StunnedFaceRevision, birth.CapturedTick, birth.StunnedTokenFactoryCardNo)) return false;
+        if (context.Kind == StunMoveSourceKind && (birth.Battlefield is not { } field
+            || !state.CardObjects.TryGetValue(field.ObjectId, out var battlefield)
+            || battlefield.ObjectGeneration < field.Generation
+            || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))) return false;
         if (context.SourceCeasedToExist) {
             if (state.CardObjects.ContainsKey(sourceId) || birth.CeasedSource is not { } ceased
                 || ceased.Tick < birth.CapturedTick || ceased.Tick > state.Tick || ceased.CardNo != context.CardNo) return false;
@@ -146,6 +173,7 @@ public sealed partial class CoreRuleEngine
         var context = item.FieldContext!;
         if (!ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo))
             throw new InvalidOperationException("Invalid captured stun observer.");
+        if (context.Kind == StunMoveSourceKind) return ResolveStunSourceMovement(state, item);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
         var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);

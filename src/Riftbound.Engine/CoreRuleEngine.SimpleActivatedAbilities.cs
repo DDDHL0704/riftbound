@@ -266,11 +266,11 @@ public sealed partial class CoreRuleEngine
             {
                 source = BoonRules.Consume(source);
                 cards[source.ObjectId] = source;
-                events.Add(new("BOON_CONSUMED", "消耗来源的一个增益作为主动技能费用", new Dictionary<string, object?> {
+                events.Add(CaptureBoonConsumption(new("BOON_CONSUMED", "消耗来源的一个增益作为主动技能费用", new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
                     ["sourceGeneration"] = source.ObjectGeneration, ["targetObjectId"] = source.ObjectId,
                     ["targetGeneration"] = source.ObjectGeneration, ["previousPower"] = source.Power + 1,
-                    ["power"] = source.Power, ["abilityId"] = ability.AbilityId, ["reason"] = ability.EffectKind }));
+                    ["power"] = source.Power, ["abilityId"] = ability.AbilityId, ["reason"] = ability.EffectKind }), zones, cards));
             }
         }
         if (spec.RemovesSourceEmpowermentAsCost)
@@ -610,7 +610,7 @@ public sealed partial class CoreRuleEngine
                     var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
                         ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
                         ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
-                    events.Add(CaptureStunObservers(applied, zones, cards, item, targetId));
+                    events.Add(CaptureStunObservers(applied, zones, cards, item, targetId, locations));
                 }
                 else if (!CanExecuteStun(target))
                     events.Add(new("ABILITY_NO_EFFECT", "无情潜伏者结算时目标已经眩晕", new Dictionary<string, object?> {

@@ -41,9 +41,9 @@ public sealed partial class CoreRuleEngine
             {
                 source = BoonRules.Consume(source);
                 cards[source.ObjectId] = source;
-                events.Add(new("BOON_CONSUMED", "结算时消耗来源的增益", new Dictionary<string, object?> {
+                events.Add(CaptureBoonConsumption(new("BOON_CONSUMED", "结算时消耗来源的增益", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId,
-                    ["targetObjectId"] = source.ObjectId, ["previousPower"] = source.Power + 1, ["power"] = source.Power }));
+                    ["targetObjectId"] = source.ObjectId, ["previousPower"] = source.Power + 1, ["power"] = source.Power }), zones, cards));
             }
         }
         if (spec.Effect is "BOON_SELF" or "BOON_SELF_AND_READY")
@@ -89,7 +89,7 @@ public sealed partial class CoreRuleEngine
             ["playerId"] = item.ControllerId,
             ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["targetObjectId"] = target, ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED",
-            ["duration"] = "UNTIL_END_OF_TURN" }), zones, cards, item, target));
+            ["duration"] = "UNTIL_END_OF_TURN" }), zones, cards, item, target, state.ObjectLocations));
     }
 
 }

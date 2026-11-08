@@ -17,7 +17,8 @@ public sealed partial record UnitEventAbilitySpec(string Timing, string Effect, 
     int IndependentExperienceGain = 0, int RequiredOpponentVictoryDistance = 0,
     bool RequiresIsolatedEnemyHere = false,
     bool TargetsAnotherFriendlyHere = false, string? GrantedCombatKeyword = null,
-    bool RequiresPlayedUnitToken = false, PermanentDestructionCostSpec? LeadingDestruction = null);
+    bool RequiresPlayedUnitToken = false, PermanentDestructionCostSpec? LeadingDestruction = null,
+    int MinimumPlayedCardPowerCost = 0);
 
 public sealed record PermanentDestructionCostSpec(int Count, string? RequiredTag = null,
     int? MaximumMana = null, bool AnyController = false, bool AllowsSource = false);
@@ -25,6 +26,8 @@ public sealed record PermanentDestructionCostSpec(int Count, string? RequiredTag
 public static class UnitEventTimings
 {
     public const string OpponentTurnSpellPlayed = "OPPONENT_TURN_SPELL_PLAYED";
+    public const string PrintedPowerCardPlayed = "PRINTED_POWER_CARD_PLAYED";
+    public const string BoonConsumed = "FRIENDLY_BOON_CONSUMED";
 }
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
@@ -335,6 +338,7 @@ public sealed record CardBehaviorDefinition(
     bool SourceReadiesWhenControllerPlaysEquipment = false,
     string SourceReadyOnEquipmentPlayedEffectKind = "",
     bool SourceReadiesWhenControllerStunsEnemyUnit = false,
+    bool SourceMayMoveToStunnedEnemyBattlefield = false,
     int SourcePowerOnControllerStunsEnemyUnitAmount = 0,
     string SourceStunEnemyUnitTriggerEffectKind = "",
     int SourcePowerOnControllerStandbyHiddenAmount = 0,
@@ -3955,7 +3959,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守|壁垒"),
+            SourceUnitTags: "约德尔人|坚守|壁垒",
+            SourceMayMoveToStunnedEnemyBattlefield: true),
         new(
             "UNL-057/219",
             "野爪兽王",
@@ -6267,7 +6272,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
+                LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true)),
         new(
             "SFD·020a/221",
             "德莱文",
@@ -6276,7 +6283,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
+                LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true)),
         new(
             "SFD·069/221",
             "坏坏魄罗",
@@ -6366,7 +6375,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "约德尔人"),
+            SourceUnitTags: "约德尔人",
+            UnitEventAbility: new(UnitEventTimings.PrintedPowerCardPlayed, "DRAW", 1, MinimumPlayedCardPowerCost: 2)),
         new(
             "SFD·121/221",
             "黑市掮客",
@@ -6789,7 +6799,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守|壁垒"),
+            SourceUnitTags: "约德尔人|坚守|壁垒",
+            SourceMayMoveToStunnedEnemyBattlefield: true),
         new(
             "UNL-056/219",
             "悠米",
@@ -7363,7 +7374,9 @@ public static class CardBehaviorRegistry
             TargetRequiredTag: CardObjectTags.UnitCard,
             GrantsBoon: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 7),
+            SourceUnitPower: 7,
+            UnitEventAbility: new(UnitEventTimings.BoonConsumed, "CREATE_EQUIPMENT_TOKEN", 1,
+                CreatedTokenFactoryCardNo: "UNL·T05")),
         new(
             "SFD·149/221",
             "伊泽瑞尔",

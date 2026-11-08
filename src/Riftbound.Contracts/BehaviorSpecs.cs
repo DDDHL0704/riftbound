@@ -196,6 +196,8 @@ public static class TriggerKinds
     public const string UnitConquestGainResources = "UNIT_CONQUEST_GAIN_RESOURCES";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
+    public const string UnitBattleWinDraw = "UNIT_BATTLE_WIN_DRAW";
+    public const string UnitBattleWinCreateDormantGold = "UNIT_BATTLE_WIN_CREATE_DORMANT_GOLD";
     public const string UnitConquestCreateDormantGold =
         "UNIT_CONQUEST_CREATE_DORMANT_GOLD";
     public const string UnitConquestOverkillCreateDormantGold =
@@ -323,6 +325,8 @@ public static class TriggerKinds
         "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     public const string UnitLastBreathCallRunesThenDraw =
         "UNIT_LAST_BREATH_CALL_DORMANT_RUNES_THEN_DRAW";
+    public const string UnitLastBreathRecycleSelfReadyAllRunes =
+        "UNIT_LAST_BREATH_RECYCLE_SELF_READY_ALL_RUNES";
     public const string UnitLastBreathCreateDormantGold =
         "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     public const string UnitLastBreathDiscardDraw =
@@ -364,6 +368,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
     public const string StandbyHidden = "STANDBY_HIDDEN";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
+    public const string UnitBattleWon = "UNIT_BATTLE_WON";
     public const string UnitConquest = "UNIT_CONQUEST";
     public const string SourceUnitPlayed = "SOURCE_UNIT_PLAYED";
     public const string UnitMoved = "UNIT_MOVED";

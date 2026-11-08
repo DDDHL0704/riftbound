@@ -213,37 +213,53 @@
       ],
       "text": "当你打出一张符能费用不低于{{A}}{{A}}的卡牌时，抽一张牌。",
       "scope": "当你打出一张符能费用不低于{{A}}{{A}}的卡牌时，抽一张牌。",
-      "status": "missing",
-      "reason": "只有基础约德尔人单位登记；没有打出印刷符能费用至少2的任意卡牌后，独立抽1牌的触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享成功出牌历史在单位、装备或法术真正完成打出时捕获友方监听者，按卡面印刷或复制的符能基础费用至少2逐次独立抽1；费用减免和效果免基础费不改变门槛，资源技能、对手出牌和被无效化的法术不触发。来源离场后保留已捕获技能，冷恢复以原始接受捕获约束删除、篡改和重复。",
+      "rules": "中国区核心206 印刷或复制费用、420.4.a/420.4.a.1 成功打出、702.2.b/702.2.b.2 消耗自身单位的单个增益、383.2/383.4 独立触发、403–407；SFD·100/221 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 4,
-            "sourceUnitTags": "约德尔人",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PRINTED_POWER_CARD_PLAYED",
+              "effect": "DRAW",
+              "amount": 1,
+              "minimumPlayedCardPowerCost": 2
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
           "contains": [
-            "\"SFD·100/221\"",
-            "\"YORDLE_EXPLORER_RUNE_COST_DRAW_PLAY_UNIT\""
+            "PrintedPowerCostRules.ForCard(playedCardNo).Amount",
+            "MinimumPlayedCardPowerCost",
+            "observer.Context.Timing == UnitEventTimings.PrintedPowerCardPlayed"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "observedUnitEventCaptureHash",
+            "original accepted capture",
+            "expected.SetEquals"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CardBoonObserverTests.cs",
+          "methods": [
+            "PrintedPowerCostAcrossUnitsEquipmentAndSpellsControlsTheIndependentDraw",
+            "ACounteredHighPowerSpellDoesNotCompleteAPlayForTheExplorer",
+            "AnEquipmentResourceSkillIsNotAQualifyingCardPlay",
+            "AnOpponentsCardIsNotYourQualifyingCardPlay",
+            "ReturningTheExplorerAfterCaptureLeavesItsEarnedDrawIndependent",
+            "AUnitPlayedByAnEffectStillUsesItsPrintedPowerCostWhenTheBaseCostIsWaived",
+            "RecoveryBindsObservedSkillsToTheirOriginalAcceptedCapture"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -251,39 +267,69 @@
       ],
       "text": "当你消耗一个增益时，打出一个休眠的“金币”装备指示物。",
       "scope": "当你消耗一个增益时，打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "仅实现打出时至多4单位增益；缺少消耗一个增益事件后独立创建休眠金币的触发",
-      "rules": "核心702.2.b 消耗单个增益、383；SFD·101 官方中文牌面",
+      "status": "route",
+      "reason": "增益消耗指令及各费用入口统一捕获当时受控监听者；每实际移除一枚增益独立创建一个休眠金币，保留原有打出时至多四名友方单位增益。付款导致来源战力不足致死时在开放响应前统一清理，已经获得的技能仍可结算；对手消耗不触发。恢复校验绑定原始接受捕获，私有来源标识使用现有投影脱敏。",
+      "rules": "中国区核心206 印刷或复制费用、420.4.a/420.4.a.1 成功打出、702.2.b/702.2.b.2 消耗自身单位的单个增益、383.2/383.4 独立触发、403–407；SFD·101/221 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 7,
-            "requiredTargetCount": 4,
-            "targetScope": "FRIENDLY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "targetRequiredTag": "CARD_TYPE:UNIT",
-            "grantsBoon": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 7,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "grantsBoon": true,
+            "requiredTargetCount": 4,
+            "unitEventAbility": {
+              "timing": "FRIENDLY_BOON_CONSUMED",
+              "effect": "CREATE_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "createdTokenFactoryCardNo": "UNL·T05"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CardBoonObservers.cs",
           "contains": [
-            "\"SFD·101/221\"",
-            "\"FAERIE_DRAGON_PLAY_UNIT_GRANT_UP_TO_FOUR_BOONS\""
+            "private static GameEvent CaptureBoonConsumption",
+            "EffectiveFieldControllerId(zones, card.ObjectId, card) == player",
+            "UnitEventTimings.BoonConsumed"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BoonPlayCosts.cs",
+          "contains": [
+            "CaptureBoonConsumption(new(\"BOON_CONSUMED\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")",
+            "factory.TokenFamilyName, factory.Tags, true, events"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "observedUnitEventCaptureHash",
+            "original accepted capture",
+            "expected.SetEquals"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CardBoonObserverTests.cs",
+          "methods": [
+            "APlayedDragonRetainsItsBoonEntryAndObservesABoonPaidAsASpellCost",
+            "ConsumingTwoBoonsDuringOneResolutionEarnsTwoIndependentGoldSkills",
+            "TheDragonStillEarnsGoldWhenLosingItsOwnBoonMakesMarkedDamageLethal",
+            "ReturningTheDragonAfterConsumptionDoesNotCancelItsGold",
+            "BothPrintedActivationFamiliesCaptureBoonConsumptionBeforeResponses",
+            "AnOpponentsBoonConsumptionDoesNotGiveYourDragonGold",
+            "RecoveryBindsObservedSkillsToTheirOriginalAcceptedCapture"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
