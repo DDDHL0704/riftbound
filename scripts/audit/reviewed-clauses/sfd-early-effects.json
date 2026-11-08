@@ -687,6 +687,12 @@
             "NaturalHoldKeepsItsDrawSkillAndGiantDiscountEvenWhenPointsArePrevented",
             "APreventedConquestPointStillEarnsItsSkillAndConsumesTheScoringAction"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EarlySfdScoringIntegrationTests.cs",
+          "methods": [
+            "AConquestThatEarnsAnAliasedHoldSkillDoesNotDiscountTheGiant"
+          ]
         }
       ]
     },
@@ -838,6 +844,12 @@
             "ThePaidPointSkillChecksTheRestrictionAfterActualReturnResponses",
             "TheFirstBurnoutIsPreventedButCyclicBurnoutContinuesToVictory",
             "APreventedConquestPointStillEarnsTheFourUnitLegendDraw"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EarlySfdScoringIntegrationTests.cs",
+          "methods": [
+            "AConquestThatEarnsAnAliasedHoldSkillDoesNotDiscountTheGiant"
           ]
         }
       ]
