@@ -8,20 +8,68 @@
       ],
       "text": "当我赢得战斗时，打出一个休眠的“金币”装备指示物。",
       "scope": "当我赢得战斗时，打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少战斗获胜打金币及进攻／防守支付红色符能后本回合+2的触发规格和结算",
+      "status": "route",
+      "reason": "通用战斗获胜奖励按已捕获的实际参战赢家创建一枚休眠金币装备；技能在响应前独立确认，来源后续离场、控制或文本变化不改写原始战果",
       "runtime": {
-        "staticAuras": []
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 4
+          }
+        ],
+        "triggers": [
+          {
+            "node": {
+              "kind": "UNIT_BATTLE_WIN_CREATE_DORMANT_GOLD",
+              "timing": "UNIT_BATTLE_WON",
+              "text": "当我赢得战斗时，打出一个休眠的“金币”装备指示物。",
+              "reason": "",
+              "targetScope": "SOURCE_UNIT",
+              "createdTokenCount": 1,
+              "createdTokenName": "金币",
+              "createdTokenDestination": "BASE",
+              "createdTokenExhausted": true
+            },
+            "predicates": [
+              "UnitBattleWinTriggerSpecRules.IsUnitBattleWinDormantGoldTrigger"
+            ]
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/UnitBattleWinTriggerSpecRules.cs",
           "contains": [
-            "\"SFD_020_DRAVEN_VANILLA_PLAY_UNIT\""
+            "IsUnitBattleWinDormantGoldTrigger",
+            "TriggerTimings.UnitBattleWon",
+            "spec.CreatedTokenExhausted == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+          "contains": [
+            "CaptureUnitBattleWinDrawObservations",
+            "CreateLegendEquipmentToken",
+            "spec.CreatedTokenExhausted == true"
           ]
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DravenBloodAxesTests.cs",
+          "methods": [
+            "CombatPaysBeforeResponsesAndTheWinningParticipantCreatesDormantGold",
+            "ABlueOnlyOrEmptyPoolCannotPayTheRedConfirmationCost",
+            "ARealResponseReturningThePaidSourceCannotBuffItsNewHandIncarnation",
+            "ReturningTheActualWinnerDuringResponsesDoesNotCancelItsEarnedGold",
+            "EmptyConquestsAndNonWinningOrNonParticipatingUnitsEarnNoGold",
+            "ActualSongTextPaysSeparatelyAndEarnsTwoIndependentGoldRewards",
+            "ARealImageEarnsGoldWhileTheSamePrintedUnitInBaseDoesNot",
+            "TheSkillControllerGetsGoldWhenTheWinningUnitHasAnotherOwner",
+            "GoldRewardsRequireTheirExactSpecAndOriginalAcceptedBattleResult"
+          ]
+        }
+      ],
       "rules": "核心383.2–383.3；该卡官方中文牌面"
     },
     {
@@ -31,20 +79,70 @@
       ],
       "text": "当我进攻或防守时，你可以选择支付{{红色}}，以此让我在本回合内{{S}}+2。",
       "scope": "当我进攻或防守时，你可以选择支付{{红色}}，以此让我在本回合内{{S}}+2。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少战斗获胜打金币及进攻／防守支付红色符能后本回合+2的触发规格和结算",
+      "status": "route",
+      "reason": "通用进攻／防守事件分别捕获可选支付一红的确认费用，付款后独立入链；结算只为同代场上来源添加本回合+2，离场新实体不能借用旧技能",
       "runtime": {
-        "staticAuras": []
+        "unitEventAbility": {
+          "timing": "ATTACK_OR_DEFEND",
+          "effect": "MIGHT_SELF",
+          "amount": 2,
+          "leadingPowerCost": 1,
+          "leadingPowerTrait": "red",
+          "optional": true
+        },
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "unitEventAbility": {
+              "timing": "ATTACK_OR_DEFEND",
+              "effect": "MIGHT_SELF",
+              "amount": 2,
+              "leadingPowerCost": 1,
+              "leadingPowerTrait": "red",
+              "optional": true
+            }
+          }
+        ]
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
-            "\"SFD_020_DRAVEN_VANILLA_PLAY_UNIT\""
+            "\"SFD_020_DRAVEN_VANILLA_PLAY_UNIT\"",
+            "UnitEventAbility: new(\"ATTACK_OR_DEFEND\", \"MIGHT_SELF\", 2,",
+            "LeadingPowerCost: 1, LeadingPowerTrait: \"red\", Optional: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "LeadingPowerCost",
+            "ValidTriggerCostReceipt"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "MIGHT_SELF"
           ]
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DravenBloodAxesTests.cs",
+          "methods": [
+            "CombatPaysBeforeResponsesAndTheWinningParticipantCreatesDormantGold",
+            "ABlueOnlyOrEmptyPoolCannotPayTheRedConfirmationCost",
+            "ARealResponseReturningThePaidSourceCannotBuffItsNewHandIncarnation",
+            "ReturningTheActualWinnerDuringResponsesDoesNotCancelItsEarnedGold",
+            "EmptyConquestsAndNonWinningOrNonParticipatingUnitsEarnNoGold",
+            "ActualSongTextPaysSeparatelyAndEarnsTwoIndependentGoldRewards",
+            "ARealImageEarnsGoldWhileTheSamePrintedUnitInBaseDoesNot",
+            "TheSkillControllerGetsGoldWhenTheWinningUnitHasAnotherOwner",
+            "GoldRewardsRequireTheirExactSpecAndOriginalAcceptedBattleResult"
+          ]
+        }
+      ],
       "rules": "核心383.2–383.3；该卡官方中文牌面"
     },
     {
