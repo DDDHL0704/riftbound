@@ -20,7 +20,7 @@ public sealed class OfficialCounterRepeatTests
         var played = await Submit(state, command);
         Assert.Equal(2, played.State.StackItems.Last().RepeatExecutions!.Count);
         var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(played.State))!;
-        Assert.Empty(MatchRecoveryValidator.Validate(restored.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), restored, restored.Tick));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(restored));
         var result = await ResolveTop(restored);
         var countered = result.Events.Where(e => e.Kind == "STACK_ITEM_COUNTERED").ToArray();
         Assert.Equal(count, countered.Length);

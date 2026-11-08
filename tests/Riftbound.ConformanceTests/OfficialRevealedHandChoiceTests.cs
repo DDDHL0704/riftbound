@@ -115,7 +115,7 @@ public sealed class OfficialRevealedHandChoiceTests
             var snapshots=ResolutionResult.BuildSnapshots(state);var prompts=ResolutionResult.BuildPrompts(state);
             var views=state.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,state.Tick,0,snapshots[id],state.Tick,0,prompts[id]));
             var frame=MatchReplayRedactor.BuildSpectatorFrame(state.RoomId,state.Tick,0,[],state);
-            var errors = MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, frame);
+            var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, frame);
             Assert.True(errors.Count == 0, string.Join("\n", errors));
         }
     }

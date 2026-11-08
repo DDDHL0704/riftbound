@@ -1379,6 +1379,110 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
     return result("missing", "缺少精确的触发条件、原来源活跃／本回合战力或独立经验结算路径")
 
 
+def confirmed_spell_mana_alternative_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    match = re.fullmatch(r"如果你在本回合消耗了不低于\{\{([1-9][0-9]*)\}\}的费用来打出一个法术则你可以选择支付\{\{(红色|绿色|蓝色|黄色|橙色|紫色)\}\}来将我打出", text)
+    if not match:
+        return None
+    trait = dict(红色="red", 绿色="green", 蓝色="blue", 黄色="yellow", 橙色="orange", 紫色="purple")[match[2]]
+    expected = dict(minimumPaidMana=int(match[1]), power=1, traits=[trait])
+    behaviors = card.get("behaviors", [])
+    exact = clause["kind"] == "rule" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True
+    spec = behaviors[0].get("spellManaAlternativeCost", {}) if len(behaviors) == 1 else {}
+    exact = exact and spec == expected and type(spec.get("minimumPaidMana")) is int and type(spec.get("power")) is int
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        tail = code[start.end():]
+        end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+        return code[start.start():start.end()] + (tail[:end.start()] if end else tail)
+
+    checks = [
+        ("CoreRuleEngine.SpellManaAlternativeCost.cs", "ControllerConfirmedSpellWithPaidMana", [
+            "Finalized: { } plays", "history.TurnNumber == state.TurnNumber", "PaidMana: { } mana",
+            "play.PlayerId == player", "(play.Types & 4) != 0", "mana >= minimum"]),
+        ("CoreRuleEngine.SpellManaAlternativeCost.cs", "SpellManaAlternativePlayBehaviors", [
+            "ControllerConfirmedSpellWithPaidMana(state, player, spec.MinimumPaidMana)",
+            "AppliedSpellManaAlternativeCost = null", "AppliedSpellManaAlternativeCost = payable"]),
+        ("CoreRuleEngine.SpellManaAlternativeCost.cs", "TrySelectSpellManaAlternativeCost", [
+            "chosen.Length != 1", "SpellManaAlternativePlayBehaviors(state, player, behavior)",
+            "SpellManaAlternativeCostChoiceId(cost) == chosen[0].Trim()", "if (variant is null) return false"]),
+        ("CoreRuleEngine.cs", "TryBuildPlayCardPlan", [
+            "TrySelectSpellManaAlternativeCost(state, intent.PlayerId, behavior, command.OptionalCosts,",
+            "out behavior, out var costsWithoutSpellManaAlternative)", "OptionalCosts = costsWithoutSpellManaAlternative",
+            "EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal)",
+            "SpellPlayPowerOptions(state, intent.PlayerId, behavior,", "totalManaCost: totalManaCost",
+            "PaymentCostRules.AuthorizePayment("]),
+        ("CoreRuleEngine.cs", "ResolvePlayCard", [
+            "PaymentCostRules.TryCommitPayment(", "PlayCost = IsSpellPlayBehavior(behavior) ? new(",
+            "behavior.ManaCost, plan.TotalManaCost) : null", "CaptureCardPlayHistory(events[0]",
+            '["playId"] = stackItem.StackItemId', '["mana"] = plan.TotalManaCost']),
+        ("CoreRuleEngine.BattleResultContinuation.cs", "CollectResolutionEffects", [
+            "collected = RecordCardPlayHistory(state, collected)"]),
+        ("CoreRuleEngine.PlayManaCost.cs", "CalculatePlayManaCost", [
+            "behavior.AppliedSpellManaAlternativeCost is not null", "Math.Max(0, additionalMana", "+ increase + spellIncrease"]),
+        ("PrintedPowerCostRules.cs", "ForPlay", [
+            "behavior.AppliedSpellManaAlternativeCost is { } alternative ? new(alternative.Power, alternative.Traits)"]),
+        ("CoreRuleEngine.PlayCostPreview.cs", "PreviewPlayCard", [
+            "TryBuildPlayCardPlan(state,", "plan.Behavior.AppliedSpellManaAlternativeCost is { } alternative",
+            "alternative.Power - PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount"]),
+        ("MatchSession.cs", "PlayCardPromptBehaviorsForSource", [
+            "CoreRuleEngine.SpellManaAlternativePlayBehaviors(state, playerId, behavior)"]),
+        ("MatchSession/Prompts.Metadata.cs", "PlayCardChoices", [
+            "PlayCardPromptBehaviorsForSource(state, playerId, objectId)"]),
+        ("MatchSession.cs", "PlayCardOptionalCostChoicesForBehavior", [
+            "CoreRuleEngine.SpellManaAlternativeCostChoiceId(alternative)"]),
+        ("CoreRuleEngine.CardPlayHistory.cs", "RecordCardPlayHistory", [
+            "PaidMana = !observation.Resolved && (entry.Types & 4) != 0 ? confirmedItem?.PlayCost?.PaidMana : null",
+            "new ConfirmedSpellManaPayment(entry.Source, entry.CardNo, entry.PlayerId,",
+            "entry.PlayId, paidMana, before.TurnNumber, entry.Tick)", "PaidMana = confirmed?.PaidMana",
+            "Tick = !observation.Resolved && entry.PaidMana is not null",
+            "? RuleChoices.Value?.CompletionTick ?? result.State.Tick : result.State.Tick"]),
+        ("SpellManaPaymentHistoryRules.cs", "ValidateOriginalPayments", [
+            "state.CardPlays?.Finalized", 'e.Event.Kind == "CARD_PLAYED"', 'e.Event.Kind == "COST_PAID"',
+            "ReadReceipt(birth.Event)", "c.Accepted", "c.CompletedTick == birth.Tick",
+            "ValidConfirmationOrigin(play, birth!, command, commands, events)",
+            "receipt.Source != play.Source", "receipt.Mana != play.PaidMana",
+            "receipt.TurnNumber != state.TurnNumber", 'Number(payment.Event, "mana") != play.PaidMana']),
+        ("SpellManaPaymentHistoryRules.cs", "ValidConfirmationOrigin", [
+            "if (birth.Tick != play.Tick) return false", "IsOriginalPlay(completed, play, birth)",
+            "command.Accepted && command.CompletedTick < completed.CompletedTick",
+            "IsOriginalPlay(command, play, birth)", "next.StartedTick != previous.CompletedTick",
+            "next.StartedEventSequence != previous.CompletedEventSequence",
+            "next.CommandType != CommandTypes.PayCost",
+            "ReadCommand(next) is not PayCostCommand", "PaymentWindow: CoreRuleEngine.RuleChoiceWindow",
+            "PaymentChoiceIds.Count: 1", 'e.Event.Kind == "RULE_CHOICE_REQUESTED"',
+            'requests.Length != 1 || Text(requests[0].Event, "choiceId") != answer.PaymentId',
+            'Text(requests[0].Event, "playerId") != next.PlayerId', "previous == completed",
+            "IsScenarioPreparation(completed, events)", "play.Tick > completed.StartedTick"]),
+        ("SpellManaPaymentHistoryRules.cs", "IsOriginalPlay", [
+            "command.PlayerId == play.PlayerId", "command.CompletedTick == command.StartedTick + 1",
+            'play.PlayId == $"STACK-{command.CompletedTick}-{play.Source.ObjectId}"',
+            "command.CommandType == CommandTypes.PlayCard", "command.CommandType == CommandTypes.RevealCard",
+            'Flag(birth.Event, "playedFromStandby")', "original.SourceObjectId == play.Source.ObjectId",
+            "original.CardNo == play.CardNo"]),
+        ("SpellManaPaymentHistoryRules.cs", "ReadCommand", [
+            "GameCommandJsonMapper.Map(raw)", "command.TypedCommand?.TryRestore(out var typed)"]),
+        ("SpellManaPaymentHistoryRules.cs", "IsScenarioPreparation", [
+            "command.TypedCommand?.TryScenario(out var typed)", 'e.Event.Kind == "DEV_SCENARIO_SEEDED"',
+            'Text(seeded[0].Event, "scenarioId") == scenario', 'Text(seeded[0].Event, "playerId") == command.PlayerId']),
+        ("MatchRecovery.cs", "ValidateFrame", [
+            "SpellManaPaymentHistoryRules.ValidateOriginalPayments(authoritativeState, commands, events)"]),
+        ("MatchRecovery.cs", "ValidateRecoveryFrameAsync", [
+            "SpellManaPaymentHistoryRules.ValidateOriginalPayments(paymentState, recovery.Commands, recovery.Events)"]),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route", "按本回合施法者确认时的单次实际法力付款解锁显式替代基础费用；共享报价、付款、提示和原始历史恢复",
+                  paths) if exact else result("missing", "缺少精确实际付款门槛、显式替代基础费用或共享报价／付款／原始历史恢复消费者", paths)
+
+
 def token_play_observer_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     if clause["kind"] != "trigger" or clause["scope"] != clause["text"] \
             or normalize(unparenthesize(clause["text"])) != normalize("当你打出一名指示物单位时，让我本回合内{{S}}+1。"):
@@ -1767,6 +1871,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     kind = clause["kind"]
     if conditional := conditional_rune_and_conquest_route(card, clause, sources):
         return conditional
+    if spell_mana_cost := confirmed_spell_mana_alternative_route(card, clause, sources):
+        return spell_mana_cost
     if grant := another_friendly_here_grant_route(card, clause, sources):
         return grant
     if token_play := token_play_observer_route(card, clause, sources):
