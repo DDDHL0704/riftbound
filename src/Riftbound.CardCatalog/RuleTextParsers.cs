@@ -323,6 +323,21 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var battleDraw = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>(?:每)?当我赢得(?:一场)?战斗时，抽(?<count>[0-9一两二三四五六七八九十]+)张牌。)(?:（[^）]*）)?(?=\s*(?:\r?\n|$))",
+            RegexOptions.CultureInvariant);
+        if (battleDraw.Success && ParseChineseNumber(battleDraw.Groups["count"].Value) is > 0 and var battleDrawCount)
+            triggers.Add(new(TriggerKinds.UnitBattleWinDraw, TriggerTimings.UnitBattleWon,
+                battleDraw.Groups["clause"].Value, TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: battleDrawCount));
+        var battleGold = Regex.Match(text,
+            @"(?:^|\r?\n)\s*(?<clause>(?:每)?当我赢得(?:一场)?战斗时，打出(?<count>[0-9一两二三四五六七八九十]+)个休眠的[“「]?金币[”」]?装备指示物。)(?:（[^）]*）)?(?=\s*(?:\r?\n|$))",
+            RegexOptions.CultureInvariant);
+        if (battleGold.Success && ParseChineseNumber(battleGold.Groups["count"].Value) is > 0 and var battleGoldCount)
+            triggers.Add(new(TriggerKinds.UnitBattleWinCreateDormantGold, TriggerTimings.UnitBattleWon,
+                battleGold.Groups["clause"].Value, TargetScope: TriggerTargetScopes.SourceUnit,
+                CreatedTokenCount: battleGoldCount, CreatedTokenName: "金币",
+                CreatedTokenDestination: TriggerZones.Base, CreatedTokenExhausted: true));
+
         var enemyBatchReady = Regex.Match(text,
             @"(?:^|\r?\n)\s*(?<clause>当任意数量的敌方单位被摧毁时，让我变为活跃状态。?)(?=\s*(?:\r?\n|$))", RegexOptions.CultureInvariant);
         if (enemyBatchReady.Success)
@@ -684,6 +699,11 @@ public static class TriggerParser
             triggers.Add(unitLastBreathRuneDrawTrigger);
         }
 
+        if (TryParseUnitLastBreathRecycleSelfReadyAllRunes(text, out var recycledSourceRunes))
+        {
+            triggers.Add(recycledSourceRunes);
+        }
+
         var hasUnitLastBreathCreateDormantGoldTrigger =
             TryParseUnitLastBreathCreateDormantGold(text, out var unitLastBreathCreateDormantGoldTrigger);
         if (hasUnitLastBreathCreateDormantGoldTrigger)
@@ -939,6 +959,20 @@ public static class TriggerParser
             TriggerTimings.UnitDestroyed, match.Value.Trim(),
             "One mandatory last-breath skill calls dormant runes, then draws within the same resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit, RuneCallCount: runes, DrawCount: draws);
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathRecycleSelfReadyAllRunes(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(text,
+            @"(?:^|[\r\n])[ \t]*\{\{绝念>?\}\}\s*[—-]?\s*回收我，以此让你的所有符文变为活跃状态(?=[。（(\r\n]|$)",
+            RegexOptions.CultureInvariant);
+        if (!match.Success) return false;
+        trigger = new(TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes, TriggerTimings.UnitDestroyed,
+            match.Value.Trim(), "CN 383.3.b: recycle the destroyed source while confirming, then ready the controller's runes on resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit, RecycleCount: 1,
+            RecycleSourceZone: TriggerZones.Graveyard, RecycleDestinationZone: TriggerZones.MainDeck);
         return true;
     }
 

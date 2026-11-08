@@ -1315,6 +1315,90 @@ def source_attack_damage_route(card: dict, clause: dict, sources: Sources) -> di
         result('missing', '进攻伤害缺少精确数值来源、目标选择及当前来源位置的独立结算消费者')
 
 
+def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    hidden = text == normalize("当你正面朝下放置一张卡牌时，让我变为活跃状态。")
+    damage = re.fullmatch(r"当你将一张卡牌从正面朝下的状态打出时对一名敌方单位造成([1-9][0-9]*)点伤害", text)
+    if not hidden and not damage:
+        return None
+    behaviors = card.get("behaviors", [])
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True
+    if exact:
+        exact = behaviors[0].get("sourceReadiesWhenControllerHidesCard") is True if hidden else \
+            type(behaviors[0].get("controllerFaceDownPlayEnemyDamage")) is int \
+                and behaviors[0]["controllerFaceDownPlayEnemyDamage"] == int(damage[1])
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        tail = code[start.end():]
+        end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+        return code[start.start():start.end()] + (tail[:end.start()] if end else tail)
+
+    checks = [
+        ("CoreRuleEngine.StandbyUnitObservers.cs", "CaptureStandbyUnitObservers", [
+            "GetControlledFieldUnitObjectIds(zones, cards, controller)", "IsFaceUpNonStandbyUnit(source)",
+            "AttachedRuleTextRules.Instances(zones, cards, source)", "source.ObjectGeneration", "instance.Origin",
+            "behavior.SourceReadiesWhenControllerHidesCard" if hidden else "behavior.ControllerFaceDownPlayEnemyDamage",
+            "StandbyUnitActionHash(action)"]),
+        ("CoreRuleEngine.StandbyObservers.cs", "QueueStandbyPlayedObservers", [
+            "observed with", "CapturedTick = result.State.Tick", "StandbyObserverEventKind(effect)",
+            '["standbyUnitCaptureHash"] = StandbyUnitCaptureHash(context)', "queue.Add(trigger)"]),
+        ("CoreRuleEngine.StandbyObservers.cs", "ValidStandbyObserver", ["ValidStandbyUnitObservation(state, c, effect, source, controller)"]),
+        ("CoreRuleEngine.StandbyObservers.cs", "ResolveStandbyObserver", ["ResolveStandbyUnitObserver(state, item)"]),
+        ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
+            "if (stackItem.StandbyObserver is not null) return ResolveStandbyObserver(state, stackItem)"]),
+        ("CoreRuleEngine.StandbyUnitObservers.cs", "ValidStandbyUnitObservation", [
+            "birth.ControllerId", "birth.CapturedTick > state.Tick", "AttachedRuleTextRules.ValidCaptured(",
+            "PredictBindingMatches(state, context.Source", 'birth.RuleTextInstanceId == $"PRINTED:']),
+        ("CoreRuleEngine.StandbyUnitObservers.cs", "ResolveStandbyUnitObserver", [
+            "ValidStandbyUnitObserverStack(state, item)", "source.ObjectGeneration == context.Source.Generation",
+            "ApplyReadyState(source," if hidden else "ApplySpellSkillDamageBonuses(state, item.ControllerId, target,",
+            "CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)" if hidden else "ApplyDamageToCardObject(state, cards, item.ControllerId, target,",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)" if hidden else "RunStateBasedCleanupLoop(state, zones, cards, item,"]),
+        ("MatchRecovery.cs", "ValidateTurnSequenceState", [
+            "CoreRuleEngine.ValidStandbyUnitObserverStack(state, item)", "CoreRuleEngine.StandbyObserverEventKind(trigger.EffectKind)"]),
+        ("MatchRecovery.cs", "ValidateFrame", ["ValidateStandbyUnitObserverHistory(authoritativeState, commands, events, errors)"]),
+        ("MatchRecovery.StandbyUnitObservers.cs", "ValidateStandbyUnitObserverHistory", [
+            'ev.Event.Kind == "TRIGGER_QUEUED"', "CoreRuleEngine.StandbyUnitCaptureHash(context)",
+            "command.Accepted", "command.CompletedTick == queued[0].Tick", "CoreRuleEngine.StandbyUnitActionHash(action.Event) == birth.ActionHash"]),
+    ]
+    if hidden:
+        checks += [
+            ("CoreRuleEngine.Standby.cs", "ResolveStandbyHide", ["QueueStandbyHiddenUnitObservers(QueueStandbyHiddenTokens("]),
+            ("CoreRuleEngine.StandbyUnitObservers.cs", "QueueStandbyHiddenUnitObservers", [
+                'action.Kind != "CARD_HIDDEN"', "StandbyHiddenReadyEffect", "QueueStandbyPlayedObservers(result with"]),
+        ]
+    else:
+        checks += [
+            ("CoreRuleEngine.StandbyObservers.cs", "CaptureStandbyPlayed", ["CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEnemyDamageEffect)"]),
+            ("CoreRuleEngine.BattleResultContinuation.cs", "CollectResolutionEffects", ["collected = QueueStandbyPlayedObservers(collected)"]),
+            ("CoreRuleEngine.cs", "PlaySourceEquipmentToBase", ["CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId)"]),
+            ("CoreRuleEngine.cs", "ResolvePlayCard", ["CaptureStandbyPlayed(events[index], playerZones, cardObjects, intent.PlayerId)"]),
+            ("CoreRuleEngine.UnitEntryTriggers.cs", "CaptureUnitEntry", ["CaptureStandbyPlayed(ev, zones, cards, player)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["StandbyPlayedEnemyDamageEffect", "i.TargetGenerations is null"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "PrepareTriggerConfirmation", ["PrepareStandbyUnitDamage(result, item)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "ValidTriggerChoice", ["ValidStandbyUnitDamageChoice(state, choice)"]),
+            ("CoreRuleEngine.TriggerTargetPayment.cs", "ValidTriggerTargetPayment", ["StandbyPlayedEnemyDamageEffect && ValidStandbyUnitObserverStack(state, item)"]),
+            ("CoreRuleEngine.TriggerTargetPayment.cs", "ResolveTriggerTargetPayment", ["StandbyUnitDamageTargets(state, item)"]),
+            ("CoreRuleEngine.StandbyUnitObservers.cs", "StandbyUnitDamageTargets", [
+                "EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) != item.ControllerId",
+                "TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, card.ObjectId)"]),
+            ("MatchRecovery.StandbyUnitObservers.cs", "ValidateStandbyUnitObserverHistory", [
+                '"PAYMENT_WINDOW_OPENED" : "TRIGGER_CONFIRMED"', '"targetGenerations"',
+                "MatchStateHasher.HashValue(item.TargetGenerations)"]),
+        ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route" if exact else "missing", "按实际藏匿／背面打出行动捕获控制者、来源及每份复制文本，独立确认并结算；恢复核对原始行动与目标代次"
+                  if exact else "缺少精确的待命行动监听规格、独立结算、目标付款或原始历史核验消费者", paths)
+
+
 def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     match = re.fullmatch(r"如果我处于战斗中则所有友方法术的费用减少\{\{([1-9][0-9]*)\}\}和\{\{A\}\}不得低于\{\{([0-9]+)\}\}而所有敌方法术的费用增加\{\{([1-9][0-9]*)\}\}和\{\{A\}\}", text)
@@ -1381,6 +1465,91 @@ def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict 
     paths = sorted({prefix + filename for filename, _, _ in checks})
     return result("route", "按当前来源战斗身份、控制者与复制文本重算双方的共享法术总费用；增费先于减费，保留各减费的法力下限与符能分配", paths) \
         if exact else result("missing", "缺少精确的来源战斗条件、友敌双方费用规格或实际共享报价／付款消费者", paths)
+
+
+def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    if text != normalize("当你{{眩晕}}战场上的一名敌方单位时，你可以选择将我移动到该战场。"):
+        return None
+    behaviors = card.get("behaviors", [])
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True \
+        and behaviors[0].get("sourceMayMoveToStunnedEnemyBattlefield") is True
+    prefix = "src/Riftbound.Engine/"
+
+    def members(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        starts = re.finditer(r"(?m)^    (?:private|internal|public) (?:static )?[^\n{;=]*\b" + re.escape(name) + r"\s*\(", code)
+        bodies = []
+        for match in starts:
+            tail = code[match.end():]
+            end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+            bodies.append(code[match.start():match.end()] + (tail[:end.start()] if end else tail))
+        return bodies
+
+    checks = [
+        ("CoreRuleEngine.StunObservers.cs", "StunMoveSourceBehavior", ["behavior.SourceMayMoveToStunnedEnemyBattlefield"]),
+        ("CoreRuleEngine.StunObservers.cs", "CaptureStunObservers", [
+            'var actor = cause.ControllerId', '["stunningPlayerId"] = actor',
+            "!IsEnemyFieldUnit(zones, cards, actor, targetId)", 'at.Zone == "BATTLEFIELD"',
+            "fieldCard.ObjectGeneration", "GetControlledFieldUnitObjectIds(zones, cards, actor)",
+            "IsFaceUpNonStandbyUnit(source)", "AttachedRuleTextRules.Instances(zones, cards, source)",
+            "field is not null && StunMoveSourceBehavior(instance.CardNo)", "StunMoveSourceKind)",
+            "Battlefield: kind == StunMoveSourceKind ? field : null"]),
+        ("CoreRuleEngine.StunObservers.cs", "QueueStunObservers", [
+            "capture.Context", "context.Kind == StunMoveSourceKind ? result.State.Tick",
+            "queue.Add(trigger)", '["stunSourceMovementCaptureHash"] = StunSourceMovementCaptureHash(context)']),
+        ("CoreRuleEngine.BattleResultContinuation.cs", "CollectResolutionEffects", ["QueueStunObservers(state, result)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", ["item.FieldContext?.Kind == StunMoveSourceKind ? new()"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidLeadingCostContext", ["StunMoveSourceKind ? ValidStunSourceMovementStack(item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices", [
+            "Kind: StunMoveSourceKind", "ValidLeadingCostContext(item)", "ValidFieldContextState(state, movement,",
+            "? [item.SourceObjectId] : []"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoice", ["? OptionalTriggerWindow : TriggerCostWindow"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostChoice", ["item.FieldContext?.Kind != StunMoveSourceKind"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostSourceGeneration", ["item.FieldContext?.SourceGeneration"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostReceipt", ["ValidStunSourceMovementStack(item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "CompleteTriggerCost", ["EquipmentDeathReturnKind or StunMoveSourceKind",
+            "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["StunMoveSourceKind"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "ResolveFieldTrigger", ["IsStunObserverKind(observer.Kind)", "ResolveStunObserver(state, item)"]),
+        ("CoreRuleEngine.StunObservers.cs", "ResolveStunObserver", ["context.Kind == StunMoveSourceKind) return ResolveStunSourceMovement(state, item)"]),
+        ("CoreRuleEngine.StunSourceMovement.cs", "ValidStunSourceMovementStack", [
+            "ValidStunObserverShape(context, item.EffectKind, item.CardNo)", "context.StunObserver.Actor == item.ControllerId",
+            "item.TargetObjectIds.Count == 0 && item.TargetGenerations is null", "!item.SourceConfirmed"]),
+        ("CoreRuleEngine.StunSourceMovement.cs", "ResolveStunSourceMovement", [
+            "!ValidStunSourceMovementStack(item)", "!ValidTriggerCostReceipt(state, item)",
+            "source.ObjectGeneration != birth.Source.Generation", "battlefield.ObjectGeneration != field.Generation",
+            "IsFaceUpNonStandbyUnit(source)", "TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, source.ObjectId,",
+            'new(item.ControllerId, "BATTLEFIELD", field.ObjectId)', "RunStateBasedCleanupLoop(state, zones, cards, item, pools,"]),
+        ("MatchRecovery.StunSourceMovement.cs", "HasCapturedStunSourceMovement", ["CoreRuleEngine.ValidFieldContextState(state, context,"]),
+        ("MatchRecovery.StunSourceMovement.cs", "ValidateStunSourceMovementHistory", [
+            "CoreRuleEngine.StunSourceMovementCaptureHash(entry.Context)", '"stunSourceMovementCaptureHash"',
+            "command.Accepted", "command.CompletedTick == queued[0].Tick", '"stunningPlayerId"',
+            "target == origin.Stunned.ObjectId", '"STUNNED"', "CommandTypes.ChooseCards",
+            '"TRIGGER-COST:" + item.StackItemId', "window == CoreRuleEngine.OptionalTriggerWindow",
+            "selected.SequenceEqual(new[] { item.SourceObjectId })"]),
+        ("MatchRecovery.cs", "ValidateFrame", ["ValidateStunSourceMovementHistory(authoritativeState, commands, events, errors)"]),
+        ("MatchRecovery.cs", "ValidateSpellContinuations", ["CoreRuleEngine.ValidStunSourceMovementStack(item)"]),
+        ("MatchRecovery.cs", "CapturedBattleSourceIsPrivate", ["HasCapturedStunSourceMovement(state, item)"]),
+    ]
+    for filename, name in [
+            ("CoreRuleEngine.BorrowedExhaust.cs", "ResolveBorrowedExhaustStack"),
+            ("CoreRuleEngine.MovedEnemyStun.cs", "ResolveMovedEnemyStun"),
+            ("CoreRuleEngine.PaidUnitStun.cs", "ResolvePaidUnitStun"),
+            ("CoreRuleEngine.SimpleActivatedAbilities.cs", "ResolveSimpleActivationEffect"),
+            ("CoreRuleEngine.TargetedPowerAbility.cs", "ResolveTargetedPowerModifierAbilityStackItem"),
+            ("CoreRuleEngine.UnitEntryTriggers.cs", "ResolveUnitEntryTrigger"),
+            ("CoreRuleEngine.UnitEventBoonInstructions.cs", "ApplyUnitEventStun"),
+            ("CoreRuleEngine.cs", "ResolveStackItemEffectCore"),
+            ("CoreRuleEngine.cs", "ResolveShadowStunAbilityStackItem")]:
+        checks.append((filename, name, ["CaptureStunObservers("]))
+    exact = exact and all((bodies := members(filename, name))
+        and all(all(token in body for token in tokens) for body in bodies) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route" if exact else "missing", "共享眩晕观察按施加者捕获敌方战场、来源及每份文本；独立可选确认后通过效果移动，恢复核对原始眩晕和答复"
+        if exact else "缺少精确的眩晕敌方战场条件、来源独立移动确认、效果移动或原始历史核验消费者", paths)
 
 
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
@@ -1931,15 +2100,412 @@ def boon_mode_activation_route(card: dict, clause: dict, sources: Sources) -> di
                   paths)
 
 
+def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize('当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。')
+    if normalize(unparenthesize(clause['text'])) != sentence:
+        return None
+    tags = ['鸟类', '猫科', '犬形', '魄罗']
+    modes = {'CHOOSE_BIRD': '鸟类', 'CHOOSE_CAT': '猫科', 'CHOOSE_DOG': '犬形', 'CHOOSE_PORO': '魄罗'}
+    profiles = card.get('behaviors', [])
+    expected = dict(timing='CONQUEST_OR_HOLD', effect='SCORE_IF_FRIENDLY_UNITS_HAVE_ALL_TAGS',
+                    amount=1, requiredFriendlyUnitTagsForScore=tags)
+    def exact_profile(profile):
+        spec = profile.get('unitEventAbility')
+        return isinstance(spec, dict) and inventory_contains(spec, expected) \
+            and len(spec['requiredFriendlyUnitTagsForScore']) == len(tags) \
+            and profile.get('playsSourceToBaseAsUnit') is True \
+            and profile.get('sourceUnitTags') == modes.get(profile.get('mode')) \
+            and not any(meaningful(v) for k, v in spec.items() if k not in expected)
+
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == sentence \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and isinstance(profiles, list) and len(profiles) == 4 \
+        and all(isinstance(p, dict) and type(p.get('mode')) is str for p in profiles) \
+        and {p.get('mode') for p in profiles} == set(modes)
+    exact = exact and all(exact_profile(p) for p in profiles)
+    prefix = 'src/Riftbound.Engine/'
+
+    def members(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        starts = re.finditer(r'(?m)^    (?:private|internal|public) (?:static )?[^\n{;=]*\b'
+                            + re.escape(name) + r'\s*\(', code)
+        bodies = []
+        for match in starts:
+            tail = code[match.end():]
+            end = re.search(r'(?m)^    (?:private|internal|public) ', tail)
+            bodies.append(code[match.start():match.end()] + (tail[:end.start()] if end else tail))
+        return bodies
+
+    checks = [
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', [
+            'IsFaceUpNonStandbyUnit(card)', 'IsObjectOnField(zones, id)',
+            'AttachedRuleTextRules.Instances(zones, cards, card)', 'UnitEventTimingMatches(spec.Timing, timing)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestUnitEvents', ['CaptureConquestEventObservations(state, conquerors)']),
+        ('CoreRuleEngine.Conquest.cs', 'ResolveConquestTriggerEffects', [
+            'CaptureConquestUnitEvents(state with', 'conqueringUnitObjectIds, resolutionTick, playerId, battlefieldId)',
+            'events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent))']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTrigger', [
+            'observation.Controller, observation.Source, UnitEventEffect, eventKind, timing',
+            'UnitEvent = captured with { CapturedTick = captured.CapturedTick > 0 ? captured.CapturedTick : tick }']),
+        ('CoreRuleEngine.cs', 'BuildTriggerQueuedEvent', [
+            'TimingCaptureContext(trigger)', 'payload["timingCaptureHash"] = TimingCaptureHash(timingContext, trigger.TimingAlias)']),
+        ('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureConquestEventObservations', [
+            'CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")']),
+        ('CoreRuleEngine.Hold.cs', 'QueueHeldAbilities', [
+            'HeldUnitsAt(state, field, player)', 'CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")',
+            'UnitEventTrigger(observation,', 'Add(trigger)']),
+        ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', ['QueueUnitEvents(state, result)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'QueueUnitEvents', [
+            'UnitEventTrigger(captured, result.State.Tick,', 'queue.Add(trigger)', 'BuildTriggerQueuedEvent(trigger)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', [
+            'ResolveUnitEventInstruction(state, item)', 'ResolutionResult.VisibleObjectIdForViewer(']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'ValidUnitEvent(state, context,', 'SelectedUnitEventSpec(context)',
+            'spec.Effect == FriendlyUnitTraitScoreEffect', 'ResolveFriendlyUnitTraitScore(state, item, spec)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
+            'SelectedUnitEventSpec(traitScore)?.Effect == FriendlyUnitTraitScoreEffect',
+            'ValidFriendlyUnitTraitScoreStack(item)']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'IsFriendlyUnitTraitScoreSpec', [
+            'Effect: FriendlyUnitTraitScoreEffect, Amount: > 0', 'RequiredFriendlyUnitTagsForScore: { Count: > 0 } tags',
+            'tags.Distinct(StringComparer.Ordinal).Count() == tags.Count']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'HasRequiredFriendlyUnitTags', [
+            'GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)',
+            'Where(card => IsFaceUpNonStandbyUnit(card))', 'SelectMany(card => card.Tags)', 'required.All(tags.Contains)']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'ResolveFriendlyUnitTraitScore', [
+            'ValidFriendlyUnitTraitScoreStack(item)',
+            'HasRequiredFriendlyUnitTags(state, item.ControllerId, spec.RequiredFriendlyUnitTagsForScore!)',
+            '? ResolveUnitEventPointGain(state, item, spec.Amount)', ': NoopStackResolutionResult(state)']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'ValidFriendlyUnitTraitScoreStack', [
+            'item.TargetObjectIds.Count == 0 && item.TargetGenerations is null',
+            'item.TriggerCost is null && item.DamageAmount == 0 && item.EffectRepeatCount == 1']),
+        ('CoreRuleEngine.UnitTraitScore.cs', 'ResolveUnitEventPointGain', [
+            'TryPreventPointGain(state, item.ControllerId, amount,',
+            'NormalizeScoresForSeats(state)', 'scores[item.ControllerId] += amount',
+            'scores[item.ControllerId] >= EffectiveWinningScore(state)',
+            'ResolutionResult.VisibleObjectIdForViewer(']),
+        ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext', []),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'BattlefieldTimingContinuations', [
+            'CoreRuleEngine.TimingCaptureContext(trigger)', 'CoreRuleEngine.TimingCaptureContext(item)']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'ValidateBattlefieldTimingHistory', [
+            'BattlefieldTimingContinuations(state)', '"timingCaptureHash"',
+            'CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)', 'c.Accepted && c.CompletedTick == queued[0].Tick',
+            '"TRIGGERS_MOVED_TO_STACK"', 'e.Event.Kind == "TOKEN_CEASED_TO_EXIST"',
+            'e.Tick >= ceasedUnit.CapturedTick', 'target == item.Source',
+            'c.Accepted && c.CompletedTick == e.Tick']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'HasValidatedCeasedBattlefieldUnitEventSource', [
+            'state.CardObjects.ContainsKey(source)', 'P6TokenFactoryCatalog.IsTokenFactory(token)',
+            'CoreRuleEngine.TimingCaptureContext(stack) is UnitEventContext',
+            'CoreRuleEngine.ValidUnitEvent(state, context, stack.EffectKind, source, stack.CardNo, controller)',
+            'CoreRuleEngine.ValidUnitEventTargets(stack)']),
+        ('MatchRecovery.cs', 'ValidateSpectatorSnapshotStackObjectReferences', [
+            'HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, stackItemId,']),
+        ('MatchRecovery.cs', 'ValidateSnapshotTimingTriggerQueuePayloadValues', [
+            'HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId,']),
+        ('MatchRecovery.cs', 'ValidateSpectatorTriggerQueuePayloadValues', [
+            'HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId,']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors)']),
+    ]
+    exact = exact and all((bodies := members(filename, name))
+        and all(all(token in body for token in tokens) for body in bodies) for filename, name, tokens in checks)
+    exact = exact and any('UnitEventTimingMatches(unitEvent.Timing, "HOLD")' in body
+        and 'UnitEventTimingMatches(unitEvent.Timing, "CONQUEST")' in body and '? unitEvent : null' in body
+        for body in members('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext'))
+    # A precondition at capture would miss a tag supplied by an actual response.
+    exact = exact and all('HasRequiredFriendlyUnitTags(' not in body
+        for filename, name in [('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents'),
+                               ('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureConquestEventObservations'),
+                               ('CoreRuleEngine.Hold.cs', 'QueueHeldAbilities')]
+        for body in members(filename, name))
+    return result('route' if exact else 'missing',
+        '共享征服／坚守按每份文本独立捕获；结算时检查当前公开友方场上单位的四类标签，经得分限制与胜负消费者，并核验原始时机捕获'
+        if exact else '缺少每份文本的征服／坚守独立捕获、结算时当前友方四类标签检查或共享得分／原始历史消费者',
+        sorted({prefix + filename for filename, _, _ in checks}))
+
+
+def last_breath_recycle_runes_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize("{{绝念}}—回收我，以此让你的所有符文变为活跃状态。")
+    if normalize(unparenthesize(clause["text"])) != sentence:
+        return None
+    expected = dict(kind="UNIT_LAST_BREATH_RECYCLE_SELF_READY_ALL_RUNES", timing="UNIT_DESTROYED",
+                    targetScope="SOURCE_UNIT", recycleCount=1, recycleSourceZone="GRAVEYARD",
+                    recycleDestinationZone="MAIN_DECK", runeReadyCount=None, runeCallCount=None, drawCount=None)
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == sentence \
+        and card.get("cardCategory") in {"unit", "hero_unit"} \
+        and any(b.get("playsSourceToBaseAsUnit") for b in card.get("behaviors", []))
+    exact = exact and any(
+        all(entry.get("node", {}).get(k) == v for k, v in expected.items())
+        and normalize(unparenthesize(entry["node"].get("text", ""))) == sentence
+        and not any(meaningful(v) for k, v in entry["node"].items() if k not in {*expected, "text", "reason"})
+        and "UnitDestroyedTriggerSpecRules.IsLastBreathRecycleSelfReadyAllRunesTrigger" in entry.get("predicates", [])
+        for entry in card.get("triggers", []))
+
+    def member(path, name, class_marker=None):
+        if path in sources.files:
+            code = sources.files[path]
+        elif path == "src/Riftbound.CardCatalog/RuleTextParsers.cs":
+            try:
+                code = re.sub(r"/\*.*?\*/|//[^\n]*", "", (sources.root / path).read_text(), flags=re.S)
+            except OSError:
+                code = ""
+        else:
+            code = ""
+        if class_marker:
+            code = code.split(class_marker, 1)[-1]
+        start = re.search(r"(?m)^    (?:private|internal|public) static [^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        rest = code[start.start():]
+        end = re.search(r"(?m)^    (?:private|internal|public) static ", rest[start.end() - start.start():])
+        return rest[:start.end() - start.start() + end.start()] if end else rest
+
+    engine = "src/Riftbound.Engine/"
+    checks = [
+        ("CoreRuleEngine.DeathObservers.cs", "CaptureUnitDeath", [
+            "RuneCalls = CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId)"]),
+        ("CoreRuleEngine.LastBreathRuneCall.cs", "CaptureLastBreathRuneCalls", [
+            "UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(instance.CardNo)", "before.ObjectGeneration"]),
+        ("UnitDestroyedTriggerSpecRules.cs", "LastBreathRuneCallTriggers", [
+            "IsLastBreathRecycleSelfReadyAllRunesTrigger(t)"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["NeedsTriggerCostConfirmation(i)"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "PrepareTriggerConfirmation", [
+            "state.StackItems.FirstOrDefault(NeedsTriggerConfirmation)",
+            "if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "PrepareTriggerCostConfirmation", [
+            "TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyPermanents)",
+            "return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item))",
+            "PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", [
+            "HasLastBreathSourceRecycleCost(item) ? new(RecycleSelf: true)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices", ["LastBreathSourceRecycleChoices(state, item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoice", ["RecycleSelf: false", "? OptionalTriggerWindow : TriggerCostWindow"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostChoice", ["!HasLastBreathSourceRecycleCost(item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostSourceGeneration", ["item.LastBreathRuneCall!.Source.Generation + 1"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ResolveTriggerCostChoice", ["PayLastBreathSourceRecycleCost(state, item, selected)"]),
+        ("CoreRuleEngine.TriggerRecycleCost.cs", "HasLastBreathSourceRecycleCost", [
+            "TryGetLastBreathRuneCallSpec(context, out var spec)", "IsLastBreathRecycleSelfReadyAllRunesTrigger(spec)"]),
+        ("CoreRuleEngine.TriggerRecycleCost.cs", "LastBreathSourceRecycleChoices", [
+            "ValidLastBreathRuneCallStack(state, item)", "IsTokenObject(source)",
+            "source.ObjectGeneration != TriggerCostSourceGeneration(item)", "owner.Graveyard.Contains(source.ObjectId"]),
+        ("CoreRuleEngine.TriggerRecycleCost.cs", "PayLastBreathSourceRecycleCost", [
+            "selected.Count != 1", "selected.SequenceEqual(LastBreathSourceRecycleChoices(state, item))",
+            "RecycleGraveyardCards(state, zones, cards, source.OwnerId!, source.ObjectId,",
+            "recyclingPlayerId: item.ControllerId", "SourceWasRecycled = true", "return CompleteTriggerCost("]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostReceipt", [
+            "receipt.Source.Generation != TriggerCostSourceGeneration(item)", "receipt.SourceWasRecycled != cost.RecycleSelf",
+            "recycled.ObjectGeneration <= receipt.Source.Generation"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "CompleteTriggerCost", [
+            "HasLastBreathSourceRecycleCost(item) ? ResolutionResult.VisibleObjectIdForViewer("]),
+        ("CoreRuleEngine.cs", "ResolveChooseCardsRuntime", [
+            "if (pendingChoice.ChoiceWindow is TriggerCostWindow or OptionalTriggerWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds)"]),
+        ("CoreRuleEngine.cs", "ApplyReadyState", [
+            "ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, targetState)", "IsExhausted = false",
+            "CaptureReadiedObject(playerZones, cardObjects, targetState)", "return nextTargetState"]),
+        ("CoreRuleEngine.cs", "RecycleGraveyardCards", [
+            "recyclingPlayerId ?? playerId", "MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray()",
+            ".Where(objectId => !recycledSet.Contains(objectId))", "CaptureRecycleObservers(new GameEvent("]),
+        ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
+            "or TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes", "return ResolveUnitLastBreathCallRuneStackItem(state, stackItem)"]),
+        ("CoreRuleEngine.cs", "ResolveUnitLastBreathCallRuneStackItem", [
+            "stackItem.EffectKind == TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes", "return ResolveLastBreathReadyAllRunes(state, stackItem)"]),
+        ("CoreRuleEngine.LastBreathRuneCall.cs", "ResolveLastBreathReadyAllRunes", [
+            "item.TriggerCost is not { SourceWasRecycled: true }", "ValidTriggerCostReceipt(state, item)",
+            "z.Base.Concat(z.Battlefields)", "CardObjectTags.RuneCard", "!rune.IsFaceDown",
+            "EffectiveFieldControllerId(zones, id, rune) == item.ControllerId",
+            "ApplyReadyState(cards[id], behavior, visible, id", "ResolutionResult.VisibleObjectIdForViewer("]),
+        ("MatchRecovery.cs", "Validate", ["ValidateFrame("]),
+        ("MatchRecovery.cs", "ValidateFrame", ["ValidateLastBreathRecycleCostHistory(authoritativeState, commands, events, errors)"]),
+        ("MatchRecovery.LastBreathRecycleCost.cs", "ValidateLastBreathRecycleCostHistory", [
+            'e.Event.Kind == "CARDS_RECYCLED"', '"sourceGeneration"', '"deathId"', '"cardIds"',
+            'e.Event.Kind == "TRIGGER_CONFIRMED"', "command.Accepted", "CommandTypes.ChooseCards",
+            "command.CompletedTick == recycled[0].Tick", "command.CompletedEventSequence >= confirmed[0].Sequence",
+            "choices[0].Trim() == receipt.Source.ObjectId"]),
+    ]
+    exact = exact and all(all(token in member(engine + file, name) for token in tokens)
+                          for file, name, tokens in checks)
+    parser = "src/Riftbound.CardCatalog/RuleTextParsers.cs"
+    exact = exact and "TryParseUnitLastBreathRecycleSelfReadyAllRunes(text, out var recycledSourceRunes)" \
+        in member(parser, "Parse", "public static class TriggerParser")
+    exact = exact and "UnitLastBreathRecycleSelfReadyAllRunes" \
+        in sources.files.get(engine + "MatchRecovery.LastBreathRuneCall.cs", "")
+    evidence = sorted({engine + file for file, _, _ in checks} | {parser})
+    return result("route", "确认时回收同一死亡后的原来源，保留已付历史，响应后活跃技能控制者当前场上全部符文", evidence) if exact else result(
+        "missing", "缺少原死亡废牌代际的回收确认费用、已接受付款凭据或全部当前友方场上符文的独立活跃结算", evidence)
+
+
+def battle_win_and_paid_combat_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    paid_text = normalize("当我进攻或防守时，你可以选择支付{{红色}}，以此让我在本回合内{{S}}+2。")
+    gold_text = normalize("当我赢得战斗时，打出一个休眠的“金币”装备指示物。")
+    draw = re.fullmatch(r"每?当我赢得(?:一场)?战斗时抽([一两二三四五六七八九十0-9]+)张牌", text)
+    if text not in {paid_text, gold_text} and not draw:
+        return None
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} \
+        and any(b.get("playsSourceToBaseAsUnit") for b in card.get("behaviors", []))
+    engine = "src/Riftbound.Engine/"
+
+    def member(path, name, class_marker=None):
+        code = sources.files.get(path, "")
+        if not code and path == "src/Riftbound.CardCatalog/RuleTextParsers.cs":
+            try:
+                code = re.sub(r"/\*.*?\*/|//[^\n]*", "", (sources.root / path).read_text(), flags=re.S)
+            except OSError:
+                pass
+        if class_marker:
+            if class_marker not in code:
+                return ""
+            code = code.split(class_marker, 1)[1]
+        start = re.search(r"(?m)^    (?:private|internal|public) static [^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        rest = code[start.start():]
+        end = re.search(r"(?m)^    (?:private|internal|public) static ", rest[start.end() - start.start():])
+        return rest[:start.end() - start.start() + end.start()] if end else rest
+
+    checks = []
+    if text == paid_text:
+        expected = dict(timing="ATTACK_OR_DEFEND", effect="MIGHT_SELF", amount=2,
+                        leadingPowerCost=1, leadingPowerTrait="red", optional=True)
+        event = card.get("unitEventAbility") or {}
+        exact = exact and all(event.get(k) == v for k, v in expected.items()) \
+            and not any(meaningful(v) for k, v in event.items() if k not in expected)
+        checks = [
+            ("CoreRuleEngine.UnitEvents.cs", "UnitEventSpec", ["card.UnitEventAbility"]),
+            ("CoreRuleEngine.UnitEvents.cs", "CaptureUnitEvents", [
+                "AttachedRuleTextRules.Instances(zones, cards, card)", "UnitEventTimingMatches(spec.Timing, timing)"]),
+            ("CoreRuleEngine.UnitEvents.cs", "UnitEventTimingMatches", [
+                'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal)']),
+            ("CoreRuleEngine.BattleStartRoles.cs", "RecordBattleDuelRoles", ["CaptureAttackUnitEvents(", "CaptureRoleUnitEvents("]),
+            ("CoreRuleEngine.UnitEvents.cs", "CaptureAttackUnitEvents", [
+                'CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")']),
+            ("CoreRuleEngine.UnitEvents.cs", "CaptureRoleUnitEvents", [
+                "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["NeedsTriggerCostConfirmation(i)"]),
+            ("CoreRuleEngine.FieldTriggers.cs", "PrepareTriggerConfirmation", [
+                "state.StackItems.FirstOrDefault(NeedsTriggerConfirmation)",
+                "if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", [
+                "SelectedUnitEventSpec(unitEvent)", "Power: eventSpec.LeadingPowerCost", "PowerTrait: eventSpec.LeadingPowerTrait"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "PrepareTriggerCostConfirmation", [
+                "PendingPayment = cost.Power + cost.Mana > 0 ? TriggerCostPayment(item) : null"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostPayment", [
+                "TriggerCostWindow, item.ControllerId", "powerCost: LeadingTriggerCost(item)!.Power",
+                "powerCostByTrait: LeadingTriggerCost(item)!.PowerTrait", 'legalPaymentChoiceIds: ["PAY", "DECLINE"]']),
+            ("CoreRuleEngine.cs", "ResolvePendingPayCost", [
+                "intent.PlayerId, pendingPayment.PlayerId", "pendingPayment.PaymentWindow == TriggerCostWindow",
+                "return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count)"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "ResolveTriggerCostPayment", [
+                'choices[0] == "DECLINE"', "CompleteTriggerCost(state, item, null, [])",
+                "powerCostByTrait: pending.PowerCostByTrait", "PaymentCostRules.TryCommitPayment(",
+                "RunePools = committed.RunePools", "Power: pending.PowerCost", "return CompleteTriggerCost(paid, item"]),
+            ("CoreRuleEngine.TriggerCosts.cs", "CompleteTriggerCost", [
+                "item with { TriggerCost = receipt }", '"TRIGGER_CONFIRMED"']),
+            ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostReceipt", [
+                "receipt.Source.Generation != TriggerCostSourceGeneration(item)", "receipt.Power == cost.Power"]),
+            ("CoreRuleEngine.UnitEvents.cs", "ResolveUnitEvent", ["ResolveUnitEventInstruction(state, item)"]),
+            ("CoreRuleEngine.UnitEvents.cs", "ResolveUnitEventInstruction", [
+                'spec.Effect == "MIGHT_SELF"', "source.ObjectGeneration == context.SourceGeneration",
+                "IsObjectOnField(zones, source.ObjectId)", "ApplyDirectUntilEndPowerModifier(",
+                "spec.Amount, source.Power + spec.Amount"]),
+            ("CoreRuleEngine.cs", "ApplyDirectUntilEndPowerModifier", [
+                '"UNTIL_END_OF_TURN"', "Power = resultingPower", "UntilEndOfTurnPowerModifiers = powerModifierLedger"]),
+            ("CoreRuleEngine.cs", "ApplyTurnEndCleanup", [
+                "Power = objectState.Power - objectState.UntilEndOfTurnPowerModifier", "UntilEndOfTurnPowerModifiers = []"]),
+        ]
+        description = "进攻／防守时按原来源确认可选红色费用，响应后给予同代场上来源本回合+2"
+    else:
+        gold = text == gold_text
+        digits = dict(zip("一二三四五六七八九十", range(1, 11)), 两=2)
+        count = 1 if gold else int(draw[1]) if draw[1].isdigit() else digits.get(draw[1])
+        exact = exact and count is not None and count > 0
+        expected = dict(kind="UNIT_BATTLE_WIN_CREATE_DORMANT_GOLD" if gold else "UNIT_BATTLE_WIN_DRAW",
+                        timing="UNIT_BATTLE_WON", targetScope="SOURCE_UNIT")
+        expected.update(dict(createdTokenCount=1, createdTokenName="金币", createdTokenDestination="BASE", createdTokenExhausted=True)
+                        if gold else dict(drawCount=count))
+        predicate = "UnitBattleWinTriggerSpecRules." + ("IsUnitBattleWinDormantGoldTrigger" if gold else "IsUnitBattleWinDrawTrigger")
+        exact = exact and any(all(t.get("node", {}).get(k) == v for k, v in expected.items())
+            and normalize(unparenthesize(t["node"].get("text", ""))) == text and predicate in t.get("predicates", [])
+            and not any(meaningful(v) for k, v in t["node"].items() if k not in {*expected, "text", "reason"})
+            for t in card.get("triggers", []))
+        parser = member("src/Riftbound.CardCatalog/RuleTextParsers.cs", "Parse", "public static class TriggerParser")
+        exact = exact and ("TriggerKinds.UnitBattleWinCreateDormantGold" if gold else "TriggerKinds.UnitBattleWinDraw") in parser
+        checks = [
+            ("CoreRuleEngine.BattleResultContinuation.cs", "DetermineBattleResultAfterCleanup", [
+                "CaptureUnitBattleWinDrawObservations(resultState, battlefield, winner", "attackers, defenders, resultState.Tick)"]),
+            ("CoreRuleEngine.BattleWinTriggers.cs", "CaptureUnitBattleWinDrawObservations", [
+                "card.ControllerId != winnerPlayerId", "IsVisibleFieldUnitObject(state.CardObjects, id)",
+                'location.Zone != "BATTLEFIELD" || location.BattlefieldObjectId != battlefieldId',
+                "AttachedRuleTextRules.Instances(state, card)", "UnitBattleWinTriggerSpecRules.Rewards(instance.CardNo)",
+                "new(id, card.ObjectGeneration)", "Origin: instance.Origin", "TriggerIndex = index"]),
+            ("CoreRuleEngine.BattleWinTriggers.cs", "HasValidUnitBattleWinDrawShape", [
+                "UnitBattleWinTriggerSpecRules.TryGet(context.CardNo, context.TriggerIndex, out var spec)",
+                "context.DrawCount == spec.DrawCount.GetValueOrDefault()", "context.GoldCount == spec.CreatedTokenCount.GetValueOrDefault()"]),
+            ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
+                "if (stackItem.UnitBattleWinDraw is { } unitBattleWin) return ResolveUnitBattleWinDraw(state, stackItem, unitBattleWin)"]),
+            ("CoreRuleEngine.BattleWinTriggers.cs", "ResolveUnitBattleWinDraw", [
+                "HasValidUnitBattleWinDrawShape(context)", "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)"]),
+            ("BattleResultRecoveryRules.cs", "ValidSkill", [
+                "CoreRuleEngine.HasValidUnitBattleWinDrawShape(unit)", "AttachedRuleTextRules.ValidCaptured(state, unit.Origin",
+                "c.SurvivingAttackerObjectIds : c.SurvivingDefenderObjectIds).Contains(source)"]),
+            ("BattleResultRecoveryRules.cs", "ValidateOriginalTriggers", [
+                'e.Event.Kind == "TRIGGER_QUEUED"', '"battleWinContext"', "HasOriginalCommand(origins.SingleOrDefault())"]),
+            ("MatchRecovery.cs", "ValidateRecoveryFrameAsync", ["BattleResultRecoveryRules.ValidateOriginalTriggers(recovery)"]),
+            ("MatchRecovery.cs", "ValidateSpectatorSnapshotStackObjectReferences", [
+                "BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, drawSkill)",
+                "!CapturedBattleSourceIsPrivate(authoritativeState, drawSkill)",
+                "sourceReferences = knownObjectIds.Append(drawSkill.SourceObjectId)"]),
+        ]
+        if gold:
+            checks += [
+                ("UnitBattleWinTriggerSpecRules.cs", "IsUnitBattleWinDormantGoldTrigger", [
+                    "spec.Kind == TriggerKinds.UnitBattleWinCreateDormantGold", "spec.Timing == TriggerTimings.UnitBattleWon",
+                    "spec.CreatedTokenDestination == TriggerZones.Base", "spec.CreatedTokenExhausted == true"]),
+                ("CoreRuleEngine.BattleWinTriggers.cs", "ResolveUnitBattleWinDraw", [
+                    "if (context.GoldCount > 0)", "i < context.GoldCount", "CreateLegendEquipmentToken(zones, cards, context.ControllerId",
+                    "spec.CreatedTokenExhausted == true", "publicSourceObjectId: visibleSource"]),
+                ("CoreRuleEngine.cs", "CreateLegendEquipmentToken", [
+                    "tokenDefinition.CreateObject(", "ApplyTokenEntryStaticAbility(",
+                    "Base = zones.Base.Concat([tokenObjectId]).ToArray()", "CaptureEquipmentPlayed(",
+                    '["sourceObjectId"] = publicSourceObjectId ?? sourceObjectId']),
+            ]
+        else:
+            checks += [
+                ("UnitBattleWinTriggerSpecRules.cs", "IsUnitBattleWinDrawTrigger", [
+                    "spec.Kind == TriggerKinds.UnitBattleWinDraw", "spec.DrawCount is > 0"]),
+                ("CoreRuleEngine.BattleWinTriggers.cs", "ResolveUnitBattleWinDraw", [
+                    "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, context.ControllerId,",
+                    "context.DrawCount, state.RngCursor, events, deferNormalVictory: true)"]),
+                ("CoreRuleEngine.cs", "ApplyDrawToPlayer", [
+                    "MainDeck = drawResult.MainDeck", "Hand = drawPlayerZones.Hand.Concat(drawResult.DrawnCards).ToArray()",
+                    "playerZones[playerId] = drawPlayerZones", "BuildCardDrawEvents("]),
+            ]
+        description = "实际获胜且存活的参战单位逐份捕获奖励，保留原结果和技能出生；金币／抽牌在控制和征服前独立结算"
+    exact = exact and all(all(token in member(engine + file, name) for token in tokens)
+                          for file, name, tokens in checks)
+    evidence = sorted({engine + file for file, _, _ in checks})
+    if text != paid_text:
+        evidence.append("src/Riftbound.CardCatalog/RuleTextParsers.cs")
+    return result("route" if exact else "missing", description if exact else
+                  "缺少与本句数值、费用和来源绑定完全匹配的事件规格、真实确认／结算或原始结果校验", evidence)
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if trait_score := friendly_unit_trait_score_route(card, clause, sources):
+        return trait_score
+    if battle_reward := battle_win_and_paid_combat_route(card, clause, sources):
+        return battle_reward
     kind = clause["kind"]
     if conditional := conditional_rune_and_conquest_route(card, clause, sources):
         return conditional
+    if standby_unit := standby_unit_observer_route(card, clause, sources):
+        return standby_unit
+    if stun_movement := stun_source_movement_route(card, clause, sources):
+        return stun_movement
     if combat_cost := combat_spell_cost_route(card, clause, sources):
         return combat_cost
     if spell_mana_cost := confirmed_spell_mana_alternative_route(card, clause, sources):
@@ -1950,8 +2516,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return token_play
     if paid_source := paid_source_ready_might_route(card, clause, sources):
         return paid_source
-
-
+    if recycle_runes := last_breath_recycle_runes_route(card, clause, sources):
+        return recycle_runes
     if boon_mode := boon_mode_activation_route(card, clause, sources):
         return boon_mode
     if provided := provided_armament_keyword_route(card, clause, sources):

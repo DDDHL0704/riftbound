@@ -34,7 +34,14 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "if (spec.Effect == \"SCORE\" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null))",
-            "TryPreventPointGain(state, item.ControllerId, spec.Amount",
+            "return ResolveUnitEventPointGain(state, item, spec.Amount);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTraitScore.cs",
+          "contains": [
+            "TryPreventPointGain(state, item.ControllerId, amount,",
+            "scores[item.ControllerId] += amount",
             "scores[item.ControllerId] >= EffectiveWinningScore(state)"
           ]
         }

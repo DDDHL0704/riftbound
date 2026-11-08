@@ -425,7 +425,7 @@ public sealed partial class CoreRuleEngine
                 if (!CanExecuteStun(target) || TryReplaceEmpoweredStun(current, item, cards, id, events)) continue;
                 cards[id] = target with { UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(target.UntilEndOfTurnEffects, "STUNNED") };
                 events.Add(CaptureStunObservers(new("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id, ["effectId"] = "STUNNED" }), zones, cards, item, id));
+                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id, ["effectId"] = "STUNNED" }), zones, cards, item, id, current.ObjectLocations));
             }
             else if (spec.Kind == "READY_UNIT")
             {

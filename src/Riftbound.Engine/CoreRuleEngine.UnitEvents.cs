@@ -416,7 +416,9 @@ public sealed partial class CoreRuleEngine
         && (SelectedUnitEventSpec(c)?.Effect is ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
-        => item.UnitEvent?.Timing == FriendlyUnitTargetedTiming
+        => item.UnitEvent is { } traitScore && SelectedUnitEventSpec(traitScore)?.Effect == FriendlyUnitTraitScoreEffect
+            ? ValidFriendlyUnitTraitScoreStack(item)
+            : item.UnitEvent?.Timing == FriendlyUnitTargetedTiming
             ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && !item.SourceConfirmed
                 && item.EffectRepeatCount == 1 && item.DamageAmount == 0 && item.OptionalCosts.Count == 0 && item.Destination.Length == 0
             : item.TargetGenerations is null ? item.TargetObjectIds.Count == 0 : NeedsUnitEventTarget(item)
@@ -567,17 +569,9 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "DESTROY_DAMAGED_ENEMIES_HERE") return ResolveUnitEventDamagedEnemyDestruction(state, item);
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
-        if (spec.Effect == "SCORE" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)) {
-            var prevented = new List<GameEvent>();
-            if (TryPreventPointGain(state, item.ControllerId, spec.Amount, item.EffectKind, item.SourceObjectId, prevented))
-                return NoopStackResolutionResult(state) with { Events = prevented };
-            var scores = NormalizeScoresForSeats(state).ToDictionary(); scores[item.ControllerId] += spec.Amount;
-            return NoopStackResolutionResult(state) with { PlayerScores = scores,
-                WinnerPlayerId = scores[item.ControllerId] >= EffectiveWinningScore(state) ? item.ControllerId : null,
-                Events = [new("SCORE_GAINED", "触发技能获得分数", new Dictionary<string, object?> {
-                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
-                    ["amount"] = spec.Amount, ["score"] = scores[item.ControllerId] })] };
-        }
+        if (spec.Effect == FriendlyUnitTraitScoreEffect) return ResolveFriendlyUnitTraitScore(state, item, spec);
+        if (spec.Effect == "SCORE" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null))
+            return ResolveUnitEventPointGain(state, item, spec.Amount);
         if (spec.Effect == "NEXT_CARD_COST_REDUCTION") {
             CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var reducer);
             var marker = BuildSourceNextSpellCostReductionEffectId(reducer, item.ControllerId, item.SourceObjectId);
@@ -609,7 +603,8 @@ public sealed partial class CoreRuleEngine
                 throw new InvalidOperationException("Invalid unit event equipment token factory.");
             for (var i = 0; i < spec.Amount; i++)
                 CreateLegendEquipmentToken(zones, cards, item.ControllerId, item.SourceObjectId, item.EffectKind,
-                    factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);
+                    factory.TokenFamilyName, factory.Tags, true, events, context.CardNo,
+                    tokenIdentitySeed: "equipment-token-" + MatchStateHasher.HashValue(item.StackItemId));
             var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
             for (var i = 0; i < events.Count; i++)
                 if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))

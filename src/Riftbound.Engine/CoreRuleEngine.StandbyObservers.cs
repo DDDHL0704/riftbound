@@ -9,12 +9,15 @@ public sealed record StandbyPlayedObserverContext(string CardNo, ObjectBinding S
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public StandbyDrawReceipt? Draw { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public StandbyUnitObservation? Unit { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
 {
     internal const string StandbyPlayedEffect = "STANDBY_PLAYED_SELF_MIGHT";
-    private sealed record CapturedStandbyObserver(string Controller, string InstanceId, StandbyPlayedObserverContext Context);
+    private sealed record CapturedStandbyObserver(string Controller, string InstanceId, StandbyPlayedObserverContext Context,
+        string? EffectKind = null);
 
     private static GameEvent CaptureStandbyPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, string player)
@@ -40,6 +43,7 @@ public sealed partial class CoreRuleEngine
             }
         }
 
+        captured.AddRange(CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEnemyDamageEffect));
         return captured.Count == 0
             ? ev
             : ev with { Payload = new Dictionary<string, object?>(ev.Payload) { ["standbyPlayObservers"] = captured.ToArray() } };
@@ -67,18 +71,27 @@ public sealed partial class CoreRuleEngine
                         TurnNumber = result.State.TurnNumber, CapturedTick = result.State.Tick } };
                     if (!UseStandbyDraw(effects, context)) continue;
                 }
+                if (context.Unit is { } observed)
+                    context = context with { Unit = observed with {
+                        CapturedTick = result.State.Tick } };
 
+                var effect = source.EffectKind ?? (context.Draw is null ? StandbyPlayedEffect : StandbyPlayedDrawEffect);
                 var trigger = new TriggerQueueItemState(
-                    $"standby-play-{result.State.Tick}-{i}-{context.Source.ObjectId}-{source.InstanceId}",
+                    $"standby-play-{result.State.Tick}-{i}-{context.Source.ObjectId}-{source.InstanceId}"
+                        + (context.Unit is null ? "" : "-" + effect),
                     source.Controller, context.Source.ObjectId,
-                    context.Draw is null ? StandbyPlayedEffect : StandbyPlayedDrawEffect,
-                    "CARD_PLAYED_FROM_FACE_DOWN")
+                    effect, StandbyObserverEventKind(effect))
                 {
                     SourceCardNo = context.CardNo,
                     StandbyObserver = context
                 };
                 queue.Add(trigger);
-                events.Add(BuildTriggerQueuedEvent(trigger));
+                var queued = BuildTriggerQueuedEvent(trigger);
+                if (context.Unit is not null)
+                    queued = queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
+                        ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, ProjectionViewers.Spectator),
+                        ["standbyUnitCaptureHash"] = StandbyUnitCaptureHash(context) } };
+                events.Add(queued);
             }
         }
 
@@ -89,7 +102,8 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool IsStandbyObserverEffect(string effect)
-        => effect is StandbyPlayedEffect or StandbyPlayedDrawEffect or StandbyHiddenTokenEffect;
+        => effect is StandbyPlayedEffect or StandbyPlayedDrawEffect or StandbyHiddenTokenEffect
+            || IsStandbyUnitObserverEffect(effect);
 
     internal static bool ValidStandbyObserver(MatchState state, StandbyPlayedObserverContext c,
         string effect, string source, string? cardNo = null, string? controller = null)
@@ -98,6 +112,10 @@ public sealed partial class CoreRuleEngine
             || c.Source.ObjectId != source || string.IsNullOrWhiteSpace(c.CardNo)
             || cardNo is not null && cardNo != c.CardNo)
             return false;
+
+        if (IsStandbyUnitObserverEffect(effect))
+            return ValidStandbyUnitObservation(state, c, effect, source, controller);
+        if (c.Unit is not null) return false;
 
         if (effect == StandbyHiddenTokenEffect)
             return c.Draw is null && c.Origin is null && c.BattlefieldId == source
@@ -116,6 +134,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveStandbyObserver(MatchState state, StackItemState item)
     {
+        if (IsStandbyUnitObserverEffect(item.EffectKind)) return ResolveStandbyUnitObserver(state, item);
         if (item.EffectKind == StandbyHiddenTokenEffect)
             return ResolveStandbyHiddenTokens(state, item);
 

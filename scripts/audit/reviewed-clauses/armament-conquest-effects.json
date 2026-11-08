@@ -123,7 +123,7 @@
       "text": "当我征服一处战场时，弃置一张手牌，然后抽一张牌。",
       "scope": "当我征服一处战场时，弃置一张手牌，然后抽一张牌。",
       "status": "route",
-      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后在结算中私下选择弃一张手牌，然后独立抽一张。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。",
+      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后在结算中私下选择弃一张手牌，然后独立抽一张。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。；来源返手后可弃置另一张手牌，当前技能与弃牌事件遮蔽私有来源，保留已公开的征服历史",
       "rules": "中国区核心383.2/383.4、436.1、718.3/719；对应武装官方中文下栏及卡图快照",
       "runtime": {
         "armament": {
@@ -143,7 +143,7 @@
           "contains": [
             "ArmamentUnitEventRules.Instances(zones, cards, card)",
             "CaptureConquestEventObservations(state, conquerors)",
-            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
+            "if (spec.Effect == \"DISCARD_DRAW\") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount)"
           ]
         },
         {
@@ -157,7 +157,9 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.PrivateDiscardDraw.cs",
           "contains": [
             "kind: \"PRIVATE_HAND_DISCARD\", preview: state",
-            "ApplyDrawToPlayer(current, zones, cards"
+            "ApplyDrawToPlayer(current, zones, cards",
+            "var visibleSource = ResolutionResult.VisibleObjectIdForViewer(current, item.SourceObjectId, ProjectionViewers.Spectator)",
+            "[\"sourceObjectId\"] = visibleSource"
           ]
         }
       ],
@@ -167,7 +169,8 @@
           "methods": [
             "EachPrintedLowerBoxEarnsItsOwnIndependentInstructionOnActualConquest",
             "AnUnattachedWeaponDoesNotGiveAConquerorTheLowerBox",
-            "ReturningTheHostDoesNotEraseAnAlreadyEarnedGrantedInstruction"
+            "ReturningTheHostDoesNotEraseAnAlreadyEarnedGrantedInstruction",
+            "AConquestDiscardKeepsTheReturnedHostPrivateWhenAnotherCardIsDiscarded"
           ]
         }
       ],
@@ -180,7 +183,7 @@
       "text": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
       "scope": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
       "status": "route",
-      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后为触发控制者打出一个休眠金币装备指示物。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。",
+      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后为触发控制者打出一个休眠金币装备指示物。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。；独立金币使用不透明技能绑定编号，不拼接已返手宿主的私有物体编号",
       "rules": "中国区核心383.2/383.4、436.1、718.3/719；对应武装官方中文下栏及卡图快照",
       "runtime": {
         "armament": {
@@ -200,7 +203,8 @@
           "contains": [
             "ArmamentUnitEventRules.Instances(zones, cards, card)",
             "CaptureConquestEventObservations(state, conquerors)",
-            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
+            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")",
+            "tokenIdentitySeed: \"equipment-token-\" + MatchStateHasher.HashValue(item.StackItemId)"
           ]
         },
         {

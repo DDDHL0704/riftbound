@@ -339,10 +339,13 @@ public sealed record CardBehaviorDefinition(
     bool SourceReadiesWhenControllerPlaysEquipment = false,
     string SourceReadyOnEquipmentPlayedEffectKind = "",
     bool SourceReadiesWhenControllerStunsEnemyUnit = false,
+    bool SourceMayMoveToStunnedEnemyBattlefield = false,
     int SourcePowerOnControllerStunsEnemyUnitAmount = 0,
     string SourceStunEnemyUnitTriggerEffectKind = "",
     int SourcePowerOnControllerStandbyHiddenAmount = 0,
     string SourcePowerOnControllerStandbyHiddenEffectKind = "",
+    bool SourceReadiesWhenControllerHidesCard = false,
+    int ControllerFaceDownPlayEnemyDamage = 0,
     string UnitHighCostSpellPowerModifierEffectKind = "",
     string UnitAttackPayPowerModifierEffectKind = "",
     bool GrantsFreeStandbyHidePermission = false,
@@ -3962,7 +3965,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守|壁垒"),
+            SourceUnitTags: "约德尔人|坚守|壁垒",
+            SourceMayMoveToStunnedEnemyBattlefield: true),
         new(
             "UNL-057/219",
             "野爪兽王",
@@ -6276,7 +6280,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
+                LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true)),
         new(
             "SFD·020a/221",
             "德莱文",
@@ -6285,7 +6291,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
+                LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true)),
         new(
             "SFD·069/221",
             "坏坏魄罗",
@@ -6799,7 +6807,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守|壁垒"),
+            SourceUnitTags: "约德尔人|坚守|壁垒",
+            SourceMayMoveToStunnedEnemyBattlefield: true),
         new(
             "UNL-056/219",
             "悠米",
@@ -7832,7 +7841,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            SourceReadiesWhenControllerHidesCard: true,
+            ControllerFaceDownPlayEnemyDamage: 2),
         new(
             "UNL-051/219",
             "艾翁",
@@ -8220,7 +8231,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_BIRD",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "鸟类"),
+            SourceUnitTags: "鸟类") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177/219",
             "艾翁",
@@ -8231,7 +8242,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_CAT",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "猫科"),
+            SourceUnitTags: "猫科") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177/219",
             "艾翁",
@@ -8242,7 +8253,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_DOG",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177/219",
             "艾翁",
@@ -8253,7 +8264,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_PORO",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "魄罗"),
+            SourceUnitTags: "魄罗") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8264,7 +8275,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_BIRD",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "鸟类"),
+            SourceUnitTags: "鸟类") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8275,7 +8286,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_CAT",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "猫科"),
+            SourceUnitTags: "猫科") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8286,7 +8297,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_DOG",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-177a/219",
             "艾翁",
@@ -8297,7 +8308,7 @@ public static class CardBehaviorRegistry
             Mode: "CHOOSE_PORO",
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "魄罗"),
+            SourceUnitTags: "魄罗") { UnitEventAbility = new("CONQUEST_OR_HOLD", CoreRuleEngine.FriendlyUnitTraitScoreEffect, 1) { RequiredFriendlyUnitTagsForScore = ["鸟类", "猫科", "犬形", "魄罗"] } },
         new(
             "UNL-196/219",
             "小菊！",
