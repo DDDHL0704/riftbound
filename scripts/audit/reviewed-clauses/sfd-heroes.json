@@ -758,9 +758,15 @@
             "AnActualHeronReductionCombinesWithTheCombatFloorWithoutDuplicatingItsPowerCredit",
             "TheSharedAttributionAlsoExplainsTheActualNextUnitManaAndPowerReduction"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VexCombatSpellCostTests.Faq.cs",
+          "methods": [
+            "TheOfficialTwoVexEzrealAndBellowsEchoExamplePaysExactlyOneMana"
+          ]
         }
       ],
-      "rules": "核心356.3–356.4（总费用、额外费用、各减费独立下限）、466.2（第一场战斗法术对决即确立身份）、740.2.c（战斗中）；SFD·146 官方中文牌面"
+      "rules": "核心356.3–356.4（总费用、额外费用、各减费独立下限）、466.2（第一场战斗法术对决即确立身份）、740.2.c（战斗中）；SFD·146 官方中文牌面；破限系列裁判FAQ260511：双薇古丝、伊泽瑞尔与风箱炎息回响的总付款为1法力"
     },
     {
       "cardNos": [

@@ -9,7 +9,7 @@ namespace Riftbound.ConformanceTests;
 
 // SFD146; CN356.3–356.4, 466.2, 740.2.c. Every positive command retains
 // its original accepted journal, retry, privacy, cold recovery and replay.
-public sealed class VexCombatSpellCostTests
+public sealed partial class VexCombatSpellCostTests
 {
     private const string Vex = "SFD·146/221";
     private const string Smoke = "OGN·093/298";
