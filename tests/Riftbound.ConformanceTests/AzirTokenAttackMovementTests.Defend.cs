@@ -16,6 +16,8 @@ public sealed partial class AzirTokenAttackMovementTests
         initial = RadGearTestPosition.Put(initial, "ALLY", "OGN·219/298", "P1", "HAND");
         initial = RadGearTestPosition.Put(initial, "ATTACKER", "OGN·219/298", "P2", "BASE");
         initial = RadGearTestPosition.Put(initial, "RUNE", "UNL-R06", "P1", "BASE");
+        // Keep BF under friendly control so the setup move does not start a duel.
+        initial = RadGearTestPosition.Put(initial, "HOLDER", "OGN·219/298", "P1", "BATTLEFIELD", "BF");
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["TEMPLATE"]));
         await game.Top(); await game.Top();
