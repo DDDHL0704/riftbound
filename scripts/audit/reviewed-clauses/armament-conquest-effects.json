@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·108/221"
+      ],
+      "text": "当我征服一处战场时，给予我增益。（如果我还未拥有增益，则获得一个{{S}}+1增益。）",
+      "scope": "当我征服一处战场时，给予我增益。（如果我还未拥有增益，则获得一个{{S}}+1增益。）",
+      "status": "route",
+      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后给予仍在场的同代际宿主增益；已有增益不叠加。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。",
+      "rules": "中国区核心383.2/383.4、436.1、718.3/719；对应武装官方中文下栏及卡图快照",
+      "runtime": {
+        "armament": {
+          "effectText": "当我征服一处战场时，给予我增益。（如果我还未拥有增益，则获得一个{{S}}+1增益。）"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "当我征服一处战场时，给予我增益。",
+            "spec with { GrantedByArmament = true }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ArmamentUnitEventRules.Instances(zones, cards, card)",
+            "CaptureConquestEventObservations(state, conquerors)",
+            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "contains": [
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
+            "if (spec.Effect == ConquestCallRune)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PrivateDiscardDraw.cs",
+          "contains": [
+            "kind: \"PRIVATE_HAND_DISCARD\", preview: state",
+            "ApplyDrawToPlayer(current, zones, cards"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentConquestInstructionTests.cs",
+          "methods": [
+            "EachPrintedLowerBoxEarnsItsOwnIndependentInstructionOnActualConquest",
+            "AnUnattachedWeaponDoesNotGiveAConquerorTheLowerBox",
+            "ReturningTheHostDoesNotEraseAnAlreadyEarnedGrantedInstruction"
+          ]
+        }
+      ],
+      "location": "armament"
+    },
+    {
+      "cardNos": [
+        "SFD·118/221",
+        "SFD·118a/221·P"
+      ],
+      "text": "当我征服一处战场时，召出一枚休眠的符文。",
+      "scope": "当我征服一处战场时，召出一枚休眠的符文。",
+      "status": "route",
+      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后为触发控制者召出一枚休眠符文。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。",
+      "rules": "中国区核心383.2/383.4、436.1、718.3/719；对应武装官方中文下栏及卡图快照",
+      "runtime": {
+        "armament": {
+          "effectText": "当我征服一处战场时，召出一枚休眠的符文。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "当我征服一处战场时，召出一枚休眠的符文。",
+            "spec with { GrantedByArmament = true }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ArmamentUnitEventRules.Instances(zones, cards, card)",
+            "CaptureConquestEventObservations(state, conquerors)",
+            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "contains": [
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
+            "if (spec.Effect == ConquestCallRune)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PrivateDiscardDraw.cs",
+          "contains": [
+            "kind: \"PRIVATE_HAND_DISCARD\", preview: state",
+            "ApplyDrawToPlayer(current, zones, cards"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentConquestInstructionTests.cs",
+          "methods": [
+            "EachPrintedLowerBoxEarnsItsOwnIndependentInstructionOnActualConquest",
+            "AnUnattachedWeaponDoesNotGiveAConquerorTheLowerBox",
+            "ReturningTheHostDoesNotEraseAnAlreadyEarnedGrantedInstruction"
+          ]
+        }
+      ],
+      "location": "armament"
+    },
+    {
+      "cardNos": [
+        "SFD·124/221"
+      ],
+      "text": "当我征服一处战场时，弃置一张手牌，然后抽一张牌。",
+      "scope": "当我征服一处战场时，弃置一张手牌，然后抽一张牌。",
+      "status": "route",
+      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后在结算中私下选择弃一张手牌，然后独立抽一张。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。",
+      "rules": "中国区核心383.2/383.4、436.1、718.3/719；对应武装官方中文下栏及卡图快照",
+      "runtime": {
+        "armament": {
+          "effectText": "当我征服一处战场时，弃置一张手牌，然后抽一张牌。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "当我征服一处战场时，弃置一张手牌，然后抽一张牌。",
+            "spec with { GrantedByArmament = true }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ArmamentUnitEventRules.Instances(zones, cards, card)",
+            "CaptureConquestEventObservations(state, conquerors)",
+            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "contains": [
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
+            "if (spec.Effect == ConquestCallRune)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PrivateDiscardDraw.cs",
+          "contains": [
+            "kind: \"PRIVATE_HAND_DISCARD\", preview: state",
+            "ApplyDrawToPlayer(current, zones, cards"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentConquestInstructionTests.cs",
+          "methods": [
+            "EachPrintedLowerBoxEarnsItsOwnIndependentInstructionOnActualConquest",
+            "AnUnattachedWeaponDoesNotGiveAConquerorTheLowerBox",
+            "ReturningTheHostDoesNotEraseAnAlreadyEarnedGrantedInstruction"
+          ]
+        }
+      ],
+      "location": "armament"
+    },
+    {
+      "cardNos": [
+        "SFD·134/221"
+      ],
+      "text": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
+      "scope": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
+      "status": "route",
+      "reason": "通过完整下栏模板向宿主授予独立征服技能；征服后为触发控制者打出一个休眠金币装备指示物。共用真实征服捕获、授予来源代际、响应与原始接受事件校验，未贴附不授予；来源返手后，抽牌、召符文及金币指示仍独立结算，自身增益不作用于手牌新对象。",
+      "rules": "中国区核心383.2/383.4、436.1、718.3/719；对应武装官方中文下栏及卡图快照",
+      "runtime": {
+        "armament": {
+          "effectText": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
+            "spec with { GrantedByArmament = true }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ArmamentUnitEventRules.Instances(zones, cards, card)",
+            "CaptureConquestEventObservations(state, conquerors)",
+            "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "contains": [
+            "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, \"CONQUEST\")",
+            "if (spec.Effect == ConquestCallRune)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PrivateDiscardDraw.cs",
+          "contains": [
+            "kind: \"PRIVATE_HAND_DISCARD\", preview: state",
+            "ApplyDrawToPlayer(current, zones, cards"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentConquestInstructionTests.cs",
+          "methods": [
+            "EachPrintedLowerBoxEarnsItsOwnIndependentInstructionOnActualConquest",
+            "AnUnattachedWeaponDoesNotGiveAConquerorTheLowerBox",
+            "ReturningTheHostDoesNotEraseAnAlreadyEarnedGrantedInstruction"
+          ]
+        }
+      ],
+      "location": "armament"
+    }
+  ]
+}

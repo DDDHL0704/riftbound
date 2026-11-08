@@ -441,31 +441,47 @@
       ],
       "text": "然后，卸除该友方单位的一件武装。",
       "scope": "然后，卸除该友方单位的一件武装。",
-      "status": "missing",
-      "reason": "前半句仅按友方单位战力伤害敌方；未登记或执行后续选择并卸除其一件武装的指示，也未建立这一后续结算选择",
-      "rules": "核心435 贴附／卸除及逐条指示；SFD·107 官方中文牌面",
+      "status": "route",
+      "reason": "共享目标约束要求第一目标当前配装，伤害按仍合法友方单位的当前战力计算，并按法术来源执行伤害加成与防伤；随后在结算中从该单位当前贴附武装中选择卸除一件，选择不追加法术目标。共享结算选择绑定未提交的完整指令，支持部分目标失效、冷恢复及原始回放。",
+      "rules": "中国区核心321 结算期间延后清理、355.8–355.10/355.18、359.3.e.5–8、418.6.a/b.3、436.3/436.4、818.3；SFD·107 官方中文牌面；铸魂淬炼裁判FAQ260114第19页（最后一件武装被取放自如卸除后，不造成伤害）",
       "runtime": {
         "behaviors": [
           {
             "damagesSecondTargetByFirstTargetPower": true,
-            "requiredTargetCount": 2
+            "firstTargetRequiresArmament": true,
+            "detachesArmamentFromFirstTarget": true,
+            "referencedPowerDamageIsFromSpell": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "\"KNOCKDOWN_EQUIPPED_FRIENDLY_POWER_DAMAGE_ENEMY\"",
-            "DamagesSecondTargetByFirstTargetPower: true"
+            "behavior.DetachesArmamentFromFirstTarget",
+            "DetachArmamentFromFirstTarget(state, stackItem, playerZones, cardObjects, events);",
+            "fromUnit: !behavior.ReferencedPowerDamageIsFromSpell"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentDetachInstructions.cs",
+          "contains": [
+            "IsSameFieldLocation",
+            "kind: \"DETACH_ARMAMENT\", preview: current",
+            "AttachedToObjectId = null",
+            "StackObjectRules.ReferencesCurrentObject(state, item, host)"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "path": "tests/Riftbound.ConformanceTests/PowerDamageDetachTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysKnockdownFriendlyPowerDamage"
+            "AnUnarmedFirstTargetIsRejectedByTheSharedPreviewAndPlay",
+            "DamageUsesCurrentArmedMightBeforeExactlyOneWeaponIsDetached",
+            "LosingOneTargetDoesNotReassignTheReferenceOrCancelAnIndependentDetach",
+            "ReferencingAUnitsPowerStillDealsSpellDamageAndStillDetachesWhenPrevented",
+            "ActualTakeUpResponseRechecksWhetherTheFirstTargetRemainsArmed"
           ]
         }
       ]

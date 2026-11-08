@@ -110,7 +110,7 @@ public sealed class RadSpellBatchTests
     [Fact]
     public async Task WarGatheringCreatesThreeMinionsAtAnEnemyBattlefield()
     {
-        var game = new Driver(SpellPosition("RAD·007/167"));
+        var game = new Driver(RadUnitEffectTestFixture.Place(SpellPosition("RAD·007/167"), "ENEMY", "P2", "BATTLEFIELD", "OTHER"));
         await game.Act("P1", new PlayCardCommand("SPELL", "RAD·007/167", ["OTHER"]));
         await game.Top();
         var tokens = game.State.PlayerZones["P1"].Battlefields
@@ -164,13 +164,15 @@ public sealed class RadSpellBatchTests
     [Fact]
     public async Task WarGatheringDoesNotCreateMinionsInBaseWhenItsBattlefieldTargetBecomesIllegal()
     {
-        var game = new Driver(SpellPosition("RAD·007/167"));
+        var initial = RadUnitEffectTestFixture.Place(SpellPosition("RAD·007/167"), "ENEMY", "P2", "BATTLEFIELD", "OTHER");
+        initial = RadGearTestPosition.Put(initial, "RETURN-ENEMY", "OGN·104/298", "P2", "HAND");
+        var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("SPELL", "RAD·007/167", ["OTHER"]));
-        var response = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
-            ["OTHER"] = game.State.CardObjects["OTHER"] with { ControllerId = "P1" } } };
-        var resumed = await ResolveTopAfterSimulatedResponse(response);
-        Assert.DoesNotContain(resumed.CardObjects.Values, card => card.Tags.Contains(CardObjectTags.MinionTokenFamily));
-        Assert.Contains("SPELL", resumed.PlayerZones["P1"].Graveyard);
+        await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("RETURN-ENEMY", "OGN·104/298", ["ENEMY"])); await game.Top();
+        Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Hand); await game.Top();
+        Assert.DoesNotContain(game.State.CardObjects.Values, card => card.Tags.Contains(CardObjectTags.MinionTokenFamily));
+        Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
 
     [Fact]

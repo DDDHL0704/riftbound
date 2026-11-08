@@ -26,7 +26,7 @@ public static partial class MatchRecoveryValidator
             if (Scope(frame).GroupBy(item => item.Id).Any(group => group.Count() > 1))
                 errors.Add("an observed unit event is duplicated across pending locations");
         var retired = events.Where(entry => entry.Sequence > boundary
-                && entry.Event.Kind is "STACK_ITEM_RESOLVED" or "STACK_ITEM_COUNTERED")
+                && entry.Event.Kind is "STACK_ITEM_RESOLVED" or "STACK_ITEM_COUNTERED" or "TRIGGER_PAYMENT_DECLINED")
             .Select(entry => TryReadObjectString(entry.Event.Payload, "stackItemId", out var id) ? id : null)
             .OfType<string>().Where(id => id.StartsWith("ordered-", StringComparison.Ordinal))
             .Select(id => id[8..]).ToHashSet(StringComparer.Ordinal);
@@ -36,6 +36,10 @@ public static partial class MatchRecoveryValidator
                 || !commands.Any(command => command.Accepted && command.CompletedTick == entry.Tick
                     && command.StartedEventSequence < entry.Sequence && command.CompletedEventSequence >= entry.Sequence))
                 errors.Add("observed unit event lacks a unique original accepted capture");
+        var unconfirmed = events.Where(entry => entry.Sequence > boundary && entry.Event.Kind == "TRIGGER_NOT_CONFIRMED")
+            .Select(entry => TryReadObjectString(entry.Event.Payload, "discardedObservedUnitEventHash", out var hash) ? hash : null)
+            .OfType<string>().ToHashSet(StringComparer.Ordinal);
+        retired.UnionWith(expected.Where(id => unconfirmed.Contains(MatchStateHasher.HashValue("ordered-" + id))));
         expected.ExceptWith(retired);
         foreach (var item in current)
         {

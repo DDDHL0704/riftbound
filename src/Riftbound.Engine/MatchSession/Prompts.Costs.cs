@@ -353,6 +353,7 @@ internal static partial class ActionPromptBuilder
         int targetIndex)
     {
         return IsPromptEffectSpecificTargetAllowed(state, playerId, behavior, objectId)
+            && CoreRuleEngine.IsArmamentTargetConditionAllowed(state, behavior, objectId, targetIndex)
             && TemporaryUnitEffectRules.ThreatAllowsTarget(state, playerId, objectId, behavior)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
