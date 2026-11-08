@@ -187,10 +187,21 @@ public sealed class VenConquestScoreHeroesTests
         await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
         var earned = game.State.TriggerQueue.Where(t => t.ConquestSource is not null).ToArray();
         Assert.Equal(2, earned.Length);
-        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: earned.Select(t => t.TriggerId).ToArray()));
+        var boons = game.State.TriggerQueue.Where(t => t.UnitEvent is not null).ToArray();
+        Assert.Equal(2, boons.Length);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            boons.Concat(earned).Select(t => t.TriggerId).ToArray()));
+        for (var i = 0; game.State.PendingCardChoice is { } choice; i++) {
+            Assert.InRange(i, 0, 1);
+            Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+            await game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["TREANT"]));
+        }
         Assert.Equal(2, game.State.StackItems.Count(item => item.ConquestSource is not null));
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]);
-        await game.Top(); Assert.Equal(3, game.State.PlayerScores["P1"]); await game.Replay();
+        await game.Top(); Assert.Equal(3, game.State.PlayerScores["P1"]);
+        await game.Top(); await game.Top();
+        Assert.Equal(1, BoonRules.Count(game.State.CardObjects["TREANT"]));
+        Assert.Empty(game.State.StackItems); await game.Replay();
     }
 
     private static MatchState WithPlays(string no, bool tokenSpell = false)
