@@ -994,14 +994,14 @@
       "tests": [
         {
           "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.cs",
-          "contains": [
+          "methods": [
             "ActualHastePlayAndAttackChooseAnySubsetOfActuallyCreatedFriendlyUnitTokens",
             "AnAttackWithNoLegalFriendlyTokenDoesNotCreateAnImpossibleChoice"
           ]
         },
         {
           "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Responses.cs",
-          "contains": [
+          "methods": [
             "ARealReturnResponseEitherRemovesTheSourceLocationOrOnlyOneChosenToken",
             "AnActualFlashResponseLeavesNoSourceBattlefieldAtResolution",
             "OneTwoTokenBatchPaysOnlyOnePatrolExtraUnitFeeAndMovesActuallyAttachedEquipment"
@@ -1009,8 +1009,15 @@
         },
         {
           "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Standby.cs",
-          "contains": [
+          "methods": [
             "ARealPastTurnStandbySwapMakesTheSkillUseAzirsNewBattlefield"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Copies.cs",
+          "methods": [
+            "AnActualAssembledSongEarnsASeparateChoiceAndIndependentAttackSkill",
+            "AnActualImageCopiesTheAttackTextAndItsCeasedSourceCannotSupplyALastKnownBattlefield"
           ]
         }
       ],
