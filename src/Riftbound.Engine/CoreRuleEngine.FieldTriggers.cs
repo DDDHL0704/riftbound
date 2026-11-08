@@ -189,7 +189,8 @@ public sealed partial class CoreRuleEngine
         .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static bool NeedsTriggerConfirmation(StackItemState i)
-        => NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasTargetedMovementSkill(i) && i.TargetGenerations is null ||
+        => i.EffectKind == StandbyPlayedEnemyDamageEffect && i.StandbyObserver?.Unit is not null && i.TargetGenerations is null ||
+            NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasTargetedMovementSkill(i) && i.TargetGenerations is null ||
             NeedsUnitEventMode(i) || NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
             i.DravenBattleDeathScore is { OpponentId: null } || i.DrawHandThreshold is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.BombRebuild is not null && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
@@ -214,6 +215,8 @@ public sealed partial class CoreRuleEngine
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(NeedsTriggerConfirmation);
         if (item is null) return result;
+        if (item.EffectKind == StandbyPlayedEnemyDamageEffect && item.StandbyObserver?.Unit is not null)
+            return PrepareStandbyUnitDamage(result, item);
         if (NeedsLastBreathHereTarget(item)) return PrepareLastBreathHereTarget(result, item);
         if (NeedsDeathObserverTarget(item)) return PrepareDeathObserverTarget(result, item);
         if (NeedsMovementInstructionConfirmation(item)) return PrepareMovementInstruction(result, item);
@@ -330,7 +333,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == FieldTriggerMinimumTargets(context) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidBombRebuildChoice(state, choice) || ValidLastBreathHereChoice(state, choice) || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidTargetedMovementChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice) || ValidBattlefieldConquestReadyEquipmentTargetChoice(state, choice);
+            || ValidStandbyUnitDamageChoice(state, choice) || ValidBombRebuildChoice(state, choice) || ValidLastBreathHereChoice(state, choice) || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidTargetedMovementChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice) || ValidBattlefieldConquestReadyEquipmentTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {
@@ -394,13 +397,16 @@ public sealed partial class CoreRuleEngine
                 { ResolvingStackItemId = item.StackItemId, ExperienceCost = experience };
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
             var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付费用或放弃技能", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind
                     ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = checked(mana + highCostMana), ["powerCost"] = tax,
                 ["targetObjectIds"] = selected.ToArray() });
             if (experience > 0) opened = opened with { Payload = new Dictionary<string, object?>(opened.Payload) {
                 ["experienceCost"] = experience } };
+            if (item.StandbyObserver?.Unit is not null)
+                opened = opened with { Payload = new Dictionary<string, object?>(opened.Payload) {
+                    ["targetGenerations"] = bound.TargetGenerations } };
             return new(true, null, next, [opened], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
         }
         var completed = CompleteTriggerTargetConfirmation(next, bound, []);
@@ -469,8 +475,13 @@ public sealed partial class CoreRuleEngine
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         var confirmationPayload = new Dictionary<string, object?> {
-            ["sourceObjectId"] = item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind || IsStunObserverKind(field.Kind))
+            ["sourceObjectId"] = item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind || IsStunObserverKind(field.Kind))
                 ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() };
+        if (item.StandbyObserver?.Unit is not null)
+        {
+            confirmationPayload["stackItemId"] = item.StackItemId;
+            confirmationPayload["targetGenerations"] = confirmed.TargetGenerations;
+        }
         if (item.BattlefieldConquestReadyEquipment is { } equipment)
         {
             confirmationPayload["stackItemId"] = item.StackItemId;

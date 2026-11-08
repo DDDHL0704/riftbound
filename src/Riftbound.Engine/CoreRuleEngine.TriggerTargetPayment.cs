@@ -11,6 +11,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId);
         var result = item is not null
             && (NeedsLastBreathHereTarget(item) && ValidLastBreathBattlefieldDamageStack(state, item)
+                || item.EffectKind == StandbyPlayedEnemyDamageEffect && ValidStandbyUnitObserverStack(state, item)
                 || HasTargetedMovementSkill(item) && ValidTargetedMovementStack(state, item)
                 || item.ReadyObjectTrigger is not null && ValidReadyOtherObjectStack(state, item)
                 || item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
@@ -48,7 +49,7 @@ public sealed partial class CoreRuleEngine
                         ? payment.ManaCost == (HighCostPlaysSourceFromGraveyard(highCostPayment.CardNo)
                             ? HighCostPlaySpec(highCostPayment.CardNo)?.ManaCost ?? 0 : 0) && payment.PowerCost >= 0
                         : payment.ManaCost == 0 && (payment.PowerCost > 0 || payment.ExperienceCost > 0))
-            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && item.ReadyObjectTrigger is null && item.UnitEvent is null && !HasTargetedMovementSkill(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
+            && (item.EffectKind != StandbyPlayedEnemyDamageEffect && item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && item.ReadyObjectTrigger is null && item.UnitEvent is null && !HasTargetedMovementSkill(item) && !NeedsLastBreathHereTarget(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.SequenceEqual(item.HighCostPlayObserver is { } highCost
                 && HighCostPlaysSourceFromGraveyard(highCost.CardNo)
                 && HighCostPlaySpec(highCost.CardNo) is { PowerCost: > 0, PowerCostTrait: { } trait } spec
@@ -68,6 +69,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
         var legal = item.HighCostPlayObserver is not null ? HighCostRuneTargets(state, item)
+            : item.EffectKind == StandbyPlayedEnemyDamageEffect ? StandbyUnitDamageTargets(state, item)
             : NeedsLastBreathHereTarget(item) ? LastBreathHereTargets(state, item)
             : HasTargetedMovementSkill(item) ? TargetedMovementTargets(state, item)
             : item.UnitEvent is not null ? UnitEventInstructionTargets(state, item)
@@ -96,7 +98,7 @@ public sealed partial class CoreRuleEngine
             item = item with { FieldContext = item.FieldContext with { PaidUnitTrigger = paid with { CostPaid = true } } };
         var completed = CompleteTriggerTargetConfirmation(next, item, [new("COST_PAID", "支付触发技能费用",
             PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools, committed.PlayerExperience,
-                item.UnitEvent is not null || item.ReadyObjectTrigger is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind ? new Dictionary<string, object?> {
+                item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || item.ReadyObjectTrigger is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind ? new Dictionary<string, object?> {
                     ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator) }
                     : new Dictionary<string, object?>()))]);
         return completed.Accepted ? completed : RejectWithCorePrompts(state, completed.ErrorMessage!, ErrorCodes.InvalidTarget);

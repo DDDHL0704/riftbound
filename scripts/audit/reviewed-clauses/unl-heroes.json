@@ -52,36 +52,64 @@
       ],
       "text": "当你正面朝下放置一张卡牌时，让我变为活跃状态。",
       "scope": "当你正面朝下放置一张卡牌时，让我变为活跃状态。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少背面放置后的来源活跃，以及从背面打出卡牌后的敌方单位2点伤害两个监听和独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "实际藏匿后独立活跃原来源；背面打出法术、单位或装备后独立确认敌方目标、支付法盾并造成2点伤害；每份复制文本分别触发，恢复核对原始接受行动及目标代次",
+      "rules": "核心191.5.b、359.3.e（技能控制者与原代次引用）、383.2.c／383.3（行动完成后独立确认、入链）、355.9／403／405.2／809（目标及法盾付款）、811（待命）；UNL-023 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "sourceReadiesWhenControllerHidesCard": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StandbyUnitObservers.cs",
           "contains": [
-            "\"UNL-023/219\"",
-            "\"KATARINA_FACE_DOWN_READY_DAMAGE_STATIC\""
+            "CaptureStandbyUnitObservers",
+            "ValidStandbyUnitObservation",
+            "ResolveStandbyUnitObserver",
+            "StandbyUnitActionHash"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StandbyObservers.cs",
+          "contains": [
+            "CapturedTick = result.State.Tick",
+            "standbyUnitCaptureHash",
+            "StandbyObserverEventKind(effect)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.StandbyUnitObservers.cs",
+          "contains": [
+            "ValidateStandbyUnitObserverHistory",
+            "command.Accepted",
+            "CoreRuleEngine.StandbyUnitCaptureHash(context)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/KatarinaFaceDownObserverTests.cs",
+          "methods": [
+            "TheActualPrintingDeclaresBothIndependentControllerActionObservers",
+            "ActualHideCompletesBeforeAnIndependentSkillReadiesTheSameSource",
+            "InactiveOrEnemyControlledCopiesDoNotObserveTheActorsHide",
+            "ARejectedHideCannotReadyTheSourceOrCreateASkill",
+            "ReturningTheSourceInResponseDoesNotReadyItsNewHiddenIncarnation",
+            "RepeatedRealHidesHaveNoOncePerTurnLimitAndReadyingDoesNotTargetTheSource"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/KatarinaFaceDownObserverTests.Responses.cs",
+          "methods": [
+            "ActualSongCopiesEachPrintedObserverWithoutRequiringTheEquipmentToStayAttached",
+            "ConsistentViewsCannotForgeTheOriginallyCapturedHideOrSource"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -89,36 +117,67 @@
       ],
       "text": "当你将一张卡牌从正面朝下的状态打出时，对一名敌方单位造成2点伤害。",
       "scope": "当你将一张卡牌从正面朝下的状态打出时，对一名敌方单位造成2点伤害。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少背面放置后的来源活跃，以及从背面打出卡牌后的敌方单位2点伤害两个监听和独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "实际藏匿后独立活跃原来源；背面打出法术、单位或装备后独立确认敌方目标、支付法盾并造成2点伤害；每份复制文本分别触发，恢复核对原始接受行动及目标代次",
+      "rules": "核心191.5.b、359.3.e（技能控制者与原代次引用）、383.2.c／383.3（行动完成后独立确认、入链）、355.9／403／405.2／809（目标及法盾付款）、811（待命）；UNL-023 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "controllerFaceDownPlayEnemyDamage": 2
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StandbyUnitObservers.cs",
           "contains": [
-            "\"UNL-023/219\"",
-            "\"KATARINA_FACE_DOWN_READY_DAMAGE_STATIC\""
+            "CaptureStandbyUnitObservers",
+            "ValidStandbyUnitObservation",
+            "ResolveStandbyUnitObserver",
+            "StandbyUnitActionHash"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StandbyObservers.cs",
+          "contains": [
+            "CapturedTick = result.State.Tick",
+            "standbyUnitCaptureHash",
+            "StandbyObserverEventKind(effect)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.StandbyUnitObservers.cs",
+          "contains": [
+            "ValidateStandbyUnitObserverHistory",
+            "command.Accepted",
+            "CoreRuleEngine.StandbyUnitCaptureHash(context)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/KatarinaFaceDownObserverTests.cs",
+          "methods": [
+            "TheActualPrintingDeclaresBothIndependentControllerActionObservers",
+            "ActualFaceDownSpellsUnitsAndEquipmentEarnATargetedResponseBeforeDamage",
+            "PlayingTheSameSpellFaceUpDoesNotCreateTheFaceDownDamageSkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/KatarinaFaceDownObserverTests.Responses.cs",
+          "methods": [
+            "EnemyWardUsesTheSharedTargetPaymentAndMayBeDeclined",
+            "AConfirmedDamageSkillSurvivesItsSourcesActualReturnToHand",
+            "TheConfirmedEnemyGenerationCannotRetargetAfterAnActualReturnToHand",
+            "ActualSongCopiesEachPrintedObserverWithoutRequiringTheEquipmentToStayAttached",
+            "ConsistentViewsCannotSubstituteAnotherLegalEnemyForTheConfirmedTarget",
+            "TheOriginalWardSelectionCannotBeChangedWhilePaymentIsStillPending",
+            "CounteringTheActuallyPlayedFaceDownSpellCannotRemoveItsEarnedDamageSkill",
+            "ARealAbilityCounterCanRemoveOnlyTheIndependentDamageSkill"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

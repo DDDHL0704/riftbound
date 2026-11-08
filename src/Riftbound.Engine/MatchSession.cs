@@ -1697,6 +1697,8 @@ public sealed partial record ResolutionResult(
             ? "对手回合打出卡牌：打出随从" : trigger.EffectKind == CoreRuleEngine.CardPlayDrawEffect
                 ? "打出卡牌：抽牌" : "从手牌以外打出卡牌：强化来源";
         if (trigger.StandbyObserver?.Draw is not null) return "从背面打出卡牌：抽一张牌，对手回合再弃置一张手牌";
+        if (trigger.StandbyObserver?.Unit is not null) return trigger.EffectKind == CoreRuleEngine.StandbyHiddenReadyEffect
+            ? "背面放置卡牌：让来源单位活跃" : "从背面打出卡牌：对敌方单位造成伤害";
         if (trigger.HighCostPlayObserver is not null) return CoreRuleEngine.HighCostReadiesSource(trigger.SourceCardNo)
             ? "打出高费用卡牌：让来源活跃" : "打出高费用单位、装备或主动技能：横置并活跃符文";
         if (trigger.ConquestSource is not null) return "征服效果：获得分数";
@@ -1719,6 +1721,9 @@ public sealed partial record ResolutionResult(
     {
         if (TargetSelectionSummary(state, trigger.UnitEvent, viewerPlayerId) is { } targeted)
             return $"可横置来源并支付所示符能；双方响应后，{targeted}。";
+        if (trigger.StandbyObserver?.Unit is not null) return trigger.EffectKind == CoreRuleEngine.StandbyHiddenReadyEffect
+            ? "背面放置行动已完成；双方响应后，让原来源单位活跃。"
+            : "选择敌方单位并支付适用的法盾费用；双方响应后造成伤害。";
         if (trigger.StandbyObserver is { Draw: null }) return trigger.EffectKind == CoreRuleEngine.StandbyHiddenTokenEffect
             ? "藏匿卡牌后创建指示物；双方响应后结算。"
             : "从背面打出卡牌后，活跃原来源并给予战力；双方响应后结算。";
