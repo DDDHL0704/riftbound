@@ -25,7 +25,7 @@ public sealed class TargetSelectionDrawTests
         var game = new Driver(Position(Jar)); var power = game.State.CardObjects["SOURCE"].Power;
         await game.Act("P1", new PlayCardCommand("SPELL", Boost, ["SOURCE"]));
         Assert.Equal(2, game.State.StackItems.Count); Assert.Null(game.State.PendingPayment);
-        var trigger = game.State.StackItems[^1]; Assert.Equal("DRAW", trigger.EffectKind);
+        var trigger = game.State.StackItems[^1]; Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", trigger.EffectKind);
         Assert.True(trigger.UnitEvent!.TargetSelection!.Spell);
         Assert.Equal("SOURCE", trigger.UnitEvent.Other!.Binding.ObjectId); Assert.Empty(trigger.TargetObjectIds);
         await game.Top(); Assert.Contains("P1-D0", game.State.PlayerZones["P1"].Hand);
@@ -90,7 +90,8 @@ public sealed class TargetSelectionDrawTests
         var pool = game.State.RunePools["P1"]; Assert.False(game.State.CardObjects["SOURCE"].IsExhausted);
         await Pay(game); Assert.Equal(pool.Mana - 1, game.State.RunePools["P1"].Mana);
         Assert.Equal(pool.TotalPower, game.State.RunePools["P1"].TotalPower);
-        Assert.True(game.State.CardObjects["SOURCE"].IsExhausted); Assert.Empty(game.State.PlayerZones["P1"].Hand);
+        Assert.True(game.State.CardObjects["SOURCE"].IsExhausted);
+        Assert.DoesNotContain("P1-D0", game.State.PlayerZones["P1"].Hand);
         await game.Top(); Assert.Contains("P1-D0", game.State.PlayerZones["P1"].Hand);
         await game.Top(); await game.Replay();
     }

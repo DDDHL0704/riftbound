@@ -59,10 +59,11 @@ public sealed partial class CoreRuleEngine
         List<TriggerQueueItemState> queue, List<GameEvent> events, ref int ordinal)
     {
         if (state.Status != MatchStatuses.InProgress) return;
+        var tick = RuleChoices.Value?.CompletionTick ?? state.Tick;
         foreach (var observation in observations)
         {
             TriggerQueueItemState trigger;
-            do { trigger = UnitEventTrigger(observation, state.Tick, ordinal++, "TARGET_CONFIRMED"); }
+            do { trigger = UnitEventTrigger(observation, tick, ordinal++, "TARGET_CONFIRMED"); }
             while (queue.Any(item => item.TriggerId == trigger.TriggerId)
                 || state.StackItems.Any(item => item.StackItemId == "ordered-" + trigger.TriggerId));
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
