@@ -1098,7 +1098,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", CoreRuleEngine.StandardMovementExhaustionCostEvent, "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", CoreRuleEngine.RuneDomainReflexiveCreatedEvent, "BATTLE_CLOSED", "BATTLE_TIED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN", CoreRuleEngine.CreatedTokenReadyTriggerEvent];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", CoreRuleEngine.StandardMovementExhaustionCostEvent, "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", CoreRuleEngine.RuneDomainReflexiveCreatedEvent, "BATTLE_CLOSED", "BATTLE_TIED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN", CoreRuleEngine.CreatedTokenReadyTriggerEvent, "BOON_CONSUMED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -1228,6 +1228,7 @@ public static partial class MatchRecoveryValidator
             ValidateInstructionCostHistory(authoritativeState, commands, events, errors);
             ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
+            ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
             ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
             ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);

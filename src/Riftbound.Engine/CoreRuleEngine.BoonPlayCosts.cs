@@ -127,10 +127,10 @@ public sealed partial class CoreRuleEngine
             for (var i = 0; i < payment.Count; i++) {
                 var before = cards[payment.Source.ObjectId]; var after = BoonRules.Consume(before);
                 cards[before.ObjectId] = after;
-                events.Add(new("BOON_CONSUMED", "支付打出卡牌的增益额外费用", new Dictionary<string, object?> {
+                events.Add(CaptureBoonConsumption(new("BOON_CONSUMED", "支付打出卡牌的增益额外费用", new Dictionary<string, object?> {
                     ["playerId"] = player, ["sourceObjectId"] = playedSource, ["targetObjectId"] = before.ObjectId,
                     ["count"] = 1, ["remainingBoonCount"] = BoonRules.Count(after), ["previousPower"] = before.Power,
-                    ["power"] = after.Power, ["paymentWindow"] = "PLAY_CARD" }));
+                    ["power"] = after.Power, ["paymentWindow"] = "PLAY_CARD" }), zones, cards));
             }
         return true;
     }

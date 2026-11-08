@@ -266,11 +266,11 @@ public sealed partial class CoreRuleEngine
             {
                 source = BoonRules.Consume(source);
                 cards[source.ObjectId] = source;
-                events.Add(new("BOON_CONSUMED", "消耗来源的一个增益作为主动技能费用", new Dictionary<string, object?> {
+                events.Add(CaptureBoonConsumption(new("BOON_CONSUMED", "消耗来源的一个增益作为主动技能费用", new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
                     ["sourceGeneration"] = source.ObjectGeneration, ["targetObjectId"] = source.ObjectId,
                     ["targetGeneration"] = source.ObjectGeneration, ["previousPower"] = source.Power + 1,
-                    ["power"] = source.Power, ["abilityId"] = ability.AbilityId, ["reason"] = ability.EffectKind }));
+                    ["power"] = source.Power, ["abilityId"] = ability.AbilityId, ["reason"] = ability.EffectKind }), zones, cards));
             }
         }
         if (spec.RemovesSourceEmpowermentAsCost)

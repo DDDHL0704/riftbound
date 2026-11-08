@@ -476,11 +476,11 @@ public sealed partial class CoreRuleEngine
             {
                 var target = cards[id];
                 cards[id] = BoonRules.Consume(target);
-                events.Add(new("BOON_CONSUMED", "消耗所选友方单位或装备的增益作为触发费用", new Dictionary<string, object?> {
+                events.Add(CaptureBoonConsumption(new("BOON_CONSUMED", "消耗所选友方单位或装备的增益作为触发费用", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                     ["sourceGeneration"] = TriggerCostSourceGeneration(item), ["targetObjectId"] = id,
                     ["targetGeneration"] = target.ObjectGeneration, ["stackItemId"] = item.StackItemId,
-                    ["previousPower"] = target.Power, ["power"] = target.Power - 1, ["reason"] = item.EffectKind }));
+                    ["previousPower"] = target.Power, ["power"] = target.Power - 1, ["reason"] = item.EffectKind }), zones, cards));
             }
         }
         var changed = state with { PlayerZones = zones, CardObjects = cards };
