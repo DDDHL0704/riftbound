@@ -962,6 +962,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             [
                 "ANCIENT_STELE_REACTION_PAY_MANA_GAIN_GENERIC_POWER",
                 "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT",
+                "BANISH_SELF_PLAY_ALL_LINKED_UNITS",
                 "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                 "BOOK_REMOVE_EMPOWER_DRAW",
                 "CONSUME_BOON_DAMAGE_2",
