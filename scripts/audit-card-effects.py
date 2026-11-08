@@ -1442,7 +1442,8 @@ def confirmed_spell_mana_alternative_route(card: dict, clause: dict, sources: So
             "PaidMana = !observation.Resolved && (entry.Types & 4) != 0 ? confirmedItem?.PlayCost?.PaidMana : null",
             "new ConfirmedSpellManaPayment(entry.Source, entry.CardNo, entry.PlayerId,",
             "entry.PlayId, paidMana, before.TurnNumber, entry.Tick)", "PaidMana = confirmed?.PaidMana",
-            "Tick = RuleChoices.Value?.CompletionTick ?? result.State.Tick"]),
+            "Tick = !observation.Resolved && entry.PaidMana is not null",
+            "? RuleChoices.Value?.CompletionTick ?? result.State.Tick : result.State.Tick"]),
         ("SpellManaPaymentHistoryRules.cs", "ValidateOriginalPayments", [
             "state.CardPlays?.Finalized", 'e.Event.Kind == "CARD_PLAYED"', 'e.Event.Kind == "COST_PAID"',
             "ReadReceipt(birth.Event)", "c.Accepted", "c.CompletedTick == birth.Tick",

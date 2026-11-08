@@ -81,6 +81,10 @@ public sealed class RadAmbushTrapTests
         var game = new Driver(Put(Position(2), "REMOVE", removal, "P1", "HAND"));
         for (var i = 0; i < 3; i++) await game.Act("P1", Hide(i));
         await game.Act("P1", new PlayCardCommand("REMOVE", removal, destroyAll ? [] : ["TRAP-0"]));
+        var confirmed = Assert.Single(game.State.CardPlays.Finalized, entry => entry.Source.ObjectId == "REMOVE");
+        Assert.NotNull(confirmed.PaidMana);
+        var qualifies = CoreRuleEngine.ControllerConfirmedSpellWithPaidMana(game.State, "P1", 4);
+        Assert.Equal(confirmed.PaidMana >= 4, qualifies);
         await game.Top();
         var selected = new List<string>();
         while (game.State.PendingRuleChoice is { } continuation)
@@ -88,6 +92,8 @@ public sealed class RadAmbushTrapTests
             var request = continuation.Request;
             Assert.Equal("STANDBY_CAPACITY_REDUCTION", request.Kind);
             Assert.Equal("P1", request.PlayerId);
+            Assert.Equal(confirmed, Assert.Single(request.Preview!.CardPlays.Finalized,
+                entry => entry.Source.ObjectId == "REMOVE"));
             Assert.All(Enumerable.Range(0, 3), i => Assert.True(request.Preview!.CardObjects["SHADOW-" + i].IsFaceDown));
             foreach (var view in new object[] { ResolutionResult.BuildSnapshots(game.State)["P2"], game.PromptFor("P2"),
                 MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick, game.Events().Last().Sequence, [], game.State) })
@@ -116,6 +122,8 @@ public sealed class RadAmbushTrapTests
         });
         Assert.Equal(destroyAll ? 1 : 2, game.State.CardObjects.Values.Count(c => c.IsFaceDown));
         Assert.Equal(selected.Count, game.Events().Count(e => e.Event.Kind == "STANDBY_CARD_REMOVED"));
+        Assert.Equal(confirmed, Assert.Single(game.State.CardPlays.Finalized, entry => entry.Source.ObjectId == "REMOVE"));
+        Assert.Equal(qualifies, CoreRuleEngine.ControllerConfirmedSpellWithPaidMana(game.State, "P1", 4));
         await game.ColdCheckpoint();
     }
 

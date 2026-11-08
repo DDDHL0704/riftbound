@@ -116,7 +116,12 @@ public sealed partial class CoreRuleEngine
             var limited = entry.PlayId.Length == 0;
             if (limited) entry = entry with { OriginOutsideHands = true };
             entry = entry with { PlayId = limited ? $"LIMITED-{result.State.Tick}-{index}-{entry.Source.ObjectId}" : entry.PlayId,
-                Tick = RuleChoices.Value?.CompletionTick ?? result.State.Tick,
+                // Only the monetary confirmation receipt belongs to the final
+                // accepted answer's tick. Resolution observations also appear
+                // in synchronous-choice previews; their command-local tick
+                // must stay identical when replaying an earlier answer.
+                Tick = !observation.Resolved && entry.PaidMana is not null
+                    ? RuleChoices.Value?.CompletionTick ?? result.State.Tick : result.State.Tick,
                 Source = entry.Source with { Generation = generation } };
             if (!observation.Resolved && entry.PaidMana is { } paidMana && ev.Kind == "CARD_PLAYED")
             {

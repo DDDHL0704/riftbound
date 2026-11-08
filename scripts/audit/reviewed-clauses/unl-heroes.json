@@ -957,6 +957,12 @@
             "ASpellConfirmsItsActualPaymentAfterAnAdditionalCostReplacement",
             "RecoveryBindsTheCompletedPaymentToItsOriginalPlayAndEveryDecision"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RadAmbushTrapTests.cs",
+          "methods": [
+            "CapacityLossCollectsOnlyPrivateDecisionsThenMovesExactlyTheExcess"
+          ]
         }
       ]
     },

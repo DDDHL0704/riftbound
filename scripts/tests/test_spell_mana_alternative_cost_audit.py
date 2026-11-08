@@ -75,7 +75,8 @@ class SpellManaAlternativeCostAuditTests(unittest.TestCase):
 
     def test_resumed_payments_require_the_original_intent_and_each_accepted_decision(self):
         consumers = [
-            ('CoreRuleEngine.CardPlayHistory.cs', 'Tick = RuleChoices.Value?.CompletionTick ?? result.State.Tick'),
+            ('CoreRuleEngine.CardPlayHistory.cs', 'Tick = !observation.Resolved && entry.PaidMana is not null'),
+            ('CoreRuleEngine.CardPlayHistory.cs', '? RuleChoices.Value?.CompletionTick ?? result.State.Tick : result.State.Tick'),
             ('SpellManaPaymentHistoryRules.cs', 'ValidConfirmationOrigin(play, birth!, command, commands, events)'),
             ('SpellManaPaymentHistoryRules.cs', 'IsOriginalPlay(command, play, birth)'),
             ('SpellManaPaymentHistoryRules.cs', 'original.SourceObjectId == play.Source.ObjectId'),
