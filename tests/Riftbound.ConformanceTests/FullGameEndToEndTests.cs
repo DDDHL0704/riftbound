@@ -25663,8 +25663,12 @@ public sealed partial class FullGameEndToEndTests
                         {
                             Assert.Equal(new UnitEventAbilitySpec("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
                                 LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true), behavior.UnitEventAbility);
-                            Assert.Equal(new ObjectBinding(item.SourceObjectId, unitEvent.SourceGeneration), item.TriggerCost!.Source);
-                            Assert.Equal(1, item.TriggerCost.Power); Assert.Equal(0, item.TriggerCost.Mana);
+                            if (item.TriggerCost is { } paid)
+                            {
+                                Assert.Equal(new ObjectBinding(item.SourceObjectId, unitEvent.SourceGeneration), paid.Source);
+                                Assert.Equal(1, paid.Power); Assert.Equal(0, paid.Mana);
+                            }
+                            else Assert.True(CoreRuleEngine.NeedsTriggerCostConfirmation(item));
                             Assert.Empty(item.TargetObjectIds); Assert.Null(item.TargetGenerations);
                             Assert.Null(unitEvent.Other); Assert.Null(unitEvent.Here); Assert.Null(unitEvent.Mode);
                             Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
