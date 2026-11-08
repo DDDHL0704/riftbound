@@ -68,7 +68,9 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     bool GrantsMysteriousWeaponRecall = false, bool GrantsPaidRecall = false,
     bool PlaysLinkedGraveyardExile = false, bool TargetsDeclaredAttribute = false, bool GrantsSourceBoon = false,
     bool RequiresEncouraged = false, bool DestroysSourceAsCost = false, bool RecyclesGraveyardTargets = false,
-    bool ConsumesSourceBoonAsCost = false, bool GrantsSourceRoam = false);
+    bool ConsumesSourceBoonAsCost = false, bool GrantsSourceRoam = false,
+    bool BanishesSourceAsCost = false, bool RequiresUnattachedSource = false,
+    bool PlaysAllLinkedArmamentUnits = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -317,6 +319,12 @@ public static class P4ActivatedAbilityCatalog
         new("EXHAUST_DECLARED_ATTRIBUTE_MINUS_2", "UNL-138/219", "EXHAUST_DECLARED_ATTRIBUTE_MINUS_2",
             "夺命名单", 0, 0, 1, false, true, 0, true, "横置：具有本组技能宣告的属性标签的单位本回合战力-2。",
             SourceRequiredTag: CardObjectTags.EquipmentCard, SimpleEffect: new(TargetsDeclaredAttribute: true)),
+        new("BANISH_SELF_PLAY_ALL_LINKED_UNITS", "SFD·090/221", "BANISH_SELF_PLAY_ALL_LINKED_UNITS",
+            "Z型驱动", 3, 0, 0, false, false, 0, false,
+            "支付3和蓝色符能，放逐此牌：打出所有因此牌效果被放逐的单位，无视基础费用；只有未贴附时可使用。",
+            PowerCostByTrait: new Dictionary<string, int> { [RuneTrait.Blue] = 1 },
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(BanishesSourceAsCost: true, RequiresUnattachedSource: true, PlaysAllLinkedArmamentUnits: true)),
         new("CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT", "UNL-148/219", "CURSED_SARCOPHAGUS_EXHAUST_PLAY_LINKED_UNIT",
             "受诅咒的石棺", 0, 0, 0, false, true, 0, false,
             "官方中文：横置，打出一名以此方式放逐的单位，必须支付卡牌费用。",

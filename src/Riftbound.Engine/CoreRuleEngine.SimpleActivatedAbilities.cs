@@ -33,6 +33,10 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
     public string? ReplayCardNo { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ObjectBinding? ConsumedSourceBoon { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActivationBanishCost? BanishCost { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ObjectBinding>? RefusedEffectPlays { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -117,6 +121,7 @@ public sealed partial class CoreRuleEngine
             && (!ability.RequiresBattlefieldSource || precise.Zone == "BATTLEFIELD" && state.BattlefieldStates.ContainsKey(id))
             && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered)
             && (ability.SimpleEffect?.ConsumesSourceBoonAsCost != true || BoonRules.Count(source) > 0)
+            && (ability.SimpleEffect?.RequiresUnattachedSource != true || source.AttachedToObjectId is null)
             && (ability.SimpleEffect?.RequiresEnemyUnitTargetThisTurn != true || state.UntilEndOfTurnEffects.Contains(EnemyUnitTargetMarker(actor)))
             && (!SimpleActivationHasAdditionalCost(ability)
                 || SimpleActivationAdditionalCostChoices(state, actor, id, ability).Length > 0);
@@ -324,6 +329,8 @@ public sealed partial class CoreRuleEngine
                 SourceFaceRevision = instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0,
                 RuleTextInstanceId = instance.Id, Origin = instance.Origin,
                 SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
+                BanishCost = spec.BanishesSourceAsCost
+                    ? PayActivationSourceBanish(state, zones, cards, source, intent.PlayerId, events) : null,
                 ReplayCardNo = spec.BanishesSourceThenReplaysToBase
                     ? source.AttachmentUnitCopies?.Basis.CardNo ?? source.CardNo : null,
                 ReturnTiming = ability.SwiftSpeed && state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : "" };
@@ -338,6 +345,8 @@ public sealed partial class CoreRuleEngine
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
         if (instance.Origin is not null) payload["abilityInstanceId"] = instance.Id;
+        if (spec.BanishesSourceAsCost)
+            payload["activationBanishCostHash"] = ActivationBanishCaptureHash(context, intent.PlayerId);
         if (spec.OncePerTurn)
             payload["sourceGeneration"] = source.ObjectGeneration;
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
@@ -385,6 +394,7 @@ public sealed partial class CoreRuleEngine
             || context.AcquiredTick <= 0 || context.AcquiredTick > state.Tick || !state.Seats.ContainsKey(item.ControllerId)
             || !P4ActivatedAbilityCatalog.IsActivationSourceCardNoForAbility(ability, item.CardNo)
             || !ValidSimpleActivationSource(state, context, ability, item.CardNo!)
+            || !ValidActivationBanishCost(state, context, ability.SimpleEffect!)
             || (ability.SimpleEffect!.ConsumesSourceBoonAsCost
                 ? context.ConsumedSourceBoon != context.Source
                 : context.ConsumedSourceBoon is not null)
@@ -409,7 +419,7 @@ public sealed partial class CoreRuleEngine
             with { TargetGenerations = item.TargetGenerations, TokenEntryPlan = item.TokenEntryPlan,
                 DepartedTokenTargets = item.DepartedTokenTargets,
                 EffectPlayCompleted = allowMissingReturnTarget || ability.SimpleEffect!.BanishesSourceThenReplaysToBase
-                    || ability.SimpleEffect.PlaysLinkedGraveyardExile ? item.EffectPlayCompleted : false };
+                    || ability.SimpleEffect.PlaysLinkedGraveyardExile || ability.SimpleEffect.PlaysAllLinkedArmamentUnits ? item.EffectPlayCompleted : false };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
             && (item.TokenEntryPlan is null || SimpleActivationUnitTokenCount(ability.SimpleEffect!) > 0 && ValidTokenEntryPlan(state, item));
     }
@@ -503,6 +513,7 @@ public sealed partial class CoreRuleEngine
         if (spec.GrantsNextSpellDamage) return ResolveActivatedNextSpellDamage(state, item);
         if (spec.GrantsPaidRecall) return ResolveActivatedPaidRecall(state, item);
         if (spec.PlaysLinkedGraveyardExile) return ResolveLinkedGraveyardExilePlay(state, item);
+        if (spec.PlaysAllLinkedArmamentUnits) return ResolveAllLinkedArmamentUnits(state, item);
         if (spec.CreatedUnitTokenCardNo is { } unitFactory)
         {
             if (BeginTokenReplacement(state, item) is { } replacement) return replacement;

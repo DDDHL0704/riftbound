@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "SFD·090/221"
+      ],
+      "text": "支付{{3}}和{{蓝色}}，放逐此牌：打出所有因此牌效果被放逐的单位，无视费用。（只有在未贴附时才能使用。）",
+      "scope": "支付{{3}}和{{蓝色}}，放逐此牌：打出所有因此牌效果被放逐的单位，无视费用。（只有在未贴附时才能使用。）",
+      "status": "route",
+      "reason": "共享主动技能付款流程在开放响应前支付3法力、1蓝色符能并放逐来源，要求未贴附；同一具体装备代际所关联的单位可按控制者选择的顺序逐张打出，保留实际所属者。仅豁免基础法力和符能，额外费用及增费照常支付；拒付单张的非零费用后继续其余单位。原始接受事件约束付款、剩余技能和逐张拒付记录，阻止篡改、删除、重复和重插已完成技能。",
+      "rules": "中国区核心204.1.c、355.18、356.1.b.1/b.3、356.2/356.3、403–407、445.1.b/445.2.a、718–719；铸魂淬炼裁判FAQ第10页可打出对手拥有的关联单位、第13页不同Z型驱动的关联不通用；SFD·090官方中文牌面",
+      "runtime": {
+        "activations": [
+          {
+            "abilityId": "BANISH_SELF_PLAY_ALL_LINKED_UNITS",
+            "manaCost": 3,
+            "powerCostByTrait": {
+              "blue": 1
+            },
+            "simpleEffect": {
+              "banishesSourceAsCost": true,
+              "requiresUnattachedSource": true,
+              "playsAllLinkedArmamentUnits": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SimpleActivatedAbilities.cs",
+          "contains": [
+            "source.AttachedToObjectId is null",
+            "PayActivationSourceBanish(state, zones, cards, source",
+            "activationBanishCostHash",
+            "ResolveAllLinkedArmamentUnits(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LinkedArmamentReplay.cs",
+          "contains": [
+            "ResetCardOutsidePlay(zones, cards, source.ObjectId, source, owner);",
+            "group.SourceGeneration == context.Source.Generation",
+            "CurrentArmamentReplayUnits(",
+            "SourceOwners = sources.Keys.ToDictionary",
+            "RefusedEffectPlays"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "pending.SourceOwners is not null",
+            "if (PlaysAllLinkedArmamentUnits(p.Parent)) return false;",
+            "EFFECT_PLAY_PAYMENT_REFUSED",
+            "refusedSource is not null || !string.IsNullOrWhiteSpace(playedSourceObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ActivationBanish.cs",
+          "contains": [
+            "ActivationBanishCaptureHash(context, item.ControllerId)",
+            "captured.Except(retired)",
+            "remaining linked plays differ from original accepted refusals"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/LinkedArmamentReplayTests.cs",
+          "methods": [
+            "BanishmentAndTheTypedFeeArePaidBeforeResponsesEvenWithNoLinkedUnits",
+            "TheControllerPlaysTheActuallyLinkedUnitAndPreservesItsOwnerWithoutBaseCosts",
+            "AllMixedOwnerUnitsCanBePlayedInEitherOrder",
+            "ASecondDriveCannotPlayTheFirstDrivesLinkedUnit",
+            "AReturnedAndReplayedDriveDoesNotInheritItsPreviousIncarnationsLinks",
+            "AnAttachedOrUnderfundedDriveCannotBeBanishedAsAPartialPayment",
+            "BaseCostExemptionDoesNotWaiveTheChosenHasteAdditionalCost",
+            "RefusingOneNonzeroPlayFeeStillRequiresTheOtherFreeLinkedUnit",
+            "RecoveryRequiresTheOriginalAcceptedSourceBanishCost",
+            "RecoveryRejectsChangedOwnersWaiversAndLinkedSources",
+            "AnUntargetedActivationRejectsConditionalCounteringAndCannotBeReinsertedAfterResolution",
+            "ARealHoldingCostIncreaseIsStillPaidAfterTheBaseCostIsWaived",
+            "TheEquipmentAbilityCompletesOnceAfterAllOfItsLinkedUnitsHaveBeenPlayed"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -32,6 +32,7 @@ internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, D
     public IReadOnlyList<LastBreathUnitCreationContext> UnitCreations { get; init; } = [];
     public IReadOnlyList<LastBreathRuneCallContext> RuneCalls { get; init; } = [];
     public IReadOnlyList<LastBreathDrawContext> Draws { get; init; } = [];
+    public IReadOnlyList<UnitEventContext> ArmamentLastBreaths { get; init; } = [];
     public IReadOnlyList<LastBreathBattlefieldDamageContext> BattlefieldDamages { get; init; } = [];
     public IReadOnlyList<LastBreathMightContext> LastBreathMights { get; init; } = [];
     public DravenBattleDeathScoreContext? DravenBattleDeathScore { get; init; }
@@ -214,6 +215,7 @@ public sealed partial class CoreRuleEngine
             UnitCreations = CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId),
             RuneCalls = CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId),
             Draws = CaptureLastBreathDraws(state, zones, cards, unit, deathId),
+            ArmamentLastBreaths = CaptureArmamentLastBreaths(state, zones, cards, unit, deathId, fact),
             BattlefieldDamages = CaptureLastBreathBattlefieldDamage(state, zones, cards, unit, deathId),
             DravenBattleDeathScore = CaptureDravenBattleDeathScore(state, zones, cards,
                 frame.CurrentDestructionLocations ?? state.ObjectLocations, unit, deathId, state.Tick + 1),
@@ -272,6 +274,7 @@ public sealed partial class CoreRuleEngine
             var prior=counts.GetValueOrDefault(death.Unit.ControllerId);
             counts[death.Unit.ControllerId]=prior+1;
             if (state.Status!=MatchStatuses.InProgress) continue;
+            QueueArmamentLastBreaths(state, death, queue, events);
             foreach (var captured in death.UnitCreations)
             {
                 var context = captured with { CreatedAtTick = RuleChoices.Value?.CompletionTick ?? state.Tick };

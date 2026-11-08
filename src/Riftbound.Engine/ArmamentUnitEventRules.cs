@@ -38,7 +38,8 @@ internal static class ArmamentUnitEventRules
             return (definition.CardNo, Spec: spec is null ? null : spec with { GrantedByArmament = true });
         }).Where(row => row.Spec is not null).ToDictionary(row => row.CardNo, row => row.Spec!, StringComparer.Ordinal));
 
-    internal static UnitEventAbilitySpec? Spec(string no) => Specs.Value.GetValueOrDefault(no);
+    internal static UnitEventAbilitySpec? Spec(string no)
+        => Specs.Value.GetValueOrDefault(no) ?? ArmamentLastBreathRules.Spec(no);
 
     internal static IEnumerable<RuleTextInstance> Instances(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState host)
@@ -48,8 +49,12 @@ internal static class ArmamentUnitEventRules
         long generation, string no)
         => ArmamentRuleTextRules.ValidCaptured(state, origin, hostId, generation, no, candidate => Spec(candidate) is not null);
 
-    internal static string CaptureHash(UnitEventContext context) => MatchStateHasher.HashValue(new {
-        context.CardNo, context.SourceGeneration, context.FaceRevision, context.CapturedTick,
-        context.Timing, context.TokenFactoryCardNo, context.Origin
-    });
+    internal static string CaptureHash(UnitEventContext context)
+    {
+        var binding = MatchStateHasher.HashValue(new {
+            context.CardNo, context.SourceGeneration, context.FaceRevision, context.CapturedTick,
+            context.Timing, context.TokenFactoryCardNo, context.Origin });
+        return context.ArmamentDeath is null ? binding
+            : MatchStateHasher.HashValue(new { binding, context.ArmamentDeath });
+    }
 }

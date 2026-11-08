@@ -9,14 +9,18 @@ public static partial class MatchRecoveryValidator
         var queue = state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id && i.ControllerId == controller
             && i.SourceObjectId == source && i.EffectKind == kind);
         if (queue is not null && (
-            queue.LastBreathDraw is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathDrawTrigger(state, queue)
+            queue.UnitEvent is { ArmamentDeath.Unit.WasToken: true, TokenFactoryCardNo: not null }
+                && CoreRuleEngine.ValidUnitEvent(state, queue.UnitEvent, queue.EffectKind, source, controller: controller)
+            || queue.LastBreathDraw is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathDrawTrigger(state, queue)
             || queue.LastBreathRuneCall is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathRuneCallTrigger(state, queue)
             || queue.LastBreathUnitCreation is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathUnitCreationTrigger(state, queue)
             || queue.LastBreathBattlefieldDamage is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathBattlefieldDamageTrigger(state, queue))) return true;
         var stack = state.StackItems.FirstOrDefault(i => i.StackItemId == id && i.ControllerId == controller
             && i.SourceObjectId == source && i.EffectKind == kind);
         return stack is not null && (
-            stack.LastBreathDraw is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathDrawStack(state, stack)
+            stack.UnitEvent is { ArmamentDeath.Unit.WasToken: true, TokenFactoryCardNo: not null }
+                && CoreRuleEngine.ValidUnitEvent(state, stack.UnitEvent, stack.EffectKind, source, stack.CardNo, controller)
+            || stack.LastBreathDraw is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathDrawStack(state, stack)
             || stack.LastBreathRuneCall is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathRuneCallStack(state, stack)
             || stack.LastBreathUnitCreation is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathUnitCreationStack(state, stack)
             || stack.LastBreathBattlefieldDamage is { SourceTokenFactoryCardNo: not null } && CoreRuleEngine.ValidLastBreathBattlefieldDamageStack(state, stack));

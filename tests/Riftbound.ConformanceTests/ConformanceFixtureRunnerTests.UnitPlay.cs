@@ -3145,7 +3145,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(["P1-BUHRU-CAPTAIN-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-BUHRU-CAPTAIN"].Power);
@@ -3163,7 +3164,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-BUHRU-CAPTAIN"].Power);
@@ -3171,7 +3173,7 @@ public sealed partial class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public void CoreRuleEngineBuhruCaptainPromptExposesModalChoices()
+    public void CoreRuleEngineBuhruCaptainPlayPromptDefersModeChoicesToItsTrigger()
     {
         var state = PunishmentState(mana: 3) with
         {
@@ -3198,40 +3200,16 @@ public sealed partial class ConformanceFixtureRunnerTests
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
 
         Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], (playCandidate.Sources ?? []).Select(source => source.Id).ToArray());
-        Assert.Equal(["DRAW_1", "SELF_BOON"], (playCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
-        Assert.Equal(["抽 1 张", "给予我增益"], (playCandidate.Modes ?? []).Select(mode => mode.Label).ToArray());
+        Assert.Empty(playCandidate.Modes ?? []);
     }
 
-    [Fact]
-    public async Task CoreRuleEngineRejectsBuhruCaptainWhenModeIsMissing()
+    [Theory]
+    [InlineData("DRAW_1")]
+    [InlineData("SELF_BOON")]
+    public async Task CoreRuleEngineRejectsBuhruCaptainPlayTimeMode(string mode)
     {
-        var state = PunishmentState(mana: 3) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Hand = ["P1-UNIT-BUHRU-CAPTAIN"]
-                }
-            }
-        };
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-buhru-captain-missing-mode", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-BUHRU-CAPTAIN",
-                "SFD·091/221",
-                []),
-            CancellationToken.None);
-
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.State.PlayerZones["P1"].Hand);
-        Assert.Empty(result.State.StackItems);
+        var state = RadGearTestPosition.Put(RadGearTestPosition.Create(), "CAPTAIN", "SFD·091/221", "P1", "HAND");
+        await RadGearTestPosition.Reject(state, "P1", new PlayCardCommand("CAPTAIN", "SFD·091/221", [], mode));
     }
 
     [Fact]

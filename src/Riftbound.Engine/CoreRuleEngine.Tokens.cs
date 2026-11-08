@@ -89,11 +89,13 @@ public sealed partial class CoreRuleEngine
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
             .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
             StackItems = result.State.StackItems.Select(i => BindSimpleSource(i with {
+                StandbyObserver = MarkCeasedStandbyUnit(before, result.State, departed, i.StandbyObserver),
                 FieldContext = Invalidate(i.SourceObjectId, i.FieldContext),
                 HeldContext = MarkCeasedUnitHeld(before, departed, i.SourceObjectId, i.HeldContext) })).ToArray(),
             PendingEffectPlay = result.State.PendingEffectPlay is { } pending
                 ? pending with { Parent = BindSimpleSource(pending.Parent) } : null,
             TriggerQueue = result.State.TriggerQueue.Select(t => t with {
+                StandbyObserver = MarkCeasedStandbyUnit(before, result.State, departed, t.StandbyObserver),
                 FieldContext = Invalidate(t.SourceObjectId, t.FieldContext),
                 HeldContext = MarkCeasedUnitHeld(before, departed, t.SourceObjectId, t.HeldContext) }).ToArray() };
         // Preserve the originally declared participant identities. The current

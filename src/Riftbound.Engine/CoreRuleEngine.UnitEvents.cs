@@ -281,16 +281,23 @@ public sealed partial class CoreRuleEngine
         return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
 
+    internal static string UnitEventSourceIdentity(string source, string timing)
+        => MatchStateHasher.HashValue(new { source, timing });
+
     private static TriggerQueueItemState UnitEventTrigger(UnitEventObservation observation, long tick, int ordinal,
         string eventKind, string? timing = null)
     {
         var captured = observation.Context;
         if (captured.Origin is { ArmamentGranted: true } armament)
             captured = captured with { Origin = armament with { CapturedTick = tick } };
-        var id = $"unit-event-{tick}-{ordinal}-{observation.Source}-{captured.Timing}";
+        // The public skill may outlive its source's stay in a public zone.
+        // Its stack and choice ids cannot contain the source's transport id.
+        var id = $"unit-event-{tick}-{ordinal}-{UnitEventSourceIdentity(observation.Source, captured.Timing)}";
         if (captured.Origin is { ArmamentGranted: true })
             id = "armament-unit-event-" + MatchStateHasher.HashValue(new {
                 tick, ordinal, observation.Source, captured.CardNo, captured.Origin });
+        if (captured.Timing == EquipmentSkillCompletedTiming)
+            captured = captured with { EquipmentSkillTriggerHash = MatchStateHasher.HashValue(id) };
         if (UnitEventSpec(captured.CardNo) is { Effect: "INSIGHT" } insight)
             return new(id, observation.Controller, observation.Source, InsightTriggerEffect, eventKind, timing) {
                 SourceCardNo = captured.CardNo,
@@ -363,6 +370,8 @@ public sealed partial class CoreRuleEngine
             && (c.Mode is null || !spec.DistinctModesPerTurn || state.RuleTextModeUses is { } uses
                 && uses.TurnNumber == state.TurnNumber && uses.Uses.Contains(new RuleTextModeUse(new(source, c.SourceGeneration), c.CardNo, c.Mode, c.Origin, c.TokenFactoryCardNo)))
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
+            && ValidArmamentDeath(state, c, source, controller)
+            && EquipmentSkillObservationShape(c)
             && (spec.Timing == EnemyMightReducedHere ? ValidMightReduction(state, c, source) && (controller is null || c.MightReduction!.Actor == controller) : c.MightReduction is null)
             && (spec.Effect == "BURN_MIGHT_FRIENDLY"
                 ? c.BurnedUnit is { } burned
@@ -543,6 +552,7 @@ public sealed partial class CoreRuleEngine
         if (IsPlayedUnitRuneSpec(spec)) return ResolvePlayedUnitRunes(state, item, spec);
         if (spec.Effect == "CALL_RUNES_PER_CONSUMED_BOON") return ResolvePaidBoonRuneInstruction(state, item, spec);
         if (spec.Effect == "BANISH_LINKED_UNIT_HERE") return ResolveLinkedUnitExile(state, item);
+        if (spec.Effect == ArmamentLastBreathRules.BanishEffect) return ResolveArmamentDeathBanish(state, item);
         if (spec.Effect == "BANISH_TOP_TIMED_PLAY") return ResolveTimedBanishPlay(state, item,
             [new("ABILITY_RESOLVED", "触发技能结算", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId })]);
         if (spec.Effect is "BOON_SELF" or "BOON_SELF_AND_READY" or "READY_SELF" or "MIGHT_SELF_AND_READY" or "STUN_ENEMY")
@@ -584,6 +594,7 @@ public sealed partial class CoreRuleEngine
                 TriggerQueue = removal.TriggerQueue, DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds,
                 Events = events.Concat(removal.Events).ToArray(), ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
         }
+        if (spec.Effect == EachPlayerEquipmentTokenEffect) return ResolveEachPlayerEquipmentTokens(state, item, spec);
         if (spec.Effect == "CREATE_EQUIPMENT_TOKEN") {
             if (!P6TokenFactoryCatalog.TryGetByCardNo(spec.CreatedTokenFactoryCardNo!, out var factory)
                 || !factory.Tags.Contains(CardObjectTags.EquipmentCard))

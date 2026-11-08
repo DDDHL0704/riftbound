@@ -38,7 +38,8 @@ internal static class BanishPlayRecoveryRules
         if (pending.Parent.LastBreathBattlefieldDamage?.Kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathBanishDeckTopPlay)
             return CoreRuleEngine.ValidLastBreathDeckTopPlay(state, pending);
         if (pending.Parent.SimpleActivation is not null)
-            return CoreRuleEngine.ValidLinkedGraveyardExilePlay(state, pending)
+            return CoreRuleEngine.ValidAllLinkedArmamentUnitPlay(state, pending)
+                || CoreRuleEngine.ValidLinkedGraveyardExilePlay(state, pending)
                 || SelfReplayPrintedSources.Value.Contains(pending.Parent.CardNo)
                 && CoreRuleEngine.ValidSelfBanishReplayEffectPlay(state, pending);
         var parent = pending.Parent;
