@@ -11,6 +11,18 @@ public sealed partial class CoreRuleEngine
             && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId
             && play.Source.ObjectId == item.SourceObjectId)?.Source;
 
+    // CN 383.2.a.1: the paid optional cost is part of the trigger condition.
+    // Use the same declaration predicate for capture, resolution and recovery.
+    internal static bool SourceOptionalReadyPowerCostWasPaid(CardBehaviorDefinition behavior, StackItemState item)
+    {
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
+        return behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
+            && behavior.SourceReadyPowerModifierAmount != 0 && !string.IsNullOrWhiteSpace(requiredTrait)
+            && item.OptionalCosts.Any(cost => TryParseSpendPowerOptionalCost(cost, out var amount, out var trait)
+                && amount == behavior.SourceReadyPowerModifierAdditionalPowerCost
+                && RuneTrait.Normalize(trait) == requiredTrait);
+    }
+
     internal static ContinuousEffectState PublicPlayInstructionEffect(MatchState state, ContinuousEffectState effect, string viewer)
     {
         // Keep the full provenance in the authoritative ledger. A resolved

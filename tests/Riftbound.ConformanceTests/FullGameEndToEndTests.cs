@@ -25709,6 +25709,28 @@ public sealed partial class FullGameEndToEndTests
                             Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
                                 item.SourceObjectId, item.CardNo, item.ControllerId));
                         }
+                        if (unitEvent.CardNo == "UNL-056/219")
+                        {
+                            Assert.Equal("ATTACK_OR_DEFEND", unitEvent.Timing);
+                            Assert.Equal("MIGHT_FRIENDLY", behavior.UnitEventAbility.Effect);
+                            Assert.Equal(3, behavior.UnitEventAbility.Amount);
+                            Assert.True(behavior.UnitEventAbility.TargetsAnotherFriendlyHere);
+                            Assert.Equal(CardCombatKeywordNames.Bulwark, behavior.UnitEventAbility.GrantedCombatKeyword);
+                            Assert.False(behavior.UnitEventAbility.Optional);
+                            Assert.Null(item.TriggerCost);
+                            Assert.Single(item.TargetObjectIds);
+                            Assert.NotEqual(item.SourceObjectId, item.TargetObjectIds[0]);
+                            Assert.NotNull(item.TargetGenerations);
+                        }
+                        if (unitEvent.CardNo is "UNL-058/219" or "UNL-058a/219")
+                        {
+                            Assert.Equal(new UnitEventAbilitySpec("FRIENDLY_UNIT_PLAYED", "MIGHT_SELF", 1,
+                                RequiresPlayedUnitToken: true), behavior.UnitEventAbility);
+                            Assert.Empty(item.TargetObjectIds); Assert.Null(item.TargetGenerations); Assert.Null(item.TriggerCost);
+                            Assert.Null(unitEvent.Other); Assert.Null(unitEvent.Here); Assert.Null(unitEvent.Mode);
+                            Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
+                                item.SourceObjectId, item.CardNo, item.ControllerId));
+                        }
                         if (unitEvent.CardNo == "OGN·200/298")
                         {
                             Assert.Equal("ATTACK", unitEvent.Timing);
