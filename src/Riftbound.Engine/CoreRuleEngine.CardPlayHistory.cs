@@ -12,7 +12,8 @@ public sealed record CardPlayHistoryEntry(string PlayId, string PlayerId, Object
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool OriginOutsideHands = false,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ReturnedEquipmentManaCost = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ShowcaseReceipt? Showcase = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<OptionalPlayCostReductionUse>? OptionalPlayCostReductions = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<OptionalPlayCostReductionUse>? OptionalPlayCostReductions = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? PaidMana = null);
 public sealed record TurnCardPlayHistory(int TurnNumber,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Finalized,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Resolved);
@@ -71,6 +72,7 @@ public sealed partial class CoreRuleEngine
             .Select(card => card.ObjectId);
         return CaptureUnitEvents(zones, cards, friendly, "SECOND_CARD_PLAYED")
             .Concat(CaptureUnitEvents(zones, cards, [playedSource], "PLAY_AFTER_ANOTHER_CARD"))
+            .Concat(CaptureUnitEvents(zones, cards, friendly, UnitEventTimings.OpponentTurnSpellPlayed))
             .Where(observation => observation.Controller == player).ToArray();
     }
 
@@ -93,6 +95,7 @@ public sealed partial class CoreRuleEngine
         {
             if (ev.Payload.GetValueOrDefault(CardPlayHistoryObservationKey) is not CardPlayHistoryObservation observation)
             { if (ev.Kind != "INTERNAL_CARD_PLAY_COMPLETION") events.Add(ev); continue; }
+            var publicEventIndex = events.Count;
             if (ev.Kind != "INTERNAL_CARD_PLAY_COMPLETION")
                 events.Add(ev with { Payload = ev.Payload.Where(p => p.Key != CardPlayHistoryObservationKey)
                     .ToDictionary(p => p.Key, p => p.Value) });
@@ -103,16 +106,31 @@ public sealed partial class CoreRuleEngine
                 && oldLocation.Zone != observation.Zone
                 && (!IsIdentityFieldZone(oldLocation.Zone) || !IsIdentityFieldZone(observation.Zone)))
                 generation = Math.Max(generation, old.ObjectGeneration + 1);
-            var costReceipt = result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.ReturnedEquipmentManaCost;
+            var confirmedItem = result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId);
+            var costReceipt = confirmedItem?.ReturnedEquipmentManaCost;
             var optionalPlayReductions = result.State.UntilEndOfTurnEffects.Select(ReadPlayCostReductionUse)
                 .OfType<OptionalPlayCostReductionUse>().Where(use => use.PlayId == entry.PlayId).ToArray();
             entry = entry with { ReturnedEquipmentManaCost = costReceipt,
+                PaidMana = !observation.Resolved && (entry.Types & 4) != 0 ? confirmedItem?.PlayCost?.PaidMana : null,
                 OptionalPlayCostReductions = optionalPlayReductions.Length == 0 ? null : optionalPlayReductions,
                 Showcase = entry.Showcase ?? result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.Showcase };
             var limited = entry.PlayId.Length == 0;
             if (limited) entry = entry with { OriginOutsideHands = true };
             entry = entry with { PlayId = limited ? $"LIMITED-{result.State.Tick}-{index}-{entry.Source.ObjectId}" : entry.PlayId,
-                Tick = result.State.Tick, Source = entry.Source with { Generation = generation } };
+                // Only the monetary confirmation receipt belongs to the final
+                // accepted answer's tick. Resolution observations also appear
+                // in synchronous-choice previews; their command-local tick
+                // must stay identical when replaying an earlier answer.
+                Tick = !observation.Resolved && entry.PaidMana is not null
+                    ? RuleChoices.Value?.CompletionTick ?? result.State.Tick : result.State.Tick,
+                Source = entry.Source with { Generation = generation } };
+            if (!observation.Resolved && entry.PaidMana is { } paidMana && ev.Kind == "CARD_PLAYED")
+            {
+                var publicEvent = events[publicEventIndex];
+                events[publicEventIndex] = publicEvent with { Payload = new Dictionary<string, object?>(publicEvent.Payload) {
+                    ["spellManaPayment"] = new ConfirmedSpellManaPayment(entry.Source, entry.CardNo, entry.PlayerId,
+                        entry.PlayId, paidMana, before.TurnNumber, entry.Tick) } };
+            }
             // Limited effect plays complete the play instruction directly. They
             // must not borrow a previous countered play of this physical card.
             if (!observation.Resolved || limited)
@@ -126,6 +144,7 @@ public sealed partial class CoreRuleEngine
             {
                 var confirmed = finalized.FirstOrDefault(p => p.PlayId == entry.PlayId);
                 entry = entry with { OriginHandPlayerId = confirmed?.OriginHandPlayerId,
+                    PaidMana = confirmed?.PaidMana,
                     OriginOutsideHands = confirmed?.OriginOutsideHands ?? false,
                     ReturnedEquipmentManaCost = confirmed?.ReturnedEquipmentManaCost ?? entry.ReturnedEquipmentManaCost,
                     Showcase = confirmed?.Showcase ?? entry.Showcase };
@@ -152,6 +171,13 @@ public sealed partial class CoreRuleEngine
                 }
                 if (result.State.Status == MatchStatuses.InProgress)
                 {
+                    // CN 420.4: this observes completion, including effect plays,
+                    // and never a countered spell's earlier confirmation.
+                    if ((entry.Types & 4) != 0 && entry.PlayerId != before.TurnPlayerId
+                        && result.State.TurnNumber == before.TurnNumber)
+                        cardPlayObservers.AddRange(observation.CardPlayObservers.Where(observer =>
+                            observer.Context.Timing == UnitEventTimings.OpponentTurnSpellPlayed)
+                            .Select(observer => observer with { PlayedCardPlayId = entry.PlayId }));
                     if (result.State.PlayerCardsPlayedThisTurn.GetValueOrDefault(entry.PlayerId) >= 2)
                     {
                         // Confirmation fixes the ordinal; a later reaction can resolve first
@@ -161,7 +187,8 @@ public sealed partial class CoreRuleEngine
                         var hasOtherCard = finalized.Any(play => play.PlayerId == entry.PlayerId
                             && play.Source.ObjectId != entry.Source.ObjectId);
                         cardPlayObservers.AddRange(observation.CardPlayObservers.Where(observer =>
-                            observer.Context.Timing == "SECOND_CARD_PLAYED" ? isSecondCard : hasOtherCard));
+                            observer.Context.Timing == "SECOND_CARD_PLAYED" ? isSecondCard
+                                : observer.Context.Timing == "PLAY_AFTER_ANOTHER_CARD" && hasOtherCard));
                     }
                     foreach (var (observer, ordinal) in observation.Observers.Select((value, ordinal) => (value, ordinal)))
                     {
@@ -199,7 +226,7 @@ public sealed partial class CoreRuleEngine
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
         foreach (var (observer, index) in cardPlayObservers
-            .DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Timing, o.Context.Origin))
+            .DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Timing, o.Context.Origin, o.PlayedCardPlayId))
             .Select((o, i) => (o, i))) {
             var captured = observer;
             if (before.CardObjects.TryGetValue(observer.Source, out var prior) && !IsObjectOnField(before.PlayerZones, observer.Source))
@@ -228,6 +255,7 @@ public sealed partial class CoreRuleEngine
                 || !ValidShowcaseReceipt(state, e.Showcase, e.CardNo, e.Source.ObjectId)
                 || e.Showcase is { } shown && shown.Tick > e.Tick
                 || e.ReturnedEquipmentManaCost is < 0
+                || e.PaidMana is < 0 || e.PaidMana is not null && (e.Types & 4) == 0
                 || e.ReturnedEquipmentManaCost is not null && (!CardBehaviorRegistry.TryGetByCardNo(e.CardNo, out var returned) || !returned.MayReturnFriendlyEquipmentAdditionalCost)
                 || e.Tick <= 0 || e.Tick > state.Tick || e.FaceRevision < 0
                 || !PrintedPlayTypes.Value.TryGetValue(e.CardNo, out var types) || types == 0 || e.Types != types
@@ -257,6 +285,8 @@ public sealed partial class CoreRuleEngine
             if (entries.Any(e => !Valid(e)) || entries.Select(e => e.PlayId).Distinct(StringComparer.Ordinal).Count() != entries.Count) return false;
         if (history.Finalized.Any(e => e.Showcase is { } receipt && receipt.PlayerId != e.PlayerId)) return false;
         foreach (var completed in history.Resolved)
+        {
+            if (completed.PaidMana is not null && !history.Finalized.Any(e => e.PlayId == completed.PlayId && e.PaidMana == completed.PaidMana)) return false;
             if (history.Finalized.FirstOrDefault(e => e.PlayId == completed.PlayId) is { } confirmed
                 && (confirmed.CardNo != completed.CardNo || confirmed.Types != completed.Types
                     || confirmed.Source.ObjectId != completed.Source.ObjectId || confirmed.Tick > completed.Tick
@@ -264,7 +294,9 @@ public sealed partial class CoreRuleEngine
                     || confirmed.OriginHandPlayerId != completed.OriginHandPlayerId
                     || confirmed.OriginOutsideHands != completed.OriginOutsideHands
                     || confirmed.Showcase != completed.Showcase
+                    || confirmed.PaidMana != completed.PaidMana
                     || confirmed.ReturnedEquipmentManaCost != completed.ReturnedEquipmentManaCost)) return false;
+        }
         return true;
     }
 }

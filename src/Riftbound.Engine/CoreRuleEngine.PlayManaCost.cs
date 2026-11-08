@@ -22,7 +22,7 @@ public sealed partial class CoreRuleEngine
         var increase = ResolveBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
         var spellIncrease = OpponentSpellCostIncreases(state, playerId, behavior).Mana;
         var effect = state.PendingEffectPlay is { } pending && pending.PlayerId == playerId ? pending : null;
-        var total = (effect?.IgnoreBaseMana == true || behavior.IgnoreBasePlayCostFromBoons || behavior.AppliedEquipmentPlayGrant is not null || behavior.StandbyPlayFrom is not null ? 0 : Math.Max(0, behavior.AppliedSelfGraveyardPlay?.Mana ?? behavior.AppliedFlowCost?.Mana ?? behavior.ManaCost))
+        var total = (behavior.AppliedSpellManaAlternativeCost is not null || effect?.IgnoreBaseMana == true || behavior.IgnoreBasePlayCostFromBoons || behavior.AppliedEquipmentPlayGrant is not null || behavior.StandbyPlayFrom is not null ? 0 : Math.Max(0, behavior.AppliedSelfGraveyardPlay?.Mana ?? behavior.AppliedFlowCost?.Mana ?? behavior.ManaCost))
             + Math.Max(0, additionalMana - (componentEchoReduction.HasValue ? 0 : echoReduction)) + increase + spellIncrease;
         var reductions = new List<(string Kind, int Amount, int Floor)> { ("card", effect?.ManaReduction ?? 0, 0) };
         if (behavior.PlaysSourceToBaseAsUnit)

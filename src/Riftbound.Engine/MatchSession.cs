@@ -3903,6 +3903,7 @@ internal static partial class ActionPromptBuilder
             .SelectMany(behavior => CoreRuleEngine.FlowPlayBehaviors(state, playerId, objectId, behavior))
             .SelectMany(behavior => CoreRuleEngine.NormalGraveyardPlayBehaviors(state, playerId, objectId, behavior))
             .Select(behavior => CoreRuleEngine.PlaySourceKeywordBehavior(state, playerId, objectId, behavior))
+            .SelectMany(behavior => CoreRuleEngine.SpellManaAlternativePlayBehaviors(state, playerId, behavior))
             .Select(behavior => CoreRuleEngine.PromptAmbushTimingBehavior(state, playerId, behavior))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
@@ -4292,6 +4293,12 @@ internal static partial class ActionPromptBuilder
         if (behavior.AppliedFlowCost is { } flow)
             choices.Add(new(CoreRuleEngine.FlowCostChoiceId(flow), $"流转：{flow.Mana} 法力 / {flow.Power} 符能",
                 "选择此替代基础费用；额外费用照常支付"));
+        foreach (var alternative in CoreRuleEngine.SpellManaAlternativePlayBehaviors(state, playerId, behavior)
+            .Select(b => b.AppliedSpellManaAlternativeCost).OfType<SpellManaAlternativeCostSpec>())
+            choices.Add(new(CoreRuleEngine.SpellManaAlternativeCostChoiceId(alternative),
+                alternative.Power == 0 ? "替代基础费用：0 法力 / 0 符能"
+                    : $"替代基础费用：{alternative.Power} {string.Join('/', alternative.Traits.Select(RuneTraitLabel))}符能",
+                $"本回合已确认打出实际支付至少{alternative.MinimumPaidMana}法力的法术；额外费用和增减费照常处理"));
 
         var reductionChoiceIds = new HashSet<string>(StringComparer.Ordinal);
         void AddReductionChoices(IReadOnlyList<ActionPromptChoiceDto> reductions)
@@ -5530,6 +5537,11 @@ internal static partial class ActionPromptBuilder
             ["normalGraveyardPlayChoiceId"] = behavior.AppliedFlowCost is null && behavior.AppliedSelfGraveyardPlay is null
                 && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId) ? CoreRuleEngine.NormalGraveyardPlayChoice : null,
             ["flowCostChoiceId"] = behavior.AppliedFlowCost is { } flowCost ? CoreRuleEngine.FlowCostChoiceId(flowCost) : null,
+            ["spellManaAlternativeCostChoiceId"] = behavior.AppliedSpellManaAlternativeCost is { } alternativeCost
+                ? CoreRuleEngine.SpellManaAlternativeCostChoiceId(alternativeCost) : null,
+            ["spellManaAlternativeCostChoices"] = CoreRuleEngine.SpellManaAlternativePlayBehaviors(state, playerId, behavior)
+                .Select(b => b.AppliedSpellManaAlternativeCost).OfType<SpellManaAlternativeCostSpec>()
+                .Select(c => new { id = CoreRuleEngine.SpellManaAlternativeCostChoiceId(c), mana = 0, power = c.Power, traits = c.Traits }).ToArray(),
             ["flowCostChoices"] = CoreRuleEngine.FlowPlayBehaviors(state, playerId, sourceObjectId, behavior)
                 .Where(b => b.AppliedFlowCost is not null).Select(b => new {
                     id = CoreRuleEngine.FlowCostChoiceId(b.AppliedFlowCost!), mana = b.AppliedFlowCost!.Mana,

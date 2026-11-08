@@ -49,7 +49,7 @@ public sealed class ObservedDisclosurePresentationTests
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
-        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
         var original = viewer == "SPECTATOR" ? spectator.SpectatorSnapshot : snapshots[viewer];
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         var node = JsonSerializer.SerializeToNode(original, options)!;
@@ -62,7 +62,7 @@ public sealed class ObservedDisclosurePresentationTests
         var forged = JsonSerializer.Deserialize<SnapshotDto>(node.ToJsonString(), options)!;
         if (viewer == "SPECTATOR") spectator = spectator with { SpectatorSnapshot = forged };
         else views[viewer] = views[viewer] with { Snapshot = forged };
-        var errors = MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator);
+        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator);
         Assert.Contains(errors, error => error.Contains("deck observation disclosure kind", StringComparison.Ordinal));
     }
 

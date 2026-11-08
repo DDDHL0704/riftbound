@@ -255,7 +255,7 @@ public sealed class OfficialInformationPermissionTests
     {
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
-        var errors = MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state));
+        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state));
         Assert.True(errors.Count == 0, string.Join("\n", errors));
     }
 }

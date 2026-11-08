@@ -87,6 +87,9 @@ public sealed partial class CoreRuleEngine
             || item.ControllerId != context.ControllerId || item.CardNo != context.CardNo
             || chosenOpponent == context.ControllerId || !SeatPlayerIds(state).Contains(chosenOpponent, StringComparer.Ordinal))
             throw new InvalidOperationException("Invalid captured Draven battle-death score.");
+        var prevented = new List<GameEvent>();
+        if (TryPreventPointGain(state, chosenOpponent, 1, DravenBattleDeathScoreEffect, context.Source.ObjectId, prevented))
+            return NoopStackResolutionResult(state) with { Events = prevented };
         var scores = NormalizeScoresForSeats(state);
         scores[chosenOpponent] += 1;
         var events = new List<GameEvent>

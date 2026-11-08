@@ -25,6 +25,9 @@ public sealed partial class CoreRuleEngine
     private static int ConditionalPlayCostCount(MatchState state, string player, CardBehaviorDefinition behavior)
         => behavior.CostReductionConditionKind switch
         {
+            CardCostReductionConditionKinds.ControllerHeldBattlefieldCountThisTurn
+                => state.BattlefieldHolds is { } holds && holds.TurnNumber == state.TurnNumber
+                    ? holds.Entries.Count(entry => entry.PlayerId == player) : 0,
             CardCostReductionConditionKinds.ControllerExperienceThresholdCount
                 => behavior.CostReductionExperienceThresholds?.Count(threshold
                     => state.PlayerExperience.GetValueOrDefault(player) >= threshold) ?? 0,
