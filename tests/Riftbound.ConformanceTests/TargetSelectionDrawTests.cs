@@ -107,7 +107,8 @@ public sealed class TargetSelectionDrawTests
         Assert.Null(game.State.PendingPayment);
         await game.Act("P1", new ChooseCardsCommand(confirmation.ChoiceId, confirmation.ChoiceWindow, ["ALLY"]));
         Assert.Equal(1, game.State.PendingPayment!.ManaCost);
-        Assert.Equal("SOURCE", game.State.PendingPayment.SourceObjectId);
+        Assert.Equal("SOURCE", Assert.Single(game.State.StackItems,
+            item => item.StackItemId == game.State.PendingPayment.ResolvingStackItemId).SourceObjectId);
         var mana = game.State.RunePools["P1"].Mana;
         var before = game.State.CardObjects["ALLY"].Power;
         await Pay(game);
