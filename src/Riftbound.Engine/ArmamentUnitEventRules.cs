@@ -27,6 +27,16 @@ internal static class ArmamentUnitEventRules
             var spec = match.Success
                 ? new UnitEventAbilitySpec("ATTACK_OR_DEFEND", FixedDamageEffect, int.Parse(match.Groups["amount"].Value))
                 : area.Success ? new UnitEventAbilitySpec("ATTACK_OR_DEFEND", AreaDamageEffect, int.Parse(area.Groups["amount"].Value)) : null;
+            // These complete lower-box templates grant independent conquest
+            // skills to the host, using the ordinary captured instructions.
+            spec ??= Regex.Replace(definition.EffectText, "（[^）]*）", "").Trim() switch {
+                "当我征服一处战场时，给予我增益。" => new("CONQUEST", "BOON_SELF"),
+                "当我征服一处战场时，召出一枚休眠的符文。" => new("CONQUEST", "CALL_RUNE", 1),
+                "当我征服一处战场时，弃置一张手牌，然后抽一张牌。" => new("CONQUEST", "DISCARD_DRAW", 1, DiscardCount: 1),
+                "当我征服一处战场时，打出一个休眠的“金币”装备指示物。" => new("CONQUEST", "CREATE_EQUIPMENT_TOKEN", 1,
+                    CreatedTokenFactoryCardNo: "UNL·T05"),
+                _ => null
+            };
             if (spec is null && TriggerParser.Parse(definition.EffectText).FirstOrDefault(t =>
                     t.Kind == TriggerKinds.UnitBattlefieldHeldCreateEquipment && t.Timing == TriggerTimings.BattlefieldHeld
                     && t.TargetScope == TriggerTargetScopes.SourceUnit && t.CreatedTokenCount > 0

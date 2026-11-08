@@ -8793,14 +8793,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool isExhausted,
         List<GameEvent> events,
         string? capturedSourceCardNo = null,
-        string? publicSourceObjectId = null)
+        string? publicSourceObjectId = null,
+        string? tokenIdentitySeed = null)
     {
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return;
         }
 
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, tokenIdentitySeed ?? sourceObjectId, 1);
         var sourceCardNo = capturedSourceCardNo ?? (cardObjects.TryGetValue(sourceObjectId, out var sourceState)
             ? sourceState.CardNo : string.Empty);
         var hasTokenDefinition = TryGetEquipmentTokenDefinition(
@@ -20603,7 +20604,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyEquipmentThenBattlefield => targetIndex == 0
                 ? IsFriendlyEquipmentObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
-            CardTargetScopes.EnemyBattlefield => IsEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyBattlefield => IsEnemyOccupiedBattlefield(state, playerId, objectId),
             CardTargetScopes.FriendlyBaseUnitThenBattlefield => targetIndex == 0
                 ? IsPlayerControlledBaseObject(state, playerId, objectId) && IsFieldUnitObject(state, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
@@ -25161,8 +25162,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, damagedTargetObjectId))
             {
                 var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
-                    ? Math.Max(0, firstTargetState.Power)
+                    ? Math.Max(0, ResolveCurrentFieldUnitPower(DamageFrame() with { CardObjects = cardObjects }, firstTargetState))
                     : 0;
+                if (behavior.ReferencedPowerDamageIsFromSpell)
+                    damageAmount = ApplySpellSkillDamageBonuses(DamageFrame(), stackItem.ControllerId,
+                        damagedTargetObjectId, damageAmount, stackItem);
                 if (damageAmount > 0
                     && cardObjects.ContainsKey(damagedTargetObjectId))
                 {
@@ -25174,7 +25178,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds,
                         preventDamageFromThisStackItem,
-                        PreventSpellAndSkillDamageThisTurnEffectId, fromUnit: true);
+                        PreventSpellAndSkillDamageThisTurnEffectId, fromUnit: !behavior.ReferencedPowerDamageIsFromSpell);
                     events.Add(new GameEvent(
                         "DAMAGE_APPLIED",
                         $"{behavior.DisplayName}按友方单位战力造成伤害",
@@ -25182,9 +25186,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             stackItem.SourceObjectId,
                             damagedTargetObjectId,
                             damageApplication,
-                            firstTargetObjectId)));
+                            behavior.ReferencedPowerDamageIsFromSpell ? string.Empty : firstTargetObjectId)));
                 }
             }
+            if (behavior.DetachesArmamentFromFirstTarget)
+                DetachArmamentFromFirstTarget(state, stackItem, playerZones, cardObjects, events);
         }
         else if (behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower
             && stackItem.TargetObjectIds.Count >= 2)
