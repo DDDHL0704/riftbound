@@ -449,6 +449,7 @@ public sealed record CardBehaviorDefinition(
 {
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
+    public CombatSpellCostAdjustmentSpec? CombatSpellCostAdjustment { get; init; }
     public bool FirstTargetRequiresArmament { get; init; }
     public bool DetachesArmamentFromFirstTarget { get; init; }
     public bool ReferencedPowerDamageIsFromSpell { get; init; }
@@ -6439,7 +6440,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人"),
+            SourceUnitTags: "约德尔人") { CombatSpellCostAdjustment = new(1, 1, 1, 1, 1) },
         new(
             "SFD·152/221",
             "显赫金主",
