@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
         StackItemState item, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards)
     {
-        if (!item.StackItemId.StartsWith("STACK-", StringComparison.Ordinal)
+        if ((item.Equip is null && !item.StackItemId.StartsWith("STACK-", StringComparison.Ordinal))
             || item.SourceConfirmed || !StackObjectRules.IsAbility(item)
             || item.UnitEvent is not null || item.Tempered is not null
             || !EquipmentSkillSource(before, item)) return [];

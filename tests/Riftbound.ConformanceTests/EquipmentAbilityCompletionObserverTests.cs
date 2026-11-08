@@ -21,7 +21,7 @@ public sealed class EquipmentAbilityCompletionObserverTests
         var state = RadGearTestPosition.Put(Position(), "GOLD", "SFD·033/221", "P1", "BASE");
         Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(printing, out var factory));
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["GOLD"] = factory.CreateObject("GOLD", "P1", "P1", true) } };
+            ["GOLD"] = factory.CreateObject("GOLD", "P1", "P1") } };
         var game = new Driver(state);
         var ability = P4ActivatedAbilityCatalog.GetAll().Single(a => a.SourceCardNo == printing && a.IsResourceSkill);
         var power = game.State.RunePools["P1"].TotalPower;
@@ -42,14 +42,14 @@ public sealed class EquipmentAbilityCompletionObserverTests
     [InlineData(false)] [InlineData(true)]
     public async Task OnlyAnEquipmentAbilityThatActuallyResolvesEarnsTheMightSkill(bool countered)
     {
-        var state = RadGearTestPosition.Put(Position(), "BALLISTA", "OGN·017/298", "P1", "BASE");
+        var state = RadGearTestPosition.Put(Position(), "HOST", "OGN·017/298", "P1", "BASE");
         state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "OTHER");
         state = RadGearTestPosition.Put(state, "COUNTER", "SFD·045/221", "P2", "HAND");
-        var ability = P4ActivatedAbilityCatalog.GetAll().Single(a => a.SourceCardNo == "OGN·017/298");
+        var abilityId = PrintedExhaustAbilityTests.Ability(state);
         var game = new Driver(state);
         var might = game.State.CardObjects["PROGRESS"].Power;
-        await game.Act("P1", new ActivateAbilityCommand("BALLISTA", ability.AbilityId, ["ENEMY"]));
-        Assert.True(game.State.CardObjects["BALLISTA"].IsExhausted);
+        await game.Act("P1", new ActivateAbilityCommand("HOST", abilityId, ["ENEMY"]));
+        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
         Assert.Equal(might, game.State.CardObjects["PROGRESS"].Power);
         var skill = Assert.Single(game.State.StackItems);
         if (countered)
