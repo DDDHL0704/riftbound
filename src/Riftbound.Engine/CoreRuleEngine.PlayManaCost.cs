@@ -5,7 +5,8 @@ public sealed partial class CoreRuleEngine
     internal sealed record PlayManaCost(
         int Total, int CardReduction, int OptionalReduction, int EchoReduction, int EquipmentReduction,
         int UnitReduction, int NextSpellReduction, int BattlefieldSpellReduction, int Increase,
-        int EmpoweredSpellReduction = 0, int OpponentSpellIncrease = 0, int TimeAssassinReduction = 0);
+        int EmpoweredSpellReduction = 0, int OpponentSpellIncrease = 0, int TimeAssassinReduction = 0,
+        int CombatSpellReduction = 0);
 
     // CN 356: component reductions apply to that component, then total reductions apply
     // to base + additional costs + increases. A floor belongs only to its own reducer.
@@ -35,6 +36,8 @@ public sealed partial class CoreRuleEngine
                 .Select(source => ("spell", source.StaticSpellCostReductionMana, source.StaticSpellCostReductionMinimumManaCost)));
             reductions.AddRange(EmpoweredSpellCostReducers(state, playerId, behavior)
                 .Select(source => ("empoweredSpell", source.Mana, source.MinimumMana)));
+            reductions.AddRange(FriendlyCombatSpellCostReducers(state, playerId, behavior)
+                .Select(source => ("combatSpell", source.FriendlyManaReduction, source.MinimumFriendlyMana)));
             reductions.AddRange(FlowSpellCostReducers(state, playerId, behavior)
                 .Select(source => ("spell", source.StaticFlowSpellCostReductionMana, source.StaticFlowSpellCostReductionMinimumManaCost)));
         }
@@ -65,7 +68,7 @@ public sealed partial class CoreRuleEngine
         return new(total, applied.GetValueOrDefault("card"), applied.GetValueOrDefault("optional"), echoReduction,
             applied.GetValueOrDefault("equipment"), applied.GetValueOrDefault("unit"), applied.GetValueOrDefault("next"),
             applied.GetValueOrDefault("spell"), increase, applied.GetValueOrDefault("empoweredSpell"), spellIncrease,
-            applied.GetValueOrDefault("timeAssassin"));
+            applied.GetValueOrDefault("timeAssassin"), applied.GetValueOrDefault("combatSpell"));
     }
 
     // A prompt's lower bound may assume affordable optional reductions. The quote uses

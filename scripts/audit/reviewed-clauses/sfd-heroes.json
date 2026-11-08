@@ -691,21 +691,89 @@
       ],
       "text": "如果我处于战斗中，则所有友方法术的费用减少{{1}}和{{A}}，不得低于{{1}}，而所有敌方法术的费用增加{{1}}和{{A}}。",
       "scope": "如果我处于战斗中，则所有友方法术的费用减少{{1}}和{{A}}，不得低于{{1}}，而所有敌方法术的费用增加{{1}}和{{A}}。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少来源处于战斗中时友方法术1法力及1符能减费（法力下限1）与敌方法术同量增费",
+      "status": "route",
+      "reason": "来源当前处于战斗中时，按当前控制者和每份复制文本计算全局法术费用：友方减1法力及1任意符能（本减费的法力下限1），敌方增加同量；共享总费用报价、符能分配、付款及恢复回放",
       "runtime": {
-        "staticAuras": []
+        "staticAuras": [],
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "manaCost": 5,
+            "sourceUnitPower": 5,
+            "sourceUnitTags": "约德尔人",
+            "combatSpellCostAdjustment": {
+              "friendlyManaReduction": 1,
+              "friendlyGenericPowerReduction": 1,
+              "minimumFriendlyMana": 1,
+              "enemyManaIncrease": 1,
+              "enemyGenericPowerIncrease": 1
+            }
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CombatSpellCosts.cs",
           "contains": [
-            "\"SFD_VEX_COMBAT_SPELL_COST_PLAY_UNIT\""
+            "IsSpellCostSourceInBattle",
+            "IsEstablishedBattleDuelParticipant(state, source.ObjectId)",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "source.Controller == player"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "contains": [
+            "source.Controller != player",
+            "source.Spec.EnemyGenericPowerIncrease"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "contains": [
+            "source.FriendlyManaReduction, source.MinimumFriendlyMana",
+            "applied.GetValueOrDefault(\"combatSpell\")"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EmpoweredSpellCosts.cs",
+          "contains": [
+            "source.FriendlyGenericPowerReduction",
+            "ReduceSpellPower(a.GenericPower,"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心364.3／365.1、356.3–356.4 增减费；SFD·146 官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/VexCombatSpellCostTests.cs",
+          "methods": [
+            "EitherActualCombatRoleMakesAnOtherwiseUnaffordableSpellAvailable",
+            "EitherActualCombatRoleAddsManaAndGenericPowerToEveryEnemySpell",
+            "AnotherUnitsActualBattleDoesNotEnableANonparticipatingVex",
+            "GenericReductionCanRemoveColoredPowerInsteadOfWardForASpellTargetingAnotherLocation",
+            "ActualSongAssemblyCopiesBothCostComponentsButNeverDoublesTheLastPowerPip",
+            "RealSourceDepartureRepricesFutureSpellsWithoutRefundingTheConfirmedOne",
+            "DifferentTotalReducersCannotBothClaimTheSameRemovedPowerInThePreview",
+            "FriendshipUsesCurrentControlAndARealRecallRemovesTheNewControllersCombatAura",
+            "AnActualHeronReductionCombinesWithTheCombatFloorWithoutDuplicatingItsPowerCredit",
+            "TheSharedAttributionAlsoExplainsTheActualNextUnitManaAndPowerReduction"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VexCombatSpellCostTests.Faq.cs",
+          "methods": [
+            "TheOfficialTwoVexEzrealAndBellowsEchoExamplePaysExactlyOneMana"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/VexCombatSpellCostTests.Payments.cs",
+          "methods": [
+            "TheFriendlyCombatDiscountChangesJhinQualificationAfterTheCombinedEchoPayment",
+            "ActualCopiedEnemyCombatTaxMakesOneSpellQualifyForJhinEvenOnTheOpponentsTurn"
+          ]
+        }
+      ],
+      "rules": "核心356.3–356.4（总费用、额外费用、各减费独立下限）、466.2（第一场战斗法术对决即确立身份）、740.2.c（战斗中）；SFD·146 官方中文牌面；破限系列裁判FAQ260511：双薇古丝、伊泽瑞尔与风箱炎息回响的总付款为1法力"
     },
     {
       "cardNos": [
