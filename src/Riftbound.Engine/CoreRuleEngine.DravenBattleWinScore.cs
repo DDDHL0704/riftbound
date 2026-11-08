@@ -69,6 +69,9 @@ public sealed partial class CoreRuleEngine
             || item.CardNo != context.CardNo)
             throw new InvalidOperationException("Invalid captured Draven first battle-win score.");
 
+        var prevented = new List<GameEvent>();
+        if (TryPreventPointGain(state, context.ControllerId, 1, DravenBattleWinScoreEffect, context.Source.ObjectId, prevented))
+            return NoopStackResolutionResult(state) with { Events = prevented };
         var scores = NormalizeScoresForSeats(state);
         scores[context.ControllerId] += 1;
         var events = new List<GameEvent>

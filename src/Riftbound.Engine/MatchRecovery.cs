@@ -1178,7 +1178,10 @@ public static partial class MatchRecoveryValidator
             ValidateOriginalEffectPlayLocation(authoritativeState, events, requireAcceptedBattleHistory, errors);
         }
         if (authoritativeState is not null && requireAcceptedBattleHistory)
+        {
             ValidateBattlefieldConquestHistory(authoritativeState, events, errors);
+            ValidateBattlefieldHoldHistory(authoritativeState, commands, events, errors);
+        }
 
         if (string.IsNullOrWhiteSpace(roomId))
         {
@@ -1228,6 +1231,7 @@ public static partial class MatchRecoveryValidator
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateArmamentUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateInstructionCostHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
             ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
             ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);
@@ -4249,6 +4253,7 @@ public static partial class MatchRecoveryValidator
                     || !ValidMovementPlayers(state, movement)
                 : item.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
+        ValidateBattlefieldHolds(state, errors);
         if (state.BattlefieldConquests is { } conquests && (conquests.TurnNumber != state.TurnNumber
             || conquests.Entries is null || conquests.Entries.Count == 0 || conquests.Entries.Distinct().Count() != conquests.Entries.Count
             || conquests.Entries.Any(entry => entry is null || string.IsNullOrWhiteSpace(entry.PlayerId)

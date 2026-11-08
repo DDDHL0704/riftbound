@@ -326,6 +326,7 @@ public sealed partial class CoreRuleEngine
             case "EXACT_OTHER_SCORE":
             case UnitHeldHiddenScoreKind:
                 var scoreAmount = context.Kind == "PAY_POWER_SCORE" ? 1 : context.Amount;
+                if (TryPreventPointGain(state, player, scoreAmount, item.EffectKind, item.SourceObjectId, events, zones, cards)) break;
                 var nextScores = scores.ToDictionary(e => e.Key, e => e.Value); nextScores[player] += scoreAmount; scores = nextScores;
                 if (nextScores[player] >= EffectiveWinningScore(state)) winner = player;
                 events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = scoreAmount, ["score"] = nextScores[player], ["sourceObjectId"] = visibleSource }));
@@ -333,6 +334,7 @@ public sealed partial class CoreRuleEngine
             case "EMPTY_RUNE_SCORE":
                 if (state.PlayerZones.GetValueOrDefault(player)?.RuneDeck.Count == 0)
                 {
+                    if (TryPreventPointGain(state, player, context.Amount, item.EffectKind, item.SourceObjectId, events, zones, cards)) break;
                     var emptyScores = scores.ToDictionary(e => e.Key, e => e.Value);
                     emptyScores[player] += context.Amount;
                     scores = emptyScores;

@@ -8,6 +8,9 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveMovementScore(MatchState state,StackItemState item)
     {
         var amount=MovementScoreDefinition(item.MovementObserver!.CardNo)!.ScoreAmount;
+        var prevented = new List<GameEvent>();
+        if (TryPreventPointGain(state, item.ControllerId, amount, MovementScoreKind, item.SourceObjectId, prevented))
+            return NoopStackResolutionResult(state) with { Events = prevented };
         var scores=NormalizeScoresForSeats(state);scores[item.ControllerId]=checked(scores[item.ControllerId]+amount);
         var winner=WinningPlayerId(scores,EffectiveWinningScore(state));
         var events=new List<GameEvent> {new("SCORE_GAINED","移动触发技能获得分数",new Dictionary<string,object?> {

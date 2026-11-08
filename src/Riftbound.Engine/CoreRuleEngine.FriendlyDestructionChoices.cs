@@ -9,11 +9,7 @@ public sealed partial class CoreRuleEngine
     // target taxes belong to the separate target-confirmation flow.
     private static bool IsFriendlyDestructionChoice(MatchState state, string player,
         string id, string? requiredTag = null, string? excludedObjectId = null)
-        => id != excludedObjectId && IsObjectOnField(state.PlayerZones, id)
-            && state.CardObjects.TryGetValue(id, out var card) && !card.IsFaceDown
-            && EffectiveFieldControllerId(state.PlayerZones, id, card) == player
-            && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))
-            && (requiredTag is null || card.Tags.Contains(requiredTag));
+        => IsDestructionChoice(state, player, id, new(1, requiredTag), excludedObjectId);
 
     private static CardObjectState[] FriendlyDestructionChoices(MatchState state, string player,
         string? requiredTag = null, string? excludedObjectId = null)

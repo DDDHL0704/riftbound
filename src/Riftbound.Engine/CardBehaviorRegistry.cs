@@ -17,7 +17,15 @@ public sealed partial record UnitEventAbilitySpec(string Timing, string Effect, 
     int IndependentExperienceGain = 0, int RequiredOpponentVictoryDistance = 0,
     bool RequiresIsolatedEnemyHere = false,
     bool TargetsAnotherFriendlyHere = false, string? GrantedCombatKeyword = null,
-    bool RequiresPlayedUnitToken = false);
+    bool RequiresPlayedUnitToken = false, PermanentDestructionCostSpec? LeadingDestruction = null);
+
+public sealed record PermanentDestructionCostSpec(int Count, string? RequiredTag = null,
+    int? MaximumMana = null, bool AnyController = false, bool AllowsSource = false);
+
+public static class UnitEventTimings
+{
+    public const string OpponentTurnSpellPlayed = "OPPONENT_TURN_SPELL_PLAYED";
+}
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false,
@@ -452,7 +460,8 @@ public sealed record OpponentSpellCostIncreaseSpec(int Mana, int GenericPower = 
 public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn = 0,
     bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
     int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
-    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false, bool PreventsAllUnitsMoveToBase = false);
+    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false, bool PreventsAllUnitsMoveToBase = false,
+    bool PreventsOpponentsGainingPointsWhileAtBattlefield = false);
 
 public static class CardDamageConditionKinds
 {
@@ -580,6 +589,7 @@ public static class CardCostReductionConditionKinds
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
     public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
     public const string ControllerExperienceThresholdCount = "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT";
+    public const string ControllerHeldBattlefieldCountThisTurn = "CONTROLLER_HELD_BATTLEFIELD_COUNT_THIS_TURN";
 }
 
 public static class CardSourceBoonConditionKinds
@@ -2446,7 +2456,9 @@ public static class CardBehaviorRegistry
             "CHEMTECH_BARREL_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new(UnitEventTimings.OpponentTurnSpellPlayed, "CREATE_EQUIPMENT_TOKEN", 1,
+                Optional: true, LeadingSourceExhaust: true, CreatedTokenFactoryCardNo: "UNL·T05")),
         new(
             "SFD·144/221",
             "灵魂之轮",
@@ -3960,7 +3972,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守5|壁垒"),
+            SourceUnitTags: "约德尔人|坚守5|壁垒",
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerHeldBattlefieldCountThisTurn,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Green),
         new(
             "SFD·060/221",
             "缇亚娜·冕卫",
@@ -3970,7 +3984,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "精锐|法盾"),
+            SourceUnitTags: "精锐|法盾",
+            SourceStaticLimits: new(PreventsOpponentsGainingPointsWhileAtBattlefield: true)),
         new(
             "UNL-022/219",
             "烬",
@@ -6283,11 +6298,15 @@ public static class CardBehaviorRegistry
             "SFD·074/221",
             "暗巷神偷",
             3,
-            "ALLEY_THIEF_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT",
+            "ALLEY_THIEF_PLAY_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            UnitEventAbility: new("PLAY", "CREATE_EQUIPMENT_TOKEN", 1, Optional: true,
+                CreatedTokenFactoryCardNo: "UNL·T05",
+                LeadingDestruction: new(1, CardObjectTags.EquipmentCard, MaximumMana: 1,
+                    AnyController: true, AllowsSource: true))),
         new(
             "SFD·128/221",
             "狂热粉丝",

@@ -72,6 +72,7 @@ public sealed partial class CoreRuleEngine
             .Select(card => card.ObjectId);
         return CaptureUnitEvents(zones, cards, friendly, "SECOND_CARD_PLAYED")
             .Concat(CaptureUnitEvents(zones, cards, [playedSource], "PLAY_AFTER_ANOTHER_CARD"))
+            .Concat(CaptureUnitEvents(zones, cards, friendly, UnitEventTimings.OpponentTurnSpellPlayed))
             .Where(observation => observation.Controller == player).ToArray();
     }
 
@@ -170,6 +171,13 @@ public sealed partial class CoreRuleEngine
                 }
                 if (result.State.Status == MatchStatuses.InProgress)
                 {
+                    // CN 420.4: this observes completion, including effect plays,
+                    // and never a countered spell's earlier confirmation.
+                    if ((entry.Types & 4) != 0 && entry.PlayerId != before.TurnPlayerId
+                        && result.State.TurnNumber == before.TurnNumber)
+                        cardPlayObservers.AddRange(observation.CardPlayObservers.Where(observer =>
+                            observer.Context.Timing == UnitEventTimings.OpponentTurnSpellPlayed)
+                            .Select(observer => observer with { PlayedCardPlayId = entry.PlayId }));
                     if (result.State.PlayerCardsPlayedThisTurn.GetValueOrDefault(entry.PlayerId) >= 2)
                     {
                         // Confirmation fixes the ordinal; a later reaction can resolve first
@@ -179,7 +187,8 @@ public sealed partial class CoreRuleEngine
                         var hasOtherCard = finalized.Any(play => play.PlayerId == entry.PlayerId
                             && play.Source.ObjectId != entry.Source.ObjectId);
                         cardPlayObservers.AddRange(observation.CardPlayObservers.Where(observer =>
-                            observer.Context.Timing == "SECOND_CARD_PLAYED" ? isSecondCard : hasOtherCard));
+                            observer.Context.Timing == "SECOND_CARD_PLAYED" ? isSecondCard
+                                : observer.Context.Timing == "PLAY_AFTER_ANOTHER_CARD" && hasOtherCard));
                     }
                     foreach (var (observer, ordinal) in observation.Observers.Select((value, ordinal) => (value, ordinal)))
                     {
@@ -217,7 +226,7 @@ public sealed partial class CoreRuleEngine
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
         }
         foreach (var (observer, index) in cardPlayObservers
-            .DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Timing, o.Context.Origin))
+            .DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Timing, o.Context.Origin, o.PlayedCardPlayId))
             .Select((o, i) => (o, i))) {
             var captured = observer;
             if (before.CardObjects.TryGetValue(observer.Source, out var prior) && !IsObjectOnField(before.PlayerZones, observer.Source))
