@@ -8793,14 +8793,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool isExhausted,
         List<GameEvent> events,
         string? capturedSourceCardNo = null,
-        string? publicSourceObjectId = null)
+        string? publicSourceObjectId = null,
+        string? tokenIdentitySeed = null)
     {
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return;
         }
 
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, tokenIdentitySeed ?? sourceObjectId, 1);
         var sourceCardNo = capturedSourceCardNo ?? (cardObjects.TryGetValue(sourceObjectId, out var sourceState)
             ? sourceState.CardNo : string.Empty);
         var hasTokenDefinition = TryGetEquipmentTokenDefinition(

@@ -38,6 +38,11 @@ public sealed partial class CoreRuleEngine
         var current = state with { PlayerZones = zones, CardObjects = cards, UntilEndOfTurnEffects = effects };
         var draw = ApplyDrawToPlayer(current, zones, cards, state.PlayerScores, player, drawCount,
             state.RngCursor, events, deferNormalVictory: true);
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(current, item.SourceObjectId, ProjectionViewers.Spectator);
+        for (var i = 0; i < events.Count; i++)
+            if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))
+                events[i] = events[i] with { Payload = new Dictionary<string, object?>(events[i].Payload) {
+                    ["sourceObjectId"] = visibleSource } };
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
             UntilEndOfTurnEffects = effects, PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId,
             RngCursor = draw.RngCursor, Events = events, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };

@@ -607,7 +607,8 @@ public sealed partial class CoreRuleEngine
                 throw new InvalidOperationException("Invalid unit event equipment token factory.");
             for (var i = 0; i < spec.Amount; i++)
                 CreateLegendEquipmentToken(zones, cards, item.ControllerId, item.SourceObjectId, item.EffectKind,
-                    factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);
+                    factory.TokenFamilyName, factory.Tags, true, events, context.CardNo,
+                    tokenIdentitySeed: "equipment-token-" + MatchStateHasher.HashValue(item.StackItemId));
             var publicSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
             for (var i = 0; i < events.Count; i++)
                 if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))
