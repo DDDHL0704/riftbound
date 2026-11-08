@@ -5,11 +5,18 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record TargetSelectionOrigin(string Actor, string CauseId);
+public sealed record TargetSelectionOrigin(string Actor, string CauseId,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Spell = false);
+
+public sealed partial record UnitEventAbilitySpec
+{
+    public bool TargetSelectionRequiresSpell { get; init; }
+    public bool TargetSelectionRequiresSource { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
-    private const string FriendlyUnitTargetedTiming = "FRIENDLY_UNIT_TARGETED";
+    private const string FriendlyUnitTargetedTiming = UnitEventTimings.FriendlyUnitTargeted;
     private const string ReadySelectedEventUnit = "READY_SELECTED_EVENT_UNIT";
     private const string TargetSelectionCaptureKey = "internalTargetSelectionObservers";
 
@@ -32,17 +39,20 @@ public sealed partial class CoreRuleEngine
 
     private static UnitEventObservation[] CaptureFriendlyUnitTargetedObservers(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
-        CardObjectState unit, string actor, string cause)
+        CardObjectState unit, string actor, string cause, bool spell = false)
     {
         if (!IsFaceUpNonStandbyUnit(unit) || !IsObjectOnField(zones, unit.ObjectId)
             || EffectiveFieldControllerId(zones, unit.ObjectId, unit) != actor) return [];
         var sources = PublicStaticAuraSourceObjectIds(zones).Where(id => cards.TryGetValue(id, out var card)
             && EffectiveFieldControllerId(zones, id, card) == actor);
         return CaptureUnitEvents(zones, cards, sources, FriendlyUnitTargetedTiming)
+            .Where(observation => UnitEventSpec(observation.Context.CardNo) is { } spec
+                && (!spec.TargetSelectionRequiresSpell || spell)
+                && (!spec.TargetSelectionRequiresSource || observation.Source == unit.ObjectId))
             .Select(observation => observation with { Context = observation.Context with {
                 Other = new(new(unit.ObjectId, unit.ObjectGeneration), unit.CardNo!,
                     unit.CopyFaceTransitions?.Count ?? 0, unit.TokenFactoryCardNo),
-                TargetSelection = new(actor, cause) } }).ToArray();
+                TargetSelection = new(actor, cause, spell) } }).ToArray();
     }
 
     private static void QueueTargetSelectionObservers(MatchState state, IEnumerable<UnitEventObservation> observations,
@@ -60,13 +70,17 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool ValidTargetSelectionContext(MatchState state, UnitEventContext context,
-        UnitEventAbilitySpec spec, string? controller)
+        UnitEventAbilitySpec spec, string source, string? controller)
         => spec.Timing != FriendlyUnitTargetedTiming ? context.TargetSelection is null
-            : spec.Effect == ReadySelectedEventUnit && spec.SourceInLegendZone
+            : (spec.Effect == ReadySelectedEventUnit && spec.SourceInLegendZone
+                || spec.Effect == "DRAW" && spec.Amount > 0)
                 && context.TargetSelection is { } selection && !string.IsNullOrWhiteSpace(selection.Actor)
                 && state.Seats.ContainsKey(selection.Actor)
                 && (controller is null || controller == selection.Actor) && !string.IsNullOrWhiteSpace(selection.CauseId)
+                && (!spec.TargetSelectionRequiresSpell || selection.Spell)
                 && context.Other is { Binding.Generation: >= 0, FaceRevision: >= 0 } other
+                && (!spec.TargetSelectionRequiresSource
+                    || other.Binding.ObjectId == source && other.Binding.Generation == context.SourceGeneration)
                 && !string.IsNullOrWhiteSpace(other.CardNo) && TryPredictEnteredFace(other.CardNo, out var face) && face.Tags.Contains(CardObjectTags.UnitCard)
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision,
                     context.CapturedTick, other.TokenFactoryCardNo);

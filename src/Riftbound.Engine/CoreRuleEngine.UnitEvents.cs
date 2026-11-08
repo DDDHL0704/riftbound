@@ -381,7 +381,7 @@ public sealed partial class CoreRuleEngine
                         && PredictBindingMatches(state, burned.Binding, burned.CardNo, burned.FaceRevision, reflexive, null)
                     : c.ReflexiveTick is null
                 : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
-            && ValidTargetSelectionContext(state, c, spec, controller)
+            && ValidTargetSelectionContext(state, c, spec, source, controller)
             && ValidFriendlyUnitActionContext(state, c, spec, controller)
             && ValidBattleDrawContext(state, c, spec, controller)
             && ValidPlayerDefenseContext(state, c, spec)
@@ -394,7 +394,8 @@ public sealed partial class CoreRuleEngine
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
-                : spec.Effect == ReadySelectedEventUnit || IsFriendlyObservedUnitSpec(spec) ? c.Other is not null : c.Other is null)
+                : spec.Effect == ReadySelectedEventUnit || IsFriendlyObservedUnitSpec(spec)
+                    || spec.Timing == FriendlyUnitTargetedTiming ? c.Other is not null : c.Other is null)
             && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect == "MIGHT_ATTACKERS" ? c.Attackers is { Count: > 0 }
                 && c.Attackers.All(a => a is not null && a.Binding is { Generation: >= 0 }

@@ -122,7 +122,8 @@ public sealed partial class CoreRuleEngine
                     foreach (var capture in CaptureSelfActions(result.State.PlayerZones, result.State.CardObjects,
                         unit, item.ControllerId, "TARGETED", item.StackItemId)) Add(capture, "TARGET_CONFIRMED");
                     QueueTargetSelectionObservers(result.State, CaptureFriendlyUnitTargetedObservers(result.State.PlayerZones,
-                        result.State.CardObjects, unit, item.ControllerId, item.StackItemId), queue, events, ref targetOrdinal);
+                        result.State.CardObjects, unit, item.ControllerId, item.StackItemId,
+                        StackObjectRules.IsSpell(item)), queue, events, ref targetOrdinal);
                 }
         }
         if (RuleChoices.Value is { } frame) frame.UnitEventOrdinal = targetOrdinal;
