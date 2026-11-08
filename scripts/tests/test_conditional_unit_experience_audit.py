@@ -67,10 +67,37 @@ class ConditionalUnitExperienceAuditTests(unittest.TestCase):
             self.assertEqual("missing", self.outcome(card))
 
     def test_experience_must_follow_the_live_resolution_even_when_self_instruction_noops(self):
-        self.replace("CoreRuleEngine.UnitEvents.cs", "return AppendIndependentUnitEventExperience(state, item, result);",
-                     "return result;")
+        self.replace("CoreRuleEngine.UnitEvents.cs", "result = AppendIndependentUnitEventExperience(state, item, result);",
+                     "result = result;")
         for ready in [True, False]:
             self.assertEqual("missing", self.outcome(self.card(ready)))
+
+    def test_unused_experience_result_does_not_certify_the_returned_continuation(self):
+        self.replace("CoreRuleEngine.UnitEvents.cs", "result = AppendIndependentUnitEventExperience(state, item, result);",
+                     "var unused_result = AppendIndependentUnitEventExperience(state, item, result);")
+        for ready in [True, False]:
+            self.assertEqual("missing", self.outcome(self.card(ready)))
+
+    def test_redaction_must_return_the_experience_augmented_result(self):
+        self.replace("CoreRuleEngine.UnitEvents.cs",
+                     "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select",
+                     "return source == item.SourceObjectId ? unchanged : unchanged with { Events = unchanged.Events.Select")
+        for ready in [True, False]:
+            self.assertEqual("missing", self.outcome(self.card(ready)))
+
+    def test_direct_return_of_the_experience_continuation_is_still_recognized(self):
+        path = self.engine / "CoreRuleEngine.UnitEvents.cs"
+        source = path.read_text()
+        before, marker, after = source.partition("private static StackResolutionResult ResolveUnitEvent(")
+        self.assertTrue(marker)
+        _, next_marker, rest = after.partition("private static StackResolutionResult ResolveUnitEventInstruction(")
+        self.assertTrue(next_marker)
+        path.write_text(before + marker + "MatchState state, StackItemState item)\n    {\n"
+                        "        var result = ResolveUnitEventInstruction(state, item);\n"
+                        "        return AppendIndependentUnitEventExperience(state, item, result);\n    }\n\n    "
+                        + next_marker + rest)
+        for ready in [True, False]:
+            self.assertEqual("route", self.outcome(self.card(ready)))
 
     def test_unused_victory_distance_helper_does_not_certify_the_play_capture(self):
         self.replace("CoreRuleEngine.UnitEvents.cs", "OpponentWithinWinningScoreDistance(current, o.Controller,",

@@ -1340,8 +1340,12 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
         return re.split(r"\n    (?:private|internal|public) static ", source[match.end():], maxsplit=1)[0] if match else ""
 
     resolve = method(units, "ResolveUnitEvent")
+    experience_call = "AppendIndependentUnitEventExperience(state, item, result)"
+    experience_returned = "return " + experience_call + ";" in resolve or (
+        re.search(r"(?m)^\s*result = " + re.escape(experience_call) + ";", resolve)
+        and "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select" in resolve)
     exact = exact and "ResolveUnitEventInstruction(state, item)" in resolve \
-        and "return AppendIndependentUnitEventExperience(state, item, result)" in resolve
+        and experience_returned
     append = method(experience, "AppendIndependentUnitEventExperience")
     exact = exact and "GainExperience(result.PlayerExperience, item.ControllerId, spec.IndependentExperienceGain," in append \
         and "PlayerExperience = experience" in append and "Events = events" in append

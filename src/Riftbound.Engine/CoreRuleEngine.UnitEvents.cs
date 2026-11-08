@@ -28,7 +28,7 @@ public sealed partial class CoreRuleEngine
     internal const string TookDamageThisTurn = "TOOK_DAMAGE_THIS_TURN";
     private const string UnitEventCaptureKey = "unitEventObservations";
     private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context, string InstructionEventKind = "UNIT_EXHAUSTED");
-    private static UnitEventAbilitySpec? UnitEventSpec(string? no)
+    internal static UnitEventAbilitySpec? UnitEventSpec(string? no)
         => no is null ? null
             : (CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null)
                 ?? TargetSelectionLegendEvents.Value.GetValueOrDefault(no)
@@ -504,7 +504,11 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
     {
         var result = ResolveUnitEventInstruction(state, item);
-        return AppendIndependentUnitEventExperience(state, item, result);
+        result = AppendIndependentUnitEventExperience(state, item, result);
+        var source = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator);
+        return source == item.SourceObjectId ? result : result with { Events = result.Events.Select(e =>
+            Equals(e.Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId)
+                ? e with { Payload = new Dictionary<string, object?>(e.Payload) { ["sourceObjectId"] = source } } : e).ToArray() };
     }
 
     private static StackResolutionResult ResolveUnitEventInstruction(MatchState state, StackItemState item)
@@ -576,6 +580,7 @@ public sealed partial class CoreRuleEngine
                 TriggerQueue = removal.TriggerQueue, DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds,
                 Events = events.Concat(removal.Events).ToArray(), ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
         }
+        if (spec.Effect == EachPlayerEquipmentTokenEffect) return ResolveEachPlayerEquipmentTokens(state, item, spec);
         if (spec.Effect == "CREATE_EQUIPMENT_TOKEN") {
             if (!P6TokenFactoryCatalog.TryGetByCardNo(spec.CreatedTokenFactoryCardNo!, out var factory)
                 || !factory.Tags.Contains(CardObjectTags.EquipmentCard))
