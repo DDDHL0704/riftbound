@@ -33116,7 +33116,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["burnoutIndex"] = index + 1
                 }));
             if (burnout.PreventingPointSources.Count > 0)
-                events.Add(PointGainPreventedEvent(state, burnout.ScoredPlayerId, 1, "BURNOUT", playerId, burnout.PreventingPointSources));
+                events.Add(PointGainPreventedEvent(state, burnout.ScoredPlayerId, 1, "BURNOUT", null, burnout.PreventingPointSources));
         }
 
         if (drawResult.DrawnCards.Count > 0 || drawResult.WinnerPlayerId is null)
@@ -34380,7 +34380,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["burnoutIndex"] = index + 1
                 }));
             if (burnout.PreventingPointSources.Count > 0)
-                events.Add(PointGainPreventedEvent(state, burnout.ScoredPlayerId, 1, "BURNOUT", state.TurnPlayerId, burnout.PreventingPointSources));
+                events.Add(PointGainPreventedEvent(state, burnout.ScoredPlayerId, 1, "BURNOUT", null, burnout.PreventingPointSources));
         }
 
         if (drawResult.DrawnCards.Count > 0 || drawResult.WinnerPlayerId is null)

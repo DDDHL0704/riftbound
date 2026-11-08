@@ -80,7 +80,7 @@ public sealed class TiannaPointGainTests
         var state = WithOpponentTianna(HeldBattlefieldPlayCostTests.Position(0, opponentTurn: false));
         state = RadGearTestPosition.Put(state, "HOST", host, "P1", "BASE");
         state = RadGearTestPosition.Put(state, "TARGET", "OGN·296/298", "P2", "BATTLEFIELD", "TARGET");
-        return lastPoint ? state with { PlayerScores = new Dictionary<string, int> { ["P1"] = 7, ["P2"] = 0 } } : state;
+        return state with { PlayerScores = new Dictionary<string, int> { ["P1"] = lastPoint ? 7 : 0, ["P2"] = 0 } };
     }
 
     private static async Task Conquer(Driver game)
@@ -115,6 +115,20 @@ public sealed class TiannaPointGainTests
         Assert.Equal(2, game.State.PlayerZones["P1"].Hand.Count);
         Assert.Single(game.Events(), e => e.Event.Kind == "BATTLEFIELD_SCORE_REPLACED_BY_DRAW");
         Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "SCORE_GAIN_PREVENTED"); await game.Replay();
+    }
+
+    [Fact]
+    public async Task APreventedHoldingPointStillEarnsTheUnitsScoringActionToken()
+    {
+        var initial = WithOpponentTianna(HeldBattlefieldPlayCostTests.Position(1));
+        initial = RadGearTestPosition.Put(initial, "ILLAOI", "VEN·109", "P1", "BATTLEFIELD", "BF");
+        var game = new Driver(initial); await game.Act("P2", new EndTurnCommand());
+        Assert.Equal(0, game.State.PlayerScores["P1"]);
+        Assert.Equal("SCORE", Assert.Single(game.State.StackItems).SourceUnitTokens!.Timing);
+        await game.Top();
+        Assert.Single(game.State.CardObjects.Values, card => card.TokenFactoryCardNo is { } no
+            && P6TokenFactoryCatalog.TryGetByCardNo(no, out var factory) && factory.TokenFamilyName == "触手");
+        Assert.Equal(0, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
     [Theory]
