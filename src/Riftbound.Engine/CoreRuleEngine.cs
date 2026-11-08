@@ -4602,7 +4602,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> recycledObjectIds,
-        string reason = "ADDITIONAL_COST")
+        string reason = "ADDITIONAL_COST",
+        string? recyclingPlayerId = null)
     {
         var events = new List<GameEvent>();
         var rngCursor = state.RngCursor;
@@ -4632,10 +4633,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         events.Add(CaptureRecycleObservers(new GameEvent(
             "CARDS_RECYCLED",
-            $"{playerId} 回收 {randomizedCardIds.Count} 张牌",
+            $"{recyclingPlayerId ?? playerId} 回收 {randomizedCardIds.Count} 张牌",
             new Dictionary<string, object?>
             {
-                ["playerId"] = playerId,
+                ["playerId"] = recyclingPlayerId ?? playerId,
                 ["sourceObjectId"] = sourceObjectId,
                 ["cardIds"] = recycledObjectIds.Order(StringComparer.Ordinal).ToArray(),
                 ["count"] = randomizedCardIds.Count,
@@ -8791,7 +8792,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> tokenTags,
         bool isExhausted,
         List<GameEvent> events,
-        string? capturedSourceCardNo = null)
+        string? capturedSourceCardNo = null,
+        string? publicSourceObjectId = null)
     {
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
@@ -8836,7 +8838,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var payload = new Dictionary<string, object?>
         {
             ["playerId"] = playerId,
-            ["sourceObjectId"] = sourceObjectId,
+            ["sourceObjectId"] = publicSourceObjectId ?? sourceObjectId,
             ["abilityId"] = abilityId,
             ["tokenObjectId"] = tokenObjectId,
             ["tokenName"] = tokenName,
@@ -8856,7 +8858,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entryStaticAbilitySourceState.CardNo);
         events.Add(CaptureEquipmentPlayed(new GameEvent(
             "EQUIPMENT_TOKEN_CREATED",
-            $"{sourceObjectId} 打出装备指示物",
+            $"{publicSourceObjectId ?? sourceObjectId} 打出装备指示物",
             payload), playerZones, cardObjects, tokenState, playerId));
     }
 
@@ -18769,7 +18771,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.NativeUnitActivation is null && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.BorrowedExhaust is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.UnitEvent is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = !IsParsedUnitHeldContext(resolvedItem.HeldContext) && resolvedItem.NativeUnitActivation is null && resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasTargetedMovementSkill(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.BorrowedExhaust is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.UnitEvent is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunMoveSourceKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, ProjectionViewers.Spectator),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -23697,7 +23699,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
         }
 
-        if (stackItem.EffectKind is TriggerKinds.UnitLastBreathCallRuneOne or TriggerKinds.UnitLastBreathCallRunesThenDraw)
+        if (stackItem.EffectKind is TriggerKinds.UnitLastBreathCallRuneOne or TriggerKinds.UnitLastBreathCallRunesThenDraw
+            or TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes)
         {
             return ResolveUnitLastBreathCallRuneStackItem(state, stackItem);
         }
@@ -25590,7 +25593,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                     ["effectId"] = statusEffectId
                                 });
                             events.Add(statusEffectId == "STUNNED"
-                                ? CaptureStunObservers(applied, playerZones, cardObjects, stackItem, targetObjectId) : applied);
+                                ? CaptureStunObservers(applied, playerZones, cardObjects, stackItem, targetObjectId,
+                                    resolvedObjectLocations ?? state.ObjectLocations) : applied);
                         }
                     }
 
@@ -26665,6 +26669,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        if (stackItem.EffectKind == TriggerKinds.UnitLastBreathRecycleSelfReadyAllRunes)
+            return ResolveLastBreathReadyAllRunes(state, stackItem);
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
@@ -27433,7 +27439,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["statusEffectId"] = "STUNNED",
                     ["duration"] = "UNTIL_END_OF_TURN"
                 });
-            events.Add(CaptureStunObservers(applied, playerZones, cardObjects, stackItem, targetObjectId));
+            events.Add(CaptureStunObservers(applied, playerZones, cardObjects, stackItem, targetObjectId, state.ObjectLocations));
         }
 
         return new StackResolutionResult(

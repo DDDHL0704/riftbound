@@ -97,4 +97,30 @@ public sealed partial class CoreRuleEngine
     private static TriggerQueueItemState LastBreathRuneCallTrigger(LastBreathRuneCallContext context)
         => new(LastBreathRuneCallTriggerId(context), context.ControllerId, context.Source.ObjectId,
             context.Kind, TriggerTimings.UnitDestroyed) { SourceCardNo = context.CardNo, LastBreathRuneCall = context };
+
+    private static StackResolutionResult ResolveLastBreathReadyAllRunes(MatchState state, StackItemState item)
+    {
+        if (!HasLastBreathSourceRecycleCost(item) || !ValidLastBreathRuneCallStack(state, item)
+            || item.TriggerCost is not { SourceWasRecycled: true } || !ValidTriggerCostReceipt(state, item))
+            throw new InvalidOperationException("Invalid confirmed last-breath rune-ready cost.");
+        var zones = NormalizeZonesForSeats(state);
+        var cards = state.CardObjects.ToDictionary();
+        // The public skill is independent of the source's later hidden object.
+        var visible = item with { SourceObjectId = ResolutionResult.VisibleObjectIdForViewer(state,
+            item.SourceObjectId, ProjectionViewers.Spectator) };
+        var events = new List<GameEvent> { BuildTriggerResolvedEvent(new(item.StackItemId,
+            item.ControllerId, visible.SourceObjectId, item.EffectKind, TriggerTimings.UnitDestroyed)) };
+        var behavior = new CardBehaviorDefinition(item.LastBreathRuneCall!.CardNo, "绝念", 0, item.EffectKind, 0, 0);
+        var runes = zones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal)
+            .Where(id => cards.TryGetValue(id, out var rune) && !rune.IsFaceDown
+                && rune.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+                && EffectiveFieldControllerId(zones, id, rune) == item.ControllerId)
+            .Order(StringComparer.Ordinal).ToArray();
+        foreach (var id in runes)
+        {
+            cards[id] = ApplyReadyState(cards[id], behavior, visible, id, out var readied, zones, cards);
+            if (readied is not null) events.Add(readied);
+        }
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
+    }
 }

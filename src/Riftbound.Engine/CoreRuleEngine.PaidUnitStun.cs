@@ -160,7 +160,7 @@ public sealed partial class CoreRuleEngine
             var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = visibleSource, ["targetObjectId"] = target,
                 ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
-            events.Add(CaptureStunObservers(applied, zones, cards, item, target));
+            events.Add(CaptureStunObservers(applied, zones, cards, item, target, state.ObjectLocations));
         }
         events.Add(new("TRIGGER_RESOLVED", "触发技能结算完成", new Dictionary<string, object?> { ["sourceObjectId"] = visibleSource }));
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
