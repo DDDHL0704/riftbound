@@ -730,35 +730,69 @@
       ],
       "text": "当你在对手的回合内打出一张法术牌时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
       "scope": "当你在对手的回合内打出一张法术牌时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少对手回合打出法术的监听、可选横置来源费用及独立创建休眠金币的触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享成功打出记录仅在对手回合的己方法术牌完成结算后捕获独立技能；确认时可选横置当前控制的活跃来源，响应后创建休眠金币；自己的回合、无效化和资源技能均不触发",
+      "rules": "核心204.1.c/204.3、404.1.b/405.2 指示费用及确认，420.4.a/a.1 成功打出后触发及无效化不触发；SFD·063 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 1,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "OPPONENT_TURN_SPELL_PLAYED",
+              "effect": "CREATE_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "optional": true,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "leadingSourceExhaust": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
           "contains": [
-            "\"SFD·063/221\"",
-            "\"CHEMTECH_BARREL_PLAY_EQUIPMENT\""
+            "NeedsTriggerCostConfirmation(",
+            "CompleteTriggerCost(",
+            "DestructionCostReceiptHash(receipt)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "CREATE_EQUIPMENT_TOKEN",
+            "CreateLegendEquipmentToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.InstructionCosts.cs",
+          "contains": [
+            "ValidateInstructionCostHistory(",
+            "InstructionCostCaptureHash(context, item.Source, item.Controller)",
+            "destruction cost receipt differs from its original accepted payment"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+          "contains": [
+            "entry.PlayerId != before.TurnPlayerId",
+            "observer.Context.Timing == UnitEventTimings.OpponentTurnSpellPlayed",
+            "PlayedCardPlayId = entry.PlayId"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalEquipmentGoldCostTests.cs",
+          "methods": [
+            "APlayedBarrelObservesAnOpponentTurnSpellButNotRuneResourceActivations",
+            "BarrelRequiresSuccessfulCompletionOfYourSpellDuringTheOpponentsTurn",
+            "ABarrelThatCannotPayOrDoesNotObserveYourPlayCannotProduceGold",
+            "DecliningTheBarrelsExhaustionKeepsItReadyAndProducesNoGold",
+            "TheBarrelsCurrentControllerPaysAndOwnsItsGoldEvenWhenTheBarrelHasAnotherOwner"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -803,36 +837,82 @@
       ],
       "text": "当你打出我时，你可以选择摧毁一件法力费用不高于{{1}}的装备，以此打出一个休眠的“金币”装备指示物。",
       "scope": "当你打出我时，你可以选择摧毁一件法力费用不高于{{1}}的装备，以此打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记且效果名明确未实现可选装备；缺少入场后可选摧毁至多1法力装备作为指示费用及创建休眠金币",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享类型化摧毁费用允许任意控制者的场上正面装备，以当前印刷或复制法力费用不高于1筛选；确认时支付后进入响应窗口，结算独立创建休眠金币；费用回执绑定原始已接受历史，金币费用0合法，来源返手后效果仍结算",
+      "rules": "核心204.1.c/204.3、404.1.b/405.2 指示费用及确认，206 印刷或复制费用，355.6 费用不选取目标，357.2.a 替换费用；铸魂淬炼官方FAQ及裁判FAQ暗巷神偷：可以摧毁费用为0的金币指示物；SFD·074 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "CREATE_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "optional": true,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "leadingDestruction": {
+                "count": 1,
+                "requiredTag": "CARD_TYPE:EQUIPMENT",
+                "maximumMana": 1,
+                "anyController": true,
+                "allowsSource": true
+              }
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
           "contains": [
-            "\"SFD·074/221\"",
-            "\"ALLEY_THIEF_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT\""
+            "NeedsTriggerCostConfirmation(",
+            "CompleteTriggerCost(",
+            "DestructionCostReceiptHash(receipt)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "CREATE_EQUIPMENT_TOKEN",
+            "CreateLegendEquipmentToken("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.InstructionCosts.cs",
+          "contains": [
+            "ValidateInstructionCostHistory(",
+            "InstructionCostCaptureHash(context, item.Source, item.Controller)",
+            "destruction cost receipt differs from its original accepted payment"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionCosts.cs",
+          "contains": [
+            "IsDestructionChoice(",
+            "cost.AnyController || EffectiveFieldControllerId",
+            "card.ManaCost <= maximum"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "SelectedUnitEventSpec(destroying)?.LeadingDestruction",
+            "DestructionUsesLastKnownMana: true",
+            "ids.Select(id => cards[id].ManaCost)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalEquipmentGoldCostTests.cs",
+          "methods": [
+            "ThiefPaysAnyPlayersCheapEquipmentBeforeResponsesAndCreatesDormantGoldOnlyAtResolution",
+            "ThiefCanDeclineAndInvalidCostObjectsOrTheWrongPlayerAreRejectedAtomically",
+            "ReturningTheThiefAfterPaymentPreservesTheGoldAndHidesTheCurrentPrivateSource",
+            "RecoveryBindsTheDestructionReceiptAndCaptureToTheirUnmodifiedAcceptedHistory"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
