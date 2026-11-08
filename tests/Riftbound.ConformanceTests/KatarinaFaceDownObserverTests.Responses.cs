@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -112,6 +113,7 @@ public sealed partial class KatarinaFaceDownObserverTests
     public async Task ConsistentViewsCannotForgeTheOriginallyCapturedHideOrSource(string part)
     {
         var game = new Driver(Position()); await Hide(game);
+        Assert.Empty(ValidateOriginalHistory(game, game.State));
         var item = Assert.Single(game.State.StackItems); var context = item.StandbyObserver!; var birth = context.Unit!;
         var forged = part switch {
             "action-hash" => context with { Unit = birth with { ActionHash = new string('a', 64) } },
@@ -131,6 +133,7 @@ public sealed partial class KatarinaFaceDownObserverTests
         var initial = RadGearTestPosition.Put(Position("OGN·083/298"), "OTHER-ENEMY", "OGN·219/298", "P2", "BASE");
         var game = new Driver(initial); await HiddenNextTurn(game, "OGN·083/298");
         await FromFaceDown(game, "OGN·083/298"); await Target(game);
+        Assert.Empty(ValidateOriginalHistory(game, game.State));
         var item = Assert.Single(game.State.StackItems, item => item.EffectKind == CoreRuleEngine.StandbyPlayedEnemyDamageEffect);
         var forged = item with { TargetObjectIds = ["OTHER-ENEMY"], TargetGenerations = new Dictionary<string, long> {
             ["OTHER-ENEMY"] = game.State.CardObjects["OTHER-ENEMY"].ObjectGeneration } };
@@ -141,12 +144,16 @@ public sealed partial class KatarinaFaceDownObserverTests
 
     private static IReadOnlyList<string> ValidateOriginalHistory(Driver game, MatchState state)
     {
-        var events = game.Events(); var sequence = events.Length == 0 ? 0 : events[^1].Sequence;
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        state = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(state, options), options)!;
+        var commands = JsonSerializer.Deserialize<RecoveredCommand[]>(JsonSerializer.Serialize(game.Commands(), options), options)!;
+        var events = JsonSerializer.Deserialize<RecoveredEvent[]>(JsonSerializer.Serialize(game.Events(), options), options)!;
+        var sequence = events.Length == 0 ? 0 : events[^1].Sequence;
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var views = state.Seats.Keys.ToDictionary(player => player,
             player => new RecoveredPlayerView(player, state.Tick, sequence, snapshots[player], state.Tick, sequence, prompts[player]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
-        return MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), events, views, state, state.Tick, spectator);
+        return MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator);
     }
 
     [Fact]
@@ -156,6 +163,7 @@ public sealed partial class KatarinaFaceDownObserverTests
         initial = RadGearTestPosition.Put(initial, "WARD-TWO", "OGN·013/298", "P2", "HAND");
         var game = new Driver(initial); await HiddenNextTurn(game, "OGN·083/298", ["WARD-ONE", "WARD-TWO"]);
         await FromFaceDown(game, "OGN·083/298"); await Target(game, "WARD-ONE");
+        Assert.Empty(ValidateOriginalHistory(game, game.State));
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         var item = Assert.Single(game.State.StackItems, item => item.EffectKind == CoreRuleEngine.StandbyPlayedEnemyDamageEffect);
         var forged = item with { TargetObjectIds = ["WARD-TWO"], TargetGenerations = new Dictionary<string, long> {
