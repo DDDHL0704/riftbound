@@ -6916,7 +6916,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "机械"),
+            SourceUnitTags: "机械",
+            UnitEventAbility: new("FRIENDLY_EQUIPMENT_SKILL_RESOLVED", "MIGHT_SELF", 1)),
         new(
             "SFD·027/221",
             "穿沙角兽",

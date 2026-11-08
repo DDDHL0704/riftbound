@@ -5321,6 +5321,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["timingCaptureHash"] = TimingCaptureHash(timingContext, trigger.TimingAlias);
         if (trigger.UnitEvent is { Origin.ArmamentGranted: true } armamentEvent)
             payload["armamentGrantHash"] = ArmamentUnitEventRules.CaptureHash(armamentEvent);
+        if (trigger.UnitEvent is { EquipmentSkillTriggerHash: { } completionKey } equipmentSkill)
+        {
+            payload["equipmentSkillTriggerHash"] = completionKey;
+            payload["equipmentSkillObservationHash"] = EquipmentSkillObservationHash(equipmentSkill,
+                trigger.SourceObjectId, trigger.ControllerId);
+        }
         if (trigger.DrawHandThreshold is { } threshold) payload["drawHandThreshold"] = threshold;
         if (trigger.BattlefieldConquestMill is { } conquestMill)
             payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
@@ -18560,6 +18566,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !nextStack.Any(item => item.StackItemId == resolvedItem.StackItemId)
                 ? CaptureHighCostSkillResolution(state, resolvedItem, resolvedPlayerZones, resolvedCardObjects, state.Tick + 1)
                 : [];
+            var equipmentSkillCompletionCaptured = !confirmPermanent && canRunPostStackCleanup
+                && !nextStack.Any(item => item.StackItemId == resolvedItem.StackItemId);
+            var equipmentSkillObservers = equipmentSkillCompletionCaptured
+                ? CaptureCompletedEquipmentSkill(state, resolvedItem, resolvedPlayerZones, resolvedCardObjects) : [];
             // CN 319.5/321/323.1: finish this parent, then check victory before
             // lethal cleanup. Lower chain items do not postpone this cleanup.
             if (stackResolution.WinnerPlayerId is null && canRunPostStackCleanup
@@ -18702,10 +18712,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, ProjectionViewers.Spectator)).ToArray()
                 };
             if (highCostSkillObservers.Length > 0) resolvedPayload[HighCostSkillCaptureKey] = highCostSkillObservers;
-            events.Add(new GameEvent(
+            var completionEvent = new GameEvent(
                 confirmPermanent ? "PERMANENT_CONFIRMED" : stackResolution.PendingCardChoice is not null || stackResolution.PendingPayment?.ResolvingStackItemId is not null ? "STACK_ITEM_SUSPENDED" : stackResolution.PendingEffectPlay is not null ? "EFFECT_PLAY_REQUESTED" : "STACK_ITEM_RESOLVED",
-                confirmPermanent ? "常驻牌完成确认并入场" : $"{resolvedItem.StackItemId} 结算",
-                resolvedPayload));
+                confirmPermanent ? "常驻牌完成确认并入场" : $"{resolvedItem.StackItemId} 结算", resolvedPayload);
+            events.Add(equipmentSkillCompletionCaptured
+                ? WithEquipmentSkillCompletion(completionEvent, nextState.Status == MatchStatuses.InProgress
+                    ? equipmentSkillObservers : []) : completionEvent);
             events.AddRange(stackResolutionEvents);
             events.AddRange(postStackCleanupEvents);
         }

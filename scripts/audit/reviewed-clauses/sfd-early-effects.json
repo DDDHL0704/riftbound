@@ -1007,36 +1007,52 @@
       ],
       "text": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
       "scope": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记；没有各玩家分别可选创建金币的结算选择，也没有按实际同意的对手数量给控制者追加金币",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享结算指示让各玩家从回合玩家起依序独立选择；同意才为该玩家创建休眠金币，再按同意的对手数量给触发控制者追加金币，不依赖控制者自己的选择；来源响应后返手不取消独立技能，各次选择保持隐私、原子拒绝和原始命令回放",
+      "rules": "核心303.2.a 多人依序行动、355.18 结算时进行选择、383.4.a.2 入场触发、403–407 响应与结算；SFD·081 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "EACH_PLAYER_OPTIONAL_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "controllerTokensPerAcceptingOpponent": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PerPlayerEquipmentTokens.cs",
           "contains": [
-            "\"SFD·081/221\"",
-            "\"BIG_SWINDLER_GOLD_CHOICE_PLAY_UNIT\""
+            "ResolveEachPlayerEquipmentTokens(",
+            "new[] { state.TurnPlayerId }",
+            "RuleChoices.Value!.Choose(player,",
+            "if (player != item.ControllerId) acceptingOpponents++;",
+            "acceptingOpponents * spec.ControllerTokensPerAcceptingOpponent",
+            "factory.TokenFamilyName, factory.Tags, true, events"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == EachPlayerEquipmentTokenEffect) return ResolveEachPlayerEquipmentTokens(state, item, spec);"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalPlayUnitChoiceTests.cs",
+          "methods": [
+            "EachPlayerDecidesAtResolutionAndOpponentAcceptanceAloneEarnsTheExtraGold",
+            "MultiplayerCountsOnlyAcceptingOpponentsInCurrentTurnOrder",
+            "ReturningTheSwindlerDuringResponsesPreservesEveryPlayersDecisionAndGold"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1044,36 +1060,52 @@
       ],
       "text": "每有一名对手选择打出，你便再打出一个休眠的“金币”装备指示物。",
       "scope": "当你打出我时，你和每名对手都可以选择打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记；没有各玩家分别可选创建金币的结算选择，也没有按实际同意的对手数量给控制者追加金币",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享结算指示让各玩家从回合玩家起依序独立选择；同意才为该玩家创建休眠金币，再按同意的对手数量给触发控制者追加金币，不依赖控制者自己的选择；来源响应后返手不取消独立技能，各次选择保持隐私、原子拒绝和原始命令回放",
+      "rules": "核心303.2.a 多人依序行动、355.18 结算时进行选择、383.4.a.2 入场触发、403–407 响应与结算；SFD·081 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "EACH_PLAYER_OPTIONAL_EQUIPMENT_TOKEN",
+              "amount": 1,
+              "createdTokenFactoryCardNo": "UNL·T05",
+              "controllerTokensPerAcceptingOpponent": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PerPlayerEquipmentTokens.cs",
           "contains": [
-            "\"SFD·081/221\"",
-            "\"BIG_SWINDLER_GOLD_CHOICE_PLAY_UNIT\""
+            "ResolveEachPlayerEquipmentTokens(",
+            "new[] { state.TurnPlayerId }",
+            "RuleChoices.Value!.Choose(player,",
+            "if (player != item.ControllerId) acceptingOpponents++;",
+            "acceptingOpponents * spec.ControllerTokensPerAcceptingOpponent",
+            "factory.TokenFamilyName, factory.Tags, true, events"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == EachPlayerEquipmentTokenEffect) return ResolveEachPlayerEquipmentTokens(state, item, spec);"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalPlayUnitChoiceTests.cs",
+          "methods": [
+            "EachPlayerDecidesAtResolutionAndOpponentAcceptanceAloneEarnsTheExtraGold",
+            "MultiplayerCountsOnlyAcceptingOpponentsInCurrentTurnOrder",
+            "ReturningTheSwindlerDuringResponsesPreservesEveryPlayersDecisionAndGold"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

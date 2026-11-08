@@ -7,36 +7,78 @@
       ],
       "text": "当你打出我时，你可以选择抽一张牌或给予我增益。（每名未拥有增益的单位获得一个{{S}}+1增益。）",
       "scope": "当你打出我时，你可以选择抽一张牌或给予我增益。（每名未拥有增益的单位获得一个{{S}}+1增益。）",
-      "status": "missing",
-      "reason": "模式／可选性时机有误：当前要求打出单位时预选DRAW_1或SELF_BOON，否则拒绝打出；没有入场后确认触发时选择或放弃该可选效果，不能以两个正确数值分支认证整句",
-      "rules": "核心383.4.a.2 入场后触发、403.2 确认技能时选择；SFD·091 官方中文牌面",
+      "status": "route",
+      "reason": "普通打出不预选模式，单位入场后才在触发确认时选择抽牌、增益或放弃；确定模式后独立进入响应，结算时执行对应效果，来源返手不会给新对象增益；已选模式绑定原始接受命令及确认事件，冷恢复拒绝改换或抹除选择",
+      "rules": "核心383.4.a.2 入场后触发、383.3 可选触发、403.2 确认技能时选择模式、404–407 指示费用及响应结算；SFD·091 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
-            "mode": "DRAW_1",
-            "drawCount": 1
-          },
-          {
-            "mode": "SELF_BOON",
-            "grantsBoonToSourceUnit": true
+            "effectKind": "BUHRU_CAPTAIN_PLAY_UNIT",
+            "playsSourceToBaseAsUnit": true,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "CHOOSE_MODE",
+              "optional": true,
+              "modes": [
+                {
+                  "id": "DRAW_1",
+                  "effect": "DRAW",
+                  "amount": 1
+                },
+                {
+                  "id": "SELF_BOON",
+                  "effect": "BOON_SELF",
+                  "amount": 1
+                }
+              ]
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
           "contains": [
-            "\"BUHRU_CAPTAIN_PLAY_UNIT_DRAW_MODE\"",
-            "\"BUHRU_CAPTAIN_PLAY_UNIT_SELF_BOON_MODE\""
+            "UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1",
+            "if (selected.Count == 0)",
+            "Optional = false",
+            "PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(",
+            "optionalModeSkillHash"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "\"BOON_SELF\"",
+            "spec.Effect == \"DRAW\"",
+            "source.ObjectGeneration == context.SourceGeneration"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventModes.cs",
+          "contains": [
+            "ValidateOptionalUnitEventModeHistory(",
+            "HasAcceptedBattlefieldChoice(commands, confirmed[0], player,",
+            "optional unit event mode differs from its accepted confirmation history"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/OptionalPlayUnitChoiceTests.cs",
+          "methods": [
+            "CaptainPlaysWithoutPreselectionThenChoosesOrDeclinesItsEarnedTrigger",
+            "TheCaptainsChosenIndependentInstructionSurvivesSourceReturnWithoutBuffingANewObject",
+            "RecoveryRejectsAChangedOrErasedAcceptedOptionalMode"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.UnitPlay.cs",
           "methods": [
-            "CoreRuleEngineRejectsBuhruCaptainWhenModeIsMissing",
-            "CoreRuleEngineBuhruCaptainPromptExposesModalChoices"
+            "CoreRuleEnginePlaysBuhruCaptainDrawMode",
+            "CoreRuleEnginePlaysBuhruCaptainSelfBoonMode",
+            "CoreRuleEngineRejectsBuhruCaptainPlayTimeMode",
+            "CoreRuleEngineBuhruCaptainPlayPromptDefersModeChoicesToItsTrigger"
           ]
         }
       ]
