@@ -1214,6 +1214,7 @@ public static partial class MatchRecoveryValidator
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
             ValidateLinkedExileHistory(authoritativeState, commands, events, errors);
+            ValidateArmamentLinkedExileHistory(authoritativeState, commands, events, errors);
             ValidateBoundLegendHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldPermanentPlayUses(authoritativeState, commands, events, errors);
             ValidateNextUnitPlayGrantHistory(authoritativeState, commands, events, errors);
@@ -4544,8 +4545,8 @@ public static partial class MatchRecoveryValidator
             || !CoreRuleEngine.ValidLinkedUnitExile(state, g)
             || !state.Seats.ContainsKey(g.ControllerId) || g.Objects.Any(e => string.IsNullOrWhiteSpace(e.Key) || e.Value < 0))
             || state.LinkedExiles.Select(g => (g.SourceObjectId, g.SourceGeneration,
-                Controller: g.UnitEventOrigin is null && g.GraveyardOrigin is null ? g.ControllerId : "",
-                Instance: g.UnitEventOrigin?.InstanceId ?? g.GraveyardOrigin?.InstanceId)).Distinct().Count() != state.LinkedExiles.Count)
+                Controller: g.UnitEventOrigin is null && g.GraveyardOrigin is null && g.ArmamentOrigin is null ? g.ControllerId : "",
+                Instance: g.UnitEventOrigin?.InstanceId ?? g.GraveyardOrigin?.InstanceId ?? g.ArmamentOrigin?.InstanceId)).Distinct().Count() != state.LinkedExiles.Count)
             errors.Add("invalid linked exile ledger");
         if (state.DrawLedger.TurnNumber < 0 || state.DrawLedger.TurnNumber > state.TurnNumber
             || state.DrawLedger.Counts.Any(e => !state.Seats.ContainsKey(e.Key) || e.Value < 0)) errors.Add("invalid turn draw ledger");

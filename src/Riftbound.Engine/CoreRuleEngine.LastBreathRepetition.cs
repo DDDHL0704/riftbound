@@ -68,6 +68,7 @@ public sealed partial class CoreRuleEngine
                 || before.ObjectGeneration != source.Generation || !IsObjectOnField(frame.PlayerZones, source.ObjectId)
                 || EffectiveFieldControllerId(frame.PlayerZones, source.ObjectId, before) != controller
                 || !AttachedRuleTextRules.Instances(frame.PlayerZones, frame.CardObjects, before)
+                    .Concat(ArmamentUnitEventRules.Instances(frame.PlayerZones, frame.CardObjects, before))
                     .Any(i => i.CardNo == cardNo && i.Id == instanceId)) return false;
             var count = LastBreathOccurrenceCount(frame, before);
             return count > 1 && repetition.Occurrence < count;

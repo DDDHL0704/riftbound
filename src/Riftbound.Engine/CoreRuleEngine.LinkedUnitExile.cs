@@ -56,6 +56,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidLinkedUnitExile(MatchState state, LinkedExileGroup group)
     {
+        if (group.ArmamentOrigin is not null) return ValidLinkedArmamentExile(state, group);
         if (group.GraveyardOrigin is not null) return ValidLinkedGraveyardExile(state, group);
         if (group.UnitEventOrigin is not { } origin)
             return state.CardObjects.TryGetValue(group.SourceObjectId, out var legacySource)
