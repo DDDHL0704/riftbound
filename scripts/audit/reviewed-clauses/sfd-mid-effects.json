@@ -27,8 +27,7 @@
                 },
                 {
                   "id": "SELF_BOON",
-                  "effect": "BOON_SELF",
-                  "amount": 1
+                  "effect": "BOON_SELF"
                 }
               ]
             }
