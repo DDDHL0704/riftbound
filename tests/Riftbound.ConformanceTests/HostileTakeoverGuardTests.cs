@@ -376,13 +376,23 @@ public sealed class HostileTakeoverGuardTests
         Assert.Equal(["P1", "P2"], battlefield.OccupantControllerIds);
         Assert.Contains(ControlTargetObjectId, battlefield.OccupantObjectIds);
         Assert.Contains(ControlRemainingOccupantObjectId, battlefield.OccupantObjectIds);
-        Assert.Equal(TimingStates.SpellDuelOpen, p2Pass.State.TimingState);
-        Assert.Equal("P1", p2Pass.State.FocusPlayerId);
-        Assert.Equal("SPELL_DUEL_TASKS", p2Pass.State.PendingTaskQueue.Phase);
-        Assert.Equal($"task:start-spell-duel:{ControlBattlefieldObjectId}", p2Pass.State.PendingTaskQueue.ActiveTaskId);
+        // The remaining occupant is a Loyal Hound. Its newly earned defense
+        // instruction must confirm before the contest returns to open focus.
+        Assert.Equal(TimingStates.SpellDuelClosed, p2Pass.State.TimingState);
+        var hound = Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
+        Assert.Equal("P2", hound.PlayerId); Assert.Equal(ControlRemainingOccupantObjectId, hound.SourceObjectId);
+        Assert.Equal(["MOVE_SELF"], hound.LegalObjectIds);
+        var declined = await engine.ResolveAsync(p2Pass.State,
+            new("intent-hostile-takeover-decline-hound", "P2", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(hound.ChoiceId, hound.ChoiceWindow, []), CancellationToken.None);
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Equal(TimingStates.SpellDuelOpen, declined.State.TimingState);
+        Assert.Equal("P1", declined.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", declined.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{ControlBattlefieldObjectId}", declined.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(
             ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
-            p2Pass.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+            declined.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, ControlBattlefieldObjectId, StringComparison.Ordinal));

@@ -60,6 +60,25 @@ public sealed class PlayerDefenseMovementTests
         await game.Replay();
     }
 
+    [Fact]
+    public async Task ActualControlTakeoverAlsoEarnsTheDefendingPlayersHoundSkillBeforeDuelFocus()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "DEFENDER", "OGN·219/298", "P1", "BATTLEFIELD", "BF");
+        initial = RadGearTestPosition.Put(initial, "TAKEOVER", "SFD·202/221", "P2", "HAND");
+        var game = new Driver(initial);
+        await game.Act("P2", new PlayCardCommand("TAKEOVER", "SFD·202/221", ["ALLY"])); await game.Top();
+        Assert.Equal("P1", game.State.CardObjects["ALLY"].OwnerId);
+        Assert.Equal("P2", game.State.CardObjects["ALLY"].ControllerId);
+        Assert.True(game.State.BattlefieldStates["BF"].Contested);
+        Assert.Equal(TimingStates.SpellDuelClosed, game.State.TimingState);
+        await Confirm(game, false);
+        Assert.Equal(TimingStates.SpellDuelOpen, game.State.TimingState);
+        Assert.Equal("P2", game.State.FocusPlayerId);
+        Assert.Equal("BASE", game.State.ObjectLocations["HOUND"].Zone);
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice);
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("HAND")] [InlineData("GRAVEYARD")]
     public async Task ASourceOutsideTheFieldDoesNotObservePlayerDefense(string zone)
