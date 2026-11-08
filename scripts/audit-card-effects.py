@@ -1721,6 +1721,100 @@ def another_friendly_here_grant_route(card: dict, clause: dict, sources: Sources
         "missing", "缺少精确进攻／防守规格、此处另一名友方目标，或本回合战力及关键词的共享结算")
 
 
+def paid_target_play_stun_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    fee = normalize('你可以选择支付{{绿色}}，作为打出我的额外费用。')
+    stun = normalize('当你打出我时，如果你支付了该额外费用，则{{眩晕}}一名敌方单位。')
+    text = normalize(unparenthesize(clause['text']))
+    if text not in {fee, stun}:
+        return None
+    effect = normalize(unparenthesize(card.get('cardEffect', '')))
+    profiles = card.get('behaviors', [])
+    exact = clause['kind'] == ('rule' if text == fee else 'trigger') \
+        and normalize(unparenthesize(clause['scope'])) == text \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and fee in effect and stun in effect \
+        and len(profiles) == 1
+    expected = dict(playsSourceToBaseAsUnit=True, requiredTargetCount=1, statusEffectId='STUNNED',
+        targetScope='ENEMY_UNIT', targetScopeIsExplicit=True, targetRequiredTag='CARD_TYPE:UNIT',
+        targetEffectAdditionalPowerCost=1, targetEffectAdditionalPowerTrait='green')
+    if exact:
+        profile = profiles[0]
+        exact = inventory_contains(profile, expected) \
+            and all(type(profile.get(key, 0)) is int and profile.get(key, 0) == 0
+                for key in ['damageAmount', 'minTargetCount', 'targetEffectAdditionalManaCost']) \
+            and not meaningful(profile.get('unitEventAbility')) \
+            and not meaningful(profile.get('playsSourceToBaseAsEquipment'))
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b'
+            + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]
+        offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+    checks = [
+        ('CoreRuleEngine.cs', 'ResolveCoreAsync', [
+            'return Complete(ResolvePlayCard(state, intent, playCardCommand));',
+            'TryResolveP0ContractCommand(state, intent, command, out var p0ContractResult)',
+            'return ValueTask.FromResult(RecordPaidPermanentPlayHistory(state, completed));']),
+        ('CoreRuleEngine.cs', 'ResolvePlayCard', ['TryBuildPlayCardPlan(state, intent, command', 'ConfirmPlayedPermanent(']),
+        ('CoreRuleEngine.cs', 'TryBuildPlayCardPlan', ['TryBuildOptionalCostPlan(',
+            'HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts)']),
+        ('CoreRuleEngine.cs', 'TryBuildOptionalCostPlan', ['TryBuildTargetEffectAdditionalCost(',
+            'extraPowerCostByTrait = targetEffectExtraPowerCostByTrait']),
+        ('CoreRuleEngine.cs', 'TryBuildTargetEffectAdditionalCost', ['normalizedOptionalCosts.Count != expectedCostCount',
+            'TryParseSpendPowerOptionalCost(', 'spendPowerCost == behavior.TargetEffectAdditionalPowerCost',
+            'RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait)']),
+        ('CoreRuleEngine.PermanentConfirmation.cs', 'HasPendingPermanentPlayAbility', [
+            'OfficialPrintedTimingRules.HasPlayTrigger(',
+            '!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)']),
+        ('CoreRuleEngine.PermanentConfirmation.cs', 'PendingPermanentPlayAbility', [
+            'SourceConfirmed = true', '"TRIGGER_QUEUED"', 'Append(ability)']),
+        ('CoreRuleEngine.PermanentPlayTargets.cs', 'PermanentPlayTargetBehavior', [
+            'TargetEffectAdditionalCostPaid(current, item.OptionalCosts)', 'MinTargetCount = current.RequiredTargetCount']),
+        ('CoreRuleEngine.PermanentPlayTargets.cs', 'PreparePermanentPlayTargets', [
+            'PermanentPlayTargetChoice(', 'ValidPermanentPlayTargetSelection(', 'ResolveTriggerTargetConfirmation(']),
+        ('CoreRuleEngine.cs', 'TryResolveP0ContractCommand', [
+            'CommandTypes.ChooseCards', 'result = ResolveChooseCardsRuntime(state, intent, command);']),
+        ('CoreRuleEngine.cs', 'ResolveChooseCardsRuntime', [
+            'pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION"', 'ResolveTriggerTargetConfirmation(']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', [
+            'ValidPermanentPlayTargetSelection(state, item, selected)', 'ResolveSpellshieldTargetTaxPower(',
+            'TargetGenerations = selected.ToDictionary']),
+        ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', [
+            'HasPendingPermanentPlayAbility(state, stackItem, behavior)', 'PendingPermanentPlayAbility(',
+            'ResolveStatusEffectIds(behavior', 'UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects',
+            'statusEffectId == "STUNNED"', 'CaptureStunObservers(applied,']),
+        ('CoreRuleEngine.PaidPermanentPlayHistory.cs', 'ValidPaidPermanentPlayChoices', [
+            'item.OptionalCosts is not null', 'TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)',
+            'TryBuildConfirmedPermanentTargetAdditionalCost(item, behavior']),
+        ('CoreRuleEngine.PaidPermanentPlayHistory.cs', 'PaidPermanentPlaySkills', [
+            'state.PendingRuleChoice?.Origin', 'frame.PendingEffectPlay?.Parent', 'IsPaidPermanentPlaySkill(item)']),
+        ('CoreRuleEngine.PaidPermanentPlayHistory.cs', 'PaidPermanentPlayChoicesHash', [
+            'item.StackItemId', 'item.SourceObjectId', 'item.ControllerId', 'item.CardNo', 'item.EffectKind', 'item.OptionalCosts']),
+        ('CoreRuleEngine.PaidPermanentPlayHistory.cs', 'RecordPaidPermanentPlayHistory', [
+            'PaidPermanentPlaySkills(before)', 'PaidPermanentPlaySkills(result.State)',
+            'ev.Kind == kind', 'PaidPermanentPlayCaptured', 'PaidPermanentPlayRetired',
+            'PaidPermanentPlayChoicesHash(item)', 'events.Add(new(']),
+        ('MatchRecovery.PaidPermanentPlayHistory.cs', 'ValidatePaidPermanentPlayHistory', [
+            'CurrentGameAcceptedEventBoundary(state, commands, events)', 'command.Accepted',
+            'command.CompletedTick == record.Tick', 'command.StartedEventSequence < record.Sequence',
+            'command.CompletedEventSequence >= record.Sequence', '!captured.TryAdd(', '!pending.Add(',
+            '!pending.Remove(', 'CoreRuleEngine.ValidPaidPermanentPlayChoices(item)',
+            'proof != CoreRuleEngine.PaidPermanentPlayChoicesHash(item)', '!pending.SetEquals(']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'requireAcceptedBattleHistory && authoritativeState is not null',
+            'ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors)']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+        for filename, name, tokens in checks)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route', '额外绿色费用在打出时独立声明并付款；入场后确认眩晕目标及法盾，独立技能与原始已接受费用和存续记录绑定', evidence) if exact else result(
+        'missing', '缺少绿色额外打出费用、已付后的独立眩晕消费者，或原始费用选择／技能存续校验')
+
+
 def paid_source_ready_might_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     sentence = normalize("当你打出我时，如果你支付了该额外费用，则让我变为活跃状态，并让我本回合内{{S}}+2。")
     if normalize(unparenthesize(clause["text"])) != sentence:
@@ -2034,6 +2128,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return grant
     if token_play := token_play_observer_route(card, clause, sources):
         return token_play
+    if paid_stun := paid_target_play_stun_route(card, clause, sources):
+        return paid_stun
     if paid_source := paid_source_ready_might_route(card, clause, sources):
         return paid_source
 

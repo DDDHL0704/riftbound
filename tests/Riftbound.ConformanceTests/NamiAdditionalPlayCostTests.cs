@@ -84,8 +84,14 @@ public sealed class NamiAdditionalPlayCostTests
     public async Task WardPaymentIsSeparateFromTheAlreadyPaidExtraGreenAndKeepsItsOriginalReceipt(bool pay)
     {
         var initial = RadGearTestPosition.Put(Position(), "ENEMY", "UNL-171/219", "P2", "BASE");
-        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
-            ["P1"] = new(30, PrintedPowerCostRules.ForCard(Nami).Amount + 1) } };
+        // PrintedCardFactory supplies identity/type tags, while entering play
+        // adds printed keywords. This initial field fixture has not been played.
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["ENEMY"] = initial.CardObjects["ENEMY"] with { Tags = [..initial.CardObjects["ENEMY"].Tags, "法盾"] } },
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+                ["P1"] = new(30, PrintedPowerCostRules.ForCard(Nami).Amount + 1) } };
+        Assert.Contains("法盾", initial.CardObjects["ENEMY"].Tags);
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
         Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
