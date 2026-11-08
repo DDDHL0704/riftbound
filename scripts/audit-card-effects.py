@@ -1151,6 +1151,86 @@ def experience_play_cost_route(card: dict, clause: dict, sources: Sources) -> di
     return result("route", "当前经验最高档同时减少法力和绿色符能，沿用共享报价／付款和零下限", evidence)
 
 
+def conditional_rune_and_conquest_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    """Require the printed condition and its live or captured shared consumer."""
+    text = normalize(unparenthesize(clause["text"]))
+    number = lambda value: int(value) if value.isdigit() else {"一": 1, "两": 2, "二": 2, "三": 3,
+        "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}.get(value, -1)
+    rune = re.fullmatch(r"如果你拥有不少于([0-9一两二三四五六七八九十]+)枚符文则我获得\{\{S\}\}\+([0-9]+)", text)
+    conquest = re.fullmatch(r"当你征服一处战场时如果你在该战场上拥有不少于([0-9一两二三四五六七八九十]+)名单位则抽([0-9一两二三四五六七八九十]+)张牌", text)
+    if not rune and not conquest:
+        return None
+    def method_has(filename, name, *symbols):
+        # Restrict evidence to the named live consumer. A neighboring unused
+        # helper or a surviving registration cannot replace its instruction.
+        text = sources.files.get("src/Riftbound.Engine/" + filename, "")
+        body = re.search(r"(?ms)^    (?:private|internal|public|protected)\s+static\s+"
+            r"[\w<>,?.\[\] ]+\s+" + re.escape(name)
+            + r"\(.*?(?=^    (?:private|internal|public|protected)\s|\Z)", text)
+        return body is not None and all(symbol in body.group(0) for symbol in symbols)
+
+    def consumers(requirements):
+        evidence = []
+        for filename, symbols in requirements.items():
+            path = "src/Riftbound.Engine/" + filename
+            if not all(symbol in sources.files.get(path, "") for symbol in symbols):
+                return []
+            evidence.append(path)
+        return evidence
+    if rune:
+        minimum, amount = map(number, rune.groups())
+        nodes = [item["node"] for item in card.get("staticAuras", []) if node_matches(clause, item)]
+        exact = card.get("cardCategory") in ("unit", "hero_unit") and minimum > 0 and amount > 0 and any(
+            n.get("kind") == "SOURCE_OBJECT_POWER" and n.get("layer") == "STATIC_AURA"
+            and n.get("duration") == "WHILE_SOURCE_ON_PUBLIC_FIELD" and n.get("targetScope") == "SOURCE_OBJECT"
+            and n.get("participantScope") == "SOURCE_OBJECT" and n.get("powerDeltaPerParticipant") == amount
+            and n.get("requiredControllerRuneCount") == minimum and not n.get("requiredPlayerExperience")
+            and not n.get("targetFilter") for n in nodes)
+        evidence = consumers({
+            "StaticAuraSpecRules.cs": ["aura.RequiredControllerRuneCount", "EmpowerRules.ControlledRunes(state, controller)"],
+            "CoreRuleEngine.cs": ["aura.RequiredControllerRuneCount", "StaticAuraSpecRules.ControllerRequirementsSatisfied("],
+            "MatchSession/State.Normalization.cs": ["StaticAuraSpecRules.ControllerRequirementsSatisfied("],
+            "MatchSession/State.Auras.cs": ["aura.RequiredControllerRuneCount", "StaticAuraControllerRequirementsSatisfied("],
+            "CoreRuleEngine.AttachedRuleText.cs": ["SourceObjectKeywordStaticAuraApplies(state, unit, aura)"],
+        })
+        bound = all(method_has("CoreRuleEngine.cs", name,
+                "aura.RequiredControllerRuneCount.HasValue",
+                "!StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId)")
+            for name in ("SourceObjectPowerStaticAuraApplies", "SourceObjectKeywordStaticAuraApplies")) \
+            and method_has("MatchSession/State.Auras.cs", "SourceObjectPowerStaticAuraApplies",
+                "aura.RequiredControllerRuneCount.HasValue",
+                "!StaticAuraControllerRequirementsSatisfied(aura, state, controllerId)") \
+            and method_has("StaticAuraSpecRules.cs", "ControllerRequirementsSatisfied",
+                "!aura.RequiredControllerRuneCount.HasValue",
+                "EmpowerRules.ControlledRunes(state, controller) >= aura.RequiredControllerRuneCount.Value")
+        if exact and evidence and bound:
+            return result("route", "当前控制者场上符文阈值的实时自身加成，含复制文字重算", evidence)
+        return result("missing", "缺少精确符文阈值、自身战力规格或实时共享消费者")
+    minimum, draws = map(number, conquest.groups())
+    nodes = [item["node"] for item in card.get("triggers", []) if node_matches(clause, item)]
+    exact = card.get("cardCategory") == "legendary" and minimum > 0 and draws > 0 and any(
+        n.get("kind") == "LEGEND_CONQUEST_MINIMUM_UNITS_DRAW" and n.get("timing") == "BATTLEFIELD_CONQUERED"
+        and n.get("targetScope") == "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD" and n.get("requiredUnitCount") == minimum
+        and n.get("drawCount") == draws and not any(n.get(key) for key in
+            ("optional", "manaCost", "powerCost", "experienceCost", "exhaustsSource", "requiredOverkillDamage")) for n in nodes)
+    evidence = consumers({
+        "CoreRuleEngine.Conquest.cs": ["CaptureLegendConquest(state"],
+        "CoreRuleEngine.LegendConquest.cs": ["IsLegendConquestMinimumUnitsDrawTrigger", "units.Count < definition.Spec.RequiredUnitCount",
+            "LegendConquestDrawOrigin", "TriggerQueueItemState(", "ResolveLegendConquestDraw(state, item)"],
+        "CoreRuleEngine.LegendConquestDraw.cs": ["ValidLegendConquestDrawStack(state, item)", "ApplyDrawToPlayer(", "spec.DrawCount!.Value"],
+        "MatchRecovery.cs": ["ValidLegendConquestState(", "ValidLegendConquestDrawStack("],
+    })
+    bound = method_has("CoreRuleEngine.LegendConquest.cs", "CaptureLegendConquest",
+            "ControlledUnitsAtBattlefield(", "units.Count < definition.Spec.RequiredUnitCount",
+            "new TriggerQueueItemState(") \
+        and method_has("CoreRuleEngine.LegendConquest.cs", "ResolveLegendConquest",
+            "context.Kind == LegendConquestDrawKind", "return ResolveLegendConquestDraw(state, item);") \
+        and method_has("CoreRuleEngine.LegendConquestDraw.cs", "ResolveLegendConquestDraw",
+            "ValidLegendConquestDrawStack(state, item)", "ApplyDrawToPlayer(", "spec.DrawCount!.Value")
+    if exact and evidence and bound:
+        return result("route", "征服时捕获本战场单位数，普通入链后独立抽牌", evidence)
+    return result("missing", "缺少本战场征服时阈值及可响应的独立抽牌触发，登记或即时抽牌不足以认证")
+
 def friendly_target_ready_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     if not re.fullmatch(r"当你将一名友方单位选为目标时你可以选择让我变为休眠状态并支付\{\{A\}\}以此让该单位变为活跃状态", text):
@@ -1260,8 +1340,12 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
         return re.split(r"\n    (?:private|internal|public) static ", source[match.end():], maxsplit=1)[0] if match else ""
 
     resolve = method(units, "ResolveUnitEvent")
+    experience_call = "AppendIndependentUnitEventExperience(state, item, result)"
+    experience_returned = "return " + experience_call + ";" in resolve or (
+        re.search(r"(?m)^\s*result = " + re.escape(experience_call) + ";", resolve)
+        and "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select" in resolve)
     exact = exact and "ResolveUnitEventInstruction(state, item)" in resolve \
-        and "return AppendIndependentUnitEventExperience(state, item, result)" in resolve
+        and experience_returned
     append = method(experience, "AppendIndependentUnitEventExperience")
     exact = exact and "GainExperience(result.PlayerExperience, item.ControllerId, spec.IndependentExperienceGain," in append \
         and "PlayerExperience = experience" in append and "Events = events" in append
@@ -1293,6 +1377,150 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
     if exact:
         return result("route", "触发时检查胜利分差／此处敌方落单，普通结算链处理原来源，独立获得经验", evidence)
     return result("missing", "缺少精确的触发条件、原来源活跃／本回合战力或独立经验结算路径")
+
+
+def token_play_observer_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    if clause["kind"] != "trigger" or clause["scope"] != clause["text"] \
+            or normalize(unparenthesize(clause["text"])) != normalize("当你打出一名指示物单位时，让我本回合内{{S}}+1。"):
+        return None
+    expected = dict(timing="FRIENDLY_UNIT_PLAYED", effect="MIGHT_SELF", amount=1, requiresPlayedUnitToken=True)
+    events = [card.get("unitEventAbility")] + [b.get("unitEventAbility") for b in card.get("behaviors", [])]
+    precise = any(b.get("playsSourceToBaseAsUnit") for b in card.get("behaviors", [])) and any(
+        event and all(event.get(key) == value for key, value in expected.items())
+        and not any(meaningful(value) for key, value in event.items() if key not in expected) for event in events)
+    path = "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs"
+    code = sources.files.get(path, "")
+    start = code.find("private static GameEvent CaptureOtherUnitPlayed(")
+    end = code.find("private static GameEvent CaptureEquipmentPlayed(", start)
+    capture = code[start:end] if 0 <= start < end else ""
+    capture_tokens = ['"UNIT_TOKEN_CREATED"', '"FRIENDLY_UNIT_PLAYED"',
+        'EffectiveFieldControllerId(zones, c.ObjectId, c) == player',
+        '!UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitToken', '|| TokenObjectRules.IsToken(entered)',
+        'return WithUnitEvents(ev, observations);']
+    requirements = {
+        "CoreRuleEngine.UnitEntryTriggers.cs": ["CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects)"],
+        "CoreRuleEngine.UnitTokenEntry.cs": ['CaptureUnitEntry(new("UNIT_TOKEN_CREATED"'],
+        "CoreRuleEngine.UnitEvents.cs": [
+            "IsObjectOnField(zones, id)", "!card.IsFaceDown", "UnitEventTrigger(captured,",
+            'spec.Effect == "MIGHT_SELF"', "source.ObjectGeneration == context.SourceGeneration",
+            "IsObjectOnField(zones, source.ObjectId)",
+            "ApplyDirectUntilEndPowerModifier(source, source.ObjectId, item.SourceObjectId, context.CardNo,",
+            '"UNIT_EVENT", spec.Amount, source.Power + spec.Amount'],
+    }
+    if precise and all(token in capture for token in capture_tokens) \
+            and all(all(token in sources.files.get("src/Riftbound.Engine/" + name, "") for token in tokens)
+                    for name, tokens in requirements.items()):
+        return result("route", "己方指示物单位入场的实际观察、独立响应技能和同代来源的本回合战力加成",
+                      ["src/Riftbound.Engine/" + name for name in requirements])
+    return result("missing", "缺少己方打出指示物单位的精确条件、实际入场观察或同代来源的独立本回合加成")
+
+
+def another_friendly_here_grant_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    match = re.fullmatch(r"当我进攻或防守时让你在此处的另一名单位在本回合内获得\{\{S\}\}\+([1-9][0-9]*)和\{\{(壁垒|后排)\}\}", text)
+    if not match:
+        return None
+    amount, keyword = int(match[1]), match[2]
+    profiles = [card.get("unitEventAbility")] + [b.get("unitEventAbility") for b in card.get("behaviors", [])]
+    supported = {"timing", "effect", "amount", "targetsAnotherFriendlyHere", "grantedCombatKeyword"}
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in ("unit", "hero_unit") and any(
+            p and p.get("timing") == "ATTACK_OR_DEFEND" and p.get("effect") == "MIGHT_FRIENDLY"
+            and p.get("amount") == amount and p.get("targetsAnotherFriendlyHere") is True
+            and p.get("grantedCombatKeyword") == keyword
+            and not any(value for key, value in p.items() if key not in supported) for p in profiles)
+    prefix = "src/Riftbound.Engine/"
+    units = sources.files.get(prefix + "CoreRuleEngine.UnitEvents.cs", "")
+    def method(source, name):
+        found = re.search(r"(?:private|internal|public) static [^\n]+ " + re.escape(name) + r"\(", source)
+        return re.split(r"\n    (?:private|internal|public) static ", source[found.end():], maxsplit=1)[0] if found else ""
+    capture = method(units, "CaptureUnitEvents")
+    targets = method(units, "UnitEventTargets")
+    resolve = method(units, "ResolveUnitEvent")
+    if "ResolveUnitEventInstruction(state, item)" in resolve:
+        resolve = method(units, "ResolveUnitEventInstruction")
+    permanent = sources.files.get(prefix + "CoreRuleEngine.PermanentUnitEvents.cs", "")
+    here = method(permanent, "UnitEventTargetIsHere")
+    role_timing = 'spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND"' in capture \
+        or 'UnitEventTimingMatches(spec.Timing, timing)' in capture \
+            and 'declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true' \
+                in method(units, "UnitEventTimingMatches")
+    exact = exact and role_timing \
+        and 'CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")' in method(units, "CaptureAttackUnitEvents") \
+        and "CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role)" in method(units, "CaptureRoleUnitEvents")
+    exact = exact and all(symbol in targets for symbol in [".TargetsAnotherFriendlyHere", "c.ObjectId != item.SourceObjectId",
+        "EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId", "UnitEventTargetIsHere(state, item, c.ObjectId)"])
+    exact = exact and all(symbol in here for symbol in ["CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)",
+        "at.Zone == here.Zone", "at.PlayerId == here.PlayerId", "at.BattlefieldObjectId == here.BattlefieldObjectId"])
+    exact = exact and all(symbol in resolve for symbol in ['spec.Effect == "MIGHT_FRIENDLY"',
+        "StackObjectRules.ReferencesCurrentObject(state, item, buffed)", "UnitEventTargets(state, item).Contains(buffed)",
+        "ApplyPowerModifier(state, cards[buffed]", "spec.Amount", "spec.GrantedCombatKeyword is { } keyword",
+        "TemporaryCombatKeywordRules.Prefix + keyword", "TemporaryCombatKeywordRules.AppliedEffectId(cards[buffed]",
+        "UntilEndOfTurnEffects = [..cards[buffed].UntilEndOfTurnEffects, effect]"])
+    recovery = sources.files.get(prefix + "MatchRecovery.cs", "")
+    exact = exact and "ValidUnitEvent(" in recovery and "ValidUnitEventTargets(" in recovery
+    evidence = [prefix + p for p in ["CoreRuleEngine.UnitEvents.cs", "CoreRuleEngine.PermanentUnitEvents.cs", "MatchRecovery.cs"]]
+    return result("route", "进攻／防守确认此处另一名友军，结算重查原代际与当前位置，授予本回合战力和战斗关键词", evidence) if exact else result(
+        "missing", "缺少精确进攻／防守规格、此处另一名友方目标，或本回合战力及关键词的共享结算")
+
+
+def paid_source_ready_might_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize("当你打出我时，如果你支付了该额外费用，则让我变为活跃状态，并让我本回合内{{S}}+2。")
+    if normalize(unparenthesize(clause["text"])) != sentence:
+        return None
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == sentence \
+        and card.get("cardCategory") in {"unit", "hero_unit"}
+    behaviors = card.get("behaviors", [])
+    exact = exact and len(behaviors) == 1 and inventory_contains(behaviors[0], {
+        "playsSourceToBaseAsUnit": True, "sourceReadyPowerModifierAdditionalPowerCost": 1,
+        "sourceReadyPowerModifierAdditionalPowerTrait": "red", "sourceReadyPowerModifierAmount": 2})
+    prefix = "src/Riftbound.Engine/"
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) static [^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        rest = code[start.start():]
+        end = re.search(r"(?m)^    (?:private|internal|public) static ", rest[start.end() - start.start():])
+        return rest[:start.end() - start.start() + end.start()] if end else rest
+    checks = [
+        ("CoreRuleEngine.PermanentPlaySource.cs", "SourceOptionalReadyPowerCostWasPaid", [
+            "behavior.SourceReadyPowerModifierAdditionalPowerCost > 0", "behavior.SourceReadyPowerModifierAmount != 0",
+            "RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait)", "item.OptionalCosts.Any(",
+            "TryParseSpendPowerOptionalCost(", "amount == behavior.SourceReadyPowerModifierAdditionalPowerCost",
+            "RuneTrait.Normalize(trait) == requiredTrait"]),
+        ("CoreRuleEngine.PermanentPlaySource.cs", "PlayInstructionSource", [
+            "state.CardPlays.Resolved.FirstOrDefault(", "play.PlayId == item.StackItemId", "play.CardNo == item.CardNo",
+            "play.PlayerId == item.ControllerId", "play.Source.ObjectId == item.SourceObjectId"]),
+        ("CoreRuleEngine.PermanentConfirmation.cs", "HasPendingPermanentPlayAbility", [
+            "OfficialPrintedTimingRules.HasPlayTrigger(", "behavior.SourceReadyPowerModifierAdditionalPowerCost <= 0",
+            "SourceOptionalReadyPowerCostWasPaid(behavior, item)"]),
+        ("CoreRuleEngine.cs", "ResolveStackItemEffectCore", [
+            "HasPendingPermanentPlayAbility(state, stackItem, behavior)",
+            "PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events)",
+            "TryResolveSourceUnitOptionalReadyPower(\n                state,"]),
+        ("CoreRuleEngine.PermanentConfirmation.cs", "PendingPermanentPlayAbility", [
+            "SourceConfirmed = true", '"TRIGGER_QUEUED"', "state.StackItems.Where(", "Append(ability)"]),
+        ("CoreRuleEngine.cs", "TryResolveSourceUnitOptionalReadyPower", [
+            "SourceOptionalReadyPowerCostWasPaid(behavior, stackItem)", "!stackItem.SourceConfirmed",
+            "PlayInstructionSource(state, stackItem)", "sourceState.ObjectGeneration != source.Generation",
+            "!IsFaceUpNonStandbyUnit(sourceState)", "!IsObjectOnField(playerZones, source.ObjectId)",
+            "ApplyDirectUntilEndPowerModifier(", "behavior.SourceReadyPowerModifierAmount",
+            "var canReady = ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, sourceState)",
+            "if (canReady) AddReadiedObservation(", "IsExhausted = canReady ? false : sourceState.IsExhausted",
+            "if (canReady) events.Add(CaptureSelfReady(",
+            "cardObjects[stackItem.SourceObjectId] = nextSourceState"]),
+        ("PermanentPlayTriggerRecoveryRules.cs", "Valid", [
+            "CoreRuleEngine.SourceOptionalReadyPowerCostWasPaid(optionalReady, item)",
+            "instruction.SourceReadyPowerModifierAdditionalPowerCost > 0", "CoreRuleEngine.PlayInstructionSource(state, item)",
+            "entered.ObjectGeneration < receipt.Generation"]),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    exact = exact and any("PermanentPlayTriggerRecoveryRules.Valid(" in code
+        for path, code in sources.files.items() if "MatchRecovery" in Path(path).name)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route", "已付额外费才捕获独立入场技能，按成功打出回执核验场上原代际后活跃并授予本回合战力", evidence) if exact else result(
+        "missing", "缺少已付额外费用触发条件、独立技能消费者，或来源打出回执／场上原代际检查")
 
 
 def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) -> dict | None:
@@ -1806,6 +2034,14 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if battle_reward := battle_win_and_paid_combat_route(card, clause, sources):
         return battle_reward
     kind = clause["kind"]
+    if conditional := conditional_rune_and_conquest_route(card, clause, sources):
+        return conditional
+    if grant := another_friendly_here_grant_route(card, clause, sources):
+        return grant
+    if token_play := token_play_observer_route(card, clause, sources):
+        return token_play
+    if paid_source := paid_source_ready_might_route(card, clause, sources):
+        return paid_source
     if recycle_runes := last_breath_recycle_runes_route(card, clause, sources):
         return recycle_runes
     if boon_mode := boon_mode_activation_route(card, clause, sources):

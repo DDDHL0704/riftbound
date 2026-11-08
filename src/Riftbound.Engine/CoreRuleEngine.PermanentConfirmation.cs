@@ -22,6 +22,7 @@ public sealed partial class CoreRuleEngine
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
                 && (!behavior.PlayAbilityRequiresPermanentDestructionCost || OptionalPermanentDestructionWasPaid(item))
                 && (!behavior.ReadiesSourceAndAddsReturnedEquipmentManaPower || item.ReturnedEquipmentManaCost is not null)
+                && (behavior.SourceReadyPowerModifierAdditionalPowerCost <= 0 || SourceOptionalReadyPowerCostWasPaid(behavior, item))
                 && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))

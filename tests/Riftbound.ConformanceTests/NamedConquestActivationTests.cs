@@ -131,10 +131,15 @@ public sealed class NamedConquestActivationTests
     {
         var state = RadGearTestPosition.Put(OfficialHoldSequenceTests.State("OGN·286/298"),
             "TREE", "UNL-029/219", "P1", "BATTLEFIELD", "F");
-        var game = new Driver(state); await OpenArena(game); await game.Top(); await game.Top();
-        var activated = Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_CONQUEST_EFFECT_ACTIVATED"
+        var game = new Driver(state); await OpenArena(game); await game.Top();
+        var captured = Assert.Single(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "TREE"));
-        Assert.Equal("BATTLEFIELD_HELD", activated.Event.Payload["reason"]);
+        Assert.Equal("BATTLEFIELD_HELD", captured.Event.Payload["triggeredByEventKind"]);
+        Assert.Single(game.State.StackItems);
+        Assert.Equal(0, game.State.CardObjects["TREE"].BoonCount);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["TREE"]));
+        await game.Top();
         Assert.Equal(1, game.State.CardObjects["TREE"].BoonCount);
         await game.Replay();
     }

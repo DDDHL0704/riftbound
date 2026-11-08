@@ -1221,6 +1221,8 @@ public static partial class MatchRecoveryValidator
             ValidatePerPlayerActivationUseHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateArmamentUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
+            ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
             ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
@@ -2317,6 +2319,8 @@ public static partial class MatchRecoveryValidator
                 }
                 if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
                 {
+                    var requiresRunes = sourceCardNo is not null && StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                        .Any(a => a.Kind == effectKind && a.RequiredControllerRuneCount.HasValue);
                     ValidateContinuousEffectStaticAuraSourceObjectPowerSourceCardSpecConsistency(
                         effectLabel,
                         sourceCardNo,
@@ -2330,13 +2334,15 @@ public static partial class MatchRecoveryValidator
                     ValidateContinuousEffectStaticAuraMetadataValue(
                         effectLabel,
                         condition,
-                        "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+                        requiresRunes ? "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_RUNE_COUNT"
+                            : "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
                         "object static aura condition",
                         errors);
                     ValidateContinuousEffectStaticAuraMetadataValue(
                         effectLabel,
                         lifecycle,
-                        "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE",
+                        requiresRunes ? "RECOMPUTED_FROM_CURRENT_CONTROLLER_RUNES"
+                            : "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE",
                         "object static aura lifecycle",
                         errors);
                     return;
@@ -4140,6 +4146,7 @@ public static partial class MatchRecoveryValidator
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
         ValidateUnitConquestReturnContinuations(state, errors);
+        ValidateBattlefieldTimingAliases(state, errors);
         ValidateBattlefieldConquestChoiceContinuations(state, errors);
         ValidateHandDiscardObservers(state, errors);
         foreach (var item in state.StackItems)
@@ -4280,16 +4287,17 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitConquest is { } conquest ? !CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind)
                 || !CoreRuleEngine.ValidCapturedConquestGrant(state, conquest, trigger.SourceObjectId)
-                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(conquest.Activation)
+                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(conquest.Activation, trigger.TimingAlias)
                 : trigger.EffectKind is CoreRuleEngine.ConquestDamageEffect or CoreRuleEngine.GrantedConquestReturnEffect) errors.Add("invalid captured unit conquest");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidConquestDamageStack(state,item)) errors.Add("invalid unit conquest stack");
         foreach (var trigger in state.TriggerQueue)
-            if (trigger.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquest(context, trigger.EffectKind)
+            if (trigger.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquestState(state, context, trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
                 || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
                 : trigger.EffectKind == CoreRuleEngine.LegendConquestEffect) errors.Add("invalid captured legend conquest");
         foreach (var item in state.StackItems)
-            if (item.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquest(context, item.EffectKind, item.CardNo)
+            if (item.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquestState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
+                || !CoreRuleEngine.ValidLegendConquestDrawStack(state, item)
                 || context.Kind == "EXHAUST_READY_UNIT" && item.TriggerCost is not null && (item.TargetObjectIds.Count != 1
                     || item.TargetGenerations is not { Count: 1 } generations || !generations.ContainsKey(item.TargetObjectIds[0]))
                 : item.EffectKind == CoreRuleEngine.LegendConquestEffect) errors.Add("invalid legend conquest stack");
@@ -4484,7 +4492,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, trigger.EffectKind)
                 || context.Activation is { } activation && !CoreRuleEngine.ValidNamedConquestActivation(state, activation, context.BattlefieldId)
-                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(context.Activation)
+                || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(context.Activation, trigger.TimingAlias)
                 : trigger.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid queued effect-play trigger context");
         if (state.PendingEffectPlay is { } recast && recast.SourceReplay is null && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
             errors.Add("invalid spell effect-play continuation");
@@ -4629,7 +4637,7 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.ConquestToken is { } token
                 ? !CoreRuleEngine.ValidConquestToken(state, token, trigger.SourceObjectId, trigger.EffectKind)
-                    || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(token.Activation)
+                    || trigger.TriggeredByEventKind != CoreRuleEngine.ConquestCaptureReason(token.Activation, trigger.TimingAlias)
                 : trigger.EffectKind is TriggerKinds.UnitConquestCreateDormantGold or TriggerKinds.UnitConquestCreateUnitToken)
                 errors.Add("invalid captured conquest token trigger");
         foreach (var item in state.StackItems)
@@ -5012,7 +5020,8 @@ public static partial class MatchRecoveryValidator
         {
             if (string.IsNullOrWhiteSpace(gain.Id) || !ids.Add(gain.Id)
                 || !state.Seats.ContainsKey(gain.ControllerId) || gain.Power != 1
-                || gain.DueTurn != state.TurnNumber || state.TurnStartStep is null
+                || (gain.TimingAlias is null ? gain.DueTurn != state.TurnNumber || state.TurnStartStep is null
+                    : gain.DueTurn < gain.TimingAlias.CapturedTurn || gain.DueTurn > gain.TimingAlias.CapturedTurn + 1)
                 || string.IsNullOrWhiteSpace(gain.SourceObjectId) || string.IsNullOrWhiteSpace(gain.BattlefieldObjectId)
                 || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, gain.SourceCardNo))
                 errors.Add("invalid captured delayed resource gain");
@@ -5028,7 +5037,7 @@ public static partial class MatchRecoveryValidator
                     or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "OPTIONAL_RETURN_SELF" or "RETURN_PERMANENT"
                     or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
                     or "VEX" or "IVERN" or "BRUSH_RETURN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
-                    or "BURN" or "EMPTY_RUNE_SCORE" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.LinkedExileHeldKind or CoreRuleEngine.UnitHeldRuneKind or CoreRuleEngine.UnitHeldHiddenScoreKind or CoreRuleEngine.UnitHeldEquipmentKind or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");
+                    or "BURN" or "EMPTY_RUNE_SCORE" or "NEXT_ECHO" or "UNIT_TAX" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" or CoreRuleEngine.LinkedExileHeldKind or CoreRuleEngine.UnitHeldRuneKind or CoreRuleEngine.UnitHeldHiddenScoreKind or CoreRuleEngine.UnitHeldEquipmentKind or CoreRuleEngine.DeploymentHeldKind)) errors.Add("invalid captured Hold context");
         }
         foreach (var item in state.StackItems.Where(x => x.HeldContext is not null))
             if (!CoreRuleEngine.ValidExactOtherFriendlyHeldContext(state, item.HeldContext!, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
@@ -6113,12 +6122,12 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
-        => (item.UnitEvent?.Origin?.ArmamentGranted == true || item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.TargetedPowerAbility is not null || item.NativeUnitActivation is not null && CoreRuleEngine.ValidNativeUnitActivation(state, item) || item.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind || item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.BombRebuild is not null && CoreRuleEngine.ValidBombRebuildStack(state, item) || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || DrawHandThresholdRecoveryRules.IsCapturedSkill(state, item) || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.BorrowedExhaust is not null && BorrowedExhaustRules.Valid(state, item) || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind or "RECYCLE_BOON"
+        => (item.TimingAlias is not null && CoreRuleEngine.ValidTimingAlias(state, item.TimingAlias, item.SourceObjectId, item.ControllerId, CoreRuleEngine.TimingCaptureContext(item)) || item.UnitEvent?.Origin?.ArmamentGranted == true || item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.TargetedPowerAbility is not null || item.NativeUnitActivation is not null && CoreRuleEngine.ValidNativeUnitActivation(state, item) || item.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind || item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.BombRebuild is not null && CoreRuleEngine.ValidBombRebuildStack(state, item) || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || DrawHandThresholdRecoveryRules.IsCapturedSkill(state, item) || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.BorrowedExhaust is not null && BorrowedExhaustRules.Valid(state, item) || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind or "RECYCLE_BOON"
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.UnitEvent is not null || item.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind || item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.BombRebuild is not null && CoreRuleEngine.ValidBombRebuildTrigger(state, item) || item.UnitConquestReturn is not null || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind or "RECYCLE_BOON" || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || DrawHandThresholdRecoveryRules.IsCapturedSkill(state, item))
+        => (item.TimingAlias is not null && CoreRuleEngine.ValidTimingAlias(state, item.TimingAlias, item.SourceObjectId, item.ControllerId, CoreRuleEngine.TimingCaptureContext(item)) || item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.UnitEvent is not null || item.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind || item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.BombRebuild is not null && CoreRuleEngine.ValidBombRebuildTrigger(state, item) || item.UnitConquestReturn is not null || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind or "RECYCLE_BOON" || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || DrawHandThresholdRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)

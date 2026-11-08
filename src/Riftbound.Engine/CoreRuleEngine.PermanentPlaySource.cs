@@ -11,6 +11,18 @@ public sealed partial class CoreRuleEngine
             && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId
             && play.Source.ObjectId == item.SourceObjectId)?.Source;
 
+    // CN 383.2.a.1: the paid optional cost is part of the trigger condition.
+    // Use the same declaration predicate for capture, resolution and recovery.
+    internal static bool SourceOptionalReadyPowerCostWasPaid(CardBehaviorDefinition behavior, StackItemState item)
+    {
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
+        return behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
+            && behavior.SourceReadyPowerModifierAmount != 0 && !string.IsNullOrWhiteSpace(requiredTrait)
+            && item.OptionalCosts.Any(cost => TryParseSpendPowerOptionalCost(cost, out var amount, out var trait)
+                && amount == behavior.SourceReadyPowerModifierAdditionalPowerCost
+                && RuneTrait.Normalize(trait) == requiredTrait);
+    }
+
     internal static ContinuousEffectState PublicPlayInstructionEffect(MatchState state, ContinuousEffectState effect, string viewer)
     {
         // Keep the full provenance in the authoritative ledger. A resolved
@@ -19,7 +31,10 @@ public sealed partial class CoreRuleEngine
             || ResolutionResult.VisibleObjectIdForViewer(state, id, viewer) != "HIDDEN") return effect;
         var capturedActivation = P4ActivatedAbilityCatalog.TryGetByEffectKind(effect.EffectKind, out var ability)
             && ability.SimpleEffect is not null;
-        if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation
+        var capturedBattlefieldSkill = effect.EffectKind == UnitEventEffect
+            && (UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "CONQUEST")
+                || UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "HOLD"));
+        if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation && !capturedBattlefieldSkill
             && effect.EffectKind != TriggerKinds.UnitMovedOtherFriendlyPowerModifier
             && (effect.SourceCardNo is not { } no || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
                 || !behavior.RecyclesSourceIfPlayedFromStandby)) return effect;

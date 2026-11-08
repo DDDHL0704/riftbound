@@ -157,6 +157,7 @@ public static class TriggerKinds
         "LEGEND_CONQUEST_PAY_1_READY_SELF";
     public const string LegendConquestReadySelf =
         "LEGEND_CONQUEST_READY_SELF";
+    public const string LegendConquestMinimumUnitsDraw = "LEGEND_CONQUEST_MINIMUM_UNITS_DRAW";
     public const string LegendConquestOverkillExhaustReadyUnit =
         "LEGEND_CONQUEST_OVERKILL_EXHAUST_READY_UNIT";
     public const string BattlefieldDefendRevealTopDrawSpellOrRecycle =
@@ -928,7 +929,9 @@ public sealed record StaticAuraSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? PowerDeltaIfSourceEmpowered = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? OnlyIfMissingKeyword = null);
+    bool? OnlyIfMissingKeyword = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? RequiredControllerRuneCount = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,

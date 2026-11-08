@@ -106,7 +106,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const string MasterYiLevelLegendIdentityId = LegendIdentityCatalog.MasterYiLevelLegendIdentityId;
     private const string DravenLegendIdentityId = LegendIdentityCatalog.DravenLegendIdentityId;
-    private const string GarenIntroLegendIdentityId = LegendIdentityCatalog.GarenIntroLegendIdentityId;
     private const string LuxIntroLegendIdentityId = LegendIdentityCatalog.LuxIntroLegendIdentityId;
     private const string AnnieLegendIdentityId = LegendIdentityCatalog.AnnieLegendIdentityId;
     private const string PowerfulUnitRuneLegendIdentityId = LegendIdentityCatalog.PowerfulUnitRuneLegendIdentityId;
@@ -135,7 +134,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
-    private const string UnitConquestReadySelfOnceEffectPrefix = "UNIT_CONQUEST_READY_SELF_ONCE:";
     private const string FriendlyUnitDestroyedEquipmentRecallEffectId =
         ReplacementKinds.FriendlyUnitDestroyedDestroySourceRecallExhausted;
     private const string BattlefieldDestroyedInBattleRecallEffectId =
@@ -3403,7 +3401,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { NextUnitPlayGrant = trigger.NextUnitPlayGrant, TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, TurnUnitPlayDraw = trigger.TurnUnitPlayDraw, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, BombRebuild = trigger.BombRebuild, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, DrawHandThreshold = trigger.DrawHandThreshold, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, UnitEvent = trigger.UnitEvent };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { NextUnitPlayGrant = trigger.NextUnitPlayGrant, TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, TurnUnitPlayDraw = trigger.TurnUnitPlayDraw, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, BombRebuild = trigger.BombRebuild, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, DrawHandThreshold = trigger.DrawHandThreshold, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, TimingAlias = trigger.TimingAlias, UnitEvent = trigger.UnitEvent };
     }
 
     private sealed record TriggerControllerBlock(
@@ -5315,6 +5313,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.UnitEvent is { FirstConquestTurn: { } firstTurn } firstConquest)
+        {
+            payload["firstConquestUse"] = FirstConquestUse(trigger.SourceObjectId, firstConquest);
+            payload["firstConquestTurn"] = firstTurn;
+        }
+        if (TimingCaptureContext(trigger) is { } timingContext)
+            payload["timingCaptureHash"] = TimingCaptureHash(timingContext, trigger.TimingAlias);
         if (trigger.UnitEvent is { Origin.ArmamentGranted: true } armamentEvent)
             payload["armamentGrantHash"] = ArmamentUnitEventRules.CaptureHash(armamentEvent);
         if (trigger.DrawHandThreshold is { } threshold) payload["drawHandThreshold"] = threshold;
@@ -13867,7 +13872,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (aura.RequiredPlayerExperience.HasValue)
+        if (aura.RequiredPlayerExperience.HasValue || aura.RequiredControllerRuneCount.HasValue)
         {
             if (string.IsNullOrWhiteSpace(cardObject.ControllerId)
                 || !StaticAuraControllerRequirementsSatisfied(aura, state, cardObject.ControllerId))
@@ -13914,6 +13919,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (aura.RequiredPlayerExperience.HasValue
+            || aura.RequiredControllerRuneCount.HasValue
             || string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
         {
             if (string.IsNullOrWhiteSpace(cardObject.ControllerId)
@@ -14546,16 +14552,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StaticAuraSpec aura,
         MatchState state,
         string controllerId)
-    {
-        if (aura.RequiredPlayerExperience.HasValue
-            && (!state.PlayerExperience.TryGetValue(controllerId, out var experience)
-                || experience < aura.RequiredPlayerExperience.Value))
-        {
-            return false;
-        }
-
-        return true;
-    }
+        => StaticAuraSpecRules.ControllerRequirementsSatisfied(aura, state, controllerId);
 
     private static GameEvent BuildBattleNoResultEvent(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -14658,32 +14655,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 cardNo = legendState.CardNo
                     ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(DravenLegendIdentityId);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool TryGetGarenIntroLegendCardNo(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string cardNo)
-    {
-        cardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(GarenIntroLegendIdentityId);
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var legendObjectId in zones.LegendZone)
-        {
-            if (cardObjects.TryGetValue(legendObjectId, out var legendState)
-                && LegendCardHasIdentity(legendState.CardNo, GarenIntroLegendIdentityId))
-            {
-                cardNo = legendState.CardNo
-                    ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(GarenIntroLegendIdentityId);
                 return true;
             }
         }
@@ -15135,6 +15106,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextRngCursor = rngCursor;
         var unitConquestTriggers = UnitConquestTriggerSpecRules.TriggersForCard(unitState.CardNo)
             .Where(UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger)
+            .Where(trigger => !CapturedConquestInstructionKinds.Contains(trigger.Kind))
             .Where(trigger => excludedKinds?.Contains(trigger.Kind) != true)
             .ToArray();
         var unitConquestOverkillGoldTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
@@ -15276,226 +15248,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        var unitConquestDrawOrRuneTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
-            string.Equals(trigger.Kind, TriggerKinds.UnitConquestDrawOneOrCallRune, StringComparison.Ordinal));
-        if (unitConquestDrawOrRuneTrigger is not null)
-        {
-            var drawCount = unitConquestDrawOrRuneTrigger.DrawCount.GetValueOrDefault(1);
-            var runeCallCount = unitConquestDrawOrRuneTrigger.RuneCallCount.GetValueOrDefault(1);
-            AddUnitConquestEffectActivatedEvent(
-                events,
-                playerId,
-                unitObjectId,
-                unitState.CardNo,
-                unitConquestDrawOrRuneTrigger.Kind,
-                battlefieldObjectId,
-                activationReason);
-            if (playerZones.TryGetValue(playerId, out var currentZones)
-                && currentZones.MainDeck.Count > 0)
-            {
-                var drawResult = ApplyDrawToPlayer(
-                    state,
-                    playerZones, cardObjects,
-                    nextPlayerScores,
-                    playerId,
-                    drawCount,
-                    nextRngCursor,
-                    events,
-                    deferNormalVictory: deferNormalVictory);
-                nextPlayerScores = drawResult.PlayerScores;
-                winnerPlayerId = drawResult.WinnerPlayerId ?? winnerPlayerId;
-                nextRngCursor = drawResult.RngCursor;
-            }
-            else
-            {
-                var runeCallResult = CallRunes(playerZones, cardObjects, playerId, runeCallCount);
-                events.Add(new GameEvent(
-                    "RUNES_CALLED",
-                    $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["sourceObjectId"] = unitObjectId,
-                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
-                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                        ["reason"] = unitConquestDrawOrRuneTrigger.Kind
-                    }));
-            }
-
-            drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
-            return true;
-        }
-
-        var unitConquestReadySelfTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
-            string.Equals(trigger.Kind, TriggerKinds.UnitConquestReadySelfOncePerTurn, StringComparison.Ordinal));
-        if (unitConquestReadySelfTrigger is not null)
-        {
-            var readyEffectId = BuildUnitConquestReadySelfOnceEffectId(playerId, unitObjectId);
-            var isOncePerTurn = unitConquestReadySelfTrigger.OncePerTurn.GetValueOrDefault(true);
-            if (isOncePerTurn
-                && nextUntilEndOfTurnEffects.Contains(readyEffectId, StringComparer.Ordinal))
-            {
-                return false;
-            }
-
-            AddUnitConquestEffectActivatedEvent(
-                events,
-                playerId,
-                unitObjectId,
-                unitState.CardNo,
-                unitConquestReadySelfTrigger.Kind,
-                battlefieldObjectId,
-                activationReason);
-            if (isOncePerTurn)
-            {
-                nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(nextUntilEndOfTurnEffects, readyEffectId);
-            }
-
-            if (ReadyByEffectPermittedByFieldRules(playerZones, cardObjects, unitState))
-            {
-                var wasExhausted = unitState.IsExhausted;
-                AddReadiedObservation(playerZones, cardObjects, unitState, events);
-                cardObjects[unitObjectId] = unitState with
-                {
-                    IsExhausted = false
-                };
-                events.Add(CaptureSelfReady(new GameEvent(
-                    "UNIT_READIED",
-                    $"{unitObjectId} 因征服效果变为活跃状态",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["sourceObjectId"] = unitObjectId,
-                        ["targetObjectId"] = unitObjectId,
-                        ["wasExhausted"] = wasExhausted,
-                        ["isExhausted"] = false,
-                        ["effectId"] = readyEffectId,
-                        ["reason"] = unitConquestReadySelfTrigger.Kind
-                    }), unitState, playerId, playerZones, cardObjects));
-            }
-            drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
-            return true;
-        }
-
-        var unitConquestFriendlyBoonTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
-            string.Equals(trigger.Kind, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal));
-        if (unitConquestFriendlyBoonTrigger is not null
-            && TryGetFirstControlledBattlefieldUnit(
-                playerZones,
-                cardObjects,
-                playerId,
-                unitObjectId,
-                out var boonTargetObjectId))
-        {
-            AddUnitConquestEffectActivatedEvent(
-                events,
-                playerId,
-                unitObjectId,
-                unitState.CardNo,
-                unitConquestFriendlyBoonTrigger.Kind,
-                battlefieldObjectId,
-                activationReason,
-                boonTargetObjectId);
-            GrantLegendBoon(
-                cardObjects,
-                boonTargetObjectId,
-                playerId,
-                unitObjectId,
-                unitConquestFriendlyBoonTrigger.Kind,
-                events, playerZones);
-            drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
-            return true;
-        }
-
-        var unitConquestFriendlyPowerTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
-            string.Equals(trigger.Kind, TriggerKinds.UnitConquestFriendlyPowerUntilEndOfTurn, StringComparison.Ordinal));
-        if (unitConquestFriendlyPowerTrigger is not null
-            && TryGetFirstControlledBattlefieldUnit(
-                playerZones,
-                cardObjects,
-                playerId,
-                unitObjectId,
-                out var powerTargetObjectId)
-            && cardObjects.TryGetValue(powerTargetObjectId, out var powerTargetState))
-        {
-            var powerDelta = unitConquestFriendlyPowerTrigger.PowerDelta.GetValueOrDefault(0);
-            AddUnitConquestEffectActivatedEvent(
-                events,
-                playerId,
-                unitObjectId,
-                unitState.CardNo,
-                unitConquestFriendlyPowerTrigger.Kind,
-                battlefieldObjectId,
-                activationReason,
-                powerTargetObjectId);
-            cardObjects[powerTargetObjectId] = ApplyDirectUntilEndPowerModifier(
-                powerTargetState,
-                powerTargetObjectId,
-                unitObjectId,
-                unitState.CardNo,
-                unitConquestFriendlyPowerTrigger.Kind,
-                "CoreRuleEngine.ResolveUnitConquestTriggers",
-                powerDelta,
-                powerTargetState.Power + powerDelta);
-            events.Add(new GameEvent(
-                "POWER_MODIFIED_UNTIL_END_OF_TURN",
-                $"{unitObjectId} 的征服效果临时修正战力",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = unitObjectId,
-                    ["targetObjectId"] = powerTargetObjectId,
-                    ["powerDelta"] = powerDelta,
-                    ["appliedPowerDelta"] = powerDelta,
-                    ["resultingPower"] = powerTargetState.Power + powerDelta,
-                    ["reason"] = unitConquestFriendlyPowerTrigger.Kind
-                }));
-            drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
-            return true;
-        }
-
-        var unitConquestDestroyEquipmentTrigger = unitConquestTriggers.FirstOrDefault(trigger =>
-            string.Equals(trigger.Kind, TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon, StringComparison.Ordinal));
-        if (unitConquestDestroyEquipmentTrigger is not null
-            && TryGetFirstFieldEquipment(playerZones, cardObjects, out var equipmentObjectId))
-        {
-            AddUnitConquestEffectActivatedEvent(
-                events,
-                playerId,
-                unitObjectId,
-                unitState.CardNo,
-                unitConquestDestroyEquipmentTrigger.Kind,
-                battlefieldObjectId,
-                activationReason,
-                equipmentObjectId);
-            var stackItem = new StackItemState(
-                $"unit-conquest-{unitObjectId}",
-                playerId,
-                unitObjectId,
-                unitConquestDestroyEquipmentTrigger.Kind,
-                unitState.CardNo,
-                [equipmentObjectId]);
-            if (TryDestroyTarget(state, playerZones, cardObjects, runePools, equipmentObjectId, out var removalResult))
-            {
-                events.AddRange(BuildFieldRemovalEvents(
-                    "单位征服效果",
-                    stackItem,
-                    equipmentObjectId,
-                    removalResult,
-                    unitConquestDestroyEquipmentTrigger.Kind));
-                GrantLegendBoon(
-                    cardObjects,
-                    unitObjectId,
-                    playerId,
-                    unitObjectId,
-                    unitConquestDestroyEquipmentTrigger.Kind,
-                    events, playerZones);
-            }
-
-            drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
-            return true;
-        }
-
         drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
         return false;
     }
@@ -15522,21 +15274,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
                 && TryGetPreciseFieldLocation(playerZones, objectLocations, objectId, out var location)
                 && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-                && string.Equals(location.BattlefieldObjectId, battlefieldPositionObjectId, StringComparison.Ordinal)
-                && UnitConquestTriggerSpecRules.TryGetTrigger(
-                    sourceState.CardNo,
-                    UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger,
-                    out _))
+                && string.Equals(location.BattlefieldObjectId, battlefieldPositionObjectId, StringComparison.Ordinal))
             .Distinct(StringComparer.Ordinal)
             .Sum(objectId =>
             {
                 var sourceState = cardObjects[objectId];
-                return UnitConquestTriggerSpecRules.TryGetTrigger(
-                        sourceState.CardNo,
-                        UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger,
-                        out var trigger)
-                    ? Math.Max(0, trigger.AdditionalTriggerCount.GetValueOrDefault(0))
-                    : 0;
+                return AttachedRuleTextRules.Instances(playerZones, cardObjects, sourceState)
+                    .Sum(instance => UnitConquestTriggerSpecRules.TriggersForCard(instance.CardNo)
+                        .Where(UnitConquestTriggerSpecRules.IsUnitConquestAdditionalActivationTrigger)
+                        .Sum(trigger => Math.Max(0, trigger.AdditionalTriggerCount.GetValueOrDefault(0))));
             });
 
         return Math.Max(1, 1 + additionalTriggerCount);
@@ -15601,30 +15347,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static bool TryGetFirstFieldEquipment(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        out string equipmentObjectId)
-    {
-        equipmentObjectId = playerZones
-            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
-                && objectState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal))
-            .Order(StringComparer.Ordinal)
-            .FirstOrDefault() ?? string.Empty;
-        return !string.IsNullOrWhiteSpace(equipmentObjectId);
-    }
-
     private static bool HasSupportedUnitConquestTriggerSpec(string? cardNo)
     {
         return UnitConquestTriggerSpecRules.TriggersForCard(cardNo)
             .Any(UnitConquestTriggerSpecRules.IsSupportedUnitConquestTrigger);
-    }
-
-    private static string BuildUnitConquestReadySelfOnceEffectId(string playerId, string unitObjectId)
-    {
-        return $"{UnitConquestReadySelfOnceEffectPrefix}{playerId}:{unitObjectId}";
     }
 
     private static bool TryGetFirstSurvivingBattlefieldUnit(
@@ -17347,7 +17073,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-    private static int CountControlledUnitsAtBattlefield(
+    private static IReadOnlyList<ObjectBinding> ControlledUnitsAtBattlefield(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
@@ -17356,10 +17082,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (string.IsNullOrWhiteSpace(playerId) || string.IsNullOrWhiteSpace(battlefieldObjectId))
         {
-            return 0;
+            return [];
         }
 
-        return objectLocations.Count(entry =>
+        return objectLocations.Where(entry =>
             string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
             && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
             && IsObjectOnField(playerZones, entry.Key)
@@ -17369,7 +17095,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && string.Equals(
                 EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
                 playerId,
-                StringComparison.Ordinal));
+                StringComparison.Ordinal))
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => new ObjectBinding(entry.Key, cardObjects[entry.Key].ObjectGeneration)).ToArray();
     }
 
     private static int CombatKeywordAmount(
@@ -18943,6 +18671,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 LinkedExiles = stackResolution.LinkedExiles ?? state.LinkedExiles,
                 EquipmentPlayGrants = stackResolution.EquipmentPlayGrants ?? state.EquipmentPlayGrants,
                 TimedBanishPlayGrants = stackResolution.TimedBanishPlayGrants ?? state.TimedBanishPlayGrants,
+                DelayedResourceGains = stackResolution.DelayedResourceGains ?? state.DelayedResourceGains,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -23263,25 +22992,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryResolveSourceUnitOptionalReadyPower(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         Dictionary<string, CardObjectState> cardObjects,
         List<GameEvent> events)
     {
-        if (behavior.SourceReadyPowerModifierAdditionalPowerCost <= 0
-            || behavior.SourceReadyPowerModifierAmount == 0)
-        {
-            return false;
-        }
-
-        var requiredTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
-        if (string.IsNullOrWhiteSpace(requiredTrait)
-            || !stackItem.OptionalCosts.Any(optionalCost =>
-                TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var powerTrait)
-                && powerCost == behavior.SourceReadyPowerModifierAdditionalPowerCost
-                && string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal))
-            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
+        if (!SourceOptionalReadyPowerCostWasPaid(behavior, stackItem)
+            || !stackItem.SourceConfirmed || PlayInstructionSource(state, stackItem) is not { } source
+            || !cardObjects.TryGetValue(source.ObjectId, out var sourceState)
+            || sourceState.ObjectGeneration != source.Generation || !IsFaceUpNonStandbyUnit(sourceState)
+            || !IsObjectOnField(playerZones, source.ObjectId))
         {
             return false;
         }
@@ -24258,6 +23980,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ResolveReturnedEquipmentSourceInstruction(state, behavior, stackItem, playerZones, cardObjects, events);
 
             TryResolveSourceUnitOptionalReadyPower(
+                state,
                 playerZones,
                 behavior,
                 stackItem,
@@ -34615,7 +34338,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<LinkedExileGroup>? LinkedExiles = null,
         IReadOnlyList<string>? CompletedCardPlayIds = null,
         IReadOnlyList<TurnEquipmentPlayGrant>? EquipmentPlayGrants = null,
-        IReadOnlyList<TimedBanishPlayGrant>? TimedBanishPlayGrants = null);
+        IReadOnlyList<TimedBanishPlayGrant>? TimedBanishPlayGrants = null,
+        IReadOnlyList<DelayedResourceGain>? DelayedResourceGains = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,

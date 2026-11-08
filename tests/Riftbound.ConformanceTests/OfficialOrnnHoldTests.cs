@@ -39,7 +39,9 @@ public sealed class OfficialOrnnHoldTests
         Assert.DoesNotContain("\"E1\"", JsonSerializer.Serialize(result.Prompts["P2"]));
         var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(result.State))!;
         Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(restored));
-        Assert.Empty(MatchRecoveryValidator.Validate(restored.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), restored, restored.Tick));
+        // This journal-free component fixture checks state and views. Accepted
+        // history and full replay are covered by CounterHoldContinuationTests.
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(restored));
         var invalid = await new CoreRuleEngine().ResolveAsync(restored, new("invalid", "P1", CommandTypes.ChooseCards), new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["U1"]), default);
         Assert.False(invalid.Accepted);
         Assert.Equal(MatchStateHasher.Hash(restored), MatchStateHasher.Hash(invalid.State));

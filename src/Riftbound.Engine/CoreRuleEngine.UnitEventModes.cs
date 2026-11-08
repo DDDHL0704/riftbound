@@ -81,6 +81,7 @@ public sealed partial class CoreRuleEngine
             RuleTextModeUses = ledger,
             StackItems = state.StackItems.Select(i => i.StackItemId == item.StackItemId ? changed : i).ToArray() }, item);
         var events = new List<GameEvent> { new("TRIGGER_MODE_CONFIRMED", "已确认单位触发技能的效果", new Dictionary<string, object?> {
+                ["stackItemId"] = item.StackItemId,
                 ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator),
                 ["mode"] = selected.Single() }) };
         if (UnitEventSpec(item.UnitEvent!.CardNo)!.DistinctModesPerTurn)

@@ -279,7 +279,7 @@ public static partial class TargetParser
         return ParseChineseNumber(match.Groups["count"].Value);
     }
 
-    private static int ParseChineseNumber(string raw)
+    internal static int ParseChineseNumber(string raw)
     {
         if (int.TryParse(raw, out var numeric))
         {
@@ -1206,6 +1206,15 @@ public static class TriggerParser
                 segment, TargetScope: TriggerTargetScopes.ControlledHandCard, DiscardCount: 1,
                 DiscardSourceZone: TriggerZones.Hand, DiscardDestinationZone: TriggerZones.Graveyard,
                 RuneCallCount: 1, Optional: true);
+
+        var heldDormantEquipment = Regex.Match(segment,
+            @"^当我据守一处战场时，打出(?<count>[0-9一两二三四五六七八九十]+)个休眠的“(?<name>[^”]+)”装备指示物。?$",
+            RegexOptions.CultureInvariant);
+        if (heldDormantEquipment.Success && ParseChineseNumber(heldDormantEquipment.Groups["count"].Value) is > 0 and var dormantEquipmentCount)
+            return new(TriggerKinds.UnitBattlefieldHeldCreateEquipment, TriggerTimings.BattlefieldHeld,
+                segment, TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: dormantEquipmentCount,
+                CreatedTokenName: heldDormantEquipment.Groups["name"].Value,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true);
 
         var heldEquipment = Regex.Match(segment,
             @"^当我据守一处战场时，打出(?<count>[0-9一两二三四五六七八九十]+)个“(?<name>[^”]+)”装备指示物到一处单一战场。?$",
@@ -2304,6 +2313,17 @@ public static class TriggerParser
                 ManaCost: ParseChineseNumber(battlefieldConquerPayReadyLegendMatch.Groups[1].Value),
                 LegendReadyCount: 1);
         }
+
+        var legendConquestCountDraw = Regex.Match(segment,
+            @"^当你征服一处战场时[，,]如果你在该战场上拥有不少于(?<units>[0-9]+|[一两二三四五六七八九十])名单位[，,]则抽(?<draw>[0-9]+|[一两二三四五六七八九十])张牌[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (legendConquestCountDraw.Success
+            && ParseChineseNumber(legendConquestCountDraw.Groups["units"].Value) is > 0 and var legendUnitCountMinimum
+            && ParseChineseNumber(legendConquestCountDraw.Groups["draw"].Value) is > 0 and var legendUnitCountDrawCount)
+            return new(TriggerKinds.LegendConquestMinimumUnitsDraw, TriggerTimings.BattlefieldConquered, segment,
+                "Capture the controlled unit count at this conquest, then resolve an independent draw trigger.",
+                TargetScope: TriggerTargetScopes.ControlledUnitsAtThisBattlefield,
+                RequiredUnitCount: legendUnitCountMinimum, DrawCount: legendUnitCountDrawCount);
 
         if (Regex.IsMatch(segment,
             @"^当你将一名友方单位选为目标时[，,]你可以选择让我变为休眠状态并支付\{\{A\}\}[，,]以此让该单位变为活跃状态[。.]?$",
@@ -4218,6 +4238,20 @@ public static class StaticAuraParser
                     StaticAuraTargetScopes.FriendlyUnits, StaticAuraParticipantScopes.FriendlyPublicUnits,
                     int.Parse(allFriendlyPower.Groups[1].Value), segment, BehaviorImplementationStatuses.Unimplemented,
                     "All friendly public units receive the printed power bonus while this source remains on the field."));
+                continue;
+            }
+            var runeThresholdPower = Regex.Match(segment,
+                @"^如果你拥有不少于(?<runes>[0-9]+|[一两二三四五六七八九十])枚符文[，,]则我获得\{\{S\}\}\+(?<power>[0-9]+)[。.]?$",
+                RegexOptions.CultureInvariant);
+            if (runeThresholdPower.Success
+                && TargetParser.ParseChineseNumber(runeThresholdPower.Groups["runes"].Value) is > 0 and var requiredRunes
+                && int.TryParse(runeThresholdPower.Groups["power"].Value, out var runePower) && runePower > 0)
+            {
+                auras.Add(new(StaticAuraKinds.SourceObjectPower, StaticAuraLayer, "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.SourceObject, StaticAuraParticipantScopes.SourceObject, runePower, segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Recompute the source bonus from the current controller's public runes in play.",
+                    RequiredControllerRuneCount: requiredRunes));
                 continue;
             }
             var sameNameCount = Regex.Match(segment,
