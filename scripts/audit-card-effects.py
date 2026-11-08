@@ -808,10 +808,11 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
              "copiesHostPrintedRulesText", "copiesChosenFriendlyUnit", "replacesHostDestruction", "grantedKeywords"}
     if any(meaningful(value) for key, value in runtime.items() if key not in known):
         return result("review", "存在新增武装规格；需核对下栏句子及宿主执行消费者")
-    # This bounded reader only supports reviewed host unit-event templates.
-    # It does not make other lower-box rules or keywords uncertain again.
+    # These bounded readers only support reviewed host event/death templates.
+    # They do not make other lower-box rules or keywords uncertain again.
+    bounded_readers = {"ArmamentUnitEventRules.cs", "CoreRuleEngine.ArmamentLastBreath.cs"}
     readers = [path for reader in ("armament.EffectText", "definition.EffectText", "gearDefinition.EffectText")
-               for path in sources.references(reader) if Path(path).name != "ArmamentUnitEventRules.cs"]
+               for path in sources.references(reader) if Path(path).name not in bounded_readers]
     if readers:
         return result("review", "存在武装文字消费者；需核对本句及宿主范围")
     return result("missing", "未登记与该句匹配的武装宿主效果或关键词；上栏接入不代表下栏生效")

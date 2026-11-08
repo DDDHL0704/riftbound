@@ -169,7 +169,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);

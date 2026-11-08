@@ -53,7 +53,7 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent?.Origin?.ArmamentGranted == true",
+            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent is not null",
             "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },
@@ -149,7 +149,7 @@
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
           "contains": [
-            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent?.Origin?.ArmamentGranted == true",
+            ": hiddenSource ? \"HIDDEN\" : item.TimingAlias is not null || item.UnitEvent is not null",
             "? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;"
           ]
         },

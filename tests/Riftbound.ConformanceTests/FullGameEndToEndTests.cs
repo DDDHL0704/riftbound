@@ -25626,7 +25626,7 @@ public sealed partial class FullGameEndToEndTests
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
-                    if (item.UnitEvent?.Origin?.ArmamentGranted == true || item.TimingAlias is not null)
+                    if (item.UnitEvent is not null || item.TimingAlias is not null)
                     {
                         var expectedSource = ResolutionResult.VisibleObjectIdForViewer(result.State, item.SourceObjectId, viewerId);
                         Assert.Equal(expectedSource, row["sourceObjectId"]?.GetValue<string>());

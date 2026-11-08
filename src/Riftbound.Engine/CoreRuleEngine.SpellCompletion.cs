@@ -12,6 +12,8 @@ public sealed record LinkedExileGroup(string SourceObjectId, long SourceGenerati
     IReadOnlyDictionary<string, long> Objects)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LinkedArmamentExileOrigin? ArmamentOrigin { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public LinkedUnitExileOrigin? UnitEventOrigin { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public LinkedGraveyardExileOrigin? GraveyardOrigin { get; init; }
