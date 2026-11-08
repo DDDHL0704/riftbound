@@ -18424,16 +18424,27 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var totalGenericPowerCost = selectedPower.GenericPower;
         var totalPowerCostByTrait = selectedPower.TypedPower;
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
-        var empoweredPowerReduction = Math.Min(selectedPower.Reduction,
+        // Attribute only the amount actually removed, once. Several total
+        // reducers may compete for the same last power pip (CN356.4.d).
+        var unassignedPowerReduction = selectedPower.Reduction;
+        int AttributePowerReduction(int offered)
+        {
+            var actual = Math.Min(unassignedPowerReduction, Math.Max(0, offered));
+            unassignedPowerReduction -= actual;
+            return actual;
+        }
+        var empoweredPowerReduction = AttributePowerReduction(
             EmpoweredSpellCostReducers(state, intent.PlayerId, behavior).Sum(source => source.GenericPower));
-        var ordinaryPowerReduction = EmpoweredSpellCostReducers(state, intent.PlayerId, behavior).Sum(source => source.GenericPower)
-            + SourceNextSpellCostReductionEffects(state, intent.PlayerId)
-                .Where(source => source.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(source => source.GenericPower)
-            + (behavior.PlaysSourceToBaseAsUnit ? TimeAssassinNextUnitReductions(state, intent.PlayerId).Count : 0)
-            + BattlefieldFriendlyTargetSpellPowerReduction(state, intent.PlayerId, behavior, paymentTargets);
-        var playCostPowerReduction = selectedPower.Reduction - Math.Min(selectedPower.Reduction, ordinaryPowerReduction);
+        var nextSpellPowerReduction = AttributePowerReduction(SourceNextSpellCostReductionEffects(state, intent.PlayerId)
+            .Where(source => source.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(source => source.GenericPower));
+        var timeAssassinPowerReduction = AttributePowerReduction(behavior.PlaysSourceToBaseAsUnit
+            ? TimeAssassinNextUnitReductions(state, intent.PlayerId).Count : 0);
+        var battlefieldSpellPowerReduction = AttributePowerReduction(
+            BattlefieldFriendlyTargetSpellPowerReduction(state, intent.PlayerId, behavior, paymentTargets));
+        var combatSpellPowerReduction = AttributePowerReduction(FriendlyCombatSpellCostReducers(state, intent.PlayerId, behavior)
+            .Sum(source => source.FriendlyGenericPowerReduction));
+        var playCostPowerReduction = AttributePowerReduction(playCostReducers.Sum(source => source.Spec.Power));
         var battlefieldReactionPowerIncrease = BattlefieldReactionPowerIncrease(state, intent.PlayerId, behavior);
-        var battlefieldSpellPowerReduction = Math.Min(selectedPower.Reduction, BattlefieldFriendlyTargetSpellPowerReduction(state, intent.PlayerId, behavior, paymentTargets));
         var optionalCostPowerReduction = extraGenericPower + battlefieldReactionPowerIncrease + extraPowerCostByTrait.Values.Sum()
             + OpponentSpellCostIncreases(state, intent.PlayerId, behavior).Power
             + PrintedPowerCostRules.ForPlay(behavior).Amount + echoPrintedCosts.Sum(card => PrintedPowerCostRules.ForCard(card).Amount)
@@ -18479,6 +18490,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentAudit["opponentSpellCostIncreaseMana"] = spellIncreases.Mana;
             paymentAudit["opponentSpellCostIncreasePower"] = spellIncreases.Power;
         }
+        if (manaCost.CombatSpellReduction > 0 || combatSpellPowerReduction > 0)
+        {
+            paymentAudit["combatSpellCostReductionMana"] = manaCost.CombatSpellReduction;
+            paymentAudit["combatSpellCostReductionPower"] = combatSpellPowerReduction;
+        }
+        if (nextSpellPowerReduction > 0) paymentAudit["nextSpellCostReductionPower"] = nextSpellPowerReduction;
+        if (timeAssassinPowerReduction > 0) paymentAudit["timeAssassinCostReductionPower"] = timeAssassinPowerReduction;
         if (playCostReducers.Count > 0)
         {
             paymentAudit["optionalPlayCostReductionMana"] = playCostManaReduction;
@@ -18564,6 +18582,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = empoweredPowerReduction,
+                CombatSpellCostReductionMana = manaCost.CombatSpellReduction,
+                CombatSpellCostReductionPower = combatSpellPowerReduction,
+                NextSpellCostReductionPower = nextSpellPowerReduction,
+                TimeAssassinCostReductionMana = timeAssassinCostReductionMana,
+                TimeAssassinCostReductionPower = timeAssassinPowerReduction,
                 OptionalPlayCostReductionMana = playCostManaReduction, OptionalPlayCostReductionPower = playCostPowerReduction,
                 OpponentSpellCostIncreaseMana = spellIncreases.Mana,
                 OpponentSpellCostIncreasePower = spellIncreases.Power,
@@ -34532,6 +34555,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
         public int EmpoweredSpellCostReductionMana { get; init; }
         public int EmpoweredSpellCostReductionPower { get; init; }
+        public int CombatSpellCostReductionMana { get; init; }
+        public int CombatSpellCostReductionPower { get; init; }
+        public int NextSpellCostReductionPower { get; init; }
+        public int TimeAssassinCostReductionMana { get; init; }
+        public int TimeAssassinCostReductionPower { get; init; }
         public int OpponentSpellCostIncreaseMana { get; init; }
         public int OpponentSpellCostIncreasePower { get; init; }
         public int BattlefieldReactionPowerIncrease { get; init; }
