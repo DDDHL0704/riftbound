@@ -167,6 +167,43 @@ public sealed class EkkoRecycledLastBreathTests
         Assert.Empty(game.State.StackItems); await game.Replay();
     }
 
+    [Theory]
+    [InlineData("SFD·090/221", false)] [InlineData("SFD·090/221", true)]
+    [InlineData("SFD·172/221", false)] [InlineData("SFD·172/221", true)]
+    public async Task TheRecycleConfirmationAndAnActualArmamentLastBreathKeepTheirIndependentInstructions(
+        string gear, bool recycle)
+    {
+        var initial = RadGearTestPosition.Put(Position(), "GEAR", gear, "P1", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", Ekko, []));
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "UNIT",
+            [gear == "SFD·090/221" ? "ASSEMBLE_BLUE" : "ASSEMBLE_YELLOW"]));
+        await game.Top();
+        await game.Act("P1", new PlayCardCommand("KILL", Kill, ["UNIT"]));
+        await game.Top();
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue
+            .OrderBy(t => t.LastBreathRuneCall is null).Select(t => t.TriggerId).ToArray()));
+        Assert.Equal(2, game.State.StackItems.Count);
+        Assert.Single(game.State.StackItems, item => item.UnitEvent?.ArmamentDeath is not null);
+        await game.Act("P1", recycle ? Cost(game, "UNIT") : Cost(game));
+        Assert.Equal(recycle ? 2 : 1, game.State.StackItems.Count);
+        Assert.True(game.State.CardObjects["R0"].IsExhausted);
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        var hand = game.State.PlayerZones["P1"].Hand.Count;
+        for (var remaining = recycle ? 2 : 1; remaining > 0; remaining--) await game.Top();
+        Assert.Empty(game.State.StackItems);
+        Assert.Equal(hand + (gear == "SFD·172/221" ? 1 : 0), game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Equal(recycle, game.State.PlayerZones["P1"].MainDeck.Contains("UNIT"));
+        Assert.Equal(!recycle && gear == "SFD·090/221", game.State.PlayerZones["P1"].Banished.Contains("UNIT"));
+        Assert.Equal(!recycle && gear == "SFD·172/221", game.State.PlayerZones["P1"].Graveyard.Contains("UNIT"));
+        Assert.Equal(!recycle, game.State.CardObjects["R0"].IsExhausted);
+        Assert.Equal(!recycle && gear == "SFD·090/221" ? 1 : 0, game.State.LinkedExiles.Count);
+        Assert.True(game.State.CardObjects["ENEMY-RUNE"].IsExhausted);
+        Assert.Equal(recycle ? 1 : 0, game.Events().Count(e => e.Event.Kind == "CARDS_RECYCLED"));
+        await game.Replay();
+    }
+
     [Fact]
     public async Task ARealImageOfEkkoCannotRecycleItsCeasedTokenToPayTheLeadingCost()
     {
