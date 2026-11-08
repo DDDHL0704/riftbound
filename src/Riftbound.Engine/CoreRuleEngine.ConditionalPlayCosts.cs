@@ -17,6 +17,11 @@ public sealed partial class CoreRuleEngine
                     power = checked(power + (source.IsEmpowered ? tax.GenericPowerIfEmpowered ?? tax.GenericPower : tax.GenericPower));
                 }
         }
+        foreach (var source in CombatSpellCostSources(state).Where(source => source.Controller != player))
+        {
+            mana = checked(mana + source.Spec.EnemyManaIncrease);
+            power = checked(power + source.Spec.EnemyGenericPowerIncrease);
+        }
         return (mana, power);
     }
 
