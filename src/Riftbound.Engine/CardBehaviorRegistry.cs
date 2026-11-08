@@ -17,7 +17,15 @@ public sealed partial record UnitEventAbilitySpec(string Timing, string Effect, 
     int IndependentExperienceGain = 0, int RequiredOpponentVictoryDistance = 0,
     bool RequiresIsolatedEnemyHere = false,
     bool TargetsAnotherFriendlyHere = false, string? GrantedCombatKeyword = null,
-    bool RequiresPlayedUnitToken = false);
+    bool RequiresPlayedUnitToken = false, PermanentDestructionCostSpec? LeadingDestruction = null);
+
+public sealed record PermanentDestructionCostSpec(int Count, string? RequiredTag = null,
+    int? MaximumMana = null, bool AnyController = false, bool AllowsSource = false);
+
+public static class UnitEventTimings
+{
+    public const string OpponentTurnSpellPlayed = "OPPONENT_TURN_SPELL_PLAYED";
+}
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
     string? CreatedTokenFactoryCardNo = null, bool ConsumesSourceBoonDuringResolution = false,
@@ -2444,7 +2452,9 @@ public static class CardBehaviorRegistry
             "CHEMTECH_BARREL_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new(UnitEventTimings.OpponentTurnSpellPlayed, "CREATE_EQUIPMENT_TOKEN", 1,
+                Optional: true, LeadingSourceExhaust: true, CreatedTokenFactoryCardNo: "UNL·T05")),
         new(
             "SFD·144/221",
             "灵魂之轮",
@@ -6281,11 +6291,15 @@ public static class CardBehaviorRegistry
             "SFD·074/221",
             "暗巷神偷",
             3,
-            "ALLEY_THIEF_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT",
+            "ALLEY_THIEF_PLAY_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            UnitEventAbility: new("PLAY", "CREATE_EQUIPMENT_TOKEN", 1, Optional: true,
+                CreatedTokenFactoryCardNo: "UNL·T05",
+                LeadingDestruction: new(1, CardObjectTags.EquipmentCard, MaximumMana: 1,
+                    AnyController: true, AllowsSource: true))),
         new(
             "SFD·128/221",
             "狂热粉丝",
