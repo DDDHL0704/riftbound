@@ -70,15 +70,20 @@ public sealed class EnemyCountAssaultTests
             Assert.Equal(remaining, Assault(game.State));
             Assert.Equal(4 + remaining, ArmamentMightTests.Might(game.State));
         }
+        for (var i = 0; i < 4 && game.State.FocusPlayerId is { } focus; i++)
+            await game.Act(focus, new PassFocusCommand());
         Assert.False(game.State.CardObjects["HOST"].IsAttacking); await game.Replay();
     }
 
     [Fact]
     public async Task FriendshipUsesCurrentControlAndPhysicalOwnershipDoesNotAddAnEnemy()
     {
-        var initial = Position(); initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-            ["SECOND"] = initial.CardObjects["SECOND"] with { ControllerId = "P1" } } };
-        var game = new Driver(CoreRuleEngine.RecomputeRuleDerivedKeywords(initial)); await Attack(game);
+        var initial = RadGearTestPosition.Put(Position(), "TAKE", "SFD·202/221", "P1", "HAND");
+        var game = new Driver(initial); await Attack(game);
+        Assert.Equal(2, Assault(game.State));
+        await game.Act("P1", new PlayCardCommand("TAKE", "SFD·202/221", ["SECOND"])); await game.Top();
+        Assert.Equal("P2", game.State.CardObjects["SECOND"].OwnerId);
+        Assert.Equal("P1", game.State.CardObjects["SECOND"].ControllerId);
         Assert.Equal(1, Assault(game.State)); Assert.Equal(5, ArmamentMightTests.Might(game.State)); await game.Replay();
     }
 
