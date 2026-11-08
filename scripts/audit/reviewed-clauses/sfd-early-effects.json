@@ -798,7 +798,7 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "spec.Effect == \"SCORE\" && item.TriggerCost is not null",
+            "spec.Effect == \"SCORE\" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)",
             "ResolveUnitEventPointGain(state, item, spec.Amount)"
           ]
         },
@@ -858,6 +858,12 @@
           "path": "tests/Riftbound.ConformanceTests/EarlySfdScoringIntegrationTests.cs",
           "methods": [
             "AConquestThatEarnsAnAliasedHoldSkillDoesNotDiscountTheGiant"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentHoldScoreTests.cs",
+          "methods": [
+            "TheSharedPointGainPreventionAlsoAppliesToTheExtraHoldPoint"
           ]
         }
       ]

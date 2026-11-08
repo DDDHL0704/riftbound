@@ -28,6 +28,7 @@ internal static class CardStaticAbilitySpecRules
     public static bool IsUnitConditionalSelfKeywordsAbility(StaticAbilitySpec ability)
         => IsUnitPowerfulSelfKeywordsAbility(ability)
             || ability.Kind == StaticAbilityKinds.UnitEquipmentCountSelfKeywords && ability.GrantedKeywords is { Count: > 0 }
+            || ability.Kind == StaticAbilityKinds.UnitEnemyCountHereSelfKeywords && ability.GrantedKeywords is { Count: > 0 }
             || ability.Kind == StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords
                 && ability.RequiredExactOtherFriendlyBattlefieldUnits is >= 0 && ability.GrantedKeywords is { Count: > 0 };
 

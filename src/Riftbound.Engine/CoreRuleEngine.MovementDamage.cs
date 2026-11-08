@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool HasTargetedMovementSkill(StackItemState item)
-        => item.MovementObserver?.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier;
+        => item.MovementObserver?.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower;
 
     // CN 359.3.f.3: the origin and destination are properties of the movement
     // that triggered the skill, even if the source subsequently moves or leaves.
@@ -17,11 +17,11 @@ public sealed partial class CoreRuleEngine
             .Select(location => location.BattlefieldObjectId!).ToHashSet(StringComparer.Ordinal);
         return state.CardObjects.Values.Where(card => IsFaceUpNonStandbyUnit(card)
             && IsObjectOnField(state.PlayerZones, card.ObjectId)
-            && (item.MovementObserver.Kind is TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier
+            && (item.MovementObserver.Kind is TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower
                 ? card.ObjectId != item.SourceObjectId || card.ObjectGeneration != item.MovementObserver.SourceGeneration
                 : state.ObjectLocations.TryGetValue(card.ObjectId, out var location)
                     && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId is not null && (item.MovementObserver.Kind == TriggerKinds.UnitMovedSourceKeywordDamage || fields.Contains(location.BattlefieldObjectId)))
-            && (item.MovementObserver.Kind != TriggerKinds.UnitMovedOtherFriendlyPowerModifier
+            && (item.MovementObserver.Kind is not (TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower)
                 || EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) == item.ControllerId)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, card.ObjectId))
             .Select(card => card.ObjectId).Order(StringComparer.Ordinal).ToArray();
@@ -31,7 +31,7 @@ public sealed partial class CoreRuleEngine
     {
         var legal = TargetedMovementTargets(state, item);
         var spec = UnitMovedTriggerSpecRules.MovementTriggers(item.CardNo).Single(UnitMovedTriggerSpecRules.IsTargetedMovementTrigger);
-        var reason = item.MovementObserver!.Kind == TriggerKinds.UnitMovedOtherFriendlyPowerModifier
+        var reason = item.MovementObserver!.Kind is TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower
             ? "选择另一名友方单位，让其本回合战力增加；确认后双方可以响应。"
             : item.MovementObserver.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight
             ? "选择另一名单位，或不选以放弃；确认目标和法盾费用后双方可以响应。"
@@ -93,7 +93,7 @@ public sealed partial class CoreRuleEngine
         if (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
             || string.IsNullOrWhiteSpace(item.TargetObjectIds[0])
             || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var generation) || generation < 0) return false;
-        if ((context.Kind is TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier)
+        if ((context.Kind is TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower)
             && item.TargetObjectIds[0] == item.SourceObjectId
             && generation == context.SourceGeneration) return false;
         var factory = context.TargetTokenFactoryCardNo;

@@ -1762,6 +1762,10 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit, DiscardCount: ParseChineseNumber(movedDiscardDraw.Groups[1].Value),
                 DrawCount: ParseChineseNumber(movedDiscardDraw.Groups[2].Value));
 
+        if (segment.TrimEnd('。') == "当我移动到一处战场时，让另一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成")
+            return new(TriggerKinds.UnitMovedGrantSourceKeywordsAndPower, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.OtherFriendlyUnitOnField, Optional: false,
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
         var movedOtherPower = Regex.Match(segment,
             @"^当我移动到一处战场时，让另一名友方单位在本回合内\{\{S\}\}\+(?<power>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
         if (movedOtherPower.Success)
@@ -3483,6 +3487,10 @@ public static class StaticAbilityParser
         if (text.Contains("我拥有等同于你控制装备数量的{{强攻}}数值", StringComparison.Ordinal))
             staticSpecs.Add(new(StaticAbilityKinds.UnitEquipmentCountSelfKeywords, text,
                 BehaviorImplementationStatuses.Unimplemented, "Current equipment count determines the source's Assault amount.",
+                GrantedKeywords: ["强攻"]));
+        if (text.Contains("我拥有等同于此处敌方单位数量的{{强攻}}数值", StringComparison.Ordinal))
+            staticSpecs.Add(new(StaticAbilityKinds.UnitEnemyCountHereSelfKeywords, text,
+                BehaviorImplementationStatuses.Implemented, "Current enemy unit count here determines this independent Assault value.",
                 GrantedKeywords: ["强攻"]));
         if (text.Contains("你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。", StringComparison.Ordinal))
             staticSpecs.Add(new(StaticAbilityKinds.DeckObservationBanishPlay, text,

@@ -384,6 +384,7 @@ public sealed partial class CoreRuleEngine
             && ValidTargetSelectionContext(state, c, spec, controller)
             && ValidFriendlyUnitActionContext(state, c, spec, controller)
             && ValidBattleDrawContext(state, c, spec, controller)
+            && ValidPlayerDefenseContext(state, c, spec)
             && ValidConditionalSourcePlayDestination(c, spec)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
@@ -543,6 +544,7 @@ public sealed partial class CoreRuleEngine
         if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
         if (spec.Effect == ReadySelectedEventUnit) return ResolveSelectedEventUnitReady(state, item);
         if (spec.Effect == BattleDrawRecallEffect) return ResolveBattleDrawRecall(state, item);
+        if (spec.Effect == PlayerDefenseMoveEffect) return ResolvePlayerDefenseMovement(state, item);
         if (spec.Effect is RuneDomainDamageEffect or ArmamentUnitEventRules.FixedDamageEffect)
             return ResolveRuneDomainDamage(state, item, spec);
         if (spec.Effect == StandbyHandPlayHereEffect)
@@ -571,7 +573,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
         if (spec.Effect == FriendlyUnitTraitScoreEffect) return ResolveFriendlyUnitTraitScore(state, item, spec);
-        if (spec.Effect == "SCORE" && item.TriggerCost is not null)
+        if (spec.Effect == "SCORE" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null))
             return ResolveUnitEventPointGain(state, item, spec.Amount);
         if (spec.Effect == "NEXT_CARD_COST_REDUCTION") {
             CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var reducer);
