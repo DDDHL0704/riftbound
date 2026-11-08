@@ -335,6 +335,7 @@ public sealed record CardBehaviorDefinition(
     bool SourceReadiesWhenControllerPlaysEquipment = false,
     string SourceReadyOnEquipmentPlayedEffectKind = "",
     bool SourceReadiesWhenControllerStunsEnemyUnit = false,
+    bool SourceMayMoveToStunnedEnemyBattlefield = false,
     int SourcePowerOnControllerStunsEnemyUnitAmount = 0,
     string SourceStunEnemyUnitTriggerEffectKind = "",
     int SourcePowerOnControllerStandbyHiddenAmount = 0,
@@ -446,6 +447,7 @@ public sealed record CardBehaviorDefinition(
 {
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
+    public CombatSpellCostAdjustmentSpec? CombatSpellCostAdjustment { get; init; }
     public SpellManaAlternativeCostSpec? SpellManaAlternativeCost { get; init; }
     internal SpellManaAlternativeCostSpec? AppliedSpellManaAlternativeCost { get; init; }
     internal bool IgnoreBasePlayCostFromBoons { get; init; }
@@ -3952,7 +3954,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守|壁垒"),
+            SourceUnitTags: "约德尔人|坚守|壁垒",
+            SourceMayMoveToStunnedEnemyBattlefield: true),
         new(
             "UNL-057/219",
             "野爪兽王",
@@ -6434,7 +6437,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人"),
+            SourceUnitTags: "约德尔人") { CombatSpellCostAdjustment = new(1, 1, 1, 1, 1) },
         new(
             "SFD·152/221",
             "显赫金主",
@@ -6788,7 +6791,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|坚守|壁垒"),
+            SourceUnitTags: "约德尔人|坚守|壁垒",
+            SourceMayMoveToStunnedEnemyBattlefield: true),
         new(
             "UNL-056/219",
             "悠米",

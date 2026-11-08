@@ -1314,6 +1314,159 @@ def source_attack_damage_route(card: dict, clause: dict, sources: Sources) -> di
         result('missing', '进攻伤害缺少精确数值来源、目标选择及当前来源位置的独立结算消费者')
 
 
+def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    match = re.fullmatch(r"如果我处于战斗中则所有友方法术的费用减少\{\{([1-9][0-9]*)\}\}和\{\{A\}\}不得低于\{\{([0-9]+)\}\}而所有敌方法术的费用增加\{\{([1-9][0-9]*)\}\}和\{\{A\}\}", text)
+    if not match:
+        return None
+    expected = dict(friendlyManaReduction=int(match[1]), friendlyGenericPowerReduction=1,
+                    minimumFriendlyMana=int(match[2]), enemyManaIncrease=int(match[3]), enemyGenericPowerIncrease=1)
+    behaviors = card.get("behaviors", [])
+    spec = behaviors[0].get("combatSpellCostAdjustment") if len(behaviors) == 1 else None
+    exact = clause["kind"] == "static" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True and spec == expected \
+        and all(type(value) is int for value in (spec or {}).values())
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        tail = code[start.end():]
+        end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+        return code[start.start():start.end()] + (tail[:end.start()] if end else tail)
+
+    checks = [
+        ("CoreRuleEngine.CombatSpellCosts.cs", "IsSpellCostSourceInBattle", [
+            "IsFaceUpNonStandbyUnit(source)", "IsEstablishedBattleDuelParticipant(state, source.ObjectId)",
+            "battle.IsActive", "battle.AttackerObjectIds.Contains(source.ObjectId)",
+            "battle.DefenderObjectIds.Contains(source.ObjectId)",
+            "IsObjectLocatedAtBattlefield(state.PlayerZones, state.ObjectLocations, source.ObjectId, battlefield)"]),
+        ("CoreRuleEngine.CombatSpellCosts.cs", "CombatSpellCostSources", [
+            "PublicStaticAuraSourceObjectIds(state.PlayerZones)", "!IsSpellCostSourceInBattle(state, source)",
+            "EffectiveFieldControllerId(state.PlayerZones, id, source)", "AttachedRuleTextRules.Instances(state, source)",
+            "behavior.CombatSpellCostAdjustment is { } spec", "yield return (controller, spec)"]),
+        ("CoreRuleEngine.CombatSpellCosts.cs", "FriendlyCombatSpellCostReducers", [
+            "!IsSpellPlayBehavior(behavior)", "EffectPlayIgnoresAllCosts(state, player)",
+            "CombatSpellCostSources(state).Where(source => source.Controller == player)"]),
+        ("CoreRuleEngine.ConditionalPlayCosts.cs", "OpponentSpellCostIncreases", [
+            "!IsSpellPlayBehavior(behavior)", "EffectPlayIgnoresAllCosts(state, player)",
+            "CombatSpellCostSources(state).Where(source => source.Controller != player)",
+            "mana + source.Spec.EnemyManaIncrease", "power + source.Spec.EnemyGenericPowerIncrease"]),
+        ("CoreRuleEngine.PlayManaCost.cs", "CalculatePlayManaCost", [
+            "OpponentSpellCostIncreases(state, playerId, behavior).Mana", "FriendlyCombatSpellCostReducers(state, playerId, behavior)",
+            'source.FriendlyManaReduction, source.MinimumFriendlyMana', 'OrderByDescending(item => item.Floor)',
+            'total - Math.Max(0, reduction.Floor)', 'applied.GetValueOrDefault("combatSpell")']),
+        ("CoreRuleEngine.EmpoweredSpellCosts.cs", "SpellPlayPowerOptions", [
+            "FriendlyCombatSpellCostReducers(state, player, behavior).Sum(source => source.FriendlyGenericPowerReduction)",
+            "OpponentSpellCostIncreases(state, player, behavior).Power", "ReduceSpellPower(a.GenericPower,"]),
+        ("CoreRuleEngine.cs", "TryBuildPlayCardPlan", [
+            "CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,", "SpellPlayPowerOptions(state, intent.PlayerId, behavior,",
+            "CombatSpellCostReductionMana = manaCost.CombatSpellReduction", "CombatSpellCostReductionPower = combatSpellPowerReduction",
+            "PaymentCostRules.AuthorizePayment("]),
+        ("CoreRuleEngine.cs", "ResolvePlayCard", ["PaymentCostRules.TryCommitPayment(", '["mana"] = plan.TotalManaCost']),
+        ("CoreRuleEngine.PlayCostPreview.cs", "PreviewPlayCard", [
+            "TryBuildPlayCardPlan(state,", '-plan.CombatSpellCostReductionMana, -plan.CombatSpellCostReductionPower',
+            "plan.OpponentSpellCostIncreaseMana, plan.OpponentSpellCostIncreasePower"]),
+        ("MatchSession.cs", "PlayCardSourceRequirement", [
+            "CoreRuleEngine.MinimumPlayManaCost(state, playerId, behavior, sourceObjectId)",
+            "CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior)",
+            'requirement["combatSpellCostReductionMana"] = manaCost.CombatSpellReduction']),
+        ("CoreRuleEngine.PlayManaCost.cs", "MinimumPlayManaCost", ["CalculatePlayManaCost(state, playerId, behavior,"]),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route", "按当前来源战斗身份、控制者与复制文本重算双方的共享法术总费用；增费先于减费，保留各减费的法力下限与符能分配", paths) \
+        if exact else result("missing", "缺少精确的来源战斗条件、友敌双方费用规格或实际共享报价／付款消费者", paths)
+
+
+def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    if text != normalize("当你{{眩晕}}战场上的一名敌方单位时，你可以选择将我移动到该战场。"):
+        return None
+    behaviors = card.get("behaviors", [])
+    exact = clause["kind"] == "trigger" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True \
+        and behaviors[0].get("sourceMayMoveToStunnedEnemyBattlefield") is True
+    prefix = "src/Riftbound.Engine/"
+
+    def members(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        starts = re.finditer(r"(?m)^    (?:private|internal|public) (?:static )?[^\n{;=]*\b" + re.escape(name) + r"\s*\(", code)
+        bodies = []
+        for match in starts:
+            tail = code[match.end():]
+            end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+            bodies.append(code[match.start():match.end()] + (tail[:end.start()] if end else tail))
+        return bodies
+
+    checks = [
+        ("CoreRuleEngine.StunObservers.cs", "StunMoveSourceBehavior", ["behavior.SourceMayMoveToStunnedEnemyBattlefield"]),
+        ("CoreRuleEngine.StunObservers.cs", "CaptureStunObservers", [
+            'var actor = cause.ControllerId', '["stunningPlayerId"] = actor',
+            "!IsEnemyFieldUnit(zones, cards, actor, targetId)", 'at.Zone == "BATTLEFIELD"',
+            "fieldCard.ObjectGeneration", "GetControlledFieldUnitObjectIds(zones, cards, actor)",
+            "IsFaceUpNonStandbyUnit(source)", "AttachedRuleTextRules.Instances(zones, cards, source)",
+            "field is not null && StunMoveSourceBehavior(instance.CardNo)", "StunMoveSourceKind)",
+            "Battlefield: kind == StunMoveSourceKind ? field : null"]),
+        ("CoreRuleEngine.StunObservers.cs", "QueueStunObservers", [
+            "capture.Context", "context.Kind == StunMoveSourceKind ? result.State.Tick",
+            "queue.Add(trigger)", '["stunSourceMovementCaptureHash"] = StunSourceMovementCaptureHash(context)']),
+        ("CoreRuleEngine.BattleResultContinuation.cs", "CollectResolutionEffects", ["QueueStunObservers(state, result)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", ["item.FieldContext?.Kind == StunMoveSourceKind ? new()"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidLeadingCostContext", ["StunMoveSourceKind ? ValidStunSourceMovementStack(item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices", [
+            "Kind: StunMoveSourceKind", "ValidLeadingCostContext(item)", "ValidFieldContextState(state, movement,",
+            "? [item.SourceObjectId] : []"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoice", ["? OptionalTriggerWindow : TriggerCostWindow"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostChoice", ["item.FieldContext?.Kind != StunMoveSourceKind"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostSourceGeneration", ["item.FieldContext?.SourceGeneration"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "ValidTriggerCostReceipt", ["ValidStunSourceMovementStack(item)"]),
+        ("CoreRuleEngine.TriggerCosts.cs", "CompleteTriggerCost", ["EquipmentDeathReturnKind or StunMoveSourceKind",
+            "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["StunMoveSourceKind"]),
+        ("CoreRuleEngine.FieldTriggers.cs", "ResolveFieldTrigger", ["IsStunObserverKind(observer.Kind)", "ResolveStunObserver(state, item)"]),
+        ("CoreRuleEngine.StunObservers.cs", "ResolveStunObserver", ["context.Kind == StunMoveSourceKind) return ResolveStunSourceMovement(state, item)"]),
+        ("CoreRuleEngine.StunSourceMovement.cs", "ValidStunSourceMovementStack", [
+            "ValidStunObserverShape(context, item.EffectKind, item.CardNo)", "context.StunObserver.Actor == item.ControllerId",
+            "item.TargetObjectIds.Count == 0 && item.TargetGenerations is null", "!item.SourceConfirmed"]),
+        ("CoreRuleEngine.StunSourceMovement.cs", "ResolveStunSourceMovement", [
+            "!ValidStunSourceMovementStack(item)", "!ValidTriggerCostReceipt(state, item)",
+            "source.ObjectGeneration != birth.Source.Generation", "battlefield.ObjectGeneration != field.Generation",
+            "IsFaceUpNonStandbyUnit(source)", "TryMoveFieldUnitByEffect(state, zones, cards, locations, pools, source.ObjectId,",
+            'new(item.ControllerId, "BATTLEFIELD", field.ObjectId)', "RunStateBasedCleanupLoop(state, zones, cards, item, pools,"]),
+        ("MatchRecovery.StunSourceMovement.cs", "HasCapturedStunSourceMovement", ["CoreRuleEngine.ValidFieldContextState(state, context,"]),
+        ("MatchRecovery.StunSourceMovement.cs", "ValidateStunSourceMovementHistory", [
+            "CoreRuleEngine.StunSourceMovementCaptureHash(entry.Context)", '"stunSourceMovementCaptureHash"',
+            "command.Accepted", "command.CompletedTick == queued[0].Tick", '"stunningPlayerId"',
+            "target == origin.Stunned.ObjectId", '"STUNNED"', "CommandTypes.ChooseCards",
+            '"TRIGGER-COST:" + item.StackItemId', "window == CoreRuleEngine.OptionalTriggerWindow",
+            "selected.SequenceEqual(new[] { item.SourceObjectId })"]),
+        ("MatchRecovery.cs", "ValidateFrame", ["ValidateStunSourceMovementHistory(authoritativeState, commands, events, errors)"]),
+        ("MatchRecovery.cs", "ValidateSpellContinuations", ["CoreRuleEngine.ValidStunSourceMovementStack(item)"]),
+        ("MatchRecovery.cs", "CapturedBattleSourceIsPrivate", ["HasCapturedStunSourceMovement(state, item)"]),
+    ]
+    for filename, name in [
+            ("CoreRuleEngine.BorrowedExhaust.cs", "ResolveBorrowedExhaustStack"),
+            ("CoreRuleEngine.MovedEnemyStun.cs", "ResolveMovedEnemyStun"),
+            ("CoreRuleEngine.PaidUnitStun.cs", "ResolvePaidUnitStun"),
+            ("CoreRuleEngine.SimpleActivatedAbilities.cs", "ResolveSimpleActivationEffect"),
+            ("CoreRuleEngine.TargetedPowerAbility.cs", "ResolveTargetedPowerModifierAbilityStackItem"),
+            ("CoreRuleEngine.UnitEntryTriggers.cs", "ResolveUnitEntryTrigger"),
+            ("CoreRuleEngine.UnitEventBoonInstructions.cs", "ApplyUnitEventStun"),
+            ("CoreRuleEngine.cs", "ResolveStackItemEffectCore"),
+            ("CoreRuleEngine.cs", "ResolveShadowStunAbilityStackItem")]:
+        checks.append((filename, name, ["CaptureStunObservers("]))
+    exact = exact and all((bodies := members(filename, name))
+        and all(all(token in body for token in tokens) for body in bodies) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route" if exact else "missing", "共享眩晕观察按施加者捕获敌方战场、来源及每份文本；独立可选确认后通过效果移动，恢复核对原始眩晕和答复"
+        if exact else "缺少精确的眩晕敌方战场条件、来源独立移动确认、效果移动或原始历史核验消费者", paths)
+
+
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
@@ -2140,6 +2293,10 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     kind = clause["kind"]
     if conditional := conditional_rune_and_conquest_route(card, clause, sources):
         return conditional
+    if stun_movement := stun_source_movement_route(card, clause, sources):
+        return stun_movement
+    if combat_cost := combat_spell_cost_route(card, clause, sources):
+        return combat_cost
     if spell_mana_cost := confirmed_spell_mana_alternative_route(card, clause, sources):
         return spell_mana_cost
     if grant := another_friendly_here_grant_route(card, clause, sources):

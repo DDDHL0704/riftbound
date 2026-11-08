@@ -115,6 +115,6 @@ public sealed partial class CoreRuleEngine
             ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN",
             ["restrictedPlayerId"] = context.EnteringPlayerId });
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = [
-            CaptureStunObservers(applied, state.PlayerZones, cards, item, id)] };
+            CaptureStunObservers(applied, state.PlayerZones, cards, item, id, state.ObjectLocations)] };
     }
 }
