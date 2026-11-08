@@ -9,8 +9,11 @@ public sealed partial class CoreRuleEngine
             StunObserver = context.StunObserver! with { CeasedSource = null } });
 
     internal static bool ValidStunSourceMovementStack(StackItemState item)
-        => item.FieldContext?.Kind != StunMoveSourceKind
-            || item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+        => item.FieldContext is not { Kind: StunMoveSourceKind } context
+            || ValidStunObserverShape(context, item.EffectKind, item.CardNo)
+                && context.StunObserver!.Source.ObjectId == item.SourceObjectId
+                && context.StunObserver.Actor == item.ControllerId
+                && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
                 && item.OptionalCosts.Count == 0 && item.DamageAmount == 0 && item.EffectRepeatCount == 1
                 && item.Destination.Length == 0 && !item.SourceConfirmed && item.RepeatExecutions is null
                 && item.TargetedPowerAbility is null && item.DamageDistribution is null;

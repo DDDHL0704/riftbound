@@ -97,7 +97,8 @@ public sealed partial class CoreRuleEngine
                     && !IsObjectOnField(before.PlayerZones, capture.SourceId) && !birth.SourceIsLegend)
                     generation = Math.Max(generation, old.ObjectGeneration + 1);
                 birth = birth with { Source = birth.Source with { Generation = generation },
-                    CapturedTick = RuleChoices.Value?.CompletionTick ?? result.State.Tick,
+                    CapturedTick = context.Kind == StunMoveSourceKind ? result.State.Tick
+                        : RuleChoices.Value?.CompletionTick ?? result.State.Tick,
                     RuleTextInstanceId = context.Origin is null ? $"PRINTED:{capture.SourceId}:{generation}" : capture.InstanceId };
                 context = context with { SourceGeneration = generation, StunObserver = birth };
                 var trigger = new TriggerQueueItemState($"stun-observer-{result.State.Tick}-{index}-{ordinal}", capture.Controller,
