@@ -69,11 +69,7 @@ public sealed partial class CoreRuleEngine
             foreach (var (id, specs) in grants) {
                 var card = current.CardObjects[id]; var might = ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(current, card);
                 var keywords = specs.Where(s => ConditionalSelfKeywordsApply(current, card, s.Spec, might))
-                    .SelectMany(s => s.Spec.Kind == StaticAbilityKinds.UnitEquipmentCountSelfKeywords
-                        ? Enumerable.Repeat(CardCombatKeywordNames.Assault,
-                            CountControlledPublicFieldEquipmentObjects(current.PlayerZones, current.CardObjects,
-                                EffectiveFieldControllerId(current.PlayerZones, id, card)))
-                        : s.Spec.GrantedKeywords ?? [])
+                    .SelectMany(s => ConditionalSelfKeywordValues(current, card, s.Spec))
                     .Concat(EmpowerRules.Keywords(current, card))
                     .Concat(ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords))
                     .Concat(SnapshotKeywordGrantRules.MaterializedKeywords(card))
@@ -103,9 +99,31 @@ public sealed partial class CoreRuleEngine
     private static bool ConditionalSelfKeywordsApply(MatchState state, CardObjectState source, StaticAbilitySpec spec, int might)
     {
         if (CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility(spec)) return might >= spec.RequiredPowerThreshold;
-        if (spec.Kind == StaticAbilityKinds.UnitEquipmentCountSelfKeywords) return true;
+        if (spec.Kind is StaticAbilityKinds.UnitEquipmentCountSelfKeywords or StaticAbilityKinds.UnitEnemyCountHereSelfKeywords) return true;
         return spec.Kind == StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords
             && HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits);
+    }
+
+    private static IEnumerable<string> ConditionalSelfKeywordValues(MatchState state, CardObjectState source, StaticAbilitySpec spec)
+        => spec.Kind switch {
+            StaticAbilityKinds.UnitEquipmentCountSelfKeywords => Enumerable.Repeat(CardCombatKeywordNames.Assault,
+                CountControlledPublicFieldEquipmentObjects(state.PlayerZones, state.CardObjects,
+                    EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source))),
+            StaticAbilityKinds.UnitEnemyCountHereSelfKeywords => Enumerable.Repeat(CardCombatKeywordNames.Assault,
+                CountEnemyUnitsHere(state, source)),
+            _ => spec.GrantedKeywords ?? [] };
+
+    private static int CountEnemyUnitsHere(MatchState state, CardObjectState source)
+    {
+        if (!IsObjectOnField(state.PlayerZones, source.ObjectId)
+            || !state.ObjectLocations.TryGetValue(source.ObjectId, out var here)
+            || here.Zone is not ("BASE" or "BATTLEFIELD")) return 0;
+        var controller = EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source);
+        return state.CardObjects.Values.Count(card => card.ObjectId != source.ObjectId && IsFaceUpNonStandbyUnit(card)
+            && IsObjectOnField(state.PlayerZones, card.ObjectId)
+            && EffectiveFieldControllerId(state.PlayerZones, card.ObjectId, card) != controller
+            && state.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.Zone == here.Zone
+            && (here.Zone == "BASE" ? at.PlayerId == here.PlayerId : at.BattlefieldObjectId == here.BattlefieldObjectId));
     }
 
     private static bool HasExactOtherFriendlyBattlefieldUnitCount(MatchState state, CardObjectState source, int? required)

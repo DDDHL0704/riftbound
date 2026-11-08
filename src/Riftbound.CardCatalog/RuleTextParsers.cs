@@ -3454,6 +3454,10 @@ public static class StaticAbilityParser
             staticSpecs.Add(new(StaticAbilityKinds.UnitEquipmentCountSelfKeywords, text,
                 BehaviorImplementationStatuses.Unimplemented, "Current equipment count determines the source's Assault amount.",
                 GrantedKeywords: ["强攻"]));
+        if (text.Contains("我拥有等同于此处敌方单位数量的{{强攻}}数值", StringComparison.Ordinal))
+            staticSpecs.Add(new(StaticAbilityKinds.UnitEnemyCountHereSelfKeywords, text,
+                BehaviorImplementationStatuses.Implemented, "Current enemy unit count here determines this independent Assault value.",
+                GrantedKeywords: ["强攻"]));
         if (text.Contains("你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。", StringComparison.Ordinal))
             staticSpecs.Add(new(StaticAbilityKinds.DeckObservationBanishPlay, text,
                 BehaviorImplementationStatuses.Unimplemented, "Static top-deck observation banish permission with substituted generic-power play cost.", Amount: 1));

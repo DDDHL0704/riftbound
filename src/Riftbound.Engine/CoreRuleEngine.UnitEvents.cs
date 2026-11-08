@@ -379,6 +379,7 @@ public sealed partial class CoreRuleEngine
             && ValidTargetSelectionContext(state, c, spec, controller)
             && ValidFriendlyUnitActionContext(state, c, spec, controller)
             && ValidBattleDrawContext(state, c, spec, controller)
+            && ValidPlayerDefenseContext(state, c, spec)
             && ValidConditionalSourcePlayDestination(c, spec)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
@@ -533,6 +534,7 @@ public sealed partial class CoreRuleEngine
         if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
         if (spec.Effect == ReadySelectedEventUnit) return ResolveSelectedEventUnitReady(state, item);
         if (spec.Effect == BattleDrawRecallEffect) return ResolveBattleDrawRecall(state, item);
+        if (spec.Effect == PlayerDefenseMoveEffect) return ResolvePlayerDefenseMovement(state, item);
         if (spec.Effect is RuneDomainDamageEffect or ArmamentUnitEventRules.FixedDamageEffect)
             return ResolveRuneDomainDamage(state, item, spec);
         if (spec.Effect == StandbyHandPlayHereEffect)

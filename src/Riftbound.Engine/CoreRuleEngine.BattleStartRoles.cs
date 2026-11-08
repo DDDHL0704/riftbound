@@ -107,6 +107,7 @@ public sealed partial class CoreRuleEngine
                 FieldTriggerEffect, roleKind, TimingStates.SpellDuelOpen) {
                     FieldContext = new(cards[id].CardNo!, "DEFEND", cards[id].ObjectGeneration, context.BattlefieldId, focus) });
         queue.AddRange(CaptureBattleLimitedRoleSkills(state, context.BattlefieldId, firstAttackers, firstDefenders, newScope, focus, roleKind));
+        if (newScope) queue.AddRange(CapturePlayerDefenseUnitEvents(state, context.BattlefieldId, roleKind));
         var marker = BuildBattleResponseDeclarationContextMarker(context.BattlefieldId,
             context.AttackerObjectIds.Concat(newAttackers.Where(id => !context.DefenderObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(),
             context.DefenderObjectIds.Concat(newDefenders.Where(id => !context.AttackerObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(), context.OptionalCosts,
