@@ -836,7 +836,8 @@
             "ALastPointReplacedByDrawingStillDrawsWhileThePointRestrictionIsPresent",
             "APreventedHoldingPointStillEarnsTheUnitsScoringActionToken",
             "ThePaidPointSkillChecksTheRestrictionAfterActualReturnResponses",
-            "TheFirstBurnoutIsPreventedButCyclicBurnoutContinuesToVictory"
+            "TheFirstBurnoutIsPreventedButCyclicBurnoutContinuesToVictory",
+            "APreventedConquestPointStillEarnsTheFourUnitLegendDraw"
           ]
         }
       ]

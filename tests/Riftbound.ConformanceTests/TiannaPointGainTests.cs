@@ -108,6 +108,25 @@ public sealed class TiannaPointGainTests
     }
 
     [Fact]
+    public async Task APreventedConquestPointStillEarnsTheFourUnitLegendDraw()
+    {
+        var initial = WithOpponentTianna(OfficialGarenConquestBattlefieldCountTests.Position());
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("U1", "BASE", "BATTLEFIELD:TARGET", [], ["U1", "U2", "U3", "U4"]));
+        await game.Act("P1", new PassFocusCommand()); await game.Act("P2", new PassFocusCommand());
+        Assert.Equal(0, game.State.PlayerScores["P1"]);
+        Assert.Single(game.Events(), e => e.Event.Kind == "SCORE_GAIN_PREVENTED");
+        Assert.Single(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        var skill = Assert.Single(game.State.StackItems);
+        Assert.Equal("OGS·023/024", skill.LegendConquest!.CardNo);
+        Assert.Equal(4, skill.LegendConquest.Draw!.CountedUnits.Count);
+        Assert.Empty(game.State.PlayerZones["P1"].Hand);
+        await game.Top();
+        Assert.Equal(new[] { "DRAW1", "DRAW2" }, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(0, game.State.PlayerScores["P1"]); await game.Replay();
+    }
+
+    [Fact]
     public async Task ALastPointReplacedByDrawingStillDrawsWhileThePointRestrictionIsPresent()
     {
         var game = new Driver(ConquestPosition("OGN·219/298", lastPoint: true)); await Conquer(game); await CloseDuel(game);
