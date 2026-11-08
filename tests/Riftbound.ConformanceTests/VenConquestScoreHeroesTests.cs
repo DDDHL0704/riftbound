@@ -190,7 +190,7 @@ public sealed class VenConquestScoreHeroesTests
         var boons = game.State.TriggerQueue.Where(t => t.UnitEvent is not null).ToArray();
         Assert.Equal(2, boons.Length);
         await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
-            boons.Concat(earned).Select(t => t.TriggerId).ToArray()));
+            earned.Concat(boons).Select(t => t.TriggerId).ToArray()));
         for (var i = 0; game.State.PendingCardChoice is { } choice; i++) {
             Assert.InRange(i, 0, 1);
             Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);

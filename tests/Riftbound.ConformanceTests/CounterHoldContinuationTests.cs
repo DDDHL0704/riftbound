@@ -17,6 +17,9 @@ public sealed class CounterHoldContinuationTests
             "counter" => OfficialCounterRepeatTests.Position("OGN·064/298"),
             "ornn" => OfficialOrnnHoldTests.Position("SFD·058/221"),
             _ => OfficialReinforcementsTests.Position("SFD·125/221") };
+        // This fixture starts a new original journal; establish its genesis
+        // before accepting any commands instead of rebasing accepted history.
+        state = state with { Tick = 0 };
         var engine = new CoreRuleEngine();
         var journal = new Journal();
         var session = new MatchSession(state, engine, journal);
