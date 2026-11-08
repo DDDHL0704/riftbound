@@ -12,6 +12,11 @@ public sealed class KatoMovementKeywordGrantTests
     private static MatchState Position()
     {
         var s = RadGearTestPosition.Put(RadGearTestPosition.Create(), "HOST", Kato, "P1", "BASE");
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(Kato, out var definition));
+        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["HOST"] = s.CardObjects["HOST"] with { Tags = s.CardObjects["HOST"].Tags
+                .Concat(definition.SourceUnitTags.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() } } };
         s = RadGearTestPosition.Put(s, "GEAR", Cloth, "P1", "BASE");
         s = RadGearTestPosition.Put(s, "RETURN", "OGN·104/298", "P1", "HAND");
         s = RadGearTestPosition.Put(s, "ADJUST", "SFD·011/221", "P1", "HAND");
@@ -140,5 +145,25 @@ public sealed class KatoMovementKeywordGrantTests
         await Choose(game, "ENEMY");
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top(); await game.Top();
         Assert.Equal(before - 1, game.State.CardObjects["ENEMY"].Power); await game.Replay();
+    }
+
+    [Fact]
+    public async Task SharedNonNumericKeywordsEnableActualRoamAfterTheDonorLeavesAndExpireNormally()
+    {
+        var s = RadGearTestPosition.Put(Position(), "READY", "UNL-009/219", "P1", "HAND");
+        var source = s.CardObjects["HOST"];
+        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["HOST"] = source with { Tags = [..source.Tags, "游走", "壁垒"], GrantedTags = ["壁垒", "游走"] } } };
+        var game = new Driver(s); await Move(game); await Choose(game, "ALLY"); await game.Top();
+        Assert.Contains("游走", game.State.CardObjects["ALLY"].Tags);
+        Assert.Contains("壁垒", game.State.CardObjects["ALLY"].Tags);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top(); await Close(game);
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:OTHER", [])); await Close(game);
+        await game.Act("P1", new PlayCardCommand("READY", "UNL-009/219", ["ALLY"])); await game.Top(); await Close(game);
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BATTLEFIELD:OTHER", "BATTLEFIELD:BF", ["ROAM"])); await Close(game);
+        Assert.Equal("BF", game.State.ObjectLocations["ALLY"].BattlefieldObjectId);
+        await game.Act("P1", new EndTurnCommand());
+        Assert.DoesNotContain("游走", game.State.CardObjects["ALLY"].Tags);
+        Assert.DoesNotContain("壁垒", game.State.CardObjects["ALLY"].Tags); await game.Replay();
     }
 }

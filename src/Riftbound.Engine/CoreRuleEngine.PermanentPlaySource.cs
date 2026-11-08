@@ -35,7 +35,7 @@ public sealed partial class CoreRuleEngine
             && (UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "CONQUEST")
                 || UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "HOLD"));
         if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation && !capturedBattlefieldSkill
-            && effect.EffectKind != TriggerKinds.UnitMovedOtherFriendlyPowerModifier
+            && effect.EffectKind is not (TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower)
             && (effect.SourceCardNo is not { } no || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
                 || !behavior.RecyclesSourceIfPlayedFromStandby)) return effect;
         return effect with { SourceObjectId = "HIDDEN" };
