@@ -24,27 +24,26 @@ internal static class SpellManaPaymentHistoryRules
         var errors = new List<string>();
         foreach (var play in (state.CardPlays?.Finalized ?? []).Where(e => e?.PaidMana is not null))
         {
-            if (play.Source is null)
-            { errors.Add("confirmed spell mana history has no source binding"); continue; }
-            var births = events.Where(e => e.Tick == play.Tick && e.Event.Kind == "CARD_PLAYED"
+            if (play.Source is null || string.IsNullOrEmpty(play.PlayId))
+            { errors.Add("confirmed spell mana history has no source binding or play identity"); continue; }
+            var births = events.Where(e => e.Event.Kind == "CARD_PLAYED"
                 && Text(e.Event, "sourceObjectId") == play.Source.ObjectId
-                && Text(e.Event, "cardNo") == play.CardNo && Text(e.Event, "playerId") == play.PlayerId).ToArray();
-            var payments = events.Where(e => e.Tick == play.Tick && e.Event.Kind == "COST_PAID"
-                && Text(e.Event, "playId") == play.PlayId).ToArray();
+                && Text(e.Event, "cardNo") == play.CardNo && Text(e.Event, "playerId") == play.PlayerId
+                && ReadReceipt(e.Event)?.PlayId == play.PlayId).ToArray();
             var birth = births.Length == 1 ? births[0] : null;
+            var payments = events.Where(e => e.Tick == birth?.Tick && e.Event.Kind == "COST_PAID"
+                && Text(e.Event, "playId") == play.PlayId).ToArray();
             var payment = payments.Length == 1 ? payments[0] : null;
             var receipt = birth is null ? null : ReadReceipt(birth.Event);
             RecoveredCommand[] accepted = birth is null ? [] : commands.Where(c => c.Accepted
-                && (c.CommandType == CommandTypes.PlayCard || c.CommandType == CommandTypes.RevealCard
-                    && Flag(birth.Event, "playedFromStandby")) && c.PlayerId == play.PlayerId
-                && c.CompletedTick == play.Tick && c.StartedEventSequence < birth.Sequence
+                && c.CompletedTick == birth.Tick && c.StartedEventSequence < birth.Sequence
                 && c.CompletedEventSequence >= birth.Sequence).ToArray();
             var command = accepted.Length == 1 ? accepted[0] : null;
             if (receipt is null || payment is null || command is null || (play.Types & 4) == 0
                 || receipt.Source != play.Source || receipt.CardNo != play.CardNo || receipt.PlayerId != play.PlayerId
                 || receipt.PlayId != play.PlayId || receipt.Mana != play.PaidMana || receipt.Tick != play.Tick
                 || receipt.TurnNumber != state.CardPlays?.TurnNumber || receipt.TurnNumber != state.TurnNumber
-                || play.PlayId != $"STACK-{play.Tick}-{play.Source.ObjectId}"
+                || !ValidConfirmationOrigin(play, birth!, command, commands, events)
                 || payment.Sequence <= birth!.Sequence || payment.Sequence > command.CompletedEventSequence
                 || payment.Sequence <= command.StartedEventSequence
                 || Text(payment.Event, "playerId") != play.PlayerId || Text(payment.Event, "sourceObjectId") != play.Source.ObjectId
@@ -53,6 +52,87 @@ internal static class SpellManaPaymentHistoryRules
                 errors.Add("confirmed spell mana history differs from its original accepted payment");
         }
         return errors;
+    }
+
+    private static bool ValidConfirmationOrigin(CardPlayHistoryEntry play, RecoveredEvent birth,
+        RecoveredCommand completed, IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events)
+    {
+        // Development preparation executes real engine commands inside one
+        // accepted seed action. Its public events have the outer journal tick;
+        // the typed receipt retains the nested confirmation's actual tick.
+        if (IsScenarioPreparation(completed, events))
+        {
+            var suffix = "-" + play.Source.ObjectId;
+            return play.Tick > completed.StartedTick && play.Tick <= completed.CompletedTick
+                && play.PlayId.StartsWith("STACK-", StringComparison.Ordinal)
+                && play.PlayId.EndsWith(suffix, StringComparison.Ordinal)
+                && play.PlayId.Length > "STACK-".Length + suffix.Length
+                && long.TryParse(play.PlayId.AsSpan("STACK-".Length,
+                    play.PlayId.Length - "STACK-".Length - suffix.Length),
+                    System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var started)
+                && started > completed.StartedTick && started <= play.Tick;
+        }
+        if (birth.Tick != play.Tick) return false;
+        if (IsOriginalPlay(completed, play, birth)) return true;
+        if (completed.CommandType != CommandTypes.PayCost) return false;
+        var origins = commands.Where(command => command.Accepted && command.CompletedTick < completed.CompletedTick
+            && IsOriginalPlay(command, play, birth)).ToArray();
+        if (origins.Length != 1) return false;
+        var previous = origins[0];
+        var continuations = commands.Where(command => command.Accepted
+            && command.StartedEventSequence >= previous.CompletedEventSequence
+            && command.CompletedEventSequence <= completed.CompletedEventSequence)
+            .OrderBy(command => command.StartedEventSequence).ToArray();
+        foreach (var next in continuations)
+        {
+            if (next.StartedTick != previous.CompletedTick || next.CompletedTick != next.StartedTick + 1
+                || next.StartedEventSequence != previous.CompletedEventSequence
+                || next.CommandType != CommandTypes.PayCost
+                || ReadCommand(next) is not PayCostCommand { PaymentWindow: CoreRuleEngine.RuleChoiceWindow,
+                    PaymentChoiceIds.Count: 1 } answer
+                || answer.PaymentId is not { } paymentId
+                || !paymentId.StartsWith($"REPLACEMENT:{origins[0].StartedTick}:", StringComparison.Ordinal)) return false;
+            var requests = events.Where(e => e.Sequence > previous.StartedEventSequence
+                && e.Sequence <= previous.CompletedEventSequence && e.Event.Kind == "RULE_CHOICE_REQUESTED").ToArray();
+            if (requests.Length != 1 || Text(requests[0].Event, "choiceId") != answer.PaymentId
+                || Text(requests[0].Event, "playerId") != next.PlayerId) return false;
+            previous = next;
+        }
+        return continuations.Length > 0 && previous == completed;
+    }
+
+    private static bool IsOriginalPlay(RecoveredCommand command, CardPlayHistoryEntry play, RecoveredEvent birth)
+        => command.PlayerId == play.PlayerId && command.CompletedTick == command.StartedTick + 1
+            && play.PlayId == $"STACK-{command.CompletedTick}-{play.Source.ObjectId}"
+            && (ReadCommand(command) switch {
+                PlayCardCommand original => command.CommandType == CommandTypes.PlayCard
+                    && original.SourceObjectId == play.Source.ObjectId && original.CardNo == play.CardNo,
+                RevealCardCommand original => command.CommandType == CommandTypes.RevealCard
+                    && Flag(birth.Event, "playedFromStandby")
+                    && original.SourceObjectId == play.Source.ObjectId && original.CardNo == play.CardNo,
+                _ => false });
+
+    private static bool IsScenarioPreparation(RecoveredCommand command, IReadOnlyList<RecoveredEvent> events)
+    {
+        const string prefix = "DEV_SEED_SCENARIO:";
+        if (command.CommandType is not { } commandType || !commandType.StartsWith(prefix, StringComparison.Ordinal)) return false;
+        var scenario = commandType[prefix.Length..];
+        var inputMatches = command.TypedCommand?.TryScenario(out var typed) == true ? typed == scenario
+            : command.RawCommand is { ValueKind: JsonValueKind.Object } raw
+                && raw.TryGetProperty("scenarioId", out var value) && value.ValueKind == JsonValueKind.String
+                && value.GetString() == scenario;
+        var seeded = events.Where(e => e.Sequence > command.StartedEventSequence
+            && e.Sequence <= command.CompletedEventSequence && e.Event.Kind == "DEV_SCENARIO_SEEDED").ToArray();
+        return inputMatches && seeded.Length == 1 && Text(seeded[0].Event, "scenarioId") == scenario
+            && Text(seeded[0].Event, "playerId") == command.PlayerId;
+    }
+
+    private static GameCommand? ReadCommand(RecoveredCommand command)
+    {
+        try { return command.RawCommand is { ValueKind: JsonValueKind.Object } raw ? GameCommandJsonMapper.Map(raw)
+                : command.TypedCommand?.TryRestore(out var typed) == true ? typed : null; }
+        catch (Exception error) when (error is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
+        { return null; }
     }
 
     private static ConfirmedSpellManaPayment? ReadReceipt(GameEvent ev)

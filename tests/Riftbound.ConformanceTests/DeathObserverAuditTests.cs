@@ -159,7 +159,7 @@ public sealed class DeathObserverAuditTests
         var result=await Open(s); s=result.State; Assert.DoesNotContain("D",s.CardObjects.Keys); Assert.Equal(2,s.TriggerQueue.Count);
         var views=s.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,s.Tick,0,result.Snapshots[id],s.Tick,0,result.Prompts[id]));
         var spectator=MatchReplayRedactor.BuildSpectatorFrame(s.RoomId,s.Tick,0,[],s);
-        var errors=MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator);
+        var errors=MatchRecoveryValidator.ValidateComponentStateAndViews(s, views, spectator);
         Assert.True(errors.Count==0,string.Join("; ",errors));
     }
     [Fact]
@@ -199,12 +199,12 @@ public sealed class DeathObserverAuditTests
         var snapshots = ResolutionResult.BuildSnapshots(s);
         var views = s.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, s.Tick, 0, snapshots[id], s.Tick, 0, session.PromptFor(id)));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(s.RoomId, s.Tick, 0, [], s);
-        var errors = MatchRecoveryValidator.Validate(s.RoomId, 0, [], [], views, s, s.Tick, spectator);
+        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(s, views, spectator);
         Assert.True(errors.Count == 0, string.Join("; ", errors));
         var publicQueue = Assert.IsAssignableFrom<IEnumerable<object>>(snapshots["P2"].Timing!["triggerQueue"]);
         var first = Assert.IsType<Dictionary<string, object?>>(publicQueue.First());
         first["deathObserver"] = s.TriggerQueue[0].DeathObserver! with { SourceGeneration = 20 };
-        Assert.Contains(MatchRecoveryValidator.Validate(s.RoomId, 0, [], [], views, s, s.Tick), e => e.Contains("captured death observer differs"));
+        Assert.Contains(MatchRecoveryValidator.ValidateComponentStateAndViews(s, views), e => e.Contains("captured death observer differs"));
         var ordered = await Act(s, "P2", new OrderTriggersCommand(OrderedTriggerIds: s.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         var done = await Top((await Top(ordered.State)).State);
         Assert.Equal(2, done.State.PlayerExperience["P2"]); Restore(done.State);

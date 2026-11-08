@@ -116,7 +116,8 @@ public sealed partial class CoreRuleEngine
             var limited = entry.PlayId.Length == 0;
             if (limited) entry = entry with { OriginOutsideHands = true };
             entry = entry with { PlayId = limited ? $"LIMITED-{result.State.Tick}-{index}-{entry.Source.ObjectId}" : entry.PlayId,
-                Tick = result.State.Tick, Source = entry.Source with { Generation = generation } };
+                Tick = RuleChoices.Value?.CompletionTick ?? result.State.Tick,
+                Source = entry.Source with { Generation = generation } };
             if (!observation.Resolved && entry.PaidMana is { } paidMana && ev.Kind == "CARD_PLAYED")
             {
                 var publicEvent = events[publicEventIndex];

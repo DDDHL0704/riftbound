@@ -241,7 +241,7 @@ public sealed class OfficialSettReplacementTests
         var opened = await Open(); var s = opened.State;
         var views = s.Seats.Keys.ToDictionary(id=>id, id=>new RecoveredPlayerView(id,s.Tick,0,opened.Snapshots[id],s.Tick,0,opened.Prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(s.RoomId,s.Tick,0,[],s);
-        var errors = MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator);
+        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(s, views, spectator);
         Assert.True(errors.Count==0,string.Join("; ",errors));
         var publicJson = JsonSerializer.Serialize(new { views, spectator });
         Assert.DoesNotContain("pendingRuleChoice",publicJson,StringComparison.OrdinalIgnoreCase);

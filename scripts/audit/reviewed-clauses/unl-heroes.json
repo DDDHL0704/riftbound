@@ -882,7 +882,7 @@
       "text": "如果你在本回合消耗了不低于{{4}}的费用来打出一个法术，则你可以选择支付{{蓝色}}来将我打出。",
       "scope": "如果你在本回合消耗了不低于{{4}}的费用来打出一个法术，则你可以选择支付{{蓝色}}来将我打出。",
       "status": "route",
-      "reason": "本回合该玩家确认打出单个法术的实际法力付款达到4后，可显式选择0法力、1蓝色替代基础费用；被无效化仍成立，额外费用和增减费沿用共享流程，付款历史绑定原始接受记录",
+      "reason": "本回合该玩家确认打出单个法术的实际法力付款达到4后，可显式选择0法力、1蓝色替代基础费用；被无效化仍成立，额外费用和增减费沿用共享流程，暂停付款绑定原始出牌、每次选择请求与最终接受的答复",
       "rules": "核心356.1–356.4、420.4b；2026-05-11 Unleashed 官方中文 FAQ 第10页；UNL-089／089a 中文牌面",
       "runtime": {
         "staticAuras": [],
@@ -930,7 +930,11 @@
           "path": "src/Riftbound.Engine/SpellManaPaymentHistoryRules.cs",
           "contains": [
             "ValidateOriginalPayments",
-            "receipt.Mana != play.PaidMana"
+            "receipt.Mana != play.PaidMana",
+            "ValidConfirmationOrigin",
+            "IsOriginalPlay",
+            "RULE_CHOICE_REQUESTED",
+            "ReadCommand(next) is not PayCostCommand"
           ]
         }
       ],
@@ -945,6 +949,13 @@
             "AQualifiedPlayerStillNeedsTheExactPriceAndAnAuthorizedCardSource",
             "WildcardPowerCanPayTheBlueAlternativeAndANewTurnClearsTheCondition",
             "RecoveryRejectsPaymentCreditThatDiffersFromTheOriginalAcceptedHistory"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/JhinSpellManaAlternativeCostTests.Continuations.cs",
+          "methods": [
+            "ASpellConfirmsItsActualPaymentAfterAnAdditionalCostReplacement",
+            "RecoveryBindsTheCompletedPaymentToItsOriginalPlayAndEveryDecision"
           ]
         }
       ]

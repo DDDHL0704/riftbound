@@ -1437,13 +1437,36 @@ def confirmed_spell_mana_alternative_route(card: dict, clause: dict, sources: So
         ("CoreRuleEngine.CardPlayHistory.cs", "RecordCardPlayHistory", [
             "PaidMana = !observation.Resolved && (entry.Types & 4) != 0 ? confirmedItem?.PlayCost?.PaidMana : null",
             "new ConfirmedSpellManaPayment(entry.Source, entry.CardNo, entry.PlayerId,",
-            "entry.PlayId, paidMana, before.TurnNumber, entry.Tick)", "PaidMana = confirmed?.PaidMana"]),
+            "entry.PlayId, paidMana, before.TurnNumber, entry.Tick)", "PaidMana = confirmed?.PaidMana",
+            "Tick = RuleChoices.Value?.CompletionTick ?? result.State.Tick"]),
         ("SpellManaPaymentHistoryRules.cs", "ValidateOriginalPayments", [
             "state.CardPlays?.Finalized", 'e.Event.Kind == "CARD_PLAYED"', 'e.Event.Kind == "COST_PAID"',
-            "ReadReceipt(birth.Event)", "c.Accepted", "c.CommandType == CommandTypes.PlayCard",
-            "c.CommandType == CommandTypes.RevealCard", 'Flag(birth.Event, "playedFromStandby")',
-            "c.CompletedTick == play.Tick", "receipt.Source != play.Source", "receipt.Mana != play.PaidMana",
+            "ReadReceipt(birth.Event)", "c.Accepted", "c.CompletedTick == birth.Tick",
+            "ValidConfirmationOrigin(play, birth!, command, commands, events)",
+            "receipt.Source != play.Source", "receipt.Mana != play.PaidMana",
             "receipt.TurnNumber != state.TurnNumber", 'Number(payment.Event, "mana") != play.PaidMana']),
+        ("SpellManaPaymentHistoryRules.cs", "ValidConfirmationOrigin", [
+            "if (birth.Tick != play.Tick) return false", "IsOriginalPlay(completed, play, birth)",
+            "command.Accepted && command.CompletedTick < completed.CompletedTick",
+            "IsOriginalPlay(command, play, birth)", "next.StartedTick != previous.CompletedTick",
+            "next.StartedEventSequence != previous.CompletedEventSequence",
+            "next.CommandType != CommandTypes.PayCost",
+            "ReadCommand(next) is not PayCostCommand", "PaymentWindow: CoreRuleEngine.RuleChoiceWindow",
+            "PaymentChoiceIds.Count: 1", 'e.Event.Kind == "RULE_CHOICE_REQUESTED"',
+            'requests.Length != 1 || Text(requests[0].Event, "choiceId") != answer.PaymentId',
+            'Text(requests[0].Event, "playerId") != next.PlayerId', "previous == completed",
+            "IsScenarioPreparation(completed, events)", "play.Tick > completed.StartedTick"]),
+        ("SpellManaPaymentHistoryRules.cs", "IsOriginalPlay", [
+            "command.PlayerId == play.PlayerId", "command.CompletedTick == command.StartedTick + 1",
+            'play.PlayId == $"STACK-{command.CompletedTick}-{play.Source.ObjectId}"',
+            "command.CommandType == CommandTypes.PlayCard", "command.CommandType == CommandTypes.RevealCard",
+            'Flag(birth.Event, "playedFromStandby")', "original.SourceObjectId == play.Source.ObjectId",
+            "original.CardNo == play.CardNo"]),
+        ("SpellManaPaymentHistoryRules.cs", "ReadCommand", [
+            "GameCommandJsonMapper.Map(raw)", "command.TypedCommand?.TryRestore(out var typed)"]),
+        ("SpellManaPaymentHistoryRules.cs", "IsScenarioPreparation", [
+            "command.TypedCommand?.TryScenario(out var typed)", 'e.Event.Kind == "DEV_SCENARIO_SEEDED"',
+            'Text(seeded[0].Event, "scenarioId") == scenario', 'Text(seeded[0].Event, "playerId") == command.PlayerId']),
         ("MatchRecovery.cs", "ValidateFrame", [
             "SpellManaPaymentHistoryRules.ValidateOriginalPayments(authoritativeState, commands, events)"]),
         ("MatchRecovery.cs", "ValidateRecoveryFrameAsync", [

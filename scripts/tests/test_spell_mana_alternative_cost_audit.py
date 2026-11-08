@@ -59,7 +59,7 @@ class SpellManaAlternativeCostAuditTests(unittest.TestCase):
             ('MatchSession/Prompts.Metadata.cs', 'PlayCardPromptBehaviorsForSource(state, playerId, objectId)'),
             ('SpellManaPaymentHistoryRules.cs', 'receipt.Mana != play.PaidMana'),
             ('SpellManaPaymentHistoryRules.cs', 'c.Accepted'),
-            ('SpellManaPaymentHistoryRules.cs', 'c.CommandType == CommandTypes.RevealCard'),
+            ('SpellManaPaymentHistoryRules.cs', 'command.CommandType == CommandTypes.RevealCard'),
             ('SpellManaPaymentHistoryRules.cs', 'receipt.TurnNumber != state.TurnNumber'),
             ('MatchRecovery.cs', 'SpellManaPaymentHistoryRules.ValidateOriginalPayments(authoritativeState, commands, events)'),
             ('MatchRecovery.cs', 'SpellManaPaymentHistoryRules.ValidateOriginalPayments(paymentState, recovery.Commands, recovery.Events)'),
@@ -71,6 +71,31 @@ class SpellManaAlternativeCostAuditTests(unittest.TestCase):
                 self.assertIn(token, sources.files[path])
                 sources.files[path] = sources.files[path].replace(token, 'REMOVED_ACTUAL_CONSUMER')
                 sources.files[path] += '\n    private static void UnusedPaymentDecoy() { ' + token + '; }\n'
+                self.assertEqual('missing', self.status(sources=sources))
+
+    def test_resumed_payments_require_the_original_intent_and_each_accepted_decision(self):
+        consumers = [
+            ('CoreRuleEngine.CardPlayHistory.cs', 'Tick = RuleChoices.Value?.CompletionTick ?? result.State.Tick'),
+            ('SpellManaPaymentHistoryRules.cs', 'ValidConfirmationOrigin(play, birth!, command, commands, events)'),
+            ('SpellManaPaymentHistoryRules.cs', 'IsOriginalPlay(command, play, birth)'),
+            ('SpellManaPaymentHistoryRules.cs', 'original.SourceObjectId == play.Source.ObjectId'),
+            ('SpellManaPaymentHistoryRules.cs', 'original.CardNo == play.CardNo'),
+            ('SpellManaPaymentHistoryRules.cs', 'next.StartedEventSequence != previous.CompletedEventSequence'),
+            ('SpellManaPaymentHistoryRules.cs', 'next.CommandType != CommandTypes.PayCost'),
+            ('SpellManaPaymentHistoryRules.cs', 'PaymentWindow: CoreRuleEngine.RuleChoiceWindow'),
+            ('SpellManaPaymentHistoryRules.cs', 'requests.Length != 1 || Text(requests[0].Event, "choiceId") != answer.PaymentId'),
+            ('SpellManaPaymentHistoryRules.cs', 'Text(requests[0].Event, "playerId") != next.PlayerId'),
+            ('SpellManaPaymentHistoryRules.cs', 'IsScenarioPreparation(completed, events)'),
+            ('SpellManaPaymentHistoryRules.cs', 'command.TypedCommand?.TryRestore(out var typed)'),
+            ('SpellManaPaymentHistoryRules.cs', 'Text(seeded[0].Event, "scenarioId") == scenario'),
+        ]
+        for filename, token in consumers:
+            with self.subTest(filename=filename, token=token):
+                sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+                path = 'src/Riftbound.Engine/' + filename
+                self.assertIn(token, sources.files[path])
+                sources.files[path] = sources.files[path].replace(token, 'REMOVED_CONFIRMATION_LINK')
+                sources.files[path] += '\n    private static void UnusedContinuationDecoy() { ' + token + '; }\n'
                 self.assertEqual('missing', self.status(sources=sources))
 
     def test_other_sentences_or_inherited_trigger_scopes_are_not_certified(self):

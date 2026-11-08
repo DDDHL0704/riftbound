@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 // CN 356.1–356.4, 420.4b; Unleashed FAQ 2026-05-11, p10:
 // Rocket Barrage still qualifies when Defiance counters it.
-public sealed class JhinSpellManaAlternativeCostTests
+public sealed partial class JhinSpellManaAlternativeCostTests
 {
     private const string Alternative = "SPELL_MANA_ALTERNATIVE_COST:4:1:blue";
     private const string Rocket = "SFD·077/221";
@@ -278,9 +278,12 @@ public sealed class JhinSpellManaAlternativeCostTests
     [InlineData("actor")]
     [InlineData("source-generation")]
     [InlineData("play-id")]
+    [InlineData("null-play-id")]
     [InlineData("turn")]
     [InlineData("missing-receipt")]
     [InlineData("payment-event")]
+    [InlineData("missing-commands")]
+    [InlineData("missing-events")]
     public async Task RecoveryRejectsPaymentCreditThatDiffersFromTheOriginalAcceptedHistory(string mutation)
     {
         var initial = RadGearTestPosition.Put(Position("UNL-089/219", 8), "REDUCER", "OGN·084/298", "P1", "BATTLEFIELD", "BF");
@@ -290,7 +293,8 @@ public sealed class JhinSpellManaAlternativeCostTests
         var changed = mutation switch {
             "mana" => entry with { PaidMana = 4 }, "actor" => entry with { PlayerId = "P2" },
             "source-generation" => entry with { Source = entry.Source with { Generation = entry.Source.Generation + 1 } },
-            "play-id" => entry with { PlayId = "STACK-1-JHIN" }, _ => entry };
+            "play-id" => entry with { PlayId = "STACK-1-JHIN" },
+            "null-play-id" => entry with { PlayId = null! }, _ => entry };
         var forged = original with { CardPlays = history with {
             TurnNumber = mutation == "turn" ? history.TurnNumber + 1 : history.TurnNumber,
             Finalized = [changed], Resolved = [Assert.Single(history.Resolved) with {
@@ -300,12 +304,15 @@ public sealed class JhinSpellManaAlternativeCostTests
             events = events.Select(e => e.Event.Kind == (mutation == "missing-receipt" ? "CARD_PLAYED" : "COST_PAID")
                 ? e with { Event = e.Event with { Payload = e.Event.Payload.Where(p => p.Key != "spellManaPayment")
                     .ToDictionary(p => p.Key, p => p.Key == "mana" ? (object?)4 : p.Value) } } : e).ToArray();
-        var sequence = events[^1].Sequence; var snapshots = ResolutionResult.BuildSnapshots(forged);
+        if (mutation == "missing-events") events = [];
+        var commands = game.Commands();
+        if (mutation == "missing-commands") commands = [];
+        var sequence = game.Events()[^1].Sequence; var snapshots = ResolutionResult.BuildSnapshots(forged);
         var prompts = ResolutionResult.BuildPrompts(forged);
         var views = forged.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, forged.Tick, sequence,
             snapshots[p], forged.Tick, sequence, prompts[p]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(forged.RoomId, forged.Tick, sequence, [], forged);
-        var frame = new MatchRecoveryFrame(forged.RoomId, forged.Tick, sequence, game.Commands(), events, views, [],
+        var frame = new MatchRecoveryFrame(forged.RoomId, forged.Tick, sequence, commands, events, views, [],
             forged, initial, spectator) { OpeningSeed = initial.Seed };
         frame = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Web), Web)!;
         var errors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default);
