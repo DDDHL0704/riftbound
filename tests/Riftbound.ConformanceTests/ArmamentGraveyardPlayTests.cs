@@ -122,4 +122,27 @@ public sealed class ArmamentGraveyardPlayTests
         Assert.Null(game.State.PendingEffectPlay); Assert.Empty(game.State.StackItems);
         Assert.Contains("SECOND-DEAD", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
+
+    [Theory]
+    [InlineData("stack-target")] [InlineData("effect-source")] [InlineData("rewind")]
+    public async Task RecoveryRejectsChangingBothTheOriginalTargetAndItsMatchingPlayPermission(string branch)
+    {
+        var game = new Driver(Position()); await Conquer(game);
+        var originalChoice = game.State.PendingCardChoice!; await Confirm(game);
+        if (branch == "effect-source") await game.Top();
+        var history = MatchStateHasher.HashValue(new { commands = game.Commands(), events = game.Events() });
+        var pending = game.State.PendingEffectPlay;
+        var item = pending?.Parent ?? Assert.Single(game.State.StackItems);
+        var replacement = item with { TargetObjectIds = ["SECOND-DEAD"],
+            TargetGenerations = new Dictionary<string, long> { ["SECOND-DEAD"] = game.State.CardObjects["SECOND-DEAD"].ObjectGeneration } };
+        var forged = branch switch {
+            "effect-source" => game.State with { PendingEffectPlay = pending! with { Parent = replacement,
+                Sources = new Dictionary<string, long> { ["SECOND-DEAD"] = replacement.TargetGenerations!["SECOND-DEAD"] } } },
+            "rewind" => game.State with { StackItems = [item with { TargetObjectIds = [], TargetGenerations = null }],
+                PendingCardChoice = originalChoice },
+            _ => game.State with { StackItems = [replacement] } };
+        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, forged));
+        Assert.Equal(history, MatchStateHasher.HashValue(new { commands = game.Commands(), events = game.Events() }));
+        await game.Replay();
+    }
 }

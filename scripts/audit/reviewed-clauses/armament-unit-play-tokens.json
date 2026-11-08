@@ -9,7 +9,7 @@
         "SFD·150/221"
       ],
       "status": "route",
-      "reason": "宿主征服或据守后捕获独立技能；在确认时选择自己公开废牌堆中的一张单位牌或放弃，锁定目标代际并开放响应。结算时只有仍合法的原目标可被打出，支付正常基础法力、基础符能、额外费用和增费，不得换选另一张废牌。宿主返手不抹去技能，仍沿共享效果打出及付款放弃流程执行。",
+      "reason": "宿主征服或据守后捕获独立技能；在确认时选择自己公开废牌堆中的一张单位牌或放弃，锁定目标代际并开放响应。结算时只有仍合法的原目标可被打出，支付正常基础法力、基础符能、额外费用和增费，不得换选另一张废牌。宿主返手不抹去技能，仍沿共享效果打出及付款放弃流程执行。 原公开目标及代际另由确认事件摘要和原始被接受的选牌命令约束，联合改写打出权限或退回未确认状态也拒绝。",
       "rules": "中国区核心355.9–355.10 公开废牌堆目标、359.3.e 结算目标连续性、383.2–383.4 独立征服／据守触发、420.3.b 按正常流程效果打出、436、718.3/719 武装授予与宿主；SFD·150 官方中文下栏",
       "runtime": {
         "armament": {
@@ -45,6 +45,14 @@
             "!pending.IgnoreBaseMana && !pending.IgnoreBasePower && !pending.IgnoreAllCosts",
             "pending.Parent.TargetGenerations?.GetValueOrDefault(source.Key, -1) == source.Value"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTargets.cs",
+          "contains": [
+            "CoreRuleEngine.UnitEventPlayTargetsHash(item)",
+            "HasAcceptedBattlefieldChoice(commands, originals[0], item.ControllerId,",
+            "unit event public target confirmation was rewound"
+          ]
         }
       ],
       "tests": [
@@ -56,7 +64,8 @@
             "ReturningTheHostAfterConquestKeepsTheIndependentPlayPermissionAndMasksItsSource",
             "MissingManaOrPowerCannotWaiveTheConfirmedUnitsCostButThePaymentCanBeDeclined",
             "RecoveryRequiresTheConfirmedGraveyardTargetAndNormalCostPolicy",
-            "ATargetPlayedByTheFirstSkillCannotBeReplacedWithAnotherCardForTheSecondSkill"
+            "ATargetPlayedByTheFirstSkillCannotBeReplacedWithAnotherCardForTheSecondSkill",
+            "RecoveryRejectsChangingBothTheOriginalTargetAndItsMatchingPlayPermission"
           ]
         }
       ]

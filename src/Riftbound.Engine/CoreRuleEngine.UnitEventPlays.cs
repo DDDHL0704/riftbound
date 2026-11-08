@@ -16,6 +16,11 @@ public sealed partial class CoreRuleEngine
         => parent.UnitEvent is { } context && parent.EffectKind == UnitEventEffect
             && parent.CardNo == context.CardNo && SelectedUnitEventSpec(context)?.Effect == UnitEventGraveyardPlayEffect;
 
+    internal static string UnitEventPlayTargetsHash(StackItemState item)
+        => MatchStateHasher.HashValue(new { item.StackItemId, item.ControllerId,
+            Targets = item.TargetObjectIds.Select(id => new ObjectBinding(id,
+                item.TargetGenerations?.GetValueOrDefault(id, -1) ?? -1)).ToArray() });
+
     private static bool TryGetUnitEventGraveyardPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
         definition = null!;
