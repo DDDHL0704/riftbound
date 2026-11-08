@@ -94,6 +94,8 @@ public sealed class EquipmentAbilityCompletionObserverTests
             await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["PROGRESS"]));
             await game.Top();
             Assert.Contains("PROGRESS", game.State.PlayerZones["P1"].Hand);
+            Assert.DoesNotContain("PROGRESS", System.Text.Json.JsonSerializer.Serialize(
+                ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
         }
         await game.Top();
         Assert.Equal(might + (returnObserver ? 0 : 1), game.State.CardObjects["PROGRESS"].Power);

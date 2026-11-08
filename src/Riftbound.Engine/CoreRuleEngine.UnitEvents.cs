@@ -281,13 +281,18 @@ public sealed partial class CoreRuleEngine
         return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
 
+    internal static string UnitEventSourceIdentity(string source, string timing)
+        => MatchStateHasher.HashValue(new { source, timing });
+
     private static TriggerQueueItemState UnitEventTrigger(UnitEventObservation observation, long tick, int ordinal,
         string eventKind, string? timing = null)
     {
         var captured = observation.Context;
         if (captured.Origin is { ArmamentGranted: true } armament)
             captured = captured with { Origin = armament with { CapturedTick = tick } };
-        var id = $"unit-event-{tick}-{ordinal}-{observation.Source}-{captured.Timing}";
+        // The public skill may outlive its source's stay in a public zone.
+        // Its stack and choice ids cannot contain the source's transport id.
+        var id = $"unit-event-{tick}-{ordinal}-{UnitEventSourceIdentity(observation.Source, captured.Timing)}";
         if (captured.Origin is { ArmamentGranted: true })
             id = "armament-unit-event-" + MatchStateHasher.HashValue(new {
                 tick, ordinal, observation.Source, captured.CardNo, captured.Origin });
