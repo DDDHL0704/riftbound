@@ -43,7 +43,11 @@ public sealed partial class AzirTokenAttackMovementTests
         await EnterAndAttack(game, "SFD·177/221"); await Select(game, tokens);
         await game.ColdCheckpoint();
         var skill = Assert.Single(game.State.StackItems).StackItemId;
-        await game.Act("P1", new RevealCardCommand("SWAP", swap, ["HOST", image.ObjectId],
+        await RadGearTestPosition.Reject(game.State, "P1", new RevealCardCommand("SWAP", swap, ["HOST", image.ObjectId],
+            "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
+        // CN811.1.d.2: the first target is on the standby battlefield;
+        // the second is explicitly at another location.
+        await game.Act("P1", new RevealCardCommand("SWAP", swap, [image.ObjectId, "HOST"],
             "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
         await game.Top();
         Assert.Equal("BF", game.State.ObjectLocations["HOST"].BattlefieldObjectId);
