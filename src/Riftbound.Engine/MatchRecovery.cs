@@ -1226,6 +1226,7 @@ public static partial class MatchRecoveryValidator
             ValidateUnitEventModeUseHistory(authoritativeState, commands, events, errors);
             ValidateArmamentUnitEventHistory(authoritativeState, commands, events, errors);
             ValidateInstructionCostHistory(authoritativeState, commands, events, errors);
+            ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
             ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
@@ -4503,6 +4504,9 @@ public static partial class MatchRecoveryValidator
         if (state.PendingEffectPlay is { } recast && recast.SourceReplay is null && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
             errors.Add("invalid spell effect-play continuation");
 
+        if (state.PendingEffectPlay is { SourceOwners: not null } ownedSources
+            && !CoreRuleEngine.ValidAllLinkedArmamentUnitPlay(state, ownedSources))
+            errors.Add("invalid multiple-owner effect-play continuation");
         if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay)
             && !CoreRuleEngine.ValidLinkedGraveyardExilePlay(state, foreignPlay)
             && !CoreRuleEngine.ValidLinkedExileEffectPlay(state, foreignPlay)

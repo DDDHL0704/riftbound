@@ -18,12 +18,21 @@ public sealed record PendingEffectPlayState(
     public ObjectBinding? OriginalBattlefield { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? SourcePlayerId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, string>? SourceOwners { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (PlaysAllLinkedArmamentUnits(parent))
+        {
+            definition = new(parent.CardNo, "打出所有关联放逐单位", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
+                EffectPlayMaximumCount: int.MaxValue);
+            return true;
+        }
         if (IsStandbyHandPlayHere(parent))
         {
             definition = new(parent.CardNo, "进攻后从手牌打出待命牌", 0, parent.EffectKind, 0, 0,
@@ -141,6 +150,8 @@ public sealed partial class CoreRuleEngine
                     .Concat(TimedBanishPlayRules.Sources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+        if (pending.SourceOwners is not null)
+            return ValidAllLinkedArmamentUnitPlay(state, pending) ? pending.Sources.Keys.Order(StringComparer.Ordinal).ToArray() : [];
         if (pending.SourcePlayerId is { } sourcePlayer && state.PlayerZones.TryGetValue(sourcePlayer, out var sourceZones)) zones = sourceZones;
         var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null || pending.Parent.ObservedPlayPermission is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
@@ -357,6 +368,9 @@ public sealed partial class CoreRuleEngine
         var choices = ActionPromptBuilder.PlayCardChoices(state, p.PlayerId)
             .Where(choice => EffectPlayAllowsBehavior(state, p.PlayerId, choice.Behavior)).ToArray();
         if (choices.Length == 0) return true;
+        // A nonzero fee can be refused for one member of a play-all instruction;
+        // it cannot cancel the other, possibly free, members of that instruction.
+        if (PlaysAllLinkedArmamentUnits(p.Parent)) return false;
         // CN445.2/445.2.a permits refusing a nonzero resource fee and
         // withdrawing that play, even when those resources are already pooled.
         // CN445.1.b does not permit refusing a zero fee. But the player can
@@ -536,20 +550,31 @@ public sealed partial class CoreRuleEngine
     }
 
     private static ResolutionResult FinishEffectPlay(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> playEvents,
-        string? playedSourceObjectId = null)
+        string? playedSourceObjectId = null, ObjectBinding? refusedSource = null)
     {
         if(pending.Parent.ObservedPlayPermission is not null)return FinishObservedDeckPlay(state,pending,playEvents);
         if (pending.Parent.DeckPlaySequence is not null) return FinishDeckPlaySequence(state, intent, pending, playEvents);
         if (pending.SourceReplay is not null)
             pending = pending with { Parent = pending.Parent with { SourceReplayDecisionCompleted = true } };
         var parent = pending.Parent;
-        var maximum = CardBehaviorRegistry.TryGetByEffectKind(parent.EffectKind, out var effectPlayDefinition)
+        var maximum = TryGetEffectPlayDefinition(parent, out var effectPlayDefinition)
             ? Math.Max(1, effectPlayDefinition.EffectPlayMaximumCount) : 1;
+        if (refusedSource is not null && PlaysAllLinkedArmamentUnits(parent))
+        {
+            parent = parent with { SimpleActivation = parent.SimpleActivation! with {
+                RefusedEffectPlays = (parent.SimpleActivation.RefusedEffectPlays ?? []).Append(refusedSource).ToArray() } };
+            playEvents = playEvents.Append(new GameEvent("EFFECT_PLAY_PAYMENT_REFUSED", "拒绝本张关联单位的非零资源费用，继续其余单位",
+                new Dictionary<string, object?> { ["parentStackItemId"] = parent.StackItemId,
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = refusedSource.ObjectId,
+                    ["sourceGeneration"] = refusedSource.Generation })).ToArray();
+        }
         var countsEffectPlay = !string.IsNullOrWhiteSpace(playedSourceObjectId)
-            && (maximum > 1 || parent.HighCostPlayObserver is not null);
+            && !PlaysAllLinkedArmamentUnits(parent) && (maximum > 1 || parent.HighCostPlayObserver is not null);
         if (countsEffectPlay)
             parent = parent with { EffectPlayCount = checked(parent.EffectPlayCount + 1) };
-        var completed = string.IsNullOrWhiteSpace(playedSourceObjectId) || !countsEffectPlay || parent.EffectPlayCount >= maximum;
+        var completed = PlaysAllLinkedArmamentUnits(parent)
+                && (refusedSource is not null || !string.IsNullOrWhiteSpace(playedSourceObjectId)) ? false
+            : string.IsNullOrWhiteSpace(playedSourceObjectId) || !countsEffectPlay || parent.EffectPlayCount >= maximum;
         // Resume the parent through the ordinary stack resolver.  A high-cost
         // graveyard play reuses the physical source card for the child spell;
         // the child must resolve and leave the stack before the parent banishes

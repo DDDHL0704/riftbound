@@ -20,6 +20,8 @@ public sealed partial class CoreRuleEngine
         // CN445.2.a/358.5 withdraw this play before any debit, nonresource cost,
         // source move or play trigger. Prior independent resource actions and the
         // already-paid parent remain in the original history and current state.
-        return FinishEffectPlay(state with { Tick = state.Tick + 1 }, intent, pending, []);
+        return FinishEffectPlay(state with { Tick = state.Tick + 1 }, intent, pending, [],
+            refusedSource: PlaysAllLinkedArmamentUnits(pending.Parent)
+                ? new(refusal.SourceObjectId, state.CardObjects[refusal.SourceObjectId].ObjectGeneration) : null);
     }
 }

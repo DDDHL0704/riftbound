@@ -17634,6 +17634,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !IsForeignGraveyardEffectPlay(state, intent.PlayerId, command.SourceObjectId)
                 && !IsLinkedExileEffectPlaySource(state, intent.PlayerId, command.SourceObjectId)
                 && !IsForeignSelfBanishReplay(state, intent.PlayerId, command.SourceObjectId)
+                && !IsForeignLinkedArmamentPlay(state, intent.PlayerId, command.SourceObjectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
                 rejection = Reject(
@@ -20486,6 +20487,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerZones[exileOwner] = playerZones[exileOwner] with { Banished = RemoveFromZone(playerZones[exileOwner].Banished, sourceObjectId) };
         if (IsForeignSelfBanishReplay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } banishedOwner)
             playerZones[banishedOwner] = playerZones[banishedOwner] with { Banished = RemoveFromZone(playerZones[banishedOwner].Banished, sourceObjectId) };
+        if (IsForeignLinkedArmamentPlay(state, playerId, sourceObjectId)
+            && state.PendingEffectPlay!.SourceOwners!.TryGetValue(sourceObjectId, out var linkedOwner))
+            playerZones[linkedOwner] = playerZones[linkedOwner] with { Banished = RemoveFromZone(playerZones[linkedOwner].Banished, sourceObjectId) };
         return playerZones;
     }
 
