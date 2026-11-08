@@ -146,10 +146,11 @@ public sealed class TargetSelectionDrawTests
         await OriannaEquipmentConsumerFixture.AnimateAtNextOwnMain(game, "SOURCE");
         Assert.Contains(CardObjectTags.UnitCard, game.State.CardObjects["SOURCE"].Tags);
         Assert.Contains(CardObjectTags.EquipmentCard, game.State.CardObjects["SOURCE"].Tags);
+        var prefix = game.Events().Length;
         await game.Act("P1", new PlayCardCommand("SPELL", Boost, ["SOURCE"]));
         Assert.True(game.State.StackItems[^1].UnitEvent!.TargetSelection!.EquipmentUnit);
         await Pay(game); await game.Top(); await game.Top();
-        Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DRAWN"); await game.Replay();
+        Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "CARD_DRAWN"); await game.Replay();
     }
 
     [Fact]
