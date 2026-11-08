@@ -86,3 +86,26 @@ class FriendlyTokenMovementAuditTests(unittest.TestCase):
         for token in ['PayImposedMovementCost(', 'CurrentMovers, events)', 'CaptureMovementBatchObservers(',
                 'MoveAttachedEquipmentWithHost(', '["simultaneousSourceObjectIds"] = movable']:
             with self.subTest(token=token):self.missing_consumer('CoreRuleEngine.ChosenMovement.cs',token)
+
+    def test_original_attack_capture_and_token_departure_are_required(self):
+        for filename, token in [('CoreRuleEngine.BattlefieldTimingAliases.cs', 'UnitEventTimingMatches(unitEvent.Timing, "ATTACK")'),
+                ('CoreRuleEngine.cs', 'TimingCaptureHash(timingContext, trigger.TimingAlias)'),
+                ('MatchRecovery.BattlefieldTimingAliases.cs', 'hash != CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)'),
+                ('MatchRecovery.BattlefieldTimingAliases.cs', '"TOKEN_CEASED_TO_EXIST"'),
+                ('MatchRecovery.BattlefieldTimingAliases.cs', 'CoreRuleEngine.ValidUnitEventTargets(stack)')]:
+            with self.subTest(token=token):self.missing_consumer(filename,token)
+
+    def test_original_target_confirmation_cannot_be_replaced_by_coherent_views(self):
+        for filename, token in [('CoreRuleEngine.FieldTriggers.cs', '["targetGenerations"] = bound.TargetGenerations'),
+                ('CoreRuleEngine.FieldTriggers.cs', '["targetGenerations"] = confirmed.TargetGenerations'),
+                ('MatchRecovery.UnitEventTargets.cs', 'CurrentGameAcceptedEventBoundary(state, commands, events)'),
+                ('MatchRecovery.UnitEventTargets.cs', 'frame.PendingEffectPlay?.Parent'),
+                ('MatchRecovery.UnitEventTargets.cs', 'targets.SequenceEqual(item.TargetObjectIds)'),
+                ('MatchRecovery.UnitEventTargets.cs', 'MatchStateHasher.HashValue(generations) == MatchStateHasher.HashValue(item.TargetGenerations)'),
+                ('MatchRecovery.UnitEventTargets.cs', 'confirmations.Length != 1'),
+                ('MatchRecovery.UnitEventTargets.cs', 'command.Accepted'),
+                ('MatchRecovery.UnitEventTargets.cs', 'command.PlayerId == item.ControllerId'),
+                ('MatchRecovery.UnitEventTargets.cs', 'command.StartedEventSequence < confirmations[0].Sequence'),
+                ('MatchRecovery.UnitEventTargets.cs', 'command.CompletedEventSequence >= confirmations[0].Sequence'),
+                ('MatchRecovery.cs', 'ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors)')]:
+            with self.subTest(token=token):self.missing_consumer(filename,token)

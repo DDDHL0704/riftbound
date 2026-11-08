@@ -63,9 +63,18 @@ public sealed partial class AzirTokenAttackMovementTests
         await EnterAndAttack(game, "SFD·177/221"); await Select(game, tokens[0]);
         Assert.Empty(ValidateAttackHistory(game, game.State));
         var item = Assert.Single(game.State.StackItems);
-        var forged = item with { TargetObjectIds = [tokens[1]],
-            TargetGenerations = new Dictionary<string, long> { [tokens[1]] = game.State.CardObjects[tokens[1]].ObjectGeneration } };
-        Assert.NotEmpty(ValidateAttackHistory(game, game.State with { StackItems = [forged] }));
+        var journal = System.Text.Json.JsonSerializer.Serialize(new { commands = game.Commands(), events = game.Events() });
+        foreach (var forged in new[] {
+            item with { TargetObjectIds = [tokens[1]], TargetGenerations = new Dictionary<string, long> {
+                [tokens[1]] = game.State.CardObjects[tokens[1]].ObjectGeneration } },
+            item with { TargetObjectIds = tokens, TargetGenerations = tokens.ToDictionary(id => id,
+                id => game.State.CardObjects[id].ObjectGeneration) },
+            item with { TargetGenerations = new Dictionary<string, long> {
+                [tokens[0]] = game.State.CardObjects[tokens[0]].ObjectGeneration + 1 } }
+        })
+            Assert.Contains(ValidateAttackHistory(game, game.State with { StackItems = [forged] }),
+                error => error == "unit event targets differ from original accepted confirmation");
+        Assert.Equal(journal, System.Text.Json.JsonSerializer.Serialize(new { commands = game.Commands(), events = game.Events() }));
         await game.Top();
         Assert.Equal("OTHER", game.State.ObjectLocations[tokens[0]].BattlefieldObjectId);
         Assert.Equal("BASE", game.State.ObjectLocations[tokens[1]].Zone);

@@ -957,7 +957,7 @@
       "text": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
       "scope": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
       "status": "route",
-      "reason": "进攻产生独立技能，确认任意数量友方单位指示物；结算按原代际来源的当前战场，重查各目标后通过共享整组移动、装备跟随与施加费用执行",
+      "reason": "进攻产生独立技能，确认任意数量友方单位指示物；结算按原代际来源的当前战场，重查各目标后通过共享整组移动、装备跟随与施加费用执行；进攻与防守捕获沿用共享原始记录，目标、数量和代际须匹配实际接受的确认，覆盖法盾付款及暂停续结算",
       "runtime": {
         "behaviors": [
           {
@@ -989,6 +989,15 @@
             "CaptureMovementBatchObservers(",
             "MoveAttachedEquipmentWithHost("
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTargets.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "targets.SequenceEqual(item.TargetObjectIds)",
+            "command.CompletedTick == confirmations[0].Tick",
+            "unit event targets differ from original accepted confirmation"
+          ]
         }
       ],
       "tests": [
@@ -1017,7 +1026,20 @@
           "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Copies.cs",
           "methods": [
             "AnActualAssembledSongEarnsASeparateChoiceAndIndependentAttackSkill",
-            "AnActualImageCopiesTheAttackTextAndItsCeasedSourceCannotSupplyALastKnownBattlefield"
+            "AnActualImageCopiesTheAttackTextAndItsCeasedSourceCannotSupplyALastKnownBattlefield",
+            "AConfirmedTokenCannotBeReplacedByAnotherStillLegalTokenUsingACoherentSnapshot"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Defend.cs",
+          "methods": [
+            "ASeparateDefendSkillKeepsItsConfirmedAllyAfterTheActualImageSourceCeases"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Ward.cs",
+          "methods": [
+            "AnotherUnitEventLocksTheOriginalEnemyBeforeWardAndKeepsItAfterPayment"
           ]
         }
       ],

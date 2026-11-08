@@ -1485,10 +1485,12 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     prefix = 'src/Riftbound.Engine/'
     def member(filename, name):
         code = sources.files.get(prefix + filename, '')
-        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b'
-                          + re.escape(name) + r'\s*\(', code)
-        if not start:
+        starts = list(re.finditer(r'(?m)^    (?:private|internal|public) (?:static )?[^()\n{}=]*\b'
+                          + re.escape(name) + r'\s*\(', code))
+        if not starts:
             return ''
+        # Private overloads hold the shared implementation after public wrappers.
+        start = starts[-1]
         rest = code[start.start():]; offset = start.end() - start.start()
         end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
         return rest[:offset + end.start()] if end else rest
@@ -1503,6 +1505,34 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     exact = exact and branch is not None and all(token in branch[1] for token in filters)
     exact = exact and 'internal const string FriendlyUnitTokensMoveHere = \"MOVE_FRIENDLY_UNIT_TOKENS_HERE\";' in sources.files.get(prefix + 'CoreRuleEngine.TokenUnitMovement.cs', '')
     checks = [
+        ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext', [
+            'UnitEventTimingMatches(unitEvent.Timing, "ATTACK")']),
+        ('CoreRuleEngine.cs', 'BuildTriggerQueuedEvent', [
+            'TimingCaptureContext(trigger)', 'TimingCaptureHash(timingContext, trigger.TimingAlias)']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'ValidateBattlefieldTimingHistory', [
+            'hash != CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)',
+            '"TOKEN_CEASED_TO_EXIST"', 'c.Accepted']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'HasValidatedCeasedBattlefieldUnitEventSource', [
+            'P6TokenFactoryCatalog.IsTokenFactory(token)', 'CoreRuleEngine.TimingCaptureContext(stack)',
+            'CoreRuleEngine.ValidUnitEventTargets(stack)']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', [
+            'item.StandbyObserver?.Unit is not null || item.UnitEvent is not null',
+            '["targetGenerations"] = bound.TargetGenerations']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'CompleteTriggerTargetConfirmation', [
+            'item.StandbyObserver?.Unit is not null || item.UnitEvent is not null',
+            '["stackItemId"] = item.StackItemId', '["targetGenerations"] = confirmed.TargetGenerations']),
+        ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
+            'CurrentGameAcceptedEventBoundary(state, commands, events)', 'state.PendingRuleChoice?.Origin',
+            'frame.PendingEffectPlay?.Parent', 'record.Sequence > boundary',
+            'targets.SequenceEqual(item.TargetObjectIds)',
+            'MatchStateHasher.HashValue(generations) == MatchStateHasher.HashValue(item.TargetGenerations)',
+            'confirmations.Length != 1', 'command.Accepted', 'command.PlayerId == item.ControllerId',
+            'command.CompletedTick == confirmations[0].Tick',
+            'command.StartedEventSequence < confirmations[0].Sequence',
+            'command.CompletedEventSequence >= confirmations[0].Sequence']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors)',
+            'ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors)']),
         ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['if (stackItem.UnitEvent is not null) return ResolveUnitEvent(state, stackItem)']),
         ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', ['ResolveUnitEventInstruction(state, item)']),
         ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', ['IsObjectOnField(zones, id)',
@@ -1544,7 +1574,7 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     exact = exact and all(all(token in member(filename, name) for token in tokens)
                           for filename, name, tokens in checks)
     return result('route' if exact else 'missing',
-        '进攻时独立确认任意数量友方单位指示物；结算重查原代际来源的当前位置与各目标，再按一批执行移动、装备跟随及施加费用'
+        '进攻时独立确认任意数量友方单位指示物；结算重查原代际来源的当前位置与各目标，再按一批执行移动、装备跟随及施加费用；恢复绑定原始捕获和目标确认'
         if exact else '缺少进攻触发、任意数量友方单位指示物范围、结算时当前来源位置，或共享批量移动与原代际确认消费者',
         sorted({prefix + filename for filename, _, _ in checks}))
 
