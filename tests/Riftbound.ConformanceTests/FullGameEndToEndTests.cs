@@ -25659,6 +25659,21 @@ public sealed partial class FullGameEndToEndTests
                             Assert.Equal(capturedAbility, grantedAbility);
                         }
                         Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
+                        if (unitEvent.CardNo is "SFD·020/221" or "SFD·020a/221")
+                        {
+                            Assert.Equal(new UnitEventAbilitySpec("ATTACK_OR_DEFEND", "MIGHT_SELF", 2,
+                                LeadingPowerCost: 1, LeadingPowerTrait: "red", Optional: true), behavior.UnitEventAbility);
+                            if (item.TriggerCost is { } dravenCost)
+                            {
+                                Assert.Equal(new ObjectBinding(item.SourceObjectId, unitEvent.SourceGeneration), dravenCost.Source);
+                                Assert.Equal(1, dravenCost.Power); Assert.Equal(0, dravenCost.Mana);
+                            }
+                            else Assert.True(CoreRuleEngine.NeedsTriggerCostConfirmation(item));
+                            Assert.Empty(item.TargetObjectIds); Assert.Null(item.TargetGenerations);
+                            Assert.Null(unitEvent.Other); Assert.Null(unitEvent.Here); Assert.Null(unitEvent.Mode);
+                            Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
+                                item.SourceObjectId, item.CardNo, item.ControllerId));
+                        }
                         if (unitEvent.CardNo == "OGN·227/298")
                         {
                             Assert.Equal("ATTACKING_BATTLE_DRAW", unitEvent.Timing);

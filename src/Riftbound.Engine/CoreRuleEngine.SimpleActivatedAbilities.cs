@@ -610,7 +610,7 @@ public sealed partial class CoreRuleEngine
                     var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
                         ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
                         ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
-                    events.Add(CaptureStunObservers(applied, zones, cards, item, targetId));
+                    events.Add(CaptureStunObservers(applied, zones, cards, item, targetId, locations));
                 }
                 else if (!CanExecuteStun(target))
                     events.Add(new("ABILITY_NO_EFFECT", "无情潜伏者结算时目标已经眩晕", new Dictionary<string, object?> {
