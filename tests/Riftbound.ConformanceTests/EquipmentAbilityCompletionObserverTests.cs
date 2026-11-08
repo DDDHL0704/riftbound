@@ -64,7 +64,8 @@ public sealed class EquipmentAbilityCompletionObserverTests
         else
         {
             await game.Top();
-            Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage);
+            // Void Gate adds one to the Ballista's two printed damage.
+            Assert.Equal(3, game.State.CardObjects["ENEMY"].Damage);
             Assert.Equal(might, game.State.CardObjects["PROGRESS"].Power);
             Assert.Equal("PROGRESS", Assert.Single(game.State.StackItems).SourceObjectId);
             await game.Top();

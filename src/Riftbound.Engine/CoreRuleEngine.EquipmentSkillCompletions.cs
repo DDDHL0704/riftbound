@@ -47,7 +47,8 @@ public sealed partial class CoreRuleEngine
         // A token that ceased when paying its own instruction cost still has
         // the typed original source receipt; do not fabricate a live card.
         var no = item.SimpleActivation?.CeasedSource?.TokenFactoryCardNo
-            ?? item.NativeUnitActivation?.CeasedSource?.TokenFactoryCardNo;
+            ?? item.NativeUnitActivation?.CeasedSource?.TokenFactoryCardNo
+            ?? item.BorrowedExhaust?.Borrower.CeasedSource?.TokenFactoryCardNo;
         return no is not null && P6TokenFactoryCatalog.TryGetByCardNo(no, out var factory)
             && factory.Tags.Contains(CardObjectTags.EquipmentCard);
     }
@@ -93,7 +94,8 @@ public sealed partial class CoreRuleEngine
                 && before.CardObjects.TryGetValue(sourceId, out var source)
                 && source.Tags.Contains(CardObjectTags.EquipmentCard)
                 && ev.Payload.GetValueOrDefault("playerId") is string player
-                && (P4ActivatedAbilityCatalog.TryGetByAbilityId(abilityId, out var ability) && ability.IsResourceSkill
+                && (Equals(ev.Payload.GetValueOrDefault("resourceSkill"), true)
+                    || P4ActivatedAbilityCatalog.TryGetByAbilityId(abilityId, out var ability) && ability.IsResourceSkill
                     || TryGetLegendAbility(abilityId, out var legend) && legend.TimingKind == LegendAbilityTimingKinds.ResourceAction))
                 observations = CaptureEquipmentSkillObservers(result.State.PlayerZones, result.State.CardObjects, player);
             if (result.State.Status == MatchStatuses.InProgress && observations.Length > 0)
