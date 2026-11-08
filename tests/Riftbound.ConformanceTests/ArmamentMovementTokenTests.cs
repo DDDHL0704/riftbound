@@ -61,6 +61,31 @@ public sealed class ArmamentMovementTokenTests
     }
 
     [Fact]
+    public async Task AnUnavailableCurrentHereDoesNotOfferOrConsumeATokenReplacement()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "ZILEAN", "UNL-086/219", "P1", "BATTLEFIELD", "BF");
+        var game = new Driver(initial); await Move(game);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["ALLY"])); await game.Top(); await game.Top();
+        Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); Assert.Empty(Minions(game.State));
+        Assert.DoesNotContain("TOKEN_ENTRY_REPLACEMENT_USED", game.State.CardObjects["ZILEAN"].UntilEndOfTurnEffects);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnAvailableCurrentHereUsesTheSharedTokenReplacementBeforeAnyEntry()
+    {
+        var game = new Driver(RadGearTestPosition.Put(Position(), "ZILEAN", "UNL-086/219", "P1", "BATTLEFIELD", "BF"));
+        await Move(game); await game.Top(); Assert.Empty(Minions(game.State));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("TOKEN_ENTRY_REPLACEMENT", choice.ChoiceWindow); Assert.Contains("ZILEAN", choice.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ZILEAN"]));
+        Assert.Equal(2, Minions(game.State).Length);
+        Assert.All(Minions(game.State), token => Assert.Equal("BF", game.State.ObjectLocations[token.ObjectId].BattlefieldObjectId));
+        Assert.Contains("TOKEN_ENTRY_REPLACEMENT_USED", game.State.CardObjects["ZILEAN"].UntilEndOfTurnEffects);
+        await game.Replay();
+    }
+
+    [Fact]
     public async Task ARealBlinkResponseMovesTheHostAndBothEarnedSkillsReadItsCurrentBase()
     {
         var game = new Driver(Position()); await Move(game);

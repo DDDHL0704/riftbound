@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
             && BorrowedExhaustRules.Spec(state, borrowed) is { Kind: "CREATE_UNIT_TOKEN" } tokenSkill)
             return tokenSkill.TokenCount;
         if (item.UnitEvent is { } unitEvent && SelectedUnitEventSpec(unitEvent) is { Effect: "CREATE_UNIT_TOKEN" } unitToken)
-            return unitToken.Amount;
+            return TryUnitEventTokenLocation(state, item, unitToken, out _) ? unitToken.Amount : 0;
         if (item.SourceUnitTokens is { } sourceToken)
             return TrySourceUnitTokenDestination(state, item, out _)
                 ? SourceUnitTokenSpecs.Value[sourceToken.CardNo].CreatedTokenCount.GetValueOrDefault() : 0;

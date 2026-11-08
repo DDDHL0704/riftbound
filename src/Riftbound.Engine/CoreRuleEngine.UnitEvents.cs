@@ -269,7 +269,10 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult RecordUnitEventSourceFacts(MatchState before, ResolutionResult result)
     {
         UnitEventContext? Update(string id, UnitEventContext? c) {
-            if (c is null || c.LastKnownPower is null && c.Here is null) return c;
+            // Current-here token instructions read the source directly when
+            // resolving. Their original movement capture remains immutable.
+            if (c is null || SelectedUnitEventSpec(c)?.CreatesUnitTokenHere == true
+                || c.LastKnownPower is null && c.Here is null) return c;
             var current = CombatMightSourceLocation(result.State, id, c.SourceGeneration) is not null ? result.State
                 : CombatMightSourceLocation(before, id, c.SourceGeneration) is not null ? before : null;
             return current is null ? c : c with { LastKnownPower = c.LastKnownPower is null ? null : ResolveCurrentFieldUnitPower(current, current.CardObjects[id]),

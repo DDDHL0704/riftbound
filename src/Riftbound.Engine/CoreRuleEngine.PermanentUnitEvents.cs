@@ -41,6 +41,20 @@ public sealed partial class CoreRuleEngine
                     || item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
                         && BattlefieldLocalRules.Battlefield(state, item.Destination[12..]) is not null));
 
+    private static bool TryUnitEventTokenLocation(MatchState state, StackItemState item,
+        UnitEventAbilitySpec spec, out string? field)
+    {
+        field = null;
+        if (!spec.CreatesUnitTokenHere) return true;
+        var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);
+        if (here is null || here.Zone is not ("BASE" or "BATTLEFIELD")
+            || here.Zone == "BASE" && here.PlayerId != item.ControllerId
+            || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is null)
+            return false;
+        field = here.BattlefieldObjectId;
+        return true;
+    }
+
     private static StackResolutionResult ResolvePermanentUnitEventInstruction(MatchState state,
         StackItemState item, UnitEventAbilitySpec spec)
     {
@@ -48,16 +62,7 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state);
         if (spec.Effect == "CREATE_UNIT_TOKEN")
         {
-            string? field = null;
-            if (spec.CreatesUnitTokenHere)
-            {
-                var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);
-                if (here is null || here.Zone is not ("BASE" or "BATTLEFIELD")
-                    || here.Zone == "BASE" && here.PlayerId != item.ControllerId
-                    || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is null)
-                    return NoopStackResolutionResult(state);
-                field = here.BattlefieldObjectId;
-            }
+            if (!TryUnitEventTokenLocation(state, item, spec, out var field)) return NoopStackResolutionResult(state);
             if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
             return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), false,
                 field, instructionAllowsLocationChoice: spec.CreatesUnitTokenHere ? false : null);
