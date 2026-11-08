@@ -262,11 +262,26 @@ public sealed class OfficialHoldSequenceTests
     [Fact]
     public async Task DelayedStateRecoveryRejectsForgedAmountButAllowsSourceDeparture()
     {
-        var captured = (await Start(AddUnit(State("OGN·280/298"), "BLUE", "UNL-087/219", "F", "P1"))).State;
-        var errors = MatchRecoveryValidator.Validate(captured.RoomId, 0, [], [], new Dictionary<string,RecoveredPlayerView>(), captured, captured.Tick);
-        Assert.Empty(errors);
+        var initial = RadGearTestPosition.Put(
+            AddUnit(State("OGN·280/298"), "BLUE", "UNL-087/219", "F", "P1"),
+            "RETURN", "OGN·104/298", "P1", "HAND");
+        var game = new VenBasicFlowSpellTests.Driver(initial);
+        await game.Act("P1", new PassPriorityCommand());
+        if (game.State.TriggerQueue.Count > 1)
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["BLUE"]));
+        await game.Top();
+        var captured = game.State;
+        Assert.Contains("BLUE", captured.PlayerZones["P1"].Hand);
+        Assert.NotEmpty(captured.DelayedResourceGains);
+        Assert.Empty(ArmamentGrantedCombatTriggerTests.Errors(game, captured));
         var forged = captured with { DelayedResourceGains = captured.DelayedResourceGains.Select(g => g with { Power = 99 }).ToArray() };
-        Assert.Contains(MatchRecoveryValidator.Validate(forged.RoomId, 0, [], [], new Dictionary<string,RecoveredPlayerView>(), forged, forged.Tick), e => e.Contains("invalid captured delayed resource"));
+        Assert.Contains(ArmamentGrantedCombatTriggerTests.Errors(game, forged), e => e.Contains("invalid captured delayed resource"));
+        while (game.State.StackItems.Count > 0) await game.Top();
+        Assert.Equal(MatchPhases.Main, game.State.Phase);
+        Assert.Empty(game.State.DelayedResourceGains);
+        Assert.Equal(2, game.State.RunePools["P1"].Power);
+        await game.Replay();
     }
 
     [Fact]
@@ -308,19 +323,33 @@ public sealed class OfficialHoldSequenceTests
         var session = new MatchSession(initial, new CoreRuleEngine(), journal);
         async ValueTask<ResolutionResult> Submit(string player, GameCommand command)
         {
-            var result = await session.SubmitAsync(player, Guid.NewGuid().ToString(), command,
-                JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web)), default);
+            var intent = Guid.NewGuid().ToString();
+            var raw = JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var result = await session.SubmitAsync(player, intent, command, raw, default);
             Assert.True(result.Accepted, result.ErrorMessage);
-            Assert.Empty(MatchRecoveryValidator.Validate(result.State.RoomId, 0, [], [], new Dictionary<string,RecoveredPlayerView>(), result.State, result.State.Tick));
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            var commands = journal.Commands(); var events = journal.Events();
+            var sequence = events.Length == 0 ? 0 : events[^1].Sequence;
+            var views = result.State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p,
+                result.State.Tick, sequence, result.Snapshots[p], result.State.Tick, sequence, result.Prompts[p]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(result.State.RoomId, result.State.Tick, sequence, [], result.State);
+            var errors = MatchRecoveryValidator.Validate(result.State.RoomId, sequence, commands, events,
+                views, result.State, result.State.Tick, spectator);
+            Assert.Empty(errors);
+            var frame = new MatchRecoveryFrame(result.State.RoomId, result.State.Tick, sequence,
+                commands, events, views, errors, result.State, initial, spectator) { OpeningSeed = initial.Seed };
+            session = MatchSession.Restore(frame, new CoreRuleEngine(), journal);
+            var count = journal.Entries.Count;
+            var duplicate = await session.SubmitAsync(player, intent, command, raw, default);
+            Assert.True(duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
+            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
             var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(result.State))!;
             Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(restored));
             return result;
         }
         var result = await Submit("P1", new PassPriorityCommand());
         result = await TurnSequenceTestDriver.Complete(result, Submit);
-        var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
-        var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
+        var commands = journal.Commands(); var events = journal.Events();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, result.State, new CoreRuleEngine(), default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         if (Environment.GetEnvironmentVariable("RIFTBOUND_HOLD_EVIDENCE") is { Length: > 0 } root)
@@ -347,6 +376,12 @@ public sealed class OfficialHoldSequenceTests
     {
         public List<MatchJournalEntry> Entries { get; } = [];
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken) { Entries.Add(entry); return ValueTask.CompletedTask; }
+        public RecoveredCommand[] Commands() => Entries.Select(e => new RecoveredCommand(e.PlayerId,
+            e.ClientIntentId, e.CommandType, e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence,
+            e.CompletedEventSequence, e.Accepted, e.ErrorMessage) {
+                ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+        public RecoveredEvent[] Events() => Entries.SelectMany(e => e.Events.Select((ev, i) =>
+            new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
     }
 
     internal static MatchState AddLegend(MatchState state, string no)
