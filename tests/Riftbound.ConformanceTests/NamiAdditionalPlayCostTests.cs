@@ -82,12 +82,12 @@ public sealed class NamiAdditionalPlayCostTests
     [Fact]
     public async Task ReturningTheSourceAfterConfirmationDoesNotCancelItsPaidIndependentStun()
     {
-        var initial = RadGearTestPosition.Put(Position(), "RETURN", "SFD·135/221", "P1", "HAND");
+        var initial = RadGearTestPosition.Put(Position(), "RETURN", "OGN·104/298", "P1", "HAND");
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
         await ConfirmEnemy(game);
         var id = Assert.Single(game.State.StackItems).StackItemId;
-        await game.Act("P1", new PlayCardCommand("RETURN", "SFD·135/221", ["UNIT"]));
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"]));
         await game.Top();
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
         Assert.Equal(id, Assert.Single(game.State.StackItems).StackItemId);
@@ -116,6 +116,18 @@ public sealed class NamiAdditionalPlayCostTests
         Assert.Empty(ValidateOriginalHistory(game, game.State));
         Assert.NotEmpty(ValidateOriginalHistory(game, game.State with { StackItems = [forged] }));
         Assert.Equal(history, MatchStateHasher.HashValue(new { commands = game.Commands(), events = game.Events() }));
+    }
+
+    [Fact]
+    public async Task RecoveryCannotSilentlyEraseTheStillPendingPaidSkill()
+    {
+        var game = new Driver(Position());
+        await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
+        await ConfirmEnemy(game);
+        var forged = game.State with { StackItems = [], PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [], TimingState = TimingStates.NeutralOpen };
+        Assert.Contains(ValidateOriginalHistory(game, forged),
+            error => error == "pending paid permanent play skills differ from original accepted capture and retirement history");
     }
 
     [Fact]
