@@ -143,6 +143,10 @@ public sealed partial class CoreRuleEngine
                 || OpponentWithinWinningScoreDistance(current, o.Controller,
                     UnitEventSpec(o.Context.CardNo)!.RequiredOpponentVictoryDistance)).ToArray();
         }
+        // CN185.1 / 420.4: a copied Image remains a token. Mutable face tags
+        // cannot establish or remove that intrinsic token origin.
+        observations = observations.Where(o => !UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitToken
+            || TokenObjectRules.IsToken(entered)).ToArray();
         observations = CapturePlayedUnitRunes(ev, zones, cards, entered, player, turnEffects, observations);
         observations = CaptureConditionalSourcePlayDestination(entered.ObjectId, destinationZone, observations);
         return WithUnitEvents(ev, observations);
@@ -451,6 +455,10 @@ public sealed partial class CoreRuleEngine
                     && ResolveCurrentFieldUnitPower(state, c) <= UnitEventSpec(item.UnitEvent.CardNo)!.Amount,
                 _ => false
             })
+            && (!SelectedUnitEventSpec(item.UnitEvent!)!.TargetsAnotherFriendlyHere
+                || c.ObjectId != item.SourceObjectId
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
+                    && UnitEventTargetIsHere(state, item, c.ObjectId))
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
     private static PendingCardChoiceState UnitEventChoice(MatchState state, StackItemState item)
@@ -583,6 +591,18 @@ public sealed partial class CoreRuleEngine
             var behavior = new CardBehaviorDefinition(context.CardNo, "触发技能给予战力加成", 0, item.EffectKind, 0, 1, PowerModifierAmount: spec.Amount);
             cards[buffed] = ApplyPowerModifier(state, cards[buffed], behavior, item, buffed, spec.Amount, out var power);
             events.Add(power);
+            if (spec.GrantedCombatKeyword is { } keyword)
+            {
+                var definition = TemporaryCombatKeywordRules.Prefix + keyword;
+                var effect = TemporaryCombatKeywordRules.AppliedEffectId(cards[buffed], definition);
+                if (!TemporaryCombatKeywordRules.IsValid(effect))
+                    throw new InvalidOperationException("Invalid triggered combat keyword grant.");
+                cards[buffed] = cards[buffed] with {
+                    UntilEndOfTurnEffects = [..cards[buffed].UntilEndOfTurnEffects, effect] };
+                events.Add(new("UNIT_STATUS_APPLIED", "触发技能给予本回合战斗关键词", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = buffed,
+                    ["statusEffectId"] = effect }));
+            }
         }
         if (spec.Effect == "BANISH_ENTERED_EQUIPMENT" && item.TriggerCost?.SourceWasBanished == true
             && context.Other is { } entered && cards.TryGetValue(entered.Binding.ObjectId, out var equipment)
