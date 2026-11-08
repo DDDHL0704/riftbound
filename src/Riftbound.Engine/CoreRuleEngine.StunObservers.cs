@@ -42,6 +42,8 @@ public sealed partial class CoreRuleEngine
         IReadOnlyDictionary<string, ObjectLocationState> locations)
     {
         var actor = cause.ControllerId;
+        ev = ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
+            ["stunningPlayerId"] = actor } };
         if (!cards.TryGetValue(targetId, out var target) || !IsEnemyFieldUnit(zones, cards, actor, targetId)
             || target.CardNo is not { Length: > 0 } targetCard) return ev;
         var observed = new ObjectBinding(targetId, target.ObjectGeneration);

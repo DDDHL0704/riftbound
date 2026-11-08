@@ -48,7 +48,7 @@ public static partial class MatchRecoveryValidator
                     && ev.Sequence < queued[0].Sequence && ev.Event.Kind == "STATUS_EFFECT_APPLIED"
                     && TryReadObjectString(ev.Event.Payload, "targetObjectId", out var target) && target == origin.Stunned.ObjectId
                     && TryReadObjectString(ev.Event.Payload, "effectId", out var status) && status == "STUNNED"
-                    && TryReadObjectString(ev.Event.Payload, "playerId", out var actor) && actor == entry.Controller)))
+                    && TryReadObjectString(ev.Event.Payload, "stunningPlayerId", out var actor) && actor == entry.Controller)))
                 errors.Add("stun source movement is not bound to accepted stun history");
             if (origin.CeasedSource is { } ceased && !events.Any(ev => ev.Tick == ceased.Tick
                 && ev.Event.Kind == "TOKEN_CEASED_TO_EXIST"
