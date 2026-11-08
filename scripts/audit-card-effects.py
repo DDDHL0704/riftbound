@@ -1911,7 +1911,7 @@ def last_breath_recycle_runes_route(card: dict, clause: dict, sources: Sources) 
             "state.StackItems.FirstOrDefault(NeedsTriggerConfirmation)",
             "if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)"]),
         ("CoreRuleEngine.TriggerCosts.cs", "PrepareTriggerCostConfirmation", [
-            "TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyOtherFriendlyPermanents)",
+            "TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyPermanents)",
             "return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item))",
             "PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null"]),
         ("CoreRuleEngine.TriggerCosts.cs", "LeadingTriggerCost", [

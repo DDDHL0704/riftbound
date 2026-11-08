@@ -137,7 +137,7 @@ class LastBreathRecycleRunesAuditTests(unittest.TestCase):
             ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerCostConfirmation(i)"),
             ("CoreRuleEngine.FieldTriggers.cs", "state.StackItems.FirstOrDefault(NeedsTriggerConfirmation)"),
             ("CoreRuleEngine.FieldTriggers.cs", "if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item)"),
-            ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyOtherFriendlyPermanents)"),
+            ("CoreRuleEngine.TriggerCosts.cs", "TriggerCostChoices(state, item).Length < Math.Max(1, cost.DestroyPermanents)"),
             ("CoreRuleEngine.TriggerCosts.cs", "return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item))"),
             ("CoreRuleEngine.TriggerCosts.cs", "PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null"),
             ("CoreRuleEngine.cs", "if (pendingChoice.ChoiceWindow is TriggerCostWindow or OptionalTriggerWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds)"),
