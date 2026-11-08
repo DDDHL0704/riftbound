@@ -72,10 +72,86 @@ public sealed class NamiAdditionalPlayCostTests
     {
         var initial = RadGearTestPosition.Put(Position(), "ENEMY", "OGN·219/298", "P2", "HAND");
         var game = new Driver(initial);
+        Assert.Contains($"SPEND_POWER:{RuneTrait.Green}:1", JsonSerializer.Serialize(game.PromptFor("P1")));
         await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
         Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice);
         Assert.Equal(30 - PrintedPowerCostRules.ForCard(Nami).Amount - 1, game.State.RunePools["P1"].TotalPower);
+        await game.Replay();
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task WardPaymentIsSeparateFromTheAlreadyPaidExtraGreenAndKeepsItsOriginalReceipt(bool pay)
+    {
+        var initial = RadGearTestPosition.Put(Position(), "ENEMY", "UNL-171/219", "P2", "BASE");
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P1"] = new(30, PrintedPowerCostRules.ForCard(Nami).Amount + 1) } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+        await ConfirmEnemy(game);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal(CoreRuleEngine.TriggerTargetCostWindow, payment.PaymentWindow);
+        Assert.Equal(1, payment.PowerCost);
+        if (pay) await game.Act("P1", new RecycleRuneCommand("PAYMENT-RUNE"));
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
+        if (pay) await game.Top();
+        Assert.Equal(pay, game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects.Contains("STUNNED"));
+        Assert.Empty(game.State.StackItems);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnActualLinkedEquipmentPlayWaivesBaseCostsButStillPaysTheAdditionalGreen()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "GEAR", "SFD·090/221", "P1", "BASE");
+        initial = RadGearTestPosition.Put(initial, "KILL", "OGN·229/298", "P1", "HAND");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", Nami, []));
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "UNIT", ["ASSEMBLE_BLUE"]));
+        await game.Top();
+        await game.Act("P1", new PlayCardCommand("KILL", "OGN·229/298", ["UNIT"]));
+        await game.Top(); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Banished);
+        await game.Act("P1", new ActivateAbilityCommand("GEAR", "BANISH_SELF_PLAY_ALL_LINKED_UNITS", []));
+        await game.Top();
+        Assert.NotNull(game.State.PendingEffectPlay);
+        var pool = game.State.RunePools["P1"];
+        await game.Act("P1", new PlayCardCommand("UNIT", Nami, [], OptionalCosts: [Fee]));
+        Assert.Equal(pool.Mana, game.State.RunePools["P1"].Mana);
+        Assert.Equal(pool.TotalPower - 1, game.State.RunePools["P1"].TotalPower);
+        await ConfirmEnemy(game);
+        await game.Top();
+        Assert.Contains("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        for (var remaining = 0; game.State.StackItems.Count > 0; remaining++)
+        {
+            Assert.True(remaining < 2);
+            await game.Top();
+        }
+        Assert.Null(game.State.PendingEffectPlay);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ARealImageCopiesNamiAfterEntryWithoutRetroactivelyPayingOrTriggeringHerPlayAbility()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "ENEMY", Nami, "P2", "BATTLEFIELD", "OTHER");
+        initial = RadGearTestPosition.Put(initial, "COPY", "UNL-200/219", "P1", "HAND");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["ENEMY"]));
+        var pool = MatchStateHasher.HashValue(game.State.RunePools);
+        await game.Top();
+        Assert.NotNull(Assert.Single(game.State.StackItems).ReflexiveCopy);
+        await game.Top();
+        var image = Assert.Single(game.State.CardObjects.Values,
+            card => card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo);
+        Assert.Equal(Nami, image.CardNo);
+        Assert.False(image.IsExhausted);
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice);
+        Assert.Equal(pool, MatchStateHasher.HashValue(game.State.RunePools));
+        Assert.DoesNotContain("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == CoreRuleEngine.PaidPermanentPlayCaptured);
         await game.Replay();
     }
 

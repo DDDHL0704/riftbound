@@ -51,7 +51,7 @@ public sealed partial class CoreRuleEngine
             if (events.Any(ev => ev.Kind == kind && Equals(ev.Payload.GetValueOrDefault(PaidPermanentPlaySkillKey), key))) return;
             var payload = new Dictionary<string, object?> { [PaidPermanentPlaySkillKey] = key };
             if (kind == PaidPermanentPlayCaptured) payload[PaidPermanentPlayChoicesKey] = PaidPermanentPlayChoicesHash(item);
-            events.Add(new(kind, kind == PaidPermanentPlayCaptured ? "已确认出场技能" : "出场技能结束", payload));
+            events.Add(new(kind, kind == PaidPermanentPlayCaptured ? "出场技能触发" : "出场技能结束", payload));
         }
         foreach (var item in current.Values.Where(item => !prior.ContainsKey(item.StackItemId)))
             Record(PaidPermanentPlayCaptured, item);
