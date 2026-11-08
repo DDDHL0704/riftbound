@@ -1467,6 +1467,88 @@ def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict 
         if exact else result("missing", "缺少精确的来源战斗条件、友敌双方费用规格或实际共享报价／付款消费者", paths)
 
 
+def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize('当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。')
+    if normalize(unparenthesize(clause['text'])) != sentence:
+        return None
+    profiles = card.get('behaviors', [])
+    expected = dict(timing='ATTACK', effect='MOVE_FRIENDLY_UNIT_TOKENS_HERE',
+                    optional=True, anyNumberOfTargets=True)
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == sentence \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 1
+    if exact:
+        profile = profiles[0]; spec = profile.get('unitEventAbility')
+        exact = profile.get('playsSourceToBaseAsUnit') is True and isinstance(spec, dict) \
+            and inventory_contains(spec, expected) \
+            and type(spec.get('amount', 0)) is int and spec.get('amount', 0) == 0 \
+            and not any(meaningful(value) for key, value in spec.items() if key not in expected)
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b'
+                          + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]; offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+    targets = member('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets')
+    # Bind filters to this case. An unrelated enemy/friendly case or unused
+    # method containing the expected token cannot certify this effect's scope.
+    branch = re.search(r'FriendlyUnitTokensMoveHere\s*=>(.*?)\n\s*"MOVE_ENEMY_HERE"\s*=>', targets, re.S)
+    filters = ['IsFaceUpNonStandbyUnit(c)', 'IsTokenObject(c)',
+               'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId',
+               'UnitEventHereDestination(state, item)', 'IsUnitMovementDestination(state, c.ObjectId, tokenDestination)',
+               'MovementRestrictionRules.CanMove(c, item.ControllerId)']
+    exact = exact and branch is not None and all(token in branch[1] for token in filters)
+    exact = exact and 'internal const string FriendlyUnitTokensMoveHere = \"MOVE_FRIENDLY_UNIT_TOKENS_HERE\";' in sources.files.get(prefix + 'CoreRuleEngine.TokenUnitMovement.cs', '')
+    checks = [
+        ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['if (stackItem.UnitEvent is not null) return ResolveUnitEvent(state, stackItem)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', ['ResolveUnitEventInstruction(state, item)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', ['IsObjectOnField(zones, id)',
+            'AttachedRuleTextRules.Instances(zones, cards, card)', 'UnitEventTimingMatches(spec.Timing, timing)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureAttackUnitEvents', [
+            'CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")', 'UnitEventTrigger(']),
+        ('CoreRuleEngine.BattleStartRoles.cs', 'RecordBattleDuelRoles', [
+            'CaptureFirstBattleRoles(', 'CaptureAttackUnitEvents(state, firstAttackers,', '.Select(BuildTriggerQueuedEvent)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['FriendlyUnitTokensMoveHere']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+            'UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1',
+            'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
+            'AnyNumberOfTargets || item.TargetObjectIds.Count == 1',
+            'item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count',
+            'item.TargetGenerations.Count == item.TargetObjectIds.Count']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'FriendlyUnitTokensMoveHere', 'return ResolvePermanentUnitEventInstruction(state, item, spec)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'ResolvePermanentUnitEventInstruction', [
+            'if (spec.Effect == FriendlyUnitTokensMoveHere)', 'return ResolveFriendlyUnitTokenMovement(state, item)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'UnitEventHereDestination', [
+            'CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)',
+            'Zone: "BATTLEFIELD"']),
+        ('CoreRuleEngine.CombatMight.cs', 'CombatMightSourceLocation', [
+            'source.ObjectGeneration == generation', 'IsObjectOnField(state.PlayerZones, sourceId)',
+            'state.ObjectLocations.TryGetValue(sourceId, out var location)']),
+        ('CoreRuleEngine.TokenUnitMovement.cs', 'ResolveFriendlyUnitTokenMovement', [
+            'var destination = UnitEventHereDestination(state, item)', 'if (destination is null)',
+            'UnitEventTargets(state, item).ToHashSet(StringComparer.Ordinal)',
+            'StackObjectRules.ReferencesCurrentObject(state, item, id)',
+            'if (selected.Length == 0)', 'MoveFieldUnitsToChosenLocation(', 'item, selected, destination, events)',
+            'ObjectLocations = ReconcileObjectLocations(locations, zones)', 'RunePools = pools']),
+        ('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation', [
+            'cards[id].ObjectGeneration, cards[id].ControllerId', 'MovementTargetIsCurrent(current, item, id)',
+            'PayImposedMovementCost(', 'CurrentMovers, events)', 'CaptureMovementBatchObservers(',
+            'MoveAttachedEquipmentWithHost(', '["simultaneousSourceObjectIds"] = movable']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', ['TargetGenerations = selected.ToDictionary']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+                          for filename, name, tokens in checks)
+    return result('route' if exact else 'missing',
+        '进攻时独立确认任意数量友方单位指示物；结算重查原代际来源的当前位置与各目标，再按一批执行移动、装备跟随及施加费用'
+        if exact else '缺少进攻触发、任意数量友方单位指示物范围、结算时当前来源位置，或共享批量移动与原代际确认消费者',
+        sorted({prefix + filename for filename, _, _ in checks}))
+
+
 def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     if text != normalize("当你{{眩晕}}战场上的一名敌方单位时，你可以选择将我移动到该战场。"):
@@ -2380,6 +2462,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return conditional
     if standby_unit := standby_unit_observer_route(card, clause, sources):
         return standby_unit
+    if token_movement := friendly_token_attack_movement_route(card, clause, sources):
+        return token_movement
     if stun_movement := stun_source_movement_route(card, clause, sources):
         return stun_movement
     if combat_cost := combat_spell_cost_route(card, clause, sources):

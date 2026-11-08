@@ -3531,7 +3531,9 @@ public static class CardBehaviorRegistry
             SourceUnitTags: "鸟类|急速",
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
-            HasteReadyPowerTrait: RuneTrait.Yellow),
+            HasteReadyPowerTrait: RuneTrait.Yellow,
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.FriendlyUnitTokensMoveHere,
+                Optional: true, AnyNumberOfTargets: true)),
         new(
             "SFD·177a/221",
             "阿兹尔",
@@ -3544,7 +3546,9 @@ public static class CardBehaviorRegistry
             SourceUnitTags: "鸟类|急速",
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
-            HasteReadyPowerTrait: RuneTrait.Yellow),
+            HasteReadyPowerTrait: RuneTrait.Yellow,
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.FriendlyUnitTokensMoveHere,
+                Optional: true, AnyNumberOfTargets: true)),
         new(
             "UNL-127/219",
             "树根先生",
