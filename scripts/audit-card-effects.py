@@ -1398,6 +1398,74 @@ def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> d
                   if exact else "缺少精确的待命行动监听规格、独立结算、目标付款或原始历史核验消费者", paths)
 
 
+def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    match = re.fullmatch(r"如果我处于战斗中则所有友方法术的费用减少\{\{([1-9][0-9]*)\}\}和\{\{A\}\}不得低于\{\{([0-9]+)\}\}而所有敌方法术的费用增加\{\{([1-9][0-9]*)\}\}和\{\{A\}\}", text)
+    if not match:
+        return None
+    expected = dict(friendlyManaReduction=int(match[1]), friendlyGenericPowerReduction=1,
+                    minimumFriendlyMana=int(match[2]), enemyManaIncrease=int(match[3]), enemyGenericPowerIncrease=1)
+    behaviors = card.get("behaviors", [])
+    spec = behaviors[0].get("combatSpellCostAdjustment") if len(behaviors) == 1 else None
+    exact = clause["kind"] == "static" and normalize(unparenthesize(clause["scope"])) == text \
+        and card.get("cardCategory") in {"unit", "hero_unit"} and len(behaviors) == 1 \
+        and behaviors[0].get("playsSourceToBaseAsUnit") is True and spec == expected \
+        and all(type(value) is int for value in (spec or {}).values())
+    prefix = "src/Riftbound.Engine/"
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, "")
+        start = re.search(r"(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b" + re.escape(name) + r"\s*\(", code)
+        if not start:
+            return ""
+        tail = code[start.end():]
+        end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+        return code[start.start():start.end()] + (tail[:end.start()] if end else tail)
+
+    checks = [
+        ("CoreRuleEngine.CombatSpellCosts.cs", "IsSpellCostSourceInBattle", [
+            "IsFaceUpNonStandbyUnit(source)", "IsEstablishedBattleDuelParticipant(state, source.ObjectId)",
+            "battle.IsActive", "battle.AttackerObjectIds.Contains(source.ObjectId)",
+            "battle.DefenderObjectIds.Contains(source.ObjectId)",
+            "IsObjectLocatedAtBattlefield(state.PlayerZones, state.ObjectLocations, source.ObjectId, battlefield)"]),
+        ("CoreRuleEngine.CombatSpellCosts.cs", "CombatSpellCostSources", [
+            "PublicStaticAuraSourceObjectIds(state.PlayerZones)", "!IsSpellCostSourceInBattle(state, source)",
+            "EffectiveFieldControllerId(state.PlayerZones, id, source)", "AttachedRuleTextRules.Instances(state, source)",
+            "behavior.CombatSpellCostAdjustment is { } spec", "yield return (controller, spec)"]),
+        ("CoreRuleEngine.CombatSpellCosts.cs", "FriendlyCombatSpellCostReducers", [
+            "!IsSpellPlayBehavior(behavior)", "EffectPlayIgnoresAllCosts(state, player)",
+            "CombatSpellCostSources(state).Where(source => source.Controller == player)"]),
+        ("CoreRuleEngine.ConditionalPlayCosts.cs", "OpponentSpellCostIncreases", [
+            "!IsSpellPlayBehavior(behavior)", "EffectPlayIgnoresAllCosts(state, player)",
+            "CombatSpellCostSources(state).Where(source => source.Controller != player)",
+            "mana + source.Spec.EnemyManaIncrease", "power + source.Spec.EnemyGenericPowerIncrease"]),
+        ("CoreRuleEngine.PlayManaCost.cs", "CalculatePlayManaCost", [
+            "OpponentSpellCostIncreases(state, playerId, behavior).Mana", "FriendlyCombatSpellCostReducers(state, playerId, behavior)",
+            'source.FriendlyManaReduction, source.MinimumFriendlyMana', 'OrderByDescending(item => item.Floor)',
+            'total - Math.Max(0, reduction.Floor)', 'applied.GetValueOrDefault("combatSpell")']),
+        ("CoreRuleEngine.EmpoweredSpellCosts.cs", "SpellPlayPowerOptions", [
+            "FriendlyCombatSpellCostReducers(state, player, behavior).Sum(source => source.FriendlyGenericPowerReduction)",
+            "OpponentSpellCostIncreases(state, player, behavior).Power", "ReduceSpellPower(a.GenericPower,"]),
+        ("CoreRuleEngine.cs", "TryBuildPlayCardPlan", [
+            "CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,", "SpellPlayPowerOptions(state, intent.PlayerId, behavior,",
+            "CombatSpellCostReductionMana = manaCost.CombatSpellReduction", "CombatSpellCostReductionPower = combatSpellPowerReduction",
+            "PaymentCostRules.AuthorizePayment("]),
+        ("CoreRuleEngine.cs", "ResolvePlayCard", ["PaymentCostRules.TryCommitPayment(", '["mana"] = plan.TotalManaCost']),
+        ("CoreRuleEngine.PlayCostPreview.cs", "PreviewPlayCard", [
+            "TryBuildPlayCardPlan(state,", '-plan.CombatSpellCostReductionMana, -plan.CombatSpellCostReductionPower',
+            "plan.OpponentSpellCostIncreaseMana, plan.OpponentSpellCostIncreasePower"]),
+        ("MatchSession.cs", "PlayCardSourceRequirement", [
+            "CoreRuleEngine.MinimumPlayManaCost(state, playerId, behavior, sourceObjectId)",
+            "CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior)",
+            'requirement["combatSpellCostReductionMana"] = manaCost.CombatSpellReduction']),
+        ("CoreRuleEngine.PlayManaCost.cs", "MinimumPlayManaCost", ["CalculatePlayManaCost(state, playerId, behavior,"]),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result("route", "按当前来源战斗身份、控制者与复制文本重算双方的共享法术总费用；增费先于减费，保留各减费的法力下限与符能分配", paths) \
+        if exact else result("missing", "缺少精确的来源战斗条件、友敌双方费用规格或实际共享报价／付款消费者", paths)
+
+
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
@@ -1957,6 +2025,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return conditional
     if standby_unit := standby_unit_observer_route(card, clause, sources):
         return standby_unit
+    if combat_cost := combat_spell_cost_route(card, clause, sources):
+        return combat_cost
     if spell_mana_cost := confirmed_spell_mana_alternative_route(card, clause, sources):
         return spell_mana_cost
     if grant := another_friendly_here_grant_route(card, clause, sources):

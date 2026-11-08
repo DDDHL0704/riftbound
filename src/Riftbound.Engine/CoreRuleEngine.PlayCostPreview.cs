@@ -87,9 +87,11 @@ public sealed partial class CoreRuleEngine
         Adjust("回响部分减费", -plan.BattlefieldEchoCostReductionMana);
         Adjust("装备减费", -plan.BattlefieldEquipmentCostReductionMana);
         Adjust("单位静态减费", -plan.DragonUnitCostReductionMana);
-        Adjust("下次法术减费", -plan.NextSpellCostReductionMana);
+        Adjust("下次法术减费", -plan.NextSpellCostReductionMana, -plan.NextSpellCostReductionPower);
+        Adjust("下次单位减费", -plan.TimeAssassinCostReductionMana, -plan.TimeAssassinCostReductionPower);
         Adjust("战场法术减费", -plan.BattlefieldSpellCostReductionMana);
         Adjust("已强化法术减费", -plan.EmpoweredSpellCostReductionMana, -plan.EmpoweredSpellCostReductionPower);
+        Adjust("战斗中单位法术减费", -plan.CombatSpellCostReductionMana, -plan.CombatSpellCostReductionPower);
         Adjust("可选打出减费", -plan.OptionalPlayCostReductionMana, -plan.OptionalPlayCostReductionPower);
         Adjust("战场增费", plan.BattlefieldHeldUnitCostIncreaseMana);
         Adjust("对手法术增费", plan.OpponentSpellCostIncreaseMana, plan.OpponentSpellCostIncreasePower);
