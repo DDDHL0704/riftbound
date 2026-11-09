@@ -23,6 +23,8 @@ public sealed partial class CoreRuleEngine
             : MatchStateHasher.HashValue(new { observation, context.SourcePlayCondition });
         if (context.SourceConqueredBeforeEnd is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.SourceConqueredBeforeEnd });
+        if (context.PaidLegendPlayCost is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.PaidLegendPlayCost });
         return context.TriggeringBattlefield is null && context.DelayedReceipt is null ? capture
             : MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
     }

@@ -458,21 +458,100 @@
       ],
       "text": "你可以选择让你的传奇卡牌进入休眠状态，作为打出我的额外费用。",
       "scope": "你可以选择让你的传奇卡牌进入休眠状态，作为打出我的额外费用。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少可选横置传奇额外费用、该费用凭据及打出后任意己方单位向同一开放战场移动",
+      "status": "route",
+      "reason": "共享流程可选支付己方活跃传奇休眠费用并保存实际付款凭据；独立入场技能确认任意友方单位及开放战场，响应后按原代际执行集体移动与施加费用，核对原始付款、目标、目的地及结束记录",
       "runtime": {
-        "staticAuras": []
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "mayExhaustLegendAdditionalCost": true,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "MOVE_FRIENDLY_GROUP_TO_OPEN_BATTLEFIELD",
+              "optional": true,
+              "anyNumberOfTargets": true,
+              "requiresSourcePlayLegendCost": true,
+              "preservesMovementCapture": true
+            }
+          }
+        ],
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "MOVE_FRIENDLY_GROUP_TO_OPEN_BATTLEFIELD",
+          "optional": true,
+          "anyNumberOfTargets": true,
+          "requiresSourcePlayLegendCost": true,
+          "preservesMovementCapture": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendPlayCosts.cs",
           "contains": [
-            "\"SFD_BARD_NO_OPTIONAL_LEGEND_PLAY_UNIT\""
+            "CanExhaustLegendForPlay",
+            "SourcePaidLegendPlayCost",
+            "ValidPaidLegendPlayCondition",
+            "ResolveFriendlyGroupToOpenBattlefield",
+            "!IsOpenBattlefield(state, field.ObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "new LegendPlayCostReceipt(stackItem.StackItemId",
+            "\"LEGEND_PLAY_ADDITIONAL_COST_PAID\"",
+            "exhaustedOptionalCostTargetObjectIds.Append(target)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourcePlayConditions.cs",
+          "contains": [
+            "SourcePaidLegendPlayCost(entered, player) is not null",
+            "PaidLegendPlayCost ="
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "OpenBattlefieldDestinations(state, item.ControllerId)",
+            "UnitEventMovementBattlefield = group"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.LegendPlayCosts.cs",
+          "contains": [
+            "command.Accepted",
+            "hash == MatchStateHasher.HashValue(receipt)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventMovement.cs",
+          "contains": [
+            "original != CoreRuleEngine.DeclaredUnitEventMovementHash(item)"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心204.2、356–357、383.4.a.2、447 移动；巴德·幻神官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BardLegendPaidGroupMovementTests.cs",
+          "methods": [
+            "AnActualPaidPlayEntersBeforeAnIndependentGroupAndDestinationAreConfirmed",
+            "DecliningTheOptionalCostDoesNotProduceAMovementSkillOrExhaustTheLegend",
+            "ChoosingNoUnitsDeclinesWithoutOpeningAPhantomDestination",
+            "InvalidLegendFeesRejectWithoutPayingAnyResourcesOrMovingTheHandCard",
+            "AResourceActionCannotAlsoSupplyTheSameLegendAsAnAdditionalFee",
+            "OnlyCurrentlyEmptyAndUncontrolledFieldsAreOfferedAfterTheEntryCleanup",
+            "ReturningThePaidSourceCannotCancelMovementOfOtherConfirmedUnits",
+            "AResponseOccupyingTheChosenOpenFieldMakesTheMovementInstructionInapplicable",
+            "PayingTheLegendFeeDoesNotGrantAnOpenBattlefieldEntryPermissionToTheUnitItself",
+            "OriginalAcceptedPaymentTargetsAndDestinationCannotBeRewrittenTogether",
+            "TheGroupUsesOneSharedImposedMovementPaymentAndCanDeclineIt",
+            "TheSharedGroupMoveCarriesASelectedUnitsAttachedEquipment",
+            "WithNoOpenBattlefieldThePaidEntryHasNoTargetOrDestinationPrompt"
+          ]
+        }
+      ],
+      "rules": "官方中文SFD·079／228／228*巴德·幻神牌面；核心170.11.c、323.5、355.4–355.5、356.2.b、356.5、357、383.2.a.1、383.3、403–407、447。可选费用按实际支付捕获；开放须无人占领且无人控制；空战场可能先在清理中失去控制。"
     },
     {
       "cardNos": [
@@ -482,21 +561,100 @@
       ],
       "text": "当你打出我时，如果你支付了该额外费用，则可以将你任意数量的单位移动到一处开放的战场。",
       "scope": "当你打出我时，如果你支付了该额外费用，则可以将你任意数量的单位移动到一处开放的战场。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少可选横置传奇额外费用、该费用凭据及打出后任意己方单位向同一开放战场移动",
+      "status": "route",
+      "reason": "共享流程可选支付己方活跃传奇休眠费用并保存实际付款凭据；独立入场技能确认任意友方单位及开放战场，响应后按原代际执行集体移动与施加费用，核对原始付款、目标、目的地及结束记录",
       "runtime": {
-        "staticAuras": []
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "mayExhaustLegendAdditionalCost": true,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "MOVE_FRIENDLY_GROUP_TO_OPEN_BATTLEFIELD",
+              "optional": true,
+              "anyNumberOfTargets": true,
+              "requiresSourcePlayLegendCost": true,
+              "preservesMovementCapture": true
+            }
+          }
+        ],
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "MOVE_FRIENDLY_GROUP_TO_OPEN_BATTLEFIELD",
+          "optional": true,
+          "anyNumberOfTargets": true,
+          "requiresSourcePlayLegendCost": true,
+          "preservesMovementCapture": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendPlayCosts.cs",
           "contains": [
-            "\"SFD_BARD_NO_OPTIONAL_LEGEND_PLAY_UNIT\""
+            "CanExhaustLegendForPlay",
+            "SourcePaidLegendPlayCost",
+            "ValidPaidLegendPlayCondition",
+            "ResolveFriendlyGroupToOpenBattlefield",
+            "!IsOpenBattlefield(state, field.ObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "new LegendPlayCostReceipt(stackItem.StackItemId",
+            "\"LEGEND_PLAY_ADDITIONAL_COST_PAID\"",
+            "exhaustedOptionalCostTargetObjectIds.Append(target)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourcePlayConditions.cs",
+          "contains": [
+            "SourcePaidLegendPlayCost(entered, player) is not null",
+            "PaidLegendPlayCost ="
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "OpenBattlefieldDestinations(state, item.ControllerId)",
+            "UnitEventMovementBattlefield = group"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.LegendPlayCosts.cs",
+          "contains": [
+            "command.Accepted",
+            "hash == MatchStateHasher.HashValue(receipt)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventMovement.cs",
+          "contains": [
+            "original != CoreRuleEngine.DeclaredUnitEventMovementHash(item)"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心204.2、356–357、383.4.a.2、447 移动；巴德·幻神官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BardLegendPaidGroupMovementTests.cs",
+          "methods": [
+            "AnActualPaidPlayEntersBeforeAnIndependentGroupAndDestinationAreConfirmed",
+            "DecliningTheOptionalCostDoesNotProduceAMovementSkillOrExhaustTheLegend",
+            "ChoosingNoUnitsDeclinesWithoutOpeningAPhantomDestination",
+            "InvalidLegendFeesRejectWithoutPayingAnyResourcesOrMovingTheHandCard",
+            "AResourceActionCannotAlsoSupplyTheSameLegendAsAnAdditionalFee",
+            "OnlyCurrentlyEmptyAndUncontrolledFieldsAreOfferedAfterTheEntryCleanup",
+            "ReturningThePaidSourceCannotCancelMovementOfOtherConfirmedUnits",
+            "AResponseOccupyingTheChosenOpenFieldMakesTheMovementInstructionInapplicable",
+            "PayingTheLegendFeeDoesNotGrantAnOpenBattlefieldEntryPermissionToTheUnitItself",
+            "OriginalAcceptedPaymentTargetsAndDestinationCannotBeRewrittenTogether",
+            "TheGroupUsesOneSharedImposedMovementPaymentAndCanDeclineIt",
+            "TheSharedGroupMoveCarriesASelectedUnitsAttachedEquipment",
+            "WithNoOpenBattlefieldThePaidEntryHasNoTargetOrDestinationPrompt"
+          ]
+        }
+      ],
+      "rules": "官方中文SFD·079／228／228*巴德·幻神牌面；核心170.11.c、323.5、355.4–355.5、356.2.b、356.5、357、383.2.a.1、383.3、403–407、447。可选费用按实际支付捕获；开放须无人占领且无人控制；空战场可能先在清理中失去控制。"
     },
     {
       "cardNos": [

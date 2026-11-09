@@ -2993,6 +2993,124 @@ def held_next_unit_ready_boon_route(card: dict, clause: dict, sources: Sources) 
         sorted({prefix + filename for filename, _, _ in checks}))
 
 
+def paid_legend_group_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    fee = normalize('你可以选择让你的传奇卡牌进入休眠状态，作为打出我的额外费用。')
+    move = normalize('当你打出我时，如果你支付了该额外费用，则可以将你任意数量的单位移动到一处开放的战场。')
+    text = normalize(unparenthesize(clause['text']))
+    if text not in {fee, move}:
+        return None
+    profiles = card.get('behaviors') or []
+    exact = clause['kind'] == ('rule' if text == fee else 'trigger') \
+        and normalize(unparenthesize(clause['scope'])) == text \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 1
+    if exact:
+        profile = profiles[0]
+        exact = profile.get('playsSourceToBaseAsUnit') is True \
+            and profile.get('mayExhaustLegendAdditionalCost') is True
+    prefix = 'src/Riftbound.Engine/'
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b'
+                          + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]
+        offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+
+    checks = [
+        ('CoreRuleEngine.LegendPlayCosts.cs', 'CanExhaustLegendForPlay', [
+            'zones.LegendZone.Contains(id)', 'at.PlayerId == player', 'at.Zone == "LEGEND"',
+            '!legend.IsFaceDown', '!legend.IsExhausted', 'SourceObjectControlledByPlayerOrLegacyOwned(legend, player)']),
+        ('CoreRuleEngine.LegendPlayCosts.cs', 'OptionalLegendPlayCostChoices', [
+            'behavior.MayExhaustLegendAdditionalCost', 'EffectPlayIgnoresAllCosts(state, player)',
+            'CanExhaustLegendForPlay(state, player, id)']),
+        ('CoreRuleEngine.cs', 'TryBuildOptionalCostPlan', [
+            'behavior.MayExhaustLegendAdditionalCost', 'selected.Length != 1',
+            'CanExhaustLegendForPlay(state, playerId, target)',
+            'behavior with { MayExhaustLegendAdditionalCost = false }',
+            'exhaustedOptionalCostTargetObjectIds.Append(target)']),
+        ('CoreRuleEngine.cs', 'TryBuildPlayCardPlan', [
+            'optionalCosts.Contains(ExhaustLegendPlayCostPrefix + targetObjectId',
+            'CanExhaustLegendForPlay(state, intent.PlayerId, targetObjectId)',
+            'reductionExhaustedObjects.Intersect(exhaustedOptionalCostTargetObjectIds',
+            'exhaustedOptionalCostTargetObjectIds = []']),
+        ('CoreRuleEngine.cs', 'ResolvePlayCard', [
+            'TryApplyOrderedPaymentResources(', 'CanExhaustLegendForPlay(state with { CardObjects = cardObjects',
+            'new LegendPlayCostReceipt(stackItem.StackItemId',
+            'stackItem = stackItem with { LegendPlayCost = receipt }',
+            '"LEGEND_PLAY_ADDITIONAL_COST_PAID"', 'MatchStateHasher.HashValue(receipt)',
+            'item.StackItemId == stackItem.StackItemId ? stackItem : item',
+            'ConfirmPlayedPermanent(state, nextState, intent, events)']),
+        ('MatchSession.cs', 'PlayCardOptionalCostChoicesForBehavior', [
+            'CoreRuleEngine.OptionalLegendPlayCostChoices(state, playerId, behavior)']),
+        ('MatchRecovery.LegendPlayCosts.cs', 'ValidateLegendPlayCostHistory', [
+            'command.Accepted', 'command.PlayerId == receipt.PlayerId',
+            'command.CompletedTick == matching[0].Tick', 'hash == MatchStateHasher.HashValue(receipt)',
+            'receipt.PlayId != item.StackItemId', 'originalPaid']),
+        ('MatchRecovery.cs', 'ValidateFrame', ['ValidateLegendPlayCostHistory(authoritativeState, commands, events, errors)']),
+    ]
+    if text == move:
+        expected = dict(timing='PLAY', effect='MOVE_FRIENDLY_GROUP_TO_OPEN_BATTLEFIELD', optional=True,
+                        anyNumberOfTargets=True, requiresSourcePlayLegendCost=True, preservesMovementCapture=True)
+        event = card.get('unitEventAbility') or {}
+        exact = exact and all(type(event.get(key)) is type(value) and event.get(key) == value
+                              for key, value in expected.items()) \
+            and not any(meaningful(value) for key, value in event.items() if key not in expected) \
+            and inventory_contains(profiles[0].get('unitEventAbility'), event) \
+            and inventory_contains(event, profiles[0].get('unitEventAbility'))
+        checks += [
+            ('CoreRuleEngine.LegendPlayCosts.cs', 'SourcePaidLegendPlayCost', [
+                'ResolutionItem is { LegendPlayCost: { } receipt } play',
+                'play.SourceObjectId == entered.ObjectId', 'receipt.PlayId == play.StackItemId']),
+            ('CoreRuleEngine.SourcePlayConditions.cs', 'CaptureSourcePlayConditions', [
+                'RequiresSourcePlayLegendCost', 'SourcePaidLegendPlayCost(entered, player) is not null',
+                'PaidLegendPlayCost =']),
+            ('CoreRuleEngine.SourcePlayConditions.cs', 'ValidSourcePlayCondition', [
+                'ValidPaidLegendPlayCondition(state, context, spec)']),
+            ('CoreRuleEngine.LegendPlayCosts.cs', 'ValidPaidLegendPlayCondition', [
+                'ValidLegendPlayCostReceipt(state, context.PaidLegendPlayCost)',
+                'context.PaidLegendPlayCost!.PaidTick <= context.CapturedTick']),
+            ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['MoveFriendlyGroupToOpenBattlefieldEffect']),
+            ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets', [
+                'MoveFriendlyGroupToOpenBattlefieldEffect or "BOON_FRIENDLY"',
+                'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId']),
+            ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+                'OpenBattlefieldDestinations(state, item.ControllerId).Count == 0',
+                '.Optional ? 0 : 1', '.AnyNumberOfTargets ? legal.Length : 1']),
+            ('CoreRuleEngine.PermanentUnitEvents.cs', 'ConfirmUnitEventMovementDestination', [
+                'OpenBattlefieldDestinations(state, item.ControllerId)', 'kind: "MOVEMENT_DESTINATION"',
+                'UnitEventMovementBattlefield = group', 'ObjectGeneration', 'DeclaredUnitEventMovementHash(item)']),
+            ('CoreRuleEngine.EnemyUnitEventMovement.cs', 'DeclaredUnitEventMovementHash', ['item.UnitEventMovementBattlefield']),
+            ('CoreRuleEngine.LegendPlayCosts.cs', 'ResolveFriendlyGroupToOpenBattlefield', [
+                'battlefield.ObjectGeneration != field.Generation', '!IsOpenBattlefield(state, field.ObjectId)',
+                'StackObjectRules.ReferencesCurrentObject(state, item, id)',
+                'MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, ids, item.Destination, events)']),
+            ('CoreRuleEngine.ChosenMovement.cs', 'IsOpenBattlefield', [
+                'ControllerId: null', '!state.CardObjects.Values.Any', 'FieldObjectTypeRules.IsVisibleUnit(unit)']),
+            ('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation', [
+                'PayImposedMovementCost(', 'MovementTargetIsCurrent(current, item, id)',
+                'CaptureMovementBatchObservers(', 'MoveAttachedEquipmentWithHost(']),
+            ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', ['return ResolveFriendlyGroupToOpenBattlefield(state, item)']),
+            ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', ['context.PaidLegendPlayCost']),
+            ('MatchRecovery.UnitEventMovement.cs', 'ValidateUnitEventMovementDeclarations', [
+                'command.Accepted', 'original != CoreRuleEngine.DeclaredUnitEventMovementHash(item)']),
+            ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
+                'targets.SequenceEqual(item.TargetObjectIds)', 'command.Accepted']),
+            ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', [
+                '!expected.SetEquals(current.Select(item => item.Id))']),
+        ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+                          for filename, name, tokens in checks)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route' if exact else 'missing',
+        ('共享打出费用允许可选休眠自己的活跃传奇，实际付款凭据与原始接受记录一致' if text == fee else
+         '实际传奇付款捕获独立入场技能；确认任意友方单位及开放战场，响应后按原代际执行共享集体移动与费用，来源离场不取消技能')
+        if exact else '缺少可选传奇费用、实际付款凭据、独立集体移动或原始付款／目标／目的地校验', evidence)
+
+
 def source_play_condition_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     wanted = normalize('当你在你的回合中将我从正面朝下的状态打出时，你可以选择移动任意一名位于不同位置的敌方单位到我所在的战场。')
     if normalize(unparenthesize(clause['text'])) != wanted:
@@ -3084,6 +3202,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return matched
     if held_next_unit := held_next_unit_ready_boon_route(card, clause, sources):
         return held_next_unit
+    if paid_legend := paid_legend_group_movement_route(card, clause, sources):
+        return paid_legend
     if conditional_move := source_play_condition_movement_route(card, clause, sources):
         return conditional_move
     if trait_score := friendly_unit_trait_score_route(card, clause, sources):
