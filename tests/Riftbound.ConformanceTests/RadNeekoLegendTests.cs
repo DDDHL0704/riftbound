@@ -570,6 +570,8 @@ public sealed class RadNeekoLegendTests
     public async Task AnActualConquestDrawSurvivesTheDepartureOfItsNeekoBoundLegend()
     {
         var initial = (await Position("OGS·023/024")).State;
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["UNIT"] = initial.CardObjects["UNIT"] with { CardNo = "OGN·175/298" } } };
         foreach (var id in new[] { "EXTRA1", "EXTRA2", "EXTRA3" })
         {
             initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {

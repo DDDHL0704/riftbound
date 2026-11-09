@@ -1240,7 +1240,7 @@ public sealed partial class MatchSession
             {
                 ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(
                     "P1-BATTLEFIELD-FORTIFIED-ATTACKER",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,

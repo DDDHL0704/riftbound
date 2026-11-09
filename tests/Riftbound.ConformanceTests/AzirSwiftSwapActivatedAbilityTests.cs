@@ -871,7 +871,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             [AzirBattlefieldObjectId] = NonUnit(AzirBattlefieldObjectId, "OGN·278/298", P6TokenFactoryCatalog.BattlefieldCardTag),
             [TargetBattlefieldObjectId] = NonUnit(TargetBattlefieldObjectId, "OGN·278/298", P6TokenFactoryCatalog.BattlefieldCardTag),
             [AzirObjectId] = Unit(AzirObjectId, cardNo, "P1", power: 6),
-            [TargetObjectId] = Unit(TargetObjectId, "SFD·125/221", "P1", power: 2),
+            [TargetObjectId] = Unit(TargetObjectId, "OGN·175/298", "P1", power: 2),
             [BaseTargetObjectId] = Unit(BaseTargetObjectId, "SFD·126/221", "P1", power: 2),
             ["P1-EQUIPMENT"] = NonUnit("P1-EQUIPMENT", "SFD·139/221", CardObjectTags.EquipmentCard),
             ["P1-RUNE-TARGET"] = NonUnit("P1-RUNE-TARGET", "RUNES·001", CardObjectTags.RuneCard),
