@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-switcheroo-swap-battlefield-unit-powers",
-  "description": "Switcheroo swaps two battlefield units' power until end of turn in the current single-battlefield model.",
+  "description": "Switcheroo exchanges current power between two units at the same declared battlefield until end of turn.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·145/221 换换乐",
-      "note": "官方卡面：费用 2；待命；迅捷；让同一处战场上的两名单位在本回合内战力互换。当前 fixture 锁定单战场区域模型下的两名战场单位战力互换路径。"
+      "note": "官方卡面：费用2；待命；迅捷；让同一处战场上的两名单位在本回合内战力互换。夹具明确声明两个目标在同一战场；跨战场拒绝和响应移动见SameBattlefieldPowerSwapTests。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -89,6 +89,10 @@
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       }
+    },
+    "objectLocations": {
+      "P1-SWITCHEROO-UNIT-001": { "playerId": "P1", "zone": "BATTLEFIELD", "battlefieldObjectId": "SHARED-BATTLEFIELD" },
+      "P2-SWITCHEROO-UNIT-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "SHARED-BATTLEFIELD" }
     }
   },
   "commands": [

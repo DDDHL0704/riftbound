@@ -26,6 +26,7 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (TryGetUnitEventGraveyardPlayDefinition(parent, out definition)) return true;
         if (PlaysAllLinkedArmamentUnits(parent))
         {
             definition = new(parent.CardNo, "打出所有关联放逐单位", 0, parent.EffectKind, 0, 0,
@@ -164,7 +165,8 @@ public sealed partial class CoreRuleEngine
 
     // Restore the same policy selected by the registered effect, never client-supplied waivers.
     internal static bool ValidGraveyardUnitEffectPlay(MatchState state, PendingEffectPlayState pending)
-        => pending.Parent.EmpowerInteraction is not null ? ValidEmpowerInteractionPlay(state, pending)
+        => IsUnitEventGraveyardPlay(pending.Parent) ? ValidUnitEventGraveyardPlay(state, pending)
+            : pending.Parent.EmpowerInteraction is not null ? ValidEmpowerInteractionPlay(state, pending)
             : pending.SourcePlayerId is null && TryGetEffectPlayDefinition(pending.Parent, out var behavior)
             && behavior.CardNo == pending.Parent.CardNo && behavior.EffectPlaySourceZone == "GRAVEYARD"
             && pending.SourceZone == behavior.EffectPlaySourceZone && pending.PlayerId == pending.Parent.ControllerId

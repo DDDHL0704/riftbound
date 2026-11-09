@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "text": "当我征服或据守一处战场时，你可以选择从你的弃牌堆中打出一名单位。（仍需支付其费用。）",
+      "scope": "当我征服或据守一处战场时，你可以选择从你的弃牌堆中打出一名单位。（仍需支付其费用。）",
+      "location": "armament",
+      "cardNos": [
+        "SFD·150/221"
+      ],
+      "status": "route",
+      "reason": "宿主征服或据守后捕获独立技能；在确认时选择自己公开废牌堆中的一张单位牌或放弃，锁定目标代际并开放响应。结算时只有仍合法的原目标可被打出，支付正常基础法力、基础符能、额外费用和增费，不得换选另一张废牌。宿主返手不抹去技能，仍沿共享效果打出及付款放弃流程执行。 原公开目标及代际另由确认事件摘要和原始被接受的选牌命令约束，联合改写打出权限或退回未确认状态也拒绝。",
+      "rules": "中国区核心355.9–355.10 公开废牌堆目标、359.3.e 结算目标连续性、383.2–383.4 独立征服／据守触发、420.3.b 按正常流程效果打出、436、718.3/719 武装授予与宿主；SFD·150 官方中文下栏",
+      "runtime": {
+        "armament": {
+          "effectText": "当我征服或据守一处战场时，你可以选择从你的弃牌堆中打出一名单位。（仍需支付其费用。）"
+        },
+        "unitEventAbility": {
+          "timing": "CONQUEST_OR_HOLD",
+          "effect": "PLAY_GRAVEYARD_UNIT",
+          "optional": true
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "当我征服或据守一处战场时，你可以选择从你的弃牌堆中打出一名单位。",
+            "spec with { GrantedByArmament = true }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "IsUnitEventGraveyardPlay(item) ? state.PlayerZones[item.ControllerId].Graveyard",
+            "UnitEventGraveyardPlayEffect or ArmamentUnitEventRules.FixedDamageEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventPlays.cs",
+          "contains": [
+            "StackObjectRules.ReferencesCurrentObject(state, item, target)",
+            "UnitEventTargets(state, item).Contains(target)",
+            "BeginEffectPlay(state, item, definition)",
+            "!pending.IgnoreBaseMana && !pending.IgnoreBasePower && !pending.IgnoreAllCosts",
+            "pending.Parent.TargetGenerations?.GetValueOrDefault(source.Key, -1) == source.Value"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTargets.cs",
+          "contains": [
+            "CoreRuleEngine.UnitEventPlayTargetsHash(item)",
+            "HasAcceptedBattlefieldChoice(commands, originals[0], item.ControllerId,",
+            "unit event public target confirmation was rewound"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentGraveyardPlayTests.cs",
+          "methods": [
+            "ActualConquestOrHoldConfirmsAGraveyardTargetBeforeResponsesAndPaysBothBaseCosts",
+            "AnUnattachedWeaponDoesNotOfferItsLowerBoxOnAnotherUnitsConquest",
+            "ReturningTheHostAfterConquestKeepsTheIndependentPlayPermissionAndMasksItsSource",
+            "MissingManaOrPowerCannotWaiveTheConfirmedUnitsCostButThePaymentCanBeDeclined",
+            "RecoveryRequiresTheConfirmedGraveyardTargetAndNormalCostPolicy",
+            "ATargetPlayedByTheFirstSkillCannotBeReplacedWithAnotherCardForTheSecondSkill",
+            "RecoveryRejectsChangingBothTheOriginalTargetAndItsMatchingPlayPermission"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "当我移动时，在此处打出一名1{{S}}的“随从”。",
+      "scope": "当我移动时，在此处打出一名1{{S}}的“随从”。",
+      "location": "armament",
+      "cardNos": [
+        "SFD·153/221"
+      ],
+      "status": "route",
+      "reason": "完整下栏授予宿主移动后独立创建1战力休眠随从的技能；任何玩家效果造成的实际移动均捕获，未贴附不授予。在结算时按同一代际宿主的当前位置读取此处，来源离场时不创建、不提供或消耗替换；保留原始移动捕获，正常复用指示物替换、创建位置限制和单位进场监听。",
+      "rules": "中国区核心359.3.f.1–f.2 此处在指示执行时读取、383 独立移动触发、421 移动、440 创建、436/718.3/719 武装授予与宿主；SFD·153 官方中文下栏",
+      "runtime": {
+        "armament": {
+          "effectText": "当我移动时，在此处打出一名1{{S}}的“随从”。"
+        },
+        "unitEventAbility": {
+          "timing": "MOVE",
+          "effect": "CREATE_UNIT_TOKEN",
+          "amount": 1,
+          "createdTokenFactoryCardNo": "OGN·271/298",
+          "createsUnitTokenHere": true,
+          "observesMovementByAnyPlayer": true
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "当我移动时，在此处打出一名1{{S}}的“随从”。",
+            "CreatesUnitTokenHere = true, ObservesMovementByAnyPlayer = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "CaptureUnitEvents(before.PlayerZones, before.CardObjects, [f.ObjectId], \"MOVE\")",
+            "ObservesMovementByAnyPlayer == true || o.Controller == f.MovingPlayerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "TryUnitEventTokenLocation",
+            "CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)",
+            "spec.CreatesUnitTokenHere ? false : null"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
+          "contains": [
+            "TryUnitEventTokenLocation(state, item, unitToken, out _) ? unitToken.Amount : 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "SelectedUnitEventSpec(c)?.CreatesUnitTokenHere == true"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentMovementTokenTests.cs",
+          "methods": [
+            "ActualEffectMovementEarnsAnIndependentOneMightMinionAtTheHostsCurrentLocation",
+            "AnotherPlayersEffectMovingTheHostStillEarnsItsControllersSkill",
+            "ReturningTheHostInResponseMakesItsCurrentHereUnavailableWithoutLeakingItsPrivateIncarnation",
+            "AnUnavailableCurrentHereDoesNotOfferOrConsumeATokenReplacement",
+            "AnAvailableCurrentHereUsesTheSharedTokenReplacementBeforeAnyEntry",
+            "ARealBlinkResponseMovesTheHostAndBothEarnedSkillsReadItsCurrentBase",
+            "AnUnattachedEquipmentDoesNotGrantItsLowerBoxToAMovingUnit",
+            "RecoveryRejectsErasedDuplicatedOrRewrittenMovementCaptures"
+          ]
+        }
+      ]
+    }
+  ]
+}

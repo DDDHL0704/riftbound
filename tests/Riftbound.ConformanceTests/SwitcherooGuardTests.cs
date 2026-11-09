@@ -626,6 +626,13 @@ public sealed class SwitcherooGuardTests
                 ["P1"] = new(mana, 2),
                 ["P2"] = RunePool.Empty
             },
+            // These low-level guard targets occupy one declared battlefield.
+            // SameBattlefieldPowerSwapTests also exercises actual field cards.
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNIT"] = new("P1", "BATTLEFIELD", "SHARED-BATTLEFIELD"),
+                ["P2-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", "SHARED-BATTLEFIELD")
+            },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with

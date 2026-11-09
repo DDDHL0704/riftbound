@@ -32,6 +32,9 @@ internal static class ArmamentUnitEventRules
             spec ??= Regex.Replace(definition.EffectText, "（[^）]*）", "").Trim() switch {
                 "当我征服一处战场时，给予我增益。" => new("CONQUEST", "BOON_SELF"),
                 "当我据守一处战场时，获得的分数+1。" => new("HOLD", "SCORE", 1),
+                "当我征服或据守一处战场时，你可以选择从你的弃牌堆中打出一名单位。" => new("CONQUEST_OR_HOLD", CoreRuleEngine.UnitEventGraveyardPlayEffect, Optional: true),
+                "当我移动时，在此处打出一名1{{S}}的“随从”。" => new("MOVE", "CREATE_UNIT_TOKEN", 1,
+                    CreatedTokenFactoryCardNo: "OGN·271/298") { CreatesUnitTokenHere = true, ObservesMovementByAnyPlayer = true },
                 "当我征服一处战场时，召出一枚休眠的符文。" => new("CONQUEST", "CALL_RUNE", 1),
                 "当我征服一处战场时，弃置一张手牌，然后抽一张牌。" => new("CONQUEST", "DISCARD_DRAW", 1, DiscardCount: 1),
                 "当我征服一处战场时，打出一个休眠的“金币”装备指示物。" => new("CONQUEST", "CREATE_EQUIPMENT_TOKEN", 1,

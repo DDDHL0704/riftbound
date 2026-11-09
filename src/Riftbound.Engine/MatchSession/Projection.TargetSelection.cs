@@ -27,6 +27,8 @@ public sealed partial record ResolutionResult
             return spec?.Effect == "MIGHT_OBSERVED_UNIT" ? $"让{name}本回合内战力+{spec.Amount}"
                 : $"让{name}变为活跃状态";
         }
+        if (context is not null && CoreRuleEngine.UnitEventSpec(context.CardNo) is { Effect: "DRAW" } draw)
+            return $"抽{draw.Amount}张牌";
         return id is not null && CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo!, out var card)
             ? $"活跃先前选中的{card.DisplayName}" : "活跃先前选中的单位";
     }
