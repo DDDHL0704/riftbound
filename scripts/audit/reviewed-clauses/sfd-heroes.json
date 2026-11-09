@@ -1181,11 +1181,10 @@
           ]
         },
         {
-          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.CurrentTokenIdentity.cs",
+          "path": "src/Riftbound.Engine/CopyCharacteristics.cs",
           "contains": [
-            "AnActualImageCopiedToMightyPoroRemainsATokenAndCanBeMovedByAzir",
-            "TokenObjectRules.IsToken(image)",
-            "await Select(game, image.ObjectId)"
+            "public static bool IsToken(CardObjectState card)",
+            "card.TokenFactoryCardNo is not null"
           ]
         }
       ],
