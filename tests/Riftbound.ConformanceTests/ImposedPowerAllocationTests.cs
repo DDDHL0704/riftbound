@@ -64,6 +64,14 @@ public sealed partial class ImposedPowerAllocationTests
         Assert.Equal(blue, typed.TryGetProperty("blue", out var b) ? b.GetInt32() : 0);
         Assert.Equal(red, typed.TryGetProperty("red", out var r) ? r.GetInt32() : 0);
         Assert.All(effect ? new[] { "D", "D2" } : new[] { "A", "B" }, id => Assert.Equal("FIELD2", run.State.ObjectLocations[id].BattlefieldObjectId));
+        // These are real Mighty Faeries: both earned arrivals remain queued
+        // while their controller orders them after the completed movement fee.
+        var arrivals = run.State.TriggerQueue.Where(trigger => trigger.UnitEvent?.CardNo == "SFD·125/221").ToArray();
+        Assert.Equal(2, arrivals.Length);
+        Assert.All(arrivals, trigger => {
+            Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", trigger.TriggeredByEventKind);
+            Assert.Equal(run.State.Tick, trigger.UnitEvent!.CapturedTick);
+        });
         await run.Cold("final");
     }
 

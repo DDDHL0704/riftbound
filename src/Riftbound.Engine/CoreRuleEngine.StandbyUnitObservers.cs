@@ -13,9 +13,14 @@ public sealed partial class CoreRuleEngine
 {
     internal const string StandbyHiddenReadyEffect = "CONTROLLER_HIDDEN_SOURCE_READY";
     internal const string StandbyPlayedEnemyDamageEffect = "CONTROLLER_FACE_DOWN_PLAY_ENEMY_DAMAGE";
+    internal const string StandbyPlayedEquipmentTokenEffect = "CONTROLLER_FACE_DOWN_PLAY_EQUIPMENT_TOKENS";
 
     internal static bool IsStandbyUnitObserverEffect(string effect)
-        => effect is StandbyHiddenReadyEffect or StandbyPlayedEnemyDamageEffect;
+        => effect is StandbyHiddenReadyEffect or StandbyPlayedEnemyDamageEffect or StandbyPlayedEquipmentTokenEffect;
+
+    private static bool ValidStandbyEquipmentTokenReward(EquipmentTokenRewardSpec? reward)
+        => reward is { Count: > 0 } && P6TokenFactoryCatalog.TryGetByCardNo(reward.FactoryCardNo, out var factory)
+            && factory.Tags.Contains(CardObjectTags.EquipmentCard) && !factory.RequiresCopySource;
 
     internal static string StandbyObserverEventKind(string effect)
         => effect is StandbyHiddenTokenEffect or StandbyHiddenReadyEffect ? "CARD_HIDDEN" : "CARD_PLAYED_FROM_FACE_DOWN";
@@ -27,7 +32,7 @@ public sealed partial class CoreRuleEngine
     {
         var identity = new Dictionary<string, object?> { ["kind"] = action.Kind };
         foreach (var key in new[] { "playerId", "playedByPlayerId", "sourceObjectId", "unitObjectId",
-            "targetObjectId", "cardNo", "destination", "battlefieldObjectId", "historyPlayId", "playedFromStandby" })
+            "targetObjectId", "cardNo", "destination", "battlefieldObjectId", "historyPlayId", "completedPlayHash", "playedFromStandby" })
             if (action.Payload.TryGetValue(key, out var value)) identity[key] = JsonSerializer.SerializeToElement(value);
         return MatchStateHasher.HashValue(identity);
     }
@@ -57,6 +62,7 @@ public sealed partial class CoreRuleEngine
             {
                 if (!CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var behavior)
                     || (effect == StandbyHiddenReadyEffect ? !behavior.SourceReadiesWhenControllerHidesCard
+                        : effect == StandbyPlayedEquipmentTokenEffect ? !ValidStandbyEquipmentTokenReward(behavior.FaceDownPlayEquipmentTokens)
                         : effect != StandbyPlayedEnemyDamageEffect || behavior.ControllerFaceDownPlayEnemyDamage <= 0)) continue;
                 yield return new(controller, instance.Id,
                     new(instance.CardNo, new(source.ObjectId, source.ObjectGeneration), instance.Origin) {
@@ -90,11 +96,12 @@ public sealed partial class CoreRuleEngine
             || !state.Seats.ContainsKey(birth.ControllerId) || controller is not null && controller != birth.ControllerId
             || birth.CapturedTick > state.Tick
             || (effect == StandbyHiddenReadyEffect ? birth.ActionEventKind != "CARD_HIDDEN"
-                : effect != StandbyPlayedEnemyDamageEffect
+                : effect is not (StandbyPlayedEnemyDamageEffect or StandbyPlayedEquipmentTokenEffect)
                     || birth.ActionEventKind is not ("CARD_PLAYED" or "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD"
-                        or "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"))
+                        or "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD" or FaceDownSpellCompletedEvent))
             || !CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var behavior)
             || (effect == StandbyHiddenReadyEffect ? !behavior.SourceReadiesWhenControllerHidesCard
+                : effect == StandbyPlayedEquipmentTokenEffect ? !ValidStandbyEquipmentTokenReward(behavior.FaceDownPlayEquipmentTokens)
                 : behavior.ControllerFaceDownPlayEnemyDamage <= 0)
             || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, sourceId, context.Source.Generation, context.CardNo))
             return false;
@@ -123,7 +130,7 @@ public sealed partial class CoreRuleEngine
             || item.SourceConfirmed || item.DamageAmount != 0 || item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
             || item.RepeatExecutions is not null || item.Destination.Length != 0 || item.TriggerCost is not null
             || item.FieldContext is not null || item.UnitEvent is not null || item.DamageDistribution is not null) return false;
-        return item.EffectKind == StandbyHiddenReadyEffect || item.TargetGenerations is null
+        return item.EffectKind != StandbyPlayedEnemyDamageEffect || item.TargetGenerations is null
             ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
             : item.TargetObjectIds.Count == 1 && item.TargetGenerations.Count == 1
                 && item.TargetGenerations.GetValueOrDefault(item.TargetObjectIds[0], -1) >= 0;
@@ -172,6 +179,25 @@ public sealed partial class CoreRuleEngine
             ["sourceObjectId"] = visibleSource, ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind }) };
         var result = NoopStackResolutionResult(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        if (item.EffectKind == StandbyPlayedEquipmentTokenEffect)
+        {
+            var reward = CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var behavior)
+                ? behavior.FaceDownPlayEquipmentTokens : null;
+            if (reward is null || !ValidStandbyEquipmentTokenReward(reward)) throw new InvalidOperationException("Invalid standby equipment token reward.");
+            P6TokenFactoryCatalog.TryGetByCardNo(reward.FactoryCardNo, out var factory);
+            var tokenZones = NormalizeZonesForSeats(state);
+            for (var i = 0; i < reward.Count; i++)
+                CreateLegendEquipmentToken(tokenZones, cards, item.ControllerId, item.SourceObjectId, item.EffectKind,
+                    factory.TokenFamilyName, factory.Tags, true, events, context.CardNo,
+                    publicSourceObjectId: visibleSource,
+                    tokenIdentitySeed: "equipment-token-" + MatchStateHasher.HashValue(item.StackItemId));
+            for (var i = 0; i < events.Count; i++)
+                if (Equals(events[i].Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId))
+                    events[i] = events[i] with { Payload = new Dictionary<string, object?>(events[i].Payload) {
+                        ["sourceObjectId"] = visibleSource } };
+            return result with { PlayerZones = tokenZones, CardObjects = cards, Events = events,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, tokenZones) };
+        }
         if (item.EffectKind == StandbyHiddenReadyEffect)
         {
             if (cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.Source.Generation

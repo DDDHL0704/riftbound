@@ -327,10 +327,13 @@ public sealed class StandbySourceRulesTests
         var s=await ReadyShadow(initial:initial);
         var played=await Act(s,"P1",new PlayCardCommand("SHADOW","OGN·057/298",["HOST"]));
         Assert.Equal(before,played.State.CardObjects["SHADOW-MONK"].Power);
-        var observer=Assert.Single(played.State.StackItems,i=>i.StandbyObserver is not null);
+        Assert.DoesNotContain(played.State.StackItems,i=>i.StandbyObserver is not null);
+        var completed=await Top(played.State);
+        Assert.Equal(before,completed.State.CardObjects["SHADOW-MONK"].Power);
+        var observer=Assert.Single(completed.State.StackItems,i=>i.StandbyObserver is not null);
         Assert.Equal("SHADOW-MONK",observer.SourceObjectId);Assert.Empty(observer.TargetObjectIds);
-        Restore(played.State);ArmamentMightTests.PublicRecovery(played.State);
-        var resolved=await Top(played.State);Assert.Equal(before+2,resolved.State.CardObjects["SHADOW-MONK"].Power);
+        Restore(completed.State);ArmamentMightTests.PublicRecovery(completed.State);
+        var resolved=await Top(completed.State);Assert.Equal(before+2,resolved.State.CardObjects["SHADOW-MONK"].Power);
         Assert.DoesNotContain(resolved.State.StackItems,i=>i.StandbyObserver is not null);Restore(resolved.State);
     }
 }

@@ -140,6 +140,8 @@ public sealed class BattleRoleChoiceCoordinateTests
     private static MatchState FinitePosition(bool gold, bool effect)
     {
         var state = Position(effect ? "effect" : "standard");
+        state = state with { CardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry =>
+            entry.Value.CardNo == "SFD·125/221" ? entry.Value with { CardNo = "OGN·175/298" } : entry.Value) };
         return gold ? AddBase(state, "GOLD", P4ActivatedAbilityCatalog.GoldTokenUnlCardNo) : state;
     }
     private static async Task PaidMove(Run run, bool gold)

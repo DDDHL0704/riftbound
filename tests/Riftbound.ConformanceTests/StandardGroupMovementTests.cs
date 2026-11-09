@@ -151,9 +151,9 @@ public sealed class StandardGroupMovementTests
         },
         cardObjects: new Dictionary<string, CardObjectState>
         {
-            ["A"] = new("A", power: 2, cardNo: "SFD·125/221", tags: [CardObjectTags.UnitCard], ownerId: "P1", controllerId: "P1"),
-            ["B"] = new("B", power: 2, cardNo: "SFD·125/221", tags: [CardObjectTags.UnitCard], ownerId: "P1", controllerId: "P1"),
-            ["D"] = new("D", power: 2, cardNo: "SFD·125/221", tags: [CardObjectTags.UnitCard], ownerId: "P2", controllerId: "P2"),
+            ["A"] = new("A", power: 2, cardNo: "OGN·175/298", tags: [CardObjectTags.UnitCard], ownerId: "P1", controllerId: "P1"),
+            ["B"] = new("B", power: 2, cardNo: "OGN·175/298", tags: [CardObjectTags.UnitCard], ownerId: "P1", controllerId: "P1"),
+            ["D"] = new("D", power: 2, cardNo: "OGN·175/298", tags: [CardObjectTags.UnitCard], ownerId: "P2", controllerId: "P2"),
             ["BF"] = new("BF", cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P2")
         },
         objectLocations: new Dictionary<string, ObjectLocationState>
