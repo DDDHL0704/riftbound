@@ -87,7 +87,7 @@ class FullCiGateTests(unittest.TestCase):
         self.assertIn('needs: [scope, rule_suite, postgres]', jobs['rules'])
         for job in ['postgres', 'rules']:
             header = jobs[job].split('    steps:', 1)[0]
-            self.assertIn('    if: ${{ always() && !cancelled() }}\n', header)
+            self.assertIn("    if: ${{ always() && !cancelled() && (github.event_name != 'workflow_dispatch' || inputs.postgres_partition == 'all') }}\n", header)
             self.assertNotIn('    if: ${{ always() }}\n', header)
         self.assertIn('python3 scripts/full-ci-gate.py', jobs['rules'])
         for job in ['scope', 'rule_suite', 'postgres']:
