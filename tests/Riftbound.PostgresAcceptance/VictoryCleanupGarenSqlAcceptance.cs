@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Npgsql;
 using NpgsqlTypes;
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Riftbound.Persistence;
@@ -71,7 +72,7 @@ internal static class VictoryCleanupGarenSqlAcceptance
                     "Garen counts only the actually conquered battlefield, independently of the other owned and controlled units.");
                 var events = journal.Entries.SelectMany(e => e.Events).ToArray();
                 var triggers = events.Where(e => e.Kind == "LEGEND_TRIGGER_RESOLVED"
-                    && Equals(e.Payload.GetValueOrDefault("trigger"), "BATTLEFIELD_CONQUERED_DRAW_TWO")).ToArray();
+                    && Equals(e.Payload.GetValueOrDefault("trigger"), TriggerKinds.LegendConquestMinimumUnitsDraw)).ToArray();
                 Check(events.Where(e => e.Kind == "CARD_DRAWN").Sum(e => Convert.ToInt32(e.Payload["count"])) == expectedDraw
                     && triggers.Length == (movingCount == 4 ? 1 : 0)
                     && (triggers.Length == 0 || Equals(triggers[0].Payload["battlefieldId"], "TARGET")
