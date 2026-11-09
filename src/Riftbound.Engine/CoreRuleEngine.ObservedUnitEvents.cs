@@ -7,7 +7,7 @@ public sealed partial class CoreRuleEngine
     internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)
         => context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
-                or ArmamentLastBreathRules.Timing
+                or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED"
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context)?.RequiresMoveToBattlefield == true
             || context?.Origin?.ArmamentGranted == true;
 
@@ -15,5 +15,5 @@ public sealed partial class CoreRuleEngine
         => MatchStateHasher.HashValue(new { source, controller, context.CardNo, context.Timing,
             context.SourceGeneration, context.FaceRevision, context.CapturedTick,
             context.TokenFactoryCardNo, context.Origin, context.ArmamentDeath, context.DefendedBattlefield,
-            context.TargetSelection, context.Other, context.Here });
+            context.TargetSelection, context.Other, context.Here, context.PlayedUnitDuringSpellDuel });
 }

@@ -34,7 +34,9 @@ public sealed partial class CoreRuleEngine
         var capturedBattlefieldSkill = effect.EffectKind == UnitEventEffect
             && (UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "CONQUEST")
                 || UnitEventTimingMatches(UnitEventSpec(effect.SourceCardNo)?.Timing, "HOLD"));
-        if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation && !capturedBattlefieldSkill
+        var capturedGroupInstruction = effect.EffectKind == UnitEventEffect
+            && UnitEventSpec(effect.SourceCardNo)?.Effect == "MIGHT_OTHER_FRIENDLIES";
+        if (effect.EffectKind != BorrowedExhaustRules.Effect && !capturedActivation && !capturedBattlefieldSkill && !capturedGroupInstruction
             && effect.EffectKind is not (TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower)
             && (effect.SourceCardNo is not { } no || !CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)
                 || !behavior.RecyclesSourceIfPlayedFromStandby)) return effect;

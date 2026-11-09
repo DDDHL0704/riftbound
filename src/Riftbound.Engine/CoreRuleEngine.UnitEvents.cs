@@ -117,6 +117,7 @@ public sealed partial class CoreRuleEngine
             .Concat(CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")
                 .Where(o => !OfficialPrintedTimingRules.HasPlayTrigger(o.Context.CardNo)
                     || OfficialPrintedTimingRules.HasPlayTrigger(o.Context.CardNo, destinationZone == "BATTLEFIELD"))).ToArray();
+        observations = CaptureFriendlyPlayConditions(observations);
         if (observations.Any(o => UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitStrongest))
         {
             // Compare at the entry instruction, including current auras. Later
@@ -395,6 +396,7 @@ public sealed partial class CoreRuleEngine
             && ValidBattleDrawContext(state, c, spec, controller)
             && ValidPlayerDefenseContext(state, c, spec)
             && ValidConditionalSourcePlayDestination(c, spec)
+            && ValidFriendlyPlayCondition(c, spec)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
@@ -555,6 +557,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
+        if (spec.Effect == "GAIN_EXPERIENCE") return ResolveUnitEventExperience(state, item, spec);
         if (spec.Effect == RuneDomainRevealEffect && context.RevealedRune is null) return ResolveRuneDomainReveal(state, item);
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
         if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
@@ -583,6 +586,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == "DESTROY_FRIENDLY_EQUIPMENT_MIGHT_SELF")
             return ResolvePaidEquipmentDestructionMight(state, item, spec.Amount);
         if (spec.Effect == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount);
+        if (spec.Effect == "MIGHT_OTHER_FRIENDLIES") return ResolveOtherFriendlyUnitMight(state, item, spec);
         if (spec.Effect is DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "CREATE_UNIT_TOKEN")
             return ResolvePermanentUnitEventInstruction(state, item, spec);
         if (spec.Effect == "DAMAGE_ENEMIES_HERE") return ResolveUnitEventAreaDamage(state, item, spec.Amount);
@@ -639,17 +643,7 @@ public sealed partial class CoreRuleEngine
             cards[buffed] = ApplyPowerModifier(state, cards[buffed], behavior, item, buffed, spec.Amount, out var power);
             events.Add(power);
             if (spec.GrantedCombatKeyword is { } keyword)
-            {
-                var definition = TemporaryCombatKeywordRules.Prefix + keyword;
-                var effect = TemporaryCombatKeywordRules.AppliedEffectId(cards[buffed], definition);
-                if (!TemporaryCombatKeywordRules.IsValid(effect))
-                    throw new InvalidOperationException("Invalid triggered combat keyword grant.");
-                cards[buffed] = cards[buffed] with {
-                    UntilEndOfTurnEffects = [..cards[buffed].UntilEndOfTurnEffects, effect] };
-                events.Add(new("UNIT_STATUS_APPLIED", "触发技能给予本回合战斗关键词", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = buffed,
-                    ["statusEffectId"] = effect }));
-            }
+                GrantUnitEventCombatKeyword(state, item, cards, events, buffed, keyword);
         }
         if (spec.Effect == "BANISH_ENTERED_EQUIPMENT" && item.TriggerCost?.SourceWasBanished == true
             && context.Other is { } entered && cards.TryGetValue(entered.Binding.ObjectId, out var equipment)

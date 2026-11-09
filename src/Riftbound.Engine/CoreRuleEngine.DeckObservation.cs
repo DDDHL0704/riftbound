@@ -44,8 +44,16 @@ public sealed partial class CoreRuleEngine
     private static string[] ObserveDeckCards(MatchState state, Dictionary<string,PlayerZones> zones,
         Dictionary<string,CardObjectState> cards, StackItemState parent, string player, IReadOnlyList<string> seen,
         string kind, int execution, List<GameEvent> events, bool selectionReveal=false,
-        IReadOnlyDictionary<string,long>? simultaneousReveals=null, BeforeDeckRevealLookContext? beforeReveal=null, string? actingPlayer=null)
+        IReadOnlyDictionary<string,long>? simultaneousReveals=null, BeforeDeckRevealLookContext? beforeReveal=null, string? actingPlayer=null,
+        Dictionary<string, RunePool>? pools=null)
     {
+        if (kind == "REVEAL")
+        {
+            if (pools is null) throw new InvalidOperationException("A deck reveal requires its current resource pools.");
+            ApplyDeckRevealResources(state, zones, cards, pools, parent, player, seen, execution, selectionReveal,
+                simultaneousReveals, events);
+            state = state with { RunePools = pools.ToDictionary() };
+        }
         if(RuleChoices.Value is not { } frame)return seen.ToArray();
         // A private deck card grants its owner's "you observe me" permission
         // only when that owner actually performs the look/reveal action.

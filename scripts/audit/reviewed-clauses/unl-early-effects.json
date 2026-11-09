@@ -174,35 +174,85 @@
       ],
       "text": "当你在法术对决期间打出单位时，你可以选择让此装备变为休眠状态，以此抽一张牌。",
       "scope": "当你在法术对决期间打出单位时，你可以选择让此装备变为休眠状态，以此抽一张牌。",
-      "status": "missing",
-      "reason": "只有装备打出登记；缺少法术对决期间己方打出单位的监听、可选横置来源费用及响应后抽牌技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享单位实际打出观察捕获当时是否处于法术对决，包含单位指示物；后续清理新开启的对决不反向触发。可选横置来源在确认时支付，之后经响应才抽牌；当前控制者而非所属者决定友方，多个装备分别确认，原始条件事实参与待结算校验。 原始被接受的打出观察凭据约束技能完整集合及当时对决事实，拒绝擦除或改写捕获。",
+      "rules": "中国区核心191.5.b、204.1.c、383.2–383.3、403–407、420.4及185.1；UNL-011官方中文文本",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_UNIT_PLAYED",
+              "effect": "DRAW",
+              "amount": 1,
+              "leadingSourceExhaust": true,
+              "requiresSpellDuelAtUnitPlay": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-011/219\"",
-            "\"MAGIC_BEANS_PLAY_EQUIPMENT\""
+            "CaptureUnitEvents(zones, cards, friendly, \"FRIENDLY_UNIT_PLAYED\")",
+            "CaptureFriendlyPlayConditions(observations)",
+            "ValidFriendlyPlayCondition(c, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyPlayConditions.cs",
+          "contains": [
+            "(frame.ResolutionState ?? frame.Origin).SpellDuelState.IsActive",
+            "PlayedUnitDuringSpellDuel = true",
+            "context.PlayedUnitDuringSpellDuel == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "SelectedUnitEventSpec(context)?.LeadingSourceExhaust == true",
+            "PrepareTriggerCostConfirmation",
+            "TriggerCostChoice"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"DRAW\" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)",
+            "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.Amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "or \"FRIENDLY_UNIT_PLAYED\"",
+            "context.PlayedUnitDuringSpellDuel"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "expected.ExceptWith(retired)",
+            "original[0].Tick != item.Context.CapturedTick",
+            "pending observed unit events differ from original accepted completion history"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MagicBeansPlayObserverTests.cs",
+          "methods": [
+            "ARealDuelUnitPlayConfirmsTheOptionalExhaustBeforeARespondableDraw",
+            "MainPhasePlaysAndADuelStartedByThatPlayDoNotRetroactivelyTriggerTheBeans",
+            "AnAlreadyExhaustedEquipmentCannotPayForTheDraw",
+            "TheCurrentControllerObservesItsOwnUnitRatherThanItsPhysicalOwnersUnit",
+            "ConfirmationRejectsTheOtherPlayerAndRecoveryRejectsAChangedDuelFact",
+            "TwoEquipmentInstancesPaySeparatelyForTwoIndependentDraws",
+            "AcceptedPlayCaptureCannotBeErasedOrRetimedAfterPayment"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -210,36 +260,61 @@
       ],
       "text": "当你打出我时，让你此处的其他单位本回合内获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）",
       "scope": "当你打出我时，让你此处的其他单位本回合内获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）",
-      "status": "missing",
-      "reason": "只有基础伏击单位；缺少入场后为此处其他己方单位授予本回合强攻的独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享无目标PLAY技能在结算时给予当前此处的其他友方单位本回合强攻；与群体战力修正共用受益对象及原来源排除，关键词进入通常的战斗身份计数而非提前加原始战力；源实际移动后读取当前此处，返手后不以历史位置授予新代际",
+      "rules": "中国区核心359.3.f.2 当前此处、383.2–383.4 独立触发、403–407 确认响应结算、807.1–807.3 独立强攻相加；UNL-012官方中文文本",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectKind": "BROMAIN_LORD_AMBUSH_ASSAULT_STATIC",
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "MIGHT_OTHER_FRIENDLIES",
+              "grantedCombatKeyword": "强攻",
+              "friendlyGroupAtSourceHere": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-012/219\"",
-            "\"BROMAIN_LORD_AMBUSH_ASSAULT_STATIC\""
+            "if (spec.Effect == \"MIGHT_OTHER_FRIENDLIES\") return ResolveOtherFriendlyUnitMight(state, item, spec);",
+            "GrantUnitEventCombatKeyword(state, item, cards, events, buffed, keyword);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventGroupMight.cs",
+          "contains": [
+            "CombatMightSourceLocation(state, item.SourceObjectId, context.SourceGeneration)",
+            "GetControlledFieldUnitObjectIds(zones, cards, item.ControllerId)",
+            "!IsSameFieldLocation(zones, state.ObjectLocations, item.SourceObjectId, id)",
+            "TemporaryCombatKeywordRules.AppliedEffectId",
+            "TemporaryCombatKeywordRules.IsValid(effect)",
+            "new MightInstructionScope(state, zones, cards, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CountedCombatKeywords.cs",
+          "contains": [
+            "TemporaryCombatKeywordRules.Amount(unit, keyword)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BromainGroupKeywordTests.cs",
+          "methods": [
+            "ActualPlayGrantsAssaultOnlyToOtherCurrentFriendsHereAndItExpires",
+            "TheGrantedAssaultActuallyChangesMightOnlyAfterItsRecipientAttacks",
+            "ARealBlinkResponseChangesTheLocationUsedByTheGroupInstruction",
+            "ARealSourceReturnMakesHereUnavailableWithoutUsingHistoricalRecipients",
+            "SeparateRealPlaysGrantIndependentStackingAssaultInstances",
+            "AnEmptyInitialGroupStillProducesAnIndependentTargetlessSkill"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1606,36 +1681,54 @@
       ],
       "text": "当你打出我时，让你此处的其他单位本回合内获得{{坚守}}。（如果他们是防守方，则{{S}}+1。）",
       "scope": "当你打出我时，让你此处的其他单位本回合内获得{{坚守}}。（如果他们是防守方，则{{S}}+1。）",
-      "status": "missing",
-      "reason": "只有基础伏击单位；缺少入场后给此处其他己方单位本回合坚守的独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "复用共享无目标PLAY群体指示，在结算时给予当前此处的其他友方单位真实本回合坚守；受益单位只有成为防守方时才获得相应战力，不提前增加原始战力，来源自身、其他位置与敌方单位均不获得该次授予，普通回合结束流程移除。",
+      "rules": "中国区核心359.3.f.2、383.2–383.3、403–407、814.1–814.2；UNL-071官方中文文本",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "MIGHT_OTHER_FRIENDLIES",
+              "friendlyGroupAtSourceHere": true,
+              "grantedCombatKeyword": "坚守"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-071/219\"",
-            "\"RINGBLADE_DANCER_AMBUSH_STEADFAST_STATIC\""
+            "spec.Effect == \"MIGHT_OTHER_FRIENDLIES\"",
+            "ResolveOtherFriendlyUnitMight(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventGroupMight.cs",
+          "contains": [
+            "spec.FriendlyGroupAtSourceHere",
+            "IsSameFieldLocation(zones, state.ObjectLocations, item.SourceObjectId, id)",
+            "GrantUnitEventCombatKeyword(state, item, cards, events, id, keyword)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CountedCombatKeywords.cs",
+          "contains": [
+            "TemporaryCombatKeywordRules.Amount(unit, keyword)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RingbladeDancerGroupKeywordTests.cs",
+          "methods": [
+            "ActualPlayGrantsSteadfastOnlyToOtherCurrentFriendsHereAndItExpires",
+            "AnActualAmbushGivesAnExistingDefenderOneMightWithoutBuffingTheDancer"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2675,35 +2768,83 @@
       ],
       "text": "当你打出一名单位时，你可以选择支付{{1}}来获得1经验。",
       "scope": "当你打出一名单位时，你可以选择支付{{1}}来获得1经验。",
-      "status": "missing",
-      "reason": "现有支付经验活跃单位的主动技能不覆盖本句；缺少己方打出单位后可选支付1法力并获得1经验的独立触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享实际单位打出观察对每次己方单位或单位指示物打出分别捕获技能；确认时可选支付1法力，响应后以统一经验增加流程给予捕获控制者1经验，不横置来源。装备与法术打出不触发，当前控制者决定友方；原有消耗经验活跃单位的主动技能保持独立。 原始被接受的打出观察凭据约束技能完整集合及当时对决事实，拒绝擦除或改写捕获。",
+      "rules": "中国区核心191.5.b、204.1.c、383.2–383.3、403–407、420.4、728–733及185.1；UNL-109官方中文文本",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 1,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_UNIT_PLAYED",
+              "effect": "GAIN_EXPERIENCE",
+              "amount": 1,
+              "leadingManaCost": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-109/219\"",
-            "\"SCARLET_ROSE_PLAY_EQUIPMENT\""
+            "CaptureUnitEvents(zones, cards, friendly, \"FRIENDLY_UNIT_PLAYED\")",
+            "CaptureFriendlyPlayConditions(observations)",
+            "ValidFriendlyPlayCondition(c, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "Mana: eventSpec.LeadingManaCost",
+            "NeedsTriggerCostConfirmation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"GAIN_EXPERIENCE\"",
+            "ResolveUnitEventExperience(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FriendlyPlayConditions.cs",
+          "contains": [
+            "LeadingTriggerCost(item) is not null && item.TriggerCost is null",
+            "GainExperience(NormalizeExperienceForSeats(state), item.ControllerId, spec.Amount",
+            "PlayerExperience = experience"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "or \"FRIENDLY_UNIT_PLAYED\"",
+            "context.PlayedUnitDuringSpellDuel"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "expected.ExceptWith(retired)",
+            "original[0].Tick != item.Context.CapturedTick",
+            "pending observed unit events differ from original accepted completion history"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ScarletRosePlayObserverTests.cs",
+          "methods": [
+            "AUnitPlayMayPayExactlyOneManaBeforeAnIndependentExperienceSkill",
+            "PlayingAnEquipmentOrASpellDoesNotEarnTheUnitPlayExperience",
+            "OnlyTheCurrentControllerPaysAndGainsExperienceForItsUnitPlay",
+            "EachUnitTokenPlayedByOneActualSpellEarnsItsOwnOptionalPayment",
+            "RepeatedUnitPlaysCanEarnExperienceWithoutExhaustingTheRose",
+            "PaymentRejectsTheOtherPlayerAndUnrelatedDuelFactsCannotBeInjected",
+            "AcceptedPlayCaptureCannotBeErasedOrRetimedAfterPayment"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

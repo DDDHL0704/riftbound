@@ -1800,14 +1800,24 @@ def another_friendly_here_grant_route(card: dict, clause: dict, sources: Sources
         "EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId", "UnitEventTargetIsHere(state, item, c.ObjectId)"])
     exact = exact and all(symbol in here for symbol in ["CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)",
         "at.Zone == here.Zone", "at.PlayerId == here.PlayerId", "at.BattlefieldObjectId == here.BattlefieldObjectId"])
+    direct_keyword = all(symbol in resolve for symbol in ["TemporaryCombatKeywordRules.Prefix + keyword",
+        "TemporaryCombatKeywordRules.AppliedEffectId(cards[buffed]",
+        "UntilEndOfTurnEffects = [..cards[buffed].UntilEndOfTurnEffects, effect]"])
+    group_path = prefix + "CoreRuleEngine.UnitEventGroupMight.cs"
+    keyword_helper = method(sources.files.get(group_path, ""), "GrantUnitEventCombatKeyword")
+    shared_keyword = "GrantUnitEventCombatKeyword(state, item, cards, events, buffed, keyword)" in resolve \
+        and all(symbol in keyword_helper for symbol in ["TemporaryCombatKeywordRules.Prefix + keyword",
+            "TemporaryCombatKeywordRules.AppliedEffectId(cards[target]", "TemporaryCombatKeywordRules.IsValid(effect)",
+            "UntilEndOfTurnEffects = [..cards[target].UntilEndOfTurnEffects, effect]"])
     exact = exact and all(symbol in resolve for symbol in ['spec.Effect == "MIGHT_FRIENDLY"',
         "StackObjectRules.ReferencesCurrentObject(state, item, buffed)", "UnitEventTargets(state, item).Contains(buffed)",
-        "ApplyPowerModifier(state, cards[buffed]", "spec.Amount", "spec.GrantedCombatKeyword is { } keyword",
-        "TemporaryCombatKeywordRules.Prefix + keyword", "TemporaryCombatKeywordRules.AppliedEffectId(cards[buffed]",
-        "UntilEndOfTurnEffects = [..cards[buffed].UntilEndOfTurnEffects, effect]"])
+        "ApplyPowerModifier(state, cards[buffed]", "spec.Amount", "spec.GrantedCombatKeyword is { } keyword"]) \
+        and (direct_keyword or shared_keyword)
     recovery = sources.files.get(prefix + "MatchRecovery.cs", "")
     exact = exact and "ValidUnitEvent(" in recovery and "ValidUnitEventTargets(" in recovery
     evidence = [prefix + p for p in ["CoreRuleEngine.UnitEvents.cs", "CoreRuleEngine.PermanentUnitEvents.cs", "MatchRecovery.cs"]]
+    if shared_keyword:
+        evidence.append(group_path)
     return result("route", "进攻／防守确认此处另一名友军，结算重查原代际与当前位置，授予本回合战力和战斗关键词", evidence) if exact else result(
         "missing", "缺少精确进攻／防守规格、此处另一名友方目标，或本回合战力及关键词的共享结算")
 
