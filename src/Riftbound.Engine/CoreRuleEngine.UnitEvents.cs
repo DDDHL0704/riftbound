@@ -390,7 +390,8 @@ public sealed partial class CoreRuleEngine
                         && burnedBehavior.PlaysSourceToBaseAsUnit && burnedBehavior.SourceUnitPower == burned.Power
                         && PredictBindingMatches(state, burned.Binding, burned.CardNo, burned.FaceRevision, reflexive, null)
                     : c.ReflexiveTick is null
-                : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
+                : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || HasArmamentPlayAttachment(c) || c.ReflexiveTick is null))
+            && ValidArmamentPlayAttachmentContext(state, c, controller)
             && ValidTargetSelectionContext(state, c, spec, source, controller)
             && ValidFriendlyUnitActionContext(state, c, spec, controller)
             && ValidBattleDrawContext(state, c, spec, controller)
@@ -406,7 +407,8 @@ public sealed partial class CoreRuleEngine
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
                 : spec.Effect == ReadySelectedEventUnit || IsFriendlyObservedUnitSpec(spec)
-                    || spec.Timing == FriendlyUnitTargetedTiming ? c.Other is not null : c.Other is null)
+                    || spec.Timing == FriendlyUnitTargetedTiming || HasArmamentPlayAttachment(c) && c.ReflexiveTick is not null
+                    ? c.Other is not null : c.Other is null)
             && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect == "MIGHT_ATTACKERS" ? c.Attackers is { Count: > 0 }
                 && c.Attackers.All(a => a is not null && a.Binding is { Generation: >= 0 }
@@ -566,13 +568,14 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == PlayerDefenseMoveEffect) return ResolvePlayerDefenseMovement(state, item);
         if (spec.Effect is RuneDomainDamageEffect or ArmamentUnitEventRules.FixedDamageEffect)
             return ResolveRuneDomainDamage(state, item, spec);
-        if (spec.Effect == StandbyHandPlayHereEffect)
+        if (spec.Effect is StandbyHandPlayHereEffect or PlayHandArmamentThenAttachEffect)
         {
             if (item.EffectPlayCompleted) return NoopStackResolutionResult(state);
             TryGetEffectPlayDefinition(item, out var definition);
             return BeginEffectPlay(state, item, definition);
         }
         if (spec.Effect == UnitEventGraveyardPlayEffect) return ResolveUnitEventGraveyardPlay(state, item);
+        if (spec.Effect == AttachPlayedArmamentEffect) return ResolvePlayedArmamentAttachment(state, item);
         if (spec.Effect == "DECLARE_ATTRIBUTE") return ResolveAttributeDeclaration(state, item);
         if (IsPlayedUnitRuneSpec(spec)) return ResolvePlayedUnitRunes(state, item, spec);
         if (spec.Effect == "CALL_RUNES_PER_CONSUMED_BOON") return ResolvePaidBoonRuneInstruction(state, item, spec);

@@ -27,6 +27,7 @@ public sealed partial class CoreRuleEngine
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
         if (TryGetUnitEventGraveyardPlayDefinition(parent, out definition)) return true;
+        if (TryGetArmamentPlayAttachmentDefinition(parent, out definition)) return true;
         if (PlaysAllLinkedArmamentUnits(parent))
         {
             definition = new(parent.CardNo, "打出所有关联放逐单位", 0, parent.EffectKind, 0, 0,
@@ -127,6 +128,7 @@ public sealed partial class CoreRuleEngine
 
     private static bool EffectPlaySourceMatches(CardObjectState card, CardBehaviorDefinition definition)
         => (!definition.EffectPlayRequiresStandby || StandbyRules.HasPrintedKeyword(card.CardNo))
+            && (!definition.EffectPlayRequiresArmament || ArmamentEffectPlaySourceAllowed(card, definition))
             && CardBehaviorRegistry.GetAll().Any(b => b.CardNo == card.CardNo && (definition.EffectPlayAllowsAnyCard
             ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(b)
             : definition.EffectPlaySourceZone == "BANISHED"
@@ -157,7 +159,7 @@ public sealed partial class CoreRuleEngine
         var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null || pending.Parent.ObservedPlayPermission is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value
-            && (!IsStandbyHandPlayHere(pending.Parent)
+            && (!(IsStandbyHandPlayHere(pending.Parent) || IsArmamentPlayAttachmentPermission(pending.Parent))
                 || TryGetEffectPlayDefinition(pending.Parent, out var handDefinition) && EffectPlaySourceMatches(card, handDefinition))
             && (RecastSpec(pending.Parent) is not { } spec || RecastSourceAllowed(state, playerId, card, spec)))
             .Select(x => x.Key).ToArray();
@@ -534,6 +536,7 @@ public sealed partial class CoreRuleEngine
                 }
             }
             result = ApplyEffectPlayFollowup(result, pending, play);
+            result = CapturePlayedArmamentAttachment(result, pending, play);
             return FinishEffectPlay(result.State, intent, pending, result.Events.Concat(RecastPlayedEvents(result.State, pending, play)).ToArray(), play.SourceObjectId);
         }
         if (pending.IgnoreAllCosts) return RejectWithCorePrompts(state, "忽略一切费用时直接完成出牌，无需产费。", ErrorCodes.PhaseNotAllowed);
