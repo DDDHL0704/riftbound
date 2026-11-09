@@ -95,6 +95,7 @@ jobs:
           name: nightly-rule-built-input
           path: var/qa/nightly-prepared/bundle.tar.gz
           compression-level: 0
+          retention-days: 14
 
   rule_shards:
     needs: [scope, rule_prepare]
@@ -503,4 +504,3 @@ jobs:
             var/qa/ci-postgres/
             var/qa/ci-postgres-runtime/
           retention-days: 90
-          retention-days: 14
