@@ -956,21 +956,105 @@
       ],
       "text": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
       "scope": "当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
-      "status": "missing",
-      "reason": "只有急速入场登记；缺少进攻时选择任意数量己方指示物单位并移动到来源战场的技能",
+      "status": "route",
+      "reason": "进攻产生独立技能，确认任意数量友方单位指示物，移动受限、已在此战场和来源自身仍可作为目标；结算按原代际来源的当前战场，重查各目标与移动限制后通过共享整组移动、装备跟随与施加费用执行；进攻与防守捕获沿用共享原始记录，目标、数量和代际须匹配实际接受的确认，覆盖法盾付款及暂停续结算，且不能恢复为空绑定重新打开已接受的选择",
       "runtime": {
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "unitEventAbility": {
+              "timing": "ATTACK",
+              "effect": "MOVE_FRIENDLY_UNIT_TOKENS_HERE",
+              "optional": true,
+              "anyNumberOfTargets": true
+            }
+          }
+        ],
         "staticAuras": []
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TokenUnitMovement.cs",
           "contains": [
-            "\"AZIR_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+            "ResolveFriendlyUnitTokenMovement(",
+            "UnitEventHereDestination(state, item)",
+            "StackObjectRules.ReferencesCurrentObject(state, item, id)",
+            "item, selected, destination, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "PayImposedMovementCost(",
+            "CaptureMovementBatchObservers(",
+            "MoveAttachedEquipmentWithHost("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTargets.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "targets.SequenceEqual(item.TargetObjectIds)",
+            "command.CompletedTick == confirmations[0].Tick",
+            "unit event targets differ from original accepted confirmation",
+            "if (item.TargetGenerations is null)",
+            "record.Tick <= frame.Tick",
+            "command.CompletedTick == record.Tick"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心383.2–383.3；该卡官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.cs",
+          "methods": [
+            "ActualHastePlayAndAttackChooseAnySubsetOfActuallyCreatedFriendlyUnitTokens",
+            "AnAttackWithNoLegalFriendlyTokenDoesNotCreateAnImpossibleChoice"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Responses.cs",
+          "methods": [
+            "ARealReturnResponseEitherRemovesTheSourceLocationOrOnlyOneChosenToken",
+            "AnActualFlashResponseLeavesNoSourceBattlefieldAtResolution",
+            "OneTwoTokenBatchPaysOnlyOnePatrolExtraUnitFeeAndMovesActuallyAttachedEquipment"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Standby.cs",
+          "methods": [
+            "ARealPastTurnStandbySwapMakesTheSkillUseAzirsNewBattlefield"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Copies.cs",
+          "methods": [
+            "AnActualAssembledSongEarnsASeparateChoiceAndIndependentAttackSkill",
+            "AnActualImageCopiesTheAttackTextAndItsCeasedSourceCannotSupplyALastKnownBattlefield",
+            "AConfirmedTokenCannotBeReplacedByAnotherStillLegalTokenUsingACoherentSnapshot",
+            "AnAcceptedTokenTargetConfirmationCannotBeRewoundToItsEarlierUnconfirmedSnapshot"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Defend.cs",
+          "methods": [
+            "AnActualImageDefendingAsYuumiKeepsItsEarnedSkillButHasNoHereAfterCeasing"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Ward.cs",
+          "methods": [
+            "AnotherUnitEventLocksTheOriginalEnemyBeforeWardAndKeepsItAfterPayment"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AzirTokenAttackMovementTests.Eligibility.cs",
+          "methods": [
+            "AnActualVexMovementRestrictionDoesNotRemoveFriendlyTokensFromTheTargetChoices",
+            "AnActualAzirImageMayTargetItselfEvenThoughItIsAlreadyAtTheDestination"
+          ]
+        }
+      ],
+      "rules": "核心383.2–383.3、355.9、355.9.c、359.3.e.2、359.3.e.6、359.3.e.12、359.3.f.2、430.3；官方中文牌面；Vendetta 官方 FAQ 对 Azir, Sovereign 的结算时当前位置说明"
     },
     {
       "cardNos": [

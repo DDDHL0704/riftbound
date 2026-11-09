@@ -1240,6 +1240,7 @@ public static partial class MatchRecoveryValidator
             ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventTurnPlayHistory(authoritativeState, commands, events, errors);
+            ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors);
             ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
             ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);

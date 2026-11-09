@@ -1473,6 +1473,125 @@ def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict 
         if exact else result("missing", "缺少精确的来源战斗条件、友敌双方费用规格或实际共享报价／付款消费者", paths)
 
 
+def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize('当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。')
+    if normalize(unparenthesize(clause['text'])) != sentence:
+        return None
+    profiles = card.get('behaviors', [])
+    expected = dict(timing='ATTACK', effect='MOVE_FRIENDLY_UNIT_TOKENS_HERE',
+                    optional=True, anyNumberOfTargets=True)
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == sentence \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 1
+    if exact:
+        profile = profiles[0]; spec = profile.get('unitEventAbility')
+        exact = profile.get('playsSourceToBaseAsUnit') is True and isinstance(spec, dict) \
+            and inventory_contains(spec, expected) \
+            and type(spec.get('amount', 0)) is int and spec.get('amount', 0) == 0 \
+            and not any(meaningful(value) for key, value in spec.items() if key not in expected)
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        starts = list(re.finditer(r'(?m)^    (?:private|internal|public) (?:static )?[^()\n{}=]*\b'
+                          + re.escape(name) + r'\s*\(', code))
+        if not starts:
+            return ''
+        # Private overloads hold the shared implementation after public wrappers.
+        start = starts[-1]
+        rest = code[start.start():]; offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+    targets = member('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets')
+    # Bind filters to this case. An unrelated enemy/friendly case or unused
+    # method containing the expected token cannot certify this effect's scope.
+    branch = re.search(r'FriendlyUnitTokensMoveHere\s*=>(.*?)\n\s*"MOVE_ENEMY_HERE"\s*=>', targets, re.S)
+    # CN355.9 / 359.3.e.6: targets need only satisfy the printed noun scope.
+    # Moving restrictions and already being here are checked at resolution.
+    target_scope = ('IsFaceUpNonStandbyUnit(c) && IsTokenObject(c) && '
+                    'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId')
+    exact = exact and branch is not None and re.sub(r'\s+', '', branch[1]).rstrip(',') \
+        == re.sub(r'\s+', '', target_scope)
+    exact = exact and 'internal const string FriendlyUnitTokensMoveHere = \"MOVE_FRIENDLY_UNIT_TOKENS_HERE\";' in sources.files.get(prefix + 'CoreRuleEngine.TokenUnitMovement.cs', '')
+    checks = [
+        ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext', [
+            'UnitEventTimingMatches(unitEvent.Timing, "ATTACK")']),
+        ('CoreRuleEngine.cs', 'BuildTriggerQueuedEvent', [
+            'TimingCaptureContext(trigger)', 'TimingCaptureHash(timingContext, trigger.TimingAlias)']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'ValidateBattlefieldTimingHistory', [
+            'hash != CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)',
+            '"TOKEN_CEASED_TO_EXIST"', 'c.Accepted']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'HasValidatedCeasedBattlefieldUnitEventSource', [
+            'P6TokenFactoryCatalog.IsTokenFactory(token)', 'CoreRuleEngine.TimingCaptureContext(stack)',
+            'CoreRuleEngine.ValidUnitEventTargets(stack)']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', [
+            'item.StandbyObserver?.Unit is not null || item.UnitEvent is not null',
+            '["targetGenerations"] = bound.TargetGenerations']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'CompleteTriggerTargetConfirmation', [
+            'item.StandbyObserver?.Unit is not null || item.UnitEvent is not null',
+            '["stackItemId"] = item.StackItemId', '["targetGenerations"] = confirmed.TargetGenerations']),
+        ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
+            'CurrentGameAcceptedEventBoundary(state, commands, events)', 'state.PendingRuleChoice?.Origin',
+            'frame.PendingEffectPlay?.Parent', 'record.Sequence > boundary',
+            'if (item.TargetGenerations is null)', 'record.Tick <= frame.Tick',
+            'record.Event.Kind is "PAYMENT_WINDOW_OPENED" or "TRIGGER_CONFIRMED"',
+            'generations is not null', 'command.CompletedTick == record.Tick',
+            'command.StartedEventSequence < record.Sequence', 'command.CompletedEventSequence >= record.Sequence',
+            'targets.SequenceEqual(item.TargetObjectIds)',
+            'MatchStateHasher.HashValue(generations) == MatchStateHasher.HashValue(item.TargetGenerations)',
+            'confirmations.Length != 1', 'command.Accepted', 'command.PlayerId == item.ControllerId',
+            'command.CompletedTick == confirmations[0].Tick',
+            'command.StartedEventSequence < confirmations[0].Sequence',
+            'command.CompletedEventSequence >= confirmations[0].Sequence']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors)',
+            'ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors)']),
+        ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['if (stackItem.UnitEvent is not null) return ResolveUnitEvent(state, stackItem)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', ['ResolveUnitEventInstruction(state, item)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', ['IsObjectOnField(zones, id)',
+            'AttachedRuleTextRules.Instances(zones, cards, card)', 'UnitEventTimingMatches(spec.Timing, timing)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureAttackUnitEvents', [
+            'CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")', 'UnitEventTrigger(']),
+        ('CoreRuleEngine.BattleStartRoles.cs', 'RecordBattleDuelRoles', [
+            'CaptureFirstBattleRoles(', 'CaptureAttackUnitEvents(state, firstAttackers,', '.Select(BuildTriggerQueuedEvent)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['FriendlyUnitTokensMoveHere']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+            'UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1',
+            'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
+            'AnyNumberOfTargets || item.TargetObjectIds.Count == 1',
+            'item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count',
+            'item.TargetGenerations.Count == item.TargetObjectIds.Count']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'FriendlyUnitTokensMoveHere', 'return ResolvePermanentUnitEventInstruction(state, item, spec)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'ResolvePermanentUnitEventInstruction', [
+            'if (spec.Effect == FriendlyUnitTokensMoveHere)', 'return ResolveFriendlyUnitTokenMovement(state, item)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'UnitEventHereDestination', [
+            'CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)',
+            'Zone: "BATTLEFIELD"']),
+        ('CoreRuleEngine.CombatMight.cs', 'CombatMightSourceLocation', [
+            'source.ObjectGeneration == generation', 'IsObjectOnField(state.PlayerZones, sourceId)',
+            'state.ObjectLocations.TryGetValue(sourceId, out var location)']),
+        ('CoreRuleEngine.TokenUnitMovement.cs', 'ResolveFriendlyUnitTokenMovement', [
+            'var destination = UnitEventHereDestination(state, item)', 'if (destination is null)',
+            'UnitEventTargets(state, item).ToHashSet(StringComparer.Ordinal)',
+            'StackObjectRules.ReferencesCurrentObject(state, item, id)',
+            'if (selected.Length == 0)', 'MoveFieldUnitsToChosenLocation(', 'item, selected, destination, events)',
+            'ObjectLocations = ReconcileObjectLocations(locations, zones)', 'RunePools = pools']),
+        ('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation', [
+            'cards[id].ObjectGeneration, cards[id].ControllerId', 'MovementTargetIsCurrent(current, item, id)',
+            'IsUnitMovementDestination(current, id, destination)',
+            'MovementRestrictionRules.CanMove(unit, item.ControllerId)',
+            'PayImposedMovementCost(', 'CurrentMovers, events)', 'CaptureMovementBatchObservers(',
+            'MoveAttachedEquipmentWithHost(', '["simultaneousSourceObjectIds"] = movable']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', ['TargetGenerations = selected.ToDictionary']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+                          for filename, name, tokens in checks)
+    return result('route' if exact else 'missing',
+        '进攻时独立确认任意数量友方单位指示物；结算重查原代际来源的当前位置与各目标，再按一批执行移动、装备跟随及施加费用；恢复绑定原始捕获和目标确认'
+        if exact else '缺少进攻触发、任意数量友方单位指示物范围、结算时当前来源位置，或共享批量移动与原代际确认消费者',
+        sorted({prefix + filename for filename, _, _ in checks}))
+
+
 def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     if text != normalize("当你{{眩晕}}战场上的一名敌方单位时，你可以选择将我移动到该战场。"):
@@ -2714,6 +2833,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return conditional
     if standby_unit := standby_unit_observer_route(card, clause, sources):
         return standby_unit
+    if token_movement := friendly_token_attack_movement_route(card, clause, sources):
+        return token_movement
     if stun_movement := stun_source_movement_route(card, clause, sources):
         return stun_movement
     if combat_cost := combat_spell_cost_route(card, clause, sources):
