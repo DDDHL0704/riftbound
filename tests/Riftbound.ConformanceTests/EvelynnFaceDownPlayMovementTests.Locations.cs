@@ -61,6 +61,7 @@ public sealed partial class EvelynnFaceDownPlayMovementTests
         var game = await Ready(anotherFriendlyBattlefield: true);
         await game.Act("P1", new TapRuneCommand("P1-FUND-1"));
         await game.Act("P1", new TapRuneCommand("P1-FUND-2"));
+        await game.Act("P1", new RecycleRuneCommand("P1-GREEN"));
         await game.Act("P1", new PlayCardCommand("SHADOW", Evelynn, []));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
