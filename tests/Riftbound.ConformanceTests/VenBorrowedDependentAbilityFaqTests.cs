@@ -75,6 +75,17 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         initial = adjust?.Invoke(initial) ?? initial;
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("HOST", printing, []));
+        // A donor may also observe the host's real play. Decline its optional
+        // entry costs before preparing the unrelated borrowed activation.
+        for (var i = 0; game.State.PendingPayment is { PaymentWindow: "TRIGGER_COST_CONFIRMATION" } payment; i++)
+        {
+            Assert.InRange(i, 0, 4);
+            var skill = game.State.StackItems[^1];
+            Assert.NotNull(skill.UnitEvent);
+            Assert.True(CardBehaviorRegistry.TryGetByCardNo(skill.UnitEvent.CardNo, out var observed));
+            Assert.True(observed.UnitEventAbility?.Optional == true);
+            await game.Act(payment.PlayerId, new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+        }
         if (empower) {
             await game.Act("P1", new PlayCardCommand("STATUS", "VEN·035", ["HOST"], Mode: "EMPOWER_THEN_REMOVE"));
             await game.Top();
