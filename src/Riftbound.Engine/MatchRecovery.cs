@@ -1236,6 +1236,7 @@ public static partial class MatchRecoveryValidator
             ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
             ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateSnapshotKeywordGrantHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
             ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors);
             ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
@@ -5605,7 +5606,7 @@ public static partial class MatchRecoveryValidator
             if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                 && RengarPlayRecoveryRules.ValidStack(authoritativeState, stackItem))
                 foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
-            if (stackItem.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier, TargetTokenFactoryCardNo: not null }
+            if (stackItem.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower, TargetTokenFactoryCardNo: not null }
                 && CoreRuleEngine.ValidTargetedMovementStack(authoritativeState, stackItem))
                 foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
             if (stackItem.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, stackItem, destroyDeck.Target.ObjectId))
@@ -5933,7 +5934,7 @@ public static partial class MatchRecoveryValidator
                 if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                     && RengarPlayRecoveryRules.ValidStack(authoritativeState, original))
                     foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
-                if (original.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier, TargetTokenFactoryCardNo: not null }
+                if (original.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower, TargetTokenFactoryCardNo: not null }
                     && CoreRuleEngine.ValidTargetedMovementStack(authoritativeState, original))
                     foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
                 if (original.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, original, destroyDeck.Target.ObjectId))

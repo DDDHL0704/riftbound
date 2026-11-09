@@ -1933,7 +1933,7 @@
             "CaptureConquestDamage(state, state, player, field, units, tick, activation, eventKind)",
             "CaptureGrantedConquestReturns(state, player, field, units, tick, activation, eventKind)",
             "CaptureConquestEventObservations(state, units)",
-            "HuntAmountFromTags",
+            "CurrentHuntAmount(state.CardObjects[id])",
             "CaptureConquestSources(state, player, field, units, tick, eventKind)"
           ]
         },
@@ -1959,6 +1959,12 @@
           "contains": [
             "NamedConquestCaptureOf(trigger.ConquestToken, trigger.UnitConquest, trigger.RecastContext)",
             "payload[\"conquestContextHash\"] = capture.ContextHash"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SnapshotKeywordGrants.cs",
+          "contains": [
+            "CardResourceKeywordRules.HuntAmountFromTags(card.Tags) + SnapshotKeywordGrantRules.Amount(card, \"狩猎\")"
           ]
         }
       ],

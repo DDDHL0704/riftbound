@@ -9,6 +9,7 @@ public sealed partial class CoreRuleEngine
     private static int ResourceKeywordAmountWithoutFriendlyAuras(MatchState state, CardObjectState card, string keyword)
         => CardCombatKeywordRules.KeywordAmount(NonRuleDerivedTags(card), keyword)
             + CardCombatKeywordRules.KeywordAmount(card.RuleDerivedTags ?? [], keyword)
+            + SnapshotKeywordGrantRules.Amount(card, keyword)
             + TemporaryCombatKeywordRules.Amount(card, keyword)
             + CopiedRuleTextKeywordAmount(state, card, keyword)
             + ResolveSourceObjectResourceKeywordAmount(state, card, keyword)

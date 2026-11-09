@@ -23,6 +23,7 @@ public sealed partial class CoreRuleEngine
         // Numeric keywords from other friendly units are independent grants (CN 814.2).
         amount += ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(state, zones, unit.ObjectId, unit, keyword)
             + ResolveSameBattlefieldFriendlyKeywordBonus(state, unit, keyword)
+            + SnapshotKeywordGrantRules.Amount(unit, keyword)
             + TemporaryCombatKeywordRules.Amount(unit, keyword)
             + CopiedRuleTextKeywordAmount(state, unit, keyword);
         // The granted text defines a live value. Later Steadfast grants, copied

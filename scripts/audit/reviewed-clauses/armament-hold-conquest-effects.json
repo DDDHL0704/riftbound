@@ -203,8 +203,9 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")",
-            "factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);",
-            "[\"sourceObjectId\"] = publicSource"
+            "factory.TokenFamilyName, factory.Tags, true, events, context.CardNo,",
+            "[\"sourceObjectId\"] = publicSource",
+            "tokenIdentitySeed: \"equipment-token-\" + MatchStateHasher.HashValue(item.StackItemId)"
           ]
         },
         {

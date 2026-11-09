@@ -57,7 +57,7 @@ public sealed partial class CoreRuleEngine
                 : effect != MovementDiscardInlineEffect || c.DiscardInline is null)
             || c.DiscardInline is not null && (c.Kind != TriggerKinds.UnitMovedDrawDiscardTypes || !ValidMovementDiscardInline(c.DiscardInline))
             || c.SourceGeneration < 0 || c.SourceWasEmpowered == false || cardNo is not null && cardNo != c.CardNo
-            || c.TargetTokenFactoryCardNo is not null && (c.Kind is not (TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier)
+            || c.TargetTokenFactoryCardNo is not null && (c.Kind is not (TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower)
                 || !P6TokenFactoryCatalog.IsUnitTokenFactory(c.TargetTokenFactoryCardNo))
             || !ValidMovedUnitFact(c.Unit)
             || (c.Origin is null ? c.RuleTextInstanceId is not null
@@ -146,6 +146,7 @@ public sealed partial class CoreRuleEngine
                 MovedEnemyStunKind => "：可横置来源，以此眩晕刚移动的敌方单位",
                 TriggerKinds.FriendlyUnitMovedFromHereMayFollow => "：可跟随刚从此处移走的友方单位",
                 TriggerKinds.UnitMovedOtherFriendlyPowerModifier => "：移动到战场后让另一名友方单位本回合增加战力",
+                TriggerKinds.UnitMovedGrantSourceKeywordsAndPower => "：移动到战场后让另一名友方单位本回合获得当前关键词与战力加成",
                 TriggerKinds.UnitMovedSetOtherUnitBaseMight => "：移动后可设置另一名单位本回合的基础战力",
                 TriggerKinds.UnitMovedDamageAtOriginOrDestination => "：移动后可对起点或终点战场的一名单位造成伤害",
                 TriggerKinds.UnitMovedSourceKeywordDamage => "：移动后可对战场上的一名单位造成等同于坚守数值的伤害",
@@ -269,7 +270,7 @@ public sealed partial class CoreRuleEngine
                     observer.Context.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD") { MovementObserver = resource ? null : observer.Context, SourceCardNo = observer.Context.CardNo };
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
-                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or MovedEnemyStunKind)
+                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedOtherFriendlyPowerModifier or TriggerKinds.UnitMovedGrantSourceKeywordsAndPower or MovedEnemyStunKind)
                     queued = queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
                         ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, trigger.SourceObjectId, ProjectionViewers.Spectator) } };
                 events.Add(queued);
@@ -302,6 +303,8 @@ public sealed partial class CoreRuleEngine
                 ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) } };
             return context.Kind == TriggerKinds.UnitMovedSetOtherUnitBaseMight
                 ? ResolveMovementBaseMight(state, item, events)
+                : context.Kind == TriggerKinds.UnitMovedGrantSourceKeywordsAndPower
+                    ? ResolveMovementSourceKeywordPower(state, item, events)
                 : context.Kind == TriggerKinds.UnitMovedOtherFriendlyPowerModifier
                     ? ResolveMovementOtherPower(state, item, events) : ResolveMovementDamage(state, item, events);
         }

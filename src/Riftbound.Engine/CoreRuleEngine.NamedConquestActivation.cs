@@ -90,7 +90,7 @@ public sealed partial class CoreRuleEngine
         foreach (var trigger in captures) yield return trigger;
         foreach (var id in units)
         {
-            if (includeHunt && CardResourceKeywordRules.HuntAmountFromTags(state.CardObjects[id].Tags) is > 0 and var hunt)
+            if (includeHunt && CurrentHuntAmount(state.CardObjects[id]) is > 0 and var hunt)
                 yield return new($"activated-conquest-hunt-{tick}-{id}-{activation?.ParentStackItemId}", player, id,
                     "HOLD_EXPERIENCE", eventKind) {
                     HeldContext = new(state.CardObjects[id].CardNo!, field, "EXPERIENCE", hunt,

@@ -5343,6 +5343,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         if (TimingCaptureContext(trigger) is { } timingContext)
             payload["timingCaptureHash"] = TimingCaptureHash(timingContext, trigger.TimingAlias);
+        if (trigger.FieldContext is { Disarm: { } disarm } field && disarm.Contributions.Any(c => c.SnapshotKeywordGrant is not null))
+            payload["snapshotDisarmCaptureHash"] = SnapshotDisarmCaptureHash(field, trigger.SourceObjectId, trigger.ControllerId);
         if (trigger.UnitEvent is { Origin.ArmamentGranted: true } armamentEvent)
             payload["armamentGrantHash"] = ArmamentUnitEventRules.CaptureHash(armamentEvent);
         if (RequiresInstructionCostHistory(trigger.UnitEvent))
@@ -12496,7 +12498,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 ObjectId = objectId,
                 CardObject = cardObjects[objectId],
-                HuntAmount = CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags)
+                HuntAmount = CurrentHuntAmount(cardObjects[objectId])
             })
             .Where(source => source.HuntAmount > 0)
             .ToArray();
@@ -19287,7 +19289,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, nextControllerId))
                 .Distinct(StringComparer.Ordinal).ToArray();
             var sourceObjectId = (concludingBattle ? conqueringUnitObjectIds.FirstOrDefault(objectId =>
-                    CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags) > 0) : null)
+                    CurrentHuntAmount(cardObjects[objectId]) > 0) : null)
                 ?? conqueringUnitObjectIds.FirstOrDefault() ?? nextControllerId;
             events.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",

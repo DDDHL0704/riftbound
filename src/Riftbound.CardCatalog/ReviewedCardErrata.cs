@@ -17,6 +17,10 @@ internal static class ReviewedCardErrata
         // SHA256 13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d.
         : id == 33075 && cardNo == "SFD·003/221"
             ? "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1}}（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）"
+        // CN SFD official FAQ 260114, p11: Kato cannot choose itself.
+        // SHA256 d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01.
+        : id == 33198 && cardNo == "SFD·112/221"
+            ? printedText.Replace("让一名友方单位在本回合内获得我的关键词", "让另一名友方单位在本回合内获得我的关键词", StringComparison.Ordinal)
         // CN official 2026-10-16 catalog, exact record 31240 / OGN·032.
         // The errata limits the delayed passive to this turn (core 392).
         : id == 31240 && cardNo == "OGN·032/298"

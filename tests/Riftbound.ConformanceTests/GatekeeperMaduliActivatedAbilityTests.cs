@@ -125,7 +125,10 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Empty(p2Pass.State.StackItems);
+        var defense = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal(StrongEnemyUnitObjectId, defense.SourceObjectId);
+        Assert.Equal(UnitEventTimings.PlayerDefend, defense.UnitEvent!.Timing);
+        Assert.Equal(LegalBattlefieldObjectId, defense.UnitEvent.DefendedBattlefield!.ObjectId);
         Assert.DoesNotContain(MaduliObjectId, p2Pass.State.PlayerZones["P1"].Base);
         Assert.Contains(MaduliObjectId, p2Pass.State.PlayerZones["P1"].Battlefields);
         Assert.Equal("BATTLEFIELD", p2Pass.State.ObjectLocations[MaduliObjectId].Zone);
@@ -139,6 +142,16 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
         Assert.Equal("GATEKEEPER_MADULI_PURPLE_MOVE", moveEvent.Payload["movementPermission"]);
         Assert.Equal(6, moveEvent.Payload["sourcePower"]);
         Assert.Equal(3, moveEvent.Payload["enemyUnitPowerSum"]);
+
+        var hound = Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
+        Assert.Equal("P2", hound.PlayerId); Assert.Equal(["MOVE_SELF"], hound.LegalObjectIds);
+        var declined = await engine.ResolveAsync(p2Pass.State,
+            new("intent-maduli-decline-hound", "P2", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(hound.ChoiceId, hound.ChoiceWindow, []), CancellationToken.None);
+        Assert.True(declined.Accepted, declined.ErrorMessage);
+        Assert.Empty(declined.State.StackItems);
+        Assert.Equal(TimingStates.SpellDuelOpen, declined.State.TimingState);
+        Assert.Equal(StrongBattlefieldObjectId, declined.State.ObjectLocations[StrongEnemyUnitObjectId].BattlefieldObjectId);
     }
 
     [Fact]
