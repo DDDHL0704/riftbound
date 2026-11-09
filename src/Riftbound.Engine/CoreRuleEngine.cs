@@ -31146,12 +31146,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var equipmentDraws = before is null ? [] : CaptureEquipmentLastBreathDraws(state, zones, cards, before);
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(state, zones, cards, before, controller);
         var destroyedEvents = CaptureUnitEvents(zones, cards, [id], "DESTROYED");
+        var equipmentLastBreaths = before is null ? []
+            : CaptureEquipmentLastBreathUnitEvents(state, zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         if (removed && removal.WasDestroyed)
         {
             var eventKind = removal.WasEquipment && !removal.WasUnit ? "EQUIPMENT_DESTROYED" : "UNIT_DESTROYED";
             RuleChoices.Value!.InstructionUnitEvents.AddRange(destroyedEvents.Select(observation => observation with {
                 InstructionEventKind = eventKind }));
+            if (!removal.WasUnit) RuleChoices.Value.InstructionUnitEvents.AddRange(equipmentLastBreaths);
         }
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
             Death = removed && removal.WasDestroyed && removal.WasUnit
@@ -33292,6 +33295,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["battlefieldObjectId"] = battlefieldObjectId, ["count"] = 1,
                     ["battlefieldReturnContext"] = returnContext,
                     [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId) }));
+            events[^1] = CaptureOpponentScoringAction(events[^1], state, playerZones, cardObjects, playerId, battlefieldObjectId, reason);
             var draw = ApplyDrawToPlayer(state with {
                 PlayerZones = playerZones, CardObjects = cardObjects, UntilEndOfTurnEffects = nextUntilEndOfTurnEffects },
                 playerZones, cardObjects, playerScores, playerId, 1, state.RngCursor, events);
@@ -33307,6 +33311,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             events[^1] = prevented with { Payload = new Dictionary<string, object?>(prevented.Payload) {
                 ["battlefieldObjectId"] = battlefieldObjectId, ["battlefieldReturnContext"] = returnContext,
                 [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId) } };
+            events[^1] = CaptureOpponentScoringAction(events[^1], state, playerZones, cardObjects, playerId, battlefieldObjectId, reason);
             return true;
         }
 
@@ -33332,6 +33337,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["battlefieldReturnContext"] = returnContext,
                 [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId)
             }));
+        events[^1] = CaptureOpponentScoringAction(events[^1], state, playerZones, cardObjects, playerId, battlefieldObjectId, reason);
         if (winnerPlayerId is not null)
         {
             events.Add(new GameEvent(

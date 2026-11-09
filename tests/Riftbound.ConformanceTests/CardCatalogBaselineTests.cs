@@ -890,8 +890,8 @@ public sealed class CardCatalogBaselineTests
             specImplementedEntries: 18,
             functionalUnits: 17,
             specImplementedFunctionalUnits: 17,
-            registryExecutionEntries: 6,
-            registryExecutionFunctionalUnits: 6,
+            registryExecutionEntries: 7,
+            registryExecutionFunctionalUnits: 7,
             profileDeferredEntries: 18,
             profileDeferredFunctionalUnits: 17);
         AssertResourceKeywordCoverage(
