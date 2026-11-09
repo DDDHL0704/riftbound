@@ -140,6 +140,12 @@ public sealed class AkshanIndependentPaidPlayTests
         Assert.Equal("NEXT-UNIT", gear.AttachedToObjectId);
         Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
         Assert.Null(gear.EquipmentControl);
+        // The opponent still controls the armament attached in our base.
+        // A later play must be able to choose it as enemy equipment.
+        await game.Act("P1", new PlayCardCommand("UNIT", Akshan, [], OptionalCosts: [Fee]));
+        await Confirm(game, "GEAR"); await game.Top();
+        Assert.Equal("P1", game.State.CardObjects["GEAR"].ControllerId);
+        Assert.Equal("UNIT", game.State.CardObjects["GEAR"].AttachedToObjectId);
         await game.ColdCheckpoint();
     }
 
@@ -237,6 +243,38 @@ public sealed class AkshanIndependentPaidPlayTests
         Assert.Equal(new ObjectLocationState("P1", "BASE"), game.State.ObjectLocations["CARRIED"]);
         Assert.Contains(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_MOVED_WITH_UNIT"
             && Equals(entry.Event.Payload["equipmentObjectId"], "CARRIED"));
+        await game.ColdCheckpoint();
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task ANewControlInstructionSupersedesEarlierSourceBoundControl(bool battlefieldControl)
+    {
+        var takeover = battlefieldControl ? "SFD·202/221" : "OGN·203/298";
+        var initial = RadGearTestPosition.Put(Position(), "TAKE", takeover, "P2", "HAND");
+        initial = RadGearTestPosition.Put(initial, "RETURN-SOURCE", "OGN·104/298", "P1", "HAND");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = new("GEAR", cardNo: "RAD·146/167", power: 4,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.EquipmentCard], ownerId: "P2", controllerId: "P2") } };
+        for (var index = 0; index < 9; index++)
+            initial = RadGearTestPosition.Put(initial, "CONTROL-RUNE-" + index, battlefieldControl ? "UNL-R06" : "UNL-R05", "P2", "BASE");
+        initial = RadGearTestPosition.Put(initial, "P1-RETURN-RUNE", "UNL-R04", "P1", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", Akshan, [], OptionalCosts: [Fee]));
+        await Confirm(game, "GEAR"); await game.Top();
+        Assert.NotNull(game.State.CardObjects["GEAR"].EquipmentControl);
+        await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF"));
+        await game.Act("P1", new EndTurnCommand());
+        await game.TapRunes("P2", Enumerable.Range(0, 9).Select(index => "CONTROL-RUNE-" + index));
+        await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
+        await game.Act("P2", new PlayCardCommand("TAKE", takeover, ["GEAR"])); await game.Top();
+        Assert.Equal("P2", game.State.CardObjects["GEAR"].ControllerId);
+        Assert.Null(game.State.CardObjects["GEAR"].EquipmentControl);
+        if (battlefieldControl) { await game.ColdCheckpoint(); return; }
+        await game.Act("P2", new EndTurnCommand());
+        await game.Act("P1", new TapRuneCommand("P1-RETURN-RUNE"));
+        await game.Act("P1", new PlayCardCommand("RETURN-SOURCE", "OGN·104/298", ["UNIT"])); await game.Top();
+        Assert.Equal("P2", game.State.CardObjects["GEAR"].ControllerId);
+        Assert.Contains("GEAR", game.State.PlayerZones["P2"].Base);
         await game.ColdCheckpoint();
     }
 

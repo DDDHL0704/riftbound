@@ -34,6 +34,10 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
         for clause in audit.card_clauses(self.value):
             self.assertEqual('route', audit.audit_clause(self.value, clause, self.sources)['status'])
 
+    def test_runtime_export_omits_the_default_zero_minimum(self):
+        del self.value['behaviors'][0]['minTargetCount']
+        self.assertEqual(['route'] * 4, [item['status'] for item in self.outcomes()])
+
     def test_wrong_fee_scope_card_type_or_optional_target_shape_cannot_certify_any_clause(self):
         original = self.value['behaviors'][0].copy()
         for field, value in [('targetEffectAdditionalPowerCost', 1), ('targetEffectAdditionalPowerCost', True),

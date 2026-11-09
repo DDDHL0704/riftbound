@@ -1922,12 +1922,12 @@ def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> di
         and all(sentence in normalize(unparenthesize(card.get('cardEffect', ''))) for sentence in sentences)
     profiles = card.get('behaviors', [])
     exact = exact and len(profiles) == 1 and inventory_contains(profiles[0], dict(
-        playsSourceToBaseAsUnit=True, requiredTargetCount=1, minTargetCount=0,
+        playsSourceToBaseAsUnit=True, requiredTargetCount=1,
         targetScope='ENEMY_UNIT_OR_EQUIPMENT', targetScopeIsExplicit=True, targetRequiredTag='CARD_TYPE:EQUIPMENT',
         targetEffectAdditionalPowerCost=2, targetEffectAdditionalPowerTrait='orange',
         paidPlayTargetsOptional=True, stealsTargetEquipmentUntilSourceLeaves=True))
     exact = exact and all(type(profiles[0].get(key, 0)) is int and profiles[0].get(key, 0) == 0
-        for key in ['damageAmount', 'targetEffectAdditionalManaCost'])
+        for key in ['damageAmount', 'minTargetCount', 'targetEffectAdditionalManaCost'])
     prefix = 'src/Riftbound.Engine/'
 
     def member(filename, name):
