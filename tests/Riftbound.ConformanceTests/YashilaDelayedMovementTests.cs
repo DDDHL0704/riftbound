@@ -199,4 +199,20 @@ public sealed class YashilaDelayedMovementTests
         await Choose(game, "ENEMY"); await game.Top();
         Assert.Equal("BF", game.State.ObjectLocations["ENEMY"].BattlefieldObjectId); await game.Replay();
     }
+
+    [Fact]
+    public async Task TheRealMainTriggerCanConfirmAnImmovableEnemyAndResolveWithoutMovingIt()
+    {
+        var state = Position(); state = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["ENEMY"] = state.CardObjects["ENEMY"] with { UntilEndOfTurnEffects = [MovementRestrictionRules.AllPlayers] } } };
+        var game = new Driver(state); await Schedule(game); await AdvanceToMain(game);
+        Assert.Contains("ENEMY", game.State.PendingCardChoice!.LegalObjectIds);
+        var prefix = game.Events().Length; await Choose(game, "ENEMY");
+        Assert.Equal("ENEMY", Assert.Single(game.State.StackItems).TargetObjectIds.Single());
+        await game.Top(); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain(game.Events().Skip(prefix), entry =>
+            entry.Event.Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD"); await game.Replay();
+    }
+
 }

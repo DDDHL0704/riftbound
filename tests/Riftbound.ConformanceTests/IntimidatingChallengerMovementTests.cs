@@ -97,4 +97,20 @@ public sealed class IntimidatingChallengerMovementTests
             : item with { Destination = "BATTLEFIELD:BF" }] };
         Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, forged)); await game.Replay();
     }
+
+    [Fact]
+    public async Task AMovementRestrictionDoesNotPreventConfirmingTheWeakerEnemyHere()
+    {
+        var state = Position(); state = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["ENEMY"] = state.CardObjects["ENEMY"] with { UntilEndOfTurnEffects = [MovementRestrictionRules.AllPlayers] } } };
+        var game = new Driver(state); await Move(game);
+        Assert.Contains("ENEMY", game.State.PendingCardChoice!.LegalObjectIds);
+        var prefix = game.Events().Length; await Confirm(game);
+        Assert.Equal("BATTLEFIELD:OTHER", Assert.Single(game.State.StackItems).Destination);
+        await game.Top(); Assert.Equal("BF", game.State.ObjectLocations["ENEMY"].BattlefieldObjectId);
+        Assert.DoesNotContain(game.Events().Skip(prefix), entry =>
+            entry.Event.Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD"); await game.Replay();
+    }
+
 }

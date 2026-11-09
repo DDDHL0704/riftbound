@@ -77,4 +77,39 @@ public sealed class AlluringFaerieMovementTests
         await RadGearTestPosition.Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [invalid]));
         await Choose(game, "ENEMY"); await game.Top(); await game.Replay();
     }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AnEnemyAlreadyThereOrUnableToMoveRemainsAConfirmableTarget(bool alreadyThere)
+    {
+        var state = Position();
+        if (alreadyThere) state = RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "BF");
+        else state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["ENEMY"] = state.CardObjects["ENEMY"] with { UntilEndOfTurnEffects = [MovementRestrictionRules.AllPlayers] } } };
+        var game = new Driver(state); await Move(game);
+        Assert.Contains("ENEMY", game.State.PendingCardChoice!.LegalObjectIds);
+        var prefix = game.Events().Length; await Choose(game, "ENEMY");
+        Assert.Equal("ENEMY", Assert.Single(game.State.StackItems).TargetObjectIds.Single());
+        await game.Top();
+        Assert.Equal(alreadyThere ? "BATTLEFIELD" : "BASE", game.State.ObjectLocations["ENEMY"].Zone);
+        if (alreadyThere) Assert.Equal("BF", game.State.ObjectLocations["ENEMY"].BattlefieldObjectId);
+        Assert.DoesNotContain(game.Events().Skip(prefix), entry =>
+            entry.Event.Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD"); await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnEnemyChosenAtTheArrivalBattlefieldCanLeaveInResponseAndBeMovedBack()
+    {
+        var state = RadUnitEffectTestFixture.Place(Position(), "ENEMY", "P2", "BATTLEFIELD", "BF");
+        state = RadGearTestPosition.Put(state, "ENEMY-BLINK", "OGS·011/024", "P2", "HAND");
+        var game = new Driver(state); await Move(game); await Choose(game, "ENEMY");
+        var generation = game.State.CardObjects["ENEMY"].ObjectGeneration;
+        await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("ENEMY-BLINK", "OGS·011/024", ["ENEMY"])); await game.Top();
+        Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Base);
+        Assert.Equal(generation, game.State.CardObjects["ENEMY"].ObjectGeneration);
+        await game.Top(); Assert.Equal("BF", game.State.ObjectLocations["ENEMY"].BattlefieldObjectId);
+        Assert.Equal(generation, game.State.CardObjects["ENEMY"].ObjectGeneration); await game.Replay();
+    }
+
 }

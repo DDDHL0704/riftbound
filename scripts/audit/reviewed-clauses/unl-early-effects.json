@@ -1204,8 +1204,8 @@
       "text": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
       "scope": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
       "status": "route",
-      "reason": "据守的独立技能结算后建立持久延迟记录；实际下个己方主阶段开始、符文池清空后再产生可选敌方目标的独立移动技能。战场、来源代际和原控制者在据守时固定，来源返手、移动或被夺取不改变已经建立的延迟；创建、消费及后来触发分别核对原始已接受历史，禁止重写来源原捕获时刻。",
-      "rules": "中国区核心191.5.b、315.2、316.3、355.4.a、359.3.f、383.4.d及390–393；娅希拉官方中文牌面。",
+      "reason": "据守的独立技能结算后建立持久延迟记录；实际下个己方主阶段开始、符文池清空后再产生可选敌方目标的独立移动技能。战场、来源代际和原控制者在据守时固定，来源返手、移动或被夺取不改变已经建立的延迟；创建、消费及后来触发分别核对原始已接受历史，禁止重写来源原捕获时刻。 目标只受牌面单位描述和目标保护限制；单位不能移动或已经位于目的战场仍可被选取，移动可行性在响应后的共享执行器中检查。",
+      "rules": "中国区核心191.5.b、315.2、316.3、355.4.a、359.3.f、383.4.d及390–393；娅希拉官方中文牌面。 目标范围另依核心355.9、358.3.a：移动受阻不阻止技能确认。",
       "runtime": {
         "behaviors": [
           {
@@ -1254,6 +1254,14 @@
             "pending.Remove(id)",
             "MatchStateHasher.HashValue(schedule) != original.Hash"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "IsUnitMovementDestination(current, id, destination)",
+            "PayImposedMovementCost(",
+            "CaptureMovementBatchObservers("
+          ]
         }
       ],
       "tests": [
@@ -1268,7 +1276,8 @@
             "RecoveryRejectsErasedDuplicatedOrForgedScheduledHistory",
             "RecoveryRequiresTheNewMainBirthAndTheUnchangedOriginalBattlefield",
             "AStandaloneHoldCanCreateAndFireItsDelayInTheSameAcceptedCompletion",
-            "TheEarnedHoldStillCreatesTheOriginalBattlefieldDelayAfterTheSourceReturnsInResponse"
+            "TheEarnedHoldStillCreatesTheOriginalBattlefieldDelayAfterTheSourceReturnsInResponse",
+            "TheRealMainTriggerCanConfirmAnImmovableEnemyAndResolveWithoutMovingIt"
           ]
         }
       ]
@@ -2667,8 +2676,8 @@
       "text": "当我移动时，你可以选择将一名位于此处且战力低于我的敌方单位移动到另一处战场。",
       "scope": "当我移动时，你可以选择将一名位于此处且战力低于我的敌方单位移动到另一处战场。",
       "status": "route",
-      "reason": "任意玩家造成来源实际移动后，控制者可选一名来源当前此处、当前战力严格低于来源的敌方单位；确认时选择另一处真实战场并开放响应。结算重新检查此处和双方当前战力，不能移动到基地或当前此处；原始移动捕获与已接受的目标／目的地声明均被核对。",
-      "rules": "中国区核心355.4.a、359.3.e.2／359.3.e.12、359.3.f.2、383、403–407及449–451；气势逼人的挑战者官方中文牌面。",
+      "reason": "任意玩家造成来源实际移动后，控制者可选一名来源当前此处、当前战力严格低于来源的敌方单位；确认时选择另一处真实战场并开放响应。结算重新检查此处和双方当前战力，不能移动到基地或当前此处；原始移动捕获与已接受的目标／目的地声明均被核对。 目标只受牌面单位描述和目标保护限制；单位不能移动或已经位于目的战场仍可被选取，移动可行性在响应后的共享执行器中检查。",
+      "rules": "中国区核心355.4.a、359.3.e.2／359.3.e.12、359.3.f.2、383、403–407及449–451；气势逼人的挑战者官方中文牌面。 目标范围另依核心355.9、358.3.a：移动受阻不阻止技能确认。",
       "runtime": {
         "behaviors": [
           {
@@ -2711,6 +2720,14 @@
             "CoreRuleEngine.RequiresUnitEventMovementDeclarationHistory",
             "original != CoreRuleEngine.DeclaredUnitEventMovementHash(item)"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "IsUnitMovementDestination(current, id, destination)",
+            "PayImposedMovementCost(",
+            "CaptureMovementBatchObservers("
+          ]
         }
       ],
       "tests": [
@@ -2723,7 +2740,8 @@
             "ARealResponseIncreasingTheTargetsMightInvalidatesThePendingMove",
             "ARealSourceMoveToBaseChangesCurrentHereWhilePreservingTheOriginalMovementCapture",
             "TheBaseAndCurrentBattlefieldCannotBeInventedAsMovementDestinations",
-            "RecoveryRejectsErasingTheEarnedMoveOrChangingItsOriginalArrivalOrDestination"
+            "RecoveryRejectsErasingTheEarnedMoveOrChangingItsOriginalArrivalOrDestination",
+            "AMovementRestrictionDoesNotPreventConfirmingTheWeakerEnemyHere"
           ]
         }
       ]
@@ -3058,8 +3076,8 @@
       "text": "当我移动到一处战场时，你可以选择将一名敌方单位移动到该战场。",
       "scope": "当我移动到一处战场时，你可以选择将一名敌方单位移动到该战场。",
       "status": "route",
-      "reason": "来源被任意玩家移动至战场时，控制者可选一名敌方单位，在响应后使用共享移动流程移到触发时的到达战场；原来源返手或移回基地仍保留该战场引用，移动到基地不会触发。无额外横置费用，非法或隐藏目标不能确认。",
-      "rules": "中国区核心191.5.b、355.4.a、359.3.f.3、383及403–407；破限裁判FAQ260511第19页确认来源返手后仍移动敌方单位到原到达战场；诱人仙灵官方中文牌面。",
+      "reason": "来源被任意玩家移动至战场时，控制者可选一名敌方单位，在响应后使用共享移动流程移到触发时的到达战场；原来源返手或移回基地仍保留该战场引用，移动到基地不会触发。无额外横置费用，非法或隐藏目标不能确认。 目标只受牌面单位描述和目标保护限制；单位不能移动或已经位于目的战场仍可被选取，移动可行性在响应后的共享执行器中检查。",
+      "rules": "中国区核心191.5.b、355.4.a、359.3.f.3、383及403–407；破限裁判FAQ260511第19页确认来源返手后仍移动敌方单位到原到达战场；诱人仙灵官方中文牌面。 目标范围另依核心355.9、358.3.a：移动受阻不阻止技能确认。",
       "runtime": {
         "behaviors": [
           {
@@ -3078,7 +3096,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "MoveEnemyToArrivalBattlefieldEffect => IsFaceUpNonStandbyUnit(c)",
-            "UnitEventArrivalBattlefieldDestination(state, item) is { } enemyArrival"
+            "EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId"
           ]
         },
         {
@@ -3094,6 +3112,14 @@
             "UnitEventSpec(o.Context.CardNo)?.ObservesMovementByAnyPlayer == true",
             "UnitEventSpec(o.Context.CardNo)?.RequiresMoveToBattlefield != true || f.Destination.Zone == \"BATTLEFIELD\""
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "IsUnitMovementDestination(current, id, destination)",
+            "PayImposedMovementCost(",
+            "CaptureMovementBatchObservers("
+          ]
         }
       ],
       "tests": [
@@ -3105,7 +3131,9 @@
             "AnOpponentsRealMovementStillEarnsTheFaeriesControllersSkill",
             "MovingBackToBaseDoesNotTriggerTheBattlefieldArrivalSkill",
             "TheOptionalSkillMayBeDeclinedWithoutMovingTheEnemy",
-            "FriendlyHiddenAndUnknownTargetsAreAtomicRejections"
+            "FriendlyHiddenAndUnknownTargetsAreAtomicRejections",
+            "AnEnemyAlreadyThereOrUnableToMoveRemainsAConfirmableTarget",
+            "AnEnemyChosenAtTheArrivalBattlefieldCanLeaveInResponseAndBeMovedBack"
           ]
         }
       ]

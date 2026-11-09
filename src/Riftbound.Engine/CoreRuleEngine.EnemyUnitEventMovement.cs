@@ -42,6 +42,5 @@ public sealed partial class CoreRuleEngine
             && UnitEventTargetIsHere(state, item, target.ObjectId)
             && CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration) is not null
             && ResolveCurrentFieldUnitPower(state, target) < ResolveCurrentFieldUnitPower(state, state.CardObjects[item.SourceObjectId])
-            && MovementRestrictionRules.CanMove(target, item.ControllerId)
             && UnitEventMovementDestinations(state, item, target.ObjectId).Any();
 }

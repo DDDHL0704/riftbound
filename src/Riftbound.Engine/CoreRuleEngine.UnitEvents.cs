@@ -479,16 +479,12 @@ public sealed partial class CoreRuleEngine
                 FriendlyUnitTokensMoveHere => IsFaceUpNonStandbyUnit(c) && IsTokenObject(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 MoveWeakerEnemyHereToAnotherBattlefieldEffect => IsWeakerEnemyHereMovementTarget(state, item, c),
+                // CN355.9 / 358.3.a: movement feasibility is checked by the executor,
+                // after a legal enemy was confirmed and both players could respond.
                 MoveEnemyToArrivalBattlefieldEffect => IsFaceUpNonStandbyUnit(c)
-                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
-                    && UnitEventArrivalBattlefieldDestination(state, item) is { } enemyArrival
-                    && IsUnitMovementDestination(state, c.ObjectId, enemyArrival)
-                    && MovementRestrictionRules.CanMove(c, item.ControllerId),
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId,
                 MoveEnemyToCapturedBattlefieldEffect => IsFaceUpNonStandbyUnit(c)
-                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
-                    && UnitEventCapturedBattlefieldDestination(state, item) is { } capturedDestination
-                    && IsUnitMovementDestination(state, c.ObjectId, capturedDestination)
-                    && MovementRestrictionRules.CanMove(c, item.ControllerId),
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId,
                 "MOVE_ENEMY_HERE" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
                     && UnitEventHereDestination(state, item) is { } destination
