@@ -44,7 +44,7 @@ public sealed class BattlefieldConditionalPlayTriggerTests
             new PlayCardCommand("UNIT", cardNo, [], Destination: "BASE"));
         Assert.Contains("UNIT", result.State.PlayerZones["P1"].Base);
         var ability = Assert.Single(result.State.StackItems);
-        if (cardNo == "OGN·223/298")
+        if (cardNo is "OGN·223/298" or "UNL-012/219")
         {
             Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", ability.EffectKind);
             var captured = Assert.IsType<UnitEventContext>(ability.UnitEvent);
@@ -62,6 +62,13 @@ public sealed class BattlefieldConditionalPlayTriggerTests
             Assert.Equal(1, result.State.CardObjects["UNIT"].BoonCount);
             Assert.Equal(6, result.State.CardObjects["UNIT"].Power);
             Assert.Equal(0, result.State.CardObjects["FRIEND"].BoonCount);
+        }
+        else if (cardNo == "UNL-012/219")
+        {
+            result = await Top(result.State);
+            Assert.Equal(1, TemporaryCombatKeywordRules.Amount(result.State.CardObjects["HOST"], CardCombatKeywordNames.Assault));
+            Assert.Equal(0, TemporaryCombatKeywordRules.Amount(result.State.CardObjects["UNIT"], CardCombatKeywordNames.Assault));
+            Assert.Equal(0, TemporaryCombatKeywordRules.Amount(result.State.CardObjects["FRIEND"], CardCombatKeywordNames.Assault));
         }
         Restore(result.State);
         ArmamentMightTests.PublicRecovery(result.State);
