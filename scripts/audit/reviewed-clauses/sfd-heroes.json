@@ -576,6 +576,14 @@
           "contains": [
             "!current.PaidPlayTargetsOptional"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
+          ]
         }
       ],
       "tests": [
@@ -589,7 +597,8 @@
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
             "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
             "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
-            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
           ]
         },
         {
@@ -598,9 +607,16 @@
             "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
             "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [
@@ -637,6 +653,14 @@
           "contains": [
             "!current.PaidPlayTargetsOptional"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
+          ]
         }
       ],
       "tests": [
@@ -650,7 +674,8 @@
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
             "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
             "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
-            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
           ]
         },
         {
@@ -659,9 +684,16 @@
             "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
             "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [
@@ -698,6 +730,14 @@
           "contains": [
             "!current.PaidPlayTargetsOptional"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
+          ]
         }
       ],
       "tests": [
@@ -711,7 +751,8 @@
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
             "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
             "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
-            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
           ]
         },
         {
@@ -720,9 +761,16 @@
             "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
             "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [
@@ -759,6 +807,14 @@
           "contains": [
             "!current.PaidPlayTargetsOptional"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
+          ]
         }
       ],
       "tests": [
@@ -772,7 +828,8 @@
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
             "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
             "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
-            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
           ]
         },
         {
@@ -781,9 +838,16 @@
             "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
             "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
           ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
+          ]
         }
       ],
-      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [

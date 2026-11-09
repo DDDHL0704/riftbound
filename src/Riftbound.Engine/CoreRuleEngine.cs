@@ -20666,9 +20666,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId)
                 && IsFieldUnitObject(state, objectId),
-            CardTargetScopes.EnemyUnitOrEquipment => IsEnemyFieldObject(state, playerId, objectId)
-                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
-                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
+            CardTargetScopes.EnemyUnitOrEquipment => state.CardObjects.TryGetValue(objectId, out var enemyPermanent)
+                && !enemyPermanent.IsFaceDown
+                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) && IsEnemyFieldObject(state, playerId, objectId)
+                    || IsEnemyEquipmentObject(state, playerId, objectId)),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
@@ -20694,7 +20695,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId));
 
     internal static bool IsFieldUnitEquipmentOrRune(MatchState state, string objectId)
-        => IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+        => IsEquipmentObject(state, objectId)
+            || IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
             && state.CardObjects.TryGetValue(objectId, out var card) && !card.IsFaceDown
             && (FieldObjectTypeRules.IsVisibleUnit(card)
                 || card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
@@ -21544,21 +21546,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool IsEquipmentObject(MatchState state, string objectId)
     {
         return IsFieldObject(state.PlayerZones, objectId)
-            && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+            && (IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+                || HasValidFieldEquipmentAttachment(state, objectId))
             && state.CardObjects.TryGetValue(objectId, out var card) && !card.IsFaceDown
             && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
     private static bool IsFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
     {
-        return IsPlayerControlledFieldObject(state, playerId, objectId)
-            && IsEquipmentObject(state, objectId);
+        return IsEquipmentObject(state, objectId)
+            && EffectiveFieldControllerId(state.PlayerZones, objectId, state.CardObjects[objectId]) == playerId;
     }
 
     private static bool IsEnemyEquipmentObject(MatchState state, string playerId, string objectId)
     {
-        return IsEnemyFieldObject(state, playerId, objectId)
-            && IsEquipmentObject(state, objectId);
+        return IsEquipmentObject(state, objectId)
+            && EffectiveFieldControllerId(state.PlayerZones, objectId, state.CardObjects[objectId]) != playerId;
     }
 
     private static bool IsAttackingBattlefieldObject(MatchState state, string objectId)
@@ -31633,6 +31636,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 OwnerId = ownerId,
                 ControllerId = controllerId,
+                // CN 479.2 / 482.3: this later, indefinite instruction
+                // permanently supersedes the earlier source-bound effects.
+                EquipmentControl = null,
             };
             if (isExhausted) controlledTargetState = ExhaustForInstruction(playerZones, cardObjects, controlledTargetState);
             cardObjects[targetObjectId] = controlledTargetState;
@@ -31688,6 +31694,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 OwnerId = ownerId,
                 ControllerId = controllerId,
+                // Its later loss of control is a separate instruction.
+                EquipmentControl = null,
                 UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(
                     controlledTargetState.UntilEndOfTurnEffects,
                     BuildReturnControlToOwnerAtTurnEndEffectId(ownerId))
