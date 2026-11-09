@@ -9,7 +9,7 @@ public sealed class AkshanGuardTests
 {
     private const string AkshanObjectId = "P1-UNIT-AKSHAN";
     private const string AkshanCardNo = "SFD·109/221";
-    private const string AkshanStealPrefix = "AKSHAN_STEAL_EQUIPMENT:";
+    private const string ExtraOrange = "SPEND_POWER:orange:2";
     private const string AkshanStealReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
     private const string VengeanceObjectId = "P1-SPELL-VENGEANCE";
     private const string EnemyWeaponObjectId = "P2-EQUIPMENT-WEAPON";
@@ -19,64 +19,21 @@ public sealed class AkshanGuardTests
     private const string PayOrangePower = "orange";
 
     [Fact]
-    public async Task AkshanPlayCardWithNoTargetsUsesStackAndResolvesToBase()
+    public async Task AkshanPlayCardWithNoTargetsEntersWithoutAnUnpaidPlaySkill()
     {
-        var engine = new CoreRuleEngine();
-        var state = BuildAkshanState();
-
-        var played = await PlayAkshanAsync(engine, state, "P1-UNIT-AKSHAN", []);
-
+        var played = await PlayAkshanAsync(new CoreRuleEngine(), BuildAkshanState(), AkshanObjectId, []);
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(1, played.State.Tick);
+        PermanentConfirmationAssert.Entry(played, AkshanObjectId, false);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
-        Assert.Empty(played.State.PlayerZones["P1"].Hand);
-        Assert.Single(played.State.StackItems, i => i.Tempered is null);
-        Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal));
-        Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", StringComparison.Ordinal));
-
-        var p1Pass = await engine.ResolveAsync(
-            played.State,
-            new PlayerIntent("intent-akshan-play-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-akshan-play-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Equal(new RunePool(0, 0), p2Pass.State.RunePools["P1"]);
-        Assert.Equal(["P1-TARGET-UNIT", "P1-BASE-AKSHAN", "P1-FACE-DOWN-STANDBY-AKSHAN", "P1-UNIT-AKSHAN"], p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
-        Assert.Empty(p2Pass.State.StackItems);
-
-        var unit = p2Pass.State.CardObjects["P1-UNIT-AKSHAN"];
-        Assert.Equal("SFD·109/221", unit.CardNo);
-        Assert.Equal("P1", unit.OwnerId);
-        Assert.Equal("P1", unit.ControllerId);
-        Assert.Equal(4, unit.Power);
+        var unit = played.State.CardObjects[AkshanObjectId];
+        Assert.Equal(AkshanCardNo, unit.CardNo);
+        Assert.Equal("P1", unit.OwnerId); Assert.Equal("P1", unit.ControllerId);
+        Assert.Equal(4, unit.Power); Assert.True(unit.IsExhausted);
         Assert.Equal([CardObjectTags.UnitCard, "哨兵", "百炼"], unit.Tags);
-        Assert.True(unit.IsExhausted);
-        Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", StringComparison.Ordinal));
-        Assert.Contains(played.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P1-UNIT-AKSHAN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["unitName"] as string, "阿克尚", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["destinationZone"] as string, "BASE", StringComparison.Ordinal)
-            && Assert.IsType<int>(gameEvent.Payload["power"]) == 4);
+        Assert.Contains(played.Events, e => e.Kind == "COST_PAID");
+        Assert.Contains(played.Events, e => e.Kind == "PERMANENT_CONFIRMED");
+        Assert.Contains(played.Events, e => e.Kind == "UNIT_PLAYED_TO_BASE"
+            && Equals(e.Payload["unitObjectId"], AkshanObjectId) && Equals(e.Payload["power"], 4));
     }
 
     [Fact]
@@ -136,7 +93,7 @@ public sealed class AkshanGuardTests
     }
 
     [Fact]
-    public async Task AkshanPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
+    public async Task AkshanPlayCardStalePromptReplayAfterPermanentEntryUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
         var state = BuildAkshanState();
@@ -176,7 +133,7 @@ public sealed class AkshanGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK", "TRIGGER_NOT_CONFIRMED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK", "TRIGGER_NOT_CONFIRMED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertAkshanStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -324,7 +281,7 @@ public sealed class AkshanGuardTests
             requirement["optionalCostChoices"]);
 
         Assert.Equal(
-            [StealCost(EnemyNonWeaponObjectId), StealCost(EnemyWeaponObjectId)],
+            [ExtraOrange],
             optionalCostChoices.Select(choice => choice.Id).ToArray());
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             requirement["targetChoicesByIndex"]));
@@ -345,7 +302,7 @@ public sealed class AkshanGuardTests
     {
         var engine = new CoreRuleEngine();
         var state = BuildAkshanStealState();
-        var optionalCosts = new[] { StealCost(EnemyWeaponObjectId) };
+        var optionalCosts = new[] { ExtraOrange };
 
         var played = await PlayAkshanAsync(engine, state, AkshanObjectId, [], optionalCosts);
 
@@ -360,7 +317,8 @@ public sealed class AkshanGuardTests
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(2, powerByTrait[PayOrangePower]);
 
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var confirmed = await ConfirmTheftAsync(engine, played);
+        var resolved = await ResolveTopStackAsync(engine, confirmed.State);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Contains(AkshanObjectId, resolved.State.PlayerZones["P1"].Base);
@@ -392,7 +350,7 @@ public sealed class AkshanGuardTests
     {
         var engine = new CoreRuleEngine();
         var state = BuildAkshanStealState();
-        var optionalCosts = new[] { StealCost(EnemyWeaponObjectId) };
+        var optionalCosts = new[] { ExtraOrange };
 
         var played = await PlayAkshanAsync(engine, state, AkshanObjectId, [], optionalCosts);
 
@@ -407,7 +365,7 @@ public sealed class AkshanGuardTests
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(2, powerByTrait[PayOrangePower]);
 
-        var selected = await TemperedTestDriver.ConfirmAsync(engine, played, FriendlyEquipmentObjectId);
+        var selected = await ConfirmTheftAsync(engine, played, EnemyWeaponObjectId, FriendlyEquipmentObjectId);
         var keywordResolved = await ResolveTopStackAsync(engine, selected.State);
         var remainingResolved = await ResolveTopStackAsync(engine, keywordResolved.State);
         var resolved = remainingResolved with { Events = keywordResolved.Events.Concat(remainingResolved.Events).ToArray() };
@@ -431,7 +389,7 @@ public sealed class AkshanGuardTests
     {
         var engine = new CoreRuleEngine();
         var state = BuildAkshanStealState(orangePower: 1, includeOrangeRune: true);
-        var optionalCosts = new[] { StealCost(EnemyWeaponObjectId), RecycleOrangeRuneCost() };
+        var optionalCosts = new[] { ExtraOrange, RecycleOrangeRuneCost() };
 
         var requirement = AkshanSourceRequirement(state);
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
@@ -439,7 +397,7 @@ public sealed class AkshanGuardTests
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["paymentResourceChoices"]);
 
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, StealCost(EnemyWeaponObjectId), StringComparison.Ordinal));
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, ExtraOrange, StringComparison.Ordinal));
         Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, RecycleOrangeRuneCost(), StringComparison.Ordinal));
 
         var played = await PlayAkshanAsync(engine, state, AkshanObjectId, [], optionalCosts);
@@ -447,14 +405,15 @@ public sealed class AkshanGuardTests
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.DoesNotContain(OrangeRuneObjectId, played.State.PlayerZones["P1"].Base);
         var stackItem = Assert.Single(played.State.StackItems, i => i.Tempered is null);
-        Assert.Equal([StealCost(EnemyWeaponObjectId)], stackItem.OptionalCosts);
+        Assert.Equal([ExtraOrange], stackItem.OptionalCosts);
         var costEvent = Assert.Single(played.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal([StealCost(EnemyWeaponObjectId)], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal([ExtraOrange], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Equal([RecycleOrangeRuneCost()], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(2, powerByTrait[PayOrangePower]);
 
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+        var confirmed = await ConfirmTheftAsync(engine, played);
+        var resolved = await ResolveTopStackAsync(engine, confirmed.State);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Equal("P1", resolved.State.CardObjects[EnemyWeaponObjectId].ControllerId);
@@ -472,8 +431,9 @@ public sealed class AkshanGuardTests
             state,
             AkshanObjectId,
             [],
-            [StealCost(EnemyNonWeaponObjectId)]);
-        var resolved = await ResolveTopStackAsync(engine, played.State);
+            [ExtraOrange]);
+        var confirmed = await ConfirmTheftAsync(engine, played, EnemyNonWeaponObjectId);
+        var resolved = await ResolveTopStackAsync(engine, confirmed.State);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
@@ -489,42 +449,36 @@ public sealed class AkshanGuardTests
     }
 
     [Theory]
-    [InlineData("P1-EQUIPMENT-FRIENDLY", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData("P2-MISSING-EQUIPMENT", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData("P2-NON-EQUIPMENT", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData("P2-HAND-EQUIPMENT", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData("P2-FACE-DOWN-EQUIPMENT", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData("P2-STALE-EQUIPMENT", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData("P2-P1-CONTROLLED-EQUIPMENT", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData("P2-P1-OWNED-EQUIPMENT", 4, 2, 0, ErrorCodes.UnsupportedCardBehavior)]
-    [InlineData(EnemyWeaponObjectId, 4, 1, 0, ErrorCodes.InsufficientCost)]
-    [InlineData(EnemyWeaponObjectId, 4, 0, 2, ErrorCodes.InsufficientCost)]
-    public async Task AkshanOrangeStealRejectsInvalidOrInsufficientChoicesWithoutMutation(
-        string equipmentObjectId,
-        int mana,
-        int orangePower,
-        int greenPower,
-        string expectedErrorCode)
+    [InlineData("P1-EQUIPMENT-FRIENDLY")]
+    [InlineData("P2-MISSING-EQUIPMENT")]
+    [InlineData("P2-NON-EQUIPMENT")]
+    [InlineData("P2-HAND-EQUIPMENT")]
+    [InlineData("P2-FACE-DOWN-EQUIPMENT")]
+    [InlineData("P2-STALE-EQUIPMENT")]
+    [InlineData("P2-P1-CONTROLLED-EQUIPMENT")]
+    public async Task AkshanTheftRejectsInvalidEquipmentAtItsPostEntryChoice(string equipmentObjectId)
     {
-        var state = BuildAkshanStealState(mana: mana, orangePower: orangePower, greenPower: greenPower);
-
-        var result = await PlayAkshanAsync(
-            new CoreRuleEngine(),
-            state,
-            AkshanObjectId,
-            [],
-            [StealCost(equipmentObjectId)]);
-
-        Assert.False(result.Accepted);
-        Assert.Equal(expectedErrorCode, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Contains(AkshanObjectId, result.State.PlayerZones["P1"].Hand);
-        Assert.Contains(EnemyWeaponObjectId, result.State.PlayerZones["P2"].Base);
-        Assert.DoesNotContain(EnemyWeaponObjectId, result.State.PlayerZones["P1"].Base);
+        var engine = new CoreRuleEngine();
+        var played = await PlayAkshanAsync(engine, BuildAkshanStealState(), AkshanObjectId, [], [ExtraOrange]);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        while (played.State.PendingCardChoice?.ChoiceWindow == "TEMPERED_CONFIRMATION")
+            played = await TemperedTestDriver.ConfirmAsync(engine, played);
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        var hash = MatchStateHasher.Hash(played.State);
+        var result = await engine.ResolveAsync(played.State, new("invalid-theft-target", "P1", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [equipmentObjectId]), default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(hash, MatchStateHasher.Hash(result.State));
         Assert.Equal("P2", result.State.CardObjects[EnemyWeaponObjectId].ControllerId);
-        Assert.Null(result.State.CardObjects[EnemyWeaponObjectId].AttachedToObjectId);
-        Assert.Empty(result.State.StackItems);
+    }
+
+    [Theory, InlineData(1, 0), InlineData(0, 2)]
+    public async Task AkshanTheftRejectsInsufficientOrWrongColoredPowerBeforeEntry(int orange, int green)
+    {
+        var state = BuildAkshanStealState(orangePower: orange, greenPower: green);
+        var result = await PlayAkshanAsync(new CoreRuleEngine(), state, AkshanObjectId, [], [ExtraOrange]);
+        Assert.False(result.Accepted); Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events); Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
     }
 
     [Theory]
@@ -561,8 +515,9 @@ public sealed class AkshanGuardTests
             state,
             AkshanObjectId,
             [],
-            [StealCost(EnemyWeaponObjectId)]);
-        var staleState = MoveEnemyWeaponToGraveyard(played.State);
+            [ExtraOrange]);
+        var confirmed = await ConfirmTheftAsync(engine, played);
+        var staleState = MoveEnemyWeaponToGraveyard(confirmed.State);
 
         var resolved = await ResolveTopStackAsync(engine, staleState);
 
@@ -789,7 +744,7 @@ public sealed class AkshanGuardTests
         ResolutionResult result,
         string? expectedStackItem = null)
     {
-        return PermanentConfirmationAssert.Entry(result, AkshanObjectId, true, expectedStackItem);
+        return PermanentConfirmationAssert.Entry(result, AkshanObjectId, false, expectedStackItem);
     }
 
     private static IReadOnlyDictionary<string, object?> AkshanSourceRequirement(MatchState state)
@@ -825,9 +780,28 @@ public sealed class AkshanGuardTests
             state,
             AkshanObjectId,
             [],
-            [StealCost(equipmentObjectId)]);
+            [ExtraOrange]);
         Assert.True(played.Accepted, played.ErrorMessage);
-        return await ResolveTopStackAsync(engine, played.State);
+        var confirmed = await ConfirmTheftAsync(engine, played, equipmentObjectId);
+        return await ResolveTopStackAsync(engine, confirmed.State);
+    }
+
+    private static async Task<ResolutionResult> ConfirmTheftAsync(CoreRuleEngine engine, ResolutionResult result,
+        string equipmentObjectId = EnemyWeaponObjectId, string? temperedEquipment = null)
+    {
+        var events = result.Events.ToList();
+        for (var count = 0; result.State.PendingCardChoice is { } choice; count++)
+        {
+            Assert.True(count < 3);
+            var selected = choice.ChoiceWindow == "TEMPERED_CONFIRMATION"
+                ? temperedEquipment is null ? Array.Empty<string>() : [temperedEquipment]
+                : new[] { equipmentObjectId };
+            result = await engine.ResolveAsync(result.State,
+                new("confirm-theft-" + result.State.Tick, "P1", CommandTypes.ChooseCards),
+                new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, selected), default);
+            Assert.True(result.Accepted, result.ErrorMessage); events.AddRange(result.Events);
+        }
+        return result with { Events = events };
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(
@@ -1116,10 +1090,7 @@ public sealed class AkshanGuardTests
             && string.Equals(gameEvent.Payload["reason"] as string, AkshanStealReason, StringComparison.Ordinal);
     }
 
-    private static string StealCost(string equipmentObjectId)
-    {
-        return $"{AkshanStealPrefix}{equipmentObjectId}";
-    }
+
 
     private static string TemperedAttachCost(string equipmentObjectId)
     {

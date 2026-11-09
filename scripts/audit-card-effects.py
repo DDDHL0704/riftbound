@@ -2037,6 +2037,100 @@ def paid_target_play_stun_route(card: dict, clause: dict, sources: Sources) -> d
         'missing', '缺少绿色额外打出费用、已付后的独立眩晕消费者，或原始费用选择／技能存续校验')
 
 
+def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentences = [normalize(text) for text in [
+        '你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。',
+        '当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。',
+        '你控制这件装备，直到我离场为止。',
+        '如果它是一件武装，则将其贴附到我身上。']]
+    text = normalize(unparenthesize(clause['text']))
+    if text not in sentences:
+        return None
+    index = sentences.index(text)
+    exact = clause['kind'] == ('rule' if index == 0 else 'trigger') \
+        and normalize(unparenthesize(clause['scope'])) == sentences[0 if index == 0 else 1] \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} \
+        and all(sentence in normalize(unparenthesize(card.get('cardEffect', ''))) for sentence in sentences)
+    profiles = card.get('behaviors', [])
+    exact = exact and len(profiles) == 1 and inventory_contains(profiles[0], dict(
+        playsSourceToBaseAsUnit=True, requiredTargetCount=1,
+        targetScope='ENEMY_UNIT_OR_EQUIPMENT', targetScopeIsExplicit=True, targetRequiredTag='CARD_TYPE:EQUIPMENT',
+        targetEffectAdditionalPowerCost=2, targetEffectAdditionalPowerTrait='orange',
+        paidPlayTargetsOptional=True, stealsTargetEquipmentUntilSourceLeaves=True))
+    exact = exact and all(type(profiles[0].get(key, 0)) is int and profiles[0].get(key, 0) == 0
+        for key in ['damageAmount', 'minTargetCount', 'targetEffectAdditionalManaCost'])
+    prefix = 'src/Riftbound.Engine/'
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        found = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b' + re.escape(name) + r'\s*\(', code)
+        if not found:
+            return ''
+        rest = code[found.start():]
+        offset = found.end() - found.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+
+    checks = [
+        ('CoreRuleEngine.cs', 'ResolveCoreAsync', ['return Complete(ResolvePlayCard(state, intent, playCardCommand));',
+            'RecordEquipmentControlHistory(state, completed)', 'RecordPaidPermanentPlayHistory(state, completed)']),
+        ('CoreRuleEngine.cs', 'ResolvePlayCard', ['TryBuildPlayCardPlan(state, intent, command', 'ConfirmPlayedPermanent(']),
+        ('CoreRuleEngine.cs', 'TryBuildPlayCardPlan', ['TryBuildOptionalCostPlan(',
+            'HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts)']),
+        ('CoreRuleEngine.cs', 'TryBuildOptionalCostPlan', ['TryBuildTargetEffectAdditionalCost(']),
+        ('CoreRuleEngine.cs', 'TryBuildTargetEffectAdditionalCost', ['normalizedOptionalCosts.Count != expectedCostCount',
+            'spendPowerCost == behavior.TargetEffectAdditionalPowerCost', 'RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait)']),
+        ('CoreRuleEngine.PermanentConfirmation.cs', 'HasPendingPermanentPlayAbility', [
+            '!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)']),
+        ('CoreRuleEngine.PermanentConfirmation.cs', 'PendingPermanentPlayAbility', [
+            'SourceConfirmed = true', 'declaration.StealsTargetEquipmentUntilSourceLeaves',
+            'PermanentPlaySource = new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration)', 'Append(ability)']),
+        ('CoreRuleEngine.PermanentPlayTargets.cs', 'PermanentPlayTargetBehavior', ['!current.PaidPlayTargetsOptional']),
+        ('CoreRuleEngine.PermanentPlayTargets.cs', 'PreparePermanentPlayTargets', ['PermanentPlayTargetChoice(', 'ResolveTriggerTargetConfirmation(']),
+        ('CoreRuleEngine.cs', 'ResolveChooseCardsRuntime', ['pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION"', 'ResolveTriggerTargetConfirmation(']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', ['ValidPermanentPlayTargetSelection(state, item, selected)',
+            'ResolveSpellshieldTargetTaxPower(', 'TargetGenerations = selected.ToDictionary']),
+        ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['TryResolveSourceStealEnemyEquipment(']),
+        ('CoreRuleEngine.cs', 'IsEquipmentObject', ['HasValidFieldEquipmentAttachment(state, objectId)']),
+        ('CoreRuleEngine.cs', 'TryDestroyControlledFieldTarget', ['HasValidFieldObjectIdentity(state, playerZones, cardObjects, targetObjectId)']),
+        ('CoreRuleEngine.EquipmentTargets.cs', 'HasValidFieldObjectIdentity', ['HasValidFieldEquipmentAttachment(state with']),
+        ('CoreRuleEngine.cs', 'IsEnemyEquipmentObject', ['EffectiveFieldControllerId(state.PlayerZones, objectId, state.CardObjects[objectId]) != playerId']),
+        ('CoreRuleEngine.EquipmentTargets.cs', 'HasValidFieldEquipmentAttachment', ['FieldObjectTypeRules.HasUnitType(gear)',
+            'FindFieldObjectLocation(state.PlayerZones, hostId) != location', 'equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId']),
+        ('CoreRuleEngine.cs', 'TryGainControlOfTargetToBase', ['EquipmentControl = null']),
+        ('CoreRuleEngine.cs', 'TryGainControlOfTargetToBattlefield', ['EquipmentControl = null']),
+        ('CoreRuleEngine.EquipmentTheft.cs', 'TryResolveSourceStealEnemyEquipment', ['behavior.StealsTargetEquipmentUntilSourceLeaves',
+            '!item.SourceConfirmed', 'TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)',
+            'MovementTargetIsCurrent(current, item, target)', 'IsEnemyEquipmentObject(current, item.ControllerId, target)',
+            'MovementRestrictionRules.CanMove(', 'PayImposedMovementCost(', 'CaptureMovementBatchObservers(', 'CaptureUnitEvents(',
+            'item.PermanentPlaySource ?? PlayInstructionSource(state, item)', 'unit.ObjectGeneration == binding.Generation',
+            'AddFieldObjectToLocation(zones, item.ControllerId, MoveUnitBaseZone, target)', 'if (hasSource)',
+            'EquipmentControl = new(original, underlying,', 'new(item.StackItemId, source!, item.ControllerId, reason)',
+            'AttachedEquipmentObjectIds(cards, target)', 'MoveAttachedEquipmentWithHost(zones, attached, item.ControllerId, target, MoveUnitBaseZone)',
+            'equipment.Tags.Contains(CardEquipmentKeywordNames.Weapon', 'TryAttachEquipment(']),
+        ('CoreRuleEngine.EquipmentTheft.cs', 'ReturnSourceStolenEquipmentForMissingSources', [
+            'lease.Equipment != new ObjectBinding(gear.ObjectId, gear.ObjectGeneration)',
+            'source.ObjectGeneration == grant.Source.Generation', 'IsObjectOnField(zones, source.ObjectId)',
+            'active.LastOrDefault()?.ControllerId ?? lease.UnderlyingControllerId', 'AttachedToObjectId = attachment']),
+        ('CoreRuleEngine.cs', 'RunStateBasedCleanupLoop', ['ReturnSourceStolenEquipmentForMissingSources(', 'ApplyUnattachedEquipmentCleanup(']),
+        ('CoreRuleEngine.PaidPermanentPlayHistory.cs', 'PaidPermanentPlayChoicesHash', ['item.OptionalCosts', 'item.PermanentPlaySource']),
+        ('MatchRecovery.PaidPermanentPlayHistory.cs', 'ValidatePaidPermanentPlayHistory', ['command.Accepted',
+            'proof != CoreRuleEngine.PaidPermanentPlayChoicesHash(item)', '!pending.SetEquals(']),
+        ('MatchRecovery.EquipmentControlHistory.cs', 'ValidateEquipmentControlHistory', ['ValidEquipmentControlLeases(state)',
+            'command.Accepted', '!captured.TryAdd(', 'proof != row.Proof', '!pending.SetEquals(']),
+        ('CoreRuleEngine.EquipmentControlHistory.cs', 'RecordEquipmentControlHistory', ['EquipmentControlReceipts(before)',
+            'EquipmentControlReceipts(result.State)', 'EquipmentControlCaptured', 'EquipmentControlRetired', 'events.Add(new(']),
+        ('CoreRuleEngine.EquipmentControlHistory.cs', 'ValidEquipmentControlLeases', ['lease.Equipment.Generation == card.ObjectGeneration',
+            'card.ControllerId == lease.Grants.LastOrDefault()?.ControllerId', '!string.IsNullOrWhiteSpace(grant.Source.ObjectId)']),
+        ('MatchRecovery.cs', 'ValidateFrame', ['ValidateEquipmentControlHistory(authoritativeState, commands, events, errors)',
+            'ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors)']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route', '共享额外费用先付款，入场后可选敌方装备；独立技能重查目标，移动后按原来源代际取得控制／贴附，持续效果与原始接受历史绑定', evidence) if exact else result(
+        'missing', '缺少精确橙色额外费用、入场后可选装备目标、移动／控制／贴附消费者或原始来源与持续时间凭据')
+
+
 def paid_source_ready_might_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     sentence = normalize("当你打出我时，如果你支付了该额外费用，则让我变为活跃状态，并让我本回合内{{S}}+2。")
     if normalize(unparenthesize(clause["text"])) != sentence:
@@ -2942,6 +3036,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return token_play
     if paid_stun := paid_target_play_stun_route(card, clause, sources):
         return paid_stun
+    if equipment_theft := paid_equipment_theft_route(card, clause, sources):
+        return equipment_theft
     if paid_source := paid_source_ready_might_route(card, clause, sources):
         return paid_source
     if recycle_runes := last_breath_recycle_runes_route(card, clause, sources):

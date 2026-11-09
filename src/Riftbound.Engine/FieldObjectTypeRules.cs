@@ -14,14 +14,16 @@ internal static class FieldObjectTypeRules
                 || !card.Tags.Any(tag => tag is CardObjectTags.EquipmentCard or CardObjectTags.SpellCard
                     or CardObjectTags.RuneCard or "CARD_TYPE:BATTLEFIELD" or "CARD_TYPE:LEGEND");
 
-    // CN 178 / 323.6: cleanup recalls unattached non-unit equipment, except
-    // deployed equipment (830.1.b.3) and equipment retained by standby play.
+    // CN 149.3 / 323.6: loose non-unit equipment cannot stay in another
+    // controller's base. Deploy/standby only exempt its battlefield presence.
     // Use the same predicate for actual cleanup and the pending-task projection.
     internal static bool RequiresUnattachedEquipmentRecall(CardObjectState card, ObjectLocationState? location)
         => card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && string.IsNullOrWhiteSpace(card.AttachedToObjectId)
             && !card.IsFaceDown
-            && !card.Tags.Contains(CardEquipmentKeywordNames.Deploy, StringComparer.Ordinal)
-            && !StandbyRules.AllowsBattlefieldEquipment(card, location);
+            && (location?.Zone == "BASE"
+                ? (card.ControllerId ?? card.OwnerId) is { Length: > 0 } controller && location.PlayerId != controller
+                : !card.Tags.Contains(CardEquipmentKeywordNames.Deploy, StringComparer.Ordinal)
+                    && !StandbyRules.AllowsBattlefieldEquipment(card, location));
 }

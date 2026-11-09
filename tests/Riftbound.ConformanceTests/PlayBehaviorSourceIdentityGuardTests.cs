@@ -227,12 +227,14 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.Contains("CardEquipmentKeywordNames.Tempered", temperedSource, StringComparison.Ordinal);
         Assert.DoesNotContain("TEMPERED_ATTACH:", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("TEMPERED_ATTACH:", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerCost", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerTrait", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("behavior.SourceStealEnemyEquipmentOptionalCostPrefix", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerCost", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerTrait", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("behavior.SourceStealEnemyEquipmentOptionalCostPrefix", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.TargetEffectAdditionalPowerCost", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.TargetEffectAdditionalPowerTrait", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.TargetEffectAdditionalPowerCost", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("behavior.TargetEffectAdditionalPowerTrait", matchSessionSource, StringComparison.Ordinal);
+        var theftSource = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.EquipmentTheft.cs"));
+        Assert.Contains("behavior.StealsTargetEquipmentUntilSourceLeaves", theftSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("AKSHAN_STEAL_EQUIPMENT:", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("AKSHAN_STEAL_EQUIPMENT:", matchSessionSource, StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

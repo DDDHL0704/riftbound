@@ -35,10 +35,12 @@ public sealed class AttachmentTheftCopyTests
     internal static async Task<ResolutionResult> Steal(MatchState state)
     {
         var played = await Act(state, "P2", new PlayCardCommand("AKSHAN", "SFD·109/221", [],
-            OptionalCosts: ["AKSHAN_STEAL_EQUIPMENT:GEAR"]));
+            OptionalCosts: ["SPEND_POWER:2:ORANGE"]));
         Assert.Equal(16, played.State.RunePools["P2"].Mana);
         Assert.Equal(18, played.State.RunePools["P2"].PowerByTrait["orange"]);
-        return await Top(played.State);
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        var selected = await Act(played.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
+        return await Top(selected.State);
     }
 
     internal static async Task<MatchState> Choose(ResolutionResult waiting)
@@ -115,7 +117,11 @@ public sealed class AttachmentTheftCopyTests
         Assert.Equal("P2", done.CardObjects["AKSHAN"].OwnerId);
         Assert.Equal("P2", done.CardObjects["AKSHAN"].ControllerId);
         Assert.Empty(done.TriggerQueue); Assert.Empty(done.StackItems); Assert.Null(done.PendingCardChoice);
-        Assert.Contains(done.CardObjects["GEAR"].Tags, tag => tag.Contains("AKSHAN", StringComparison.Ordinal));
+        var control = Assert.IsType<EquipmentControlLease>(done.CardObjects["GEAR"].EquipmentControl);
+        Assert.Equal("P1", control.UnderlyingControllerId);
+        var grant = Assert.Single(control.Grants);
+        Assert.Equal(new ObjectBinding("AKSHAN", done.CardObjects["AKSHAN"].ObjectGeneration), grant.Source);
+        Assert.Equal("P2", grant.ControllerId);
         Restore(done); ArmamentMightTests.PublicRecovery(done);
     }
 

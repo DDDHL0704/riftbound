@@ -48,6 +48,8 @@ public sealed class PatchedPorobotTests
             "hidden" => cards["E2"] with { IsFaceDown = true },
             "unit" => cards["E2"] with { Tags = [CardObjectTags.UnitCard] }, _ => cards["E2"] };
         state = state with { CardObjects = cards };
+        if (invalid == "opponent")
+            state = LocalDestructionRecallTests.At(state, "E2", "P2", "BASE");
         if (invalid == "hand") state = state with {
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with {
                 Base = state.PlayerZones["P1"].Base.Where(id => id != "E2").ToArray(), Hand = [..state.PlayerZones["P1"].Hand, "E2"] } },

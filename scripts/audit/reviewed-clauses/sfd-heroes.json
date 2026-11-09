@@ -547,28 +547,76 @@
       ],
       "text": "你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。",
       "scope": "你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。",
-      "status": "missing",
-      "reason": "可选两橙符能费用与敌方装备目标绑定，必须预先提交装备ID；缺少独立声明费用并在入场后触发确认目标的流程",
+      "status": "route",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
       "runtime": {
         "behaviors": [
           {
-            "sourceStealEnemyEquipmentAdditionalPowerCost": 2,
-            "sourceStealEnemyEquipmentAdditionalPowerTrait": "orange"
+            "targetEffectAdditionalPowerCost": 2,
+            "targetEffectAdditionalPowerTrait": "orange",
+            "paidPlayTargetsOptional": true,
+            "stealsTargetEquipmentUntilSourceLeaves": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTheft.cs",
           "contains": [
-            "TryBuildSourceStealEnemyEquipmentOptionalCost(",
-            "TryParseSourceStealEnemyEquipmentOptionalCost(",
-            "\"AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL\""
+            "TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)",
+            "MovementTargetIsCurrent(current, item, target)",
+            "if (hasSource)",
+            "EquipmentControl = new(original, underlying,",
+            "TryAttachEquipment(",
+            "active.LastOrDefault()?.ControllerId ?? lease.UnderlyingControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "contains": [
+            "!current.PaidPlayTargetsOptional"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心204.2／356–357 额外费用、383.4.a.2／403.2 打出后触发选择；SFD·109 官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanIndependentPaidPlayTests.cs",
+          "methods": [
+            "TheOrangeFeeIsPaidBeforeEntryAndTheIndependentTheftChoosesEquipmentAfterEntry",
+            "PayingTheAdditionalOrangeDoesNotRequireAnyEnemyEquipmentToExist",
+            "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
+            "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
+            "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
+          "methods": [
+            "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
+            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
+          ]
+        }
+      ],
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [
@@ -576,26 +624,76 @@
       ],
       "text": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
       "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
-      "status": "missing",
-      "reason": "抢夺结算错误地要求来源仍在基地；合法将阿克尚打出到受控战场并支付费用时，直接跳过移动装备",
+      "status": "route",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
       "runtime": {
         "behaviors": [
           {
-            "sourceStealEnemyEquipmentAdditionalPowerCost": 2
+            "targetEffectAdditionalPowerCost": 2,
+            "targetEffectAdditionalPowerTrait": "orange",
+            "paidPlayTargetsOptional": true,
+            "stealsTargetEquipmentUntilSourceLeaves": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTheft.cs",
           "contains": [
-            "private static bool TryResolveSourceStealEnemyEquipment(",
-            "!zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)"
+            "TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)",
+            "MovementTargetIsCurrent(current, item, target)",
+            "if (hasSource)",
+            "EquipmentControl = new(original, underlying,",
+            "TryAttachEquipment(",
+            "active.LastOrDefault()?.ControllerId ?? lease.UnderlyingControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "contains": [
+            "!current.PaidPlayTargetsOptional"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心143 单位打出位置、383.4.a.2；SFD·109 官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanIndependentPaidPlayTests.cs",
+          "methods": [
+            "TheOrangeFeeIsPaidBeforeEntryAndTheIndependentTheftChoosesEquipmentAfterEntry",
+            "PayingTheAdditionalOrangeDoesNotRequireAnyEnemyEquipmentToExist",
+            "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
+            "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
+            "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
+          "methods": [
+            "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
+            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
+          ]
+        }
+      ],
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [
@@ -604,35 +702,75 @@
       "text": "你控制这件装备，直到我离场为止。",
       "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
       "status": "route",
-      "reason": "已取得的装备控制权以来源离场为截止，来源移动仍维持，离场清理将装备送回所有者基地",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
       "runtime": {
         "behaviors": [
           {
-            "sourceStealEnemyEquipmentAdditionalPowerCost": 2
+            "targetEffectAdditionalPowerCost": 2,
+            "targetEffectAdditionalPowerTrait": "orange",
+            "paidPlayTargetsOptional": true,
+            "stealsTargetEquipmentUntilSourceLeaves": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTheft.cs",
           "contains": [
-            "equipmentState.Tags.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal)",
-            "AddSourceStolenEquipmentMarker(",
-            "ReturnSourceStolenEquipmentForMissingSources("
+            "TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)",
+            "MovementTargetIsCurrent(current, item, target)",
+            "if (hasSource)",
+            "EquipmentControl = new(original, underlying,",
+            "TryAttachEquipment(",
+            "active.LastOrDefault()?.ControllerId ?? lease.UnderlyingControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "contains": [
+            "!current.PaidPlayTargetsOptional"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/AkshanIndependentPaidPlayTests.cs",
+          "methods": [
+            "TheOrangeFeeIsPaidBeforeEntryAndTheIndependentTheftChoosesEquipmentAfterEntry",
+            "PayingTheAdditionalOrangeDoesNotRequireAnyEnemyEquipmentToExist",
+            "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
+            "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
+            "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
           "methods": [
             "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
-            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach",
-            "AkshanLeavingFieldReturnsStolenEquipmentToOwnerBase"
+            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
           ]
         }
       ],
-      "rules": "核心435／718 贴附、359.3.e.16 延迟被动生成及来源离场持续时间；SFD·109 官方中文牌面；抢夺的付款和来源位置缺陷另句登记"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [
@@ -641,35 +779,75 @@
       "text": "如果它是一件武装，则将其贴附到我身上。",
       "scope": "当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。",
       "status": "route",
-      "reason": "成功取得装备时只对武装执行共享贴附；普通装备保持未贴附",
+      "reason": "额外两橙费用独立于装备目标；入场后可选确认目标，独立技能移动装备；控制权绑定原来源代际与持续时间，武装通过共享贴附，来源已离场时不取得控制权",
       "runtime": {
         "behaviors": [
           {
-            "sourceStealEnemyEquipmentAdditionalPowerCost": 2
+            "targetEffectAdditionalPowerCost": 2,
+            "targetEffectAdditionalPowerTrait": "orange",
+            "paidPlayTargetsOptional": true,
+            "stealsTargetEquipmentUntilSourceLeaves": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTheft.cs",
           "contains": [
-            "equipmentState.Tags.Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal)",
-            "AddSourceStolenEquipmentMarker(",
-            "ReturnSourceStolenEquipmentForMissingSources("
+            "TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)",
+            "MovementTargetIsCurrent(current, item, target)",
+            "if (hasSource)",
+            "EquipmentControl = new(original, underlying,",
+            "TryAttachEquipment(",
+            "active.LastOrDefault()?.ControllerId ?? lease.UnderlyingControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "contains": [
+            "!current.PaidPlayTargetsOptional"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EquipmentTargets.cs",
+          "contains": [
+            "HasValidFieldEquipmentAttachment",
+            "FindFieldObjectLocation(state.PlayerZones, hostId) != location",
+            "equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/AkshanIndependentPaidPlayTests.cs",
+          "methods": [
+            "TheOrangeFeeIsPaidBeforeEntryAndTheIndependentTheftChoosesEquipmentAfterEntry",
+            "PayingTheAdditionalOrangeDoesNotRequireAnyEnemyEquipmentToExist",
+            "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
+            "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
+            "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers",
+            "ANewControlInstructionSupersedesEarlierSourceBoundControl"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
           "methods": [
             "AkshanOrangeStealWeaponPaysOrangeMovesControlsAndAttaches",
-            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach",
-            "AkshanLeavingFieldReturnsStolenEquipmentToOwnerBase"
+            "AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForeignAttachedEquipmentTargetingTests.cs",
+          "methods": [
+            "ARealEquipmentSpellCanTargetAnOpponentsArmamentAttachedToOurUnit",
+            "AForeignLocationNeedsARealLegalAttachmentRatherThanOnlyAnAttachmentId"
           ]
         }
       ],
-      "rules": "核心435／718 贴附、359.3.e.16 延迟被动生成及来源离场持续时间；SFD·109 官方中文牌面；抢夺的付款和来源位置缺陷另句登记"
+      "rules": "核心204.2／355.1.a／356–357 额外费用，355.2.a 入场位置，383.2.a.1／383.3／403.1–2 独立可选触发，359.3.e.16 阿克尚示例，107.1.c.1／149.3／323.6 与435贴附及召回；SFD·109 官方中文牌面；479.2／482.3 控制效果顺序"
     },
     {
       "cardNos": [

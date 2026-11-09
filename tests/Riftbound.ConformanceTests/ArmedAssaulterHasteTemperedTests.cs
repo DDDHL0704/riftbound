@@ -634,11 +634,12 @@ public sealed class ArmedAssaulterHasteTemperedTests
             SecondSpinningAxeObjectId,
             "P1-NON-EQUIPMENT-SPINNING-AXE",
             "P1-FACE-DOWN-SPINNING-AXE",
-            "P1-WRONG-CARD-EQUIPMENT",
-            "P1-WRONG-CONTROLLER-SPINNING-AXE"
+            "P1-WRONG-CARD-EQUIPMENT"
         };
         var p1Hand = new[] { ArmedAssaulterObjectId, "P1-HAND-SPINNING-AXE" };
-        var p2Base = new[] { "P2-EQUIPMENT-SPINNING-AXE" };
+        // The wrong-controller negative remains owned by P1, but a loose
+        // equipment controlled by P2 must start in P2's base (CN149.3/323.6).
+        var p2Base = new[] { "P2-EQUIPMENT-SPINNING-AXE", "P1-WRONG-CONTROLLER-SPINNING-AXE" };
 
         var objectLocations = p1Hand
             .Select(objectId => new KeyValuePair<string, ObjectLocationState>(objectId, new ObjectLocationState("P1", "HAND")))
