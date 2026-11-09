@@ -84,6 +84,7 @@ public sealed partial class CoreRuleEngine
         {
             var triggerZones = NormalizeZonesForSeats(state);
             var triggerCards = state.CardObjects.ToDictionary();
+            var triggerPools = state.RunePools.ToDictionary();
             var triggerEvents = new List<GameEvent>();
             var scores = state.PlayerScores;
             var experience = state.PlayerExperience;
@@ -99,9 +100,10 @@ public sealed partial class CoreRuleEngine
                 triggerEvents.Add(new("CARD_REVEALED", "黛安娜展示洞察后的牌库顶", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                     ["cardObjectId"] = top, ["cardNo"] = card.CardNo }));
-                var remaining=ObserveDeckCards(state,triggerZones,triggerCards,item with {InsightCompleted=true},item.ControllerId,[top],"REVEAL",0,triggerEvents);
+                var remaining=ObserveDeckCards(state,triggerZones,triggerCards,item with {InsightCompleted=true},item.ControllerId,[top],"REVEAL",0,triggerEvents,pools:triggerPools);
                 shouldDraw = remaining.Length>0 && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var topBehavior) && IsSpellPlayBehavior(topBehavior);
             }
+            state = state with { RunePools = triggerPools };
             if (shouldDraw)
             {
                 var draw = ApplyDrawToPlayer(state, triggerZones, triggerCards, scores, item.ControllerId,
@@ -114,7 +116,7 @@ public sealed partial class CoreRuleEngine
             triggerEvents.Add(new(borrowed is null ? "TRIGGER_RESOLVED" : "ABILITY_RESOLVED", "洞察技能结算完成", new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId, ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind }));
             return NoopStackResolutionResult(state) with { PlayerZones = triggerZones, PlayerScores = scores,
-                CardObjects=triggerCards,
+                CardObjects=triggerCards, RunePools=triggerPools,
                 PlayerExperience = experience, RngCursor = rng, WinnerPlayerId = winner,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, triggerZones),
                 StackItems = state.StackItems.Where(s => s.StackItemId != item.StackItemId).ToArray(), Events = triggerEvents };

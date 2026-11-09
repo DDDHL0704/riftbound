@@ -11,6 +11,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
+        var pools = state.RunePools.ToDictionary();
         foreach (var player in state.Seats.Keys.OrderBy(player => player == state.TurnPlayerId ? 0 : 1).ThenBy(player => player, StringComparer.Ordinal))
             BeforeDeckReveal(state, zones, cards, item, player, events);
         var revealed = state.Seats.Keys.OrderBy(player => player == state.TurnPlayerId ? 0 : 1)
@@ -25,7 +26,8 @@ public sealed partial class CoreRuleEngine
         var bindings = revealed.ToDictionary(top => top.Card, top => cards[top.Card].ObjectGeneration, StringComparer.Ordinal);
         var remaining = revealed.ToDictionary(top => top.Player,
             top => ObserveDeckCards(state, zones, cards, item, top.Player, [top.Card], "REVEAL", 0, events,
-                simultaneousReveals: bindings), StringComparer.Ordinal);
+                simultaneousReveals: bindings, pools: pools), StringComparer.Ordinal);
+        state = state with { RunePools = pools };
         var scores = state.PlayerScores;
         string? winner = null;
         var cursor = state.RngCursor;
@@ -50,7 +52,7 @@ public sealed partial class CoreRuleEngine
         events.Add(new("TRIGGER_RESOLVED", "开始阶段牌顶费用比较完成", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
             ["sourceCardNo"] = item.CardNo, ["trigger"] = item.BeginningDraw!.Kind }));
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = scores,
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = scores, RunePools = pools,
             WinnerPlayerId = winner, RngCursor = cursor, Events = events,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

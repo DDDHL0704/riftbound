@@ -34,6 +34,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var player = item.ControllerId;
+        var pools = state.RunePools.ToDictionary();
         BeforeDeckReveal(state, zones, cards, item, player, events);
         var seen = TakeControlledMainDeckPrefix(cards, player, zones[player].MainDeck, 1);
         if (seen.Length == 0) return result with { PlayerZones = zones, CardObjects = cards,
@@ -44,7 +45,8 @@ public sealed partial class CoreRuleEngine
         var matched = cards[top].Tags.Contains(tag);
         events.Add(new("MAIN_DECK_CARDS_REVEALED", "展示主牌堆顶部的一张牌", new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = visibleSource, ["cardIds"] = seen, ["count"] = 1 }));
-        var remaining = ObserveDeckCards(state, zones, cards, item, player, seen, "REVEAL", 0, events);
+        var remaining = ObserveDeckCards(state, zones, cards, item, player, seen, "REVEAL", 0, events, pools: pools);
+        state = state with { RunePools = pools };
         if (matched)
         {
             var recycled = RecycleLookedMainDeckCards(state, zones, cards, player, item.SourceObjectId, remaining, state.RngCursor);
@@ -57,7 +59,7 @@ public sealed partial class CoreRuleEngine
                 state.RngCursor, events, deferNormalVictory: true);
             result = result with { PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor };
         }
-        return result with { PlayerZones = zones, CardObjects = cards,
+        return result with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
     }
 }

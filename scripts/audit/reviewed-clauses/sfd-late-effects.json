@@ -80,36 +80,59 @@
       ],
       "text": "当你打出我时，让你的其他单位本回合内{{S}}+2。",
       "scope": "当你打出我时，让你的其他单位本回合内{{S}}+2。",
-      "status": "missing",
-      "reason": "只有基础单位登记；未接入打出后给予其他友方单位本回合+2战力的无目标群体技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享PLAY独立技能无目标入链；结算时给予当前其他友方公开单位本回合+2战力，排除原来源物体，来源返手不取消指示，隐秘手牌和敌方单位不受影响，正常回合清理撤销战力账本；公开战力摘要遮蔽已返手来源的标识，权威战力账本保留原始来源",
+      "rules": "核心383.2–383.4、359.3、403、核心战力与回合结束清理规则；SFD·175官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
+            "effectKind": "GAI_BEAST_ENTRY_POWER_PLAY_UNIT",
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "MIGHT_OTHER_FRIENDLIES",
+              "amount": 2
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"SFD·175/221\"",
-            "\"GAI_BEAST_ENTRY_POWER_PLAY_UNIT\""
+            "if (spec.Effect == \"MIGHT_OTHER_FRIENDLIES\") return ResolveOtherFriendlyUnitMight(state, item, spec);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventGroupMight.cs",
+          "contains": [
+            "new MightInstructionScope(state, zones, cards, events)",
+            "GetControlledFieldUnitObjectIds(zones, cards, item.ControllerId)",
+            "unit.ObjectGeneration == context.SourceGeneration",
+            "ApplyPowerModifier(",
+            "VisibleObjectIdForViewer"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlaySource.cs",
+          "contains": [
+            "var capturedGroupInstruction = effect.EffectKind == UnitEventEffect",
+            "UnitEventSpec(effect.SourceCardNo)?.Effect == \"MIGHT_OTHER_FRIENDLIES\"",
+            "return effect with { SourceObjectId = \"HIDDEN\" };"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GaiBeastGroupMightTests.cs",
+          "methods": [
+            "ActualPlayBuffsOnlyOtherCurrentFriendlyUnitsUntilTheTurnEnds",
+            "ARealSourceReturnLeavesItsIndependentGroupInstructionIntact",
+            "ReturningABeneficiaryBeforeResolutionLeavesItsPrivateIncarnationUnmodified",
+            "AnEmptyFriendlyGroupStillEarnsTheTargetlessSkillAndCannotInjectATarget"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -117,36 +140,85 @@
       ],
       "text": "如果我从你的主牌堆中被展示，则你{{获得}}{{2}}。",
       "scope": "如果我从你的主牌堆中被展示，则你{{获得}}{{2}}。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少来源从自己主牌堆被展示这一事件的即时资源替换，不能以普通打出或抽牌代替",
-      "rules": "核心370.1.b.1 明确以垓兽展示获得2法力为例、430.2；SFD·175 官方中文牌面",
+      "status": "route",
+      "reason": "共享REVEAL替换在后续观察选择及费用预览前立即给予牌堆所有者2法力；LOOK和普通抽牌不产费，对手执行展示不改变受益玩家；所有展示消费者保留当前资源池，魔腾暂停期间即时资源步骤从原始命令重演，只提交一次",
+      "rules": "中国区核心370.1.b.1以垓兽展示获2法力为例、370.1.c.1；铸魂淬炼裁判FAQ260114第13页：虚空遁地兽展示垓兽的2法力可以打出同一张垓兽；SFD·175官方中文牌面；核心166–167：即时加入符文池，主阶段开始清空全部玩家符文池",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "staticAbilities": [
           {
-            "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "MAIN_DECK_REVEAL_MANA",
+              "amount": 2
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
           "contains": [
-            "\"SFD·175/221\"",
-            "\"GAI_BEAST_ENTRY_POWER_PLAY_UNIT\""
+            "if (kind == \"REVEAL\")",
+            "ApplyDeckRevealResources(state, zones, cards, pools",
+            "state = state with { RunePools = pools.ToDictionary() };"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckRevealResources.cs",
+          "contains": [
+            "DeckRevealMana.Value.TryGetValue",
+            "zones[reveal.Player].MainDeck.Contains(reveal.Id)",
+            "BeginRuleChoiceResourceStep(before, reveal.Player, key)",
+            "CompleteRuleChoiceResourceStep(capture",
+            "[\"sourceObjectId\"] = \"HIDDEN\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "contains": [
+            "pools: observationPools",
+            "pools: repeatedPools",
+            "RunePools=observationPools",
+            "RunePools=repeatedPools"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDeckComparison.cs",
+          "contains": [
+            "simultaneousReveals: bindings, pools: pools",
+            "RunePools = pools"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "pools:runePools",
+            "RunePools = revealRunePools"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckRevealResources.cs",
+          "contains": [
+            "StaticAbilityParser.Parse(card.CardEffect ?? \"\", [])",
+            "StaticAbilityKinds.MainDeckRevealMana"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DeckRevealResourceTests.cs",
+          "methods": [
+            "OnlyTheMainDeckRevealTemplateParsesItsPrintedMana",
+            "ARealVoidBurrowerRevealPaysForPlayingThatSameBeast",
+            "AnOpponentsActualRevealGivesOnlyTheDeckOwnerTheMana",
+            "LookingAtOrNormallyDrawingTheBeastDoesNotGrantRevealMana",
+            "TheMandatoryGainCommitsOnceBeforeAnOptionalObservationPause",
+            "TwoActuallyRevealedBeastsGrantFourBeforeThePlaySelection",
+            "SimultaneousRevealGrantsTheOtherOwnersManaBeforeTheFirstOptionalChoice",
+            "ActualMovementRevealGrantsManaBeforeRecyclingTheBeast",
+            "AnUnsupportedRevealGainRejectsTheWholeCommandWithoutEventsOrMutation"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

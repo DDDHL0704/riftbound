@@ -85,6 +85,7 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "牌库选择上下文已失效。", ErrorCodes.InvalidTarget);
         var zones = NormalizeZonesForSeats(state);
         var cards=state.CardObjects.ToDictionary();var revealEvents=new List<GameEvent>();
+        var pools = state.RunePools.ToDictionary();
         var remainingCount=choice.ContextObjectIds.Count;
         if((!string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag) || behavior.MainDeckTargetAllowedTags.Length > 0) && selected.Count>0)
         {
@@ -92,9 +93,10 @@ public sealed partial class CoreRuleEngine
             selected = selected.Where(id => zones[item.ControllerId].MainDeck.Contains(id)).ToArray();
             if (selected.Count > 0) revealEvents.Add(new("CARD_REVEALED","展示选择的卡牌",new Dictionary<string,object?> {
                 ["playerId"]=item.ControllerId,["sourceObjectId"]=item.SourceObjectId,["objectId"]=selected[0],["cardNo"]=cards[selected[0]].CardNo}));
-            var kept=ObserveDeckCards(state,zones,cards,item,item.ControllerId,selected,"REVEAL",item.CompletedDeckExecutions,revealEvents,selectionReveal:true);
+            var kept=ObserveDeckCards(state,zones,cards,item,item.ControllerId,selected,"REVEAL",item.CompletedDeckExecutions,revealEvents,selectionReveal:true, pools:pools);
             remainingCount-=selected.Count-kept.Length;selected=kept;
         }
+        state = state with { RunePools = pools };
         var result = behavior.RecyclesSelectedMainDeckTargets
             ? RecycleSelectedMainDeckTargets(state,zones, cards,item.ControllerId,item.SourceObjectId,selected,remainingCount,choice.ContextObjectIds)
             : DrawSelectedMainDeckTargetsAndRecycleRest(state, zones, cards, item.ControllerId, item.SourceObjectId,
@@ -113,7 +115,7 @@ public sealed partial class CoreRuleEngine
             DeckChoiceCompleted = item.ModeExecutions is not null || item.CompletedDeckExecutions + 1 >= item.EffectRepeatCount };
         var next = state with
         {
-            PendingCardChoice = null, PlayerZones = zones, CardObjects=cards, RngCursor = result.RngCursor,
+            PendingCardChoice = null, PlayerZones = zones, CardObjects=cards, RunePools=pools, RngCursor = result.RngCursor,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(nextItem).ToArray()
         };

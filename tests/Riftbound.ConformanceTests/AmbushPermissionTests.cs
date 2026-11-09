@@ -94,7 +94,12 @@ public sealed class AmbushPermissionTests
         Assert.Contains("AMBUSH", done.State.PlayerZones["P1"].Battlefields);
         Assert.Equal("F", done.State.ObjectLocations["AMBUSH"].BattlefieldObjectId);
         Assert.Equal(1, done.State.CardObjects["AMBUSH"].ObjectGeneration);
-        Assert.DoesNotContain(done.State.StackItems, item => item.SourceObjectId == "AMBUSH" && !item.SourceConfirmed);
+        Assert.DoesNotContain(done.State.StackItems, item => item.SourceObjectId == "AMBUSH" && !StackObjectRules.IsAbility(item));
+        foreach (var skill in done.State.StackItems.Where(item => item.SourceObjectId == "AMBUSH" && item.UnitEvent is not null))
+        {
+            Assert.Equal("PLAY", skill.UnitEvent!.Timing); Assert.Equal(card, skill.UnitEvent.CardNo);
+            Assert.Equal(done.State.CardObjects["AMBUSH"].ObjectGeneration, skill.UnitEvent.SourceGeneration);
+        }
         Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
     }
 

@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
             if (MatchStateHasher.HashValue(required.Request) != MatchStateHasher.HashValue(pending.Request)) return false;
             steps = GetCompletedRuleChoiceResources(frame); return true;
         }
-        catch (Exception failure) when (failure is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException)
+        catch (Exception failure) when (failure is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException or ResourceNumericLimitException)
         { return false; }
         finally { RuleChoices.Value = previous; }
     }

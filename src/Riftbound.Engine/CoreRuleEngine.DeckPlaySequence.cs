@@ -84,9 +84,10 @@ public sealed partial class CoreRuleEngine
             var players = DeckPlayPlayers(state, item.ControllerId, definition.DeckPlayKind);
             var count = DeckPlayLookCount(definition);
             var observationZones=NormalizeZonesForSeats(state);var observationCards=state.CardObjects.ToDictionary();
+            var observationPools = state.RunePools.ToDictionary();
             if (DeckPlaySequenceReveals(item))
                 foreach (var player in players) BeforeDeckReveal(state, observationZones, observationCards, item, player, events, revealingPlayer: DeckRevealPlayer(item, player));
-            state=state with {PlayerZones=observationZones,CardObjects=observationCards,ObjectLocations=DeckPlayLocations(state,observationZones,state.StackItems)};
+            state=state with {PlayerZones=observationZones,CardObjects=observationCards,RunePools=observationPools,ObjectLocations=DeckPlayLocations(state,observationZones,state.StackItems)};
             // Observation order is rule state; JSON object member order is not persistent data.
             var viewed = players.ToDictionary(p => p, p => (IReadOnlyList<ObjectBinding>)(definition.DeckPlayKind == "SINGLE_REVEAL_UNTIL_UNIT"
                 ? state.PlayerZones[p].MainDeck.TakeWhile(id => !state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard))
@@ -102,10 +103,10 @@ public sealed partial class CoreRuleEngine
             foreach(var player in definition.DeckPlayKind=="EACH_PLAYER_LOOK_PLAY"?Array.Empty<string>():players)
             {
                 var remaining=ObserveDeckCards(state,observationZones,observationCards,item,player,viewed[player].Select(card=>card.ObjectId).ToArray(),
-                    DeckPlaySequenceReveals(item)?"REVEAL":"LOOK",0,events, actingPlayer: DeckRevealPlayer(item, player));
+                    DeckPlaySequenceReveals(item)?"REVEAL":"LOOK",0,events, actingPlayer: DeckRevealPlayer(item, player), pools: observationPools);
                 viewed[player]=remaining.Select(id=>new ObjectBinding(id,observationCards[id].ObjectGeneration)).ToArray();
             }
-            state=state with {PlayerZones=observationZones,CardObjects=observationCards,ObjectLocations=DeckPlayLocations(state,observationZones,state.StackItems)};
+            state=state with {PlayerZones=observationZones,CardObjects=observationCards,RunePools=observationPools,ObjectLocations=DeckPlayLocations(state,observationZones,state.StackItems)};
             c = new(definition.DeckPlayKind, new(item.SourceObjectId, generation),
                 item.CardNo!, item.ControllerId, players, viewed, new Dictionary<string,ObjectBinding>(), 0, 0);
         }
@@ -183,9 +184,10 @@ public sealed partial class CoreRuleEngine
         {
             var count = DeckPlayLookCount(definition);
             var repeatedZones=NormalizeZonesForSeats(state);var repeatedCards=state.CardObjects.ToDictionary();
+            var repeatedPools = state.RunePools.ToDictionary();
             if (DeckPlaySequenceReveals(item))
                 foreach (var player in c.Players) BeforeDeckReveal(state, repeatedZones, repeatedCards, item, player, events, c.ExecutionIndex + 1, revealingPlayer: DeckRevealPlayer(item, player));
-            state=state with {PlayerZones=repeatedZones,CardObjects=repeatedCards,ObjectLocations=DeckPlayLocations(state,repeatedZones,state.StackItems)};
+            state=state with {PlayerZones=repeatedZones,CardObjects=repeatedCards,RunePools=repeatedPools,ObjectLocations=DeckPlayLocations(state,repeatedZones,state.StackItems)};
             c = c with { ExecutionIndex = c.ExecutionIndex + 1, SelectionIndex = 0,
                 Selected = new Dictionary<string,ObjectBinding>(), ObservedPlayers=[], Viewed = c.Players.ToDictionary(p => p,
                     p => (IReadOnlyList<ObjectBinding>)state.PlayerZones[p].MainDeck.Take(count).Select(id => new ObjectBinding(id,state.CardObjects[id].ObjectGeneration)).ToArray()) };
@@ -198,10 +200,10 @@ public sealed partial class CoreRuleEngine
             foreach(var player in c.Kind=="EACH_PLAYER_LOOK_PLAY"?Array.Empty<string>():c.Players)
             {
                 var remaining=ObserveDeckCards(state,repeatedZones,repeatedCards,item,player,c.Viewed[player].Select(card=>card.ObjectId).ToArray(),
-                    DeckPlaySequenceReveals(item)?"REVEAL":"LOOK",c.ExecutionIndex,events, actingPlayer: DeckRevealPlayer(item, player));
+                    DeckPlaySequenceReveals(item)?"REVEAL":"LOOK",c.ExecutionIndex,events, actingPlayer: DeckRevealPlayer(item, player), pools: repeatedPools);
                 repeatedViewed[player]=remaining.Select(id=>new ObjectBinding(id,repeatedCards[id].ObjectGeneration)).ToArray();
             }
-            state=state with {PlayerZones=repeatedZones,CardObjects=repeatedCards,ObjectLocations=DeckPlayLocations(state,repeatedZones,state.StackItems)};
+            state=state with {PlayerZones=repeatedZones,CardObjects=repeatedCards,RunePools=repeatedPools,ObjectLocations=DeckPlayLocations(state,repeatedZones,state.StackItems)};
             c=c with {Viewed=repeatedViewed};
             var again = BeginDeckPlaySequence(state, item with { DeckPlaySequence = c }, definition);
             return again with { Events = events.Concat(again.Events).ToArray() };

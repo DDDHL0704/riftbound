@@ -12230,13 +12230,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var combatEvents = new List<GameEvent>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var revealRunePools = state.RunePools.ToDictionary();
         var battlefieldRevealSpellTrigger = ResolveBattlefieldDefendRevealSpellTrigger(
             state, playerZones,
-            cardObjects,
+            cardObjects, revealRunePools,
             defendingPlayerId ?? string.Empty,
             battlefieldId,
             attackerObjectId,
             rngCursor);
+        state = state with { RunePools = revealRunePools };
         rngCursor = battlefieldRevealSpellTrigger.RngCursor;
         combatEvents.AddRange(battlefieldRevealSpellTrigger.Events);
         var hasMultipleAttackers = attackerObjectIds.Count > 1;
@@ -12426,7 +12428,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardNo: attackerState.CardNo,
             targetObjectIds: attackerObjectIds.Concat(defenderObjectIds).ToArray(),
             optionalCosts: optionalCosts);
-        IReadOnlyDictionary<string, RunePool> runePools = state.RunePools;
+        IReadOnlyDictionary<string, RunePool> runePools = revealRunePools;
         IReadOnlyList<string> untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
         PendingPaymentState? pendingPayment = null;
         PendingHandChoiceState? pendingHandChoice = null;
@@ -15785,7 +15787,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static RecycleResult ResolveBattlefieldDefendRevealSpellTrigger(
         MatchState state, Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects, Dictionary<string, RunePool> runePools,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
@@ -15844,7 +15846,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["zone"] = trigger.RevealSourceZone
             }));
 
-        var remaining=ObserveDeckCards(state,playerZones,cardObjects,observer,playerId,revealedObjectIds,"REVEAL",0,events);
+        var remaining=ObserveDeckCards(state,playerZones,cardObjects,observer,playerId,revealedObjectIds,"REVEAL",0,events,pools:runePools);
         if(remaining.Length==0)return new RecycleResult(events,rngCursor);
         zones=playerZones[playerId];
 
@@ -24098,7 +24100,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var standbyReactionResult = ResolveStandbyReactionMainDeckCountedDamage(
                 state,
                 playerZones,
-                cardObjects,
+                cardObjects, runePools,
                 behavior,
                 stackItem,
                 events,
@@ -24106,6 +24108,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 preventDamageFromThisStackItem,
                 PreventSpellAndSkillDamageThisTurnEffectId,
                 rngCursor);
+            state = state with { RunePools = runePools };
             rngCursor = standbyReactionResult.RngCursor;
         }
 
@@ -30917,7 +30920,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult ResolveStandbyReactionMainDeckCountedDamage(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects, Dictionary<string, RunePool> runePools,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         List<GameEvent> events,
@@ -30932,7 +30935,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new RecycleResult([], rngCursor);
         }
 
-        return ResolveCountedMainDeckDamage(state, playerZones, cardObjects, stackItem, behavior.DisplayName,
+        return ResolveCountedMainDeckDamage(state, playerZones, cardObjects, runePools, stackItem, behavior.DisplayName,
             behavior.StandbyReactionMainDeckLookCount, behavior.StandbyReactionCountedTag,
             behavior.StandbyReactionDamagePerCountedCard, behavior.StandbyReactionRecyclesLookedMainDeckCards,
             id => IsStandbyReactionResolvedTargetInScope(state, playerZones, cardObjects, stackItem.ControllerId,
@@ -30942,7 +30945,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static RecycleResult ResolveCountedMainDeckDamage(MatchState state,
         Dictionary<string, PlayerZones> playerZones, Dictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem, string displayName, int lookCount, string countedTag, int damagePerCard,
+        Dictionary<string, RunePool> runePools, StackItemState stackItem, string displayName, int lookCount, string countedTag, int damagePerCard,
         bool recycles, Func<string, bool> legalTarget, ISet<string> damageTriggeredDestroyTargetObjectIds,
         List<GameEvent> events, bool preventDamage, string preventionEffectId, long rngCursor)
     {
@@ -30977,7 +30980,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["damageAmount"] = damageAmount
             }));
 
-        var remainingViewed=ObserveDeckCards(state,playerZones,cardObjects,stackItem,stackItem.ControllerId,viewedCardIds,"REVEAL",0,events);
+        var remainingViewed=ObserveDeckCards(state,playerZones,cardObjects,stackItem,stackItem.ControllerId,viewedCardIds,"REVEAL",0,events,pools:runePools);
+        state = state with { RunePools = runePools };
 
         // A zero count performs no damage action (715.4). For a performed
         // counted action, apply its bonuses before damage prevention.
