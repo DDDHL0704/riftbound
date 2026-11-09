@@ -5,6 +5,7 @@ public static partial class MatchRecoveryValidator
     private static void ValidateObservedUnitEventHistory(MatchState state,
         IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
+        ValidateArmamentPlayAttachmentConfirmationHistory(state, commands, events, errors);
         ValidateUnitEventPlayTargetHistory(state, commands, events, errors);
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         var queued = events.Where(entry => entry.Sequence > boundary && entry.Event.Kind == "TRIGGER_QUEUED"

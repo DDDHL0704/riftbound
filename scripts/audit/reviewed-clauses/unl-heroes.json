@@ -490,7 +490,13 @@
             "targetScopeIsExplicit": true,
             "targetRequiredTag": "CARD_TYPE:UNIT",
             "targetEffectAdditionalPowerCost": 1,
-            "targetEffectAdditionalPowerTrait": "green"
+            "targetEffectAdditionalPowerTrait": "green",
+            "unitEventAbility": {
+              "timing": "HOLD",
+              "effect": "CREATE_TURN_UNIT_PLAY_GRANT"
+            },
+            "turnUnitPlayGrantKind": "PLAY_READY_BOON",
+            "turnUnitPlayGrantNextOnly": true
           }
         ]
       },
@@ -575,7 +581,13 @@
             "targetScopeIsExplicit": true,
             "targetRequiredTag": "CARD_TYPE:UNIT",
             "targetEffectAdditionalPowerCost": 1,
-            "targetEffectAdditionalPowerTrait": "green"
+            "targetEffectAdditionalPowerTrait": "green",
+            "unitEventAbility": {
+              "timing": "HOLD",
+              "effect": "CREATE_TURN_UNIT_PLAY_GRANT"
+            },
+            "turnUnitPlayGrantKind": "PLAY_READY_BOON",
+            "turnUnitPlayGrantNextOnly": true
           }
         ]
       },
@@ -638,9 +650,9 @@
       ],
       "text": "当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。",
       "scope": "当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。",
-      "status": "missing",
-      "reason": "已补齐可选绿色打出费用与独立眩晕；仍缺少据守后授予本回合下一名单位活跃状态和增益的触发及消耗流程",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "据守产生独立技能并创建本回合下一次单位打出的延迟授权；新单位先正常进场，再由独立技能按原代际活跃并给予增益；支持来源返手或真实映像消失、同批多个指示物只消费首个打出、原始创建／使用／结束记录与私有来源投影；与旧入场技能同批排序，多个观察者不重复登记旧技能，排序代理绑定实际打出记录与原单位代际",
+      "rules": "核心355.10.c、383.2–383.3、391.2、392、393、359.3.e／359.3.f、718；官方中文牌面；SFD据守／征服互换沿用共享时机别名；同批独立技能排序依核心383.3.d",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -660,20 +672,134 @@
             "targetScopeIsExplicit": true,
             "targetRequiredTag": "CARD_TYPE:UNIT",
             "targetEffectAdditionalPowerCost": 1,
-            "targetEffectAdditionalPowerTrait": "green"
+            "targetEffectAdditionalPowerTrait": "green",
+            "unitEventAbility": {
+              "timing": "HOLD",
+              "effect": "CREATE_TURN_UNIT_PLAY_GRANT"
+            },
+            "turnUnitPlayGrantKind": "PLAY_READY_BOON",
+            "turnUnitPlayGrantNextOnly": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventTurnPlayGrants.cs",
           "contains": [
-            "\"UNL-052/219\"",
-            "\"NAMI_PLAY_UNIT\""
+            "new UnitEventTurnPlayGrantOrigin(context, item.TimingAlias)",
+            "item.SourceObjectId, context.SourceGeneration",
+            "RecordUnitEventTurnPlayHistory("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnUnitPlayGrants.cs",
+          "contains": [
+            "b.UnitEventAbility?.Effect == UnitEventTurnPlayGrantEffect",
+            "ActiveUnitPlayGrants(effects, controller, UnitEventReadyBoonGrantKind)",
+            "ApplyReadyState(unit, instruction",
+            "ApplyBoon(cards[unit.ObjectId]"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTurnPlayGrants.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "expectedGrants.SetEquals(",
+            "expectedUses.SetEquals(",
+            "expectedSkills.SetEquals(",
+            "UnitEventOrigin?.Context?.TokenFactoryCardNo"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Projection.Timing.cs",
+          "contains": [
+            "\"TURN_UNIT_PLAY_GRANT_HASH:\" + MatchStateHasher.HashValue(context.Grant)",
+            "UnitEventOrigin = null"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.TurnUnitPlayBoon?.Unit",
+            "queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)",
+            "ValidPermanentPlayCompanion(",
+            "state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
+          "contains": [
+            "CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.cs",
+          "methods": [
+            "AnActualHoldCreatesAnIndependentReadyAndBoonSkillForOnlyTheNextUnitPlay"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Responses.cs",
+          "methods": [
+            "ARealReturnOfNamiBeforeOrAfterCreatingTheGrantKeepsTheEarnedDelayedSkill",
+            "ReturningThePlayedUnitDoesNotRefundTheGrantOrAffectItsNextIncarnation",
+            "AnUnusedGrantExpiresAndCannotAffectTheNextTurn"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Copies.cs",
+          "methods": [
+            "AnActualAssembledAliasLetsAnImageEarnTheHeldGrantAndThenCease"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Tokens.cs",
+          "methods": [
+            "FourActuallyPlayedWarhawksConsumeOnlyTheFirstActualTokenPlay"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.History.cs",
+          "methods": [
+            "OriginalAcceptedHistoryRejectsDeletingOrCoherentlyReplacingAnUnusedGrant",
+            "ConsumedUsesAndEarnedSkillsCannotBeSilentlyDeletedRefundedOrResurrected"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.PlayBoundary.cs",
+          "methods": [
+            "MerelyPlayingNamiDoesNotCreateHerHoldGrant",
+            "AnEarnedHoldGrantAndASecondNamisPaidPlayStunKeepSeparateOriginalSkills"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Counters.cs",
+          "methods": [
+            "AConditionalCounterCannotChooseEitherUntargetedEarnedSkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.AkshanCombination.cs",
+          "methods": [
+            "AnEarnedHoldAndAnActualAkshanTheftKeepBothOriginalHistoriesThroughHisDeparture",
+            "ARealHoldAndRengarGiveOneLegacySkillOnlyOneEntryInTheirSharedOrderingWindow"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.AzirCombination.cs",
+          "methods": [
+            "AUnitReadiedByAnActualNamiHoldCanAttackAndIndependentlyGatherItsOwnTokens"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.EvelynnCombination.cs",
+          "methods": [
+            "ARealFaceDownPlayIndependentlyConsumesNamisHoldAndEarnsEvelynnsOwnTurnMovement"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1252,9 +1378,9 @@
       ],
       "text": "当你在你的回合中将我从正面朝下的状态打出时，你可以选择移动任意一名位于不同位置的敌方单位到我所在的战场。",
       "scope": "当你在你的回合中将我从正面朝下的状态打出时，你可以选择移动任意一名位于不同位置的敌方单位到我所在的战场。",
-      "status": "missing",
-      "reason": "只有基础待命／游走单位；缺少自己回合从背面打出后的限定触发、不同位置敌方单位目标与移动到来源战场",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "源牌从背面且在己方回合的真实打出独立触发；确认单个不同位置敌人，按原来源当前战场执行共享移动，原始打出与目标记录均受恢复校验保护",
+      "rules": "官方 UNL-141/219 中文牌面；核心383.2.a.1、383.3、355.9、359.3.f.2；待命与后排关键词沿用共享流程",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -1269,20 +1395,90 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "unitEventAbility": {
+              "timing": "PLAY",
+              "effect": "MOVE_ENEMY_HERE",
+              "optional": true,
+              "requiresSourcePlayedFromStandby": true,
+              "requiresSourcePlayedOnOwnTurn": true
+            }
           }
-        ]
+        ],
+        "unitEventAbility": {
+          "timing": "PLAY",
+          "effect": "MOVE_ENEMY_HERE",
+          "optional": true,
+          "requiresSourcePlayedFromStandby": true,
+          "requiresSourcePlayedOnOwnTurn": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourcePlayConditions.cs",
           "contains": [
-            "\"UNL-141/219\"",
-            "\"EVELYNN_STANDBY_BACK_ROW_MOVE_STATIC\""
+            "CaptureSourcePlayConditions",
+            "entered.LastStandbyPlay",
+            "frame.TurnPlayerId == o.Controller",
+            "ValidSourcePlayCondition"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "CaptureSourcePlayConditions(entered, player, observations)",
+            "ValidSourcePlayCondition(state, c, spec, source)",
+            "\"MOVE_ENEMY_HERE\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "UnitEventHereDestination(state, item)",
+            "MoveFieldUnitsToChosenLocation"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "HasSourcePlayCondition(UnitEventSpec(context.CardNo))",
+            "context.SourcePlayCondition"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "CoreRuleEngine.ObservedUnitEventCaptureHash",
+            "!expected.SetEquals(current.Select(item => item.Id))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EvelynnFaceDownPlayMovementTests.cs",
+          "methods": [
+            "AnActualOwnTurnFaceDownPlayEarnsAnOptionalIndependentEnemyMove",
+            "AnActualOpponentsTurnFaceDownPlayDoesNotEarnTheOwnTurnSkill",
+            "TheOptionalMoveCanBeDeclinedWithoutMovingItsEnemy",
+            "AReturnedCardReplayedFromHandCannotReuseItsOldFaceDownCondition"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EvelynnFaceDownPlayMovementTests.Locations.cs",
+          "methods": [
+            "AnEnemyOnADifferentBattlefieldIsMovedToTheSourcesBattlefield",
+            "AnEnemyActuallyMovedHereBeforeThePlayIsNotAtADifferentLocation",
+            "ARealResponseMovingTheSourceUsesHerCurrentBattlefieldAtResolution"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EvelynnFaceDownPlayMovementTests.History.cs",
+          "methods": [
+            "OriginalHistoryRejectsErasedOrCoherentlyForgedSourcePlayConditions",
+            "AnAcceptedMovementTriggerCannotDisappearFromItsOriginalHistory"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

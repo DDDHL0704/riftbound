@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 // CN Spiritforged functional errata 260114, revised Rell text; CN383,
 // 388–389, 356.1.b: optional real play followed by a separate attachment skill.
-public sealed class RellAttackArmamentPlayTests
+public sealed partial class RellAttackArmamentPlayTests
 {
     private const string Rell = "SFD·024/221", Shield = "SFD·033/221";
 
@@ -21,20 +21,25 @@ public sealed class RellAttackArmamentPlayTests
         return CoreRuleEngine.RecomputeRuleDerivedKeywords(state);
     }
 
-    private static async Task Attack(Driver game)
+    private static async Task Attack(Driver game, bool? confirm = true)
     {
         await game.Act("P1", new MoveUnitCommand("RELL", "BASE", "BATTLEFIELD:BF", []));
         for (var i = 0; i < 4 && game.State.FocusPlayerId is { } focus; i++)
             await game.Act(focus, new PassFocusCommand());
         Assert.Single(game.State.StackItems, item => item.UnitEvent?.CardNo == Rell);
         Assert.Null(game.State.PendingEffectPlay);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_OPTIONAL_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Equal(["RELL"], choice.LegalObjectIds);
+        if (confirm is { } accept)
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, accept ? ["RELL"] : []));
     }
 
     private static async Task Permission(Driver game)
     {
         await Attack(game); await game.Top();
         var pending = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
-        Assert.True(pending.Optional); Assert.True(pending.IgnoreBaseMana); Assert.True(pending.IgnoreBasePower);
+        Assert.False(pending.Optional); Assert.True(pending.IgnoreBaseMana); Assert.True(pending.IgnoreBasePower);
         Assert.False(pending.IgnoreAllCosts); Assert.Equal("HAND", pending.SourceZone);
     }
 
@@ -63,13 +68,15 @@ public sealed class RellAttackArmamentPlayTests
     }
 
     [Fact]
-    public async Task DecliningThePlayCreatesNoAttachmentAndLeavesTheHandPrivate()
+    public async Task OptionalAttackConfirmationPrecedesResponsesAndDoesNotRevealOrPlayTheArmament()
     {
-        var game = new Driver(Position()); await Permission(game);
-        var permission = game.State.PendingEffectPlay!;
+        var game = new Driver(Position()); await Attack(game, confirm: null);
+        var choice = game.State.PendingCardChoice!;
         Assert.DoesNotContain("GEAR", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
-        await RadGearTestPosition.Reject(game.State, "P2", new PlayCardCommand("GEAR", Shield, []));
-        await game.Act("P1", new ChooseCardsCommand(permission.ChoiceId, "EFFECT_PLAY", []));
+        Assert.Null(game.State.PriorityPlayerId);
+        await RadGearTestPosition.Reject(game.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["RELL"]));
+        await RadGearTestPosition.Reject(game.State, "P1", new PlayCardCommand("GEAR", Shield, []));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
         Assert.Null(game.State.PendingEffectPlay); Assert.Empty(game.State.StackItems);
         Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "PLAYED_ARMAMENT_ATTACHMENT_CREATED");
@@ -126,7 +133,7 @@ public sealed class RellAttackArmamentPlayTests
         var p = game.State.PendingEffectPlay!;
         var forged = game.State with { PendingEffectPlay = mutation switch {
             "all-costs" => p with { IgnoreAllCosts = true }, "mana" => p with { IgnoreBaseMana = false },
-            "power" => p with { IgnoreBasePower = false }, "optional" => p with { Optional = false },
+            "power" => p with { IgnoreBasePower = false }, "optional" => p with { Optional = true },
             "sources" => p with { Sources = new Dictionary<string, long>() },
             "source-generation" => p with { Sources = new Dictionary<string, long> { ["GEAR"] = p.Sources["GEAR"] + 1 } },
             "destination" => p with { DestinationPolicy = "SOURCE_HERE_IF_UNIT" },

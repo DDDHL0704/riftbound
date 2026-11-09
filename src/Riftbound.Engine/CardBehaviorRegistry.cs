@@ -3545,7 +3545,9 @@ public static class CardBehaviorRegistry
             SourceUnitTags: "鸟类|急速",
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
-            HasteReadyPowerTrait: RuneTrait.Yellow),
+            HasteReadyPowerTrait: RuneTrait.Yellow,
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.FriendlyUnitTokensMoveHere,
+                Optional: true, AnyNumberOfTargets: true)),
         new(
             "SFD·177a/221",
             "阿兹尔",
@@ -3558,7 +3560,9 @@ public static class CardBehaviorRegistry
             SourceUnitTags: "鸟类|急速",
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
-            HasteReadyPowerTrait: RuneTrait.Yellow),
+            HasteReadyPowerTrait: RuneTrait.Yellow,
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.FriendlyUnitTokensMoveHere,
+                Optional: true, AnyNumberOfTargets: true)),
         new(
             "UNL-127/219",
             "树根先生",
@@ -4233,7 +4237,7 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "壁垒",
-            UnitEventAbility: new("ATTACK", CoreRuleEngine.PlayHandArmamentThenAttachEffect, 2)),
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.PlayHandArmamentThenAttachEffect, 2, Optional: true)),
         new(
             "SFD·054/221",
             "贾克斯",
@@ -7820,7 +7824,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "恶魔|待命|后排"),
+            SourceUnitTags: "恶魔|待命|后排",
+            UnitEventAbility: new("PLAY", "MOVE_ENEMY_HERE", Optional: true) {
+                RequiresSourcePlayedFromStandby = true, RequiresSourcePlayedOnOwnTurn = true }),
         new(
             "UNL-145/219",
             "派克",
@@ -8018,6 +8024,9 @@ public static class CardBehaviorRegistry
             MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
+            UnitEventAbility: new("HOLD", CoreRuleEngine.UnitEventTurnPlayGrantEffect),
+            TurnUnitPlayGrantKind: CoreRuleEngine.UnitEventReadyBoonGrantKind,
+            TurnUnitPlayGrantNextOnly: true,
             TargetEffectAdditionalPowerCost: 1,
             TargetEffectAdditionalPowerTrait: RuneTrait.Green),
         new(

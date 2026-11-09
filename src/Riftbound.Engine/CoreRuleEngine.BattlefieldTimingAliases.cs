@@ -78,7 +78,9 @@ public sealed partial class CoreRuleEngine
         => held ?? (object?)(tokens is { Timing: "HOLD" } ? tokens : null)
             ?? (insight is { Kind: "HELD" or "CONQUEST_LOOK" } ? insight : null)
             ?? (unitEvent is not null && (UnitEventTimingMatches(unitEvent.Timing, "HOLD")
-                || UnitEventTimingMatches(unitEvent.Timing, "CONQUEST")) ? unitEvent : null)
+                || UnitEventTimingMatches(unitEvent.Timing, "CONQUEST")
+                || UnitEventTimingMatches(unitEvent.Timing, "ATTACK")
+                || UnitEventTimingMatches(unitEvent.Timing, "DEFEND")) ? unitEvent : null)
             ?? (object?)source ?? flow ?? (object?)conquestToken ?? conquest ?? (object?)recast ?? unitReturn;
 
     internal static string TimingCaptureHash(object context, BattlefieldTimingAlias? alias)
