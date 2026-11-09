@@ -17747,8 +17747,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var legalTargets = HasLegalDeclaredTargets(state, intent.PlayerId, command.SourceObjectId, behavior, targetObjectIds, targetScope);
         var incompleteTargets = previewWithoutTargets
             && targetObjectIds.Count == 0
-            && !behavior.TargetScopeIsExplicit
-            && string.Equals(targetScope, CardTargetScopes.BattlefieldUnit, StringComparison.Ordinal)
+            && !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment
+            && IsVisibleFieldUnitPrimitiveTargetScope(targetScope)
+            && MaxTargetCount(state, intent.PlayerId, behavior) > 0
             && !legalTargets;
         if (!incompleteTargets && !legalTargets)
         {

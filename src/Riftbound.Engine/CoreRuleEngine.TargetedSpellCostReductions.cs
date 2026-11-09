@@ -33,12 +33,12 @@ public sealed partial class CoreRuleEngine
         {
             if (!state.CardObjects.TryGetValue(id, out var source) || !IsFaceUpNonStandbyUnit(source)
                 || !IsFieldUnitObject(state, id)
-                || EffectiveFieldControllerId(state.PlayerZones, id, source) != player
-                || targets is null && !MayTargetSpellCostSource(state, player, spell, id)) continue;
+                || EffectiveFieldControllerId(state.PlayerZones, id, source) != player) continue;
             foreach (var instance in AttachedRuleTextRules.Instances(state, source))
             {
                 if (!CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var behavior)
-                    || behavior.TargetedSpellManaOrPowerReduction <= 0) continue;
+                    || behavior.TargetedSpellManaOrPowerReduction <= 0
+                    || targets is null && !MayTargetSpellCostSource(state, player, spell, id)) continue;
                 var binding = new ObjectBinding(id, source.ObjectGeneration);
                 var key = TargetedSpellReductionPrefix + MatchStateHasher.HashValue(new {
                     Source = binding, instance.Id, instance.CardNo, Controller = player,

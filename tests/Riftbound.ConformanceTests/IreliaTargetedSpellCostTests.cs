@@ -115,6 +115,11 @@ public sealed class IreliaTargetedSpellCostTests
         const string spell = "SFD·023/221";
         var initial = Position(zone: "BATTLEFIELD", spell: spell, pool: new(2, 0, Colors((wallet, 1))));
         initial = RadGearTestPosition.Put(initial, "WARD", "OGN·013/298", "P2", "BATTLEFIELD", "OTHER");
+        // PrintedCardFactory creates an outside-play card; this midgame ward
+        // fixture explicitly supplies its printed in-play keyword.
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["WARD"] = initial.CardObjects["WARD"] with { Tags = initial.CardObjects["WARD"].Tags
+                .Append(CardObjectTags.Spellshield).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() } } };
         var command = new PlayCardCommand("SPELL", spell, ["HOST", "WARD"], OptionalCosts:
             [Choice(initial, "HOST", "POWER"), "SPELL_POWER_REDUCTION:" + reduction + ":1"]);
         var quote = Quote(initial, command); Assert.True(quote.CanPay, quote.Message);
@@ -125,10 +130,10 @@ public sealed class IreliaTargetedSpellCostTests
     [Fact]
     public async Task AZeroBasePriceCanStillReduceAnAdditionalFeeWithoutRemovingTheDeclaredRepeat()
     {
-        var initial = Position(spell: Boost, pool: new(1, 0)) with {
+        var initial = Position(spell: Boost, pool: new(0, 0)) with {
             UntilEndOfTurnEffects = ["RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:DRAKE"] };
         var command = new PlayCardCommand("SPELL", Boost, ["HOST"], OptionalCosts: ["ECHO", Choice(initial, "HOST", "MANA")]);
-        var quote = Quote(initial, command); Assert.True(quote.CanPay, quote.Message); Assert.Equal(1, quote.Cost!.Mana);
+        var quote = Quote(initial, command); Assert.True(quote.CanPay, quote.Message); Assert.Equal(0, quote.Cost!.Mana);
         var game = new Driver(initial); await game.Act("P1", command); AssertPrice(game, quote);
         Assert.Equal(2, Assert.Single(game.State.StackItems).EffectRepeatCount); await game.Top(); await game.Replay();
     }
@@ -249,6 +254,30 @@ public sealed class IreliaTargetedSpellCostTests
         Assert.DoesNotContain(quote.Cost.Adjustments, a => a.Label == "目标减费");
         var game = new Driver(initial); await game.Act("P1", command);
         while (game.State.StackItems.Count > 0) await game.Top(); await game.Replay();
+    }
+
+    [Fact]
+    public async Task AutomaticModeUsesTheActualPlannedLuxWalletAndTheExplicitRestrictedManaSource()
+    {
+        var initial = RadGearTestPosition.Put(Position(spell: Boost, pool: RunePool.Empty), "LUX", P4ActivatedAbilityCatalog.LuxCardNo, "P1", "BASE");
+        var command = new PlayCardCommand("SPELL", Boost, ["HOST"], OptionalCosts:
+            [P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix + "LUX", "MANA_SOURCE:SPELL_ONLY:2"]);
+        var quote = Quote(initial, command); Assert.True(quote.CanPay, quote.Message); Assert.Equal(2, quote.Cost!.Mana);
+        Assert.Equal(2, quote.Cost.AvailableSpellOnlyMana);
+        var game = new Driver(initial); await game.Act("P1", command); AssertPrice(game, quote);
+        Assert.Equal(0, game.State.RunePools["P1"].SpellOnlyMana); Assert.True(game.State.CardObjects["LUX"].IsExhausted);
+        await game.Top(); await game.Replay();
+    }
+
+    [Fact]
+    public async Task OpponentIncreaseIsAddedBeforeTheTargetReduction()
+    {
+        var initial = RadGearTestPosition.Put(Position(spell: Boost, pool: new(2, 0)), "HELM", "VEN·045", "P2", "BASE");
+        var command = new PlayCardCommand("SPELL", Boost, ["HOST"]);
+        var quote = Quote(initial, command); Assert.True(quote.CanPay, quote.Message); Assert.Equal(2, quote.Cost!.Mana);
+        Assert.Contains(quote.Cost.Adjustments, a => a.Label == "对手法术增费" && a.Mana == 1);
+        Assert.Contains(quote.Cost.Adjustments, a => a.Label == "目标减费" && a.Mana == -1);
+        var game = new Driver(initial); await game.Act("P1", command); AssertPrice(game, quote); await game.Top(); await game.Replay();
     }
 
     private static MatchState Position(string printing = Irelia, string zone = "BASE", string spell = TypedSpell, RunePool? pool = null)
