@@ -1823,10 +1823,11 @@ def paid_target_play_stun_route(card: dict, clause: dict, sources: Sources) -> d
         targetEffectAdditionalPowerCost=1, targetEffectAdditionalPowerTrait='green')
     if exact:
         profile = profiles[0]
+        unit_event = profile.get('unitEventAbility')
         exact = inventory_contains(profile, expected) \
             and all(type(profile.get(key, 0)) is int and profile.get(key, 0) == 0
                 for key in ['damageAmount', 'minTargetCount', 'targetEffectAdditionalManaCost']) \
-            and not meaningful(profile.get('unitEventAbility')) \
+            and (not meaningful(unit_event) or isinstance(unit_event, dict) and unit_event.get('timing') == 'HOLD') \
             and not meaningful(profile.get('playsSourceToBaseAsEquipment'))
     prefix = 'src/Riftbound.Engine/'
     def member(filename, name):
