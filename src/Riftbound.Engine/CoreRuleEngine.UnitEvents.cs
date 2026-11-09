@@ -151,19 +151,21 @@ public sealed partial class CoreRuleEngine
             || TokenObjectRules.IsToken(entered)).ToArray();
         observations = CapturePlayedUnitRunes(ev, zones, cards, entered, player, turnEffects, observations);
         observations = CaptureConditionalSourcePlayDestination(entered.ObjectId, destinationZone, observations);
+        observations = CaptureSourcePlayConditions(entered, player, observations);
         return WithUnitEvents(ev, observations);
     }
 
     private static GameEvent CaptureEquipmentPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
-        => WithUnitEvents(ev, CaptureUnitEvents(zones, cards, cards.Values.Where(c =>
+        => WithUnitEvents(ev, CaptureSourcePlayConditions(entered, player,
+            CaptureUnitEvents(zones, cards, cards.Values.Where(c =>
             EffectiveFieldControllerId(zones, c.ObjectId, c) != player).Select(c => c.ObjectId), "OPPONENT_EQUIPMENT_PLAYED")
             .Select(o => o with { Context = o.Context with { Other = new(new(entered.ObjectId, entered.ObjectGeneration), entered.CardNo!,
                 entered.CopyFaceTransitions?.Count ?? 0, entered.TokenFactoryCardNo) } }).Concat(
                     CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY").Select(o =>
                         o.Context.Timing == "PLAY_OR_MOVE" ? o with { Context = o.Context with {
                             Here = new(player, (string)ev.Payload["destinationZone"]!, ev.Payload.GetValueOrDefault("battlefieldObjectId") as string) } } : o))
-                .Concat(CaptureDeploymentPlayedLegends(ev, zones, cards, entered, player)).ToArray());
+                .Concat(CaptureDeploymentPlayedLegends(ev, zones, cards, entered, player)).ToArray()));
 
     private static void CaptureSelfDiscardEvents(IReadOnlyDictionary<string, CardObjectState> cards, string player,
         string eventKind, IReadOnlyList<string> discarded, List<GameEvent> events)
@@ -395,6 +397,7 @@ public sealed partial class CoreRuleEngine
             && ValidBattleDrawContext(state, c, spec, controller)
             && ValidPlayerDefenseContext(state, c, spec)
             && ValidConditionalSourcePlayDestination(c, spec)
+            && ValidSourcePlayCondition(state, c, spec, source)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)

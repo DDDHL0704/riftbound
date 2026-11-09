@@ -7816,7 +7816,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "恶魔|待命|后排"),
+            SourceUnitTags: "恶魔|待命|后排",
+            UnitEventAbility: new("PLAY", "MOVE_ENEMY_HERE", Optional: true) {
+                RequiresSourcePlayedFromStandby = true, RequiresSourcePlayedOnOwnTurn = true }),
         new(
             "UNL-145/219",
             "派克",

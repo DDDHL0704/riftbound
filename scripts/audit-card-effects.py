@@ -2816,6 +2816,89 @@ def held_next_unit_ready_boon_route(card: dict, clause: dict, sources: Sources) 
         sorted({prefix + filename for filename, _, _ in checks}))
 
 
+def source_play_condition_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    wanted = normalize('当你在你的回合中将我从正面朝下的状态打出时，你可以选择移动任意一名位于不同位置的敌方单位到我所在的战场。')
+    if normalize(unparenthesize(clause['text'])) != wanted:
+        return None
+    profiles = card.get('behaviors', [])
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == wanted \
+        and wanted in normalize(unparenthesize(card.get('cardEffect', ''))) \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 1
+    if exact:
+        profile = profiles[0]
+        event = card.get('unitEventAbility')
+        expected = dict(timing='PLAY', effect='MOVE_ENEMY_HERE', optional=True,
+            requiresSourcePlayedFromStandby=True, requiresSourcePlayedOnOwnTurn=True)
+        exact = profile.get('playsSourceToBaseAsUnit') is True \
+            and not meaningful(profile.get('playsSourceToBaseAsEquipment')) \
+            and isinstance(event, dict) and inventory_contains(event, expected) \
+            and inventory_contains(profile.get('unitEventAbility'), event) \
+            and inventory_contains(event, profile.get('unitEventAbility')) \
+            and all(type(profile.get(key, 0)) is int and profile.get(key, 0) == 0
+                for key in ['requiredTargetCount', 'damageAmount']) \
+            and type(event.get('amount', 0)) is int and event.get('amount', 0) == 0 \
+            and not any(meaningful(value) for key, value in event.items() if key not in expected)
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b'
+            + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]
+        offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+    checks = [
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureOtherUnitPlayed', [
+            'CaptureSourcePlayConditions(entered, player, observations)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureEquipmentPlayed', [
+            'CaptureSourcePlayConditions(entered, player,']),
+        ('CoreRuleEngine.SourcePlayConditions.cs', 'HasSourcePlayCondition', [
+            'spec.RequiresSourcePlayedFromStandby', 'spec.RequiresSourcePlayedOnOwnTurn']),
+        ('CoreRuleEngine.SourcePlayConditions.cs', 'CaptureSourcePlayConditions', [
+            'o.Source == entered.ObjectId', 'o.Controller == player', 'entered.LastStandbyPlay',
+            'RequiresSourcePlayedFromStandby', 'RequiresSourcePlayedOnOwnTurn',
+            'frame.TurnPlayerId == o.Controller', 'SourcePlayCondition = new(']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEvent', [
+            'ValidSourcePlayCondition(state, c, spec, source)']),
+        ('CoreRuleEngine.SourcePlayConditions.cs', 'ValidSourcePlayCondition', [
+            'context.SourcePlayCondition', 'condition.PlayingPlayerId != condition.TurnPlayerId',
+            'condition.FromStandby', 'StandbyRules.ValidUnitEventPlayedOrigin(']),
+        ('StandbyRules.cs', 'ValidUnitEventPlayedOrigin', [
+            'ValidFields(state, origin)', 'origin.ObjectId == source',
+            'generation == origin.SourceGeneration + 1', 'playedTurn > origin.TurnNumber',
+            'origin.ControllerId == player']),
+        ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['"MOVE_ENEMY_HERE"']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+            '.Optional ? 0 : 1', '.AnyNumberOfTargets ? legal.Length : 1']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets', [
+            '"MOVE_ENEMY_HERE"', 'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId',
+            'IsUnitMovementDestination(state, c.ObjectId, destination)', 'MovementRestrictionRules.CanMove(c, item.ControllerId)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'UnitEventHereDestination', [
+            'CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)', '"BATTLEFIELD"']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'ResolvePermanentUnitEventInstruction', [
+            'StackObjectRules.ReferencesCurrentObject(state, item, target)',
+            'spec.Effect == "MOVE_ENEMY_HERE" ? UnitEventHereDestination(state, item)',
+            'MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [target], destination, events)']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', ['HasSourcePlayCondition(']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', ['context.SourcePlayCondition']),
+        ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', [
+            'CoreRuleEngine.RequiresObservedUnitEventHistory(', 'Scope(state.PendingRuleChoice?.Origin)',
+            'command.Accepted', 'command.StartedEventSequence < entry.Sequence',
+            'command.CompletedEventSequence >= entry.Sequence',
+            'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)',
+            '!expected.SetEquals(current.Select(item => item.Id))']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors)']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+        for filename, name, tokens in checks)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route', '从背面且在己方回合的源牌打出事实独立捕获；确认单个不同位置敌方单位，按原来源当前战场执行共享移动，并核对原始接受历史', evidence) if exact else result(
+        'missing', '缺少背面／己方回合的原始打出条件、独立敌方单位移动，或来源代际及原始捕获校验')
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
@@ -2824,6 +2907,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return matched
     if held_next_unit := held_next_unit_ready_boon_route(card, clause, sources):
         return held_next_unit
+    if conditional_move := source_play_condition_movement_route(card, clause, sources):
+        return conditional_move
     if trait_score := friendly_unit_trait_score_route(card, clause, sources):
         return trait_score
     if battle_reward := battle_win_and_paid_combat_route(card, clause, sources):
