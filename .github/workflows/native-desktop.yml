@@ -1,9 +1,17 @@
 name: Backend L3 nightly
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.postgres_partition != 'all' && format('SQL partition {0} ({1})', inputs.postgres_partition, github.ref_name) || 'Backend L3 nightly' }}
 
 on:
   schedule:
     - cron: '0 18 * * *' # 02:00 Asia/Shanghai; one fixed main snapshot per night
   workflow_dispatch:
+    inputs:
+      postgres_partition:
+        description: 'all runs full L3; 0-3 runs only the selected SQL partition at this ref'
+        type: choice
+        required: false
+        default: all
+        options: ['all', '0', '1', '2', '3']
 
 permissions:
   contents: read
@@ -16,6 +24,7 @@ env:
 jobs:
   scope:
     name: Fix nightly main SHA
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.postgres_partition == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
@@ -86,7 +95,6 @@ jobs:
           name: nightly-rule-built-input
           path: var/qa/nightly-prepared/bundle.tar.gz
           compression-level: 0
-          retention-days: 14
 
   rule_shards:
     needs: [scope, rule_prepare]
@@ -147,7 +155,7 @@ jobs:
 
   rule_suite:
     needs: [scope, rule_prepare, rule_shards]
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && (github.event_name != 'workflow_dispatch' || inputs.postgres_partition == 'all') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
@@ -292,7 +300,7 @@ jobs:
   postgres:
     needs: [scope, postgres_partitions, native_network, related_network]
     # Validate failed children, but release the queue when this run is cancelled.
-    if: ${{ always() && !cancelled() }}
+    if: ${{ always() && !cancelled() && (github.event_name != 'workflow_dispatch' || inputs.postgres_partition == 'all') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -335,7 +343,7 @@ jobs:
     needs: [scope, rule_suite, postgres]
     # Failed/skipped full children must still reach this gate. Cancellation
     # should stop this aggregate instead of enqueueing another summary job.
-    if: ${{ always() && !cancelled() }}
+    if: ${{ always() && !cancelled() && (github.event_name != 'workflow_dispatch' || inputs.postgres_partition == 'all') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
@@ -441,3 +449,58 @@ jobs:
             clients/godot/exports/windows/Riftbound-windows-x64.zip
           retention-days: 90
           compression-level: 0
+
+  postgres_scoped:
+    name: SQL partition ${{ inputs.postgres_partition }} diagnostic
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.postgres_partition != 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    concurrency:
+      group: postgres-scoped-${{ github.ref }}-${{ github.sha }}-${{ inputs.postgres_partition }}
+      cancel-in-progress: false
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      RIFTBOUND_FIXED_COMMIT: ${{ github.sha }}
+      RIFTBOUND_POSTGRES_PARTITION: ${{ inputs.postgres_partition }}
+      RIFTBOUND_POSTGRES_EVIDENCE: var/qa/ci-postgres
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify selected partition and fixed checkout
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['RIFTBOUND_POSTGRES_PARTITION'] in {'0', '1', '2', '3'}
+          PY
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_FIXED_COMMIT" --event-sha "$RIFTBOUND_FIXED_COMMIT" --output var/qa/ci-postgres-runtime/checkout.json
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Run every case in the selected SQL partition
+        run: |
+          dotnet build tests/Riftbound.PostgresAcceptance -c Release -m:1 --nologo -v:q
+          python3 scripts/observe-ci-command.py --commit "$RIFTBOUND_FIXED_COMMIT" --label "manual-postgres-partition-$RIFTBOUND_POSTGRES_PARTITION" --output var/qa/ci-postgres-runtime -- dotnet run --project tests/Riftbound.PostgresAcceptance -c Release --no-build -- --ci-partition "$RIFTBOUND_POSTGRES_PARTITION" 4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: postgres-scoped-${{ inputs.postgres_partition }}
+          path: |
+            var/qa/ci-postgres/
+            var/qa/ci-postgres-runtime/
+          retention-days: 90
+          retention-days: 14
