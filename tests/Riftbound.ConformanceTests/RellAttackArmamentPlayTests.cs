@@ -18,6 +18,8 @@ public sealed partial class RellAttackArmamentPlayTests
         state = RadGearTestPosition.Put(state, "GEAR", gear, "P1", "HAND");
         state = RadGearTestPosition.Put(state, "ENEMY", "OGN·219/298", "P2", "BATTLEFIELD", "BF");
         state = RadGearTestPosition.Put(state, "RETURN", "OGN·104/298", "P1", "HAND");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["BF"] = state.CardObjects["BF"] with { ControllerId = "P2" } } };
         return CoreRuleEngine.RecomputeRuleDerivedKeywords(state);
     }
 

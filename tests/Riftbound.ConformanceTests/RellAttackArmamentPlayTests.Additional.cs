@@ -47,6 +47,8 @@ public sealed partial class RellAttackArmamentPlayTests
     public async Task IgnoringPrintedCostsStillRequiresTheMysticVortexReactionIncrease(bool funded)
     {
         var initial = RadGearTestPosition.Put(Position("SFD·022/221"), "BF", "VEN·160", "P1", "BATTLEFIELD", "BF");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["BF"] = initial.CardObjects["BF"] with { ControllerId = "P2" } } };
         initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(0, funded ? 1 : 0) } };
         var game = new Driver(initial); await Permission(game);
         var play = new PlayCardCommand("GEAR", "SFD·022/221", ["ALLY"]);
