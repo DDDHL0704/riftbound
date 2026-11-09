@@ -91,7 +91,7 @@ public static partial class MatchRecoveryValidator
             || state.CardObjects is null || state.CardObjects.ContainsKey(source)) return false;
         var skill = CoreRuleEngine.UnitEventTurnPlaySkills(state).FirstOrDefault(skill =>
             (skill.Id == id || "ordered-" + skill.Id == id) && skill.Controller == controller && skill.Source == source);
-        return skill?.Context.Grant.UnitEventOrigin?.Context.TokenFactoryCardNo is { } factory
+        return skill?.Context.Grant.UnitEventOrigin?.Context?.TokenFactoryCardNo is { } factory
             && P6TokenFactoryCatalog.IsTokenFactory(factory)
             && CoreRuleEngine.ValidTurnUnitPlayBoon(state, skill.Context, effect!, source, controller!, skill.Context.Grant.CardNo);
     }

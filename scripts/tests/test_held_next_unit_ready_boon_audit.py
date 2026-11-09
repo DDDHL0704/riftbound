@@ -141,3 +141,7 @@ class HeldNextUnitReadyBoonAuditTests(unittest.TestCase):
                 ('MatchSession/Projection.Timing.cs','UnitEventOrigin = null'),
                 ('MatchSession/Projection.Timing.cs','"TURN_UNIT_PLAY_GRANT_HASH:" + MatchStateHasher.HashValue(context.Grant)')]:
             with self.subTest(token=token):self.missing_consumer(filename,token)
+
+    def test_a_null_origin_cannot_borrow_the_ceased_source_exception(self):
+        self.missing_consumer('MatchRecovery.UnitEventTurnPlayGrants.cs',
+            'UnitEventOrigin?.Context?.TokenFactoryCardNo')

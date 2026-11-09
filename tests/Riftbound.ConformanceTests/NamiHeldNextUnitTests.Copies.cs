@@ -51,9 +51,27 @@ public sealed partial class NamiHeldNextUnitTests
         await game.Act("P1", new PlayCardCommand("FIRST", Unit, []));
         Assert.True(game.State.CardObjects["FIRST"].IsExhausted);
         Assert.Equal(image.ObjectId, Assert.Single(game.State.StackItems).TurnUnitPlayBoon!.Grant.Source.ObjectId);
+        RejectMalformedCeasedSourceOrigin(game);
         await game.ColdCheckpoint(); await game.Top();
         Assert.False(game.State.CardObjects["FIRST"].IsExhausted);
         Assert.Equal(1, BoonRules.Count(game.State.CardObjects["FIRST"]));
         await game.ColdCheckpoint();
     }
+
+    private static void RejectMalformedCeasedSourceOrigin(Driver game)
+    {
+        var item = Assert.Single(game.State.StackItems);
+        var context = item.TurnUnitPlayBoon!;
+        var original = MatchStateHasher.HashValue(new { commands = game.Commands(), events = game.Events() });
+        var badGrant = RebindGrant(context.Grant with {
+            UnitEventOrigin = context.Grant.UnitEventOrigin! with { Context = null! }
+        });
+        var changed = item with { TurnUnitPlayBoon = context with { Grant = badGrant } };
+        var forged = game.State with { StackItems = [changed] };
+        Assert.False(CoreRuleEngine.ValidTurnUnitPlayBoon(forged, changed.TurnUnitPlayBoon,
+            changed.EffectKind, changed.SourceObjectId, changed.ControllerId, changed.CardNo));
+        Assert.NotEmpty(Errors(game, forged));
+        Assert.Equal(original, MatchStateHasher.HashValue(new { commands = game.Commands(), events = game.Events() }));
+    }
+
 }

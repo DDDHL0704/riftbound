@@ -2570,6 +2570,9 @@ def held_next_unit_ready_boon_route(card: dict, clause: dict, sources: Sources) 
             'command.Accepted', 'expectedGrants.SetEquals(', 'expectedUses.SetEquals(', 'expectedSkills.SetEquals(',
             'CoreRuleEngine.UnitEventTurnPlaySkillUse(skill.Context)', 'CoreRuleEngine.TimingCaptureHash(context, origin.TimingAlias)',
             '"TRIGGERS_MOVED_TO_STACK"', '"TOKEN_CEASED_TO_EXIST"']),
+        ('MatchRecovery.UnitEventTurnPlayGrants.cs', 'HasValidatedCeasedUnitEventTurnPlaySource', [
+            'UnitEventOrigin?.Context?.TokenFactoryCardNo', 'P6TokenFactoryCatalog.IsTokenFactory(factory)',
+            'CoreRuleEngine.ValidTurnUnitPlayBoon(state, skill.Context']),
         ('MatchRecovery.cs', 'ValidateFrame', ['ValidateUnitEventTurnPlayHistory(authoritativeState, commands, events, errors)']),
         ('MatchRecovery.cs', 'ValidateAuthoritativeStateStackItemObjectReferences', ['HasValidatedCeasedUnitEventTurnPlaySource(']),
         ('MatchRecovery.cs', 'ValidateSpectatorSnapshotStackObjectReferences', ['HasValidatedCeasedUnitEventTurnPlaySource(']),

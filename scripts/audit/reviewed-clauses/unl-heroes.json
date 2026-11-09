@@ -583,7 +583,8 @@
             "CurrentGameAcceptedEventBoundary(state, commands, events)",
             "expectedGrants.SetEquals(",
             "expectedUses.SetEquals(",
-            "expectedSkills.SetEquals("
+            "expectedSkills.SetEquals(",
+            "UnitEventOrigin?.Context?.TokenFactoryCardNo"
           ]
         },
         {
