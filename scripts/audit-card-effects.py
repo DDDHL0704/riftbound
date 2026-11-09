@@ -2881,6 +2881,20 @@ def held_next_unit_ready_boon_route(card: dict, clause: dict, sources: Sources) 
         ('CoreRuleEngine.TurnUnitPlayGrants.cs', 'ResolveTurnUnitPlayBoon', [
             'unit.ObjectGeneration != c.Unit.Generation', 'IsFieldUnitObject(state, unit.ObjectId)',
             'if (c.Grant.Kind == UnitEventReadyBoonGrantKind)', 'ApplyReadyState(', 'ApplyBoon(']),
+        ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', [
+            'QueueTurnUnitPlayBoons(state, collected)', 'DeferCompanionPermanentPlayOrdering(state, collected)']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'CompanionPlayedUnit', ['trigger.TurnUnitPlayBoon?.Unit']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'DeferCompanionPermanentPlayOrdering', [
+            'CompanionPlayedUnit(t) is not null',
+            'queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)',
+            'PermanentPlayStackItemId = item.StackItemId']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'ValidPermanentPlayCompanion', [
+            'if (enqueuedAtTick is not { } capturedTick) return false',
+            'state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit',
+            'play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick',
+            'ValidTurnUnitPlayBoon(state, boon']),
+        ('PermanentPlayTriggerRecoveryRules.cs', 'ValidQueued', [
+            'CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick)']),
         ('CoreRuleEngine.cs', 'ApplyReadyState', [
             'CardStaticAbilitySpecRules.CardCannotBecomeActive', 'ReadyByEffectPermittedByFieldRules(',
             'CaptureReadiedObject(', 'CaptureSelfReady(']),
@@ -2908,6 +2922,11 @@ def held_next_unit_ready_boon_route(card: dict, clause: dict, sources: Sources) 
     ]
     exact = exact and all(all(token in member(filename, name) for token in tokens)
         for filename, name, tokens in checks)
+    collection = member('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects')
+    ready_grants = 'QueueTurnUnitPlayBoons(state, collected)'
+    legacy_ordering = 'DeferCompanionPermanentPlayOrdering(state, collected)'
+    exact = exact and ready_grants in collection and legacy_ordering in collection \
+        and collection.index(ready_grants) < collection.index(legacy_ordering)
     factory = member('CoreRuleEngine.UnitEventTurnPlayGrants.cs', 'ResolveUnitEventTurnPlayGrant')
     exact = exact and all(token not in factory for token in ['state.CardObjects[item.SourceObjectId]',
         'IsObjectOnField(', 'CombatMightSourceLocation('])

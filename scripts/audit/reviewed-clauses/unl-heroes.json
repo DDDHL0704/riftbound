@@ -651,8 +651,8 @@
       "text": "当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。",
       "scope": "当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。",
       "status": "route",
-      "reason": "据守产生独立技能并创建本回合下一次单位打出的延迟授权；新单位先正常进场，再由独立技能按原代际活跃并给予增益；支持来源返手或真实映像消失、同批多个指示物只消费首个打出、原始创建／使用／结束记录与私有来源投影",
-      "rules": "核心355.10.c、383.2–383.3、391.2、392、393、359.3.e／359.3.f、718；官方中文牌面；SFD据守／征服互换沿用共享时机别名",
+      "reason": "据守产生独立技能并创建本回合下一次单位打出的延迟授权；新单位先正常进场，再由独立技能按原代际活跃并给予增益；支持来源返手或真实映像消失、同批多个指示物只消费首个打出、原始创建／使用／结束记录与私有来源投影；与旧入场技能同批排序，多个观察者不重复登记旧技能，排序代理绑定实际打出记录与原单位代际",
+      "rules": "核心355.10.c、383.2–383.3、391.2、392、393、359.3.e／359.3.f、718；官方中文牌面；SFD据守／征服互换沿用共享时机别名；同批独立技能排序依核心383.3.d",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
@@ -716,6 +716,21 @@
             "\"TURN_UNIT_PLAY_GRANT_HASH:\" + MatchStateHasher.HashValue(context.Grant)",
             "UnitEventOrigin = null"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.TurnUnitPlayBoon?.Unit",
+            "queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)",
+            "ValidPermanentPlayCompanion(",
+            "state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
+          "contains": [
+            "CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick)"
+          ]
         }
       ],
       "tests": [
@@ -763,6 +778,25 @@
           "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.Counters.cs",
           "methods": [
             "AConditionalCounterCannotChooseEitherUntargetedEarnedSkill"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.AkshanCombination.cs",
+          "methods": [
+            "AnEarnedHoldAndAnActualAkshanTheftKeepBothOriginalHistoriesThroughHisDeparture",
+            "ARealHoldAndRengarGiveOneLegacySkillOnlyOneEntryInTheirSharedOrderingWindow"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.AzirCombination.cs",
+          "methods": [
+            "AUnitReadiedByAnActualNamiHoldCanAttackAndIndependentlyGatherItsOwnTokens"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiHeldNextUnitTests.EvelynnCombination.cs",
+          "methods": [
+            "ARealFaceDownPlayIndependentlyConsumesNamisHoldAndEarnsEvelynnsOwnTurnMovement"
           ]
         }
       ]

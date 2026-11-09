@@ -145,3 +145,26 @@ class HeldNextUnitReadyBoonAuditTests(unittest.TestCase):
     def test_a_null_origin_cannot_borrow_the_ceased_source_exception(self):
         self.missing_consumer('MatchRecovery.UnitEventTurnPlayGrants.cs',
             'UnitEventOrigin?.Context?.TokenFactoryCardNo')
+
+    def test_earned_skills_require_shared_ordering_and_actual_play_witness(self):
+        for filename, token in [
+                ('CoreRuleEngine.BattleResultContinuation.cs', 'DeferCompanionPermanentPlayOrdering(state, collected)'),
+                ('CoreRuleEngine.UnitPlayMight.cs', 'trigger.TurnUnitPlayBoon?.Unit'),
+                ('CoreRuleEngine.UnitPlayMight.cs', 'queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)'),
+                ('CoreRuleEngine.UnitPlayMight.cs', 'if (enqueuedAtTick is not { } capturedTick) return false'),
+                ('CoreRuleEngine.UnitPlayMight.cs', 'state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit'),
+                ('CoreRuleEngine.UnitPlayMight.cs', 'play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick'),
+                ('CoreRuleEngine.UnitPlayMight.cs', 'ValidTurnUnitPlayBoon(state, boon'),
+                ('PermanentPlayTriggerRecoveryRules.cs', 'CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick)')]:
+            with self.subTest(token=token):
+                self.missing_consumer(filename, token)
+
+    def test_unit_play_grants_must_be_collected_before_deferring_legacy_skills(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs'
+        original = self.sources.files[path]
+        first = 'collected = QueueTurnUnitPlayBoons(state, collected);'
+        second = 'collected = DeferCompanionPermanentPlayOrdering(state, collected);'
+        sequence = first + '\n            ' + second
+        self.assertIn(sequence, original)
+        self.sources.files[path] = original.replace(sequence, second + '\n            ' + first)
+        self.assertEqual('missing', self.status())
