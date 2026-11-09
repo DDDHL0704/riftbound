@@ -100,10 +100,12 @@
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
       "TRIGGER_CONFIRMED",
+      "PAID_PERMANENT_PLAY_SKILL_CAPTURED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "PAID_PERMANENT_PLAY_SKILL_RETIRED"
     ],
     "events": [
       {
@@ -160,6 +162,9 @@
         }
       },
       {
+        "kind": "PAID_PERMANENT_PLAY_SKILL_CAPTURED"
+      },
+      {
         "kind": "PRIORITY_PASSED"
       },
       {
@@ -178,6 +183,9 @@
           "minimumPower": 0,
           "resultingPower": 1
         }
+      },
+      {
+        "kind": "PAID_PERMANENT_PLAY_SKILL_RETIRED"
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
