@@ -99,7 +99,8 @@ public sealed partial class CoreRuleEngine
                     state.ObjectLocations, player, field, eventKind) : 1;
             var selectedUnits = aliasUnits is null ? units : units.Where(aliasUnits.Contains).ToArray();
             foreach (var observation in CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")
-                .Where(o => aliasUnits is null || !UnitEventTimingMatches(o.Context.Timing, "CONQUEST")))
+                .Where(o => aliasUnits is null || !UnitEventTimingMatches(o.Context.Timing, "CONQUEST"))
+                .Select(o => CaptureTriggeredUnitEventBattlefield(state, o, field)))
                 for (var copy = 0; copy < copies; copy++)
                 {
                     var trigger = UnitEventTrigger(observation, frame?.CompletionTick ?? state.Tick,

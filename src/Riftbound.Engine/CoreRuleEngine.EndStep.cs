@@ -81,6 +81,7 @@ public sealed partial class CoreRuleEngine
                         target, location, state.TurnNumber, CreationTick: context.CreatedTick) { CapturedTick = state.Tick + 1 } });
             }
         }
+        result.AddRange(CaptureConditionalEndUnitEvents(state));
         result.AddRange(CaptureDelayedEmpowerEndAbilities(state));
         result.AddRange(CaptureBombRebuildEndAbilities(state));
         return result.ToArray();
@@ -98,8 +99,10 @@ public sealed partial class CoreRuleEngine
             EndStep = new(intent.PlayerId, state.TurnNumber), TimingState = TimingStates.NeutralClosed,
             TriggerQueue = state.TriggerQueue.Concat(triggers).ToArray(), PriorityPlayerId = null, PassedPriorityPlayerIds = [],
             UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Where(s => !s.StartsWith(DelayedEndReadyPrefix, StringComparison.Ordinal) && !s.StartsWith(DelayedEmpowerPrefix, StringComparison.Ordinal) && !s.StartsWith(BombRebuildPrefix, StringComparison.Ordinal)).ToArray() };
-        return new(true, null, next, [new("TURN_END_STEP_STARTED", "开始结束步骤，先处理触发和待确认出牌", new Dictionary<string,object?> {
-            ["playerId"] = intent.PlayerId, ["turnNumber"] = state.TurnNumber })], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
+        var events = new[] { new GameEvent("TURN_END_STEP_STARTED", "开始结束步骤，先处理触发和待确认出牌", new Dictionary<string,object?> {
+            ["playerId"] = intent.PlayerId, ["turnNumber"] = state.TurnNumber }) }
+            .Concat(triggers.Where(trigger => trigger.UnitEvent is not null).Select(BuildTriggerQueuedEvent)).ToArray();
+        return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
     private static ResolutionResult AdvanceEndStep(ResolutionResult result)

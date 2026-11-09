@@ -26,26 +26,30 @@ public sealed partial class CoreRuleEngine
 
     private static bool ConfirmUnitEventMovementDestination(MatchState state, ref StackItemState item, List<GameEvent> events)
     {
-        if (item.UnitEvent is not { } context || SelectedUnitEventSpec(context)?.Effect != "MOVE_ENEMY") return true;
+        if (item.UnitEvent is not { } context || !IsDeclaredUnitEventMovementEffect(context)) return true;
         var target = item.TargetObjectIds.Single();
-        var options = ChosenMovementDestinations(state, item.ControllerId)
-            .Where(choice => IsUnitMovementDestination(state, target, choice.Id)).ToArray();
+        var options = UnitEventMovementDestinations(state, item, target).ToArray();
         if (options.Length == 0) return false;
         var destination = RuleChoices.Value!.Choose(item.ControllerId, "选择敌方单位的移动目的地，随后双方可以响应。",
-            options.Select(choice => new RuleChoiceOption(choice.Id, choice.Label)).ToArray(),
+            options,
             kind: "MOVEMENT_DESTINATION", preview: state);
         item = item with { Destination = destination };
         events.Add(new("TRIGGER_MOVEMENT_DECLARED", "已声明触发技能的移动目的地", new Dictionary<string, object?> {
             ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
-            ["targetObjectIds"] = item.TargetObjectIds, ["destination"] = destination }));
+            ["targetObjectIds"] = item.TargetObjectIds, ["destination"] = destination,
+            ["declaredUnitEventHash"] = MatchStateHasher.HashValue(item.StackItemId),
+            ["declaredMovementHash"] = DeclaredUnitEventMovementHash(item) }));
         return true;
     }
 
     internal static bool ValidUnitEventMovementDeclaration(MatchState state, StackItemState item)
-        => item.UnitEvent is not { } context || SelectedUnitEventSpec(context)?.Effect != "MOVE_ENEMY"
+        => item.UnitEvent is not { } context || !IsDeclaredUnitEventMovementEffect(context)
             || (item.TargetGenerations is null ? item.Destination.Length == 0
                 : item.Destination.Length == 0 ? state.PendingPayment?.ResolvingStackItemId == item.StackItemId
-                : item.TargetObjectIds.Count == 1 && (item.Destination.StartsWith("BASE:", StringComparison.Ordinal)
+                : item.TargetObjectIds.Count == 1
+                    && (SelectedUnitEventSpec(context)?.Effect != MoveWeakerEnemyHereToAnotherBattlefieldEffect
+                        || item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))
+                    && (item.Destination.StartsWith("BASE:", StringComparison.Ordinal)
                     && state.Seats.ContainsKey(item.Destination[5..])
                     || item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
                         && BattlefieldLocalRules.Battlefield(state, item.Destination[12..]) is not null));
@@ -83,9 +87,12 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary();
         var events = new List<GameEvent>();
         var behavior = new CardBehaviorDefinition(item.CardNo, "永久物触发技能", 0, item.EffectKind, 0, 1);
-        if (spec.Effect == "MOVE_ENEMY")
+        if (spec.Effect is "MOVE_ENEMY" or MoveWeakerEnemyHereToAnotherBattlefieldEffect)
         {
             if (!ValidUnitEventMovementDeclaration(state, item)) throw new InvalidOperationException("Invalid movement declaration.");
+            if (spec.Effect == MoveWeakerEnemyHereToAnotherBattlefieldEffect
+                && !UnitEventMovementDestinations(state, item, target).Any(choice => choice.Id == item.Destination))
+                return NoopStackResolutionResult(state);
             var zones = NormalizeZonesForSeats(state);
             var locations = state.ObjectLocations.ToDictionary();
             var pools = state.RunePools.ToDictionary();
@@ -105,7 +112,8 @@ public sealed partial class CoreRuleEngine
             if (readied is not null) events.Add(readied);
         }
         else if ((spec.Effect == "MOVE_ENEMY_HERE" ? UnitEventHereDestination(state, item)
-            : spec.Effect == MoveFriendlyToArrivalBattlefieldEffect ? UnitEventArrivalBattlefieldDestination(state, item)
+            : spec.Effect is MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect ? UnitEventArrivalBattlefieldDestination(state, item)
+            : spec.Effect == MoveEnemyToCapturedBattlefieldEffect ? UnitEventCapturedBattlefieldDestination(state, item)
             : spec.Effect == DeploymentPlayMoveEffect ? DeploymentPlayDestination(state, item.UnitEvent!) : null) is { } destination)
         {
             var zones = NormalizeZonesForSeats(state);

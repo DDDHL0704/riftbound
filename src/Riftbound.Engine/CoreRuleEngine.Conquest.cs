@@ -88,6 +88,9 @@ public sealed partial class CoreRuleEngine
         var pendingPayment = state.PendingPayment;
         var pendingHandChoice = state.PendingHandChoice;
         var conqueredRealBattlefield = TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out _, out _);
+        if (conqueredRealBattlefield)
+            RecordNaturalUnitConquestBindings(state, playerZones, cardObjects, playerId,
+                battlefieldId, conqueringUnitObjectIds, events);
         var huntConquerSources = conqueringUnitObjectIds
             .Where(cardObjects.ContainsKey)
             .Select(objectId => new { ObjectId = objectId, CardObject = cardObjects[objectId],

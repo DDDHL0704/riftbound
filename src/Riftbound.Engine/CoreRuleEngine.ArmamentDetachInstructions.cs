@@ -34,8 +34,15 @@ public sealed partial class CoreRuleEngine
             : RuleChoices.Value!.Choose(item.ControllerId, "选择卸除这名单位的一件武装。",
                 choices.Select(gear => new RuleChoiceOption(gear.ObjectId, DeckChoiceLabel(current, gear.ObjectId),
                     [gear.ObjectId])).ToArray(), kind: "DETACH_ARMAMENT", preview: current);
+        DetachArmamentForInstruction(current, item, zones, cards, events, host, selected);
+    }
+
+    private static void DetachArmamentForInstruction(MatchState state, StackItemState item,
+        Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
+        List<GameEvent> events, string host, string selected)
+    {
         var gear = cards[selected];
-        using var instruction = new MightInstructionScope(current, zones, cards, events);
+        using var instruction = new MightInstructionScope(state, zones, cards, events);
         cards[selected] = gear with { AttachedToObjectId = null };
         events.Add(new("EQUIPMENT_DETACHED", "卸除所选单位的一件武装", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,

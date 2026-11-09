@@ -272,7 +272,7 @@ public sealed partial class CoreRuleEngine
         UnitEventContext? Update(string id, UnitEventContext? c) {
             // Current-here token instructions read the source directly when
             // resolving. Their original movement capture remains immutable.
-            if (c is null || SelectedUnitEventSpec(c) is { CreatesUnitTokenHere: true } or { RequiresMoveToBattlefield: true }
+            if (c is null || SelectedUnitEventSpec(c) is { CreatesUnitTokenHere: true } or { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
                 || c.LastKnownPower is null && c.Here is null) return c;
             var current = CombatMightSourceLocation(result.State, id, c.SourceGeneration) is not null ? result.State
                 : CombatMightSourceLocation(before, id, c.SourceGeneration) is not null ? before : null;
@@ -295,7 +295,7 @@ public sealed partial class CoreRuleEngine
         // skills are born in the final accepted completion, after resource children.
         tick = Math.Max(tick, RuleChoices.Value?.CompletionTick ?? tick);
         var captured = observation.Context;
-        if (captured.Origin is { ArmamentGranted: true } armament)
+        if (captured.Origin is { ArmamentGranted: true } armament && captured.DelayedReceipt is null)
             captured = captured with { Origin = armament with { CapturedTick = tick } };
         // The public skill may outlive its source's stay in a public zone.
         // Its stack and choice ids cannot contain the source's transport id.
@@ -397,6 +397,9 @@ public sealed partial class CoreRuleEngine
             && ValidPlayerDefenseContext(state, c, spec)
             && ValidConditionalSourcePlayDestination(c, spec)
             && ValidFriendlyPlayCondition(c, spec)
+            && ValidEndConquestCondition(c, spec)
+            && ValidTriggeringBattlefield(c, spec)
+            && ValidScheduledUnitEventReceipt(state, c, source, controller)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
@@ -420,13 +423,13 @@ public sealed partial class CoreRuleEngine
                 : c.Here is null)
             && (CombatMightSourceLocation(state, source, c.SourceGeneration) is not { } current
                 || (c.LastKnownPower is null || c.LastKnownPower == ResolveCurrentFieldUnitPower(state, state.CardObjects[source]))
-                    && (c.Here is null || spec.CreatesUnitTokenHere || spec.RequiresMoveToBattlefield || c.Here == current))
+                    && (c.Here is null || spec.CreatesUnitTokenHere || spec.RequiresMoveToBattlefield || spec.PreservesMovementCapture || c.Here == current))
             && (!spec.RequiresMoveToBattlefield || UnitEventTimingMatches(spec.Timing, "MOVE") && c.Here?.Zone == "BATTLEFIELD")
             && (c.Origin is { } origin ? AttachedRuleTextRules.ValidCaptured(state, origin, source, c.SourceGeneration, c.CardNo)
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is UnitEventGraveyardPlayEffect or ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
+        && (SelectedUnitEventSpec(c)?.Effect is UnitEventGraveyardPlayEffect or ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToCapturedBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect or MoveWeakerEnemyHereToAnotherBattlefieldEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.UnitEvent is { } traitScore && SelectedUnitEventSpec(traitScore)?.Effect == FriendlyUnitTraitScoreEffect
@@ -468,6 +471,17 @@ public sealed partial class CoreRuleEngine
                     && UnitEventArrivalBattlefieldDestination(state, item) is { } arrivalDestination
                     && IsUnitMovementDestination(state, c.ObjectId, arrivalDestination)
                     && MovementRestrictionRules.CanMove(c, item.ControllerId),
+                MoveWeakerEnemyHereToAnotherBattlefieldEffect => IsWeakerEnemyHereMovementTarget(state, item, c),
+                MoveEnemyToArrivalBattlefieldEffect => IsFaceUpNonStandbyUnit(c)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
+                    && UnitEventArrivalBattlefieldDestination(state, item) is { } enemyArrival
+                    && IsUnitMovementDestination(state, c.ObjectId, enemyArrival)
+                    && MovementRestrictionRules.CanMove(c, item.ControllerId),
+                MoveEnemyToCapturedBattlefieldEffect => IsFaceUpNonStandbyUnit(c)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
+                    && UnitEventCapturedBattlefieldDestination(state, item) is { } capturedDestination
+                    && IsUnitMovementDestination(state, c.ObjectId, capturedDestination)
+                    && MovementRestrictionRules.CanMove(c, item.ControllerId),
                 "MOVE_ENEMY_HERE" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
                     && UnitEventHereDestination(state, item) is { } destination
@@ -505,7 +519,7 @@ public sealed partial class CoreRuleEngine
     {
         var legal = UnitEventInstructionTargets(state, item);
         return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-            UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1,
+            item.UnitEvent!.DelayedReceipt is not null || UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1,
             UnitEventSpec(item.UnitEvent.CardNo)!.Effect == PlayedUnitReadyRunes ? Math.Min(legal.Length, UnitEventSpec(item.UnitEvent.CardNo)!.Amount)
                 : UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1, legal, legal,
             "选择单位技能的合法目标；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
@@ -557,7 +571,9 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
+        if (spec.Effect == ScheduleNextMainUnitEventEffect) return ScheduleNextMainUnitEvent(state, item);
         if (spec.Effect == "GAIN_EXPERIENCE") return ResolveUnitEventExperience(state, item, spec);
+        if (spec.Effect == DetachOriginDamageSourceEffect) return ResolveDetachOriginDamageSource(state, item, spec);
         if (spec.Effect == RuneDomainRevealEffect && context.RevealedRune is null) return ResolveRuneDomainReveal(state, item);
         if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
         if (IsFriendlyObservedUnitSpec(spec)) return ResolveObservedFriendlyUnit(state, item, spec);
@@ -587,7 +603,7 @@ public sealed partial class CoreRuleEngine
             return ResolvePaidEquipmentDestructionMight(state, item, spec.Amount);
         if (spec.Effect == "DISCARD_DRAW") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount);
         if (spec.Effect == "MIGHT_OTHER_FRIENDLIES") return ResolveOtherFriendlyUnitMight(state, item, spec);
-        if (spec.Effect is DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "CREATE_UNIT_TOKEN")
+        if (spec.Effect is DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToCapturedBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect or MoveWeakerEnemyHereToAnotherBattlefieldEffect or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "CREATE_UNIT_TOKEN")
             return ResolvePermanentUnitEventInstruction(state, item, spec);
         if (spec.Effect == "DAMAGE_ENEMIES_HERE") return ResolveUnitEventAreaDamage(state, item, spec.Amount);
         if (spec.Effect == "DESTROY_DAMAGED_ENEMIES_HERE") return ResolveUnitEventDamagedEnemyDestruction(state, item);

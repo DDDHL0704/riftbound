@@ -1179,8 +1179,11 @@ public static partial class MatchRecoveryValidator
         }
         if (authoritativeState is not null && requireAcceptedBattleHistory)
         {
-            ValidateBattlefieldConquestHistory(authoritativeState, events, errors);
+            ValidateBattlefieldConquestHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldHoldHistory(authoritativeState, commands, events, errors);
+            ValidateStartPhaseUnitDeathHistory(authoritativeState, commands, events, errors);
+            ValidateScheduledUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateUnitEventMovementDeclarations(authoritativeState, commands, events, errors);
         }
 
         if (string.IsNullOrWhiteSpace(roomId))
@@ -4280,6 +4283,8 @@ public static partial class MatchRecoveryValidator
             || state.DeathLedger.PermanentControllers.Any(player => !state.Seats.ContainsKey(player))
             || state.DeathLedger.PermanentControllers.Distinct(StringComparer.Ordinal).Count() != state.DeathLedger.PermanentControllers.Count
             || state.DeathLedger.PermanentControllers.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber) errors.Add("invalid death ledger");
+        ValidateStartPhaseUnitDeathLedgerShape(state, errors);
+        if (!CoreRuleEngine.ValidCurrentScheduledUnitEvents(state)) errors.Add("invalid pending scheduled unit events");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.DeathObserver is null && IsUncapturedDeathObserver(trigger.EffectKind, trigger.TriggerId))
                 errors.Add("obsolete uncaptured death observer");

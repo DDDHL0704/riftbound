@@ -46,6 +46,7 @@ public sealed partial class CoreRuleEngine
         public HashSet<string> ConsumedUnitPlayGrants { get; } = new(StringComparer.Ordinal);
         public HashSet<string> NestedDestroyedOwners { get; } = [];
         public HashSet<(int TurnNumber, string ControllerId)> DestroyedPermanentControllers { get; } = [];
+        public HashSet<(int TurnNumber, string ControllerId)> StartPhaseDestroyedUnitControllers { get; } = [];
         private int cursor;
         public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null, string? privateReason = null, int manaCost = 0)
         {
