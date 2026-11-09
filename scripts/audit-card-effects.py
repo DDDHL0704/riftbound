@@ -1961,6 +1961,8 @@ def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> di
             'ResolveSpellshieldTargetTaxPower(', 'TargetGenerations = selected.ToDictionary']),
         ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['TryResolveSourceStealEnemyEquipment(']),
         ('CoreRuleEngine.cs', 'IsEquipmentObject', ['HasValidFieldEquipmentAttachment(state, objectId)']),
+        ('CoreRuleEngine.cs', 'TryDestroyControlledFieldTarget', ['HasValidFieldObjectIdentity(state, playerZones, cardObjects, targetObjectId)']),
+        ('CoreRuleEngine.EquipmentTargets.cs', 'HasValidFieldObjectIdentity', ['HasValidFieldEquipmentAttachment(state with']),
         ('CoreRuleEngine.cs', 'IsEnemyEquipmentObject', ['EffectiveFieldControllerId(state.PlayerZones, objectId, state.CardObjects[objectId]) != playerId']),
         ('CoreRuleEngine.EquipmentTargets.cs', 'HasValidFieldEquipmentAttachment', ['FieldObjectTypeRules.HasUnitType(gear)',
             'FindFieldObjectLocation(state.PlayerZones, hostId) != location', 'equipmentAt.BattlefieldObjectId == hostAt.BattlefieldObjectId']),

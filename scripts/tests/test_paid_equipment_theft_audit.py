@@ -56,6 +56,7 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
             ('CoreRuleEngine.cs', 'TryResolveSourceStealEnemyEquipment('),
             ('CoreRuleEngine.cs', 'RecordEquipmentControlHistory(state, completed)'),
             ('CoreRuleEngine.cs', 'EquipmentControl = null'),
+            ('CoreRuleEngine.cs', 'HasValidFieldObjectIdentity(state, playerZones, cardObjects, targetObjectId)'),
             ('CoreRuleEngine.EquipmentTargets.cs', 'FindFieldObjectLocation(state.PlayerZones, hostId) != location'),
             ('CoreRuleEngine.PermanentConfirmation.cs', 'declaration.StealsTargetEquipmentUntilSourceLeaves'),
             ('CoreRuleEngine.PermanentPlayTargets.cs', '!current.PaidPlayTargetsOptional'),

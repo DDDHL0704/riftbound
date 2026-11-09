@@ -25288,7 +25288,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     stackItem, behavior, cardObjects, events);
                 var removalState = state with { PlayerZones = playerZones, CardObjects = cardObjects };
                 using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,
-                    stackItem.TargetObjectIds.Where((id, index) => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)
+                    stackItem.TargetObjectIds.Where((id, index) => HasValidFieldObjectIdentity(state, playerZones, cardObjects, id)
                         && (ShouldDestroyChosenTarget(behavior, index) || ConditionalRemovalAction(removalState, behavior, id) == "DESTROY")).ToArray(), stackItem);
                 events.AddRange(replacements.Events);
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
@@ -25307,7 +25307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var targetIsLegend = behavior.TargetScope is CardTargetScopes.Legend or CardTargetScopes.FriendlyLegend
                         && IsLegendObject(playerZones, cardObjects, targetObjectId);
                     if (!targetIsLegend
-                        && !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId))
+                        && !HasValidFieldObjectIdentity(state, playerZones, cardObjects, targetObjectId))
                     {
                         continue;
                     }
@@ -31176,7 +31176,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         removalResult = FieldRemovalResult.Empty;
         var location = FindFieldObjectLocation(playerZones, targetObjectId);
         if (location is null
-            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, targetObjectId))
+            || !HasValidFieldObjectIdentity(state, playerZones, cardObjects, targetObjectId))
         {
             return false;
         }
