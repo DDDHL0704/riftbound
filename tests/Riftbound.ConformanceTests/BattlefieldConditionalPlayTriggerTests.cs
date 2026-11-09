@@ -50,7 +50,8 @@ public sealed class BattlefieldConditionalPlayTriggerTests
             var captured = Assert.IsType<UnitEventContext>(ability.UnitEvent);
             Assert.Equal(cardNo, captured.CardNo);
             Assert.Equal("PLAY", captured.Timing);
-            Assert.Equal("BASE", captured.SourcePlayDestinationZone);
+            Assert.Equal("BASE", result.State.ObjectLocations["UNIT"].Zone);
+            Assert.Equal(cardNo == "OGN·223/298" ? "BASE" : null, captured.SourcePlayDestinationZone);
             Assert.Equal(result.State.CardObjects["UNIT"].ObjectGeneration, captured.SourceGeneration);
             Assert.Equal("UNIT", ability.SourceObjectId);
         }
