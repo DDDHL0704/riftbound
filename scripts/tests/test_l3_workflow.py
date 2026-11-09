@@ -1,6 +1,7 @@
 import fnmatch
 import re
 from pathlib import Path
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -154,3 +155,15 @@ class WorkflowCandidateTests(unittest.TestCase):
         check((ROOT / '.github/workflows/native-desktop.yml').read_text())
         with self.assertRaisesRegex(AssertionError, 'duplicate YAML'):
             check('      - uses: action\n        with:\n          retention-days: 90\n          retention-days: 14\n')
+
+    def test_manual_sql_observation_has_a_fresh_directory_after_checkout_receipt(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        job = text[text.index('  postgres_scoped:'):]
+        checkout = re.search(r'scripts/ci-candidate\.py[^\n]+ --output (\S+)', job)[1]
+        execution = re.search(r'scripts/observe-ci-command\.py[^\n]+ --output (\S+)', job)[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            receipt = Path(tmp) / checkout
+            receipt.parent.mkdir(parents=True)
+            receipt.write_text('{}')
+            # observe-ci-command deliberately refuses an existing output directory.
+            (Path(tmp) / execution).mkdir(parents=True, exist_ok=False)
