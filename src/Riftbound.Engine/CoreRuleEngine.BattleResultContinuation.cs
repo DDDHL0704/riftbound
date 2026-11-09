@@ -69,8 +69,8 @@ public sealed partial class CoreRuleEngine
             collected = RecordDepartedTokenTargets(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
             collected = AdvanceDeckPlayReflexives(collected);
-            collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
+            collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
             collected = ResolveBattlefieldStartResourceTriggers(state, RecordBattleDuelRoles(state, collected, roleEventOffset));
             collected = RecordMightyTransitions(state, collected);

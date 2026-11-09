@@ -1526,6 +1526,125 @@ def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict 
         if exact else result("missing", "缺少精确的来源战斗条件、友敌双方费用规格或实际共享报价／付款消费者", paths)
 
 
+def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize('当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。')
+    if normalize(unparenthesize(clause['text'])) != sentence:
+        return None
+    profiles = card.get('behaviors', [])
+    expected = dict(timing='ATTACK', effect='MOVE_FRIENDLY_UNIT_TOKENS_HERE',
+                    optional=True, anyNumberOfTargets=True)
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == sentence \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 1
+    if exact:
+        profile = profiles[0]; spec = profile.get('unitEventAbility')
+        exact = profile.get('playsSourceToBaseAsUnit') is True and isinstance(spec, dict) \
+            and inventory_contains(spec, expected) \
+            and type(spec.get('amount', 0)) is int and spec.get('amount', 0) == 0 \
+            and not any(meaningful(value) for key, value in spec.items() if key not in expected)
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        starts = list(re.finditer(r'(?m)^    (?:private|internal|public) (?:static )?[^()\n{}=]*\b'
+                          + re.escape(name) + r'\s*\(', code))
+        if not starts:
+            return ''
+        # Private overloads hold the shared implementation after public wrappers.
+        start = starts[-1]
+        rest = code[start.start():]; offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+    targets = member('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets')
+    # Bind filters to this case. An unrelated enemy/friendly case or unused
+    # method containing the expected token cannot certify this effect's scope.
+    branch = re.search(r'FriendlyUnitTokensMoveHere\s*=>(.*?)\n\s*"MOVE_ENEMY_HERE"\s*=>', targets, re.S)
+    # CN355.9 / 359.3.e.6: targets need only satisfy the printed noun scope.
+    # Moving restrictions and already being here are checked at resolution.
+    target_scope = ('IsFaceUpNonStandbyUnit(c) && IsTokenObject(c) && '
+                    'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId')
+    exact = exact and branch is not None and re.sub(r'\s+', '', branch[1]).rstrip(',') \
+        == re.sub(r'\s+', '', target_scope)
+    exact = exact and 'internal const string FriendlyUnitTokensMoveHere = \"MOVE_FRIENDLY_UNIT_TOKENS_HERE\";' in sources.files.get(prefix + 'CoreRuleEngine.TokenUnitMovement.cs', '')
+    checks = [
+        ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext', [
+            'UnitEventTimingMatches(unitEvent.Timing, "ATTACK")']),
+        ('CoreRuleEngine.cs', 'BuildTriggerQueuedEvent', [
+            'TimingCaptureContext(trigger)', 'TimingCaptureHash(timingContext, trigger.TimingAlias)']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'ValidateBattlefieldTimingHistory', [
+            'hash != CoreRuleEngine.TimingCaptureHash(item.Context, item.Alias)',
+            '"TOKEN_CEASED_TO_EXIST"', 'c.Accepted']),
+        ('MatchRecovery.BattlefieldTimingAliases.cs', 'HasValidatedCeasedBattlefieldUnitEventSource', [
+            'P6TokenFactoryCatalog.IsTokenFactory(token)', 'CoreRuleEngine.TimingCaptureContext(stack)',
+            'CoreRuleEngine.ValidUnitEventTargets(stack)']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', [
+            'item.StandbyObserver?.Unit is not null || item.UnitEvent is not null',
+            '["targetGenerations"] = bound.TargetGenerations']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'CompleteTriggerTargetConfirmation', [
+            'item.StandbyObserver?.Unit is not null || item.UnitEvent is not null',
+            '["stackItemId"] = item.StackItemId', '["targetGenerations"] = confirmed.TargetGenerations']),
+        ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
+            'CurrentGameAcceptedEventBoundary(state, commands, events)', 'state.PendingRuleChoice?.Origin',
+            'frame.PendingEffectPlay?.Parent', 'record.Sequence > boundary',
+            'if (item.TargetGenerations is null)', 'record.Tick <= frame.Tick',
+            'record.Event.Kind is "PAYMENT_WINDOW_OPENED" or "TRIGGER_CONFIRMED"',
+            'generations is not null', 'command.CompletedTick == record.Tick',
+            'command.StartedEventSequence < record.Sequence', 'command.CompletedEventSequence >= record.Sequence',
+            'targets.SequenceEqual(item.TargetObjectIds)',
+            'MatchStateHasher.HashValue(generations) == MatchStateHasher.HashValue(item.TargetGenerations)',
+            'confirmations.Length != 1', 'command.Accepted', 'command.PlayerId == item.ControllerId',
+            'command.CompletedTick == confirmations[0].Tick',
+            'command.StartedEventSequence < confirmations[0].Sequence',
+            'command.CompletedEventSequence >= confirmations[0].Sequence']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors)',
+            'ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors)']),
+        ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['if (stackItem.UnitEvent is not null) return ResolveUnitEvent(state, stackItem)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', ['ResolveUnitEventInstruction(state, item)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', ['IsObjectOnField(zones, id)',
+            'AttachedRuleTextRules.Instances(zones, cards, card)', 'UnitEventTimingMatches(spec.Timing, timing)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureAttackUnitEvents', [
+            'CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")', 'UnitEventTrigger(']),
+        ('CoreRuleEngine.BattleStartRoles.cs', 'RecordBattleDuelRoles', [
+            'CaptureFirstBattleRoles(', 'CaptureAttackUnitEvents(state, firstAttackers,', '.Select(BuildTriggerQueuedEvent)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['FriendlyUnitTokensMoveHere']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+            'UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1',
+            'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
+            'AnyNumberOfTargets || item.TargetObjectIds.Count == 1',
+            'item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count',
+            'item.TargetGenerations.Count == item.TargetObjectIds.Count']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'FriendlyUnitTokensMoveHere', 'return ResolvePermanentUnitEventInstruction(state, item, spec)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'ResolvePermanentUnitEventInstruction', [
+            'if (spec.Effect == FriendlyUnitTokensMoveHere)', 'return ResolveFriendlyUnitTokenMovement(state, item)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'UnitEventHereDestination', [
+            'CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)',
+            'Zone: "BATTLEFIELD"']),
+        ('CoreRuleEngine.CombatMight.cs', 'CombatMightSourceLocation', [
+            'source.ObjectGeneration == generation', 'IsObjectOnField(state.PlayerZones, sourceId)',
+            'state.ObjectLocations.TryGetValue(sourceId, out var location)']),
+        ('CoreRuleEngine.TokenUnitMovement.cs', 'ResolveFriendlyUnitTokenMovement', [
+            'var destination = UnitEventHereDestination(state, item)', 'if (destination is null)',
+            'UnitEventTargets(state, item).ToHashSet(StringComparer.Ordinal)',
+            'StackObjectRules.ReferencesCurrentObject(state, item, id)',
+            'if (selected.Length == 0)', 'MoveFieldUnitsToChosenLocation(', 'item, selected, destination, events)',
+            'ObjectLocations = ReconcileObjectLocations(locations, zones)', 'RunePools = pools']),
+        ('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation', [
+            'cards[id].ObjectGeneration, cards[id].ControllerId', 'MovementTargetIsCurrent(current, item, id)',
+            'IsUnitMovementDestination(current, id, destination)',
+            'MovementRestrictionRules.CanMove(unit, item.ControllerId)',
+            'PayImposedMovementCost(', 'CurrentMovers, events)', 'CaptureMovementBatchObservers(',
+            'MoveAttachedEquipmentWithHost(', '["simultaneousSourceObjectIds"] = movable']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', ['TargetGenerations = selected.ToDictionary']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+                          for filename, name, tokens in checks)
+    return result('route' if exact else 'missing',
+        '进攻时独立确认任意数量友方单位指示物；结算重查原代际来源的当前位置与各目标，再按一批执行移动、装备跟随及施加费用；恢复绑定原始捕获和目标确认'
+        if exact else '缺少进攻触发、任意数量友方单位指示物范围、结算时当前来源位置，或共享批量移动与原代际确认消费者',
+        sorted({prefix + filename for filename, _, _ in checks}))
+
+
 def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     if text != normalize("当你{{眩晕}}战场上的一名敌方单位时，你可以选择将我移动到该战场。"):
@@ -1892,10 +2011,12 @@ def paid_target_play_stun_route(card: dict, clause: dict, sources: Sources) -> d
         targetEffectAdditionalPowerCost=1, targetEffectAdditionalPowerTrait='green')
     if exact:
         profile = profiles[0]
+        # A separate Hold sentence does not constrain the paid play trigger.
+        unit_event = profile.get('unitEventAbility')
         exact = inventory_contains(profile, expected) \
             and all(type(profile.get(key, 0)) is int and profile.get(key, 0) == 0
                 for key in ['damageAmount', 'minTargetCount', 'targetEffectAdditionalManaCost']) \
-            and not meaningful(profile.get('unitEventAbility')) \
+            and (not meaningful(unit_event) or isinstance(unit_event, dict) and unit_event.get('timing') == 'HOLD') \
             and not meaningful(profile.get('playsSourceToBaseAsEquipment'))
     prefix = 'src/Riftbound.Engine/'
     def member(filename, name):
@@ -2746,12 +2867,224 @@ def battle_win_and_paid_combat_route(card: dict, clause: dict, sources: Sources)
                   "缺少与本句数值、费用和来源绑定完全匹配的事件规格、真实确认／结算或原始结果校验", evidence)
 
 
+def held_next_unit_ready_boon_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize('当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。')
+    if normalize(unparenthesize(clause['text'])) != sentence:
+        return None
+    profiles = card.get('behaviors', [])
+    expected = dict(timing='HOLD', effect='CREATE_TURN_UNIT_PLAY_GRANT')
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == sentence \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and isinstance(profiles, list) and len(profiles) == 1 \
+        and isinstance(profiles[0], dict)
+    if exact:
+        profile = profiles[0]; spec = profile.get('unitEventAbility')
+        exact = profile.get('playsSourceToBaseAsUnit') is True \
+            and profile.get('turnUnitPlayGrantKind') == 'PLAY_READY_BOON' \
+            and profile.get('turnUnitPlayGrantNextOnly') is True \
+            and type(profile.get('turnUnitPlayGrantCount', 0)) is int and profile.get('turnUnitPlayGrantCount', 0) == 0 \
+            and not meaningful(profile.get('turnUnitPlayGrantAnyBattlefield')) \
+            and isinstance(spec, dict) and inventory_contains(spec, expected) \
+            and type(spec.get('amount', 0)) is int and spec.get('amount', 0) == 0 \
+            and not any(meaningful(value) for key, value in spec.items() if key not in expected)
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        starts = list(re.finditer(r'(?m)^    (?:private|internal|public) (?:static )?[^()\n{}=]*\b'
+            + re.escape(name) + r'\s*\(', code))
+        if not starts:
+            return ''
+        start = starts[-1]; rest = code[start.start():]; offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+    checks = [
+        ('CoreRuleEngine.Hold.cs', 'QueueHeldAbilities', [
+            'HeldUnitsAt(state, field, player)', 'CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")',
+            'UnitEventTrigger(observation,', 'Add(trigger)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', [
+            'IsObjectOnField(zones, id)', 'AttachedRuleTextRules.Instances(zones, cards, card)',
+            'UnitEventTimingMatches(spec.Timing, timing)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
+            'SelectedUnitEventSpec(grant)?.Effect == UnitEventTurnPlayGrantEffect', 'ValidUnitEventTurnPlayGrantStack(item)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'if (spec.Effect == UnitEventTurnPlayGrantEffect) return ResolveUnitEventTurnPlayGrant(state, item)']),
+        ('CoreRuleEngine.UnitEventTurnPlayGrants.cs', 'ResolveUnitEventTurnPlayGrant', [
+            'ValidUnitEventTurnPlayGrantStack(item)', 'new UnitEventTurnPlayGrantOrigin(context, item.TimingAlias)',
+            'item.SourceObjectId, context.SourceGeneration', 'context.CardNo, item.StackItemId, 0, behavior.TurnUnitPlayGrantKind, origin',
+            'AddUntilEndOfTurnEffect(state.UntilEndOfTurnEffects, marker)']),
+        ('CoreRuleEngine.UnitEventTurnPlayGrants.cs', 'ValidUnitEventTurnPlayGrant', [
+            'context.SourceGeneration == grant.Source.Generation', 'grant.Kind == UnitEventReadyBoonGrantKind',
+            'b.TurnUnitPlayGrantNextOnly && grant.ExecutionIndex == 0',
+            'ValidUnitEvent(state, context, UnitEventEffect, grant.Source.ObjectId, grant.CardNo, grant.ControllerId)',
+            'ValidTimingAlias(state, origin.TimingAlias, grant.Source.ObjectId, grant.ControllerId, context)']),
+        ('CoreRuleEngine.TurnUnitPlayGrants.cs', 'AddTurnUnitPlayGrants', [
+            'b.UnitEventAbility?.Effect == UnitEventTurnPlayGrantEffect']),
+        ('CoreRuleEngine.TurnUnitPlayGrants.cs', 'ReadTurnUnitPlayGrant', [
+            'ReadUnitEventTurnPlayGrantOrigin(f[9])', 'UnitEventOrigin = origin']),
+        ('CoreRuleEngine.TurnUnitPlayGrants.cs', 'ValidTurnUnitPlayGrant', [
+            'MatchStateHasher.HashValue(parsed) != MatchStateHasher.HashValue(grant)',
+            'grant.TurnNumber != state.TurnNumber',
+            'if (grant.UnitEventOrigin is not null) return ValidUnitEventTurnPlayGrant(state, grant, b)']),
+        ('CoreRuleEngine.TurnUnitPlayGrants.cs', 'CaptureTurnUnitPlayGrants', [
+            '"UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED"',
+            'ActiveUnitPlayGrants(effects, controller, UnitEventReadyBoonGrantKind)',
+            'ConsumedUnitPlayGrants.Contains(grant.Marker)', 'ConsumedUnitPlayGrants.Add(context.Grant.Marker)']),
+        ('CoreRuleEngine.TurnUnitPlayGrants.cs', 'QueueTurnUnitPlayBoons', [
+            'effects.Add(TurnUnitPlayGrantUseMarker(', 'Generation = Math.Max(context.Unit.Generation, old.ObjectGeneration + 1)',
+            'context.Grant.Kind is "PLAY_BOON" or UnitEventReadyBoonGrantKind ? context : null']),
+        ('CoreRuleEngine.TurnUnitPlayGrants.cs', 'ResolveTurnUnitPlayBoon', [
+            'unit.ObjectGeneration != c.Unit.Generation', 'IsFieldUnitObject(state, unit.ObjectId)',
+            'if (c.Grant.Kind == UnitEventReadyBoonGrantKind)', 'ApplyReadyState(', 'ApplyBoon(']),
+        ('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects', [
+            'QueueTurnUnitPlayBoons(state, collected)', 'DeferCompanionPermanentPlayOrdering(state, collected)']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'CompanionPlayedUnit', ['trigger.TurnUnitPlayBoon?.Unit']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'DeferCompanionPermanentPlayOrdering', [
+            'CompanionPlayedUnit(t) is not null',
+            'queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)',
+            'PermanentPlayStackItemId = item.StackItemId']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'ValidPermanentPlayCompanion', [
+            'if (enqueuedAtTick is not { } capturedTick) return false',
+            'state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit',
+            'play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick',
+            'ValidTurnUnitPlayBoon(state, boon']),
+        ('PermanentPlayTriggerRecoveryRules.cs', 'ValidQueued', [
+            'CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick)']),
+        ('CoreRuleEngine.cs', 'ApplyReadyState', [
+            'CardStaticAbilitySpecRules.CardCannotBecomeActive', 'ReadyByEffectPermittedByFieldRules(',
+            'CaptureReadiedObject(', 'CaptureSelfReady(']),
+        ('CoreRuleEngine.cs', 'ApplyBoon', ['TryGrantBoonForInstruction(', '"BOON_GRANTED"']),
+        ('CoreRuleEngine.UnitEventTurnPlayGrants.cs', 'RecordUnitEventTurnPlayHistory', [
+            '"UNIT_EVENT_TURN_PLAY_GRANT_CREATED"', '"UNIT_EVENT_TURN_PLAY_GRANT_USED"',
+            '"UNIT_EVENT_TURN_PLAY_SKILL_CAPTURED"', '"UNIT_EVENT_TURN_PLAY_SKILL_RETIRED"',
+            'UnitEventTurnPlaySkills(before)', 'UnitEventTurnPlaySkills(result.State)']),
+        ('CoreRuleEngine.cs', 'ResolveCoreAsync', ['RecordUnitEventTurnPlayHistory(state,']),
+        ('MatchRecovery.UnitEventTurnPlayGrants.cs', 'ValidateUnitEventTurnPlayHistory', [
+            'CurrentGameAcceptedEventBoundary(state, commands, events)', 'state.PendingRuleChoice?.Origin',
+            'command.Accepted', 'expectedGrants.SetEquals(', 'expectedUses.SetEquals(', 'expectedSkills.SetEquals(',
+            'CoreRuleEngine.UnitEventTurnPlaySkillUse(skill.Context)', 'CoreRuleEngine.TimingCaptureHash(context, origin.TimingAlias)',
+            '"TRIGGERS_MOVED_TO_STACK"', '"TOKEN_CEASED_TO_EXIST"']),
+        ('MatchRecovery.UnitEventTurnPlayGrants.cs', 'HasValidatedCeasedUnitEventTurnPlaySource', [
+            'UnitEventOrigin?.Context?.TokenFactoryCardNo', 'P6TokenFactoryCatalog.IsTokenFactory(factory)',
+            'CoreRuleEngine.ValidTurnUnitPlayBoon(state, skill.Context']),
+        ('MatchRecovery.cs', 'ValidateFrame', ['ValidateUnitEventTurnPlayHistory(authoritativeState, commands, events, errors)']),
+        ('MatchRecovery.cs', 'ValidateAuthoritativeStateStackItemObjectReferences', ['HasValidatedCeasedUnitEventTurnPlaySource(']),
+        ('MatchRecovery.cs', 'ValidateSpectatorSnapshotStackObjectReferences', ['HasValidatedCeasedUnitEventTurnPlaySource(']),
+        ('MatchRecovery.cs', 'ValidateSnapshotTimingTriggerQueuePayloadValues', ['HasValidatedCeasedUnitEventTurnPlaySource(']),
+        ('MatchRecovery.cs', 'ValidateSpectatorTriggerQueuePayloadValues', ['HasValidatedCeasedUnitEventTurnPlaySource(']),
+        ('MatchSession/Projection.Timing.cs', 'PublicTurnUnitPlayBoonContext', [
+            '"TURN_UNIT_PLAY_GRANT_HASH:" + MatchStateHasher.HashValue(context.Grant)', 'UnitEventOrigin = null']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+        for filename, name, tokens in checks)
+    collection = member('CoreRuleEngine.BattleResultContinuation.cs', 'CollectResolutionEffects')
+    ready_grants = 'QueueTurnUnitPlayBoons(state, collected)'
+    legacy_ordering = 'DeferCompanionPermanentPlayOrdering(state, collected)'
+    exact = exact and ready_grants in collection and legacy_ordering in collection \
+        and collection.index(ready_grants) < collection.index(legacy_ordering)
+    factory = member('CoreRuleEngine.UnitEventTurnPlayGrants.cs', 'ResolveUnitEventTurnPlayGrant')
+    exact = exact and all(token not in factory for token in ['state.CardObjects[item.SourceObjectId]',
+        'IsObjectOnField(', 'CombatMightSourceLocation('])
+    resolution = member('CoreRuleEngine.TurnUnitPlayGrants.cs', 'ResolveTurnUnitPlayBoon')
+    exact = exact and 'ApplyReadyState(' in resolution and 'ApplyBoon(' in resolution \
+        and resolution.index('ApplyReadyState(') < resolution.index('ApplyBoon(')
+    return result('route' if exact else 'missing',
+        '据守独立技能创建本回合下一次单位打出的延迟触发；新单位正常进场后另行活跃并增益；支持原代际来源离场、单次消费及原始历史恢复'
+        if exact else '缺少据守来源的延迟授权、下一次真实单位打出捕获、独立活跃／增益结算或原始创建／消费／结束记录消费者',
+        sorted({prefix + filename for filename, _, _ in checks}))
+
+
+def source_play_condition_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    wanted = normalize('当你在你的回合中将我从正面朝下的状态打出时，你可以选择移动任意一名位于不同位置的敌方单位到我所在的战场。')
+    if normalize(unparenthesize(clause['text'])) != wanted:
+        return None
+    profiles = card.get('behaviors', [])
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == wanted \
+        and wanted in normalize(unparenthesize(card.get('cardEffect', ''))) \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(profiles) == 1
+    if exact:
+        profile = profiles[0]
+        event = card.get('unitEventAbility')
+        expected = dict(timing='PLAY', effect='MOVE_ENEMY_HERE', optional=True,
+            requiresSourcePlayedFromStandby=True, requiresSourcePlayedOnOwnTurn=True)
+        exact = profile.get('playsSourceToBaseAsUnit') is True \
+            and not meaningful(profile.get('playsSourceToBaseAsEquipment')) \
+            and isinstance(event, dict) and inventory_contains(event, expected) \
+            and inventory_contains(profile.get('unitEventAbility'), event) \
+            and inventory_contains(event, profile.get('unitEventAbility')) \
+            and all(type(profile.get(key, 0)) is int and profile.get(key, 0) == 0
+                for key in ['requiredTargetCount', 'damageAmount']) \
+            and type(event.get('amount', 0)) is int and event.get('amount', 0) == 0 \
+            and not any(meaningful(value) for key, value in event.items() if key not in expected)
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b'
+            + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]
+        offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+    checks = [
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureOtherUnitPlayed', [
+            'CaptureSourcePlayConditions(entered, player, observations)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureEquipmentPlayed', [
+            'CaptureSourcePlayConditions(entered, player,']),
+        ('CoreRuleEngine.SourcePlayConditions.cs', 'HasSourcePlayCondition', [
+            'spec.RequiresSourcePlayedFromStandby', 'spec.RequiresSourcePlayedOnOwnTurn']),
+        ('CoreRuleEngine.SourcePlayConditions.cs', 'CaptureSourcePlayConditions', [
+            'o.Source == entered.ObjectId', 'o.Controller == player', 'entered.LastStandbyPlay',
+            'RequiresSourcePlayedFromStandby', 'RequiresSourcePlayedOnOwnTurn',
+            'frame.TurnPlayerId == o.Controller', 'SourcePlayCondition = new(']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEvent', [
+            'ValidSourcePlayCondition(state, c, spec, source)']),
+        ('CoreRuleEngine.SourcePlayConditions.cs', 'ValidSourcePlayCondition', [
+            'context.SourcePlayCondition', 'condition.PlayingPlayerId != condition.TurnPlayerId',
+            'condition.FromStandby', 'StandbyRules.ValidUnitEventPlayedOrigin(']),
+        ('StandbyRules.cs', 'ValidUnitEventPlayedOrigin', [
+            'ValidFields(state, origin)', 'origin.ObjectId == source',
+            'generation == origin.SourceGeneration + 1', 'playedTurn > origin.TurnNumber',
+            'origin.ControllerId == player']),
+        ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['"MOVE_ENEMY_HERE"']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+            '.Optional ? 0 : 1', '.AnyNumberOfTargets ? legal.Length : 1']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets', [
+            '"MOVE_ENEMY_HERE"', 'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId',
+            'IsUnitMovementDestination(state, c.ObjectId, destination)', 'MovementRestrictionRules.CanMove(c, item.ControllerId)']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'UnitEventHereDestination', [
+            'CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration)', '"BATTLEFIELD"']),
+        ('CoreRuleEngine.PermanentUnitEvents.cs', 'ResolvePermanentUnitEventInstruction', [
+            'StackObjectRules.ReferencesCurrentObject(state, item, target)',
+            'spec.Effect == "MOVE_ENEMY_HERE" ? UnitEventHereDestination(state, item)',
+            'MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [target], destination, events)']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', ['HasSourcePlayCondition(']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', ['context.SourcePlayCondition']),
+        ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', [
+            'CoreRuleEngine.RequiresObservedUnitEventHistory(', 'Scope(state.PendingRuleChoice?.Origin)',
+            'command.Accepted', 'command.StartedEventSequence < entry.Sequence',
+            'command.CompletedEventSequence >= entry.Sequence',
+            'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)',
+            '!expected.SetEquals(current.Select(item => item.Id))']),
+        ('MatchRecovery.cs', 'ValidateFrame', [
+            'ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors)']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+        for filename, name, tokens in checks)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route', '从背面且在己方回合的源牌打出事实独立捕获；确认单个不同位置敌方单位，按原来源当前战场执行共享移动，并核对原始接受历史', evidence) if exact else result(
+        'missing', '缺少背面／己方回合的原始打出条件、独立敌方单位移动，或来源代际及原始捕获校验')
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if held_next_unit := held_next_unit_ready_boon_route(card, clause, sources):
+        return held_next_unit
+    if conditional_move := source_play_condition_movement_route(card, clause, sources):
+        return conditional_move
     if trait_score := friendly_unit_trait_score_route(card, clause, sources):
         return trait_score
     if battle_reward := battle_win_and_paid_combat_route(card, clause, sources):
@@ -2761,6 +3094,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return conditional
     if standby_unit := standby_unit_observer_route(card, clause, sources):
         return standby_unit
+    if token_movement := friendly_token_attack_movement_route(card, clause, sources):
+        return token_movement
     if stun_movement := stun_source_movement_route(card, clause, sources):
         return stun_movement
     if targeted_cost := targeted_spell_cost_route(card, clause, sources):

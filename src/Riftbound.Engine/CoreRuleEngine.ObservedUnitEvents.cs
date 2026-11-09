@@ -9,11 +9,16 @@ public sealed partial class CoreRuleEngine
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
                 or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED"
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context)?.RequiresMoveToBattlefield == true
-            || context?.Origin?.ArmamentGranted == true;
+            || context?.Origin?.ArmamentGranted == true
+            || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo));
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
-        => MatchStateHasher.HashValue(new { source, controller, context.CardNo, context.Timing,
+    {
+        var observation = new { source, controller, context.CardNo, context.Timing,
             context.SourceGeneration, context.FaceRevision, context.CapturedTick,
             context.TokenFactoryCardNo, context.Origin, context.ArmamentDeath, context.DefendedBattlefield,
-            context.TargetSelection, context.Other, context.Here, context.PlayedUnitDuringSpellDuel });
+            context.TargetSelection, context.Other, context.Here, context.PlayedUnitDuringSpellDuel };
+        return context.SourcePlayCondition is null ? MatchStateHasher.HashValue(observation)
+            : MatchStateHasher.HashValue(new { observation, context.SourcePlayCondition });
+    }
 }

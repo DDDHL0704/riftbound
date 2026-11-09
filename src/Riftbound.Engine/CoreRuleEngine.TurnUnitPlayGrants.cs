@@ -7,7 +7,11 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record TurnUnitPlayGrant(string Marker, int TurnNumber, string ControllerId, ObjectBinding Source,
-    string CardNo, string StackItemId, int ExecutionIndex, string Kind);
+    string CardNo, string StackItemId, int ExecutionIndex, string Kind)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public UnitEventTurnPlayGrantOrigin? UnitEventOrigin { get; init; }
+}
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record TurnUnitPlayBoonContext(TurnUnitPlayGrant Grant, ObjectBinding Unit, string UnitCardNo,
     string UnitControllerId, long FaceRevision = -1, long CapturedTick = -1, string? TokenFactoryCardNo = null);
@@ -29,36 +33,52 @@ public sealed partial class CoreRuleEngine
         catch (FormatException) { return null; }
     }
     private static string TurnGrantMarker(int turn, string player, string source, long generation,
-        string cardNo, string stack, int execution, string kind) => string.Join('|', "TURN_UNIT_PLAY_GRANT",
-        turn.ToString(CultureInfo.InvariantCulture), TurnGrantIdentity(player), TurnGrantIdentity(source),
-        generation.ToString(CultureInfo.InvariantCulture), TurnGrantIdentity(cardNo), TurnGrantIdentity(stack),
-        execution.ToString(CultureInfo.InvariantCulture), kind);
+        string cardNo, string stack, int execution, string kind, UnitEventTurnPlayGrantOrigin? origin = null)
+    {
+        var marker = string.Join('|', "TURN_UNIT_PLAY_GRANT",
+            turn.ToString(CultureInfo.InvariantCulture), TurnGrantIdentity(player), TurnGrantIdentity(source),
+            generation.ToString(CultureInfo.InvariantCulture), TurnGrantIdentity(cardNo), TurnGrantIdentity(stack),
+            execution.ToString(CultureInfo.InvariantCulture), kind);
+        return origin is null ? marker : marker + "|" + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(origin));
+    }
 
     internal static TurnUnitPlayGrant? ReadTurnUnitPlayGrant(string marker)
     {
         var f = marker.Split('|');
-        if (f.Length != 9 || f[0] != "TURN_UNIT_PLAY_GRANT" || !int.TryParse(f[1], out var turn) || turn <= 0
+        if (f.Length is not (9 or 10) || f[0] != "TURN_UNIT_PLAY_GRANT" || !int.TryParse(f[1], out var turn) || turn <= 0
             || ReadTurnGrantIdentity(f[2]) is not { Length: > 0 } player
             || ReadTurnGrantIdentity(f[3]) is not { Length: > 0 } source
             || !long.TryParse(f[4], out var generation) || generation < 0
             || ReadTurnGrantIdentity(f[5]) is not { Length: > 0 } card
             || ReadTurnGrantIdentity(f[6]) is not { Length: > 0 } stack
-            || !int.TryParse(f[7], out var execution) || execution < 0 || f[8] is not ("READY_ENTRY" or "PLAY_BOON" or "PLAY_DRAW")
-            || marker != TurnGrantMarker(turn, player, source, generation, card, stack, execution, f[8])) return null;
-        return new(marker, turn, player, new(source, generation), card, stack, execution, f[8]);
+            || !int.TryParse(f[7], out var execution) || execution < 0 || f[8] is not ("READY_ENTRY" or "PLAY_BOON" or "PLAY_DRAW" or UnitEventReadyBoonGrantKind)) return null;
+        var origin = f.Length == 10 ? ReadUnitEventTurnPlayGrantOrigin(f[9]) : null;
+        if (f.Length == 10 && origin is null
+            || marker != TurnGrantMarker(turn, player, source, generation, card, stack, execution, f[8], origin)) return null;
+        return new(marker, turn, player, new(source, generation), card, stack, execution, f[8]) { UnitEventOrigin = origin };
     }
 
     internal static bool ValidTurnUnitPlayGrant(MatchState state, TurnUnitPlayGrant grant)
-        => grant is not null && grant.Source is { Generation: >= 0 } && !string.IsNullOrWhiteSpace(grant.Marker)
-            && ReadTurnUnitPlayGrant(grant.Marker) == grant
-            && grant.TurnNumber == state.TurnNumber && state.Seats.ContainsKey(grant.ControllerId)
-            && CardBehaviorRegistry.TryGetByCardNo(grant.CardNo, out var b) && b.TurnUnitPlayGrantKind == grant.Kind
+    {
+        if (grant is null || grant.Source is not { Generation: >= 0 } || string.IsNullOrWhiteSpace(grant.Marker)
+            || ReadTurnUnitPlayGrant(grant.Marker) is not { } parsed
+            || MatchStateHasher.HashValue(parsed) != MatchStateHasher.HashValue(grant)
+            || grant.TurnNumber != state.TurnNumber || !state.Seats.ContainsKey(grant.ControllerId)
+            || !CardBehaviorRegistry.TryGetByCardNo(grant.CardNo, out var b) || b.TurnUnitPlayGrantKind != grant.Kind)
+            return false;
+        if (grant.UnitEventOrigin is not null) return ValidUnitEventTurnPlayGrant(state, grant, b);
+        return grant.Kind != UnitEventReadyBoonGrantKind
             && state.CardObjects.TryGetValue(grant.Source.ObjectId, out var source) && source.ObjectGeneration >= grant.Source.Generation
             && (source.ObjectGeneration != grant.Source.Generation || source.CardNo == grant.CardNo)
             && grant.StackItemId.StartsWith("STACK-", StringComparison.Ordinal) && grant.StackItemId.EndsWith("-" + grant.Source.ObjectId, StringComparison.Ordinal)
             && grant.StackItemId.Length > grant.Source.ObjectId.Length + 7
             && long.TryParse(grant.StackItemId[6..^(grant.Source.ObjectId.Length + 1)], out var tick) && tick > 0 && tick <= state.Tick
             && grant.StackItemId == "STACK-" + tick.ToString(CultureInfo.InvariantCulture) + "-" + grant.Source.ObjectId;
+    }
+
+    private static long TurnUnitPlayGrantTick(TurnUnitPlayGrant grant)
+        => grant.UnitEventOrigin is { } origin ? origin.Context.CapturedTick
+            : long.TryParse(grant.StackItemId[6..^(grant.Source.ObjectId.Length + 1)], out var tick) ? tick : -1;
 
     internal static bool ValidCurrentTurnUnitPlayGrants(MatchState state)
     {
@@ -72,8 +92,7 @@ public sealed partial class CoreRuleEngine
                     UnitCardNo.Length: > 0, CapturedTick: > 0, FaceRevision: >= 0 }
                 && use.CapturedTick <= state.Tick && markers.Contains(use.Grant.Marker, StringComparer.Ordinal)
                 && ValidTurnUnitPlayGrant(state, use.Grant)
-                && long.TryParse(use.Grant.StackItemId[6..^(use.Grant.Source.ObjectId.Length + 1)], out var grantTick)
-                && use.CapturedTick > grantTick
+                && use.CapturedTick > TurnUnitPlayGrantTick(use.Grant)
                 && CardBehaviorRegistry.TryGetByCardNo(use.Grant.CardNo, out var b) && b.TurnUnitPlayGrantNextOnly
                 && TryPredictEnteredFace(use.UnitCardNo, out var entered) && entered.Tags.Contains(CardObjectTags.UnitCard)
                 && PredictBindingMatches(state, use.Unit, use.UnitCardNo, use.FaceRevision,
@@ -125,7 +144,7 @@ public sealed partial class CoreRuleEngine
     private static void AddTurnUnitPlayGrants(MatchState state, StackItemState item, CardBehaviorDefinition b,
         List<string> effects, List<GameEvent> events)
     {
-        if (b.TurnUnitPlayGrantKind.Length == 0) return;
+        if (b.TurnUnitPlayGrantKind.Length == 0 || b.UnitEventAbility?.Effect == UnitEventTurnPlayGrantEffect) return;
         var source = state.CardObjects[item.SourceObjectId];
         var perExecution = b.TurnUnitPlayGrantCount > 0 ? b.TurnUnitPlayGrantCount : 1;
         var repeatCount = Math.Max(1, item.EffectRepeatCount);
@@ -154,6 +173,7 @@ public sealed partial class CoreRuleEngine
         }
         var controller = unit.ControllerId ?? player;
         var contexts = ActiveUnitPlayGrants(effects, controller, "PLAY_BOON")
+            .Concat(ActiveUnitPlayGrants(effects, controller, UnitEventReadyBoonGrantKind))
             .Where(grant => !CardBehaviorRegistry.TryGetByCardNo(grant.CardNo, out var behavior)
                 || !behavior.TurnUnitPlayGrantNextOnly
                 || RuleChoices.Value?.ConsumedUnitPlayGrants.Contains(grant.Marker) != true)
@@ -202,7 +222,7 @@ public sealed partial class CoreRuleEngine
                 var trigger = new TriggerQueueItemState($"turn-unit-boon-{result.State.Tick}-{index}-{context.Grant.ExecutionIndex}-{context.Grant.StackItemId}-{context.Unit.ObjectId}",
                     context.Grant.ControllerId, context.Grant.Source.ObjectId, TurnUnitPlayBoonEffect, ev.Kind) {
                         SourceCardNo = context.Grant.CardNo,
-                        TurnUnitPlayBoon = context.Grant.Kind == "PLAY_BOON" ? context : null,
+                        TurnUnitPlayBoon = context.Grant.Kind is "PLAY_BOON" or UnitEventReadyBoonGrantKind ? context : null,
                         TurnUnitPlayDraw = context.Grant.Kind == "PLAY_DRAW" ? context : null };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
@@ -224,7 +244,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTurnUnitPlayBoon(MatchState state, TurnUnitPlayBoonContext? c, string effect,
         string sourceId, string controller, string? cardNo)
-        => ValidTurnUnitPlayContext(state, c, effect, sourceId, controller, cardNo, "PLAY_BOON");
+        => ValidTurnUnitPlayContext(state, c, effect, sourceId, controller, cardNo,
+            c?.Grant?.Kind == UnitEventReadyBoonGrantKind ? UnitEventReadyBoonGrantKind : "PLAY_BOON");
 
     internal static bool ValidTurnUnitPlayDraw(MatchState state, TurnUnitPlayBoonContext? c, string effect,
         string sourceId, string controller, string? cardNo)
@@ -239,7 +260,16 @@ public sealed partial class CoreRuleEngine
         var b = CardBehaviorRegistry.GetAll().Single(b => b.CardNo == c.Grant.CardNo);
         if (!state.CardObjects.TryGetValue(c.Unit.ObjectId, out var unit) || unit.ObjectGeneration != c.Unit.Generation
             || !IsFieldUnitObject(state, unit.ObjectId)) return NoopStackResolutionResult(state);
-        cards[unit.ObjectId] = ApplyBoon(unit, b, item, unit.ObjectId, out var events, state.PlayerZones, cards);
+        var events = new List<GameEvent>();
+        if (c.Grant.Kind == UnitEventReadyBoonGrantKind)
+        {
+            var instruction = new CardBehaviorDefinition(c.Grant.CardNo, b.DisplayName, 0, item.EffectKind, 0, 1,
+                ReadiesTarget: true);
+            cards[unit.ObjectId] = ApplyReadyState(unit, instruction, item, unit.ObjectId, out var ready, state.PlayerZones, cards);
+            if (ready is not null) events.Add(ready);
+        }
+        cards[unit.ObjectId] = ApplyBoon(cards[unit.ObjectId], b, item, unit.ObjectId, out var boons, state.PlayerZones, cards);
+        events.AddRange(boons);
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }
 

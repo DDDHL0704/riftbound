@@ -644,7 +644,9 @@ public sealed partial record ResolutionResult
             Source = context.Grant.Source with { ObjectId = sourceObjectId },
             CardNo = sourceIsHidden ? "HIDDEN" : context.Grant.CardNo,
             StackItemId = VisibleMetadataIdForViewer(state, context.Grant.StackItemId, viewerPlayerId) ?? context.Grant.StackItemId,
-            Marker = sourceIsHidden ? "HIDDEN" : context.Grant.Marker
+            Marker = context.Grant.UnitEventOrigin is not null ? "TURN_UNIT_PLAY_GRANT_HASH:" + MatchStateHasher.HashValue(context.Grant)
+                : sourceIsHidden ? "HIDDEN" : context.Grant.Marker,
+            UnitEventOrigin = null
         };
         return context with
         {
