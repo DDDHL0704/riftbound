@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-052/219 娜美",
-      "note": "官方卡面：费用 3；英雄单位；战力 3；可选择支付绿色作为额外费用，若支付则打出时眩晕一名敌方单位；据守战场时使本回合下一名单位活跃并获得增益。当前 fixture 覆盖普通主阶段不支付额外绿色费用、从手牌打出后的源单位入场；额外费用、眩晕目标、据守触发、下一单位记忆、活跃化和增益路径暂缓。"
+      "note": "官方卡面：费用 3；英雄单位；战力 3；可选择支付绿色作为额外费用，若支付则打出时眩晕一名敌方单位；据守战场时使本回合下一名单位活跃并获得增益。当前 fixture 覆盖普通主阶段不支付额外绿色费用、从手牌打出后的源单位入场；不付额外费用时不产生眩晕技能；付费及独立眩晕另由 NamiAdditionalPlayCostTests 覆盖。据守触发、下一单位记忆、活跃化和增益路径仍待实现。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -80,21 +80,15 @@
         "cardNo": "UNL-052/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-052-nami-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-052-nami-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
