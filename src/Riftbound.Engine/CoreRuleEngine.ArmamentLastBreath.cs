@@ -40,7 +40,7 @@ public sealed record LinkedArmamentExileOrigin(string InstanceId, long CreatedTi
 
 public sealed partial class CoreRuleEngine
 {
-    private static UnitEventContext[] CaptureArmamentLastBreaths(MatchState state,
+    private static UnitEventContext[] CaptureLastBreathUnitEvents(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
         CardObjectState before, string deathId, DestroyedUnitFact fact)
     {
@@ -49,15 +49,14 @@ public sealed partial class CoreRuleEngine
             || source.ObjectGeneration != before.ObjectGeneration) return [];
         var repetitions = CaptureLastBreathRepetitions(state, zones, cards, before);
         return CaptureUnitEvents(frame.PlayerZones, frame.CardObjects, [source.ObjectId], ArmamentLastBreathRules.Timing)
-            .Where(observation => observation.Context.Origin?.ArmamentGranted == true)
             .SelectMany(observation => repetitions.Select(repetition => observation.Context with {
                 ArmamentDeath = new(deathId, fact, repetition) })).ToArray();
     }
 
-    private static void QueueArmamentLastBreaths(MatchState state, CapturedUnitDeath death,
+    private static void QueueLastBreathUnitEvents(MatchState state, CapturedUnitDeath death,
         List<TriggerQueueItemState> queue, List<GameEvent> events)
     {
-        foreach (var context in death.ArmamentLastBreaths)
+        foreach (var context in death.LastBreathUnitEvents)
         {
             var ordinal = RuleChoices.Value!.UnitEventOrdinal++;
             var trigger = UnitEventTrigger(new(death.Unit.ObjectId, death.Unit.ControllerId, context),
@@ -70,19 +69,28 @@ public sealed partial class CoreRuleEngine
     {
         if (context.Timing != ArmamentLastBreathRules.Timing) return context.ArmamentDeath is null;
         if (context.ArmamentDeath is not { Unit: { Generation: >= 0 } unit } death
-            || context.Origin is not { ArmamentGranted: true, Equipment: { Generation: >= 0 } } origin
             || string.IsNullOrWhiteSpace(death.DeathId) || !death.DeathId.StartsWith("death-", StringComparison.Ordinal)
             || unit.ObjectId != source || unit.Generation != context.SourceGeneration
-            || unit.CardNo != origin.ArmamentHostCardNo || string.IsNullOrWhiteSpace(unit.OwnerId)
+            || string.IsNullOrWhiteSpace(unit.OwnerId)
             || string.IsNullOrWhiteSpace(unit.ControllerId) || !state.Seats.ContainsKey(unit.OwnerId)
             || !state.Seats.ContainsKey(unit.ControllerId)
             || controller is not null && controller != unit.ControllerId) return false;
+        var instance = context.Origin switch {
+            { ArmamentGranted: true, Equipment: { Generation: >= 0 } equipment } armament
+                when unit.CardNo == armament.ArmamentHostCardNo => $"ARMAMENT:{equipment.ObjectId}:{equipment.Generation}",
+            { ArmamentGranted: true } => null,
+            { Equipment: { Generation: >= 0 } equipment } copied
+                => $"ATTACHED:{equipment.ObjectId}:{equipment.Generation}:{copied.Revision}",
+            null when unit.CardNo == context.CardNo => $"PRINTED:{source}:{context.SourceGeneration}",
+            _ => null
+        };
+        if (instance is null) return false;
         return (unit.WasToken ? context.TokenFactoryCardNo is { } factoryNo
                 && P6TokenFactoryCatalog.TryGetByCardNo(factoryNo, out var factory)
                 && factory.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.EquipmentCard)
                 : context.TokenFactoryCardNo is null)
             && ValidLastBreathRepetition(state, death.Repetition, new(source, context.SourceGeneration),
-            unit.ControllerId, context.CardNo, $"ARMAMENT:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}");
+            unit.ControllerId, context.CardNo, instance);
     }
 
     private static string LinkedArmamentInstance(ObjectBinding equipment)

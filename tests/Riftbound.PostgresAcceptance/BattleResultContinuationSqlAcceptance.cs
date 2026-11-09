@@ -41,6 +41,16 @@ internal static class BattleResultContinuationSqlAcceptance
                 && original.Commands.Count == 3 && original.Commands.Take(2).All(c => c.CommandType == "ROOM_SEAT"),
                 "Original seats, private opening and explicitly controlled seed must all remain in the action log.");
             await Submit("alice", new MoveUnitCommand("SOURCE", "BASE", "BATTLEFIELD:FIELD", []));
+            for (var i = 0; state.StackItems.Count > 0 || state.PendingRuleChoice is not null; i++)
+            {
+                Check(i < 6, "The actual arrival discard resolves before combat declaration.");
+                if (state.PendingRuleChoice is { } pending)
+                {
+                    Check(pending.Request.Kind == "PRIVATE_HAND_DISCARD", "Arrival uses the shared private discard instruction.");
+                    await Submit("alice", new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", ["HAND:0"]));
+                }
+                else await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
+            }
             for (var i = 0; i < 4 && state.FocusPlayerId is not null; i++) await Submit(state.FocusPlayerId, new PassFocusCommand());
             await Submit("alice", new DeclareBattleCommand("FIELD", ["SOURCE"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
             Check(state.PendingBattleResult is { Stage: "RESULT_TRIGGERS", WinnerPlayerId: "alice" }
@@ -105,7 +115,7 @@ internal static class BattleResultContinuationSqlAcceptance
                 }
                 var events = journal.Entries.SelectMany(e => e.Events).ToArray();
                 var kinds = events.Select(e => e.Kind).ToList();
-                Check(kinds.Count(k => k == "CARD_DRAWN") == (lateDefender ? 2 : 1) && state.PlayerZones["alice"].Hand.Contains("DRAW"),
+                Check(kinds.Count(k => k == "CARD_DRAWN") == (lateDefender ? 2 : 1) && (burnout ? state.PlayerZones["alice"].Hand.Count == 2 : state.PlayerZones["alice"].Hand.Contains("DRAW")),
                     "The original captured winner draws exactly once, even after its source leaves.");
                 if (burnout)
                 {

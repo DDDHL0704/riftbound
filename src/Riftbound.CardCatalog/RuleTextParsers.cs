@@ -1478,6 +1478,15 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var friendlyDestroyedDrawPut = Regex.Match(segment,
+            @"^当一名友方单位被摧毁时，你可以选择让我变为休眠状态，以此抽(?<draw>[0-9一两二三四五六七八九十]+)张牌，然后将一张手牌放到主牌堆的顶部或底部。?$",
+            RegexOptions.CultureInvariant);
+        if (friendlyDestroyedDrawPut.Success)
+            return new TriggerSpec(TriggerKinds.FriendlyUnitDestroyedExhaustDrawHandToDeck, TriggerTimings.UnitDestroyed, segment,
+                TargetScope: TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                DrawCount: ParseChineseNumber(friendlyDestroyedDrawPut.Groups["draw"].Value),
+                ExhaustsSource: true, Optional: true);
+
         var controllerStunnedEnemyDraw = Regex.Match(segment,
             @"^每当你摧毁一名被眩晕的敌方单位时，你可以选择让(?:此牌|我)变为休眠状态，以此抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?$",
             RegexOptions.CultureInvariant);

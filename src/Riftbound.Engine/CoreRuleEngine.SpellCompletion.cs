@@ -47,6 +47,21 @@ public sealed partial class CoreRuleEngine
                 zones: result.PlayerZones, cards: result.CardObjects);
             result = result with { Events = result.Events.Append(observation).ToArray() };
         }
+        // CN 420.4.a and 811.1: playing from face down is still a play
+        // trigger. Confirmation opens responses; only complete resolution
+        // earns observers. Countering the spell never reaches this boundary.
+        if (item.PlayedFromStandby is not null)
+        {
+            var completedState = state with { PlayerZones = result.PlayerZones, CardObjects = result.CardObjects };
+            var action = new GameEvent(FaceDownSpellCompletedEvent, "从正面朝下打出的法术完成结算",
+                new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["cardNo"] = item.CardNo,
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(completedState,
+                        item.SourceObjectId, ProjectionViewers.Spectator),
+                    ["completedPlayHash"] = MatchStateHasher.HashValue(item.StackItemId), ["playedFromStandby"] = true });
+            result = result with { Events = result.Events.Append(CaptureStandbyPlayed(action,
+                result.PlayerZones, result.CardObjects, item.ControllerId)).ToArray() };
+        }
         if (result.WinnerPlayerId is not null) return result;
 
         // Capture at completion, before state-based cleanup. A lethal source may still

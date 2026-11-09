@@ -40,6 +40,7 @@ public sealed record EmpowerInteractionSpec(string Timing, string Effect, int Mi
 public sealed record MovementImposedCostSpec(int ManaPerMove = 0, int PowerPerMove = 0, int PowerPerExtraUnit = 0);
 public sealed record SelfGraveyardPlaySpec(int Mana, int Power, IReadOnlyList<string> Traits,
     bool RequiresPlayedAnotherCard = false);
+public sealed record EquipmentTokenRewardSpec(string FactoryCardNo, int Count);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -136,6 +137,7 @@ public sealed record CardBehaviorDefinition(
     bool DiscardsAllPlayersHandsThenDraws = false,
     bool RequiresDestroyFriendlyUnitAdditionalCost = false,
     bool MayDestroyFriendlyPermanentAdditionalCost = false,
+    string? OptionalPermanentDestructionRequiredTag = null,
     bool PlayAbilityRequiresPermanentDestructionCost = false,
     bool RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
     bool RequiresReturnFriendlyEquipmentAdditionalCost = false,
@@ -458,6 +460,7 @@ public sealed record CardBehaviorDefinition(
     public bool FirstTargetRequiresArmament { get; init; }
     public bool DetachesArmamentFromFirstTarget { get; init; }
     public bool ReferencedPowerDamageIsFromSpell { get; init; }
+    public EquipmentTokenRewardSpec? FaceDownPlayEquipmentTokens { get; init; }
     public SpellManaAlternativeCostSpec? SpellManaAlternativeCost { get; init; }
     internal SpellManaAlternativeCostSpec? AppliedSpellManaAlternativeCost { get; init; }
     internal bool IgnoreBasePlayCostFromBoons { get; init; }
@@ -6396,7 +6399,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3) { FaceDownPlayEquipmentTokens = new("UNL·T05", 1) },
         new(
             "SFD·137/221",
             "猎海小队",
@@ -6425,7 +6428,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("MOVE", "DISCARD_DRAW", DiscardCount: 1) {
+                ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true }),
         new(
             "SFD·125/221",
             "大力仙灵",
@@ -6435,7 +6440,10 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "仙灵"),
+            SourceUnitTags: "仙灵",
+            UnitEventAbility: new("MOVE", CoreRuleEngine.MoveFriendlyToArrivalBattlefieldEffect,
+                Optional: true, LeadingPowerCost: 1, LeadingPowerTrait: RuneTrait.Purple) {
+                ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true }),
         new(
             "SFD·142/221",
             "贾尔·米达尔达",
@@ -6578,7 +6586,13 @@ public static class CardBehaviorRegistry
             3,
             "ZAUNITE_THUG_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT",
             0,
-            0,
+            1,
+            TargetScope: CardTargetScopes.Equipment,
+            TargetRequiredTag: CardObjectTags.EquipmentCard,
+            DestroysTarget: true,
+            MayDestroyFriendlyPermanentAdditionalCost: true,
+            OptionalPermanentDestructionRequiredTag: CardObjectTags.EquipmentCard,
+            PlayAbilityRequiresPermanentDestructionCost: true,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
@@ -6589,7 +6603,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventGraveyardPlayEffect, Optional: true) {
+                GraveyardPlayMaximumMana = 3, GraveyardPlayMaximumPower = 1, GraveyardPlayIgnoresBaseCosts = true }),
         new(
             "SFD·170/221",
             "雷克塞",

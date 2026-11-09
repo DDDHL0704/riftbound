@@ -97,6 +97,21 @@ public sealed class ArmamentGrantedCombatTriggerTests
     }
 
     [Fact]
+    public async Task ARealResponseMovementUpdatesCurrentHereWithoutChangingTheOriginalGrantedCapture()
+    {
+        var state = RadGearTestPosition.Put(Position(), "MOVE-HOST", "OGS·011/024", "P1", "HAND");
+        var game = new Driver(state); await Attach(game); await Battle(game, false); await Choose(game, "ENEMY1");
+        if (game.State.PriorityPlayerId != "P1")
+            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+        await game.Act("P1", new PlayCardCommand("MOVE-HOST", "OGS·011/024", ["HOST"]));
+        await game.Top();
+        Assert.Equal("BASE", game.State.ObjectLocations["HOST"].Zone);
+        Assert.Null(Assert.Single(game.State.StackItems).UnitEvent!.Here);
+        Assert.Empty(Errors(game, game.State));
+        await game.Top(); Assert.Equal(0, game.State.CardObjects["ENEMY1"].Damage); await game.Replay();
+    }
+
+    [Fact]
     public async Task ReturningTheHostDetachesTheGrantButKeepsTheEarnedSkillUntilItsCurrentHereBecomesUnavailable()
     {
         var game = new Driver(AttackDamageDistributionTests.Spell(Position(), "RETURN", "OGN·104/298", "P1"));

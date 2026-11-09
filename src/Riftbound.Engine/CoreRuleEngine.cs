@@ -4131,12 +4131,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
             return ConfirmPlayedPermanent(state, nextState, intent, events);
 
-        if (behavior.StandbyPlayFrom is not null)
-        {
-            var index = events.FindIndex(e => e.Kind == "CARD_PLAYED");
-            events[index] = CaptureStandbyPlayed(events[index], playerZones, cardObjects, intent.PlayerId);
-        }
-
         return new ResolutionResult(
             true,
             null,
@@ -18023,9 +18017,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (behavior.MayDestroyFriendlyPermanentAdditionalCost
-            && destroyedAdditionalCostTargetObjectIds.Any(id => !CanDestroyFriendlyPermanentAsAdditionalCost(state, intent.PlayerId, id)))
+            && destroyedAdditionalCostTargetObjectIds.Any(id => !CanDestroyFriendlyPermanentAsAdditionalCost(state, intent.PlayerId, id, behavior)))
         {
-            rejection = Reject(state, "额外费用必须摧毁一个正面友方单位或装备。", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, behavior.OptionalPermanentDestructionRequiredTag == CardObjectTags.EquipmentCard
+                ? "额外费用必须摧毁一件正面友方装备。" : "额外费用必须摧毁一个正面友方单位或装备。", ErrorCodes.InvalidTarget);
             return false;
         }
 
@@ -25716,6 +25711,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             var conditionalEquipmentTokenCount = ConditionalEquipmentTokenCountForDestroyedUnit(
                                 behavior,
                                 stackItem.ControllerId,
+                                targetControllerIdBeforeRemoval,
                                 removalResult);
                             if (conditionalEquipmentTokenCount > 0)
                             {
@@ -27751,6 +27747,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ConditionalEquipmentTokenCountForDestroyedUnit(
         CardBehaviorDefinition behavior,
         string controllerId,
+        string targetControllerId,
         FieldRemovalResult removalResult)
     {
         if (!removalResult.WasDestroyed || !removalResult.WasUnit)
@@ -27758,7 +27755,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        return string.Equals(removalResult.OwnerPlayerId, controllerId, StringComparison.Ordinal)
+        return string.Equals(targetControllerId, controllerId, StringComparison.Ordinal)
             ? behavior.CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit
             : behavior.CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit;
     }

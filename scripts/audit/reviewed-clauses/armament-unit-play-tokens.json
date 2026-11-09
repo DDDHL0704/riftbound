@@ -42,8 +42,9 @@
             "StackObjectRules.ReferencesCurrentObject(state, item, target)",
             "UnitEventTargets(state, item).Contains(target)",
             "BeginEffectPlay(state, item, definition)",
-            "!pending.IgnoreBaseMana && !pending.IgnoreBasePower && !pending.IgnoreAllCosts",
-            "pending.Parent.TargetGenerations?.GetValueOrDefault(source.Key, -1) == source.Value"
+            "pending.IgnoreBaseMana == SelectedUnitEventSpec(pending.Parent.UnitEvent!)!.GraveyardPlayIgnoresBaseCosts",
+            "pending.Parent.TargetGenerations?.GetValueOrDefault(source.Key, -1) == source.Value",
+            "pending.IgnoreBasePower == pending.IgnoreBaseMana && !pending.IgnoreAllCosts"
           ]
         },
         {
@@ -125,7 +126,8 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "SelectedUnitEventSpec(c)?.CreatesUnitTokenHere == true"
+            "SelectedUnitEventSpec(c) is { CreatesUnitTokenHere: true }",
+            "spec.CreatesUnitTokenHere || spec.RequiresMoveToBattlefield || c.Here == current"
           ]
         }
       ],

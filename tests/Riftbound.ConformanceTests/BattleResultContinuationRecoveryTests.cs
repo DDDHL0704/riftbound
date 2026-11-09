@@ -175,6 +175,7 @@ public sealed class BattleResultContinuationRecoveryTests
         var run = new Driver(MatchState.Create("BATTLE-RESULT-LATE-RECOVERY-" + source) with { Seed = 424242 });
         await run.Prepare("battle-result-" + source + "-late-defender");
         await run.Act("P1", new MoveUnitCommand("SOURCE", "BASE", "BATTLEFIELD:FIELD", []));
+        await SettleArrival(run);
         for (var i = 0; i < 4 && run.State.FocusPlayerId is not null; i++)
             await run.Act(run.State.FocusPlayerId, new PassFocusCommand());
         await run.Act("P1", new DeclareBattleCommand("FIELD", ["SOURCE"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
@@ -239,10 +240,25 @@ public sealed class BattleResultContinuationRecoveryTests
         var run = new Driver(MatchState.Create("BATTLE-RESULT-RECOVERY") with { Seed = 424242 });
         await run.Prepare("battle-result-" + (cardNo == "UNL-114/219" ? "nidalee" : "enforcer") + (burnout ? "-burnout" : ""));
         await run.Act("P1", new MoveUnitCommand("SOURCE", "BASE", "BATTLEFIELD:FIELD", []));
+        await SettleArrival(run);
         for (var i = 0; i < 4 && run.State.FocusPlayerId is not null; i++) await run.Act(run.State.FocusPlayerId, new PassFocusCommand());
         await run.Act("P1", new DeclareBattleCommand("FIELD", ["SOURCE"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
         Assert.NotNull(run.State.PendingBattleResult);
         return run;
+    }
+
+    private static async Task SettleArrival(Driver run)
+    {
+        for (var i = 0; run.State.StackItems.Count > 0 || run.State.PendingRuleChoice is not null; i++)
+        {
+            Assert.InRange(i, 0, 5);
+            if (run.State.PendingRuleChoice is { } pending)
+            {
+                Assert.Equal("PRIVATE_HAND_DISCARD", pending.Request.Kind);
+                await run.Act("P1", new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", ["HAND:0"]));
+            }
+            else await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
     }
 
     private sealed class Driver

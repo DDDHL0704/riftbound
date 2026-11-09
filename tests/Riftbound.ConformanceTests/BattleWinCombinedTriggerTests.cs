@@ -74,6 +74,12 @@ public sealed class BattleWinCombinedTriggerTests
         (string Player, string Intent, GameCommand Command, JsonElement Raw) last = default;
 
         await Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:FIELD", []));
+        // Resolve the enforcer's independent arrival instruction before combat.
+        for (var i = 0; state.StackItems.Count > 0; i++)
+        {
+            Assert.InRange(i, 0, 3);
+            await Act(state.PriorityPlayerId!, new PassPriorityCommand());
+        }
         for (var i = 0; i < 4 && state.FocusPlayerId is not null; i++)
             await Act(state.FocusPlayerId, new PassFocusCommand());
         await Act("P1", new DeclareBattleCommand("FIELD", ["UNIT"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
