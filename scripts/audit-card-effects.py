@@ -1525,6 +1525,10 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
         ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
             'CurrentGameAcceptedEventBoundary(state, commands, events)', 'state.PendingRuleChoice?.Origin',
             'frame.PendingEffectPlay?.Parent', 'record.Sequence > boundary',
+            'if (item.TargetGenerations is null)', 'record.Tick <= frame.Tick',
+            'record.Event.Kind is "PAYMENT_WINDOW_OPENED" or "TRIGGER_CONFIRMED"',
+            'generations is not null', 'command.CompletedTick == record.Tick',
+            'command.StartedEventSequence < record.Sequence', 'command.CompletedEventSequence >= record.Sequence',
             'targets.SequenceEqual(item.TargetObjectIds)',
             'MatchStateHasher.HashValue(generations) == MatchStateHasher.HashValue(item.TargetGenerations)',
             'confirmations.Length != 1', 'command.Accepted', 'command.PlayerId == item.ControllerId',

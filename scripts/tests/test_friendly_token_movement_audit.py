@@ -127,3 +127,14 @@ class FriendlyTokenMovementAuditTests(unittest.TestCase):
                 ('MatchRecovery.UnitEventTargets.cs', 'command.CompletedEventSequence >= confirmations[0].Sequence'),
                 ('MatchRecovery.cs', 'ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors)')]:
             with self.subTest(token=token):self.missing_consumer(filename,token)
+
+    def test_an_accepted_confirmation_cannot_be_rolled_back_to_an_unconfirmed_choice(self):
+        for token in ['if (item.TargetGenerations is null)',
+                'record.Tick <= frame.Tick',
+                'record.Event.Kind is "PAYMENT_WINDOW_OPENED" or "TRIGGER_CONFIRMED"',
+                'generations is not null',
+                'command.CompletedTick == record.Tick',
+                'command.StartedEventSequence < record.Sequence',
+                'command.CompletedEventSequence >= record.Sequence']:
+            with self.subTest(token=token):
+                self.missing_consumer('MatchRecovery.UnitEventTargets.cs', token)
