@@ -118,19 +118,23 @@ public sealed class AkshanIndependentPaidPlayTests
     public async Task EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment(bool ownedByActor)
     {
         var initial = RadGearTestPosition.Put(Position(), "RETURN", "OGN·104/298", "P1", "HAND");
+        initial = RadGearTestPosition.Put(initial, "NEXT-UNIT", "SFD·119/221", "P1", "HAND");
         if (ownedByActor) initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["GEAR"] = initial.CardObjects["GEAR"] with { OwnerId = "P1" } } };
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", Akshan, [], OptionalCosts: [Fee]));
         await Confirm(game, "GEAR"); await game.Top();
         Assert.Equal("P1", game.State.CardObjects["GEAR"].ControllerId);
-        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "ALLY", ["ASSEMBLE_RED"])); await game.Top();
-        Assert.Equal("ALLY", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        await game.Act("P1", new PlayCardCommand("NEXT-UNIT", "SFD·119/221", []));
+        var tempered = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("TEMPERED_CONFIRMATION", tempered.ChoiceWindow);
+        await game.Act("P1", new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, ["GEAR"])); await game.Top();
+        Assert.Equal("NEXT-UNIT", game.State.CardObjects["GEAR"].AttachedToObjectId);
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
         var gear = game.State.CardObjects["GEAR"];
         Assert.Equal("P2", gear.ControllerId); Assert.Equal(ownedByActor ? "P1" : "P2", gear.OwnerId);
-        Assert.Equal("ALLY", gear.AttachedToObjectId);
-        Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
+        Assert.Equal("NEXT-UNIT", gear.AttachedToObjectId);
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
         Assert.Null(gear.EquipmentControl);
         await game.ColdCheckpoint();
     }
