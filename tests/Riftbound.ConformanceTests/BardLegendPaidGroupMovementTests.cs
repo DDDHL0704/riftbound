@@ -159,13 +159,16 @@ public sealed class BardLegendPaidGroupMovementTests
     }
 
     [Fact]
-    public async Task AResponseOccupyingTheChosenOpenFieldMakesTheMovementInstructionInapplicable()
+    public async Task ARegularMovementSpellCannotInterruptTheConfirmedSkill()
     {
         var game = new Driver(Position()); await Play(game); await ChooseUnits(game, "ALLY"); await Destination(game);
         await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("THEIR-MOVE", "OGN·043/298", ["BARD"], Destination: "BATTLEFIELD:BF"));
-        await game.Top(); Assert.Equal("BF", game.State.ObjectLocations["BARD"].BattlefieldObjectId);
-        await game.Top(); Assert.Contains("ALLY", game.State.PlayerZones["P1"].Base); await game.ColdCheckpoint();
+        // Charm has neither Reaction nor another permission to interrupt a chain.
+        await RadGearTestPosition.Reject(game.State, "P2",
+            new PlayCardCommand("THEIR-MOVE", "OGN·043/298", ["BARD"], Destination: "BATTLEFIELD:BF"));
+        Assert.Contains("THEIR-MOVE", game.State.PlayerZones["P2"].Hand);
+        await game.Top(); Assert.Equal("BF", game.State.ObjectLocations["ALLY"].BattlefieldObjectId);
+        await game.ColdCheckpoint();
     }
 
     [Fact]
@@ -201,6 +204,11 @@ public sealed class BardLegendPaidGroupMovementTests
     public async Task TheGroupUsesOneSharedImposedMovementPaymentAndCanDeclineIt(bool pay)
     {
         var state = RadGearTestPosition.Put(Position(), "TAX", "RAD·062/167", "P2", "BATTLEFIELD", "BF");
+        // PrintedCardFactory creates the card face. A field equipment fixture
+        // also needs the Deploy keyword applied by the real equipment-entry flow.
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["TAX"] = state.CardObjects["TAX"] with {
+                Tags = state.CardObjects["TAX"].Tags.Append(CardEquipmentKeywordNames.Deploy).Distinct().ToArray() } } };
         var game = new Driver(state); await Play(game); await ChooseUnits(game, "BARD", "ALLY");
         await Destination(game); await game.Top();
         var request = game.State.PendingRuleChoice!.Request;
