@@ -194,7 +194,9 @@ public sealed class TemperedEquipmentOptionalAttachTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "EQUIPMENT_RECALLED_TO_BASE", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal("P1-WRONG-CONTROLLER-SPINNING-AXE", Assert.Single(accepted.Events,
+            gameEvent => gameEvent.Kind == "EQUIPMENT_RECALLED_TO_BASE").Payload["equipmentObjectId"]);
         var acceptedStackItem = AssertSentinelStackPriorityState(accepted, optionalCosts);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);

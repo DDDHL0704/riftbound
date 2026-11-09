@@ -40,6 +40,7 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
                              ('targetEffectAdditionalPowerCost', 2.0), ('targetEffectAdditionalPowerTrait', 'green'),
                              ('targetScope', 'ANY_EQUIPMENT'), ('targetRequiredTag', 'CARD_TYPE:UNIT'),
                              ('requiredTargetCount', 2), ('minTargetCount', 1), ('minTargetCount', False),
+                             ('damageAmount', 1), ('damageAmount', False), ('targetEffectAdditionalManaCost', 1),
                              ('paidPlayTargetsOptional', False), ('stealsTargetEquipmentUntilSourceLeaves', False)]:
             with self.subTest(field=field, value=value):
                 self.value['behaviors'] = [dict(original, **{field: value})]
@@ -55,10 +56,12 @@ class PaidEquipmentTheftAuditTests(unittest.TestCase):
             ('CoreRuleEngine.FieldTriggers.cs', 'TargetGenerations = selected.ToDictionary'),
             ('CoreRuleEngine.EquipmentTheft.cs', 'MovementTargetIsCurrent(current, item, target)'),
             ('CoreRuleEngine.EquipmentTheft.cs', 'PayImposedMovementCost('),
+            ('CoreRuleEngine.EquipmentTheft.cs', 'MoveAttachedEquipmentWithHost(zones, attached, item.ControllerId, target, MoveUnitBaseZone)'),
             ('CoreRuleEngine.EquipmentTheft.cs', 'if (hasSource)'),
             ('CoreRuleEngine.EquipmentTheft.cs', 'TryAttachEquipment('),
             ('CoreRuleEngine.EquipmentTheft.cs', 'source.ObjectGeneration == grant.Source.Generation'),
             ('CoreRuleEngine.PaidPermanentPlayHistory.cs', 'item.PermanentPlaySource'),
+            ('CoreRuleEngine.EquipmentControlHistory.cs', '!string.IsNullOrWhiteSpace(grant.Source.ObjectId)'),
             ('MatchRecovery.EquipmentControlHistory.cs', 'proof != row.Proof')]:
             with self.subTest(token=token):
                 path = 'src/Riftbound.Engine/' + filename

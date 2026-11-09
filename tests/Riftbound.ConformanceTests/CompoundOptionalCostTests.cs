@@ -336,8 +336,18 @@ public sealed class CompoundOptionalCostTests
         if (card == "SFD·109/221") {
             var theft = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
             await driver.Act("P1", new ChooseCardsCommand(theft.ChoiceId, theft.ChoiceWindow, [gear]));
+            var skill = Assert.Single(driver.State.StackItems, CoreRuleEngine.IsEquipmentTheftPlaySkill);
+            Assert.True(driver.State.PriorityPlayerId is not null && driver.State.PassedPriorityPlayerIds.Count == 0,
+                JsonSerializer.Serialize(new { driver.State.PriorityPlayerId, driver.State.PassedPriorityPlayerIds,
+                    driver.State.TimingState, driver.State.PendingCardChoice?.ChoiceWindow,
+                    pendingEffectPlay = driver.State.PendingEffectPlay is not null,
+                    payment = driver.State.PendingPayment?.PaymentWindow }));
+            await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
+            Assert.Contains(driver.State.StackItems, item => item.StackItemId == skill.StackItemId);
+            await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
+            Assert.DoesNotContain(driver.State.StackItems, item => item.StackItemId == skill.StackItemId);
         }
-        for (var i = 0; i < 3 && driver.State.StackItems.FirstOrDefault()?.SourceObjectId == Source; i++) await driver.Top();
+        else for (var i = 0; i < 3 && driver.State.StackItems.FirstOrDefault()?.SourceObjectId == Source; i++) await driver.Top();
         Assert.False(driver.State.CardObjects[Source].IsExhausted);
         if (card == "SFD·013/221") Assert.Equal(before.CardObjects["HOST"].Damage + 2, driver.State.CardObjects["HOST"].Damage);
         if (card == "SFD·067/221") Assert.Equal(before.CardObjects["HOST"].Power - 2, driver.State.CardObjects["HOST"].Power);

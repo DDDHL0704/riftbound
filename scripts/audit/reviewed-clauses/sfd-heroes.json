@@ -587,7 +587,9 @@
             "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
             "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
-            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect"
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
           ]
         },
         {
@@ -646,7 +648,9 @@
             "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
             "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
-            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect"
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
           ]
         },
         {
@@ -705,7 +709,9 @@
             "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
             "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
-            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect"
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
           ]
         },
         {
@@ -764,7 +770,9 @@
             "DecliningTheOptionalTheftKeepsTheAlreadyPaidCostAndCreatesNoSkill",
             "ReturningTheOriginalSourceBeforeOrAfterResolutionHonorsTheControlDuration",
             "EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment",
-            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect"
+            "RecoveryBindsTheLeaseToItsOriginalAcceptedEffect",
+            "SuccessiveTheftsKeepEachOriginalDurationWhenEitherSourceLeavesFirst",
+            "MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers"
           ]
         },
         {

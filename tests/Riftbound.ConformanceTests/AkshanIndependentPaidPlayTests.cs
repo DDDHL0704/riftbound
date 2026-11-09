@@ -33,6 +33,10 @@ public sealed class AkshanIndependentPaidPlayTests
         Assert.Equal(0, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
         Assert.Equal("P2", game.State.CardObjects["GEAR"].ControllerId);
+        var skill = Assert.Single(game.State.StackItems).StackItemId;
+        await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+        Assert.Equal("P2", game.State.CardObjects["GEAR"].ControllerId);
+        Assert.Contains(game.State.StackItems, item => item.StackItemId == skill);
         await game.Top();
         Assert.Equal("P1", game.State.CardObjects["GEAR"].ControllerId);
         Assert.Equal("P2", game.State.CardObjects["GEAR"].OwnerId);
@@ -139,7 +143,7 @@ public sealed class AkshanIndependentPaidPlayTests
         await game.ColdCheckpoint();
     }
 
-    [Theory, InlineData("underlying"), InlineData("source"), InlineData("erase"), InlineData("null-grant")]
+    [Theory, InlineData("underlying"), InlineData("source"), InlineData("erase"), InlineData("null-grant"), InlineData("null-source-id")]
     public async Task RecoveryBindsTheLeaseToItsOriginalAcceptedEffect(string mutation)
     {
         var game = new Driver(Position());
@@ -151,6 +155,7 @@ public sealed class AkshanIndependentPaidPlayTests
             "underlying" => lease with { UnderlyingControllerId = "P1" },
             "source" => lease with { Grants = [lease.Grants[0] with {
                 Source = new("ALLY", game.State.CardObjects["ALLY"].ObjectGeneration) }] },
+            "null-source-id" => lease with { Grants = [lease.Grants[0] with { Source = new(null!, 0) }] },
             "null-grant" => lease with { Grants = [null!] }, _ => null };
         var forged = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
             ["GEAR"] = gear with { EquipmentControl = altered } } };
@@ -206,6 +211,32 @@ public sealed class AkshanIndependentPaidPlayTests
         Assert.Null(game.State.CardObjects["GEAR"].EquipmentControl);
         Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.Contains("GEAR", game.State.PlayerZones["P2"].Base);
+        await game.ColdCheckpoint();
+    }
+
+    [Fact]
+    public async Task MovingEquipmentThatIsAlsoAUnitKeepsItsCarriedEquipmentAndTheirSeparateControllers()
+    {
+        // A type-level fixture; the real Orianna printing/provenance path has
+        // its own original-command regression in OriannaLegendEquipmentUnitTests.
+        var initial = Position();
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = new("GEAR", power: 4, tags: [CardObjectTags.UnitCard, CardObjectTags.EquipmentCard],
+                ownerId: "P2", controllerId: "P2") } };
+        initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P2", "BATTLEFIELD", "OTHER");
+        initial = RadGearTestPosition.Put(initial, "CARRIED", "SFD·022/221", "P2", "BATTLEFIELD", "OTHER");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["CARRIED"] = initial.CardObjects["CARRIED"] with { AttachedToObjectId = "GEAR" } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", Akshan, [], OptionalCosts: [Fee]));
+        await Confirm(game, "GEAR"); await game.Top();
+        Assert.Equal("P1", game.State.CardObjects["GEAR"].ControllerId);
+        Assert.Equal("P2", game.State.CardObjects["CARRIED"].ControllerId);
+        Assert.Equal("GEAR", game.State.CardObjects["CARRIED"].AttachedToObjectId);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), game.State.ObjectLocations["GEAR"]);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), game.State.ObjectLocations["CARRIED"]);
+        Assert.Contains(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_MOVED_WITH_UNIT"
+            && Equals(entry.Event.Payload["equipmentObjectId"], "CARRIED"));
         await game.ColdCheckpoint();
     }
 

@@ -1926,6 +1926,8 @@ def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> di
         targetScope='ENEMY_UNIT_OR_EQUIPMENT', targetScopeIsExplicit=True, targetRequiredTag='CARD_TYPE:EQUIPMENT',
         targetEffectAdditionalPowerCost=2, targetEffectAdditionalPowerTrait='orange',
         paidPlayTargetsOptional=True, stealsTargetEquipmentUntilSourceLeaves=True))
+    exact = exact and all(type(profiles[0].get(key, 0)) is int and profiles[0].get(key, 0) == 0
+        for key in ['damageAmount', 'targetEffectAdditionalManaCost'])
     prefix = 'src/Riftbound.Engine/'
 
     def member(filename, name):
@@ -1965,6 +1967,7 @@ def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> di
             'item.PermanentPlaySource ?? PlayInstructionSource(state, item)', 'unit.ObjectGeneration == binding.Generation',
             'AddFieldObjectToLocation(zones, item.ControllerId, MoveUnitBaseZone, target)', 'if (hasSource)',
             'EquipmentControl = new(original, underlying,', 'new(item.StackItemId, source!, item.ControllerId, reason)',
+            'AttachedEquipmentObjectIds(cards, target)', 'MoveAttachedEquipmentWithHost(zones, attached, item.ControllerId, target, MoveUnitBaseZone)',
             'equipment.Tags.Contains(CardEquipmentKeywordNames.Weapon', 'TryAttachEquipment(']),
         ('CoreRuleEngine.EquipmentTheft.cs', 'ReturnSourceStolenEquipmentForMissingSources', [
             'lease.Equipment != new ObjectBinding(gear.ObjectId, gear.ObjectGeneration)',
@@ -1976,6 +1979,10 @@ def paid_equipment_theft_route(card: dict, clause: dict, sources: Sources) -> di
             'proof != CoreRuleEngine.PaidPermanentPlayChoicesHash(item)', '!pending.SetEquals(']),
         ('MatchRecovery.EquipmentControlHistory.cs', 'ValidateEquipmentControlHistory', ['ValidEquipmentControlLeases(state)',
             'command.Accepted', '!captured.TryAdd(', 'proof != row.Proof', '!pending.SetEquals(']),
+        ('CoreRuleEngine.EquipmentControlHistory.cs', 'RecordEquipmentControlHistory', ['EquipmentControlReceipts(before)',
+            'EquipmentControlReceipts(result.State)', 'EquipmentControlCaptured', 'EquipmentControlRetired', 'events.Add(new(']),
+        ('CoreRuleEngine.EquipmentControlHistory.cs', 'ValidEquipmentControlLeases', ['lease.Equipment.Generation == card.ObjectGeneration',
+            'card.ControllerId == lease.Grants.LastOrDefault()?.ControllerId', '!string.IsNullOrWhiteSpace(grant.Source.ObjectId)']),
         ('MatchRecovery.cs', 'ValidateFrame', ['ValidateEquipmentControlHistory(authoritativeState, commands, events, errors)',
             'ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors)']),
     ]

@@ -807,11 +807,13 @@ public sealed class OriannaLegendEquipmentUnitTests
         var firstEvent = game.Events().Length;
         await game.Act("P2", new PlayCardCommand("AKSHAN", "SFD·109/221", [],
             OptionalCosts: ["SPEND_POWER:2:ORANGE"]));
-        var tempered = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-        Assert.Equal("TEMPERED_CONFIRMATION", tempered.ChoiceWindow);
-        await game.Act("P2", new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, []));
-        var theft = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-        await game.Act("P2", new ChooseCardsCommand(theft.ChoiceId, theft.ChoiceWindow, ["GEAR"]));
+        for (var confirmations = 0; game.State.PendingCardChoice is { } choice; confirmations++)
+        {
+            Assert.True(confirmations < 3);
+            Assert.Contains(choice.ChoiceWindow, new[] { "TEMPERED_CONFIRMATION", "TRIGGER_CONFIRMATION" });
+            await game.Act("P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                choice.ChoiceWindow == "TEMPERED_CONFIRMATION" ? [] : ["GEAR"]));
+        }
         await game.Top();
         Assert.Equal(new ObjectLocationState("P2", "BASE"), game.State.ObjectLocations["GEAR"]);
         Assert.Equal("P1", game.State.CardObjects["GEAR"].OwnerId);

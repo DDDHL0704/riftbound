@@ -117,7 +117,11 @@ public sealed class AttachmentTheftCopyTests
         Assert.Equal("P2", done.CardObjects["AKSHAN"].OwnerId);
         Assert.Equal("P2", done.CardObjects["AKSHAN"].ControllerId);
         Assert.Empty(done.TriggerQueue); Assert.Empty(done.StackItems); Assert.Null(done.PendingCardChoice);
-        Assert.Contains(done.CardObjects["GEAR"].Tags, tag => tag.Contains("AKSHAN", StringComparison.Ordinal));
+        var control = Assert.IsType<EquipmentControlLease>(done.CardObjects["GEAR"].EquipmentControl);
+        Assert.Equal("P1", control.UnderlyingControllerId);
+        var grant = Assert.Single(control.Grants);
+        Assert.Equal(new ObjectBinding("AKSHAN", done.CardObjects["AKSHAN"].ObjectGeneration), grant.Source);
+        Assert.Equal("P2", grant.ControllerId);
         Restore(done); ArmamentMightTests.PublicRecovery(done);
     }
 

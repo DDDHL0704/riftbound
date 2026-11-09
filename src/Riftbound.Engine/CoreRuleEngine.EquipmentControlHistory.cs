@@ -20,6 +20,7 @@ public sealed partial class CoreRuleEngine
                 && lease.Grants.Select(grant => grant?.SkillId).Distinct(StringComparer.Ordinal).Count() == lease.Grants.Count
                 && lease.Grants.All(grant => grant is { Source: not null }
                     && !string.IsNullOrWhiteSpace(grant.SkillId) && !string.IsNullOrWhiteSpace(grant.Reason)
+                    && !string.IsNullOrWhiteSpace(grant.Source.ObjectId)
                     && frame.Seats.ContainsKey(grant.ControllerId ?? "") && grant.Source.Generation >= 0
                     && frame.CardObjects.TryGetValue(grant.Source.ObjectId, out var source)
                     && source.ObjectGeneration == grant.Source.Generation

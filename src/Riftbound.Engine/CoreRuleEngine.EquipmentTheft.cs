@@ -64,6 +64,12 @@ public sealed partial class CoreRuleEngine
                 ["destinationZone"] = MoveUnitBaseZone, ["destinationPlayerId"] = item.ControllerId,
                 ["destination"] = "BASE:" + item.ControllerId }), nonUnit));
         if (movement is not null) events.Add(movement);
+        if (moved is not null)
+        {
+            var attached = AttachedEquipmentObjectIds(cards, target);
+            events.AddRange(MoveAttachedEquipmentWithHost(zones, attached, item.ControllerId, target, MoveUnitBaseZone));
+            foreach (var id in attached) locations[id] = new(item.ControllerId, MoveUnitBaseZone);
+        }
         // CN 359.3.e.16 explicitly uses this instruction as its example:
         // a departed source cannot create the delayed control effect.
         if (hasSource)
