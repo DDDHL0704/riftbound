@@ -27864,13 +27864,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId)
     {
-        if (!playerZones.TryGetValue(playerId, out var zones))
+        if (!playerZones.ContainsKey(playerId))
         {
             return 0;
         }
 
-        return zones.Base
-            .Concat(zones.Battlefields)
+        // CN107.1.c.1/740.1.a: an armament may remain on another player's
+        // host. Its controller still counts it, independently of its location.
+        return playerZones.Values
+            .SelectMany(zones => zones.Base.Concat(zones.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
             .Count(objectId => cardObjects.TryGetValue(objectId, out var cardObject)

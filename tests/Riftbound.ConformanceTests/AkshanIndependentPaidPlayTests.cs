@@ -123,6 +123,7 @@ public sealed class AkshanIndependentPaidPlayTests
     {
         var initial = RadGearTestPosition.Put(Position(), "RETURN", "OGN·104/298", "P1", "HAND");
         initial = RadGearTestPosition.Put(initial, "NEXT-UNIT", "SFD·085/221", "P1", "HAND");
+        initial = RadGearTestPosition.Put(initial, "ENEMY-ORNN", "SFD·085/221", "P2", "BASE");
         if (ownedByActor) initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["GEAR"] = initial.CardObjects["GEAR"] with { OwnerId = "P1" } } };
         var game = new Driver(initial);
@@ -140,6 +141,13 @@ public sealed class AkshanIndependentPaidPlayTests
         Assert.Equal("NEXT-UNIT", gear.AttachedToObjectId);
         Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
         Assert.Null(gear.EquipmentControl);
+        // CN107.1.c.1: attachment preserves location independently of control.
+        // Both players' equipment counts must immediately follow the restored controller.
+        Assert.Equal(4, game.State.CardObjects["NEXT-UNIT"].Power);
+        Assert.Equal(5, game.State.CardObjects["ENEMY-ORNN"].Power);
+        var enemyAura = Assert.Single(game.State.ContinuousEffects, effect =>
+            effect.SourceObjectId == "ENEMY-ORNN" && effect.EffectKind == "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER");
+        Assert.Equal(new[] { "GEAR" }, enemyAura.ParticipantObjectIds);
         // The opponent still controls the armament attached in our base.
         // A later play must be able to choose it as enemy equipment.
         await game.Act("P1", new PlayCardCommand("UNIT", Akshan, [], OptionalCosts: [Fee]));

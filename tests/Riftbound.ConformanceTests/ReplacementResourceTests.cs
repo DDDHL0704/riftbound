@@ -153,6 +153,8 @@ public sealed class ReplacementResourceTests
             "restricted" => OfficialGarenConquestBattlefieldCountTests.Printed("RESOURCE", P4ActivatedAbilityCatalog.LuxCardNo, "P2"),
             _ => card };
         s = s with { CardObjects = new Dictionary<string,CardObjectState>(s.CardObjects) { ["RESOURCE"] = card } };
+        // CN149.3/323.6: the loose enemy resource starts in its controller's base.
+        if (reason == "enemy") s = LocalDestructionRecallTests.At(s, "RESOURCE", "P1", "BASE");
         var opened = await Open(s);
         if (reason == "standby")
         {
