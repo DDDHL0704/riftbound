@@ -1179,11 +1179,18 @@ public static partial class MatchRecoveryValidator
         }
         if (authoritativeState is not null && requireAcceptedBattleHistory)
         {
-            ValidateBattlefieldConquestHistory(authoritativeState, commands, events, errors);
-            ValidateBattlefieldHoldHistory(authoritativeState, commands, events, errors);
-            ValidateStartPhaseUnitDeathHistory(authoritativeState, commands, events, errors);
-            ValidateScheduledUnitEventHistory(authoritativeState, commands, events, errors);
-            ValidateUnitEventMovementDeclarations(authoritativeState, commands, events, errors);
+            // Reject a malformed journal before the typed history readers run.
+            // Continue independent frame checks so their original errors survive.
+            if (events.Any(record => record.Event.Payload is null))
+                errors.Add("original event payload is required");
+            else
+            {
+                ValidateBattlefieldConquestHistory(authoritativeState, commands, events, errors);
+                ValidateBattlefieldHoldHistory(authoritativeState, commands, events, errors);
+                ValidateStartPhaseUnitDeathHistory(authoritativeState, commands, events, errors);
+                ValidateScheduledUnitEventHistory(authoritativeState, commands, events, errors);
+                ValidateUnitEventMovementDeclarations(authoritativeState, commands, events, errors);
+            }
         }
 
         if (string.IsNullOrWhiteSpace(roomId))
