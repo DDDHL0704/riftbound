@@ -93,6 +93,7 @@ public sealed partial class CoreRuleEngine
         Adjust("已强化法术减费", -plan.EmpoweredSpellCostReductionMana, -plan.EmpoweredSpellCostReductionPower);
         Adjust("战斗中单位法术减费", -plan.CombatSpellCostReductionMana, -plan.CombatSpellCostReductionPower);
         Adjust("可选打出减费", -plan.OptionalPlayCostReductionMana, -plan.OptionalPlayCostReductionPower);
+        Adjust("目标减费", -plan.TargetedSpellCostReductionMana, -plan.TargetedSpellCostReductionPower);
         Adjust("战场增费", plan.BattlefieldHeldUnitCostIncreaseMana);
         Adjust("对手法术增费", plan.OpponentSpellCostIncreaseMana, plan.OpponentSpellCostIncreasePower);
         Adjust("战场反应增费", 0, plan.BattlefieldReactionPowerIncrease);

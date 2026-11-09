@@ -42,7 +42,7 @@ public sealed record SelfGraveyardPlaySpec(int Mana, int Power, IReadOnlyList<st
     bool RequiresPlayedAnotherCard = false);
 public sealed record EquipmentTokenRewardSpec(string FactoryCardNo, int Count);
 
-public sealed record CardBehaviorDefinition(
+public sealed partial record CardBehaviorDefinition(
     string CardNo,
     string DisplayName,
     int ManaCost,
@@ -5020,7 +5020,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4) { TargetedSpellManaOrPowerReduction = 1 },
         new(
             "SFD·141a/221",
             "艾瑞莉娅",
@@ -5029,7 +5029,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4) { TargetedSpellManaOrPowerReduction = 1 },
         new(
             "OGN·015/298",
             "法荣队长",

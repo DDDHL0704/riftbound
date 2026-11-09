@@ -922,21 +922,59 @@
       ],
       "text": "你以我为目标的法术费用减少{{1}}或{{A}}。",
       "scope": "你以我为目标的法术费用减少{{1}}或{{A}}。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少以此单位为目标的己方法术1法力或1符能减费选择及共享报价／付款消费者",
+      "status": "route",
+      "reason": "实际友方目标的每份公开文本分别选择1法力或1符能总减费，重复选择同一来源不叠加；预览与真实付款共用联合价格及原来源绑定",
       "runtime": {
-        "staticAuras": []
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "targetedSpellManaOrPowerReduction": 1
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetedSpellCostReductions.cs",
           "contains": [
-            "\"SFD_141_IRELIA_SPELL_COST_STATIC_PLAY_UNIT\""
+            "TargetedSpellReducers(state, player, spell, targets)",
+            "AttachedRuleTextRules.Instances(state, source)",
+            "new ObjectBinding(id, source.ObjectGeneration)",
+            "mode == \"MANA\" ? source.Amount : 0",
+            "mode == \"POWER\" ? source.Amount : 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "TryTargetedSpellReductions(state, intent.PlayerId, behavior, paymentTargets,",
+            "targetedReduction: reduction.Power",
+            ".OrderByDescending(CanPayPrice)",
+            "totalManaCost = selectedPrice.Mana",
+            "paymentAudit[\"targetedSpellCostReductionChoices\"] = selectedPrice.Reduction.ChoiceIds"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayCostPreview.cs",
+          "contains": [
+            "-plan.TargetedSpellCostReductionMana, -plan.TargetedSpellCostReductionPower"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心364–365、356.4 减费；SFD·141／141a 官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/IreliaTargetedSpellCostTests.cs",
+          "methods": [
+            "BothRealPrintingsOfferOneJointPriceAndTheOriginalCommandsRecoverAndReplay",
+            "OneSourceCannotCoverBothMissingResourceDimensions",
+            "RepeatedSelectionCountsOneSourceOnceButDifferentSourcesEachApply",
+            "ActuallyAttachedCopiedTextSuppliesAnotherIndependentReductionAndCanReachZero",
+            "AnActualImageCopyUsesItsOwnFriendlyBindingRatherThanTheOpponentsOriginal",
+            "InvalidOrStaleModeDeclarationsAreRejectedWithoutMutatingState",
+            "TotalTargetReductionFollowsTheOptionalComponentReduction"
+          ]
+        }
+      ],
+      "rules": "官方中文核心135.2.e.5、355、356.4.c–g、363–365；SFD·141／141a 官方中文牌面"
     },
     {
       "cardNos": [

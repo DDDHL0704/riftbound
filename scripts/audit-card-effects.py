@@ -1405,6 +1405,59 @@ def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> d
                   if exact else "缺少精确的待命行动监听规格、独立结算、目标付款或原始历史核验消费者", paths)
 
 
+def targeted_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentence = normalize('你以我为目标的法术费用减少{{1}}或{{A}}。')
+    if normalize(unparenthesize(clause['text'])) != sentence:
+        return None
+    behaviors = card.get('behaviors', [])
+    exact = clause['kind'] == 'static' and normalize(unparenthesize(clause['scope'])) == sentence \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} and len(behaviors) == 1 \
+        and behaviors[0].get('playsSourceToBaseAsUnit') is True \
+        and type(behaviors[0].get('targetedSpellManaOrPowerReduction')) is int \
+        and behaviors[0]['targetedSpellManaOrPowerReduction'] == 1
+    prefix = 'src/Riftbound.Engine/'
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b' + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        tail = code[start.end():]
+        end = re.search(r'(?m)^    (?:private|internal|public) ', tail)
+        return code[start.start():start.end()] + (tail[:end.start()] if end else tail)
+    checks = [
+        ('CoreRuleEngine.TargetedSpellCostReductions.cs', 'TargetedSpellReducers', [
+            '!IsSpellPlayBehavior(spell)', 'ids.Distinct(StringComparer.Ordinal)', 'IsFaceUpNonStandbyUnit(source)',
+            'IsFieldUnitObject(state, id)', 'EffectiveFieldControllerId(state.PlayerZones, id, source) != player',
+            'AttachedRuleTextRules.Instances(state, source)', 'behavior.TargetedSpellManaOrPowerReduction',
+            'new ObjectBinding(id, source.ObjectGeneration)', 'instance.Id, instance.CardNo']),
+        ('CoreRuleEngine.TargetedSpellCostReductions.cs', 'TryTargetedSpellReductions', [
+            'TargetedSpellReducers(state, player, spell, targets)', 'declared.Distinct(StringComparer.Ordinal).Count() != declared.Count',
+            '!legal.Contains(choice)', '!selected.TryAdd(', 'mode == "MANA" ? source.Amount : 0',
+            'mode == "POWER" ? source.Amount : 0', 'next.TryAdd((mana, power)', 'source.Key + ":" + mode']),
+        ('CoreRuleEngine.cs', 'TryBuildPlayCardPlan', [
+            'TryTargetedSpellReductions(state, intent.PlayerId, behavior, paymentTargets,',
+            'TryApplyOptionalCostReductions(', 'TryPreviewOrderedPaymentResources(', 'targetedReduction: reduction.Power',
+            'Math.Max(0, totalManaCost - reduction.Mana)', '.OrderByDescending(CanPayPrice)',
+            'manaSourceSelection: validateRepeats ? manaSpend : null', 'PlayPowerSpendSelectionRules.CanPayWithSources(',
+            'targetedSpellManaReduction = totalManaCost - selectedPrice!.Mana', 'totalManaCost = selectedPrice.Mana',
+            'AttributePowerReduction(selectedPrice.Reduction.Power)', '.Concat(selectedPrice.Reduction.ChoiceIds)',
+            'paymentAudit["targetedSpellCostReductionChoices"] = selectedPrice.Reduction.ChoiceIds',
+            'TargetedSpellCostReductionMana = targetedSpellManaReduction', 'TargetedSpellCostReductionPower = targetedSpellPowerReduction',
+            'PaymentCostRules.AuthorizePayment(']),
+        ('CoreRuleEngine.EmpoweredSpellCosts.cs', 'SpellPlayPowerOptions', [
+            'int targetedReduction = 0', '+ optionalPlayReduction + targetedReduction', 'ReduceSpellPower(a.GenericPower,']),
+        ('CoreRuleEngine.PlayCostPreview.cs', 'PreviewPlayCard', [
+            'TryBuildPlayCardPlan(state,', '-plan.TargetedSpellCostReductionMana, -plan.TargetedSpellCostReductionPower']),
+        ('CoreRuleEngine.cs', 'ResolvePlayCard', ['PaymentCostRules.TryCommitPayment(', '["mana"] = plan.TotalManaCost']),
+        ('MatchSession.cs', 'PlayCardOptionalCostChoicesForBehavior', ['CoreRuleEngine.TargetedSpellReductionChoices(state, playerId, behavior)']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route' if exact else 'missing',
+        '按实际友方目标与独立文本实例，联合选择总法力或符能减费；报价和真实付款复用完整费用及来源校验' if exact else
+        '缺少精确的友方目标减费规格、法力或符能联合分配，或真实报价／付款消费者', paths)
+
+
 def combat_spell_cost_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     match = re.fullmatch(r"如果我处于战斗中则所有友方法术的费用减少\{\{([1-9][0-9]*)\}\}和\{\{A\}\}不得低于\{\{([0-9]+)\}\}而所有敌方法术的费用增加\{\{([1-9][0-9]*)\}\}和\{\{A\}\}", text)
@@ -3045,6 +3098,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return token_movement
     if stun_movement := stun_source_movement_route(card, clause, sources):
         return stun_movement
+    if targeted_cost := targeted_spell_cost_route(card, clause, sources):
+        return targeted_cost
     if combat_cost := combat_spell_cost_route(card, clause, sources):
         return combat_cost
     if spell_mana_cost := confirmed_spell_mana_alternative_route(card, clause, sources):
