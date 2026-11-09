@@ -45,7 +45,10 @@ public static partial class MatchRecoveryValidator
             var queued = events.Where(e => e.Event.Kind == "TRIGGER_QUEUED"
                 && TryReadObjectString(e.Event.Payload, "triggerId", out var id) && id == item.Id).ToArray();
             if (queued.Length != 1
-                || !TryReadObjectString(queued[0].Event.Payload, "sourceObjectId", out var source) || source != item.Source
+                || (item.Context is UnitEventContext { DelayedReceipt: not null }
+                    ? !TryReadObjectString(queued[0].Event.Payload, "timingSourceHash", out var sourceHash)
+                        || sourceHash != MatchStateHasher.HashValue(item.Source)
+                    : !TryReadObjectString(queued[0].Event.Payload, "sourceObjectId", out var source) || source != item.Source)
                 || !TryReadObjectString(queued[0].Event.Payload, "controllerId", out var controller) || controller != item.Controller
                 || !TryReadObjectString(queued[0].Event.Payload, "effectKind", out var effect) || effect != item.Effect
                 || !TryReadObjectString(queued[0].Event.Payload, "timingCaptureHash", out var hash)

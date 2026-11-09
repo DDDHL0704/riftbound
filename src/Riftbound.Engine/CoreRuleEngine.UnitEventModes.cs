@@ -11,6 +11,8 @@ public sealed partial class CoreRuleEngine
     private static UnitEventAbilitySpec? SelectedUnitEventSpec(UnitEventContext context)
     {
         var spec = UnitEventSpec(context.CardNo);
+        if (context.DelayedReceipt is not null && spec?.NextMainEffect is { } delayedEffect)
+            spec = spec with { Effect = delayedEffect, Optional = true };
         if (context.Mode is null) return spec;
         if (spec?.Modes?.SingleOrDefault(m => m.Id == context.Mode) is not { } mode) return null;
         return spec with { Effect = mode.Effect, Amount = mode.Amount, Modes = null, Optional = false,

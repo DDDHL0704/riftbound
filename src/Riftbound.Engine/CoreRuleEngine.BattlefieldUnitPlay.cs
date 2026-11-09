@@ -4,7 +4,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record TurnBattlefieldConquests(int TurnNumber, IReadOnlyList<BattlefieldConquestRecord> Entries);
+public sealed partial record TurnBattlefieldConquests(int TurnNumber, IReadOnlyList<BattlefieldConquestRecord> Entries);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record BattlefieldConquestRecord(string PlayerId, ObjectBinding Battlefield);
@@ -98,6 +98,8 @@ public sealed partial class CoreRuleEngine
         var state = result.State;
         var entries = state.BattlefieldConquests?.TurnNumber == state.TurnNumber
             ? state.BattlefieldConquests.Entries.ToHashSet() : [];
+        var units = state.BattlefieldConquests?.TurnNumber == state.TurnNumber
+            ? (state.BattlefieldConquests.Units ?? []).ToHashSet() : [];
         var events = result.Events.ToArray();
         for (var index = 0; index < events.Length; index++)
         {
@@ -112,17 +114,21 @@ public sealed partial class CoreRuleEngine
             if (player is not null && state.Seats.ContainsKey(player) && BattlefieldLocalRules.Battlefield(state, field) is { } card)
             {
                 entries.Add(new(player, new(card.ObjectId, card.ObjectGeneration)));
+                units.UnionWith(NaturalUnitConquestHistory.ReadBindings(e.Payload)
+                    ?? throw new InvalidOperationException("Malformed natural unit conquest capture."));
                 events[index] = e with { Payload = new Dictionary<string, object?>(e.Payload) {
                     ["conquestTurnNumber"] = state.TurnNumber, ["conqueredBattlefieldGeneration"] = card.ObjectGeneration } };
             }
         }
         if (state.BattlefieldConquests is null && entries.Count == 0
             || state.BattlefieldConquests is { } previous && previous.TurnNumber == state.TurnNumber
-                && entries.SetEquals(previous.Entries))
+                && entries.SetEquals(previous.Entries) && units.SetEquals(previous.Units ?? []))
             return result with { Events = events };
         var updated = state with { BattlefieldConquests = entries.Count == 0 ? null : new(state.TurnNumber,
             entries.OrderBy(e => e.PlayerId, StringComparer.Ordinal).ThenBy(e => e.Battlefield.ObjectId, StringComparer.Ordinal)
-                .ThenBy(e => e.Battlefield.Generation).ToArray()) };
+                .ThenBy(e => e.Battlefield.Generation).ToArray()) {
+                Units = units.Count == 0 ? null : units.OrderBy(b => b.ObjectId, StringComparer.Ordinal)
+                    .ThenBy(b => b.Generation).ToArray() } };
         return result with { State = updated, Events = events, Snapshots = ResolutionResult.BuildSnapshots(updated), Prompts = BuildCorePrompts(updated) };
     }
 }

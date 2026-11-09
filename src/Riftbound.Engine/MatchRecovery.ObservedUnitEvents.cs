@@ -46,7 +46,7 @@ public static partial class MatchRecoveryValidator
         {
             var original = queued.Where(entry => TryReadObjectString(entry.Event.Payload, "triggerId", out var id)
                 && id == item.Id).ToArray();
-            if (retired.Contains(item.Id) || original.Length != 1 || original[0].Tick != item.Context.CapturedTick
+            if (retired.Contains(item.Id) || original.Length != 1 || original[0].Tick != CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)
                 || !TryReadObjectString(original[0].Event.Payload, "observedUnitEventCaptureHash", out var hash)
                 || hash != CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller))
                 errors.Add("observed unit event differs from original accepted capture");

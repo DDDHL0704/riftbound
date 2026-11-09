@@ -24,7 +24,7 @@ public static partial class MatchRecoveryValidator
                 || !TryReadObjectString(queued[0].Event.Payload, "controllerId", out var controller) || controller != item.Controller
                 || item.IsStack && !events.Any(e => e.Sequence > queued[0].Sequence && e.Event.Kind == "TRIGGERS_MOVED_TO_STACK"
                     && TryReadObjectStringList(e.Event.Payload, "stackItemIds", out var ids) && ids.Contains(item.Id))
-                || queued[0].Tick != context.CapturedTick
+                || queued[0].Tick != CoreRuleEngine.ObservedUnitEventOccurrenceTick(context)
                 || !commands.Any(c => c.Accepted && c.CompletedTick == queued[0].Tick
                     && c.StartedEventSequence < queued[0].Sequence && queued[0].Sequence <= c.CompletedEventSequence))
             {

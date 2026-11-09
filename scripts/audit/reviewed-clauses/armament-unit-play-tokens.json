@@ -127,7 +127,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "SelectedUnitEventSpec(c) is { CreatesUnitTokenHere: true }",
-            "spec.CreatesUnitTokenHere || spec.RequiresMoveToBattlefield || c.Here == current"
+            "spec.CreatesUnitTokenHere || spec.RequiresMoveToBattlefield || spec.PreservesMovementCapture || c.Here == current"
           ]
         }
       ],

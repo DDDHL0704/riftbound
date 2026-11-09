@@ -1556,12 +1556,13 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     targets = member('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets')
     # Bind filters to this case. An unrelated enemy/friendly case or unused
     # method containing the expected token cannot certify this effect's scope.
-    branch = re.search(r'FriendlyUnitTokensMoveHere\s*=>(.*?)\n\s*"MOVE_ENEMY_HERE"\s*=>', targets, re.S)
+    branch = re.search(r'(?ms)^(?P<indent>[ \t]+)FriendlyUnitTokensMoveHere\s*=>'
+                       r'(?P<body>.*?)(?=^(?P=indent)\S[^\n]*=>)', targets)
     # CN355.9 / 359.3.e.6: targets need only satisfy the printed noun scope.
     # Moving restrictions and already being here are checked at resolution.
     target_scope = ('IsFaceUpNonStandbyUnit(c) && IsTokenObject(c) && '
                     'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId')
-    exact = exact and branch is not None and re.sub(r'\s+', '', branch[1]).rstrip(',') \
+    exact = exact and branch is not None and re.sub(r'\s+', '', branch['body']).rstrip(',') \
         == re.sub(r'\s+', '', target_scope)
     exact = exact and 'internal const string FriendlyUnitTokensMoveHere = \"MOVE_FRIENDLY_UNIT_TOKENS_HERE\";' in sources.files.get(prefix + 'CoreRuleEngine.TokenUnitMovement.cs', '')
     checks = [
@@ -1607,7 +1608,7 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
             'CaptureFirstBattleRoles(', 'CaptureAttackUnitEvents(state, firstAttackers,', '.Select(BuildTriggerQueuedEvent)']),
         ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['FriendlyUnitTokensMoveHere']),
         ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
-            'UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1',
+            'UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1',
             'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']),
         ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
             'AnyNumberOfTargets || item.TargetObjectIds.Count == 1',

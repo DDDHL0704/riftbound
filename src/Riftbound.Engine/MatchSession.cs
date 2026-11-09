@@ -878,6 +878,8 @@ public sealed partial record MatchState
     public EndStepContinuation? EndStep { get; init; }
 
     public IReadOnlyList<DelayedResourceGain> DelayedResourceGains { get; init; } = [];
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ScheduledUnitEvent>? ScheduledUnitEvents { get; init; }
 
     public string RoomId { get; init; }
 

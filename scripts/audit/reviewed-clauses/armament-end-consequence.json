@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "UNL-019/219"
+      ],
+      "text": "在你的回合结束时，如果我本回合没有征服战场，则卸除此装备，并对我造成4点伤害。",
+      "scope": "在你的回合结束时，如果我本回合没有征服战场，则卸除此装备，并对我造成4点伤害。",
+      "location": "armament",
+      "status": "route",
+      "reason": "共享武装下栏模板向宿主授予结束步骤技能；实际征服时以单位对象代际记录本回合参与者，先征服后装配仍豁免，返手重打及仅激活征服技能不算旧单位的实际征服。条件在结束步骤开始时捕获；经响应后卸除原武装，再对原宿主造成4点技能伤害，分别处理来源离场、已卸除和多件武装。原始征服记录及触发捕获由恢复校验约束。征服记录只读取当前局原始已接受命令所产出的事件。",
+      "rules": "中国区核心383.2.a.1、383.4.c、383.4.g.2、403–407、436、718–719；枯萎战斧官方中文下栏。",
+      "runtime": {
+        "armament": {
+          "effectText": "在你的回合结束时，如果我本回合没有征服战场，则卸除此装备，并对我造成4点伤害。"
+        }
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "CoreRuleEngine.DetachOriginDamageSourceEffect",
+            "RequiresNoConquestThisTurn = true",
+            "GrantedByArmament = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitConquestFacts.cs",
+          "contains": [
+            "UnitConqueredDuringThisTurn",
+            "new ObjectBinding(source, unit.ObjectGeneration)",
+            "SourceConqueredBeforeEnd = false",
+            "DetachArmamentForInstruction(state, item, zones, cards, events, attached, equipment.ObjectId)",
+            "ApplyDamageToCardObject(current, cards, item.ControllerId, item.SourceObjectId",
+            "RunStateBasedCleanupLoop(current, zones, cards, item"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "RecordNaturalUnitConquestBindings(state, playerZones, cardObjects, playerId,"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EndStep.cs",
+          "contains": [
+            "result.AddRange(CaptureConditionalEndUnitEvents(state));"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "ValidEndConquestCondition(c, spec)",
+            "if (spec.Effect == DetachOriginDamageSourceEffect) return ResolveDetachOriginDamageSource(state, item, spec);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.BattlefieldConquests.cs",
+          "contains": [
+            "NaturalUnitConquestHistory.ReadBindings(e.Payload)",
+            "!expectedUnits.SetEquals(actualUnits)",
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "command.Accepted && command.CompletedTick == record.Tick"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentEndConsequenceTests.cs",
+          "methods": [
+            "PlayingAndAssemblingTheAxeEarnsARespondableEndSkillThatDetachesBeforeFourDamage",
+            "AnUnattachedAxeOrTheOpponentsTurnEndDoesNotTriggerTheLowerBox",
+            "ARealConquestBeforeAssemblyStillExemptsThatSameUnitAtTurnEnd",
+            "ReturningAndReplayingAConquerorDoesNotExemptItsNewIncarnation",
+            "ReturningTheHostAfterTheEndTriggerLeavesTheSkillButCannotDamageItsPrivateNewIncarnation",
+            "AnActualTakeUpResponseCannotCancelTheIndependentDamageInstruction",
+            "TwoAxesGiveTwoIndependentEndSkillsAndEachDamagesTheOriginalHost",
+            "RecoveryRejectsErasingOrRetimingTheUnitsOriginalConquestBinding",
+            "RecoveryRejectsChangingTheCapturedEndConditionAfterTheSkillWasEarned",
+            "HoldingTheArenaOnlyActivatesNamedConquestSkillsAndDoesNotExemptTheAxe",
+            "TheHostsControllerOwnsTheSkillEvenWhenTheWeaponBelongsToTheOpponent"
+          ]
+        }
+      ]
+    }
+  ]
+}

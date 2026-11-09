@@ -8,9 +8,10 @@ public sealed partial class CoreRuleEngine
         => context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
                 or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED"
-            || context?.Timing == "MOVE" && SelectedUnitEventSpec(context)?.RequiresMoveToBattlefield == true
+            || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
             || context?.Origin?.ArmamentGranted == true
-            || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo));
+            || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
+            || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
     {
@@ -18,7 +19,11 @@ public sealed partial class CoreRuleEngine
             context.SourceGeneration, context.FaceRevision, context.CapturedTick,
             context.TokenFactoryCardNo, context.Origin, context.ArmamentDeath, context.DefendedBattlefield,
             context.TargetSelection, context.Other, context.Here, context.PlayedUnitDuringSpellDuel };
-        return context.SourcePlayCondition is null ? MatchStateHasher.HashValue(observation)
+        var capture = context.SourcePlayCondition is null ? MatchStateHasher.HashValue(observation)
             : MatchStateHasher.HashValue(new { observation, context.SourcePlayCondition });
+        if (context.SourceConqueredBeforeEnd is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.SourceConqueredBeforeEnd });
+        return context.TriggeringBattlefield is null && context.DelayedReceipt is null ? capture
+            : MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
     }
 }

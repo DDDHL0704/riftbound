@@ -6,6 +6,8 @@ namespace Riftbound.Engine;
 public sealed record TurnDeathLedger(int TurnNumber, IReadOnlyDictionary<string,int> Counts)
 {
     public IReadOnlyList<string> PermanentControllers { get; init; } = [];
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<string>? StartPhaseUnitControllers { get; init; }
 }
 public sealed record DestroyedUnitFact(string ObjectId, string CardNo, string OwnerId, string ControllerId, long Generation, bool WasMinion,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool WasStunned = false,
@@ -38,6 +40,7 @@ internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, D
     public DravenBattleDeathScoreContext? DravenBattleDeathScore { get; init; }
     public DestructionAttribution? Attribution { get; init; }
     public IReadOnlyList<CapturedGraveyardPlay> GraveyardPlays { get; init; } = [];
+    public string? StartPhaseTurnPlayerId { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -216,6 +219,8 @@ public sealed partial class CoreRuleEngine
                     SourceLocation = sourceLocation, DestroyedLocation = battlefieldDeathLocation }));
         var deathId = $"death-{frame.Origin.Tick}-{frame.DeathSequence++}";
         return new(deathId,frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
+            StartPhaseTurnPlayerId = state.Phase == MatchPhases.TurnStart && controller == state.TurnPlayerId
+                ? state.TurnPlayerId : null,
             UnitCreations = CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId),
             RuneCalls = CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId),
             Draws = CaptureLastBreathDraws(state, zones, cards, unit, deathId),
@@ -244,6 +249,10 @@ public sealed partial class CoreRuleEngine
             .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         var deaths = result.Events.Select(e => e.Payload.GetValueOrDefault("capturedUnitDeath"))
             .OfType<CapturedUnitDeath>().DistinctBy(d => d.Id).Where(d => d.TurnNumber == state.TurnNumber).ToArray();
+        var startPhaseUnitControllers = (ledger.TurnNumber == state.TurnNumber
+                ? ledger.StartPhaseUnitControllers ?? [] : [])
+            .Concat(deaths.Select(death => death.StartPhaseTurnPlayerId).OfType<string>())
+            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         var firstChoices = new Dictionary<(int Batch, string Source, string? Instance, string Controller), string>();
         var visitedBatches = new HashSet<int>();
         var observedBatches = new HashSet<(int Batch, string Source, string? Instance)>();
@@ -252,6 +261,10 @@ public sealed partial class CoreRuleEngine
             events.Add(ev.Payload.ContainsKey("capturedUnitDeath") ? ev with { Payload=ev.Payload.Where(p=>p.Key!="capturedUnitDeath").ToDictionary(p=>p.Key,p=>p.Value) } : ev);
             if (!ev.Payload.TryGetValue("capturedUnitDeath",out var raw) || raw is not CapturedUnitDeath death || !seen.Add(death.Id)) continue;
             if (death.TurnNumber != state.TurnNumber) continue;
+            if (death.StartPhaseTurnPlayerId is { } startPlayer)
+                events[^1] = events[^1] with { Payload = new Dictionary<string, object?>(events[^1].Payload) {
+                    ["startPhaseUnitDestroyedForPlayerId"] = startPlayer,
+                    ["startPhaseUnitDestroyedTurnNumber"] = death.TurnNumber } };
             if (death.DravenBattleDeathScore is not null)
                 events[^1] = events[^1] with { Payload = new Dictionary<string, object?>(events[^1].Payload)
                     { ["destroyedUnitFact"] = death.Unit, ["deathId"] = death.Id, ["deathBatch"] = death.Batch } };
@@ -355,7 +368,9 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
-        state=state with { DeathLedger=new(state.TurnNumber,counts) { PermanentControllers = permanentControllers },TriggerQueue=queue,UntilEndOfTurnEffects=effects };
+        state=state with { DeathLedger=new(state.TurnNumber,counts) { PermanentControllers = permanentControllers,
+            StartPhaseUnitControllers = startPhaseUnitControllers.Length == 0 ? null : startPhaseUnitControllers },
+            TriggerQueue=queue,UntilEndOfTurnEffects=effects };
         return result with { State=state,Events=events,Snapshots=ResolutionResult.BuildSnapshots(state),Prompts=BuildCorePrompts(state) };
     }
 

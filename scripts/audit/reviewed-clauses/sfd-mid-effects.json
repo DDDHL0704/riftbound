@@ -844,7 +844,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "if (spec.Effect == \"DISCARD_DRAW\") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount)",
-            "spec.RequiresMoveToBattlefield || c.Here == current"
+            "spec.RequiresMoveToBattlefield || spec.PreservesMovementCapture || c.Here == current"
           ]
         },
         {
@@ -958,7 +958,7 @@
           "contains": [
             "UnitEventArrivalBattlefieldDestination",
             "item.UnitEvent!.Here is { Zone: \"BATTLEFIELD\"",
-            "spec.Effect == MoveFriendlyToArrivalBattlefieldEffect ? UnitEventArrivalBattlefieldDestination(state, item)",
+            "spec.Effect is MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect ? UnitEventArrivalBattlefieldDestination(state, item)",
             "MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [target], destination, events)"
           ]
         },
@@ -966,7 +966,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "or { RequiresMoveToBattlefield: true }",
-            "spec.RequiresMoveToBattlefield || c.Here == current",
+            "spec.RequiresMoveToBattlefield || spec.PreservesMovementCapture || c.Here == current",
             "MoveFriendlyToArrivalBattlefieldEffect => c.ObjectId != item.SourceObjectId",
             "MovementRestrictionRules.CanMove(c, item.ControllerId)",
             "ResolvePermanentUnitEventInstruction(state, item, spec)"
