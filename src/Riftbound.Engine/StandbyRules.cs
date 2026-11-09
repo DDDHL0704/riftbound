@@ -40,6 +40,12 @@ internal static class StandbyRules
             && p.Battlefield.ObjectId!=p.ObjectId && p.PrintedTextSha256 is {Length:64} && p.PrintedTextSha256==TextHash(p.CardNo)
             && (p.Permission is "PRINTED" or "TEEMO" or "FREE") && HasPrintedKeyword(p.CardNo);
 
+    internal static bool ValidUnitEventPlayedOrigin(MatchState state, StandbyPlacement origin,
+        string source, long generation, int playedTurn, string player)
+        => ValidFields(state, origin) && origin.ObjectId == source
+            && generation == origin.SourceGeneration + 1 && origin.ControllerId == player
+            && playedTurn > origin.TurnNumber && playedTurn <= state.TurnNumber;
+
     internal static bool ValidLastPlay(MatchState state,CardObjectState card)
         => card.LastStandbyPlay is not { } p || ValidFields(state,p) && !card.IsFaceDown
             && p.ObjectId==card.ObjectId && card.ObjectGeneration==p.SourceGeneration+1 && state.TurnNumber>p.TurnNumber;
