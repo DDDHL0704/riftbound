@@ -31,7 +31,10 @@
     }
   ],
   "roomId": "p2-preflight-ogn-091-arena-service-crew-ready-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302603,
     "turnNumber": 603,
@@ -39,7 +42,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 2,
@@ -55,26 +61,48 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-EQUIPMENT-LONG-SWORD"],
-        "base": ["P1-UNIT-ARENA-SERVICE-CREW"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-EQUIPMENT-LONG-SWORD"
+        ],
+        "base": [
+          "P1-UNIT-ARENA-SERVICE-CREW"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -84,7 +112,9 @@
         "cardNo": "OGN·091/298",
         "damage": 0,
         "power": 3,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": true,
@@ -100,7 +130,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
         "cardNo": "SFD·022/221",
-        "targetObjectIds": ["P1-UNIT-ARENA-SERVICE-CREW"]
+        "targetObjectIds": [
+          "P1-UNIT-ARENA-SERVICE-CREW"
+        ]
       }
     },
     {
@@ -128,6 +160,7 @@
       "PERMANENT_CONFIRMED",
       "EQUIPMENT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGER_CONFIRMED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
@@ -196,6 +229,9 @@
         "kind": "TRIGGER_QUEUED"
       },
       {
+        "kind": "TRIGGER_CONFIRMED"
+      },
+      {
         "kind": "PRIORITY_PASSED"
       },
       {
@@ -216,8 +252,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 603,
@@ -225,15 +265,27 @@
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-UNIT-ARENA-SERVICE-CREW", "P1-EQUIPMENT-LONG-SWORD"],
+          "base": [
+            "P1-UNIT-ARENA-SERVICE-CREW",
+            "P1-EQUIPMENT-LONG-SWORD"
+          ],
           "graveyard": []
         }
       },
@@ -244,7 +296,9 @@
           "cardNo": "OGN·091/298",
           "damage": 0,
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false,
@@ -253,7 +307,11 @@
         "P1-EQUIPMENT-LONG-SWORD": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+          "tags": [
+            "CARD_TYPE:EQUIPMENT",
+            "武装",
+            "灵便"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false,
@@ -263,8 +321,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

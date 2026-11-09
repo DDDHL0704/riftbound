@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-play-steraks-gage-target-rejected",
-  "description": "P4 rejects Sterak's Gage when the required agile direct-play attach target is missing.",
+  "description": "Reject a declared Agile attachment target that is the equipment itself; no resources or state may change.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -11,17 +11,20 @@
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
-      "locator": "SFD·056/221 斯特拉克的挑战护手",
-      "note": "官方卡面：费用 3；装备；武装；灵便；装配绿色。当前 fixture 覆盖从手牌打出时缺少必需己方单位目标会 no-mutation reject；装配贴附分支仍暂缓。"
+      "locator": "SFD·056/221",
+      "note": "灵便只允许贴附到自己控制的单位；装备自身不是单位，显式预选此非法目标须无状态变更地拒绝。没有预选目标本身不构成拒绝理由，合法装备应先支付费用进场，再确认独立灵便技能。"
     },
     {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "装备与单位是游戏对象，可位于公开区域；打出卡牌需要目标合法、费用足够，并作为结算链项目在双方让过后结算；当前窄实现要求《斯特拉克的挑战护手》从手牌直接打出时提供己方单位目标，缺目标应在支付费用、入栈和成为装备对象前拒绝。"
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "核心规则355.5.b、383.4.a.2、819.1.d",
+      "note": "常驻牌打出时不要求同时指定独立打出触发的目标；灵便是反应权限及独立贴附触发。此用例只拒绝显式提交的非法非单位目标。"
     }
   ],
   "roomId": "p4-steraks-gage-target-rejected-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603304162,
     "turnNumber": 162,
@@ -34,38 +37,66 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 3,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-STERAKS-GAGE-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
-        "hand": ["P1-EQUIPMENT-STERAKS-GAGE"],
-        "base": ["P1-STERAKS-GAGE-BASE-UNIT-001"],
+        "mainDeck": [
+          "P1-STERAKS-GAGE-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
+        "hand": [
+          "P1-EQUIPMENT-STERAKS-GAGE"
+        ],
+        "base": [
+          "P1-STERAKS-GAGE-BASE-UNIT-001"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-STERAKS-GAGE-BASE-UNIT-001": {
         "damage": 0,
         "power": 0,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       }
@@ -79,7 +110,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-EQUIPMENT-STERAKS-GAGE",
         "cardNo": "SFD·056/221",
-        "targetObjectIds": []
+        "targetObjectIds": [
+          "P1-EQUIPMENT-STERAKS-GAGE"
+        ]
       }
     }
   ],
@@ -87,8 +120,12 @@
     "finalTick": 0,
     "eventKinds": [],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 162,
@@ -101,14 +138,26 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 3, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 3,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-STERAKS-GAGE-MAIN-001"],
-          "hand": ["P1-EQUIPMENT-STERAKS-GAGE"],
-          "base": ["P1-STERAKS-GAGE-BASE-UNIT-001"],
+          "mainDeck": [
+            "P1-STERAKS-GAGE-MAIN-001"
+          ],
+          "hand": [
+            "P1-EQUIPMENT-STERAKS-GAGE"
+          ],
+          "base": [
+            "P1-STERAKS-GAGE-BASE-UNIT-001"
+          ],
           "battlefields": [],
           "graveyard": []
         },
@@ -123,7 +172,9 @@
         "P1-STERAKS-GAGE-BASE-UNIT-001": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0
         }
