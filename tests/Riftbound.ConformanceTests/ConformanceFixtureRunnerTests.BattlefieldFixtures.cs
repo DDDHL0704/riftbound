@@ -1087,7 +1087,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(
                     "P1-BATTLEFIELD-FORTIFIED-ATTACKER",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -2549,7 +2549,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-SPEEDING-MECH-ROAMER"] = new(
                     "P1-SPEEDING-MECH-ROAMER",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, "机械"],
                     ownerId: "P1",

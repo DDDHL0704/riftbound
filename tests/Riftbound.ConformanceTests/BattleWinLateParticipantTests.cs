@@ -57,6 +57,7 @@ public sealed class BattleWinLateParticipantTests
         try
         {
             await Act("P1", new MoveUnitCommand("SOURCE", "BASE", "BATTLEFIELD:FIELD", []));
+            await Settle();
             await PassFocus();
             await Act("P1", new DeclareBattleCommand("FIELD", ["SOURCE"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
             Assert.Equal("P1", state.PendingBattleResult!.WinnerPlayerId);

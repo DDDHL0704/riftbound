@@ -29,13 +29,14 @@ public sealed partial class MatchSession
             Put("DRAW2", "OGN·219/298", seed.P1, "MAIN_DECK");
             Put("LATE", "SFD·025/221", seed.P2, "HAND");
         }
+        if (sourcePrinting == "SFD·123/221") Put("ARRIVAL-DISCARD", "OGN·219/298", seed.P1, "HAND");
         Put("RETURN", "OGN·104/298", seed.P1, "HAND");
         Put("BARRAGE1", "OGN·127/298", seed.P2, "HAND");
         Put("BARRAGE2", "OGN·127/298", seed.P2, "HAND");
         return BuildScenarioState(current, seed, 424242, 5,
             new Dictionary<string, RunePool> { [seed.P1] = new(10, 10), [seed.P2] = new(10, 10) },
             new Dictionary<string, PlayerZones> {
-                [seed.P1] = Zones(baseZone: ["SOURCE"], hand: ["RETURN"], mainDeck: burnout ? [] : lateDefender ? ["DRAW", "DRAW2"] : ["DRAW"], graveyard: burnout ? ["DRAW"] : []),
+                [seed.P1] = Zones(baseZone: ["SOURCE"], hand: sourcePrinting == "SFD·123/221" ? ["ARRIVAL-DISCARD", "RETURN"] : ["RETURN"], mainDeck: burnout ? [] : lateDefender ? ["DRAW", "DRAW2"] : ["DRAW"], graveyard: burnout ? ["DRAW"] : []),
                 [seed.P2] = Zones(battlefields: ["FIELD", "DEFENDER"], hand: lateDefender ? ["BARRAGE1", "BARRAGE2", "LATE"] : ["BARRAGE1", "BARRAGE2"]) }, cards) with
         {
             ObjectLocations = locations, CardPlays = new(5, [], []),

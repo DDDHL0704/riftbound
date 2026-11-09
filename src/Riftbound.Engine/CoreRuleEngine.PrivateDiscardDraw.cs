@@ -17,7 +17,7 @@ public sealed partial class CoreRuleEngine
         var chosen = new List<string>();
         for (var i = 0; i < Math.Min(discardCount, zones[player].Hand.Count); i++)
         {
-            var selected = RuleChoices.Value!.Choose(player, "选择弃置的手牌，然后抽牌。", hand.Select((id, index) =>
+            var selected = RuleChoices.Value!.Choose(player, drawCount > 0 ? "选择弃置的手牌，然后抽牌。" : "选择弃置的手牌。", hand.Select((id, index) =>
                 new RuleChoiceOption("HAND:" + index, cards[id].CardNo is { } no
                     ? OfficialCardSourceIdentityGroups.DisplayName(no) : "手牌", [id])).ToArray(),
                 kind: "PRIVATE_HAND_DISCARD", preview: state);

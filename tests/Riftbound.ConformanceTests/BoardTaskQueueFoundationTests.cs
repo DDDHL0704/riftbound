@@ -2271,7 +2271,7 @@ public sealed class BoardTaskQueueFoundationTests
     {
         return new CardObjectState(
             objectId,
-            cardNo: "SFD·125/221",
+            cardNo: "OGN·175/298",
             damage: damage,
             power: power,
             isExhausted: isExhausted,

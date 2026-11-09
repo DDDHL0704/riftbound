@@ -7,6 +7,8 @@ public sealed partial class CoreRuleEngine
     internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)
         => context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
+                or ArmamentLastBreathRules.Timing
+            || context?.Timing == "MOVE" && SelectedUnitEventSpec(context)?.RequiresMoveToBattlefield == true
             || context?.Origin?.ArmamentGranted == true;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)

@@ -17,9 +17,9 @@ public sealed class RadFaceDownPlayLegendTests
     };
     public static IEnumerable<object[]> CardNumbers() => Prints().Select(row => new[] { row[0] });
 
-    private static MatchState Board(string no)
+    private static MatchState Board(string no, string standbyCard = "OGN·057/298")
     {
-        var state = AttackDamageDistributionTests.Spell(StandbySourceRulesTests.Position(), "KEEP", "OGN·048/298", "P1");
+        var state = AttackDamageDistributionTests.Spell(StandbySourceRulesTests.Position(standbyCard), "KEEP", "OGN·048/298", "P1");
         return state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", no, "P1") },
@@ -30,18 +30,18 @@ public sealed class RadFaceDownPlayLegendTests
     }
 
     private static async Task<Driver> Ready(string no, bool ownTurn = false, bool second = false,
-        Func<MatchState, MatchState>? prepare = null)
+        Func<MatchState, MatchState>? prepare = null, string standbyCard = "OGN·057/298")
     {
-        var state = Board(no);
+        var state = Board(no, standbyCard);
         if (prepare is not null)
             state = prepare(state);
         if (second)
             state = AttackDamageDistributionTests.Spell(state, "SECOND", "OGN·057/298", "P1");
         state = AttackDamageDistributionTests.Spell(state, "REPLY", "OGN·048/298", "P2");
-        var game = new Driver(state);
+        var game = new Driver(state) { RecoverAfterEveryCommand = false };
         if (second)
             await game.Act("P1", new HideCardCommand("SECOND", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
-        await game.Act("P1", new HideCardCommand("SHADOW", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
+        await game.Act("P1", new HideCardCommand("SHADOW", standbyCard, "BATTLEFIELD:F", ["STANDBY_A"]));
         await game.Act("P1", new EndTurnCommand());
         await CompleteTurn(game);
         await game.Act("P2", new TapRuneCommand("SHADOW-P2-RUNE-1", ["SHADOW-P2-RUNE-1", "SHADOW-P2-RUNE-2", "SHADOW-P2-RUNE-3"]));
@@ -54,6 +54,7 @@ public sealed class RadFaceDownPlayLegendTests
             await game.Act("P2", new EndTurnCommand());
             await CompleteTurn(game);
         }
+        await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
         return game;
     }
 
@@ -62,6 +63,8 @@ public sealed class RadFaceDownPlayLegendTests
         if (game.State.PriorityPlayerId is { } priority && priority != "P1")
             await game.Act(priority, new PassPriorityCommand());
         await game.Act("P1", new PlayCardCommand(source, "OGN·057/298", ["HOST"]));
+        Assert.DoesNotContain(game.State.StackItems, item => item.EffectKind == Effect);
+        await game.Top();
         foreach (var draw in game.State.TriggerQueue.Where(trigger => trigger.EffectKind == Effect))
         {
             Assert.Contains("抽一张牌", ResolutionResult.OrderTriggerSummary(game.State, draw, "P1"));
@@ -105,7 +108,7 @@ public sealed class RadFaceDownPlayLegendTests
         Assert.Contains(top, game.State.PlayerZones["P1"].Hand); Assert.Null(game.State.PendingHandChoice);
         Assert.DoesNotContain(top, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
         Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "CARD_DRAWN");
-        await game.Top(); await game.Replay();
+        if (game.State.StackItems.Count > 0) await game.Top(); await game.Replay();
     }
 
     public static IEnumerable<object[]> Discards() => CardNumbers().SelectMany(row =>
@@ -133,10 +136,10 @@ public sealed class RadFaceDownPlayLegendTests
     public async Task ASecondFaceDownPlayInTheSameTurnDoesNotDrawAgain(string no)
     {
         var game = await Ready(no, second: true); var prefix = game.Events().Length; await Play(game); await game.Top(); await Discard(game);
-        await game.Top(); await Play(game, "SECOND");
+        await Play(game, "SECOND");
         Assert.DoesNotContain(game.State.StackItems, i => i.EffectKind == Effect);
         Assert.Empty(game.State.TriggerQueue); Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "CARD_DRAWN");
-        await game.Top(); await game.Replay();
+        if (game.State.StackItems.Count > 0) await game.Top(); await game.Replay();
     }
 
     [Theory, MemberData(nameof(CardNumbers))]
@@ -150,7 +153,7 @@ public sealed class RadFaceDownPlayLegendTests
         var prefix = game.Events().Length; await Play(game, "SECOND");
         Assert.Single(game.State.StackItems, i => i.EffectKind == Effect); await game.Top();
         Assert.Null(game.State.PendingHandChoice); Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "CARD_DRAWN");
-        await game.Top(); await game.Replay();
+        if (game.State.StackItems.Count > 0) await game.Top(); await game.Replay();
     }
 
     [Theory, MemberData(nameof(CardNumbers))]
@@ -165,7 +168,7 @@ public sealed class RadFaceDownPlayLegendTests
         var game = new Driver(state); await game.Act("P1", new PlayCardCommand("ORDINARY", "OGN·048/298", []));
         Assert.DoesNotContain(game.State.StackItems, i => i.EffectKind == Effect);
         Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, effect => effect.StartsWith("STANDBY_DRAW_USED", StringComparison.Ordinal));
-        await game.Top(); await game.Replay();
+        if (game.State.StackItems.Count > 0) await game.Top(); await game.Replay();
     }
 
     public static IEnumerable<object[]> InvalidChoices() => CardNumbers().SelectMany(row =>
@@ -201,34 +204,39 @@ public sealed class RadFaceDownPlayLegendTests
     }
 
     [Fact]
-    public async Task CounteringTheOriginalFaceDownSpellDoesNotUndoTheEarnedDrawSkill()
+    public async Task CounteringTheOriginalFaceDownSpellPreventsTheDrawAndPreservesItsAllowance()
     {
         var game = await Ready(Normal, ownTurn: true, prepare: state =>
         {
             state = AttackDamageDistributionTests.Spell(state, "COUNTER", "OGN·064/298", "P2");
+            for (var i = 0; i < 5; i++)
+                state = RadGearTestPosition.Put(state, "COUNTER-RESERVE-" + i, "UNL-R02", "P2", "BASE");
             return state;
         });
-        game.ReplaceStateForFixture(game.State with
-        {
-            RunePools = new Dictionary<string, RunePool>(game.State.RunePools) { ["P2"] = new(100, 100) }
-        });
-        var state = await NativePlay(game.State);
+        var state = await NativePlay(game.State, resolveSpell: false);
+        Assert.DoesNotContain(state.StackItems, i => i.EffectKind == Effect);
         var spell = Assert.Single(state.StackItems, i => i.SourceObjectId == "SHADOW");
         state = (await OfficialInsightAndSpellLockTests.Act(state, "P1", new PassPriorityCommand())).State;
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new TapRuneCommand("COUNTER-RESERVE-0",
+            ["COUNTER-RESERVE-0", "COUNTER-RESERVE-1", "COUNTER-RESERVE-2"]))).State;
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new RecycleRuneCommand("COUNTER-RESERVE-3",
+            ["COUNTER-RESERVE-3", "COUNTER-RESERVE-4"]))).State;
         state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new PlayCardCommand("COUNTER", "OGN·064/298", [spell.StackItemId]))).State;
-        state = (await NativeResolveOne(state)).State;
+        var resolved = await NativeResolveOne(state); state = resolved.State;
         Assert.Contains("SHADOW", state.PlayerZones["P1"].Graveyard);
-        Assert.Single(state.StackItems, i => i.EffectKind == Effect);
-        var resolved = await NativeResolveTop(state); state = resolved.State;
-        Assert.Null(state.PendingHandChoice);
-        Assert.Contains(resolved.Events, e => e.Kind == "CARD_DRAWN");
+        Assert.DoesNotContain(state.StackItems, i => i.EffectKind == Effect);
+        Assert.DoesNotContain(state.UntilEndOfTurnEffects, marker => marker.StartsWith(CoreRuleEngine.StandbyDrawUsePrefix, StringComparison.Ordinal));
+        Assert.DoesNotContain(resolved.Events, e => e.Kind == "CARD_DRAWN");
     }
 
     [Theory]
     [InlineData(true)] [InlineData(false)]
     public async Task EmptyDeckUsesNormalBurnoutAndVictoryCompletesBeforeAnyDiscard(bool refill)
     {
-        var game = await Ready(Normal);
+        // A permanent stays on the field. A resolved spell would refill this otherwise
+        // empty graveyard before the legend draws, preventing repeated burnout (CN 432.3).
+        const string standbyCard = "OGN·077/298";
+        var game = await Ready(Normal, standbyCard: standbyCard);
         var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
         game.ReplaceStateForFixture(game.State with
         {
@@ -238,7 +246,7 @@ public sealed class RadFaceDownPlayLegendTests
                 ? new ObjectLocationState("P1", refill ? "GRAVEYARD" : "BANISHED") : p.Value),
             PlayerScores = new Dictionary<string, int>(game.State.PlayerScores) { ["P2"] = refill ? 0 : 7 }
         });
-        var state = await NativePlay(game.State);
+        var state = await NativePlay(game.State, resolveSpell: false, cardNo: standbyCard);
         var resolved = await NativeResolveTop(state); state = resolved.State;
         if (refill)
         {
@@ -336,12 +344,14 @@ public sealed class RadFaceDownPlayLegendTests
         Assert.True(game.State.TurnStartStep is null || game.State.Status == MatchStatuses.Finished);
     }
 
-    private static async Task<MatchState> NativePlay(MatchState state, string source = "SHADOW")
+    private static async Task<MatchState> NativePlay(MatchState state, string source = "SHADOW", bool resolveSpell = true,
+        string cardNo = "OGN·057/298")
     {
         if (state.PriorityPlayerId is { } priority && priority != "P1")
             state = (await OfficialInsightAndSpellLockTests.Act(state, priority, new PassPriorityCommand())).State;
         state = (await OfficialInsightAndSpellLockTests.Act(state, "P1",
-            new PlayCardCommand(source, "OGN·057/298", ["HOST"]))).State;
+            new PlayCardCommand(source, cardNo, cardNo == "OGN·057/298" ? ["HOST"] : []))).State;
+        if (resolveSpell) state = (await NativeResolveOne(state)).State;
         if (state.TriggerQueue.Count > 0)
             state = (await OfficialInsightAndSpellLockTests.Act(state, "P1",
                 new OrderTriggersCommand(OrderedTriggerIds: state.TriggerQueue.Select(t => t.TriggerId).ToArray()))).State;
@@ -364,9 +374,9 @@ public sealed class RadFaceDownPlayLegendTests
     private static async Task<(MatchState State, IReadOnlyList<GameEvent> Events)> NativeResolveOne(MatchState state)
     {
         var events = new List<GameEvent>();
-        var stackCount = state.StackItems.Count;
+        var topId = state.StackItems[^1].StackItemId;
         for (var i = 0; i < 4 && state.Status == MatchStatuses.InProgress
-            && state.StackItems.Count >= stackCount && state.PriorityPlayerId is { } priority; i++)
+            && state.StackItems.Any(item => item.StackItemId == topId) && state.PriorityPlayerId is { } priority; i++)
         {
             var result = await OfficialInsightAndSpellLockTests.Act(state, priority, new PassPriorityCommand());
             events.AddRange(result.Events);

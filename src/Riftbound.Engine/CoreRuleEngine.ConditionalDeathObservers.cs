@@ -6,8 +6,7 @@ public sealed partial class CoreRuleEngine
 {
     private static bool HasDeathObserverExhaustCost(StackItemState item)
         => item.DeathObserver is { } context && UnitDestroyedTriggerSpecRules.TryGetTrigger(context.CardNo,
-            UnitDestroyedTriggerSpecRules.IsControllerStunnedEnemyDestroyedDrawTrigger, out var spec)
-            && context.Kind == spec.Kind;
+            spec => spec.Kind == context.Kind && spec.ExhaustsSource == true && spec.Optional == true, out _);
 
     private static bool MatchingDeathObserverRelation(DeathObserverContext context, string controller, string source)
     {

@@ -884,12 +884,12 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-BASE-001"] = new(
                     "P1-MOVE-UNIT-BASE-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 4,
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-MOVE-FIELD-KEEPER"] = new(
                     "P1-MOVE-FIELD-KEEPER",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 2,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -937,12 +937,12 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 [sourceObjectId] = new(
                     sourceObjectId,
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 4,
                     tags: [CardObjectTags.UnitCard]),
                 [keeperObjectId] = new(
                     keeperObjectId,
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 2,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -1094,7 +1094,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-MOVE-UNIT-BATTLEFIELD-001"] = new(
                     "P1-MOVE-UNIT-BATTLEFIELD-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -1139,7 +1139,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-EXHAUSTED-MOVE-UNIT-001"] = new(
                     "P1-EXHAUSTED-MOVE-UNIT-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     isExhausted: true,
                     tags: [CardObjectTags.UnitCard])
@@ -1270,7 +1270,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-OPPONENT-CONTROLLED-001"] = new(
                     "P1-MOVE-UNIT-OPPONENT-CONTROLLED-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -1746,13 +1746,13 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-COMBATANT-001"] = new(
                     "P1-MOVE-UNIT-COMBATANT-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     isAttacking: true,
                     power: 4,
                     tags: [CardObjectTags.UnitCard]),
                 ["P2-MOVE-UNIT-DEFENDER-001"] = new(
                     "P2-MOVE-UNIT-DEFENDER-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     isDefending: true,
                     power: 3,
                     tags: [CardObjectTags.UnitCard, "壁垒"])
@@ -1802,7 +1802,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-ATTACHED-001"] = new(
                     "P1-MOVE-UNIT-ATTACHED-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -1856,7 +1856,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-ATTACHED-001"] = new(
                     "P1-MOVE-UNIT-ATTACHED-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -1919,7 +1919,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-LOWER-A-UNIT"] = new(
                     "P1-MOVE-LOWER-A-UNIT",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -1978,7 +1978,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-ATTACHED-001"] = new(
                     "P1-MOVE-UNIT-ATTACHED-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -2532,7 +2532,7 @@ public sealed partial class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-BASE-UNIT-001"] = new(
                     "P1-MOVE-BASE-UNIT-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -2617,14 +2617,14 @@ public sealed partial class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P1-FIELD-UNIT-001"] = new(
                     "P1-FIELD-UNIT-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BASE-CONTESTER-001"] = new(
                     "P2-BASE-CONTESTER-001",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

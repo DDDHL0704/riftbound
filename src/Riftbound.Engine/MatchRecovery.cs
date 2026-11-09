@@ -4287,7 +4287,7 @@ public static partial class MatchRecoveryValidator
         foreach(var trigger in state.TriggerQueue)
             if (trigger.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(state,death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId)
                 || trigger.TriggerId.StartsWith("copied-death-", StringComparison.Ordinal) != (death.Origin is not null)
-                || death.RuleTextInstanceId is { } triggerInstance && !trigger.TriggerId.EndsWith(":" + triggerInstance, StringComparison.Ordinal)
+                || !trigger.TriggerId.EndsWith("-" + CoreRuleEngine.DeathObserverIdentity(trigger.SourceObjectId, death), StringComparison.Ordinal)
                 || trigger.TriggeredByEventKind != TriggerTimings.UnitDestroyed || !state.Seats.ContainsKey(death.Destroyed.OwnerId)
                 : trigger.EffectKind == CoreRuleEngine.DeathObserverEffect || CoreRuleEngine.IsDeathObserverKind(trigger.EffectKind)) errors.Add("invalid captured death observer");
         foreach (var item in state.StackItems)
@@ -4297,7 +4297,7 @@ public static partial class MatchRecoveryValidator
             if (item.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(state,death,item.EffectKind,item.ControllerId,item.SourceObjectId,item.CardNo)
                 || !CoreRuleEngine.ValidDeathObserverTargets(item)
                 || item.StackItemId.StartsWith("ordered-copied-death-", StringComparison.Ordinal) != (death.Origin is not null)
-                || death.RuleTextInstanceId is { } stackInstance && !item.StackItemId.EndsWith(":" + stackInstance, StringComparison.Ordinal)
+                || !item.StackItemId.EndsWith("-" + CoreRuleEngine.DeathObserverIdentity(item.SourceObjectId, death), StringComparison.Ordinal)
                 || !state.Seats.ContainsKey(death.Destroyed.OwnerId)
                 : item.EffectKind == CoreRuleEngine.DeathObserverEffect || CoreRuleEngine.IsDeathObserverKind(item.EffectKind)) errors.Add("invalid captured death observer stack");
         foreach (var trigger in state.TriggerQueue)

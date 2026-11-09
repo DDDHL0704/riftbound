@@ -14,7 +14,7 @@ public sealed class NaturalBattleDeclarationOrderTests
         var cards = initial.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var zones = initial.PlayerZones.ToDictionary(e => e.Key, e => e.Value);
         var locations = initial.ObjectLocations.ToDictionary(e => e.Key, e => e.Value);
-        cards["UNIT"] = cards["UNIT"] with { Power = 2 };
+        cards["UNIT"] = cards["UNIT"] with { CardNo = "OGN·175/298", Power = 2 };
         cards["A-FIRST"] = cards["UNIT"] with { ObjectId = "A-FIRST" };
         cards["DEFENDER"] = new("DEFENDER", cardNo: "SFD·125/221", power: 1,
             tags: [CardObjectTags.UnitCard], ownerId: "P2", controllerId: "P2");

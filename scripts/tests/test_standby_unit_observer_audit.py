@@ -56,6 +56,9 @@ class StandbyUnitObserverAuditTests(unittest.TestCase):
             (READY, 'CoreRuleEngine.StandbyUnitObservers.cs', 'ApplyReadyState(source,'),
             (DAMAGE, 'CoreRuleEngine.StandbyObservers.cs', 'CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEnemyDamageEffect)'),
             (DAMAGE, 'CoreRuleEngine.UnitEntryTriggers.cs', 'CaptureStandbyPlayed(ev, zones, cards, player)'),
+            (DAMAGE, 'CoreRuleEngine.SpellCompletion.cs', 'CaptureStandbyPlayed(action,'),
+            (DAMAGE, 'CoreRuleEngine.SpellCompletion.cs', 'result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null'),
+            (DAMAGE, 'CoreRuleEngine.SpellCompletion.cs', 'if (item.PlayedFromStandby is not null)'),
             (DAMAGE, 'CoreRuleEngine.FieldTriggers.cs', 'PrepareStandbyUnitDamage(result, item)'),
             (DAMAGE, 'CoreRuleEngine.FieldTriggers.cs', 'ValidStandbyUnitDamageChoice(state, choice)'),
             (DAMAGE, 'CoreRuleEngine.TriggerTargetPayment.cs', 'StandbyUnitDamageTargets(state, item)'),
@@ -86,3 +89,12 @@ class StandbyUnitObserverAuditTests(unittest.TestCase):
                     path = 'src/Riftbound.Engine/' + filename; self.assertIn(token, sources.files[path])
                     sources.files[path] = sources.files[path].replace(token, 'REMOVED_ACTION_AUTHENTICATION')
                     self.assertEqual('missing', self.status(text, sources=sources))
+
+    def test_spells_must_not_trigger_at_confirmation_even_with_a_completion_consumer(self):
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        path = 'src/Riftbound.Engine/CoreRuleEngine.cs'
+        marker = '    private static ResolutionResult ResolvePlayCard('
+        index = sources.files[path].index('{', sources.files[path].index(marker))
+        sources.files[path] = sources.files[path][:index+1] + '\nCaptureStandbyPlayed(action, zones, cards, player);\n' + sources.files[path][index+1:]
+        self.assertEqual('missing', self.status(DAMAGE, sources=sources))
+        self.assertEqual('route', self.status(READY, sources=sources))
