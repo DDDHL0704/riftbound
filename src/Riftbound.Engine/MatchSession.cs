@@ -43,6 +43,8 @@ public sealed record CardObjectState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LegendEquipmentUnitState? LegendEquipmentUnit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public EquipmentControlLease? EquipmentControl { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CopyFaceTransition>? CopyFaceTransitions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AttachedRuleTextState? AttachedRuleText { get; init; }
@@ -1507,7 +1509,7 @@ public sealed partial record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BoonCount = state.BoonCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, LegendEquipmentUnit = state.LegendEquipmentUnit, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName, LinkedAttributes = state.LinkedAttributes?.ToArray() };
+            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, BoonCount = state.BoonCount, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, LegendEquipmentUnit = state.LegendEquipmentUnit, EquipmentControl = state.EquipmentControl, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName, LinkedAttributes = state.LinkedAttributes?.ToArray() };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -1876,7 +1878,7 @@ public sealed partial record ResolutionResult(
             ? VisiblePublicSkillSourceObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId)
             : hiddenSource ? "HIDDEN" : item.TimingAlias is not null || item.UnitEvent is not null || item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.TargetedPowerAbility is not null || item.NativeUnitActivation is not null || item.BombRebuild is not null || item.EndAbility is not null || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null || item.DrawHandThreshold is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null
             || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.BorrowedExhaust is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null || item.RecycleMightActivation is not null || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunMoveSourceKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind or "RECYCLE_BOON"
-            || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
+            || item.SourceConfirmed && (item.PermanentPlaySource is null || CoreRuleEngine.IsEquipmentTheftPlaySkill(item)) && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
         {
@@ -4354,20 +4356,6 @@ internal static partial class ActionPromptBuilder
 
         choices.AddRange(CoreRuleEngine.BoonPlayCostChoices(state, playerId, behavior));
 
-        if (HasSourceStealEnemyEquipmentOptionalCost(behavior))
-        {
-            var originalAffordable = CanPromptSourceStealEnemyEquipmentOptionalCost(state, playerId, behavior,
-                runePool, paymentResourcePowerByTrait, sourceObjectId);
-            foreach (var steal in SourceStealEnemyEquipmentChoices(state, playerId, behavior))
-            {
-                var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                    sourceObjectId, [steal.Id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-                if (!ignoresAllCosts && !originalAffordable && !reduced) continue;
-                choices.Add(steal);
-                AddReductionChoices(reductionChoices);
-            }
-        }
-
         var echoReduction = EchoCostRules.Reduction(state, playerId);
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
@@ -4524,35 +4512,6 @@ internal static partial class ActionPromptBuilder
         choices.AddRange(PrintedPowerChoices(behavior));
         choices.AddRange(paymentResourceChoices);
         return ignoresAllCosts ? choices.Select(choice => choice with { Label = choice.Label + "（费用已忽略）" }).ToArray() : choices;
-    }
-
-    private static bool CanPromptSourceStealEnemyEquipmentOptionalCost(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        RunePool runePool,
-        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
-        string? sourceObjectId)
-    {
-        if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
-            || !SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
-        {
-            return false;
-        }
-
-        var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
-            behavior.SourceStealEnemyEquipmentAdditionalPowerCost, requiredTrait);
-    }
-
-    private static bool HasSourceStealEnemyEquipmentOptionalCost(CardBehaviorDefinition behavior)
-    {
-        var powerTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-        return behavior.PlaysSourceToBaseAsUnit
-            && behavior.SourceStealEnemyEquipmentAdditionalPowerCost > 0
-            && !string.IsNullOrWhiteSpace(powerTrait)
-            && !string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentOptionalCostPrefix);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandDamageOptionalCostChoices(

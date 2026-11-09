@@ -37,6 +37,7 @@ public sealed class OfficialDrawDefenseTests
         var state=Gem(0);
         state=state with {CardObjects=new Dictionary<string,CardObjectState>(state.CardObjects){["G"]=state.CardObjects["G"] with {
             IsFaceDown=mode=="hidden",ControllerId=mode=="opponent"?"P2":"P1"}}};
+        if(mode=="opponent")state=LocalDestructionRecallTests.At(state,"G","P2","BASE");
         if(mode=="not-in-play")state=state with {PlayerZones=new Dictionary<string,PlayerZones>(state.PlayerZones){["P1"]=state.PlayerZones["P1"] with {Base=["V","MALZ"],Hand=["C","G"]}}};
         var play=await Act(state,"P1",new PlayCardCommand("C","OGN·083/298",[]));var done=await Top(play.State);
         Assert.Empty(done.State.StackItems);Assert.Equal(2,done.State.DrawLedger.Counts["P1"]);

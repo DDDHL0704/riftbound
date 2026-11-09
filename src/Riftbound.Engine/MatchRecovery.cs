@@ -1248,7 +1248,10 @@ public static partial class MatchRecoveryValidator
             ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
             ValidateSnapshotKeywordGrantHistory(authoritativeState, commands, events, errors);
             ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors);
+            ValidateEquipmentControlHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldTimingHistory(authoritativeState, commands, events, errors);
+            ValidateUnitEventTurnPlayHistory(authoritativeState, commands, events, errors);
+            ValidateUnitEventTargetHistory(authoritativeState, commands, events, errors);
             ValidateFirstConquestUseHistory(authoritativeState, commands, events, errors);
             ValidateObservedDeckPlayHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
@@ -1625,6 +1628,7 @@ public static partial class MatchRecoveryValidator
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedUnitEventTurnPlaySource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBombSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
@@ -3712,6 +3716,7 @@ public static partial class MatchRecoveryValidator
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBattlefieldUnitEventSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedUnitEventTurnPlaySource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBombSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
             && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
@@ -5557,6 +5562,7 @@ public static partial class MatchRecoveryValidator
             // Only validated official contexts permit a missing source.
             if (!CoreRuleEngine.IsDepartedBoundLegendSource(authoritativeState, stackItem.SourceObjectId, stackItem.CardNo)
                 && !CoreRuleEngine.ValidCeasedUnitHeldSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.EffectKind)
+                && !HasValidatedCeasedUnitEventTurnPlaySource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.EffectKind)
                 && !HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId,
                     stackItem.SourceObjectId, stackItem.EffectKind)
                 && !(stackItem.SimpleActivation is { CeasedSource: not null } && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
@@ -5864,6 +5870,10 @@ public static partial class MatchRecoveryValidator
                 ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
                 ReadNormalizedPayloadString(stackItem, "effectKind")))
                 sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);
+            if (HasValidatedCeasedUnitEventTurnPlaySource(authoritativeState, stackItemId,
+                ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
+                ReadNormalizedPayloadString(stackItem, "effectKind")))
+                sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);
             if (HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItemId,
                 ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
                 ReadNormalizedPayloadString(stackItem, "effectKind")))
@@ -6166,7 +6176,7 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (HasCapturedStunSourceMovement(state, item) || item.TimingAlias is not null && CoreRuleEngine.ValidTimingAlias(state, item.TimingAlias, item.SourceObjectId, item.ControllerId, CoreRuleEngine.TimingCaptureContext(item)) || item.UnitEvent is not null || item.StandbyObserver is not null || CoreRuleEngine.IsParsedUnitHeldContext(item.HeldContext) || item.TargetedPowerAbility is not null || item.NativeUnitActivation is not null && CoreRuleEngine.ValidNativeUnitActivation(state, item) || item.HeldContext?.Kind == CoreRuleEngine.LinkedExileHeldKind || item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.BombRebuild is not null && CoreRuleEngine.ValidBombRebuildStack(state, item) || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || DrawHandThresholdRecoveryRules.IsCapturedSkill(state, item) || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.BorrowedExhaust is not null && BorrowedExhaustRules.Valid(state, item) || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.TurnUnitPlayBoon is not null || item.TurnUnitPlayDraw is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.CombatKeywordDoubleKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.AttackRallyKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind or "RECYCLE_BOON"
-                || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
+                || item.SourceConfirmed && (item.PermanentPlaySource is null || CoreRuleEngine.IsEquipmentTheftPlaySkill(item)) && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)

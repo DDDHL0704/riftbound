@@ -38,6 +38,7 @@ public sealed partial class CoreRuleEngine
         CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior);
         var current = StandbyDefinition(PermanentPlayDefinition(behavior!, IsStackItemBattlefieldDestination(item)), item.PlayedFromStandby);
         return HasTargetEffectAdditionalCost(current) && TargetEffectAdditionalCostPaid(current, item.OptionalCosts)
+            && !current.PaidPlayTargetsOptional
             ? current with { MinTargetCount = current.RequiredTargetCount } : current;
     }
 

@@ -30,7 +30,7 @@ public sealed partial class CoreRuleEngine
 
     internal static string PaidPermanentPlayChoicesHash(StackItemState item)
         => MatchStateHasher.HashValue(new { item.StackItemId, item.SourceObjectId, item.ControllerId,
-            item.CardNo, item.EffectKind, item.OptionalCosts });
+            item.CardNo, item.EffectKind, item.OptionalCosts, item.PermanentPlaySource });
 
     // Run once after every command's complete continuation. Selection of a
     // target or payment of Ward does not change the original play declaration.

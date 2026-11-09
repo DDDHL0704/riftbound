@@ -10,14 +10,19 @@ public sealed partial class CoreRuleEngine
                 or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED"
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
             || context?.Origin?.ArmamentGranted == true
+            || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
             || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
     {
-        var capture = MatchStateHasher.HashValue(new { source, controller, context.CardNo, context.Timing,
+        var observation = new { source, controller, context.CardNo, context.Timing,
             context.SourceGeneration, context.FaceRevision, context.CapturedTick,
             context.TokenFactoryCardNo, context.Origin, context.ArmamentDeath, context.DefendedBattlefield,
-            context.TargetSelection, context.Other, context.Here, context.PlayedUnitDuringSpellDuel, context.SourceConqueredBeforeEnd });
+            context.TargetSelection, context.Other, context.Here, context.PlayedUnitDuringSpellDuel };
+        var capture = context.SourcePlayCondition is null ? MatchStateHasher.HashValue(observation)
+            : MatchStateHasher.HashValue(new { observation, context.SourcePlayCondition });
+        if (context.SourceConqueredBeforeEnd is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.SourceConqueredBeforeEnd });
         return context.TriggeringBattlefield is null && context.DelayedReceipt is null ? capture
             : MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
     }
