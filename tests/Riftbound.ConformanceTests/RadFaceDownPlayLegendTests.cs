@@ -17,9 +17,9 @@ public sealed class RadFaceDownPlayLegendTests
     };
     public static IEnumerable<object[]> CardNumbers() => Prints().Select(row => new[] { row[0] });
 
-    private static MatchState Board(string no)
+    private static MatchState Board(string no, string standbyCard = "OGN·057/298")
     {
-        var state = AttackDamageDistributionTests.Spell(StandbySourceRulesTests.Position(), "KEEP", "OGN·048/298", "P1");
+        var state = AttackDamageDistributionTests.Spell(StandbySourceRulesTests.Position(standbyCard), "KEEP", "OGN·048/298", "P1");
         return state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", no, "P1") },
@@ -30,9 +30,9 @@ public sealed class RadFaceDownPlayLegendTests
     }
 
     private static async Task<Driver> Ready(string no, bool ownTurn = false, bool second = false,
-        Func<MatchState, MatchState>? prepare = null)
+        Func<MatchState, MatchState>? prepare = null, string standbyCard = "OGN·057/298")
     {
-        var state = Board(no);
+        var state = Board(no, standbyCard);
         if (prepare is not null)
             state = prepare(state);
         if (second)
@@ -41,7 +41,7 @@ public sealed class RadFaceDownPlayLegendTests
         var game = new Driver(state) { RecoverAfterEveryCommand = false };
         if (second)
             await game.Act("P1", new HideCardCommand("SECOND", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
-        await game.Act("P1", new HideCardCommand("SHADOW", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
+        await game.Act("P1", new HideCardCommand("SHADOW", standbyCard, "BATTLEFIELD:F", ["STANDBY_A"]));
         await game.Act("P1", new EndTurnCommand());
         await CompleteTurn(game);
         await game.Act("P2", new TapRuneCommand("SHADOW-P2-RUNE-1", ["SHADOW-P2-RUNE-1", "SHADOW-P2-RUNE-2", "SHADOW-P2-RUNE-3"]));
@@ -233,7 +233,10 @@ public sealed class RadFaceDownPlayLegendTests
     [InlineData(true)] [InlineData(false)]
     public async Task EmptyDeckUsesNormalBurnoutAndVictoryCompletesBeforeAnyDiscard(bool refill)
     {
-        var game = await Ready(Normal);
+        // A permanent stays on the field. A resolved spell would refill this otherwise
+        // empty graveyard before the legend draws, preventing repeated burnout (CN 432.3).
+        const string standbyCard = "OGN·077/298";
+        var game = await Ready(Normal, standbyCard: standbyCard);
         var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
         game.ReplaceStateForFixture(game.State with
         {
@@ -243,7 +246,7 @@ public sealed class RadFaceDownPlayLegendTests
                 ? new ObjectLocationState("P1", refill ? "GRAVEYARD" : "BANISHED") : p.Value),
             PlayerScores = new Dictionary<string, int>(game.State.PlayerScores) { ["P2"] = refill ? 0 : 7 }
         });
-        var state = await NativePlay(game.State);
+        var state = await NativePlay(game.State, resolveSpell: false, cardNo: standbyCard);
         var resolved = await NativeResolveTop(state); state = resolved.State;
         if (refill)
         {
@@ -341,12 +344,13 @@ public sealed class RadFaceDownPlayLegendTests
         Assert.True(game.State.TurnStartStep is null || game.State.Status == MatchStatuses.Finished);
     }
 
-    private static async Task<MatchState> NativePlay(MatchState state, string source = "SHADOW", bool resolveSpell = true)
+    private static async Task<MatchState> NativePlay(MatchState state, string source = "SHADOW", bool resolveSpell = true,
+        string cardNo = "OGN·057/298")
     {
         if (state.PriorityPlayerId is { } priority && priority != "P1")
             state = (await OfficialInsightAndSpellLockTests.Act(state, priority, new PassPriorityCommand())).State;
         state = (await OfficialInsightAndSpellLockTests.Act(state, "P1",
-            new PlayCardCommand(source, "OGN·057/298", ["HOST"]))).State;
+            new PlayCardCommand(source, cardNo, cardNo == "OGN·057/298" ? ["HOST"] : []))).State;
         if (resolveSpell) state = (await NativeResolveOne(state)).State;
         if (state.TriggerQueue.Count > 0)
             state = (await OfficialInsightAndSpellLockTests.Act(state, "P1",
