@@ -6,6 +6,10 @@ public sealed partial record UnitEventAbilitySpec
 {
     public bool CreatesUnitTokenHere { get; init; }
     public bool ObservesMovementByAnyPlayer { get; init; }
+    public bool RequiresMoveToBattlefield { get; init; }
+    public int GraveyardPlayMaximumMana { get; init; }
+    public int GraveyardPlayMaximumPower { get; init; }
+    public bool GraveyardPlayIgnoresBaseCosts { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -25,14 +29,24 @@ public sealed partial class CoreRuleEngine
     {
         definition = null!;
         if (!IsUnitEventGraveyardPlay(parent)) return false;
+        var spec = SelectedUnitEventSpec(parent.UnitEvent!)!;
         definition = new(parent.CardNo, "从废牌堆中打出单位", 0, parent.EffectKind, 0, 0,
-            EffectPlaySourceZone: "GRAVEYARD");
+            EffectPlaySourceZone: "GRAVEYARD",
+            EffectPlayMaximumManaCost: spec.GraveyardPlayMaximumMana,
+            EffectPlayMaximumPowerCost: spec.GraveyardPlayMaximumPower,
+            EffectPlayIgnoreBaseMana: spec.GraveyardPlayIgnoresBaseCosts,
+            EffectPlayIgnoreBasePower: spec.GraveyardPlayIgnoresBaseCosts);
         return true;
     }
 
     private static bool IsUnitEventGraveyardPlaySource(CardObjectState card)
         => !card.IsFaceDown && !IsTokenObject(card) && card.Tags.Contains(CardObjectTags.UnitCard)
             && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var unit) && unit.PlaysSourceToBaseAsUnit;
+
+    private static bool UnitEventGraveyardPlaySourceAllowed(StackItemState parent, CardObjectState card)
+        => IsUnitEventGraveyardPlaySource(card)
+            && TryGetUnitEventGraveyardPlayDefinition(parent, out var definition)
+            && EffectPlayCandidateCostAllowed(card, definition);
 
     private static StackResolutionResult ResolveUnitEventGraveyardPlay(MatchState state, StackItemState item)
     {
@@ -51,7 +65,8 @@ public sealed partial class CoreRuleEngine
             && ValidUnitEventTargets(pending.Parent) && !pending.Parent.EffectPlayCompleted
             && pending.PlayerId == pending.Parent.ControllerId && state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)
             && pending.SourceZone == "GRAVEYARD" && pending.DestinationPolicy == "ANY" && !pending.Optional
-            && !pending.IgnoreBaseMana && !pending.IgnoreBasePower && !pending.IgnoreAllCosts && pending.ManaReduction == 0
+            && pending.IgnoreBaseMana == SelectedUnitEventSpec(pending.Parent.UnitEvent!)!.GraveyardPlayIgnoresBaseCosts
+            && pending.IgnoreBasePower == pending.IgnoreBaseMana && !pending.IgnoreAllCosts && pending.ManaReduction == 0
             && pending.SourcePlayerId is null && pending.SourceOwners is null && pending.SourceReplay is null
             && pending.OriginalLocation is null && pending.OriginalBattlefield is null && pending.ViewedCardIds is null
             && pending.RevealedHand is null && pending.MaximumUnitPower is null && pending.Sources.Count == 1
@@ -59,5 +74,5 @@ public sealed partial class CoreRuleEngine
                 && pending.Parent.TargetObjectIds.Contains(source.Key)
                 && pending.Parent.TargetGenerations?.GetValueOrDefault(source.Key, -1) == source.Value
                 && state.CardObjects.TryGetValue(source.Key, out var card) && card.ObjectGeneration == source.Value
-                && IsUnitEventGraveyardPlaySource(card));
+                && UnitEventGraveyardPlaySourceAllowed(pending.Parent, card));
 }

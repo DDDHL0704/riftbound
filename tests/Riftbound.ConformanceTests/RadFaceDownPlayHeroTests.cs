@@ -100,6 +100,8 @@ public sealed class RadFaceDownPlayHeroTests
     private static async Task PlayShadow(FaceDownPlayTestDriver game, bool order = true)
     {
         await game.Act("P1", new PlayCardCommand("SHADOW", "OGN·057/298", ["HOST"]));
+        Assert.DoesNotContain(game.State.StackItems, item => item.StandbyObserver is not null);
+        await game.Top();
         if (order && game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(
             OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
     }

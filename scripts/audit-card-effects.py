@@ -1379,7 +1379,11 @@ def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> d
             ("CoreRuleEngine.StandbyObservers.cs", "CaptureStandbyPlayed", ["CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEnemyDamageEffect)"]),
             ("CoreRuleEngine.BattleResultContinuation.cs", "CollectResolutionEffects", ["collected = QueueStandbyPlayedObservers(collected)"]),
             ("CoreRuleEngine.cs", "PlaySourceEquipmentToBase", ["CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId)"]),
-            ("CoreRuleEngine.cs", "ResolvePlayCard", ["CaptureStandbyPlayed(events[index], playerZones, cardObjects, intent.PlayerId)"]),
+            ("CoreRuleEngine.SpellCompletion.cs", "ResolveStackItemEffect", [
+                "result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null",
+                "result.PendingCardChoice is not null || result.PendingEffectPlay is not null",
+                "if (item.PlayedFromStandby is not null)", "new GameEvent(FaceDownSpellCompletedEvent,",
+                "CaptureStandbyPlayed(action,", "result.PlayerZones, result.CardObjects, item.ControllerId)"]),
             ("CoreRuleEngine.UnitEntryTriggers.cs", "CaptureUnitEntry", ["CaptureStandbyPlayed(ev, zones, cards, player)"]),
             ("CoreRuleEngine.FieldTriggers.cs", "NeedsTriggerConfirmation", ["StandbyPlayedEnemyDamageEffect", "i.TargetGenerations is null"]),
             ("CoreRuleEngine.FieldTriggers.cs", "PrepareTriggerConfirmation", ["PrepareStandbyUnitDamage(result, item)"]),
@@ -1393,6 +1397,8 @@ def standby_unit_observer_route(card: dict, clause: dict, sources: Sources) -> d
                 '"PAYMENT_WINDOW_OPENED" : "TRIGGER_CONFIRMED"', '"targetGenerations"',
                 "MatchStateHasher.HashValue(item.TargetGenerations)"]),
         ]
+    # A completed-spell route cannot certify an earlier confirmation bypass.
+    exact = exact and (hidden or "CaptureStandbyPlayed(" not in member("CoreRuleEngine.cs", "ResolvePlayCard"))
     exact = exact and all(all(token in member(filename, name) for token in tokens) for filename, name, tokens in checks)
     paths = sorted({prefix + filename for filename, _, _ in checks})
     return result("route" if exact else "missing", "按实际藏匿／背面打出行动捕获控制者、来源及每份复制文本，独立确认并结算；恢复核对原始行动与目标代次"

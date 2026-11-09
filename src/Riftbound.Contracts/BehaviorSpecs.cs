@@ -314,6 +314,7 @@ public static class TriggerKinds
     public const string UnitFriendlyBatchDestroyedBoon = "UNIT_FRIENDLY_BATCH_DESTROYED_BOON";
     public const string PlayerDestroysStunnedEnemyDraw = "PLAYER_DESTROYS_STUNNED_ENEMY_EXHAUST_DRAW";
     public const string FriendlyBoonedUnitDestroyedBoonOther = "FRIENDLY_BOONED_UNIT_DESTROYED_BOON_OTHER";
+    public const string FriendlyUnitDestroyedExhaustDrawHandToDeck = "FRIENDLY_UNIT_DESTROYED_EXHAUST_DRAW_HAND_TO_DECK";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
         "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     public const string UnitFirstFriendlyDestroyedDrawOne =

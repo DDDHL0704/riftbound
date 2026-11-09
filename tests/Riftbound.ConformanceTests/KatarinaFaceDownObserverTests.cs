@@ -38,6 +38,7 @@ public sealed partial class KatarinaFaceDownObserverTests
 
     private static async Task HiddenNextTurn(Driver game, string card, IReadOnlyList<string>? wards = null)
     {
+        game.RecoverAfterEveryCommand = false;
         await Hide(game, card); await Order(game);
         while (game.State.StackItems.Count > 0) await game.Top();
         await game.Act("P1", new EndTurnCommand());
@@ -56,11 +57,20 @@ public sealed partial class KatarinaFaceDownObserverTests
         await game.Act("P2", new PlayCardCommand("OPENER", "OGN·048/298", []));
         await game.Act("P2", new PassPriorityCommand());
         Assert.Equal("P1", game.State.PriorityPlayerId);
+        await game.ColdCheckpoint(); game.RecoverAfterEveryCommand = true;
     }
 
-    private static Task FromFaceDown(Driver game, string card, bool reveal = false)
-        => game.Act("P1", reveal ? new RevealCardCommand(Shadow, card, [], "STANDBY_REACTION", ["STANDBY_REVEAL_0"],
+    private static async Task FromFaceDown(Driver game, string card, bool reveal = false, bool resolveSpell = true)
+    {
+        await game.Act("P1", reveal ? new RevealCardCommand(Shadow, card, [], "STANDBY_REACTION", ["STANDBY_REVEAL_0"],
             card == "OGN·083/298" ? "STACK" : "BATTLEFIELD:BF") : new PlayCardCommand(Shadow, card, []));
+        if (card == "OGN·083/298" && resolveSpell)
+        {
+            Assert.DoesNotContain(game.State.StackItems, item => item.EffectKind == CoreRuleEngine.StandbyPlayedEnemyDamageEffect);
+            Assert.Empty(game.State.TriggerQueue);
+            await game.Top();
+        }
+    }
 
     private static async Task Target(Driver game, string target = "ENEMY")
     {

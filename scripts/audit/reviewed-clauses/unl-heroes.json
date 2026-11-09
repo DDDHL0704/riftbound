@@ -53,8 +53,8 @@
       "text": "当你正面朝下放置一张卡牌时，让我变为活跃状态。",
       "scope": "当你正面朝下放置一张卡牌时，让我变为活跃状态。",
       "status": "route",
-      "reason": "实际藏匿后独立活跃原来源；背面打出法术、单位或装备后独立确认敌方目标、支付法盾并造成2点伤害；每份复制文本分别触发，恢复核对原始接受行动及目标代次",
-      "rules": "核心191.5.b、359.3.e（技能控制者与原代次引用）、383.2.c／383.3（行动完成后独立确认、入链）、355.9／403／405.2／809（目标及法盾付款）、811（待命）；UNL-023 官方中文牌面",
+      "reason": "实际藏匿后独立活跃原来源；背面打出法术、单位或装备后独立确认敌方目标、支付法盾并造成2点伤害；每份复制文本分别触发，恢复核对原始接受行动及目标代次；法术需完整结算才捕获打出触发，被无效化不会产生伤害技能",
+      "rules": "核心191.5.b、359.3.e（技能控制者与原代次引用）、383.2.c／383.3（行动完成后独立确认、入链）、355.9／403／405.2／809（目标及法盾付款）、811（待命）；UNL-023 官方中文牌面；核心420.4.a–a.1：法术成功结算后才触发，被无效化不触发",
       "runtime": {
         "behaviors": [
           {
@@ -118,8 +118,8 @@
       "text": "当你将一张卡牌从正面朝下的状态打出时，对一名敌方单位造成2点伤害。",
       "scope": "当你将一张卡牌从正面朝下的状态打出时，对一名敌方单位造成2点伤害。",
       "status": "route",
-      "reason": "实际藏匿后独立活跃原来源；背面打出法术、单位或装备后独立确认敌方目标、支付法盾并造成2点伤害；每份复制文本分别触发，恢复核对原始接受行动及目标代次",
-      "rules": "核心191.5.b、359.3.e（技能控制者与原代次引用）、383.2.c／383.3（行动完成后独立确认、入链）、355.9／403／405.2／809（目标及法盾付款）、811（待命）；UNL-023 官方中文牌面",
+      "reason": "实际藏匿后独立活跃原来源；背面打出法术、单位或装备后独立确认敌方目标、支付法盾并造成2点伤害；每份复制文本分别触发，恢复核对原始接受行动及目标代次；法术需完整结算才捕获打出触发，被无效化不会产生伤害技能",
+      "rules": "核心191.5.b、359.3.e（技能控制者与原代次引用）、383.2.c／383.3（行动完成后独立确认、入链）、355.9／403／405.2／809（目标及法盾付款）、811（待命）；UNL-023 官方中文牌面；核心420.4.a–a.1：法术成功结算后才触发，被无效化不触发",
       "runtime": {
         "behaviors": [
           {
@@ -173,7 +173,7 @@
             "ActualSongCopiesEachPrintedObserverWithoutRequiringTheEquipmentToStayAttached",
             "ConsistentViewsCannotSubstituteAnotherLegalEnemyForTheConfirmedTarget",
             "TheOriginalWardSelectionCannotBeChangedWhilePaymentIsStillPending",
-            "CounteringTheActuallyPlayedFaceDownSpellCannotRemoveItsEarnedDamageSkill",
+            "CounteringTheActuallyPlayedFaceDownSpellPreventsItsDamageTrigger",
             "ARealAbilityCounterCanRemoveOnlyTheIndependentDamageSkill"
           ]
         }

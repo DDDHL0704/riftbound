@@ -248,6 +248,7 @@ public sealed partial class CoreRuleEngine
         return WithReadyObjectObservations(WithUnitEvents(new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() }),
             units.SelectMany(f => CaptureUnitEvents(before.PlayerZones, before.CardObjects, [f.ObjectId], "MOVE")
                 .Where(o => UnitEventSpec(o.Context.CardNo)?.ObservesMovementByAnyPlayer == true || o.Controller == f.MovingPlayerId)
+                .Where(o => UnitEventSpec(o.Context.CardNo)?.RequiresMoveToBattlefield != true || f.Destination.Zone == "BATTLEFIELD")
                 .Select(o => o with { Context = o.Context with { Here = f.Destination } })).ToArray()), readyObjects);
     }
 

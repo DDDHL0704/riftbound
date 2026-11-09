@@ -26,11 +26,10 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
           "contains": [
-            "CaptureArmamentLastBreaths(",
+            "CaptureLastBreathUnitEvents(",
             "CurrentDestructionDrawFrame",
-            "observation.Context.Origin?.ArmamentGranted == true",
             "CaptureLastBreathRepetitions(",
-            "QueueArmamentLastBreaths(",
+            "QueueLastBreathUnitEvents(",
             "UnitEventTrigger(new(death.Unit.ObjectId, death.Unit.ControllerId, context)"
           ]
         },
@@ -45,8 +44,8 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
           "contains": [
-            "ArmamentLastBreaths = CaptureArmamentLastBreaths(state, zones, cards, unit, deathId, fact)",
-            "QueueArmamentLastBreaths(state, death, queue, events)"
+            "LastBreathUnitEvents = CaptureLastBreathUnitEvents(state, zones, cards, unit, deathId, fact)",
+            "QueueLastBreathUnitEvents(state, death, queue, events)"
           ]
         },
         {
@@ -81,6 +80,12 @@
             "ValidateArmamentLinkedExileHistory(",
             "command.Accepted && command.CompletedTick == entry.Tick",
             "armament linked exile ledger differs from its original accepted banishment history"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.GrantedByArmament == (i.Origin?.ArmamentGranted == true)"
           ]
         }
       ],
@@ -123,11 +128,10 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
           "contains": [
-            "CaptureArmamentLastBreaths(",
+            "CaptureLastBreathUnitEvents(",
             "CurrentDestructionDrawFrame",
-            "observation.Context.Origin?.ArmamentGranted == true",
             "CaptureLastBreathRepetitions(",
-            "QueueArmamentLastBreaths(",
+            "QueueLastBreathUnitEvents(",
             "UnitEventTrigger(new(death.Unit.ObjectId, death.Unit.ControllerId, context)"
           ]
         },
@@ -142,8 +146,8 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
           "contains": [
-            "ArmamentLastBreaths = CaptureArmamentLastBreaths(state, zones, cards, unit, deathId, fact)",
-            "QueueArmamentLastBreaths(state, death, queue, events)"
+            "LastBreathUnitEvents = CaptureLastBreathUnitEvents(state, zones, cards, unit, deathId, fact)",
+            "QueueLastBreathUnitEvents(state, death, queue, events)"
           ]
         },
         {
@@ -160,6 +164,12 @@
             "spec.Effect == \"DRAW\"",
             "ApplyDrawToPlayer",
             "item.ControllerId, spec.Amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.GrantedByArmament == (i.Origin?.ArmamentGranted == true)"
           ]
         }
       ],

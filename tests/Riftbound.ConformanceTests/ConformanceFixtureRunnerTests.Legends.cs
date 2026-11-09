@@ -2168,8 +2168,8 @@ public sealed partial class ConformanceFixtureRunnerTests
         foreach (var id in new[] { "ENEMY2", "ENEMY3" })
             state = LocalDestructionRecallTests.At(state, id, "P2", "BASE");
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["HOST"] = state.CardObjects["HOST"] with { CardNo = "SFD·125/221" },
-            ["ENEMY1"] = state.CardObjects["ENEMY1"] with { CardNo = "SFD·125/221", Power = 1 } } };
+            ["HOST"] = state.CardObjects["HOST"] with { CardNo = "OGN·175/298" },
+            ["ENEMY1"] = state.CardObjects["ENEMY1"] with { CardNo = "OGN·175/298", Power = 1 } } };
         var pending = await EnemyAttackMightTests.Pending(state);
         Assert.Equal(3, pending.CardObjects["HOST"].Power);
         var reduced = await AttackDamageDistributionTests.Top(pending);

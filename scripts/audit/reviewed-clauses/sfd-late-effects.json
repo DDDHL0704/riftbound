@@ -7,35 +7,72 @@
       ],
       "text": "当一名友方单位被摧毁时，你可以选择让我变为休眠状态，以此抽一张牌，然后将一张手牌放到主牌堆的顶部或底部。",
       "scope": "当一名友方单位被摧毁时，你可以选择让我变为休眠状态，以此抽一张牌，然后将一张手牌放到主牌堆的顶部或底部。",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少友方单位被摧毁后可选横置来源的确认费用，以及独立抽牌后把一张手牌放主牌堆顶／底的私有结算选择",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享死亡观察按事件时当前控制者捕获友方单位死亡，并在确认时可选横置原代际来源；付款后独立响应，结算先抽牌，再通过原始命令绑定的私有指令选择一张当前手牌放到主牌堆顶或底。每次实际死亡独立触发，已休眠来源不能重复付款；不是弃牌或回收，对手不获知手牌身份或牌堆端点。",
+      "rules": "中国区核心355.10.a非公开区域的结算选择、357费用、359.3.e顺序执行、383.2／383.3及403–407独立触发；SFD·169官方中文牌面；核心194.2／432.3.c.1（通常得分在清理获胜；重复燃尽导致的立即获胜中止剩余指示）",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
+        "triggers": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "node": {
+              "kind": "FRIENDLY_UNIT_DESTROYED_EXHAUST_DRAW_HAND_TO_DECK",
+              "timing": "UNIT_DESTROYED",
+              "targetScope": "OTHER_FRIENDLY_DESTROYED_UNIT",
+              "drawCount": 1,
+              "optional": true,
+              "exhaustsSource": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
           "contains": [
-            "\"SFD·169/221\"",
-            "\"REMEMBRANCE_ALTAR_PLAY_EQUIPMENT\""
+            "TriggerKinds.FriendlyUnitDestroyedExhaustDrawHandToDeck",
+            "ResolveDrawThenHandToDeck(state, item, spec.DrawCount.GetValueOrDefault(1))",
+            "DeathObserverIdentity(observer.ObjectId, observer.Context)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalDeathObservers.cs",
+          "contains": [
+            "spec => spec.Kind == context.Kind && spec.ExhaustsSource == true && spec.Optional == true",
+            "context.Destroyed.ControllerId == controller"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DrawThenHandToDeck.cs",
+          "contains": [
+            "ResolveLastBreathDrawStackItem(state, item, count)",
+            "kind: HandToDeckCardChoiceKind, preview: preview",
+            "kind: HandToDeckPositionChoiceKind, preview: preview",
+            "ResetCardOutsidePlay(zones, cards, id, cards[id], player)",
+            "HAND_CARD_PUT_IN_MAIN_DECK",
+            "if (drawn.WinnerPlayerId is not null) return drawn"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "contains": [
+            "CoreRuleEngine.DeathObserverIdentity(trigger.SourceObjectId, death)",
+            "CoreRuleEngine.DeathObserverIdentity(item.SourceObjectId, death)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RemembranceAltarDeathTests.cs",
+          "methods": [
+            "AnAcceptedFriendlyDeathPaysExhaustBeforeResponsesThenDrawsAndPrivatelyPutsAnyHandCardAtEitherEnd",
+            "DecliningOrAlreadyExhaustedCannotDrawOrPutAHandCard",
+            "FriendshipUsesTheCurrentControllerAndTheAltarDoesNotObserveAnEnemyDeath",
+            "SeveralDeathsInOneBatchCannotPayTheSameAltarTwice",
+            "WrongActorCardAndPositionAreAtomicRejectionsAndForgedDecisionHistoryCannotRecover",
+            "ThePaidDrawAndPrivatePlacementSurviveTheAnimatedAltarReturningInResponse",
+            "BurnoutCompletesTheInstructionBeforeNormalVictoryButImmediateVictoryStopsPrivatePlacement"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

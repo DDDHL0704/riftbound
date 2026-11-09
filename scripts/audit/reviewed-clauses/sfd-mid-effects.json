@@ -695,36 +695,75 @@
       ],
       "text": "当你将一张牌从正面朝下的状态打出时，打出一个休眠的“金币”装备指示物。",
       "scope": "当你将一张牌从正面朝下的状态打出时，打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少任何卡牌由正面朝下打出后独立创建休眠金币的触发，不等同于现有每回合一次抽牌句型",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享待命出牌观察器在单位／装备入场和法术成功结算后按当前控制者及每份复制文本捕获独立技能；无目标技能允许响应，结算在技能控制者基地创建一个休眠金币。藏匿、普通正面出牌和被无效化的法术不触发；来源返手后已赚取技能仍结算，技能编号及投影不泄露私有来源；恢复核对原始接受行动和来源捕获，拒绝篡改行动、控制者、增加目标或抹除上下文。",
+      "rules": "核心420.4.a–a.1（成功结算时完成打出；无效化不触发）、811.1.c（藏匿不算打出）、383／403–407（独立技能确认与响应）、191.5.b／359.3.e（技能控制者及来源代次）、187.5（金币装备指示物）；SFD·121官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "faceDownPlayEquipmentTokens": {
+              "factoryCardNo": "UNL·T05",
+              "count": 1
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StandbyObservers.cs",
           "contains": [
-            "\"SFD·121/221\"",
-            "\"BLACK_MARKET_BROKER_FACE_DOWN_GOLD_PLAY_UNIT\""
+            "CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEquipmentTokenEffect)",
+            "var identity = MatchStateHasher.HashValue(new { context.Source, source.InstanceId })",
+            "queue.Add(trigger)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
+          "contains": [
+            "result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null",
+            "if (item.PlayedFromStandby is not null)",
+            "CaptureStandbyPlayed(action,",
+            "result.PlayerZones, result.CardObjects, item.ControllerId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StandbyUnitObservers.cs",
+          "contains": [
+            "ValidStandbyEquipmentTokenReward",
+            "ValidStandbyUnitObserverStack(state, item)",
+            "CreateLegendEquipmentToken(tokenZones, cards, item.ControllerId",
+            "factory.TokenFamilyName, factory.Tags, true",
+            "publicSourceObjectId: visibleSource",
+            "[\"sourceObjectId\"] = visibleSource",
+            "tokenIdentitySeed: \"equipment-token-\" + MatchStateHasher.HashValue(item.StackItemId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.StandbyUnitObservers.cs",
+          "contains": [
+            "CoreRuleEngine.StandbyUnitCaptureHash(context)",
+            "command.Accepted",
+            "CoreRuleEngine.StandbyUnitActionHash(action.Event) == birth.ActionHash"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BlackMarketBrokerFaceDownTests.cs",
+          "methods": [
+            "EachSuccessfulFaceDownUnitSpellOrEquipmentOffersAnIndependentTargetlessRewardBeforeOneDormantGold",
+            "AFaceUpPlayDoesNotEarnTheFaceDownReward",
+            "PrivateOrEnemyControlledSourcesCannotObserveTheActorsFaceDownPlay",
+            "ACounteredFaceDownSpellDoesNotCompleteThePlayOrEarnGold",
+            "ReturningAnObserverBeforeTheSpellCompletesCannotEarnAGoldSkillFromItsEarlierConfirmation",
+            "ASourceControlledBySomeoneOtherThanItsOwnerRewardsItsCurrentController",
+            "ReturningTheBrokerAfterItsTriggerDoesNotCancelTheGoldOrExposeThePrivateSourceInSkillIds",
+            "ActualCopiedTextAndThePrintedTextEarnSeparateRewardsForTheSameCompletedPlay",
+            "RecoveryBindsARewardToItsOriginalAcceptedFaceDownPlayAndRejectsAddedTargets"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -768,23 +807,20 @@
       ],
       "text": "每当我移动到一处战场时，弃置一张手牌。",
       "scope": "每当我移动到一处战场时，弃置一张手牌。",
-      "status": "missing",
-      "reason": "战斗胜利抽牌已有独立路径，但移动到战场后的弃1张手牌未实现；共享移动弃抽句型要求同一次移动先弃后抽，不匹配本牌两个独立事件",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享移动观察仅在抵达战场时捕获来源控制者的独立强制弃牌技能；复用私下手牌选择与弃牌执行，弃一张且抽零张，空手仍可独立结算。移动回基地不触发；对手移动来源时仍由来源控制者弃牌。来源随后返手不抹除指示，当前技能与弃牌事件遮蔽私有来源；恢复核对原始抵达事实及技能集合，拒绝篡改、擦除或重复。",
+      "rules": "中国区核心191.5.b、359.3.f.3、383.2–383.4、403–407、423.4（效果弃牌按现有手牌尽量执行）；SFD·123官方中文牌面；战斗胜利抽牌保持另一独立事件",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 4,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "DISCARD_DRAW",
+              "discardCount": 1,
+              "observesMovementByAnyPlayer": true,
+              "requiresMoveToBattlefield": true
+            }
           }
         ]
       },
@@ -792,12 +828,57 @@
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
-            "\"SFD·123/221\"",
-            "\"CORRUPT_ENFORCER_MOVE_DISCARD_DRAW_PLAY_UNIT\""
+            "public sealed partial record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0",
+            "UnitEventAbility: new(\"MOVE\", \"DISCARD_DRAW\", DiscardCount: 1)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            ".Where(o => UnitEventSpec(o.Context.CardNo)?.RequiresMoveToBattlefield != true || f.Destination.Zone == \"BATTLEFIELD\")",
+            "Here = f.Destination",
+            "ObservesMovementByAnyPlayer"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "if (spec.Effect == \"DISCARD_DRAW\") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount)",
+            "spec.RequiresMoveToBattlefield || c.Here == current"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PrivateDiscardDraw.cs",
+          "contains": [
+            "Math.Min(discardCount, zones[player].Hand.Count)",
+            "kind: \"PRIVATE_HAND_DISCARD\", preview: state",
+            "TryDiscardCardFromHand(zones, cards, player, id)",
+            "ApplyDrawToPlayer(current, zones, cards",
+            "[\"sourceObjectId\"] = visibleSource"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "ValidateObservedUnitEventHistory",
+            "CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)",
+            "!expected.SetEquals(current.Select(item => item.Id))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CorruptEnforcerArrivalTests.cs",
+          "methods": [
+            "ActualBattlefieldArrivalDiscardsExactlyOneHandCardWithoutDrawing",
+            "ArrivalWithAnEmptyHandStillResolvesTheMandatoryInstructionWithoutDrawing",
+            "MovementToBaseDoesNotRequireADiscard",
+            "MovementByTheOpponentStillDiscardsFromTheEnforcersControllersHand",
+            "ReturningTheSourceLeavesAnIndependentDiscardWithAPrivateSource",
+            "RecoveryRejectsAChangedArrivalFieldOrAnErasedOrRepeatedAcceptedSkill"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -844,37 +925,81 @@
       ],
       "text": "当我移动到一处战场时，你可以选择支付{{紫色}}，将你控制的另一名单位移动到相同的战场。",
       "scope": "当我移动到一处战场时，你可以选择支付{{紫色}}，将你控制的另一名单位移动到相同的战场。",
-      "status": "missing",
-      "reason": "只有基础仙灵单位登记；缺少移动到战场后可选支付1紫色符能、选择另一友方单位并移到同一战场的独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享移动观察按实际抵达战场捕获独立技能，来源控制者可在确认时支付1紫色符能并选择另一友方单位，双方响应后以共享效果移动送到原抵达战场；来源后来返手不改写战场引用，移动回基地不触发，对手的实际移动也由来源控制者获得技能。拒绝把来源、敌方或已在该目的地的单位选作目标；恢复核对原始接受的战场与技能集合，拒绝篡改、抹除或重复。",
+      "rules": "核心355.4.a（有效移动目的地排除当前位置）、355.9（目标限制）、359.3.f.3（触发条件中的战场在触发时记录）、191.5.b、383／403–407（可选费用与独立技能响应）；SFD·125官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 4,
-            "sourceUnitTags": "仙灵",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "MOVE_ANOTHER_FRIENDLY_TO_ARRIVAL_BATTLEFIELD",
+              "optional": true,
+              "leadingPowerCost": 1,
+              "leadingPowerTrait": "purple",
+              "observesMovementByAnyPlayer": true,
+              "requiresMoveToBattlefield": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
           "contains": [
-            "\"SFD·125/221\"",
-            "\"MIGHTY_FAERIE_MOVE_PAYMENT_PLAY_UNIT\""
+            ".Where(o => UnitEventSpec(o.Context.CardNo)?.RequiresMoveToBattlefield != true || f.Destination.Zone == \"BATTLEFIELD\")",
+            "Here = f.Destination",
+            "ObservesMovementByAnyPlayer"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "UnitEventArrivalBattlefieldDestination",
+            "item.UnitEvent!.Here is { Zone: \"BATTLEFIELD\"",
+            "spec.Effect == MoveFriendlyToArrivalBattlefieldEffect ? UnitEventArrivalBattlefieldDestination(state, item)",
+            "MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [target], destination, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "or { RequiresMoveToBattlefield: true }",
+            "spec.RequiresMoveToBattlefield || c.Here == current",
+            "MoveFriendlyToArrivalBattlefieldEffect => c.ObjectId != item.SourceObjectId",
+            "MovementRestrictionRules.CanMove(c, item.ControllerId)",
+            "ResolvePermanentUnitEventInstruction(state, item, spec)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "new(Power: eventSpec.LeadingPowerCost, Mana: eventSpec.LeadingManaCost, PowerTrait: eventSpec.LeadingPowerTrait)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "ValidateObservedUnitEventHistory",
+            "CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)",
+            "!expected.SetEquals(current.Select(item => item.Id))"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/MightyFaerieArrivalTests.cs",
+          "methods": [
+            "ActualArrivalOffersOnePurplePaymentBeforeMovingAnotherExhaustedFriendlyUnit",
+            "DecliningThePurpleCostLeavesTheChosenUnitAndRuneUntouched",
+            "MovementBackToBaseDoesNotEarnTheBattlefieldArrivalAbility",
+            "AnOpponentsActualMovementStillEarnsTheFaeriesControllersOptionalSkill",
+            "TheSameBattlefieldRemainsTheArrivalFieldAfterTheSourceActuallyReturnsToHand",
+            "RecoveryRejectsAChangedArrivalFieldOrAnErasedOrRepeatedAcceptedSkill"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1358,36 +1483,67 @@
       ],
       "text": "你可以选择摧毁一件友方装备，作为打出我的额外费用。",
       "scope": "你可以选择摧毁一件友方装备，作为打出我的额外费用。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少可选摧毁友方装备的打出额外费用，以及实际支付后入场选择并摧毁任意装备的独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享可选永久物摧毁费用按装备类型过滤付款候选，报价和实际提交均拒绝非装备、非己方、非场上及重复对象；实际摧毁后单位进场，只有已支付该费用才确认独立摧毁装备技能。可以不付而正常进场，费用送回所属者废牌堆，目标可为任一玩家的装备；来源返手不取消已确认技能，没有合法装备时仍完成入场。",
+      "rules": "中国区核心204.2、355.1.a、356.2.b、357 可选额外费用与付款、355/383/403–407 入场后目标确认和独立响应；SFD·160 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "mayDestroyFriendlyPermanentAdditionalCost": true,
+            "optionalPermanentDestructionRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "playAbilityRequiresPermanentDestructionCost": true,
+            "destroysTarget": true,
+            "targetScope": "EQUIPMENT",
+            "targetRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "requiredTargetCount": 1
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EntryCosts.cs",
           "contains": [
-            "\"SFD·160/221\"",
-            "\"ZAUNITE_THUG_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT\""
+            "behavior.OptionalPermanentDestructionRequiredTag is not { Length: > 0 } tag",
+            "state.CardObjects[id].Tags.Contains(tag)",
+            "CanDestroyFriendlyPermanentAsAdditionalCost(state, player, card.ObjectId, behavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "!CanDestroyFriendlyPermanentAsAdditionalCost(state, intent.PlayerId, id, behavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "!behavior.PlayAbilityRequiresPermanentDestructionCost || OptionalPermanentDestructionWasPaid(item)",
+            "PermanentPlayTargetsPending = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
+          "contains": [
+            "sacrificed.PlayAbilityRequiresPermanentDestructionCost && !CoreRuleEngine.OptionalPermanentDestructionWasPaid(item)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EquipmentSacrificePlayTests.cs",
+          "methods": [
+            "DecliningTheAdditionalEquipmentCostEntersNormallyWithoutOfferingTheConditionalSkill",
+            "AControlledEquipmentIsDestroyedBeforeEntryThenAnyEquipmentIsConfirmedForTheIndependentSkill",
+            "UnpaidOrNonEquipmentChoicesCannotEnterPayOrChangeTheState",
+            "ReturningTheEnteredThugDoesNotRefundItsPaidCostOrCancelItsConfirmedEquipmentDestruction",
+            "PayingTheCostStillCompletesEntryWhenNoEquipmentTargetRemains",
+            "RecoveryRejectsAConditionalSkillWhoseAdditionalCostWasErased"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1395,36 +1551,67 @@
       ],
       "text": "当你打出我时，如果你支付了该额外费用，则摧毁一件装备。",
       "scope": "当你打出我时，如果你支付了该额外费用，则摧毁一件装备。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少可选摧毁友方装备的打出额外费用，以及实际支付后入场选择并摧毁任意装备的独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享可选永久物摧毁费用按装备类型过滤付款候选，报价和实际提交均拒绝非装备、非己方、非场上及重复对象；实际摧毁后单位进场，只有已支付该费用才确认独立摧毁装备技能。可以不付而正常进场，费用送回所属者废牌堆，目标可为任一玩家的装备；来源返手不取消已确认技能，没有合法装备时仍完成入场。",
+      "rules": "中国区核心204.2、355.1.a、356.2.b、357 可选额外费用与付款、355/383/403–407 入场后目标确认和独立响应；SFD·160 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 3,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "mayDestroyFriendlyPermanentAdditionalCost": true,
+            "optionalPermanentDestructionRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "playAbilityRequiresPermanentDestructionCost": true,
+            "destroysTarget": true,
+            "targetScope": "EQUIPMENT",
+            "targetRequiredTag": "CARD_TYPE:EQUIPMENT",
+            "requiredTargetCount": 1
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EntryCosts.cs",
           "contains": [
-            "\"SFD·160/221\"",
-            "\"ZAUNITE_THUG_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT\""
+            "behavior.OptionalPermanentDestructionRequiredTag is not { Length: > 0 } tag",
+            "state.CardObjects[id].Tags.Contains(tag)",
+            "CanDestroyFriendlyPermanentAsAdditionalCost(state, player, card.ObjectId, behavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "!CanDestroyFriendlyPermanentAsAdditionalCost(state, intent.PlayerId, id, behavior)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "!behavior.PlayAbilityRequiresPermanentDestructionCost || OptionalPermanentDestructionWasPaid(item)",
+            "PermanentPlayTargetsPending = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
+          "contains": [
+            "sacrificed.PlayAbilityRequiresPermanentDestructionCost && !CoreRuleEngine.OptionalPermanentDestructionWasPaid(item)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/EquipmentSacrificePlayTests.cs",
+          "methods": [
+            "DecliningTheAdditionalEquipmentCostEntersNormallyWithoutOfferingTheConditionalSkill",
+            "AControlledEquipmentIsDestroyedBeforeEntryThenAnyEquipmentIsConfirmedForTheIndependentSkill",
+            "UnpaidOrNonEquipmentChoicesCannotEnterPayOrChangeTheState",
+            "ReturningTheEnteredThugDoesNotRefundItsPaidCostOrCancelItsConfirmedEquipmentDestruction",
+            "PayingTheCostStillCompletesEntryWhenNoEquipmentTargetRemains",
+            "RecoveryRejectsAConditionalSkillWhoseAdditionalCostWasErased"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1432,14 +1619,16 @@
       ],
       "text": "如果是敌方单位，则打出一个休眠的“金币”装备指示物。",
       "scope": "如果是敌方单位，则打出一个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "友敌判定错误：按被摧毁单位的OwnerPlayerId而非摧毁前控制者决定创建1或2个金币；获得对手单位控制权或失去自己单位控制权后数量相反",
-      "rules": "核心127.1 所属者、191–192 控制者／所属者、友方敌方定义；SFD·162 官方中文牌面",
+      "status": "route",
+      "reason": "摧毁前读取目标的实际控制者并传入共享金币数量计算；与法术控制者相同则创建2个休眠金币，不同则创建1个，卡牌离场仍进入所属者废牌堆。所属者与控制者不同的两种情形均有实际出牌、恢复、重试和原始回放覆盖。",
+      "rules": "中国区核心127.1 所属者、191–192 控制者、359.3.f.4 友方敌方引用、429 摧毁；SFD·162 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
             "createdBaseEquipmentTokenCountIfDestroyedFriendlyUnit": 2,
-            "createdBaseEquipmentTokenCountIfDestroyedEnemyUnit": 1
+            "createdBaseEquipmentTokenCountIfDestroyedEnemyUnit": 1,
+            "destroysTarget": true,
+            "maxTargetPower": 2
           }
         ]
       },
@@ -1447,17 +1636,17 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "string.Equals(removalResult.OwnerPlayerId, controllerId, StringComparison.Ordinal)",
-            "new FieldRemovalResult(owner, goesToBanish ? \"BANISHED\" : \"GRAVEYARD\""
+            "var targetControllerIdBeforeRemoval = EffectiveFieldControllerId(",
+            "stackItem.ControllerId,\n                                targetControllerIdBeforeRemoval,\n                                removalResult",
+            "string.Equals(targetControllerId, controllerId, StringComparison.Ordinal)"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "path": "tests/Riftbound.ConformanceTests/DestroyedUnitControllerGoldTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysBloodMoneyDestroyEnemySmallUnitAndGold",
-            "CoreRuleEnginePlaysBloodMoneyDestroyFriendlySmallUnitAndTwoGold"
+            "BloodMoneyUsesTheControllerImmediatelyBeforeDestructionAndReturnsTheCardToItsOwner"
           ]
         }
       ]
@@ -1468,14 +1657,16 @@
       ],
       "text": "如果是友方单位，则打出两个休眠的“金币”装备指示物。",
       "scope": "如果是友方单位，则打出两个休眠的“金币”装备指示物。",
-      "status": "missing",
-      "reason": "友敌判定错误：按被摧毁单位的OwnerPlayerId而非摧毁前控制者决定创建1或2个金币；获得对手单位控制权或失去自己单位控制权后数量相反",
-      "rules": "核心127.1 所属者、191–192 控制者／所属者、友方敌方定义；SFD·162 官方中文牌面",
+      "status": "route",
+      "reason": "摧毁前读取目标的实际控制者并传入共享金币数量计算；与法术控制者相同则创建2个休眠金币，不同则创建1个，卡牌离场仍进入所属者废牌堆。所属者与控制者不同的两种情形均有实际出牌、恢复、重试和原始回放覆盖。",
+      "rules": "中国区核心127.1 所属者、191–192 控制者、359.3.f.4 友方敌方引用、429 摧毁；SFD·162 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
             "createdBaseEquipmentTokenCountIfDestroyedFriendlyUnit": 2,
-            "createdBaseEquipmentTokenCountIfDestroyedEnemyUnit": 1
+            "createdBaseEquipmentTokenCountIfDestroyedEnemyUnit": 1,
+            "destroysTarget": true,
+            "maxTargetPower": 2
           }
         ]
       },
@@ -1483,17 +1674,17 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "string.Equals(removalResult.OwnerPlayerId, controllerId, StringComparison.Ordinal)",
-            "new FieldRemovalResult(owner, goesToBanish ? \"BANISHED\" : \"GRAVEYARD\""
+            "var targetControllerIdBeforeRemoval = EffectiveFieldControllerId(",
+            "stackItem.ControllerId,\n                                targetControllerIdBeforeRemoval,\n                                removalResult",
+            "string.Equals(targetControllerId, controllerId, StringComparison.Ordinal)"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
+          "path": "tests/Riftbound.ConformanceTests/DestroyedUnitControllerGoldTests.cs",
           "methods": [
-            "CoreRuleEnginePlaysBloodMoneyDestroyEnemySmallUnitAndGold",
-            "CoreRuleEnginePlaysBloodMoneyDestroyFriendlySmallUnitAndTwoGold"
+            "BloodMoneyUsesTheControllerImmediatelyBeforeDestructionAndReturnsTheCardToItsOwner"
           ]
         }
       ]
@@ -1541,36 +1732,61 @@
       ],
       "text": "{{绝念}} — 你可以选择从你的废牌堆中打出一名费用不高于{{3}}且不高于{{A}}的单位，无视其费用。（当我被摧毁后，发动此效果。）",
       "scope": "{{绝念}} — 你可以选择从你的废牌堆中打出一名费用不高于{{3}}且不高于{{A}}的单位，无视其费用。（当我被摧毁后，发动此效果。）",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少绝念后可选从自己废牌堆打出至多3法力／1符能单位并无视全部基础费用的独立技能，不能借其他来源的复活路径认证",
-      "rules": "核心808 绝念、383／403–407、355–359 效果打出；SFD·165 官方中文牌面",
+      "status": "route",
+      "reason": "在真正死亡前捕获原生、复制与武装授予的每一份绝念并按共享放大器生成独立技能；确认时可选择控制者自己的公开废牌堆中不高于3法力、1符能的单位，结算只打出仍合法的原目标。仅无视基础法力及符能，保留急速等额外费用；可在确认前放弃，同批死亡的单位也可被选择。",
+      "rules": "中国区核心355.10、357、383／403–407、420.3.b、808.1.d／808.2；铸魂淬炼裁判FAQ260114第6页调酒师与强强魄罗同批被摧毁问答；SFD·165官方中文牌面",
       "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
+        "unitEventAbility": {
+          "timing": "LAST_BREATH",
+          "effect": "PLAY_GRAVEYARD_UNIT",
+          "optional": true,
+          "graveyardPlayMaximumMana": 3,
+          "graveyardPlayMaximumPower": 1,
+          "graveyardPlayIgnoresBaseCosts": true
+        }
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentLastBreath.cs",
           "contains": [
-            "\"SFD·165/221\"",
-            "\"GLASC_BARTENDER_LAST_BREATH_PLAY_UNIT\""
+            "CaptureLastBreathUnitEvents(",
+            "CaptureLastBreathRepetitions(state, zones, cards, before)",
+            "QueueLastBreathUnitEvents(",
+            "ValidLastBreathRepetition(state, death.Repetition"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventPlays.cs",
+          "contains": [
+            "EffectPlayMaximumManaCost: spec.GraveyardPlayMaximumMana",
+            "EffectPlayMaximumPowerCost: spec.GraveyardPlayMaximumPower",
+            "EffectPlayIgnoreBaseMana: spec.GraveyardPlayIgnoresBaseCosts",
+            "EffectPlayIgnoreBasePower: spec.GraveyardPlayIgnoresBaseCosts",
+            "StackObjectRules.ReferencesCurrentObject(state, item, target)",
+            "BeginEffectPlay(state, item, definition)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "or ArmamentLastBreathRules.Timing",
+            "context.ArmamentDeath"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GlascBartenderLastBreathTests.cs",
+          "methods": [
+            "LastBreathConfirmsOnlyTheControllersUnitsWithinBothPrintedCostCapsAndWaivesBothBaseCosts",
+            "TheControllerCanDeclineBeforeConfirmationButCannotDeclineAConfirmedCompletelyFreePlay",
+            "IgnoringBaseCostsRetainsTheOptionalHasteManaAndPowerPayment",
+            "TheOfficialFaqAllowsChoosingAUnitDestroyedInTheSameBatch",
+            "CopiedTextAndALocalAmplifierCreateFourIndependentOptionalLastBreaths",
+            "RecoveryBindsTheDeathTargetAndExactBaseCostWaiverPolicy"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
