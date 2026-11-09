@@ -64,6 +64,9 @@ class AttackArmamentPlayAuditTests(unittest.TestCase):
             ('CoreRuleEngine.UnitPlayMight.cs', 'ValidArmamentPlayAttachmentContext('),
             ('CoreRuleEngine.PermanentPlayTargets.cs', 'behavior.RequiredTargetCount > 0 || IsAgileDirectPlayAttachRepresentative(behavior)'),
             ('CoreRuleEngine.DeclaredChoices.cs', 'HasIndependentPermanentTargets(behavior) && targets.Count == 0'),
+            ('CoreRuleEngine.FieldTriggers.cs', 'IsAgilePermanentPlaySkill(item)'),
+            ('CoreRuleEngine.FieldTriggers.cs', '["targetGenerations"] = bound.TargetGenerations'),
+            ('CoreRuleEngine.FieldTriggers.cs', 'confirmationPayload["targetGenerations"] = confirmed.TargetGenerations'),
             ('MatchRecovery.UnitEventTargets.cs', 'CoreRuleEngine.IsAgilePermanentPlaySkill(item)'),
             ('MatchRecovery.cs', 'ValidArmamentPlayAttachmentPermission(state, armamentHandPlay)'),
         ]

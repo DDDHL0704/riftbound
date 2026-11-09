@@ -3153,6 +3153,11 @@ def attack_armament_play_attachment_route(card: dict, clause: dict, sources: Sou
             'behavior.RequiredTargetCount > 0 || IsAgileDirectPlayAttachRepresentative(behavior)']),
         ('CoreRuleEngine.DeclaredChoices.cs', 'HasLegalDeclaredTargets', [
             'HasIndependentPermanentTargets(behavior) && targets.Count == 0']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', [
+            '|| IsAgilePermanentPlaySkill(item)', '["targetGenerations"] = bound.TargetGenerations']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'CompleteTriggerTargetConfirmation', [
+            '|| IsAgilePermanentPlaySkill(item)', 'confirmationPayload["stackItemId"] = item.StackItemId',
+            'confirmationPayload["targetGenerations"] = confirmed.TargetGenerations']),
         ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
             'CoreRuleEngine.IsAgilePermanentPlaySkill(item)', 'targets.SequenceEqual(item.TargetObjectIds)',
             'command.Accepted', 'record.Tick <= frame.Tick', 'equipment play skill was already retired']),

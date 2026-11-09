@@ -408,7 +408,7 @@ public sealed partial class CoreRuleEngine
                 ["targetObjectIds"] = selected.ToArray() });
             if (experience > 0) opened = opened with { Payload = new Dictionary<string, object?>(opened.Payload) {
                 ["experienceCost"] = experience } };
-            if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null)
+            if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || IsAgilePermanentPlaySkill(item))
                 opened = opened with { Payload = new Dictionary<string, object?>(opened.Payload) {
                     ["targetGenerations"] = bound.TargetGenerations } };
             return new(true, null, next, [opened], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
@@ -481,7 +481,7 @@ public sealed partial class CoreRuleEngine
         var confirmationPayload = new Dictionary<string, object?> {
             ["sourceObjectId"] = item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind || IsStunObserverKind(field.Kind))
                 ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() };
-        if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null)
+        if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || IsAgilePermanentPlaySkill(item))
         {
             confirmationPayload["stackItemId"] = item.StackItemId;
             confirmationPayload["targetGenerations"] = confirmed.TargetGenerations;

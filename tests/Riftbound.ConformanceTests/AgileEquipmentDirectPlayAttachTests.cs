@@ -109,7 +109,7 @@ public sealed class AgileEquipmentDirectPlayAttachTests
     }
 
     [Fact]
-    public void AgileEquipmentPromptExposesControlledUnitTarget()
+    public async Task AgileEquipmentPromptDefersItsControlledUnitTargetUntilAfterEntry()
     {
         var state = BuildAgileEquipmentState("SFD·022/221", "P1-EQUIPMENT-LONG-SWORD", 2);
 
@@ -118,25 +118,30 @@ public sealed class AgileEquipmentDirectPlayAttachTests
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
         Assert.Contains(playCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-EQUIPMENT-LONG-SWORD", StringComparison.Ordinal));
-        Assert.Contains(playCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P1-BASE-UNIT", StringComparison.Ordinal));
-        Assert.Contains(playCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P1-BATTLEFIELD-UNIT", StringComparison.Ordinal));
-        Assert.DoesNotContain(playCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BASE-UNIT", StringComparison.Ordinal));
-        Assert.DoesNotContain(playCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P1-EQUIPMENT-TARGET", StringComparison.Ordinal));
+        Assert.Empty(playCandidate.Targets ?? []);
 
         var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]);
         var requirement = Assert.Single(
             sourceRequirements,
             entry => string.Equals(entry["sourceObjectId"] as string, "P1-EQUIPMENT-LONG-SWORD", StringComparison.Ordinal));
-        Assert.Equal(1, Assert.IsType<int>(requirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(requirement["maxTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(requirement["minTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(requirement["maxTargetCount"]));
         Assert.Equal(CardTargetScopes.FriendlyUnit, Assert.IsType<string>(requirement["targetScope"]));
         Assert.Equal("友方单位", Assert.IsType<string>(requirement["targetScopeLabel"]));
         var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(requirement["targetChoicesByIndex"]);
-        var firstChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"]);
-        Assert.Equal(
-            ["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT"],
-            firstChoices.Select(choice => choice.Id).ToArray());
+        Assert.Empty(choicesByIndex);
+
+        var played = await new CoreRuleEngine().ResolveAsync(state,
+            new("agile-prompt-after-entry", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-EQUIPMENT-LONG-SWORD", "SFD·022/221", []), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Contains("P1-EQUIPMENT-LONG-SWORD", played.State.PlayerZones["P1"].Base);
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Equal(1, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
+        Assert.Equal(["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT"], choice.LegalObjectIds);
+        Assert.Contains(CommandTypes.ChooseCards, played.Prompts["P1"].Actions);
     }
 
     [Theory]
@@ -198,7 +203,7 @@ public sealed class AgileEquipmentDirectPlayAttachTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-EQUIPMENT-LONG-SWORD", StringComparison.Ordinal));
-        Assert.Contains(playCandidate.Targets ?? [], target => string.Equals(target.Id, "P1-BASE-UNIT", StringComparison.Ordinal));
+        Assert.Empty(playCandidate.Targets ?? []);
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
         var reorderedStaleRawCommand = ReorderedPromptScopedPlayCardRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedPlayCardRawCommandWithClientNote(command, prompt, "changed-payload");

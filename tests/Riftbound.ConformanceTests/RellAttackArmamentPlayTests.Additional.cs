@@ -74,8 +74,8 @@ public sealed partial class RellAttackArmamentPlayTests
         }
         await game.Top();
         await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", beforePlay ? [] : ["RELL"]));
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         if (!beforePlay) {
-            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["RELL"])); await game.Top();
         }
         for (var i = 0; game.State.StackItems.Count > 0 && i < 4; i++) await game.Top();
@@ -84,6 +84,7 @@ public sealed partial class RellAttackArmamentPlayTests
         Assert.Contains("RELL", game.State.PlayerZones["P1"].Hand);
         Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_ATTACHED");
+        if (beforePlay) Assert.Contains(game.Events(), entry => entry.Event.Kind == "TRIGGER_NOT_CONFIRMED");
         await game.ColdCheckpoint();
     }
 
@@ -98,18 +99,19 @@ public sealed partial class RellAttackArmamentPlayTests
         var agile = Assert.Single(game.State.TriggerQueue, trigger => trigger.PermanentPlayStackItemId is not null);
         await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
             rellFirst ? [child.TriggerId, agile.TriggerId] : [agile.TriggerId, child.TriggerId]));
-        if (rellFirst) await game.Top();
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Null(game.State.PriorityPlayerId);
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
         await game.Top();
-        Assert.Equal("ALLY", game.State.CardObjects["GEAR"].AttachedToObjectId);
-        if (!rellFirst) { await game.Top(); Assert.Equal("RELL", game.State.CardObjects["GEAR"].AttachedToObjectId); }
+        Assert.Equal(rellFirst ? "RELL" : "ALLY", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        await game.Top();
+        Assert.Equal(rellFirst ? "ALLY" : "RELL", game.State.CardObjects["GEAR"].AttachedToObjectId);
         await game.ColdCheckpoint();
     }
 
-    [Fact]
-    public async Task AnAgileTargetCannotBeRewrittenAfterItsPostEntryConfirmation()
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task AnAgileTargetCannotBeRewrittenAfterItsPostEntryConfirmation(bool rewind)
     {
         var game = new Driver(Position("SFD·022/221")); await Permission(game);
         await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", []));
@@ -119,10 +121,14 @@ public sealed partial class RellAttackArmamentPlayTests
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
         var original = game.State.StackItems.Single(item => item.SourceObjectId == "GEAR");
-        var forged = original with { TargetObjectIds = ["RELL"], TargetGenerations = new Dictionary<string, long> {
-            ["RELL"] = game.State.CardObjects["RELL"].ObjectGeneration } };
-        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, game.State with {
-            StackItems = game.State.StackItems.Select(item => item.StackItemId == original.StackItemId ? forged : item).ToArray() }));
+        var forged = rewind ? original with { TargetObjectIds = [], TargetGenerations = null, PermanentPlayTargetsPending = true }
+            : original with { TargetObjectIds = ["RELL"], TargetGenerations = new Dictionary<string, long> {
+                ["RELL"] = game.State.CardObjects["RELL"].ObjectGeneration } };
+        var frame = game.State with {
+            StackItems = game.State.StackItems.Select(item => item.StackItemId == original.StackItemId ? forged : item).ToArray(),
+            PendingCardChoice = rewind ? choice : null, PriorityPlayerId = rewind ? null : game.State.PriorityPlayerId };
+        Assert.Contains("equipment play skill targets differ from original accepted confirmation",
+            ArmamentGrantedCombatTriggerTests.Errors(game, frame));
         await game.Top(); await game.Top(); await game.ColdCheckpoint();
     }
 
@@ -138,8 +144,8 @@ public sealed partial class RellAttackArmamentPlayTests
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
         var original = game.State.StackItems.Single(item => item.SourceObjectId == "GEAR");
         await game.Top(); await game.Top();
-        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game,
-            game.State with { StackItems = [original] }));
+        Assert.Contains("equipment play skill was already retired in original accepted history",
+            ArmamentGrantedCombatTriggerTests.Errors(game, game.State with { StackItems = [original] }));
         await game.ColdCheckpoint();
     }
 
