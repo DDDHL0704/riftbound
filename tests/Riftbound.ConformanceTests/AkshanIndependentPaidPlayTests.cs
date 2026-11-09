@@ -263,6 +263,9 @@ public sealed class AkshanIndependentPaidPlayTests
         await Confirm(game, "GEAR"); await game.Top();
         Assert.NotNull(game.State.CardObjects["GEAR"].EquipmentControl);
         await game.Act("P1", new MoveUnitCommand("GEAR", "BASE", "BATTLEFIELD:BF"));
+        var movement = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("UNIT_EVENT_MODE_CONFIRMATION", movement.ChoiceWindow);
+        await game.Act("P1", new ChooseCardsCommand(movement.ChoiceId, movement.ChoiceWindow, ["DRAW"])); await game.Top();
         await game.Act("P1", new EndTurnCommand());
         await game.TapRunes("P2", Enumerable.Range(0, 9).Select(index => "CONTROL-RUNE-" + index));
         await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-0", ["CONTROL-RUNE-0", "CONTROL-RUNE-1", "CONTROL-RUNE-2"]));
