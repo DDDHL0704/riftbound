@@ -139,3 +139,18 @@ class WorkflowCandidateTests(unittest.TestCase):
         self.assertNotIn('scripts/l2-distributed.py', job)
         self.assertNotIn('NativeNetworkSmoke', job)
         self.assertNotIn('continue-on-error', job)
+
+    def test_workflow_action_inputs_cannot_repeat_yaml_keys(self):
+        def check(text):
+            for block in re.finditer(r'(?m)^( +)with:\s*\n', text):
+                indent = len(block[1]); keys = []
+                for line in text[block.end():].splitlines():
+                    if not line.strip(): continue
+                    depth = len(line) - len(line.lstrip())
+                    if depth <= indent: break
+                    key = re.match(r'([A-Za-z_][A-Za-z0-9_-]*):', line.lstrip())
+                    if depth == indent + 2 and key: keys.append(key[1])
+                if len(keys) != len(set(keys)): raise AssertionError('duplicate YAML action input')
+        check((ROOT / '.github/workflows/native-desktop.yml').read_text())
+        with self.assertRaisesRegex(AssertionError, 'duplicate YAML'):
+            check('      - uses: action\n        with:\n          retention-days: 90\n          retention-days: 14\n')
