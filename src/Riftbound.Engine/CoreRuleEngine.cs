@@ -175,7 +175,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
             if (completed.Accepted && completed.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
                 return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
-            return ValueTask.FromResult(RecordUnitEventTurnPlayHistory(state, completed));
+            completed = RecordUnitEventTurnPlayHistory(state, completed);
+            return ValueTask.FromResult(RecordPaidPermanentPlayHistory(state, completed));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))

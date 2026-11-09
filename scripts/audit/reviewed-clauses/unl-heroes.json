@@ -468,15 +468,15 @@
       ],
       "text": "你可以选择支付{{绿色}}，作为打出我的额外费用。",
       "scope": "你可以选择支付{{绿色}}，作为打出我的额外费用。",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少可选绿色符能额外费用、已支付后的入场眩晕及据守授予下个单位活跃／增益的共享流程",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "打出时支付额外绿色符能，入场后独立确认眩晕目标及法盾；原始已接受费用选择与技能捕获／结束记录在恢复时绑定",
+      "rules": "核心204.2、355.1.a、355.5.b、383.2–383.3；UNL-052官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
+            "targetScope": "ENEMY_UNIT",
             "drawRecipientKind": "CONTROLLER",
             "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
@@ -484,7 +484,19 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiredTargetCount": 1,
+            "statusEffectId": "STUNNED",
+            "targetScopeIsExplicit": true,
+            "targetRequiredTag": "CARD_TYPE:UNIT",
+            "targetEffectAdditionalPowerCost": 1,
+            "targetEffectAdditionalPowerTrait": "green",
+            "unitEventAbility": {
+              "timing": "HOLD",
+              "effect": "CREATE_TURN_UNIT_PLAY_GRANT"
+            },
+            "turnUnitPlayGrantKind": "PLAY_READY_BOON",
+            "turnUnitPlayGrantNextOnly": true
           }
         ]
       },
@@ -493,11 +505,53 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-052/219\"",
-            "\"NAMI_NO_GREEN_PAYMENT_STATIC\""
+            "\"NAMI_PLAY_UNIT\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "HasPendingPermanentPlayAbility",
+            "TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)",
+            "SourceConfirmed = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PaidPermanentPlayHistory.cs",
+          "contains": [
+            "RecordPaidPermanentPlayHistory",
+            "PaidPermanentPlayChoicesHash(item)",
+            "PaidPermanentPlayCaptured",
+            "PaidPermanentPlayRetired"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PaidPermanentPlayHistory.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "CoreRuleEngine.PaidPermanentPlayChoicesHash(item)",
+            "!pending.SetEquals("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiAdditionalPlayCostTests.cs",
+          "methods": [
+            "TheExtraGreenIsPaidBeforeEntryAndTheIndependentStunChoosesItsTargetAfterEntry",
+            "DecliningTheAdditionalCostPlaysTheUnitWithoutCreatingAStunSkill",
+            "WardPaymentIsSeparateFromTheAlreadyPaidExtraGreenAndKeepsItsOriginalReceipt",
+            "AnActualLinkedEquipmentPlayWaivesBaseCostsButStillPaysTheAdditionalGreen",
+            "ARealImageCopiesNamiAfterEntryWithoutRetroactivelyPayingOrTriggeringHerPlayAbility",
+            "RecoveryCannotReplaceThePaidDeclarationWithOtherSnapshotChoices",
+            "RecoveryCannotSilentlyEraseTheStillPendingPaidSkill",
+            "AnUnpaidOriginalPlayCannotBorrowAnotherGamesValidPaidSkillSnapshot",
+            "AnActualNamiStunEarnsVexMovementOnlyForAnEnemyOnABattlefield",
+            "ARealOptionalFeeReducerCanPayTheExtraGreenAsZeroWithoutLosingTheStunOrOriginalReceipt",
+            "AResolvedPaidSkillCannotBeResurrectedFromItsPreviouslyValidSnapshot"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -505,15 +559,15 @@
       ],
       "text": "当你打出我时，如果你支付了该额外费用，则{{眩晕}}一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
       "scope": "当你打出我时，如果你支付了该额外费用，则{{眩晕}}一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
-      "status": "missing",
-      "reason": "仅基础单位登记；缺少可选绿色符能额外费用、已支付后的入场眩晕及据守授予下个单位活跃／增益的共享流程",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "打出时支付额外绿色符能，入场后独立确认眩晕目标及法盾；原始已接受费用选择与技能捕获／结束记录在恢复时绑定",
+      "rules": "核心204.2、355.1.a、355.5.b、383.2–383.3；UNL-052官方中文牌面",
       "runtime": {
         "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 3,
-            "targetScope": "BATTLEFIELD_UNIT",
+            "targetScope": "ENEMY_UNIT",
             "drawRecipientKind": "CONTROLLER",
             "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
@@ -521,7 +575,19 @@
             "sourceUnitIsExhausted": true,
             "counteredStackItemDestination": "GRAVEYARD",
             "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "effectPlayMaximumCount": 1,
+            "requiredTargetCount": 1,
+            "statusEffectId": "STUNNED",
+            "targetScopeIsExplicit": true,
+            "targetRequiredTag": "CARD_TYPE:UNIT",
+            "targetEffectAdditionalPowerCost": 1,
+            "targetEffectAdditionalPowerTrait": "green",
+            "unitEventAbility": {
+              "timing": "HOLD",
+              "effect": "CREATE_TURN_UNIT_PLAY_GRANT"
+            },
+            "turnUnitPlayGrantKind": "PLAY_READY_BOON",
+            "turnUnitPlayGrantNextOnly": true
           }
         ]
       },
@@ -530,11 +596,53 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-052/219\"",
-            "\"NAMI_NO_GREEN_PAYMENT_STATIC\""
+            "\"NAMI_PLAY_UNIT\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "contains": [
+            "HasPendingPermanentPlayAbility",
+            "TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)",
+            "SourceConfirmed = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PaidPermanentPlayHistory.cs",
+          "contains": [
+            "RecordPaidPermanentPlayHistory",
+            "PaidPermanentPlayChoicesHash(item)",
+            "PaidPermanentPlayCaptured",
+            "PaidPermanentPlayRetired"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PaidPermanentPlayHistory.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "CoreRuleEngine.PaidPermanentPlayChoicesHash(item)",
+            "!pending.SetEquals("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/NamiAdditionalPlayCostTests.cs",
+          "methods": [
+            "TheExtraGreenIsPaidBeforeEntryAndTheIndependentStunChoosesItsTargetAfterEntry",
+            "DecliningTheAdditionalCostPlaysTheUnitWithoutCreatingAStunSkill",
+            "WardPaymentIsSeparateFromTheAlreadyPaidExtraGreenAndKeepsItsOriginalReceipt",
+            "AnActualLinkedEquipmentPlayWaivesBaseCostsButStillPaysTheAdditionalGreen",
+            "ARealImageCopiesNamiAfterEntryWithoutRetroactivelyPayingOrTriggeringHerPlayAbility",
+            "RecoveryCannotReplaceThePaidDeclarationWithOtherSnapshotChoices",
+            "RecoveryCannotSilentlyEraseTheStillPendingPaidSkill",
+            "AnUnpaidOriginalPlayCannotBorrowAnotherGamesValidPaidSkillSnapshot",
+            "AnActualNamiStunEarnsVexMovementOnlyForAnEnemyOnABattlefield",
+            "ARealOptionalFeeReducerCanPayTheExtraGreenAsZeroWithoutLosingTheStunOrOriginalReceipt",
+            "AResolvedPaidSkillCannotBeResurrectedFromItsPreviouslyValidSnapshot"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -549,7 +657,22 @@
         "staticAuras": [],
         "behaviors": [
           {
+            "manaCost": 3,
+            "targetScope": "ENEMY_UNIT",
+            "drawRecipientKind": "CONTROLLER",
+            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 3,
+            "sourceUnitIsExhausted": true,
+            "counteredStackItemDestination": "GRAVEYARD",
+            "effectPlayDestination": "ANY",
+            "effectPlayMaximumCount": 1,
+            "requiredTargetCount": 1,
+            "statusEffectId": "STUNNED",
+            "targetScopeIsExplicit": true,
+            "targetRequiredTag": "CARD_TYPE:UNIT",
+            "targetEffectAdditionalPowerCost": 1,
+            "targetEffectAdditionalPowerTrait": "green",
             "unitEventAbility": {
               "timing": "HOLD",
               "effect": "CREATE_TURN_UNIT_PLAY_GRANT"
