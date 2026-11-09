@@ -81,6 +81,29 @@ public sealed partial class AzirTokenAttackMovementTests
         await game.ColdCheckpoint();
     }
 
+    [Fact]
+    public async Task AnAcceptedTokenTargetConfirmationCannotBeRewoundToItsEarlierUnconfirmedSnapshot()
+    {
+        var game = new Driver(Position("SFD·177/221")); var tokens = await CreateTokens(game);
+        await EnterAndAttack(game, "SFD·177/221");
+        var unconfirmed = game.State;
+        await Select(game, tokens[0]);
+        Assert.Empty(ValidateAttackHistory(game, game.State));
+        var journal = System.Text.Json.JsonSerializer.Serialize(new { commands = game.Commands(), events = game.Events() });
+        // Preserve the original accepted journal, but restore every target/choice
+        // field from the real prior unconfirmed state at the current tick.
+        var rewound = unconfirmed with { Tick = game.State.Tick };
+        Assert.True(CoreRuleEngine.ValidUnitEventTargets(Assert.Single(rewound.StackItems)));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(rewound));
+        Assert.Contains(ValidateAttackHistory(game, rewound),
+            error => error == "unit event targets differ from original accepted confirmation");
+        Assert.Equal(journal, System.Text.Json.JsonSerializer.Serialize(new { commands = game.Commands(), events = game.Events() }));
+        await game.Top();
+        Assert.Equal("OTHER", game.State.ObjectLocations[tokens[0]].BattlefieldObjectId);
+        Assert.Equal("BASE", game.State.ObjectLocations[tokens[1]].Zone);
+        await game.ColdCheckpoint();
+    }
+
     private static void RejectCoherentAttackHistoryForgeries(Driver game)
     {
         Assert.Empty(ValidateAttackHistory(game, game.State));
