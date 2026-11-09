@@ -221,7 +221,7 @@ public sealed class AkshanIndependentPaidPlayTests
         // its own original-command regression in OriannaLegendEquipmentUnitTests.
         var initial = Position();
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-            ["GEAR"] = new("GEAR", power: 4, tags: [CardObjectTags.UnitCard, CardObjectTags.EquipmentCard],
+            ["GEAR"] = new("GEAR", cardNo: "RAD·146/167", power: 4, tags: [CardObjectTags.UnitCard, CardObjectTags.EquipmentCard],
                 ownerId: "P2", controllerId: "P2") } };
         initial = RadUnitEffectTestFixture.Place(initial, "GEAR", "P2", "BATTLEFIELD", "OTHER");
         initial = RadGearTestPosition.Put(initial, "CARRIED", "SFD·022/221", "P2", "BATTLEFIELD", "OTHER");
