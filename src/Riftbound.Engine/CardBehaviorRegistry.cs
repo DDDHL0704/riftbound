@@ -29,6 +29,7 @@ public static class UnitEventTimings
     public const string PrintedPowerCardPlayed = "PRINTED_POWER_CARD_PLAYED";
     public const string BoonConsumed = "FRIENDLY_BOON_CONSUMED";
     public const string PlayerDefend = "PLAYER_DEFEND";
+    public const string FriendlyUnitTargeted = "FRIENDLY_UNIT_TARGETED";
 }
 public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
     int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
@@ -1475,7 +1476,7 @@ public static class CardBehaviorRegistry
             0,
             2,
             TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
-            SwapsTargetPowersUntilEndOfTurn: true),
+            SwapsTargetPowersUntilEndOfTurn: true, TargetsShareBattlefield: true),
         new(
             "SFD·001/221",
             "矢志不退",
@@ -2479,7 +2480,9 @@ public static class CardBehaviorRegistry
             "SOUL_WHEEL_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new(UnitEventTimings.FriendlyUnitTargeted, "DRAW", 1,
+                Optional: true, LeadingManaCost: 1, LeadingSourceExhaust: true)),
         new(
             "OGN·101/298",
             "蘑菇袋",
@@ -6441,7 +6444,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new(UnitEventTimings.FriendlyUnitTargeted, "DRAW", 1) {
+                TargetSelectionRequiresSpell = true, TargetSelectionRequiresSource = true }),
         new(
             "SFD·146/221",
             "薇古丝",

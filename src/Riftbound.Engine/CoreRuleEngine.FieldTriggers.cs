@@ -493,6 +493,11 @@ public sealed partial class CoreRuleEngine
             if (equipment.TargetTokenFactoryCardNo is not null)
                 confirmationPayload["targetTokenFactoryCardNo"] = equipment.TargetTokenFactoryCardNo;
         }
+        if (IsUnitEventGraveyardPlay(confirmed))
+        {
+            confirmationPayload["stackItemId"] = confirmed.StackItemId;
+            confirmationPayload["unitEventTargetsHash"] = UnitEventPlayTargetsHash(confirmed);
+        }
         events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", confirmationPayload));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }

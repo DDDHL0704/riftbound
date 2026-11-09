@@ -1092,36 +1092,67 @@
       ],
       "text": "每当你将我选为法术目标时，抽一张牌。",
       "scope": "每当你将我选为法术目标时，抽一张牌。",
-      "status": "missing",
-      "reason": "只有基础单位登记；缺少控制者用法术将来源本身选为目标后的独立抽1牌触发，不应由任意玩家或任意友方单位触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "控制者确认以法术选择来源自身为目标时捕获独立抽1技能，不等待原法术结算；其他友方单位、对手或主动技能选中均不触发。来源返手仍保留已获得的抽牌，公共投影不标识其私有代际。原始接受捕获约束删除、重复和篡改。",
+      "rules": "中国区核心355.6–355.11、383.4.b 指目标触发、383.2–383.3 独立技能、403–407 确认与响应；该卡官方中文文本",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_UNIT_TARGETED",
+              "effect": "DRAW",
+              "amount": 1,
+              "targetSelectionRequiresSpell": true,
+              "targetSelectionRequiresSource": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetSelectionObservers.cs",
           "contains": [
-            "\"SFD·142/221\"",
-            "\"JAR_MEDDARDA_SPELL_TARGET_DRAW_PLAY_UNIT\""
+            "CaptureFriendlyUnitTargetedObservers",
+            "EffectiveFieldControllerId(zones, unit.ObjectId, unit) != actor",
+            "!spec.TargetSelectionRequiresSpell || spell",
+            "!spec.TargetSelectionRequiresSource || observation.Source == unit.ObjectId",
+            "RuleChoices.Value?.CompletionTick ?? state.Tick",
+            "selection.EquipmentUnit && face.Tags.Contains(CardObjectTags.EquipmentCard)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelfActionObservers.cs",
+          "contains": [
+            "HasConfirmedTargets(result.State, i)",
+            "StackObjectRules.IsSpell(item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"DRAW\" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)",
+            "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.Amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "UnitEventTimings.FriendlyUnitTargeted",
+            "context.TargetSelection, context.Other"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/TargetSelectionDrawTests.cs",
+          "methods": [
+            "JarDrawsWhenItsControllerConfirmsItAsASpellTargetBeforeThatSpellResolves",
+            "JarIgnoresOtherUnitsOpponentsAndNonSpellAbilities",
+            "ReturningJarInResponseKeepsBothEarnedDrawsAndMasksTheDepartedSource",
+            "RecoveryRejectsErasedDuplicatedOrForgedTargetSelectionCaptures"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1129,35 +1160,76 @@
       ],
       "text": "当你将一名友方单位选为目标时，你可以选择支付{{1}}并让此牌变为休眠状态，以此抽一张牌。",
       "scope": "当你将一名友方单位选为目标时，你可以选择支付{{1}}并让此牌变为休眠状态，以此抽一张牌。",
-      "status": "missing",
-      "reason": "只有基础装备登记；缺少己方将友方单位选为目标时可选支付1法力并横置来源的确认费用，以及独立抽1牌技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "己方确认法术或技能的友方单位目标时捕获可选抽1；确认阶段支付1法力并横置来源，随后可响应独立抽牌。可放弃，休眠或无费用不能付款，重复目标逐次捕获但同一来源横置只能支付一次；不按打出卡牌的可选额外费用处理。 真实转化为单位的装备同样属于友方单位目标；捕获时保留类型依据，并由原始事件哈希约束。",
+      "rules": "中国区核心355.6–355.11、383.4.b 指目标触发、383.2–383.3 独立技能、403–407 确认与响应；该卡官方中文文本；铸魂淬炼裁判FAQ260114第18页：灵魂之轮的费用不是打出卡牌的可选额外费用；核心178.1–178.2 多类型保有各自类型",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsEquipment": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "FRIENDLY_UNIT_TARGETED",
+              "effect": "DRAW",
+              "amount": 1,
+              "optional": true,
+              "leadingManaCost": 1,
+              "leadingSourceExhaust": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetSelectionObservers.cs",
           "contains": [
-            "\"SFD·144/221\"",
-            "\"SOUL_WHEEL_PLAY_EQUIPMENT\""
+            "CaptureFriendlyUnitTargetedObservers",
+            "EffectiveFieldControllerId(zones, unit.ObjectId, unit) != actor",
+            "!spec.TargetSelectionRequiresSpell || spell",
+            "!spec.TargetSelectionRequiresSource || observation.Source == unit.ObjectId",
+            "RuleChoices.Value?.CompletionTick ?? state.Tick",
+            "selection.EquipmentUnit && face.Tags.Contains(CardObjectTags.EquipmentCard)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelfActionObservers.cs",
+          "contains": [
+            "HasConfirmedTargets(result.State, i)",
+            "StackObjectRules.IsSpell(item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "spec.Effect == \"DRAW\" && (LeadingTriggerCost(item) is null || item.TriggerCost is not null)",
+            "ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.Amount"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "UnitEventTimings.FriendlyUnitTargeted",
+            "context.TargetSelection, context.Other"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "SelectedUnitEventSpec(exhausting) is { LeadingSourceExhaust: true }",
+            "Power: exhaustSpec.LeadingPowerCost, Mana: exhaustSpec.LeadingManaCost"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/TargetSelectionDrawTests.cs",
+          "methods": [
+            "WheelPaysOneManaAndExhaustsForSpellOrAbilityTargetsBeforeDrawing",
+            "WheelRequiresTheFriendlyTargetAndAnAcceptedPayableCost",
+            "RepeatedTargetSelectionsEarnSeparateWheelTriggersButCanOnlyExhaustOnce",
+            "AnEquipmentActuallyAnimatedByOriannaIsAFriendlyUnitTargetForTheWheel",
+            "OrdinaryEquipmentCannotBeSubmittedAsAUnitTargetToInventADraw"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1165,13 +1237,14 @@
       ],
       "text": "让同一处战场上的两名单位在本回合内战力互换。",
       "scope": "让同一处战场上的两名单位在本回合内战力互换。",
-      "status": "missing",
-      "reason": "已按结算时双方当前战力交换固定差值，但只逐个要求战场单位，未校验两名单位处于同一处实际战场；错误允许跨战场互换",
-      "rules": "核心359 牌面目标限制；SFD·145 官方中文牌面明确同一处战场",
+      "status": "route",
+      "reason": "共享目标组限制在报价、提交与结算阶段校验两名单位是否位于同一实际战场；响应离场或移动使原组不合法后，不得继续跨场交换。合法同场组在结算时读取当前战力并保留回合结束清理。",
+      "rules": "中国区核心355.11.a–b.1 目标组限制、358.1/358.5 合法性与撤回、359.3.d–e.8 结算目标复检与不可执行指示；SFD·145 官方中文文本",
       "runtime": {
         "behaviors": [
           {
             "swapsTargetPowersUntilEndOfTurn": true,
+            "targetsShareBattlefield": true,
             "targetScope": "BATTLEFIELD_UNIT",
             "requiredTargetCount": 2
           }
@@ -1179,15 +1252,32 @@
       },
       "evidence": [
         {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TargetGroups.cs",
+          "contains": [
+            "if (!behavior.TargetsShareBattlefield) return true",
+            "location.BattlefieldObjectId == field",
+            "ResolveTargetGroup"
+          ]
+        },
+        {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "behavior.SwapsTargetPowersUntilEndOfTurn",
-            "IsBattlefieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)",
-            "IsBattlefieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId)"
+            "ResolveTargetGroup(state, MaskTargetsNoLongerLegal(state, stackItem, behavior), behavior)",
+            "behavior.SwapsTargetPowersUntilEndOfTurn"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SameBattlefieldPowerSwapTests.cs",
+          "methods": [
+            "TwoUnitsAtTheSameActualBattlefieldExchangeCurrentPowerUntilEndOfTurn",
+            "DifferentBattlefieldsAreRejectedAtPreviewAndSubmissionWithoutPaying",
+            "ReturningOneTargetInResponsePreventsAnExchangeWithTheCardInHand",
+            "AResponseMovingOneTargetToBaseStopsTheExchange"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

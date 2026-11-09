@@ -247,7 +247,7 @@ public sealed partial class CoreRuleEngine
         foreach(var fact in units) cards[fact.ObjectId] = cards[fact.ObjectId] with {MovementCountThisTurn=checked(cards[fact.ObjectId].MovementCountThisTurn+1)};
         return WithReadyObjectObservations(WithUnitEvents(new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() }),
             units.SelectMany(f => CaptureUnitEvents(before.PlayerZones, before.CardObjects, [f.ObjectId], "MOVE")
-                .Where(o => o.Controller == f.MovingPlayerId)
+                .Where(o => UnitEventSpec(o.Context.CardNo)?.ObservesMovementByAnyPlayer == true || o.Controller == f.MovingPlayerId)
                 .Select(o => o with { Context = o.Context with { Here = f.Destination } })).ToArray()), readyObjects);
     }
 

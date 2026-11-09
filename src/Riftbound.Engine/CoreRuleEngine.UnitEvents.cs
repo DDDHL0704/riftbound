@@ -269,7 +269,10 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult RecordUnitEventSourceFacts(MatchState before, ResolutionResult result)
     {
         UnitEventContext? Update(string id, UnitEventContext? c) {
-            if (c is null || c.LastKnownPower is null && c.Here is null) return c;
+            // Current-here token instructions read the source directly when
+            // resolving. Their original movement capture remains immutable.
+            if (c is null || SelectedUnitEventSpec(c)?.CreatesUnitTokenHere == true
+                || c.LastKnownPower is null && c.Here is null) return c;
             var current = CombatMightSourceLocation(result.State, id, c.SourceGeneration) is not null ? result.State
                 : CombatMightSourceLocation(before, id, c.SourceGeneration) is not null ? before : null;
             return current is null ? c : c with { LastKnownPower = c.LastKnownPower is null ? null : ResolveCurrentFieldUnitPower(current, current.CardObjects[id]),
@@ -381,7 +384,7 @@ public sealed partial class CoreRuleEngine
                         && PredictBindingMatches(state, burned.Binding, burned.CardNo, burned.FaceRevision, reflexive, null)
                     : c.ReflexiveTick is null
                 : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
-            && ValidTargetSelectionContext(state, c, spec, controller)
+            && ValidTargetSelectionContext(state, c, spec, source, controller)
             && ValidFriendlyUnitActionContext(state, c, spec, controller)
             && ValidBattleDrawContext(state, c, spec, controller)
             && ValidPlayerDefenseContext(state, c, spec)
@@ -394,7 +397,8 @@ public sealed partial class CoreRuleEngine
                 && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
                 && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
                     || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
-                : spec.Effect == ReadySelectedEventUnit || IsFriendlyObservedUnitSpec(spec) ? c.Other is not null : c.Other is null)
+                : spec.Effect == ReadySelectedEventUnit || IsFriendlyObservedUnitSpec(spec)
+                    || spec.Timing == FriendlyUnitTargetedTiming ? c.Other is not null : c.Other is null)
             && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect == "MIGHT_ATTACKERS" ? c.Attackers is { Count: > 0 }
                 && c.Attackers.All(a => a is not null && a.Binding is { Generation: >= 0 }
@@ -402,18 +406,18 @@ public sealed partial class CoreRuleEngine
                     && PredictBindingMatches(state, a.Binding, a.CardNo, a.FaceRevision, c.CapturedTick, a.TokenFactoryCardNo))
                 && c.Attackers.Select(a => a.Binding.ObjectId).Distinct(StringComparer.Ordinal).Count() == c.Attackers.Count
                 : c.Attackers is null)
-            && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "MOVE_ENEMIES_TO_BASE" || spec.Timing == "PLAY_OR_MOVE" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
+            && (spec.Effect is "MATCH_POWER_THEN_BUFF" or "MOVE_ENEMIES_TO_BASE" || UnitEventTimingMatches(spec.Timing, "MOVE") ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
                 && (here.Zone == "BASE" && here.BattlefieldObjectId is null
                     || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is not null)
                 : c.Here is null)
             && (CombatMightSourceLocation(state, source, c.SourceGeneration) is not { } current
                 || (c.LastKnownPower is null || c.LastKnownPower == ResolveCurrentFieldUnitPower(state, state.CardObjects[source]))
-                    && (c.Here is null || c.Here == current))
+                    && (c.Here is null || spec.CreatesUnitTokenHere || c.Here == current))
             && (c.Origin is { } origin ? AttachedRuleTextRules.ValidCaptured(state, origin, source, c.SourceGeneration, c.CardNo)
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
+        && (SelectedUnitEventSpec(c)?.Effect is UnitEventGraveyardPlayEffect or ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.UnitEvent is { } grant && SelectedUnitEventSpec(grant)?.Effect == UnitEventTurnPlayGrantEffect
@@ -431,7 +435,10 @@ public sealed partial class CoreRuleEngine
             && item.TargetGenerations.Count == item.TargetObjectIds.Count
             && item.TargetObjectIds.All(id => item.TargetGenerations.TryGetValue(id, out var generation) && generation >= 0);
     private static string[] UnitEventTargets(MatchState state, StackItemState item)
-        => state.CardObjects.Values.Where(c => !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
+        => IsUnitEventGraveyardPlay(item) ? state.PlayerZones[item.ControllerId].Graveyard
+            .Where(id => state.CardObjects.TryGetValue(id, out var card) && IsUnitEventGraveyardPlaySource(card))
+            .Order(StringComparer.Ordinal).ToArray()
+            : state.CardObjects.Values.Where(c => !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && (SelectedUnitEventSpec(item.UnitEvent!)!.Effect switch {
                 PlayedUnitReadyRunes => c.Tags.Contains(CardObjectTags.RuneCard),
                 ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect => IsFaceUpNonStandbyUnit(c)
@@ -553,6 +560,7 @@ public sealed partial class CoreRuleEngine
             TryGetEffectPlayDefinition(item, out var definition);
             return BeginEffectPlay(state, item, definition);
         }
+        if (spec.Effect == UnitEventGraveyardPlayEffect) return ResolveUnitEventGraveyardPlay(state, item);
         if (spec.Effect == "DECLARE_ATTRIBUTE") return ResolveAttributeDeclaration(state, item);
         if (IsPlayedUnitRuneSpec(spec)) return ResolvePlayedUnitRunes(state, item, spec);
         if (spec.Effect == "CALL_RUNES_PER_CONSUMED_BOON") return ResolvePaidBoonRuneInstruction(state, item, spec);
