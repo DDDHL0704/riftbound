@@ -48,6 +48,23 @@ internal static class VictoryCleanupGarenSqlAcceptance
                 Check(state.CardObjects["TARGET"].ControllerId == "alice" && state.PlayerScores["alice"] == 1
                     && state.PlayerScores["bob"] == 0 && state.Status == MatchStatuses.InProgress && state.WinnerPlayerId is null,
                     "Both exact Garen branches must actually conquer and gain one ordinary point.");
+                Check(state.PlayerZones["alice"].Hand.Count == 0 && state.PlayerZones["alice"].MainDeck.Count == 2,
+                    "CN 383.3: conquest captures the independent draw before either player responds.");
+                if (expectedDraw > 0)
+                {
+                    var draw = state.StackItems.Single();
+                    Check(draw.LegendConquest is { Kind: "MINIMUM_UNITS_DRAW", Draw.CountedUnits.Count: 4 } conquest
+                        && conquest.BattlefieldId == "TARGET",
+                        "Four actual conquerors earn exactly one untargeted draw skill for their battlefield.");
+                    await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
+                    Check(state.PlayerZones["alice"].Hand.Count == 0
+                        && state.StackItems.Any(item => item.StackItemId == draw.StackItemId),
+                        "One priority pass cannot resolve the independent draw skill.");
+                    await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
+                    Check(state.StackItems.All(item => item.StackItemId != draw.StackItemId),
+                        "Both original priority passes resolve the captured draw skill.");
+                }
+                else Check(state.StackItems.Count == 0, "One actual conqueror cannot earn Garen's four-unit draw.");
                 Check(state.PlayerZones["alice"].Hand.Count == expectedDraw && state.PlayerZones["alice"].MainDeck.Count == 2 - expectedDraw
                     && units.Count(id => state.ObjectLocations[id].BattlefieldObjectId == "TARGET") == movingCount
                     && units.Count(id => state.ObjectLocations[id].BattlefieldObjectId == "OTHER") == 4 - movingCount,
