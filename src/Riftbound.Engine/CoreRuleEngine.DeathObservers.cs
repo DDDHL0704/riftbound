@@ -32,7 +32,7 @@ internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, D
     public IReadOnlyList<LastBreathUnitCreationContext> UnitCreations { get; init; } = [];
     public IReadOnlyList<LastBreathRuneCallContext> RuneCalls { get; init; } = [];
     public IReadOnlyList<LastBreathDrawContext> Draws { get; init; } = [];
-    public IReadOnlyList<UnitEventContext> ArmamentLastBreaths { get; init; } = [];
+    public IReadOnlyList<UnitEventContext> LastBreathUnitEvents { get; init; } = [];
     public IReadOnlyList<LastBreathBattlefieldDamageContext> BattlefieldDamages { get; init; } = [];
     public IReadOnlyList<LastBreathMightContext> LastBreathMights { get; init; } = [];
     public DravenBattleDeathScoreContext? DravenBattleDeathScore { get; init; }
@@ -49,7 +49,8 @@ public sealed partial class CoreRuleEngine
         or TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune or TriggerKinds.UnitStunnedEnemyDestroyedHereDraw
         or TriggerKinds.UnitFriendlyBatchDestroyedBoon or TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion
         or TriggerKinds.PlayerDestroysStunnedEnemyDraw or TriggerKinds.FriendlyBoonedUnitDestroyedBoonOther
-        or TriggerKinds.SourceEnemyBatchDestroyedReady or TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold;
+        or TriggerKinds.SourceEnemyBatchDestroyedReady or TriggerKinds.SourceBattlefieldEnemyDestroyedOnceGold
+        or TriggerKinds.FriendlyUnitDestroyedExhaustDrawHandToDeck;
 
     private static bool MatchingLocalDeath(DeathObserverContext c, string controller)
         => !string.IsNullOrWhiteSpace(c.Destroyed.ControllerId) && c.Destroyed.ControllerId != controller
@@ -62,6 +63,9 @@ public sealed partial class CoreRuleEngine
     private static string OncePerTurnDeathObserverMarker(CapturedDeathObserver observer)
         => $"DEATH_OBSERVER_ONCE:{observer.ObjectId}:{observer.Context.SourceGeneration}:{observer.Context.Kind}:{observer.Context.RuleTextInstanceId ?? "PRINTED"}"
             + (observer.Context.Kind == TriggerKinds.BattlefieldFirstNonTokenDestroyedCreateMinion ? ":" + observer.ControllerId : "");
+
+    internal static string DeathObserverIdentity(string source, DeathObserverContext context)
+        => MatchStateHasher.HashValue(new { ObjectId = source, context.SourceGeneration, context.RuleTextInstanceId });
 
     private static bool ValidLocalFriendlyDeath(DeathObserverContext c, string controller, string source)
         => c.Destroyed.ControllerId == controller && !c.Destroyed.WasToken
@@ -215,7 +219,7 @@ public sealed partial class CoreRuleEngine
             UnitCreations = CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId),
             RuneCalls = CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId),
             Draws = CaptureLastBreathDraws(state, zones, cards, unit, deathId),
-            ArmamentLastBreaths = CaptureArmamentLastBreaths(state, zones, cards, unit, deathId, fact),
+            LastBreathUnitEvents = CaptureLastBreathUnitEvents(state, zones, cards, unit, deathId, fact),
             BattlefieldDamages = CaptureLastBreathBattlefieldDamage(state, zones, cards, unit, deathId),
             DravenBattleDeathScore = CaptureDravenBattleDeathScore(state, zones, cards,
                 frame.CurrentDestructionLocations ?? state.ObjectLocations, unit, deathId, state.Tick + 1),
@@ -274,7 +278,7 @@ public sealed partial class CoreRuleEngine
             var prior=counts.GetValueOrDefault(death.Unit.ControllerId);
             counts[death.Unit.ControllerId]=prior+1;
             if (state.Status!=MatchStatuses.InProgress) continue;
-            QueueArmamentLastBreaths(state, death, queue, events);
+            QueueLastBreathUnitEvents(state, death, queue, events);
             foreach (var captured in death.UnitCreations)
             {
                 var context = captured with { CreatedAtTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
@@ -342,7 +346,11 @@ public sealed partial class CoreRuleEngine
                     effects = AddUntilEndOfTurnEffect(effects, marker);
                 }
                 var instanceSuffix = observer.Context.RuleTextInstanceId is { } instance ? ":" + instance : "";
-                var trigger=new TriggerQueueItemState($"{(instanceSuffix.Length == 0 ? "" : "copied-")}{death.Id}-{observer.ObjectId}{instanceSuffix}",observer.ControllerId,observer.ObjectId,
+                // The source and its granting equipment may become private
+                // while the earned skill is pending. Transport identifiers
+                // must not retain either object's id after that transition.
+                var identity = DeathObserverIdentity(observer.ObjectId, observer.Context);
+                var trigger=new TriggerQueueItemState($"{(instanceSuffix.Length == 0 ? "" : "copied-")}{death.Id}-{identity}",observer.ControllerId,observer.ObjectId,
                     DeathObserverEffect,TriggerTimings.UnitDestroyed) { DeathObserver=observer.Context,SourceCardNo=observer.Context.CardNo };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
@@ -360,6 +368,12 @@ public sealed partial class CoreRuleEngine
         var resolved=BuildTriggerResolvedEvent(new TriggerQueueItemState(item.StackItemId,item.ControllerId,item.SourceObjectId,item.EffectKind,TriggerTimings.UnitDestroyed) { DeathObserver=c });
         if (IsEnemySourceDeathKind(c.Kind))
             return ResolveEnemySourceDeathObserver(state, item, c, spec, resolved);
+        if (c.Kind == TriggerKinds.FriendlyUnitDestroyedExhaustDrawHandToDeck)
+        {
+            if (item.TriggerCost is null) throw new InvalidOperationException("Missing death-observer exhaust receipt.");
+            var drawPut = ResolveDrawThenHandToDeck(state, item, spec.DrawCount.GetValueOrDefault(1));
+            return drawPut with { Events = drawPut.Events.Select(e => e.Kind == "TRIGGER_RESOLVED" ? resolved : e).ToArray() };
+        }
         if (c.Kind == TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune)
         {
             var zones = NormalizeZonesForSeats(state);

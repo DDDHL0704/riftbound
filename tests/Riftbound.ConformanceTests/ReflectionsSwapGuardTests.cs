@@ -666,7 +666,7 @@ public sealed class ReflectionsSwapGuardTests
 
     private static CardObjectState Unit(
         string objectId,
-        string? cardNo = "SFD·125/221",
+        string? cardNo = "OGN·175/298",
         int power = 2,
         bool isFaceDown = false,
         IReadOnlyList<string>? tags = null,

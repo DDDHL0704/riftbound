@@ -1,6 +1,7 @@
 import fnmatch
 import re
 from pathlib import Path
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -59,7 +60,10 @@ class WorkflowCandidateTests(unittest.TestCase):
         self.assertIn("ref: main", jobs['scope'])
         self.assertIn("steps.fixed.outputs.commit", jobs['scope'])
         for name, block in jobs.items():
-            if name != 'scope' and "- uses: actions/checkout@" in block:
+            if name == 'postgres_scoped':
+                self.assertIn("ref: ${{ github.sha }}", block)
+                self.assertIn("RIFTBOUND_FIXED_COMMIT: ${{ github.sha }}", block)
+            elif name != 'scope' and "- uses: actions/checkout@" in block:
                 with self.subTest(job=name):
                     self.assertIn("ref: ${{ needs.scope.outputs.commit }}", block)
                     self.assertNotIn("ref: main", block)
@@ -98,3 +102,68 @@ class WorkflowCandidateTests(unittest.TestCase):
         self.assertIn('var/qa/ci-postgres/', job)
         self.assertIn('if: always()', job)
         self.assertNotIn('continue-on-error', job)
+
+    def test_manual_sql_partition_is_explicit_and_full_is_the_default(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        inputs = text.split('permissions:', 1)[0]
+        self.assertIn('default: all', inputs)
+        self.assertIn("options: ['all', '0', '1', '2', '3']", inputs)
+        self.assertIn("format('SQL partition {0} ({1})'", inputs)
+        jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
+        self.assertIn("if: ${{ github.event_name != 'workflow_dispatch' || inputs.postgres_partition == 'all' }}", jobs['scope'])
+        for name in ['rule_suite', 'postgres', 'rules']:
+            header = jobs[name].split('    steps:', 1)[0]
+            self.assertIn("github.event_name != 'workflow_dispatch' || inputs.postgres_partition == 'all'", header)
+            self.assertIn('!cancelled()', header)
+
+    def test_manual_sql_partition_pins_the_selected_ref_and_validates_its_index(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        job = text[text.index('  postgres_scoped:'):]
+        self.assertIn("if: ${{ github.event_name == 'workflow_dispatch' && inputs.postgres_partition != 'all' }}", job)
+        self.assertIn('ref: ${{ github.sha }}', job)
+        self.assertIn('RIFTBOUND_FIXED_COMMIT: ${{ github.sha }}', job)
+        self.assertIn('RIFTBOUND_POSTGRES_PARTITION: ${{ inputs.postgres_partition }}', job)
+        self.assertIn("assert os.environ['RIFTBOUND_POSTGRES_PARTITION'] in {'0', '1', '2', '3'}", job)
+        self.assertIn('--expected "$RIFTBOUND_FIXED_COMMIT" --event-sha "$RIFTBOUND_FIXED_COMMIT"', job)
+        self.assertNotIn('ref: main', job)
+        self.assertNotIn('needs: scope', job)
+
+    def test_manual_sql_partition_runs_the_complete_selected_partition_only(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        job = text[text.index('  postgres_scoped:'):]
+        self.assertIn('image: postgres:16.13@sha256:', job)
+        self.assertIn('dotnet build tests/Riftbound.PostgresAcceptance -c Release -m:1', job)
+        self.assertIn('--ci-partition "$RIFTBOUND_POSTGRES_PARTITION" 4', job)
+        self.assertIn('scripts/observe-ci-command.py --commit "$RIFTBOUND_FIXED_COMMIT"', job)
+        self.assertIn('name: postgres-scoped-${{ inputs.postgres_partition }}', job)
+        self.assertIn('var/qa/ci-postgres-runtime/', job)
+        self.assertNotIn('scripts/l2-distributed.py', job)
+        self.assertNotIn('NativeNetworkSmoke', job)
+        self.assertNotIn('continue-on-error', job)
+
+    def test_workflow_action_inputs_cannot_repeat_yaml_keys(self):
+        def check(text):
+            for block in re.finditer(r'(?m)^( +)with:\s*\n', text):
+                indent = len(block[1]); keys = []
+                for line in text[block.end():].splitlines():
+                    if not line.strip(): continue
+                    depth = len(line) - len(line.lstrip())
+                    if depth <= indent: break
+                    key = re.match(r'([A-Za-z_][A-Za-z0-9_-]*):', line.lstrip())
+                    if depth == indent + 2 and key: keys.append(key[1])
+                if len(keys) != len(set(keys)): raise AssertionError('duplicate YAML action input')
+        check((ROOT / '.github/workflows/native-desktop.yml').read_text())
+        with self.assertRaisesRegex(AssertionError, 'duplicate YAML'):
+            check('      - uses: action\n        with:\n          retention-days: 90\n          retention-days: 14\n')
+
+    def test_manual_sql_observation_has_a_fresh_directory_after_checkout_receipt(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        job = text[text.index('  postgres_scoped:'):]
+        checkout = re.search(r'scripts/ci-candidate\.py[^\n]+ --output (\S+)', job)[1]
+        execution = re.search(r'scripts/observe-ci-command\.py[^\n]+ --output (\S+)', job)[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            receipt = Path(tmp) / checkout
+            receipt.parent.mkdir(parents=True)
+            receipt.write_text('{}')
+            # observe-ci-command deliberately refuses an existing output directory.
+            (Path(tmp) / execution).mkdir(parents=True, exist_ok=False)

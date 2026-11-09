@@ -16,6 +16,7 @@ public sealed record StandbyPlayedObserverContext(string CardNo, ObjectBinding S
 public sealed partial class CoreRuleEngine
 {
     internal const string StandbyPlayedEffect = "STANDBY_PLAYED_SELF_MIGHT";
+    internal const string FaceDownSpellCompletedEvent = "FACE_DOWN_SPELL_PLAY_COMPLETED";
     private sealed record CapturedStandbyObserver(string Controller, string InstanceId, StandbyPlayedObserverContext Context,
         string? EffectKind = null);
 
@@ -44,6 +45,7 @@ public sealed partial class CoreRuleEngine
         }
 
         captured.AddRange(CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEnemyDamageEffect));
+        captured.AddRange(CaptureStandbyUnitObservers(ev, zones, cards, player, StandbyPlayedEquipmentTokenEffect));
         return captured.Count == 0
             ? ev
             : ev with { Payload = new Dictionary<string, object?>(ev.Payload) { ["standbyPlayObservers"] = captured.ToArray() } };
@@ -76,8 +78,11 @@ public sealed partial class CoreRuleEngine
                         CapturedTick = result.State.Tick } };
 
                 var effect = source.EffectKind ?? (context.Draw is null ? StandbyPlayedEffect : StandbyPlayedDrawEffect);
+                // A pending skill survives its source or granting equipment
+                // returning to a private zone. Its id must preserve no raw id.
+                var identity = MatchStateHasher.HashValue(new { context.Source, source.InstanceId });
                 var trigger = new TriggerQueueItemState(
-                    $"standby-play-{result.State.Tick}-{i}-{context.Source.ObjectId}-{source.InstanceId}"
+                    $"standby-play-{result.State.Tick}-{i}-{identity}"
                         + (context.Unit is null ? "" : "-" + effect),
                     source.Controller, context.Source.ObjectId,
                     effect, StandbyObserverEventKind(effect))

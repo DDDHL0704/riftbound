@@ -9,11 +9,16 @@ public sealed partial class CoreRuleEngine
     internal const string ReadyRestrictedEntryChoice = "ENTER_READY_CANNOT_MOVE";
     internal const string DestroyFriendlyPermanentAdditionalCostPrefix = "DESTROY_FRIENDLY_PERMANENT:";
 
-    private static bool CanDestroyFriendlyPermanentAsAdditionalCost(MatchState state, string player, string id)
-        => IsFriendlyDestructionChoice(state, player, id);
+    private static bool CanDestroyFriendlyPermanentAsAdditionalCost(MatchState state, string player, string id,
+        CardBehaviorDefinition behavior)
+        => IsFriendlyDestructionChoice(state, player, id)
+            && (behavior.OptionalPermanentDestructionRequiredTag is not { Length: > 0 } tag
+                || state.CardObjects[id].Tags.Contains(tag));
 
-    internal static IReadOnlyList<string> OptionalPermanentDestructionChoices(MatchState state, string player)
+    internal static IReadOnlyList<string> OptionalPermanentDestructionChoices(MatchState state, string player,
+        CardBehaviorDefinition behavior)
         => FriendlyDestructionChoices(state, player)
+            .Where(card => CanDestroyFriendlyPermanentAsAdditionalCost(state, player, card.ObjectId, behavior))
             .Select(card => DestroyFriendlyPermanentAdditionalCostPrefix + card.ObjectId).ToArray();
 
     internal static bool OptionalPermanentDestructionWasPaid(StackItemState item)

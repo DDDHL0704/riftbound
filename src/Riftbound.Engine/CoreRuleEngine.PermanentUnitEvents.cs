@@ -4,6 +4,15 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal const string MoveFriendlyToArrivalBattlefieldEffect = "MOVE_ANOTHER_FRIENDLY_TO_ARRIVAL_BATTLEFIELD";
+
+    // CN359.3.f.3: "the same battlefield" is the event's arrival field,
+    // preserved even if the source moves again or leaves before resolution.
+    private static string? UnitEventArrivalBattlefieldDestination(MatchState state, StackItemState item)
+        => SelectedUnitEventSpec(item.UnitEvent!)?.RequiresMoveToBattlefield == true
+            && item.UnitEvent!.Here is { Zone: "BATTLEFIELD", BattlefieldObjectId: { } field }
+            && BattlefieldLocalRules.Battlefield(state, field) is not null ? "BATTLEFIELD:" + field : null;
+
     // CN359.3.f.2: an instruction reads the source's current location in the
     // captured generation. Leaving and re-entering cannot supply a new "here".
     private static string? UnitEventHereDestination(MatchState state, StackItemState item)
@@ -96,6 +105,7 @@ public sealed partial class CoreRuleEngine
             if (readied is not null) events.Add(readied);
         }
         else if ((spec.Effect == "MOVE_ENEMY_HERE" ? UnitEventHereDestination(state, item)
+            : spec.Effect == MoveFriendlyToArrivalBattlefieldEffect ? UnitEventArrivalBattlefieldDestination(state, item)
             : spec.Effect == DeploymentPlayMoveEffect ? DeploymentPlayDestination(state, item.UnitEvent!) : null) is { } destination)
         {
             var zones = NormalizeZonesForSeats(state);

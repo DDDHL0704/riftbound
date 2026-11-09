@@ -20,24 +20,25 @@ public sealed partial class KatarinaFaceDownObserverTests
         await game.Act("P2", new RecycleRuneCommand("P2-R5"));
         await game.Act("P2", new PlayCardCommand("COUNTER", "SFD·045/221", [skill])); await game.Top();
         Assert.DoesNotContain(game.State.StackItems, item => item.EffectKind == CoreRuleEngine.StandbyPlayedEnemyDamageEffect);
-        Assert.Contains(game.State.StackItems, item => item.SourceObjectId == Shadow);
+        Assert.DoesNotContain(game.State.StackItems, item => item.SourceObjectId == Shadow);
+        Assert.Contains(Shadow, game.State.PlayerZones["P1"].Graveyard);
         while (game.State.StackItems.Count > 0) await game.Top();
         Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage); await game.ColdCheckpoint();
     }
 
     [Fact]
-    public async Task CounteringTheActuallyPlayedFaceDownSpellCannotRemoveItsEarnedDamageSkill()
+    public async Task CounteringTheActuallyPlayedFaceDownSpellPreventsItsDamageTrigger()
     {
         var initial = RadGearTestPosition.Put(Position("OGN·083/298"), "COUNTER", "OGN·045/298", "P2", "HAND");
         initial = RadGearTestPosition.Put(initial, "P2-R5", "UNL-R02", "P2", "BASE");
         var game = new Driver(initial); await HiddenNextTurn(game, "OGN·083/298");
-        await FromFaceDown(game, "OGN·083/298"); await Target(game); await Priority(game, "P2");
+        await FromFaceDown(game, "OGN·083/298", resolveSpell: false); await Priority(game, "P2");
         var original = Assert.Single(game.State.StackItems, item => item.SourceObjectId == Shadow).StackItemId;
         await game.Act("P2", new RecycleRuneCommand("P2-R5"));
         await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·045/298", [original])); await game.Top();
         Assert.Contains(Shadow, game.State.PlayerZones["P1"].Graveyard);
-        Assert.Contains(game.State.StackItems, item => item.EffectKind == CoreRuleEngine.StandbyPlayedEnemyDamageEffect);
-        await game.Top(); Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage);
+        Assert.DoesNotContain(game.State.StackItems, item => item.EffectKind == CoreRuleEngine.StandbyPlayedEnemyDamageEffect);
+        Assert.Empty(game.State.TriggerQueue); Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
         while (game.State.StackItems.Count > 0) await game.Top(); await game.ColdCheckpoint();
     }
 
