@@ -98,6 +98,9 @@ public sealed partial class CoreRuleEngine
         var cost = CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,
             sourceObjectId: sourceObjectId, destination: null);
         var reduction = Math.Min(cost.Total, AvailableOptionalPlayManaReduction(state, playerId, behavior));
-        return cost with { Total = cost.Total - reduction, OptionalReduction = cost.OptionalReduction + reduction };
+        // An unselected-target prompt is only a lower bound. The final quote
+        // chooses one joint mana/power price for the actual target set.
+        var targeted = Math.Min(cost.Total - reduction, AvailableTargetedSpellReduction(state, playerId, behavior));
+        return cost with { Total = cost.Total - reduction - targeted, OptionalReduction = cost.OptionalReduction + reduction };
     }
 }

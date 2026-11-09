@@ -4056,10 +4056,12 @@ internal static partial class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
+        var manaRequired = CoreRuleEngine.CalculatePlayManaCost(state, playerId, behavior, targets: targetObjectIds).Total;
+        manaRequired = Math.Max(0, manaRequired - CoreRuleEngine.AvailableOptionalPlayManaReduction(state, playerId, behavior));
         var ward = behavior.IgnoresSpellshield ? 0 : CoreRuleEngine.SpellshieldPowerCostForTargets(state, playerId, targetObjectIds);
-        return PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, null) >= manaRequired
-            && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "", targets: targetObjectIds);
+        return CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior),
+            behavior, ward, "", targets: targetObjectIds, manaCost: manaRequired,
+            availableMana: PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, null));
     }
 
     private static bool PromptHasRequiredAnyTargetTag(
@@ -4303,6 +4305,7 @@ internal static partial class ActionPromptBuilder
             }
         choices.AddRange(CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior));
         choices.AddRange(CoreRuleEngine.OptionalPlayCostReductionChoices(state, playerId, behavior));
+        choices.AddRange(CoreRuleEngine.TargetedSpellReductionChoices(state, playerId, behavior));
         choices.AddRange(TurnEquipmentPlayRules.Choices(state, playerId, behavior, sourceObjectId));
         if (behavior.AppliedFlowCost is { } flow)
             choices.Add(new(CoreRuleEngine.FlowCostChoiceId(flow), $"流转：{flow.Mana} 法力 / {flow.Power} 符能",
@@ -5595,6 +5598,12 @@ internal static partial class ActionPromptBuilder
         }
         var spellPowerReductionChoices = CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior);
         if (spellPowerReductionChoices.Count > 0) requirement["spellPowerReductionChoices"] = spellPowerReductionChoices;
+        var targetedReductions = CoreRuleEngine.TargetedSpellReductionChoices(state, playerId, behavior);
+        if (targetedReductions.Count > 0)
+        {
+            requirement["targetedSpellReductionChoices"] = targetedReductions;
+            requirement["targetDependentCosts"] = true;
+        }
         if (paymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
             requirement["paymentResourceOrderMatters"] = true;
         if (manaCost.EmpoweredSpellReduction > 0) requirement["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;

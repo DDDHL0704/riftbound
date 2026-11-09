@@ -17806,6 +17806,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "此指令的符能数量须在结算时选择和支付。", ErrorCodes.InvalidTarget);
             return false;
         }
+        var targetedSpellReductionChoices = normalizedCommandOptionalCosts.Where(IsTargetedSpellReductionChoice).ToArray();
+        if (costsWithoutPowerSpend.Count(cost => IsTargetedSpellReductionChoice(cost?.Trim() ?? "")) != targetedSpellReductionChoices.Length)
+        {
+            rejection = Reject(state, "同一份目标减费不能重复选择。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        normalizedCommandOptionalCosts = normalizedCommandOptionalCosts.Where(cost => !IsTargetedSpellReductionChoice(cost)).ToArray();
         var playCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalPlayCostReductionChoice).ToArray();
         if (costsWithoutPowerSpend.Count(IsOptionalPlayCostReductionChoice) != playCostReductionChoices.Length
             || !TrySelectOptionalPlayCostReducers(state, intent.PlayerId, behavior, playCostReductionChoices,
@@ -18213,24 +18220,52 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var powerPurpose = PowerPurposeForPlay(behavior);
         var spendablePowerPool = PaymentCostRules.PowerPoolForPurpose(paymentAdjustedPool, powerPurpose);
         var extraGenericPower = ignoresAllCosts ? 0 : extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
-        var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
-            extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
-            SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power,
-            optionalPlayReduction: playCostReducers.Sum(source => source.Spec.Power), targets: paymentTargets);
-        // A repeat probe validates a target declaration, not the final combined
-        // price. Both reduction and wallet choices belong to the complete plan.
-        var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
-                || option.ChoiceId == spellPowerReductionChoices[0])
-            .Where(option => powerSpend is null || !validateRepeats
-                || PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower,
-                    paymentAdjustedPool, powerPurpose))
-            .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
+        // CN356.4: each targeted rule-text instance reduces mana OR power.
+        // Choose one complete price against the actual post-resource wallet;
+        // independent minima could authorize a price that no allocation offers.
+        // A repeat probe validates only its targets; final choices belong to the
+        // combined plan, including targets of every repeat and selected mode.
+        if (!TryTargetedSpellReductions(state, intent.PlayerId, behavior, paymentTargets,
+                validateRepeats ? targetedSpellReductionChoices : [], out var targetedReductions))
+        {
+            rejection = Reject(state, "目标减费选择无效或来源已改变。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        var currentExperience = state.PlayerExperience.GetValueOrDefault(intent.PlayerId);
+        var generatedLuxMana = (long)luxSpellOnlyResourceSourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana;
+        var candidatePool = CanGainSpellOnlyMana(paymentAdjustedPool, generatedLuxMana)
+            ? paymentAdjustedPool with { SpellOnlyMana = paymentAdjustedPool.SpellOnlyMana + (int)generatedLuxMana }
+            : paymentAdjustedPool;
+        var prices = targetedReductions.SelectMany(reduction => SpellPlayPowerOptions(state, intent.PlayerId, behavior,
+                printedPowerChoices.SingleOrDefault(), extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
+                SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power,
+                optionalPlayReduction: playCostReducers.Sum(source => source.Spec.Power), targets: paymentTargets,
+                targetedReduction: reduction.Power)
+            .Select(power => new TargetedSpellPrice(Math.Max(0, totalManaCost - reduction.Mana), power, reduction))).ToArray();
+        bool CanPayPrice(TargetedSpellPrice price)
+            => PaymentCostRules.AuthorizePayment(new("TARGETED_SPELL_PRICE", "PLAY_CARD", intent.PlayerId,
+                totalManaCost: price.Mana, genericPowerCost: price.Power.GenericPower, powerCostByTrait: price.Power.TypedPower,
+                experienceCost: totalExperienceCost, manaPurpose: ManaPurposeForPlay(behavior), powerPurpose: powerPurpose,
+                manaSourceSelection: validateRepeats ? manaSpend : null), candidatePool, currentExperience, state).Accepted;
+        var selectedPrice = prices.Where(price => !validateRepeats || spellPowerReductionChoices.Length == 0
+                || price.Power.ChoiceId == spellPowerReductionChoices[0])
+            .Where(price => powerSpend is null || !validateRepeats
+                || PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend, spendablePowerPool,
+                    price.Power.GenericPower, price.Power.TypedPower, paymentAdjustedPool, powerPurpose))
+            .OrderByDescending(CanPayPrice)
+            .ThenBy(price => (long)Math.Max(0, price.Mana - PaymentCostRules.AvailableMana(candidatePool, ManaPurposeForPlay(behavior), state))
+                + PaymentCostRules.PowerDeficit(spendablePowerPool, price.Power.GenericPower, price.Power.TypedPower))
+            .FirstOrDefault();
+        var selectedPower = selectedPrice?.Power;
+        var powerOptions = prices.Select(price => price.Power).ToArray();
         if (selectedPower is null)
         {
             rejection = Reject(state, powerSpend is not null ? "符能支付来源选择无效。"
                 : spellPowerReductionChoices.Length == 0 ? "卡面符能分配无效。" : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
             return false;
         }
+        var targetedSpellManaReduction = totalManaCost - selectedPrice!.Mana;
+        totalManaCost = selectedPrice.Mana;
         var totalGenericPowerCost = selectedPower.GenericPower;
         var totalPowerCostByTrait = selectedPower.TypedPower;
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
@@ -18254,6 +18289,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var combatSpellPowerReduction = AttributePowerReduction(FriendlyCombatSpellCostReducers(state, intent.PlayerId, behavior)
             .Sum(source => source.FriendlyGenericPowerReduction));
         var playCostPowerReduction = AttributePowerReduction(playCostReducers.Sum(source => source.Spec.Power));
+        var targetedSpellPowerReduction = AttributePowerReduction(selectedPrice.Reduction.Power);
         var battlefieldReactionPowerIncrease = BattlefieldReactionPowerIncrease(state, intent.PlayerId, behavior);
         var optionalCostPowerReduction = extraGenericPower + battlefieldReactionPowerIncrease + extraPowerCostByTrait.Values.Sum()
             + OpponentSpellCostIncreases(state, intent.PlayerId, behavior).Power
@@ -18284,9 +18320,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
-            ? availableExperience
-            : 0;
         var paymentAudit = new Dictionary<string, object?>(BuildPlayCardPaymentAuditMetadata(
             costReductionMana, optionalCostManaReduction, battlefieldEchoCostReductionMana,
             battlefieldEquipmentCostReductionMana, dragonUnitCostReductionMana, nextSpellCostReductionMana,
@@ -18313,6 +18346,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentAudit["optionalPlayCostReductionPower"] = playCostPowerReduction;
             paymentAudit["optionalPlayCostReductionChoices"] = playCostReductionChoices;
         }
+        if (selectedPrice.Reduction.ChoiceIds.Count > 0)
+        {
+            paymentAudit["targetedSpellCostReductionMana"] = targetedSpellManaReduction;
+            paymentAudit["targetedSpellCostReductionPower"] = targetedSpellPowerReduction;
+            paymentAudit["targetedSpellCostReductionChoices"] = selectedPrice.Reduction.ChoiceIds;
+        }
         if (manaCost.EmpoweredSpellReduction > 0 || empoweredPowerReduction > 0)
         {
             paymentAudit["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
@@ -18333,7 +18372,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             totalPowerCost: totalPowerCost,
             powerCostByTrait: totalPowerCostByTrait,
             experienceCost: totalExperienceCost,
-            optionalCostIds: optionalCosts.Concat(playCostReductionChoices).ToArray(),
+            optionalCostIds: optionalCosts.Concat(playCostReductionChoices).Concat(selectedPrice.Reduction.ChoiceIds).ToArray(),
             paymentResourceActionIds: paymentResourceActions,
             reason: behavior.EffectKind,
             sourceObjectId: command.SourceObjectId,
@@ -18398,6 +18437,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 TimeAssassinCostReductionMana = timeAssassinCostReductionMana,
                 TimeAssassinCostReductionPower = timeAssassinPowerReduction,
                 OptionalPlayCostReductionMana = playCostManaReduction, OptionalPlayCostReductionPower = playCostPowerReduction,
+                TargetedSpellCostReductionMana = targetedSpellManaReduction, TargetedSpellCostReductionPower = targetedSpellPowerReduction,
                 OpponentSpellCostIncreaseMana = spellIncreases.Mana,
                 OpponentSpellCostIncreasePower = spellIncreases.Power,
                 BattlefieldReactionPowerIncrease = battlefieldReactionPowerIncrease, BattlefieldSpellPowerReduction = battlefieldSpellPowerReduction,
@@ -34078,6 +34118,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public IReadOnlyList<OptionalPlayCostReductionUse> OptionalPlayCostReductionUses { get; init; } = [];
         public int OptionalPlayCostReductionMana { get; init; }
         public int OptionalPlayCostReductionPower { get; init; }
+        public int TargetedSpellCostReductionMana { get; init; }
+        public int TargetedSpellCostReductionPower { get; init; }
         public IReadOnlyList<DeclaredSpellMode>? ModeExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }

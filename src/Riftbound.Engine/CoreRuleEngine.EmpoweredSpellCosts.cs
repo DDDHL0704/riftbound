@@ -58,10 +58,10 @@ public sealed partial class CoreRuleEngine
         MatchState state, string player, CardBehaviorDefinition behavior, string? printedChoice,
         int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
         IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0,
-        int optionalPlayReduction = 0, IReadOnlyList<string>? targets = null)
+        int optionalPlayReduction = 0, IReadOnlyList<string>? targets = null, int targetedReduction = 0)
     {
         var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower)
-            + optionalPlayReduction
+            + optionalPlayReduction + targetedReduction
             + SourceNextSpellCostReductionEffects(state, player)
                 .Where(s => s.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(s => s.GenericPower)
             + (behavior.PlaysSourceToBaseAsUnit ? TimeAssassinNextUnitReductions(state, player).Count : 0)
@@ -89,10 +89,16 @@ public sealed partial class CoreRuleEngine
 
     internal static bool CanReachPlayPowerCost(MatchState state, string player, CardBehaviorDefinition behavior,
         RunePaymentReachability reachability, int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
-        IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0, IReadOnlyList<string>? targets = null)
-        => SpellPlayPowerOptions(state, player, behavior, null, extraGeneric, extraTyped,
-                additionalPrinted, sacrificeReduction, optionalPlayReduction: AvailableOptionalPlayPowerReduction(state, player, behavior), targets: targets)
+        IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0, IReadOnlyList<string>? targets = null,
+        int? manaCost = null, int availableMana = int.MaxValue)
+    {
+        TryTargetedSpellReductions(state, player, behavior, targets, [], out var reductions);
+        return reductions.Where(reduction => manaCost is null || Math.Max(0, manaCost.Value - reduction.Mana) <= availableMana)
+            .SelectMany(reduction => SpellPlayPowerOptions(state, player, behavior, null, extraGeneric, extraTyped,
+                additionalPrinted, sacrificeReduction, optionalPlayReduction: AvailableOptionalPlayPowerReduction(state, player, behavior),
+                targets: targets, targetedReduction: reduction.Power))
             .Any(option => reachability.CanPay(option.GenericPower, option.TypedPower));
+    }
 
     private static IReadOnlyList<ActionPromptChoiceDto> SpellPowerChoices(IReadOnlyList<SpellPowerReductionOption> options)
         => options.Where(a => a.ChoiceId.Length > 0).DistinctBy(a => a.ChoiceId)
