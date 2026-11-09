@@ -23,6 +23,11 @@ public sealed partial class NamiHeldNextUnitTests
         Assert.True(game.State.CardObjects["FIRST"].IsExhausted);
         Assert.Equal(0, BoonRules.Count(game.State.CardObjects["FIRST"]));
         Assert.DoesNotContain("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        Assert.Single(game.State.TriggerQueue, trigger => trigger.TurnUnitPlayBoon?.Unit.ObjectId == "FIRST");
+        Assert.Single(game.State.TriggerQueue, trigger => trigger.PermanentPlayStackItemId is not null);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            game.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray()));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
         Assert.Equal("FIRST", choice.SourceObjectId);
