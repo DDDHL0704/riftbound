@@ -118,14 +118,14 @@ public sealed class AkshanIndependentPaidPlayTests
     public async Task EndingTheLeaseRestoresTheUnderlyingControllerAndKeepsAnotherHostsAttachment(bool ownedByActor)
     {
         var initial = RadGearTestPosition.Put(Position(), "RETURN", "OGN·104/298", "P1", "HAND");
-        initial = RadGearTestPosition.Put(initial, "NEXT-UNIT", "SFD·119/221", "P1", "HAND");
+        initial = RadGearTestPosition.Put(initial, "NEXT-UNIT", "SFD·085/221", "P1", "HAND");
         if (ownedByActor) initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["GEAR"] = initial.CardObjects["GEAR"] with { OwnerId = "P1" } } };
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", Akshan, [], OptionalCosts: [Fee]));
         await Confirm(game, "GEAR"); await game.Top();
         Assert.Equal("P1", game.State.CardObjects["GEAR"].ControllerId);
-        await game.Act("P1", new PlayCardCommand("NEXT-UNIT", "SFD·119/221", []));
+        await game.Act("P1", new PlayCardCommand("NEXT-UNIT", "SFD·085/221", []));
         var tempered = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal("TEMPERED_CONFIRMATION", tempered.ChoiceWindow);
         await game.Act("P1", new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, ["GEAR"])); await game.Top();

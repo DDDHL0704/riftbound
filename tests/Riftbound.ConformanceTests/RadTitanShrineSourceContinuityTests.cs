@@ -70,7 +70,9 @@ public sealed class RadTitanShrineSourceContinuityTests
         state = state with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
         var game = new Driver(state);
         await game.Act("P2", new PlayCardCommand("AKSHAN", "SFD·109/221", [],
-            OptionalCosts: ["AKSHAN_STEAL_EQUIPMENT:SHRINE"]));
+            OptionalCosts: ["SPEND_POWER:2:ORANGE"]));
+        var theft = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P2", new ChooseCardsCommand(theft.ChoiceId, theft.ChoiceWindow, ["SHRINE"]));
         await game.Top();
         Assert.Equal("P1", game.State.CardObjects["SHRINE"].OwnerId);
         Assert.Equal("P2", game.State.CardObjects["SHRINE"].ControllerId);

@@ -35,10 +35,12 @@ public sealed class AttachmentTheftCopyTests
     internal static async Task<ResolutionResult> Steal(MatchState state)
     {
         var played = await Act(state, "P2", new PlayCardCommand("AKSHAN", "SFD·109/221", [],
-            OptionalCosts: ["AKSHAN_STEAL_EQUIPMENT:GEAR"]));
+            OptionalCosts: ["SPEND_POWER:2:ORANGE"]));
         Assert.Equal(16, played.State.RunePools["P2"].Mana);
         Assert.Equal(18, played.State.RunePools["P2"].PowerByTrait["orange"]);
-        return await Top(played.State);
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        var selected = await Act(played.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
+        return await Top(selected.State);
     }
 
     internal static async Task<MatchState> Choose(ResolutionResult waiting)

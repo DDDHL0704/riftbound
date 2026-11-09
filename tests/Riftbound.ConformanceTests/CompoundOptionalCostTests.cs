@@ -317,7 +317,7 @@ public sealed class CompoundOptionalCostTests
         var driver = new StandbyDefendObserverTests.Driver(initial); await Open(driver, false);
         var trait = card == "SFD·013/221" ? RuneTrait.Red : card == "SFD·067/221" ? RuneTrait.Blue : RuneTrait.Orange;
         string[] own = card == "SFD·013/221" ? ["SPEND_MANA:1", "SPEND_POWER:red:1"]
-            : card == "SFD·067/221" ? ["SPEND_POWER:blue:1"] : ["AKSHAN_STEAL_EQUIPMENT:" + gear];
+            : card == "SFD·067/221" ? ["SPEND_POWER:blue:1"] : ["SPEND_POWER:2:ORANGE"];
         string[] costs = [HasteOptionalCostNames.HasteReady, ..own];
         if (reduce) costs = [..costs, Reduction("EZREAL", "HASTE_READY", "MANA"), Reduction("EZREAL", "ADDITIONAL", "POWER-" + trait)];
         var command = new PlayCardCommand(Source, card, card == "SFD·109/221" ? [] : ["HOST"], OptionalCosts: costs);
@@ -333,6 +333,10 @@ public sealed class CompoundOptionalCostTests
         Assert.Equal(quote.Cost.RemainingPowerByTrait!.OrderBy(x => x.Key), driver.State.RunePools["P1"].PowerByTrait!.OrderBy(x => x.Key));
         if (driver.State.PendingCardChoice is { ChoiceWindow: "TEMPERED_CONFIRMATION" } tempered)
             await driver.Act(tempered.PlayerId, new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, []));
+        if (card == "SFD·109/221") {
+            var theft = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+            await driver.Act("P1", new ChooseCardsCommand(theft.ChoiceId, theft.ChoiceWindow, [gear]));
+        }
         for (var i = 0; i < 3 && driver.State.StackItems.FirstOrDefault()?.SourceObjectId == Source; i++) await driver.Top();
         Assert.False(driver.State.CardObjects[Source].IsExhausted);
         if (card == "SFD·013/221") Assert.Equal(before.CardObjects["HOST"].Damage + 2, driver.State.CardObjects["HOST"].Damage);
