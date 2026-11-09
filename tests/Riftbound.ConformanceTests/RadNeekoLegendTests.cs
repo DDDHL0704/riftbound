@@ -480,7 +480,8 @@ public sealed class RadNeekoLegendTests
         var position = (await Position("SFD·197/221")).State;
         var game = new Driver(position with {
             CardObjects = new Dictionary<string, CardObjectState>(position.CardObjects) {
-                ["BF"] = OfficialGarenConquestBattlefieldCountTests.Printed("BF", "SFD·207/221", "P2") }
+                ["BF"] = OfficialGarenConquestBattlefieldCountTests.Printed("BF", "SFD·207/221", "P2"),
+                ["UNIT"] = position.CardObjects["UNIT"] with { CardNo = "OGN·175/298" } }
         }) { RecoverAfterEveryCommand = false };
         await Play(game, "NEEKO"); await game.Top();
         var legend = Assert.Single(game.State.PlayerZones["P1"].LegendZone);

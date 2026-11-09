@@ -232,6 +232,8 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
     {
         var initial = HandDiscardObserverTests.Put(OfficialLegendDeckPlayTests.Position(top: ["SFD·080/221", "SFD·042/221"]),
             "TOME", "OGN·032/298", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["UNIT"] = initial.CardObjects["UNIT"] with { CardNo = "OGN·175/298" } } };
         if (borrowed) initial = HandDiscardObserverTests.Put(initial, "HOST", "OGN·111/298", "P1", "BASE");
         var game = new Driver(initial);
         await game.Act("P1", new ActivateAbilityCommand(borrowed ? "HOST" : "TOME", NextSpellDamageAbility(game.State, borrowed), []));
