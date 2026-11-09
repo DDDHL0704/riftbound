@@ -335,7 +335,13 @@ public sealed class CompoundOptionalCostTests
             await driver.Act(tempered.PlayerId, new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, []));
         if (card == "SFD·109/221") {
             var theft = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+            Assert.Equal("TRIGGER_CONFIRMATION", theft.ChoiceWindow);
             await driver.Act("P1", new ChooseCardsCommand(theft.ChoiceId, theft.ChoiceWindow, [gear]));
+            if (driver.State.PendingCardChoice is { } remaining)
+            {
+                Assert.Equal("TEMPERED_CONFIRMATION", remaining.ChoiceWindow);
+                await driver.Act("P1", new ChooseCardsCommand(remaining.ChoiceId, remaining.ChoiceWindow, []));
+            }
             var skill = Assert.Single(driver.State.StackItems, CoreRuleEngine.IsEquipmentTheftPlaySkill);
             Assert.True(driver.State.PriorityPlayerId is not null && driver.State.PassedPriorityPlayerIds.Count == 0,
                 JsonSerializer.Serialize(new { driver.State.PriorityPlayerId, driver.State.PassedPriorityPlayerIds,
@@ -344,6 +350,7 @@ public sealed class CompoundOptionalCostTests
                     payment = driver.State.PendingPayment?.PaymentWindow }));
             await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
             Assert.Contains(driver.State.StackItems, item => item.StackItemId == skill.StackItemId);
+            Assert.Equal("P2", driver.State.CardObjects[gear].ControllerId);
             await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
             Assert.DoesNotContain(driver.State.StackItems, item => item.StackItemId == skill.StackItemId);
         }
