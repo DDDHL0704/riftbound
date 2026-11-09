@@ -462,6 +462,10 @@ public sealed partial class MatchSession
         var zones = scene.PlayerZones.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         foreach (var (player, playerZones) in scene.PlayerZones)
         {
+            // Keep this generic movement scene free of printed movement observers.
+            foreach (var id in playerZones.Base.Concat(playerZones.Battlefields).Where(id =>
+                cards.TryGetValue(id, out var card) && card.CardNo == "SFD·125/221" && !card.IsFaceDown))
+                cards[id] = cards[id] with { CardNo = "OGN·175/298" };
             var units = playerZones.Battlefields.Where(id => cards.TryGetValue(id, out var card)
                 && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal) && !card.IsFaceDown).ToArray();
             zones[player] = playerZones with

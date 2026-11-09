@@ -36,7 +36,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-WIND-RUNNER"] = new(
                     "P1-BATTLEFIELD-WIND-RUNNER",
-                    cardNo: "SFD·125/221",
+                    cardNo: "OGN·175/298",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
