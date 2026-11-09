@@ -81,11 +81,15 @@ internal static class PakaaProtectorSqlAcceptance
                         && observed.Instruction.Kind == "REVEAL" && observed.Instruction.Seen.Single().ObjectId == top,
                         "Exact original source and top identity survive observation and parent completion.");
                     await Cold();
+                    var earlierObservation = WithObserved(current, observed with { CapturedTick = observed.CapturedTick - 1 });
+                    Check(MatchRecoveryValidator.ValidateComponentStateAndViews(earlierObservation).Count == 0,
+                        "The coordinated earlier observation retains valid component shapes and matching views.");
                     await RejectForgeries([
                         ("look-for-public-reveal", WithObserved(current, observed with { Instruction = observed.Instruction with { Kind = "LOOK" } }), false, null),
                         ("wrong-observed-generation", WithObserved(current, observed with { Card = observed.Card with { Generation = observed.Card.Generation + 1 } }), false, null),
                         ("free-observed-unit", WithObserved(current, observed with { PowerCost = 0 }), false, null),
-                        ("coordinated-earlier-observation-tick", WithObserved(current, observed with { CapturedTick = observed.CapturedTick - 1 }), true, null) ]);
+                        ("coordinated-earlier-observation-tick", earlierObservation, false,
+                            "observed deck play differs from its original accepted observation") ]);
                     await RejectIntent("P1", new EndTurnCommand()); await RejectIntent("P2", new PlayCardCommand(top, "OGN·194/298", []));
                     if (option == "BANISH_PLAY") await Command("P1", "original-observed-play", new PlayCardCommand(top, "OGN·194/298", []));
                     else await Command("P1", "original-observed-decline", new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
@@ -163,7 +167,7 @@ internal static class PakaaProtectorSqlAcceptance
                 Check(await Digest() == beforeDigest, "Cold reads/replay cannot write any original seven-table row.");
                 session = restored; coldCount++; afterCold = true; return frame;
             }
-        async Task RejectForgeries(IReadOnlyList<(string Scenario, MatchState Forged, bool Coordinated, string? StructuralError)> cases)
+        async Task RejectForgeries(IReadOnlyList<(string Scenario, MatchState Forged, bool PassesStoreValidation, string? ExpectedStoreError)> cases)
         {
             var clean = await store.LoadAsync(room, default) ?? throw new InvalidOperationException("Missing clean SQL frame.");
             var originalLog = JsonSerializer.Serialize(new { clean.Commands, clean.Events }, json); var originalDigest = await Digest();
@@ -177,7 +181,7 @@ internal static class PakaaProtectorSqlAcceptance
                     while (await rows.ReadAsync()) saved.Add((table, rows.GetInt64(0), rows.IsDBNull(1) ? null : rows.GetString(1), rows.GetString(2)));
                 }
             Check(saved.Count == 5, "Retain one authoritative state and both original player snapshots/prompts.");
-            foreach (var (scenario, forged, coordinated, structuralError) in cases)
+            foreach (var (scenario, forged, passesStoreValidation, expectedStoreError) in cases)
             {
                 try
                 {
@@ -193,14 +197,14 @@ internal static class PakaaProtectorSqlAcceptance
                     var attackedDigest = await Digest();
                     var bad = await store.LoadAsync(room, default) ?? throw new InvalidOperationException("Missing forged SQL frame.");
                     Check(JsonSerializer.Serialize(new { bad.Commands, bad.Events }, json) == originalLog, "Accepted commands/events cannot be rewritten.");
-                    Check(coordinated ? bad.IsConsistent : !bad.IsConsistent
-                        && (structuralError is null || bad.ValidationErrors.Contains(structuralError)),
-                        $"{scenario}: invalid permissions fail independent structure; coordinated valid shapes reach the original action-log audit.");
+                    Check(bad.IsConsistent == passesStoreValidation
+                        && (expectedStoreError is null || bad.ValidationErrors.Contains(expectedStoreError)),
+                        $"{scenario}: stored shapes and accepted observation history must match: {string.Join(';', bad.ValidationErrors)}");
                     var registry = new InMemoryMatchSessionRegistry(engine, journal, store, players, options);
                     try { await registry.GetOrCreateAsync(room, default); throw new InvalidOperationException("Forged Paka reveal state was accepted."); }
                     catch (MatchSessionException error)
                     {
-                        Check(error.Code == ErrorCodes.RecoveryInconsistent && (!coordinated || error.Message.Contains("action-log audit failed", StringComparison.Ordinal)), error.Message);
+                        Check(error.Code == ErrorCodes.RecoveryInconsistent && (!passesStoreValidation || error.Message.Contains("action-log audit failed", StringComparison.Ordinal)), error.Message);
                     }
                     Check(await registry.FindAsync(room, default) is null && await Digest() == attackedDigest,
                         "Rejection cannot cache a session or write any SQL row.");
