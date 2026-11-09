@@ -80,10 +80,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         for (var i = 0; game.State.PendingPayment is { PaymentWindow: "TRIGGER_COST_CONFIRMATION" } payment; i++)
         {
             Assert.InRange(i, 0, 4);
-            var skill = game.State.StackItems[^1];
-            Assert.NotNull(skill.UnitEvent);
-            Assert.True(CardBehaviorRegistry.TryGetByCardNo(skill.UnitEvent.CardNo, out var observed));
-            Assert.True(observed.UnitEventAbility?.Optional == true);
+            Assert.Contains("DECLINE", payment.LegalPaymentChoiceIds);
             await game.Act(payment.PlayerId, new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
         }
         if (empower) {
