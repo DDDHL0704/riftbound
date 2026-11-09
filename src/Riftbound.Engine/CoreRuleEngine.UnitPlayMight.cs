@@ -65,19 +65,26 @@ public sealed partial class CoreRuleEngine
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, c.ObjectId))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
+    private static ObjectBinding? CompanionPlayedUnit(TriggerQueueItemState trigger)
+        => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit;
+
     private static ResolutionResult DeferCompanionPermanentPlayOrdering(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
         var state = result.State; var queue = state.TriggerQueue.ToList(); var events = result.Events.ToList();
-        foreach (var legend in state.TriggerQueue.Where(t => t.UnitPlayMight is not null
-            && !before.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)))
-        foreach (var item in state.StackItems.Where(i => i.SourceConfirmed && i.SourceObjectId == legend.UnitPlayMight!.PlayedUnit.ObjectId
+        var companions = state.TriggerQueue.Where(t => CompanionPlayedUnit(t) is not null
+            && !before.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)).ToArray();
+        foreach (var item in state.StackItems.Where(i => i.SourceConfirmed
             && !before.StackItems.Any(old => old.StackItemId == i.StackItemId)))
         {
-            // Keep the existing ability body under its normal validators. The
-            // queue references it until ORDER_TRIGGERS places both abilities.
+            var companion = companions.FirstOrDefault(t => t.ControllerId == item.ControllerId
+                && CompanionPlayedUnit(t)?.ObjectId == item.SourceObjectId);
+            if (companion is null || queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)) continue;
+            // CN383.3.d: independent play skills and delayed unit-play grants
+            // earned together join the same ordering window. Several grants
+            // witnessing one play still reference the legacy skill only once.
             var trigger = new TriggerQueueItemState("permanent-play-order-" + item.StackItemId, item.ControllerId,
-                item.SourceObjectId, item.EffectKind, legend.TriggeredByEventKind, item.TimingContext) {
+                item.SourceObjectId, item.EffectKind, companion.TriggeredByEventKind, item.TimingContext) {
                 PermanentPlayStackItemId = item.StackItemId, SourceCardNo = item.CardNo };
             queue.Add(trigger);
             events.Add(new("TRIGGER_ORDERING_DEFERRED", "同时触发的打出技能等待控制者排序", new Dictionary<string, object?> {
@@ -86,6 +93,26 @@ public sealed partial class CoreRuleEngine
         if (queue.Count == state.TriggerQueue.Count) return result;
         state = state with { TriggerQueue = queue };
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+    }
+
+    internal static bool ValidPermanentPlayCompanion(MatchState state, TriggerQueueItemState companion,
+        StackItemState item, long? enqueuedAtTick)
+    {
+        if (enqueuedAtTick is not { } capturedTick) return false;
+        if (companion.ControllerId != item.ControllerId || companion.EnqueuedAtTick != capturedTick
+            || CompanionPlayedUnit(companion) is not { } unit || unit.ObjectId != item.SourceObjectId
+            || !state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit
+                && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick)) return false;
+        if (companion.UnitPlayMight is { } might)
+            return might.CapturedTick == capturedTick
+                && RengarPlayRecoveryRules.Valid(state, might, companion.EffectKind, companion.SourceObjectId, companion.ControllerId);
+        if (companion.TurnUnitPlayBoon is { } boon)
+            return boon.CapturedTick == capturedTick && boon.UnitCardNo == item.CardNo
+                && ValidTurnUnitPlayBoon(state, boon, companion.EffectKind, companion.SourceObjectId,
+                    companion.ControllerId, companion.SourceCardNo);
+        return companion.TurnUnitPlayDraw is { } draw && draw.CapturedTick == capturedTick && draw.UnitCardNo == item.CardNo
+            && ValidTurnUnitPlayDraw(state, draw, companion.EffectKind, companion.SourceObjectId,
+                companion.ControllerId, companion.SourceCardNo);
     }
 
     private static PendingCardChoiceState UnitPlayMightChoice(MatchState state, StackItemState item)

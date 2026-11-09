@@ -53,6 +53,14 @@ class PaidPlayStunAuditTests(unittest.TestCase):
         self.assertIsNone(audit.paid_target_play_stun_route(self.value, clause, self.sources))
         self.assertEqual('missing', audit.audit_clause(self.value, clause, self.sources)['status'])
 
+    def test_an_unrelated_hold_trigger_does_not_hide_the_two_paid_play_clauses(self):
+        self.value['behaviors'][0]['unitEventAbility'] = dict(timing='HOLD', effect='CREATE_TURN_UNIT_PLAY_GRANT')
+        self.assertEqual(['route', 'route'], [x['status'] for x in self.outcomes()])
+        for timing in ['PLAY', 'PLAY_OR_HOLD', 'HOLD_OR_PLAY']:
+            with self.subTest(timing=timing):
+                self.value['behaviors'][0]['unitEventAbility']['timing'] = timing
+                self.assertEqual(['missing', 'missing'], [x['status'] for x in self.outcomes()])
+
     def test_wrong_color_amount_or_scalar_type_cannot_certify_payment(self):
         original = self.value['behaviors'][0].copy()
         for key, changed in [('targetEffectAdditionalPowerTrait', 'blue'),

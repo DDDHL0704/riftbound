@@ -93,12 +93,7 @@ internal static class PermanentPlayTriggerRecoveryRules
             && trigger.TriggerId == "permanent-play-order-" + id && trigger.SourceObjectId == item.SourceObjectId
             && trigger.ControllerId == item.ControllerId && trigger.EffectKind == item.EffectKind
             && trigger.SourceCardNo == item.CardNo && trigger.UnitPlayMight is null && Valid(state, item)
-            && state.TriggerQueue.Any(t => t.UnitPlayMight is { } legend
-                && t.ControllerId == item.ControllerId && t.TriggeredByEventKind == trigger.TriggeredByEventKind
-                && trigger.EnqueuedAtTick == legend.CapturedTick
-                && RengarPlayRecoveryRules.Valid(state, legend, t.EffectKind, t.SourceObjectId, t.ControllerId)
-                && legend.PlayedUnit.ObjectId == item.SourceObjectId
-                && state.CardPlays.Resolved.Any(p => p.PlayId == id && p.Source == legend.PlayedUnit
-                    && p.CardNo == item.CardNo && p.PlayerId == item.ControllerId && p.Tick == legend.CapturedTick));
+            && state.TriggerQueue.Any(companion => companion.TriggeredByEventKind == trigger.TriggeredByEventKind
+                && CoreRuleEngine.ValidPermanentPlayCompanion(state, companion, item, trigger.EnqueuedAtTick));
     }
 }

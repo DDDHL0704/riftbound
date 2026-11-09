@@ -76,6 +76,8 @@ public sealed partial class CoreRuleEngine
             return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), false,
                 field, instructionAllowsLocationChoice: spec.CreatesUnitTokenHere ? false : null);
         }
+        if (spec.Effect == FriendlyUnitTokensMoveHere)
+            return ResolveFriendlyUnitTokenMovement(state, item);
         if (item.TargetObjectIds.SingleOrDefault() is not { } target
             || !StackObjectRules.ReferencesCurrentObject(state, item, target)
             || !UnitEventTargets(state, item).Contains(target)) return NoopStackResolutionResult(state);
