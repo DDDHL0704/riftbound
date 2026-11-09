@@ -292,7 +292,8 @@ public sealed partial class CoreRuleEngine
             destinations.AddRange(state.CardObjects.Keys.Select(id => "BATTLEFIELD:" + id)
                 .Where(destination => (IsPlayCardUnitBattlefieldDestinationAllowed(state, playerId, destination)
                         || pending.DestinationPolicy != "CONTROLLED_BATTLEFIELD"
-                            && EnemyControlledBattlefieldPlayAllowed(state, playerId, behavior, destination))
+                            && (EnemyControlledBattlefieldPlayAllowed(state, playerId, behavior, destination)
+                                || AloneEnemyBattlefieldPlayAllowed(state, playerId, behavior, destination)))
                     && AllowsEntry(destination)));
         if (AttackDeckPlayHere(state, pending) is { } here && !destinations.Contains(here)
             && AllowsEntry(here)) destinations.Add(here);

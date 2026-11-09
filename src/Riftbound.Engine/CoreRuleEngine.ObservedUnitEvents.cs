@@ -11,6 +11,7 @@ public sealed partial class CoreRuleEngine
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
             || context?.Origin?.ArmamentGranted == true
             || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
+            || context?.Timing == "PLAY" && SelectedUnitEventSpec(context) is { UnitTokenPlayedByChosenOpponent: true } or { ReturnAllUnitsMaximumMight: not null }
             || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)

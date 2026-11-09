@@ -10,6 +10,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult FinalizeTokenDepartures(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
+        result = RetireTurnBattleWinRewardsForTokenDeparture(before, result);
         var departed = before.CardObjects.Where(e => IsTokenObject(e.Value)
             && !result.State.CardObjects.ContainsKey(e.Key)).Select(e => e.Key).ToHashSet(StringComparer.Ordinal);
         if (departed.Count == 0) return result;

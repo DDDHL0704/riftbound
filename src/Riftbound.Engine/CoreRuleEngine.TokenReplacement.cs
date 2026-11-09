@@ -95,10 +95,10 @@ public sealed partial class CoreRuleEngine
 
     private static PendingCardChoiceState TokenReplacementChoice(MatchState state, StackItemState parent, TokenEntryPlan plan)
     {
-        var sources = EligibleTokenReplacements(state, parent.ControllerId, plan);
+        var sources = EligibleTokenReplacements(state, TokenEntryPlayer(parent), plan);
         var modeSuffix = parent.CompletedModeExecutions > 0 ? $":mode:{parent.CompletedModeExecutions}" : "";
         return new($"token-replacement:{parent.StackItemId}:{parent.CompletedRepeatExecutions}:{plan.NextToken}:{plan.Applied.Count}{modeSuffix}", TokenReplacementWindow,
-            parent.ControllerId, 0, 1, sources, sources,
+            TokenEntryPlayer(parent), 0, 1, sources, sources,
             $"第 {plan.NextToken + 1}/{TokenEntryFactories(plan).Count} 名单位指示物：选择基兰增加复制体，或选择黑默丁格将它替换为机器人；不选则保留该指示物及未使用的替换。",
             parent.SourceObjectId, parent.EffectKind) { ResolvingStackItemId = parent.StackItemId };
     }
@@ -108,7 +108,7 @@ public sealed partial class CoreRuleEngine
         var count = TokenEntryCount(state, item);
         if (count <= 0 || item.TokenEntryPlan is { } existing && !TokenEntryPlanPending(existing)) return null;
         var plan = item.TokenEntryPlan ?? new TokenEntryPlan(count, 0, []);
-        if (EligibleTokenReplacements(state, item.ControllerId, plan).Length == 0) return null;
+        if (EligibleTokenReplacements(state, TokenEntryPlayer(item), plan).Length == 0) return null;
         var parent = item with { TokenEntryPlan = plan };
         return NoopStackResolutionResult(state) with {
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(parent).ToArray(),
@@ -128,7 +128,7 @@ public sealed partial class CoreRuleEngine
         {
             if (a is null || a.Source is null || a.TokenIndex < lastIndex || a.TokenIndex >= count || a.TokenIndex > p.NextToken
                 || !state.CardObjects.TryGetValue(a.Source.ObjectId, out var source) || source.ObjectGeneration != a.Source.Generation
-                || source.ControllerId != item.ControllerId || !IsFaceUpNonStandbyUnit(source)
+                || source.ControllerId != TokenEntryPlayer(item) || !IsFaceUpNonStandbyUnit(source)
                 || BattlefieldLocalRules.AtUnit(state, source.ObjectId) is null) return false;
             if (a.FactoryCardNo is null)
             {
@@ -176,7 +176,7 @@ public sealed partial class CoreRuleEngine
             plan = plan with { Applied = plan.Applied.Append(new TokenReplacementApplication(new(source.ObjectId, source.ObjectGeneration), plan.NextToken, factory)).ToArray() };
         }
         var next = state with { CardObjects = cards, PendingCardChoice = null };
-        while (TokenEntryPlanPending(plan) && EligibleTokenReplacements(next, parent.ControllerId, plan).Length == 0)
+        while (TokenEntryPlanPending(plan) && EligibleTokenReplacements(next, TokenEntryPlayer(parent), plan).Length == 0)
             plan = plan with { NextToken = plan.NextToken + 1 };
         parent = parent with { TokenEntryPlan = plan };
         next = next with { StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(parent).ToArray() };
