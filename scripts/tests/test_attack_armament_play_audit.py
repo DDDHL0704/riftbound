@@ -78,3 +78,13 @@ class AttackArmamentPlayAuditTests(unittest.TestCase):
         self.assertEqual('missing', audit.audit_clause(card, dict(clause, scope='当我防守时'), self.sources)['status'])
         for text in [TEXT.replace('{{2}}', '{{3}}'), TEXT.replace('武装', '单位'), TEXT.replace('进攻', '据守')]:
             self.assertIsNone(audit.attack_armament_play_attachment_route(card, dict(clause, text=text), self.sources))
+
+    def test_the_second_earned_attachment_cannot_be_blocked_by_the_first(self):
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        path = 'src/Riftbound.Engine/CoreRuleEngine.cs'
+        before = '|| !gear.Tags.Contains(CardObjectTags.EquipmentCard)) return false;'
+        after = '|| !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;'
+        self.assertEqual(1, sources.files[path].count(before))
+        sources.files[path] = sources.files[path].replace(before, after)
+        sources.files[path] += '\n    private static void UnusedAttachmentDecoy() { TryAttachEquipment(); }\n'
+        self.assertEqual('missing', self.status(sources=sources))

@@ -38,9 +38,29 @@ public sealed partial class RellAttackArmamentPlayTests
             rellFirst ? [child.TriggerId, agile.TriggerId] : [agile.TriggerId, child.TriggerId]));
         await game.Top();
         Assert.Equal(rellFirst ? "RELL" : "ALLY", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.Equal(rellFirst ? "BF" : null, game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
         await game.Top();
         Assert.Equal(rellFirst ? "ALLY" : "RELL", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.Equal(rellFirst ? null : "BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
         Assert.Equal(2, game.Events().Count(entry => entry.Event.Kind == "EQUIPMENT_ATTACHED"));
+        Assert.Single(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_DETACHED");
+        await game.ColdCheckpoint();
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task BothAttachmentSkillsChoosingTheSameHostAttachOnlyOnce(bool rellFirst)
+    {
+        var game = new Driver(Position("SFD·022/221")); await Permission(game);
+        await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", ["RELL"]));
+        var child = Assert.Single(game.State.TriggerQueue, trigger => trigger.UnitEvent?.ReflexiveTick is not null);
+        var agile = Assert.Single(game.State.TriggerQueue, trigger => trigger.PermanentPlayStackItemId is not null);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            rellFirst ? [child.TriggerId, agile.TriggerId] : [agile.TriggerId, child.TriggerId]));
+        await game.Top(); await game.Top();
+        Assert.Equal("RELL", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
+        Assert.Single(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_ATTACHED");
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_DETACHED");
         await game.ColdCheckpoint();
     }
 

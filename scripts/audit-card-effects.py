@@ -3095,11 +3095,13 @@ def attack_armament_play_attachment_route(card: dict, clause: dict, sources: Sou
             '!expected.SetEquals(current.Select(item => item.Id))']),
         ('CoreRuleEngine.UnitPlayMight.cs', 'CompanionPlayedUnit', ['HasArmamentPlayAttachment(', '.Other?.Binding']),
         ('CoreRuleEngine.UnitPlayMight.cs', 'ValidPermanentPlayCompanion', ['ValidArmamentPlayAttachmentContext(']),
+        ('CoreRuleEngine.cs', 'TryAttachAgileDirectPlayEquipmentToTarget', ['TryAttachEquipment(']),
         ('MatchRecovery.cs', 'ValidateSpellContinuations', ['ValidArmamentPlayAttachmentPermission(state, armamentHandPlay)']),
         ('MatchRecovery.cs', 'ValidateAuthoritativeState', ['ValidateSpellContinuations(authoritativeState, errors)']),
     ]
     exact = exact and all(all(token in member(filename, name) for token in tokens)
         for filename, name, tokens in checks)
+    exact = exact and 'AttachedToObjectId' not in member('CoreRuleEngine.cs', 'TryAttachAgileDirectPlayEquipmentToTarget')
     evidence = sorted({prefix + filename for filename, _, _ in checks})
     return result('route', '进攻技能结算时可选真实打出手牌中法力至多2的武装，仅免基础费用；成功打出后创建独立贴附技能，绑定原武装与来源代际，并与灵便共用触发排序及原始历史校验', evidence) if exact else result(
         'missing', '缺少限定武装的真实效果打出、独立内嵌贴附、共同排序，或原始对象／付款／捕获历史校验')
