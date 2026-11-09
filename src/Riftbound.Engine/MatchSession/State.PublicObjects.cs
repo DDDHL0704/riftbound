@@ -345,8 +345,8 @@ public sealed partial record MatchState
         {
             if (FieldObjectTypeRules.RequiresUnattachedEquipmentRecall(cardObject, state.ObjectLocations.GetValueOrDefault(objectId))
                 && state.ObjectLocations.TryGetValue(objectId, out var equipmentLocation)
-                && string.Equals(equipmentLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
-                && !string.IsNullOrWhiteSpace(equipmentLocation.BattlefieldObjectId)
+                && (equipmentLocation.Zone == "BASE" || equipmentLocation.Zone == "BATTLEFIELD"
+                    && !string.IsNullOrWhiteSpace(equipmentLocation.BattlefieldObjectId))
                 && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
             {
                 tasks.Add(new CleanupTaskState(

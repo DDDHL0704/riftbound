@@ -324,9 +324,6 @@ public sealed record CardBehaviorDefinition(
     string SourceReadyAdditionalPowerTrait = "",
     string SourceReadyConditionKind = CardSourceReadyConditionKinds.None,
     string SourceReadyOptionalCostPayloadKey = "",
-    int SourceStealEnemyEquipmentAdditionalPowerCost = 0,
-    string SourceStealEnemyEquipmentAdditionalPowerTrait = "",
-    string SourceStealEnemyEquipmentOptionalCostPrefix = "",
     string SourceStealEnemyEquipmentReason = "",
     string ConditionalSourceUnitConditionKind = CardConditionalSourceUnitConditionKinds.None,
     int ConditionalSourceUnitPowerBonus = 0,
@@ -460,6 +457,8 @@ public sealed record CardBehaviorDefinition(
     public bool FirstTargetRequiresArmament { get; init; }
     public bool DetachesArmamentFromFirstTarget { get; init; }
     public bool ReferencedPowerDamageIsFromSpell { get; init; }
+    public bool PaidPlayTargetsOptional { get; init; }
+    public bool StealsTargetEquipmentUntilSourceLeaves { get; init; }
     public EquipmentTokenRewardSpec? FaceDownPlayEquipmentTokens { get; init; }
     public SpellManaAlternativeCostSpec? SpellManaAlternativeCost { get; init; }
     internal SpellManaAlternativeCostSpec? AppliedSpellManaAlternativeCost { get; init; }
@@ -4882,14 +4881,18 @@ public static class CardBehaviorRegistry
             4,
             "AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT",
             0,
-            0,
+            1,
+            TargetScope: CardTargetScopes.EnemyUnitOrEquipment,
+            TargetScopeIsExplicit: true,
+            TargetRequiredTag: CardObjectTags.EquipmentCard,
+            MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "哨兵|百炼",
-            SourceStealEnemyEquipmentAdditionalPowerCost: 2,
-            SourceStealEnemyEquipmentAdditionalPowerTrait: RuneTrait.Orange,
-            SourceStealEnemyEquipmentOptionalCostPrefix: "AKSHAN_STEAL_EQUIPMENT:",
-            SourceStealEnemyEquipmentReason: "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL"),
+            TargetEffectAdditionalPowerCost: 2,
+            TargetEffectAdditionalPowerTrait: RuneTrait.Orange,
+            SourceStealEnemyEquipmentReason: "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL") {
+                PaidPlayTargetsOptional = true, StealsTargetEquipmentUntilSourceLeaves = true },
         new(
             "SFD·119/221",
             "贾克斯",

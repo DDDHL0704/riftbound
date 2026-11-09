@@ -7,7 +7,7 @@ public static partial class MatchRecoveryValidator
     {
         if (view.SnapshotTick != state.Tick) return;
         foreach (var skill in state.StackItems.Where(i => i.TimingAlias is not null || i.UnitEvent?.Origin?.ArmamentGranted == true || i.StandbyObserver is not null
-            || i.SourceConfirmed && i.PermanentPlaySource is null
+            || i.SourceConfirmed && (i.PermanentPlaySource is null || CoreRuleEngine.IsEquipmentTheftPlaySkill(i))
                 && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, i)))
         {
             // This expectation comes from authoritative zones and disclosure

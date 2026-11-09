@@ -71,6 +71,23 @@ public sealed class DeployedEquipmentCleanupTests
         Assert.Equal(recalled, state.PendingTaskQueue.Tasks.Any(task => task.Kind == "RECALL_UNATTACHED_EQUIPMENT" && task.ObjectId == card.ObjectId));
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task EvenDeployedLooseEquipmentRecallsFromAnotherControllersBase(bool deployed)
+    {
+        var initial = RadUnitEffectTestFixture.Place(Position("P2", false), "DEPLOYED", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["DEPLOYED"] = initial.CardObjects["DEPLOYED"] with { ControllerId = "P2",
+                Tags = deployed ? [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Deploy] : [CardObjectTags.EquipmentCard] } } };
+        Assert.Contains(initial.PendingCleanupTasks, task => task.Kind == "RECALL_UNATTACHED_EQUIPMENT" && task.ObjectId == "DEPLOYED");
+        var game = new Driver(initial);
+        await game.Act("P2", new PassPriorityCommand());
+        Assert.Contains("DEPLOYED", game.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain("DEPLOYED", game.State.PlayerZones["P1"].Base);
+        Assert.Equal("P1", game.State.CardObjects["DEPLOYED"].OwnerId);
+        Assert.Equal("P2", game.State.CardObjects["DEPLOYED"].ControllerId);
+        await game.ColdCheckpoint();
+    }
+
     private static MatchState Position(string controller, bool exhausted)
     {
         var zones = new Dictionary<string, PlayerZones>

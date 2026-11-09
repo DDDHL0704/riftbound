@@ -25626,7 +25626,7 @@ public sealed partial class FullGameEndToEndTests
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
-                    if (item.UnitEvent is not null || item.TimingAlias is not null)
+                    if (item.UnitEvent is not null || item.TimingAlias is not null || CoreRuleEngine.IsEquipmentTheftPlaySkill(item))
                     {
                         var expectedSource = ResolutionResult.VisibleObjectIdForViewer(result.State, item.SourceObjectId, viewerId);
                         Assert.Equal(expectedSource, row["sourceObjectId"]?.GetValue<string>());
@@ -25636,7 +25636,9 @@ public sealed partial class FullGameEndToEndTests
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
                     Assert.Equal((item.SimpleActivation is not null ? item.CardNo : null) ?? item.UnitEvent?.CardNo ?? item.EmpowerInteraction?.CardNo ?? item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo
-                        ?? (item.PermanentPlaySource is not null ? item.CardNo == "VEN·132" ? "VEN·132" : "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
+                        ?? (CoreRuleEngine.IsEquipmentTheftPlaySkill(item)
+                            ? Assert.Single(result.State.CardPlays.Resolved, play => play.PlayId == item.StackItemId).CardNo
+                            : item.PermanentPlaySource is not null ? item.CardNo == "VEN·132" ? "VEN·132" : "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
                     if (item.UnitEvent is { } unitEvent)
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
@@ -25914,6 +25916,19 @@ public sealed partial class FullGameEndToEndTests
                         Assert.True(item.SourceConfirmed); Assert.Equal(item.SourceObjectId, declaredSource.ObjectId);
                         Assert.Contains(result.State.CardPlays.Resolved, play => play.PlayId == item.StackItemId
                             && play.Source == declaredSource && play.CardNo == "VEN·132");
+                    }
+                    else if (CoreRuleEngine.IsEquipmentTheftPlaySkill(item))
+                    {
+                        var theftSource = Assert.IsType<ObjectBinding>(item.PermanentPlaySource);
+                        var play = Assert.Single(result.State.CardPlays.Resolved, play => play.PlayId == item.StackItemId);
+                        Assert.Equal(play.Source, theftSource); Assert.Equal(item.SourceObjectId, theftSource.ObjectId);
+                        Assert.Equal(item.ControllerId, play.PlayerId);
+                        Assert.True(CardBehaviorRegistry.TryGetByCardNo(play.CardNo, out var behavior));
+                        Assert.Equal(behavior.EffectKind, item.EffectKind);
+                        Assert.True(behavior.StealsTargetEquipmentUntilSourceLeaves);
+                        Assert.True(CoreRuleEngine.ValidPaidPermanentPlayChoices(item));
+                        Assert.True(row["playAbility"]!.GetValue<bool>());
+                        Assert.Null(row["permanentPlaySource"]);
                     }
                     else if (item.PermanentPlaySource is { } permanent)
                     {

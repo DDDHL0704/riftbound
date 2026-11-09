@@ -368,7 +368,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             [FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId],
             staticAura.ParticipantDependencyObjectIds);
         Assert.Equal(1, staticAura.Sequence);
-        Assert.Equal(5, staticAura.SourceOrder.GetValueOrDefault());
+        Assert.Equal(4, staticAura.SourceOrder.GetValueOrDefault());
         Assert.Null(staticAura.RequestedPowerDelta);
         Assert.Null(staticAura.AppliedPowerDelta);
         Assert.Null(staticAura.MinimumPower);
@@ -506,11 +506,10 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             [
                 OrnnObjectId,
                 FaceDownEquipmentObjectId,
-                DirtyControllerEquipmentObjectId,
                 FriendlyUnitObjectId,
                 FirstRuneObjectId
             ],
-            p2Base: [EnemyEquipmentObjectId],
+            p2Base: [EnemyEquipmentObjectId, DirtyControllerEquipmentObjectId],
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 7),
@@ -1009,11 +1008,10 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
                 OrnnObjectId,
                 FriendlyBaseEquipmentObjectId,
                 FaceDownEquipmentObjectId,
-                DirtyControllerEquipmentObjectId,
                 FriendlyUnitObjectId,
                 FirstRuneObjectId
             ],
-            p2Base: [EnemyEquipmentObjectId],
+            p2Base: [EnemyEquipmentObjectId, DirtyControllerEquipmentObjectId],
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 8),
@@ -1092,11 +1090,10 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
                 OrnnObjectId,
                 FriendlyBaseEquipmentObjectId,
                 FaceDownEquipmentObjectId,
-                DirtyControllerEquipmentObjectId,
                 FriendlyUnitObjectId,
                 FirstRuneObjectId
             ],
-            p2Base: [EnemyEquipmentObjectId],
+            p2Base: [EnemyEquipmentObjectId, DirtyControllerEquipmentObjectId],
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 7),
@@ -1334,8 +1331,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         var p1Base = new List<string>
         {
             FriendlyUnitObjectId,
-            FaceDownEquipmentObjectId,
-            DirtyControllerEquipmentObjectId
+            FaceDownEquipmentObjectId
         };
         var p1Battlefields = new List<string>();
         if (includeFriendlyFieldEquipment)
@@ -1345,7 +1341,9 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         }
 
         var p1Hand = new[] { OrnnObjectId, HandEquipmentObjectId };
-        var p2Base = new[] { EnemyEquipmentObjectId };
+        // CN149.3/323.6: declare the foreign-controlled loose equipment in
+        // its controller's base before the first command; ownership stays P1.
+        var p2Base = new[] { EnemyEquipmentObjectId, DirtyControllerEquipmentObjectId };
         var objectLocations = p1Hand
             .Select(objectId => new KeyValuePair<string, ObjectLocationState>(objectId, new ObjectLocationState("P1", "HAND")))
             .Concat(p1Base.Select(objectId => new KeyValuePair<string, ObjectLocationState>(objectId, new ObjectLocationState("P1", "BASE"))))

@@ -217,11 +217,11 @@ public sealed class RunePaymentCapacityTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["GEAR"] = new("P2", "BASE") } };
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·006/221", out var behavior));
         behavior = behavior with { SourceReadyAdditionalPowerCost = 1, SourceReadyAdditionalPowerTrait = RuneTrait.Green,
-            PlaysSourceToBaseAsUnit = true, SourceStealEnemyEquipmentAdditionalPowerCost = 1,
-            SourceStealEnemyEquipmentAdditionalPowerTrait = RuneTrait.Green, SourceStealEnemyEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:" };
+            PlaysSourceToBaseAsUnit = true, TargetEffectAdditionalPowerCost = 1,
+            TargetEffectAdditionalPowerTrait = RuneTrait.Green };
         var resources = new Dictionary<string, int> { [RuneTrait.Red] = 1, [RuneTrait.Green] = 1 };
-        var method = PromptBuilder.GetMethod(branch == "ready" ? "CanPaySourceReadyOptionalCost" : "CanPromptSourceStealEnemyEquipmentOptionalCost", BindingFlags.Static | BindingFlags.NonPublic)!;
-        object?[] arguments = branch == "ready" ? [state, "P1", state.RunePools["P1"], resources, behavior] : [state, "P1", behavior, state.RunePools["P1"], resources, "CARD"];
+        var method = PromptBuilder.GetMethod(branch == "ready" ? "CanPaySourceReadyOptionalCost" : "CanPromptTargetEffectAdditionalCost", BindingFlags.Static | BindingFlags.NonPublic)!;
+        object?[] arguments = branch == "ready" ? [state, "P1", state.RunePools["P1"], resources, behavior] : [state, "P1", state.RunePools["P1"], resources, behavior, "CARD"];
         Assert.Equal(expected, (bool)method.Invoke(null, arguments)!);
     }
 
