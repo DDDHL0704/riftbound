@@ -5,8 +5,8 @@ public static partial class MatchRecoveryValidator
     private static void ValidateObservedUnitEventHistory(MatchState state,
         IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
-        ValidateArmamentPlayAttachmentConfirmationHistory(state, commands, events, errors);
         ValidateUnitEventPlayTargetHistory(state, commands, events, errors);
+        ValidateArmamentPlayAttachmentConfirmationHistory(state, commands, events, errors);
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         var queued = events.Where(entry => entry.Sequence > boundary && entry.Event.Kind == "TRIGGER_QUEUED"
             && TryReadObjectString(entry.Event.Payload, "observedUnitEventCaptureHash", out _)).ToArray();
@@ -47,7 +47,7 @@ public static partial class MatchRecoveryValidator
         {
             var original = queued.Where(entry => TryReadObjectString(entry.Event.Payload, "triggerId", out var id)
                 && id == item.Id).ToArray();
-            if (retired.Contains(item.Id) || original.Length != 1 || original[0].Tick != CoreRuleEngine.ObservedUnitEventBirthTick(item.Context)
+            if (retired.Contains(item.Id) || original.Length != 1 || original[0].Tick != CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)
                 || !TryReadObjectString(original[0].Event.Payload, "observedUnitEventCaptureHash", out var hash)
                 || hash != CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller))
                 errors.Add("observed unit event differs from original accepted capture");

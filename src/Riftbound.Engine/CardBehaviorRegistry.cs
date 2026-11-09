@@ -451,6 +451,9 @@ public sealed partial record CardBehaviorDefinition(
     bool DefaultChosenMovementToControllerBase = false,
     IReadOnlyList<int>? CostReductionExperienceThresholds = null)
 {
+    public int? PowerModifierAmountAtLevel { get; init; }
+    public bool EntersReadyWhenOpponentControlsStunnedUnit { get; init; }
+    public bool EntersReadyAfterFriendlyStartPhaseUnitDestroyed { get; init; }
     public bool PerformsInsight => InsightCount > 0;
     public bool MayPayAnyAdditionalPower { get; init; }
     public CombatSpellCostAdjustmentSpec? CombatSpellCostAdjustment { get; init; }
@@ -603,6 +606,7 @@ public static class CardCostReductionConditionKinds
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
     public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
     public const string ControllerExperienceThresholdCount = "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT";
+    public const string OpponentControlsStunnedUnit = "OPPONENT_CONTROLS_STUNNED_UNIT";
     public const string ControllerHeldBattlefieldCountThisTurn = "CONTROLLER_HELD_BATTLEFIELD_COUNT_THIS_TURN";
 }
 
@@ -4635,8 +4639,10 @@ public static class CardBehaviorRegistry
             "KENKEN_PLAY_UNIT",
             0,
             0,
+            CostReductionConditionKind: CardCostReductionConditionKinds.OpponentControlsStunnedUnit,
+            CostReductionMana: 2,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 6),
+            SourceUnitPower: 6) { EntersReadyWhenOpponentControlsStunnedUnit = true },
         new(
             "UNL-037/219",
             "影卫",
@@ -4645,7 +4651,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5)
+        { EntersReadyAfterFriendlyStartPhaseUnitDestroyed = true },
         new(
             "OGN·074/298",
             "塔里克",
@@ -6113,7 +6120,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "仙灵"),
+            SourceUnitTags: "仙灵",
+            UnitEventAbility: new("MOVE", CoreRuleEngine.MoveEnemyToArrivalBattlefieldEffect, Optional: true) {
+                ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true }),
         new(
             "SFD·038/221",
             "绸舞士",
@@ -6181,7 +6190,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 6),
+            SourceUnitPower: 6,
+            UnitEventAbility: new("HOLD", CoreRuleEngine.ScheduleNextMainUnitEventEffect) {
+                NextMainEffect = CoreRuleEngine.MoveEnemyToCapturedBattlefieldEffect, CapturesTriggeringBattlefield = true }),
         new(
             "UNL-098/219",
             "巨神峰先知",
@@ -8070,7 +8081,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new("MOVE", CoreRuleEngine.MoveWeakerEnemyHereToAnotherBattlefieldEffect, Optional: true) {
+                ObservesMovementByAnyPlayer = true, PreservesMovementCapture = true }),
         new(
             "UNL-126/219",
             "巨牙海兽",
@@ -8570,7 +8583,8 @@ public static class CardBehaviorRegistry
             0,
             1,
             TargetScope: CardTargetScopes.AnyUnit,
-            PowerModifierAmount: 1),
+            PowerModifierAmount: 1,
+            LevelExperienceThreshold: 6) { PowerModifierAmountAtLevel = 3 },
         new(
             "UNL-046/219",
             "动物之友",

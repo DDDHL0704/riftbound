@@ -227,17 +227,22 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
           "contains": [
             "or \"FRIENDLY_UNIT_PLAYED\"",
-            "context.PlayedUnitDuringSpellDuel",
-            "ObservedUnitEventBirthTick",
-            "context.ReflexiveTick is { } tick ? tick : context.CapturedTick"
+            "context.PlayedUnitDuringSpellDuel"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
           "contains": [
             "expected.ExceptWith(retired)",
-            "original[0].Tick != CoreRuleEngine.ObservedUnitEventBirthTick(item.Context)",
+            "original[0].Tick != CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)",
             "pending observed unit events differ from original accepted completion history"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "ObservedUnitEventOccurrenceTick(UnitEventContext context)",
+            "context.DelayedReceipt?.FiredTick ?? context.CapturedTick"
           ]
         }
       ],
@@ -621,24 +626,16 @@
       ],
       "text": "{{等级6>}} 改为让其本回合内{{S}}+3。（如果你拥有不少于6经验，则获得该效果。）",
       "scope": "{{等级6>}} 改为让其本回合内{{S}}+3。（如果你拥有不少于6经验，则获得该效果。）",
-      "status": "missing",
-      "reason": "仅有固定本回合+1；缺少等级6将增量改为+3的结算时经验检查与数值替换",
-      "rules": "核心824 等级、433／479 数值；UNL-031 官方中文牌面",
+      "status": "route",
+      "reason": "共享战力指示在结算时读取施放控制者的当前经验，达到6时把本回合+1替换为+3。真实波比伏击额外费用会降低尚未结算法术的等级；已生效的本回合战力修正不会随后因经验下降而重算。",
+      "rules": "中国区核心824.1.b–d、728–733、433／479；实战经验官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 1,
-            "requiredTargetCount": 1,
-            "targetScope": "ANY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
             "powerModifierAmount": 1,
-            "canPlayDuringPriority": true,
-            "mainDeckSelectionIsDraw": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "levelExperienceThreshold": 6,
+            "powerModifierAmountAtLevel": 3,
+            "targetScope": "ANY_UNIT"
           }
         ]
       },
@@ -647,11 +644,30 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-031/219\"",
-            "\"PRACTICAL_EXPERIENCE_POWER_PLUS_1\""
+            "PowerModifierAmountAtLevel = 3"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "state with { PlayerZones = playerZones, CardObjects = cardObjects, PlayerExperience = playerExperience },",
+            "var primaryAmount = behavior.PowerModifierAmountAtLevel is { } levelAmount",
+            "ControllerMeetsLevelExperienceThreshold(behavior, controllerId, state.PlayerExperience)",
+            "? levelAmount : behavior.PowerModifierAmount;"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PracticalExperienceLevelTests.cs",
+          "methods": [
+            "EitherPlayersUnitReceivesOneOrThreeInsteadOfBothAndTheBuffExpires",
+            "SpendingExperienceInARealResponseChangesTheInstructionButNotAnAlreadyResolvedBuff",
+            "ASpellBorrowedFromTheOtherOwnerUsesItsCastingControllersExperience",
+            "ARealReturnResponseDoesNotBuffTheTargetsPrivateNewIncarnation"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -737,23 +753,17 @@
       ],
       "text": "如果对手控制着一名被眩晕的单位，则我的费用减少{{2}}，并以活跃状态进场。",
       "scope": "如果对手控制着一名被眩晕的单位，则我的费用减少{{2}}，并以活跃状态进场。",
-      "status": "missing",
-      "reason": "只有基础6费用休眠单位；缺少对手控制眩晕单位时的2法力减费及活跃进场替换",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "报价与实际付款复用当前敌方眩晕单位条件，满足时法力总费用减少2且只计一次；共享普通／效果单位进场同样检查该条件，以活跃状态进场。检查当前控制者而非所有者，排除非场地区域和非正面单位；返手或眩晕到期后不再生效。",
+      "rules": "中国区核心143.4–143.4.a、191.5.b、356.4／356.6、424.1；啃啃官方中文牌面。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 6,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
+            "costReductionConditionKind": "OPPONENT_CONTROLS_STUNNED_UNIT",
+            "costReductionMana": 2,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "entersReadyWhenOpponentControlsStunnedUnit": true
           }
         ]
       },
@@ -762,11 +772,46 @@
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
             "\"UNL-035/219\"",
-            "\"KENKEN_PLAY_UNIT\""
+            "EntersReadyWhenOpponentControlsStunnedUnit = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
+          "contains": [
+            "CardCostReductionConditionKinds.OpponentControlsStunnedUnit",
+            "OpponentControlsStunnedUnit(state.PlayerZones, state.CardObjects, player) ? 1 : 0"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "contains": [
+            "behavior.EntersReadyWhenOpponentControlsStunnedUnit",
+            "OpponentControlsStunnedUnit(playerZones, cardObjects, stackItem.ControllerId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalUnitEntry.cs",
+          "contains": [
+            "IsFaceUpNonStandbyUnit(card) && IsObjectOnField(zones, card.ObjectId)",
+            "EffectiveFieldControllerId(zones, card.ObjectId, card)",
+            "controller != player && card.UntilEndOfTurnEffects.Contains(\"STUNNED\", StringComparer.Ordinal)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/KenkenConditionalEntryTests.cs",
+          "methods": [
+            "ARealEnemyStunReducesTheQuoteAndActualManaByTwoAndEntersReady",
+            "TheStunnedUnitsCurrentControllerRatherThanOwnerSuppliesBothConditions",
+            "SeveralStunnedEnemiesStillGiveOnlyOneTwoManaReduction",
+            "ReturningTheOnlyStunnedEnemyInvalidatesTheOldPriceAndReadyEntry",
+            "ExpiringTheRealStunRestoresTheSixManaPrice",
+            "HavingTheConditionDoesNotPermitPayingLessThanTheDiscountedCost",
+            "ARealGraveyardEffectPlayUsesTheSameDiscountAndReadyEntry"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -774,36 +819,79 @@
       ],
       "text": "本回合内，如果一名友方单位在你的开始阶段被摧毁，则我以活跃状态进场。",
       "scope": "本回合内，如果一名友方单位在你的开始阶段被摧毁，则我以活跃状态进场。",
-      "status": "missing",
-      "reason": "只有基础休眠单位；缺少本回合开始阶段友方单位被摧毁记录及据此活跃进场替换",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "共享进场替换读取本回合实际发生于控制者开始阶段的友方单位摧毁记录；独立于所属者并计入真实单位指示物，召回替换、敌方单位、主阶段死亡与前一回合不满足条件；普通付费打出和据守授予的废牌堆效果打出使用同一入口，恢复逐项核对原始已接受事件。",
+      "rules": "中国区核心143.4、315.2、369.3、370.1.a.1及740.1.a；UNL-037官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
             "manaCost": 4,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "entersReadyAfterFriendlyStartPhaseUnitDestroyed": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalUnitEntry.cs",
           "contains": [
-            "\"UNL-037/219\"",
-            "\"SHADOW_GUARD_PLAY_UNIT\""
+            "FriendlyStartPhaseUnitDestroyedThisTurn(",
+            "frame.StartPhaseDestroyedUnitControllers.Contains((turnNumber, controller))",
+            "ledger.TurnNumber == turnNumber && ledger.StartPhaseUnitControllers?.Contains(controller) == true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+          "contains": [
+            "behavior.EntersReadyAfterFriendlyStartPhaseUnitDestroyed",
+            "FriendlyStartPhaseUnitDestroyedThisTurn(stackItem.ControllerId, turnNumber)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+          "contains": [
+            "state.Phase == MatchPhases.TurnStart && controller == state.TurnPlayerId",
+            "StartPhaseUnitControllers = startPhaseUnitControllers.Length == 0 ? null : startPhaseUnitControllers",
+            "[\"startPhaseUnitDestroyedForPlayerId\"] = startPlayer"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (removed && removal.Death is { StartPhaseTurnPlayerId: { } startPlayer })",
+            "RuleChoices.Value!.StartPhaseDestroyedUnitControllers.Add((state.TurnNumber, startPlayer))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.StartPhaseUnitDeaths.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "!commands.Any(command => command.Accepted && command.CompletedTick == record.Tick",
+            "if (!expected.SetEquals(actual))"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "contains": [
+            "ValidateStartPhaseUnitDeathHistory(authoritativeState, commands, events, errors)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ShadowguardStartPhaseEntryTests.cs",
+          "methods": [
+            "ARealFriendlyStartPhaseDestructionMakesThePaidEntryReadyRegardlessOfOwnerOrToken",
+            "DecliningOrReplacingTheDestructionWithRecallDoesNotQualify",
+            "ARealMainPhaseFriendlyDeathDoesNotEstablishTheStartPhaseCondition",
+            "AnEnemyDeathDuringYourActualStartPhaseDoesNotQualify",
+            "TheEstablishedConditionExpiresBeforeTheNextOwnTurn",
+            "TheActualHoldGrantedGraveyardPlayUsesTheSameReadyEntryCondition",
+            "RecoveryRejectsErasingDuplicatingOrInventingTheOriginalPhaseQualifiedHistory"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -1115,36 +1203,84 @@
       ],
       "text": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
       "scope": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
-      "status": "missing",
-      "reason": "只有基础单位；缺少据守建立的延迟技能、下个主阶段可选敌方单位目标及移动到捕获战场",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "据守的独立技能结算后建立持久延迟记录；实际下个己方主阶段开始、符文池清空后再产生可选敌方目标的独立移动技能。战场、来源代际和原控制者在据守时固定，来源返手、移动或被夺取不改变已经建立的延迟；创建、消费及后来触发分别核对原始已接受历史，禁止重写来源原捕获时刻。 目标只受牌面单位描述和目标保护限制；单位不能移动或已经位于目的战场仍可被选取，移动可行性在响应后的共享执行器中检查。",
+      "rules": "中国区核心191.5.b、315.2、316.3、355.4.a、359.3.f、383.4.d及390–393；娅希拉官方中文牌面。 目标范围另依核心355.9、358.3.a：移动受阻不阻止技能确认。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 7,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 6,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "HOLD",
+              "effect": "SCHEDULE_NEXT_MAIN_UNIT_EVENT",
+              "nextMainEffect": "MOVE_ENEMY_TO_CAPTURED_BATTLEFIELD",
+              "capturesTriggeringBattlefield": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
           "contains": [
-            "\"UNL-050/219\"",
-            "\"YASHILA_VANILLA_PLAY_UNIT\""
+            "CaptureTriggeredUnitEventBattlefield(state, o, field)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "contains": [
+            "context.DelayedReceipt is not null && spec?.NextMainEffect is { } delayedEffect"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "ScheduleNextMainUnitEvent(",
+            "ScheduledUnitEvents = [..(state.ScheduledUnitEvents ?? []), schedule]",
+            "ControllerId == state.TurnPlayerId",
+            "schedule.Receipt with { FiredTick =",
+            "UnitEventCapturedBattlefieldDestination("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs",
+          "contains": [
+            "state = QueueNextMainUnitEvents(state, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ScheduledUnitEvents.cs",
+          "contains": [
+            "CurrentGameAcceptedEventBoundary(state, commands, events)",
+            "pending.Remove(id)",
+            "MatchStateHasher.HashValue(schedule) != original.Hash"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "IsUnitMovementDestination(current, id, destination)",
+            "PayImposedMovementCost(",
+            "CaptureMovementBatchObservers("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/YashilaDelayedMovementTests.cs",
+          "methods": [
+            "ActualHoldCreatesADelayThenTheRealMainTransitionConfirmsAnOptionalEnemyMove",
+            "ASourceReturningOrMovingAwayBeforeMainDoesNotChangeTheCapturedBattlefield",
+            "ARealControlChangeCannotTransferOrCancelTheAlreadyCreatedDelay",
+            "DecliningAtMainConsumesTheDelayWithoutMovingAnyUnit",
+            "TheIndependentMainMovementSkillCanBeCounteredAfterTheEnemyIsConfirmed",
+            "RecoveryRejectsErasedDuplicatedOrForgedScheduledHistory",
+            "RecoveryRequiresTheNewMainBirthAndTheUnchangedOriginalBattlefield",
+            "AStandaloneHoldCanCreateAndFireItsDelayInTheSameAcceptedCompletion",
+            "TheEarnedHoldStillCreatesTheOriginalBattlefieldDelayAfterTheSourceReturnsInResponse",
+            "TheRealMainTriggerCanConfirmAnImmovableEnemyAndResolveWithoutMovingIt"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2539,36 +2675,76 @@
       ],
       "text": "当我移动时，你可以选择将一名位于此处且战力低于我的敌方单位移动到另一处战场。",
       "scope": "当我移动时，你可以选择将一名位于此处且战力低于我的敌方单位移动到另一处战场。",
-      "status": "missing",
-      "reason": "只有基础单位；缺少移动后选择此处当前战力较低敌方单位、可选移至另一真实战场的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "任意玩家造成来源实际移动后，控制者可选一名来源当前此处、当前战力严格低于来源的敌方单位；确认时选择另一处真实战场并开放响应。结算重新检查此处和双方当前战力，不能移动到基地或当前此处；原始移动捕获与已接受的目标／目的地声明均被核对。 目标只受牌面单位描述和目标保护限制；单位不能移动或已经位于目的战场仍可被选取，移动可行性在响应后的共享执行器中检查。",
+      "rules": "中国区核心355.4.a、359.3.e.2／359.3.e.12、359.3.f.2、383、403–407及449–451；气势逼人的挑战者官方中文牌面。 目标范围另依核心355.9、358.3.a：移动受阻不阻止技能确认。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 5,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 5,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "MOVE_WEAKER_ENEMY_HERE_TO_ANOTHER_BATTLEFIELD",
+              "optional": true,
+              "observesMovementByAnyPlayer": true,
+              "preservesMovementCapture": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EnemyUnitEventMovement.cs",
           "contains": [
-            "\"UNL-105/219\"",
-            "\"INTIMIDATING_CHALLENGER_MOVE_STATIC\""
+            "IsWeakerEnemyHereMovementTarget(",
+            "UnitEventTargetIsHere(state, item, target.ObjectId)",
+            "ResolveCurrentFieldUnitPower(state, target) < ResolveCurrentFieldUnitPower(state, state.CardObjects[item.SourceObjectId])",
+            "choice.Id[12..] != here?.BattlefieldObjectId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "MoveWeakerEnemyHereToAnotherBattlefieldEffect => IsWeakerEnemyHereMovementTarget(state, item, c)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "var options = UnitEventMovementDestinations(state, item, target).ToArray()",
+            "MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [target], item.Destination, events)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventMovement.cs",
+          "contains": [
+            "CoreRuleEngine.RequiresUnitEventMovementDeclarationHistory",
+            "original != CoreRuleEngine.DeclaredUnitEventMovementHash(item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "IsUnitMovementDestination(current, id, destination)",
+            "PayImposedMovementCost(",
+            "CaptureMovementBatchObservers("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/IntimidatingChallengerMovementTests.cs",
+          "methods": [
+            "ActualMovementConfirmsAStrictlyWeakerEnemyHereAndAnotherRealBattlefieldBeforeResponses",
+            "AnOpponentsRealMovementStillEarnsTheChallengersControllersSkill",
+            "EqualMightOrADifferentCurrentLocationCannotBeChosen",
+            "ARealResponseIncreasingTheTargetsMightInvalidatesThePendingMove",
+            "ARealSourceMoveToBaseChangesCurrentHereWhilePreservingTheOriginalMovementCapture",
+            "TheBaseAndCurrentBattlefieldCannotBeInventedAsMovementDestinations",
+            "RecoveryRejectsErasingTheEarnedMoveOrChangingItsOriginalArrivalOrDestination",
+            "AMovementRestrictionDoesNotPreventConfirmingTheWeakerEnemyHere"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2821,17 +2997,22 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
           "contains": [
             "or \"FRIENDLY_UNIT_PLAYED\"",
-            "context.PlayedUnitDuringSpellDuel",
-            "ObservedUnitEventBirthTick",
-            "context.ReflexiveTick is { } tick ? tick : context.CapturedTick"
+            "context.PlayedUnitDuringSpellDuel"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
           "contains": [
             "expected.ExceptWith(retired)",
-            "original[0].Tick != CoreRuleEngine.ObservedUnitEventBirthTick(item.Context)",
+            "original[0].Tick != CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)",
             "pending observed unit events differ from original accepted completion history"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "ObservedUnitEventOccurrenceTick(UnitEventContext context)",
+            "context.DelayedReceipt?.FiredTick ?? context.CapturedTick"
           ]
         }
       ],
@@ -2894,37 +3075,68 @@
       ],
       "text": "当我移动到一处战场时，你可以选择将一名敌方单位移动到该战场。",
       "scope": "当我移动到一处战场时，你可以选择将一名敌方单位移动到该战场。",
-      "status": "missing",
-      "reason": "只有基础仙灵单位；缺少来源移动到战场后可选敌方单位目标及移动至捕获战场的触发",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "来源被任意玩家移动至战场时，控制者可选一名敌方单位，在响应后使用共享移动流程移到触发时的到达战场；原来源返手或移回基地仍保留该战场引用，移动到基地不会触发。无额外横置费用，非法或隐藏目标不能确认。 目标只受牌面单位描述和目标保护限制；单位不能移动或已经位于目的战场仍可被选取，移动可行性在响应后的共享执行器中检查。",
+      "rules": "中国区核心191.5.b、355.4.a、359.3.f.3、383及403–407；破限裁判FAQ260511第19页确认来源返手后仍移动敌方单位到原到达战场；诱人仙灵官方中文牌面。 目标范围另依核心355.9、358.3.a：移动受阻不阻止技能确认。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 1,
-            "sourceUnitTags": "仙灵",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "MOVE",
+              "effect": "MOVE_ENEMY_TO_ARRIVAL_BATTLEFIELD",
+              "optional": true,
+              "observesMovementByAnyPlayer": true,
+              "requiresMoveToBattlefield": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
-            "\"UNL-112/219\"",
-            "\"ALLURING_FAERIE_PLAY_UNIT\""
+            "MoveEnemyToArrivalBattlefieldEffect => IsFaceUpNonStandbyUnit(c)",
+            "EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
+          "contains": [
+            "private static string? UnitEventArrivalBattlefieldDestination(",
+            "spec.Effect is MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect ? UnitEventArrivalBattlefieldDestination(state, item)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+          "contains": [
+            "UnitEventSpec(o.Context.CardNo)?.ObservesMovementByAnyPlayer == true",
+            "UnitEventSpec(o.Context.CardNo)?.RequiresMoveToBattlefield != true || f.Destination.Zone == \"BATTLEFIELD\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "IsUnitMovementDestination(current, id, destination)",
+            "PayImposedMovementCost(",
+            "CaptureMovementBatchObservers("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/AlluringFaerieMovementTests.cs",
+          "methods": [
+            "AnActualArrivalChoosesAnyEnemyThenMovesItAfterResponsesWithoutAnExhaustCost",
+            "TheOfficialArrivalBattlefieldSurvivesAnActualReturnOrMovementBackToBase",
+            "AnOpponentsRealMovementStillEarnsTheFaeriesControllersSkill",
+            "MovingBackToBaseDoesNotTriggerTheBattlefieldArrivalSkill",
+            "TheOptionalSkillMayBeDeclinedWithoutMovingTheEnemy",
+            "FriendlyHiddenAndUnknownTargetsAreAtomicRejections",
+            "AnEnemyAlreadyThereOrUnableToMoveRemainsAConfirmableTarget",
+            "AnEnemyChosenAtTheArrivalBattlefieldCanLeaveInResponseAndBeMovedBack"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

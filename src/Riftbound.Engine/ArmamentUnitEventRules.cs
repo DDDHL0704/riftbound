@@ -41,6 +41,14 @@ internal static class ArmamentUnitEventRules
                     CreatedTokenFactoryCardNo: "UNL·T05"),
                 _ => null
             };
+            if (spec is null)
+            {
+                var ending = Regex.Match(Regex.Replace(definition.EffectText, "（[^）]*）", "").Trim(),
+                    @"^在你的回合结束时，如果我本回合没有征服战场，则卸除此装备，并对我造成(?<amount>[1-9][0-9]*)点伤害[。.]?$",
+                    RegexOptions.CultureInvariant);
+                if (ending.Success) spec = new("END", CoreRuleEngine.DetachOriginDamageSourceEffect,
+                    int.Parse(ending.Groups["amount"].Value)) { RequiresNoConquestThisTurn = true };
+            }
             if (spec is null && TriggerParser.Parse(definition.EffectText).FirstOrDefault(t =>
                     t.Kind == TriggerKinds.UnitBattlefieldHeldCreateEquipment && t.Timing == TriggerTimings.BattlefieldHeld
                     && t.TargetScope == TriggerTargetScopes.SourceUnit && t.CreatedTokenCount > 0

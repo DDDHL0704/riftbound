@@ -34,6 +34,33 @@ class FriendlyTokenMovementAuditTests(unittest.TestCase):
             self.assertEqual('route', self.status())
             self.assertEqual('route', audit.audit_clause(self.card, audit.card_clauses(self.card)[0], self.sources)['status'])
 
+    def test_unrelated_adjacent_switch_arms_do_not_hide_the_token_route(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs'
+        scope = ('FriendlyUnitTokensMoveHere => IsFaceUpNonStandbyUnit(c) && IsTokenObject(c)\n'
+                 '                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,')
+        original = self.sources.files[path]
+        self.assertIn(scope, original)
+        self.sources.files[path] = original.replace(scope,
+            scope + '\n                UnrelatedMovementEffect => false,')
+        self.assertEqual('route', self.status())
+
+    def test_an_adjacent_predicate_cannot_replace_the_live_token_scope(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs'
+        scope = ('FriendlyUnitTokensMoveHere => IsFaceUpNonStandbyUnit(c) && IsTokenObject(c)\n'
+                 '                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,')
+        original = self.sources.files[path]
+        self.assertIn(scope, original)
+        decoy = scope.replace('FriendlyUnitTokensMoveHere', 'UnrelatedMovementEffect')
+        self.sources.files[path] = original.replace(scope,
+            'FriendlyUnitTokensMoveHere => false,\n                ' + decoy)
+        self.assertEqual('missing', self.status())
+
+    def test_optional_choice_and_any_number_limits_must_be_live(self):
+        for token in ['UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1',
+                'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']:
+            with self.subTest(token=token):
+                self.missing_consumer('CoreRuleEngine.UnitEvents.cs', token)
+
     def test_wrong_timing_effect_count_and_scalar_types_cannot_match(self):
         original = self.card['behaviors'][0]['unitEventAbility'].copy()
         for key, value in [('timing','DEFEND'), ('effect','MOVE_ENEMY_HERE'),

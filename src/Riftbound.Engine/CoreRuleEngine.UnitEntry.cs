@@ -118,8 +118,12 @@ public sealed partial class CoreRuleEngine
                 || entersReadyFromOtherFriendlyStaticAbility
                 || entersReadyFromGlobalUnitAbility
                 || countsAsPlay && ActiveUnitPlayGrants(untilEndOfTurnEffects, stackItem.ControllerId, "READY_ENTRY").Count > 0
+                || behavior.EntersReadyWhenOpponentControlsStunnedUnit
+                    && OpponentControlsStunnedUnit(playerZones, cardObjects, stackItem.ControllerId)
                 || behavior.EntersReadyAfterFriendlyPermanentDestroyed
                     && FriendlyPermanentDestroyedThisTurn(stackItem.ControllerId, turnNumber)
+                || behavior.EntersReadyAfterFriendlyStartPhaseUnitDestroyed
+                    && FriendlyStartPhaseUnitDestroyedThisTurn(stackItem.ControllerId, turnNumber)
                 || countsAsPlay && behavior.Showcase?.ReadyEntry == true && stackItem.Showcase is not null
                 || readyWithMovementProhibition
                 || sourceReadyOptionalCostPaid

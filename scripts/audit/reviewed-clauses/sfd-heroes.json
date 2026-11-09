@@ -222,7 +222,7 @@
         {
           "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
           "contains": [
-            "CoreRuleEngine.ObservedUnitEventBirthTick(item.Context)"
+            "CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)"
           ]
         },
         {
@@ -253,6 +253,13 @@
             "[\"targetGenerations\"] = bound.TargetGenerations",
             "confirmationPayload[\"stackItemId\"] = item.StackItemId",
             "confirmationPayload[\"targetGenerations\"] = confirmed.TargetGenerations"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "HasArmamentPlayAttachment(context) && context.ReflexiveTick is { } tick",
+            "context.DelayedReceipt?.FiredTick ?? context.CapturedTick"
           ]
         }
       ],

@@ -133,6 +133,7 @@ public sealed partial class CoreRuleEngine
 TurnStartStep = null, Phase = MatchPhases.Main,
                         TimingState = TimingStates.NeutralOpen, ActivePlayerId = player, PriorityPlayerId = null,
                         PassedPriorityPlayerIds = [], FocusPlayerId = null };
+                    state = QueueNextMainUnitEvents(state, events);
                     var advance = AdvancePendingBattlefieldTasksAfterStateChange(state, player, result.State);
                     state = advance.State; events.AddRange(advance.Events);
                     break;

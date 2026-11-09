@@ -141,15 +141,25 @@ public sealed class DuskRoseLabStartTests
     [Fact]
     public async Task PublicPaidReceiptCannotDifferForEitherPlayerOrSpectator()
     {
-        var paid=await Choose((await Start()).State,"B");var s=paid.State;
-        var views=s.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,s.Tick,0,paid.Snapshots[id],s.Tick,0,paid.Prompts[id]));
-        var spectator=MatchReplayRedactor.BuildSpectatorFrame(s.RoomId,s.Tick,0,[],s);
-        Assert.Empty(MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator));
+        var game = new VenBasicFlowSpellTests.Driver(Position());
+        await game.Act("P1", new PassPriorityCommand());
+        var choice = game.State.PendingCardChoice!;
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["B"]));
+        var s = game.State; var commands = game.Commands(); var events = game.Events();
+        var sequence = events[^1].Sequence;
+        var snapshots = ResolutionResult.BuildSnapshots(s); var prompts = ResolutionResult.BuildPrompts(s);
+        var views = s.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, s.Tick, sequence,
+            snapshots[id], s.Tick, sequence, prompts[id]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(s.RoomId, s.Tick, sequence, [], s);
+        Assert.Empty(MatchRecoveryValidator.Validate(s.RoomId, sequence, commands, events, views, s, s.Tick, spectator));
+        Assert.Contains(MatchRecoveryValidator.Validate(s.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), s, s.Tick),
+            error => error.Contains("start-phase unit deaths differ from original accepted history", StringComparison.Ordinal));
         foreach(var snapshot in views.Values.Select(v=>v.Snapshot).Append(spectator.SpectatorSnapshot)) {
             var payload=Assert.IsType<Dictionary<string,object?>>(Assert.Single(snapshot.Stack));var original=payload["triggerCost"];
             payload["triggerCost"]=s.StackItems[0].TriggerCost! with {DestructionTarget=new("A",0)};
-            Assert.Contains(MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator),e=>e.Contains("destruction cost receipt differs"));payload["triggerCost"]=original;
+            Assert.Contains(MatchRecoveryValidator.Validate(s.RoomId,sequence,commands,events,views,s,s.Tick,spectator),e=>e.Contains("destruction cost receipt differs"));payload["triggerCost"]=original;
         }
+        await game.Replay();
     }
 
     [Fact]

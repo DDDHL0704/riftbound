@@ -11,6 +11,8 @@ public sealed partial class CoreRuleEngine
     private static UnitEventAbilitySpec? SelectedUnitEventSpec(UnitEventContext context)
     {
         var spec = UnitEventSpec(context.CardNo);
+        if (context.DelayedReceipt is not null && spec?.NextMainEffect is { } delayedEffect)
+            spec = spec with { Effect = delayedEffect, Optional = true };
         if (HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null)
             return spec! with { Effect = AttachPlayedArmamentEffect, Optional = false };
         if (context.Mode is null) return spec;

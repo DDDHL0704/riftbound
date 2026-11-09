@@ -18788,6 +18788,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 EquipmentPlayGrants = stackResolution.EquipmentPlayGrants ?? state.EquipmentPlayGrants,
                 TimedBanishPlayGrants = stackResolution.TimedBanishPlayGrants ?? state.TimedBanishPlayGrants,
                 DelayedResourceGains = stackResolution.DelayedResourceGains ?? state.DelayedResourceGains,
+                ScheduledUnitEvents = stackResolution.ScheduledUnitEvents ?? state.ScheduledUnitEvents,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -25573,7 +25574,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     var powerModifierAmount = ShouldApplyPowerModifierToTarget(behavior, targetIndex)
                         ? ResolvePowerModifierAmount(
-                            state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                            state with { PlayerZones = playerZones, CardObjects = cardObjects, PlayerExperience = playerExperience },
                             behavior,
                             targetIndex,
                             playerZones,
@@ -30414,9 +30415,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObjects.TryGetValue(targetObjectId, out var empoweredTarget) && empoweredTarget.IsEmpowered)
             return empoweredAmount;
 
+        var primaryAmount = behavior.PowerModifierAmountAtLevel is { } levelAmount
+            && ControllerMeetsLevelExperienceThreshold(behavior, controllerId, state.PlayerExperience)
+                ? levelAmount : behavior.PowerModifierAmount;
         return targetIndex == 1 && behavior.SecondaryPowerModifierAmount != 0
             ? behavior.SecondaryPowerModifierAmount
-            : behavior.PowerModifierAmount;
+            : primaryAmount;
     }
 
     private static int CountEnemyBattlefieldUnits(
@@ -31161,6 +31165,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BombDestructionObservers = removed && removal.WasDestroyed ? bombObservers : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
+        // A replaced or failed destruction must never establish this fact (CN370.1.a.1).
+        if (removed && removal.Death is { StartPhaseTurnPlayerId: { } startPlayer })
+            RuleChoices.Value!.StartPhaseDestroyedUnitControllers.Add((state.TurnNumber, startPlayer));
         if (removed && removal.WasDestroyed && before is { IsFaceDown: false }
             && (before.Tags.Contains(CardObjectTags.UnitCard) || before.Tags.Contains(CardObjectTags.EquipmentCard)))
             RuleChoices.Value!.DestroyedPermanentControllers.Add((state.TurnNumber, controller));
@@ -34174,7 +34181,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string>? CompletedCardPlayIds = null,
         IReadOnlyList<TurnEquipmentPlayGrant>? EquipmentPlayGrants = null,
         IReadOnlyList<TimedBanishPlayGrant>? TimedBanishPlayGrants = null,
-        IReadOnlyList<DelayedResourceGain>? DelayedResourceGains = null);
+        IReadOnlyList<DelayedResourceGain>? DelayedResourceGains = null,
+        IReadOnlyList<ScheduledUnitEvent>? ScheduledUnitEvents = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,
