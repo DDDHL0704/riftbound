@@ -198,11 +198,20 @@ public sealed class PakaaProtectorRevealTests
         await Move(driver); await driver.Top(); await DeckObservationPlayTests.Decide(driver, true);
         var original = Assert.Single(driver.State.ObservedDeckPlays!);
         Assert.True(original.CapturedTick > 0);
+        var journal = MatchStateHasher.HashValue(new { commands = driver.Commands(), events = driver.Events() });
         var forged = WithObservedContext(driver.State, original with { CapturedTick = original.CapturedTick - 1 });
         Assert.Empty(OfficialInsightAndSpellLockTests.Errors(forged));
+        var sequence = driver.Events()[^1].Sequence;
+        var snapshots = ResolutionResult.BuildSnapshots(forged); var prompts = ResolutionResult.BuildPrompts(forged);
+        var views = forged.Seats.Keys.ToDictionary(player => player,
+            player => new RecoveredPlayerView(player, forged.Tick, sequence, snapshots[player], forged.Tick, sequence, prompts[player]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(forged.RoomId, forged.Tick, sequence, [], forged);
+        Assert.Contains("observed deck play differs from its original accepted observation",
+            MatchRecoveryValidator.Validate(forged.RoomId, sequence, driver.Commands(), driver.Events(), views, forged, forged.Tick, spectator));
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), forged,
             new CoreRuleEngine(), default, driver.Events());
         Assert.False(replay.IsMatch);
+        Assert.Equal(journal, MatchStateHasher.HashValue(new { commands = driver.Commands(), events = driver.Events() }));
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
     }
 
