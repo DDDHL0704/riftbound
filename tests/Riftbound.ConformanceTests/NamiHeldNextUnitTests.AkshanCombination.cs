@@ -7,8 +7,9 @@ namespace Riftbound.ConformanceTests;
 
 public sealed partial class NamiHeldNextUnitTests
 {
-    [Fact]
-    public async Task AnEarnedHoldAndAnActualAkshanTheftKeepBothOriginalHistoriesThroughHisDeparture()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AnEarnedHoldAndAnActualAkshanTheftKeepBothOriginalHistoriesThroughHisDeparture(bool reverseOrder)
     {
         var initial = RadGearTestPosition.Put(Position(), "FIRST", "SFD·109/221", "P1", "HAND");
         initial = RadGearTestPosition.Put(initial, "GEAR", "SFD·022/221", "P2", "BASE");
@@ -21,6 +22,13 @@ public sealed partial class NamiHeldNextUnitTests
         await game.Act("P1", new RecycleRuneCommand("ORANGE-1"));
         await game.Act("P1", new PlayCardCommand("FIRST", "SFD·109/221", [], OptionalCosts: ["SPEND_POWER:2:ORANGE"]));
         Assert.True(game.State.CardObjects["FIRST"].IsExhausted);
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        Assert.Single(game.State.TriggerQueue, trigger => trigger.TurnUnitPlayBoon?.Unit.ObjectId == "FIRST");
+        Assert.Single(game.State.TriggerQueue, trigger => trigger.Tempered?.Unit.ObjectId == "FIRST");
+        Assert.Contains(CommandTypes.OrderTriggers, game.PromptFor("P1").EnabledActions());
+        var order = game.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray();
+        if (reverseOrder) Array.Reverse(order);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: order));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]));
