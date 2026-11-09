@@ -34,7 +34,8 @@ public sealed partial class RellAttackArmamentPlayTests
         Assert.Equal(2, game.State.TriggerQueue.Count);
         var child = Assert.Single(game.State.TriggerQueue, trigger => trigger.UnitEvent?.ReflexiveTick is not null);
         var agile = Assert.Single(game.State.TriggerQueue, trigger => trigger.PermanentPlayStackItemId is not null);
-        await game.Act("P1", new OrderTriggersCommand(rellFirst ? [child.TriggerId, agile.TriggerId] : [agile.TriggerId, child.TriggerId]));
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            rellFirst ? [child.TriggerId, agile.TriggerId] : [agile.TriggerId, child.TriggerId]));
         await game.Top();
         Assert.Equal(rellFirst ? "RELL" : "ALLY", game.State.CardObjects["GEAR"].AttachedToObjectId);
         await game.Top();
@@ -61,24 +62,32 @@ public sealed partial class RellAttackArmamentPlayTests
             await game.Act("P1", play);
             Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Assert.Equal(2, game.State.TriggerQueue.Count);
-            await game.Act("P1", new OrderTriggersCommand(game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             await game.Top(); await game.Top();
         }
         Assert.Null(game.State.PendingEffectPlay); await game.ColdCheckpoint();
     }
 
     [Fact]
-    public async Task ReturningTheActualPlayedArmamentBeforeAttachmentCannotReuseItsNewHandIncarnation()
+    public async Task AReturnedArmamentCannotReuseItsResolvedAttachmentAndSwiftRecallCannotInterruptIt()
     {
         var initial = RadGearTestPosition.Put(Position(), "GEAR-RETURN", "SFD·135/221", "P1", "HAND");
         var game = new Driver(initial); await Permission(game);
         await game.Act("P1", new PlayCardCommand("GEAR", Shield, []));
-        var binding = Assert.Single(game.State.StackItems).UnitEvent!.Other!.Binding;
+        var child = Assert.Single(game.State.StackItems);
+        var binding = child.UnitEvent!.Other!.Binding;
+        // CN310.4, 159.2.a: Swift is legal in an open showdown, but only
+        // Reaction can interrupt this independent attachment skill.
+        await RadGearTestPosition.Reject(game.State, "P1", new PlayCardCommand("GEAR-RETURN", "SFD·135/221", ["GEAR"]));
+        await game.Top();
+        Assert.Equal("RELL", game.State.CardObjects["GEAR"].AttachedToObjectId);
         await game.Act("P1", new PlayCardCommand("GEAR-RETURN", "SFD·135/221", ["GEAR"])); await game.Top();
         Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
         Assert.True(game.State.CardObjects["GEAR"].ObjectGeneration > binding.Generation);
-        await game.Top();
-        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId); await game.ColdCheckpoint();
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game,
+            game.State with { StackItems = [child] }));
+        await game.ColdCheckpoint();
     }
 
     [Fact]
