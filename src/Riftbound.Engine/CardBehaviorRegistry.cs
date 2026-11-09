@@ -18,7 +18,7 @@ public sealed partial record UnitEventAbilitySpec(string Timing, string Effect, 
     bool RequiresIsolatedEnemyHere = false,
     bool TargetsAnotherFriendlyHere = false, string? GrantedCombatKeyword = null,
     bool RequiresPlayedUnitToken = false, PermanentDestructionCostSpec? LeadingDestruction = null,
-    int MinimumPlayedCardPowerCost = 0);
+    int MinimumPlayedCardPowerCost = 0, bool FriendlyGroupAtSourceHere = false);
 
 public sealed record PermanentDestructionCostSpec(int Count, string? RequiredTag = null,
     int? MaximumMana = null, bool AnyController = false, bool AllowsSource = false);
@@ -2143,7 +2143,9 @@ public static class CardBehaviorRegistry
             "MAGIC_BEANS_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("FRIENDLY_UNIT_PLAYED", "DRAW", 1, LeadingSourceExhaust: true)
+                { RequiresSpellDuelAtUnitPlay = true }),
         new(
             "OGN·017/298",
             "钢铁弩炮",
@@ -2541,7 +2543,8 @@ public static class CardBehaviorRegistry
             "SCARLET_ROSE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("FRIENDLY_UNIT_PLAYED", "GAIN_EXPERIENCE", 1, LeadingManaCost: 1)),
         new(
             "UNL-174/219",
             "逆转碎片",
@@ -6646,7 +6649,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new("PLAY", "MIGHT_OTHER_FRIENDLIES", 2)),
         new(
             "SFD·180/221",
             "菲奥娜",
@@ -7859,7 +7863,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new("PLAY", "MIGHT_OTHER_FRIENDLIES",
+                GrantedCombatKeyword: CardCombatKeywordNames.Assault, FriendlyGroupAtSourceHere: true)),
         new(
             "UNL-023/219",
             "卡特琳娜",
@@ -7919,7 +7925,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            UnitEventAbility: new("PLAY", "MIGHT_OTHER_FRIENDLIES",
+                GrantedCombatKeyword: CardCombatKeywordNames.Steadfast, FriendlyGroupAtSourceHere: true)),
         new(
             "UNL-143/219",
             "卡兹克",

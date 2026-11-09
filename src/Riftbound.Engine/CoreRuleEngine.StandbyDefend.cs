@@ -39,15 +39,17 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        var pools = state.RunePools.ToDictionary();
         var events = new List<GameEvent>();
         var destroyedByDamage = new HashSet<string>(StringComparer.Ordinal);
-        var counted = ResolveCountedMainDeckDamage(state, zones, cards, item, definition.DisplayName,
+        var counted = ResolveCountedMainDeckDamage(state, zones, cards, pools, item, definition.DisplayName,
             definition.DefendTriggerMainDeckLookCount, definition.DefendTriggerCountedTag,
             definition.DefendTriggerDamagePerCountedCard, definition.DefendTriggerRecyclesLookedMainDeckCards,
             id => FieldTriggerTargets(state, item).Contains(id), destroyedByDamage, events,
             ShouldPreventSpellOrSkillDamage(state, definition), "", state.RngCursor);
+        state = state with { RunePools = pools };
         var locations = state.ObjectLocations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        var removed = RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,
+        var removed = RunStateBasedCleanupLoop(state, zones, cards, item, pools,
             damageTriggeredDestroyTargetObjectIds: destroyedByDamage, objectLocations: locations,
             destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         events.AddRange(removed.Events);

@@ -90,7 +90,7 @@ public sealed partial class CoreRuleEngine
             return result with { State = next, Events = events,
                 Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
         }
-        catch (DamageNumericLimitException unsupported) {
+        catch (Exception unsupported) when (unsupported is DamageNumericLimitException or ResourceNumericLimitException) {
             return RejectWithCorePrompts(state, $"当前服务端数值范围尚未支持本次结算的{unsupported.Message}。", ErrorCodes.UnsupportedCardBehavior);
         }
         catch (RuleChoiceRequired required) {
@@ -181,7 +181,7 @@ public sealed partial class CoreRuleEngine
                 command, default).GetAwaiter().GetResult();
             return null;
         } catch (RuleChoiceRequired required) { return (required.Request, frame); }
-        catch (Exception e) when (e is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException or DamageNumericLimitException) { return null; }
+        catch (Exception e) when (e is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException or DamageNumericLimitException or ResourceNumericLimitException) { return null; }
         finally { RuleChoices.Value = previous; }
     }
 }

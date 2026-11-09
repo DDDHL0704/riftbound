@@ -2348,6 +2348,20 @@ public sealed partial class ConformanceFixtureRunnerTests
             new PlayerIntent($"intent-p7-9-powerful-unit-play-{legendCardNo}", "P1", "PLAY_CARD"),
             new PlayCardCommand("P1-GAI-BEAST", "SFD·175/221", []),
             CancellationToken.None);
+        Assert.True(playResult.Accepted, playResult.ErrorMessage);
+        if (playResult.State.TriggerQueue.Count > 0)
+        {
+            Assert.Equal(2, playResult.State.TriggerQueue.Count);
+            // Both actual play skills are simultaneous. Resolve the legend first,
+            // then give Gai's independent group instruction its own response window.
+            var ordered = await engine.ResolveAsync(playResult.State,
+                new PlayerIntent("powerful-unit-order", "P1", CommandTypes.OrderTriggers),
+                new OrderTriggersCommand(playResult.State.TriggerQueue
+                    .OrderBy(trigger => trigger.SourceObjectId == legendObjectId ? 0 : 1)
+                    .Select(trigger => trigger.TriggerId).ToArray()), default);
+            Assert.True(ordered.Accepted, ordered.ErrorMessage);
+            playResult = ordered with { Events = playResult.Events.Concat(ordered.Events).ToArray() };
+        }
         if (legendCardNo == "OGN·249/298")
         {
             var choice = Assert.IsType<PendingCardChoiceState>(playResult.State.PendingCardChoice);
@@ -2393,5 +2407,12 @@ public sealed partial class ConformanceFixtureRunnerTests
             && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), legendObjectId));
         var runeCallEvent = Assert.Single(p2PassResult.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         Assert.Equal(1, runeCallEvent.Payload["count"]);
+        var gaiSkill = Assert.Single(p2PassResult.State.StackItems);
+        Assert.Equal("P1-GAI-BEAST", gaiSkill.SourceObjectId);
+        var gaiResolved = await OfficialInsightAndSpellLockTests.ResolveTop(p2PassResult.State);
+        Assert.True(gaiResolved.Accepted, gaiResolved.ErrorMessage);
+        Assert.Empty(gaiResolved.State.StackItems);
+        Assert.Null(gaiResolved.State.PendingCardChoice);
+        Assert.Contains("P1-RUNE-POWERFUL-001", gaiResolved.State.PlayerZones["P1"].Base);
     }
 }

@@ -3480,6 +3480,13 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        var revealMana = Regex.Match(text,
+            @"如果我从你的主牌堆中被展示，则你\{\{获得\}\}\{\{(?<amount>[0-9]+)\}\}[。.]?",
+            RegexOptions.CultureInvariant);
+        if (revealMana.Success)
+            staticSpecs.Add(new(StaticAbilityKinds.MainDeckRevealMana, revealMana.Value,
+                BehaviorImplementationStatuses.Implemented, "A main-deck reveal includes an immediate mana gain.",
+                Amount: int.Parse(revealMana.Groups["amount"].Value, CultureInfo.InvariantCulture)));
         var beforeReveal = Regex.Match(text,
             @"当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。\s*然后继续展示这些卡牌。",
             RegexOptions.CultureInvariant);

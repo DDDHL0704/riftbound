@@ -133,3 +133,31 @@ class YuumiCombatSupportClauseAuditTests(unittest.TestCase):
         self.assertEqual("missing", audit.audit_clause(value, audit.card_clauses(value)[0], audit.Sources(self.root, []))["status"])
         (self.engine / "MatchRecovery.cs").write_text("unrelated")
         self.assertEqual("missing", self.outcome())
+
+    def test_a_called_shared_keyword_instruction_needs_its_actual_consumer(self):
+        direct = """TemporaryCombatKeywordRules.Prefix + keyword;
+    TemporaryCombatKeywordRules.AppliedEffectId(cards[buffed], definition);
+    UntilEndOfTurnEffects = [..cards[buffed].UntilEndOfTurnEffects, effect];"""
+        call = "GrantUnitEventCombatKeyword(state, item, cards, events, buffed, keyword)"
+        units = UNITS.replace(direct, call + ";")
+        helper = """private static void GrantUnitEventCombatKeyword(object state) {
+    TemporaryCombatKeywordRules.Prefix + keyword;
+    TemporaryCombatKeywordRules.AppliedEffectId(cards[target], definition);
+    TemporaryCombatKeywordRules.IsValid(effect);
+    UntilEndOfTurnEffects = [..cards[target].UntilEndOfTurnEffects, effect];
+}"""
+        path = self.engine / "CoreRuleEngine.UnitEventGroupMight.cs"
+        self.units.write_text(units); path.write_text(helper)
+        self.assertEqual("route", self.outcome())
+        self.units.write_text(units.replace(call, "disabled"))
+        self.assertEqual("missing", self.outcome())
+        self.units.write_text(units)
+        for token in ("TemporaryCombatKeywordRules.AppliedEffectId(cards[target]",
+                      "TemporaryCombatKeywordRules.IsValid(effect)",
+                      "UntilEndOfTurnEffects = [..cards[target].UntilEndOfTurnEffects, effect]"):
+            with self.subTest(token=token):
+                path.write_text(helper.replace(token, "disabled")
+                    + "\n    private static void Unused() { " + token + "; }")
+                self.assertEqual("missing", self.outcome())
+        path.unlink()
+        self.assertEqual("missing", self.outcome())

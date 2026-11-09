@@ -10,6 +10,7 @@ public sealed partial class CoreRuleEngine
         var context = item.MovementObserver!;
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary();
+        var pools = state.RunePools.ToDictionary();
         var player = item.ControllerId;
         var execution = item.CompletedDeckExecutions;
         var previous = (state.ObservedDeckPlays ?? []).FirstOrDefault(c => c.Instruction.Parent.StackItemId == item.StackItemId
@@ -25,7 +26,8 @@ public sealed partial class CoreRuleEngine
             events.Add(new("CARDS_REVEALED", "移动技能展示主牌堆顶部一张牌", new Dictionary<string, object?> {
                 ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["cardIds"] = seen,
                 ["count"] = seen.Length, ["zone"] = TriggerZones.MainDeck }));
-        var remaining = ObserveDeckCards(state, zones, cards, item, player, seen, "REVEAL", execution, events);
+        var remaining = ObserveDeckCards(state, zones, cards, item, player, seen, "REVEAL", execution, events, pools: pools);
+        state = state with { RunePools = pools };
         var result = NoopStackResolutionResult(state);
         if (matches)
         {
