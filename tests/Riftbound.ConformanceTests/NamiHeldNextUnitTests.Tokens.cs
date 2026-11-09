@@ -21,6 +21,17 @@ public sealed partial class NamiHeldNextUnitTests
         var prefix = game.Events().Length;
         await game.Act("P1", new PlayCardCommand("BIRDS", "UNL-044/219", [], Mode: "CREATE_WARHAWKS"));
         await game.Top();
+        // An unspecified token location offers a real base/battlefield choice
+        // for each token. Finish all four continuations before checking plays.
+        var destinations = 0;
+        while (game.State.PendingRuleChoice is { } pending)
+        {
+            Assert.True(destinations++ < 4);
+            Assert.Equal(CoreRuleEngine.UnitTokenDestinationChoiceKind, pending.Request.Kind);
+            Assert.Contains(pending.Request.Options, option => option.Id == "BASE");
+            await game.Act("P1", new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", ["BASE"]));
+        }
+        Assert.Equal(4, destinations);
         var played = game.Events().Skip(prefix).Where(e => e.Event.Kind == "UNIT_TOKEN_CREATED")
             .Select(e => Assert.IsType<string>(e.Event.Payload["tokenObjectId"])).ToArray();
         Assert.Equal(4, played.Length);
