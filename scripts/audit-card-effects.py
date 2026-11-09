@@ -1823,6 +1823,7 @@ def paid_target_play_stun_route(card: dict, clause: dict, sources: Sources) -> d
         targetEffectAdditionalPowerCost=1, targetEffectAdditionalPowerTrait='green')
     if exact:
         profile = profiles[0]
+        # A separate Hold sentence does not constrain the paid play trigger.
         unit_event = profile.get('unitEventAbility')
         exact = inventory_contains(profile, expected) \
             and all(type(profile.get(key, 0)) is int and profile.get(key, 0) == 0
