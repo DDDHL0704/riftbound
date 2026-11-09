@@ -96,8 +96,9 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool ValidPermanentPlayCompanion(MatchState state, TriggerQueueItemState companion,
-        StackItemState item, long capturedTick)
+        StackItemState item, long? enqueuedAtTick)
     {
+        if (enqueuedAtTick is not { } capturedTick) return false;
         if (companion.ControllerId != item.ControllerId || companion.EnqueuedAtTick != capturedTick
             || CompanionPlayedUnit(companion) is not { } unit || unit.ObjectId != item.SourceObjectId
             || !state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit
