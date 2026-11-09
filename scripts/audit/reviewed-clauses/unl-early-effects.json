@@ -227,14 +227,16 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
           "contains": [
             "or \"FRIENDLY_UNIT_PLAYED\"",
-            "context.PlayedUnitDuringSpellDuel"
+            "context.PlayedUnitDuringSpellDuel",
+            "ObservedUnitEventBirthTick",
+            "context.ReflexiveTick is { } tick ? tick : context.CapturedTick"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
           "contains": [
             "expected.ExceptWith(retired)",
-            "original[0].Tick != item.Context.CapturedTick",
+            "original[0].Tick != CoreRuleEngine.ObservedUnitEventBirthTick(item.Context)",
             "pending observed unit events differ from original accepted completion history"
           ]
         }
@@ -2819,14 +2821,16 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
           "contains": [
             "or \"FRIENDLY_UNIT_PLAYED\"",
-            "context.PlayedUnitDuringSpellDuel"
+            "context.PlayedUnitDuringSpellDuel",
+            "ObservedUnitEventBirthTick",
+            "context.ReflexiveTick is { } tick ? tick : context.CapturedTick"
           ]
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
           "contains": [
             "expected.ExceptWith(retired)",
-            "original[0].Tick != item.Context.CapturedTick",
+            "original[0].Tick != CoreRuleEngine.ObservedUnitEventBirthTick(item.Context)",
             "pending observed unit events differ from original accepted completion history"
           ]
         }

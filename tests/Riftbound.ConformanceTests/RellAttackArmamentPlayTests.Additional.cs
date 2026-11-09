@@ -65,6 +65,85 @@ public sealed partial class RellAttackArmamentPlayTests
     }
 
     [Theory, InlineData(false), InlineData(true)]
+    public async Task AnAgileArmamentStillEntersWhenItsOnlyFriendlyHostDeparts(bool beforePlay)
+    {
+        var initial = RadUnitEffectTestFixture.Place(Position("SFD·022/221"), "ALLY", "P1", "GRAVEYARD");
+        var game = new Driver(initial); await Attack(game);
+        if (beforePlay) {
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["RELL"])); await game.Top();
+        }
+        await game.Top();
+        await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", beforePlay ? [] : ["RELL"]));
+        if (!beforePlay) {
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["RELL"])); await game.Top();
+        }
+        for (var i = 0; game.State.StackItems.Count > 0 && i < 4; i++) await game.Top();
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingEffectPlay);
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("RELL", game.State.PlayerZones["P1"].Hand);
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.DoesNotContain(game.Events(), entry => entry.Event.Kind == "EQUIPMENT_ATTACHED");
+        await game.ColdCheckpoint();
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task AnUndeclaredAgileTargetIsChosenAfterTheSimultaneousTriggerOrder(bool rellFirst)
+    {
+        var game = new Driver(Position("SFD·022/221")); await Permission(game);
+        await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", []));
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
+        Assert.Null(game.State.PendingCardChoice);
+        var child = Assert.Single(game.State.TriggerQueue, trigger => trigger.UnitEvent?.ReflexiveTick is not null);
+        var agile = Assert.Single(game.State.TriggerQueue, trigger => trigger.PermanentPlayStackItemId is not null);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds:
+            rellFirst ? [child.TriggerId, agile.TriggerId] : [agile.TriggerId, child.TriggerId]));
+        if (rellFirst) await game.Top();
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
+        await game.Top();
+        Assert.Equal("ALLY", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        if (!rellFirst) { await game.Top(); Assert.Equal("RELL", game.State.CardObjects["GEAR"].AttachedToObjectId); }
+        await game.ColdCheckpoint();
+    }
+
+    [Fact]
+    public async Task AnAgileTargetCannotBeRewrittenAfterItsPostEntryConfirmation()
+    {
+        var game = new Driver(Position("SFD·022/221")); await Permission(game);
+        await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", []));
+        var child = Assert.Single(game.State.TriggerQueue, trigger => trigger.UnitEvent?.ReflexiveTick is not null);
+        var agile = Assert.Single(game.State.TriggerQueue, trigger => trigger.PermanentPlayStackItemId is not null);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: [agile.TriggerId, child.TriggerId]));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
+        var original = game.State.StackItems.Single(item => item.SourceObjectId == "GEAR");
+        var forged = original with { TargetObjectIds = ["RELL"], TargetGenerations = new Dictionary<string, long> {
+            ["RELL"] = game.State.CardObjects["RELL"].ObjectGeneration } };
+        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, game.State with {
+            StackItems = game.State.StackItems.Select(item => item.StackItemId == original.StackItemId ? forged : item).ToArray() }));
+        await game.Top(); await game.Top(); await game.ColdCheckpoint();
+    }
+
+    [Fact]
+    public async Task AResolvedAgileAttachmentCannotBeResurrectedWithItsOldConfirmedTargets()
+    {
+        var game = new Driver(Position("SFD·022/221")); await Permission(game);
+        await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", []));
+        var child = Assert.Single(game.State.TriggerQueue, trigger => trigger.UnitEvent?.ReflexiveTick is not null);
+        var agile = Assert.Single(game.State.TriggerQueue, trigger => trigger.PermanentPlayStackItemId is not null);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: [agile.TriggerId, child.TriggerId]));
+        var choice = game.State.PendingCardChoice!;
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
+        var original = game.State.StackItems.Single(item => item.SourceObjectId == "GEAR");
+        await game.Top(); await game.Top();
+        Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game,
+            game.State with { StackItems = [original] }));
+        await game.ColdCheckpoint();
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
     public async Task IgnoringPrintedCostsStillRequiresTheMysticVortexReactionIncrease(bool funded)
     {
         var initial = RadGearTestPosition.Put(Position("SFD·022/221"), "BF", "VEN·160", "P1", "BATTLEFIELD", "BF");

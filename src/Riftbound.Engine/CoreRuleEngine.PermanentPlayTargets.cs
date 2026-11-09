@@ -10,10 +10,15 @@ public sealed partial class CoreRuleEngine
     // separate continuation protocols and are not covered by this primitive.
     internal static bool HasIndependentPermanentTargets(CardBehaviorDefinition behavior)
         => (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
-            && (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo) || HasStandbyCountedPlayAbility(behavior) || HasStandbyAttachmentPlayAbility(behavior))
-            && behavior.RequiredTargetCount > 0 && !IsDeferredDeckChoice(behavior)
+            && (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo) || IsAgileDirectPlayAttachRepresentative(behavior)
+                || HasStandbyCountedPlayAbility(behavior) || HasStandbyAttachmentPlayAbility(behavior))
+            && (behavior.RequiredTargetCount > 0 || IsAgileDirectPlayAttachRepresentative(behavior)) && !IsDeferredDeckChoice(behavior)
             && behavior.TargetScope is not (CardTargetScopes.FriendlyHandCard or CardTargetScopes.OpponentHandCard
                 or CardTargetScopes.AnyHandCard or CardTargetScopes.FriendlyMainDeckCard);
+
+    internal static bool IsAgilePermanentPlaySkill(StackItemState item)
+        => item.SourceConfirmed && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
+            && behavior.CardNo == item.CardNo && IsAgileDirectPlayAttachRepresentative(behavior);
 
     private static string[] PermanentPlayTargetChoices(MatchState state, StackItemState item)
     {

@@ -30,7 +30,7 @@ class AttackArmamentPlayAuditTests(unittest.TestCase):
 
     def test_unit_registration_and_incorrect_event_profiles_do_not_certify_the_clause(self):
         for key, value in [('timing', 'DEFEND'), ('effect', 'ATTACH_CAPTURED_ARMAMENT_TO_SOURCE'),
-                           ('amount', 1), ('amount', True), ('amount', '2'), ('optional', False)]:
+                           ('amount', 1), ('amount', True), ('amount', '2'), ('optional', False), ('optional', 1), ('optional', 1.0)]:
             with self.subTest(key=key, value=value):
                 card = self.card(); card['unitEventAbility'][key] = value
                 self.assertEqual('missing', self.status(card))
@@ -62,6 +62,9 @@ class AttackArmamentPlayAuditTests(unittest.TestCase):
             ('MatchRecovery.ArmamentPlayAttachment.cs', 'command.Accepted'),
             ('CoreRuleEngine.UnitPlayMight.cs', '.Other?.Binding'),
             ('CoreRuleEngine.UnitPlayMight.cs', 'ValidArmamentPlayAttachmentContext('),
+            ('CoreRuleEngine.PermanentPlayTargets.cs', 'behavior.RequiredTargetCount > 0 || IsAgileDirectPlayAttachRepresentative(behavior)'),
+            ('CoreRuleEngine.DeclaredChoices.cs', 'HasIndependentPermanentTargets(behavior) && targets.Count == 0'),
+            ('MatchRecovery.UnitEventTargets.cs', 'CoreRuleEngine.IsAgilePermanentPlaySkill(item)'),
             ('MatchRecovery.cs', 'ValidArmamentPlayAttachmentPermission(state, armamentHandPlay)'),
         ]
         for filename, token in checks:

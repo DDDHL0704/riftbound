@@ -67,6 +67,48 @@ public sealed class AgileEquipmentDirectPlayAttachTests
     }
 
     [Fact]
+    public async Task AgileEquipmentEntersBeforeItsUndeclaredAttachmentTargetIsChosen()
+    {
+        const string source = "P1-EQUIPMENT-LONG-SWORD";
+        var engine = new CoreRuleEngine();
+        var state = BuildAgileEquipmentState("SFD·022/221", source, 2);
+        var played = await engine.ResolveAsync(state, new("agile-without-target", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(source, "SFD·022/221", []), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Contains(source, played.State.PlayerZones["P1"].Base);
+        Assert.Equal(new RunePool(1, 0), played.State.RunePools["P1"]);
+        Assert.Null(played.State.CardObjects[source].AttachedToObjectId);
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+        var chosen = await engine.ResolveAsync(played.State, new("choose-agile-host", "P1", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BASE-UNIT"]), default);
+        Assert.True(chosen.Accepted, chosen.ErrorMessage);
+        var first = await engine.ResolveAsync(chosen.State, new("agile-pass-1", "P1", CommandTypes.PassPriority), new PassPriorityCommand(), default);
+        var second = await engine.ResolveAsync(first.State, new("agile-pass-2", "P2", CommandTypes.PassPriority), new PassPriorityCommand(), default);
+        Assert.True(second.Accepted, second.ErrorMessage);
+        Assert.Equal("P1-BASE-UNIT", second.State.CardObjects[source].AttachedToObjectId);
+        Assert.Equal(played.State.RunePools["P1"], second.State.RunePools["P1"]);
+    }
+
+    [Fact]
+    public async Task AgileEquipmentCanEnterWithoutAnyControlledUnitAndOnlyItsSkillIsDiscarded()
+    {
+        const string source = "P1-EQUIPMENT-LONG-SWORD";
+        var state = BuildAgileEquipmentState("SFD·022/221", source, 2);
+        foreach (var unit in new[] { "P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT" })
+            state = RadUnitEffectTestFixture.Place(state, unit, "P1", "GRAVEYARD");
+        var played = await new CoreRuleEngine().ResolveAsync(state, new("agile-without-host", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(source, "SFD·022/221", []), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Contains(source, played.State.PlayerZones["P1"].Base);
+        Assert.Equal(new RunePool(1, 0), played.State.RunePools["P1"]);
+        Assert.Null(played.State.CardObjects[source].AttachedToObjectId);
+        Assert.Null(played.State.PendingCardChoice); Assert.Empty(played.State.StackItems);
+        Assert.Contains(played.Events, e => e.Kind == "TRIGGER_NOT_CONFIRMED");
+        Assert.DoesNotContain(played.Events, e => e.Kind is "EQUIPMENT_ATTACHED" or "STACK_ITEM_COUNTERED");
+    }
+
+    [Fact]
     public void AgileEquipmentPromptExposesControlledUnitTarget()
     {
         var state = BuildAgileEquipmentState("SFD·022/221", "P1-EQUIPMENT-LONG-SWORD", 2);
@@ -98,7 +140,6 @@ public sealed class AgileEquipmentDirectPlayAttachTests
     }
 
     [Theory]
-    [InlineData("")]
     [InlineData("P2-BASE-UNIT")]
     [InlineData("P1-EQUIPMENT-TARGET")]
     [InlineData("P1-SPELL-TARGET")]
@@ -177,7 +218,7 @@ public sealed class AgileEquipmentDirectPlayAttachTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "EQUIPMENT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "EQUIPMENT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGER_CONFIRMED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertAgileEquipmentStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
