@@ -21,10 +21,7 @@
     }
   ],
   "roomId": "p4-cloth-armor-target-rejected-room",
-  "players": [
-    "P1",
-    "P2"
-  ],
+  "players": ["P1", "P2"],
   "initialState": {
     "seed": 2603304161,
     "turnNumber": 161,
@@ -37,66 +34,38 @@
       "P2": 0
     },
     "runePools": {
-      "P1": {
-        "mana": 1,
-        "power": 0
-      },
-      "P2": {
-        "mana": 0,
-        "power": 0
-      }
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
-        "mainDeck": [
-          "P1-CLOTH-ARMOR-MAIN-001"
-        ],
-        "runeDeck": [
-          "P1-RUNE-001"
-        ],
-        "hand": [
-          "P1-EQUIPMENT-CLOTH-ARMOR"
-        ],
-        "base": [
-          "P1-CLOTH-ARMOR-BASE-UNIT-001"
-        ],
+        "mainDeck": ["P1-CLOTH-ARMOR-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-EQUIPMENT-CLOTH-ARMOR"],
+        "base": ["P1-CLOTH-ARMOR-BASE-UNIT-001"],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": [
-          "P1-LEGEND-001"
-        ],
-        "championZone": [
-          "P1-CHAMPION-001"
-        ]
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
       },
       "P2": {
-        "mainDeck": [
-          "P2-MAIN-001"
-        ],
-        "runeDeck": [
-          "P2-RUNE-001"
-        ],
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": [
-          "P2-LEGEND-001"
-        ],
-        "championZone": [
-          "P2-CHAMPION-001"
-        ]
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
       }
     },
     "cardObjects": {
       "P1-CLOTH-ARMOR-BASE-UNIT-001": {
         "damage": 0,
         "power": 0,
-        "tags": [
-          "CARD_TYPE:UNIT"
-        ],
+        "tags": ["CARD_TYPE:UNIT"],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       }
@@ -110,9 +79,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-EQUIPMENT-CLOTH-ARMOR",
         "cardNo": "SFD·064/221",
-        "targetObjectIds": [
-          "P1-EQUIPMENT-CLOTH-ARMOR"
-        ]
+        "targetObjectIds": ["P1-EQUIPMENT-CLOTH-ARMOR"]
       }
     }
   ],
@@ -120,12 +87,8 @@
     "finalTick": 0,
     "eventKinds": [],
     "promptActions": {
-      "P1": [
-        "END_TURN"
-      ],
-      "P2": [
-        "WAIT"
-      ]
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
     },
     "finalState": {
       "turnNumber": 161,
@@ -138,26 +101,14 @@
         "P2": 0
       },
       "runePools": {
-        "P1": {
-          "mana": 1,
-          "power": 0
-        },
-        "P2": {
-          "mana": 0,
-          "power": 0
-        }
+        "P1": { "mana": 1, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
       },
       "players": {
         "P1": {
-          "mainDeck": [
-            "P1-CLOTH-ARMOR-MAIN-001"
-          ],
-          "hand": [
-            "P1-EQUIPMENT-CLOTH-ARMOR"
-          ],
-          "base": [
-            "P1-CLOTH-ARMOR-BASE-UNIT-001"
-          ],
+          "mainDeck": ["P1-CLOTH-ARMOR-MAIN-001"],
+          "hand": ["P1-EQUIPMENT-CLOTH-ARMOR"],
+          "base": ["P1-CLOTH-ARMOR-BASE-UNIT-001"],
           "battlefields": [],
           "graveyard": []
         },
@@ -172,9 +123,7 @@
         "P1-CLOTH-ARMOR-BASE-UNIT-001": {
           "damage": 0,
           "power": 0,
-          "tags": [
-            "CARD_TYPE:UNIT"
-          ],
+          "tags": ["CARD_TYPE:UNIT"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0
         }
