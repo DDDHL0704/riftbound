@@ -394,10 +394,12 @@ public sealed class CompoundOptionalCostTests
         Assert.Equal(MatchStateHasher.HashValue(real.Commands), MatchStateHasher.HashValue(forged.Commands));
         Assert.Equal(MatchStateHasher.HashValue(real.Events), MatchStateHasher.HashValue(forged.Events));
         Assert.Equal(MatchStateHasher.Hash(real.ReplayInitialState!), MatchStateHasher.Hash(forged.ReplayInitialState!));
-        // A syntactically valid claimed payment is proved by the unchanged raw
-        // command replay, never by SourceConfirmed or a reconstructed aura alone.
-        if (mutation == "forged-paid") Assert.Empty(forged.ValidationErrors);
-        else Assert.NotEmpty(forged.ValidationErrors);
+        // Even a syntactically valid claimed payment must match its original
+        // accepted declaration. Recovery rejects it before raw replay, which
+        // independently rejects the forged state using the unchanged journal.
+        Assert.NotEmpty(forged.ValidationErrors);
+        if (mutation == "forged-paid") Assert.Contains(
+            "paid permanent play skill differs from original accepted payment choices", forged.ValidationErrors);
         var rejected = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, forged.Commands, forgedState, new CoreRuleEngine(), default, forged.Events);
         Assert.False(rejected.IsMatch); Assert.NotEmpty(rejected.Errors);
         Export("frame-" + card + "-" + mutation, new { scope = "explicit midgame frame and original-log audit; no ordinary-birth or registry claim",
