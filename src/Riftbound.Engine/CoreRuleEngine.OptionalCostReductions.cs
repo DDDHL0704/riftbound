@@ -118,7 +118,7 @@ public sealed partial class CoreRuleEngine
     private static bool HasReducibleNonHasteOptionalResourceAdditionalCost(CardBehaviorDefinition behavior)
         => behavior.SourceReadyAdditionalPowerCost > 0 || behavior.SourceBoonAdditionalManaCost > 0
             || behavior.SourceDrawAdditionalPowerCost > 0 || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
-            || behavior.SourceStealEnemyEquipmentAdditionalPowerCost > 0 || HasTargetEffectAdditionalCost(behavior);
+            || HasTargetEffectAdditionalCost(behavior);
 
     private static string OptionalCostReductionId(OptionalCostReducer source, string component, string mode,
         IReadOnlyDictionary<string, int>? allocation = null)

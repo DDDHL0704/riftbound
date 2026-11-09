@@ -58,18 +58,18 @@ internal static class PermanentPlayTriggerRecoveryRules
             && item.EffectKind == instruction.EffectKind
             && (instruction.RecyclesSourceIfPlayedFromStandby || instruction.GrantsSourceEphemeralIfOpponentTurn
                 || instruction.AddsRegisteredLegendWhileSourceOnField || instruction.SourceReadyPowerModifierAdditionalPowerCost > 0
-                || instruction.PlayTargetsAtSourceLocation && battlefield);
-        if (sourceInstruction && (CoreRuleEngine.PlayInstructionSource(state, item) is not { } receipt
+                || instruction.StealsTargetEquipmentUntilSourceLeaves || instruction.PlayTargetsAtSourceLocation && battlefield);
+        if (sourceInstruction && ((item.PermanentPlaySource ?? CoreRuleEngine.PlayInstructionSource(state, item)) is not { } receipt
             || !state.CardObjects.TryGetValue(receipt.ObjectId, out var entered) || entered.ObjectGeneration < receipt.Generation
             || item.PlayedFromStandby is { } shadow && receipt.Generation != shadow.SourceGeneration + 1)) return false;
         var graveyardCost = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var paid)
             && paid.PlayTriggerBanishesGraveyardCardAsCost && item.EffectKind == paid.EffectKind;
         if (item.PermanentPlaySource is { } binding
-            ? !(here || graveyardCost || declares) || binding.ObjectId != item.SourceObjectId || binding.Generation < 0
+            ? !(here || graveyardCost || declares || CoreRuleEngine.IsEquipmentTheftPlaySkill(item)) || binding.ObjectId != item.SourceObjectId || binding.Generation < 0
                 || !state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration < binding.Generation
                 || item.PlayedFromStandby is { } standby && binding.Generation != standby.SourceGeneration + 1
                 || !state.CardPlays.Resolved.Any(play => play.Source == binding && play.CardNo == item.CardNo)
-            : here || graveyardCost || declares) return false;
+            : here || graveyardCost || declares || CoreRuleEngine.IsEquipmentTheftPlaySkill(item)) return false;
 
         if (!item.SourceConfirmed || !BattlefieldOnlySources.Value.Contains(item.CardNo)
             || !CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior)

@@ -67,7 +67,9 @@ public sealed class AttachmentTheftNativeTests
             await Submit(prefix + "-2", current.PriorityPlayerId!, new PassPriorityCommand());
         }
         await Submit("steal", "P2", new PlayCardCommand("AKSHAN", "SFD·109/221", [],
-            OptionalCosts: ["AKSHAN_STEAL_EQUIPMENT:GEAR"]));
+            OptionalCosts: ["SPEND_POWER:2:ORANGE"]));
+        var theftChoice = Assert.IsType<PendingCardChoiceState>(current.PendingCardChoice);
+        await Submit("steal-target", "P2", new ChooseCardsCommand(theftChoice.ChoiceId, theftChoice.ChoiceWindow, ["GEAR"]));
         Assert.Equal(16, current.RunePools["P2"].Mana); Assert.Equal(18, current.RunePools["P2"].PowerByTrait["orange"]);
         await Passes("steal-pass");
         var pending = current.PendingRuleChoice!;

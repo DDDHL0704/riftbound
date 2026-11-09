@@ -32,9 +32,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string MoveUnitRoamKeyword = "游走";
     private const string BaronNestMoveStaticPermission = "BARON_NEST_MOVE_STATIC";
     private const string AssembleEquipmentUnsupportedMessage = "当前装备装配路径尚未由服务端开放。";
-    private const string SourceStealEnemyEquipmentMarkerPrefix = "SOURCE_STOLEN_EQUIPMENT_BY:";
-    private const string LegacyAkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
-    private const string LegacyAkshanStealEnemyEquipmentReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
     private const string SourceStealEnemyEquipmentDefaultReason = "SOURCE_STEAL_ENEMY_EQUIPMENT";
     private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
@@ -175,6 +172,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
             if (completed.Accepted && completed.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
                 return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
+            completed = RecordEquipmentControlHistory(state, completed);
             return ValueTask.FromResult(RecordPaidPermanentPlayHistory(state, completed));
         }
 
@@ -21855,17 +21853,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (TryBuildSourceStealEnemyEquipmentOptionalCost(
-                state,
-                playerId,
-                normalizedOptionalCosts,
-                behavior,
-                out var sourceStealEnemyEquipmentExtraPowerCostByTrait))
-        {
-            extraPowerCostByTrait = sourceStealEnemyEquipmentExtraPowerCostByTrait;
-            return true;
-        }
-
         var echoCosts = EchoCostRules.Selected(state, playerId, behavior, normalizedOptionalCosts);
         if (echoCosts.Count > 0 && echoCosts.Count == normalizedOptionalCosts.Count)
         {
@@ -22062,34 +22049,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryBuildSourceStealEnemyEquipmentOptionalCost(
-        MatchState state,
-        string playerId,
-        IReadOnlyList<string> normalizedOptionalCosts,
-        CardBehaviorDefinition behavior,
-        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
-    {
-        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
-        var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-        if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || string.IsNullOrWhiteSpace(requiredTrait)
-            || normalizedOptionalCosts.Count != 1
-            || !TryParseSourceStealEnemyEquipmentOptionalCost(
-                normalizedOptionalCosts[0],
-                behavior,
-                out var equipmentObjectId)
-            || !IsLegalAkshanStealEquipmentChoice(state, playerId, equipmentObjectId))
-        {
-            return false;
-        }
-
-        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
-        {
-            [requiredTrait] = behavior.SourceStealEnemyEquipmentAdditionalPowerCost
-        };
-        return true;
-    }
-
     private static bool TryBuildTargetEffectAdditionalCost(
         IReadOnlyList<string> normalizedOptionalCosts,
         CardBehaviorDefinition behavior,
@@ -22141,23 +22100,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return true;
-    }
-
-    private static bool TryParseSourceStealEnemyEquipmentOptionalCost(
-        string optionalCost,
-        CardBehaviorDefinition behavior,
-        out string equipmentObjectId)
-    {
-        equipmentObjectId = string.Empty;
-        var optionalCostPrefix = behavior.SourceStealEnemyEquipmentOptionalCostPrefix.Trim();
-        if (string.IsNullOrWhiteSpace(optionalCostPrefix)
-            || !optionalCost.StartsWith(optionalCostPrefix, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        equipmentObjectId = optionalCost[optionalCostPrefix.Length..].Trim();
-        return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
     private static bool TryParseSpendManaOptionalCost(string optionalCost, out int manaCost)
@@ -23369,44 +23311,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return behavior.PlaysSourceToBaseAsEquipment
             && CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary(behavior.CardNo);
-    }
-
-    private static bool HasSourceStealEnemyEquipmentOptionalCost(CardBehaviorDefinition behavior)
-    {
-        var powerTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-        return behavior.PlaysSourceToBaseAsUnit
-            && behavior.SourceStealEnemyEquipmentAdditionalPowerCost > 0
-            && !string.IsNullOrWhiteSpace(powerTrait)
-            && !string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentOptionalCostPrefix);
-    }
-
-    private static bool IsLegalAkshanStealEquipmentChoice(
-        MatchState state,
-        string playerId,
-        string equipmentObjectId)
-    {
-        return IsLegalAkshanStealEquipmentChoice(
-            state.PlayerZones,
-            state.CardObjects,
-            playerId,
-            equipmentObjectId);
-    }
-
-    private static bool IsLegalAkshanStealEquipmentChoice(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string equipmentObjectId)
-    {
-        var location = FindFieldObjectLocation(playerZones, equipmentObjectId);
-        return location is not null
-            && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
-            && cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
-            && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && !equipmentState.IsFaceDown
-            && !SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
-            && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, location.Value.PlayerId)
-            && !string.Equals(equipmentState.OwnerId, playerId, StringComparison.Ordinal);
     }
 
     private static string PlayCardTargetScopeForBehavior(CardBehaviorDefinition behavior)
@@ -28932,173 +28836,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
 
-    private static bool TryGetSourceStealEnemyEquipmentObjectId(
-        CardBehaviorDefinition behavior,
-        IReadOnlyList<string> optionalCosts,
-        out string equipmentObjectId)
-    {
-        var equipmentObjectIds = optionalCosts
-            .Select(optionalCost => TryParseSourceStealEnemyEquipmentOptionalCost(
-                    optionalCost,
-                    behavior,
-                    out var parsedEquipmentObjectId)
-                ? parsedEquipmentObjectId
-                : string.Empty)
-            .Where(parsedEquipmentObjectId => !string.IsNullOrWhiteSpace(parsedEquipmentObjectId))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        equipmentObjectId = equipmentObjectIds.Length == 1 ? equipmentObjectIds[0] : string.Empty;
-        return !string.IsNullOrWhiteSpace(equipmentObjectId);
-    }
-
     private static string SourceStealEnemyEquipmentReason(CardBehaviorDefinition behavior)
     {
         return string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentReason)
             ? SourceStealEnemyEquipmentDefaultReason
             : behavior.SourceStealEnemyEquipmentReason.Trim();
-    }
-
-    private static IReadOnlyList<string> AddSourceStolenEquipmentMarker(
-        IReadOnlyList<string> tags,
-        string sourceObjectId,
-        string reason)
-    {
-        var marker = $"{SourceStealEnemyEquipmentMarkerPrefix}{sourceObjectId}::{reason}";
-        return tags
-            .Where(tag => !tag.StartsWith(SourceStealEnemyEquipmentMarkerPrefix, StringComparison.Ordinal)
-                && !tag.StartsWith(LegacyAkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
-            .Concat([marker])
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-    }
-
-    private static IReadOnlyList<string> RemoveSourceStolenEquipmentMarkers(IReadOnlyList<string> tags)
-    {
-        return tags
-            .Where(tag => !tag.StartsWith(SourceStealEnemyEquipmentMarkerPrefix, StringComparison.Ordinal)
-                && !tag.StartsWith(LegacyAkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-    }
-
-    private static bool TryReadSourceStolenEquipmentMarker(
-        CardObjectState equipmentState,
-        out string sourceObjectId,
-        out string reason)
-    {
-        sourceObjectId = string.Empty;
-        reason = string.Empty;
-        var marker = equipmentState.Tags
-            .FirstOrDefault(tag => tag.StartsWith(SourceStealEnemyEquipmentMarkerPrefix, StringComparison.Ordinal));
-        if (!string.IsNullOrWhiteSpace(marker))
-        {
-            var markerBody = marker[SourceStealEnemyEquipmentMarkerPrefix.Length..].Trim();
-            var separatorIndex = markerBody.IndexOf("::", StringComparison.Ordinal);
-            sourceObjectId = separatorIndex < 0
-                ? markerBody
-                : markerBody[..separatorIndex].Trim();
-            reason = separatorIndex < 0
-                ? SourceStealEnemyEquipmentDefaultReason
-                : markerBody[(separatorIndex + 2)..].Trim();
-            if (string.IsNullOrWhiteSpace(reason))
-            {
-                reason = SourceStealEnemyEquipmentDefaultReason;
-            }
-        }
-        else
-        {
-            var legacyMarker = equipmentState.Tags
-                .FirstOrDefault(tag => tag.StartsWith(LegacyAkshanStolenEquipmentMarkerPrefix, StringComparison.Ordinal));
-            sourceObjectId = string.IsNullOrWhiteSpace(legacyMarker)
-                ? string.Empty
-                : legacyMarker[LegacyAkshanStolenEquipmentMarkerPrefix.Length..].Trim();
-            reason = LegacyAkshanStealEnemyEquipmentReason;
-        }
-
-        return !string.IsNullOrWhiteSpace(sourceObjectId);
-    }
-
-    private static void ReturnSourceStolenEquipmentForMissingSources(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        List<GameEvent> events)
-    {
-        foreach (var equipmentObjectId in cardObjects
-            .Where(entry => TryReadSourceStolenEquipmentMarker(entry.Value, out _, out _))
-            .Select(entry => entry.Key)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .ToArray())
-        {
-            if (!cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
-                || !TryReadSourceStolenEquipmentMarker(equipmentState, out var sourceObjectId, out var reason))
-            {
-                continue;
-            }
-
-            if (IsObjectOnField(playerZones, sourceObjectId))
-            {
-                continue;
-            }
-
-            var ownerId = equipmentState.OwnerId;
-            if (string.IsNullOrWhiteSpace(ownerId)
-                || !playerZones.ContainsKey(ownerId))
-            {
-                cardObjects[equipmentObjectId] = equipmentState with
-                {
-                    AttachedToObjectId = null,
-                    Tags = RemoveSourceStolenEquipmentMarkers(equipmentState.Tags)
-                };
-                continue;
-            }
-
-            var location = FindFieldObjectLocation(playerZones, equipmentObjectId);
-            if (location is null)
-            {
-                cardObjects[equipmentObjectId] = equipmentState with
-                {
-                    AttachedToObjectId = null,
-                    Tags = RemoveSourceStolenEquipmentMarkers(equipmentState.Tags)
-                };
-                continue;
-            }
-
-            RemoveFieldObjectFromLocation(
-                playerZones,
-                location.Value.PlayerId,
-                location.Value.Zone,
-                equipmentObjectId);
-            AddFieldObjectToLocation(
-                playerZones,
-                ownerId,
-                MoveUnitBaseZone,
-                equipmentObjectId);
-
-            cardObjects[equipmentObjectId] = equipmentState with
-            {
-                ControllerId = ownerId,
-                AttachedToObjectId = null,
-                Tags = RemoveSourceStolenEquipmentMarkers(equipmentState.Tags)
-            };
-            events.Add(new GameEvent(
-                "EQUIPMENT_CONTROL_RETURNED",
-                $"{ownerId} 取回被阿克尚夺取的装备",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["equipmentObjectId"] = equipmentObjectId,
-                    ["previousControllerId"] = location.Value.PlayerId,
-                    ["controllerId"] = ownerId,
-                    ["ownerId"] = ownerId,
-                    ["equipmentCardNo"] = equipmentState.CardNo,
-                    ["originZone"] = location.Value.Zone,
-                    ["destinationZone"] = MoveUnitBaseZone,
-                    ["attachedToObjectId"] = null,
-                    ["reason"] = reason
-                }));
-        }
     }
 
     private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(
@@ -32241,6 +31983,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         for (var pass = 0; pass < 32; pass++)
         {
+            var controlEvents = events.Count;
+            ReturnSourceStolenEquipmentForMissingSources(playerZones, cardObjects, events);
+            var controlChanged = events.Count != controlEvents;
             EndDetachedUnitCopies(state, playerZones, cardObjects, events);
             var layered = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones, CardObjects = cardObjects,
                 ObjectLocations = objectLocations ?? ReconcileObjectLocations(state.ObjectLocations, playerZones) });
@@ -32263,7 +32008,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var unattachedEquipmentCleanup = objectLocations is null
                 ? RecalledEquipmentCleanupResult.Empty
                 : ApplyUnattachedEquipmentCleanup(playerZones, cardObjects, objectLocations);
-            if (cleanup.Events.Count == 0
+            if (!controlChanged && cleanup.Events.Count == 0
                 && cleanup.DestroyedObjectIds.Count == 0
                 && cleanup.TriggerQueue.Count == 0
                 && illegalStandbyCleanup.Events.Count == 0
@@ -32434,7 +32179,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var objectId = candidate.ObjectId;
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !TryFindBattlefieldZonePlayerId(playerZones, objectId, out _))
+                || FindFieldObjectLocation(playerZones, objectId) is not { } origin)
             {
                 continue;
             }
@@ -32475,7 +32220,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["ownerPlayerId"] = cardObject.OwnerId,
                     ["controllerId"] = controllerId,
                     ["battlefieldObjectId"] = candidate.BattlefieldObjectId,
-                    ["originZone"] = MoveUnitBattlefieldZone,
+                    ["originZone"] = origin.Zone,
                     ["destinationZone"] = MoveUnitBaseZone,
                     ["reason"] = "UNATTACHED_EQUIPMENT_CLEANUP"
                 }));
@@ -32496,8 +32241,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return cardObjects
             .Where(entry => FieldObjectTypeRules.RequiresUnattachedEquipmentRecall(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
-                && TryFindBattlefieldZonePlayerId(playerZones, entry.Key, out _)
-                && IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key))
+                && FindFieldObjectLocation(playerZones, entry.Key) is { } location
+                && (location.Zone == "BASE" || IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key)))
             .Select(entry => new BattlefieldEquipmentCleanupCandidate(
                 entry.Key,
                 ResolveEquipmentBattlefieldObjectId(playerZones, cardObjects, objectLocations, entry.Key)))

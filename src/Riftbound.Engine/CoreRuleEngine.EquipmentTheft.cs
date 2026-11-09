@@ -2,8 +2,16 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record EquipmentControlGrant(string SkillId, ObjectBinding Source, string ControllerId, string Reason);
+public sealed record EquipmentControlLease(ObjectBinding Equipment, string UnderlyingControllerId,
+    IReadOnlyList<EquipmentControlGrant> Grants);
+
 public sealed partial class CoreRuleEngine
 {
+    internal static bool IsEquipmentTheftPlaySkill(StackItemState item)
+        => item.SourceConfirmed && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
+            && behavior.StealsTargetEquipmentUntilSourceLeaves;
+
     private static bool TryResolveSourceStealEnemyEquipment(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         Dictionary<string, RunePool> pools, CardBehaviorDefinition behavior, StackItemState item,
@@ -31,7 +39,7 @@ public sealed partial class CoreRuleEngine
                 != ImposedMovementPaymentResult.Paid) return false;
         var before = Current();
         if (!Movable(before) || FindFieldObjectLocation(zones, target) is not { } origin) return false;
-        var source = PlayInstructionSource(state, item);
+        var source = item.PermanentPlaySource ?? PlayInstructionSource(state, item);
         var hasSource = source is { } binding && cards.TryGetValue(binding.ObjectId, out var unit)
             && unit.ObjectGeneration == binding.Generation && IsObjectOnField(zones, binding.ObjectId);
         var publicSource = ResolutionResult.VisibleObjectIdForViewer(before, item.SourceObjectId, ProjectionViewers.Spectator);
@@ -61,9 +69,15 @@ public sealed partial class CoreRuleEngine
         if (hasSource)
         {
             var reason = SourceStealEnemyEquipmentReason(behavior);
+            var lease = equipment.EquipmentControl;
+            var original = new ObjectBinding(target, equipment.ObjectGeneration);
+            var grants = lease?.Equipment == original ? lease.Grants : [];
+            var underlying = lease?.Equipment == original ? lease.UnderlyingControllerId
+                : equipment.ControllerId ?? origin.PlayerId;
             cards[target] = equipment with {
                 ControllerId = item.ControllerId,
-                Tags = AddSourceStolenEquipmentMarker(equipment.Tags, item.SourceObjectId, reason) };
+                EquipmentControl = new(original, underlying,
+                    [..grants, new(item.StackItemId, source!, item.ControllerId, reason)]) };
             events.Add(new("EQUIPMENT_CONTROL_CHANGED", "取得装备的控制权，直到来源离场",
                 new Dictionary<string, object?> {
                     ["sourceObjectId"] = publicSource, ["equipmentObjectId"] = target,
@@ -81,5 +95,40 @@ public sealed partial class CoreRuleEngine
         }
         else resolvedLocations = locations;
         return true;
+    }
+
+    private static void ReturnSourceStolenEquipmentForMissingSources(Dictionary<string, PlayerZones> zones,
+        Dictionary<string, CardObjectState> cards, List<GameEvent> events)
+    {
+        foreach (var gear in cards.Values.Where(card => card.EquipmentControl is not null)
+            .OrderBy(card => card.ObjectId, StringComparer.Ordinal).ToArray())
+        {
+            var lease = gear.EquipmentControl!;
+            if (lease.Equipment != new ObjectBinding(gear.ObjectId, gear.ObjectGeneration)
+                || !IsObjectOnField(zones, gear.ObjectId))
+            {
+                cards[gear.ObjectId] = gear with { EquipmentControl = null };
+                continue;
+            }
+            var active = lease.Grants.Where(grant => cards.TryGetValue(grant.Source.ObjectId, out var source)
+                && source.ObjectGeneration == grant.Source.Generation && IsObjectOnField(zones, source.ObjectId)).ToArray();
+            if (active.Length == lease.Grants.Count) continue;
+            var controller = active.LastOrDefault()?.ControllerId ?? lease.UnderlyingControllerId;
+            var attachment = gear.AttachedToObjectId is { } host && IsObjectOnField(zones, host)
+                ? host : null;
+            cards[gear.ObjectId] = gear with { ControllerId = controller, AttachedToObjectId = attachment,
+                EquipmentControl = active.Length == 0 ? null : lease with { Grants = active } };
+            if (controller == gear.ControllerId) continue;
+            var ended = lease.Grants[^1];
+            events.Add(new("EQUIPMENT_CONTROL_RETURNED", "装备控制效果的持续时间结束",
+                new Dictionary<string, object?> {
+                    ["sourceObjectId"] = ended.Source.ObjectId, ["equipmentObjectId"] = gear.ObjectId,
+                    ["previousControllerId"] = gear.ControllerId, ["controllerId"] = controller,
+                    ["ownerId"] = gear.OwnerId, ["equipmentCardNo"] = gear.CardNo,
+                    ["originZone"] = FindFieldObjectLocation(zones, gear.ObjectId)?.Zone,
+                    ["attachedToObjectId"] = attachment, ["reason"] = ended.Reason }));
+            // Ending control does not itself detach or move equipment. CN 107.1.c.1
+            // permits attachment across controllers; CN 149.3 handles loose gear.
+        }
     }
 }

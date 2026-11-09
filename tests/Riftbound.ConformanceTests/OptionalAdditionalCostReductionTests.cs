@@ -750,21 +750,24 @@ public sealed class OptionalAdditionalCostReductionTests
                 ["P2"] = initial.PlayerZones["P2"] with { Base = initial.PlayerZones["P2"].Base.Append("GEAR").ToArray() } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["GEAR"] = new("P2", "BASE") } };
         var engine = new CoreRuleEngine();
-        var full = new PlayCardCommand("CARD", "SFD·109/221", [], OptionalCosts: ["AKSHAN_STEAL_EQUIPMENT:GEAR"]);
+        var full = new PlayCardCommand("CARD", "SFD·109/221", [], OptionalCosts: ["SPEND_POWER:2:ORANGE"]);
         full = full with { OptionalCosts = [..full.OptionalCosts!,
             "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:MANA", "OPTIONAL_COST_REDUCTION:EZREAL-TWO:0:ADDITIONAL:MANA"] };
         var original = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, full));
         Assert.True(original.CanPay, original.Message);
         initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
             ["P1"] = new(original.Cost!.Mana, original.Cost.GenericPower + original.Cost.PowerByTrait.Values.Sum() - 2) } };
-        var command = full with { OptionalCosts = ["AKSHAN_STEAL_EQUIPMENT:GEAR",
+        var command = full with { OptionalCosts = ["SPEND_POWER:2:ORANGE",
             "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-orange", "OPTIONAL_COST_REDUCTION:EZREAL-TWO:0:ADDITIONAL:POWER-orange"] };
         var quote = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
         Assert.True(quote.CanPay, quote.Message);
         var played = await engine.ResolveAsync(initial, new("free-extra-steal-still-paid", "P1", command.CmdType), command, default);
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.Equal(0, played.State.RunePools["P1"].TotalPower);
-        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, played);
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        var selected = await engine.ResolveAsync(played.State, new("free-extra-steal-target", "P1", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["GEAR"]), default);
+        var resolved = await PermanentConfirmationAssert.ResolveAfterPlayAsync(engine, selected);
         Assert.Equal("P1", resolved.State.CardObjects["GEAR"].ControllerId);
         Assert.Equal("CARD", resolved.State.CardObjects["GEAR"].AttachedToObjectId);
     }

@@ -1399,41 +1399,6 @@ internal static partial class ActionPromptBuilder
                 .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> SourceStealEnemyEquipmentChoices(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior)
-    {
-        var optionalCostPrefix = behavior.SourceStealEnemyEquipmentOptionalCostPrefix.Trim();
-        return EnemyBoardObjects(state, playerId)
-            .Where(objectId => IsPromptAkshanStealEquipmentChoice(state, playerId, objectId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId =>
-            {
-                var choice = ObjectChoice(state, objectId, "implemented Akshan orange extra equipment steal");
-                return new ActionPromptChoiceDto(
-                    $"{optionalCostPrefix}{objectId}",
-                    $"{behavior.DisplayName}夺取装备：{choice.Label}",
-                    choice.Reason);
-            })
-            .ToArray();
-    }
-
-    private static bool IsPromptAkshanStealEquipmentChoice(
-        MatchState state,
-        string playerId,
-        string objectId)
-    {
-        return TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
-            && !string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
-            && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.PlayerId)
-            && !string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
-    }
-
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandManaReductionOptionalCostChoices(
         MatchState state,
         string playerId,
@@ -1699,7 +1664,6 @@ internal static partial class ActionPromptBuilder
             || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
             || CanPromptSourceReadyOptionalCost(state, playerId, behavior)
-            || HasSourceStealEnemyEquipmentOptionalCost(behavior)
             || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0
             || PromptRenektonPaymentChoices(state, playerId).Count > 0;
     }
