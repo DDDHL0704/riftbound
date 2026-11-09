@@ -495,7 +495,7 @@ jobs:
       - name: Run every case in the selected SQL partition
         run: |
           dotnet build tests/Riftbound.PostgresAcceptance -c Release -m:1 --nologo -v:q
-          python3 scripts/observe-ci-command.py --commit "$RIFTBOUND_FIXED_COMMIT" --label "manual-postgres-partition-$RIFTBOUND_POSTGRES_PARTITION" --output var/qa/ci-postgres-runtime -- dotnet run --project tests/Riftbound.PostgresAcceptance -c Release --no-build -- --ci-partition "$RIFTBOUND_POSTGRES_PARTITION" 4
+          python3 scripts/observe-ci-command.py --commit "$RIFTBOUND_FIXED_COMMIT" --label "manual-postgres-partition-$RIFTBOUND_POSTGRES_PARTITION" --output var/qa/ci-postgres-runtime/execution -- dotnet run --project tests/Riftbound.PostgresAcceptance -c Release --no-build -- --ci-partition "$RIFTBOUND_POSTGRES_PARTITION" 4
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
