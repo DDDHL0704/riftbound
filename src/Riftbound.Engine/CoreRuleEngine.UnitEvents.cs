@@ -290,6 +290,9 @@ public sealed partial class CoreRuleEngine
     private static TriggerQueueItemState UnitEventTrigger(UnitEventObservation observation, long tick, int ordinal,
         string eventKind, string? timing = null)
     {
+        // A synchronous cost choice replays the original command. Its earned
+        // skills are born in the final accepted completion, after resource children.
+        tick = Math.Max(tick, RuleChoices.Value?.CompletionTick ?? tick);
         var captured = observation.Context;
         if (captured.Origin is { ArmamentGranted: true } armament)
             captured = captured with { Origin = armament with { CapturedTick = tick } };
@@ -337,8 +340,11 @@ public sealed partial class CoreRuleEngine
                     captured = captured with { Context = captured.Context with { Other = other with {
                         Binding = other.Binding with { Generation = Math.Max(other.Binding.Generation, prior.ObjectGeneration + 1) } } } };
                 captured = captured with { Context = NormalizePlayedUnitRuneFrame(before, captured.Context) };
-                var trigger = UnitEventTrigger(captured, result.State.Tick, ordinal++,
-                    captured.Context.Timing == EnemyMightReducedHere ? "STATUS_EFFECT_APPLIED" : ev.Kind, timing);
+                var eventKind = captured.Context.Timing == EnemyMightReducedHere ? "STATUS_EFFECT_APPLIED"
+                    : ev.Kind == CapturedMovementEvent
+                        ? captured.Context.Here?.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD"
+                        : ev.Kind;
+                var trigger = UnitEventTrigger(captured, result.State.Tick, ordinal++, eventKind, timing);
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
