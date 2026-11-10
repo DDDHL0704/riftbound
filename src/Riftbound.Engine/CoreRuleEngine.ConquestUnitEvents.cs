@@ -7,12 +7,16 @@ namespace Riftbound.Engine;
 public sealed partial record UnitEventAbilitySpec
 {
     [JsonIgnore] public bool FirstConquestOfTurn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinimumAssignedOverkill { get; init; }
 }
 
 public sealed partial record UnitEventContext
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? FirstConquestTurn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AssignedOverkill { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -50,12 +54,15 @@ public sealed partial class CoreRuleEngine
     internal static string FirstConquestUse(string source, UnitEventContext context)
         => FirstConquestUsePrefix + MatchStateHasher.HashValue(new ObjectBinding(source, context.SourceGeneration));
 
-    private static IEnumerable<UnitEventObservation> CaptureConquestEventObservations(MatchState state, IEnumerable<string> units)
+    private static IEnumerable<UnitEventObservation> CaptureConquestEventObservations(MatchState state, IEnumerable<string> units, int assignedOverkill = 0)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")
+            .Where(o => UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not { } minimum
+                || assignedOverkill >= minimum)
             .Where(o => UnitEventSpec(o.Context.CardNo)?.FirstConquestOfTurn != true
                 || !state.UntilEndOfTurnEffects.Contains(FirstConquestUse(o.Source, o.Context), StringComparer.Ordinal))
             .Select(o => o with { Context = o.Context with {
-                FirstConquestTurn = UnitEventSpec(o.Context.CardNo)?.FirstConquestOfTurn == true ? state.TurnNumber : null } });
+                FirstConquestTurn = UnitEventSpec(o.Context.CardNo)?.FirstConquestOfTurn == true ? state.TurnNumber : null,
+                AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null } });
 
     private static ResolutionResult RecordFirstConquestUses(ResolutionResult result)
     {

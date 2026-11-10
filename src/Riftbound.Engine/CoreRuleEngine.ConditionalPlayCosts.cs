@@ -38,6 +38,8 @@ public sealed partial class CoreRuleEngine
                     => state.PlayerExperience.GetValueOrDefault(player) >= threshold) ?? 0,
             CardCostReductionConditionKinds.OpponentControlsStunnedUnit
                 => OpponentControlsStunnedUnit(state.PlayerZones, state.CardObjects, player) ? 1 : 0,
+            CardCostReductionConditionKinds.ControlledDistinctUnitTagCount
+                => CountControlledFriendlyUnitTags(state, player, behavior.CostReductionUnitTags ?? []),
             CardCostReductionConditionKinds.ControlledFieldEquipmentCount
                 => CountControlledPublicFieldEquipmentObjects(state.PlayerZones, state.CardObjects, player),
             CardCostReductionConditionKinds.SameNameInControllerGraveyard

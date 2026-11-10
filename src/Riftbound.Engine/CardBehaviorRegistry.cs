@@ -454,6 +454,7 @@ public sealed partial record CardBehaviorDefinition(
 {
     public IReadOnlyList<UnitEventAbilitySpec> AdditionalUnitEventAbilities { get; init; } = [];
     public bool DamageDistributionUsesFirstTargetMight { get; init; }
+    public IReadOnlyList<string>? CostReductionUnitTags { get; init; }
     public bool EachPlayerDestroysOwnUnit { get; init; }
     public bool DeclaresAttributeAsPlayed { get; init; }
     public bool RemovesTargetMightLimitIfExperiencePaid { get; init; }
@@ -614,6 +615,7 @@ public static class CardCostReductionConditionKinds
     public const string ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn = "CONTROLLER_PLAYED_UNIT_OR_EQUIPMENT_TO_BATTLEFIELD_THIS_TURN";
     public const string PlayedOutsideOwnHand = "PLAYED_OUTSIDE_OWN_HAND";
     public const string ControlledFieldEquipmentCount = "CONTROLLED_FIELD_EQUIPMENT_COUNT";
+    public const string ControlledDistinctUnitTagCount = "CONTROLLED_DISTINCT_UNIT_TAG_COUNT";
     public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
     public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
     public const string ControllerExperienceThresholdCount = "CONTROLLER_EXPERIENCE_THRESHOLD_COUNT";
@@ -8424,11 +8426,16 @@ public static class CardBehaviorRegistry
             "UNL-196/219",
             "小菊！",
             9,
-            "DAISY_ACTIVE_UNIT_NO_TRAIT_DISCOUNT",
+            "DAISY_READY_UNIT_WITH_DISTINCT_TRAIT_DISCOUNT",
             0,
             0,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControlledDistinctUnitTagCount,
+            CostReductionMana: 1,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 8),
+            SourceUnitPower: 8) {
+                CostReductionUnitTags = ["鸟类", "猫科", "犬形", "魄罗"],
+                UnitEventAbility = new("ATTACK", "STUN_ENEMY") {
+                    RequiredFriendlyUnitTagsAtTrigger = ["鸟类", "猫科", "犬形", "魄罗"], TargetsHere = true } },
         new(
             "UNL-194/219",
             "黑影",
@@ -8907,22 +8914,11 @@ public static class CardBehaviorRegistry
             "UNL-204/219",
             "持卫的裁决",
             2,
-            "CUSTODIAN_JUDGMENT_ENEMY_BATTLEFIELD_UNIT_TO_TOP",
+            "CUSTODIAN_JUDGMENT_OWNER_CHOOSES_MAIN_DECK_END",
             0,
             1,
             TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
-            Mode: "OWNER_MAIN_DECK_TOP",
-            TargetOwnerMainDeckDestination: "TOP"),
-        new(
-            "UNL-204/219",
-            "持卫的裁决",
-            2,
-            "CUSTODIAN_JUDGMENT_ENEMY_BATTLEFIELD_UNIT_TO_BOTTOM",
-            0,
-            1,
-            TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
-            Mode: "OWNER_MAIN_DECK_BOTTOM",
-            TargetOwnerMainDeckDestination: "BOTTOM"),
+            TargetOwnerMainDeckDestination: "OWNER_CHOICE"),
         new(
             "OGN·102/298",
             "传送门大营救",

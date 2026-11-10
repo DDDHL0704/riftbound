@@ -780,6 +780,19 @@ def has_public_armament_keyword_binding(sources: Sources) -> bool:
         name + '.Tags.Contains(CardObjectTags.Standby)' in text for name in ('gear', 'unit'))
 
 
+def has_bounded_enemy_armament_movement_reader(sources: Sources) -> bool:
+    code = sources.files.get('src/Riftbound.Engine/CoreRuleEngine.ArmamentMovementProtection.cs', '')
+    field = re.search(r"(?ms)^[ \t]*private static readonly Lazy<IReadOnlySet<string>>\s+"
+                      r"EnemyEffectMovementProtectedArmaments\s*=\s*new\(\(\)\s*=>\s*(.*?)\);\s*$", code)
+    expected = ("OfficialArmamentCatalog.All.Where(definition => definition.EffectText.Trim().TrimEnd('。', '.')"
+                ' == "我无法被敌方法术和技能移动")'
+                '.Select(definition => definition.CardNo).ToHashSet(StringComparer.Ordinal)')
+    # Only this exact one-sentence reader is bounded. Any additional lower-text
+    # reader in the same file remains unknown until its own consumer is mapped.
+    return field is not None and re.sub(r'\s+', '', field[1]) == re.sub(r'\s+', '', expected) \
+        and len(re.findall(r'\b[A-Za-z_]\w*\.EffectText\b', code)) == 1
+
+
 def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     runtime = card.get("armament", {})
     bare = normalize(unparenthesize(clause["text"]))
@@ -811,6 +824,8 @@ def audit_armament_clause(card: dict, clause: dict, sources: Sources) -> dict:
     # These bounded readers only support reviewed host event/death templates.
     # They do not make other lower-box rules or keywords uncertain again.
     bounded_readers = {"ArmamentUnitEventRules.cs", "CoreRuleEngine.ArmamentLastBreath.cs"}
+    if has_bounded_enemy_armament_movement_reader(sources):
+        bounded_readers.add('CoreRuleEngine.ArmamentMovementProtection.cs')
     readers = [path for reader in ("armament.EffectText", "definition.EffectText", "gearDefinition.EffectText")
                for path in sources.references(reader) if Path(path).name not in bounded_readers]
     if readers:
@@ -1565,6 +1580,20 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     exact = exact and branch is not None and re.sub(r'\s+', '', branch['body']).rstrip(',') \
         == re.sub(r'\s+', '', target_scope)
     exact = exact and 'internal const string FriendlyUnitTokensMoveHere = \"MOVE_FRIENDLY_UNIT_TOKENS_HERE\";' in sources.files.get(prefix + 'CoreRuleEngine.TokenUnitMovement.cs', '')
+    executor = member('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation')
+    movers = re.search(r'(?s)string\[\]\s+CurrentMovers\(MatchState current\)\s*=>'
+                      r'(?P<body>.*?)\.ToArray\(\);', executor)
+    predicate = movers['body'] if movers else ''
+    inline_feasibility = '&& MovementRestrictionRules.CanMove(unit, item.ControllerId)' in predicate
+    helper_file = 'CoreRuleEngine.ArmamentMovementProtection.cs'
+    helper = member(helper_file, 'CanMoveUnitByEffect')
+    shared_feasibility = (
+        '&& CanMoveUnitByEffect(current, effectControllerId, item.ControllerId, unit.ObjectId)' in predicate
+        and 'effectControllerId ??= item.ControllerId;' in executor
+        and all(token in helper for token in [
+            '!state.CardObjects.TryGetValue(id, out var unit) || !MovementRestrictionRules.CanMove(unit, movingPlayer)) return false;',
+            'if (EffectiveFieldControllerId(state.PlayerZones, id, unit) == effectController) return true;']))
+    exact = exact and (inline_feasibility or shared_feasibility)
     checks = [
         ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext', [
             'UnitEventTimingMatches(unitEvent.Timing, "ATTACK")']),
@@ -1633,7 +1662,6 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
         ('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation', [
             'cards[id].ObjectGeneration, cards[id].ControllerId', 'MovementTargetIsCurrent(current, item, id)',
             'IsUnitMovementDestination(current, id, destination)',
-            'MovementRestrictionRules.CanMove(unit, item.ControllerId)',
             'PayImposedMovementCost(', 'CurrentMovers, events)', 'CaptureMovementBatchObservers(',
             'MoveAttachedEquipmentWithHost(', '["simultaneousSourceObjectIds"] = movable']),
         ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', ['TargetGenerations = selected.ToDictionary']),
@@ -1643,7 +1671,8 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     return result('route' if exact else 'missing',
         '进攻时独立确认任意数量友方单位指示物；结算重查原代际来源的当前位置与各目标，再按一批执行移动、装备跟随及施加费用；恢复绑定原始捕获和目标确认'
         if exact else '缺少进攻触发、任意数量友方单位指示物范围、结算时当前来源位置，或共享批量移动与原代际确认消费者',
-        sorted({prefix + filename for filename, _, _ in checks}))
+        sorted({prefix + filename for filename, _, _ in checks}
+               | ({prefix + helper_file} if shared_feasibility else set())))
 
 
 def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:
@@ -2609,13 +2638,47 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
             bodies.append(code[match.start():match.end()] + (tail[:end.start()] if end else tail))
         return bodies
 
+    def has_members(filename, name, tokens):
+        bodies = members(filename, name)
+        return bool(bodies) and all(all(token in body for token in tokens) for body in bodies)
+
+    inline_tags = has_members('CoreRuleEngine.UnitTraitScore.cs', 'HasRequiredFriendlyUnitTags', [
+        'GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)',
+        'Where(card => IsFaceUpNonStandbyUnit(card))', 'SelectMany(card => card.Tags)',
+        'required.All(tags.Contains)'])
+    delegated_tags = all(re.search(
+        r'\)\s*=>\s*CountControlledFriendlyUnitTags\(state,\s*controller,\s*required\)\s*'
+        r'==\s*required\.Distinct\(StringComparer\.Ordinal\)\.Count\(\)\s*;\s*$', body)
+        for body in members('CoreRuleEngine.UnitTraitScore.cs', 'HasRequiredFriendlyUnitTags')) \
+        and bool(members('CoreRuleEngine.UnitTraitScore.cs', 'HasRequiredFriendlyUnitTags')) \
+        and has_members('CoreRuleEngine.UnitTraitScore.cs', 'CountControlledFriendlyUnitTags', [
+            'var tags = ControlledFriendlyUnitTags(state, controller)',
+            'required.Distinct(StringComparer.Ordinal).Count(tags.Contains)']) \
+        and has_members('CoreRuleEngine.UnitTraitScore.cs', 'ControlledFriendlyUnitTags', [
+            'GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)',
+            'Where(card => IsFaceUpNonStandbyUnit(card))', 'SelectMany(card => card.Tags)',
+            'ToHashSet(StringComparer.Ordinal)'])
+    exact = exact and (inline_tags or delegated_tags)
+    capture_calls = members('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestUnitEvents')
+    exact = exact and bool(capture_calls) and all(re.search(
+        r'\bCaptureConquestEventObservations\(\s*state,\s*conquerors\s*'
+        r'(?:,\s*assignedOverkill\s*)?\)', body) for body in capture_calls)
+    exact = exact and all(re.search(
+        r'\bconqueringUnitObjectIds,\s*resolutionTick,\s*playerId,\s*battlefieldId\s*'
+        r'(?:,\s*assignedOverkillDamageToEnemyUnits\s*)?\)', body)
+        for body in members('CoreRuleEngine.Conquest.cs', 'ResolveConquestTriggerEffects'))
+    for body in members('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureConquestEventObservations'):
+        if 'MinimumAssignedOverkill' in body:
+            exact = exact and 'MinimumAssignedOverkill is not { } minimum' in body \
+                and '|| assignedOverkill >= minimum' in body
+
     checks = [
         ('CoreRuleEngine.UnitEvents.cs', 'CaptureUnitEvents', [
             'IsFaceUpNonStandbyUnit(card)', 'IsObjectOnField(zones, id)',
             'AttachedRuleTextRules.Instances(zones, cards, card)', 'UnitEventTimingMatches(spec.Timing, timing)']),
-        ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestUnitEvents', ['CaptureConquestEventObservations(state, conquerors)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestUnitEvents', ['CaptureConquestEventObservations(state, conquerors']),
         ('CoreRuleEngine.Conquest.cs', 'ResolveConquestTriggerEffects', [
-            'CaptureConquestUnitEvents(state with', 'conqueringUnitObjectIds, resolutionTick, playerId, battlefieldId)',
+            'CaptureConquestUnitEvents(state with', 'conqueringUnitObjectIds, resolutionTick, playerId, battlefieldId',
             'events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent))']),
         ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTrigger', [
             'observation.Controller, observation.Source, UnitEventEffect, eventKind, timing',
@@ -2641,9 +2704,6 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
         ('CoreRuleEngine.UnitTraitScore.cs', 'IsFriendlyUnitTraitScoreSpec', [
             'Effect: FriendlyUnitTraitScoreEffect, Amount: > 0', 'RequiredFriendlyUnitTagsForScore: { Count: > 0 } tags',
             'tags.Distinct(StringComparer.Ordinal).Count() == tags.Count']),
-        ('CoreRuleEngine.UnitTraitScore.cs', 'HasRequiredFriendlyUnitTags', [
-            'GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)',
-            'Where(card => IsFaceUpNonStandbyUnit(card))', 'SelectMany(card => card.Tags)', 'required.All(tags.Contains)']),
         ('CoreRuleEngine.UnitTraitScore.cs', 'ResolveFriendlyUnitTraitScore', [
             'ValidFriendlyUnitTraitScoreStack(item)',
             'HasRequiredFriendlyUnitTags(state, item.ControllerId, spec.RequiredFriendlyUnitTagsForScore!)',

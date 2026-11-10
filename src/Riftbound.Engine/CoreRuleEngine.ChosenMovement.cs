@@ -190,8 +190,12 @@ public sealed partial class CoreRuleEngine
         StackItemState item,
         IReadOnlyList<string> ids,
         string destination,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        string? effectControllerId = null)
     {
+        // A commanded opponent performs the move but the original spell keeps
+        // its controller. Both identities constrain this instruction.
+        effectControllerId ??= item.ControllerId;
         var toBase = destination.StartsWith("BASE:", StringComparison.Ordinal);
         var destinationZone = toBase ? "BASE" : "BATTLEFIELD";
         var field = toBase ? null : destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal) ? destination[12..] : null;
@@ -205,7 +209,7 @@ public sealed partial class CoreRuleEngine
             && (!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var movement)
                 || ChosenMovementDestinationHasRequiredUnits(current, movement, id, destination))
             && CanMoveUnitWithAttachedEquipmentForEffect(current, item.ControllerId, id)
-            && MovementRestrictionRules.CanMove(unit, item.ControllerId)
+            && CanMoveUnitByEffect(current, effectControllerId, item.ControllerId, unit.ObjectId)
             && !(toBase && BattlefieldLocalRules.PreventsMoveToBase(current, id))).ToArray();
         var payment = PayImposedMovementCost(state, item.ControllerId, item.SourceObjectId, field, false,
             zones, cards, locations, pools, CurrentMovers, events);

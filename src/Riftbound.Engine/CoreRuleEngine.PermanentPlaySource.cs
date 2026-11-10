@@ -65,7 +65,7 @@ public sealed partial class CoreRuleEngine
                 ["keyword"] = CardObjectTags.Ephemeral }));
         }
         if (behavior.RecyclesSourceIfPlayedFromStandby && item.PlayedFromStandby is not null
-            && TryMoveTargetToOwnerMainDeck(zones, cards, source.ObjectId, "BOTTOM", out var owner, out _))
+            && TryMoveTargetToOwnerMainDeck(state, zones, cards, source.ObjectId, "BOTTOM", out var owner, out _))
             events.Add(CaptureRecycleObservers(new("CARDS_RECYCLED", "打出技能回收来源单位", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["ownerPlayerId"] = owner,
                 ["sourceObjectId"] = source.ObjectId, ["cardIds"] = new[] { source.ObjectId },

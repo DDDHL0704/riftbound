@@ -7,6 +7,10 @@ public sealed partial record UnitEventAbilitySpec
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<string>? RequiredFriendlyUnitTagsForScore { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<string>? RequiredFriendlyUnitTagsAtTrigger { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool TargetsHere { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -19,14 +23,22 @@ public sealed partial class CoreRuleEngine
             && tags.All(tag => !string.IsNullOrWhiteSpace(tag))
             && tags.Distinct(StringComparer.Ordinal).Count() == tags.Count;
 
-    private static bool HasRequiredFriendlyUnitTags(MatchState state, string controller,
-        IReadOnlyList<string> required)
-    {
-        var tags = GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)
+    private static IReadOnlySet<string> ControlledFriendlyUnitTags(MatchState state, string controller)
+        => GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)
             .Select(id => state.CardObjects[id]).Where(card => IsFaceUpNonStandbyUnit(card))
             .SelectMany(card => card.Tags).ToHashSet(StringComparer.Ordinal);
-        return required.All(tags.Contains);
+
+    private static int CountControlledFriendlyUnitTags(MatchState state, string controller,
+        IReadOnlyList<string> required)
+    {
+        var tags = ControlledFriendlyUnitTags(state, controller);
+        return required.Distinct(StringComparer.Ordinal).Count(tags.Contains);
     }
+
+    private static bool HasRequiredFriendlyUnitTags(MatchState state, string controller,
+        IReadOnlyList<string> required)
+        => CountControlledFriendlyUnitTags(state, controller, required)
+            == required.Distinct(StringComparer.Ordinal).Count();
 
     // The Chinese UNL judge FAQ260511 section4 explicitly makes this a
     // resolution condition. Do not capture its truth at conquest or hold.

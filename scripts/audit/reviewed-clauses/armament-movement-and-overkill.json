@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "UNL-188/219"
+      ],
+      "text": "当我征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则抽一张牌。",
+      "scope": "当我征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则抽一张牌。",
+      "location": "armament",
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentOverkillDrawTests.cs",
+          "methods": [
+            "NaturalConquestCapturesTheActualAssignedOverkillAtTheThreePointBoundary",
+            "AnUnattachedGuardDoesNotGrantTheLowerBoxToAConqueror",
+            "TwoGuardsEarnTwoSeparateDrawsFromOneActualConquest",
+            "ReturningTheHostAfterConquestCannotEraseItsEarnedDraw",
+            "RecoveryRejectsRewritingOrErasingTheActualConquestCondition"
+          ]
+        }
+      ],
+      "status": "route",
+      "runtime": {
+        "armament": {
+          "cardNo": "UNL-188/219",
+          "sourceCardNo": "UNL-188/219",
+          "effectText": "当我征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则抽一张牌。"
+        }
+      },
+      "reason": "贴附装备通过共享武装授予宿主征服技能；以真实征服时保留的实际过量伤害分配量检查不少于3点条件，满足时每件武装各捕获独立抽一技能，来源返手不撤销已赚取奖励。原始征服事件与过量分配量哈希防止恢复时擦除或改写。",
+      "rules": "中国区核心467.2.c（战斗伤害分配）、383.2.a.1与383.4.c（征服条件）、718.3、718.5.e–g（宿主获得装备文本）；UNL-188官方中文下栏",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "MinimumAssignedOverkill = int.Parse(overkill.Groups[\"minimum\"].Value)",
+            "if (context.AssignedOverkill is not null)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "contains": [
+            "assignedOverkill >= minimum",
+            "AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "battlefieldId, assignedOverkillDamageToEnemyUnits)"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·011"
+      ],
+      "text": "当我移动到一处战场时，给予我在本回合内{{S}}+2。",
+      "scope": "当我移动到一处战场时，给予我在本回合内{{S}}+2。",
+      "location": "armament",
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentBattlefieldMovementMightTests.cs",
+          "methods": [
+            "BattlefieldArrivalEarnsASeparateTwoMightSkillThatExpiresAtTurnEnd",
+            "AReturnToBaseInResponseDoesNotInvalidateTheOriginalMoveOrItsSameGenerationBuff",
+            "ReturningTheHostToHandMakesTheEarnedBuffUnableToAffectItsPrivateNewGeneration",
+            "LooseEquipmentCannotGiveAMovingUnitItsLowerBoxSkill",
+            "RecoveryPreservesTheOriginalGrantedArrivalInsteadOfCurrentLocationOrInventedCopies"
+          ]
+        }
+      ],
+      "status": "route",
+      "runtime": {
+        "armament": {
+          "cardNo": "VEN·011",
+          "sourceCardNo": "VEN·011",
+          "effectText": "当我移动到一处战场时，给予我在本回合内{{S}}+2。"
+        }
+      },
+      "reason": "官方下栏按共享武装授予宿主，宿主实际移入战场时捕获独立本回合战力+2技能；进入基地不触发。响应中回基地不抹去已赚取技能，返手更换代际后技能不能修改新物体；松散装备不授予下栏。",
+      "rules": "中国区核心383（移动触发及独立技能）、718.3、718.5.e–g（贴附文本与宿主）、359.3.e（代际）及本回合时效；VEN·011官方中文下栏",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/ArmamentUnitEventRules.cs",
+          "contains": [
+            "new(\"MOVE\", \"MIGHT_SELF\", int.Parse(move.Groups[\"amount\"].Value))",
+            "ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            ".Concat(ArmamentUnitEventRules.Instances(zones, cards, card))"
+          ]
+        }
+      ]
+    },
+    {
+      "cardNos": [
+        "VEN·073"
+      ],
+      "text": "我无法被敌方法术和技能移动。",
+      "scope": "我无法被敌方法术和技能移动。",
+      "location": "armament",
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ArmamentEnemyMovementProtectionTests.cs",
+          "methods": [
+            "ARealEnemySpellCanTargetTheHostButCannotMoveIt",
+            "TheControllersOwnSpellAndStandardMovementRemainLegal",
+            "DetachingInARealResponseMakesThePendingEnemyMovePossible",
+            "AnUnattachedCutlassDoesNotPreventTheEnemyMove",
+            "TheEquipmentOwnerDoesNotDecideWhoIsAnEnemyOfItsHost",
+            "AnEnemyIndependentMovementSkillUsesTheSameExecutionRestriction",
+            "AnUntargetedGroupMoveStillMovesOtherEligibleUnits",
+            "AFixedMoveToBaseRestrictionStillExecutesTheIndependentAloneEnemyDraw",
+            "ACommandedOpponentCannotBypassTheOriginalEnemySpellByPerformingItsMovement"
+          ]
+        }
+      ],
+      "status": "route",
+      "runtime": {
+        "armament": {
+          "cardNo": "VEN·073",
+          "sourceCardNo": "VEN·073",
+          "effectText": "我无法被敌方法术和技能移动。"
+        }
+      },
+      "reason": "当前公开贴附锯齿弯刀时，共享移动执行流程以原始法术／技能控制者对比宿主当前控制者，敌方效果的移动指示撤销；不赋予目标保护，不阻止己方效果或标准移动。对手受命自行选择移动时仍保留原施法者的敌我身份。",
+      "rules": "中国区核心718.3、718.5.e–g（下栏授予宿主及控制权）、355.4（移动选择）与359.3.e.6/11（无法执行的移动撤销）；VEN·073官方中文下栏",
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentMovementProtection.cs",
+          "contains": [
+            "private static bool CanMoveUnitByEffect",
+            "EffectiveFieldControllerId(state.PlayerZones, id, unit) == effectController",
+            "gear.AttachedToObjectId == id && !gear.IsFaceDown",
+            "IsSameFieldLocation(state.PlayerZones, state.ObjectLocations, gear.ObjectId, id)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CommandedMovement.cs",
+          "contains": [
+            "CanMoveUnitByEffect(current, item.ControllerId, opponent, c.ObjectId)",
+            "effectControllerId: item.ControllerId"
+          ]
+        }
+      ]
+    }
+  ]
+}

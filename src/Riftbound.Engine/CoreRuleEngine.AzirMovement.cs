@@ -73,7 +73,7 @@ public sealed partial class CoreRuleEngine
             RunePools = pools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
         if (!cards.TryGetValue(unitId, out var unit) || !IsFaceUpNonStandbyUnit(unit)
             || !TryGetPreciseFieldLocation(zones, locations, unitId, out var origin)
-            || !MovementRestrictionRules.CanMove(unit, actor)) return false;
+            || !CanMoveUnitByEffect(before, item.ControllerId, actor, unitId)) return false;
         var controller = EffectiveFieldControllerId(zones, unitId, unit);
         if (destination.Zone == "BASE")
         {
@@ -91,7 +91,7 @@ public sealed partial class CoreRuleEngine
                 || mover.ObjectGeneration != generation
                 || EffectiveFieldControllerId(current.PlayerZones, unitId, mover) != controller
                 || !TryGetPreciseFieldLocation(current.PlayerZones, current.ObjectLocations, unitId, out var currentOrigin)
-                || currentOrigin != origin || !MovementRestrictionRules.CanMove(mover, actor)
+                || currentOrigin != origin || !CanMoveUnitByEffect(current, item.ControllerId, actor, unitId)
                 || movementCondition is not null && !movementCondition(current)
                 || next.Zone == "BASE" && BattlefieldLocalRules.PreventsMoveToBase(current, unitId)
                 || next.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(current, next.BattlefieldObjectId) is null)
