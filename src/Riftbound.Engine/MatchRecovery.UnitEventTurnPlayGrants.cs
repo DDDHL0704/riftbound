@@ -66,7 +66,7 @@ public static partial class MatchRecoveryValidator
                 var id = grant.StackItemId.StartsWith("ordered-", StringComparison.Ordinal) ? grant.StackItemId[8..] : "";
                 var captures = accepted.Where(record => record.Tick <= frame.Tick && record.Event.Kind == "TRIGGER_QUEUED"
                     && TryReadObjectString(record.Event.Payload, "triggerId", out var trigger) && trigger == id
-                    && TryReadObjectString(record.Event.Payload, "sourceObjectId", out var source) && source == grant.Source.ObjectId
+                    && UnitEventQueuedSourceMatches(record.Event.Payload, grant.Source.ObjectId)
                     && TryReadObjectString(record.Event.Payload, "controllerId", out var controller) && controller == grant.ControllerId
                     && TryReadObjectString(record.Event.Payload, "effectKind", out var effect) && effect == CoreRuleEngine.UnitEventEffect
                     && TryReadObjectString(record.Event.Payload, "timingCaptureHash", out var hash)

@@ -5,7 +5,8 @@ public sealed partial class CoreRuleEngine
     // The original capture also determines which skills must still exist.
     // Checking only the surviving objects cannot detect an erased grant.
     internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)
-        => context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
+        => HasArmamentPlayAttachment(context)
+            || context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
                 or ArmamentLastBreathRules.Timing or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
@@ -26,7 +27,9 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.SourceConqueredBeforeEnd });
         if (context.ScoringAction is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.ScoringAction });
-        return context.TriggeringBattlefield is null && context.DelayedReceipt is null ? capture
-            : MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
+        if (context.TriggeringBattlefield is not null || context.DelayedReceipt is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
+        return HasArmamentPlayAttachment(context)
+            ? MatchStateHasher.HashValue(new { hash = capture, context.ReflexiveTick }) : capture;
     }
 }

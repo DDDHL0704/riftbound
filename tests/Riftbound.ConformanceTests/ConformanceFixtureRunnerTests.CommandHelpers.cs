@@ -283,17 +283,39 @@ public sealed partial class ConformanceFixtureRunnerTests
             .ToArray();
     }
 
-    private static Task AssertAgileEquipmentMissingTargetRejectedAsync(
-        int mana,
-        string sourceObjectId,
-        string cardNo,
-        string targetObjectId) =>
-        AssertEquipmentPlayRejectedAsync(
-            mana,
-            sourceObjectId,
-            cardNo,
-            targetObjectId,
-            targetObjectIds: []);
+    private static async Task AssertAgileEquipmentTargetConfirmedAfterEntryAsync(
+        int mana, string sourceObjectId, string cardNo, string targetObjectId)
+    {
+        // CN355.5.b / 383.4.a.2 / 819.1.d: the equipment is paid for and
+        // enters first; its independent Agile skill then confirms a host.
+        var state = RadGearTestPosition.Put(RadGearTestPosition.Create("OGN·280/298"),
+            sourceObjectId, cardNo, "P1", "HAND");
+        state = RadGearTestPosition.Put(state, targetObjectId, "OGN·219/298", "P1", "BASE");
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+            ["P1"] = new(mana, PrintedCostFixture.Power(cardNo)) } };
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P1", new PlayCardCommand(sourceObjectId, cardNo, []));
+        Assert.Contains(sourceObjectId, game.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(sourceObjectId, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
+        Assert.Null(game.State.CardObjects[sourceObjectId].AttachedToObjectId);
+        Assert.Null(game.State.PriorityPlayerId);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Equal(1, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
+        Assert.Contains(targetObjectId, choice.LegalObjectIds);
+        Assert.DoesNotContain("ENEMY", choice.LegalObjectIds);
+        await RadGearTestPosition.Reject(game.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [targetObjectId]));
+        Assert.Null(game.State.CardObjects[sourceObjectId].AttachedToObjectId);
+        await game.Act("P1", new PassPriorityCommand());
+        Assert.Null(game.State.CardObjects[sourceObjectId].AttachedToObjectId);
+        await game.Top();
+        Assert.Equal(targetObjectId, game.State.CardObjects[sourceObjectId].AttachedToObjectId);
+        Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
+        await game.ColdCheckpoint();
+    }
 
     private static async Task AssertEquipmentWithTargetRejectedAsync(
         int mana,
