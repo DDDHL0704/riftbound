@@ -28,13 +28,17 @@ public sealed partial class CoreRuleEngine
     private static bool ConfirmUnitEventMovementDestination(MatchState state, ref StackItemState item, List<GameEvent> events)
     {
         if (item.UnitEvent is not { } context || !IsDeclaredUnitEventMovementEffect(context)) return true;
-        var target = item.TargetObjectIds.Single();
-        var options = UnitEventMovementDestinations(state, item, target).ToArray();
+        var group = SelectedUnitEventSpec(context)?.Effect == MoveFriendlyGroupToOpenBattlefieldEffect;
+        var options = group ? OpenBattlefieldDestinations(state, item.ControllerId)
+            .Select(option => new RuleChoiceOption(option.Id, option.Label)).ToArray()
+            : UnitEventMovementDestinations(state, item, item.TargetObjectIds.Single()).ToArray();
         if (options.Length == 0) return false;
-        var destination = RuleChoices.Value!.Choose(item.ControllerId, "选择敌方单位的移动目的地，随后双方可以响应。",
+        var destination = RuleChoices.Value!.Choose(item.ControllerId,
+            group ? "选择一处开放战场，让所选友方单位一起移动；随后双方可以响应。" : "选择敌方单位的移动目的地，随后双方可以响应。",
             options,
             kind: "MOVEMENT_DESTINATION", preview: state);
-        item = item with { Destination = destination };
+        item = item with { Destination = destination, UnitEventMovementBattlefield = group
+            ? new(destination[12..], state.CardObjects[destination[12..]].ObjectGeneration) : null };
         events.Add(new("TRIGGER_MOVEMENT_DECLARED", "已声明触发技能的移动目的地", new Dictionary<string, object?> {
             ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
             ["targetObjectIds"] = item.TargetObjectIds, ["destination"] = destination,
@@ -44,7 +48,13 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool ValidUnitEventMovementDeclaration(MatchState state, StackItemState item)
-        => item.UnitEvent is not { } context || !IsDeclaredUnitEventMovementEffect(context)
+        => item.UnitEvent is { } group && SelectedUnitEventSpec(group)?.Effect == MoveFriendlyGroupToOpenBattlefieldEffect
+            ? item.TargetGenerations is null
+                ? item.Destination.Length == 0 && item.UnitEventMovementBattlefield is null
+                : item.TargetObjectIds.Count > 0 && item.UnitEventMovementBattlefield is { ObjectId.Length: > 0, Generation: >= 0 } field
+                    && item.Destination == "BATTLEFIELD:" + field.ObjectId
+                    && BattlefieldLocalRules.Battlefield(state, field.ObjectId) is not null
+            : item.UnitEventMovementBattlefield is null && (item.UnitEvent is not { } context || !IsDeclaredUnitEventMovementEffect(context)
             || (item.TargetGenerations is null ? item.Destination.Length == 0
                 : item.Destination.Length == 0 ? state.PendingPayment?.ResolvingStackItemId == item.StackItemId
                 : item.TargetObjectIds.Count == 1
@@ -53,7 +63,7 @@ public sealed partial class CoreRuleEngine
                     && (item.Destination.StartsWith("BASE:", StringComparison.Ordinal)
                     && state.Seats.ContainsKey(item.Destination[5..])
                     || item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
-                        && BattlefieldLocalRules.Battlefield(state, item.Destination[12..]) is not null));
+                        && BattlefieldLocalRules.Battlefield(state, item.Destination[12..]) is not null)));
 
     private static bool TryUnitEventTokenLocation(MatchState state, StackItemState item,
         UnitEventAbilitySpec spec, out string? field)

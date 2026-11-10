@@ -478,7 +478,7 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is UnitEventGraveyardPlayEffect or UnitEventGraveyardReturnEffect or UnitEventEnemyDamageEffect or ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToCapturedBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect or MoveWeakerEnemyHereToAnotherBattlefieldEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or FriendlyUnitTokensMoveHere or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
+        && (SelectedUnitEventSpec(c)?.Effect is UnitEventGraveyardPlayEffect or UnitEventGraveyardReturnEffect or UnitEventEnemyDamageEffect or ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToCapturedBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect or MoveWeakerEnemyHereToAnotherBattlefieldEffect or MoveFriendlyGroupToOpenBattlefieldEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or FriendlyUnitTokensMoveHere or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
             || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.UnitEvent is { } grant && SelectedUnitEventSpec(grant)?.Effect == UnitEventTurnPlayGrantEffect
@@ -517,7 +517,7 @@ public sealed partial class CoreRuleEngine
                     && DeploymentPlayDestination(state, item.UnitEvent!) is { } playedDestination
                     && IsUnitMovementDestination(state, c.ObjectId, playedDestination)
                     && MovementRestrictionRules.CanMove(c, item.ControllerId),
-                "BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)
+                MoveFriendlyGroupToOpenBattlefieldEffect or "BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 "BANISH_LINKED_UNIT_HERE" or "READY_HERE" => IsFaceUpNonStandbyUnit(c) && UnitEventTargetIsHere(state, item, c.ObjectId),
                 MoveFriendlyToArrivalBattlefieldEffect => c.ObjectId != item.SourceObjectId && IsFaceUpNonStandbyUnit(c)
@@ -569,7 +569,8 @@ public sealed partial class CoreRuleEngine
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
     private static PendingCardChoiceState UnitEventChoice(MatchState state, StackItemState item)
     {
-        var legal = UnitEventInstructionTargets(state, item);
+        var legal = SelectedUnitEventSpec(item.UnitEvent!)?.Effect == MoveFriendlyGroupToOpenBattlefieldEffect
+            && OpenBattlefieldDestinations(state, item.ControllerId).Count == 0 ? [] : UnitEventInstructionTargets(state, item);
         return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
             item.UnitEvent!.DelayedReceipt is not null || UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1,
             UnitEventSpec(item.UnitEvent.CardNo)!.Effect == PlayedUnitReadyRunes ? Math.Min(legal.Length, UnitEventSpec(item.UnitEvent.CardNo)!.Amount)
@@ -640,6 +641,7 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == UnitEventGraveyardReturnEffect) return ResolveUnitEventGraveyardReturn(state, item);
         if (spec.Effect == ReturnLowMightUnitsEffect && spec.ReturnAllUnitsMaximumMight is { } maximum)
             return ResolveLowMightGroupReturn(state, item, maximum);
+        if (spec.Effect == MoveFriendlyGroupToOpenBattlefieldEffect) return ResolveFriendlyGroupToOpenBattlefield(state, item);
         if (spec.Effect == ScheduleNextMainUnitEventEffect) return ScheduleNextMainUnitEvent(state, item);
         if (spec.Effect == "GAIN_EXPERIENCE") return ResolveUnitEventExperience(state, item, spec);
         if (spec.Effect == DetachOriginDamageSourceEffect) return ResolveDetachOriginDamageSource(state, item, spec);
