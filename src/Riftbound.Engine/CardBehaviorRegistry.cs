@@ -4249,7 +4249,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "壁垒"),
+            SourceUnitTags: "壁垒",
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.PlayHandArmamentThenAttachEffect, 2, Optional: true)),
         new(
             "SFD·054/221",
             "贾克斯",

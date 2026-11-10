@@ -151,21 +151,159 @@
       ],
       "text": "当我进攻时，你可以选择打出一件法力费用不高于{{2}}的武装，无视其费用，然后将其贴附到我身上。",
       "scope": "当我进攻时，你可以选择打出一件法力费用不高于{{2}}的武装，无视其费用，然后将其贴附到我身上。",
-      "status": "missing",
-      "reason": "只有壁垒单位登记；缺少进攻时可选打出法力不高于2的武装并无视基础费用的触发；按中国区铸魂淬炼勘误260114第6页，随后贴附到来源还须另一个独立内嵌式触发，两部分均未接入",
+      "status": "route",
+      "reason": "共享进攻技能在响应前确认可选发动；结算时真实打出印刷法力不高于2的手牌武装，仅免基础法力与符能，成功后创建独立贴附技能；同代来源与实际装备绑定，与灵便共用排序并核对原始接受历史",
       "runtime": {
-        "staticAuras": []
+        "unitEventAbility": {
+          "timing": "ATTACK",
+          "effect": "PLAY_HAND_ARMAMENT_THEN_ATTACH_SOURCE",
+          "amount": 2,
+          "optional": true
+        },
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "sourceUnitPower": 4,
+            "unitEventAbility": {
+              "timing": "ATTACK",
+              "effect": "PLAY_HAND_ARMAMENT_THEN_ATTACH_SOURCE",
+              "amount": 2,
+              "optional": true
+            }
+          }
+        ]
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
-            "\"RELL_PLAY_KEYWORD_UNIT\""
+            "UnitEventAbility: new(\"ATTACK\", CoreRuleEngine.PlayHandArmamentThenAttachEffect, 2, Optional: true)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentPlayAttachment.cs",
+          "contains": [
+            "OfficialArmamentCatalog.Find(card.CardNo)",
+            "EffectPlayIgnoreBaseMana: true",
+            "EffectPlayIgnoreBasePower: true",
+            "ReflexiveTick = result.State.Tick",
+            "state.CardPlays?.Resolved.Any",
+            "TryAttachEquipment("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "contains": [
+            "IsOptionalArmamentPlayEvent(optional)",
+            "IsOptionalArmamentPlayEvent(optionalPlay)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "contains": [
+            "TryGetArmamentPlayAttachmentDefinition(parent, out definition)",
+            "CapturePlayedArmamentAttachment(result, pending, play)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            ".Other?.Binding",
+            "ValidArmamentPlayAttachmentContext("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ArmamentPlayAttachment.cs",
+          "contains": [
+            "TRIGGER_CONFIRMED",
+            "command.Accepted"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "private static bool TryAttachAgileDirectPlayEquipmentToTarget",
+            "\"AGILE_DIRECT_PLAY_ATTACH\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "contains": [
+            "behavior.RequiredTargetCount > 0 || IsAgileDirectPlayAttachRepresentative(behavior)",
+            "IsAgilePermanentPlaySkill"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTargets.cs",
+          "contains": [
+            "CoreRuleEngine.IsAgilePermanentPlaySkill(item)",
+            "equipment play skill was already retired"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "contains": [
+            "|| IsAgilePermanentPlaySkill(item)",
+            "[\"targetGenerations\"] = bound.TargetGenerations",
+            "confirmationPayload[\"stackItemId\"] = item.StackItemId",
+            "confirmationPayload[\"targetGenerations\"] = confirmed.TargetGenerations"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ScheduledUnitEvents.cs",
+          "contains": [
+            "HasArmamentPlayAttachment(context) && context.ReflexiveTick is { } tick",
+            "context.DelayedReceipt?.FiredTick ?? context.CapturedTick"
           ]
         }
       ],
-      "tests": [],
-      "rules": "中国区铸魂淬炼勘误260114第6页芮尔新文本；核心383.2–383.3、388–389、356.1.b、435／718–719"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RellAttackArmamentPlayTests.cs",
+          "methods": [
+            "ActualAttackWaivesOnlyBaseCostsAndCreatesAnIndependentUntargetedAttachment",
+            "OptionalAttackConfirmationPrecedesResponsesAndDoesNotRevealOrPlayTheArmament",
+            "PermissionListsOnlyOwnPhysicalHandArmamentsWhosePrintedManaIsAtMostTwo",
+            "AnAttackWithoutAnyQualifyingArmamentFinishesWithoutAPermission",
+            "SourceDepartureDoesNotCancelThePlayButCannotAttachToADepartedIncarnation",
+            "RecoveryRejectsAlteredPermissionsEvenWithRebuiltPublicViews",
+            "TheAttachmentRequiresItsOriginalAcceptedCaptureAndSuccessfulPlay"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/RellAttackArmamentPlayTests.Additional.cs",
+          "methods": [
+            "AnActuallyPlayedRellKeepsBarrierAndAttacksAfterItsNextReadyStep",
+            "AgileAndTheReflexiveAttachmentCanResolveInEitherChosenOrder",
+            "BothAttachmentSkillsChoosingTheSameHostAttachOnlyOnce",
+            "AnAgileArmamentStillEntersWhenItsOnlyFriendlyHostDeparts",
+            "AnUndeclaredAgileTargetIsChosenAfterTheSimultaneousTriggerOrder",
+            "AnAgileTargetCannotBeRewrittenAfterItsPostEntryConfirmation",
+            "AResolvedAgileAttachmentCannotBeResurrectedWithItsOldConfirmedTargets",
+            "IgnoringPrintedCostsStillRequiresTheMysticVortexReactionIncrease",
+            "AReturnedArmamentCannotReuseItsResolvedAttachmentAndSwiftRecallCannotInterruptIt",
+            "AResolvedAttachmentCannotBeResurrectedByRebuildingCurrentViews",
+            "AThreeManaArmamentCannotQualifyThroughTheFirstEquipmentDiscount",
+            "OptionalConfirmationCannotBeInventedOrRewoundAgainstItsOriginalAcceptedAnswer",
+            "AnAlreadyAcceptedZeroCostPlayIsNotASecondOptionalConfirmation"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AgileEquipmentDirectPlayAttachTests.cs",
+          "methods": [
+            "AgileEquipmentEntersBeforeItsUndeclaredAttachmentTargetIsChosen",
+            "AgileEquipmentCanEnterWithoutAnyControlledUnitAndOnlyItsSkillIsDiscarded",
+            "AgileEquipmentPromptDefersItsControlledUnitTargetUntilAfterEntry"
+          ]
+        }
+      ],
+      "rules": "中国区铸魂淬炼勘误260114芮尔新文本（勘误PDF第6页；完整版FAQ第7页）；核心159.2、310.4、356.1.b.1–3、383.3.d、388–389、403.1、420.3–420.4、435；819.1.d、435.1.f–g、435.4（已赚取灵便可转贴，同宿主无额外动作）；355.5.b、403.4（灵便目标在装备入场后确认，无目标仅移除技能）；核心407.3–407.4：全部待处理技能先确认，随后开放响应；灵便确认事件记录实际技能ID与目标代际，恢复时核对原始接受记录"
     },
     {
       "cardNos": [
