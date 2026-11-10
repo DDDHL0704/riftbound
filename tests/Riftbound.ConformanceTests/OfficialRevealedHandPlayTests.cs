@@ -32,6 +32,9 @@ public sealed class OfficialRevealedHandPlayTests
         Assert.Equal("BF", done.State.ObjectLocations["U"].BattlefieldObjectId);
         Assert.Contains("U", done.State.PlayerZones["P2"].Battlefields);
         Assert.Equal("P2", done.State.CardObjects["U"].ControllerId);
+        Assert.DoesNotContain("STUNNED", done.State.CardObjects["U"].UntilEndOfTurnEffects);
+        Assert.NotNull(Assert.Single(done.State.StackItems).UnitEvent!.SpellInstruction!.PlayedUnit);
+        done = await Top(done.State);
         Assert.Contains("STUNNED", done.State.CardObjects["U"].UntilEndOfTurnEffects);
         Assert.DoesNotContain("STUNNED",done.State.CardObjects["BF"].UntilEndOfTurnEffects);
         Assert.Single(done.Events,e=>e.Kind=="STATUS_EFFECT_APPLIED");
@@ -86,11 +89,15 @@ public sealed class OfficialRevealedHandPlayTests
         var opened = await Open(Position("SFD·062/221"));
         var selected = await Select(opened.State,"U");
         var child = await Act(selected.State,"P2",new PlayCardCommand("U","SFD·062/221",["ALLY"],Destination:"BATTLEFIELD:BF"));
+        child = await OrderEarnedPlaySkills(child);
         Assert.True(child.State.CardObjects["ALLY"].IsExhausted);
-        Assert.Contains("STUNNED",child.State.CardObjects["U"].UntilEndOfTurnEffects);
-        Assert.Single(child.State.StackItems); Restore(child.State);
+        Assert.DoesNotContain("STUNNED",child.State.CardObjects["U"].UntilEndOfTurnEffects);
+        Assert.Equal(2, child.State.StackItems.Count); Restore(child.State);
         var done = await Top(child.State);
-        Assert.False(done.State.CardObjects["ALLY"].IsExhausted); Restore(done.State);
+        Assert.False(done.State.CardObjects["ALLY"].IsExhausted);
+        Assert.DoesNotContain("STUNNED",done.State.CardObjects["U"].UntilEndOfTurnEffects);
+        done = await Top(done.State);
+        Assert.Contains("STUNNED",done.State.CardObjects["U"].UntilEndOfTurnEffects); Restore(done.State);
     }
 
     [Theory]
@@ -148,13 +155,16 @@ public sealed class OfficialRevealedHandPlayTests
         var play=new PlayCardCommand("U","OGN·097/298",["ENEMY"],Destination:"BATTLEFIELD:BF");
         var quote=new CoreRuleEngine().PreviewPlayCard(selected.State,"P2",PlayCostPreviewTests.Request(selected.State,play));
         Assert.True(quote.CanPay,quote.Message);Assert.Equal(0,quote.Cost!.GenericPower+quote.Cost.PowerByTrait.Values.Sum());
-        var child=await Act(selected.State,"P2",play);Assert.Single(child.State.StackItems);
+        var child=await OrderEarnedPlaySkills(await Act(selected.State,"P2",play));Assert.Equal(2, child.State.StackItems.Count);
         // Free permanent play does not waive its independent triggered ability cost.
         Assert.Equal(1,child.State.PendingPayment!.PowerCost);
         var payment=child.State.PendingPayment;
         var declined=await Act(child.State,"P2",new PayCostCommand(payment.PaymentId,payment.PaymentWindow,["DECLINE"]));
         Assert.Contains("U",declined.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(0,declined.State.CardObjects["ENEMY"].UntilEndOfTurnPowerModifier);Restore(declined.State);
+        Assert.Equal(0,declined.State.CardObjects["ENEMY"].UntilEndOfTurnPowerModifier);
+        Assert.NotNull(Assert.Single(declined.State.StackItems).UnitEvent!.SpellInstruction!.PlayedUnit);
+        declined=await Top(declined.State);
+        Assert.Contains("STUNNED",declined.State.CardObjects["U"].UntilEndOfTurnEffects);Restore(declined.State);
     }
 
     [Fact]
@@ -183,6 +193,9 @@ public sealed class OfficialRevealedHandPlayTests
         var selected = await Select(opened.State, "U");
         Assert.Equal("P2", selected.State.PendingEffectPlay!.PlayerId);
         var done = await Act(selected.State, "P2", new PlayCardCommand("U", "OGN·208/298", [], Destination: "BATTLEFIELD:F"));
+        Assert.DoesNotContain("STUNNED", done.State.CardObjects["U"].UntilEndOfTurnEffects);
+        Assert.Contains(done.State.StackItems, item => item.UnitEvent?.SpellInstruction?.PlayedUnit is not null);
+        done = await Top(done.State);
         Assert.Contains("STUNNED", done.State.CardObjects["U"].UntilEndOfTurnEffects);
         Assert.Equal("F", done.State.ObjectLocations["U"].BattlefieldObjectId);
         Restore(done.State);
@@ -214,6 +227,17 @@ public sealed class OfficialRevealedHandPlayTests
         var result=await new CoreRuleEngine().ResolveAsync(state,new("invalid",player,command.CmdType),command,default);
         Assert.False(result.Accepted);Assert.Equal(MatchStateHasher.Hash(state),MatchStateHasher.Hash(result.State));
     }
+    internal static async Task<ResolutionResult> OrderEarnedPlaySkills(ResolutionResult result)
+    {
+        while (ResolutionResult.HasOpenOrderTriggersWindow(result.State))
+        {
+            var actor = ResolutionResult.OrderTriggersOrderingPlayerId(result.State)!;
+            result = await Act(result.State, actor,
+                new OrderTriggersCommand(OrderedTriggerIds: CoreRuleEngine.TriggerResolutionOrderIds(result.State)));
+        }
+        return result;
+    }
+
     internal static MatchState Position(string unit="OGN·208/298")
     {
         var s=OfficialSpellCompletionTests.Position("UNL-139/219",withSources:false);

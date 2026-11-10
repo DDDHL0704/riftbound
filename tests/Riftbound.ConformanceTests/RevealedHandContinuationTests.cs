@@ -47,7 +47,14 @@ public sealed class RevealedHandContinuationTests
             actual.Add(native.HasValue);return await Submit(player,command,native);
         }
         result=await Native(decline?"hand-decline":"hand-pick","P1",new ChooseCardsCommand(result.State.PendingEffectPlay!.ChoiceId,"REVEALED_HAND_PLAY",decline?[]:["U"]));
-        if(!decline)result=await Native("hand-play","P2",new PlayCardCommand("U","OGN·208/298",[],Destination:"BATTLEFIELD:BF"));
+        if(!decline) {
+            result=await Native("hand-play","P2",new PlayCardCommand("U","OGN·208/298",[],Destination:"BATTLEFIELD:BF"));
+            Assert.DoesNotContain("STUNNED",result.State.CardObjects["U"].UntilEndOfTurnEffects);
+            var reflexive=Assert.Single(result.State.StackItems);
+            Assert.NotNull(reflexive.UnitEvent!.SpellInstruction!.PlayedUnit);
+            result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
+            result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
+        }
         Assert.Null(result.State.PendingEffectPlay);Assert.Empty(result.State.StackItems);
         if(decline)Export("hand-hidden","snapshot.json",ResolutionResult.BuildSnapshots(result.State)["P1"]);
         if(decline)Assert.Contains("U",result.State.PlayerZones["P2"].Hand);

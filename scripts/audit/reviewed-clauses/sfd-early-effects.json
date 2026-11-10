@@ -77,38 +77,59 @@
       ],
       "text": "在本回合内，友方单位以活跃状态进场。",
       "scope": "在本回合内，友方单位以活跃状态进场。",
-      "status": "missing",
-      "reason": "当前仅创建一个休眠金币；未登记本回合友方单位活跃进场的TurnUnitPlayGrantKind，已有共享READY_ENTRY执行器不能由本牌触发",
-      "rules": "核心355–359 打出及进场状态、牌面本回合期限及SFD·004 官方中文牌面",
+      "status": "route",
+      "reason": "共享回合授权在真实法术结算后建立，本回合每名友方单位以活跃替换进场；真实回合结束后失效，原已休眠单位不被激活。",
+      "rules": "核心143.4、391–393；丛林伏击官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "createdBaseEquipmentTokenCount": 1,
-            "createdBaseEquipmentTokenName": "金币",
-            "createdBaseEquipmentTokenTags": "CARD_TYPE:EQUIPMENT",
-            "createdBaseEquipmentTokenIsExhausted": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "turnUnitPlayGrantKind": "READY_ENTRY"
           }
         ]
       },
       "evidence": [
         {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TurnUnitPlayGrants.cs",
+          "contains": [
+            "ActiveUnitPlayGrants(",
+            "ReadTurnUnitPlayGrant(",
+            "READY_ENTRY"
+          ]
+        },
+        {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
-            "\"SFD·004/221\"",
-            "\"JUNGLE_AMBUSH_CREATE_GOLD_EQUIPMENT\""
+            "JUNGLE_AMBUSH_CREATE_GOLD_EQUIPMENT",
+            "TurnUnitPlayGrantKind = \"READY_ENTRY\""
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventTurnPlayGrants.cs",
+          "contains": [
+            "g.Kind == \"READY_ENTRY\"",
+            "RecordUnitEventTurnPlayHistory("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.UnitEventTurnPlayGrants.cs",
+          "contains": [
+            "command.Accepted",
+            "expectedGrants.SetEquals("
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/JungleAmbushReadyEntryTests.cs",
+          "methods": [
+            "TheActualSpellCreatesExhaustedGoldAndMakesEveryLaterFriendlyUnitEnterReady",
+            "ARealReturnAndReplayUsesTheSameTurnPermissionForTheNewFieldIncarnation",
+            "ActualTurnEndExpiresThePermissionBeforeAnotherTurnCanPlayTheSameOrdinaryUnit",
+            "AnUnaffordableCastCannotCreateGoldOrAReadyEntryPermission",
+            "RecoveryCannotEraseThePermissionEarnedByAnActualResolvedSpell"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [

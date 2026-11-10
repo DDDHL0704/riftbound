@@ -66,7 +66,11 @@ public sealed partial class CoreRuleEngine
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static ObjectBinding? CompanionPlayedUnit(TriggerQueueItemState trigger)
-        => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit;
+        => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit
+            ?? trigger.UnitEvent?.SpellInstruction?.PlayedUnit?.Binding;
+
+    private static bool CompanionPlayControllerMatches(TriggerQueueItemState companion, StackItemState item)
+        => companion.ControllerId == item.ControllerId || companion.UnitEvent?.SpellInstruction?.PlayedUnit is not null;
 
     private static ResolutionResult DeferCompanionPermanentPlayOrdering(MatchState before, ResolutionResult result)
     {
@@ -77,12 +81,12 @@ public sealed partial class CoreRuleEngine
         foreach (var item in state.StackItems.Where(i => i.SourceConfirmed
             && !before.StackItems.Any(old => old.StackItemId == i.StackItemId)))
         {
-            var companion = companions.FirstOrDefault(t => t.ControllerId == item.ControllerId
+            var companion = companions.FirstOrDefault(t => CompanionPlayControllerMatches(t, item)
                 && CompanionPlayedUnit(t)?.ObjectId == item.SourceObjectId);
             if (companion is null || queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)) continue;
-            // CN383.3.d: independent play skills and delayed unit-play grants
-            // earned together join the same ordering window. Several grants
-            // witnessing one play still reference the legacy skill only once.
+            // CN383.3.d / 388–389: independent play skills, delayed grants and
+            // embedded skills earned from the same actual play share an ordering
+            // window, including when the instruction's controller is its opponent.
             var trigger = new TriggerQueueItemState("permanent-play-order-" + item.StackItemId, item.ControllerId,
                 item.SourceObjectId, item.EffectKind, companion.TriggeredByEventKind, item.TimingContext) {
                 PermanentPlayStackItemId = item.StackItemId, SourceCardNo = item.CardNo };
@@ -99,7 +103,7 @@ public sealed partial class CoreRuleEngine
         StackItemState item, long? enqueuedAtTick)
     {
         if (enqueuedAtTick is not { } capturedTick) return false;
-        if (companion.ControllerId != item.ControllerId || companion.EnqueuedAtTick != capturedTick
+        if (!CompanionPlayControllerMatches(companion, item) || companion.EnqueuedAtTick != capturedTick
             || CompanionPlayedUnit(companion) is not { } unit || unit.ObjectId != item.SourceObjectId
             || !state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit
                 && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick)) return false;
@@ -110,6 +114,10 @@ public sealed partial class CoreRuleEngine
             return boon.CapturedTick == capturedTick && boon.UnitCardNo == item.CardNo
                 && ValidTurnUnitPlayBoon(state, boon, companion.EffectKind, companion.SourceObjectId,
                     companion.ControllerId, companion.SourceCardNo);
+        if (companion.UnitEvent is { SpellInstruction.PlayedUnit: { } played } context)
+            return context.CapturedTick == capturedTick && played.CardNo == item.CardNo
+                && ValidUnitEvent(state, context, companion.EffectKind, companion.SourceObjectId,
+                    companion.SourceCardNo, companion.ControllerId);
         return companion.TurnUnitPlayDraw is { } draw && draw.CapturedTick == capturedTick && draw.UnitCardNo == item.CardNo
             && ValidTurnUnitPlayDraw(state, draw, companion.EffectKind, companion.SourceObjectId,
                 companion.ControllerId, companion.SourceCardNo);

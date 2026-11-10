@@ -123,6 +123,26 @@ class ReviewedEffectClauseTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             audit.Sources(self.root, [])
 
+    def test_explicit_rule_question_keeps_code_evidence_without_claiming_implementation(self):
+        self.record.update(status="review", reason="待确认（规则）：已知触发时机；控制效果撤销次序尚无原文。", tests=[])
+        self.write()
+        result = self.outcome()
+        self.assertEqual("review", result["status"])
+        self.assertIn("待确认（规则）", result["reason"])
+        self.assertIn("核心383.3", result["rules"])
+        self.assertIn(str(self.engine.relative_to(self.root)), result["evidence"])
+
+    def test_rule_question_still_requires_explicit_label_official_rules_and_code_evidence(self):
+        self.record.update(status="review", tests=[])
+        cases = [dict(self.record, reason="规则不明"),
+                 dict(self.record, reason="待确认（规则）：控制权疑点", rules=""),
+                 dict(self.record, reason="待确认（规则）：控制权疑点", evidence=[])]
+        for record in cases:
+            with self.subTest(record=record):
+                self.document.write_text(json.dumps(dict(schemaVersion=1, records=[record])))
+                with self.assertRaises(ValueError):
+                    audit.Sources(self.root, [])
+
     def test_review_data_changes_invalidate_the_cached_runtime_inventory(self):
         before = audit.source_fingerprint(self.root)
         self.record["reason"] += "（复查）"

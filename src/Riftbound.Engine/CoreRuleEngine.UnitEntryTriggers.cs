@@ -50,6 +50,7 @@ public sealed partial class CoreRuleEngine
         ev = CaptureSourcePlayTokens(ev, zones, cards, entered, player);
         ev = CaptureUnitPlayMight(ev, zones, cards, entered, player);
         ev = CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects, playedItem);
+        ev = CaptureInstructionPlayedUnitReflexive(ev, entered);
         ev = CapturePaidUnitPlayTriggers(ev, zones, cards, entered);
         if (ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
             ev = CaptureCardPlayHistory(ev, entered, player, ev.Payload.GetValueOrDefault("historyPlayId") as string,
