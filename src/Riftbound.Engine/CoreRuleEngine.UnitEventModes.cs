@@ -17,6 +17,8 @@ public sealed partial class CoreRuleEngine
             spec = spec with { Effect = holdEffect, Optional = false };
         if (HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null)
             return spec! with { Effect = AttachPlayedArmamentEffect, Optional = false };
+        if (spec?.DamageUsesAssignedOverkill == true && context.AssignedOverkill is { } assigned)
+            spec = spec with { Amount = assigned };
         if (context.Mode is null) return spec;
         if (spec?.Modes?.SingleOrDefault(m => m.Id == context.Mode) is not { } mode) return null;
         return spec with { Effect = mode.Effect, Amount = mode.Amount, Modes = null, Optional = false,

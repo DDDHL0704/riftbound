@@ -4317,7 +4317,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7,
-            SourceUnitTags: "法盾2"),
+            SourceUnitTags: "法盾2",
+            UnitEventAbility: new("CONQUEST", CoreRuleEngine.UnitEventEnemyDamageEffect, Optional: true) {
+                MinimumAssignedOverkill = 5, RequiresAttackingConquest = true, DamageUsesAssignedOverkill = true }),
         new(
             "SFD·120a/221",
             "希维尔",
@@ -4327,7 +4329,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7,
-            SourceUnitTags: "法盾2"),
+            SourceUnitTags: "法盾2",
+            UnitEventAbility: new("CONQUEST", CoreRuleEngine.UnitEventEnemyDamageEffect, Optional: true) {
+                MinimumAssignedOverkill = 5, RequiresAttackingConquest = true, DamageUsesAssignedOverkill = true }),
         new(
             "SFD·148/221",
             "德莱文",

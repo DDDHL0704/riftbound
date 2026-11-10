@@ -3371,6 +3371,84 @@ def source_play_condition_movement_route(card: dict, clause: dict, sources: Sour
         'missing', '缺少背面／己方回合的原始打出条件、独立敌方单位移动，或来源代际及原始捕获校验')
 
 
+def attack_conquest_overkill_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause['text']))
+    expected_text = normalize('当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。')
+    if text != expected_text:
+        return None
+    expected = dict(timing='CONQUEST', effect='DAMAGE_ENEMY_UNIT',
+                    optional=True, minimumAssignedOverkill=5,
+                    requiresAttackingConquest=True, damageUsesAssignedOverkill=True)
+    spec = card.get('unitEventAbility') or {}
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == text \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} \
+        and any(b.get('playsSourceToBaseAsUnit') is True for b in card.get('behaviors', [])) \
+        and all(type(spec.get(k)) is type(v) and spec.get(k) == v for k, v in expected.items()) \
+        and not any(meaningful(v) for k, v in spec.items() if k not in expected)
+    prefix = 'src/Riftbound.Engine/'
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b' + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]
+        end = re.search(r'(?m)^    (?:private|internal|public) (?:static )?', rest[start.end() - start.start():])
+        return rest[:start.end() - start.start() + end.start()] if end else rest
+
+    checks = [
+        ('CoreRuleEngine.Conquest.cs', 'ResolveConquestTriggerEffects', [
+            'CaptureConquestUnitEvents(', 'battlefieldId, assignedOverkillDamageToEnemyUnits)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestUnitEvents', [
+            'CaptureConquestEventObservations(state, conquerors, assignedOverkill)',
+            '.Select(o => CaptureUnitEventFacts(state, o))']),
+        ('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureConquestEventObservations', [
+            'UnitEventSpecForContext(o.Context)?.RequiresAttackingConquest != true',
+            'state.CardObjects.TryGetValue(o.Source, out var source) && source.IsAttacking',
+            'MinimumAssignedOverkill is not { } minimum', 'assignedOverkill >= minimum',
+            'AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEvent', [
+            'spec.MinimumAssignedOverkill is { } minimum',
+            'c.AssignedOverkill is { } assigned && assigned >= minimum : c.AssignedOverkill is null']),
+        ('CoreRuleEngine.UnitEventModes.cs', 'SelectedUnitEventSpec', [
+            'spec?.DamageUsesAssignedOverkill == true', 'context.AssignedOverkill is { } assigned',
+            'Amount = assigned']),
+        ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['UnitEventEnemyDamageEffect']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventTargets', [
+            'UnitEventEnemyDamageEffect or "STUN_ENEMY" => IsFaceUpNonStandbyUnit(c)',
+            'EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId',
+            'TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
+            '"TRIGGER_CONFIRMATION"', 'UnitEventSpecForContext(item.UnitEvent)!.Optional ? 0 : 1']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'if (spec.Effect is UnitEventEnemyDamageEffect or RuneDomainDamageEffect or ArmamentUnitEventRules.FixedDamageEffect)', 'return ResolveRuneDomainDamage(state, item, spec)']),
+        ('CoreRuleEngine.RuneDomainReveal.cs', 'ResolveRuneDomainDamage', [
+            'StackObjectRules.ReferencesCurrentObject(state, item, target)',
+            'UnitEventTargets(state, item).Contains(target)',
+            'target, spec.Amount,', 'onlyPrimary: spec.Effect != RuneDomainDamageEffect']),
+        ('CoreRuleEngine.DeployedEquipment.cs', 'ResolveUnitEventAreaDamage', [
+            'onlyPrimary ? primary is null ? [] : new[] { primary } : UnitEventEnemiesHere(state, item)',
+            'ApplySpellSkillDamageBonuses(', 'ApplyDamageToCardObject(', 'RunStateBasedCleanupLoop(']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', [
+            'context?.AssignedOverkill is not null']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', [
+            'HashValue(new { capture, context.AssignedOverkill })']),
+        ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', [
+            'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)',
+            'command.Accepted', '!expected.SetEquals(current.Select(item => item.Id))']),
+        ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
+            'targets.SequenceEqual(item.TargetObjectIds)', 'MatchStateHasher.HashValue(item.TargetGenerations)',
+            'command.Accepted']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+                         for filename, name, tokens in checks)
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route' if exact else 'missing',
+        '共享征服流程捕获实际进攻的原始过量伤害；确认可选敌方目标及法盾费用，响应后按原数值独立伤害，核对原始捕获、目标和退场历史' if exact else
+        '缺少进攻征服条件、至少5点过量伤害的不可变捕获、任意位置敌方目标或独立伤害／历史校验', evidence)
+
+
+
 def attack_armament_play_attachment_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause['text']))
     expected_text = normalize('当我进攻时，你可以选择打出一件法力费用不高于{{2}}的武装，无视其费用，然后将其贴附到我身上。')
@@ -3565,6 +3643,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return matched
     if hand_exile := chosen_opponent_hand_exile_route(card, clause, sources):
         return hand_exile
+    if attack_overkill := attack_conquest_overkill_route(card, clause, sources):
+        return attack_overkill
     if armament_play := attack_armament_play_attachment_route(card, clause, sources):
         return armament_play
     if held_next_unit := held_next_unit_ready_boon_route(card, clause, sources):

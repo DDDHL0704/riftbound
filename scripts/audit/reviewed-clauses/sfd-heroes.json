@@ -1300,21 +1300,115 @@
       ],
       "text": "当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。",
       "scope": "当我通过进攻征服一处战场时，如果你给敌方单位造成了不低于5点的过量伤害，则你可以选择对一名敌方单位造成等同于该过量伤害的伤害。",
-      "status": "missing",
-      "reason": "只有法盾2单位登记；缺少进攻征服且过量伤害至少5的条件捕获，以及按该次过量伤害数值伤害敌方单位的独立技能",
+      "status": "route",
+      "reason": "共享征服流程仅在来源实际进攻且分配的过量伤害至少5时捕获AssignedOverkill；确认可选敌方目标及法盾费用后响应，独立技能按原数值结算，复用原始观察与目标历史校验",
       "runtime": {
-        "staticAuras": []
+        "unitEventAbility": {
+          "timing": "CONQUEST",
+          "effect": "DAMAGE_ENEMY_UNIT",
+          "optional": true,
+          "minimumAssignedOverkill": 5,
+          "requiresAttackingConquest": true,
+          "damageUsesAssignedOverkill": true
+        },
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs",
+          "member": "CaptureConquestEventObservations",
           "contains": [
-            "\"SFD_SIVIR_SPELLSHIELD2_PLAY_KEYWORD_UNIT\""
+            "UnitEventSpecForContext(o.Context)?.RequiresAttackingConquest != true",
+            "source.IsAttacking",
+            "assignedOverkill >= minimum",
+            "AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "member": "CaptureConquestUnitEvents",
+          "contains": [
+            "CaptureConquestEventObservations(state, conquerors, assignedOverkill)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "member": "ValidUnitEvent",
+          "contains": [
+            "c.AssignedOverkill is { } assigned && assigned >= minimum : c.AssignedOverkill is null"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "contains": [
+            "CaptureConquestUnitEvents(",
+            "battlefieldId, assignedOverkillDamageToEnemyUnits)"
+          ],
+          "member": "ResolveConquestTriggerEffects"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
+          "contains": [
+            "spec?.DamageUsesAssignedOverkill == true && context.AssignedOverkill is { } assigned",
+            "Amount = assigned"
+          ],
+          "member": "SelectedUnitEventSpec"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuneDomainReveal.cs",
+          "contains": [
+            "StackObjectRules.ReferencesCurrentObject(state, item, target)",
+            "onlyPrimary: spec.Effect != RuneDomainDamageEffect"
+          ],
+          "member": "ResolveRuneDomainDamage"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeployedEquipment.cs",
+          "contains": [
+            "onlyPrimary ? primary is null ? [] : new[] { primary } : UnitEventEnemiesHere(state, item)",
+            "ApplySpellSkillDamageBonuses("
+          ],
+          "member": "ResolveUnitEventAreaDamage"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "context?.AssignedOverkill is not null",
+            "HashValue(new { capture, context.AssignedOverkill })"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.ObservedUnitEvents.cs",
+          "contains": [
+            "CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)",
+            "!expected.SetEquals(current.Select(item => item.Id))"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心383.2–383.3；该卡官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SivirAttackConquestOverkillTests.cs",
+          "methods": [
+            "AnActualAttackCapturesFiveExcessDamageBeforeConfirmingTheIndependentSkill",
+            "FourExcessDamageDoesNotEarnTheSkill",
+            "TheWholeAttackAssignmentIsCapturedAndTheEnemyTargetMayBeAtAnotherBattlefield",
+            "TheOptionalSkillCanBeDeclinedBeforeEitherPlayerReceivesPriority",
+            "ReturningTheConqueringSourceCannotEraseOrRecalculateItsEarnedDamage",
+            "ATargetReturnedDuringResponsesIsNotDamagedInItsOwnersHand",
+            "WardMustBePaidForTheConfirmedEnemyBeforeResponsesAndDamage",
+            "AUnitInBaseDoesNotBorrowAnAlliedUnitsAttackConquest",
+            "CapturedDamageAndConquestCannotBeRewrittenAgainstOriginalAcceptedHistory",
+            "AResolvedDamageSkillCannotBeResurrectedWithItsOriginalAmountAndTargets",
+            "AnUnopposedConquestCannotInventAnAttackDamageAssignment",
+            "ThePrintedDamageAndAnArmamentDrawKeepSeparateSkillsWithTheSameCapturedAssignment"
+          ]
+        }
+      ],
+      "rules": "官方中文 SFD·120／120a 牌面；核心355.9–355.10、383.2.a.1、383.3、403–407、467.2、468.5–468.7、809。条件与过量伤害在真实征服捕获；来源后来离场不取消已赚取的独立技能。"
     },
     {
       "cardNos": [
