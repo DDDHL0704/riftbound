@@ -293,4 +293,29 @@ public sealed class SivirPaidPowerStaticTests
         Assert.NotEmpty(ArmamentGrantedCombatTriggerTests.Errors(game, altered));
         await game.Replay();
     }
+    [Fact]
+    public async Task ARealMaximumDebitStillAllowsResourceIncomeWithoutAdvertisingAnOverflowingFee()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "NEXT", Sivir, "P1", "HAND");
+        initial = RadGearTestPosition.Put(initial, "STELE", "SFD·117/221", "P1", "BASE");
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(0, int.MaxValue) } };
+        var game = new Driver(initial);
+        await Convert(game, int.MaxValue);
+        Assert.Equal(int.MaxValue, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Equal(int.MaxValue, game.State.RunePools["P1"].Mana);
+        await game.Act("P1", new ActivateAbilityCommand("STELE", P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId,
+            [], [P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix + "1"]));
+        Assert.Equal(int.MaxValue, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Equal(1, game.State.RunePools["P1"].Power);
+        var command = new PlayCardCommand("NEXT", Sivir, []);
+        var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+        Assert.False(quote.CanPay);
+        await RadGearTestPosition.Reject(game.State, "P1", command);
+        Passive(game.State, true);
+        await game.Act("P1", new EndTurnCommand());
+        Assert.Equal(0, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Passive(game.State, false);
+        await game.Replay();
+    }
+
 }
