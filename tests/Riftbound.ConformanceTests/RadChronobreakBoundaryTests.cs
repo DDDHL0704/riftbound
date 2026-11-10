@@ -193,7 +193,7 @@ public sealed class RadChronobreakBoundaryTests
         // CN355.5.b / 383.4.a.2 / 819.1.d: no host does not prevent
         // the mandatory equipment replay. Only its independent Agile skill
         // is discarded when it cannot confirm a legal attachment target.
-        Assert.False(prompts.Candidates!.Any(c => c.Action == CommandTypes.ChooseCards && c.Enabled));
+        Assert.DoesNotContain(prompts.Candidates!, c => c.Action == CommandTypes.ChooseCards && c.Enabled);
         var play = new PlayCardCommand("GEAR", equipmentNo, [], Destination: "BASE");
         Assert.True(new CoreRuleEngine().PreviewPlayCard(g.State, "P1", PlayCostPreviewTests.Request(g.State, play)).CanPay);
         var before = MatchStateHasher.Hash(g.State);
