@@ -521,7 +521,18 @@ public sealed partial class ConformanceFixtureRunnerTests
             Directory.CreateDirectory(root);
             File.WriteAllText(Path.Combine(root, fixtureFileName + ".actual.json"), JsonSerializer.Serialize(result));
         }
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var comparison = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(comparison.Count == 0, string.Join("\n", comparison));
+        if (fixtureFileName.Contains("moving-perch", StringComparison.Ordinal))
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(result.FinalState.PendingCardChoice);
+            Assert.Equal("UNIT_EVENT_CHOSEN_OPPONENT", choice.ChoiceWindow);
+            Assert.Equal("P1", choice.PlayerId);
+            Assert.Equal(["P2"], choice.LegalObjectIds);
+            Assert.Null(result.FinalState.PriorityPlayerId);
+            Assert.Null(Assert.Single(result.FinalState.StackItems).UnitEvent!.ChosenOpponentId);
+            Assert.DoesNotContain(result.FinalState.CardObjects.Values, card => card.TokenFactoryCardNo is not null);
+        }
         Assert.Equal(fixtureFileName.Contains("masked-attendant")
             ? [sourceObjectId, sourceObjectId + "-TOKEN-001", sourceObjectId + "-TOKEN-002"] : [sourceObjectId],
             result.FinalState.PlayerZones["P1"].Base);
