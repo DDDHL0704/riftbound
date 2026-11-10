@@ -2211,7 +2211,6 @@ public sealed partial class ConformanceFixtureRunnerTests
 
     [Theory]
     [InlineData("non-baron-destination")]
-    [InlineData("opponent-controlled-baron")]
     [InlineData("origin-mismatch")]
     [InlineData("source-without-card-no")]
     [InlineData("face-down-source")]
@@ -2227,17 +2226,6 @@ public sealed partial class ConformanceFixtureRunnerTests
                     BaronNestMoveState().CardObjects,
                     "P1-BARON-NEST",
                     BaronNestMoveState().CardObjects["P1-BARON-NEST"] with { CardNo = "OGN·275/298" })
-            },
-            "opponent-controlled-baron" => BaronNestMoveState() with
-            {
-                CardObjects = ReplaceCardObject(
-                    BaronNestMoveState().CardObjects,
-                    "P1-BARON-NEST",
-                    BaronNestMoveState().CardObjects["P1-BARON-NEST"] with
-                    {
-                        OwnerId = "P2",
-                        ControllerId = "P2"
-                    })
             },
             "origin-mismatch" => BaronNestMoveState() with
             {
@@ -2320,7 +2308,7 @@ public sealed partial class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public void BaronNestStaticMovePromptHidesOpponentControlledDestination()
+    public void BaronNestStaticMovePromptExposesOpponentControlledDestination()
     {
         var baseState = BaronNestMoveState();
         var state = baseState with
@@ -2337,11 +2325,11 @@ public sealed partial class ConformanceFixtureRunnerTests
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var moveCandidate = Assert.Single(prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, CommandTypes.MoveUnit, StringComparison.Ordinal));
-        Assert.DoesNotContain(moveCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-BARON-NEST", StringComparison.Ordinal));
+        Assert.Contains(moveCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-BARON-NEST", StringComparison.Ordinal));
         var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
         var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             metadata["sourceRequirements"]).ToArray();
-        Assert.DoesNotContain(requirements, requirement =>
+        Assert.Contains(requirements, requirement =>
             string.Equals(requirement["mode"] as string, "BARON_NEST_MOVE_STATIC", StringComparison.Ordinal));
     }
 

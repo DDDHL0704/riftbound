@@ -617,7 +617,6 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.Effect == UnitEventGraveyardPlayEffect) return ResolveUnitEventGraveyardPlay(state, item);
         if (spec.Effect == AttachPlayedArmamentEffect) return ResolvePlayedArmamentAttachment(state, item);
-        if (spec.Effect == "DECLARE_ATTRIBUTE") return ResolveAttributeDeclaration(state, item);
         if (IsPlayedUnitRuneSpec(spec)) return ResolvePlayedUnitRunes(state, item, spec);
         if (spec.Effect == "CALL_RUNES_PER_CONSUMED_BOON") return ResolvePaidBoonRuneInstruction(state, item, spec);
         if (spec.Effect == "BANISH_LINKED_UNIT_HERE") return ResolveLinkedUnitExile(state, item);
