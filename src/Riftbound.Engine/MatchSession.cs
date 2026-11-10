@@ -4048,7 +4048,8 @@ internal static partial class ActionPromptBuilder
                 return false;
         }
 
-        if (!CoreRuleEngine.HasValidTargetGroup(state, behavior, targetObjectIds))
+        if (!CoreRuleEngine.HasValidTargetGroup(state, behavior, targetObjectIds)
+            || !CoreRuleEngine.HasValidDistributedSpellTargets(state, playerId, behavior, targetObjectIds))
         {
             return false;
         }
@@ -4431,7 +4432,8 @@ internal static partial class ActionPromptBuilder
             choices.Add(new ActionPromptChoiceDto(
                 $"SPEND_EXPERIENCE:{behavior.OptionalExperienceCost}",
                 $"消耗 {behavior.OptionalExperienceCost} 经验：" + (behavior.RemovesTargetMightLimitIfExperiencePaid
-                    ? "移除目标战力上限" : $"费用减少 {behavior.ManaReductionIfExperiencePaid}")));
+                    ? "移除目标战力上限" : behavior.UnitEventAbility?.ExemptsControllerIfExperiencePaid == true
+                        ? "本次打出技能无需摧毁自己的单位" : $"费用减少 {behavior.ManaReductionIfExperiencePaid}")));
         }
 
         if (behavior.SourceBoonAdditionalManaCost > 0)

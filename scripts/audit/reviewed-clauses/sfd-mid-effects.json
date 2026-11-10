@@ -38,7 +38,8 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventModes.cs",
           "contains": [
-            "UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1",
+            "var spec = UnitEventSpecForContext(context)!;",
+            "spec.Optional ? 0 : 1",
             "if (selected.Count == 0)",
             "Optional = false",
             "PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(",

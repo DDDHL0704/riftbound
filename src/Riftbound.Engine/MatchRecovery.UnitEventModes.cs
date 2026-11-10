@@ -37,7 +37,8 @@ public static partial class MatchRecoveryValidator
             value.PendingEffectPlay?.Parent is { } parent ? [parent] : []);
         var items = Captured(state).Concat(state.PendingRuleChoice is { } pending ? Captured(pending.Origin) : []);
         foreach (var item in items.Where(item => item.UnitEvent is { } context
-            && CoreRuleEngine.UnitEventSpec(context.CardNo) is { Optional: true, Modes.Count: > 0 }))
+            && CoreRuleEngine.UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing)
+                is { Optional: true, Modes.Count: > 0 }))
         {
             var hash = MatchStateHasher.HashValue(item.StackItemId);
             var confirmed = events.Where(entry => entry.Event.Kind == "TRIGGER_MODE_CONFIRMED"

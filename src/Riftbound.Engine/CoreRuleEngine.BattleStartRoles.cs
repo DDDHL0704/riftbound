@@ -36,11 +36,18 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders)
     {
         if (!IsInitialBattleDuel(state, out var context)) return state.UntilEndOfTurnEffects;
+        var participants = attackers.Concat(defenders).ToHashSet(StringComparer.Ordinal);
+        var ceased = context.CeasedTokens?.Where(pair => participants.Contains(pair.Key)).ToDictionary();
+        // Combat starts with its current participants. Earlier responses may
+        // have removed real units or retired tokens from the initial duel.
+        // Keep the validation of foreign bindings strict by updating the live
+        // frame together; the original accepted duel history is unchanged.
         return SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects,
             BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, attackers,
                 defenders, costs, targets ?? [],
                 context.InitialFocusPlayerId, context.InitialAttackingPlayerId, combatStarted: true, initialRolesEstablished: true,
-                ceasedTokens: context.CeasedTokens, publicObjectBindings: context.PublicObjectBindings));
+                ceasedTokens: ceased is { Count: > 0 } ? ceased : null,
+                publicObjectBindings: context.PublicObjectBindings?.Where(binding => participants.Contains(binding.ObjectId)).ToArray()));
     }
 
     private static ResolutionResult RecordBattleDuelRoles(MatchState before, ResolutionResult result, int roleEventOffset = 0)

@@ -5,8 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static bool HasOptionalExperiencePayment(CardBehaviorDefinition behavior)
-        => behavior.OptionalExperienceCost > 0 && (behavior.ManaReductionIfExperiencePaid > 0
-            || behavior.RemovesTargetMightLimitIfExperiencePaid);
+        => behavior.OptionalExperienceCost > 0;
 
     private static bool OptionalExperiencePaymentSelected(CardBehaviorDefinition behavior, IReadOnlyList<string>? costs)
         => HasOptionalExperiencePayment(behavior) && NormalizeOptionalCosts(costs).Any(cost =>

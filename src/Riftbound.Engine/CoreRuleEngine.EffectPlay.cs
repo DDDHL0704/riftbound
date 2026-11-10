@@ -26,6 +26,8 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (TryGetUnitEventSelfGraveSpellDefinition(parent, out definition)) return true;
+        if (TryGetUnitEventHandUnitPlayDefinition(parent, out definition)) return true;
         if (TryGetUnitEventGraveyardPlayDefinition(parent, out definition)) return true;
         if (TryGetArmamentPlayAttachmentDefinition(parent, out definition)) return true;
         if (PlaysAllLinkedArmamentUnits(parent))

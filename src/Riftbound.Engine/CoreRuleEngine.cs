@@ -23815,6 +23815,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor);
         }
 
+        if (behavior.EachPlayerDestroysOwnUnit)
+            return ResolveEachPlayerDestructionSpell(state, stackItem, behavior, deferCompletion);
+
         if (!confirmPermanent && state.WinnerPlayerId is null && behavior.HandChoice is not null && stackItem.CompletedHandExecutions < stackItem.EffectRepeatCount)
             return BeginRevealedHandChoice(state, stackItem, behavior.HandChoice);
         if (!confirmPermanent && behavior.DeckPlayKind.Length > 0 && !stackItem.EffectPlayCompleted)
@@ -25094,6 +25097,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
             }
         }
+        else if (behavior.DamageDistributionUsesFirstTargetMight)
+        {
+            var source = stackItem.TargetObjectIds.FirstOrDefault() ?? "";
+            foreach (var (target, amount) in distributedSpellAmounts)
+            {
+                var damage = ApplyDamageToCardObject(DamageFrame(), cardObjects, stackItem.ControllerId,
+                    target, amount, damageTriggeredDestroyTargetObjectIds, preventDamageFromThisStackItem,
+                    PreventSpellAndSkillDamageThisTurnEffectId, fromUnit: true);
+                events.Add(new("DAMAGE_APPLIED", "所选单位按其当前战力分摊伤害",
+                    BuildDamagePayload(stackItem.SourceObjectId, target, damage, source)));
+            }
+        }
         else if (behavior.DamagesSecondTargetByFirstTargetPower
             && stackItem.TargetObjectIds.Count >= 2)
         {
@@ -25325,15 +25340,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ApplyConditionalRemovalEmpowerInstruction(state with { PlayerZones = playerZones, CardObjects = cardObjects },
                     stackItem, behavior, cardObjects, events);
                 var removalState = state with { PlayerZones = playerZones, CardObjects = cardObjects };
+                var destructionTargets = stackItem.TargetObjectIds.Where((id, index) =>
+                    HasValidFieldObjectIdentity(state, playerZones, cardObjects, id)
+                    && (ShouldDestroyChosenTarget(behavior, index) || ConditionalRemovalAction(removalState, behavior, id) == "DESTROY")).ToArray();
+                var reflexiveTargets = behavior.UnitEventAbility?.ReflexiveTargetMaximumMight is not null
+                    ? destructionTargets.ToDictionary(id => id, id => (Generation: cardObjects[id].ObjectGeneration,
+                        Might: ResolveCurrentFieldUnitPower(removalState, cardObjects[id])), StringComparer.Ordinal)
+                    : new Dictionary<string, (long Generation, int Might)>(StringComparer.Ordinal);
                 using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,
-                    stackItem.TargetObjectIds.Where((id, index) => HasValidFieldObjectIdentity(state, playerZones, cardObjects, id)
-                        && (ShouldDestroyChosenTarget(behavior, index) || ConditionalRemovalAction(removalState, behavior, id) == "DESTROY")).ToArray(), stackItem);
+                    destructionTargets, stackItem);
                 events.AddRange(replacements.Events);
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
                     var targetObjectId = stackItem.TargetObjectIds[targetIndex];
                     if (replacements.Replaced.Contains(targetObjectId))
                     {
+                        if (reflexiveTargets.TryGetValue(targetObjectId, out var referenced))
+                            CaptureTargetInstructionReflexive(state, stackItem, behavior, targetObjectId,
+                                referenced.Generation, referenced.Might, playerZones, cardObjects, events);
                         // CN 359.3.e.14.b / VEN FAQ p. 22: a cancelled
                         // destruction still permits linked instructions, but a
                         // different effect banishing the unit makes its current
@@ -25628,6 +25652,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         targetObjectId,
                         targetState);
                     var removalAction = ConditionalRemovalAction(state with { PlayerZones = playerZones, CardObjects = cardObjects }, behavior, targetObjectId);
+                    var reflexiveMight = behavior.UnitEventAbility?.ReflexiveTargetMaximumMight is not null
+                        ? ResolveCurrentFieldUnitPower(DamageFrame() with { CardObjects = cardObjects }, targetState) : (int?)null;
                     if ((behavior.BanishesTarget || removalAction == "BANISH")
                         && TryRemoveFieldTargetCore(playerZones, cardObjects, targetObjectId, true, out var banishedRemoval))
                     {
@@ -25672,9 +25698,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                     conditionalEquipmentTokenCount);
                             }
                         }
-
+                        CaptureTargetInstructionReflexive(state, stackItem, behavior, targetObjectId,
+                            targetState.ObjectGeneration, reflexiveMight, playerZones, cardObjects, events);
                         continue;
                     }
+                    if (ShouldDestroyChosenTarget(behavior, targetIndex) || removalAction == "DESTROY")
+                        CaptureTargetInstructionReflexive(state, stackItem, behavior, targetObjectId,
+                            targetState.ObjectGeneration, reflexiveMight, playerZones, cardObjects, events);
 
                     if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
                         && TryReplaceEmpoweredTargetEvent(state with { PlayerZones = playerZones, CardObjects = cardObjects },
@@ -29648,7 +29678,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 friendlyEquipmentPowerBonus,
                 appliedEntryStaticAbility,
                 appliedEntryStaticAbilitySourceObjectId,
-                appliedEntryStaticAbilitySourceCardNo)), playerZones, cardObjects, untilEndOfTurnEffects));
+                appliedEntryStaticAbilitySourceCardNo)), playerZones, cardObjects, untilEndOfTurnEffects, stackItem));
     }
 
     private static bool IsHasteReadyOptionalCostPaidForPlayUnit(
@@ -29709,7 +29739,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 friendlyEquipmentPowerBonus,
                 appliedEntryStaticAbility,
                 appliedEntryStaticAbilitySourceObjectId,
-                appliedEntryStaticAbilitySourceCardNo)), playerZones, cardObjects, untilEndOfTurnEffects));
+                appliedEntryStaticAbilitySourceCardNo)), playerZones, cardObjects, untilEndOfTurnEffects, stackItem));
     }
 
     private static CardObjectState ApplyUnitTokenEntryStaticAbility(
@@ -30522,6 +30552,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return !behavior.PlaysSourceToBaseAsUnit
             && !behavior.PlaysSourceToBaseAsEquipment
+            && !behavior.DamageDistributionUsesFirstTargetMight
             && !behavior.DealsMutualTargetPowerDamage;
     }
 
@@ -31290,16 +31321,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static IReadOnlyList<GameEvent> BuildFieldRemovalEvents(string displayName, StackItemState stackItem,
-        string targetObjectId, FieldRemovalResult removalResult, string? reason = null)
+        string targetObjectId, FieldRemovalResult removalResult, string? reason = null, string? responsiblePlayerId = null)
         => (removalResult.BeforeRemovalEvents ?? []).Concat(removalResult.ReplacementEvents
-            ?? [BuildFieldRemovalEvent(displayName, stackItem, targetObjectId, removalResult, reason)]).ToArray();
+            ?? [BuildFieldRemovalEvent(displayName, stackItem, targetObjectId, removalResult, reason, responsiblePlayerId)]).ToArray();
 
     private static GameEvent BuildFieldRemovalEvent(
         string displayName,
         StackItemState stackItem,
         string targetObjectId,
         FieldRemovalResult removalResult,
-        string? reason = null)
+        string? reason = null, string? responsiblePlayerId = null)
     {
         var sourceState = RuleChoices.Value?.ResolutionState ?? RuleChoices.Value?.Origin;
         var visibleSource = (stackItem.FieldContext is not null || stackItem.BorrowedExhaust is not null
@@ -31316,7 +31347,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         if (removalResult.Death is { } death)
         {
-            var attribution = ActualDestructionAttribution(stackItem, death, reason);
+            var attribution = ActualDestructionAttribution(stackItem, death, reason, responsiblePlayerId);
             payload["capturedUnitDeath"] = death with { Attribution = attribution };
             if (attribution is not null) {
                 payload["destructionAttribution"] = attribution;
@@ -32383,7 +32414,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null,
         IReadOnlySet<string>? explicitDestroyObjectIds = null,
         IReadOnlyDictionary<string, StackItemState>? destructionSources = null,
-        string explicitDestroyReason = "DESTROY_COST")
+        string explicitDestroyReason = "DESTROY_COST",
+        IReadOnlyDictionary<string, string>? responsiblePlayers = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -32436,7 +32468,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 destructionSource,
                 objectId,
                 removalResult,
-                destroyReason));
+                destroyReason, responsiblePlayers?.GetValueOrDefault(objectId)));
             if (!removalResult.WasDestroyed)
             {
                 continue;

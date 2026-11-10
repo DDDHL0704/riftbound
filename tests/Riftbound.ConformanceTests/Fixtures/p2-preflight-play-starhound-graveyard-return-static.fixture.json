@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-starhound-graveyard-return-static",
-  "description": "Starhound enters as a Dog unit while graveyard trait-unit return text is deferred.",
+  "description": "Starhound enters normally when its own graveyard has no eligible animal unit; the unconfirmable skill retires.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-167/219 星獒",
-      "note": "官方卡面：费用 5；单位；战力 6；犬形属性；打出时让自己废牌堆中的一名鸟类、猫科、犬形或魄罗属性单位返回手牌。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录犬形标签；废牌堆属性单位筛选、目标选择和返回手牌路径暂缓。"
+      "note": "官方中文牌面要求打出时让自己废牌堆中的一名鸟类、猫科、犬形或魄罗属性单位返回手牌。本夹具验证自己废牌堆为空时仍入场，触发技能加入结算链后因无法确认合法目标而移除；四种动物属性、目标确认后的响应和返手由逐卡规则测试覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,10 +28,18 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-167/219；核心355.5、359.3及403–407",
+      "note": "核心383及399–407：先捕获并放置触发技能，再在确认时发现没有合法目标。保留TRIGGER_QUEUED、TRIGGERS_MOVED_TO_STACK、TRIGGER_NOT_CONFIRMED的完整生命周期；最终单位仍在基地，资源与状态断言不变。"
     }
   ],
   "roomId": "p2-preflight-unl-167-starhound-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302778,
     "turnNumber": 778,
@@ -39,7 +47,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 5,
@@ -55,26 +66,46 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-STARHOUND"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-STARHOUND"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -89,39 +120,56 @@
         "cardNo": "UNL-167/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-167-starhound-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-167-starhound-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_NOT_CONFIRMED"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 778,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-STARHOUND"],
+          "base": [
+            "P1-UNIT-STARHOUND"
+          ],
           "graveyard": []
         }
       },
@@ -129,14 +177,27 @@
       "cardObjects": {
         "P1-UNIT-STARHOUND": {
           "power": 6,
-          "tags": ["CARD_TYPE:UNIT", "犬形"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "犬形"
+          ],
           "isExhausted": true
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }
