@@ -74,3 +74,26 @@ class ChosenOpponentHandExileAuditTests(unittest.TestCase):
                 sources.files[path] += '\n    private static void UnusedDecoy() { ' + token + '; }\n'
                 sources.files[path] += '\n// ' + token + '\n'
                 self.assertEqual(['missing'] * 4, self.statuses(sources=sources))
+
+    def test_a_call_on_an_unused_declaration_line_cannot_replace_the_real_return_guard(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.HandExileReturn.cs'
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        code = sources.files[path]
+        anchor = '    private static StackResolutionResult ReturnCapturedHandExile('
+        start = code.index(anchor)
+        guard = 'card.ObjectGeneration != exile.Card.Generation'
+        fragments = ['own.Banished.Contains(exile.Card.ObjectId)', guard,
+                     'ResetCardOutsidePlay(', 'Hand = own.Hand.Append(card.ObjectId)']
+        # A legal unused wrapper calls the real method. Quoted fragments in
+        # that wrapper do not implement the return's generation check.
+        decoy = ('    private static void UnusedReturnProbe() { _ = ReturnCapturedHandExile(null!, null!);\n'
+                 + ''.join('        _ = "' + token + '";\n' for token in fragments) + '    }\n\n')
+        sources.files[path] = code[:start] + decoy + code[start:].replace(guard, 'false')
+        self.assertEqual(['missing'] * 4, self.statuses(sources=sources))
+
+    def test_ambiguous_return_overloads_cannot_borrow_the_first_declarations_body(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.HandExileReturn.cs'
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        sources.files[path] += ('\n    private static StackResolutionResult ReturnCapturedHandExile('
+            'MatchState state, StackItemState item, bool unused) => NoopStackResolutionResult(state);\n')
+        self.assertEqual(['missing'] * 4, self.statuses(sources=sources))

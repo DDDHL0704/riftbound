@@ -3572,12 +3572,14 @@ def chosen_opponent_hand_exile_route(card: dict, clause: dict, sources: Sources)
 
     def member(filename, name):
         code = re.sub(r'/\*.*?\*/|//[^\n]*', '', sources.files.get(prefix + filename, ''), flags=re.S)
-        found = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b' + re.escape(name) + r'\s*\(', code)
-        if not found:
+        declarations = list(re.finditer(
+            r'(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b'
+            + re.escape(name) + r'\s*\(', code))
+        if len(declarations) != 1:
             return ''
-        rest = code[found.start():]; offset = found.end() - found.start()
-        end = re.search(r'(?m)^    (?:private|internal|public) ', rest[offset:])
-        return rest[:offset + end.start()] if end else rest
+        start = declarations[0]
+        end = re.search(r'(?m)^    (?:private|internal|public)\b', code[start.end():])
+        return code[start.start():start.end() + end.start()] if end else code[start.start():]
 
     checks = [
         ('CoreRuleEngine.cs', 'ResolveStackItemEffectCore', ['if (stackItem.UnitEvent is not null) return ResolveUnitEvent(state, stackItem)']),
