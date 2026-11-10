@@ -57,7 +57,7 @@ public sealed partial class CoreRuleEngine
             var id = selected[0];
             var card = cards[id];
             var power = Math.Max(0, ResolutionResult.SnapshotEffectivePower(state, card, state.ObjectLocations.GetValueOrDefault(id)));
-            if (!TryMoveTargetToOwnerMainDeck(zones, cards, id, "BOTTOM", out var owner, out _))
+            if (!TryMoveTargetToOwnerMainDeck(state, zones, cards, id, "BOTTOM", out var owner, out _))
                 return RejectWithCorePrompts(state, "无法支付回收单位费用。", ErrorCodes.InvalidTarget);
             parent = parent with { RecycledUnit = new(id, card.ObjectGeneration, power) };
             events.Add(CaptureRecycleObservers(new("CARDS_RECYCLED", "已回收所选单位，按离场前战力减少再次打出的法力费用", new Dictionary<string, object?>

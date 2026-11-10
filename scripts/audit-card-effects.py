@@ -1565,6 +1565,20 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     exact = exact and branch is not None and re.sub(r'\s+', '', branch['body']).rstrip(',') \
         == re.sub(r'\s+', '', target_scope)
     exact = exact and 'internal const string FriendlyUnitTokensMoveHere = \"MOVE_FRIENDLY_UNIT_TOKENS_HERE\";' in sources.files.get(prefix + 'CoreRuleEngine.TokenUnitMovement.cs', '')
+    executor = member('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation')
+    movers = re.search(r'(?s)string\[\]\s+CurrentMovers\(MatchState current\)\s*=>'
+                      r'(?P<body>.*?)\.ToArray\(\);', executor)
+    predicate = movers['body'] if movers else ''
+    inline_feasibility = '&& MovementRestrictionRules.CanMove(unit, item.ControllerId)' in predicate
+    helper_file = 'CoreRuleEngine.ArmamentMovementProtection.cs'
+    helper = member(helper_file, 'CanMoveUnitByEffect')
+    shared_feasibility = (
+        '&& CanMoveUnitByEffect(current, effectControllerId, item.ControllerId, unit.ObjectId)' in predicate
+        and 'effectControllerId ??= item.ControllerId;' in executor
+        and all(token in helper for token in [
+            '!state.CardObjects.TryGetValue(id, out var unit) || !MovementRestrictionRules.CanMove(unit, movingPlayer)) return false;',
+            'if (EffectiveFieldControllerId(state.PlayerZones, id, unit) == effectController) return true;']))
+    exact = exact and (inline_feasibility or shared_feasibility)
     checks = [
         ('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext', [
             'UnitEventTimingMatches(unitEvent.Timing, "ATTACK")']),
@@ -1633,7 +1647,6 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
         ('CoreRuleEngine.ChosenMovement.cs', 'MoveFieldUnitsToChosenLocation', [
             'cards[id].ObjectGeneration, cards[id].ControllerId', 'MovementTargetIsCurrent(current, item, id)',
             'IsUnitMovementDestination(current, id, destination)',
-            'MovementRestrictionRules.CanMove(unit, item.ControllerId)',
             'PayImposedMovementCost(', 'CurrentMovers, events)', 'CaptureMovementBatchObservers(',
             'MoveAttachedEquipmentWithHost(', '["simultaneousSourceObjectIds"] = movable']),
         ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', ['TargetGenerations = selected.ToDictionary']),
@@ -1643,7 +1656,8 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
     return result('route' if exact else 'missing',
         '进攻时独立确认任意数量友方单位指示物；结算重查原代际来源的当前位置与各目标，再按一批执行移动、装备跟随及施加费用；恢复绑定原始捕获和目标确认'
         if exact else '缺少进攻触发、任意数量友方单位指示物范围、结算时当前来源位置，或共享批量移动与原代际确认消费者',
-        sorted({prefix + filename for filename, _, _ in checks}))
+        sorted({prefix + filename for filename, _, _ in checks}
+               | ({prefix + helper_file} if shared_feasibility else set())))
 
 
 def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> dict | None:

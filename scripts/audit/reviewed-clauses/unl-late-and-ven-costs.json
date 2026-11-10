@@ -2868,78 +2868,121 @@
       ]
     },
     {
-      "cardNos": [
-        "UNL-196/219"
-      ],
       "text": "你的单位中每有一种以下属性标签，我的费用便减少{{1}} — “鸟类”、“猫科”、“犬形”、“魄罗”。",
       "scope": "你的单位中每有一种以下属性标签，我的费用便减少{{1}} — “鸟类”、“猫科”、“犬形”、“魄罗”。",
-      "status": "missing",
-      "reason": "只有基础活跃单位；缺少四类己方单位不同属性种类的动态减费，以及进攻时四类齐备后眩晕此处敌方单位的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
-      "runtime": {
-        "staticAuras": [],
-        "behaviors": [
-          {
-            "manaCost": 9,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 8,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
-          }
-        ]
-      },
-      "evidence": [
+      "tests": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "contains": [
-            "\"UNL-196/219\"",
-            "\"DAISY_ACTIVE_UNIT_NO_TRAIT_DISCOUNT\""
+          "path": "tests/Riftbound.ConformanceTests/DaisyUnitTraitTests.cs",
+          "methods": [
+            "EachDistinctFriendlyCategoryReducesBothTheQuoteAndActualManaOnceAndEntryRemainsReady",
+            "OneCurrentUnitWithEveryCategoryCountsFourCategoriesRatherThanOneUnit",
+            "ACategoryRequiresTheCurrentPublicFieldControllerRatherThanThePhysicalOwner",
+            "AnActualAttackWithEveryCategoryConfirmsOnlyAnEnemyAtCurrentHereBeforeResponses",
+            "EachMissingCategoryPreventsTheAttackTriggerAtActualRoleAcquisition",
+            "LosingACategoryDoesNotRevokeTheEarnedSkillButReturningItsSourceMakesCurrentHereUnavailable",
+            "RecoveryCannotEraseTheOriginallyEarnedConditionalAttackSkill",
+            "AnActuallyHiddenStandbyCatDoesNotGrantItsPrintedCategoryDiscount"
           ]
         }
       ],
-      "tests": []
-    },
-    {
       "cardNos": [
         "UNL-196/219"
       ],
-      "text": "当我进攻时，如果你的单位具有以上全部四种属性标签，则{{眩晕}}此处的一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
-      "scope": "当我进攻时，如果你的单位具有以上全部四种属性标签，则{{眩晕}}此处的一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
-      "status": "missing",
-      "reason": "只有基础活跃单位；缺少四类己方单位不同属性种类的动态减费，以及进攻时四类齐备后眩晕此处敌方单位的技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "rules": "中国区核心383.2.a.1（紧跟触发条件的附加条件在触发时检查）、383.4.e（进攻）、359.3.f.2（当前此处）、187（背面待命物体）、UNL-196官方中文牌面；不将只针对其他牌的FAQ例外推广至本牌。",
+      "reason": "共享费用流程统计控制者公开场上单位的四种不同属性，每种类别至多减1法力；重复属性不叠加，同一单位可贡献多个类别；计入当前控制权而非物理拥有权，手牌、废牌堆与真实背面待命不计入。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 9,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 8,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "costReductionConditionKind": "CONTROLLED_DISTINCT_UNIT_TAG_COUNT",
+            "costReductionMana": 1,
+            "costReductionUnitTags": [
+              "鸟类",
+              "猫科",
+              "犬形",
+              "魄罗"
+            ]
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalPlayCosts.cs",
           "contains": [
-            "\"UNL-196/219\"",
-            "\"DAISY_ACTIVE_UNIT_NO_TRAIT_DISCOUNT\""
+            "CardCostReductionConditionKinds.ControlledDistinctUnitTagCount",
+            "CountControlledFriendlyUnitTags(state, player, behavior.CostReductionUnitTags ?? [])"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTraitScore.cs",
+          "contains": [
+            "required.Distinct(StringComparer.Ordinal).Count(tags.Contains)",
+            "Where(card => IsFaceUpNonStandbyUnit(card))"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "当我进攻时，如果你的单位具有以上全部四种属性标签，则{{眩晕}}此处的一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
+      "scope": "当我进攻时，如果你的单位具有以上全部四种属性标签，则{{眩晕}}此处的一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DaisyUnitTraitTests.cs",
+          "methods": [
+            "EachDistinctFriendlyCategoryReducesBothTheQuoteAndActualManaOnceAndEntryRemainsReady",
+            "OneCurrentUnitWithEveryCategoryCountsFourCategoriesRatherThanOneUnit",
+            "ACategoryRequiresTheCurrentPublicFieldControllerRatherThanThePhysicalOwner",
+            "AnActualAttackWithEveryCategoryConfirmsOnlyAnEnemyAtCurrentHereBeforeResponses",
+            "EachMissingCategoryPreventsTheAttackTriggerAtActualRoleAcquisition",
+            "LosingACategoryDoesNotRevokeTheEarnedSkillButReturningItsSourceMakesCurrentHereUnavailable",
+            "RecoveryCannotEraseTheOriginallyEarnedConditionalAttackSkill"
           ]
         }
       ],
-      "tests": []
+      "cardNos": [
+        "UNL-196/219"
+      ],
+      "status": "route",
+      "rules": "中国区核心383.2.a.1（紧跟触发条件的附加条件在触发时检查）、383.4.e（进攻）、359.3.f.2（当前此处）、187（背面待命物体）、UNL-196官方中文牌面；不将只针对其他牌的FAQ例外推广至本牌。",
+      "reason": "真实取得进攻身份时，只有控制者公开单位已具备四种属性才捕获独立技能；先确认当前此处敌方目标、允许回应，再执行眩晕。捕获后失去属性不抹去已赚取技能，来源离场使当前此处不可用，原始触发历史防止擦除或伪造。",
+      "runtime": {
+        "behaviors": [
+          {
+            "unitEventAbility": {
+              "timing": "ATTACK",
+              "effect": "STUN_ENEMY",
+              "requiredFriendlyUnitTagsAtTrigger": [
+                "鸟类",
+                "猫科",
+                "犬形",
+                "魄罗"
+              ],
+              "targetsHere": true
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventExperience.cs",
+          "contains": [
+            "spec?.RequiredFriendlyUnitTagsAtTrigger is { } tags",
+            "!HasRequiredFriendlyUnitTags(state, observation.Controller, tags)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "!SelectedUnitEventSpec(item.UnitEvent!)!.TargetsHere || UnitEventTargetIsHere(state, item, c.ObjectId)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "SelectedUnitEventSpec(context)?.RequiredFriendlyUnitTagsAtTrigger is not null"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -3292,23 +3335,33 @@
       ]
     },
     {
+      "text": "其拥有者将该单位放到其主牌堆的顶部或底部。",
+      "scope": "其拥有者将该单位放到其主牌堆的顶部或底部。",
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CustodianOwnerDeckChoiceTests.cs",
+          "methods": [
+            "OnlyThePhysicalOwnerChoosesTheDeckEndDuringResolution",
+            "TheCasterCannotPredeclareTheOwnersLaterResolutionDecision",
+            "AnActualReturnResponseInvalidatesTheTargetWithoutAskingItsOwnerForADeckDecision",
+            "ATokenLeavesTheFieldThenCeasesInsteadOfBecomingACardInEitherDeck",
+            "PlacementIntoADeckIsNotTheBattlefieldOrBaseMovementPreventedByAnArmament",
+            "RecoveryRejectsGivingTheOwnersOutstandingDecisionToTheCaster"
+          ]
+        }
+      ],
       "cardNos": [
         "UNL-204/219"
       ],
-      "text": "其拥有者将该单位放到其主牌堆的顶部或底部。",
-      "scope": "其拥有者将该单位放到其主牌堆的顶部或底部。",
-      "status": "missing",
-      "reason": "选择顶／底的玩家错误：把所属者在结算中的决定登记为施法者打出时的 TOP／BOTTOM 模式；缺少由目标所有者选择其主牌堆顶底的结算交互",
-      "rules": "核心127.1 所属者、355.3 模式、191–192 所属及控制、结算时所属者做决定；UNL-204 官方中文牌面",
+      "status": "route",
+      "reason": "施法时仅确认一名敌方战场单位，结算时由该单位物理拥有者选择其主牌堆顶部或底部；施法者不能用模式预先替拥有者决定。目标离场后不再询问，指示物离场后消失，放入主牌堆不视为场上位置移动。",
+      "rules": "中国区核心056、127.1（卡牌所属者及非场地区域归属）、186.1（指示物进入非场地区域后消失）、355.5–355.6（目标确认）、359.3.d–e（结算时执行指示及非法目标）；UNL-204官方中文“其拥有者”原文",
       "runtime": {
         "behaviors": [
           {
-            "mode": "OWNER_MAIN_DECK_TOP",
-            "targetOwnerMainDeckDestination": "TOP"
-          },
-          {
-            "mode": "OWNER_MAIN_DECK_BOTTOM",
-            "targetOwnerMainDeckDestination": "BOTTOM"
+            "targetScope": "ENEMY_BATTLEFIELD_UNIT",
+            "targetOwnerMainDeckDestination": "OWNER_CHOICE",
+            "mode": ""
           }
         ]
       },
@@ -3316,15 +3369,10 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "behavior.TargetOwnerMainDeckDestination"
-          ]
-        }
-      ],
-      "tests": [
-        {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.SpellChoices.cs",
-          "methods": [
-            "CoreRuleEngineRejectsCustodianJudgmentWithoutOwnerDeckChoiceMode"
+            "var ownerChooses = destination == \"OWNER_CHOICE\";",
+            "ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);",
+            "RuleChoices.Value!.Choose(ownerPlayerId",
+            "kind: \"OWNER_MAIN_DECK_POSITION\", preview: preview)"
           ]
         }
       ]

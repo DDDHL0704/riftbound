@@ -9,7 +9,8 @@ public sealed partial class CoreRuleEngine
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
                 or ArmamentLastBreathRules.Timing or FirstFriendlyStartPhaseDeathTiming or SpellInstructionReflexiveTiming or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
-            || context?.RequiredUnitDestruction is not null
+            || context is not null && SelectedUnitEventSpec(context)?.RequiredFriendlyUnitTagsAtTrigger is not null
+            || context?.AssignedOverkill is not null || context?.RequiredUnitDestruction is not null
             || context?.Origin?.ArmamentGranted == true
             || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
             || context?.Timing == "PLAY" && SelectedUnitEventSpec(context) is { UnitTokenPlayedByChosenOpponent: true } or { ReturnAllUnitsMaximumMight: not null }
@@ -32,6 +33,8 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.RequiredUnitDestruction, context.StartPhaseUnitDeath });
         if (context.SourceOptionalExperiencePaid)
             capture = MatchStateHasher.HashValue(new { capture, context.SourceOptionalExperiencePaid });
+        if (context.AssignedOverkill is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.AssignedOverkill });
         if (context.SpellInstruction is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.SpellInstruction });
         return context.TriggeringBattlefield is null && context.DelayedReceipt is null ? capture

@@ -34,8 +34,8 @@ public sealed class OfficialNonFieldIdentityTests
     [Theory]
     [InlineData("OGN·187/298", null, "HAND", false)]
     [InlineData("OGN·187/298", null, "HAND", true)]
-    [InlineData("UNL-204/219", "OWNER_MAIN_DECK_TOP", "MAIN_DECK", false)]
-    [InlineData("UNL-204/219", "OWNER_MAIN_DECK_BOTTOM", "MAIN_DECK", true)]
+    [InlineData("UNL-204/219", null, "MAIN_DECK", false)]
+    [InlineData("UNL-204/219", null, "MAIN_DECK", true)]
     public async Task ReturnEffectsPreserveIdentityAndClearTemporaryState(string spell, string? mode, string destination, bool stolen)
     {
         var owner = stolen ? "P1" : "P2";
@@ -59,8 +59,14 @@ public sealed class OfficialNonFieldIdentityTests
         Assert.True(result.Accepted, result.ErrorMessage);
         for (var step = 0; result.State.StackItems.Count > 0 && step < 6; step++)
         {
-            var player = result.State.PriorityPlayerId ?? throw new InvalidOperationException("Missing priority");
-            result = await engine.ResolveAsync(result.State, new($"pass-{step}", player, CommandTypes.PassPriority), new PassPriorityCommand(), default);
+            if (result.State.PendingRuleChoice is { } choice)
+                result = await engine.ResolveAsync(result.State, new($"owner-deck-choice-{step}", choice.Request.PlayerId, CommandTypes.PayCost),
+                    new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", [stolen ? "BOTTOM" : "TOP"]), default);
+            else
+            {
+                var player = result.State.PriorityPlayerId ?? throw new InvalidOperationException("Missing priority");
+                result = await engine.ResolveAsync(result.State, new($"pass-{step}", player, CommandTypes.PassPriority), new PassPriorityCommand(), default);
+            }
             Assert.True(result.Accepted, result.ErrorMessage);
         }
         Assert.Empty(result.State.StackItems);

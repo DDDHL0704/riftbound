@@ -100,8 +100,31 @@ class FriendlyTokenMovementAuditTests(unittest.TestCase):
 
     def test_movement_feasibility_must_still_be_checked_by_the_shared_executor(self):
         for token in ['IsUnitMovementDestination(current, id, destination)',
-                'MovementRestrictionRules.CanMove(unit, item.ControllerId)']:
+                'CanMoveUnitByEffect(current, effectControllerId, item.ControllerId, unit.ObjectId)',
+                'effectControllerId ??= item.ControllerId;']:
             with self.subTest(token=token):self.missing_consumer('CoreRuleEngine.ChosenMovement.cs',token)
+        self.missing_consumer('CoreRuleEngine.ArmamentMovementProtection.cs',
+            'MovementRestrictionRules.CanMove(unit, movingPlayer)')
+
+    def test_inline_feasibility_still_matches_without_an_extracted_helper(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs'
+        self.sources.files[path] = self.sources.files[path].replace(
+            'CanMoveUnitByEffect(current, effectControllerId, item.ControllerId, unit.ObjectId)',
+            'MovementRestrictionRules.CanMove(unit, item.ControllerId)')
+        self.sources.files.pop('src/Riftbound.Engine/CoreRuleEngine.ArmamentMovementProtection.cs')
+        self.assertEqual('route', self.status())
+
+    def test_an_unused_helper_cannot_replace_the_live_movement_feasibility_predicate(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs'
+        call = 'CanMoveUnitByEffect(current, effectControllerId, item.ControllerId, unit.ObjectId)'
+        self.assertIn(call, self.sources.files[path])
+        self.sources.files[path] = self.sources.files[path].replace(call, 'true')
+        self.sources.files[path] += '\n    private static void UnusedFeasibility() { ' + call + '; }\n'
+        self.assertEqual('missing', self.status())
+
+    def test_an_extracted_helper_must_retain_the_friendly_controller_case(self):
+        self.missing_consumer('CoreRuleEngine.ArmamentMovementProtection.cs',
+            'if (EffectiveFieldControllerId(state.PlayerZones, id, unit) == effectController) return true;')
 
     def test_actual_attack_producer_and_root_resolution_dispatch_are_required(self):
         for filename, token in [('CoreRuleEngine.UnitEvents.cs','CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")'),

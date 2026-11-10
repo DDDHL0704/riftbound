@@ -46,7 +46,7 @@ public sealed partial class CoreRuleEngine
             opponents.Select(id => new RuleChoiceOption(id, state.Seats[id])).ToArray(), kind: "MOVEMENT_SELECTION", preview: current);
         var legal = cards.Values.Where(c => FieldObjectTypeRules.IsVisibleUnit(c)
             && FindFieldObjectLocation(zones,c.ObjectId) is { } position && position.PlayerId == opponent
-            && IsUnitMovementDestination(current,c.ObjectId,destination) && MovementRestrictionRules.CanMove(c,opponent))
+            && IsUnitMovementDestination(current,c.ObjectId,destination) && CanMoveUnitByEffect(current, item.ControllerId, opponent, c.ObjectId))
             .OrderBy(c => c.ObjectId,StringComparer.Ordinal).ToArray();
         if (legal.Length == 0) return;
         var selected = frame.Choose(opponent, behavior.DisplayName + "：选择你控制的一名单位，移动至"
@@ -56,6 +56,6 @@ public sealed partial class CoreRuleEngine
                 OfficialCardSourceIdentityGroups.DisplayName(c.CardNo ?? "") + "（" + c.ObjectId + "）", [c.ObjectId])).ToArray(),
             kind: "MOVEMENT_SELECTION", preview: current);
         MoveFieldUnitsToChosenLocation(current, zones, cards, locations, pools,
-            item with { ControllerId = opponent }, [selected[5..]], destination, events);
+            item with { ControllerId = opponent }, [selected[5..]], destination, events, effectControllerId: item.ControllerId);
     }
 }
