@@ -116,7 +116,11 @@ public sealed partial class CoreRuleEngine
             && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)
                 && TryBuildConfirmedPermanentTargetAdditionalCost(item, behavior, out _, out _))
             && state.PriorityPlayerId is null
-            && (state.PendingCardChoice is not null || state.PendingPayment is not null || state.TriggerQueue.Count > 0)
+            // CN158.3: an effect may still be resolving and waiting for its
+            // next instructed card play. Earned play skills stay pending until
+            // that whole effect completes; they cannot confirm between plays.
+            && (state.PendingCardChoice is not null || state.PendingPayment is not null
+                || state.PendingEffectPlay is not null || state.TriggerQueue.Count > 0)
             && (item.TargetGenerations is null || state.PendingPayment is { PaymentWindow: TriggerTargetCostWindow } payment
                 && payment.ResolvingStackItemId == item.StackItemId && item.TargetGenerations.Count == item.TargetObjectIds.Count
                 && item.TargetObjectIds.All(id => item.TargetGenerations.TryGetValue(id, out var generation) && generation >= 0));

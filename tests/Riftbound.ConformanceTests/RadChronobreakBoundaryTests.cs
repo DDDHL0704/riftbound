@@ -207,19 +207,26 @@ public sealed class RadChronobreakBoundaryTests
         {
             Assert.Equal("ALLY", Assert.Single(g.State.PendingEffectPlay!.Sources).Key);
             Assert.Null(g.State.PendingCardChoice);
-            Assert.Contains(g.Events(), e => e.Event.Kind == "TRIGGER_NOT_CONFIRMED");
+            // CN158.3: Chronobreak must finish all its instructed replays
+            // before the earned Agile skill can confirm its attachment target.
+            var deferred = Assert.Single(g.State.StackItems);
+            Assert.True(deferred.PermanentPlayTargetsPending);
+            Assert.True(CoreRuleEngine.ValidPermanentPlayTargetStack(g.State, deferred));
+            Assert.False(CoreRuleEngine.ValidPermanentPlayTargetStack(
+                g.State with { PendingEffectPlay = null }, deferred));
+            Assert.False(CoreRuleEngine.ValidPermanentPlayTargetStack(
+                g.State with { PriorityPlayerId = "P1" }, deferred));
+            Assert.False(CoreRuleEngine.ValidPermanentPlayTargetStack(g.State, deferred with { SourceConfirmed = false }));
+            await RadGearTestPosition.Reject(g.State, "P1", new PassPriorityCommand());
             await g.Act("P1", new PlayCardCommand("ALLY", Unit, []));
             Assert.Null(g.State.CardObjects["GEAR"].AttachedToObjectId);
         }
-        else
-        {
-            var host = Assert.IsType<PendingCardChoiceState>(g.State.PendingCardChoice);
-            Assert.Equal("TRIGGER_CONFIRMATION", host.ChoiceWindow);
-            await g.Act("P1", new ChooseCardsCommand(host.ChoiceId, host.ChoiceWindow, ["ALLY"]));
-            Assert.Null(g.State.PendingEffectPlay);
-            await g.Top();
-            Assert.Equal("ALLY", g.State.CardObjects["GEAR"].AttachedToObjectId);
-        }
+        var host = Assert.IsType<PendingCardChoiceState>(g.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_CONFIRMATION", host.ChoiceWindow);
+        await g.Act("P1", new ChooseCardsCommand(host.ChoiceId, host.ChoiceWindow, ["ALLY"]));
+        Assert.Null(g.State.PendingEffectPlay);
+        await g.Top();
+        Assert.Equal("ALLY", g.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.DoesNotContain(g.Events(), e => e.Event.Kind == "EFFECT_PLAY_UNABLE");
         Assert.Contains("ALLY", g.State.PlayerZones["P1"].Base);
         Assert.Equal(resources, g.State.RunePools["P1"]);
