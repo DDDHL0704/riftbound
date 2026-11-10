@@ -1246,6 +1246,7 @@ public static partial class MatchRecoveryValidator
             ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
             ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidatePowerPaymentHistory(authoritativeState, commands, events, errors);
             ValidateSnapshotKeywordGrantHistory(authoritativeState, commands, events, errors);
             ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentControlHistory(authoritativeState, commands, events, errors);
