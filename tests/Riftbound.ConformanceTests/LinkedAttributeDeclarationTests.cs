@@ -27,7 +27,6 @@ public sealed class LinkedAttributeDeclarationTests
 
     private static async Task Declare(Driver game, string attribute)
     {
-        await game.Top();
         var rule = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
         Assert.Equal("DECLARE_ATTRIBUTE", rule.Request.Kind);
         Assert.Contains(rule.Request.Options, option => option.Id == attribute);

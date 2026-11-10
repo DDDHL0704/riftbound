@@ -451,6 +451,9 @@ public sealed partial record CardBehaviorDefinition(
     bool DefaultChosenMovementToControllerBase = false,
     IReadOnlyList<int>? CostReductionExperienceThresholds = null)
 {
+    public bool DeclaresAttributeAsPlayed { get; init; }
+    public bool RemovesTargetMightLimitIfExperiencePaid { get; init; }
+    public string EntryBattlefieldTokenCardNo { get; init; } = "";
     public int? PowerModifierAmountAtLevel { get; init; }
     public int ExperienceWhenTargetWinsBattleThisTurn { get; init; }
     public bool AllowsPlayToBattlefieldWithAloneEnemy { get; init; }
@@ -2877,11 +2880,10 @@ public static class CardBehaviorRegistry
             "UNL-138/219",
             "夺命名单",
             1,
-            "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_DEFERRED",
+            "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_ON_PLAY",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true,
-            UnitEventAbility: new("PLAY", "DECLARE_ATTRIBUTE")),
+            PlaysSourceToBaseAsEquipment: true) { DeclaresAttributeAsPlayed = true },
         new(
             "UNL-148/219",
             "受诅咒的石棺",
@@ -8273,7 +8275,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12) { EntryBattlefieldTokenCardNo = P6TokenFactoryCatalog.BaronNestTokenCardNo },
         new(
             "UNL-147a/219",
             "纳什男爵",
@@ -8282,7 +8284,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12) { EntryBattlefieldTokenCardNo = P6TokenFactoryCatalog.BaronNestTokenCardNo },
         new(
             "UNL-170/219",
             "厄塔汗",
@@ -8408,7 +8410,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12) { EntryBattlefieldTokenCardNo = P6TokenFactoryCatalog.BaronNestTokenCardNo },
         new(
             "UNL-015/219",
             "占山为王",
@@ -9067,7 +9069,8 @@ public static class CardBehaviorRegistry
             MaxTargetPower: 3,
             TargetRequiredTag: CardObjectTags.UnitCard,
             GainsControlOfTargetToBase: true,
-            ExhaustsControlledTarget: true),
+            ExhaustsControlledTarget: true,
+            OptionalExperienceCost: 5) { RemovesTargetMightLimitIfExperiencePaid = true },
         new(
             "OGN·203/298",
             "据为己有",

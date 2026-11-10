@@ -915,8 +915,8 @@ public sealed class CardCatalogBaselineTests
             functionalUnits: 47,
             implementedFunctionalUnits: 47,
             pendingFunctionalUnits: 0);
-        Assert.Equal(6, experienceRows.Count(row => HasExperienceBehavior(row.Definition)));
-        Assert.Equal(6, experienceUnitGroups.Count(group => group.Any(row => HasExperienceBehavior(row.Definition))));
+        Assert.Equal(7, experienceRows.Count(row => HasExperienceBehavior(row.Definition)));
+        Assert.Equal(7, experienceUnitGroups.Count(group => group.Any(row => HasExperienceBehavior(row.Definition))));
         Assert.All(rows, row =>
         {
             Assert.Equal(row.Entries, row.ProfileDeferredEntries);
