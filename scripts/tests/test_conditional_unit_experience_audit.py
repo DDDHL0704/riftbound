@@ -80,8 +80,22 @@ class ConditionalUnitExperienceAuditTests(unittest.TestCase):
 
     def test_redaction_must_return_the_experience_augmented_result(self):
         self.replace("CoreRuleEngine.UnitEvents.cs",
-                     "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select",
-                     "return source == item.SourceObjectId ? unchanged : unchanged with { Events = unchanged.Events.Select")
+                     "return result with { Events = RedactUnitEventSourceEvents(state, item, result.Events) };",
+                     "return unchanged with { Events = RedactUnitEventSourceEvents(state, item, unchanged.Events) };")
+        for ready in [True, False]:
+            self.assertEqual("missing", self.outcome(self.card(ready)))
+
+    def test_an_unused_redaction_helper_cannot_certify_the_augmented_return(self):
+        self.replace("CoreRuleEngine.UnitEvents.cs",
+                     "return result with { Events = RedactUnitEventSourceEvents(state, item, result.Events) };",
+                     "var unused = RedactUnitEventSourceEvents(state, item, result.Events); return result;")
+        for ready in [True, False]:
+            self.assertEqual("missing", self.outcome(self.card(ready)))
+
+    def test_the_shared_redactor_must_use_the_spectator_source_and_return_its_filtered_events(self):
+        self.replace("CoreRuleEngine.UnitEvents.cs",
+                     "return source == item.SourceObjectId ? events : events.Select(e =>",
+                     "return source == item.SourceObjectId ? events : unfiltered.Select(e =>")
         for ready in [True, False]:
             self.assertEqual("missing", self.outcome(self.card(ready)))
 

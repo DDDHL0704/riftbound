@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ivern-look-unit-static",
-  "description": "Ivern enters as a unit while top-three look, reveal, draw, recycle, and boon text are deferred.",
+  "description": "Ivern enters exhausted before its independent top-three unit selection skill resolves.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-051/219 艾翁",
-      "note": "官方卡面：费用 5；英雄单位；战力 4；打出或据守战场时查看主牌堆顶部三张，可展示单位并抽取，回收其余牌；若展示鸟类、猫科、犬形或魄罗属性单位则给予友方单位增益。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场；顶部三张查看、展示/抽取、回收、属性分支和增益路径暂缓。"
+      "note": "官方牌面：打出或据守时查看主牌堆顶部三张，可选展示一名单位并抽取、回收其余；展示指定四类属性后另建独立增益技能。本夹具停在单位已经入场、实际打出技能尚在结算链的确认边界；不提前执行查看或伪造让过。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,10 +28,18 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/rule-input-scope.json",
+      "locator": "中国区核心383.2–383.4、388–389、403–407；UNL-051／051a官方中文牌面",
+      "note": "入场后产生独立打出技能；本夹具在第一次PLAY_CARD之后断言来源入场及技能入链。完整查看、展示、抽取、回收、四类属性分支、隐私和恢复由IvernRevealedDeckSelectionTests验证。"
     }
   ],
   "roomId": "p2-preflight-unl-051-ivern-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302746,
     "turnNumber": 746,
@@ -39,7 +47,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 5,
@@ -55,26 +66,48 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001", "P1-MAIN-002", "P1-MAIN-003"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-IVERN-LOOK"],
+        "mainDeck": [
+          "P1-MAIN-001",
+          "P1-MAIN-002",
+          "P1-MAIN-003"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-IVERN-LOOK"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -89,54 +122,93 @@
         "cardNo": "UNL-051/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-051-ivern-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-051-ivern-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGERS_MOVED_TO_STACK"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "PASS_PRIORITY"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 746,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "timingState": "NEUTRAL_CLOSED",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001", "P1-MAIN-002", "P1-MAIN-003"],
+          "mainDeck": [
+            "P1-MAIN-001",
+            "P1-MAIN-002",
+            "P1-MAIN-003"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-IVERN-LOOK"],
+          "base": [
+            "P1-UNIT-IVERN-LOOK"
+          ],
           "graveyard": []
         }
       },
-      "stackItems": [],
+      "stackItems": [
+        {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-IVERN-LOOK",
+          "effectKind": "CAPTURED_UNIT_EVENT_ABILITY",
+          "cardNo": "UNL-051/219",
+          "targetObjectIds": []
+        }
+      ],
       "cardObjects": {
         "P1-UNIT-IVERN-LOOK": {
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         }
-      }
+      },
+      "priorityPlayerId": "P1"
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "PASS_PRIORITY"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

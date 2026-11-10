@@ -15,6 +15,8 @@ public sealed partial class CoreRuleEngine
             spec = spec with { Effect = delayedEffect, Optional = true };
         if (HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null)
             return spec! with { Effect = AttachPlayedArmamentEffect, Optional = false };
+        if (context.RevealedDeckSelection is not null && spec is { Effect: UnitEventLookUnitEffect, DeckSelection: not null })
+            spec = spec with { Effect = "BOON_FRIENDLY", Amount = 1, Optional = false };
         if (context.Mode is null) return spec;
         if (spec?.Modes?.SingleOrDefault(m => m.Id == context.Mode) is not { } mode) return null;
         return spec with { Effect = mode.Effect, Amount = mode.Amount, Modes = null, Optional = false,

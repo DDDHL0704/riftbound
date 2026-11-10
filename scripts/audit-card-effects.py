@@ -1848,6 +1848,32 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
         if exact else "缺少逐句相符的支付阈值、持续战力／关键词、实际扣费累计、回合重置或原始支付历史消费者", evidence)
 
 
+def unit_event_result_redaction_is_connected(sources: Sources) -> bool:
+    code = sources.files.get("src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs", "")
+
+    def member(name):
+        match = re.search(r"(?m)^    (?:private|internal|public) static [^\n]+\b" + re.escape(name) + r"\(", code)
+        if not match:
+            return ""
+        tail = code[match.end():]
+        end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+        return tail[:end.start()] if end else tail
+
+    resolve = member("ResolveUnitEvent")
+    visible = "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)"
+    if visible in resolve and "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select" in resolve:
+        return True
+    # Keep the returned state/score/experience, and use the helper's returned
+    # events. A dead helper or redaction of an older result is not evidence.
+    if "return result with { Events = RedactUnitEventSourceEvents(state, item, result.Events) };" not in resolve:
+        return False
+    redact = member("RedactUnitEventSourceEvents")
+    return all(token in redact for token in [visible,
+        "return source == item.SourceObjectId ? events : events.Select(e =>",
+        'Equals(e.Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId)',
+        'new Dictionary<string, object?>(e.Payload) { ["sourceObjectId"] = source }', ".ToArray()"])
+
+
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
@@ -1877,7 +1903,7 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
     experience_call = "AppendIndependentUnitEventExperience(state, item, result)"
     experience_returned = "return " + experience_call + ";" in resolve or (
         re.search(r"(?m)^\s*result = " + re.escape(experience_call) + ";", resolve)
-        and "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select" in resolve)
+        and unit_event_result_redaction_is_connected(sources))
     exact = exact and "ResolveUnitEventInstruction(state, item)" in resolve \
         and experience_returned
     append = method(experience, "AppendIndependentUnitEventExperience")
@@ -2694,7 +2720,7 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
         ('CoreRuleEngine.UnitEvents.cs', 'QueueUnitEvents', [
             'UnitEventTrigger(captured, result.State.Tick,', 'queue.Add(trigger)', 'BuildTriggerQueuedEvent(trigger)']),
         ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', [
-            'ResolveUnitEventInstruction(state, item)', 'ResolutionResult.VisibleObjectIdForViewer(']),
+            'ResolveUnitEventInstruction(state, item)']),
         ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
             'ValidUnitEvent(state, context,', 'SelectedUnitEventSpec(context)',
             'spec.Effect == FriendlyUnitTraitScoreEffect', 'ResolveFriendlyUnitTraitScore(state, item, spec)']),
@@ -2741,6 +2767,7 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
     ]
     exact = exact and all((bodies := members(filename, name))
         and all(all(token in body for token in tokens) for body in bodies) for filename, name, tokens in checks)
+    exact = exact and unit_event_result_redaction_is_connected(sources)
     exact = exact and any('UnitEventTimingMatches(unitEvent.Timing, "HOLD")' in body
         and 'UnitEventTimingMatches(unitEvent.Timing, "CONQUEST")' in body and '? unitEvent : null' in body
         for body in members('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext'))
@@ -3448,6 +3475,111 @@ def attack_armament_play_attachment_route(card: dict, clause: dict, sources: Sou
         'missing', '缺少限定武装的真实效果打出、独立内嵌贴附、共同排序，或原始对象／付款／捕获历史校验')
 
 
+def revealed_unit_deck_selection_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    sentences = [
+        '当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。',
+        '你可以选择从中展示一名单位，并抽取该卡牌。',
+        '回收其余的卡牌。',
+        '如果你展示了一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，则进行一次：给予一名友方单位{{增益}}。',
+    ]
+    shapes = [normalize(unparenthesize(t)) for t in sentences]
+    text = normalize(unparenthesize(clause['text']))
+    if text not in shapes or normalize(unparenthesize(card.get('cardEffect', ''))) != ''.join(shapes):
+        return None
+    index = shapes.index(text)
+    spec = card.get('unitEventAbility') or {}
+    expected = dict(timing='PLAY_OR_HOLD', effect='LOOK_TOP_REVEAL_DRAW_UNIT_RECYCLE_REST')
+    selection = spec.get('deckSelection')
+    selection = selection if isinstance(selection, dict) else {}
+    traits = selection.get('boonTraits')
+    common = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == shapes[0] \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} \
+        and any(b.get('playsSourceToBaseAsUnit') is True for b in card.get('behaviors', [])) \
+        and all(type(spec.get(k)) is type(v) and spec.get(k) == v for k, v in expected.items()) \
+        and type(spec.get('amount')) is int and spec['amount'] > 0 \
+        and spec.get('optional', False) is False \
+        and not any(meaningful(v) for k, v in spec.items() if k not in {*expected, 'amount', 'deckSelection'})
+    prefix = 'src/Riftbound.Engine/'
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b' + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]
+        offset = start.end() - start.start()
+        end = re.search(r'(?m)^    (?:private|internal|public) (?:static )?', rest[offset:])
+        return rest[:offset + end.start()] if end else rest
+
+    helper = 'CoreRuleEngine.UnitEventDeckSelection.cs'
+    deck = 'CoreRuleEngine.DeckChoices.cs'
+    unit = 'CoreRuleEngine.UnitEvents.cs'
+    history = 'CoreRuleEngine.DeckObservation.cs'
+    common_checks = [
+        (unit, 'UnitEventSpec', ['card.UnitEventAbility']),
+        (unit, 'UnitEventSpecForContext', ['UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing)']),
+        (unit, 'UnitEventTimingMatches', ['declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal)']),
+        (unit, 'CaptureUnitEvents', ['UnitEventTimingMatches(spec.Timing, timing)']),
+        (unit, 'CaptureOtherUnitPlayed', ['CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")']),
+        ('CoreRuleEngine.Hold.cs', 'QueueHeldAbilities', ['CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")']),
+        (unit, 'ResolveUnitEventInstruction', ['if (spec.Effect == UnitEventLookUnitEffect)', 'if (item.DeckChoiceCompleted) return NoopStackResolutionResult(state)', 'TryGetDeckChoiceBehavior(state, item, out var deck)', 'return BeginDeckChoice(state, item, deck)']),
+        (deck, 'TryGetDeckChoiceBehavior', ['item.EffectKind == UnitEventEffect', 'SelectedUnitEventSpec(context) is { Effect: UnitEventLookUnitEffect, Amount: > 0 } spec', 'MainDeckLookCount: spec.Amount']),
+        (deck, 'BeginDeckChoice', ['MainDeck.Take(behavior.MainDeckLookCount)', 'ObserveDeckCards(', '"LOOK"', '"DECK_EFFECT"', 'DeckChoiceTargetAllowed(state, behavior, id)']),
+        (deck, 'ResolveDeckChoice', ['ObservedRemainingDeckCards(', 'TryGetDeckChoiceBehavior(state,item, out var behavior)', 'DeckChoiceCompleted =', 'RedactUnitEventSourceEvents(state, item, events.Concat(resumed.Events).ToArray())']),
+        (unit, 'RedactUnitEventSourceEvents', ['if (item.UnitEvent is null)', 'VisibleObjectIdForViewer(', 'ProjectionViewers.Spectator', 'GetValueOrDefault("sourceObjectId")']),
+        (history, 'ObservedDeckCaptureHash', ['instruction.Parent?.UnitEvent is { } unitEvent', 'UnitEventSpecForContext(unitEvent)?.DeckSelection is not null', 'ParentUnitEventCapture = ObservedUnitEventCaptureHash(', 'unitEvent, instruction.Parent.SourceObjectId, instruction.Parent.ControllerId)']),
+        (history, 'ValidObservationParent', ['parent.UnitEvent is { } unitEvent ? TryGetDeckChoiceBehavior(state, parent, out _)', 'ValidUnitEvent(state, unitEvent, parent.EffectKind, parent.SourceObjectId, parent.CardNo, parent.ControllerId)']),
+    ]
+    specific = []
+    reason = ['打出／据守后独立私有查看顶部三张', '可选展示其中一名单位并按实际抽牌流程抽取',
+              '实际回收未选取的所查看卡牌', '根据实际展示的四类特性创建独立友方增益技能'][index]
+    if index == 0:
+        common = common and spec['amount'] == 3
+    elif index == 1:
+        specific = [
+            (deck, 'TryGetDeckChoiceBehavior', ['MinTargetCount: 0', 'MainDeckTargetRequiredTag: CardObjectTags.UnitCard', 'DrawsSelectedMainDeckTarget: true']),
+            (deck, 'BeginDeckChoice', ['behavior.MinTargetCount != 0 && legal.Length > 0', 'mandatory ? 1 : 0']),
+            (deck, 'DeckChoiceTargetAllowed', ['card.Tags.Contains(behavior.MainDeckTargetRequiredTag)']),
+            (deck, 'ResolveDeckChoice', ['BeforeDeckReveal(', 'selected = selected.Where(id => zones[item.ControllerId].MainDeck.Contains(id))', '"CARD_REVEALED"', 'ObserveDeckCards(', '"REVEAL"', 'DrawSelectedMainDeckTargetsAndRecycleRest(']),
+            ('CoreRuleEngine.cs', 'DrawSelectedMainDeckTargetsAndRecycleRest', ['Hand = zones.Hand.Concat(selectedCardIds).ToArray()', '"CARD_DRAWN"', 'CaptureDrawInstruction(']),
+        ]
+    elif index == 2:
+        specific = [
+            (deck, 'TryGetDeckChoiceBehavior', ['RecyclesUnselectedMainDeckLookCards: true']),
+            (deck, 'ResolveDeckChoice', ['DrawSelectedMainDeckTargetsAndRecycleRest(', 'behavior.RecyclesUnselectedMainDeckLookCards']),
+            ('CoreRuleEngine.cs', 'DrawSelectedMainDeckTargetsAndRecycleRest', ['recycleUnselectedCards || graveUnselectedCards', '!selectedCardIds.Contains(cardId, StringComparer.Ordinal)', 'RandomizeForMainDeckBottom(', '.Concat(randomizedRecycledCardIds)', 'CaptureRecycleObservers(new GameEvent(', '"CARDS_RECYCLED"']),
+        ]
+    elif index == 3:
+        common = common and isinstance(traits, list) and len(traits) == 4 \
+            and all(type(t) is str for t in traits) and set(traits) == {'鸟类', '猫科', '犬形', '魄罗'} \
+            and not any(meaningful(v) for k, v in selection.items() if k != 'boonTraits')
+        specific = [
+            (deck, 'ResolveDeckChoice', ['selectionReveal = CaptureDeckSelectionReveal(state, item, cards, selected)', 'AppendDeckSelectionBoonEvent(item, selectionReveal, events)']),
+            (helper, 'CaptureDeckSelectionReveal', ['selected.Single()', 'new(chosen.ObjectId, chosen.ObjectGeneration)', 'chosen.Tags.Distinct(StringComparer.Ordinal)', 'RuleChoices.Value?.CompletionTick ?? state.Tick + 1']),
+            (helper, 'AppendDeckSelectionBoonEvent', ['selection.BoonTraits.Any(revealed.Traits.Contains)', 'ReflexiveTick = revealed.RevealedTick', 'RevealedDeckSelection = revealed', 'WithUnitEvents(', 'DeckSelectionBoonCreatedEvent']),
+            ('CoreRuleEngine.UnitEventModes.cs', 'SelectedUnitEventSpec', ['context.RevealedDeckSelection is not null', 'spec is { Effect: UnitEventLookUnitEffect, DeckSelection: not null }', 'Effect = "BOON_FRIENDLY", Amount = 1, Optional = false']),
+            (unit, 'ResolveUnitEventInstruction', ['"BOON_FRIENDLY"', 'return ResolvePermanentUnitEventInstruction(state, item, spec)']),
+            (unit, 'UnitEventTargets', ['"BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)', '"BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)\n                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId']),
+            ('CoreRuleEngine.PermanentUnitEvents.cs', 'ResolvePermanentUnitEventInstruction', ['UnitEventTargets(state, item).Contains(target)', 'spec.Effect == "BOON_FRIENDLY"', 'ApplyBoon(cards[target]']),
+            (unit, 'NeedsUnitEventTarget', ['SelectedUnitEventSpec(c)?.Effect', '"BOON_FRIENDLY"']),
+            (unit, 'ValidUnitEvent', ['ValidDeckSelectionReveal(state, c, spec)']),
+            (helper, 'ValidDeckSelectionReveal', ['context.ReflexiveTick != fact.RevealedTick', 'PredictBindingMatches(', 'fact.Traits.SequenceEqual(printed.Tags.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))']),
+            ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', ['UnitEventSpecForContext(context) is { Effect: UnitEventLookUnitEffect, DeckSelection: not null }']),
+            ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', ['context.RevealedDeckSelection']),
+            ('CoreRuleEngine.ScheduledUnitEvents.cs', 'ObservedUnitEventOccurrenceTick', ['context.RevealedDeckSelection?.RevealedTick']),
+            ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', ['CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)', 'command.Accepted', 'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)']),
+        ]
+        continuation = member(deck, 'ResolveDeckChoice')
+        order = [continuation.find(x) for x in ['BeforeDeckReveal(', 'selected = selected.Where(', '"CARD_REVEALED"', 'CaptureDeckSelectionReveal(', 'ObserveDeckCards(', 'DrawSelectedMainDeckTargetsAndRecycleRest(']]
+        common = common and -1 not in order and order == sorted(order)
+    checks = common_checks + specific
+    exact = common and all(all(token in member(filename, name) for token in tokens)
+                           for filename, name, tokens in checks)
+    paths = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route', reason + '，核对真实分派、私有选择、执行消费者及原始观察记录', paths) if exact else result(
+        'missing', '本句缺少精确打出／据守规格、关联选择或实际执行与原始观察校验')
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
@@ -3456,6 +3588,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return matched
     if armament_play := attack_armament_play_attachment_route(card, clause, sources):
         return armament_play
+    if deck_selection := revealed_unit_deck_selection_route(card, clause, sources):
+        return deck_selection
     if held_next_unit := held_next_unit_ready_boon_route(card, clause, sources):
         return held_next_unit
     if paid_legend := paid_legend_group_movement_route(card, clause, sources):
