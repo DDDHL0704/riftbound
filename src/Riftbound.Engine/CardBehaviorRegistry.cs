@@ -326,6 +326,7 @@ public sealed partial record CardBehaviorDefinition(
     string SourceReadyOptionalCostPayloadKey = "",
     string SourceStealEnemyEquipmentReason = "",
     string ConditionalSourceUnitConditionKind = CardConditionalSourceUnitConditionKinds.None,
+    int ConditionalSourceUnitRequiredPaidPower = 0,
     int ConditionalSourceUnitPowerBonus = 0,
     string ConditionalSourceUnitTags = "",
     string SourceDrawConditionKind = CardSourceDrawConditionKinds.None,
@@ -451,6 +452,12 @@ public sealed partial record CardBehaviorDefinition(
     bool DefaultChosenMovementToControllerBase = false,
     IReadOnlyList<int>? CostReductionExperienceThresholds = null)
 {
+    public IReadOnlyList<UnitEventAbilitySpec> AdditionalUnitEventAbilities { get; init; } = [];
+    public bool DamageDistributionUsesFirstTargetMight { get; init; }
+    public bool EachPlayerDestroysOwnUnit { get; init; }
+    public bool DeclaresAttributeAsPlayed { get; init; }
+    public bool RemovesTargetMightLimitIfExperiencePaid { get; init; }
+    public string EntryBattlefieldTokenCardNo { get; init; } = "";
     public int? PowerModifierAmountAtLevel { get; init; }
     public int ExperienceWhenTargetWinsBattleThisTurn { get; init; }
     public bool AllowsPlayToBattlefieldWithAloneEnemy { get; init; }
@@ -639,6 +646,7 @@ public static class CardConditionalSourceUnitConditionKinds
     public const string ControllerPlayedFourPlusCostSpellThisTurn = "CONTROLLER_PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN";
     public const string ControllerGainedExperienceThisTurn = "CONTROLLER_GAINED_EXPERIENCE_THIS_TURN";
     public const string ControllerDiscardedHandCardThisTurn = "CONTROLLER_DISCARDED_HAND_CARD_THIS_TURN";
+    public const string ControllerPaidPowerThisTurn = "CONTROLLER_PAID_POWER_THIS_TURN";
 }
 
 public static class CardTargetCountConditionKinds
@@ -1444,7 +1452,9 @@ public static class CardBehaviorRegistry
             2,
             TargetScope: CardTargetScopes.FriendlyThenEnemyBattlefieldUnits,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            DamagesSecondTargetByFirstTargetPower: true),
+            DamagesSecondTargetByFirstTargetPower: true, AnyNumberOfTargets: true, MinTargetCount: 2,
+            UnitEventAbility: new(CoreRuleEngine.SpellInstructionReflexiveTiming, "GAIN_EXPERIENCE", 1)) {
+                DamageDistributionUsesFirstTargetMight = true },
         new(
             "UNL-139/219",
             "透骨尖钉",
@@ -1897,9 +1907,7 @@ public static class CardBehaviorRegistry
             2,
             "HOUSECLEANING_DESTROY_EACH_PLAYER_UNIT",
             0,
-            2,
-            DestroysTarget: true,
-            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits),
+            0) { EachPlayerDestroysOwnUnit = true },
         new(
             "SFD·182/221",
             "危险温度",
@@ -2562,7 +2570,9 @@ public static class CardBehaviorRegistry
             "REVERSAL_SHARD_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new(CoreRuleEngine.FirstFriendlyStartPhaseDeathTiming, CoreRuleEngine.EachPlayerDestroyUnitEffect) {
+                RequiredUnitDestructionScope = CoreRuleEngine.OpponentsDestructionScope }),
         new(
             "SFD·019/221",
             "装配架",
@@ -2877,11 +2887,10 @@ public static class CardBehaviorRegistry
             "UNL-138/219",
             "夺命名单",
             1,
-            "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_DEFERRED",
+            "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_ON_PLAY",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true,
-            UnitEventAbility: new("PLAY", "DECLARE_ATTRIBUTE")),
+            PlaysSourceToBaseAsEquipment: true) { DeclaresAttributeAsPlayed = true },
         new(
             "UNL-148/219",
             "受诅咒的石棺",
@@ -3502,6 +3511,10 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn,
+            ConditionalSourceUnitRequiredPaidPower: 2,
+            ConditionalSourceUnitPowerBonus: 2,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Roam,
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Purple),
@@ -3515,6 +3528,10 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn,
+            ConditionalSourceUnitRequiredPaidPower: 2,
+            ConditionalSourceUnitPowerBonus: 2,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Roam,
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Purple),
@@ -7908,8 +7925,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4) { UnitEventAbility = new("PLAY_OR_HOLD", CoreRuleEngine.UnitEventDeckSelectionEffect, 3) {
-                DeckSelection = new(3, CardObjectTags.UnitCard, ["鸟类", "猫科", "犬形", "魄罗"]) } },
+            SourceUnitPower: 4) { UnitEventAbility = new("PLAY_OR_HOLD", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                DeckSelection = new(["鸟类", "猫科", "犬形", "魄罗"]) } },
         new(
             "UNL-137/219",
             "悚悚魄罗",
@@ -7940,8 +7957,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4) { UnitEventAbility = new("PLAY_OR_HOLD", CoreRuleEngine.UnitEventDeckSelectionEffect, 3) {
-                DeckSelection = new(3, CardObjectTags.UnitCard, ["鸟类", "猫科", "犬形", "魄罗"]) } },
+            SourceUnitPower: 4) { UnitEventAbility = new("PLAY_OR_HOLD", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                DeckSelection = new(["鸟类", "猫科", "犬形", "魄罗"]) } },
         new(
             "UNL-071/219",
             "环刃舞者",
@@ -8176,7 +8193,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 7),
+            SourceUnitPower: 7,
+            UnitEventAbility: new("MOVE", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true }) {
+                AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)] },
         new(
             "UNL-179a/219",
             "峡谷先锋",
@@ -8185,7 +8205,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 7),
+            SourceUnitPower: 7,
+            UnitEventAbility: new("MOVE", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true }) {
+                AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)] },
         new(
             "UNL-118/219",
             "远古巨龙",
@@ -8231,7 +8254,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "约德尔人"),
+            SourceUnitTags: "约德尔人",
+            OptionalExperienceCost: 3,
+            UnitEventAbility: new("PLAY", CoreRuleEngine.EachPlayerDestroyUnitEffect) { ExemptsControllerIfExperiencePaid = true }),
         new(
             "UNL-167/219",
             "星獒",
@@ -8241,7 +8266,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形",
+            UnitEventAbility: new("PLAY", CoreRuleEngine.UnitEventGraveyardReturnEffect) {
+                GraveyardReturnAnyTags = ["鸟类", "猫科", "犬形", "魄罗"] }),
         new(
             "UNL-166/219",
             "追猎雪狼",
@@ -8275,7 +8302,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12) { EntryBattlefieldTokenCardNo = P6TokenFactoryCatalog.BaronNestTokenCardNo },
         new(
             "UNL-147a/219",
             "纳什男爵",
@@ -8284,7 +8311,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12) { EntryBattlefieldTokenCardNo = P6TokenFactoryCatalog.BaronNestTokenCardNo },
         new(
             "UNL-170/219",
             "厄塔汗",
@@ -8295,7 +8322,9 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7,
             SourceUnitTags: "游走",
-            MaySacrificeUnitForPrintedCostReduction: true),
+            MaySacrificeUnitForPrintedCostReduction: true,
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.EachPlayerDestroyUnitEffect) {
+                RequiredUnitDestructionScope = CoreRuleEngine.DefendingPlayerHereDestructionScope }),
         new(
             "UNL-177/219",
             "艾翁",
@@ -8410,7 +8439,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 12),
+            SourceUnitPower: 12) { EntryBattlefieldTokenCardNo = P6TokenFactoryCatalog.BaronNestTokenCardNo },
         new(
             "UNL-015/219",
             "占山为王",
@@ -9069,7 +9098,8 @@ public static class CardBehaviorRegistry
             MaxTargetPower: 3,
             TargetRequiredTag: CardObjectTags.UnitCard,
             GainsControlOfTargetToBase: true,
-            ExhaustsControlledTarget: true),
+            ExhaustsControlledTarget: true,
+            OptionalExperienceCost: 5) { RemovesTargetMightLimitIfExperiencePaid = true },
         new(
             "OGN·203/298",
             "据为己有",
@@ -9567,7 +9597,9 @@ public static class CardBehaviorRegistry
             0,
             1,
             DestroysTarget: true,
-            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true),
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
+            UnitEventAbility: new(CoreRuleEngine.SpellInstructionReflexiveTiming, CoreRuleEngine.UnitEventSelfGraveSpellPlayEffect,
+                LeadingPowerCost: 1, Optional: true) { ReflexiveTargetMaximumMight = 3 }),
         new(
             "SFD·087/221",
             "先知之兆",

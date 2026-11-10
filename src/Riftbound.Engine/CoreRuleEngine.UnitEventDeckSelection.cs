@@ -4,8 +4,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record UnitEventDeckSelectionSpec(int LookCount, string SelectedRequiredTag,
-    IReadOnlyList<string> BoonTraits);
+public sealed record UnitEventDeckSelectionSpec(IReadOnlyList<string> BoonTraits);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record RevealedDeckSelectionFact(string ParentStackItemId, ObjectBinding Card,
@@ -26,36 +25,14 @@ public sealed partial record UnitEventContext
 
 public sealed partial class CoreRuleEngine
 {
-    internal const string UnitEventDeckSelectionEffect = "LOOK_REVEAL_DRAW_RECYCLE_THEN_TRAIT_BOON";
     internal const string DeckSelectionBoonCreatedEvent = "DECK_SELECTION_BOON_CREATED";
-
-    private static bool TryUnitEventDeckChoiceBehavior(StackItemState item, out CardBehaviorDefinition behavior)
-    {
-        behavior = null!;
-        if (item.EffectKind != UnitEventEffect
-            || item.UnitEvent is not { RevealedDeckSelection: null } context
-            || UnitEventSpec(context.CardNo) is not { Effect: UnitEventDeckSelectionEffect,
-                DeckSelection: { LookCount: > 0 } selection }) return false;
-        behavior = new(context.CardNo, "查看并选择单位", 0, UnitEventEffect, 0, 1,
-            MinTargetCount: 0, MainDeckLookCount: selection.LookCount,
-            MainDeckTargetRequiredTag: selection.SelectedRequiredTag,
-            DrawsSelectedMainDeckTarget: true, RecyclesUnselectedMainDeckLookCards: true);
-        return true;
-    }
-
-    private static StackResolutionResult ResolveUnitEventDeckSelection(MatchState state, StackItemState item)
-    {
-        if (item.DeckChoiceCompleted) return NoopStackResolutionResult(state);
-        if (!TryUnitEventDeckChoiceBehavior(item, out var behavior))
-            throw new InvalidOperationException("Invalid unit-event deck selection.");
-        return BeginDeckChoice(state, item, behavior);
-    }
 
     private static RevealedDeckSelectionFact? CaptureDeckSelectionReveal(MatchState state,
         StackItemState item, IReadOnlyDictionary<string, CardObjectState> cards, IReadOnlyList<string> selected)
     {
         if (item.UnitEvent is not { RevealedDeckSelection: null } context
-            || UnitEventSpec(context.CardNo)?.DeckSelection is null || selected.Count == 0) return null;
+            || UnitEventSpecForContext(context) is not { Effect: UnitEventLookUnitEffect, DeckSelection: not null }
+            || selected.Count == 0) return null;
         var chosen = cards[selected.Single()];
         return new(item.StackItemId, new(chosen.ObjectId, chosen.ObjectGeneration), chosen.CardNo!,
             chosen.CopyFaceTransitions?.Count ?? 0, chosen.TokenFactoryCardNo,
@@ -67,7 +44,7 @@ public sealed partial class CoreRuleEngine
         RevealedDeckSelectionFact? revealed, List<GameEvent> events)
     {
         if (revealed is null || item.UnitEvent is not { } root
-            || UnitEventSpec(root.CardNo)?.DeckSelection is not { } selection
+            || UnitEventSpecForContext(root) is not { Effect: UnitEventLookUnitEffect, DeckSelection: { } selection }
             || !selection.BoonTraits.Any(revealed.Traits.Contains)) return;
         var context = root with { ReflexiveTick = revealed.RevealedTick, RevealedDeckSelection = revealed };
         // The selected unit has really been revealed. A later observation can
@@ -81,7 +58,7 @@ public sealed partial class CoreRuleEngine
     private static bool ValidDeckSelectionReveal(MatchState state, UnitEventContext context,
         UnitEventAbilitySpec spec)
     {
-        if (spec.Effect != UnitEventDeckSelectionEffect || spec.DeckSelection is not { } selection)
+        if (spec.Effect != UnitEventLookUnitEffect || spec.DeckSelection is not { } selection)
             return context.RevealedDeckSelection is null;
         if (context.RevealedDeckSelection is not { } fact) return context.ReflexiveTick is null;
         if (string.IsNullOrWhiteSpace(fact.ParentStackItemId)
@@ -89,7 +66,7 @@ public sealed partial class CoreRuleEngine
             || fact.FaceRevision < 0 || fact.RevealedTick < context.CapturedTick || fact.RevealedTick > state.Tick
             || context.ReflexiveTick != fact.RevealedTick || context.Mode is not null || fact.Traits is null
             || !fact.Traits.SequenceEqual(fact.Traits.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
-            || !fact.Traits.Contains(selection.SelectedRequiredTag)
+            || !fact.Traits.Contains(CardObjectTags.UnitCard)
             || !selection.BoonTraits.Any(fact.Traits.Contains)
             || !PredictBindingMatches(state, fact.Card, fact.CardNo, fact.FaceRevision, fact.RevealedTick,
                 fact.TokenFactoryCardNo)) return false;

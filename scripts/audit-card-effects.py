@@ -1731,6 +1731,94 @@ def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> di
         if exact else "缺少精确的眩晕敌方战场条件、来源独立移动确认、效果移动或原始历史核验消费者", paths)
 
 
+def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    match = re.fullmatch(r"在本回合内如果你至少支付了((?:\{\{A\}\})+)则我获得\{\{S\}\}\+([1-9][0-9]*)和\{\{(游走)\}\}", text)
+    if not match:
+        return None
+    required, delta, keyword = match[1].count("{{A}}"), int(match[2]), match[3]
+    exact = clause["kind"] == "static" and normalize(unparenthesize(clause["scope"])) == text \
+        and "unit" in card.get("cardCategory", "") and any(
+            behavior.get("playsSourceToBaseAsUnit")
+            and behavior.get("conditionalSourceUnitConditionKind") == "CONTROLLER_PAID_POWER_THIS_TURN"
+            and behavior.get("conditionalSourceUnitRequiredPaidPower") == required
+            and behavior.get("conditionalSourceUnitPowerBonus") == delta
+            and behavior.get("conditionalSourceUnitTags") == keyword for behavior in card.get("behaviors", []))
+    prefix = "src/Riftbound.Engine/"
+
+    def members(filename, name):
+        source = sources.files.get(prefix + filename, "")
+        pattern = r"(?m)^    (?:private|internal|public) [^\n]*\b" + re.escape(name) + r"\("
+        return [re.split(r"\n    (?:private|internal|public) ", source[m.end():], maxsplit=1)[0]
+                for m in re.finditer(pattern, source)]
+
+    checks = [
+        ("PaymentCostRules.cs", "PayPowerCost", [
+            "var actualPaid = (long)spent + view.PowerByTrait.Values.Sum", "pool.PaidPowerThisTurn + actualPaid",
+            "PaidPowerThisTurn = paidThisTurn", "Power = pool.Power -", "PowerByTrait = paid.PowerByTrait"]),
+        ("PaymentCostRules.cs", "TryCommitPayment", ["var paidPower = PayPowerCost(", "runePools[plan.PlayerId] = paidPower with"]),
+        ("PaymentCostRules.cs", "CanPayPowerCost", ["long.MaxValue - pool.PaidPowerThisTurn", "powerCostByTrait.Values.Sum"]),
+        ("PaymentCostRules.cs", "PayRuneCosts", ["var paidPower = PayPowerCost(", "PowerPaymentPurpose.Other",
+            "runePools[playerId] = SpendMana(paidPower, manaCost"]),
+        ("CoreRuleEngine.PowerPayments.cs", "RecordPowerPayments", ["if (!result.Accepted) return result",
+            "paidState.RunePools.GetValueOrDefault(player, RunePool.Empty).PaidPowerThisTurn", "paidState.TurnNumber",
+            "total - previous", "[PowerPaymentReceiptKey] = receipt", "Events = events"]),
+        ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitDefinitions", ["IsFaceUpNonStandbyUnit(source)",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)", "AttachedRuleTextRules.Instances(state, source)"]),
+        ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitContributions", [
+            "EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)",
+            "ResolveConditionalSourceUnitPowerBonus(s.Behavior, controller, state)",
+            "ResolveConditionalSourceUnitTags(s.Behavior, controller, state)"]),
+        ("CoreRuleEngine.cs", "ConditionalSourceUnitConditionApplies", ["ControllerPaidPowerThisTurn",
+            "state.RunePools.GetValueOrDefault(controllerId, RunePool.Empty).PaidPowerThisTurn",
+            ">= behavior.ConditionalSourceUnitRequiredPaidPower"]),
+        ("CoreRuleEngine.cs", "ResolveBattleCombatPower", ["staticPowerBonus += ResolveFieldPowerStaticAuraBonus("]),
+        ("CoreRuleEngine.cs", "ResolveFieldPowerStaticAuraBonus", ["ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"]),
+        ("CoreRuleEngine.RuleDerivedKeywords.cs", "RecomputeConditionalRuleDerivedKeywords", [
+            "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"]),
+        ("CoreRuleEngine.cs", "CompleteTurnEnd", ["TurnNumber = state.TurnNumber + 1", "RunePools = ClearRunePools(state, resetPaidPower: true)"]),
+        ("CoreRuleEngine.cs", "ClearRunePools", ["bool resetPaidPower = false",
+            "PaidPowerThisTurn = resetPaidPower ? 0", "state.RunePools.GetValueOrDefault(playerId, RunePool.Empty).PaidPowerThisTurn"]),
+        ("CoreRuleEngine.TurnSequence.cs", "AdvanceTurnStartSequence", [
+            "var pools = ClearRunePools(state).ToDictionary", "RunePools = pools"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "CommitRuleChoiceResources", ["ApplyRuleChoiceResourceDifference(",
+            "return RecomputeRuleDerivedKeywords(next)"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "ApplyRuleChoiceResourceDifference", [
+            'path.EndsWith(".paidPowerThisTurn", StringComparison.Ordinal)', 'current?.GetValue<long>()',
+            'return JsonValue.Create(count + delta)']),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "CompleteRuleChoiceResourceEffects", [
+            "RecordMightyTransitions(context, completed, beforeMight);\n                completed = StampNewTriggerQueueTimes(context, completed)",
+            "new MightInstructionFrames(beforeMight!, after, AlreadyCaptured: true)"]),
+        ("CoreRuleEngine.MightyTransitions.cs", "RecordMightyTransitions", [
+            "if (step.AlreadyCaptured) previous = step.After", "Events = events"]),
+        ("CoreRuleEngine.RuleChoiceResources.cs", "CompleteRuleChoiceResourceStep", [
+            "events.Where(item => item.Kind != CapturedMightInstruction).ToArray()"]),
+        ("CoreRuleEngine.LastKnownMight.cs", "CapturePublicMightFrame", ["PaidPowerThisTurn = publicZones.Keys.ToDictionary",
+            "state.RunePools.GetValueOrDefault(id, RunePool.Empty).PaidPowerThisTurn"]),
+        ("CoreRuleEngine.LastKnownMight.cs", "MightFrameState", ["runePools: frame.PlayerZones.Keys.ToDictionary",
+            "paidPowerThisTurn: frame.PaidPowerThisTurn.GetValueOrDefault(id)"]),
+        ("MatchRecovery.PowerPayments.cs", "ValidatePowerPaymentHistory", ["record.Event.Payload?.ContainsKey(CoreRuleEngine.PowerPaymentReceiptKey) == true",
+            "TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)",
+            'TryReadObjectLong(payload, "amount", out var amount)', 'TryReadObjectLong(payload, "paidPowerTotal", out var total)',
+            "command.Accepted", "pool.PaidPowerThisTurn != expected", "ValidateMightyPowerPaymentHistory("]),
+        ("CoreRuleEngine.cs", "BuildTriggerQueuedEvent", ["RequiresMightyPowerPaymentHistory(trigger.MightySkill)",
+            'payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!)']),
+        ("MatchRecovery.PowerPayments.cs", "ValidateMightyPowerPaymentHistory", [
+            'record.Event.Kind == "TRIGGER_QUEUED"', "MightyPowerPaymentHistoryHash(capture.Context)", "command.Accepted"]),
+    ]
+    exact = exact and all(any(all(token in body for token in tokens) for body in members(filename, name))
+                          for filename, name, tokens in checks)
+    exact = exact and any(body.count("return RecordPowerPayments(state,") == 3
+                          for body in members("CoreRuleEngine.RuleChoices.cs", "ResolveAsync"))
+    exact = exact and "ValidatePowerPaymentHistory(authoritativeState, commands, events, errors)" in sources.files.get(prefix + "MatchRecovery.cs", "")
+    evidence = sorted({prefix + filename for filename, _, _ in checks}
+                      | {prefix + "CoreRuleEngine.RuleChoices.cs", prefix + "MatchRecovery.cs"})
+    return result("route" if exact else "missing",
+        "共享实际扣费结果累计本回合符能支付，当前操控者条件驱动持续战力与游走；暂停资源提交、历史战力和原始付款记录共同校验"
+        if exact else "缺少逐句相符的支付阈值、持续战力／关键词、实际扣费累计、回合重置或原始支付历史消费者", evidence)
+
+
 def unit_event_result_redaction_is_connected(sources: Sources) -> bool:
     code = sources.files.get("src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs", "")
 
@@ -1944,8 +2032,15 @@ def token_play_observer_route(card: dict, clause: dict, sources: Sources) -> dic
         'EffectiveFieldControllerId(zones, c.ObjectId, c) == player',
         '!UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitToken', '|| TokenObjectRules.IsToken(entered)',
         'return WithUnitEvents(ev, observations);']
+    entry_source = sources.files.get("src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs", "")
+    entry_start = re.search(r"private static GameEvent CaptureUnitEntry\(", entry_source)
+    entry = re.split(r"\n    (?:private|internal|public) static ", entry_source[entry_start.end():], maxsplit=1)[0] if entry_start else ""
+    # A confirmed play may carry its paid-cost receipt through entry. Token
+    # entry uses the same observer with no receipt; both calls preserve it.
+    entry_observer = re.search(r"\bCaptureOtherUnitPlayed\(\s*ev\s*,\s*zones\s*,\s*cards\s*,\s*entered\s*,"
+        r"\s*player\s*,\s*turnEffects(?:\s*,\s*playedItem)?\s*\)", entry)
     requirements = {
-        "CoreRuleEngine.UnitEntryTriggers.cs": ["CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects)"],
+        "CoreRuleEngine.UnitEntryTriggers.cs": ["CaptureOtherUnitPlayed("],
         "CoreRuleEngine.UnitTokenEntry.cs": ['CaptureUnitEntry(new("UNIT_TOKEN_CREATED"'],
         "CoreRuleEngine.UnitEvents.cs": [
             "IsObjectOnField(zones, id)", "!card.IsFaceDown", "UnitEventTrigger(captured,",
@@ -1954,7 +2049,7 @@ def token_play_observer_route(card: dict, clause: dict, sources: Sources) -> dic
             "ApplyDirectUntilEndPowerModifier(source, source.ObjectId, item.SourceObjectId, context.CardNo,",
             '"UNIT_EVENT", spec.Amount, source.Power + spec.Amount'],
     }
-    if precise and all(token in capture for token in capture_tokens) \
+    if precise and entry_observer and all(token in capture for token in capture_tokens) \
             and all(all(token in sources.files.get("src/Riftbound.Engine/" + name, "") for token in tokens)
                     for name, tokens in requirements.items()):
         return result("route", "己方指示物单位入场的实际观察、独立响应技能和同代来源的本回合战力加成",
@@ -3215,22 +3310,17 @@ def revealed_unit_deck_selection_route(card: dict, clause: dict, sources: Source
         return None
     index = shapes.index(text)
     spec = card.get('unitEventAbility') or {}
-    expected = dict(timing='PLAY_OR_HOLD', effect='LOOK_REVEAL_DRAW_RECYCLE_THEN_TRAIT_BOON')
-    selection = spec.get('deckSelection') or {}
+    expected = dict(timing='PLAY_OR_HOLD', effect='LOOK_TOP_REVEAL_DRAW_UNIT_RECYCLE_REST')
+    selection = spec.get('deckSelection')
+    selection = selection if isinstance(selection, dict) else {}
     traits = selection.get('boonTraits')
     common = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == shapes[0] \
         and card.get('cardCategory') in {'unit', 'hero_unit'} \
         and any(b.get('playsSourceToBaseAsUnit') is True for b in card.get('behaviors', [])) \
         and all(type(spec.get(k)) is type(v) and spec.get(k) == v for k, v in expected.items()) \
-        and type(spec.get('amount')) is int and spec['amount'] >= 0 \
+        and type(spec.get('amount')) is int and spec['amount'] > 0 \
         and spec.get('optional', False) is False \
-        and not any(meaningful(v) for k, v in spec.items() if k not in {*expected, 'amount', 'deckSelection'}) \
-        and type(selection.get('lookCount')) is int and selection['lookCount'] == 3 \
-        and selection.get('selectedRequiredTag') == 'CARD_TYPE:UNIT' \
-        and isinstance(traits, list) and len(traits) == 4 \
-        and all(type(t) is str and t for t in traits) and len(set(traits)) == 4 \
-        and not any(meaningful(v) for k, v in selection.items()
-                    if k not in {'lookCount', 'selectedRequiredTag', 'boonTraits'})
+        and not any(meaningful(v) for k, v in spec.items() if k not in {*expected, 'amount', 'deckSelection'})
     prefix = 'src/Riftbound.Engine/'
 
     def member(filename, name):
@@ -3249,25 +3339,27 @@ def revealed_unit_deck_selection_route(card: dict, clause: dict, sources: Source
     history = 'CoreRuleEngine.DeckObservation.cs'
     common_checks = [
         (unit, 'UnitEventSpec', ['card.UnitEventAbility']),
+        (unit, 'UnitEventSpecForContext', ['UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing)']),
         (unit, 'UnitEventTimingMatches', ['declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal)']),
         (unit, 'CaptureUnitEvents', ['UnitEventTimingMatches(spec.Timing, timing)']),
         (unit, 'CaptureOtherUnitPlayed', ['CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY")']),
         ('CoreRuleEngine.Hold.cs', 'QueueHeldAbilities', ['CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")']),
-        (unit, 'ResolveUnitEventInstruction', ['if (spec.Effect == UnitEventDeckSelectionEffect) return ResolveUnitEventDeckSelection(state, item)']),
-        (helper, 'ResolveUnitEventDeckSelection', ['if (item.DeckChoiceCompleted)', 'TryUnitEventDeckChoiceBehavior(item, out var behavior)', 'return BeginDeckChoice(state, item, behavior)']),
-        (helper, 'TryUnitEventDeckChoiceBehavior', ['item.EffectKind != UnitEventEffect', 'item.UnitEvent is not { RevealedDeckSelection: null }', 'Effect: UnitEventDeckSelectionEffect', 'MainDeckLookCount: selection.LookCount']),
-        (deck, 'TryGetDeckChoiceBehavior', ['TryUnitEventDeckChoiceBehavior(item, out behavior)']),
+        (unit, 'ResolveUnitEventInstruction', ['if (spec.Effect == UnitEventLookUnitEffect)', 'if (item.DeckChoiceCompleted) return NoopStackResolutionResult(state)', 'TryGetDeckChoiceBehavior(state, item, out var deck)', 'return BeginDeckChoice(state, item, deck)']),
+        (deck, 'TryGetDeckChoiceBehavior', ['item.EffectKind == UnitEventEffect', 'SelectedUnitEventSpec(context) is { Effect: UnitEventLookUnitEffect, Amount: > 0 } spec', 'MainDeckLookCount: spec.Amount']),
         (deck, 'BeginDeckChoice', ['MainDeck.Take(behavior.MainDeckLookCount)', 'ObserveDeckCards(', '"LOOK"', '"DECK_EFFECT"', 'DeckChoiceTargetAllowed(state, behavior, id)']),
         (deck, 'ResolveDeckChoice', ['ObservedRemainingDeckCards(', 'TryGetDeckChoiceBehavior(state,item, out var behavior)', 'DeckChoiceCompleted =', 'RedactUnitEventSourceEvents(state, item, events.Concat(resumed.Events).ToArray())']),
         (unit, 'RedactUnitEventSourceEvents', ['if (item.UnitEvent is null)', 'VisibleObjectIdForViewer(', 'ProjectionViewers.Spectator', 'GetValueOrDefault("sourceObjectId")']),
-        (history, 'ObservedDeckCaptureHash', ['instruction.Parent?.UnitEvent is { } unitEvent', 'ParentUnitEventCapture = ObservedUnitEventCaptureHash(', 'unitEvent, instruction.Parent.SourceObjectId, instruction.Parent.ControllerId)']),
+        (history, 'ObservedDeckCaptureHash', ['instruction.Parent?.UnitEvent is { } unitEvent', 'UnitEventSpecForContext(unitEvent)?.DeckSelection is not null', 'ParentUnitEventCapture = ObservedUnitEventCaptureHash(', 'unitEvent, instruction.Parent.SourceObjectId, instruction.Parent.ControllerId)']),
+        (history, 'ValidObservationParent', ['parent.UnitEvent is { } unitEvent ? TryGetDeckChoiceBehavior(state, parent, out _)', 'ValidUnitEvent(state, unitEvent, parent.EffectKind, parent.SourceObjectId, parent.CardNo, parent.ControllerId)']),
     ]
     specific = []
     reason = ['打出／据守后独立私有查看顶部三张', '可选展示其中一名单位并按实际抽牌流程抽取',
               '实际回收未选取的所查看卡牌', '根据实际展示的四类特性创建独立友方增益技能'][index]
-    if index == 1:
+    if index == 0:
+        common = common and spec['amount'] == 3
+    elif index == 1:
         specific = [
-            (helper, 'TryUnitEventDeckChoiceBehavior', ['MinTargetCount: 0', 'MainDeckTargetRequiredTag: selection.SelectedRequiredTag', 'DrawsSelectedMainDeckTarget: true']),
+            (deck, 'TryGetDeckChoiceBehavior', ['MinTargetCount: 0', 'MainDeckTargetRequiredTag: CardObjectTags.UnitCard', 'DrawsSelectedMainDeckTarget: true']),
             (deck, 'BeginDeckChoice', ['behavior.MinTargetCount != 0 && legal.Length > 0', 'mandatory ? 1 : 0']),
             (deck, 'DeckChoiceTargetAllowed', ['card.Tags.Contains(behavior.MainDeckTargetRequiredTag)']),
             (deck, 'ResolveDeckChoice', ['BeforeDeckReveal(', 'selected = selected.Where(id => zones[item.ControllerId].MainDeck.Contains(id))', '"CARD_REVEALED"', 'ObserveDeckCards(', '"REVEAL"', 'DrawSelectedMainDeckTargetsAndRecycleRest(']),
@@ -3275,24 +3367,26 @@ def revealed_unit_deck_selection_route(card: dict, clause: dict, sources: Source
         ]
     elif index == 2:
         specific = [
-            (helper, 'TryUnitEventDeckChoiceBehavior', ['RecyclesUnselectedMainDeckLookCards: true']),
+            (deck, 'TryGetDeckChoiceBehavior', ['RecyclesUnselectedMainDeckLookCards: true']),
             (deck, 'ResolveDeckChoice', ['DrawSelectedMainDeckTargetsAndRecycleRest(', 'behavior.RecyclesUnselectedMainDeckLookCards']),
             ('CoreRuleEngine.cs', 'DrawSelectedMainDeckTargetsAndRecycleRest', ['recycleUnselectedCards || graveUnselectedCards', '!selectedCardIds.Contains(cardId, StringComparer.Ordinal)', 'RandomizeForMainDeckBottom(', '.Concat(randomizedRecycledCardIds)', 'CaptureRecycleObservers(new GameEvent(', '"CARDS_RECYCLED"']),
         ]
     elif index == 3:
-        common = common and set(traits) == {'鸟类', '猫科', '犬形', '魄罗'}
+        common = common and isinstance(traits, list) and len(traits) == 4 \
+            and all(type(t) is str for t in traits) and set(traits) == {'鸟类', '猫科', '犬形', '魄罗'} \
+            and not any(meaningful(v) for k, v in selection.items() if k != 'boonTraits')
         specific = [
             (deck, 'ResolveDeckChoice', ['selectionReveal = CaptureDeckSelectionReveal(state, item, cards, selected)', 'AppendDeckSelectionBoonEvent(item, selectionReveal, events)']),
             (helper, 'CaptureDeckSelectionReveal', ['selected.Single()', 'new(chosen.ObjectId, chosen.ObjectGeneration)', 'chosen.Tags.Distinct(StringComparer.Ordinal)', 'RuleChoices.Value?.CompletionTick ?? state.Tick + 1']),
             (helper, 'AppendDeckSelectionBoonEvent', ['selection.BoonTraits.Any(revealed.Traits.Contains)', 'ReflexiveTick = revealed.RevealedTick', 'RevealedDeckSelection = revealed', 'WithUnitEvents(', 'DeckSelectionBoonCreatedEvent']),
-            ('CoreRuleEngine.UnitEventModes.cs', 'SelectedUnitEventSpec', ['context.RevealedDeckSelection is not null', 'spec?.Effect == UnitEventDeckSelectionEffect', 'Effect = "BOON_FRIENDLY", Amount = 1, Optional = false']),
+            ('CoreRuleEngine.UnitEventModes.cs', 'SelectedUnitEventSpec', ['context.RevealedDeckSelection is not null', 'spec is { Effect: UnitEventLookUnitEffect, DeckSelection: not null }', 'Effect = "BOON_FRIENDLY", Amount = 1, Optional = false']),
             (unit, 'ResolveUnitEventInstruction', ['"BOON_FRIENDLY"', 'return ResolvePermanentUnitEventInstruction(state, item, spec)']),
             (unit, 'UnitEventTargets', ['"BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)', '"BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)\n                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId']),
             ('CoreRuleEngine.PermanentUnitEvents.cs', 'ResolvePermanentUnitEventInstruction', ['UnitEventTargets(state, item).Contains(target)', 'spec.Effect == "BOON_FRIENDLY"', 'ApplyBoon(cards[target]']),
             (unit, 'NeedsUnitEventTarget', ['SelectedUnitEventSpec(c)?.Effect', '"BOON_FRIENDLY"']),
             (unit, 'ValidUnitEvent', ['ValidDeckSelectionReveal(state, c, spec)']),
             (helper, 'ValidDeckSelectionReveal', ['context.ReflexiveTick != fact.RevealedTick', 'PredictBindingMatches(', 'fact.Traits.SequenceEqual(printed.Tags.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))']),
-            ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', ['UnitEventSpec(context.CardNo)?.Effect == UnitEventDeckSelectionEffect']),
+            ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', ['UnitEventSpecForContext(context) is { Effect: UnitEventLookUnitEffect, DeckSelection: not null }']),
             ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', ['context.RevealedDeckSelection']),
             ('CoreRuleEngine.ScheduledUnitEvents.cs', 'ObservedUnitEventOccurrenceTick', ['context.RevealedDeckSelection?.RevealedTick']),
             ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', ['CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)', 'command.Accepted', 'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)']),
@@ -3368,6 +3462,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return level_cost
     if experience := conditional_unit_experience_route(card, clause, sources):
         return experience
+    if paid_passive := paid_power_unit_passive_route(card, clause, sources):
+        return paid_passive
     if targeted := friendly_target_ready_route(card, clause, sources):
         return targeted
     if damage := source_attack_damage_route(card, clause, sources):

@@ -340,15 +340,21 @@
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
-          "contains": "if (spec.Effect == UnitEventDeckSelectionEffect) return ResolveUnitEventDeckSelection(state, item);"
+          "contains": [
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
+          ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventDeckSelection.cs",
-          "contains": "return BeginDeckChoice(state, item, behavior);"
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventDeckSelection.cs",
-          "contains": "MainDeckLookCount: selection.LookCount"
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": "UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing)"
         }
       ],
       "tests": [
@@ -391,11 +397,17 @@
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
-          "contains": "if (spec.Effect == UnitEventDeckSelectionEffect) return ResolveUnitEventDeckSelection(state, item);"
+          "contains": [
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
+          ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventDeckSelection.cs",
-          "contains": "return BeginDeckChoice(state, item, behavior);"
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
@@ -442,14 +454,20 @@
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
-          "contains": "if (spec.Effect == UnitEventDeckSelectionEffect) return ResolveUnitEventDeckSelection(state, item);"
+          "contains": [
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
+          ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventDeckSelection.cs",
-          "contains": "return BeginDeckChoice(state, item, behavior);"
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventDeckSelection.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
           "contains": "RecyclesUnselectedMainDeckLookCards: true"
         }
       ],
@@ -493,11 +511,17 @@
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
-          "contains": "if (spec.Effect == UnitEventDeckSelectionEffect) return ResolveUnitEventDeckSelection(state, item);"
+          "contains": [
+            "if (spec.Effect == UnitEventLookUnitEffect)",
+            "return BeginDeckChoice(state, item, deck);"
+          ]
         },
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEventDeckSelection.cs",
-          "contains": "return BeginDeckChoice(state, item, behavior);"
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "contains": [
+            "MainDeckLookCount: spec.Amount",
+            "MainDeckTargetRequiredTag: CardObjectTags.UnitCard"
+          ]
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",

@@ -92,6 +92,23 @@ public sealed class IvernRevealedDeckSelectionTests
     }
 
     [Fact]
+    public async Task TheSharedHeraldLookDoesNotAcquireTheSeparateAnimalBoon()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "HERALD", RiftHeraldMovementLookTests.Herald, "P1", "BASE");
+        initial = RadGearTestPosition.Put(initial, "FOOTHOLD", "OGN·219/298", "P1", "BATTLEFIELD", "BF");
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("HERALD", "BASE", "BATTLEFIELD:BF"));
+        Assert.Equal("MOVE", Assert.Single(game.State.StackItems).UnitEvent!.Timing);
+        await game.Top(); await Choose(game, "SEEN-UNIT");
+        Assert.Contains("SEEN-UNIT", game.State.PlayerZones["P1"].Hand);
+        Assert.Equal("TAIL", game.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == CoreRuleEngine.DeckSelectionBoonCreatedEvent);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice);
+        await game.ColdCheckpoint();
+    }
+
+    [Fact]
     public async Task DecliningTheRevealRecyclesAllThreeWithoutRevealingThemOrCreatingABoon()
     {
         var game = await Begin(); await Choose(game);

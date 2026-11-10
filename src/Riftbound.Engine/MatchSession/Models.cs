@@ -86,7 +86,8 @@ public sealed record RunePool
         int equipmentOnlyPower = 0,
         int duelOnlyMana = 0,
         int unitOrEquipmentPlayOnlyPower = 0,
-        int unitPlayOrUnitAbilityOnlyMana = 0)
+        int unitPlayOrUnitAbilityOnlyMana = 0,
+        long paidPowerThisTurn = 0)
     {
         // Preserve malformed input for recovery validation instead of washing
         // negative or unrepresentable resource amounts into a legal pool.
@@ -99,6 +100,7 @@ public sealed record RunePool
         DuelOnlyMana = duelOnlyMana;
         UnitOrEquipmentPlayOnlyPower = unitOrEquipmentPlayOnlyPower;
         UnitPlayOrUnitAbilityOnlyMana = unitPlayOrUnitAbilityOnlyMana;
+        PaidPowerThisTurn = paidPowerThisTurn;
     }
 
     public static RunePool Empty { get; } = new(0, 0);
@@ -133,6 +135,12 @@ public sealed record RunePool
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public int UnitOrEquipmentPlayOnlyPower { get; init; }
 
+    // Debit history travels with an immutable payment result. A discarded
+    // quote cannot change it; ordinary resource gains preserve the value.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonNumberHandling(JsonNumberHandling.Strict)]
+    public long PaidPowerThisTurn { get; init; }
+
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public IReadOnlyDictionary<string, int> PowerByTrait { get; init; }
 
@@ -153,12 +161,15 @@ public sealed record RunePool
         ? (int)((long)Mana + SpellOnlyMana + DuelOnlyMana + UnitPlayOrUnitAbilityOnlyMana) : -1;
 
     [JsonIgnore]
-    public bool HasSupportedAmounts => PowerByTrait is not null && Mana >= 0 && SpellOnlyMana >= 0 && DuelOnlyMana >= 0 && UnitPlayOrUnitAbilityOnlyMana >= 0 && Power >= 0
+    public bool HasSupportedAmounts => PowerByTrait is not null && PaidPowerThisTurn >= 0 && Mana >= 0 && SpellOnlyMana >= 0 && DuelOnlyMana >= 0 && UnitPlayOrUnitAbilityOnlyMana >= 0 && Power >= 0
         && SpellOnlyPower >= 0 && EquipmentOnlyPower >= 0 && UnitOrEquipmentPlayOnlyPower >= 0
         && (long)Mana + SpellOnlyMana + DuelOnlyMana + UnitPlayOrUnitAbilityOnlyMana <= int.MaxValue
         && PowerByTrait.Values.All(value => value >= 0)
         && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower + UnitOrEquipmentPlayOnlyPower <= int.MaxValue;
 
+    // Pool equality describes current resource balances. Turn history is
+    // serialized and authenticated separately; spending and then gaining the
+    // same resources leaves equal balances, but a different authoritative hash.
     public bool Equals(RunePool? other)
     {
         if (ReferenceEquals(this, other))

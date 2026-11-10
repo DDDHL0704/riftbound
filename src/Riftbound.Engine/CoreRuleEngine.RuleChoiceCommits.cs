@@ -9,10 +9,13 @@ public sealed partial class CoreRuleEngine
     private static MatchState RuleChoiceResourceContext(MatchState context)
         => RuleChoices.Value?.ResourceDeathLedger is { } ledger ? context with { DeathLedger = ledger } : context;
 
-    private static ResolutionResult CompleteRuleChoiceResourceEffects(MatchState context, ResolutionResult result, int exhaustEventStart)
+    private static ResolutionResult CompleteRuleChoiceResourceEffects(MatchState context, ResolutionResult result, int exhaustEventStart,
+        LastKnownMightFrame? beforeMight = null)
     {
+        var paidPower = beforeMight is not null && result.State.RunePools.Any(entry =>
+            entry.Value.PaidPowerThisTurn != beforeMight.PaidPowerThisTurn.GetValueOrDefault(entry.Key));
         if (!result.Events.Any(e => e.Payload.ContainsKey("capturedUnitDeath") || e.Kind == CapturedHandDiscardEvent)
-            && (RuleChoices.Value?.InstructionUnitEvents.Count ?? 0) <= exhaustEventStart) return result;
+            && (RuleChoices.Value?.InstructionUnitEvents.Count ?? 0) <= exhaustEventStart && !paidPower) return result;
         var frame = RuleChoices.Value!; var completionTick = frame.CompletionTick;
         try
         {
@@ -23,6 +26,15 @@ public sealed partial class CoreRuleEngine
             completed = StampNewTriggerQueueTimes(context, completed with {
                 State = completed.State with { Tick = frame.AnswerTick } });
             completed = QueueInstructionUnitEvents(context, completed, exhaustEventStart);
+            if (paidPower) {
+                completed = RefreshRuleDerivedKeywordLayers(completed);
+                completed = RecordMightyTransitions(context, completed, beforeMight);
+                completed = StampNewTriggerQueueTimes(context, completed);
+                var after = CapturePublicMightFrame(completed.State, completed.State.PlayerZones, completed.State.CardObjects);
+                completed = completed with { Events = completed.Events.Append(new GameEvent(CapturedMightInstruction,
+                    "记录已独立提交的资源支付战力区间", new Dictionary<string, object?> {
+                        ["frames"] = new MightInstructionFrames(beforeMight!, after, AlreadyCaptured: true) })).ToArray() };
+            }
             frame.ResourceDeathLedger = completed.State.DeathLedger;
             return completed;
         }
@@ -50,7 +62,7 @@ public sealed partial class CoreRuleEngine
         var next = committed.Deserialize<MatchState>(ResourceStepJson)!;
         if (next.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
             throw new InvalidOperationException("Completed resource steps produced an unsupported pool.");
-        return next;
+        return RecomputeRuleDerivedKeywords(next);
     }
 
     private static JsonNode? ApplyRuleChoiceResourceDifference(JsonNode? current, JsonNode? before, JsonNode? after, string path)
@@ -62,8 +74,18 @@ public sealed partial class CoreRuleEngine
         // Resource gains/conversions are deltas even when an earlier uncommitted
         // instruction has spent part of the pool visible to the child.
         if (additive && (before is JsonValue || after is JsonValue))
+        {
+            if (path.EndsWith(".paidPowerThisTurn", StringComparison.Ordinal))
+            {
+                var count = current?.GetValue<long>() ?? 0;
+                var delta = (after?.GetValue<long>() ?? 0) - (before?.GetValue<long>() ?? 0);
+                if (count < 0 || delta < 0 || delta > long.MaxValue - count)
+                    throw new ResourceNumericLimitException("本回合已支付符能数量");
+                return JsonValue.Create(count + delta);
+            }
             return JsonValue.Create(checked((int)((current?.GetValue<int>() ?? 0)
                 + (long)(after?.GetValue<int>() ?? 0) - (before?.GetValue<int>() ?? 0))));
+        }
         if (before is JsonObject || after is JsonObject)
         {
             var prior = before as JsonObject ?? new(); var next = after as JsonObject ?? new();

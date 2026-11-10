@@ -10,12 +10,12 @@ public sealed partial class CoreRuleEngine
     // instruction costs and before any player receives response priority.
     private static UnitEventAbilitySpec? SelectedUnitEventSpec(UnitEventContext context)
     {
-        var spec = UnitEventSpec(context.CardNo);
+        var spec = UnitEventSpecForContext(context);
         if (context.DelayedReceipt is not null && spec?.NextMainEffect is { } delayedEffect)
             spec = spec with { Effect = delayedEffect, Optional = true };
         if (HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null)
             return spec! with { Effect = AttachPlayedArmamentEffect, Optional = false };
-        if (context.RevealedDeckSelection is not null && spec?.Effect == UnitEventDeckSelectionEffect)
+        if (context.RevealedDeckSelection is not null && spec is { Effect: UnitEventLookUnitEffect, DeckSelection: not null })
             spec = spec with { Effect = "BOON_FRIENDLY", Amount = 1, Optional = false };
         if (context.Mode is null) return spec;
         if (spec?.Modes?.SingleOrDefault(m => m.Id == context.Mode) is not { } mode) return null;
@@ -27,25 +27,29 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool NeedsUnitEventMode(StackItemState item) => item.UnitEvent is { Mode: null } context
-        && UnitEventSpec(context.CardNo)?.Modes is { Count: > 0 }
-        && (UnitEventSpec(context.CardNo)?.Effect != RuneDomainRevealEffect || context.RevealedRune is not null);
+        && UnitEventSpecForContext(context)?.Modes is { Count: > 0 }
+        && (UnitEventSpecForContext(context)?.Effect != RuneDomainRevealEffect || context.RevealedRune is not null);
 
     private static RuleTextModeUse UnitEventModeUse(StackItemState item, string mode)
         => new(new(item.SourceObjectId, item.UnitEvent!.SourceGeneration), item.UnitEvent.CardNo, mode, item.UnitEvent.Origin, item.UnitEvent.TokenFactoryCardNo);
 
     private static bool UnitEventModeAlreadyUsed(MatchState state, StackItemState item, string mode)
-        => UnitEventSpec(item.UnitEvent!.CardNo)?.DistinctModesPerTurn == true
+        => UnitEventSpecForContext(item.UnitEvent!)?.DistinctModesPerTurn == true
             && state.RuleTextModeUses is { } ledger && ledger.TurnNumber == state.TurnNumber
             && ledger.Uses.Contains(UnitEventModeUse(item, mode));
 
     private static PendingCardChoiceState UnitEventModeChoice(MatchState state, StackItemState item)
-        => new("UNIT-EVENT-MODE:" + item.StackItemId, UnitEventModeWindow, item.ControllerId,
-            UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1, 1,
-            UnitEventSpec(item.UnitEvent!.CardNo)!.Modes!.Where(m => RuneDomainModeApplies(item.UnitEvent, m) && !UnitEventModeAlreadyUsed(state, item, m.Id)
+    {
+        var context = item.UnitEvent!;
+        var spec = UnitEventSpecForContext(context)!;
+        return new("UNIT-EVENT-MODE:" + item.StackItemId, UnitEventModeWindow, item.ControllerId,
+            spec.Optional ? 0 : 1, 1,
+            spec.Modes!.Where(m => RuneDomainModeApplies(context, m) && !UnitEventModeAlreadyUsed(state, item, m.Id)
                 && (m.Effect is not ("STUN_ENEMY" or RuneDomainDamageEffect) || UnitEventTargets(state, item with {
-                    UnitEvent = item.UnitEvent with { Mode = m.Id } }).Length > 0)).Select(m => m.Id).ToArray(), [item.SourceObjectId],
+                    UnitEvent = context with { Mode = m.Id } }).Length > 0)).Select(m => m.Id).ToArray(), [item.SourceObjectId],
             "选择一个技能效果；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
             { ResolvingStackItemId = item.StackItemId };
+    }
 
     private static ResolutionResult PrepareUnitEventMode(ResolutionResult result, StackItemState item)
     {
@@ -71,7 +75,7 @@ public sealed partial class CoreRuleEngine
 
     internal static string UnitEventModeLabel(MatchState state, PendingCardChoiceState choice, string mode)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId)?.UnitEvent is { } context
-            ? UnitEventSpec(context.CardNo)?.Modes?.FirstOrDefault(m => m.Id == mode)?.Label ?? mode : mode;
+            ? UnitEventSpecForContext(context)?.Modes?.FirstOrDefault(m => m.Id == mode)?.Label ?? mode : mode;
 
     private static ResolutionResult ResolveUnitEventMode(MatchState state, PendingCardChoiceState choice,
         IReadOnlyList<string> selected)
@@ -81,7 +85,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
         if (selected.Count == 0)
         {
-            if (!UnitEventSpec(item.UnitEvent!.CardNo)!.Optional)
+            if (!UnitEventSpecForContext(item.UnitEvent!)!.Optional)
                 return RejectWithCorePrompts(state, "此技能必须选择一个模式。", ErrorCodes.InvalidTarget);
             var declined = state with { Tick = state.Tick + 1, PendingCardChoice = null };
             return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(new(true, null, declined, [],
@@ -89,7 +93,7 @@ public sealed partial class CoreRuleEngine
         }
         var changed = item with { UnitEvent = item.UnitEvent! with { Mode = selected.Single() } };
         var ledger = state.RuleTextModeUses;
-        if (UnitEventSpec(item.UnitEvent!.CardNo)!.DistinctModesPerTurn)
+        if (UnitEventSpecForContext(item.UnitEvent!)!.DistinctModesPerTurn)
             ledger = new(state.TurnNumber, [..(ledger?.TurnNumber == state.TurnNumber ? ledger.Uses : []),
                 UnitEventModeUse(item, selected.Single())]);
         var next = RestoreAfterTriggerConfirmation(state with { Tick = state.Tick + 1, PendingCardChoice = null,
@@ -99,11 +103,11 @@ public sealed partial class CoreRuleEngine
                 ["stackItemId"] = item.StackItemId,
                 ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, ProjectionViewers.Spectator),
                 ["mode"] = selected.Single() }) };
-        if (UnitEventSpec(item.UnitEvent!.CardNo)!.Optional)
+        if (UnitEventSpecForContext(item.UnitEvent!)!.Optional)
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
                 ["optionalModeSkillHash"] = MatchStateHasher.HashValue(item.StackItemId),
                 ["playerId"] = item.ControllerId } };
-        if (UnitEventSpec(item.UnitEvent!.CardNo)!.DistinctModesPerTurn)
+        if (UnitEventSpecForContext(item.UnitEvent!)!.DistinctModesPerTurn)
             events.Add(new("UNIT_EVENT_MODE_USED", "记录本回合技能模式使用", new Dictionary<string, object?> {
                 ["modeUse"] = UnitEventModeUse(item, selected.Single()), ["playerId"] = item.ControllerId }));
         return PrepareTriggerConfirmation(new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)));

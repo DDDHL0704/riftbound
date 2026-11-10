@@ -915,8 +915,8 @@ public sealed class CardCatalogBaselineTests
             functionalUnits: 47,
             implementedFunctionalUnits: 47,
             pendingFunctionalUnits: 0);
-        Assert.Equal(6, experienceRows.Count(row => HasExperienceBehavior(row.Definition)));
-        Assert.Equal(6, experienceUnitGroups.Count(group => group.Any(row => HasExperienceBehavior(row.Definition))));
+        Assert.Equal(8, experienceRows.Count(row => HasExperienceBehavior(row.Definition)));
+        Assert.Equal(8, experienceUnitGroups.Count(group => group.Any(row => HasExperienceBehavior(row.Definition))));
         Assert.All(rows, row =>
         {
             Assert.Equal(row.Entries, row.ProfileDeferredEntries);
@@ -9102,8 +9102,8 @@ public sealed class CardCatalogBaselineTests
 
         var safetyInspector = BuildBasicActionProfile(specs, "UNL-164/219");
         Assert.True(safetyInspector.HasExperience);
-        Assert.DoesNotContain(CardBasicActionNames.Experience, safetyInspector.DelegatedP2Actions);
-        Assert.Contains(CardBasicActionNames.Experience, safetyInspector.DeferredActions);
+        Assert.Contains(CardBasicActionNames.Experience, safetyInspector.DelegatedP2Actions);
+        Assert.DoesNotContain(CardBasicActionNames.Experience, safetyInspector.DeferredActions);
         Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, safetyInspector.Status);
 
         var hostileTakeover = BuildBasicActionProfile(specs, "SFD·202/221");

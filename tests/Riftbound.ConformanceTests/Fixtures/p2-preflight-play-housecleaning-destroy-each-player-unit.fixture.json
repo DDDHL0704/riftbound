@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-housecleaning-destroy-each-player-unit",
-  "description": "Housecleaning destroys one unit controlled by each player.",
+  "description": "Housecleaning confirms without targets; each player will choose their own unit during resolution.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,16 +12,19 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·209/298 清理门户",
-      "note": "官方卡面：费用 2；每名玩家选择并摧毁一名自己的单位。当前 2P preflight 用目标顺序记录 P1 自选单位和 P2 自选单位。"
+      "note": "官方卡面每名玩家选择并摧毁一名自己的单位；确认时不由施法者预选双方单位。后续原生用例分别提交各玩家的结算选择。"
     },
     {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356; p62-p63 rule 428",
-      "note": "法术需要合法目标并作为结算链项目结算；摧毁会将场上单位移入拥有者废牌堆。"
+      "source": "中国区核心规则2026-10-16",
+      "locator": "303.2.a、355.10.e、355.18、412.1清理门户示例",
+      "note": "由各玩家在结算中挑选并摧毁自己的单位，各自承担摧毁责任。"
     }
   ],
   "roomId": "p2-preflight-housecleaning-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302105,
     "turnNumber": 105,
@@ -48,26 +51,52 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
-        "hand": ["P1-SPELL-HOUSECLEANING"],
-        "base": ["P1-HOUSECLEANING-FRIENDLY-001"],
-        "battlefields": ["P1-HOUSECLEANING-KEEPER-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
+        "hand": [
+          "P1-SPELL-HOUSECLEANING"
+        ],
+        "base": [
+          "P1-HOUSECLEANING-FRIENDLY-001"
+        ],
+        "battlefields": [
+          "P1-HOUSECLEANING-KEEPER-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
-        "base": ["P2-HOUSECLEANING-KEEPER-001"],
-        "battlefields": ["P2-HOUSECLEANING-ENEMY-001"],
+        "base": [
+          "P2-HOUSECLEANING-KEEPER-001"
+        ],
+        "battlefields": [
+          "P2-HOUSECLEANING-ENEMY-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -75,25 +104,58 @@
         "damage": 0,
         "power": 2,
         "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "cardNo": "OGN·219/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P1-HOUSECLEANING-KEEPER-001": {
         "damage": 0,
-        "power": 4,
+        "power": 2,
         "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "cardNo": "OGN·219/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-HOUSECLEANING-ENEMY-001": {
         "damage": 0,
-        "power": 3,
+        "power": 2,
         "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "cardNo": "OGN·219/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
       },
       "P2-HOUSECLEANING-KEEPER-001": {
         "damage": 0,
-        "power": 5,
+        "power": 2,
         "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "cardNo": "OGN·219/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P1-SPELL-HOUSECLEANING": {
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·209/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 2
       }
     }
   },
@@ -105,38 +167,21 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-HOUSECLEANING",
         "cardNo": "OGN·209/298",
-        "targetObjectIds": ["P1-HOUSECLEANING-FRIENDLY-001", "P2-HOUSECLEANING-ENEMY-001"]
-      }
-    },
-    {
-      "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-housecleaning-p1-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
-    },
-    {
-      "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-housecleaning-p2-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
+        "targetObjectIds": []
       }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "UNIT_DESTROYED",
-      "UNIT_DESTROYED"
+      "STACK_ITEM_ADDED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "tick": 1,
@@ -155,86 +200,75 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-HOUSECLEANING",
           "cardNo": "OGN·209/298",
-          "targetObjectIds": ["P1-HOUSECLEANING-FRIENDLY-001", "P2-HOUSECLEANING-ENEMY-001"],
+          "targetObjectIds": [],
           "effectKind": "HOUSECLEANING_DESTROY_EACH_PLAYER_UNIT"
-        }
-      },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
-      {
-        "kind": "UNIT_DESTROYED",
-        "tick": 3,
-        "sequence": 7,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-HOUSECLEANING",
-          "targetObjectId": "P1-HOUSECLEANING-FRIENDLY-001",
-          "ownerPlayerId": "P1",
-          "destroyedByPlayerId": "P1"
-        }
-      },
-      {
-        "kind": "UNIT_DESTROYED",
-        "tick": 3,
-        "sequence": 8,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-HOUSECLEANING",
-          "targetObjectId": "P2-HOUSECLEANING-ENEMY-001",
-          "ownerPlayerId": "P2",
-          "destroyedByPlayerId": "P1"
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "PASS_PRIORITY"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 105,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
+      "timingState": "NEUTRAL_CLOSED",
       "scores": {
         "P1": 0,
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": [],
-          "battlefields": ["P1-HOUSECLEANING-KEEPER-001"],
-          "graveyard": ["P1-HOUSECLEANING-FRIENDLY-001", "P1-SPELL-HOUSECLEANING"]
+          "base": [
+            "P1-HOUSECLEANING-FRIENDLY-001"
+          ],
+          "battlefields": [
+            "P1-HOUSECLEANING-KEEPER-001"
+          ],
+          "graveyard": []
         },
         "P2": {
-          "base": ["P2-HOUSECLEANING-KEEPER-001"],
-          "battlefields": [],
-          "graveyard": ["P2-HOUSECLEANING-ENEMY-001"]
+          "base": [
+            "P2-HOUSECLEANING-KEEPER-001"
+          ],
+          "battlefields": [
+            "P2-HOUSECLEANING-ENEMY-001"
+          ],
+          "graveyard": []
         }
       },
       "cardObjects": {
         "P1-HOUSECLEANING-KEEPER-001": {
           "damage": 0,
-          "power": 4,
+          "power": 2,
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0
         },
         "P2-HOUSECLEANING-KEEPER-001": {
           "damage": 0,
-          "power": 5,
+          "power": 2,
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0
         }
       },
-      "stackItems": []
-    },
-    "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "priorityPlayerId": "P1"
     }
   }
 }

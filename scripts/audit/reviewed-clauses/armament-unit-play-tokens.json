@@ -33,7 +33,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "IsUnitEventGraveyardPlay(item) ? state.PlayerZones[item.ControllerId].Graveyard",
-            "UnitEventGraveyardPlayEffect or UnitEventEnemyDamageEffect or ArmamentUnitEventRules.FixedDamageEffect"
+            "UnitEventGraveyardPlayEffect or UnitEventGraveyardReturnEffect or UnitEventEnemyDamageEffect or ArmamentUnitEventRules.FixedDamageEffect"
           ]
         },
         {

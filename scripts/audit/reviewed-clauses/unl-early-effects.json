@@ -24,7 +24,7 @@
           "contains": [
             "ConditionalSourceUnitContributions(",
             "AttachedRuleTextRules.Instances(state, source)",
-            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)"
           ]
         },
         {
@@ -2354,7 +2354,8 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
           "contains": [
-            "or ArmamentLastBreathRules.Timing or \"FRIENDLY_UNIT_PLAYED\" or \"START\""
+            "internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)",
+            "or \"FRIENDLY_UNIT_PLAYED\" or \"START\" or OpponentScoringActionTiming"
           ]
         },
         {
@@ -3197,7 +3198,7 @@
           "contains": [
             "ConditionalSourceUnitContributions(",
             "AttachedRuleTextRules.Instances(state, source)",
-            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)"
           ]
         },
         {

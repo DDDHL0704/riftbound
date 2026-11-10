@@ -109,9 +109,10 @@ public sealed partial class CoreRuleEngine
                 before.ExecutionIndex, before.InstanceIndex, before.Origin, before.SourceTokenFactoryCardNo,
                 before.SelectionReveal }
         });
-        // Existing spell/insight observation digests remain unchanged. A
-        // captured unit-event parent must also preserve its original source.
+        // Preserve existing spell, insight and shared unit-look digests. The
+        // new reveal/boon family also binds its original captured parent.
         return instruction.Parent?.UnitEvent is { } unitEvent
+            && UnitEventSpecForContext(unitEvent)?.DeckSelection is not null
             ? MatchStateHasher.HashValue(new { capture, ParentUnitEventCapture = ObservedUnitEventCaptureHash(
                 unitEvent, instruction.Parent.SourceObjectId, instruction.Parent.ControllerId) }) : capture;
     }
@@ -279,7 +280,7 @@ public sealed partial class CoreRuleEngine
             : IsMovementRevealObservation(parent)
                 ? ValidMovementObserver(state,parent.MovementObserver!,parent.EffectKind,parent.ControllerId,parent.SourceObjectId,parent.CardNo)
             : parent.FieldContext is { } field ? ValidFieldContextState(state,field,parent.SourceObjectId,parent.ControllerId,parent.EffectKind,parent.CardNo)
-            : parent.UnitEvent is { } unitEvent ? TryUnitEventDeckChoiceBehavior(parent, out _)
+            : parent.UnitEvent is { } unitEvent ? TryGetDeckChoiceBehavior(state, parent, out _)
                 && ValidUnitEvent(state, unitEvent, parent.EffectKind, parent.SourceObjectId, parent.CardNo, parent.ControllerId)
             : parent.InsightContext is { } insight ? ValidInsightTrigger(insight,parent.EffectKind,parent.ControllerId,parent.CardNo)
                 && ValidConquestLookSource(state,insight,parent.SourceObjectId)

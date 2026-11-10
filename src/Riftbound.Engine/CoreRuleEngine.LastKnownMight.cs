@@ -14,6 +14,7 @@ public sealed record LastKnownMightFrame(
     IReadOnlyDictionary<string, int> PlayerExperience)
 {
     public IReadOnlyList<string> ConditionalTurnHistory { get; init; } = [];
+    public IReadOnlyDictionary<string, long> PaidPowerThisTurn { get; init; } = new Dictionary<string, long>();
 }
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
@@ -43,13 +44,17 @@ public sealed partial class CoreRuleEngine
         return new(publicZones, visible, publicLocations, state.UntilEndOfTurnEffects
             .Where(e => e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal)).ToArray(),
             publicZones.Keys.ToDictionary(id => id, id => state.PlayerExperience.GetValueOrDefault(id), StringComparer.Ordinal)) {
-                ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys) };
+                ConditionalTurnHistory = PublicConditionalSourceUnitTurnHistory(state.UntilEndOfTurnEffects, publicZones.Keys),
+                PaidPowerThisTurn = publicZones.Keys.ToDictionary(id => id,
+                    id => state.RunePools.GetValueOrDefault(id, RunePool.Empty).PaidPowerThisTurn, StringComparer.Ordinal) };
     }
 
     private static bool ValidMightFrameExperience(LastKnownMightFrame frame)
         => frame.PlayerExperience is not null && frame.PlayerZones is not null
             && frame.PlayerExperience.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(frame.PlayerZones.Keys)
             && frame.PlayerExperience.Values.All(value => value >= 0)
+            && frame.PaidPowerThisTurn is not null
+            && frame.PaidPowerThisTurn.All(entry => frame.PlayerZones.ContainsKey(entry.Key) && entry.Value >= 0)
             && ValidConditionalSourceUnitTurnHistory(frame.ConditionalTurnHistory, frame.PlayerZones.Keys);
 
     private static MatchState MightFrameState(LastKnownMightFrame frame)
@@ -60,6 +65,8 @@ public sealed partial class CoreRuleEngine
             status: MatchStatuses.InProgress, phase: MatchPhases.Main,
             playerZones: frame.PlayerZones, cardObjects: frame.CardObjects,
             objectLocations: frame.ObjectLocations, untilEndOfTurnEffects: [..frame.BattleDeclarations, ..frame.ConditionalTurnHistory],
+            runePools: frame.PlayerZones.Keys.ToDictionary(id => id,
+                id => new RunePool(0, 0, paidPowerThisTurn: frame.PaidPowerThisTurn.GetValueOrDefault(id)), StringComparer.Ordinal),
             playerExperience: frame.PlayerExperience);
     }
 

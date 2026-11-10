@@ -358,7 +358,9 @@ internal static partial class ActionPromptBuilder
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
             && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior)
-            && IsPromptTargetPowerAllowed(state, objectId, behavior);
+            && (IsPromptTargetPowerAllowed(state, objectId, behavior)
+                || behavior.RemovesTargetMightLimitIfExperiencePaid && CoreRuleEngine.HasOptionalExperiencePayment(behavior)
+                    && state.PlayerExperience.GetValueOrDefault(playerId) >= behavior.OptionalExperienceCost);
     }
 
     private static bool IsPromptEffectSpecificTargetAllowed(

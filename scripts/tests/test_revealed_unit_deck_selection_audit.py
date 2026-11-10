@@ -18,8 +18,8 @@ class RevealedUnitDeckSelectionAuditTests(unittest.TestCase):
     def card(self):
         return dict(cardNo='UNL-051/219',cardCategory='hero_unit',cardEffect=TEXT,
                     behaviors=[dict(playsSourceToBaseAsUnit=True)],
-                    unitEventAbility=dict(timing='PLAY_OR_HOLD',effect='LOOK_REVEAL_DRAW_RECYCLE_THEN_TRAIT_BOON',amount=3,
-                        deckSelection=dict(lookCount=3,selectedRequiredTag='CARD_TYPE:UNIT',boonTraits=['鸟类','猫科','犬形','魄罗'])))
+                    unitEventAbility=dict(timing='PLAY_OR_HOLD',effect='LOOK_TOP_REVEAL_DRAW_UNIT_RECYCLE_REST',amount=3,
+                        deckSelection=dict(boonTraits=['鸟类','猫科','犬形','魄罗'])))
 
     def statuses(self,card=None,sources=None):
         card=card or self.card()
@@ -47,17 +47,27 @@ class RevealedUnitDeckSelectionAuditTests(unittest.TestCase):
         card=self.card();card['behaviors'][0]['unitEventAbility']=card['unitEventAbility'];card['unitEventAbility']=None
         self.assertEqual(['missing']*4,self.statuses(card))
 
-    def test_unused_root_amount_does_not_replace_the_actual_look_count(self):
-        # The live look consumer reads DeckSelection.LookCount. The generic
-        # root Amount is neither its count nor proof of a three-card look.
-        for amount in [0, 1, 2, 3, 5]:
+    def test_the_shared_amount_is_the_actual_look_count(self):
+        for amount in [1, 2, 3, 5]:
             card=self.card();card['unitEventAbility']['amount']=amount
-            with self.subTest(amount=amount):self.assertEqual(['route']*4,self.statuses(card))
+            expected=['route']*4 if amount==3 else ['missing','route','route','route']
+            with self.subTest(amount=amount):self.assertEqual(expected,self.statuses(card))
+        card=self.card();card['unitEventAbility']['amount']=0
+        self.assertEqual(['missing']*4,self.statuses(card))
 
-    def test_exact_typed_look_and_unit_filter(self):
-        for key,value in [('lookCount',True),('lookCount',2),('lookCount','3'),('selectedRequiredTag','CARD_TYPE:EQUIPMENT')]:
-            card=self.card();card['unitEventAbility']['deckSelection'][key]=value
-            with self.subTest(key=key,value=value):self.assertEqual(['missing']*4,self.statuses(card))
+    def test_an_unused_nested_count_cannot_replace_the_live_shared_count(self):
+        card=self.card();card['unitEventAbility']['amount']=2
+        card['unitEventAbility']['deckSelection']['lookCount']=3
+        self.assertEqual(['missing','route','route','missing'],self.statuses(card))
+
+    def test_the_shared_unit_filter_requires_its_actual_consumer(self):
+        sources=self.remove('CoreRuleEngine.DeckChoices.cs','MainDeckTargetRequiredTag: CardObjectTags.UnitCard')
+        self.assertEqual(['route','missing','route','route'],self.statuses(sources=sources))
+
+    def test_the_shared_look_does_not_certify_a_missing_animal_boon(self):
+        for profile in [None,{},dict(boonTraits=None),dict(boonTraits=['鸟类']*4)]:
+            card=self.card();card['unitEventAbility']['deckSelection']=profile
+            with self.subTest(profile=profile):self.assertEqual(['route','route','route','missing'],self.statuses(card))
 
     def test_species_list_order_and_clause_independence(self):
         card=self.card();traits=card['unitEventAbility']['deckSelection']['boonTraits'];traits.reverse()
@@ -65,7 +75,7 @@ class RevealedUnitDeckSelectionAuditTests(unittest.TestCase):
         traits[0]='机械'
         self.assertEqual(['route','route','route','missing'],self.statuses(card))
         traits[:]=['鸟类']*4
-        self.assertEqual(['missing']*4,self.statuses(card))
+        self.assertEqual(['route','route','route','missing'],self.statuses(card))
 
     def test_missing_child_dispatch_does_not_erase_the_three_parent_instructions(self):
         sources=self.remove('CoreRuleEngine.UnitEventModes.cs','Effect = "BOON_FRIENDLY", Amount = 1, Optional = false')
@@ -81,11 +91,14 @@ class RevealedUnitDeckSelectionAuditTests(unittest.TestCase):
 
     def test_unused_helpers_cannot_replace_actual_dispatch_or_source_history(self):
         for filename,token in [
-            ('CoreRuleEngine.UnitEvents.cs','return ResolveUnitEventDeckSelection(state, item)'),
-            ('CoreRuleEngine.DeckChoices.cs','TryUnitEventDeckChoiceBehavior(item, out behavior)'),
+            ('CoreRuleEngine.UnitEvents.cs','return BeginDeckChoice(state, item, deck)'),
+            ('CoreRuleEngine.DeckChoices.cs','MainDeckLookCount: spec.Amount'),
+            ('CoreRuleEngine.UnitEvents.cs','UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing)'),
             ('CoreRuleEngine.DeckObservation.cs','ParentUnitEventCapture = ObservedUnitEventCaptureHash('),
+            ('CoreRuleEngine.DeckObservation.cs','UnitEventSpecForContext(unitEvent)?.DeckSelection is not null'),
+            ('CoreRuleEngine.DeckObservation.cs','parent.UnitEvent is { } unitEvent ? TryGetDeckChoiceBehavior(state, parent, out _)'),
             ('CoreRuleEngine.DeckChoices.cs','RedactUnitEventSourceEvents(state, item, events.Concat(resumed.Events).ToArray())'),
-            ('CoreRuleEngine.UnitEventDeckSelection.cs','if (item.DeckChoiceCompleted)'),
+            ('CoreRuleEngine.UnitEvents.cs','if (item.DeckChoiceCompleted)'),
         ]:
             with self.subTest(filename=filename,token=token):self.assertEqual(['missing']*4,self.statuses(sources=self.remove(filename,token)))
 

@@ -2,17 +2,32 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    private static bool HasDistributedDamage(CardBehaviorDefinition behavior)
+        => behavior.DamageDistributionAmount > 0 || behavior.DamageDistributionUsesFirstTargetMight;
+
+    private static IEnumerable<string> DistributedDamageTargets(CardBehaviorDefinition behavior, IReadOnlyList<string> targets)
+        => behavior.DamageDistributionUsesFirstTargetMight ? targets.Skip(1) : targets;
+
+    private static int? DistributedUnitDamageMight(MatchState state, string player, IReadOnlyList<string> targets,
+        StackItemState? item)
+        => targets.FirstOrDefault() is { Length: > 0 } id && state.CardObjects.TryGetValue(id, out var source)
+            && IsFaceUpNonStandbyUnit(source) && IsObjectOnField(state.PlayerZones, id)
+            && EffectiveFieldControllerId(state.PlayerZones, id, source) == player
+            && (item is null || StackObjectRules.ReferencesCurrentObject(state, item, id))
+                ? Math.Max(0, ResolveCurrentFieldUnitPower(state, source)) : null;
+
     private static int DistributedSpellDamage(MatchState state, string player,
         CardBehaviorDefinition behavior, IReadOnlyList<string> targets, StackItemState? item = null)
-        => checked(behavior.DamageDistributionAmount
+        => behavior.DamageDistributionUsesFirstTargetMight ? DistributedUnitDamageMight(state, player, targets, item) ?? 0
+            : checked(behavior.DamageDistributionAmount
             + (item is null ? PendingActivatedSpellDamageBonus(state, player) : ActivatedSpellDamageBonus(state, item))
             + DistributionBonuses(state, player, targets.Select(id => state.ObjectLocations.GetValueOrDefault(id))
                 .FirstOrDefault(location => location is not null)).Sum(bonus => bonus.Amount));
 
-    private static bool HasValidDistributedSpellTargets(MatchState state, string player,
+    internal static bool HasValidDistributedSpellTargets(MatchState state, string player,
         CardBehaviorDefinition behavior, IReadOnlyList<string> targets, StackItemState? item = null)
-        => behavior.DamageDistributionAmount <= 0
-            || targets.Count <= DistributedSpellDamage(state, player, behavior, targets, item);
+        => !HasDistributedDamage(behavior)
+            || DistributedDamageTargets(behavior, targets).Count() <= DistributedSpellDamage(state, player, behavior, targets, item);
 
     // CN 355.14: targets and their taxes are declared with the spell. Only
     // the positive integer allocation is chosen during its resolution.
@@ -22,10 +37,12 @@ public sealed partial class CoreRuleEngine
         MatchState state, StackItemState item, CardBehaviorDefinition behavior)
     {
         var amounts = new Dictionary<string, int>(StringComparer.Ordinal);
-        if (behavior.DamageDistributionAmount <= 0) return amounts;
-        var targets = item.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToList();
+        if (!HasDistributedDamage(behavior)
+            || behavior.DamageDistributionUsesFirstTargetMight
+                && DistributedUnitDamageMight(state, item.ControllerId, item.TargetObjectIds, item) is null) return amounts;
+        var targets = DistributedDamageTargets(behavior, item.TargetObjectIds).Where(id => !string.IsNullOrWhiteSpace(id)).ToList();
         if (targets.Count == 0) return amounts;
-        var remaining = DistributedSpellDamage(state, item.ControllerId, behavior, targets, item);
+        var remaining = DistributedSpellDamage(state, item.ControllerId, behavior, item.TargetObjectIds, item);
         while (targets.Count > remaining)
         {
             var removed = RuleChoices.Value!.Choose(item.ControllerId,
