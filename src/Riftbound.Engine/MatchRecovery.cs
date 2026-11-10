@@ -1104,7 +1104,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", CoreRuleEngine.StandardMovementExhaustionCostEvent, "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", CoreRuleEngine.RuneDomainReflexiveCreatedEvent, "BATTLE_CLOSED", "BATTLE_TIED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN", CoreRuleEngine.CreatedTokenReadyTriggerEvent, "BOON_CONSUMED"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", CoreRuleEngine.StandardMovementExhaustionCostEvent, "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", CoreRuleEngine.RuneDomainReflexiveCreatedEvent, CoreRuleEngine.SpellInstructionReflexiveTiming, "BATTLE_CLOSED", "BATTLE_TIED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN", CoreRuleEngine.CreatedTokenReadyTriggerEvent, "BOON_CONSUMED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -4520,6 +4520,12 @@ public static partial class MatchRecoveryValidator
                 || standbyHandPlay.DestinationPolicy == "SOURCE_HERE_IF_UNIT")
             && !CoreRuleEngine.ValidStandbyHandPlayHere(state, standbyHandPlay))
             errors.Add("invalid standby hand effect-play continuation");
+        if (state.PendingEffectPlay is { } unitHandPlay
+            && (CoreRuleEngine.IsUnitEventHandUnitPlay(unitHandPlay.Parent)
+                || unitHandPlay.SourceZone == "HAND" && unitHandPlay.Parent.UnitEvent is not null
+                    && !CoreRuleEngine.IsStandbyHandPlayHere(unitHandPlay.Parent))
+            && !CoreRuleEngine.ValidUnitEventHandUnitPlay(state, unitHandPlay))
+            errors.Add("invalid captured hand unit effect-play continuation");
         foreach (var item in state.StackItems)
         {
             if (!CoreRuleEngine.ValidFlowPlay(state, item)) errors.Add("invalid flow play receipt");
@@ -4547,6 +4553,7 @@ public static partial class MatchRecoveryValidator
             && !CoreRuleEngine.ValidAllLinkedArmamentUnitPlay(state, ownedSources))
             errors.Add("invalid multiple-owner effect-play continuation");
         if (state.PendingEffectPlay is { SourcePlayerId: not null } foreignPlay && !CoreRuleEngine.ValidEmpowerInteractionPlay(state, foreignPlay)
+            && !CoreRuleEngine.ValidSelfGraveSpellPlay(state, foreignPlay)
             && !CoreRuleEngine.ValidLinkedGraveyardExilePlay(state, foreignPlay)
             && !CoreRuleEngine.ValidLinkedExileEffectPlay(state, foreignPlay)
             && !CoreRuleEngine.ValidSelfBanishReplayEffectPlay(state, foreignPlay))

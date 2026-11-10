@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "cardNos": [
+        "OGN·209/298"
+      ],
+      "text": "每名玩家选择并摧毁一名自己的单位。",
+      "scope": "每名玩家选择并摧毁一名自己的单位。",
+      "status": "route",
+      "reason": "修正旧的施法者预选双方单位与承担全部摧毁责任的实现。法术不指定目标，结算时按回合顺序由各玩家挑选并摧毁自己的单位，分别承担责任；没有单位的玩家跳过，其余指示继续。回响的每次独立执行重新选择，并通过延后完成标志在最后一次执行后才将法术放入所属者废牌堆。",
+      "rules": "中国区核心303.2.a、355.10.e、355.18、359结算、412.1清理门户明确示例及412.5；清理门户官方中文牌面。",
+      "runtime": {
+        "behaviors": [
+          {
+            "effectKind": "HOUSECLEANING_DESTROY_EACH_PLAYER_UNIT",
+            "eachPlayerDestroysOwnUnit": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EachPlayerUnitDestruction.cs",
+          "contains": [
+            "ResolveRequiredUnitDestructions(",
+            "FriendlyDestructionChoices(current, player, CardObjectTags.UnitCard)",
+            "RuleChoices.Value!.Choose(player",
+            "responsiblePlayers: new Dictionary<string, string> { [id] = player }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EachPlayerUnitDestruction.cs",
+          "contains": [
+            "ResolveEachPlayerDestructionSpell(",
+            "if (!deferCompletion) CompleteSpellSource(zones, cards, item, behavior, events);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "if (behavior.EachPlayerDestroysOwnUnit)",
+            "ResolveEachPlayerDestructionSpell(state, stackItem, behavior, deferCompletion)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionAttribution.cs",
+          "contains": [
+            "behavior.EachPlayerDestroysOwnUnit",
+            "responsible ?? item.ControllerId"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/HousecleaningChoiceTests.cs",
+          "methods": [
+            "TheSpellHasNoTargetsAndEachPlayerChoosesAndIsResponsibleForTheirOwnUnit",
+            "AClientCannotSelectEitherPlayersUnitWhenCastingTheSpell",
+            "APlayerWithoutAnyUnitDoesNotPreventTheOtherInstructionOrTheSpellFromCompleting",
+            "EachPlayerMayPickTheirOwnUnitWithEnemyTargetProtection",
+            "GrantedEchoRepeatsEachPlayersChoiceAndKeepsTheSourceOnTheStackUntilTheLastExecution",
+            "QuotesAndPromptsOfferTheUntargetedSpellEvenWhenBothPlayersHaveNoUnits"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
     // copy or change control of an observer. Final-state scans lose that timing.
     private static GameEvent CaptureUnitEntry(GameEvent ev,
         IReadOnlyDictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
-        IReadOnlyList<string> turnEffects)
+        IReadOnlyList<string> turnEffects, StackItemState? playedItem = null)
     {
         var id = ev.Payload.GetValueOrDefault("tokenObjectId") as string
             ?? ev.Payload.GetValueOrDefault("unitObjectId") as string
@@ -49,7 +49,7 @@ public sealed partial class CoreRuleEngine
         ev = CaptureSourcePlayReadyObject(ev, zones, cards, entered);
         ev = CaptureSourcePlayTokens(ev, zones, cards, entered, player);
         ev = CaptureUnitPlayMight(ev, zones, cards, entered, player);
-        ev = CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects);
+        ev = CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects, playedItem);
         ev = CapturePaidUnitPlayTriggers(ev, zones, cards, entered);
         if (ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
             ev = CaptureCardPlayHistory(ev, entered, player, ev.Payload.GetValueOrDefault("historyPlayId") as string,

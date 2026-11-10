@@ -26,6 +26,10 @@ public sealed partial class CoreRuleEngine
             Targets = item.TargetObjectIds.Select(id => new ObjectBinding(id,
                 item.TargetGenerations?.GetValueOrDefault(id, -1) ?? -1)).ToArray() });
 
+    internal static bool RequiresUnitEventTargetHistory(StackItemState item)
+        => IsUnitEventGraveyardPlay(item) || item.UnitEvent is { } context
+            && item.EffectKind == UnitEventEffect && SelectedUnitEventSpec(context)?.Effect == UnitEventGraveyardReturnEffect;
+
     private static bool TryGetUnitEventGraveyardPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
         definition = null!;

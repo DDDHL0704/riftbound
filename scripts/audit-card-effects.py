@@ -1918,8 +1918,15 @@ def token_play_observer_route(card: dict, clause: dict, sources: Sources) -> dic
         'EffectiveFieldControllerId(zones, c.ObjectId, c) == player',
         '!UnitEventSpec(o.Context.CardNo)!.RequiresPlayedUnitToken', '|| TokenObjectRules.IsToken(entered)',
         'return WithUnitEvents(ev, observations);']
+    entry_source = sources.files.get("src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs", "")
+    entry_start = re.search(r"private static GameEvent CaptureUnitEntry\(", entry_source)
+    entry = re.split(r"\n    (?:private|internal|public) static ", entry_source[entry_start.end():], maxsplit=1)[0] if entry_start else ""
+    # A confirmed play may carry its paid-cost receipt through entry. Token
+    # entry uses the same observer with no receipt; both calls preserve it.
+    entry_observer = re.search(r"\bCaptureOtherUnitPlayed\(\s*ev\s*,\s*zones\s*,\s*cards\s*,\s*entered\s*,"
+        r"\s*player\s*,\s*turnEffects(?:\s*,\s*playedItem)?\s*\)", entry)
     requirements = {
-        "CoreRuleEngine.UnitEntryTriggers.cs": ["CaptureOtherUnitPlayed(ev, zones, cards, entered, player, turnEffects)"],
+        "CoreRuleEngine.UnitEntryTriggers.cs": ["CaptureOtherUnitPlayed("],
         "CoreRuleEngine.UnitTokenEntry.cs": ['CaptureUnitEntry(new("UNIT_TOKEN_CREATED"'],
         "CoreRuleEngine.UnitEvents.cs": [
             "IsObjectOnField(zones, id)", "!card.IsFaceDown", "UnitEventTrigger(captured,",
@@ -1928,7 +1935,7 @@ def token_play_observer_route(card: dict, clause: dict, sources: Sources) -> dic
             "ApplyDirectUntilEndPowerModifier(source, source.ObjectId, item.SourceObjectId, context.CardNo,",
             '"UNIT_EVENT", spec.Amount, source.Power + spec.Amount'],
     }
-    if precise and all(token in capture for token in capture_tokens) \
+    if precise and entry_observer and all(token in capture for token in capture_tokens) \
             and all(all(token in sources.files.get("src/Riftbound.Engine/" + name, "") for token in tokens)
                     for name, tokens in requirements.items()):
         return result("route", "己方指示物单位入场的实际观察、独立响应技能和同代来源的本回合战力加成",

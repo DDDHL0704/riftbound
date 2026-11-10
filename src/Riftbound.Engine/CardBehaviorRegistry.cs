@@ -451,6 +451,9 @@ public sealed partial record CardBehaviorDefinition(
     bool DefaultChosenMovementToControllerBase = false,
     IReadOnlyList<int>? CostReductionExperienceThresholds = null)
 {
+    public IReadOnlyList<UnitEventAbilitySpec> AdditionalUnitEventAbilities { get; init; } = [];
+    public bool DamageDistributionUsesFirstTargetMight { get; init; }
+    public bool EachPlayerDestroysOwnUnit { get; init; }
     public bool DeclaresAttributeAsPlayed { get; init; }
     public bool RemovesTargetMightLimitIfExperiencePaid { get; init; }
     public string EntryBattlefieldTokenCardNo { get; init; } = "";
@@ -1447,7 +1450,9 @@ public static class CardBehaviorRegistry
             2,
             TargetScope: CardTargetScopes.FriendlyThenEnemyBattlefieldUnits,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            DamagesSecondTargetByFirstTargetPower: true),
+            DamagesSecondTargetByFirstTargetPower: true, AnyNumberOfTargets: true, MinTargetCount: 2,
+            UnitEventAbility: new(CoreRuleEngine.SpellInstructionReflexiveTiming, "GAIN_EXPERIENCE", 1)) {
+                DamageDistributionUsesFirstTargetMight = true },
         new(
             "UNL-139/219",
             "透骨尖钉",
@@ -1900,9 +1905,7 @@ public static class CardBehaviorRegistry
             2,
             "HOUSECLEANING_DESTROY_EACH_PLAYER_UNIT",
             0,
-            2,
-            DestroysTarget: true,
-            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits),
+            0) { EachPlayerDestroysOwnUnit = true },
         new(
             "SFD·182/221",
             "危险温度",
@@ -2565,7 +2568,9 @@ public static class CardBehaviorRegistry
             "REVERSAL_SHARD_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new(CoreRuleEngine.FirstFriendlyStartPhaseDeathTiming, CoreRuleEngine.EachPlayerDestroyUnitEffect) {
+                RequiredUnitDestructionScope = CoreRuleEngine.OpponentsDestructionScope }),
         new(
             "SFD·019/221",
             "装配架",
@@ -8175,7 +8180,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 7),
+            SourceUnitPower: 7,
+            UnitEventAbility: new("MOVE", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true }) {
+                AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)] },
         new(
             "UNL-179a/219",
             "峡谷先锋",
@@ -8184,7 +8192,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 7),
+            SourceUnitPower: 7,
+            UnitEventAbility: new("MOVE", CoreRuleEngine.UnitEventLookUnitEffect, 3) {
+                ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true }) {
+                AdditionalUnitEventAbilities = [new(ArmamentLastBreathRules.Timing, CoreRuleEngine.UnitEventHandUnitPlayEffect)] },
         new(
             "UNL-118/219",
             "远古巨龙",
@@ -8230,7 +8241,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "约德尔人"),
+            SourceUnitTags: "约德尔人",
+            OptionalExperienceCost: 3,
+            UnitEventAbility: new("PLAY", CoreRuleEngine.EachPlayerDestroyUnitEffect) { ExemptsControllerIfExperiencePaid = true }),
         new(
             "UNL-167/219",
             "星獒",
@@ -8240,7 +8253,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形",
+            UnitEventAbility: new("PLAY", CoreRuleEngine.UnitEventGraveyardReturnEffect) {
+                GraveyardReturnAnyTags = ["鸟类", "猫科", "犬形", "魄罗"] }),
         new(
             "UNL-166/219",
             "追猎雪狼",
@@ -8294,7 +8309,9 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7,
             SourceUnitTags: "游走",
-            MaySacrificeUnitForPrintedCostReduction: true),
+            MaySacrificeUnitForPrintedCostReduction: true,
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.EachPlayerDestroyUnitEffect) {
+                RequiredUnitDestructionScope = CoreRuleEngine.DefendingPlayerHereDestructionScope }),
         new(
             "UNL-177/219",
             "艾翁",
@@ -9567,7 +9584,9 @@ public static class CardBehaviorRegistry
             0,
             1,
             DestroysTarget: true,
-            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true),
+            TargetScope: CardTargetScopes.BattlefieldUnit, TargetScopeIsExplicit: true,
+            UnitEventAbility: new(CoreRuleEngine.SpellInstructionReflexiveTiming, CoreRuleEngine.UnitEventSelfGraveSpellPlayEffect,
+                LeadingPowerCost: 1, Optional: true) { ReflexiveTargetMaximumMight = 3 }),
         new(
             "SFD·087/221",
             "先知之兆",

@@ -3,7 +3,10 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static int AnyNumberTargetCount(MatchState state, string playerId, CardBehaviorDefinition behavior)
-        => state.CardObjects.Keys.Count(id => IsLegalChosenCardTarget(state, playerId, id, 0, [id],
+        => behavior.DamageDistributionUsesFirstTargetMight
+            ? 1 + state.CardObjects.Keys.Count(id => IsLegalChosenCardTarget(state, playerId, id, 1, [id],
+                PlayCardTargetScopeForBehavior(behavior), behavior) && HasValidTargetGroup(state, behavior, [id]))
+            : state.CardObjects.Keys.Count(id => IsLegalChosenCardTarget(state, playerId, id, 0, [id],
             PlayCardTargetScopeForBehavior(behavior), behavior) && HasValidTargetGroup(state, behavior, [id]));
 
     internal static bool HasValidTargetGroup(MatchState state, CardBehaviorDefinition behavior, IReadOnlyList<string> targets)

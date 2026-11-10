@@ -41,6 +41,7 @@ internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, D
     public DestructionAttribution? Attribution { get; init; }
     public IReadOnlyList<CapturedGraveyardPlay> GraveyardPlays { get; init; } = [];
     public string? StartPhaseTurnPlayerId { get; init; }
+    public IReadOnlyList<StartPhaseDeathUnitEvent> StartPhaseUnitEvents { get; init; } = [];
 }
 
 public sealed partial class CoreRuleEngine
@@ -219,6 +220,7 @@ public sealed partial class CoreRuleEngine
                     SourceLocation = sourceLocation, DestroyedLocation = battlefieldDeathLocation }));
         var deathId = $"death-{frame.Origin.Tick}-{frame.DeathSequence++}";
         return new(deathId,frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
+            StartPhaseUnitEvents = CaptureStartPhaseDeathUnitEvents(state, zones, cards, fact, deathId),
             StartPhaseTurnPlayerId = state.Phase == MatchPhases.TurnStart && controller == state.TurnPlayerId
                 ? state.TurnPlayerId : null,
             UnitCreations = CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId),
@@ -292,6 +294,7 @@ public sealed partial class CoreRuleEngine
             counts[death.Unit.ControllerId]=prior+1;
             if (state.Status!=MatchStatuses.InProgress) continue;
             QueueLastBreathUnitEvents(state, death, queue, events);
+            QueueDamageInstructionReflexives(state, death, queue, events);
             foreach (var captured in death.UnitCreations)
             {
                 var context = captured with { CreatedAtTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
@@ -368,6 +371,7 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
+        QueueFirstStartPhaseDeathUnitEvents(before, state, ledger, deaths, queue, events);
         state=state with { DeathLedger=new(state.TurnNumber,counts) { PermanentControllers = permanentControllers,
             StartPhaseUnitControllers = startPhaseUnitControllers.Length == 0 ? null : startPhaseUnitControllers },
             TriggerQueue=queue,UntilEndOfTurnEffects=effects };

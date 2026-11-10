@@ -521,7 +521,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             Directory.CreateDirectory(root);
             File.WriteAllText(Path.Combine(root, fixtureFileName + ".actual.json"), JsonSerializer.Serialize(result));
         }
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(mismatches.Count == 0, string.Join(Environment.NewLine, mismatches));
         Assert.Equal(fixtureFileName.Contains("masked-attendant")
             ? [sourceObjectId, sourceObjectId + "-TOKEN-001", sourceObjectId + "-TOKEN-002"] : [sourceObjectId],
             result.FinalState.PlayerZones["P1"].Base);
