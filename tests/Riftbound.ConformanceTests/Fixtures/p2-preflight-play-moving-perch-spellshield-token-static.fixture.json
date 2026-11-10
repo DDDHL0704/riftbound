@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-moving-perch-spellshield-token-static",
-  "description": "Moving Perch enters as a spellshield unit while opponent Warhawk token text is deferred.",
+  "description": "Moving Perch enters as a spellshield unit and opens its independent play ability's mandatory opponent choice before responses.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-130/219 移动栖木",
-      "note": "官方卡面：费用 5；单位；战力 6；法盾；打出时选择一名对手，该玩家打出一名 1 战力且拥有法盾的战鹰。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录法盾标签；法盾目标税、对手选择、战鹰指示物创建和指示物法盾路径暂缓。"
+      "note": "官方卡面：费用 5；单位；战力 6；法盾；打出时选择一名对手，该玩家打出一名 1 战力且拥有法盾的战鹰。当前 fixture 覆盖源单位进场及独立打出技能的必选对手窗口；双方响应、对手实际打出战鹰及替换选择由 MovingPerchOpponentTokenTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -80,29 +80,24 @@
         "cardNo": "UNL-130/219",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-130-moving-perch-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-130-moving-perch-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGER_QUEUED"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": { "P1": ["CHOOSE_CARDS"], "P2": ["WAIT"] },
     "finalState": {
       "turnNumber": 776,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
+      "timingState": "NEUTRAL_CLOSED",
       "scores": { "P1": 0, "P2": 0 },
       "runePools": {
         "P1": { "mana": 0, "power": 0 },
@@ -116,7 +111,15 @@
           "graveyard": []
         }
       },
-      "stackItems": [],
+      "stackItems": [
+        {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-MOVING-PERCH",
+          "cardNo": "UNL-130/219",
+          "effectKind": "CAPTURED_UNIT_EVENT_ABILITY",
+          "targetObjectIds": []
+        }
+      ],
       "cardObjects": {
         "P1-UNIT-MOVING-PERCH": {
           "power": 6,
@@ -126,7 +129,7 @@
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P1": { "actionable": true, "actions": ["CHOOSE_CARDS"] },
       "P2": { "actionable": false, "actions": ["WAIT"] }
     }
   }
