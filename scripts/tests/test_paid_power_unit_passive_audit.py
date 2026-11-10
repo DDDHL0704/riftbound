@@ -103,3 +103,14 @@ class PaidPowerUnitPassiveAuditTests(unittest.TestCase):
         self.replace('MatchRecovery.PowerPayments.cs', 'MightyPowerPaymentHistoryHash(capture.Context)',
                      'HashCurrentCounterInstead(capture.Context)')
         self.assertEqual('missing', self.outcome())
+
+    def test_a_cost_event_without_the_new_actual_debit_cannot_certify_the_history(self):
+        self.replace('CoreRuleEngine.PowerPayments.cs', '[PowerPaymentReceiptKey] = receipt',
+                     '["ignoredCounter"] = receipt')
+        self.assertEqual('missing', self.outcome())
+
+    def test_the_recovery_reader_must_read_the_original_receipt_payload(self):
+        self.replace('MatchRecovery.PowerPayments.cs',
+                     'TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)',
+                     'ReadCurrentCounterOnly(state, out var payload)')
+        self.assertEqual('missing', self.outcome())

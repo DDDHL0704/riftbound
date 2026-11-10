@@ -58,7 +58,7 @@ public sealed class SivirPaidPowerStaticTests
         Assert.Equal(amount, game.State.RunePools["P1"].PaidPowerThisTurn);
         Assert.Equal(original.Mana + amount, game.State.RunePools["P1"].Mana);
         Assert.Equal(original.TotalPower - amount, game.State.RunePools["P1"].TotalPower);
-        Assert.Equal(amount > 0 ? 1 : 0, game.Events().Count(row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent));
+        Assert.Equal(amount > 0 ? 1 : 0, PowerSpentTurnHistoryTests.Receipts(game).Count());
         Passive(game.State, amount >= 2);
         await game.Replay();
     }
@@ -79,8 +79,8 @@ public sealed class SivirPaidPowerStaticTests
         await Convert(game, 1, "SECOND");
         Assert.Equal(2, game.State.RunePools["P1"].PaidPowerThisTurn);
         Passive(game.State, true);
-        Assert.Equal(new[] { 1, 2 }, game.Events().Where(row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent)
-            .Select(row => (int)row.Event.Payload["paidPowerTotal"]!));
+        Assert.Equal(new[] { 1, 2 }, PowerSpentTurnHistoryTests.Receipts(game)
+            .Select(row => (int)PowerSpentTurnHistoryTests.Debit(row)["paidPowerTotal"]!));
         await game.Replay();
     }
 
@@ -177,7 +177,7 @@ public sealed class SivirPaidPowerStaticTests
             [], [P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix + "2"]));
         Assert.Equal(32, game.State.RunePools["P1"].Power);
         Assert.Equal(0, game.State.RunePools["P1"].PaidPowerThisTurn);
-        Assert.DoesNotContain(game.Events(), row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent);
+        Assert.Empty(PowerSpentTurnHistoryTests.Receipts(game));
         Passive(game.State, false);
         await game.Replay();
     }
@@ -197,14 +197,14 @@ public sealed class SivirPaidPowerStaticTests
         Assert.Equal(2, game.State.RunePools["P1"].PaidPowerThisTurn);
         Assert.True(game.State.CardObjects["CONVERT"].IsExhausted);
         Passive(game.State, true);
-        Assert.Single(game.Events(), row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent);
+        Assert.Equal("RESOURCE_SKILL_RESOLVED", Assert.Single(PowerSpentTurnHistoryTests.Receipts(game)).Kind);
         if (surrender) await game.Act("P2", new SurrenderCommand());
         else {
             request = game.State.PendingRuleChoice!.Request;
             await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["SPEND_POWER:1"]));
         }
         Assert.Equal(surrender ? 2 : 3, game.State.RunePools["P1"].PaidPowerThisTurn);
-        Assert.Equal(surrender ? 1 : 2, game.Events().Count(row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent));
+        Assert.Equal(surrender ? 1 : 2, PowerSpentTurnHistoryTests.Receipts(game).Count());
         Assert.Equal(1, game.Events().Count(row => row.Event.Kind == "RESOURCE_SKILL_RESOLVED"));
         await game.Replay();
     }

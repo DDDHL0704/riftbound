@@ -5,6 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal const string PowerSpentEvent = "RUNE_POWER_SPENT";
+    internal const string PowerPaymentReceiptKey = "powerPaymentReceipt";
 
     internal static bool RequiresMightyPowerPaymentHistory(MightySkillContext? context)
         => context is { Before.PaidPowerThisTurn: { } before, After.PaidPowerThisTurn: { } after }
@@ -21,7 +22,7 @@ public sealed partial class CoreRuleEngine
         var paidState = result.State.LastCompletedSeriesGame is { } terminal
             && terminal.GameNumber != before.LastCompletedSeriesGame?.GameNumber
                 ? terminal.State : result.State;
-        var paidEvents = new List<GameEvent>();
+        var events = result.Events.ToList();
         foreach (var player in paidState.Seats.Keys)
         {
             var total = paidState.RunePools.GetValueOrDefault(player, RunePool.Empty).PaidPowerThisTurn;
@@ -29,14 +30,29 @@ public sealed partial class CoreRuleEngine
                 ? before.RunePools.GetValueOrDefault(player, RunePool.Empty).PaidPowerThisTurn : 0;
             if (total < previous) throw new ResourceNumericLimitException("符能支付记录回退");
             if (total == previous) continue;
-            paidEvents.Add(new(PowerSpentEvent, "本回合实际支付符能", new Dictionary<string, object?> {
+            var receipt = new Dictionary<string, object?> {
                 ["playerId"] = player, ["turnNumber"] = paidState.TurnNumber,
-                ["amount"] = total - previous, ["paidPowerTotal"] = total }));
+                ["amount"] = total - previous, ["paidPowerTotal"] = total };
+            // Enrich only this newly accepted result. Ordinary fees already
+            // have a cost receipt; resource conversions have their own result.
+            // Keep those public event sequences and descriptions intact.
+            var index = events.FindLastIndex(item => item.Kind == "COST_PAID"
+                && Equals(item.Payload.GetValueOrDefault("playerId"), player));
+            if (index < 0) index = events.FindLastIndex(item => item.Kind == "RESOURCE_SKILL_RESOLVED"
+                && Equals(item.Payload.GetValueOrDefault("playerId"), player));
+            if (index >= 0)
+            {
+                var payload = new Dictionary<string, object?>(events[index].Payload) { [PowerPaymentReceiptKey] = receipt };
+                events[index] = events[index] with { Payload = payload };
+            }
+            else
+            {
+                var boundary = events.FindIndex(item => item.Kind == "SERIES_GAME_COMPLETED");
+                events.Insert(boundary < 0 ? events.Count : boundary,
+                    new(PowerSpentEvent, "本回合实际支付符能", new Dictionary<string, object?> {
+                        ["playerId"] = player, [PowerPaymentReceiptKey] = receipt }));
+            }
         }
-        if (paidEvents.Count == 0) return result;
-        var events = result.Events.ToList();
-        var boundary = events.FindIndex(item => item.Kind == "SERIES_GAME_COMPLETED");
-        events.InsertRange(boundary < 0 ? events.Count : boundary, paidEvents);
         return result with { Events = events };
     }
 }

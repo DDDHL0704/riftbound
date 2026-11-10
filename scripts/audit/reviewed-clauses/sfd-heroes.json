@@ -1174,7 +1174,8 @@
           "methods": [
             "RealPrintedAndOptionalFeesProduceOneAcceptedPowerReceipt",
             "RebuiltPublicViewsCannotAuthenticateAnAlteredPaidPowerCount",
-            "AnEmptyReplayInitialBalanceCannotClaimPastPowerPayments"
+            "AnEmptyReplayInitialBalanceCannotClaimPastPowerPayments",
+            "PaymentReceiptFieldsMustBelongToTheirOriginalAcceptedCost"
           ]
         }
       ],

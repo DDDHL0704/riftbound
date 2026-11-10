@@ -9,13 +9,21 @@ public static partial class MatchRecoveryValidator
         var totals = state.Seats.Keys.ToDictionary(player => player, _ => 0, StringComparer.Ordinal);
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         foreach (var record in events.Where(record => record.Sequence > boundary
-            && record.Event.Kind == CoreRuleEngine.PowerSpentEvent))
+            && record.Event.Payload?.ContainsKey(CoreRuleEngine.PowerPaymentReceiptKey) == true))
         {
-            if (!TryReadObjectInt(record.Event.Payload, "turnNumber", out var turn) || turn != state.TurnNumber) continue;
-            if (!TryReadObjectString(record.Event.Payload, "playerId", out var player) || player is null
+            if (record.Event.Kind is not ("COST_PAID" or "RESOURCE_SKILL_RESOLVED" or CoreRuleEngine.PowerSpentEvent)
+                || !TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)
+                || !TryReadObjectInt(payload, "turnNumber", out var turn))
+            {
+                errors.Add("power payment counter lacks its original accepted debit");
+                continue;
+            }
+            if (turn != state.TurnNumber) continue;
+            if (!TryReadObjectString(payload, "playerId", out var player) || player is null
+                || !TryReadObjectString(record.Event.Payload, "playerId", out var actor) || actor != player
                 || !totals.TryGetValue(player, out var previous)
-                || !TryReadObjectInt(record.Event.Payload, "amount", out var amount) || amount <= 0
-                || !TryReadObjectInt(record.Event.Payload, "paidPowerTotal", out var total)
+                || !TryReadObjectInt(payload, "amount", out var amount) || amount <= 0
+                || !TryReadObjectInt(payload, "paidPowerTotal", out var total)
                 || (long)previous + amount != total
                 || !commands.Any(command => command.Accepted && command.CompletedTick == record.Tick
                     && command.StartedEventSequence < record.Sequence && record.Sequence <= command.CompletedEventSequence))

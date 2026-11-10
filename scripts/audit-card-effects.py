@@ -1761,7 +1761,7 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
             "runePools[playerId] = SpendMana(paidPower, manaCost"]),
         ("CoreRuleEngine.PowerPayments.cs", "RecordPowerPayments", ["if (!result.Accepted) return result",
             "paidState.RunePools.GetValueOrDefault(player, RunePool.Empty).PaidPowerThisTurn", "paidState.TurnNumber",
-            "total - previous", "Events = events"]),
+            "total - previous", "[PowerPaymentReceiptKey] = receipt", "Events = events"]),
         ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitDefinitions", ["IsFaceUpNonStandbyUnit(source)",
             "IsObjectOnField(state.PlayerZones, source.ObjectId)", "AttachedRuleTextRules.Instances(state, source)"]),
         ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitContributions", [
@@ -1791,7 +1791,8 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
             "state.RunePools.GetValueOrDefault(id, RunePool.Empty).PaidPowerThisTurn"]),
         ("CoreRuleEngine.LastKnownMight.cs", "MightFrameState", ["runePools: frame.PlayerZones.Keys.ToDictionary",
             "paidPowerThisTurn: frame.PaidPowerThisTurn.GetValueOrDefault(id)"]),
-        ("MatchRecovery.PowerPayments.cs", "ValidatePowerPaymentHistory", ["record.Event.Kind == CoreRuleEngine.PowerSpentEvent",
+        ("MatchRecovery.PowerPayments.cs", "ValidatePowerPaymentHistory", ["record.Event.Payload?.ContainsKey(CoreRuleEngine.PowerPaymentReceiptKey) == true",
+            "TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)",
             "command.Accepted", "pool.PaidPowerThisTurn != expected", "ValidateMightyPowerPaymentHistory("]),
         ("CoreRuleEngine.cs", "BuildTriggerQueuedEvent", ["RequiresMightyPowerPaymentHistory(trigger.MightySkill)",
             'payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!)']),
