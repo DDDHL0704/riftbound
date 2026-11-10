@@ -125,6 +125,12 @@ public sealed partial class RellAttackArmamentPlayTests
         }
         Assert.Contains("RELL", game.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("RELL", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
+        var child = Assert.Single(game.State.StackItems);
+        var queued = Assert.Single(game.Events(), record => record.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(record.Event.Payload.GetValueOrDefault("triggerId"), child.StackItemId[8..]));
+        Assert.Equal(beforePlay ? "HIDDEN" : "RELL", queued.Event.Payload["sourceObjectId"]);
+        if (beforePlay) Assert.Equal(MatchStateHasher.HashValue("RELL"), queued.Event.Payload["timingSourceHash"]);
+        Assert.Empty(ArmamentGrantedCombatTriggerTests.Errors(game, game.State));
         await game.Top();
         Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
         Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
@@ -134,6 +140,24 @@ public sealed partial class RellAttackArmamentPlayTests
         Assert.All(game.Events().Skip(firstPrivateEvent), record =>
             Assert.DoesNotContain("\"RELL\"", JsonSerializer.Serialize(record.Event.Payload)));
         await game.Replay();
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task APrivateQueuedSourceCannotBeReplacedByAnotherRealRell(bool changeCapture)
+    {
+        var initial = RadGearTestPosition.Put(Position(), "OTHER-RELL", Rell, "P1", "HAND");
+        var game = new Driver(initial); await Attack(game);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["RELL"])); await game.Top();
+        await game.Top();
+        await game.Act("P1", new PlayCardCommand("GEAR", Shield, []));
+        var child = Assert.Single(game.State.StackItems);
+        var changed = child with { SourceObjectId = "OTHER-RELL", UnitEvent = changeCapture
+            ? child.UnitEvent! with { SourceGeneration = game.State.CardObjects["OTHER-RELL"].ObjectGeneration }
+            : child.UnitEvent };
+        var forged = game.State with { StackItems = [changed] };
+        Assert.Contains(ArmamentGrantedCombatTriggerTests.Errors(game, forged), error =>
+            error.Contains("battlefield timing skill differs from its original accepted capture", StringComparison.Ordinal));
+        await game.Top(); await game.Replay();
     }
 
     [Theory, InlineData("all-costs"), InlineData("mana"), InlineData("power"), InlineData("optional"),

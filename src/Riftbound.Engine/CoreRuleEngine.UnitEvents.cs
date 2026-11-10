@@ -88,7 +88,8 @@ public sealed partial class CoreRuleEngine
         foreach (var (observation, ordinal) in observations.Select((o, i) => (o, i)))
         {
             var trigger = UnitEventTrigger(observation, state.Tick, ordinal, "TURN_START_BEGAN");
-            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            queue.Add(trigger);
+            events.Add(RedactQueuedUnitEventSource(state, trigger, BuildTriggerQueuedEvent(trigger)));
         }
         return state with { TriggerQueue = queue };
     }
@@ -318,6 +319,18 @@ public sealed partial class CoreRuleEngine
             SourceCardNo = captured.CardNo };
     }
 
+    private static GameEvent RedactQueuedUnitEventSource(MatchState state, TriggerQueueItemState trigger, GameEvent queued)
+    {
+        if (trigger.UnitEvent is null) return queued;
+        var source = ResolutionResult.VisibleObjectIdForViewer(state, trigger.SourceObjectId, ProjectionViewers.Spectator);
+        if (source == trigger.SourceObjectId) return queued;
+        // Keep the original source authoritative without exposing its current
+        // private identity in a newly born public queue event.
+        return queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
+            ["sourceObjectId"] = source,
+            ["timingSourceHash"] = MatchStateHasher.HashValue(trigger.SourceObjectId) } };
+    }
+
     private static ResolutionResult QueueUnitEvents(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
@@ -348,7 +361,8 @@ public sealed partial class CoreRuleEngine
                         ? captured.Context.Here?.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD"
                         : ev.Kind;
                 var trigger = UnitEventTrigger(captured, result.State.Tick, ordinal++, eventKind, timing);
-                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                queue.Add(trigger);
+                events.Add(RedactQueuedUnitEventSource(result.State, trigger, BuildTriggerQueuedEvent(trigger)));
             }
         }
         if (RuleChoices.Value is { } frame) frame.UnitEventOrdinal = ordinal;
@@ -365,7 +379,8 @@ public sealed partial class CoreRuleEngine
         foreach (var observation in frame.InstructionUnitEvents.Skip(start)) {
             var trigger = UnitEventTrigger(observation, result.State.Tick, frame.UnitEventOrdinal++, observation.InstructionEventKind,
                 before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : before.StackItems.LastOrDefault()?.TimingContext);
-            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            queue.Add(trigger);
+            events.Add(RedactQueuedUnitEventSource(result.State, trigger, BuildTriggerQueuedEvent(trigger)));
         }
         frame.InstructionUnitEvents.RemoveRange(start, frame.InstructionUnitEvents.Count - start);
         var next = result.State with { TriggerQueue = queue };
