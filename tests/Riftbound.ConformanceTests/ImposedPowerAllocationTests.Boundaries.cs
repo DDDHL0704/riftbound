@@ -187,7 +187,8 @@ public sealed partial class ImposedPowerAllocationTests
         var commands = ViewHash(frame.Commands); var events = ViewHash(frame.Events);
         var pending = run.State.PendingRuleChoice;
         var forged = tamper == "coherent-wallet" ? run.State with {
-            RunePools = new Dictionary<string, RunePool>(run.State.RunePools) { ["P1"] = new(0, 0, Colors(2, 1)) } }
+            RunePools = new Dictionary<string, RunePool>(run.State.RunePools) {
+                ["P1"] = run.State.RunePools["P1"] with { Mana = 0, Power = 0, PowerByTrait = Colors(2, 1) } } }
             : run.State with { PendingRuleChoice = tamper == "option"
                 ? pending! with { Request = pending.Request with { Options = [..pending.Request.Options, new("FORGED_ALLOCATION", "伪造分配")] } }
                 : pending! with { Answers = [pending.Answers[0] with { RequestHash = "FORGED_REQUEST_HASH" }, ..pending.Answers.Skip(1)] } };
@@ -195,6 +196,7 @@ public sealed partial class ImposedPowerAllocationTests
         run.Save("forged-frame", loaded);
         if (tamper == "coherent-wallet")
         {
+            Assert.Equal(run.State.RunePools["P1"].PaidPowerThisTurn, forged.RunePools["P1"].PaidPowerThisTurn);
             Assert.Empty(loaded.ValidationErrors);
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(run.Initial, loaded.Commands, forged, new CoreRuleEngine(), default, loaded.Events);
             run.Save("forged-wallet-replay", replay); Assert.False(replay.IsMatch);

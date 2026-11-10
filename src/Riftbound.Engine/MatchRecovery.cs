@@ -238,7 +238,7 @@ public static class MatchActionLogReplayer
 
             foreach (var runePool in replayInitialState.RunePools.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                if (!RunePool.Empty.Equals(runePool.Value))
+                if (!RunePool.Empty.Equals(runePool.Value) || runePool.Value.PaidPowerThisTurn != 0)
                 {
                     errors.Add($"action-log replay initial state rune pool for {runePool.Key} must be empty");
                 }
@@ -1250,6 +1250,7 @@ public static partial class MatchRecoveryValidator
             ValidatePlayAttributeDeclarationHistory(authoritativeState, commands, events, errors);
             ValidateOptionalExperiencePlayHistory(authoritativeState, commands, events, errors);
             ValidateTurnBattleWinRewardHistory(authoritativeState, commands, events, errors);
+            ValidatePowerPaymentHistory(authoritativeState, commands, events, errors);
             ValidateSnapshotKeywordGrantHistory(authoritativeState, commands, events, errors);
             ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentControlHistory(authoritativeState, commands, events, errors);

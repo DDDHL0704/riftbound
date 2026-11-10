@@ -286,7 +286,7 @@ public sealed class InstructionPowerAllocationTests
         MatchState forged;
         if (tamper == "coherent-wallet")
             forged = run.State with { RunePools = new Dictionary<string, RunePool>(run.State.RunePools) {
-                ["P1"] = new(0, 0, Colors(2, 1)) } };
+                ["P1"] = run.State.RunePools["P1"] with { Mana = 0, Power = 0, PowerByTrait = Colors(2, 1) } } };
         else
         {
             var pending = run.State.PendingRuleChoice!;
@@ -300,6 +300,7 @@ public sealed class InstructionPowerAllocationTests
         var errors = loaded.ValidationErrors.ToArray();
         if (tamper == "coherent-wallet")
         {
+            Assert.Equal(run.State.RunePools["P1"].PaidPowerThisTurn, forged.RunePools["P1"].PaidPowerThisTurn);
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(run.Initial, loaded.Commands,
                 loaded.AuthoritativeState!, new CoreRuleEngine(), default, loaded.Events);
             run.Save("coherent-wallet-rejection", new { frame = loaded, structuralErrors = errors, replay,

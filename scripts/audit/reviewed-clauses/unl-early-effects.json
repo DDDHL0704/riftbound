@@ -24,7 +24,7 @@
           "contains": [
             "ConditionalSourceUnitContributions(",
             "AttachedRuleTextRules.Instances(state, source)",
-            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)"
           ]
         },
         {
@@ -3197,7 +3197,7 @@
           "contains": [
             "ConditionalSourceUnitContributions(",
             "AttachedRuleTextRules.Instances(state, source)",
-            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)"
           ]
         },
         {

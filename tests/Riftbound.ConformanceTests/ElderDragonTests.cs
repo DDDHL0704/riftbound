@@ -186,15 +186,23 @@ public sealed class ElderDragonTests
     [Fact]
     public async Task PublicTargetLocationContextCannotDriftFromTheSavedAbility()
     {
-        var selected=await Select((await Play()).State,"D","E");var s=selected.State;
-        var views=s.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,s.Tick,0,selected.Snapshots[id],s.Tick,0,selected.Prompts[id]));
-        var spectator=MatchReplayRedactor.BuildSpectatorFrame(s.RoomId,s.Tick,0,[],s);
-        Assert.Empty(MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator));
+        var game=new VenBasicFlowSpellTests.Driver(Position());
+        await game.Act("P1",new PlayCardCommand("ELDER","UNL-118/219",[]));
+        var choice=Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,["D","E"]));
+        var s=game.State;var sequence=game.Events()[^1].Sequence;
+        var snapshots=ResolutionResult.BuildSnapshots(s);var prompts=ResolutionResult.BuildPrompts(s);
+        var views=s.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,s.Tick,sequence,snapshots[id],s.Tick,sequence,prompts[id]));
+        var spectator=MatchReplayRedactor.BuildSpectatorFrame(s.RoomId,s.Tick,sequence,[],s);
+        var history=MatchStateHasher.HashValue(new {commands=game.Commands(),events=game.Events()});
+        Assert.Empty(MatchRecoveryValidator.Validate(s.RoomId,sequence,game.Commands(),game.Events(),views,s,s.Tick,spectator));
         foreach(var snapshot in views.Values.Select(v=>v.Snapshot).Append(spectator.SpectatorSnapshot)) {
             var payload=Assert.IsType<Dictionary<string,object?>>(Assert.Single(snapshot.Stack));var original=payload["locationDamage"];
             payload["locationDamage"]=s.StackItems[0].LocationDamage! with {TargetLocations=new Dictionary<string,ObjectLocationState>(s.StackItems[0].LocationDamage!.TargetLocations!){["D"]=new("P2","BASE")}};
-            Assert.Contains(MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator),e=>e.Contains("per-location damage context differs"));payload["locationDamage"]=original;
+            Assert.Contains(MatchRecoveryValidator.Validate(s.RoomId,sequence,game.Commands(),game.Events(),views,s,s.Tick,spectator),e=>e.Contains("per-location damage context differs"));payload["locationDamage"]=original;
         }
+        Assert.Equal(history,MatchStateHasher.HashValue(new {commands=game.Commands(),events=game.Events()}));
+        await game.ColdCheckpoint();
     }
 
     [Theory]

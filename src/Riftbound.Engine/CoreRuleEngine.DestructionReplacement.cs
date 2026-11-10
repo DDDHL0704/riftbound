@@ -358,7 +358,7 @@ public sealed partial class CoreRuleEngine
         {
             var currentPool = pools.GetValueOrDefault(player, RunePool.Empty);
             var paidPower = PayPowerCost(currentPool, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 });
-            pools[player] = currentPool with { Power = paidPower.AnyPower, PowerByTrait = paidPower.PowerByTrait };
+            pools[player] = paidPower;
             events.Add(new("COST_PAID", "支付本回合召回替换的红色符能费用", new Dictionary<string, object?> {
                 ["playerId"] = player, ["mana"] = 0, ["power"] = 1,
                 ["powerByTrait"] = new Dictionary<string, int> { [RuneTrait.Red] = 1 },
@@ -430,7 +430,7 @@ public sealed partial class CoreRuleEngine
             : option.Payment.StartsWith("RUNE:", StringComparison.Ordinal) && TryGetRuneTrait(cards[option.Payment[5..]], out var t) ? t : null;
         var paymentTraits = traitToSpend is null ? new Dictionary<string, int>() : new Dictionary<string, int> { [traitToSpend] = 1 };
         var paidPower = PayPowerCost(current, traitToSpend is null ? 1 : 0, paymentTraits);
-        pools[player] = current with { Power = paidPower.AnyPower, PowerByTrait = paidPower.PowerByTrait };
+        pools[player] = paidPower;
         RecallAttachedGroupToBase(zones, cards, option.Target, player);
         cards[option.Target] = BoonRules.Consume(ExhaustForInstruction(zones, cards, unitState)) with {
             Damage = 0, DamageMarkedByPlayerIds = null, IsExhausted = true,
