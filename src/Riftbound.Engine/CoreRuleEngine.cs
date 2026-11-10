@@ -28894,9 +28894,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
-        if (!ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects))
+        if (!ConditionalSourceUnitConditionApplies(behavior, controllerId, state))
         {
             return [];
         }
@@ -28907,9 +28907,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveConditionalSourceUnitPowerBonus(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
-        return ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects)
+        return ConditionalSourceUnitConditionApplies(behavior, controllerId, state)
             ? behavior.ConditionalSourceUnitPowerBonus
             : 0;
     }
@@ -28917,16 +28917,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool ConditionalSourceUnitConditionApplies(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
         return behavior.ConditionalSourceUnitConditionKind switch
         {
             CardConditionalSourceUnitConditionKinds.ControllerPlayedFourPlusCostSpellThisTurn =>
-                PlayerPlayedFourPlusCostSpellThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerPlayedFourPlusCostSpellThisTurn(state.UntilEndOfTurnEffects, controllerId),
             CardConditionalSourceUnitConditionKinds.ControllerGainedExperienceThisTurn =>
-                PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerGainedExperienceThisTurn(state.UntilEndOfTurnEffects, controllerId),
             CardConditionalSourceUnitConditionKinds.ControllerDiscardedHandCardThisTurn =>
-                PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerDiscardedHandCardThisTurn(state.UntilEndOfTurnEffects, controllerId),
+            CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn =>
+                behavior.ConditionalSourceUnitRequiredPaidPower > 0
+                && state.RunePools.GetValueOrDefault(controllerId, RunePool.Empty).PaidPowerThisTurn
+                    >= behavior.ConditionalSourceUnitRequiredPaidPower,
             _ => false
         };
     }

@@ -39,9 +39,9 @@ public sealed partial class CoreRuleEngine
     {
         var controller = EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source);
         return ConditionalSourceUnitDefinitions(state, source)
-            .Where(s => ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects))
+            .Where(s => ConditionalSourceUnitConditionApplies(s.Behavior, controller, state))
             .Select(s => new ConditionalSourceUnitContribution(s.Instance, s.Behavior.ConditionalSourceUnitConditionKind,
-                ResolveConditionalSourceUnitPowerBonus(s.Behavior, controller, state.UntilEndOfTurnEffects),
-                ResolveConditionalSourceUnitTags(s.Behavior, controller, state.UntilEndOfTurnEffects))).ToArray();
+                ResolveConditionalSourceUnitPowerBonus(s.Behavior, controller, state),
+                ResolveConditionalSourceUnitTags(s.Behavior, controller, state))).ToArray();
     }
 }
