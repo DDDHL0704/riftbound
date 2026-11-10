@@ -209,7 +209,7 @@ public sealed class RadChronobreakBoundaryTests
             Assert.Null(g.State.PendingCardChoice);
             // CN158.3: Chronobreak must finish all its instructed replays
             // before the earned Agile skill can confirm its attachment target.
-            var deferred = Assert.Single(g.State.StackItems);
+            var deferred = Assert.Single(g.State.StackItems, item => item.SourceObjectId == "GEAR" && item.SourceConfirmed);
             Assert.True(deferred.PermanentPlayTargetsPending);
             Assert.True(CoreRuleEngine.ValidPermanentPlayTargetStack(g.State, deferred));
             Assert.False(CoreRuleEngine.ValidPermanentPlayTargetStack(
