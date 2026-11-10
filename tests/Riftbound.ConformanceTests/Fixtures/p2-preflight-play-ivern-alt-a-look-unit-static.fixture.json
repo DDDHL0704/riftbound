@@ -131,7 +131,8 @@
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED"
+      "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK"
     ],
     "promptActions": {
       "P1": [
