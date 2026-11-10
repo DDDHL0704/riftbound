@@ -326,6 +326,7 @@ public sealed partial record CardBehaviorDefinition(
     string SourceReadyOptionalCostPayloadKey = "",
     string SourceStealEnemyEquipmentReason = "",
     string ConditionalSourceUnitConditionKind = CardConditionalSourceUnitConditionKinds.None,
+    int ConditionalSourceUnitRequiredPaidPower = 0,
     int ConditionalSourceUnitPowerBonus = 0,
     string ConditionalSourceUnitTags = "",
     string SourceDrawConditionKind = CardSourceDrawConditionKinds.None,
@@ -642,6 +643,7 @@ public static class CardConditionalSourceUnitConditionKinds
     public const string ControllerPlayedFourPlusCostSpellThisTurn = "CONTROLLER_PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN";
     public const string ControllerGainedExperienceThisTurn = "CONTROLLER_GAINED_EXPERIENCE_THIS_TURN";
     public const string ControllerDiscardedHandCardThisTurn = "CONTROLLER_DISCARDED_HAND_CARD_THIS_TURN";
+    public const string ControllerPaidPowerThisTurn = "CONTROLLER_PAID_POWER_THIS_TURN";
 }
 
 public static class CardTargetCountConditionKinds
@@ -3504,6 +3506,10 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn,
+            ConditionalSourceUnitRequiredPaidPower: 2,
+            ConditionalSourceUnitPowerBonus: 2,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Roam,
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Purple),
@@ -3517,6 +3523,10 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn,
+            ConditionalSourceUnitRequiredPaidPower: 2,
+            ConditionalSourceUnitPowerBonus: 2,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Roam,
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Purple),

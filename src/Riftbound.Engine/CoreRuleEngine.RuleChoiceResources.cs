@@ -25,7 +25,8 @@ public sealed partial class CoreRuleEngine
     {
         if (capture is null) return;
         ResourceSteps.GetOrCreateValue(capture.Frame).Add(new(capture.PlayerId, capture.ChoiceId, capture.Before,
-            JsonSerializer.SerializeToElement(after, ResourceStepJson), events.ToArray()));
+            JsonSerializer.SerializeToElement(after, ResourceStepJson),
+            events.Where(item => item.Kind != CapturedMightInstruction).ToArray()));
     }
 
     private static IReadOnlyList<RuleChoiceResourceStep> GetCompletedRuleChoiceResources(RuleChoiceFrame frame)

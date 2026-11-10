@@ -39,7 +39,8 @@ public sealed partial class CoreRuleEngine
             ? printed.Power : after.Power;
 
     private const string CapturedMightInstruction = "INTERNAL_STABLE_MIGHT_INSTRUCTION";
-    private sealed record MightInstructionFrames(LastKnownMightFrame Before, LastKnownMightFrame After);
+    private sealed record MightInstructionFrames(LastKnownMightFrame Before, LastKnownMightFrame After,
+        bool AlreadyCaptured = false);
 
     // Only complete instruction results are observed. Numeric-layer iterations
     // are instantaneous and never produce intermediate Mighty crossings.
@@ -89,7 +90,8 @@ public sealed partial class CoreRuleEngine
         }
     }
 
-    private static ResolutionResult RecordMightyTransitions(MatchState before, ResolutionResult result)
+    private static ResolutionResult RecordMightyTransitions(MatchState before, ResolutionResult result,
+        LastKnownMightFrame? resourceBefore = null)
     {
         var steps = result.Events.Where(e => e.Kind == CapturedMightInstruction)
             .Select(e => (MightInstructionFrames)e.Payload["frames"]!).ToArray();
@@ -101,7 +103,7 @@ public sealed partial class CoreRuleEngine
             (IsObjectOnField(state.PlayerZones, c.ObjectId) || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId)))
             && AttachedRuleTextRules.Instances(state, c).Any(i => MightySkillDefinition(i.CardNo) is not null || UnitEventSpec(i.CardNo)?.Timing == EnemyMightReducedHere)))
             return result;
-        var previous = CapturePublicMightFrame(before, before.PlayerZones, before.CardObjects);
+        var previous = resourceBefore ?? CapturePublicMightFrame(before, before.PlayerZones, before.CardObjects);
         var index = 0;
         void Record(LastKnownMightFrame after)
         {
@@ -119,7 +121,14 @@ public sealed partial class CoreRuleEngine
             }
             previous = after; index++;
         }
-        foreach (var step in steps) { Record(step.Before); Record(step.After); }
+        foreach (var step in steps) {
+            Record(step.Before);
+            // A confirmed resource child already captured this interval at its
+            // own accepted answer. Resume observing after it, without another
+            // crossing when the containing instruction is replayed.
+            if (step.AlreadyCaptured) previous = step.After;
+            else Record(step.After);
+        }
         Record(CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects));
         return result with { State = state with { TriggerQueue = queue }, Events = events };
     }

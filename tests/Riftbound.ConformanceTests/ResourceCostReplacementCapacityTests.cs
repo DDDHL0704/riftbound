@@ -27,6 +27,7 @@ public sealed class ResourceCostReplacementCapacityTests
                 && o.Id.EndsWith(P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix + "2", StringComparison.Ordinal));
             await Decide(driver, resource.Id);
             Assert.Equal(new RunePool(int.MaxValue, int.MaxValue - 2), driver.State.RunePools["P1"]);
+            Assert.Equal(2, driver.State.RunePools["P1"].PaidPowerThisTurn);
             Assert.Equal(initial.RunePools["P1"], driver.State.PendingRuleChoice!.Origin.RunePools["P1"]);
             Assert.True(driver.State.CardObjects["CONVERTER"].IsExhausted);
             Assert.Single(driver.Events(), e => e.Event.Kind == "RESOURCE_SKILL_RESOLVED");
@@ -38,6 +39,7 @@ public sealed class ResourceCostReplacementCapacityTests
         }
         await Decide(driver, branch == "pay1" ? "SETT:A:LEGEND:ANY" : "DECLINE");
         Assert.Null(driver.State.PendingRuleChoice); Assert.Equal(int.MaxValue, driver.State.RunePools["P1"].TotalPower);
+        Assert.Equal(branch == "pay1" ? 1 : 2, driver.State.RunePools["P1"].PaidPowerThisTurn);
         Assert.Equal(branch == "convert2" ? int.MaxValue : 0, driver.State.RunePools["P1"].Mana);
         Assert.True(driver.State.CardObjects["MALZ"].IsExhausted);
         Assert.Equal(branch == "pay1", driver.State.PlayerZones["P1"].Base.Contains("A"));
@@ -206,6 +208,7 @@ public sealed class ResourceCostReplacementCapacityTests
             await Decide(driver, choice.Id);
             Assert.Equal(new RunePool(int.MaxValue, typed ? 0 : int.MaxValue - 1,
                 typed ? new Dictionary<string, int> { [RuneTrait.Red] = int.MaxValue - 1 } : null), driver.State.RunePools["P1"]);
+            Assert.Equal(1, driver.State.RunePools["P1"].PaidPowerThisTurn);
             Assert.Equal(initial.RunePools["P1"], driver.State.PendingRuleChoice!.Origin.RunePools["P1"]);
             Assert.True(driver.State.CardObjects["CONVERTER"].IsExhausted);
             Assert.Single(driver.Events(), e => e.Event.Kind == "RESOURCE_SKILL_RESOLVED");
@@ -213,6 +216,7 @@ public sealed class ResourceCostReplacementCapacityTests
         await Decide(driver, typed ? "SETT:A:LEGEND:TRAIT:red" : "SETT:A:LEGEND:ANY");
         var pool = driver.State.RunePools["P1"];
         Assert.True(pool.HasSupportedAmounts); Assert.Equal(int.MaxValue, pool.TotalPower);
+        Assert.Equal(convertOne ? 2 : 1, pool.PaidPowerThisTurn);
         Assert.Equal(convertOne ? int.MaxValue : 0, pool.Mana);
         Assert.Equal(typed ? 2 : int.MaxValue, pool.Power);
         if (typed) Assert.Equal(int.MaxValue - 2, pool.PowerByTrait[RuneTrait.Red]);

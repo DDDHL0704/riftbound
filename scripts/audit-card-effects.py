@@ -1731,6 +1731,94 @@ def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> di
         if exact else "缺少精确的眩晕敌方战场条件、来源独立移动确认、效果移动或原始历史核验消费者", paths)
 
 
+def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    match = re.fullmatch(r"在本回合内如果你至少支付了((?:\{\{A\}\})+)则我获得\{\{S\}\}\+([1-9][0-9]*)和\{\{(游走)\}\}", text)
+    if not match:
+        return None
+    required, delta, keyword = match[1].count("{{A}}"), int(match[2]), match[3]
+    exact = clause["kind"] == "static" and normalize(unparenthesize(clause["scope"])) == text \
+        and "unit" in card.get("cardCategory", "") and any(
+            behavior.get("playsSourceToBaseAsUnit")
+            and behavior.get("conditionalSourceUnitConditionKind") == "CONTROLLER_PAID_POWER_THIS_TURN"
+            and behavior.get("conditionalSourceUnitRequiredPaidPower") == required
+            and behavior.get("conditionalSourceUnitPowerBonus") == delta
+            and behavior.get("conditionalSourceUnitTags") == keyword for behavior in card.get("behaviors", []))
+    prefix = "src/Riftbound.Engine/"
+
+    def members(filename, name):
+        source = sources.files.get(prefix + filename, "")
+        pattern = r"(?m)^    (?:private|internal|public) [^\n]*\b" + re.escape(name) + r"\("
+        return [re.split(r"\n    (?:private|internal|public) ", source[m.end():], maxsplit=1)[0]
+                for m in re.finditer(pattern, source)]
+
+    checks = [
+        ("PaymentCostRules.cs", "PayPowerCost", [
+            "var actualPaid = (long)spent + view.PowerByTrait.Values.Sum", "pool.PaidPowerThisTurn + actualPaid",
+            "PaidPowerThisTurn = paidThisTurn", "Power = pool.Power -", "PowerByTrait = paid.PowerByTrait"]),
+        ("PaymentCostRules.cs", "TryCommitPayment", ["var paidPower = PayPowerCost(", "runePools[plan.PlayerId] = paidPower with"]),
+        ("PaymentCostRules.cs", "CanPayPowerCost", ["long.MaxValue - pool.PaidPowerThisTurn", "powerCostByTrait.Values.Sum"]),
+        ("PaymentCostRules.cs", "PayRuneCosts", ["var paidPower = PayPowerCost(", "PowerPaymentPurpose.Other",
+            "runePools[playerId] = SpendMana(paidPower, manaCost"]),
+        ("CoreRuleEngine.PowerPayments.cs", "RecordPowerPayments", ["if (!result.Accepted) return result",
+            "paidState.RunePools.GetValueOrDefault(player, RunePool.Empty).PaidPowerThisTurn", "paidState.TurnNumber",
+            "total - previous", "[PowerPaymentReceiptKey] = receipt", "Events = events"]),
+        ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitDefinitions", ["IsFaceUpNonStandbyUnit(source)",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)", "AttachedRuleTextRules.Instances(state, source)"]),
+        ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitContributions", [
+            "EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)",
+            "ResolveConditionalSourceUnitPowerBonus(s.Behavior, controller, state)",
+            "ResolveConditionalSourceUnitTags(s.Behavior, controller, state)"]),
+        ("CoreRuleEngine.cs", "ConditionalSourceUnitConditionApplies", ["ControllerPaidPowerThisTurn",
+            "state.RunePools.GetValueOrDefault(controllerId, RunePool.Empty).PaidPowerThisTurn",
+            ">= behavior.ConditionalSourceUnitRequiredPaidPower"]),
+        ("CoreRuleEngine.cs", "ResolveBattleCombatPower", ["staticPowerBonus += ResolveFieldPowerStaticAuraBonus("]),
+        ("CoreRuleEngine.cs", "ResolveFieldPowerStaticAuraBonus", ["ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"]),
+        ("CoreRuleEngine.RuleDerivedKeywords.cs", "RecomputeConditionalRuleDerivedKeywords", [
+            "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"]),
+        ("CoreRuleEngine.cs", "CompleteTurnEnd", ["TurnNumber = state.TurnNumber + 1", "RunePools = ClearRunePools(state, resetPaidPower: true)"]),
+        ("CoreRuleEngine.cs", "ClearRunePools", ["bool resetPaidPower = false",
+            "PaidPowerThisTurn = resetPaidPower ? 0", "state.RunePools.GetValueOrDefault(playerId, RunePool.Empty).PaidPowerThisTurn"]),
+        ("CoreRuleEngine.TurnSequence.cs", "AdvanceTurnStartSequence", [
+            "var pools = ClearRunePools(state).ToDictionary", "RunePools = pools"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "CommitRuleChoiceResources", ["ApplyRuleChoiceResourceDifference(",
+            "return RecomputeRuleDerivedKeywords(next)"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "ApplyRuleChoiceResourceDifference", [
+            'path.EndsWith(".paidPowerThisTurn", StringComparison.Ordinal)', 'current?.GetValue<long>()',
+            'return JsonValue.Create(count + delta)']),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "CompleteRuleChoiceResourceEffects", [
+            "RecordMightyTransitions(context, completed, beforeMight);\n                completed = StampNewTriggerQueueTimes(context, completed)",
+            "new MightInstructionFrames(beforeMight!, after, AlreadyCaptured: true)"]),
+        ("CoreRuleEngine.MightyTransitions.cs", "RecordMightyTransitions", [
+            "if (step.AlreadyCaptured) previous = step.After", "Events = events"]),
+        ("CoreRuleEngine.RuleChoiceResources.cs", "CompleteRuleChoiceResourceStep", [
+            "events.Where(item => item.Kind != CapturedMightInstruction).ToArray()"]),
+        ("CoreRuleEngine.LastKnownMight.cs", "CapturePublicMightFrame", ["PaidPowerThisTurn = publicZones.Keys.ToDictionary",
+            "state.RunePools.GetValueOrDefault(id, RunePool.Empty).PaidPowerThisTurn"]),
+        ("CoreRuleEngine.LastKnownMight.cs", "MightFrameState", ["runePools: frame.PlayerZones.Keys.ToDictionary",
+            "paidPowerThisTurn: frame.PaidPowerThisTurn.GetValueOrDefault(id)"]),
+        ("MatchRecovery.PowerPayments.cs", "ValidatePowerPaymentHistory", ["record.Event.Payload?.ContainsKey(CoreRuleEngine.PowerPaymentReceiptKey) == true",
+            "TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)",
+            'TryReadObjectLong(payload, "amount", out var amount)', 'TryReadObjectLong(payload, "paidPowerTotal", out var total)',
+            "command.Accepted", "pool.PaidPowerThisTurn != expected", "ValidateMightyPowerPaymentHistory("]),
+        ("CoreRuleEngine.cs", "BuildTriggerQueuedEvent", ["RequiresMightyPowerPaymentHistory(trigger.MightySkill)",
+            'payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!)']),
+        ("MatchRecovery.PowerPayments.cs", "ValidateMightyPowerPaymentHistory", [
+            'record.Event.Kind == "TRIGGER_QUEUED"', "MightyPowerPaymentHistoryHash(capture.Context)", "command.Accepted"]),
+    ]
+    exact = exact and all(any(all(token in body for token in tokens) for body in members(filename, name))
+                          for filename, name, tokens in checks)
+    exact = exact and any(body.count("return RecordPowerPayments(state,") == 3
+                          for body in members("CoreRuleEngine.RuleChoices.cs", "ResolveAsync"))
+    exact = exact and "ValidatePowerPaymentHistory(authoritativeState, commands, events, errors)" in sources.files.get(prefix + "MatchRecovery.cs", "")
+    evidence = sorted({prefix + filename for filename, _, _ in checks}
+                      | {prefix + "CoreRuleEngine.RuleChoices.cs", prefix + "MatchRecovery.cs"})
+    return result("route" if exact else "missing",
+        "共享实际扣费结果累计本回合符能支付，当前操控者条件驱动持续战力与游走；暂停资源提交、历史战力和原始付款记录共同校验"
+        if exact else "缺少逐句相符的支付阈值、持续战力／关键词、实际扣费累计、回合重置或原始支付历史消费者", evidence)
+
+
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
@@ -3353,6 +3441,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return level_cost
     if experience := conditional_unit_experience_route(card, clause, sources):
         return experience
+    if paid_passive := paid_power_unit_passive_route(card, clause, sources):
+        return paid_passive
     if targeted := friendly_target_ready_route(card, clause, sources):
         return targeted
     if damage := source_attack_damage_route(card, clause, sources):
