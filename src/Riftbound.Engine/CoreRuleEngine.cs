@@ -5346,6 +5346,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (RequiresObservedUnitEventHistory(trigger.UnitEvent))
             payload["observedUnitEventCaptureHash"] = ObservedUnitEventCaptureHash(trigger.UnitEvent!,
                 trigger.SourceObjectId, trigger.ControllerId);
+        if (RequiresMightyPowerPaymentHistory(trigger.MightySkill))
+            payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!);
         if (trigger.UnitEvent is { EquipmentSkillTriggerHash: { } completionKey } equipmentSkill)
         {
             payload["equipmentSkillTriggerHash"] = completionKey;

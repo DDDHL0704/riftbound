@@ -9,10 +9,13 @@ public sealed partial class CoreRuleEngine
     private static MatchState RuleChoiceResourceContext(MatchState context)
         => RuleChoices.Value?.ResourceDeathLedger is { } ledger ? context with { DeathLedger = ledger } : context;
 
-    private static ResolutionResult CompleteRuleChoiceResourceEffects(MatchState context, ResolutionResult result, int exhaustEventStart)
+    private static ResolutionResult CompleteRuleChoiceResourceEffects(MatchState context, ResolutionResult result, int exhaustEventStart,
+        LastKnownMightFrame? beforeMight = null)
     {
+        var paidPower = beforeMight is not null && result.State.RunePools.Any(entry =>
+            entry.Value.PaidPowerThisTurn != beforeMight.PaidPowerThisTurn.GetValueOrDefault(entry.Key));
         if (!result.Events.Any(e => e.Payload.ContainsKey("capturedUnitDeath") || e.Kind == CapturedHandDiscardEvent)
-            && (RuleChoices.Value?.InstructionUnitEvents.Count ?? 0) <= exhaustEventStart) return result;
+            && (RuleChoices.Value?.InstructionUnitEvents.Count ?? 0) <= exhaustEventStart && !paidPower) return result;
         var frame = RuleChoices.Value!; var completionTick = frame.CompletionTick;
         try
         {
@@ -23,6 +26,14 @@ public sealed partial class CoreRuleEngine
             completed = StampNewTriggerQueueTimes(context, completed with {
                 State = completed.State with { Tick = frame.AnswerTick } });
             completed = QueueInstructionUnitEvents(context, completed, exhaustEventStart);
+            if (paidPower) {
+                completed = RefreshRuleDerivedKeywordLayers(completed);
+                completed = RecordMightyTransitions(context, completed, beforeMight);
+                var after = CapturePublicMightFrame(completed.State, completed.State.PlayerZones, completed.State.CardObjects);
+                completed = completed with { Events = completed.Events.Append(new GameEvent(CapturedMightInstruction,
+                    "记录已独立提交的资源支付战力区间", new Dictionary<string, object?> {
+                        ["frames"] = new MightInstructionFrames(beforeMight!, after, AlreadyCaptured: true) })).ToArray() };
+            }
             frame.ResourceDeathLedger = completed.State.DeathLedger;
             return completed;
         }

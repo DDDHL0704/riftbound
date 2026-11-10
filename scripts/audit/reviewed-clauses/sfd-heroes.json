@@ -983,21 +983,63 @@
       ],
       "text": "在本回合内，如果你至少支付了{{A}}{{A}}，则我获得{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
       "scope": "在本回合内，如果你至少支付了{{A}}{{A}}，则我获得{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
-      "status": "missing",
-      "reason": "只有急速入场登记；缺少本回合已支付至少2符能的持续条件、来源+2战力和游走授予",
+      "status": "route",
+      "reason": "共享实际符能扣费结果累计本回合支付数量，按当前操控者授予持续+2战力和游走；资源转换、暂停子步骤、复制文本、控制权与新回合均走同一计数和持续效果流程，恢复校验原始扣费与战力捕获",
       "runtime": {
-        "staticAuras": []
+        "behaviors": [
+          {
+            "playsSourceToBaseAsUnit": true,
+            "conditionalSourceUnitConditionKind": "CONTROLLER_PAID_POWER_THIS_TURN",
+            "conditionalSourceUnitRequiredPaidPower": 2,
+            "conditionalSourceUnitPowerBonus": 2,
+            "conditionalSourceUnitTags": "游走"
+          }
+        ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/PaymentCostRules.cs",
           "contains": [
-            "\"SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE\""
+            "var actualPaid = (long)spent + view.PowerByTrait.Values.Sum",
+            "PaidPowerThisTurn = paidThisTurn"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalSourceUnits.cs",
+          "contains": [
+            "AttachedRuleTextRules.Instances(state, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PowerPayments.cs",
+          "contains": [
+            "pool.PaidPowerThisTurn != expected",
+            "MightyPowerPaymentHistoryHash(capture.Context)"
           ]
         }
       ],
-      "tests": [],
-      "rules": "核心364.3／365.1 条件性被动技能；SFD·143／143a 官方中文牌面"
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SivirPaidPowerStaticTests.cs",
+          "methods": [
+            "BothPrintingsIncludeTheirOwnActualHasteFeeAndExpireAtTheRealTurnSwitch",
+            "AVariableResourceConversionCountsItsActualDebitRatherThanItsZeroPrintedFee",
+            "AnAcceptedConversionWhileAnInstructionIsPausedCountsOnceAndSurvivesResumeOrSurrender",
+            "ACommittedResourceChildCapturesItsMightyCrossingOnceBeforeTheOuterInstructionResumes",
+            "ARealControlChangeUsesTheNewControllersPaymentHistory",
+            "RebuildingViewsCannotAuthenticateAlteredMightyPaymentInputsAgainstOriginalRecords"
+          ]
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/PowerSpentTurnHistoryTests.cs",
+          "methods": [
+            "RealPrintedAndOptionalFeesProduceOneAcceptedPowerReceipt",
+            "RebuiltPublicViewsCannotAuthenticateAnAlteredPaidPowerCount"
+          ]
+        }
+      ],
+      "rules": "核心364.3／365.1 条件性被动；445.1／445.1.b 实际资源移除与零费用；430.2／430.3 资源技能独立确认结算；SFD·143／143a 官方中文牌面"
     },
     {
       "cardNos": [

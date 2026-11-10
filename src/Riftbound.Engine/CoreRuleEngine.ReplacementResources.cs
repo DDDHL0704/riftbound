@@ -200,6 +200,7 @@ public sealed partial class CoreRuleEngine
         ReplacementResourceAction action, List<GameEvent> events)
     {
         context = RuleChoiceResourceContext(context);
+        var beforeMight = CapturePublicMightFrame(context, context.PlayerZones, context.CardObjects);
         var capture = BeginRuleChoiceResourceStep(context, player, action.Choice.Id);
         var intent = new PlayerIntent("replacement-resource", player, action.Command.CmdType);
         var result = action.Command switch
@@ -217,7 +218,7 @@ public sealed partial class CoreRuleEngine
         };
         if (!result.Accepted) throw new InvalidOperationException("Invalid generated resource choice: " + result.ErrorMessage);
         result = FinalizeTokenDepartures(context, result);
-        result = CompleteRuleChoiceResourceEffects(context, result, capture?.ExhaustEventStart ?? 0);
+        result = CompleteRuleChoiceResourceEffects(context, result, capture?.ExhaustEventStart ?? 0, beforeMight);
         Replace(zones, result.State.PlayerZones); Replace(cards, result.State.CardObjects); Replace(pools, result.State.RunePools);
         events.AddRange(result.Events);
         var frame = RuleChoices.Value!;

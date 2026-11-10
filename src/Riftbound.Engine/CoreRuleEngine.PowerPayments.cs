@@ -6,6 +6,13 @@ public sealed partial class CoreRuleEngine
 {
     internal const string PowerSpentEvent = "RUNE_POWER_SPENT";
 
+    internal static bool RequiresMightyPowerPaymentHistory(MightySkillContext? context)
+        => context is { Before.PaidPowerThisTurn: { } before, After.PaidPowerThisTurn: { } after }
+            && before.Values.Concat(after.Values).Any(value => value != 0);
+
+    internal static string MightyPowerPaymentHistoryHash(MightySkillContext context)
+        => MatchStateHasher.HashValue(new { Before = context.Before.PaidPowerThisTurn, After = context.After.PaidPowerThisTurn });
+
     private static ResolutionResult RecordPowerPayments(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
