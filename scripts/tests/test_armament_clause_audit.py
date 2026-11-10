@@ -257,3 +257,35 @@ class ArmamentClauseAuditTests(unittest.TestCase):
             self.assertTrue(card['armamentText']['lowerText'])
         trinity = next(card for card in result['cards'] if card['cardNo'] == 'SFD·115/221')
         self.assertIn('获得的分数+1', trinity['armamentText']['lowerText'])
+
+
+    def bounded_movement_reader(self):
+        code = (Path(__file__).resolve().parents[2] / 'src/Riftbound.Engine/CoreRuleEngine.ArmamentMovementProtection.cs').read_text()
+        path = self.engine / 'CoreRuleEngine.ArmamentMovementProtection.cs'
+        path.write_text(code)
+        return path, code
+
+    def test_exact_bounded_enemy_move_reader_does_not_reopen_other_lower_boxes(self):
+        self.bounded_movement_reader()
+        for lower in ['如果此牌是在本回合贴附到我身上的，则我额外获得{{S}}+2。',
+                      '我拥有“机械”属性。', '你的法术和技能造成的伤害+3（如果已贴附此牌）。',
+                      '你在此处的单位获得{{游走}}。', '我无法被敌方法术和技能移动。']:
+            with self.subTest(lower=lower):
+                # A bounded reader is not itself evidence that any lower box executes.
+                self.assertEqual('missing', self.outcome(equipment(lower=lower))['status'])
+
+    def test_an_additional_reader_in_the_same_movement_file_remains_unmapped(self):
+        path, code = self.bounded_movement_reader()
+        path.write_text(code + '\nvar future = definition.EffectText;')
+        self.assertEqual('review', self.outcome(equipment(lower='当我移动时，抽一张牌。'))['status'])
+
+    def test_bounded_reader_needs_exact_sentence_equality_and_actual_file(self):
+        path, code = self.bounded_movement_reader()
+        for changed in [code.replace('== "我无法被敌方法术和技能移动"', '!= "我无法被敌方法术和技能移动"'),
+                        code.replace('"我无法被敌方法术和技能移动"', '"当我移动时，抽一张牌"')]:
+            with self.subTest(changed=changed):
+                path.write_text(changed)
+                self.assertEqual('review', self.outcome(equipment(lower='当我移动时，抽一张牌。'))['status'])
+        path.unlink()
+        (self.engine / 'CoreRuleEngine.UnknownArmamentReader.cs').write_text(code)
+        self.assertEqual('review', self.outcome(equipment(lower='当我移动时，抽一张牌。'))['status'])
