@@ -451,6 +451,7 @@ public sealed partial class CoreRuleEngine
             && ValidEndConquestCondition(c, spec)
             && ValidTriggeringBattlefield(c, spec)
             && ValidScheduledUnitEventReceipt(state, c, source, controller)
+            && ValidCapturedHandExile(state, c, spec)
             && ValidRevealedRuneContext(state, c, controller)
             && ValidExhaustionBatchContext(state, c, spec)
             && ValidPlayedUnitRuneObservation(state, c, source, controller)
@@ -645,6 +646,10 @@ public sealed partial class CoreRuleEngine
         if (spec.Effect == EachPlayerDestroyUnitEffect) return ResolveEachPlayerDestroyUnit(state, item, spec);
         if (spec.Effect == UnitEventGraveyardReturnEffect) return ResolveUnitEventGraveyardReturn(state, item);
         if (spec.Effect == AgilePlayAttachEffect) return ResolveAgilePlayAttachment(state, item);
+        if (spec.Effect == BanishChosenOpponentHandEffect)
+            return item.CompletedHandExecutions > 0 ? NoopStackResolutionResult(state)
+                : BeginRevealedHandChoice(state, item, new(RevealedHandAction.Banish));
+        if (spec.Effect == ReturnCapturedHandExileEffect) return ReturnCapturedHandExile(state, item);
         if (spec.Effect == ReturnLowMightUnitsEffect && spec.ReturnAllUnitsMaximumMight is { } maximum)
             return ResolveLowMightGroupReturn(state, item, maximum);
         if (spec.Effect == MoveFriendlyGroupToOpenBattlefieldEffect) return ResolveFriendlyGroupToOpenBattlefield(state, item);

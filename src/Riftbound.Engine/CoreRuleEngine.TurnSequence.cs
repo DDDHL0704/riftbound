@@ -88,7 +88,10 @@ public sealed partial class CoreRuleEngine
                             UntilEndOfTurnEffects = heldScore.UntilEndOfTurnEffects, PlayerZones = zones, CardObjects = cards,
                             RngCursor = heldScore.RngCursor ?? state.RngCursor };
                         if (state.WinnerPlayerId is null)
+                        {
                             state = QueueHeldAbilities(state, heldFields, events);
+                            state = QueueOpponentHoldUnitEvents(state, heldFields, events);
+                        }
                     }
                     state = state with { TurnStartStep = "CHANNEL", Status = state.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished };
                     break;

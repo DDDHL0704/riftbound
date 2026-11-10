@@ -17,6 +17,7 @@ public static partial class MatchRecoveryValidator
     {
         ValidateUnitEventPlayTargetHistory(state, commands, events, errors);
         ValidateArmamentPlayAttachmentConfirmationHistory(state, commands, events, errors);
+        ValidateUnitEventHandChoiceHistory(state, commands, events, errors);
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         var queued = events.Where(entry => entry.Sequence > boundary && entry.Event.Kind == "TRIGGER_QUEUED"
             && TryReadObjectString(entry.Event.Payload, "observedUnitEventCaptureHash", out _)).ToArray();

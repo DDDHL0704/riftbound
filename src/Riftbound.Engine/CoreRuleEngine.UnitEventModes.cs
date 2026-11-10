@@ -13,6 +13,8 @@ public sealed partial class CoreRuleEngine
         var spec = UnitEventSpecForContext(context);
         if (context.DelayedReceipt is not null && spec?.NextMainEffect is { } delayedEffect)
             spec = spec with { Effect = delayedEffect, Optional = true };
+        if (context.DelayedReceipt is not null && spec?.NextOpponentHoldEffect is { } holdEffect)
+            spec = spec with { Effect = holdEffect, Optional = false };
         if (HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null)
             return spec! with { Effect = AttachPlayedArmamentEffect, Optional = false };
         if (context.Mode is null) return spec;

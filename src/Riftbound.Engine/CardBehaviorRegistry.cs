@@ -8191,7 +8191,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4, UnitEventAbility: new("PLAY", CoreRuleEngine.BanishChosenOpponentHandEffect, 0) {
+                RequiresChosenOpponent = true, NextOpponentHoldEffect = CoreRuleEngine.ReturnCapturedHandExileEffect }),
         new(
             "UNL-179/219",
             "峡谷先锋",

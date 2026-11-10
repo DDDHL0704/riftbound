@@ -22,6 +22,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool TryGetRevealedHandChoiceSpec(StackItemState item, out RevealedHandChoiceSpec spec)
     {
+        if (item.UnitEvent is { } unit && SelectedUnitEventSpec(unit)?.Effect == BanishChosenOpponentHandEffect)
+        { spec = new(RevealedHandAction.Banish); return true; }
         if (ValidDeathReveal(item.DeathRevealContext, item.EffectKind, item.ControllerId, item.CardNo))
         { spec = DeathRevealChoiceSpec; return true; }
         if (item.DeathRevealContext is null && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)

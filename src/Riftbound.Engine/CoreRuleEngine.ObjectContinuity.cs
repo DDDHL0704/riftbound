@@ -91,10 +91,11 @@ public sealed partial class CoreRuleEngine
             changed = true;
             return item with { TargetGenerations = bindings };
         }).ToArray();
-        if (!changed) return result;
+        if (!changed) return RetireDepartedScheduledUnitEvents(result);
         after = after with { CardObjects = cards, StackItems = stack };
         // Generations are private; movement counts are public for visible units.
-        return result with { State = after, Snapshots = ResolutionResult.BuildSnapshots(after), Prompts = BuildCorePrompts(after) };
+        return RetireDepartedScheduledUnitEvents(result with { State = after,
+            Snapshots = ResolutionResult.BuildSnapshots(after), Prompts = BuildCorePrompts(after) });
     }
 
     private static Dictionary<string, ObjectLocationState> IdentityLocations(MatchState state)

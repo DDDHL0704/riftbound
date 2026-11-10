@@ -218,7 +218,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.FirstOrDefault(NeedsTriggerConfirmation);
         if (item is null) return result;
         if (NeedsUnitEventOpponent(item)) return PrepareCapturedOpponentChoice(result, item,
-            UnitEventOpponentWindow, "UNIT-OPPONENT:", "选择一名对手；双方响应后，由其打出单位指示物。");
+            UnitEventOpponentWindow, "UNIT-OPPONENT:", "选择一名对手；确认后双方可以响应。");
         if (item.EffectKind == StandbyPlayedEnemyDamageEffect && item.StandbyObserver?.Unit is not null)
             return PrepareStandbyUnitDamage(result, item);
         if (NeedsLastBreathHereTarget(item)) return PrepareLastBreathHereTarget(result, item);

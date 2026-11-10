@@ -13,8 +13,9 @@ public sealed partial class CoreRuleEngine
             || context?.RequiredUnitDestruction is not null
             || context?.Origin?.ArmamentGranted == true
             || context is not null && HasSourcePlayCondition(UnitEventSpecForContext(context))
-            || context?.Timing == "PLAY" && SelectedUnitEventSpec(context) is { UnitTokenPlayedByChosenOpponent: true } or { ReturnAllUnitsMaximumMight: not null }
-                or { ExemptsControllerIfExperiencePaid: true } or { GraveyardReturnAnyTags: not null }
+            || context?.Timing == "PLAY" && (UnitEventRequiresOpponent(SelectedUnitEventSpec(context))
+                || SelectedUnitEventSpec(context) is { ReturnAllUnitsMaximumMight: not null }
+                    or { ExemptsControllerIfExperiencePaid: true } or { GraveyardReturnAnyTags: not null })
             || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
 
     internal static string ObservedUnitEventCaptureHash(UnitEventContext context, string source, string controller)
@@ -41,6 +42,8 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.AgilePlayGrant });
         if (context.TriggeringBattlefield is not null || context.DelayedReceipt is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
+        if (context.HandExile is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.HandExile });
         return HasArmamentPlayAttachment(context)
             ? MatchStateHasher.HashValue(new { hash = capture, context.ReflexiveTick }) : capture;
     }
