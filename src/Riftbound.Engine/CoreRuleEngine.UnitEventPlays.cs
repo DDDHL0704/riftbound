@@ -5,6 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial record UnitEventAbilitySpec
 {
     public bool CreatesUnitTokenHere { get; init; }
+    public bool CreatedUnitTokenEntersReady { get; init; }
     public bool ObservesMovementByAnyPlayer { get; init; }
     public bool RequiresMoveToBattlefield { get; init; }
     public int GraveyardPlayMaximumMana { get; init; }

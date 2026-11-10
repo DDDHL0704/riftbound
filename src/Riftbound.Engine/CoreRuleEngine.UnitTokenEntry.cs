@@ -6,7 +6,7 @@ public sealed partial class CoreRuleEngine
 {
     private static StackResolutionResult CreateUnitTokenBatch(MatchState state, StackItemState item,
         string factoryCardNo, int count, bool entersReady, string? battlefieldId = null, string? abilityId = null,
-        bool? instructionAllowsLocationChoice = null)
+        bool? instructionAllowsLocationChoice = null, string? tokenIdentitySeed = null)
     {
         if (battlefieldId is not null && BattlefieldLocalRules.PreventsUnitPlay(state, "BATTLEFIELD:" + battlefieldId))
             return NoopStackResolutionResult(state);
@@ -22,7 +22,7 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state) with { Events = [PreventedUnitPlay(item.ControllerId, visibleSource, "BATTLEFIELD:" + battlefieldId)] };
         for (var i = 0; i < count; i++)
         {
-            var id = NextTokenObjectId(zones, cards, visibleSource == "HIDDEN" ? item.ControllerId + "-PUBLIC" : visibleSource, i + 1);
+            var id = NextTokenObjectId(zones, cards, tokenIdentitySeed ?? (visibleSource == "HIDDEN" ? item.ControllerId + "-PUBLIC" : visibleSource), i + 1);
             var token = factory.CreateObject(id, item.ControllerId, item.ControllerId, isExhausted: !entersReady);
             token = ApplyUnitTokenFactoryReplacement(item, i, token);
             var actualFactory = P6TokenFactoryCatalog.TryGetByCardNo(token.TokenFactoryCardNo ?? token.CardNo!, out var actual) ? actual : factory;

@@ -40,7 +40,7 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.RuneDomainReveal.cs",
           "contains": [
-            "onlyPrimary: spec.Effect == ArmamentUnitEventRules.FixedDamageEffect"
+            "onlyPrimary: spec.Effect != RuneDomainDamageEffect"
           ]
         },
         {
@@ -134,7 +134,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeployedEquipment.cs",
           "contains": [
             "var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);",
-            "var targets = UnitEventEnemiesHere(state, item);",
+            "var targets = onlyPrimary ? primary is null ? [] : new[] { primary } : UnitEventEnemiesHere(state, item);",
             "ApplySpellSkillDamageBonuses(state, item.ControllerId, target,",
             "RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,"
           ]

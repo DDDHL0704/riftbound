@@ -153,7 +153,8 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool CanDealCombatDamage(MatchState state, CardObjectState source)
-        => !AttachedRuleTextRules.Instances(state, source).Any(instance =>
+        => !IsCombatDamagePreventedByHigherMightEnemyHere(state, source)
+            && !AttachedRuleTextRules.Instances(state, source).Any(instance =>
             CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
                 ability => ability.Kind is StaticAbilityKinds.UnitCannotDealCombatDamage
                     or StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage
