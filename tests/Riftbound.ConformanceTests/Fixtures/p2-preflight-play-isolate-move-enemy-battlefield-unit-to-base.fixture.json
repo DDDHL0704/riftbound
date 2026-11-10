@@ -136,7 +136,7 @@
           "sourceObjectId": "P1-SPELL-ISOLATE",
           "cardNo": "UNL-124/219",
           "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"],
-          "effectKind": "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW"
+          "effectKind": "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE"
         }
       },
       { "kind": "PRIORITY_PASSED" },

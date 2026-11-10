@@ -1246,6 +1246,8 @@ public static partial class MatchRecoveryValidator
             ValidateActivationBanishHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentSkillObservationHistory(authoritativeState, commands, events, errors);
             ValidateObservedUnitEventHistory(authoritativeState, commands, events, errors);
+            ValidateUnitEventOpponentHistory(authoritativeState, commands, events, errors);
+            ValidateTurnBattleWinRewardHistory(authoritativeState, commands, events, errors);
             ValidateSnapshotKeywordGrantHistory(authoritativeState, commands, events, errors);
             ValidatePaidPermanentPlayHistory(authoritativeState, commands, events, errors);
             ValidateEquipmentControlHistory(authoritativeState, commands, events, errors);
@@ -4373,6 +4375,9 @@ public static partial class MatchRecoveryValidator
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TokenReplacementWindow } tokenChoice
             && !CoreRuleEngine.ValidTokenReplacementChoice(state, tokenChoice)) errors.Add("invalid token replacement choice");
 
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.UnitEventOpponentWindow } unitOpponentChoice
+            && !CoreRuleEngine.ValidUnitEventOpponentChoice(state, unitOpponentChoice)) errors.Add("invalid unit-event opponent choice");
+
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidDrawHandThreshold(state, item)) errors.Add("invalid stacked draw hand-threshold skill");
         foreach (var item in state.TriggerQueue)
@@ -4893,6 +4898,7 @@ public static partial class MatchRecoveryValidator
         if (state.PendingRuleChoice is null && state.StackItems.Any(i => i.SourceReplayDecisionCompleted))
             errors.Add("invalid premature source replay completion");
         ValidateDelayedEmpowerState(state, errors);
+        if (!CoreRuleEngine.ValidCurrentTurnBattleWinRewards(state)) errors.Add("invalid turn battle-win reward");
         ValidateBombRebuildState(state, errors);
         ValidateLastBreathUnitCreationState(state, errors);
         ValidateLastBreathRuneCallState(state, errors);
@@ -5456,7 +5462,7 @@ public static partial class MatchRecoveryValidator
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.UnitEventModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.DrawHandThresholdOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
+            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.UnitEventModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.DrawHandThresholdOpponentWindow or CoreRuleEngine.UnitEventOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
                 && !(choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow && CoreRuleEngine.ValidTemperedBaseCostChoice(authoritativeState, choice)))
                 ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",

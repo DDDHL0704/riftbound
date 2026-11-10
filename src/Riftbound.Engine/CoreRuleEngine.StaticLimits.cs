@@ -9,6 +9,11 @@ public sealed partial class CoreRuleEngine
             CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var behavior) ? behavior.SourceStaticLimits : null)
             .OfType<SourceStaticLimitsSpec>();
 
+    internal static bool SourcePreventsMovingToBase(MatchState state, string unitId)
+        => state.CardObjects.TryGetValue(unitId, out var source) && IsFaceUpNonStandbyUnit(source)
+            && IsObjectOnField(state.PlayerZones, unitId)
+            && StaticLimitsFor(state, source).Any(spec => spec.PreventsOwnMoveToBase);
+
     internal static bool AnySourcePreventsUnitsMovingToBase(MatchState state)
         => state.CardObjects.Values.Any(source => IsFaceUpNonStandbyUnit(source)
             && IsObjectOnField(state.PlayerZones, source.ObjectId)

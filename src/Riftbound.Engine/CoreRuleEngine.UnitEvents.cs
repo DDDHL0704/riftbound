@@ -395,6 +395,7 @@ public sealed partial class CoreRuleEngine
                 : c.BurnedUnit is null && (spec.Effect == RuneDomainRevealEffect || c.ReflexiveTick is null))
             && ValidTargetSelectionContext(state, c, spec, source, controller)
             && ValidScoringActionOrigin(state, c, spec, controller)
+            && ValidUnitEventOpponent(state, c, spec, controller)
             && ValidFriendlyUnitActionContext(state, c, spec, controller)
             && ValidBattleDrawContext(state, c, spec, controller)
             && ValidPlayerDefenseContext(state, c, spec)
@@ -575,6 +576,8 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo, item.ControllerId))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = SelectedUnitEventSpec(context)!;
+        if (spec.Effect == ReturnLowMightUnitsEffect && spec.ReturnAllUnitsMaximumMight is { } maximum)
+            return ResolveLowMightGroupReturn(state, item, maximum);
         if (spec.Effect == ScheduleNextMainUnitEventEffect) return ScheduleNextMainUnitEvent(state, item);
         if (spec.Effect == "GAIN_EXPERIENCE") return ResolveUnitEventExperience(state, item, spec);
         if (spec.Effect == DetachOriginDamageSourceEffect) return ResolveDetachOriginDamageSource(state, item, spec);

@@ -53,8 +53,15 @@ internal static class BattleResultRecoveryRules
         var tick = unit?.ResultTick ?? legend?.ResultTick ?? khazix?.ResultTick ?? score!.ResultTick;
         var role = unit?.Role ?? legend?.Role ?? khazix?.Role ?? score!.Role;
         if (binding is null || binding.Generation < 0 || binding.ObjectId != source || actor != controller
-            || cardNo is not null && number != cardNo || actor != c.WinnerPlayerId || field != c.BattlefieldId
-            || tick != c.ResultTick || role != (actor == c.AttackingPlayerId ? "ATTACKER" : "DEFENDER")) return false;
+            || cardNo is not null && number != cardNo || field != c.BattlefieldId
+            || tick != c.ResultTick || role != (c.WinnerPlayerId == c.AttackingPlayerId ? "ATTACKER" : "DEFENDER")
+            || c.WinnerPlayerId is null || unit?.TurnReward is null && actor != c.WinnerPlayerId) return false;
+        if (unit?.TurnReward is { } reward)
+            return effect == UnitDraw && CoreRuleEngine.HasValidUnitBattleWinDrawShape(unit)
+                && CoreRuleEngine.ValidTurnBattleWinReward(state, reward)
+                && state.UntilEndOfTurnEffects.Contains(CoreRuleEngine.TurnBattleWinRewardMarker(reward), StringComparer.Ordinal)
+                && (role == "ATTACKER" ? c.SurvivingAttackerObjectIds : c.SurvivingDefenderObjectIds).Contains(reward.Unit.ObjectId)
+                && c.PublicObjectBindings.Contains(reward.Unit);
         return effect switch
         {
             UnitDraw => unit is not null && CoreRuleEngine.HasValidUnitBattleWinDrawShape(unit)
@@ -115,9 +122,12 @@ internal static class BattleResultRecoveryRules
             var origins = frame.Events.Where(e => e.Event.Kind == "TRIGGER_QUEUED"
                 && Text(e.Event, "triggerId") == id).ToArray();
             if (origins.Length != 1 || !HasOriginalCommand(origins.SingleOrDefault())
-                || Text(origins[0].Event, "sourceObjectId") != source || Text(origins[0].Event, "controllerId") != actor
+                || unit?.TurnReward is null && Text(origins[0].Event, "sourceObjectId") != source
+                || Text(origins[0].Event, "controllerId") != actor
                 || Text(origins[0].Event, "effectKind") != effect
-                || !Same(origins[0].Event.Payload.GetValueOrDefault("battleWinContext"), context))
+                || (unit?.TurnReward is not null
+                    ? Text(origins[0].Event, "battleWinContextHash") != MatchStateHasher.HashValue(context)
+                    : !Same(origins[0].Event.Payload.GetValueOrDefault("battleWinContext"), context)))
                 errors.Add("captured battle-result skill differs from its original trigger birth");
         }
     }

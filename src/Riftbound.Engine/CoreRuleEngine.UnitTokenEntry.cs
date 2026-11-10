@@ -32,12 +32,13 @@ public sealed partial class CoreRuleEngine
             var entryField = battlefieldId;
             if (entryField is null
                 && (item.SourceUnitTokens is null
+                    || FriendlyUnitPlayToAloneEnemyBattlefieldGranted(state with { PlayerZones = zones, CardObjects = cards }, item.ControllerId)
                     || UnitTokenLocationChoiceGranted(state.UntilEndOfTurnEffects, item.ControllerId))
                 && ShouldOfferUnitTokenLocationChoice(state, item.ControllerId, item.CardNo,
                     factory.TokenFamilyName, zones, cards, pools, state.UntilEndOfTurnEffects,
                     instructionAllowsLocationChoice: instructionAllowsLocationChoice))
                 entryField = ChooseUnitTokenBattlefield(state, item.ControllerId, factory.TokenFamilyName,
-                    zones, cards, locations, pools, state.UntilEndOfTurnEffects);
+                    zones, cards, locations, pools, state.UntilEndOfTurnEffects, token);
             token = ApplyUnitTokenEntryStaticAbility(zones, cards, item.ControllerId, id, token,
                 out var ready, out var staticSourceId, out var staticSource, out var staticAbility, entryField);
             cards[id] = token;
