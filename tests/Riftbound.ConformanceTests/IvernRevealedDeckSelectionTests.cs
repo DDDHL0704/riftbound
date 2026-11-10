@@ -61,10 +61,10 @@ public sealed class IvernRevealedDeckSelectionTests
         Assert.Equal("SEEN-UNIT", revealed.Event.Payload["objectId"]);
         Assert.DoesNotContain("SEEN-SPELL", JsonSerializer.Serialize(game.Events().Select(e => e.Event.Payload)));
         Assert.Equal("TRIGGER_CONFIRMATION", game.State.PendingCardChoice!.ChoiceWindow);
-        Assert.False(game.State.CardObjects["ALLY"].Tags.Contains(CardObjectTags.Boon));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
         await Choose(game, "ALLY");
-        Assert.False(game.State.CardObjects["ALLY"].Tags.Contains(CardObjectTags.Boon));
-        await game.Top(); Assert.True(game.State.CardObjects["ALLY"].Tags.Contains(CardObjectTags.Boon));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
         await game.ColdCheckpoint();
     }
 
@@ -73,7 +73,7 @@ public sealed class IvernRevealedDeckSelectionTests
     {
         var game = await Begin(chosen: selected); await Choose(game, "SEEN-UNIT");
         Assert.Single(game.State.StackItems); await Choose(game, "ALLY"); await game.Top();
-        Assert.True(game.State.CardObjects["ALLY"].Tags.Contains(CardObjectTags.Boon));
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
         Assert.Single(game.Events(), e => e.Event.Kind == CoreRuleEngine.DeckSelectionBoonCreatedEvent);
         Assert.Empty(game.State.StackItems); await game.ColdCheckpoint();
     }
@@ -84,7 +84,7 @@ public sealed class IvernRevealedDeckSelectionTests
         var game = await Begin(chosen: "OGN·219/298"); await Choose(game, "SEEN-UNIT");
         Assert.Contains("SEEN-UNIT", game.State.PlayerZones["P1"].Hand);
         Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice);
-        Assert.False(game.State.CardObjects["ALLY"].Tags.Contains(CardObjectTags.Boon)); await game.ColdCheckpoint();
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags); await game.ColdCheckpoint();
     }
 
     [Fact]
@@ -118,7 +118,7 @@ public sealed class IvernRevealedDeckSelectionTests
         await game.Top(); await Choose(game, "SEEN-UNIT");
         Assert.DoesNotContain("IVERN", game.State.PendingCardChoice!.LegalObjectIds);
         Assert.DoesNotContain("\"IVERN\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
-        await Choose(game, "ALLY"); await game.Top(); Assert.True(game.State.CardObjects["ALLY"].Tags.Contains(CardObjectTags.Boon));
+        await Choose(game, "ALLY"); await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
         Assert.DoesNotContain("\"IVERN\"", JsonSerializer.Serialize(game.PromptFor("P2")));
         Assert.DoesNotContain("\"IVERN\"", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick,
