@@ -498,6 +498,8 @@ public static class StaticAbilityKinds
     public const string BattlefieldOpponentUnitsBaseOnly = "BATTLEFIELD_OPPONENT_UNITS_BASE_ONLY";
     public const string BattlefieldEnemyUnitEquipmentCannotReadyByEffect = "BATTLEFIELD_ENEMY_UNIT_EQUIPMENT_CANNOT_READY_BY_EFFECT";
     public const string UnitCannotDealCombatDamage = "UNIT_CANNOT_DEAL_COMBAT_DAMAGE";
+    public const string HereLowerMightFriendlyUnitEnemyTargetProtection = "HERE_LOWER_MIGHT_FRIENDLY_UNIT_ENEMY_TARGET_PROTECTION";
+    public const string HereLowerMightEnemyUnitCombatDamagePrevention = "HERE_LOWER_MIGHT_ENEMY_UNIT_COMBAT_DAMAGE_PREVENTION";
     public const string UnitFriendlyEquipmentHereCombatDamage = "UNIT_FRIENDLY_EQUIPMENT_HERE_COMBAT_DAMAGE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string UnitEquipmentCountSelfKeywords = "UNIT_EQUIPMENT_COUNT_SELF_KEYWORDS";

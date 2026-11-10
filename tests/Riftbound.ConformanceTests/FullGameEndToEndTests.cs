@@ -25542,6 +25542,7 @@ public sealed partial class FullGameEndToEndTests
             CheckHistoricalBattleReferences(snapshot, result.State);
             CheckHistoricalBoonAmplifierSources(snapshot, result.State);
             OrdinaryPlayPrivacyAssertions.CheckHistoricalModifiers(snapshot, result.State);
+            TurnBattleWinPrivacyAssertions.CheckHistoricalModifiers(snapshot, result.State);
             UnitEventPrivacyAssertions.CheckHistoricalModifiers(snapshot, result.State, capturedUnitEvents);
             BattleLimitedPrivacyAssertions.Check(snapshot, result.State, viewerId);
             CheckHistoricalTurnUnitPlayBoons(snapshot, result.State);

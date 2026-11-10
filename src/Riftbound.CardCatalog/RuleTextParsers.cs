@@ -3830,6 +3830,22 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (segment.TrimEnd('。', '.') == "你此处战力低于我的单位无法被敌方法术或技能选作目标")
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.HereLowerMightFriendlyUnitEnemyTargetProtection,
+                    segment, BehaviorImplementationStatuses.Implemented,
+                    "A current higher-Might friendly unit here prevents enemy spell and skill targeting."));
+                continue;
+            }
+            if (segment.TrimEnd('。', '.') is "此处战力低于我的敌方单位无法造成战斗伤害"
+                or "此处战力低于我的敌方单位无法在战斗中造成伤害")
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.HereLowerMightEnemyUnitCombatDamagePrevention,
+                    segment, BehaviorImplementationStatuses.Implemented,
+                    "A current higher-Might enemy unit here prevents combat damage without changing Might."));
+                continue;
+            }
+
             if (segment.TrimEnd('。', '.') == "我无法造成战斗伤害")
             {
                 staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitCannotDealCombatDamage, segment,

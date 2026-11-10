@@ -73,7 +73,7 @@ public sealed partial class CoreRuleEngine
             || !StackObjectRules.ReferencesCurrentObject(state, item, target)
             || !UnitEventTargets(state, item).Contains(target)) return NoopStackResolutionResult(state);
         return ResolveUnitEventAreaDamage(state, item, spec.OtherEnemyDamageAmount, target, spec.Amount,
-            onlyPrimary: spec.Effect == ArmamentUnitEventRules.FixedDamageEffect);
+            onlyPrimary: spec.Effect != RuneDomainDamageEffect);
     }
 
 }

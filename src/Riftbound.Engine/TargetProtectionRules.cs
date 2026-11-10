@@ -16,6 +16,7 @@ internal static class TargetProtectionRules
         }
 
         return !HasTemporaryEnemyTargetProtection(state, sourceControllerId, targetObjectId)
+            && !CoreRuleEngine.IsTargetProtectedByHigherMightFriendlyUnitHere(state, sourceControllerId, targetObjectId)
             && !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
     }
 
@@ -25,6 +26,7 @@ internal static class TargetProtectionRules
         string targetObjectId)
     {
         return !HasTemporaryEnemyTargetProtection(state, sourceControllerId, targetObjectId)
+            && !CoreRuleEngine.IsTargetProtectedByHigherMightFriendlyUnitHere(state, sourceControllerId, targetObjectId)
             && !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
     }
 

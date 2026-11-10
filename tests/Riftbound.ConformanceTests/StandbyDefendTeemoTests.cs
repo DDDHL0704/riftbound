@@ -565,7 +565,9 @@ public sealed class StandbyDefendTeemoTests
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: battlefieldControllerId,
                 controllerId: battlefieldControllerId),
-            [AttackerObjectId] = Unit(AttackerObjectId, "P1", "UNL-057/219", attackerPower),
+            // Keep Teemo's target-choice fixture independent of Wildclaw Alpha's
+            // printed protection of lower-Might friendly units here.
+            [AttackerObjectId] = Unit(AttackerObjectId, "P1", "SFD·094/221", attackerPower),
             [TeemoObjectId] = Unit(TeemoObjectId, "P2", teemoCardNo, 2, ["约德尔人"]),
             ["P2-MAIN-STANDBY-001"] = Unit("P2-MAIN-STANDBY-001", "P2", "OGN·121/298", 2, [CardObjectTags.Standby]),
             ["P2-MAIN-STANDBY-002"] = Unit("P2-MAIN-STANDBY-002", "P2", "OGN·199/298", 2, [CardObjectTags.Standby]),

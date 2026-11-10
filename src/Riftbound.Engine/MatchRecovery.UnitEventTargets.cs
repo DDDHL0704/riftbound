@@ -10,9 +10,17 @@ public static partial class MatchRecoveryValidator
         {
             var items = (frame.StackItems ?? []).OfType<StackItemState>().Concat(
                 frame.PendingEffectPlay?.Parent is { } parent ? [parent] : []);
-            foreach (var item in items.Where(item => item.UnitEvent is not null
+            foreach (var item in items.Where(item => (item.UnitEvent is not null || CoreRuleEngine.IsAgilePermanentPlaySkill(item))
                 && item.TargetObjectIds is not null))
             {
+                var error = item.UnitEvent is null ? "equipment play skill targets differ from original accepted confirmation"
+                    : "unit event targets differ from original accepted confirmation";
+                if (item.UnitEvent is null && events.Any(record => record.Sequence > boundary && record.Tick <= frame.Tick
+                    && record.Event.Kind is "STACK_ITEM_RESOLVED" or "STACK_ITEM_COUNTERED" or "TRIGGER_NOT_CONFIRMED"
+                    && TryReadObjectString(record.Event.Payload, "stackItemId", out var retired) && retired == item.StackItemId
+                    && commands.Any(command => command.Accepted && command.CompletedTick == record.Tick
+                        && command.StartedEventSequence < record.Sequence && command.CompletedEventSequence >= record.Sequence)))
+                    errors.Add("equipment play skill was already retired in original accepted history");
                 if (item.TargetGenerations is null)
                 {
                     // An original confirmation locks this skill's targets.
@@ -24,7 +32,7 @@ public static partial class MatchRecoveryValidator
                         && commands.Any(command => command.Accepted && command.PlayerId == item.ControllerId
                             && command.CompletedTick == record.Tick && command.StartedEventSequence < record.Sequence
                             && command.CompletedEventSequence >= record.Sequence)))
-                        errors.Add("unit event targets differ from original accepted confirmation");
+                        errors.Add(error);
                     continue;
                 }
                 // Ward already locks the targets before payment. A suspended
@@ -44,7 +52,7 @@ public static partial class MatchRecoveryValidator
                     && command.PlayerId == item.ControllerId && command.CompletedTick == confirmations[0].Tick
                     && command.StartedEventSequence < confirmations[0].Sequence
                     && command.CompletedEventSequence >= confirmations[0].Sequence))
-                    errors.Add("unit event targets differ from original accepted confirmation");
+                    errors.Add(error);
             }
         }
     }

@@ -3350,6 +3350,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow is EmpowerRemovalCostWindow or EmpowerOpponentWindow) return ResolveEmpowerInteractionChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == UnitEventModeWindow) return ResolveUnitEventMode(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == ReadiedModeWindow) return ResolveReadiedMode(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == UnitEventOpponentWindow) return ResolveUnitEventOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DrawHandThresholdOpponentWindow) return ResolveDrawHandThresholdOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DravenDeathOpponentWindow) return ResolveDravenDeathOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);
@@ -18128,6 +18129,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
                 && !OpenBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                 && !EnemyControlledBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
+                && !AloneEnemyBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                     && !GrantedUnitPlayBattlefieldAllowed(state, intent.PlayerId, behavior, destination)
                 && !PaidBattlefieldUnitPlayDestination(optionalCosts, destination)
                 && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
@@ -24618,41 +24620,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.ReturnsAllUnitsToHand)
         {
-            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones, cardObjects))
-            {
-                var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
-                    playerZones,
-                    cardObjects,
-                    targetObjectId,
-                    out var battlefieldReturnPlayerId);
-                if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId, out _))
-                {
-                    continue;
-                }
-
-                events.Add(new GameEvent(
-                    "UNIT_RETURNED_TO_HAND",
-                    $"{behavior.DisplayName}让单位返回手牌",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = targetObjectId,
-                        ["ownerPlayerId"] = returnedOwnerPlayerId
-                    }));
-                if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
-                        playerZones,
-                        cardObjects,
-                        runePools,
-                        battlefieldReturnPlayerId,
-                        targetObjectId,
-                        stackItem.SourceObjectId,
-                        events,
-                        out var battlefieldReturnRunePools))
-                {
-                    runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-                }
-            }
+            runePools = ReturnFieldUnitGroup(state, stackItem, playerZones, cardObjects, runePools, events,
+                GetFieldUnitObjectIds(playerZones, cardObjects).ToArray()).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         }
         else if (behavior.ReturnsAllFieldObjectsToHand)
         {
@@ -25637,6 +25606,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     if (behavior.GrantsActivatedAbilityUntilEndOfTurn is not null)
                         targetState = GrantTemporaryActivation(state, stackItem, targetState, events);
 
+                    ScheduleTurnBattleWinReward(state, stackItem, behavior, targetState, repeatIndex,
+                        untilEndOfTurnEffects, events);
+
                     if (behavior.ReadiesTarget || behavior.RuneReadyCountIfShowcase > 0
                         && stackItem.Showcase is not null && targetIndex > 0)
                     {
@@ -25916,19 +25888,35 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.MovesTargetToBase
-                        && TryMoveTargetToOwnerBase(state, playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
+                    if (behavior.MovesTargetToBase)
                     {
-                        events.Add(new GameEvent(
-                            "UNIT_MOVED_TO_BASE",
-                            $"{behavior.DisplayName}让单位移动到所属基地",
-                            new Dictionary<string, object?>
-                            {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["ownerPlayerId"] = movedOwnerPlayerId
-                            }));
-                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, cardObjects, targetObjectId, stackItem.ControllerId, "BASE"));
+                        var beforeMove = state with { PlayerZones = playerZones.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal),
+                            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
+                        var originalBattlefield = BattlefieldLocalRules.AtUnit(beforeMove, targetObjectId)?.ObjectId;
+                        if (TryMoveTargetToOwnerBase(beforeMove, playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId, events))
+                        {
+                            events.Add(new GameEvent(
+                                "UNIT_MOVED_TO_BASE",
+                                $"{behavior.DisplayName}让单位移动到所属基地",
+                                new Dictionary<string, object?>
+                                {
+                                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                                    ["targetObjectId"] = targetObjectId,
+                                    ["ownerPlayerId"] = movedOwnerPlayerId
+                                }));
+                            events.Add(CaptureMovementObservers(beforeMove, cardObjects, targetObjectId, stackItem.ControllerId, "BASE"));
+                        }
+                        // "Then" starts a separate instruction, including when
+                        // a static prohibition prevented the attempted move.
+                        var afterMove = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
+                        if (behavior.DrawAfterMoveToBaseIfAloneEnemyRemains > 0 && originalBattlefield is not null
+                            && HasAloneEnemyAtBattlefield(afterMove, stackItem.ControllerId, originalBattlefield))
+                        {
+                            var draw = ApplyDrawToPlayer(afterMove, playerZones, cardObjects, playerScores, stackItem.ControllerId,
+                                behavior.DrawAfterMoveToBaseIfAloneEnemyRemains, rngCursor, events, deferNormalVictory: true);
+                            playerScores = draw.PlayerScores; winnerPlayerId = draw.WinnerPlayerId; rngCursor = draw.RngCursor;
+                        }
                         continue;
                     }
 
@@ -28512,7 +28500,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (entryField is null && ShouldOfferUnitTokenLocationChoice(state, stackItem.ControllerId, stackItem.CardNo,
                     behavior.CreatedBaseUnitTokenName, playerZones, cardObjects, runePools, turnEffects, behavior))
                 entryField = ChooseUnitTokenBattlefield(state, stackItem.ControllerId, behavior.CreatedBaseUnitTokenName,
-                    playerZones, cardObjects, objectLocations ?? state.ObjectLocations, runePools, turnEffects);
+                    playerZones, cardObjects, objectLocations ?? state.ObjectLocations, runePools, turnEffects, tokenState);
             if (entryHasDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
@@ -28917,7 +28905,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || target.Tags.Contains(CardObjectTags.SpellCard)
             || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
-            || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;
+            || !gear.Tags.Contains(CardObjectTags.EquipmentCard)) return false;
+        // CN435.1.f / 435.4: an already earned Agile skill can reattach
+        // its equipment even if another simultaneous skill attached it first.
         return TryAttachEquipment(state, playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
             stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
@@ -31184,12 +31174,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var equipmentDraws = before is null ? [] : CaptureEquipmentLastBreathDraws(state, zones, cards, before);
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(state, zones, cards, before, controller);
         var destroyedEvents = CaptureUnitEvents(zones, cards, [id], "DESTROYED");
+        var equipmentLastBreaths = before is null ? []
+            : CaptureEquipmentLastBreathUnitEvents(state, zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         if (removed && removal.WasDestroyed)
         {
             var eventKind = removal.WasEquipment && !removal.WasUnit ? "EQUIPMENT_DESTROYED" : "UNIT_DESTROYED";
             RuleChoices.Value!.InstructionUnitEvents.AddRange(destroyedEvents.Select(observation => observation with {
                 InstructionEventKind = eventKind }));
+            if (!removal.WasUnit) RuleChoices.Value.InstructionUnitEvents.AddRange(equipmentLastBreaths);
         }
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
             Death = removed && removal.WasDestroyed && removal.WasUnit
@@ -33330,6 +33323,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["battlefieldObjectId"] = battlefieldObjectId, ["count"] = 1,
                     ["battlefieldReturnContext"] = returnContext,
                     [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId) }));
+            events[^1] = CaptureOpponentScoringAction(events[^1], state, playerZones, cardObjects, playerId, battlefieldObjectId, reason);
             var draw = ApplyDrawToPlayer(state with {
                 PlayerZones = playerZones, CardObjects = cardObjects, UntilEndOfTurnEffects = nextUntilEndOfTurnEffects },
                 playerZones, cardObjects, playerScores, playerId, 1, state.RngCursor, events);
@@ -33345,6 +33339,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             events[^1] = prevented with { Payload = new Dictionary<string, object?>(prevented.Payload) {
                 ["battlefieldObjectId"] = battlefieldObjectId, ["battlefieldReturnContext"] = returnContext,
                 [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId) } };
+            events[^1] = CaptureOpponentScoringAction(events[^1], state, playerZones, cardObjects, playerId, battlefieldObjectId, reason);
             return true;
         }
 
@@ -33370,6 +33365,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["battlefieldReturnContext"] = returnContext,
                 [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId)
             }));
+        events[^1] = CaptureOpponentScoringAction(events[^1], state, playerZones, cardObjects, playerId, battlefieldObjectId, reason);
         if (winnerPlayerId is not null)
         {
             events.Add(new GameEvent(
@@ -33841,7 +33837,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "期限为本回合内的效果同时失效",
                 new Dictionary<string, object?>
                 {
-                    ["effectIds"] = cleanupResult.ExpiredEffectIds.ToArray(),
+                    ["effectIds"] = cleanupResult.ExpiredEffectIds.Select(PublicTurnBattleWinEffectId).ToArray(),
                     ["count"] = cleanupResult.ExpiredEffectIds.Count
                 }));
         }

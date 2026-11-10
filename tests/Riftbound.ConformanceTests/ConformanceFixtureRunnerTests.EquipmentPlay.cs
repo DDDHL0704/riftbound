@@ -1470,8 +1470,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             expectedAttachedToObjectId: "P1-LONG-SWORD-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsLongSwordWhenRequiredAgileTargetIsMissing() =>
-        AssertAgileEquipmentMissingTargetRejectedAsync(
+    public Task CoreRuleEngineConfirmsLongSwordAgileTargetAfterEntry() =>
+        AssertAgileEquipmentTargetConfirmedAfterEntryAsync(
             2,
             "P1-EQUIPMENT-LONG-SWORD",
             "SFD·022/221",
@@ -1511,8 +1511,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             expectedAttachedToObjectId: "P1-STERAKS-GAGE-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsSteraksGageWhenRequiredAgileTargetIsMissing() =>
-        AssertAgileEquipmentMissingTargetRejectedAsync(
+    public Task CoreRuleEngineConfirmsSteraksGageAgileTargetAfterEntry() =>
+        AssertAgileEquipmentTargetConfirmedAfterEntryAsync(
             3,
             "P1-EQUIPMENT-STERAKS-GAGE",
             "SFD·056/221",
@@ -1552,8 +1552,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             expectedAttachedToObjectId: "P1-CLOTH-ARMOR-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsClothArmorWhenRequiredAgileTargetIsMissing() =>
-        AssertAgileEquipmentMissingTargetRejectedAsync(
+    public Task CoreRuleEngineConfirmsClothArmorAgileTargetAfterEntry() =>
+        AssertAgileEquipmentTargetConfirmedAfterEntryAsync(
             1,
             "P1-EQUIPMENT-CLOTH-ARMOR",
             "SFD·064/221",
@@ -1593,8 +1593,8 @@ public sealed partial class ConformanceFixtureRunnerTests
             expectedAttachedToObjectId: "P1-SPINNING-AXE-ATTACH-TARGET");
 
     [Fact]
-    public Task CoreRuleEngineRejectsSpinningAxeWhenRequiredAgileTargetIsMissing() =>
-        AssertAgileEquipmentMissingTargetRejectedAsync(
+    public Task CoreRuleEngineConfirmsSpinningAxeAgileTargetAfterEntry() =>
+        AssertAgileEquipmentTargetConfirmedAfterEntryAsync(
             2,
             "P1-EQUIPMENT-SPINNING-AXE",
             "SFD·186/221",
