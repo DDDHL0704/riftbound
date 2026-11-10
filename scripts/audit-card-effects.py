@@ -1780,6 +1780,13 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
         ("CoreRuleEngine.cs", "ClearRunePools", ["_ => RunePool.Empty"]),
         ("CoreRuleEngine.RuleChoiceCommits.cs", "CommitRuleChoiceResources", ["ApplyRuleChoiceResourceDifference(",
             "return RecomputeRuleDerivedKeywords(next)"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "CompleteRuleChoiceResourceEffects", [
+            "RecordMightyTransitions(context, completed, beforeMight);\n                completed = StampNewTriggerQueueTimes(context, completed)",
+            "new MightInstructionFrames(beforeMight!, after, AlreadyCaptured: true)"]),
+        ("CoreRuleEngine.MightyTransitions.cs", "RecordMightyTransitions", [
+            "if (step.AlreadyCaptured) previous = step.After", "Events = events"]),
+        ("CoreRuleEngine.RuleChoiceResources.cs", "CompleteRuleChoiceResourceStep", [
+            "events.Where(item => item.Kind != CapturedMightInstruction).ToArray()"]),
         ("CoreRuleEngine.LastKnownMight.cs", "CapturePublicMightFrame", ["PaidPowerThisTurn = publicZones.Keys.ToDictionary",
             "state.RunePools.GetValueOrDefault(id, RunePool.Empty).PaidPowerThisTurn"]),
         ("CoreRuleEngine.LastKnownMight.cs", "MightFrameState", ["runePools: frame.PlayerZones.Keys.ToDictionary",
@@ -1788,6 +1795,8 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
             "command.Accepted", "pool.PaidPowerThisTurn != expected", "ValidateMightyPowerPaymentHistory("]),
         ("CoreRuleEngine.cs", "BuildTriggerQueuedEvent", ["RequiresMightyPowerPaymentHistory(trigger.MightySkill)",
             'payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!)']),
+        ("MatchRecovery.PowerPayments.cs", "ValidateMightyPowerPaymentHistory", [
+            'record.Event.Kind == "TRIGGER_QUEUED"', "MightyPowerPaymentHistoryHash(capture.Context)", "command.Accepted"]),
     ]
     exact = exact and all(any(all(token in body for token in tokens) for body in members(filename, name))
                           for filename, name, tokens in checks)

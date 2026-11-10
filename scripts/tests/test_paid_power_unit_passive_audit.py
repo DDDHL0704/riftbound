@@ -11,7 +11,7 @@ class PaidPowerUnitPassiveAuditTests(unittest.TestCase):
     FILES = ['PaymentCostRules.cs', 'CoreRuleEngine.PowerPayments.cs', 'CoreRuleEngine.ConditionalSourceUnits.cs',
              'CoreRuleEngine.cs', 'CoreRuleEngine.RuleDerivedKeywords.cs', 'CoreRuleEngine.RuleChoiceCommits.cs',
              'CoreRuleEngine.RuleChoices.cs', 'CoreRuleEngine.LastKnownMight.cs', 'MatchRecovery.PowerPayments.cs',
-             'MatchRecovery.cs']
+             'MatchRecovery.cs', 'CoreRuleEngine.MightyTransitions.cs', 'CoreRuleEngine.RuleChoiceResources.cs']
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
@@ -85,4 +85,21 @@ class PaidPowerUnitPassiveAuditTests(unittest.TestCase):
     def test_runtime_recovery_must_invoke_the_original_history_check(self):
         self.replace('MatchRecovery.cs', 'ValidatePowerPaymentHistory(authoritativeState, commands, events, errors)',
                      'IgnorePowerPaymentHistory(authoritativeState, commands, events, errors)')
+        self.assertEqual('missing', self.outcome())
+
+    def test_paid_resource_mighty_capture_requires_its_own_chronology(self):
+        self.replace('CoreRuleEngine.RuleChoiceCommits.cs',
+                     'RecordMightyTransitions(context, completed, beforeMight);\n                completed = StampNewTriggerQueueTimes(context, completed)',
+                     'RecordMightyTransitions(context, completed, beforeMight)')
+        self.assertEqual('missing', self.outcome())
+
+    def test_resuming_the_parent_must_not_repeat_the_committed_crossing(self):
+        self.replace('CoreRuleEngine.MightyTransitions.cs',
+                     'if (step.AlreadyCaptured) previous = step.After',
+                     'if (false) previous = step.After')
+        self.assertEqual('missing', self.outcome())
+
+    def test_mighty_payment_inputs_must_match_the_original_capture(self):
+        self.replace('MatchRecovery.PowerPayments.cs', 'MightyPowerPaymentHistoryHash(capture.Context)',
+                     'HashCurrentCounterInstead(capture.Context)')
         self.assertEqual('missing', self.outcome())
