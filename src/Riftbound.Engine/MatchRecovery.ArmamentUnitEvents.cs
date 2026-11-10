@@ -20,7 +20,7 @@ public static partial class MatchRecoveryValidator
             if (item.Context is not { Origin.ArmamentGranted: true } context || queued.Length != 1
                 || !TryReadObjectString(queued[0].Event.Payload, "armamentGrantHash", out var hash)
                 || hash != ArmamentUnitEventRules.CaptureHash(context)
-                || !TryReadObjectString(queued[0].Event.Payload, "sourceObjectId", out var source) || source != item.Source
+                || !UnitEventQueuedSourceMatches(queued[0].Event.Payload, item.Source)
                 || !TryReadObjectString(queued[0].Event.Payload, "controllerId", out var controller) || controller != item.Controller
                 || item.IsStack && !events.Any(e => e.Sequence > queued[0].Sequence && e.Event.Kind == "TRIGGERS_MOVED_TO_STACK"
                     && TryReadObjectStringList(e.Event.Payload, "stackItemIds", out var ids) && ids.Contains(item.Id))

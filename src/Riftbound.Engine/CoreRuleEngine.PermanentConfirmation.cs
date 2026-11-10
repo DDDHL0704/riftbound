@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool HasPendingPermanentPlayAbility(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
-        => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
+        => ((OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
+                || IsAgileDirectPlayAttachRepresentative(behavior))
                 && (behavior.Showcase is null || item.Showcase is not null)
                 && !HasImmediateShowcaseResource(behavior)
                 && (!behavior.GrantsSourceEphemeralIfOpponentTurn || state.TurnPlayerId != item.ControllerId)
