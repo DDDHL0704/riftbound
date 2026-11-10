@@ -96,7 +96,7 @@ public sealed partial class CoreRuleEngine
             pool = pools[player];
             var traits = traitToSpend is null ? new Dictionary<string, int>() : new Dictionary<string, int> { [traitToSpend] = 1 };
             var power = PayPowerCost(pool, traitToSpend is null ? 1 : 0, traits);
-            pools[player] = pool with { Power = power.AnyPower, PowerByTrait = power.PowerByTrait };
+            pools[player] = power;
             events.Add(new("COST_PAID", "支付结算中的 1 点任意符能", new Dictionary<string, object?> {
                 ["playerId"] = player, ["mana"] = 0, ["power"] = 1, ["powerByTrait"] = traits,
                 ["sourceObjectId"] = item.SourceObjectId, ["reason"] = "OPTIONAL_SPELL_CONTROL_PAYMENT" }));

@@ -324,12 +324,11 @@ public static class PaymentCostRules
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        var (remainingAnyPower, remainingPowerByTrait) = PayPowerCost(
+        var paidPower = PayPowerCost(
             currentPool,
             powerCost,
-            powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
-        runePools[playerId] = SpendMana(currentPool, manaCost, state: state) with {
-            Power = remainingAnyPower, PowerByTrait = remainingPowerByTrait };
+            powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal), PowerPaymentPurpose.Other);
+        runePools[playerId] = SpendMana(paidPower, manaCost, state: state);
 
         return runePools;
     }
@@ -417,7 +416,8 @@ public static class PaymentCostRules
         IReadOnlyDictionary<string, int> powerCostByTrait,
         PowerPaymentPurpose purpose = PowerPaymentPurpose.Other)
     {
-        if (anyPowerCost < 0 || !pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose))
+        if (anyPowerCost < 0 || !pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose)
+            || (long)anyPowerCost + powerCostByTrait.Values.Sum(amount => (long)amount) > long.MaxValue - pool.PaidPowerThisTurn)
         {
             return false;
         }
@@ -482,11 +482,18 @@ public static class PaymentCostRules
         var view = PowerPoolForPurpose(pool, purpose);
         var paid = PayPowerCost(view, anyPowerCost, powerCostByTrait);
         var spent = view.Power - paid.AnyPower;
+        // This is the debit performed by this primitive, before any subsequent
+        // income or pool clearing. It includes trait and restricted power.
+        var actualPaid = (long)spent + view.PowerByTrait.Values.Sum(value => (long)value)
+            - paid.PowerByTrait.Values.Sum(value => (long)value);
+        if (actualPaid < 0 || pool.PaidPowerThisTurn < 0 || actualPaid > long.MaxValue - pool.PaidPowerThisTurn)
+            throw new ResourceNumericLimitException("本回合已支付符能数量");
+        var paidThisTurn = pool.PaidPowerThisTurn + actualPaid;
         if (powerSourceSelection is { } selected)
         {
             if (!CanSpendPowerSources(pool, purpose, selected, spent))
                 throw new InvalidOperationException("Invalid selected wildcard power sources.");
-            return pool with { Power = pool.Power - selected.GetValueOrDefault("UNRESTRICTED"),
+            return pool with { PaidPowerThisTurn = paidThisTurn, Power = pool.Power - selected.GetValueOrDefault("UNRESTRICTED"),
                 PowerByTrait = paid.PowerByTrait,
                 SpellOnlyPower = pool.SpellOnlyPower - selected.GetValueOrDefault("SPELL_ONLY"),
                 EquipmentOnlyPower = pool.EquipmentOnlyPower - selected.GetValueOrDefault("EQUIPMENT_ONLY"),
@@ -499,6 +506,7 @@ public static class PaymentCostRules
             ? Math.Min(pool.UnitOrEquipmentPlayOnlyPower, spent - spellSpent - equipmentSpent) : 0;
         var restrictedSpent = spellSpent + equipmentSpent + permanentSpent;
         return pool with {
+            PaidPowerThisTurn = paidThisTurn,
             Power = pool.Power - (spent - restrictedSpent), PowerByTrait = paid.PowerByTrait,
             SpellOnlyPower = pool.SpellOnlyPower - spellSpent,
             EquipmentOnlyPower = pool.EquipmentOnlyPower - equipmentSpent,

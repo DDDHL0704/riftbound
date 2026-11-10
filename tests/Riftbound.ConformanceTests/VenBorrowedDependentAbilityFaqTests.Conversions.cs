@@ -74,6 +74,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         var old = before.RunePools["P1"];
         Assert.Equal(old with { Mana = old.Mana + (manaToPower ? -amount : amount),
             Power = old.Power + (manaToPower ? amount : -amount) }, game.State.RunePools["P1"]);
+        Assert.Equal(old.PaidPowerThisTurn + (manaToPower ? 0 : amount), game.State.RunePools["P1"].PaidPowerThisTurn);
         Assert.Empty(game.State.StackItems);
         Assert.Equal(before.TimingState, game.State.TimingState);
         Assert.Equal(before.PriorityPlayerId, game.State.PriorityPlayerId);
@@ -140,6 +141,7 @@ public sealed partial class VenBorrowedDependentAbilityFaqTests
         }
         Assert.Equal(old with { Mana = old.Mana + (manaToPower ? -64 : 64),
             Power = old.Power + (manaToPower ? 64 : -64) }, game.State.RunePools["P1"]);
+        Assert.Equal(old.PaidPowerThisTurn + (manaToPower ? 0 : 64), game.State.RunePools["P1"].PaidPowerThisTurn);
         Assert.True(game.State.CardObjects["HOST"].IsExhausted);
         Assert.Empty(game.State.StackItems);
         await game.Replay();

@@ -9102,8 +9102,8 @@ public sealed class CardCatalogBaselineTests
 
         var safetyInspector = BuildBasicActionProfile(specs, "UNL-164/219");
         Assert.True(safetyInspector.HasExperience);
-        Assert.DoesNotContain(CardBasicActionNames.Experience, safetyInspector.DelegatedP2Actions);
-        Assert.Contains(CardBasicActionNames.Experience, safetyInspector.DeferredActions);
+        Assert.Contains(CardBasicActionNames.Experience, safetyInspector.DelegatedP2Actions);
+        Assert.DoesNotContain(CardBasicActionNames.Experience, safetyInspector.DeferredActions);
         Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, safetyInspector.Status);
 
         var hostileTakeover = BuildBasicActionProfile(specs, "SFD·202/221");

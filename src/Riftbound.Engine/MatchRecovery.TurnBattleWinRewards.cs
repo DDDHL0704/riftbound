@@ -6,6 +6,12 @@ public static partial class MatchRecoveryValidator
         IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
         var frames = new[] { state, state.PendingRuleChoice?.Origin }.OfType<MatchState>().ToArray();
+        if (frames.Any(frame => frame.UntilEndOfTurnEffects is null
+            || frame.UntilEndOfTurnEffects.Any(effect => effect is null)))
+        {
+            errors.Add("turn battle-win reward history contains a null effect list or value");
+            return;
+        }
         if (!frames.Any(frame => frame.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(CoreRuleEngine.TurnBattleWinRewardPrefix, StringComparison.Ordinal))
                 || frame.StackItems.Any(item => item.UnitBattleWinDraw?.TurnReward is not null)
                 || frame.TriggerQueue.Any(item => item.UnitBattleWinDraw?.TurnReward is not null))

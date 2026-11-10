@@ -2,10 +2,21 @@ namespace Riftbound.Engine;
 
 public static partial class MatchRecoveryValidator
 {
+    // Match the original accepted queue receipt, never a later projection.
+    // Scheduled skills always require a hash; ordinary public births retain
+    // their original source label even if the source later becomes private.
+    private static bool UnitEventQueuedSourceMatches(IReadOnlyDictionary<string, object?>? payload,
+        string source, bool requiresHash = false)
+        => requiresHash || payload?.ContainsKey("timingSourceHash") == true
+            ? TryReadObjectString(payload, "timingSourceHash", out var hash)
+                && hash == MatchStateHasher.HashValue(source)
+            : TryReadObjectString(payload, "sourceObjectId", out var original) && original == source;
+
     private static void ValidateObservedUnitEventHistory(MatchState state,
         IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
         ValidateUnitEventPlayTargetHistory(state, commands, events, errors);
+        ValidateArmamentPlayAttachmentConfirmationHistory(state, commands, events, errors);
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         var queued = events.Where(entry => entry.Sequence > boundary && entry.Event.Kind == "TRIGGER_QUEUED"
             && TryReadObjectString(entry.Event.Payload, "observedUnitEventCaptureHash", out _)).ToArray();

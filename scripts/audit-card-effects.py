@@ -1760,6 +1760,94 @@ def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> di
         if exact else "缺少精确的眩晕敌方战场条件、来源独立移动确认、效果移动或原始历史核验消费者", paths)
 
 
+def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause["text"]))
+    match = re.fullmatch(r"在本回合内如果你至少支付了((?:\{\{A\}\})+)则我获得\{\{S\}\}\+([1-9][0-9]*)和\{\{(游走)\}\}", text)
+    if not match:
+        return None
+    required, delta, keyword = match[1].count("{{A}}"), int(match[2]), match[3]
+    exact = clause["kind"] == "static" and normalize(unparenthesize(clause["scope"])) == text \
+        and "unit" in card.get("cardCategory", "") and any(
+            behavior.get("playsSourceToBaseAsUnit")
+            and behavior.get("conditionalSourceUnitConditionKind") == "CONTROLLER_PAID_POWER_THIS_TURN"
+            and behavior.get("conditionalSourceUnitRequiredPaidPower") == required
+            and behavior.get("conditionalSourceUnitPowerBonus") == delta
+            and behavior.get("conditionalSourceUnitTags") == keyword for behavior in card.get("behaviors", []))
+    prefix = "src/Riftbound.Engine/"
+
+    def members(filename, name):
+        source = sources.files.get(prefix + filename, "")
+        pattern = r"(?m)^    (?:private|internal|public) [^\n]*\b" + re.escape(name) + r"\("
+        return [re.split(r"\n    (?:private|internal|public) ", source[m.end():], maxsplit=1)[0]
+                for m in re.finditer(pattern, source)]
+
+    checks = [
+        ("PaymentCostRules.cs", "PayPowerCost", [
+            "var actualPaid = (long)spent + view.PowerByTrait.Values.Sum", "pool.PaidPowerThisTurn + actualPaid",
+            "PaidPowerThisTurn = paidThisTurn", "Power = pool.Power -", "PowerByTrait = paid.PowerByTrait"]),
+        ("PaymentCostRules.cs", "TryCommitPayment", ["var paidPower = PayPowerCost(", "runePools[plan.PlayerId] = paidPower with"]),
+        ("PaymentCostRules.cs", "CanPayPowerCost", ["long.MaxValue - pool.PaidPowerThisTurn", "powerCostByTrait.Values.Sum"]),
+        ("PaymentCostRules.cs", "PayRuneCosts", ["var paidPower = PayPowerCost(", "PowerPaymentPurpose.Other",
+            "runePools[playerId] = SpendMana(paidPower, manaCost"]),
+        ("CoreRuleEngine.PowerPayments.cs", "RecordPowerPayments", ["if (!result.Accepted) return result",
+            "paidState.RunePools.GetValueOrDefault(player, RunePool.Empty).PaidPowerThisTurn", "paidState.TurnNumber",
+            "total - previous", "[PowerPaymentReceiptKey] = receipt", "Events = events"]),
+        ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitDefinitions", ["IsFaceUpNonStandbyUnit(source)",
+            "IsObjectOnField(state.PlayerZones, source.ObjectId)", "AttachedRuleTextRules.Instances(state, source)"]),
+        ("CoreRuleEngine.ConditionalSourceUnits.cs", "ConditionalSourceUnitContributions", [
+            "EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source)",
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)",
+            "ResolveConditionalSourceUnitPowerBonus(s.Behavior, controller, state)",
+            "ResolveConditionalSourceUnitTags(s.Behavior, controller, state)"]),
+        ("CoreRuleEngine.cs", "ConditionalSourceUnitConditionApplies", ["ControllerPaidPowerThisTurn",
+            "state.RunePools.GetValueOrDefault(controllerId, RunePool.Empty).PaidPowerThisTurn",
+            ">= behavior.ConditionalSourceUnitRequiredPaidPower"]),
+        ("CoreRuleEngine.cs", "ResolveBattleCombatPower", ["staticPowerBonus += ResolveFieldPowerStaticAuraBonus("]),
+        ("CoreRuleEngine.cs", "ResolveFieldPowerStaticAuraBonus", ["ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"]),
+        ("CoreRuleEngine.RuleDerivedKeywords.cs", "RecomputeConditionalRuleDerivedKeywords", [
+            "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"]),
+        ("CoreRuleEngine.cs", "CompleteTurnEnd", ["TurnNumber = state.TurnNumber + 1", "RunePools = ClearRunePools(state, resetPaidPower: true)"]),
+        ("CoreRuleEngine.cs", "ClearRunePools", ["bool resetPaidPower = false",
+            "PaidPowerThisTurn = resetPaidPower ? 0", "state.RunePools.GetValueOrDefault(playerId, RunePool.Empty).PaidPowerThisTurn"]),
+        ("CoreRuleEngine.TurnSequence.cs", "AdvanceTurnStartSequence", [
+            "var pools = ClearRunePools(state).ToDictionary", "RunePools = pools"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "CommitRuleChoiceResources", ["ApplyRuleChoiceResourceDifference(",
+            "return RecomputeRuleDerivedKeywords(next)"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "ApplyRuleChoiceResourceDifference", [
+            'path.EndsWith(".paidPowerThisTurn", StringComparison.Ordinal)', 'current?.GetValue<long>()',
+            'return JsonValue.Create(count + delta)']),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "CompleteRuleChoiceResourceEffects", [
+            "RecordMightyTransitions(context, completed, beforeMight);\n                completed = StampNewTriggerQueueTimes(context, completed)",
+            "new MightInstructionFrames(beforeMight!, after, AlreadyCaptured: true)"]),
+        ("CoreRuleEngine.MightyTransitions.cs", "RecordMightyTransitions", [
+            "if (step.AlreadyCaptured) previous = step.After", "Events = events"]),
+        ("CoreRuleEngine.RuleChoiceResources.cs", "CompleteRuleChoiceResourceStep", [
+            "events.Where(item => item.Kind != CapturedMightInstruction).ToArray()"]),
+        ("CoreRuleEngine.LastKnownMight.cs", "CapturePublicMightFrame", ["PaidPowerThisTurn = publicZones.Keys.ToDictionary",
+            "state.RunePools.GetValueOrDefault(id, RunePool.Empty).PaidPowerThisTurn"]),
+        ("CoreRuleEngine.LastKnownMight.cs", "MightFrameState", ["runePools: frame.PlayerZones.Keys.ToDictionary",
+            "paidPowerThisTurn: frame.PaidPowerThisTurn.GetValueOrDefault(id)"]),
+        ("MatchRecovery.PowerPayments.cs", "ValidatePowerPaymentHistory", ["record.Event.Payload?.ContainsKey(CoreRuleEngine.PowerPaymentReceiptKey) == true",
+            "TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)",
+            'TryReadObjectLong(payload, "amount", out var amount)', 'TryReadObjectLong(payload, "paidPowerTotal", out var total)',
+            "command.Accepted", "pool.PaidPowerThisTurn != expected", "ValidateMightyPowerPaymentHistory("]),
+        ("CoreRuleEngine.cs", "BuildTriggerQueuedEvent", ["RequiresMightyPowerPaymentHistory(trigger.MightySkill)",
+            'payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!)']),
+        ("MatchRecovery.PowerPayments.cs", "ValidateMightyPowerPaymentHistory", [
+            'record.Event.Kind == "TRIGGER_QUEUED"', "MightyPowerPaymentHistoryHash(capture.Context)", "command.Accepted"]),
+    ]
+    exact = exact and all(any(all(token in body for token in tokens) for body in members(filename, name))
+                          for filename, name, tokens in checks)
+    exact = exact and any(body.count("return RecordPowerPayments(state,") == 3
+                          for body in members("CoreRuleEngine.RuleChoices.cs", "ResolveAsync"))
+    exact = exact and "ValidatePowerPaymentHistory(authoritativeState, commands, events, errors)" in sources.files.get(prefix + "MatchRecovery.cs", "")
+    evidence = sorted({prefix + filename for filename, _, _ in checks}
+                      | {prefix + "CoreRuleEngine.RuleChoices.cs", prefix + "MatchRecovery.cs"})
+    return result("route" if exact else "missing",
+        "共享实际扣费结果累计本回合符能支付，当前操控者条件驱动持续战力与游走；暂停资源提交、历史战力和原始付款记录共同校验"
+        if exact else "缺少逐句相符的支付阈值、持续战力／关键词、实际扣费累计、回合重置或原始支付历史消费者", evidence)
+
+
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
@@ -3143,12 +3231,113 @@ def source_play_condition_movement_route(card: dict, clause: dict, sources: Sour
         'missing', '缺少背面／己方回合的原始打出条件、独立敌方单位移动，或来源代际及原始捕获校验')
 
 
+def attack_armament_play_attachment_route(card: dict, clause: dict, sources: Sources) -> dict | None:
+    text = normalize(unparenthesize(clause['text']))
+    expected_text = normalize('当我进攻时，你可以选择打出一件法力费用不高于{{2}}的武装，无视其费用，然后将其贴附到我身上。')
+    if text != expected_text:
+        return None
+    expected = dict(timing='ATTACK', effect='PLAY_HAND_ARMAMENT_THEN_ATTACH_SOURCE', amount=2, optional=True)
+    spec = card.get('unitEventAbility') or {}
+    exact = clause['kind'] == 'trigger' and normalize(unparenthesize(clause['scope'])) == text \
+        and card.get('cardCategory') in {'unit', 'hero_unit'} \
+        and any(b.get('playsSourceToBaseAsUnit') is True for b in card.get('behaviors', [])) \
+        and all(type(spec.get(k)) is type(v) and spec.get(k) == v for k, v in expected.items()) \
+        and not any(meaningful(v) for k, v in spec.items() if k not in expected)
+    prefix = 'src/Riftbound.Engine/'
+
+    def member(filename, name):
+        code = sources.files.get(prefix + filename, '')
+        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b' + re.escape(name) + r'\s*\(', code)
+        if not start:
+            return ''
+        rest = code[start.start():]
+        end = re.search(r'(?m)^    (?:private|internal|public) (?:static )?', rest[start.end() - start.start():])
+        return rest[:start.end() - start.start() + end.start()] if end else rest
+
+    checks = [
+        ('CoreRuleEngine.UnitEvents.cs', 'CaptureAttackUnitEvents', ['CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK")']),
+        ('CoreRuleEngine.EffectPlay.cs', 'TryGetEffectPlayDefinition', ['TryGetArmamentPlayAttachmentDefinition(parent, out definition)']),
+        ('CoreRuleEngine.ArmamentPlayAttachment.cs', 'TryGetArmamentPlayAttachmentDefinition', [
+            'IsArmamentPlayAttachmentPermission(parent)', 'EffectPlaySourceZone: "HAND"',
+            'EffectPlayMaximumManaCost: UnitEventSpec(parent.CardNo)!.Amount',
+            'EffectPlayIgnoreBaseMana: true', 'EffectPlayIgnoreBasePower: true',
+            'EffectPlayOptional: false', 'EffectPlayRequiresArmament = true']),
+        ('CoreRuleEngine.ArmamentPlayAttachment.cs', 'ArmamentEffectPlaySourceAllowed', [
+            '!card.IsFaceDown', '!IsTokenObject(card)', 'OfficialArmamentCatalog.Find(card.CardNo)',
+            'gear.PlaysSourceToBaseAsEquipment', 'EffectPlayCandidateCostAllowed(card, definition)']),
+        ('CoreRuleEngine.EffectPlay.cs', 'EffectPlaySourceMatches', [
+            '!definition.EffectPlayRequiresArmament || ArmamentEffectPlaySourceAllowed(card, definition)']),
+        ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
+            'spec.Effect is StandbyHandPlayHereEffect or PlayHandArmamentThenAttachEffect',
+            'return BeginEffectPlay(state, item, definition)',
+            'if (spec.Effect == AttachPlayedArmamentEffect) return ResolvePlayedArmamentAttachment(state, item)']),
+        ('CoreRuleEngine.EffectPlay.cs', 'ResolveEffectPlayCommand', [
+            'ResolvePlayCard(playState, intent, play)', 'if (!result.Accepted)',
+            'CapturePlayedArmamentAttachment(result, pending, play)']),
+        ('CoreRuleEngine.ArmamentPlayAttachment.cs', 'CapturePlayedArmamentAttachment', [
+            'IsArmamentPlayAttachmentPermission(pending.Parent)', 'EQUIPMENT_PLAYED_TO_BASE',
+            'EQUIPMENT_PLAYED_TO_BATTLEFIELD', 'ReflexiveTick = result.State.Tick',
+            'new(gear.ObjectId, gear.ObjectGeneration)', 'WithUnitEvents(', 'PlayedArmamentAttachmentCreatedEvent']),
+        ('CoreRuleEngine.UnitEventModes.cs', 'SelectedUnitEventSpec', [
+            'HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null', 'Effect = AttachPlayedArmamentEffect']),
+        ('CoreRuleEngine.ArmamentPlayAttachment.cs', 'ResolvePlayedArmamentAttachment', [
+            'currentGear.ObjectGeneration != gear.Binding.Generation',
+            'host.ObjectGeneration != context.SourceGeneration', 'TryAttachEquipment(']),
+        ('CoreRuleEngine.ArmamentPlayAttachment.cs', 'ValidArmamentPlayAttachmentContext', [
+            'context.ReflexiveTick <= context.CapturedTick', 'PredictBindingMatches(',
+            'state.CardPlays?.Resolved.Any(', 'play.Source == gear.Binding', 'play.Tick == context.ReflexiveTick']),
+        ('CoreRuleEngine.ArmamentPlayAttachment.cs', 'ValidArmamentPlayAttachmentPermission', [
+            '!ValidUnitEvent(', '!ValidUnitEventTargets(parent)', 'pending.IgnoreAllCosts',
+            'pending.DestinationPolicy != "ANY"', 'pending.SourceZone != "HAND"',
+            'parent.TriggerCost is null', 'ValidTriggerCostReceipt(state, parent)', 'expected.Count == pending.Sources.Count', 'pending.Sources.GetValueOrDefault(pair.Key, -1) == pair.Value']),
+        ('CoreRuleEngine.TriggerCosts.cs', 'LeadingTriggerCost', ['IsOptionalArmamentPlayEvent(optional)']),
+        ('CoreRuleEngine.TriggerCosts.cs', 'TriggerCostChoices', ['IsOptionalArmamentPlayEvent(optionalPlay)']),
+        ('MatchRecovery.ArmamentPlayAttachment.cs', 'ValidateArmamentPlayAttachmentConfirmationHistory', [
+            'TRIGGER_CONFIRMED', 'item.TriggerCost is null', 'command.Accepted', 'command.CompletedEventSequence >= original[0].Sequence']),
+        ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', ['ValidateArmamentPlayAttachmentConfirmationHistory(state, commands, events, errors)']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'RequiresObservedUnitEventHistory', ['HasArmamentPlayAttachment(context)']),
+        ('CoreRuleEngine.ObservedUnitEvents.cs', 'ObservedUnitEventCaptureHash', ['context.ReflexiveTick']),
+        ('CoreRuleEngine.ScheduledUnitEvents.cs', 'ObservedUnitEventOccurrenceTick', [
+            'HasArmamentPlayAttachment(context) && context.ReflexiveTick is { } tick',
+            'context.DelayedReceipt?.FiredTick ?? context.CapturedTick']),
+        ('MatchRecovery.ObservedUnitEvents.cs', 'ValidateObservedUnitEventHistory', [
+            'CoreRuleEngine.ObservedUnitEventOccurrenceTick(item.Context)', 'command.Accepted',
+            'CoreRuleEngine.ObservedUnitEventCaptureHash(item.Context, item.Source, item.Controller)',
+            '!expected.SetEquals(current.Select(item => item.Id))']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'CompanionPlayedUnit', ['HasArmamentPlayAttachment(', '.Other?.Binding']),
+        ('CoreRuleEngine.UnitPlayMight.cs', 'ValidPermanentPlayCompanion', ['ValidArmamentPlayAttachmentContext(']),
+        ('CoreRuleEngine.cs', 'TryAttachAgileDirectPlayEquipmentToTarget', ['TryAttachEquipment(']),
+        ('CoreRuleEngine.PermanentPlayTargets.cs', 'HasIndependentPermanentTargets', [
+            'behavior.RequiredTargetCount > 0 || IsAgileDirectPlayAttachRepresentative(behavior)']),
+        ('CoreRuleEngine.DeclaredChoices.cs', 'HasLegalDeclaredTargets', [
+            'HasIndependentPermanentTargets(behavior) && targets.Count == 0']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'ResolveTriggerTargetConfirmation', [
+            '|| IsAgilePermanentPlaySkill(item)', '["targetGenerations"] = bound.TargetGenerations']),
+        ('CoreRuleEngine.FieldTriggers.cs', 'CompleteTriggerTargetConfirmation', [
+            '|| IsAgilePermanentPlaySkill(item)', 'confirmationPayload["stackItemId"] = item.StackItemId',
+            'confirmationPayload["targetGenerations"] = confirmed.TargetGenerations']),
+        ('MatchRecovery.UnitEventTargets.cs', 'ValidateUnitEventTargetHistory', [
+            'CoreRuleEngine.IsAgilePermanentPlaySkill(item)', 'targets.SequenceEqual(item.TargetObjectIds)',
+            'command.Accepted', 'record.Tick <= frame.Tick', 'equipment play skill was already retired']),
+        ('MatchRecovery.cs', 'ValidateSpellContinuations', ['ValidArmamentPlayAttachmentPermission(state, armamentHandPlay)']),
+        ('MatchRecovery.cs', 'ValidateAuthoritativeState', ['ValidateSpellContinuations(authoritativeState, errors)']),
+    ]
+    exact = exact and all(all(token in member(filename, name) for token in tokens)
+        for filename, name, tokens in checks)
+    exact = exact and 'AttachedToObjectId' not in member('CoreRuleEngine.cs', 'TryAttachAgileDirectPlayEquipmentToTarget')
+    evidence = sorted({prefix + filename for filename, _, _ in checks})
+    return result('route', '进攻时先确认可选发动，结算时真实打出手牌中法力至多2的武装，仅免基础费用；成功打出后创建独立贴附技能，绑定原武装与来源代际，并与灵便共用触发排序及原始历史校验', evidence) if exact else result(
+        'missing', '缺少限定武装的真实效果打出、独立内嵌贴附、共同排序，或原始对象／付款／捕获历史校验')
+
+
 def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
     if clause.get("location") == "armament":
         matched = audit_armament_clause(card, clause, sources)
         if matched["status"] != "route" and (reviewed := reviewed_clause_route(card, clause, sources)):
             return reviewed
         return matched
+    if armament_play := attack_armament_play_attachment_route(card, clause, sources):
+        return armament_play
     if held_next_unit := held_next_unit_ready_boon_route(card, clause, sources):
         return held_next_unit
     if conditional_move := source_play_condition_movement_route(card, clause, sources):
@@ -3199,6 +3388,8 @@ def audit_clause(card: dict, clause: dict, sources: Sources) -> dict:
         return level_cost
     if experience := conditional_unit_experience_route(card, clause, sources):
         return experience
+    if paid_passive := paid_power_unit_passive_route(card, clause, sources):
+        return paid_passive
     if targeted := friendly_target_ready_route(card, clause, sources):
         return targeted
     if damage := source_attack_damage_route(card, clause, sources):

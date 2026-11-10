@@ -5347,6 +5347,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (RequiresObservedUnitEventHistory(trigger.UnitEvent))
             payload["observedUnitEventCaptureHash"] = ObservedUnitEventCaptureHash(trigger.UnitEvent!,
                 trigger.SourceObjectId, trigger.ControllerId);
+        if (RequiresMightyPowerPaymentHistory(trigger.MightySkill))
+            payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!);
         if (trigger.UnitEvent is { EquipmentSkillTriggerHash: { } completionKey } equipmentSkill)
         {
             payload["equipmentSkillTriggerHash"] = completionKey;
@@ -19660,7 +19662,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             TurnPlayerId = nextPlayerId,
             Phase = MatchPhases.TurnStart,
             TimingState = TimingStates.NeutralClosed,
-            RunePools = ClearRunePools(state),
+            RunePools = ClearRunePools(state, resetPaidPower: true),
             PlayerZones = turnEndPlayerZones,
             CardObjects = turnEndCardObjects,
             ObjectLocations = objectLocations,
@@ -20552,12 +20554,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return PaymentCostRules.CanPayPowerCost(pool, anyPowerCost, powerCostByTrait);
     }
 
-    private static (int AnyPower, IReadOnlyDictionary<string, int> PowerByTrait) PayPowerCost(
+    private static RunePool PayPowerCost(
         RunePool pool,
         int anyPowerCost,
         IReadOnlyDictionary<string, int> powerCostByTrait)
     {
-        return PaymentCostRules.PayPowerCost(pool, anyPowerCost, powerCostByTrait);
+        return PaymentCostRules.PayPowerCost(pool, anyPowerCost, powerCostByTrait, PowerPaymentPurpose.Other);
     }
 
     private static IReadOnlyDictionary<string, int> NormalizePowerCostByTrait(
@@ -20600,11 +20602,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return playerZones;
     }
 
-    private static IReadOnlyDictionary<string, RunePool> ClearRunePools(MatchState state)
+    private static IReadOnlyDictionary<string, RunePool> ClearRunePools(MatchState state, bool resetPaidPower = false)
     {
         return state.Seats.Keys.ToDictionary(
             playerId => playerId,
-            _ => RunePool.Empty,
+            // CN316.3 clears the stored resources before MAIN. A payment
+            // during START still happened this turn; only the genuine turn
+            // switch above resets that history (CN445.1.b / SFD143).
+            playerId => RunePool.Empty with { PaidPowerThisTurn = resetPaidPower ? 0
+                : state.RunePools.GetValueOrDefault(playerId, RunePool.Empty).PaidPowerThisTurn },
             StringComparer.Ordinal);
     }
 
@@ -28917,7 +28923,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || target.Tags.Contains(CardObjectTags.SpellCard)
             || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
-            || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;
+            || !gear.Tags.Contains(CardObjectTags.EquipmentCard)) return false;
+        // CN435.1.f / 435.4: an already earned Agile skill can reattach
+        // its equipment even if another simultaneous skill attached it first.
         return TryAttachEquipment(state, playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
             stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
@@ -28932,9 +28940,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
-        if (!ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects))
+        if (!ConditionalSourceUnitConditionApplies(behavior, controllerId, state))
         {
             return [];
         }
@@ -28945,9 +28953,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveConditionalSourceUnitPowerBonus(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
-        return ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects)
+        return ConditionalSourceUnitConditionApplies(behavior, controllerId, state)
             ? behavior.ConditionalSourceUnitPowerBonus
             : 0;
     }
@@ -28955,16 +28963,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool ConditionalSourceUnitConditionApplies(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
         return behavior.ConditionalSourceUnitConditionKind switch
         {
             CardConditionalSourceUnitConditionKinds.ControllerPlayedFourPlusCostSpellThisTurn =>
-                PlayerPlayedFourPlusCostSpellThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerPlayedFourPlusCostSpellThisTurn(state.UntilEndOfTurnEffects, controllerId),
             CardConditionalSourceUnitConditionKinds.ControllerGainedExperienceThisTurn =>
-                PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerGainedExperienceThisTurn(state.UntilEndOfTurnEffects, controllerId),
             CardConditionalSourceUnitConditionKinds.ControllerDiscardedHandCardThisTurn =>
-                PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerDiscardedHandCardThisTurn(state.UntilEndOfTurnEffects, controllerId),
+            CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn =>
+                behavior.ConditionalSourceUnitRequiredPaidPower > 0
+                && state.RunePools.GetValueOrDefault(controllerId, RunePool.Empty).PaidPowerThisTurn
+                    >= behavior.ConditionalSourceUnitRequiredPaidPower,
             _ => false
         };
     }
