@@ -360,29 +360,60 @@
       ],
       "text": "打出此牌时，宣告一种属性标签。（如：“厄运小姐”、“德玛西亚”、“魄罗”等均为属性标签。）",
       "scope": "打出此牌时，宣告一种属性标签。（如：“厄运小姐”、“德玛西亚”、“魄罗”等均为属性标签。）",
-      "status": "missing",
-      "reason": "宣告时机错误：当前把宣告作为独立入场触发，允许响应并在技能结算时才选择属性；牌面要求打出此牌时宣告，应在打出选择步骤完成",
+      "status": "route",
+      "reason": "共享打出任务中的非费用选择在实际费用扣除和入场发布前完成官方属性宣告，没有独立触发和响应窗口；宣告绑定入场后来源代际、复制文本及完成时刻，并按原始被接受的宣告凭据校验场上与已入链关联活跃技能，拒绝换成另一官方属性或擦除原宣告。",
       "rules": "核心355.1 打出时非费用选择、355.5.b 触发选择区别；UNL-138 官方中文牌面及官网2026-10-15画廊 As you play this, name a tag",
       "runtime": {
-        "unitEventAbility": {
-          "timing": "PLAY",
-          "effect": "DECLARE_ATTRIBUTE"
-        }
+        "behaviors": [
+          {
+            "playsSourceToBaseAsEquipment": true,
+            "declaresAttributeAsPlayed": true,
+            "effectKind": "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_ON_PLAY"
+          }
+        ]
       },
       "evidence": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.LinkedAttributes.cs",
           "contains": [
-            "private static StackResolutionResult ResolveAttributeDeclaration(",
-            "RuleChoices.Value!.Choose(item.ControllerId, \"宣告一种属性标签。\""
+            "DeclarePrintedPlayAttribute(",
+            "kind: \"DECLARE_ATTRIBUTE\", preview: broker.Origin",
+            "PlayAttributeDeclarationTiming",
+            "source.ObjectGeneration",
+            "prior.ObjectGeneration + 1",
+            "LinkedAttributeDeclarationHash("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "DeclarePrintedPlayAttribute(playerZones, cardObjects, behavior, stackItem, events);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PlayDeclarations.cs",
+          "contains": [
+            "ValidatePlayAttributeDeclarationHistory(",
+            "original accepted play choice",
+            "current printed play declaration was erased"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/PrintedPlayAttributeChoiceTests.cs",
+          "methods": [
+            "DeclarationIsPartOfPlayBeforePaymentAndEntryAndDoesNotCreateARespondableSkill",
+            "RecoveryRejectsASecondOfficialTagOrErasedDeclarationWithoutRewritingAcceptedHistory",
+            "AnUnaffordablePlayIsRejectedBeforeRequestingADeclaration"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/LinkedAttributeDeclarationTests.cs",
           "methods": [
-            "ARealDeclarationLimitsTargetsAndReducesOnlyTheChosenUnit"
+            "ARealDeclarationLimitsTargetsAndReducesOnlyTheChosenUnit",
+            "ReturningAndReplayingTheListRequiresANewDeclaration",
+            "TwoPrintedListsKeepIndependentDeclarations"
           ]
         }
       ]
@@ -395,7 +426,7 @@
       "scope": "{{横置}}：让一名具有该属性标签的单位在本回合内{{S}}-2。",
       "status": "route",
       "reason": "已宣告属性按来源、代际及文本实例关联；横置付费后独立入链，只允许具有该属性的公开单位，响应后同代际目标本回合-2；返手重打不能沿用旧宣告",
-      "rules": "核心359.3.e.4、399–407、关联技能；UNL-138 官方中文牌面；宣告时机缺陷另句登记",
+      "rules": "核心359.3.e.4、399–407、关联技能；UNL-138 官方中文牌面",
       "runtime": {
         "activations": [
           {
@@ -645,39 +676,75 @@
       ],
       "text": "你可以选择消耗5经验，作为打出此牌的额外费用。",
       "scope": "你可以选择消耗5经验，作为打出此牌的额外费用。",
-      "status": "missing",
-      "reason": "现有定义只有战场敌方≤3战力目标；缺少可选消耗5经验的付款及已支付时移除3战力限制的目标调整",
+      "status": "route",
+      "reason": "共享可选费用规划器将准确的5经验与回响等额外费用组合，并在打出时只支付一次；报价、提示、确认和结算按原始已支付选择移除战力上限，保留敌方、战场及目标保护限制；未支付仍限制当前战力≤3，响应后重新检查，原始付款历史拒绝凭空增删额外费用。",
       "rules": "核心204.2、355.6、356–357；UNL-140 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
+            "effectKind": "FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL",
             "manaCost": 5,
-            "requiredTargetCount": 1,
+            "optionalExperienceCost": 5,
+            "removesTargetMightLimitIfExperiencePaid": true,
             "targetScope": "ENEMY_BATTLEFIELD_UNIT",
             "maxTargetPower": 3,
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "targetRequiredTag": "CARD_TYPE:UNIT",
             "gainsControlOfTargetToBase": true,
-            "exhaustsControlledTarget": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "exhaustsControlledTarget": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalExperiencePlay.cs",
           "contains": [
-            "\"UNL-140/219\"",
-            "\"FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL\""
+            "HasOptionalExperiencePayment(",
+            "OptionalExperienceTargetDefinition(",
+            "OptionalExperiencePaymentSelected(",
+            "behavior with { MaxTargetPower = 0 }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "experienceChoices.Length != 1",
+            "selectedExperience != behavior.OptionalExperienceCost",
+            "behavior with { OptionalExperienceCost = 0 }",
+            "experienceCost += selectedExperience;",
+            "OptionalExperienceTargetDefinition(ShowcaseTargetDefinition(",
+            "stackItem.OptionalCosts);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Prompts.Costs.cs",
+          "contains": [
+            "behavior.RemovesTargetMightLimitIfExperiencePaid",
+            "state.PlayerExperience.GetValueOrDefault(playerId) >= behavior.OptionalExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PlayDeclarations.cs",
+          "contains": [
+            "ValidateOptionalExperiencePlayHistory(",
+            "costs.SequenceEqual(item.OptionalCosts)",
+            "original accepted payment"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForcedConscriptionExperienceTests.cs",
+          "methods": [
+            "ActualPlayPaysOptionalExperienceOnceWithoutChangingBaseManaAndPower",
+            "AHighMightTargetRequiresTheExactAdditionalCostAndEnoughCurrentExperience",
+            "WrongOrDuplicateExperienceSelectionsAreRejectedWithoutDebitingAnything",
+            "PayingExperienceRemovesOnlyTheMightLimitAndPreservesOtherTargetRestrictions",
+            "ARealResponseBuffRechecksAnUnpaidLimitButCannotRestoreAPaidLimit",
+            "RecoveryBindsTheOptionalChoiceToTheOriginalAcceptedPaymentEvenForASmallTarget",
+            "ExperienceComposesWithGrantedEchoInEitherOrderAndIsPaidOnceForBothHighMightTargets",
+            "QuotesAndPromptsExposeTheAdditionalCostOnlyWithEnoughExperience"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -685,39 +752,75 @@
       ],
       "text": "如果你支付了该额外费用，则改为选择战场上的任意一名敌方单位。",
       "scope": "如果你支付了该额外费用，则改为选择战场上的任意一名敌方单位。",
-      "status": "missing",
-      "reason": "现有定义只有战场敌方≤3战力目标；缺少可选消耗5经验的付款及已支付时移除3战力限制的目标调整",
+      "status": "route",
+      "reason": "共享可选费用规划器将准确的5经验与回响等额外费用组合，并在打出时只支付一次；报价、提示、确认和结算按原始已支付选择移除战力上限，保留敌方、战场及目标保护限制；未支付仍限制当前战力≤3，响应后重新检查，原始付款历史拒绝凭空增删额外费用。",
       "rules": "核心204.2、355.6、356–357；UNL-140 官方中文牌面",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
+            "effectKind": "FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL",
             "manaCost": 5,
-            "requiredTargetCount": 1,
+            "optionalExperienceCost": 5,
+            "removesTargetMightLimitIfExperiencePaid": true,
             "targetScope": "ENEMY_BATTLEFIELD_UNIT",
             "maxTargetPower": 3,
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "targetRequiredTag": "CARD_TYPE:UNIT",
             "gainsControlOfTargetToBase": true,
-            "exhaustsControlledTarget": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "exhaustsControlledTarget": true
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalExperiencePlay.cs",
           "contains": [
-            "\"UNL-140/219\"",
-            "\"FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL\""
+            "HasOptionalExperiencePayment(",
+            "OptionalExperienceTargetDefinition(",
+            "OptionalExperiencePaymentSelected(",
+            "behavior with { MaxTargetPower = 0 }"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "experienceChoices.Length != 1",
+            "selectedExperience != behavior.OptionalExperienceCost",
+            "behavior with { OptionalExperienceCost = 0 }",
+            "experienceCost += selectedExperience;",
+            "OptionalExperienceTargetDefinition(ShowcaseTargetDefinition(",
+            "stackItem.OptionalCosts);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Prompts.Costs.cs",
+          "contains": [
+            "behavior.RemovesTargetMightLimitIfExperiencePaid",
+            "state.PlayerExperience.GetValueOrDefault(playerId) >= behavior.OptionalExperienceCost"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.PlayDeclarations.cs",
+          "contains": [
+            "ValidateOptionalExperiencePlayHistory(",
+            "costs.SequenceEqual(item.OptionalCosts)",
+            "original accepted payment"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/ForcedConscriptionExperienceTests.cs",
+          "methods": [
+            "ActualPlayPaysOptionalExperienceOnceWithoutChangingBaseManaAndPower",
+            "AHighMightTargetRequiresTheExactAdditionalCostAndEnoughCurrentExperience",
+            "WrongOrDuplicateExperienceSelectionsAreRejectedWithoutDebitingAnything",
+            "PayingExperienceRemovesOnlyTheMightLimitAndPreservesOtherTargetRestrictions",
+            "ARealResponseBuffRechecksAnUnpaidLimitButCannotRestoreAPaidLimit",
+            "RecoveryBindsTheOptionalChoiceToTheOriginalAcceptedPaymentEvenForASmallTarget",
+            "ExperienceComposesWithGrantedEchoInEitherOrderAndIsPaidOnceForBothHighMightTargets",
+            "QuotesAndPromptsExposeTheAdditionalCostOnlyWithEnoughExperience"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -727,7 +830,7 @@
       "scope": "选择战场上一名不高于3{{S}}的敌方单位。",
       "status": "route",
       "reason": "未支付额外经验的正常分支只选择战场≤3当前战力敌方单位，结算复查控制与位置后取得控制、休眠并召回到新控制者基地；所有者保持原值",
-      "rules": "核心191 控制、355.6、456–460 召回；UNL-140 官方中文牌面；额外经验权限另句缺失",
+      "rules": "核心191 控制、355.6、456–460 召回；UNL-140 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
@@ -766,7 +869,7 @@
       "scope": "你获得其控制权、将其变为休眠状态、并将其召回。",
       "status": "route",
       "reason": "未支付额外经验的正常分支只选择战场≤3当前战力敌方单位，结算复查控制与位置后取得控制、休眠并召回到新控制者基地；所有者保持原值",
-      "rules": "核心191 控制、355.6、456–460 召回；UNL-140 官方中文牌面；额外经验权限另句缺失",
+      "rules": "核心191 控制、355.6、456–460 召回；UNL-140 官方中文牌面",
       "runtime": {
         "behaviors": [
           {
@@ -933,54 +1036,55 @@
       ],
       "text": "打出我时，如果场上没有“男爵巢穴”，则将一个“男爵巢穴”战场指示物添置到场上。",
       "scope": "打出我时，如果场上没有“男爵巢穴”，则将一个“男爵巢穴”战场指示物添置到场上。",
-      "status": "missing",
-      "reason": "只有基础男爵单位与其他友方+2光环；缺少打出时检查全场男爵巢穴、添置指示物战场并改为在其进场的替换流程",
-      "rules": "核心355.1／355.2、440／添置、男爵巢穴官方说明；UNL-147 官方中文牌面",
+      "status": "route",
+      "reason": "共享进场替换在实际打出任务中检查全场是否存在男爵巢穴；仅在缺少时按注册工厂添置一个战场指示物，并改于该战场进场，无独立打出触发、移动或响应窗口。已有巢穴（不论所属和控制）则保留声明的入场位置；遵循官方典狱长FAQ，替换已合法确认的基地入场，正常争夺、法术对决、战场控制与征服仍由共享流程推进。",
+      "rules": "中国区核心355.1、359.2、369.3男爵替换进场例、187.9、190、323及348.2；破限裁判FAQ260511第6页典狱长与男爵；三张官方中文男爵牌面。",
       "runtime": {
-        "staticAuras": [
-          {
-            "node": {
-              "kind": "OTHER_FRIENDLY_UNITS_POWER",
-              "layer": "STATIC_AURA",
-              "duration": "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
-              "targetScope": "OTHER_FRIENDLY_UNITS",
-              "participantScope": "OTHER_FRIENDLY_PUBLIC_UNITS",
-              "powerDeltaPerParticipant": 2,
-              "text": "其他友方单位获得{{S}}+2",
-              "status": "implemented",
-              "reason": "Static aura is covered by the current functional unit mapping and is exposed for B1 spec-driven engine routing."
-            },
-            "predicates": [
-              "StaticAuraSpecRules.IsOtherFriendlyUnitsPowerStaticAura",
-              "StaticAuraSpecRules.IsPublicFieldFriendlyPowerStaticAura"
-            ]
-          }
-        ],
         "behaviors": [
           {
-            "manaCost": 10,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 12,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "entryBattlefieldTokenCardNo": "UNL·T01"
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EntryBattlefields.cs",
           "contains": [
-            "\"UNL-147/219\"",
-            "\"BARON_NASHOR_PIT_STATIC\""
+            "ApplyEntryBattlefieldReplacement(",
+            "BattlefieldLocalRules.Battlefield(current, card.ObjectId)",
+            "factory.CreateObject(",
+            "ControllerId = null",
+            "\"BATTLEFIELD_TOKEN_CREATED\"",
+            "return item with { Destination = \"BATTLEFIELD:\" + id };"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "stackItem = ApplyEntryBattlefieldReplacement(state, behavior, stackItem,",
+            "ref resolvedObjectLocations, events);",
+            "PlaySourceUnitToBattlefield(",
+            "resolvedObjectLocations?.GetValueOrDefault(sourceObjectId)",
+            "!resolvedItem.SourceConfirmed && IsStackItemBattlefieldDestination(resolvedItem)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BaronNashorEntryTests.cs",
+          "methods": [
+            "ActualPlayCreatesOneMissingNestAndReplacesEntryBeforeTheNormalShowdown",
+            "AnExistingNestAnywherePreservesTheDeclaredBaseEntryRegardlessOfItsController",
+            "TheOfficialWardenFaqAllowsTheReplacementOfAnOtherwiseLegalBasePlay",
+            "AnUnaffordableOrInventedDestinationCannotCreateAnyBattlefield",
+            "ReturningAndReplayingTheBaronLeavesTheExistingNestAndUsesBaseTheSecondTime",
+            "AnActualConquestGrantedGraveyardPlayUsesTheSameBattlefieldEntryReplacement",
+            "AnActualEffectPlayToADeclaredBattlefieldKeepsItsReplacedEntryLocation"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -990,54 +1094,55 @@
       ],
       "text": "若如此做，则我于“男爵巢穴”进场。（它具有“单位可从任意位置移动到此处”的效果。）",
       "scope": "若如此做，则我于“男爵巢穴”进场。（它具有“单位可从任意位置移动到此处”的效果。）",
-      "status": "missing",
-      "reason": "只有基础男爵单位与其他友方+2光环；缺少打出时检查全场男爵巢穴、添置指示物战场并改为在其进场的替换流程",
-      "rules": "核心355.1／355.2、440／添置、男爵巢穴官方说明；UNL-147 官方中文牌面",
+      "status": "route",
+      "reason": "共享进场替换在实际打出任务中检查全场是否存在男爵巢穴；仅在缺少时按注册工厂添置一个战场指示物，并改于该战场进场，无独立打出触发、移动或响应窗口。已有巢穴（不论所属和控制）则保留声明的入场位置；遵循官方典狱长FAQ，替换已合法确认的基地入场，正常争夺、法术对决、战场控制与征服仍由共享流程推进。",
+      "rules": "中国区核心355.1、359.2、369.3男爵替换进场例、187.9、190、323及348.2；破限裁判FAQ260511第6页典狱长与男爵；三张官方中文男爵牌面。",
       "runtime": {
-        "staticAuras": [
-          {
-            "node": {
-              "kind": "OTHER_FRIENDLY_UNITS_POWER",
-              "layer": "STATIC_AURA",
-              "duration": "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
-              "targetScope": "OTHER_FRIENDLY_UNITS",
-              "participantScope": "OTHER_FRIENDLY_PUBLIC_UNITS",
-              "powerDeltaPerParticipant": 2,
-              "text": "其他友方单位获得{{S}}+2",
-              "status": "implemented",
-              "reason": "Static aura is covered by the current functional unit mapping and is exposed for B1 spec-driven engine routing."
-            },
-            "predicates": [
-              "StaticAuraSpecRules.IsOtherFriendlyUnitsPowerStaticAura",
-              "StaticAuraSpecRules.IsPublicFieldFriendlyPowerStaticAura"
-            ]
-          }
-        ],
         "behaviors": [
           {
-            "manaCost": 10,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
             "sourceUnitPower": 12,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "entryBattlefieldTokenCardNo": "UNL·T01"
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EntryBattlefields.cs",
           "contains": [
-            "\"UNL-147/219\"",
-            "\"BARON_NASHOR_PIT_STATIC\""
+            "ApplyEntryBattlefieldReplacement(",
+            "BattlefieldLocalRules.Battlefield(current, card.ObjectId)",
+            "factory.CreateObject(",
+            "ControllerId = null",
+            "\"BATTLEFIELD_TOKEN_CREATED\"",
+            "return item with { Destination = \"BATTLEFIELD:\" + id };"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "contains": [
+            "stackItem = ApplyEntryBattlefieldReplacement(state, behavior, stackItem,",
+            "ref resolvedObjectLocations, events);",
+            "PlaySourceUnitToBattlefield(",
+            "resolvedObjectLocations?.GetValueOrDefault(sourceObjectId)",
+            "!resolvedItem.SourceConfirmed && IsStackItemBattlefieldDestination(resolvedItem)"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BaronNashorEntryTests.cs",
+          "methods": [
+            "ActualPlayCreatesOneMissingNestAndReplacesEntryBeforeTheNormalShowdown",
+            "AnExistingNestAnywherePreservesTheDeclaredBaseEntryRegardlessOfItsController",
+            "TheOfficialWardenFaqAllowsTheReplacementOfAnOtherwiseLegalBasePlay",
+            "AnUnaffordableOrInventedDestinationCannotCreateAnyBattlefield",
+            "ReturningAndReplayingTheBaronLeavesTheExistingNestAndUsesBaseTheSecondTime",
+            "AnActualConquestGrantedGraveyardPlayUsesTheSameBattlefieldEntryReplacement",
+            "AnActualEffectPlayToADeclaredBattlefieldKeepsItsReplacedEntryLocation"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -2920,29 +3025,58 @@
       ],
       "text": "单位可从任意位置移动到此处。",
       "scope": "单位可从任意位置移动到此处。",
-      "status": "missing",
-      "reason": "权限不完整：共享标准移动与旧单名流程均仅允许移动到自己控制的男爵巢穴；牌面没有控制者限制，不能据此阻止另一玩家从其他战场移入并发起进攻",
-      "rules": "核心144.4 标准移动终点、447–452 移动及进入敌方战场的争夺、466.2 战斗角色；UNL·T01 官方中文牌面",
-      "runtime": {},
+      "status": "route",
+      "reason": "巢穴目的地权限在单体和群体标准移动中只检查真实场上巢穴，不要求移动者控制巢穴；提示枚举双方物理战场区域，故敌控或未受控制的巢穴也可由其他战场无游走移入。来源仍必须是己方、正面、活跃且不处于战斗中的单位，并支付通常横置及施加移动费用；普通争夺和战斗流程不变。",
+      "rules": "中国区核心187.9、144.3、190.3、462及标准移动规则；男爵巢穴官方中文文本。",
+      "runtime": {
+        "cardCategory": "indicator_battlefield",
+        "tokenTags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ]
+      },
       "evidence": [
-        {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.StandardMovement.cs",
-          "contains": [
-            "SourceObjectControlledByPlayerOrLegacyOwned(nestCard, intent.PlayerId)"
-          ]
-        },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
           "contains": [
-            "\"男爵巢穴移动需要选择当前玩家控制的男爵巢穴作为目的地。\""
+            "ResolveBaronNestMoveUnit(",
+            "TryGetBaronNestMoveDestination(",
+            "BattlefieldLocalRules.Battlefield(state, destinationBattlefieldObjectId) is null",
+            "ExhaustMoveUnitSource(playerZones, cardObjects, command.SourceObjectId);"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.StandardMovement.cs",
+          "contains": [
+            "!TryGetBaronNestMoveDestination(current, destination, out _)",
+            "PayImposedMovementCost(",
+            "CaptureExhaustionBatch(",
+            "CaptureMovementBatchObservers("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession/Prompts.Targets.cs",
+          "contains": [
+            "MoveUnitBaronNestDestinationChoices(",
+            "return state.PlayerZones.Values.SelectMany(zone => zone.Battlefields)",
+            "BattlefieldLocalRules.Battlefield(state, objectId) is not null"
           ]
         }
       ],
       "tests": [
         {
+          "path": "tests/Riftbound.ConformanceTests/BaronNestPublicMovementTests.cs",
+          "methods": [
+            "EitherASingleUnitOrAMixedOriginGroupMayEnterAnOpponentOwnedNestWithoutRoam",
+            "TheNestPermissionDoesNotBypassOrdinarySourceOrMovementRestrictions",
+            "ANestElsewhereCannotGrantMovementToAnOrdinaryBattlefield"
+          ]
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.AmbushAndMovement.cs",
           "methods": [
-            "BaronNestStaticMovePromptHidesOpponentControlledDestination"
+            "BaronNestStaticMovesUnitBetweenPreciseBattlefieldsWithoutRoamCost",
+            "BaronNestStaticMovesAttachedEquipmentWithHost",
+            "BaronNestStaticMovePromptExposesOpponentControlledDestination"
           ]
         }
       ]

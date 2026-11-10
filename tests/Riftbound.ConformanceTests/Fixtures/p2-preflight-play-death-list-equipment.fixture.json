@@ -1,32 +1,30 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-death-list-equipment",
-  "description": "Death List declares an official attribute after responses and retains its equipment entry state.",
+  "description": "Death List declares an official attribute during its play choices; no independent entry skill or response passes are created.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
+  "rulesVersion": "rules-261016",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
   "seed": 2603302297,
   "rulesEvidence": [
     {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "中国区核心规则355.1、355.5.b及395–398",
+      "note": "打出时的非费用属性宣告在打出选择步骤完成；不属于独立入场触发，不经过响应或让过。属性绑定到同一物体代际的印刷技能。"
+    },
+    {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-138/219 夺命名单",
       "note": "官方卡面：打出时宣告一种属性标签；横置后让具有该属性标签的单位本回合内-2战力。按核心395–398将声明绑定到同一来源代际和文本实例；原生和借用由LinkedAttributeDeclarationTests验证。"
-    },
-    {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算。"
-    },
-    {
-      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
-      "locator": "CN 359.2 / 383.4.a.2",
-      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     }
   ],
   "roomId": "p2-preflight-death-list-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302297,
     "turnNumber": 297,
@@ -34,33 +32,62 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 1, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 1,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-EQUIPMENT-DEATH-LIST"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-EQUIPMENT-DEATH-LIST"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -78,24 +105,10 @@
     },
     {
       "playerId": "P1",
-      "clientIntentId": "death-list-pass-1",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
-    },
-    {
-      "playerId": "P2",
-      "clientIntentId": "death-list-pass-2",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
-    },
-    {
-      "playerId": "P1",
       "clientIntentId": "death-list-attribute",
       "cmd": {
         "cmdType": "PAY_COST",
-        "paymentId": "REPLACEMENT:2:0",
+        "paymentId": "REPLACEMENT:0:0",
         "paymentWindow": "RULE_REPLACEMENT",
         "paymentChoiceIds": [
           "魄罗"
@@ -104,21 +117,19 @@
     }
   ],
   "expected": {
-    "finalTick": 4,
+    "finalTick": 2,
     "eventKinds": [
+      "RULE_CHOICE_REQUESTED",
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "EQUIPMENT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "TRIGGERS_MOVED_TO_STACK",
-      "PRIORITY_PASSED",
-      "RULE_CHOICE_REQUESTED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "ATTRIBUTE_DECLARED"
+      "ATTRIBUTE_DECLARED",
+      "EQUIPMENT_PLAYED_TO_BASE"
     ],
     "events": [
+      {
+        "kind": "RULE_CHOICE_REQUESTED"
+      },
       {
         "kind": "CARD_PLAYED"
       },
@@ -134,8 +145,11 @@
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-EQUIPMENT-DEATH-LIST",
-          "effectKind": "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_DEFERRED"
+          "effectKind": "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_ON_PLAY"
         }
+      },
+      {
+        "kind": "ATTRIBUTE_DECLARED"
       },
       {
         "kind": "EQUIPMENT_PLAYED_TO_BASE",
@@ -149,30 +163,16 @@
             "CARD_TYPE:EQUIPMENT"
           ]
         }
-      },
-      {
-        "kind": "TRIGGER_QUEUED"
-      },
-      {
-        "kind": "TRIGGERS_MOVED_TO_STACK"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "RULE_CHOICE_REQUESTED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "STACK_ITEM_RESOLVED"
-      },
-      {
-        "kind": "ATTRIBUTE_DECLARED"
       }
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 297,
       "activePlayerId": "P1",
@@ -180,17 +180,31 @@
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
-        "P1": { "hand": [], "base": ["P1-EQUIPMENT-DEATH-LIST"], "graveyard": [] }
+        "P1": {
+          "hand": [],
+          "base": [
+            "P1-EQUIPMENT-DEATH-LIST"
+          ],
+          "graveyard": []
+        }
       },
       "cardObjects": {
         "P1-EQUIPMENT-DEATH-LIST": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "tags": [
+            "CARD_TYPE:EQUIPMENT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false
@@ -199,8 +213,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

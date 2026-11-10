@@ -156,11 +156,11 @@ internal static partial class ActionPromptBuilder
             return [];
         }
 
-        return zones.Battlefields
+        return state.PlayerZones.Values.SelectMany(zone => zone.Battlefields)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(cardObject.CardNo)
                 && IsPromptBattlefieldCardObject(cardObject)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+                && BattlefieldLocalRules.Battlefield(state, objectId) is not null)
             .Select(objectId => new ActionPromptChoiceDto(
                 $"{MoveUnitBattlefieldZone}:{objectId}",
                 BattlefieldLocationLabel(state, objectId),

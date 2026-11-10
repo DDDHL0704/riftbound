@@ -11440,13 +11440,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !state.CardObjects.TryGetValue(destinationBattlefieldObjectId, out var destinationBattlefield)
             || !P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(destinationBattlefield.CardNo)
             || !IsBattlefieldCardObject(destinationBattlefield)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(destinationBattlefield, intent.PlayerId)
-            || !state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
-            || !zones.Battlefields.Contains(destinationBattlefieldObjectId, StringComparer.Ordinal))
+            || BattlefieldLocalRules.Battlefield(state, destinationBattlefieldObjectId) is null)
         {
             return RejectWithCorePrompts(
                 state,
-                "男爵巢穴移动需要选择当前玩家控制的男爵巢穴作为目的地。",
+                "男爵巢穴移动需要选择场上的另一处男爵巢穴作为目的地。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -11636,7 +11634,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         destinationBattlefieldObjectId = PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(destination));
         return !string.IsNullOrWhiteSpace(destinationBattlefieldObjectId)
             && state.CardObjects.TryGetValue(destinationBattlefieldObjectId, out var destinationState)
-            && P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(destinationState.CardNo);
+            && P6TokenFactoryCatalog.IsBaronNestBattlefieldToken(destinationState.CardNo)
+            && BattlefieldLocalRules.Battlefield(state, destinationBattlefieldObjectId) is not null;
     }
 
     private static ResolutionResult ResolvePreciseRoamMoveUnit(
@@ -17581,7 +17580,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         command = command with { OptionalCosts = costsWithoutShowcase };
-        behavior = ShowcaseTargetDefinition(behavior, showcase is not null);
+        behavior = OptionalExperienceTargetDefinition(ShowcaseTargetDefinition(behavior, showcase is not null), command.OptionalCosts);
 
         if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
             && !StackObjectRules.IsAbility(item)
@@ -18720,7 +18719,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 resolvedCardObjects,
                 postStackCleanupEvents);
             objectLocations = ReconcileObjectLocations(objectLocations, resolvedPlayerZones);
-            ApplyResolvedStackSourceLocation(state, objectLocations, resolvedPlayerZones, resolvedItem);
+            ApplyResolvedStackSourceLocation(state, objectLocations, resolvedPlayerZones, resolvedItem,
+                stackResolution.ObjectLocations);
             if (resolvedItem.TimingContext is TimingStates.SpellDuelOpen or TimingStates.NeutralClosed)
                 queuedTriggers = queuedTriggers.Select(trigger => IsImmediateTrigger(trigger)
                     && string.IsNullOrWhiteSpace(trigger.TimingContext)
@@ -20224,7 +20224,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         Dictionary<string, ObjectLocationState> objectLocations,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
-        StackItemState resolvedItem)
+        StackItemState resolvedItem,
+        IReadOnlyDictionary<string, ObjectLocationState>? resolvedObjectLocations)
     {
         if (string.IsNullOrWhiteSpace(resolvedItem.SourceObjectId))
         {
@@ -20240,7 +20241,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
         {
-            var preciseDestination = IsStackItemBattlefieldDestination(resolvedItem)
+            // An entry replacement or resolving instruction may have supplied an
+            // actual location. Its declared destination must not overwrite that
+            // result, nor a permanent's position after a response moved it.
+            var preciseDestination = resolvedObjectLocations?.GetValueOrDefault(sourceObjectId)
+                is { Zone: "BATTLEFIELD", BattlefieldObjectId: { Length: > 0 } actual } ? actual
+                : !resolvedItem.SourceConfirmed && IsStackItemBattlefieldDestination(resolvedItem)
                 ? PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(resolvedItem.Destination))
                 : objectLocations.TryGetValue(sourceObjectId, out var currentLocation)
                     && string.Equals(currentLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
@@ -21789,6 +21795,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        var experienceChoices = normalizedOptionalCosts.Where(cost =>
+            cost.StartsWith(SpendExperienceOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
+        if (HasOptionalExperiencePayment(behavior) && experienceChoices.Length > 0)
+        {
+            if (experienceChoices.Length != 1
+                || !TryParseSpendExperienceOptionalCost(experienceChoices[0], out var selectedExperience)
+                || selectedExperience != behavior.OptionalExperienceCost
+                || !TryBuildOptionalCostPlan(state, playerId, normalizedOptionalCosts.Except(experienceChoices).ToArray(),
+                    behavior with { OptionalExperienceCost = 0 }, out _, out extraManaCost,
+                    out extraPowerCost, out extraPowerCostByTrait, out experienceCost, out optionalCostManaReduction,
+                    out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)
+                || experienceCost > int.MaxValue - selectedExperience
+                || optionalCostManaReduction > int.MaxValue - behavior.ManaReductionIfExperiencePaid) return false;
+            experienceCost += selectedExperience;
+            optionalCostManaReduction += behavior.ManaReductionIfExperiencePaid;
+            return true;
+        }
+
         if (behavior.MayDestroyFriendlyPermanentAdditionalCost
             && normalizedOptionalCosts.Any(cost => cost.StartsWith(DestroyFriendlyPermanentAdditionalCostPrefix, StringComparison.Ordinal)))
         {
@@ -22006,17 +22032,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             extraManaCost = targetEffectExtraManaCost;
             extraPowerCostByTrait = targetEffectExtraPowerCostByTrait;
-            return true;
-        }
-
-        if (normalizedOptionalCosts.Count == 1
-            && behavior.OptionalExperienceCost > 0
-            && behavior.ManaReductionIfExperiencePaid > 0
-            && TryParseSpendExperienceOptionalCost(normalizedOptionalCosts[0], out var spendExperienceCost)
-            && spendExperienceCost == behavior.OptionalExperienceCost)
-        {
-            experienceCost = spendExperienceCost;
-            optionalCostManaReduction = behavior.ManaReductionIfExperiencePaid;
             return true;
         }
 
@@ -23763,7 +23778,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor);
         }
 
-        behavior = ShowcaseDefinition(StandbyDefinition(PermanentPlayDefinition(behavior, IsStackItemBattlefieldDestination(stackItem)), stackItem.PlayedFromStandby), stackItem);
+        behavior = OptionalExperienceTargetDefinition(ShowcaseDefinition(StandbyDefinition(PermanentPlayDefinition(behavior, IsStackItemBattlefieldDestination(stackItem)), stackItem.PlayedFromStandby), stackItem), stackItem.OptionalCosts);
         if (stackItem.SourceConfirmed && behavior.SourceStaticLimits?.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true)
             return ResolveSpellNameDeclaration(state, stackItem);
         behavior = behavior with { StandbyPlayFrom = stackItem.PlayedFromStandby };
@@ -23884,6 +23899,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (behavior.PlaysSourceToBaseAsUnit)
         {
+            stackItem = ApplyEntryBattlefieldReplacement(state, behavior, stackItem,
+                playerZones, cardObjects, ref resolvedObjectLocations, events);
             if (!stackItem.SourceConfirmed && IsStackItemBattlefieldDestination(stackItem))
             {
                 PlaySourceUnitToBattlefield(
@@ -28814,6 +28831,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             Battlefields = !IsStackItemBattlefieldDestination(stackItem) ? zones.Battlefields : zones.Battlefields.Append(stackItem.SourceObjectId).Distinct().ToArray()
         };
 
+        DeclarePrintedPlayAttribute(playerZones, cardObjects, behavior, stackItem, events);
+
         var playedEvent = new GameEvent(
             !IsStackItemBattlefieldDestination(stackItem) ? "EQUIPMENT_PLAYED_TO_BASE" : "EQUIPMENT_PLAYED_TO_BATTLEFIELD",
             !IsStackItemBattlefieldDestination(stackItem) ? $"{behavior.DisplayName}打出装备到基地" : $"{behavior.DisplayName}打出装备到战场",
@@ -29603,6 +29622,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : zones.Base.Concat([stackItem.SourceObjectId]).ToArray()
         };
 
+        DeclarePrintedPlayAttribute(playerZones, cardObjects, behavior, stackItem, events);
+
         events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_PLAYED_TO_BASE",
             $"{behavior.DisplayName}打出单位到基地",
@@ -29662,6 +29683,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? zones.Battlefields
                 : zones.Battlefields.Concat([stackItem.SourceObjectId]).ToArray()
         };
+
+        DeclarePrintedPlayAttribute(playerZones, cardObjects, behavior, stackItem, events);
 
         events.Add(CaptureUnitEntry(new GameEvent(
             "UNIT_PLAYED_TO_BATTLEFIELD",

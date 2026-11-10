@@ -4425,13 +4425,13 @@ internal static partial class ActionPromptBuilder
             }
         }
 
-        if (behavior.OptionalExperienceCost > 0
-            && behavior.ManaReductionIfExperiencePaid > 0
+        if (CoreRuleEngine.HasOptionalExperiencePayment(behavior)
             && (ignoresAllCosts || experience >= behavior.OptionalExperienceCost))
         {
             choices.Add(new ActionPromptChoiceDto(
                 $"SPEND_EXPERIENCE:{behavior.OptionalExperienceCost}",
-                $"支付 {behavior.OptionalExperienceCost} 经验：费用减少 {behavior.ManaReductionIfExperiencePaid}"));
+                $"消耗 {behavior.OptionalExperienceCost} 经验：" + (behavior.RemovesTargetMightLimitIfExperiencePaid
+                    ? "移除目标战力上限" : $"费用减少 {behavior.ManaReductionIfExperiencePaid}")));
         }
 
         if (behavior.SourceBoonAdditionalManaCost > 0)

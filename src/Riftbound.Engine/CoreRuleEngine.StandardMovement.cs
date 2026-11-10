@@ -75,9 +75,7 @@ public sealed partial class CoreRuleEngine
                     || toBase && BattlefieldLocalRules.PreventsMoveToBase(current, move.Id)
                     || !toBase && move.OriginZone == MoveUnitBattlefieldZone
                         && !HasRoamPermission(current, intent.PlayerId, move.Id, unit)
-                        && !(TryGetBaronNestMoveDestination(current, destination, out var nest)
-                            && current.CardObjects.TryGetValue(nest, out var nestCard)
-                            && SourceObjectControlledByPlayerOrLegacyOwned(nestCard, intent.PlayerId))
+                        && !TryGetBaronNestMoveDestination(current, destination, out _)
                     || AttachedEquipmentObjectIds(current.CardObjects, move.Id) is { Count: > 0 } equipment
                         && !CanMoveExplicitAttachedEquipmentWithHost(current.PlayerZones, current.CardObjects,
                             intent.PlayerId, unit, equipment)) return null;

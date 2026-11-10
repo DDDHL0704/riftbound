@@ -15,15 +15,32 @@ public sealed partial class CoreRuleEngine
                 .Concat(card.Hero.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)))
             .ToHashSet(StringComparer.Ordinal));
 
+    private const string PlayAttributeDeclarationTiming = "PLAY_DECLARATION";
+
+    private static bool DeclaresAttributeAsPlayed(string cardNo)
+        => CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition) && definition.DeclaresAttributeAsPlayed;
+
+    internal static string LinkedAttributeDeclarationHash(string source, LinkedAttributeDeclaration declaration)
+        => MatchStateHasher.HashValue(new { source, declaration });
+
+    private static bool ValidPlayAttributeContext(MatchState state, string source, UnitEventContext context)
+        => DeclaresAttributeAsPlayed(context.CardNo) && context.SourceGeneration >= 0 && context.FaceRevision >= 0
+            && context.CapturedTick > 0 && context.CapturedTick <= state.Tick
+            && MatchStateHasher.HashValue(context) == MatchStateHasher.HashValue(new UnitEventContext(context.CardNo,
+                context.SourceGeneration, context.FaceRevision, context.CapturedTick,
+                PlayAttributeDeclarationTiming, context.TokenFactoryCardNo))
+            && PredictBindingMatches(state, new(source, context.SourceGeneration), context.CardNo,
+                context.FaceRevision, context.CapturedTick, context.TokenFactoryCardNo);
+
     private static string AttributeInstance(string source, UnitEventContext context)
         => context.Origin is { } origin ? $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
             : $"PRINTED:{source}:{context.SourceGeneration}";
 
     internal static bool ValidLinkedAttribute(MatchState state, string source, LinkedAttributeDeclaration declaration)
-        => declaration is not null && declaration.Ability is { } ability && UnitEventSpec(ability.CardNo)?.Effect == "DECLARE_ATTRIBUTE"
+        => declaration is not null && declaration.Ability is { } ability && DeclaresAttributeAsPlayed(ability.CardNo)
             && OfficialAttributes.Value.Contains(declaration.Attribute)
-            && declaration.CreatedTick >= ability.CapturedTick && declaration.CreatedTick <= state.Tick
-            && ValidUnitEvent(state, ability, UnitEventEffect, source, ability.CardNo);
+            && declaration.CreatedTick == ability.CapturedTick && declaration.CreatedTick <= state.Tick
+            && ValidPlayAttributeContext(state, source, ability);
 
     internal static bool ValidLinkedAttributes(MatchState state, CardObjectState card)
         => card.LinkedAttributes is null || card.LinkedAttributes.Count > 0
@@ -48,25 +65,36 @@ public sealed partial class CoreRuleEngine
             && IsObjectOnField(state.PlayerZones, target) && HasAttribute(card, declaration.Attribute)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, target);
 
-    private static StackResolutionResult ResolveAttributeDeclaration(MatchState state, StackItemState item)
+    // CN355.1: a printed "as you play" declaration is part of the play task.
+    // All source entry paths call this before publishing their play observers;
+    // it never creates a trigger, target confirmation, or response window.
+    private static void DeclarePrintedPlayAttribute(Dictionary<string, PlayerZones> zones,
+        Dictionary<string, CardObjectState> cards, CardBehaviorDefinition behavior, StackItemState item,
+        List<GameEvent> events)
     {
-        var context = item.UnitEvent!;
-        var attribute = RuleChoices.Value!.Choose(item.ControllerId, "宣告一种属性标签。",
+        if (!behavior.DeclaresAttributeAsPlayed || item.SourceConfirmed) return;
+        if (!IsObjectOnField(zones, item.SourceObjectId))
+            throw new InvalidOperationException("Printed play declaration has no entered source.");
+        var broker = RuleChoices.Value!;
+        var attribute = broker.Choose(item.ControllerId, "宣告一种属性标签。",
             OfficialAttributes.Value.Order(StringComparer.Ordinal).Select(tag => new RuleChoiceOption(tag, tag)).ToArray(),
-            kind: "DECLARE_ATTRIBUTE", preview: state);
-        var cards = state.CardObjects.ToDictionary();
-        if (cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration
-            && IsObjectOnField(state.PlayerZones, source.ObjectId))
-        {
-            var instance = AttributeInstance(source.ObjectId, context);
-            cards[source.ObjectId] = source with { LinkedAttributes = (source.LinkedAttributes ?? [])
-                .Where(d => AttributeInstance(source.ObjectId, d.Ability) != instance)
-                .Append(new(attribute, context, RuleChoices.Value.CompletionTick)).ToArray() };
-        }
-        return NoopStackResolutionResult(state) with { CardObjects = cards, Events = [
-            new("ATTRIBUTE_DECLARED", "已宣告属性标签", new Dictionary<string, object?> {
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator),
-                ["attribute"] = attribute })] };
+            kind: "DECLARE_ATTRIBUTE", preview: broker.Origin);
+        var source = cards[item.SourceObjectId];
+        // Like captured unit-entry observers, bind the incoming field object,
+        // before the shared continuity finalizer advances the card's identity.
+        var generation = source.ObjectGeneration;
+        if (broker.Origin.CardObjects.TryGetValue(source.ObjectId, out var prior)
+            && !IsObjectOnField(broker.Origin.PlayerZones, source.ObjectId))
+            generation = Math.Max(generation, checked(prior.ObjectGeneration + 1));
+        var context = new UnitEventContext(behavior.CardNo, generation,
+            source.CopyFaceTransitions?.Count ?? 0, broker.CompletionTick, PlayAttributeDeclarationTiming,
+            source.TokenFactoryCardNo);
+        var declaration = new LinkedAttributeDeclaration(attribute, context, broker.CompletionTick);
+        cards[source.ObjectId] = source with { LinkedAttributes = [declaration] };
+        events.Add(new("ATTRIBUTE_DECLARED", "打出时已宣告属性标签", new Dictionary<string, object?> {
+            ["sourceObjectId"] = source.ObjectId, ["sourceGeneration"] = context.SourceGeneration,
+            ["faceRevision"] = context.FaceRevision, ["createdTick"] = declaration.CreatedTick,
+            ["attribute"] = attribute, ["declarationHash"] = LinkedAttributeDeclarationHash(source.ObjectId, declaration) }));
     }
 
     private static bool ValidActivationAttribute(MatchState state, SimpleActivationContext context, bool required)
