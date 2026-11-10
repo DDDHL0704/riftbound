@@ -1441,7 +1441,7 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
           "contains": [
-            "HasSourcePlayCondition(UnitEventSpec(context.CardNo))",
+            "HasSourcePlayCondition(UnitEventSpecForContext(context))",
             "context.SourcePlayCondition"
           ]
         },

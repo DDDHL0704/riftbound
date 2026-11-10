@@ -58,6 +58,12 @@ class ProvidedArmamentKeywordAuditTests(unittest.TestCase):
             with self.subTest(filename=filename):
                 self.assertEqual('missing', self.outcome(sources=self.changed(filename,token)))
 
+    def test_an_unused_assignment_cannot_replace_the_composed_live_keyword_layer(self):
+        sources = self.changed('CoreRuleEngine.RuleDerivedKeywords.cs', 'AttachedArmamentKeywordGrants(state)')
+        path = 'src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs'
+        sources.files[path] += '\n    private static void UnusedKeywordLayer() { var armamentKeywords = AttachedArmamentKeywordGrants(state); }\n'
+        self.assertEqual('missing', self.outcome(sources=sources))
+
     def test_battle_damage_also_requires_a_live_keyword_refresh(self):
         self.assertEqual('missing', self.outcome(sources=self.changed('CoreRuleEngine.cs',
             'state = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones });')))

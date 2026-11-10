@@ -50,8 +50,9 @@ public sealed partial class CoreRuleEngine
             foreach (var additional in card.AdditionalUnitEventAbilities) yield return additional;
     }
 
-    private static UnitEventAbilitySpec? UnitEventSpecForContext(UnitEventContext context)
-        => UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing);
+    internal static UnitEventAbilitySpec? UnitEventSpecForContext(UnitEventContext context)
+        => context.Timing == AgilePlayTiming ? AgilePlaySpec
+            : UnitEventSpecs(context.CardNo).SingleOrDefault(spec => spec.Timing == context.Timing);
 
     private static bool UnitEventTimingMatches(string? declared, string timing)
         => declared?.Split("_OR_", StringSplitOptions.None).Contains(timing, StringComparer.Ordinal) == true;
@@ -187,7 +188,8 @@ public sealed partial class CoreRuleEngine
                     CaptureUnitEvents(zones, cards, [entered.ObjectId], "PLAY").Select(o =>
                         o.Context.Timing == "PLAY_OR_MOVE" ? o with { Context = o.Context with {
                             Here = new(player, (string)ev.Payload["destinationZone"]!, ev.Payload.GetValueOrDefault("battlefieldObjectId") as string) } } : o))
-                .Concat(CaptureDeploymentPlayedLegends(ev, zones, cards, entered, player)).ToArray()));
+                .Concat(CaptureDeploymentPlayedLegends(ev, zones, cards, entered, player)).ToArray())
+            .Concat(CaptureGrantedAgilePlay(zones, cards, entered, player)).ToArray());
 
     private static void CaptureSelfDiscardEvents(IReadOnlyDictionary<string, CardObjectState> cards, string player,
         string eventKind, IReadOnlyList<string> discarded, List<GameEvent> events)
@@ -331,7 +333,7 @@ public sealed partial class CoreRuleEngine
                 tick, ordinal, observation.Source, captured.CardNo, captured.Origin });
         if (captured.Timing == EquipmentSkillCompletedTiming)
             captured = captured with { EquipmentSkillTriggerHash = MatchStateHasher.HashValue(id) };
-        if (UnitEventSpec(captured.CardNo) is { Effect: "INSIGHT" } insight)
+        if (UnitEventSpecForContext(captured) is { Effect: "INSIGHT" } insight)
             return new(id, observation.Controller, observation.Source, InsightTriggerEffect, eventKind, timing) {
                 SourceCardNo = captured.CardNo,
                 InsightContext = new(captured.CardNo, observation.Controller, insight.Amount, captured.SourceGeneration, "EXHAUSTED",
@@ -368,7 +370,7 @@ public sealed partial class CoreRuleEngine
                     timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
                 var captured = observation;
                 var enteredId = ev.Payload.GetValueOrDefault("unitObjectId") as string ?? ev.Payload.GetValueOrDefault("tokenObjectId") as string;
-                if ((UnitEventTimingMatches(captured.Context.Timing, "PLAY")
+                if (((UnitEventTimingMatches(captured.Context.Timing, "PLAY") || captured.Context.Timing == AgilePlayTiming)
                         && (ev.Kind is "EQUIPMENT_PLAYED_TO_BASE" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD" || captured.Source == enteredId)
                         || captured.Context.Timing == "FRIENDLY_UNIT_PLAYED" && captured.Source == enteredId)
                     && before.CardObjects.TryGetValue(captured.Source, out var entering) && !IsObjectOnField(before.PlayerZones, entering.ObjectId))
@@ -422,6 +424,7 @@ public sealed partial class CoreRuleEngine
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
             && ValidArmamentDeath(state, c, source, controller)
             && EquipmentSkillObservationShape(c)
+            && ValidAgilePlayGrant(state, c, source, controller)
             && (spec.Timing == EnemyMightReducedHere ? ValidMightReduction(state, c, source) && (controller is null || c.MightReduction!.Actor == controller) : c.MightReduction is null)
             && (spec.Effect == "BURN_MIGHT_FRIENDLY"
                 ? c.BurnedUnit is { } burned
@@ -478,8 +481,8 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && (SelectedUnitEventSpec(c)?.Effect is UnitEventGraveyardPlayEffect or UnitEventGraveyardReturnEffect or UnitEventEnemyDamageEffect or ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToCapturedBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect or MoveWeakerEnemyHereToAnotherBattlefieldEffect or MoveFriendlyGroupToOpenBattlefieldEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or FriendlyUnitTokensMoveHere or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
-            || UnitEventSpec(c.CardNo)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
+        && (SelectedUnitEventSpec(c)?.Effect is AgilePlayAttachEffect or UnitEventGraveyardPlayEffect or UnitEventGraveyardReturnEffect or UnitEventEnemyDamageEffect or ArmamentUnitEventRules.FixedDamageEffect or RuneDomainDamageEffect or PlayedUnitReadyRunes or "BANISH_LINKED_UNIT_HERE" or DeploymentPlayMoveEffect or MoveFriendlyToArrivalBattlefieldEffect or MoveEnemyToCapturedBattlefieldEffect or MoveEnemyToArrivalBattlefieldEffect or MoveWeakerEnemyHereToAnotherBattlefieldEffect or MoveFriendlyGroupToOpenBattlefieldEffect or "STUN_ENEMY" or "BOON_FRIENDLY" or "READY_HERE" or FriendlyUnitTokensMoveHere or "MOVE_ENEMY_HERE" or "MOVE_ENEMY" or "READY_ANOTHER_FRIENDLY" or "MATCH_POWER_THEN_BUFF" or "DESTROY_CHEAPER_EQUIPMENT" or ConquestEquipmentBoon or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY" or "MIGHT_ATTACKERS" or EquipmentUnitTransformationEffect
+            || UnitEventSpecForContext(c)?.Effect == "BURN_MIGHT_FRIENDLY" && c.BurnedUnit is not null);
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.UnitEvent is { } grant && SelectedUnitEventSpec(grant)?.Effect == UnitEventTurnPlayGrantEffect
             ? ValidUnitEventTurnPlayGrantStack(item)
@@ -489,9 +492,9 @@ public sealed partial class CoreRuleEngine
             ? item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && !item.SourceConfirmed
                 && item.EffectRepeatCount == 1 && item.DamageAmount == 0 && item.OptionalCosts.Count == 0 && item.Destination.Length == 0
             : item.TargetGenerations is null ? item.TargetObjectIds.Count == 0 : NeedsUnitEventTarget(item)
-            && (item.TargetObjectIds.Count > 0 || UnitEventSpec(item.UnitEvent!.CardNo)!.Effect == PlayedUnitReadyRunes)
-            && (UnitEventSpec(item.UnitEvent!.CardNo)!.AnyNumberOfTargets || item.TargetObjectIds.Count == 1)
-            && (UnitEventSpec(item.UnitEvent.CardNo)!.Effect != PlayedUnitReadyRunes || item.TargetObjectIds.Count <= UnitEventSpec(item.UnitEvent.CardNo)!.Amount)
+            && (item.TargetObjectIds.Count > 0 || UnitEventSpecForContext(item.UnitEvent!)!.Effect == PlayedUnitReadyRunes)
+            && (UnitEventSpecForContext(item.UnitEvent!)!.AnyNumberOfTargets || item.TargetObjectIds.Count == 1)
+            && (UnitEventSpecForContext(item.UnitEvent!)!.Effect != PlayedUnitReadyRunes || item.TargetObjectIds.Count <= UnitEventSpecForContext(item.UnitEvent!)!.Amount)
             && item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count
             && item.TargetGenerations.Count == item.TargetObjectIds.Count
             && item.TargetObjectIds.All(id => item.TargetGenerations.TryGetValue(id, out var generation) && generation >= 0);
@@ -517,6 +520,8 @@ public sealed partial class CoreRuleEngine
                     && DeploymentPlayDestination(state, item.UnitEvent!) is { } playedDestination
                     && IsUnitMovementDestination(state, c.ObjectId, playedDestination)
                     && MovementRestrictionRules.CanMove(c, item.ControllerId),
+                AgilePlayAttachEffect => IsFaceUpNonStandbyUnit(c)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 MoveFriendlyGroupToOpenBattlefieldEffect or "BOON_FRIENDLY" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 "BANISH_LINKED_UNIT_HERE" or "READY_HERE" => IsFaceUpNonStandbyUnit(c) && UnitEventTargetIsHere(state, item, c.ObjectId),
@@ -558,7 +563,7 @@ public sealed partial class CoreRuleEngine
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
                     && state.ObjectLocations.TryGetValue(c.ObjectId, out var loc) && loc.Zone == item.UnitEvent!.Here!.Zone
                     && (loc.Zone == "BASE" ? loc.PlayerId == item.UnitEvent.Here.PlayerId : loc.BattlefieldObjectId == item.UnitEvent.Here.BattlefieldObjectId)
-                    && ResolveCurrentFieldUnitPower(state, c) <= UnitEventSpec(item.UnitEvent.CardNo)!.Amount,
+                    && ResolveCurrentFieldUnitPower(state, c) <= UnitEventSpecForContext(item.UnitEvent)!.Amount,
                 _ => false
             })
             && (!SelectedUnitEventSpec(item.UnitEvent!)!.TargetsAnotherFriendlyHere
@@ -572,9 +577,9 @@ public sealed partial class CoreRuleEngine
         var legal = SelectedUnitEventSpec(item.UnitEvent!)?.Effect == MoveFriendlyGroupToOpenBattlefieldEffect
             && OpenBattlefieldDestinations(state, item.ControllerId).Count == 0 ? [] : UnitEventInstructionTargets(state, item);
         return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-            item.UnitEvent!.DelayedReceipt is not null || UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1,
-            UnitEventSpec(item.UnitEvent.CardNo)!.Effect == PlayedUnitReadyRunes ? Math.Min(legal.Length, UnitEventSpec(item.UnitEvent.CardNo)!.Amount)
-                : UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1, legal, legal,
+            item.UnitEvent!.DelayedReceipt is not null || UnitEventSpecForContext(item.UnitEvent)!.Optional ? 0 : 1,
+            UnitEventSpecForContext(item.UnitEvent)!.Effect == PlayedUnitReadyRunes ? Math.Min(legal.Length, UnitEventSpecForContext(item.UnitEvent)!.Amount)
+                : UnitEventSpecForContext(item.UnitEvent)!.AnyNumberOfTargets ? legal.Length : 1, legal, legal,
             "选择单位技能的合法目标；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
             { ResolvingStackItemId = item.StackItemId };
     }
@@ -583,7 +588,7 @@ public sealed partial class CoreRuleEngine
         var choice = UnitEventChoice(result.State, item);
         if (choice.LegalObjectIds.Count == 0)
         {
-            if (UnitEventSpec(item.UnitEvent!.CardNo)!.Effect == PlayedUnitReadyRunes)
+            if (UnitEventSpecForContext(item.UnitEvent!)!.Effect == PlayedUnitReadyRunes)
             {
                 var confirmed = ResolveTriggerTargetConfirmation(result.State, choice, [], advanceTick: false);
                 return confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
@@ -639,6 +644,7 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.Effect == EachPlayerDestroyUnitEffect) return ResolveEachPlayerDestroyUnit(state, item, spec);
         if (spec.Effect == UnitEventGraveyardReturnEffect) return ResolveUnitEventGraveyardReturn(state, item);
+        if (spec.Effect == AgilePlayAttachEffect) return ResolveAgilePlayAttachment(state, item);
         if (spec.Effect == ReturnLowMightUnitsEffect && spec.ReturnAllUnitsMaximumMight is { } maximum)
             return ResolveLowMightGroupReturn(state, item, maximum);
         if (spec.Effect == MoveFriendlyGroupToOpenBattlefieldEffect) return ResolveFriendlyGroupToOpenBattlefield(state, item);

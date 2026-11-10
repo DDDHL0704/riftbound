@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool RequiresInstructionCostHistory(UnitEventContext? context)
-        => context is not null && UnitEventSpec(context.CardNo) is { } spec
+        => context is not null && UnitEventSpecForContext(context) is { } spec
             && (spec.Timing == UnitEventTimings.OpponentTurnSpellPlayed || spec.LeadingDestruction is not null);
 
     internal static string InstructionCostCaptureHash(UnitEventContext context, string source, string controller)

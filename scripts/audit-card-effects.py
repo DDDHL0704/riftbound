@@ -717,6 +717,19 @@ def reviewed_clause_route(card: dict, clause: dict, sources: Sources) -> dict | 
         for entry in record["evidence"]:
             path = sources.root / entry["path"]
             code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(), flags=re.S) if path.exists() else ""
+            # Opt-in member evidence cannot borrow a matching fragment from
+            # another method or an unused lookalike elsewhere in the file.
+            if "member" in entry:
+                member = entry["member"]
+                declarations = list(re.finditer(
+                    r"(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b"
+                    + re.escape(member) + r"\s*\(", code)) if isinstance(member, str) and member.strip() else []
+                if len(declarations) == 1:
+                    start = declarations[0]
+                    end = re.search(r"(?m)^    (?:private|internal|public)\b", code[start.end():])
+                    code = code[start.start():start.end() + end.start()] if end else code[start.start():]
+                else:
+                    code = ""
             if not entry.get("contains") or not all(fragment in code for fragment in entry["contains"]):
                 stale.append(entry["path"])
             evidence.append(entry["path"])
@@ -1608,8 +1621,8 @@ def friendly_token_attack_movement_route(card: dict, clause: dict, sources: Sour
             'CaptureFirstBattleRoles(', 'CaptureAttackUnitEvents(state, firstAttackers,', '.Select(BuildTriggerQueuedEvent)']),
         ('CoreRuleEngine.UnitEvents.cs', 'NeedsUnitEventTarget', ['FriendlyUnitTokensMoveHere']),
         ('CoreRuleEngine.UnitEvents.cs', 'UnitEventChoice', [
-            'UnitEventSpec(item.UnitEvent.CardNo)!.Optional ? 0 : 1',
-            'UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1']),
+            'UnitEventSpecForContext(item.UnitEvent)!.Optional ? 0 : 1',
+            'UnitEventSpecForContext(item.UnitEvent)!.AnyNumberOfTargets ? legal.Length : 1']),
         ('CoreRuleEngine.UnitEvents.cs', 'ValidUnitEventTargets', [
             'AnyNumberOfTargets || item.TargetObjectIds.Count == 1',
             'item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count',
@@ -2370,7 +2383,7 @@ def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) 
             '.Concat(provided.GetValueOrDefault(',
         ],
         'CoreRuleEngine.RuleDerivedKeywords.cs': [
-            'var armamentKeywords = AttachedArmamentKeywordGrants(state);',
+            'var armamentKeywords = AttachedArmamentKeywordGrants(state)',
             '.Concat(armamentKeywords.GetValueOrDefault(id) ?? [])',
             'var amount = keywords.Sum(k => CombatKeywordAmount([k], counted));',
             'RuleDerivedTags = derived.Length == 0 ? null : derived',
@@ -2385,7 +2398,16 @@ def provided_armament_keyword_route(card: dict, clause: dict, sources: Sources) 
         ],
     }
     evidence = ['src/Riftbound.Engine/' + name for name in requirements]
-    if not all(all(token in sources.files.get('src/Riftbound.Engine/' + name, '') for token in tokens)
+    # The provider can be composed with another shared keyword layer. Bind
+    # its assignment and consumption to the real recompute member rather
+    # than requiring a terminating semicolon or accepting an unused decoy.
+    layer = re.search(r'(?ms)^    private static MatchState RecomputeConditionalRuleDerivedKeywords\(.*?'
+                      r'(?=^    (?:private|internal|public) |\Z)',
+                      sources.files.get('src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs', ''))
+    def code(name):
+        return (layer[0] if layer else '') if name == 'CoreRuleEngine.RuleDerivedKeywords.cs' \
+            else sources.files.get('src/Riftbound.Engine/' + name, '')
+    if not all(all(token in code(name) for token in tokens)
                for name, tokens in requirements.items()):
         return result('missing', '缺少按武装控制者持续提供宿主关键词及共享当前关键词读取的完整执行路径', evidence)
     if 'CountLucianLegendEquipmentAssaultBonus(' in sources.files.get('src/Riftbound.Engine/CoreRuleEngine.cs', ''):

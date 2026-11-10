@@ -46,7 +46,7 @@ public sealed partial class CoreRuleEngine
 
     private static bool ValidScheduledUnitEventReceipt(MatchState state, UnitEventContext context,
         string source, string? controller)
-        => UnitEventSpec(context.CardNo)?.NextMainEffect is null ? context.DelayedReceipt is null
+        => UnitEventSpecForContext(context)?.NextMainEffect is null ? context.DelayedReceipt is null
             : context.DelayedReceipt is not { } receipt
                 || !string.IsNullOrWhiteSpace(receipt.Id) && !string.IsNullOrWhiteSpace(receipt.CreatingStackItemId)
                     && receipt.CreatedTick >= context.CapturedTick
@@ -60,7 +60,7 @@ public sealed partial class CoreRuleEngine
             && !string.IsNullOrWhiteSpace(schedule.SourceObjectId) && !string.IsNullOrWhiteSpace(receipt.Id)
             && !string.IsNullOrWhiteSpace(receipt.CreatingStackItemId)
             && receipt.CreatedTick >= context.CapturedTick && receipt.CreatedTick <= state.Tick
-            && UnitEventSpec(context.CardNo) is { Effect: ScheduleNextMainUnitEventEffect, NextMainEffect: not null }
+            && UnitEventSpecForContext(context) is { Effect: ScheduleNextMainUnitEventEffect, NextMainEffect: not null }
             && receipt.Id == ScheduledUnitEventId(receipt.CreatingStackItemId, receipt.CreatedTick,
                 schedule.SourceObjectId, schedule.ControllerId, context)
             && ValidUnitEvent(state, context, UnitEventEffect, schedule.SourceObjectId, context.CardNo, schedule.ControllerId);
@@ -84,7 +84,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ScheduleNextMainUnitEvent(MatchState state, StackItemState item)
     {
         var context = item.UnitEvent!;
-        if (context.DelayedReceipt is not null || UnitEventSpec(context.CardNo)?.NextMainEffect is null)
+        if (context.DelayedReceipt is not null || UnitEventSpecForContext(context)?.NextMainEffect is null)
             throw new InvalidOperationException("Invalid delayed unit-event creation.");
         var tick = RuleChoices.Value?.CompletionTick ?? state.Tick;
         var receipt = new ScheduledUnitEventReceipt(ScheduledUnitEventId(item.StackItemId, tick,

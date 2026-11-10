@@ -67,6 +67,8 @@ public sealed partial class CoreRuleEngine
 
     private static ObjectBinding? CompanionPlayedUnit(TriggerQueueItemState trigger)
         => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit
+            ?? (trigger.UnitEvent is { Timing: AgilePlayTiming } agile
+                ? new ObjectBinding(trigger.SourceObjectId, agile.SourceGeneration) : null)
             ?? (HasArmamentPlayAttachment(trigger.UnitEvent) && trigger.UnitEvent!.ReflexiveTick is not null
                 ? trigger.UnitEvent.Other?.Binding : null);
 
@@ -108,6 +110,9 @@ public sealed partial class CoreRuleEngine
         if (HasArmamentPlayAttachment(companion.UnitEvent))
             return companion.UnitEvent!.ReflexiveTick == capturedTick && companion.UnitEvent.Other?.CardNo == item.CardNo
                 && ValidArmamentPlayAttachmentContext(state, companion.UnitEvent, companion.ControllerId);
+        if (companion.UnitEvent is { Timing: AgilePlayTiming } agile)
+            return agile.CapturedTick == capturedTick && ValidAgilePlayGrant(state, agile,
+                companion.SourceObjectId, companion.ControllerId);
         if (companion.UnitPlayMight is { } might)
             return might.CapturedTick == capturedTick
                 && RengarPlayRecoveryRules.Valid(state, might, companion.EffectKind, companion.SourceObjectId, companion.ControllerId);

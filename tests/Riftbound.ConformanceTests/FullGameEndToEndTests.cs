@@ -25644,11 +25644,16 @@ public sealed partial class FullGameEndToEndTests
                     {
                         Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
                         Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
-                        var capturedAbility = Assert.Single(CoreRuleEngine.UnitEventSpecs(unitEvent.CardNo),
-                            registered => registered.Timing == unitEvent.Timing);
+                        var capturedAbility = Assert.IsType<UnitEventAbilitySpec>(CoreRuleEngine.UnitEventSpecForContext(unitEvent));
                         Assert.True(CoreRuleEngine.ValidUnitEvent(result.State, unitEvent, item.EffectKind,
                             item.SourceObjectId, item.CardNo, item.ControllerId));
                         behavior = behavior with { UnitEventAbility = capturedAbility };
+                        if (unitEvent.Timing == "AGILE_PLAY")
+                        {
+                            Assert.Equal(new UnitEventAbilitySpec("AGILE_PLAY", "ATTACH_PLAYED_SOURCE_EQUIPMENT"), capturedAbility);
+                            Assert.NotNull(unitEvent.AgilePlayGrant);
+                            Assert.Null(row["agilePlayGrant"]);
+                        }
                         if (unitEvent.Origin is { ArmamentGranted: true } armamentOrigin)
                         {
                             var grantedAbility = Assert.IsType<UnitEventAbilitySpec>(ArmamentUnitEventRules.Spec(unitEvent.CardNo));

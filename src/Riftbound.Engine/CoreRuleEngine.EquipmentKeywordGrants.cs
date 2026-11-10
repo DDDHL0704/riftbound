@@ -25,15 +25,17 @@ public sealed partial class CoreRuleEngine
     private static CardBehaviorDefinition EquipmentGrantedKeywordBehavior(MatchState state, string player,
         string source, CardBehaviorDefinition behavior)
     {
-        if (!behavior.PlaysSourceToBaseAsEquipment || !state.CardObjects.TryGetValue(source, out var equipment)
-            || equipment.OwnerId != player) return behavior;
+        if (!behavior.PlaysSourceToBaseAsEquipment || !state.CardObjects.TryGetValue(source, out var equipment)) return behavior;
+        if (AllPlacesEquipmentGrantOrigins(state.PlayerZones, state.CardObjects, equipment, CardEquipmentKeywordNames.Agile).Any())
+            behavior = behavior with { CanPlayDuringPriority = true, CanPlayDuringSpellDuel = true };
+        if (equipment.OwnerId != player) return behavior;
         var required = ParseDelimitedValues(behavior.SourceEquipmentTags);
         var swift = PublicStaticAuraSourceObjectIds(state.PlayerZones).Any(id =>
             state.CardObjects.TryGetValue(id, out var grantor) && IsFaceUpNonStandbyUnit(grantor)
             && EffectiveFieldControllerId(state.PlayerZones, id, grantor) == player
             && AttachedRuleTextRules.Instances(state, grantor).Any(instance =>
                 EquipmentKeywordGrants.Value.TryGetValue(instance.CardNo, out var grants)
-                && grants.Any(grant => required.Contains(grant.RequiredKeyword)
+                && grants.Any(grant => !grant.AllPlaces && required.Contains(grant.RequiredKeyword)
                     && grant.GrantedKeyword == CardPermissionKeywordNames.Swift)));
         return swift ? behavior with { CanPlayDuringSpellDuel = true } : behavior;
     }

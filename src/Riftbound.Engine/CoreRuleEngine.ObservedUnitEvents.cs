@@ -5,14 +5,14 @@ public sealed partial class CoreRuleEngine
     // The original capture also determines which skills must still exist.
     // Checking only the surviving objects cannot detect an erased grant.
     internal static bool RequiresObservedUnitEventHistory(UnitEventContext? context)
-        => HasArmamentPlayAttachment(context)
+        => context?.Timing == AgilePlayTiming || HasArmamentPlayAttachment(context)
             || context?.Timing is UnitEventTimings.PrintedPowerCardPlayed or UnitEventTimings.BoonConsumed
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
                 or ArmamentLastBreathRules.Timing or FirstFriendlyStartPhaseDeathTiming or SpellInstructionReflexiveTiming or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
             || context?.RequiredUnitDestruction is not null
             || context?.Origin?.ArmamentGranted == true
-            || context is not null && HasSourcePlayCondition(UnitEventSpec(context.CardNo))
+            || context is not null && HasSourcePlayCondition(UnitEventSpecForContext(context))
             || context?.Timing == "PLAY" && SelectedUnitEventSpec(context) is { UnitTokenPlayedByChosenOpponent: true } or { ReturnAllUnitsMaximumMight: not null }
                 or { ExemptsControllerIfExperiencePaid: true } or { GraveyardReturnAnyTags: not null }
             || context?.TriggeringBattlefield is not null || context?.DelayedReceipt is not null;
@@ -37,6 +37,8 @@ public sealed partial class CoreRuleEngine
             capture = MatchStateHasher.HashValue(new { capture, context.SpellInstruction });
         if (context.PaidLegendPlayCost is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.PaidLegendPlayCost });
+        if (context.AgilePlayGrant is not null)
+            capture = MatchStateHasher.HashValue(new { capture, context.AgilePlayGrant });
         if (context.TriggeringBattlefield is not null || context.DelayedReceipt is not null)
             capture = MatchStateHasher.HashValue(new { capture, context.TriggeringBattlefield, context.DelayedReceipt });
         return HasArmamentPlayAttachment(context)

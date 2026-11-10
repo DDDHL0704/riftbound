@@ -7,16 +7,24 @@ public sealed partial class CoreRuleEngine
     private static IReadOnlyList<string> NonRuleDerivedTags(CardObjectState card)
     {
         if (card.RuleDerivedTags is not { Count: > 0 } derived) return card.Tags;
-        var printed = AttachedRuleTextRules.PrintedKeywords(AttachedRuleTextRules.Face(card) ?? "");
+        var printed = PrintedObjectKeywords(card);
         return card.Tags.Where(t => !derived.Contains(t) || printed.Contains(t) || card.GrantedTags?.Contains(t) == true).ToArray();
     }
 
     internal static MatchState RecomputeRuleDerivedKeywords(MatchState state)
         => RecomputeDisarmKeywords(RecomputeConditionalRuleDerivedKeywords(state));
 
+    private static string[] PrintedObjectKeywords(CardObjectState card)
+        => AttachedRuleTextRules.PrintedKeywords(AttachedRuleTextRules.Face(card) ?? "")
+            .Concat(CardBehaviorRegistry.TryGetByCardNo(AttachedRuleTextRules.Face(card) ?? "", out var printed)
+                ? ParseDelimitedValues(printed.SourceEquipmentTags) : []).Distinct(StringComparer.Ordinal).ToArray();
+
     private static MatchState RecomputeConditionalRuleDerivedKeywords(MatchState state)
     {
-        var armamentKeywords = AttachedArmamentKeywordGrants(state);
+        var everywhereKeywords = AllPlacesEquipmentKeywords(state);
+        var armamentKeywords = AttachedArmamentKeywordGrants(state).Concat(everywhereKeywords)
+            .GroupBy(pair => pair.Key, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.SelectMany(pair => pair.Value).ToArray(), StringComparer.Ordinal);
         var field = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal);
         var sandSoldiers = field.Where(id => state.CardObjects.TryGetValue(id, out var card)
             && card.Tags.Contains(CardObjectTags.SandSoldier)).ToHashSet(StringComparer.Ordinal);
@@ -47,14 +55,14 @@ public sealed partial class CoreRuleEngine
             // Independent printed/granted tags survive removal of this layer.
             var removable = (card.RuleDerivedTags ?? []).Concat(specs.SelectMany(s => s.Item2.GrantedKeywords ?? [])).ToHashSet(StringComparer.Ordinal);
             if (sandSoldiers.Contains(id)) removable.Add(CardEquipmentKeywordNames.Tempered);
-            var printed = AttachedRuleTextRules.PrintedKeywords(AttachedRuleTextRules.Face(card) ?? "");
+            var printed = PrintedObjectKeywords(card);
             var basis = card.Tags.Where(t => !removable.Contains(t) || printed.Contains(t) || card.GrantedTags?.Contains(t) == true)
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
             cards[card.ObjectId] = card with { Tags = basis, RuleDerivedTags = null };
             // CN Radiance FAQ / 137.3.b: losing the unit type leaves the
             // attachment's text active, while unit-only conditions still end.
             var isUnit = IsFaceUpNonStandbyUnit(card);
-            if (IsObjectOnField(state.PlayerZones, card.ObjectId)
+            if (everywhereKeywords.ContainsKey(id) || IsObjectOnField(state.PlayerZones, card.ObjectId)
                 && (isUnit && (specs.Length > 0 || EmpowerRules.Keywords(state, card).Length > 0
                         || azirKeywords.ContainsKey(id) || HasConditionalSourceUnitKeywords(state, card))
                     || SnapshotKeywordGrantRules.HasGrants(card) || armamentKeywords.ContainsKey(id)))

@@ -78,7 +78,7 @@ public sealed partial class CoreRuleEngine
 
     private static bool ValidPlayedUnitRuneObservation(MatchState state, UnitEventContext context, string source, string? expectedController)
     {
-        var spec = UnitEventSpec(context.CardNo);
+        var spec = UnitEventSpecForContext(context);
         if (!IsPlayedUnitRuneSpec(spec)) return context.PlayedUnitRunes is null;
         try
         {
