@@ -102,6 +102,15 @@ class FriendlyUnitTraitScoreAuditTests(unittest.TestCase):
             with self.subTest(filename=filename, token=token):
                 self.assertEqual('missing', self.status(sources=self.remove_actual_consumer(filename, token)))
 
+    def test_score_and_experience_must_survive_the_real_shared_redaction_return(self):
+        for token in [
+            'return result with { Events = RedactUnitEventSourceEvents(state, item, result.Events) };',
+            'return source == item.SourceObjectId ? events : events.Select(e =>',
+            'Equals(e.Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId)',
+        ]:
+            with self.subTest(token=token):
+                self.assertEqual('missing', self.status(sources=self.remove_actual_consumer('CoreRuleEngine.UnitEvents.cs', token)))
+
     def test_checking_the_tag_condition_at_capture_would_miss_real_response_supplied_tags(self):
         for name in ['CoreRuleEngine.UnitEvents.cs', 'CoreRuleEngine.ConquestUnitEvents.cs', 'CoreRuleEngine.Hold.cs']:
             with self.subTest(name=name):

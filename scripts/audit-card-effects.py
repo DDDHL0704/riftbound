@@ -1731,6 +1731,32 @@ def stun_source_movement_route(card: dict, clause: dict, sources: Sources) -> di
         if exact else "缺少精确的眩晕敌方战场条件、来源独立移动确认、效果移动或原始历史核验消费者", paths)
 
 
+def unit_event_result_redaction_is_connected(sources: Sources) -> bool:
+    code = sources.files.get("src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs", "")
+
+    def member(name):
+        match = re.search(r"(?m)^    (?:private|internal|public) static [^\n]+\b" + re.escape(name) + r"\(", code)
+        if not match:
+            return ""
+        tail = code[match.end():]
+        end = re.search(r"(?m)^    (?:private|internal|public) ", tail)
+        return tail[:end.start()] if end else tail
+
+    resolve = member("ResolveUnitEvent")
+    visible = "ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator)"
+    if visible in resolve and "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select" in resolve:
+        return True
+    # Keep the returned state/score/experience, and use the helper's returned
+    # events. A dead helper or redaction of an older result is not evidence.
+    if "return result with { Events = RedactUnitEventSourceEvents(state, item, result.Events) };" not in resolve:
+        return False
+    redact = member("RedactUnitEventSourceEvents")
+    return all(token in redact for token in [visible,
+        "return source == item.SourceObjectId ? events : events.Select(e =>",
+        'Equals(e.Payload.GetValueOrDefault("sourceObjectId"), item.SourceObjectId)',
+        'new Dictionary<string, object?>(e.Payload) { ["sourceObjectId"] = source }', ".ToArray()"])
+
+
 def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources) -> dict | None:
     text = normalize(unparenthesize(clause["text"]))
     poppy = normalize("当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。")
@@ -1760,7 +1786,7 @@ def conditional_unit_experience_route(card: dict, clause: dict, sources: Sources
     experience_call = "AppendIndependentUnitEventExperience(state, item, result)"
     experience_returned = "return " + experience_call + ";" in resolve or (
         re.search(r"(?m)^\s*result = " + re.escape(experience_call) + ";", resolve)
-        and "return source == item.SourceObjectId ? result : result with { Events = result.Events.Select" in resolve)
+        and unit_event_result_redaction_is_connected(sources))
     exact = exact and "ResolveUnitEventInstruction(state, item)" in resolve \
         and experience_returned
     append = method(experience, "AppendIndependentUnitEventExperience")
@@ -2536,7 +2562,7 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
         ('CoreRuleEngine.UnitEvents.cs', 'QueueUnitEvents', [
             'UnitEventTrigger(captured, result.State.Tick,', 'queue.Add(trigger)', 'BuildTriggerQueuedEvent(trigger)']),
         ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEvent', [
-            'ResolveUnitEventInstruction(state, item)', 'ResolutionResult.VisibleObjectIdForViewer(']),
+            'ResolveUnitEventInstruction(state, item)']),
         ('CoreRuleEngine.UnitEvents.cs', 'ResolveUnitEventInstruction', [
             'ValidUnitEvent(state, context,', 'SelectedUnitEventSpec(context)',
             'spec.Effect == FriendlyUnitTraitScoreEffect', 'ResolveFriendlyUnitTraitScore(state, item, spec)']),
@@ -2586,6 +2612,7 @@ def friendly_unit_trait_score_route(card: dict, clause: dict, sources: Sources) 
     ]
     exact = exact and all((bodies := members(filename, name))
         and all(all(token in body for token in tokens) for body in bodies) for filename, name, tokens in checks)
+    exact = exact and unit_event_result_redaction_is_connected(sources)
     exact = exact and any('UnitEventTimingMatches(unitEvent.Timing, "HOLD")' in body
         and 'UnitEventTimingMatches(unitEvent.Timing, "CONQUEST")' in body and '? unitEvent : null' in body
         for body in members('CoreRuleEngine.BattlefieldTimingAliases.cs', 'TimingCaptureContext'))
