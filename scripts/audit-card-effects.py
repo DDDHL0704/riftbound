@@ -282,7 +282,10 @@ class Sources:
             if document.get("schemaVersion") != 1:
                 raise ValueError("已审逐句补充版本不支持：" + str(path))
             for record in document["records"]:
-                if (record.get("status") not in ("route", "missing") or not record.get("evidence")
+                explicit_rule_question = (record.get("status") == "review"
+                    and record.get("reason", "").startswith("待确认（规则）："))
+                if (record.get("status") not in ("route", "missing") and not explicit_rule_question
+                        or not record.get("evidence")
                         or not record.get("rules") or not record.get("cardNos")
                         or not record.get("text") or not record.get("scope")):
                     raise ValueError("已审逐句补充必须包含结论和代码证据：" + str(path))

@@ -322,37 +322,61 @@
       ],
       "text": "当我进攻时，你可以选择支付{{1}}，将此处的一名敌方单位移动到其基地。",
       "scope": "当我进攻时，你可以选择支付{{1}}，将此处的一名敌方单位移动到其基地。",
-      "status": "missing",
-      "reason": "只有基础魄罗单位；缺少进攻触发、可选支付1法力费用和选择此处敌方单位移动到其基地的独立技能",
-      "rules": "核心383.2–383.3；该卡官方中文牌面",
+      "status": "route",
+      "reason": "实际进攻后先支付1法力并确认当前此处敌方单位；对方可响应。结算重查原代际目标和来源当前此处，共享移动费用、限制和原始移动声明将该单位移动到其控制者基地。 不能移动的敌方单位仍可被确认并支付1法力，结算中的共享执行器会取消受阻的移动，费用不会退还。",
+      "rules": "核心355.4、355.18、383、403–407、449–451；悚悚魄罗官方中文牌面 核心355.9、358.3.a：移动受阻不阻止确认和支付牌面费用。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "targetScope": "BATTLEFIELD_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
             "playsSourceToBaseAsUnit": true,
-            "sourceUnitPower": 1,
-            "sourceUnitTags": "魄罗",
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1
+            "unitEventAbility": {
+              "timing": "ATTACK",
+              "effect": "MOVE_ENEMY_HERE_TO_BASE",
+              "optional": true,
+              "leadingManaCost": 1,
+              "targetsHere": true,
+              "preservesMovementCapture": true
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EnemyUnitEventMovement.cs",
           "contains": [
-            "\"UNL-137/219\"",
-            "\"SPIRITED_PORO_ATTACK_MOVE_STATIC\""
+            "MoveEnemyHereToBaseEffect",
+            "\"BASE:\" + EffectiveFieldControllerId"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
+          "contains": [
+            "MoveEnemyHereToBaseEffect",
+            "UnitEventTargetIsHere("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "PreservesMovementCapture: true"
           ]
         }
       ],
-      "tests": []
+      "tests": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/SpiritedPoroAttackMovementTests.cs",
+          "methods": [
+            "AnActualAttackPaysOneManaBeforeResponsesAndMovesOnlyTheConfirmedEnemyHereToItsBase",
+            "DecliningTheLeadingPaymentLeavesTheEnemyAndManaUntouched",
+            "ARealReturnOfThePoroRemovesItsCurrentHereWithoutRefundingThePaidMana",
+            "ARealEnemyReturnCannotRedirectThePaidSkillToAnotherLegalUnitOrItsNewGeneration",
+            "TargetProtectionAndTheCurrentHereRestrictionRemainPartOfConfirmation",
+            "AcquiringTheDefendingRoleDoesNotEarnTheAttackSkill",
+            "RecoveryBindsThePaidSkillToItsOriginalTargetAndFixedBaseDestination",
+            "ThePrintedManaCanBePaidForAnImmovableEnemyWithoutExecutingTheMove"
+          ]
+        }
+      ]
     },
     {
       "cardNos": [
@@ -642,30 +666,69 @@
       ],
       "text": "若其如此做，则进行一次：{{眩晕}}该单位。（使其在本回合内无法造成战斗伤害。）",
       "scope": "若其如此做，则进行一次：{{眩晕}}该单位。（使其在本回合内无法造成战斗伤害。）",
-      "status": "missing",
-      "reason": "眩晕时机错误：单位实际打出后 ApplyEffectPlayFollowup 直接附加 STUNNED；缺少“进行一次”生成的独立内嵌式眩晕技能、代际绑定与响应窗口",
-      "rules": "核心388–389 内嵌式触发、383.3／407；UNL-139 官方中文牌面",
+      "status": "route",
+      "reason": "效果要求对手实际打出单位后，在共享进场指示捕获原代际引用；内嵌眩晕技能独立进入结算链并接受响应；原单位是关联引用而非重新指定目标，因此极速反制的指定友方目标条件不成立。进场替换至另一战场仍满足条件，返手后不对手牌或新代际施加眩晕；恢复绑定原始接受历史。 同一真实打出赚取的对手打出技能与内嵌技能共用APNAP排序窗口。",
+      "rules": "核心359.3.e.14.c、388.1、389.1、403–407；透骨尖钉官方中文牌面；核心383.3.d.1：同时触发按回合玩家、非回合玩家依次放入结算链；真实待命响应夹具另核核心309.1.a、811.1.d.2（闭环仅反应、待命来源所在地的首个目标）",
       "runtime": {
         "behaviors": [
           {
-            "effectPlayedUnitStatus": "STUNNED"
+            "effectPlayedUnitStatus": "STUNNED",
+            "unitEventAbility": {
+              "timing": "SPELL_INSTRUCTION_REFLEXIVE",
+              "effect": "STUN_INSTRUCTION_PLAYED_UNIT"
+            }
           }
         ]
       },
       "evidence": [
         {
-          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandPlay.cs",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
           "contains": [
-            "private static ResolutionResult ApplyEffectPlayFollowup(",
-            "UntilEndOfTurnEffects = cards[play.SourceObjectId].UntilEndOfTurnEffects.Append(behavior.EffectPlayedUnitStatus)"
+            "CaptureInstructionPlayedUnitReflexive(ev, entered)"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayedUnitReflexives.cs",
+          "contains": [
+            "CaptureInstructionPlayedUnitReflexive(",
+            "WithUnitEvents(ev,",
+            "ResolvePlayedUnitStatusReflexive(",
+            "card.ObjectGeneration != unit.Binding.Generation",
+            "ApplyUnitEventStun("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellInstructionReflexives.cs",
+          "contains": [
+            "ValidPlayedUnitStatusReflexive("
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObservedUnitEvents.cs",
+          "contains": [
+            "context.SpellInstruction"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitPlayMight.cs",
+          "contains": [
+            "trigger.UnitEvent?.SpellInstruction?.PlayedUnit?.Binding",
+            "CompanionPlayControllerMatches(",
+            "ValidUnitEvent(state, context, companion.EffectKind"
           ]
         }
       ],
       "tests": [
         {
-          "path": "tests/Riftbound.ConformanceTests/OfficialRevealedHandPlayTests.cs",
+          "path": "tests/Riftbound.ConformanceTests/BoneSkewerReflexiveTests.cs",
           "methods": [
-            "OwnerPlaysSelectedUnitToChosenEnemyControlledBattlefieldIgnoringAllCosts"
+            "ActualOpponentPlayEarnsAnIndependentUnselectedStunAfterEntry",
+            "ARealEntryReplacementStillStunsTheUnitAtItsActualNewBattlefield",
+            "ARealReturnResponseDoesNotApplyThePendingStunToTheHandCard",
+            "AConditionalTargetCounterCannotSelectTheUnselectedReferencedUnitAbility",
+            "DecliningOrHavingNoUnitInTheRevealedHandCreatesNoStun",
+            "OriginalAcceptedHistoryRejectsErasingOrForgingThePlayedUnitReference",
+            "TheOpponentsActualPlaySkillSharesTheApnapOrderingWindowWithTheEarnedStun"
           ]
         }
       ]

@@ -92,8 +92,10 @@ public sealed partial class CoreRuleEngine
     {
         if (pending.RevealedHand is not { } hand
             || !CardBehaviorRegistry.TryGetByEffectKind(pending.Parent.EffectKind, out var behavior)
-            || string.IsNullOrEmpty(behavior.EffectPlayedUnitStatus)
-            || BattlefieldLocalRules.AtUnit(result.State, play.SourceObjectId)?.ObjectId != hand.BattlefieldId) return result;
+            || string.IsNullOrEmpty(behavior.EffectPlayedUnitStatus)) return result;
+        // The independent instruction skill was captured at real unit entry.
+        if (behavior.UnitEventAbility?.Effect == PlayedUnitStatusReflexiveEffect) return result;
+        if (BattlefieldLocalRules.AtUnit(result.State, play.SourceObjectId)?.ObjectId != hand.BattlefieldId) return result;
         var cards = new Dictionary<string,CardObjectState>(result.State.CardObjects);
         cards[play.SourceObjectId] = cards[play.SourceObjectId] with {
             UntilEndOfTurnEffects = cards[play.SourceObjectId].UntilEndOfTurnEffects.Append(behavior.EffectPlayedUnitStatus).Distinct().ToArray() };

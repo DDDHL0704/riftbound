@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-jungle-ambush-create-gold",
-  "description": "Jungle Ambush creates an exhausted Gold equipment token while the global ready-entry effect remains deferred.",
+  "description": "Jungle Ambush creates an exhausted Gold equipment token and grants ready entry to friendly units for the current turn.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·004/221 丛林伏击",
-      "note": "官方卡面：费用 2；待命；在本回合内友方单位以活跃状态进场；打出一个休眠的“金币”装备指示物。本 fixture 锁定当前 preflight 可复用的休眠金币装备指示物路径；全局入场活跃效果暂缓到单位打出模型。"
+      "note": "官方卡面：费用 2；待命；在本回合内友方单位以活跃状态进场；打出一个休眠的“金币”装备指示物。本 fixture 验证休眠金币指示物与本回合友方单位活跃进场效果的创建；真实单位进场、冷恢复及原始回放由 JungleAmbushReadyEntryTests 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-jungle-ambush-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302191,
     "turnNumber": 91,
@@ -48,29 +51,59 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-JUNGLE-AMBUSH"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-JUNGLE-AMBUSH"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-SPELL-JUNGLE-AMBUSH": {
+        "cardNo": "SFD·004/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "manaCost": 2
+      }
+    }
   },
   "commands": [
     {
@@ -108,10 +141,14 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "EQUIPMENT_TOKEN_CREATED"
+      "EQUIPMENT_TOKEN_CREATED",
+      "TURN_UNIT_PLAY_GRANT_CREATED",
+      "UNIT_EVENT_TURN_PLAY_GRANT_CREATED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -131,9 +168,15 @@
           "effectKind": "JUNGLE_AMBUSH_CREATE_GOLD_EQUIPMENT"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "EQUIPMENT_TOKEN_CREATED",
         "payload": {
@@ -144,13 +187,36 @@
           "tokenCardNo": "SFD·T03",
           "destinationZone": "BASE",
           "isExhausted": true,
-          "tokenTags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"]
+          "tokenTags": [
+            "CARD_TYPE:EQUIPMENT",
+            "反应",
+            "金币"
+          ]
+        }
+      },
+      {
+        "kind": "TURN_UNIT_PLAY_GRANT_CREATED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-JUNGLE-AMBUSH",
+          "controllerId": "P1",
+          "grantKind": "READY_ENTRY",
+          "duration": "UNTIL_END_OF_TURN"
+        }
+      },
+      {
+        "kind": "UNIT_EVENT_TURN_PLAY_GRANT_CREATED",
+        "payload": {
+          "turnNumber": 91
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 91,
@@ -163,14 +229,24 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"],
-          "graveyard": ["P1-SPELL-JUNGLE-AMBUSH"]
+          "base": [
+            "P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-JUNGLE-AMBUSH"
+          ]
         }
       },
       "stackItems": [],
@@ -181,7 +257,11 @@
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": true,
-          "tags": ["CARD_TYPE:EQUIPMENT", "反应", "金币"],
+          "tags": [
+            "CARD_TYPE:EQUIPMENT",
+            "反应",
+            "金币"
+          ],
           "cardNo": "SFD·T03",
           "ownerId": "P1",
           "controllerId": "P1"
@@ -189,8 +269,18 @@
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

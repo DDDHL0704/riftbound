@@ -178,12 +178,19 @@ public sealed class ViktorOpponentTurnPlayTests
         var selected = await OfficialRevealedHandPlayTests.Select(opened.State, "U");
         var played = await Act(selected.State, "P2", new PlayCardCommand("U", "OGN·208/298", [], Destination: "BATTLEFIELD:BF"));
         Assert.Equal("P1", played.State.TurnPlayerId);
+        played = await OfficialRevealedHandPlayTests.OrderEarnedPlaySkills(played);
+        Assert.Equal(2, played.State.StackItems.Count);
         Assert.NotNull(Assert.Single(played.State.StackItems, i => i.EffectKind == Effect).OutsideHandPlayObserver);
+        Assert.DoesNotContain("STUNNED", played.State.CardObjects["U"].UntilEndOfTurnEffects);
         Assert.Empty(Minions(played.State)); ArmamentMightTests.PublicRecovery(played.State);
         var done = await Top(played.State);
         var token = Assert.Single(Minions(done.State));
         Assert.Equal("P2", token.ControllerId); Assert.Contains(token.ObjectId, done.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain("STUNNED", done.State.CardObjects["U"].UntilEndOfTurnEffects);
         Restore(done.State);
+        done = await Top(done.State);
+        Assert.Contains("STUNNED", done.State.CardObjects["U"].UntilEndOfTurnEffects);
+        Assert.Single(Minions(done.State)); Restore(done.State);
     }
 
     [Fact]

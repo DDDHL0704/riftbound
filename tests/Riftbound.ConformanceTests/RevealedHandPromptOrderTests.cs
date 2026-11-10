@@ -34,10 +34,18 @@ public sealed class RevealedHandPromptOrderTests
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.Null(played.State.PendingEffectPlay);
         Assert.Equal("BF", played.State.ObjectLocations["U"].BattlefieldObjectId);
-        Assert.Contains("STUNNED", played.State.CardObjects["U"].UntilEndOfTurnEffects);
+        Assert.DoesNotContain("STUNNED", played.State.CardObjects["U"].UntilEndOfTurnEffects);
+        var stun = Assert.Single(played.State.StackItems);
+        Assert.Equal("P1", stun.ControllerId);
+        Assert.Equal("UNL-139/219", stun.CardNo);
         Assert.Contains("SPELL", played.State.PlayerZones["P2"].Hand);
         Assert.DoesNotContain("UNL-200/219", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(played.State)["P1"]));
         Assert.Empty(OfficialInsightAndSpellLockTests.Errors(played.State));
+
+        var resolved = await OfficialGraveyardRecastTests.Top(played.State);
+        Assert.Contains("STUNNED", resolved.State.CardObjects["U"].UntilEndOfTurnEffects);
+        Assert.Empty(resolved.State.StackItems);
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(resolved.State));
     }
 
     private static bool Same<T>(T a, T b)
