@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
 
     private static bool IsDeclaredUnitEventMovementEffect(UnitEventContext context)
         => SelectedUnitEventSpec(context)?.Effect is "MOVE_ENEMY" or MoveWeakerEnemyHereToAnotherBattlefieldEffect
-            or MoveFriendlyGroupToOpenBattlefieldEffect;
+            or MoveFriendlyGroupToOpenBattlefieldEffect or MoveEnemyHereToBaseEffect;
 
     internal static bool RequiresUnitEventMovementDeclarationHistory(StackItemState item)
         => item.UnitEvent is { } context && SelectedUnitEventSpec(context)?.PreservesMovementCapture == true
@@ -34,8 +34,11 @@ public sealed partial class CoreRuleEngine
     {
         var here = CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration);
         var otherBattlefield = SelectedUnitEventSpec(item.UnitEvent)?.Effect == MoveWeakerEnemyHereToAnotherBattlefieldEffect;
+        var fixedBase = SelectedUnitEventSpec(item.UnitEvent)?.Effect == MoveEnemyHereToBaseEffect
+            ? "BASE:" + EffectiveFieldControllerId(state.PlayerZones, target, state.CardObjects[target]) : null;
         return ChosenMovementDestinations(state, item.ControllerId)
             .Where(choice => IsUnitMovementDestination(state, target, choice.Id)
+                && (fixedBase is null || choice.Id == fixedBase)
                 && (!otherBattlefield || choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
                     && choice.Id[12..] != here?.BattlefieldObjectId))
             .Select(choice => new RuleChoiceOption(choice.Id, choice.Label));

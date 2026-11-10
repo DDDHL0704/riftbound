@@ -10,6 +10,7 @@ public sealed partial class CoreRuleEngine
                 or UnitEventTimings.PlayerDefend or UnitEventTimings.FriendlyUnitTargeted
                 or ArmamentLastBreathRules.Timing or FirstFriendlyStartPhaseDeathTiming or SpellInstructionReflexiveTiming or "FRIENDLY_UNIT_PLAYED" or "START" or OpponentScoringActionTiming
             || context?.Timing == "MOVE" && SelectedUnitEventSpec(context) is { RequiresMoveToBattlefield: true } or { PreservesMovementCapture: true }
+            || context is not null && SelectedUnitEventSpec(context)?.PreservesMovementCapture == true
             || context is not null && SelectedUnitEventSpec(context)?.RequiredFriendlyUnitTagsAtTrigger is not null
             || context?.AssignedOverkill is not null || context?.RequiredUnitDestruction is not null
             || context?.Origin?.ArmamentGranted == true

@@ -52,7 +52,9 @@ public sealed partial class CoreRuleEngine
 
     internal static TurnUnitPlayGrant[] UnitEventTurnPlayGrants(MatchState state)
         => (state.UntilEndOfTurnEffects ?? []).OfType<string>().Select(ReadTurnUnitPlayGrant).OfType<TurnUnitPlayGrant>()
-            .Where(g => g.UnitEventOrigin is not null).ToArray();
+            // Entry replacements also need the original accepted creation receipt:
+            // validating only surviving markers cannot detect an erased permission.
+            .Where(g => g.UnitEventOrigin is not null || g.Kind == "READY_ENTRY").ToArray();
 
     internal static TurnUnitPlayGrantUse[] UnitEventTurnPlayGrantUses(MatchState state)
         => (state.UntilEndOfTurnEffects ?? []).OfType<string>().Select(ReadTurnUnitPlayGrantUse).OfType<TurnUnitPlayGrantUse>()

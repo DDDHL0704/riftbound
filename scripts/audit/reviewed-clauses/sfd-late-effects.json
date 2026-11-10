@@ -663,9 +663,9 @@
       ],
       "text": "回合结束时，失去该单位的控制权，然后将它召回。（把它送回基地，此行动不算作移动。）",
       "scope": "回合结束时，失去该单位的控制权，然后将它召回。（把它送回基地，此行动不算作移动。）",
-      "status": "missing",
-      "reason": "回合结束仍由ReturnTemporaryControlAtEndTurn直接改控制并召回，没有独立延迟触发及响应；也未区分结束步骤已开始后打出的本牌不得再次生成该延迟技能",
-      "rules": "核心359.3.e.16 明确以恶意收购为例、390–393／403–407 延迟触发；SFD·202 官方中文牌面",
+      "status": "review",
+      "reason": "待确认（规则）：已确认需要独立可响应的结束延迟，且结束步骤开始后结算不得创建延迟；现有直接归还物理所属者的结算不符。尚未查得中国区官方对“失去控制权”在先前永久夺取、连续两次恶意收购及结束技能被反击时如何撤销／保留控制效果的明确条文。铸魂淬炼裁判FAQ第22页仅明确阿克尚装备控制效果叠加，不能直接推广为本牌单位控制权裁定；保留该句等待规则依据。",
+      "rules": "中国区2026-10核心359.3.e.16、391.2／392–393、403–407、457–460及191.5.b；铸魂淬炼裁判FAQ260114第22页阿克尚双重控制装备问答。已检索核心188–192及上述FAQ，仍缺单位失去控制权的叠加／撤销依据；SFD·202官方中文牌面。",
       "runtime": {
         "behaviors": [
           {
@@ -683,14 +683,7 @@
           ]
         }
       ],
-      "tests": [
-        {
-          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.HandAndGraveyard.cs",
-          "methods": [
-            "P5HostileTakeoverReturnsControlAndRecallsAtEndTurn"
-          ]
-        }
-      ]
+      "tests": []
     },
     {
       "cardNos": [

@@ -6,6 +6,7 @@ public sealed partial class CoreRuleEngine
 {
     internal const string MoveFriendlyToArrivalBattlefieldEffect = "MOVE_ANOTHER_FRIENDLY_TO_ARRIVAL_BATTLEFIELD";
     internal const string UnitEventEnemyDamageEffect = "DAMAGE_ENEMY_UNIT";
+    internal const string MoveEnemyHereToBaseEffect = "MOVE_ENEMY_HERE_TO_BASE";
 
     // CN359.3.f.3: "the same battlefield" is the event's arrival field,
     // preserved even if the source moves again or leaves before resolution.
@@ -33,7 +34,8 @@ public sealed partial class CoreRuleEngine
             .Select(option => new RuleChoiceOption(option.Id, option.Label)).ToArray()
             : UnitEventMovementDestinations(state, item, item.TargetObjectIds.Single()).ToArray();
         if (options.Length == 0) return false;
-        var destination = RuleChoices.Value!.Choose(item.ControllerId,
+        var destination = SelectedUnitEventSpec(context)?.Effect == MoveEnemyHereToBaseEffect
+            ? options.Single().Id : RuleChoices.Value!.Choose(item.ControllerId,
             group ? "选择一处开放战场，让所选友方单位一起移动；随后双方可以响应。" : "选择敌方单位的移动目的地，随后双方可以响应。",
             options,
             kind: "MOVEMENT_DESTINATION", preview: state);
@@ -58,6 +60,8 @@ public sealed partial class CoreRuleEngine
             || (item.TargetGenerations is null ? item.Destination.Length == 0
                 : item.Destination.Length == 0 ? state.PendingPayment?.ResolvingStackItemId == item.StackItemId
                 : item.TargetObjectIds.Count == 1
+                    && (SelectedUnitEventSpec(context)?.Effect != MoveEnemyHereToBaseEffect
+                        || item.Destination.StartsWith("BASE:", StringComparison.Ordinal))
                     && (SelectedUnitEventSpec(context)?.Effect != MoveWeakerEnemyHereToAnotherBattlefieldEffect
                         || item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))
                     && (item.Destination.StartsWith("BASE:", StringComparison.Ordinal)
@@ -101,10 +105,10 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary();
         var events = new List<GameEvent>();
         var behavior = new CardBehaviorDefinition(item.CardNo, "永久物触发技能", 0, item.EffectKind, 0, 1);
-        if (spec.Effect is "MOVE_ENEMY" or MoveWeakerEnemyHereToAnotherBattlefieldEffect)
+        if (spec.Effect is "MOVE_ENEMY" or MoveWeakerEnemyHereToAnotherBattlefieldEffect or MoveEnemyHereToBaseEffect)
         {
             if (!ValidUnitEventMovementDeclaration(state, item)) throw new InvalidOperationException("Invalid movement declaration.");
-            if (spec.Effect == MoveWeakerEnemyHereToAnotherBattlefieldEffect
+            if (spec.Effect is MoveWeakerEnemyHereToAnotherBattlefieldEffect or MoveEnemyHereToBaseEffect
                 && !UnitEventMovementDestinations(state, item, target).Any(choice => choice.Id == item.Destination))
                 return NoopStackResolutionResult(state);
             var zones = NormalizeZonesForSeats(state);

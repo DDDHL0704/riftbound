@@ -3,7 +3,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record SpellInstructionReflexiveOrigin(string ParentStackHash, int ExecutionIndex, string Occurrence,
+public sealed partial record SpellInstructionReflexiveOrigin(string ParentStackHash, int ExecutionIndex, string Occurrence,
     string OwnerId, int? ReferencedMight = null);
 
 public sealed partial record UnitEventContext
@@ -50,6 +50,9 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(origin.ParentStackHash) || string.IsNullOrWhiteSpace(origin.Occurrence)
             || !PrintedSpellSources.Value.Contains(context.CardNo) || !state.Seats.ContainsKey(origin.OwnerId)
             || !state.CardObjects.TryGetValue(source, out var physical) || physical.OwnerId != origin.OwnerId) return false;
+        if (spec.Effect == PlayedUnitStatusReflexiveEffect)
+            return ValidPlayedUnitStatusReflexive(state, context, spec);
+        if (origin.PlayedUnit is not null) return false;
         return spec.Effect == "GAIN_EXPERIENCE"
             ? origin.ReferencedMight is null && origin.Occurrence.StartsWith("death-", StringComparison.Ordinal)
             : spec.Effect == UnitEventSelfGraveSpellPlayEffect && spec.ReflexiveTargetMaximumMight is { } maximum

@@ -899,24 +899,13 @@
       ],
       "text": "{{等级6>}} {{眩晕}}一名敌方单位。（如果你拥有不少于6经验，则获得该效果。被眩晕的单位在本回合内无法造成战斗伤害。）",
       "scope": "{{等级6>}} {{眩晕}}一名敌方单位。（如果你拥有不少于6经验，则获得该效果。被眩晕的单位在本回合内无法造成战斗伤害。）",
-      "status": "missing",
-      "reason": "只执行移动到基地；缺少等级6的眩晕敌方单位指示及经验条件",
-      "rules": "核心824 等级与依赖性技能；UNL-038 官方中文牌面",
+      "status": "review",
+      "reason": "待确认（规则）：等级6眩晕尚未整体准入；确认时不足6经验而响应后达到6时，是否需要补选公开目标尚无明确中国区依据。现有355.5、355.8、355.10规定公开目标确认，824.1规定依赖性文本随经验变化，但未找到直接解决两者边界的裁定；保留疑点，不用私有原型的通过记录代替官方依据。",
+      "rules": "中国区核心355.5、355.8、355.10、824.1.b–d；升龙踢官方中文牌面；官网及CDN补充搜索无明确命中。",
       "runtime": {
-        "staticAuras": [],
         "behaviors": [
           {
-            "manaCost": 2,
-            "requiredTargetCount": 1,
-            "targetScope": "ENEMY_UNIT",
-            "drawRecipientKind": "CONTROLLER",
-            "mainDeckSelectionIsDraw": true,
-            "movesTargetsToChosenLocation": true,
-            "sourceUnitIsExhausted": true,
-            "counteredStackItemDestination": "GRAVEYARD",
-            "effectPlayDestination": "ANY",
-            "effectPlayMaximumCount": 1,
-            "defaultChosenMovementToControllerBase": true
+            "movesTargetsToChosenLocation": true
           }
         ]
       },
@@ -924,8 +913,15 @@
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
           "contains": [
-            "\"UNL-038/219\"",
-            "\"RISING_DRAGON_KICK_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_LEVEL_6\""
+            "RISING_DRAGON_KICK_MOVE",
+            "DefaultChosenMovementToControllerBase: true"
+          ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+          "contains": [
+            "behavior.MovesTargetsToChosenLocation",
+            "behavior.DefaultChosenMovementToControllerBase"
           ]
         }
       ],
