@@ -324,6 +324,14 @@ public sealed class AhriCombatMightTests
             Assert.Equal(exact.Id, historical.Cards.Single(c => c.CardNo == exact.No).Id);
             errata[exact.No] = (ezrealBefore, ezrealAfter);
         }
+        // CN SFD errata 260114 p5: only these exact Jax printings gain all-place Agile.
+        // Preserve their archived printed text and all other catalog fields below.
+        foreach (var exact in new[] { (No: "SFD·054/221", Id: 33131L), (No: "SFD·054a/221", Id: 33132L) })
+        {
+            Assert.Equal(exact.Id, historical.Cards.Single(c => c.CardNo == exact.No).Id);
+            errata[exact.No] = ("{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n你手牌中的每一件武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）",
+                "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n你各处的武装都获得{{灵便}}。（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）");
+        }
         Assert.Equal(33198L, historical.Cards.Single(c => c.CardNo == "SFD·112/221").Id);
         foreach (var card in historical.Cards)
         {
