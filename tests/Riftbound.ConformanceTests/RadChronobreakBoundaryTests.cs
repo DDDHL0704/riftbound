@@ -158,7 +158,7 @@ public sealed class RadChronobreakBoundaryTests
 
     [Theory]
     [InlineData(true)] [InlineData(false)]
-    public async Task AnAnimatedAgileArmamentCanContinueOnlyWhenItsReplayOrderLeavesNoLegalHost(bool equipmentFirst)
+    public async Task AnAnimatedAgileArmamentCanReplayInEitherOrderAndConfirmsItsHostAfterEntry(bool equipmentFirst)
     {
         const string equipmentNo = "SFD·022/221";
         var initial = Position();
@@ -190,29 +190,37 @@ public sealed class RadChronobreakBoundaryTests
         var pending = g.State.PendingEffectPlay!;
         var finish = new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []);
         var prompts = ResolutionResult.BuildPrompts(g.State)["P1"];
-        Assert.Equal(equipmentFirst, prompts.Candidates!.Any(c => c.Action == CommandTypes.ChooseCards && c.Enabled));
+        // CN355.5.b / 383.4.a.2 / 819.1.d: no host does not prevent
+        // the mandatory equipment replay. Only its independent Agile skill
+        // is discarded when it cannot confirm a legal attachment target.
+        Assert.False(prompts.Candidates!.Any(c => c.Action == CommandTypes.ChooseCards && c.Enabled));
+        var play = new PlayCardCommand("GEAR", equipmentNo, [], Destination: "BASE");
+        Assert.True(new CoreRuleEngine().PreviewPlayCard(g.State, "P1", PlayCostPreviewTests.Request(g.State, play)).CanPay);
+        var before = MatchStateHasher.Hash(g.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(g.State, new("cannot-skip-free-armament", "P1", finish.CmdType), finish, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+        await g.Act("P1", play);
+        Assert.Contains("GEAR", g.State.PlayerZones["P1"].Base);
+        Assert.Null(g.State.CardObjects["GEAR"].AttachedToObjectId);
         if (equipmentFirst)
         {
-            var play = new PlayCardCommand("GEAR", equipmentNo, [], Destination: "BASE");
-            Assert.False(new CoreRuleEngine().PreviewPlayCard(g.State, "P1", PlayCostPreviewTests.Request(g.State, play)).CanPay);
-            await g.Act("P1", finish);
-            Assert.Contains("GEAR", g.State.PlayerZones["P1"].Banished);
             Assert.Equal("ALLY", Assert.Single(g.State.PendingEffectPlay!.Sources).Key);
+            Assert.Null(g.State.PendingCardChoice);
+            Assert.Contains(g.Events(), e => e.Event.Kind == "TRIGGER_NOT_CONFIRMED");
             await g.Act("P1", new PlayCardCommand("ALLY", Unit, []));
-            Assert.Single(g.Events(), e => e.Event.Kind == "EFFECT_PLAY_UNABLE");
+            Assert.Null(g.State.CardObjects["GEAR"].AttachedToObjectId);
         }
         else
         {
-            var before = MatchStateHasher.Hash(g.State);
-            var rejected = await new CoreRuleEngine().ResolveAsync(g.State, new("cannot-skip-free-armament", "P1", finish.CmdType), finish, default);
-            Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
-            Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
-            await g.Act("P1", new PlayCardCommand("GEAR", equipmentNo, ["ALLY"], Destination: "BASE"));
+            var host = Assert.IsType<PendingCardChoiceState>(g.State.PendingCardChoice);
+            Assert.Equal("TRIGGER_CONFIRMATION", host.ChoiceWindow);
+            await g.Act("P1", new ChooseCardsCommand(host.ChoiceId, host.ChoiceWindow, ["ALLY"]));
             Assert.Null(g.State.PendingEffectPlay);
             await g.Top();
             Assert.Equal("ALLY", g.State.CardObjects["GEAR"].AttachedToObjectId);
-            Assert.DoesNotContain(g.Events(), e => e.Event.Kind == "EFFECT_PLAY_UNABLE");
         }
+        Assert.DoesNotContain(g.Events(), e => e.Event.Kind == "EFFECT_PLAY_UNABLE");
         Assert.Contains("ALLY", g.State.PlayerZones["P1"].Base);
         Assert.Equal(resources, g.State.RunePools["P1"]);
         Assert.Null(g.State.PendingEffectPlay); Assert.Empty(g.State.StackItems);
