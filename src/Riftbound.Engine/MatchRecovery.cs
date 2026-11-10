@@ -1104,7 +1104,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", CoreRuleEngine.StandardMovementExhaustionCostEvent, "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", CoreRuleEngine.RuneDomainReflexiveCreatedEvent, CoreRuleEngine.SpellInstructionReflexiveTiming, "BATTLE_CLOSED", "BATTLE_TIED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN", CoreRuleEngine.CreatedTokenReadyTriggerEvent, "BOON_CONSUMED"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARD_DRAWN", "UNIT_EXHAUSTED", CoreRuleEngine.StandardMovementExhaustionCostEvent, "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", CoreRuleEngine.RuneDomainReflexiveCreatedEvent, CoreRuleEngine.PlayedArmamentAttachmentCreatedEvent, CoreRuleEngine.SpellInstructionReflexiveTiming, "BATTLE_CLOSED", "BATTLE_TIED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED", "OBJECT_LEFT_FIELD", "BATTLE_RESULT_DETERMINED", "CARD_PLAYED_FROM_FACE_DOWN", "CARD_HIDDEN", CoreRuleEngine.CreatedTokenReadyTriggerEvent, "BOON_CONSUMED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -4520,10 +4520,15 @@ public static partial class MatchRecoveryValidator
                 || standbyHandPlay.DestinationPolicy == "SOURCE_HERE_IF_UNIT")
             && !CoreRuleEngine.ValidStandbyHandPlayHere(state, standbyHandPlay))
             errors.Add("invalid standby hand effect-play continuation");
+        if (state.PendingEffectPlay is { } armamentHandPlay
+            && CoreRuleEngine.HasArmamentPlayAttachment(armamentHandPlay.Parent.UnitEvent)
+            && !CoreRuleEngine.ValidArmamentPlayAttachmentPermission(state, armamentHandPlay))
+            errors.Add("invalid armament hand effect-play continuation");
         if (state.PendingEffectPlay is { } unitHandPlay
             && (CoreRuleEngine.IsUnitEventHandUnitPlay(unitHandPlay.Parent)
                 || unitHandPlay.SourceZone == "HAND" && unitHandPlay.Parent.UnitEvent is not null
-                    && !CoreRuleEngine.IsStandbyHandPlayHere(unitHandPlay.Parent))
+                    && !CoreRuleEngine.IsStandbyHandPlayHere(unitHandPlay.Parent)
+                    && !CoreRuleEngine.HasArmamentPlayAttachment(unitHandPlay.Parent.UnitEvent))
             && !CoreRuleEngine.ValidUnitEventHandUnitPlay(state, unitHandPlay))
             errors.Add("invalid captured hand unit effect-play continuation");
         foreach (var item in state.StackItems)

@@ -66,7 +66,9 @@ public sealed partial class CoreRuleEngine
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static ObjectBinding? CompanionPlayedUnit(TriggerQueueItemState trigger)
-        => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit;
+        => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit
+            ?? (HasArmamentPlayAttachment(trigger.UnitEvent) && trigger.UnitEvent!.ReflexiveTick is not null
+                ? trigger.UnitEvent.Other?.Binding : null);
 
     private static ResolutionResult DeferCompanionPermanentPlayOrdering(MatchState before, ResolutionResult result)
     {
@@ -103,6 +105,9 @@ public sealed partial class CoreRuleEngine
             || CompanionPlayedUnit(companion) is not { } unit || unit.ObjectId != item.SourceObjectId
             || !state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit
                 && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick)) return false;
+        if (HasArmamentPlayAttachment(companion.UnitEvent))
+            return companion.UnitEvent!.ReflexiveTick == capturedTick && companion.UnitEvent.Other?.CardNo == item.CardNo
+                && ValidArmamentPlayAttachmentContext(state, companion.UnitEvent, companion.ControllerId);
         if (companion.UnitPlayMight is { } might)
             return might.CapturedTick == capturedTick
                 && RengarPlayRecoveryRules.Valid(state, might, companion.EffectKind, companion.SourceObjectId, companion.ControllerId);

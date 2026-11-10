@@ -10,10 +10,15 @@ public sealed partial class CoreRuleEngine
     // separate continuation protocols and are not covered by this primitive.
     internal static bool HasIndependentPermanentTargets(CardBehaviorDefinition behavior)
         => (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
-            && (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo) || HasStandbyCountedPlayAbility(behavior) || HasStandbyAttachmentPlayAbility(behavior))
-            && behavior.RequiredTargetCount > 0 && !IsDeferredDeckChoice(behavior)
+            && (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo) || IsAgileDirectPlayAttachRepresentative(behavior)
+                || HasStandbyCountedPlayAbility(behavior) || HasStandbyAttachmentPlayAbility(behavior))
+            && (behavior.RequiredTargetCount > 0 || IsAgileDirectPlayAttachRepresentative(behavior)) && !IsDeferredDeckChoice(behavior)
             && behavior.TargetScope is not (CardTargetScopes.FriendlyHandCard or CardTargetScopes.OpponentHandCard
                 or CardTargetScopes.AnyHandCard or CardTargetScopes.FriendlyMainDeckCard);
+
+    internal static bool IsAgilePermanentPlaySkill(StackItemState item)
+        => item.SourceConfirmed && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
+            && behavior.CardNo == item.CardNo && IsAgileDirectPlayAttachRepresentative(behavior);
 
     private static string[] PermanentPlayTargetChoices(MatchState state, StackItemState item)
     {
@@ -111,7 +116,11 @@ public sealed partial class CoreRuleEngine
             && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)
                 && TryBuildConfirmedPermanentTargetAdditionalCost(item, behavior, out _, out _))
             && state.PriorityPlayerId is null
-            && (state.PendingCardChoice is not null || state.PendingPayment is not null || state.TriggerQueue.Count > 0)
+            // CN158.3: an effect may still be resolving and waiting for its
+            // next instructed card play. Earned play skills stay pending until
+            // that whole effect completes; they cannot confirm between plays.
+            && (state.PendingCardChoice is not null || state.PendingPayment is not null
+                || state.PendingEffectPlay is not null || state.TriggerQueue.Count > 0)
             && (item.TargetGenerations is null || state.PendingPayment is { PaymentWindow: TriggerTargetCostWindow } payment
                 && payment.ResolvingStackItemId == item.StackItemId && item.TargetGenerations.Count == item.TargetObjectIds.Count
                 && item.TargetObjectIds.All(id => item.TargetGenerations.TryGetValue(id, out var generation) && generation >= 0));

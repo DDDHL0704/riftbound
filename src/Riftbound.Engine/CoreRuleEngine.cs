@@ -28916,7 +28916,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || target.Tags.Contains(CardObjectTags.SpellCard)
             || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
-            || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;
+            || !gear.Tags.Contains(CardObjectTags.EquipmentCard)) return false;
+        // CN435.1.f / 435.4: an already earned Agile skill can reattach
+        // its equipment even if another simultaneous skill attached it first.
         return TryAttachEquipment(state, playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
             stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
