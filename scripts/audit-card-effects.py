@@ -3389,12 +3389,14 @@ def attack_conquest_overkill_route(card: dict, clause: dict, sources: Sources) -
 
     def member(filename, name):
         code = sources.files.get(prefix + filename, '')
-        start = re.search(r'(?m)^    (?:private|internal|public) (?:static )?[^\n]*\b' + re.escape(name) + r'\s*\(', code)
-        if not start:
+        declarations = list(re.finditer(
+            r'(?m)^    (?:private|internal|public) (?:static )?[^()\n=;{}]+?\b'
+            + re.escape(name) + r'\s*\(', code))
+        if len(declarations) != 1:
             return ''
-        rest = code[start.start():]
-        end = re.search(r'(?m)^    (?:private|internal|public) (?:static )?', rest[start.end() - start.start():])
-        return rest[:start.end() - start.start() + end.start()] if end else rest
+        start = declarations[0]
+        end = re.search(r'(?m)^    (?:private|internal|public)\b', code[start.end():])
+        return code[start.start():start.end() + end.start()] if end else code[start.start():]
 
     checks = [
         ('CoreRuleEngine.Conquest.cs', 'ResolveConquestTriggerEffects', [

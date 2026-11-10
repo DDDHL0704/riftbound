@@ -192,9 +192,9 @@ public sealed class SivirAttackConquestOverkillTests
         var game = new Driver(state); await Conquer(game);
         var pending = game.State.TriggerQueue;
         Assert.Equal(2, pending.Count);
-        Assert.Equal(2, pending.Select(t => t.CardNo).Distinct().Count());
+        Assert.Equal(2, pending.Select(t => t.UnitEvent!.CardNo).Distinct().Count());
         Assert.All(pending, t => Assert.Equal(8, t.UnitEvent!.AssignedOverkill));
-        var ordered = pending.OrderBy(t => (t.CardNo == Sivir) == damageFirst ? 0 : 1)
+        var ordered = pending.OrderBy(t => (t.UnitEvent!.CardNo == Sivir) == damageFirst ? 0 : 1)
             .Select(t => t.TriggerId).ToArray();
         await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: ordered));
         await Confirm(game);

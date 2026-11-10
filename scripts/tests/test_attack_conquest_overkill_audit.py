@@ -66,6 +66,31 @@ class AttackConquestOverkillAuditTests(unittest.TestCase):
                 sources.files[path] += '\n    private static void UnusedDecoy() { ' + token + '; }\n'
                 self.assertEqual('missing', self.status(sources=sources))
 
+    def test_a_call_on_an_unrelated_declaration_line_cannot_replace_the_actual_attack_check(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs'
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        code = sources.files[path]
+        anchor = '    private static IEnumerable<UnitEventObservation> CaptureConquestEventObservations('
+        start = code.index(anchor)
+        predicate = 'UnitEventSpecForContext(o.Context)?.RequiresAttackingConquest != true'
+        # A legal unused wrapper calls the real capture, but its string literals
+        # are not executable guards inside that capture's actual method body.
+        fragments = [predicate,
+            'state.CardObjects.TryGetValue(o.Source, out var source) && source.IsAttacking',
+            'MinimumAssignedOverkill is not { } minimum', 'assignedOverkill >= minimum',
+            'AssignedOverkill = UnitEventSpecForContext(o.Context)?.MinimumAssignedOverkill is not null ? assignedOverkill : null']
+        decoy = ('    private static void UnusedCaptureProbe() { _ = CaptureConquestEventObservations(null!, []);\n'
+                 + ''.join('        _ = "' + token + '";\n' for token in fragments) + '    }\n\n')
+        sources.files[path] = code[:start] + decoy + code[start:].replace(predicate, 'false')
+        self.assertEqual('missing', self.status(sources=sources))
+
+    def test_ambiguous_capture_overloads_reopen_the_clause_instead_of_choosing_the_first(self):
+        path = 'src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs'
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        sources.files[path] += ('\n    private static IEnumerable<UnitEventObservation> CaptureConquestEventObservations('
+            'MatchState state, IEnumerable<string> units, int assignedOverkill, bool unused) => [];\n')
+        self.assertEqual('missing', self.status(sources=sources))
+
     def test_other_conditions_cannot_borrow_the_attack_conquest_path(self):
         card = self.card(); clause = audit.card_clauses(card)[0]
         self.assertEqual('missing', audit.audit_clause(card, dict(clause, scope='当我防守时'), self.sources)['status'])
