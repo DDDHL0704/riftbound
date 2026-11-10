@@ -3303,6 +3303,19 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(5, result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].Power);
         Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].UntilEndOfTurnPowerModifier);
         Assert.Contains("POWER_MODIFIED_UNTIL_END_OF_TURN", result.EventKinds);
+        Assert.Contains("P1-SPELL-LAST-STAND", result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Contains("TURN_BATTLE_WIN_REWARD_CREATED", result.EventKinds);
+        Assert.Equal(0, result.FinalState.PlayerExperience.GetValueOrDefault("P1"));
+        const string prefix = "TURN_BATTLE_WIN_REWARD:";
+        var marker = Assert.Single(result.FinalState.UntilEndOfTurnEffects,
+            effect => effect.StartsWith(prefix, StringComparison.Ordinal));
+        var reward = JsonSerializer.Deserialize<TurnBattleWinReward>(
+            Convert.FromBase64String(marker[prefix.Length..]))!;
+        Assert.Equal("UNL-095/219", reward.CardNo);
+        Assert.Equal("P1", reward.ControllerId);
+        Assert.Equal("P1-SPELL-LAST-STAND", reward.Source.ObjectId);
+        Assert.Equal("P1-BATTLEFIELD-UNIT-001", reward.Unit.ObjectId);
+        Assert.Equal(2, reward.ExperienceCount);
     }
 
     [Fact]

@@ -13,6 +13,8 @@ public sealed partial class CoreRuleEngine
         var spec = UnitEventSpec(context.CardNo);
         if (context.DelayedReceipt is not null && spec?.NextMainEffect is { } delayedEffect)
             spec = spec with { Effect = delayedEffect, Optional = true };
+        if (HasArmamentPlayAttachment(context) && context.ReflexiveTick is not null)
+            return spec! with { Effect = AttachPlayedArmamentEffect, Optional = false };
         if (context.RevealedDeckSelection is not null && spec?.Effect == UnitEventDeckSelectionEffect)
             spec = spec with { Effect = "BOON_FRIENDLY", Amount = 1, Optional = false };
         if (context.Mode is null) return spec;

@@ -88,6 +88,7 @@ public sealed partial class CoreRuleEngine
                     || GrantedUnitPlayBattlefieldAllowed(state, player, behavior, destination)
                     || OpenBattlefieldPlayAllowed(state, player, behavior, destination)
                     || EnemyControlledBattlefieldPlayAllowed(state, player, behavior, destination)
+                    || AloneEnemyBattlefieldPlayAllowed(state, player, behavior, destination)
                     || BattlefieldUnitPlayGrants(state, player, behavior).Any(g => g.Field.ObjectId == field.ObjectId)
                     || AmbushLocationAllowed(state, player, behavior, destination)
                     || RengarAttackingBattlefieldPlayAllowed(state, player, behavior, destination)

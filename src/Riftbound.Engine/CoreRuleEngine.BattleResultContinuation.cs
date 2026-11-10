@@ -203,6 +203,10 @@ public sealed partial class CoreRuleEngine
         events.AddRange(queued.Select(trigger =>
         {
             var ev = BuildTriggerQueuedEvent(trigger);
+            if (trigger.UnitBattleWinDraw?.TurnReward is not null)
+                return ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(resultState, trigger.SourceObjectId, ProjectionViewers.Spectator),
+                    ["battleWinContextHash"] = MatchStateHasher.HashValue(trigger.UnitBattleWinDraw) } };
             return ev with { Payload = new Dictionary<string, object?>(ev.Payload)
             { ["battleWinContext"] = (object?)trigger.UnitBattleWinDraw ?? (object?)trigger.LegendBattleWinDraw ?? (object?)trigger.KhazixBattleWin ?? trigger.DravenBattleWinScore } };
         }));

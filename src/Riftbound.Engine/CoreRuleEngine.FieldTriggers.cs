@@ -193,7 +193,7 @@ public sealed partial class CoreRuleEngine
     private static bool NeedsTriggerConfirmation(StackItemState i)
         => i.EffectKind == StandbyPlayedEnemyDamageEffect && i.StandbyObserver?.Unit is not null && i.TargetGenerations is null ||
             NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasTargetedMovementSkill(i) && i.TargetGenerations is null ||
-            NeedsUnitEventMode(i) || NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
+            NeedsUnitEventMode(i) || NeedsUnitEventTarget(i) && i.TargetGenerations is null || NeedsUnitEventOpponent(i) ||
             i.DravenBattleDeathScore is { OpponentId: null } || i.DrawHandThreshold is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.BombRebuild is not null && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
             || NeedsEmpowerInteractionChoice(i)
@@ -217,6 +217,8 @@ public sealed partial class CoreRuleEngine
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(NeedsTriggerConfirmation);
         if (item is null) return result;
+        if (NeedsUnitEventOpponent(item)) return PrepareCapturedOpponentChoice(result, item,
+            UnitEventOpponentWindow, "UNIT-OPPONENT:", "选择一名对手；双方响应后，由其打出单位指示物。");
         if (item.EffectKind == StandbyPlayedEnemyDamageEffect && item.StandbyObserver?.Unit is not null)
             return PrepareStandbyUnitDamage(result, item);
         if (NeedsLastBreathHereTarget(item)) return PrepareLastBreathHereTarget(result, item);
@@ -408,7 +410,7 @@ public sealed partial class CoreRuleEngine
                 ["targetObjectIds"] = selected.ToArray() });
             if (experience > 0) opened = opened with { Payload = new Dictionary<string, object?>(opened.Payload) {
                 ["experienceCost"] = experience } };
-            if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null)
+            if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || IsAgilePermanentPlaySkill(item))
                 opened = opened with { Payload = new Dictionary<string, object?>(opened.Payload) {
                     ["targetGenerations"] = bound.TargetGenerations } };
             return new(true, null, next, [opened], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
@@ -481,7 +483,7 @@ public sealed partial class CoreRuleEngine
         var confirmationPayload = new Dictionary<string, object?> {
             ["sourceObjectId"] = item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || item.ReadyObjectTrigger is not null || NeedsLastBreathHereTarget(item) || HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind || IsStunObserverKind(field.Kind))
                 ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, ProjectionViewers.Spectator) : item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() };
-        if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null)
+        if (item.StandbyObserver?.Unit is not null || item.UnitEvent is not null || IsAgilePermanentPlaySkill(item))
         {
             confirmationPayload["stackItemId"] = item.StackItemId;
             confirmationPayload["targetGenerations"] = confirmed.TargetGenerations;

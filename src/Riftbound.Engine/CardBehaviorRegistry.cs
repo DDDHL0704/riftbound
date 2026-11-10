@@ -452,6 +452,10 @@ public sealed partial record CardBehaviorDefinition(
     IReadOnlyList<int>? CostReductionExperienceThresholds = null)
 {
     public int? PowerModifierAmountAtLevel { get; init; }
+    public int ExperienceWhenTargetWinsBattleThisTurn { get; init; }
+    public bool AllowsPlayToBattlefieldWithAloneEnemy { get; init; }
+    public bool FriendlyUnitsMayPlayToBattlefieldWithAloneEnemy { get; init; }
+    public int DrawAfterMoveToBaseIfAloneEnemyRemains { get; init; }
     public bool EntersReadyWhenOpponentControlsStunnedUnit { get; init; }
     public bool EntersReadyAfterFriendlyStartPhaseUnitDestroyed { get; init; }
     public bool PerformsInsight => InsightCount > 0;
@@ -478,7 +482,7 @@ public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn 
     bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
     int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
     bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false, bool PreventsAllUnitsMoveToBase = false,
-    bool PreventsOpponentsGainingPointsWhileAtBattlefield = false);
+    bool PreventsOpponentsGainingPointsWhileAtBattlefield = false, bool PreventsOwnMoveToBase = false);
 
 public static class CardDamageConditionKinds
 {
@@ -4243,7 +4247,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "壁垒"),
+            SourceUnitTags: "壁垒",
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.PlayHandArmamentThenAttachEffect, 2, Optional: true)),
         new(
             "SFD·054/221",
             "贾克斯",
@@ -4583,7 +4588,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "蜘蛛|狩猎2"),
+            SourceUnitTags: "蜘蛛|狩猎2") { AllowsPlayToBattlefieldWithAloneEnemy = true, FriendlyUnitsMayPlayToBattlefieldWithAloneEnemy = true },
         new(
             "UNL-151/219",
             "班德尔士兵",
@@ -6112,7 +6117,7 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "约德尔人"),
+            SourceUnitTags: "约德尔人", SourceStaticLimits: new(PreventsOwnMoveToBase: true)),
         new(
             "UNL-112/219",
             "诱人仙灵",
@@ -8106,7 +8111,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 5),
+            SourceUnitPower: 5,
+            UnitEventAbility: new("PLAY", CoreRuleEngine.ReturnLowMightUnitsEffect) { ReturnAllUnitsMaximumMight = 2 }),
         new(
             "UNL-135/219",
             "缜密的调查员",
@@ -8213,7 +8219,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "法盾"),
+            SourceUnitTags: "法盾",
+            UnitEventAbility: new("PLAY", "CREATE_UNIT_TOKEN", 1, CreatedTokenFactoryCardNo: P6TokenFactoryCatalog.WarhawkTokenCardNo) {
+                UnitTokenPlayedByChosenOpponent = true }),
         new(
             "UNL-164/219",
             "安全检查员",
@@ -8783,7 +8791,7 @@ public static class CardBehaviorRegistry
             0,
             1,
             TargetScope: CardTargetScopes.FriendlyUnit,
-            PowerModifierAmount: 3),
+            PowerModifierAmount: 3) { ExperienceWhenTargetWinsBattleThisTurn = 2 },
         new(
             "OGN·146/298",
             "痛殴",
@@ -9045,11 +9053,11 @@ public static class CardBehaviorRegistry
             "UNL-124/219",
             "隔绝",
             2,
-            "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW",
+            "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE",
             0,
             1,
             TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
-            MovesTargetToBase: true),
+            MovesTargetToBase: true) { DrawAfterMoveToBaseIfAloneEnemyRemains = 1 },
         new(
             "UNL-140/219",
             "强制征召",
