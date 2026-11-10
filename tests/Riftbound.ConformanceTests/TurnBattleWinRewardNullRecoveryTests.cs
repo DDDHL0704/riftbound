@@ -40,10 +40,13 @@ public sealed class TurnBattleWinRewardNullRecoveryTests
         var prompts = ResolutionResult.BuildPrompts(game.State);
         var views = game.State.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(
             player, game.State.Tick, sequence, snapshots[player], game.State.Tick, sequence, prompts[player]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(game.State.RoomId, game.State.Tick, sequence, [], game.State);
         var errors = MatchRecoveryValidator.Validate(game.State.RoomId, sequence,
-            game.Commands(), game.Events(), views, forged, game.State.Tick);
+            game.Commands(), game.Events(), views, forged, game.State.Tick, spectator);
         Assert.Contains(errors, error => error.Contains(
             "turn battle-win reward history contains a null effect list or value", StringComparison.Ordinal));
+        Assert.Contains("invalid replacement choice continuation", errors);
+        Assert.Contains("spectator replay frame contains a null effect list or value", errors);
         Assert.Equal(before, MatchStateHasher.HashValue(game.State));
         await game.Replay();
     }
