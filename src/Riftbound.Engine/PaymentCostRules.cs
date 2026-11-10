@@ -324,12 +324,11 @@ public static class PaymentCostRules
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        var (remainingAnyPower, remainingPowerByTrait) = PayPowerCost(
+        var paidPower = PayPowerCost(
             currentPool,
             powerCost,
-            powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
-        runePools[playerId] = SpendMana(currentPool, manaCost, state: state) with {
-            Power = remainingAnyPower, PowerByTrait = remainingPowerByTrait };
+            powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal), PowerPaymentPurpose.Other);
+        runePools[playerId] = SpendMana(paidPower, manaCost, state: state);
 
         return runePools;
     }

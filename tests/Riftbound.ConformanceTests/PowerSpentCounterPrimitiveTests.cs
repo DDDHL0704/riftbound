@@ -49,6 +49,17 @@ public sealed class PowerSpentCounterPrimitiveTests
     }
 
     [Fact]
+    public void TheSharedLegacyRuneCostAdapterRetainsTheAdoptedDebit()
+    {
+        var pools = new Dictionary<string, RunePool> { ["P1"] = new(3, 3, paidPowerThisTurn: 1) };
+        var paid = PaymentCostRules.PayRuneCosts(pools, "P1", 2, 2);
+        Assert.Equal(1, paid["P1"].Mana);
+        Assert.Equal(1, paid["P1"].Power);
+        Assert.Equal(3, paid["P1"].PaidPowerThisTurn);
+        Assert.Equal(1, pools["P1"].PaidPowerThisTurn);
+    }
+
+    [Fact]
     public void SerializationAndEqualityRetainTheDebitHistory()
     {
         var paid = new RunePool(0, 0, paidPowerThisTurn: 2);

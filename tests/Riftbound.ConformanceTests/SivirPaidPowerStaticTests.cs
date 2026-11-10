@@ -90,9 +90,17 @@ public sealed class SivirPaidPowerStaticTests
         var initial = Position();
         initial = initial with {
             TurnPlayerId = opponentTurn ? "P2" : "P1",
+            ActivePlayerId = opponentTurn ? "P2" : "P1",
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                 ["HOST"] = initial.CardObjects["HOST"] with { OwnerId = "P2" } } };
+        if (opponentTurn)
+            initial = RadGearTestPosition.Put(initial, "RESPONSE", "OGN·104/298", "P2", "HAND");
         var game = new Driver(initial);
+        if (opponentTurn) {
+            await game.Act("P2", new PlayCardCommand("RESPONSE", "OGN·104/298", ["ENEMY"]));
+            await game.Act("P2", new PassPriorityCommand());
+            Assert.Equal("P1", game.State.PriorityPlayerId);
+        }
         await Convert(game, 2);
         Assert.Equal(2, game.State.RunePools["P1"].PaidPowerThisTurn);
         Assert.Equal(0, game.State.RunePools["P2"].PaidPowerThisTurn);
@@ -104,7 +112,7 @@ public sealed class SivirPaidPowerStaticTests
     public async Task AnOpponentsPaymentDoesNotEnableTheOwnersOrControllersOtherUnits()
     {
         var initial = RadGearTestPosition.Put(Position(), "OPPONENT", "SFD·083/221", "P2", "BASE")
-            with { TurnPlayerId = "P2" };
+            with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
         var game = new Driver(initial);
         await Convert(game, 2, "OPPONENT", "P2");
         Assert.Equal(2, game.State.RunePools["P2"].PaidPowerThisTurn);
@@ -157,6 +165,82 @@ public sealed class SivirPaidPowerStaticTests
         Assert.Equal(2, context.After.PaidPowerThisTurn["P1"]);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+        Passive(game.State, true);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ObtainingUnspentPowerCannotEnableTheCondition()
+    {
+        var game = new Driver(RadGearTestPosition.Put(Position(), "GAIN", "SFD·117/221", "P1", "BASE"));
+        await game.Act("P1", new ActivateAbilityCommand("GAIN", P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId,
+            [], [P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix + "2"]));
+        Assert.Equal(32, game.State.RunePools["P1"].Power);
+        Assert.Equal(0, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.DoesNotContain(game.Events(), row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent);
+        Passive(game.State, false);
+        await game.Replay();
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task AnAcceptedConversionWhileAnInstructionIsPausedCountsOnceAndSurvivesResumeOrSurrender(bool surrender)
+    {
+        var initial = RadGearTestPosition.Put(Position(), "SPELL", "OGN·268/298", "P1", "HAND");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("SPELL", "OGN·268/298", ["BF"]));
+        await game.Top();
+        var request = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice).Request;
+        var selected = $"RESOURCE:CONVERT:{P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId}:"
+            + P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix + "2";
+        Assert.Contains(request.Options, option => option.Id == selected);
+        await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [selected]));
+        Assert.Equal(2, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.True(game.State.CardObjects["CONVERT"].IsExhausted);
+        Passive(game.State, true);
+        Assert.Single(game.Events(), row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent);
+        if (surrender) await game.Act("P2", new SurrenderCommand());
+        else {
+            request = game.State.PendingRuleChoice!.Request;
+            await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["SPEND_POWER:1"]));
+        }
+        Assert.Equal(surrender ? 2 : 3, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Equal(surrender ? 1 : 2, game.Events().Count(row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent));
+        Assert.Equal(1, game.Events().Count(row => row.Event.Kind == "RESOURCE_SKILL_RESOLVED"));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ARealControlChangeUsesTheNewControllersPaymentHistory()
+    {
+        var initial = RadUnitEffectTestFixture.Place(Position(), "HOST", "P2", "BATTLEFIELD", "OTHER");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { OwnerId = "P2" } } };
+        initial = RadGearTestPosition.Put(initial, "CONTROL", "OGN·203/298", "P1", "HAND");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("CONTROL", "OGN·203/298", ["HOST"]));
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, game.State.CardObjects["HOST"].Tags);
+        await game.Top();
+        Assert.Equal("P1", game.State.CardObjects["HOST"].ControllerId);
+        Assert.Equal("P2", game.State.CardObjects["HOST"].OwnerId);
+        Assert.Contains("HOST", game.State.PlayerZones["P1"].Base);
+        Passive(game.State, true);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ReturningTheUnitRemovesItsPassiveWithoutErasingThePlayersPayments()
+    {
+        var game = new Driver(RadGearTestPosition.Put(Position(), "RETURN", "OGN·104/298", "P1", "HAND"));
+        await Convert(game, 2);
+        Passive(game.State, true);
+        var generation = game.State.CardObjects["HOST"].ObjectGeneration;
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"]));
+        await game.Top();
+        Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        Assert.True(game.State.CardObjects["HOST"].ObjectGeneration > generation);
+        Assert.True(game.State.RunePools["P1"].PaidPowerThisTurn >= 2);
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, game.State.CardObjects["HOST"].Tags);
+        await game.Act("P1", new PlayCardCommand("HOST", Sivir, []));
         Passive(game.State, true);
         await game.Replay();
     }
