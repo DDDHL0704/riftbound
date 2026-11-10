@@ -11,7 +11,8 @@ class PaidPowerUnitPassiveAuditTests(unittest.TestCase):
     FILES = ['PaymentCostRules.cs', 'CoreRuleEngine.PowerPayments.cs', 'CoreRuleEngine.ConditionalSourceUnits.cs',
              'CoreRuleEngine.cs', 'CoreRuleEngine.RuleDerivedKeywords.cs', 'CoreRuleEngine.RuleChoiceCommits.cs',
              'CoreRuleEngine.RuleChoices.cs', 'CoreRuleEngine.LastKnownMight.cs', 'MatchRecovery.PowerPayments.cs',
-             'MatchRecovery.cs', 'CoreRuleEngine.MightyTransitions.cs', 'CoreRuleEngine.RuleChoiceResources.cs']
+             'MatchRecovery.cs', 'CoreRuleEngine.MightyTransitions.cs', 'CoreRuleEngine.RuleChoiceResources.cs',
+             'CoreRuleEngine.TurnSequence.cs']
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
@@ -45,6 +46,20 @@ class PaidPowerUnitPassiveAuditTests(unittest.TestCase):
     def test_amounts_are_read_from_the_sentence_rather_than_a_card_number(self):
         text = self.TEXT.replace('{{A}}{{A}}', '{{A}}{{A}}{{A}}').replace('+2', '+4')
         self.assertEqual('route', self.outcome(self.card(text, 3, 4)))
+
+    def test_main_pool_clearing_must_preserve_payments_made_during_start(self):
+        self.replace('CoreRuleEngine.TurnSequence.cs', 'var pools = ClearRunePools(state).ToDictionary',
+                     'var pools = ClearRunePools(state, resetPaidPower: true).ToDictionary')
+        self.assertEqual('missing', self.outcome())
+
+    def test_pool_clearing_cannot_reset_turn_history_by_default(self):
+        self.replace('CoreRuleEngine.cs', 'bool resetPaidPower = false', 'bool resetPaidPower = true')
+        self.assertEqual('missing', self.outcome())
+
+    def test_the_genuine_turn_switch_must_still_reset_the_counter(self):
+        self.replace('CoreRuleEngine.cs', 'RunePools = ClearRunePools(state, resetPaidPower: true)',
+                     'RunePools = ClearRunePools(state, resetPaidPower: false)')
+        self.assertEqual('missing', self.outcome())
 
     def test_registration_with_a_wrong_threshold_bonus_keyword_or_condition_is_missing(self):
         for key, value in [('playsSourceToBaseAsUnit', False), ('conditionalSourceUnitRequiredPaidPower', 1),

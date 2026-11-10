@@ -1777,8 +1777,11 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
         ("CoreRuleEngine.cs", "ResolveFieldPowerStaticAuraBonus", ["ConditionalSourceUnitContributions(state, card).Sum(contribution => contribution.PowerDelta)"]),
         ("CoreRuleEngine.RuleDerivedKeywords.cs", "RecomputeConditionalRuleDerivedKeywords", [
             "ConditionalSourceUnitContributions(current, card).SelectMany(s => s.Keywords)"]),
-        ("CoreRuleEngine.cs", "CompleteTurnEnd", ["TurnNumber = state.TurnNumber + 1", "RunePools = ClearRunePools(state)"]),
-        ("CoreRuleEngine.cs", "ClearRunePools", ["_ => RunePool.Empty"]),
+        ("CoreRuleEngine.cs", "CompleteTurnEnd", ["TurnNumber = state.TurnNumber + 1", "RunePools = ClearRunePools(state, resetPaidPower: true)"]),
+        ("CoreRuleEngine.cs", "ClearRunePools", ["bool resetPaidPower = false",
+            "PaidPowerThisTurn = resetPaidPower ? 0", "state.RunePools.GetValueOrDefault(playerId, RunePool.Empty).PaidPowerThisTurn"]),
+        ("CoreRuleEngine.TurnSequence.cs", "AdvanceTurnStartSequence", [
+            "var pools = ClearRunePools(state).ToDictionary", "RunePools = pools"]),
         ("CoreRuleEngine.RuleChoiceCommits.cs", "CommitRuleChoiceResources", ["ApplyRuleChoiceResourceDifference(",
             "return RecomputeRuleDerivedKeywords(next)"]),
         ("CoreRuleEngine.RuleChoiceCommits.cs", "ApplyRuleChoiceResourceDifference", [

@@ -20600,7 +20600,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return state.Seats.Keys.ToDictionary(
             playerId => playerId,
-            // CN316.4 clears the stored resources before MAIN. A payment
+            // CN316.3 clears the stored resources before MAIN. A payment
             // during START still happened this turn; only the genuine turn
             // switch above resets that history (CN445.1.b / SFD143).
             playerId => RunePool.Empty with { PaidPowerThisTurn = resetPaidPower ? 0
