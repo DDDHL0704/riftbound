@@ -50,7 +50,11 @@ public sealed class IvernRevealedDeckSelectionTests
         Assert.Equal(["SEEN-UNIT", "SEEN-SPELL", "SEEN-GEAR"], choice.ContextObjectIds);
         Assert.Equal(["SEEN-UNIT"], choice.LegalObjectIds);
         Assert.Equal(0, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
-        Assert.Contains("SEEN-SPELL", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P1"]));
+        var prompt = Assert.Single(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.ChooseCards);
+        var viewed = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(prompt.Metadata!["viewedCards"]);
+        Assert.Equal(choice.ContextObjectIds, viewed.Select(card => card.Id));
+        Assert.All(viewed, card => Assert.Equal(CoreRuleEngine.DeckChoiceLabel(game.State, card.Id), card.Label));
+        Assert.Equal("择日再战", Assert.Single(viewed, card => card.Id == "SEEN-SPELL").Label);
         Assert.DoesNotContain("SEEN-SPELL", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
         Assert.DoesNotContain("SEEN-SPELL", JsonSerializer.Serialize(game.PromptFor("P2")));
         await Choose(game, "SEEN-UNIT");
