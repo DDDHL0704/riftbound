@@ -19662,7 +19662,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             TurnPlayerId = nextPlayerId,
             Phase = MatchPhases.TurnStart,
             TimingState = TimingStates.NeutralClosed,
-            RunePools = ClearRunePools(state),
+            RunePools = ClearRunePools(state, resetPaidPower: true),
             PlayerZones = turnEndPlayerZones,
             CardObjects = turnEndCardObjects,
             ObjectLocations = objectLocations,
@@ -20596,11 +20596,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return playerZones;
     }
 
-    private static IReadOnlyDictionary<string, RunePool> ClearRunePools(MatchState state)
+    private static IReadOnlyDictionary<string, RunePool> ClearRunePools(MatchState state, bool resetPaidPower = false)
     {
         return state.Seats.Keys.ToDictionary(
             playerId => playerId,
-            _ => RunePool.Empty,
+            // CN316.4 clears the stored resources before MAIN. A payment
+            // during START still happened this turn; only the genuine turn
+            // switch above resets that history (CN445.1.b / SFD143).
+            playerId => RunePool.Empty with { PaidPowerThisTurn = resetPaidPower ? 0
+                : state.RunePools.GetValueOrDefault(playerId, RunePool.Empty).PaidPowerThisTurn },
             StringComparer.Ordinal);
     }
 

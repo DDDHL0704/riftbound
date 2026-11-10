@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -33,6 +34,38 @@ public sealed class PowerSpentTurnHistoryTests
         Assert.Equal((long)paid, debit["paidPowerTotal"]);
         Assert.Equal(game.State.TurnNumber, debit["turnNumber"]);
         await game.Replay();
+    }
+
+    [Fact]
+    public async Task ARealStartPaymentSurvivesMainPoolClearingAndResetsOnlyAtTheNextTurn()
+    {
+        var initial = RadGearTestPosition.Put(OfficialHoldSequenceTests.State("SFD·214/221"),
+            "HOST", "SFD·143/221", "P1", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new PassPriorityCommand());
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal(4, payment.PowerCost);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        Assert.Equal(4, game.State.RunePools["P1"].PaidPowerThisTurn);
+        var receipt = Assert.Single(Receipts(game));
+        var original = JsonSerializer.Serialize(receipt);
+        var turn = game.State.TurnNumber;
+        await game.Top();
+        Assert.Equal(MatchPhases.Main, game.State.Phase);
+        Assert.Equal(turn, game.State.TurnNumber);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalStoredPower);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalStoredMana);
+        Assert.Equal(4, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Equal(6, ArmamentMightTests.Might(game.State));
+        Assert.Contains(CardCombatKeywordNames.Roam, game.State.CardObjects["HOST"].Tags);
+        Assert.Equal(original, JsonSerializer.Serialize(Assert.Single(Receipts(game))));
+        await game.Act("P1", new EndTurnCommand());
+        Assert.Equal(turn + 1, game.State.TurnNumber);
+        Assert.All(game.State.RunePools.Values, pool => Assert.Equal(0, pool.PaidPowerThisTurn));
+        Assert.Equal(4, ArmamentMightTests.Might(game.State));
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, game.State.CardObjects["HOST"].Tags);
+        Assert.Equal(original, JsonSerializer.Serialize(Assert.Single(Receipts(game))));
+        await game.ColdCheckpoint();
     }
 
     [Theory, InlineData(-1), InlineData(1)]

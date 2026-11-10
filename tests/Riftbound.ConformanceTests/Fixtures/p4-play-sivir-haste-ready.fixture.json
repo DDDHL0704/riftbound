@@ -163,7 +163,7 @@
       "cardObjects": {
         "P1-UNIT-SIVIR": {
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "急速"],
+          "tags": ["CARD_TYPE:UNIT", "急速", "游走"],
           "isExhausted": false
         }
       }
