@@ -78,7 +78,7 @@ public sealed partial class CoreRuleEngine
         {
             if (!TryUnitEventTokenLocation(state, item, spec, out var field)) return NoopStackResolutionResult(state);
             if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
-            return CreateUnitTokenBatch(state, item, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), spec.CreatedUnitTokenEntersReady,
+            return CreateUnitTokenBatch(state, item with { ControllerId = TokenEntryPlayer(item) }, spec.CreatedTokenFactoryCardNo!, spec.Amount + AdditionalUnitTokens(item), spec.CreatedUnitTokenEntersReady,
                 field, instructionAllowsLocationChoice: spec.CreatesUnitTokenHere ? false : null,
                 tokenIdentitySeed: "unit-event-token-" + MatchStateHasher.HashValue(item.StackItemId));
         }

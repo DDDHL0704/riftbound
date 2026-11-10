@@ -49,6 +49,13 @@ public static partial class MatchRecoveryValidator
             errors.Add($"spectator replay frame tick {spectatorReplayFrame.Tick} does not match recovery tick {expectedTick}");
         }
 
+        if (new[] { authoritativeState, authoritativeState.PendingRuleChoice?.Origin }.OfType<MatchState>()
+            .Any(frame => frame.UntilEndOfTurnEffects is null || frame.UntilEndOfTurnEffects.Any(effect => effect is null)))
+        {
+            errors.Add("spectator replay frame contains a null effect list or value");
+            return;
+        }
+
         var expectedHash = MatchStateHasher.Hash(authoritativeState);
         if (!string.Equals(spectatorReplayFrame.AuthoritativeStateHash, expectedHash, StringComparison.Ordinal))
         {

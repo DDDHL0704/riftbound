@@ -12,6 +12,10 @@ public sealed record UnitBattleWinDrawContext(ObjectBinding Source, string CardN
     public int GoldCount { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int TriggerIndex { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ExperienceCount { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TurnBattleWinReward? TurnReward { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -42,6 +46,7 @@ public sealed partial class CoreRuleEngine
                     || !state.PlayerZones.TryGetValue(winnerPlayerId, out var zones) || !zones.Battlefields.Contains(id)
                     || !state.ObjectLocations.TryGetValue(id, out var location)
                     || location.Zone != "BATTLEFIELD" || location.BattlefieldObjectId != battlefieldId) continue;
+                result.AddRange(CaptureTurnBattleWinRewards(state, card, battlefieldId, role, enqueueTick));
                 foreach (var instance in AttachedRuleTextRules.Instances(state, card))
                 {
                     var rewards = UnitBattleWinTriggerSpecRules.Rewards(instance.CardNo);
@@ -94,13 +99,19 @@ public sealed partial class CoreRuleEngine
     internal static bool HasValidUnitBattleWinDrawShape(UnitBattleWinDrawContext? context)
         => context is not null && context.Source is not null && context.Source.Generation >= 0
             && !string.IsNullOrWhiteSpace(context.Source.ObjectId)
-            && (context.ObservesBattlefield
+            && (context.TurnReward is { } reward
+                ? HasValidTurnBattleWinRewardShape(reward) && context.Source == reward.Source
+                    && context.CardNo == reward.CardNo && context.ControllerId == reward.ControllerId
+                    && context.ResultTick >= reward.CreatedAtTick && context.ExperienceCount == reward.ExperienceCount
+                    && context.DrawCount == 0 && context.GoldCount == 0 && context.TriggerIndex == 0
+                    && !context.ObservesBattlefield && context.Origin is null
+                : context.ExperienceCount == 0 && (context.ObservesBattlefield
                 ? CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var definition)
                     && definition.BattlefieldWinDrawCount > 0 && context.DrawCount == definition.BattlefieldWinDrawCount
                     && context.GoldCount == 0 && context.TriggerIndex == 0
                 : UnitBattleWinTriggerSpecRules.TryGet(context.CardNo, context.TriggerIndex, out var spec)
                     && context.DrawCount == spec.DrawCount.GetValueOrDefault()
-                    && context.GoldCount == spec.CreatedTokenCount.GetValueOrDefault())
+                    && context.GoldCount == spec.CreatedTokenCount.GetValueOrDefault()))
             && !string.IsNullOrWhiteSpace(context.ControllerId) && !string.IsNullOrWhiteSpace(context.BattlefieldId)
             && context.ResultTick > 0 && context.Role is "ATTACKER" or "DEFENDER";
 
@@ -119,9 +130,14 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = context.ControllerId, ["sourceObjectId"] = visibleSource,
                 ["sourceCardNo"] = context.CardNo, ["battlefieldId"] = context.BattlefieldId,
                 ["trigger"] = UnitBattleWinDrawEffect, ["drawCount"] = context.DrawCount,
-                ["goldCount"] = context.GoldCount }) };
+                ["goldCount"] = context.GoldCount, ["experienceCount"] = context.ExperienceCount }) };
         // The captured controller keeps the independent reward after source
         // departure, control changes, new incarnations or copied-text removal.
+        if (context.ExperienceCount > 0)
+            return NoopStackResolutionResult(state) with {
+                PlayerExperience = GainExperience(NormalizeExperienceForSeats(state), context.ControllerId,
+                    context.ExperienceCount, item, events, visibleSource, context.CardNo),
+                Events = events, UntilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(state.UntilEndOfTurnEffects, events) };
         if (context.GoldCount > 0)
         {
             UnitBattleWinTriggerSpecRules.TryGet(context.CardNo, context.TriggerIndex, out var spec);

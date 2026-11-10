@@ -38,8 +38,9 @@ public sealed partial class CoreRuleEngine
         // Entry-trigger tokens and Rengar's unit-play window consume the token
         // immediately; their follow-up choice must stay ahead of a destination
         // menu. Ordinary token plays retain the normal base/battlefield choice.
-        if (behavior is { CreatedTokenReadyCount: > 0 } || behavior?.CreatedBaseUnitTokenEntersReady == true
-            || behavior?.CreatedBaseUnitTokenPerEquipment == true
+        var alonePermission = FriendlyUnitPlayToAloneEnemyBattlefieldGranted(state with { PlayerZones = zones, CardObjects = cards }, player);
+        if (!alonePermission && (behavior is { CreatedTokenReadyCount: > 0 } || behavior?.CreatedBaseUnitTokenEntersReady == true
+                || behavior?.CreatedBaseUnitTokenPerEquipment == true)
             || ControllerHasRengarLegend(state, player)) return false;
         // An outside-hand haste grant has its own pre-entry payment window. Do
         // not interleave an ordinary destination choice before that payment,
@@ -54,11 +55,12 @@ public sealed partial class CoreRuleEngine
     private static string? ChooseUnitTokenBattlefield(MatchState state, string player, string family,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         IReadOnlyDictionary<string, ObjectLocationState> locations, IReadOnlyDictionary<string, RunePool> pools,
-        IReadOnlyList<string> effects)
+        IReadOnlyList<string> effects, CardObjectState? incomingToken = null)
     {
         var context = state with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(locations, zones), UntilEndOfTurnEffects = effects };
         var anywhere = UnitTokenLocationChoiceGranted(effects, player);
+        CardBehaviorRegistry.TryGetByCardNo(incomingToken?.CardNo ?? "", out var incoming);
         var options = new List<RuleChoiceOption> { new("BASE", "基地") };
         foreach (var field in cards.Values.Where(card => BattlefieldLocalRules.Battlefield(context, card.ObjectId) is not null)
             .OrderBy(card => card.ObjectId, StringComparer.Ordinal))
@@ -66,7 +68,8 @@ public sealed partial class CoreRuleEngine
             var destination = "BATTLEFIELD:" + field.ObjectId;
             if (UnitPlayPermittedByFieldRules(zones, cards, player, destination)
                 && !BattlefieldLocalRules.PreventsUnitPlay(context, destination)
-                && (anywhere || IsOpenBattlefield(context, field.ObjectId) && FriendlyUnitPlayToOpenBattlefieldGranted(context, player)
+                && (anywhere || AloneEnemyBattlefieldPlayAllowed(context, player, incoming, destination)
+                    || IsOpenBattlefield(context, field.ObjectId) && FriendlyUnitPlayToOpenBattlefieldGranted(context, player)
                     || IsPlayCardUnitBattlefieldDestinationAllowed(context, player, destination)
                     && HasControlledUnitAtBattlefield(context, player, field.ObjectId)))
                 options.Add(new(destination, OfficialCardSourceIdentityGroups.DisplayName(field.CardNo ?? field.ObjectId), [field.ObjectId]));

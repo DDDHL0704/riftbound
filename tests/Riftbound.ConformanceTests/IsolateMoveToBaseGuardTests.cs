@@ -449,7 +449,7 @@ public sealed class IsolateMoveToBaseGuardTests
         Assert.Equal(IsolateCardNo, stackItem.CardNo);
         Assert.Equal([IsolateTargetObjectId], stackItem.TargetObjectIds);
         Assert.Empty(stackItem.OptionalCosts);
-        Assert.Equal("ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW", stackItem.EffectKind);
+        Assert.Equal("ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE", stackItem.EffectKind);
         if (expectedStackItem is not null)
         {
             Assert.Equal(expectedStackItem.StackItemId, stackItem.StackItemId);

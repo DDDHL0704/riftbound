@@ -156,6 +156,8 @@ public sealed partial class CoreRuleEngine
         if (state.PendingRuleChoice is not { } p) return true;
         if (p.Origin is null || p.Origin.PendingRuleChoice is not null || p.Answers is null || p.Request is null
             || p.Intent is null || p.Request.Options is null || p.Request.Options.Any(o => o is null) || p.Answers.Any(a => a is null)
+            || state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(effect => effect is null)
+            || p.Origin.UntilEndOfTurnEffects is null || p.Origin.UntilEndOfTurnEffects.Any(effect => effect is null)
             || p.Command.ValueKind != JsonValueKind.Object
             || state.Tick <= p.Origin.Tick || !state.Seats.ContainsKey(p.Intent.PlayerId)) return false;
         var reproduced = ReproduceRuleChoice(p);
