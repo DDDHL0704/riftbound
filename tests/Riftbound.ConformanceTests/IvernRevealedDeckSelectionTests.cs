@@ -17,7 +17,7 @@ public sealed class IvernRevealedDeckSelectionTests
         foreach (var id in state.PlayerZones["P1"].MainDeck.ToArray())
             state = RadUnitEffectTestFixture.Place(state, id, "P1", "GRAVEYARD");
         state = RadGearTestPosition.Put(state, "SEEN-UNIT", chosen, "P1", "MAIN_DECK");
-        state = RadGearTestPosition.Put(state, "SEEN-SPELL", "OGN·002/298", "P1", "MAIN_DECK");
+        state = RadGearTestPosition.Put(state, "SEEN-SPELL", "OGN·104/298", "P1", "MAIN_DECK");
         state = RadGearTestPosition.Put(state, "SEEN-GEAR", "SFD·022/221", "P1", "MAIN_DECK");
         state = RadGearTestPosition.Put(state, "TAIL", "OGN·219/298", "P1", "MAIN_DECK");
         return state;
@@ -150,7 +150,7 @@ public sealed class IvernRevealedDeckSelectionTests
         initial = RadGearTestPosition.Put(initial, "HOST", no, "P1", "BATTLEFIELD", "F");
         foreach (var id in initial.PlayerZones["P1"].MainDeck.ToArray())
             initial = RadUnitEffectTestFixture.Place(initial, id, "P1", "GRAVEYARD");
-        foreach (var (id, card) in new[] { ("HOLD-ANIMAL", "UNL-137/219"), ("HOLD-SPELL", "OGN·002/298"),
+        foreach (var (id, card) in new[] { ("HOLD-ANIMAL", "UNL-137/219"), ("HOLD-SPELL", "OGN·104/298"),
             ("HOLD-GEAR", "SFD·022/221"), ("HOLD-TAIL", "OGN·219/298") })
             initial = RadGearTestPosition.Put(initial, id, card, "P1", "MAIN_DECK");
         var game = new Driver(initial);
