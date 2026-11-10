@@ -29,6 +29,7 @@ public sealed partial class CoreRuleEngine
             if (paidPower) {
                 completed = RefreshRuleDerivedKeywordLayers(completed);
                 completed = RecordMightyTransitions(context, completed, beforeMight);
+                completed = StampNewTriggerQueueTimes(context, completed);
                 var after = CapturePublicMightFrame(completed.State, completed.State.PlayerZones, completed.State.CardObjects);
                 completed = completed with { Events = completed.Events.Append(new GameEvent(CapturedMightInstruction,
                     "记录已独立提交的资源支付战力区间", new Dictionary<string, object?> {

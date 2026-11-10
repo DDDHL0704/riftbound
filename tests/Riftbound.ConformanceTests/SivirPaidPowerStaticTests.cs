@@ -259,7 +259,9 @@ public sealed class SivirPaidPowerStaticTests
         var selected = $"RESOURCE:CONVERT:{P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId}:"
             + P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix + "2";
         await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [selected]));
-        var captured = Assert.Single(game.State.TriggerQueue, item => item.MightySkill is not null).MightySkill!;
+        var queued = Assert.Single(game.State.TriggerQueue, item => item.MightySkill is not null);
+        Assert.Equal(game.State.Tick, queued.EnqueuedAtTick);
+        var captured = queued.MightySkill!;
         Assert.Equal(4, captured.BeforeMight); Assert.Equal(6, captured.AfterMight);
         Assert.Equal(2, captured.After.PaidPowerThisTurn["P1"]);
         request = game.State.PendingRuleChoice!.Request;
