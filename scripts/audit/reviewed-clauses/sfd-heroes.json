@@ -680,12 +680,13 @@
             "AResourceActionCannotAlsoSupplyTheSameLegendAsAnAdditionalFee",
             "OnlyCurrentlyEmptyAndUncontrolledFieldsAreOfferedAfterTheEntryCleanup",
             "ReturningThePaidSourceCannotCancelMovementOfOtherConfirmedUnits",
-          "ARegularMovementSpellCannotInterruptTheConfirmedSkill",
+            "ARegularMovementSpellCannotInterruptTheConfirmedSkill",
             "PayingTheLegendFeeDoesNotGrantAnOpenBattlefieldEntryPermissionToTheUnitItself",
             "OriginalAcceptedPaymentTargetsAndDestinationCannotBeRewrittenTogether",
             "TheGroupUsesOneSharedImposedMovementPaymentAndCanDeclineIt",
             "TheSharedGroupMoveCarriesASelectedUnitsAttachedEquipment",
-            "WithNoOpenBattlefieldThePaidEntryHasNoTargetOrDestinationPrompt"
+            "WithNoOpenBattlefieldThePaidEntryHasNoTargetOrDestinationPrompt",
+            "ARiftHeraldHandPlayStillChargesPowerAndMayPayTheLegendFee"
           ]
         }
       ],
@@ -783,12 +784,13 @@
             "AResourceActionCannotAlsoSupplyTheSameLegendAsAnAdditionalFee",
             "OnlyCurrentlyEmptyAndUncontrolledFieldsAreOfferedAfterTheEntryCleanup",
             "ReturningThePaidSourceCannotCancelMovementOfOtherConfirmedUnits",
-          "ARegularMovementSpellCannotInterruptTheConfirmedSkill",
+            "ARegularMovementSpellCannotInterruptTheConfirmedSkill",
             "PayingTheLegendFeeDoesNotGrantAnOpenBattlefieldEntryPermissionToTheUnitItself",
             "OriginalAcceptedPaymentTargetsAndDestinationCannotBeRewrittenTogether",
             "TheGroupUsesOneSharedImposedMovementPaymentAndCanDeclineIt",
             "TheSharedGroupMoveCarriesASelectedUnitsAttachedEquipment",
-            "WithNoOpenBattlefieldThePaidEntryHasNoTargetOrDestinationPrompt"
+            "WithNoOpenBattlefieldThePaidEntryHasNoTargetOrDestinationPrompt",
+            "ARiftHeraldHandPlayStillChargesPowerAndMayPayTheLegendFee"
           ]
         }
       ],

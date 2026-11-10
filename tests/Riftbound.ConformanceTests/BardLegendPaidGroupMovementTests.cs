@@ -78,6 +78,42 @@ public sealed class BardLegendPaidGroupMovementTests
         Assert.Null(game.State.PendingRuleChoice); await game.ColdCheckpoint();
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task ARiftHeraldHandPlayStillChargesPowerAndMayPayTheLegendFee(bool payLegend)
+    {
+        var state = RadGearTestPosition.Put(Position(), "HERALD", RiftHeraldMovementLookTests.Herald, "P1", "BASE");
+        state = RadGearTestPosition.Put(state, "KILL", "OGN·229/298", "P1", "HAND");
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("KILL", "OGN·229/298", ["HERALD"])); await game.Top();
+        Assert.Equal("LAST_BREATH", Assert.Single(game.State.StackItems).UnitEvent!.Timing);
+        await game.Top();
+        var permission = Assert.IsType<PendingEffectPlayState>(game.State.PendingEffectPlay);
+        Assert.True(permission.IgnoreBaseMana); Assert.False(permission.IgnoreBasePower);
+        Assert.False(permission.IgnoreAllCosts); Assert.Contains("BARD", permission.Sources.Keys);
+        Assert.Contains(Cost, JsonSerializer.Serialize(game.PromptFor("P1")));
+        var before = game.State.RunePools["P1"];
+        await game.Act("P1", new PlayCardCommand("BARD", Bard, [],
+            OptionalCosts: payLegend ? [Cost] : [], Destination: "BASE"));
+        Assert.Contains("BARD", game.State.PlayerZones["P1"].Base);
+        Assert.Equal(before.Mana, game.State.RunePools["P1"].Mana);
+        Assert.Equal(before.TotalPower - 1, game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(before.PaidPowerThisTurn + 1, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Equal(payLegend, game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Null(game.State.PendingEffectPlay);
+        if (payLegend)
+        {
+            Assert.NotNull(Assert.Single(game.State.StackItems).UnitEvent!.PaidLegendPlayCost);
+            await ChooseUnits(game, "ALLY"); await Destination(game); await game.Top();
+            Assert.Equal("BF", game.State.ObjectLocations["ALLY"].BattlefieldObjectId);
+        }
+        else
+        {
+            Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice);
+        }
+        Assert.Equal(payLegend ? 1 : 0, game.Events().Count(record => record.Event.Kind == "LEGEND_PLAY_ADDITIONAL_COST_PAID"));
+        await game.ColdCheckpoint();
+    }
+
     [Fact]
     public async Task ChoosingNoUnitsDeclinesWithoutOpeningAPhantomDestination()
     {
