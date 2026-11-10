@@ -74,7 +74,7 @@ class FriendlyUnitTraitScoreAuditTests(unittest.TestCase):
     def test_unused_helpers_cannot_replace_real_capture_current_state_score_or_original_history_consumers(self):
         checks = [
             ('CoreRuleEngine.UnitEvents.cs', 'AttachedRuleTextRules.Instances(zones, cards, card)'),
-            ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestEventObservations(state, conquerors)'),
+            ('CoreRuleEngine.UnitEvents.cs', 'CaptureConquestEventObservations(state, conquerors'),
             ('CoreRuleEngine.Conquest.cs', 'CaptureConquestUnitEvents(state with'),
             ('CoreRuleEngine.ConquestUnitEvents.cs', 'CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")'),
             ('CoreRuleEngine.Hold.cs', 'CaptureUnitEvents(state.PlayerZones, state.CardObjects, selectedUnits, "HOLD")'),
@@ -83,7 +83,7 @@ class FriendlyUnitTraitScoreAuditTests(unittest.TestCase):
             ('CoreRuleEngine.UnitTraitScore.cs', 'GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)'),
             ('CoreRuleEngine.UnitTraitScore.cs', 'Where(card => IsFaceUpNonStandbyUnit(card))'),
             ('CoreRuleEngine.UnitTraitScore.cs', 'SelectMany(card => card.Tags)'),
-            ('CoreRuleEngine.UnitTraitScore.cs', 'required.All(tags.Contains)'),
+            ('CoreRuleEngine.UnitTraitScore.cs', 'required.Distinct(StringComparer.Ordinal).Count(tags.Contains)'),
             ('CoreRuleEngine.UnitTraitScore.cs', 'HasRequiredFriendlyUnitTags(state, item.ControllerId, spec.RequiredFriendlyUnitTagsForScore!)'),
             ('CoreRuleEngine.UnitTraitScore.cs', 'TryPreventPointGain(state, item.ControllerId, amount,'),
             ('CoreRuleEngine.UnitTraitScore.cs', 'scores[item.ControllerId] += amount'),
@@ -116,3 +116,68 @@ class FriendlyUnitTraitScoreAuditTests(unittest.TestCase):
                 self.assertIn(token, sources.files[path])
                 sources.files[path] = sources.files[path].replace(token, token + ' && HasRequiredFriendlyUnitTags(state, controller, required)')
                 self.assertEqual('missing', self.status(sources=sources))
+
+
+    def test_delegated_tag_check_requires_each_real_helper_instead_of_unused_decoys(self):
+        checks = [
+            'CountControlledFriendlyUnitTags(state, controller, required)',
+            'var tags = ControlledFriendlyUnitTags(state, controller)',
+            'required.Distinct(StringComparer.Ordinal).Count(tags.Contains)',
+            'ToHashSet(StringComparer.Ordinal)',
+        ]
+        for token in checks:
+            with self.subTest(token=token):
+                self.assertEqual('missing', self.status(sources=self.remove_actual_consumer(
+                    'CoreRuleEngine.UnitTraitScore.cs', token)))
+
+    def test_delegated_wrapper_must_still_require_every_category(self):
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitTraitScore.cs'
+        token = '== required.Distinct(StringComparer.Ordinal).Count()'
+        self.assertIn(token, sources.files[path])
+        sources.files[path] = sources.files[path].replace(token, '> 0')
+        self.assertEqual('missing', self.status(sources=sources))
+
+    def test_legacy_inline_tag_check_remains_a_valid_independent_consumer(self):
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitTraitScore.cs'
+        start = sources.files[path].index('    private static bool HasRequiredFriendlyUnitTags(')
+        end = sources.files[path].index('\n    private ', start + 1)
+        inline = """    private static bool HasRequiredFriendlyUnitTags(MatchState state, string controller,
+        IReadOnlyList<string> required)
+    {
+        var tags = GetControlledFieldUnitObjectIds(state.PlayerZones, state.CardObjects, controller)
+            .Select(id => state.CardObjects[id]).Where(card => IsFaceUpNonStandbyUnit(card))
+            .SelectMany(card => card.Tags).ToHashSet(StringComparer.Ordinal);
+        return required.All(tags.Contains);
+    }
+"""
+        sources.files[path] = sources.files[path][:start] + inline + sources.files[path][end:]
+        self.assertEqual('route', self.status(sources=sources))
+
+    def test_optional_overkill_call_arguments_do_not_change_ordinary_trait_scoring(self):
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        path = 'src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs'
+        token = 'CaptureConquestEventObservations(state, conquerors, assignedOverkill)'
+        self.assertIn(token, sources.files[path])
+        sources.files[path] = sources.files[path].replace(token, 'CaptureConquestEventObservations(state, conquerors)')
+        path = 'src/Riftbound.Engine/CoreRuleEngine.Conquest.cs'
+        token = 'conqueringUnitObjectIds, resolutionTick, playerId, battlefieldId, assignedOverkillDamageToEnemyUnits)'
+        self.assertIn(token, sources.files[path])
+        sources.files[path] = sources.files[path].replace(token, 'conqueringUnitObjectIds, resolutionTick, playerId, battlefieldId)')
+        self.assertEqual('route', self.status(sources=sources))
+        for replacement in ['CaptureConquestEventObservations(state, observers, assignedOverkill)',
+                            'CaptureConquestEventObservations(state, conquerors, 99)']:
+            mutated = copy.copy(self.sources); mutated.files = dict(self.sources.files)
+            file = 'src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs'
+            mutated.files[file] = mutated.files[file].replace(
+                'CaptureConquestEventObservations(state, conquerors, assignedOverkill)', replacement)
+            self.assertEqual('missing', self.status(sources=mutated))
+
+    def test_overkill_threshold_only_applies_to_specs_that_request_it(self):
+        sources = copy.copy(self.sources); sources.files = dict(self.sources.files)
+        path = 'src/Riftbound.Engine/CoreRuleEngine.ConquestUnitEvents.cs'
+        token = 'MinimumAssignedOverkill is not { } minimum'
+        self.assertIn(token, sources.files[path])
+        sources.files[path] = sources.files[path].replace(token, 'MinimumAssignedOverkill is { } minimum')
+        self.assertEqual('missing', self.status(sources=sources))

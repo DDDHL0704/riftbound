@@ -27,7 +27,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "ArmamentUnitEventRules.Instances(zones, cards, card)",
-            "CaptureConquestEventObservations(state, conquerors)",
+            "CaptureConquestEventObservations(state, conquerors, assignedOverkill)",
             "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
           ]
         },
@@ -85,7 +85,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "ArmamentUnitEventRules.Instances(zones, cards, card)",
-            "CaptureConquestEventObservations(state, conquerors)",
+            "CaptureConquestEventObservations(state, conquerors, assignedOverkill)",
             "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")"
           ]
         },
@@ -142,7 +142,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "ArmamentUnitEventRules.Instances(zones, cards, card)",
-            "CaptureConquestEventObservations(state, conquerors)",
+            "CaptureConquestEventObservations(state, conquerors, assignedOverkill)",
             "if (spec.Effect == \"DISCARD_DRAW\") return ResolvePrivateDiscardDraw(state, item, spec.DiscardCount, spec.Amount)"
           ]
         },
@@ -202,7 +202,7 @@
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEvents.cs",
           "contains": [
             "ArmamentUnitEventRules.Instances(zones, cards, card)",
-            "CaptureConquestEventObservations(state, conquerors)",
+            "CaptureConquestEventObservations(state, conquerors, assignedOverkill)",
             "if (spec.Effect == \"CREATE_EQUIPMENT_TOKEN\")",
             "tokenIdentitySeed: \"equipment-token-\" + MatchStateHasher.HashValue(item.StackItemId)"
           ]

@@ -3006,38 +3006,36 @@ public sealed partial class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task CoreRuleEngineRejectsCustodianJudgmentWithoutOwnerDeckChoiceMode()
+    public async Task CoreRuleEngineAcceptsCustodianJudgmentWithoutPredeclaringTheOwnersDeckChoice()
     {
-        var state = PunishmentState(mana: 2) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Hand = ["P1-SPELL-CUSTODIAN-JUDGMENT"]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P2-CUSTODIAN-TARGET-001"]
-                }
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P2-CUSTODIAN-TARGET-001"] = new("P2-CUSTODIAN-TARGET-001", power: 3)
-            }
-        };
+        var state = RadGearTestPosition.Put(RadGearTestPosition.Create(),
+            "P1-SPELL-CUSTODIAN-JUDGMENT", "UNL-204/219", "P1", "HAND");
+        state = RadGearTestPosition.Put(state, "P2-CUSTODIAN-TARGET-001", "OGN·219/298",
+            "P2", "BATTLEFIELD", "OTHER");
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+            ["P1"] = new(2, 0, new Dictionary<string, int> { ["orange"] = 2 }) } };
+        var command = new PlayCardCommand("P1-SPELL-CUSTODIAN-JUDGMENT", "UNL-204/219",
+            ["P2-CUSTODIAN-TARGET-001"]);
+        var quote = new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
+        Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(2, quote.Cost!.Mana);
+        Assert.Equal(2, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-custodian-judgment-missing-mode", "P1", "PLAY_CARD"),
-            new PlayCardCommand("P1-SPELL-CUSTODIAN-JUDGMENT", "UNL-204/219", ["P2-CUSTODIAN-TARGET-001"]),
+            command,
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Empty(result.State.StackItems);
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal("CUSTODIAN_JUDGMENT_OWNER_CHOOSES_MAIN_DECK_END", Assert.Single(result.State.StackItems).EffectKind);
+        Assert.Null(result.State.PendingRuleChoice);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(0, result.State.RunePools["P1"].Power + result.State.RunePools["P1"].PowerByTrait.Values.Sum());
+        var paid = Assert.Single(result.Events, ev => ev.Kind == "COST_PAID");
+        Assert.Equal(2, Convert.ToInt32(paid.Payload["mana"]));
+        Assert.Equal(2, Convert.ToInt32(paid.Payload["power"]));
     }
 
     [Fact]
@@ -3074,8 +3072,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 new PlayCardCommand(
                     "P1-SPELL-CUSTODIAN-JUDGMENT",
                     "UNL-204/219",
-                    [invalidTargetObjectId],
-                    "OWNER_MAIN_DECK_TOP"),
+                    [invalidTargetObjectId]),
                 CancellationToken.None);
 
             Assert.False(result.Accepted);

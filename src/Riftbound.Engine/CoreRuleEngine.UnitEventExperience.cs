@@ -8,7 +8,10 @@ public sealed partial class CoreRuleEngine
     // capture. Responses cannot revoke an already earned skill.
     private static bool UnitEventCaptureConditionSatisfied(MatchState state, UnitEventObservation observation)
     {
-        if (UnitEventSpec(observation.Context.CardNo)?.RequiresIsolatedEnemyHere != true) return true;
+        var spec = UnitEventSpecForContext(observation.Context);
+        if (spec?.RequiredFriendlyUnitTagsAtTrigger is { } tags
+            && !HasRequiredFriendlyUnitTags(state, observation.Controller, tags)) return false;
+        if (spec?.RequiresIsolatedEnemyHere != true) return true;
         if (!state.ObjectLocations.TryGetValue(observation.Source, out var here)
             || here.Zone != "BATTLEFIELD" || string.IsNullOrWhiteSpace(here.BattlefieldObjectId)) return false;
         return state.CardObjects.Values.Where(card => IsFaceUpNonStandbyUnit(card)

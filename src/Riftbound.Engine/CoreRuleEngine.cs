@@ -25868,6 +25868,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     if (!string.IsNullOrWhiteSpace(behavior.TargetOwnerMainDeckDestination)
                         && TryMoveTargetToOwnerMainDeck(
+                            state,
                             playerZones,
                             cardObjects,
                             targetObjectId,
@@ -31520,6 +31521,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryMoveTargetToOwnerMainDeck(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
@@ -31528,11 +31530,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out string deckPosition)
     {
         ownerPlayerId = string.Empty;
+        var ownerChooses = destination == "OWNER_CHOICE";
         deckPosition = NormalizeMainDeckDestination(destination);
-        if (string.IsNullOrWhiteSpace(deckPosition))
-        {
-            return false;
-        }
+        if (!ownerChooses && string.IsNullOrWhiteSpace(deckPosition)) return false;
 
         foreach (var (playerId, zones) in playerZones)
         {
@@ -31546,6 +31546,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             var targetState = cardObjects.GetValueOrDefault(targetObjectId) ?? new CardObjectState(targetObjectId);
             ownerPlayerId = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            if (ownerChooses)
+            {
+                // CN359.3.e / printed instruction: the physical owner chooses
+                // during resolution, including a unit controlled by an opponent.
+                var preview = state with { PlayerZones = playerZones.ToDictionary(), CardObjects = cardObjects.ToDictionary(),
+                    ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
+                deckPosition = RuleChoices.Value!.Choose(ownerPlayerId, "选择将该单位放到你的主牌堆顶部或底部。",
+                    [new("TOP", "主牌堆顶部"), new("BOTTOM", "主牌堆底部")],
+                    kind: "OWNER_MAIN_DECK_POSITION", preview: preview);
+            }
             CaptureFieldDeparture(playerZones, cardObjects, targetObjectId);
             DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
@@ -31871,7 +31881,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
         if (BattlefieldLocalRules.PreventsMoveToBase(current, targetObjectId)
-            || !MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
+            || !CanMoveUnitByEffect(current, RuleChoices.Value?.ResolutionItem?.ControllerId ?? movingPlayerId, movingPlayerId, targetObjectId)) return false;
         foreach (var (playerId, zones) in playerZones)
         {
             if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)

@@ -2385,7 +2385,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                     "STACK-CUSTODIAN-JUDGMENT-DIRTY-BATTLEFIELD",
                     "P1",
                     "P1-SPELL-CUSTODIAN-JUDGMENT",
-                    "CUSTODIAN_JUDGMENT_ENEMY_BATTLEFIELD_UNIT_TO_TOP",
+                    "CUSTODIAN_JUDGMENT_OWNER_CHOOSES_MAIN_DECK_END",
                     "UNL-204/219",
                     ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"])
             ],

@@ -278,14 +278,14 @@ public sealed partial class CoreRuleEngine
     }
 
     private static TriggerQueueItemState[] CaptureConquestUnitEvents(MatchState state, IEnumerable<string> units, long tick,
-        string player, string battlefield)
+        string player, string battlefield, int assignedOverkill = 0)
     {
         var conquerors = units.ToHashSet(StringComparer.Ordinal);
         var observers = state.CardObjects.Values.Where(c => !conquerors.Contains(c.ObjectId)
             && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == player
             && state.ObjectLocations.TryGetValue(c.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
             && at.BattlefieldObjectId == battlefield).Select(c => c.ObjectId);
-        var observations = CaptureConquestEventObservations(state, conquerors)
+        var observations = CaptureConquestEventObservations(state, conquerors, assignedOverkill)
             .Concat(CaptureUnitEvents(state.PlayerZones, state.CardObjects, observers, "CONQUEST")
                 .Where(o => o.Context.Timing == "PLAY_OR_CONQUEST"))
             .Select(o => CaptureUnitEventFacts(state, o)).ToArray();
@@ -418,6 +418,8 @@ public sealed partial class CoreRuleEngine
             && spec.GrantedByArmament == (c.Origin?.ArmamentGranted == true)
             && (!spec.GrantedByArmament || c.Origin!.CapturedTick == c.CapturedTick)
             && (spec.FirstConquestOfTurn ? c.FirstConquestTurn == state.TurnNumber : c.FirstConquestTurn is null)
+            && (spec.MinimumAssignedOverkill is { } minimum
+                ? c.AssignedOverkill is { } assigned && assigned >= minimum : c.AssignedOverkill is null)
             && (c.Mode is null || spec.Modes?.Any(m => m.Id == c.Mode) == true)
             && (c.Mode is null || !spec.DistinctModesPerTurn || state.RuleTextModeUses is { } uses
                 && uses.TurnNumber == state.TurnNumber && uses.Uses.Contains(new RuleTextModeUse(new(source, c.SourceGeneration), c.CardNo, c.Mode, c.Origin, c.TokenFactoryCardNo)))
@@ -567,6 +569,7 @@ public sealed partial class CoreRuleEngine
                     && ResolveCurrentFieldUnitPower(state, c) <= UnitEventSpecForContext(item.UnitEvent)!.Amount,
                 _ => false
             })
+            && (!SelectedUnitEventSpec(item.UnitEvent!)!.TargetsHere || UnitEventTargetIsHere(state, item, c.ObjectId))
             && (!SelectedUnitEventSpec(item.UnitEvent!)!.TargetsAnotherFriendlyHere
                 || c.ObjectId != item.SourceObjectId
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId

@@ -43,6 +43,20 @@ internal static class ArmamentUnitEventRules
             };
             if (spec is null)
             {
+                var text = Regex.Replace(definition.EffectText, "（[^）]*）", "").Trim();
+                var overkill = Regex.Match(text,
+                    @"^当我征服一处战场时，如果你给敌方单位分配了不低于(?<minimum>[1-9][0-9]*)点的过量伤害，则抽一张牌[。.]?$",
+                    RegexOptions.CultureInvariant);
+                var move = Regex.Match(text,
+                    @"^当我移动到一处战场时，给予我在本回合内\{\{S\}\}\+(?<amount>[1-9][0-9]*)[。.]?$",
+                    RegexOptions.CultureInvariant);
+                if (overkill.Success) spec = new("CONQUEST", "DRAW", 1) {
+                    MinimumAssignedOverkill = int.Parse(overkill.Groups["minimum"].Value) };
+                else if (move.Success) spec = new("MOVE", "MIGHT_SELF", int.Parse(move.Groups["amount"].Value)) {
+                    ObservesMovementByAnyPlayer = true, RequiresMoveToBattlefield = true };
+            }
+            if (spec is null)
+            {
                 var ending = Regex.Match(Regex.Replace(definition.EffectText, "（[^）]*）", "").Trim(),
                     @"^在你的回合结束时，如果我本回合没有征服战场，则卸除此装备，并对我造成(?<amount>[1-9][0-9]*)点伤害[。.]?$",
                     RegexOptions.CultureInvariant);
@@ -76,6 +90,8 @@ internal static class ArmamentUnitEventRules
         var binding = MatchStateHasher.HashValue(new {
             context.CardNo, context.SourceGeneration, context.FaceRevision, context.CapturedTick,
             context.Timing, context.TokenFactoryCardNo, context.Origin });
+        if (context.AssignedOverkill is not null)
+            binding = MatchStateHasher.HashValue(new { binding, context.AssignedOverkill });
         return context.ArmamentDeath is null ? binding
             : MatchStateHasher.HashValue(new { binding, context.ArmamentDeath });
     }
