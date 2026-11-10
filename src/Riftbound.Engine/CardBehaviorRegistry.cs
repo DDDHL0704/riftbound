@@ -326,6 +326,7 @@ public sealed partial record CardBehaviorDefinition(
     string SourceReadyOptionalCostPayloadKey = "",
     string SourceStealEnemyEquipmentReason = "",
     string ConditionalSourceUnitConditionKind = CardConditionalSourceUnitConditionKinds.None,
+    int ConditionalSourceUnitRequiredPaidPower = 0,
     int ConditionalSourceUnitPowerBonus = 0,
     string ConditionalSourceUnitTags = "",
     string SourceDrawConditionKind = CardSourceDrawConditionKinds.None,
@@ -647,6 +648,7 @@ public static class CardConditionalSourceUnitConditionKinds
     public const string ControllerPlayedFourPlusCostSpellThisTurn = "CONTROLLER_PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN";
     public const string ControllerGainedExperienceThisTurn = "CONTROLLER_GAINED_EXPERIENCE_THIS_TURN";
     public const string ControllerDiscardedHandCardThisTurn = "CONTROLLER_DISCARDED_HAND_CARD_THIS_TURN";
+    public const string ControllerPaidPowerThisTurn = "CONTROLLER_PAID_POWER_THIS_TURN";
 }
 
 public static class CardTargetCountConditionKinds
@@ -3512,6 +3514,10 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn,
+            ConditionalSourceUnitRequiredPaidPower: 2,
+            ConditionalSourceUnitPowerBonus: 2,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Roam,
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Purple),
@@ -3525,6 +3531,10 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
+            ConditionalSourceUnitConditionKind: CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn,
+            ConditionalSourceUnitRequiredPaidPower: 2,
+            ConditionalSourceUnitPowerBonus: 2,
+            ConditionalSourceUnitTags: CardCombatKeywordNames.Roam,
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Purple),
@@ -4257,7 +4267,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "壁垒"),
+            SourceUnitTags: "壁垒",
+            UnitEventAbility: new("ATTACK", CoreRuleEngine.PlayHandArmamentThenAttachEffect, 2, Optional: true)),
         new(
             "SFD·054/221",
             "贾克斯",
@@ -6588,11 +6599,14 @@ public static class CardBehaviorRegistry
             "SFD·079/221",
             "巴德",
             4,
-            "SFD_BARD_NO_OPTIONAL_LEGEND_PLAY_UNIT",
+            "SFD_BARD_LEGEND_PAID_GROUP_MOVE_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("PLAY", CoreRuleEngine.MoveFriendlyGroupToOpenBattlefieldEffect,
+                Optional: true, AnyNumberOfTargets: true) { RequiresSourcePlayLegendCost = true, PreservesMovementCapture = true })
+            { MayExhaustLegendAdditionalCost = true },
         new(
             "SFD·081/221",
             "大老千",
@@ -6786,20 +6800,26 @@ public static class CardBehaviorRegistry
             "SFD·228/221",
             "巴德",
             4,
-            "SFD_228_BARD_NO_OPTIONAL_LEGEND_PLAY_UNIT",
+            "SFD_228_BARD_LEGEND_PAID_GROUP_MOVE_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("PLAY", CoreRuleEngine.MoveFriendlyGroupToOpenBattlefieldEffect,
+                Optional: true, AnyNumberOfTargets: true) { RequiresSourcePlayLegendCost = true, PreservesMovementCapture = true })
+            { MayExhaustLegendAdditionalCost = true },
         new(
             "SFD·228*/221",
             "巴德",
             4,
-            "SFD_228_PROMO_BARD_NO_OPTIONAL_LEGEND_PLAY_UNIT",
+            "SFD_228_PROMO_BARD_LEGEND_PAID_GROUP_MOVE_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            UnitEventAbility: new("PLAY", CoreRuleEngine.MoveFriendlyGroupToOpenBattlefieldEffect,
+                Optional: true, AnyNumberOfTargets: true) { RequiresSourcePlayLegendCost = true, PreservesMovementCapture = true })
+            { MayExhaustLegendAdditionalCost = true },
         new(
             "SFD·237*/221",
             "卡尔玛",

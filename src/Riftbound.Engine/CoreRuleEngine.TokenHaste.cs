@@ -60,7 +60,7 @@ public sealed partial class CoreRuleEngine
             var paymentEventStart = events.Count;
             pool = pools[player];
             var power = PayPowerCost(pool, selected == "PAY:ANY" ? 1 : 0, spentTraits);
-            pools[player] = PaymentCostRules.SpendMana(pool, 1, state: context) with { Power = power.AnyPower, PowerByTrait = power.PowerByTrait };
+            pools[player] = PaymentCostRules.SpendMana(power, 1, state: context);
             events.Add(new("COST_PAID", "支付指示物急速费用", new Dictionary<string, object?> {
                 ["playerId"] = player, ["sourceObjectId"] = token.ObjectId, ["parentSourceObjectId"] = parentSource,
                 ["mana"] = 1, ["power"] = 1, ["powerByTrait"] = spentTraits,

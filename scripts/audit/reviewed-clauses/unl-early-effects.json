@@ -24,7 +24,7 @@
           "contains": [
             "ConditionalSourceUnitContributions(",
             "AttachedRuleTextRules.Instances(state, source)",
-            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)"
           ]
         },
         {
@@ -3002,7 +3002,7 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentUnitEvents.cs",
           "contains": [
-            "var options = UnitEventMovementDestinations(state, item, target).ToArray()",
+            ": UnitEventMovementDestinations(state, item, item.TargetObjectIds.Single()).ToArray()",
             "MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [target], item.Destination, events)"
           ]
         },
@@ -3194,7 +3194,7 @@
           "contains": [
             "ConditionalSourceUnitContributions(",
             "AttachedRuleTextRules.Instances(state, source)",
-            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state.UntilEndOfTurnEffects)"
+            "ConditionalSourceUnitConditionApplies(s.Behavior, controller, state)"
           ]
         },
         {

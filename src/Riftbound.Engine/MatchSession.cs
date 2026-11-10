@@ -4296,6 +4296,8 @@ internal static partial class ActionPromptBuilder
             choices.Add(new(CoreRuleEngine.NormalGraveyardPlayChoice, "从废牌堆支付普通费用打出", "遵守正常时机，支付卡面费用和额外费用"));
         if (behavior.MayEnterReadyWithMovementProhibition)
             choices.Add(new(CoreRuleEngine.ReadyRestrictedEntryChoice, "以活跃状态进场", "本回合无法移动"));
+        foreach (var cost in CoreRuleEngine.OptionalLegendPlayCostChoices(state, playerId, behavior))
+            choices.Add(new(cost, "休眠你的传奇", "可选额外费用；打出后选择友方单位及一处开放战场"));
         if (!ignoresAllCosts && behavior.MayDestroyFriendlyPermanentAdditionalCost)
             foreach (var cost in CoreRuleEngine.OptionalPermanentDestructionChoices(state, playerId, behavior))
             {

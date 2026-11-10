@@ -83,13 +83,13 @@ public sealed partial class CoreRuleEngine
         try {
             var result = await ResolveCoreAsync(origin, originalIntent, command, cancellationToken);
             if (!frame.Complete) return RejectWithCorePrompts(state, "替换选择记录未完整消费。", ErrorCodes.InvalidTarget);
-            if (pending is null) return result;
+            if (pending is null) return RecordPowerPayments(state, result);
             if (!result.Accepted) return RejectWithCorePrompts(state, result.ErrorMessage!, result.ErrorCode!);
             var events = UncommittedRuleChoiceEvents(result.Events, committedResources);
             var next = FinalizeRuleChoiceBattleRoleCoordinates(state, result, events, state.Tick + 1)
                 with { Tick = state.Tick + 1, PendingRuleChoice = null };
-            return result with { State = next, Events = events,
-                Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+            return RecordPowerPayments(state, result with { State = next, Events = events,
+                Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
         }
         catch (Exception unsupported) when (unsupported is DamageNumericLimitException or ResourceNumericLimitException) {
             return RejectWithCorePrompts(state, $"当前服务端数值范围尚未支持本次结算的{unsupported.Message}。", ErrorCodes.UnsupportedCardBehavior);
@@ -105,8 +105,8 @@ public sealed partial class CoreRuleEngine
             var events = UncommittedRuleChoiceEvents(resources.SelectMany(step => step.Events).ToArray(), committedResources)
                 .Append(new GameEvent("RULE_CHOICE_REQUESTED", required.Request.Reason,
                     new Dictionary<string,object?> { ["playerId"] = required.Request.PlayerId, ["choiceId"] = required.Request.Id })).ToArray();
-            return new(true, null, next, events,
-                ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
+            return RecordPowerPayments(state, new(true, null, next, events,
+                ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)));
         }
         finally { RuleChoices.Value = previous; }
     }
@@ -156,6 +156,8 @@ public sealed partial class CoreRuleEngine
         if (state.PendingRuleChoice is not { } p) return true;
         if (p.Origin is null || p.Origin.PendingRuleChoice is not null || p.Answers is null || p.Request is null
             || p.Intent is null || p.Request.Options is null || p.Request.Options.Any(o => o is null) || p.Answers.Any(a => a is null)
+            || state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(effect => effect is null)
+            || p.Origin.UntilEndOfTurnEffects is null || p.Origin.UntilEndOfTurnEffects.Any(effect => effect is null)
             || p.Command.ValueKind != JsonValueKind.Object
             || state.Tick <= p.Origin.Tick || !state.Seats.ContainsKey(p.Intent.PlayerId)) return false;
         var reproduced = ReproduceRuleChoice(p);

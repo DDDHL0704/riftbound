@@ -3953,6 +3953,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (state.ObjectLocations.TryGetValue(optionalCostTargetObjectId, out var costLocation)
                 && costLocation.Zone == "LEGEND")
             {
+                var extraLegendCost = plan.OptionalCosts.Contains(ExhaustLegendPlayCostPrefix + optionalCostTargetObjectId, StringComparer.Ordinal);
+                if (extraLegendCost)
+                {
+                    // Resource actions and a declared extra cost cannot exhaust the same legend twice.
+                    if (!CanExhaustLegendForPlay(state with { CardObjects = cardObjects, PlayerZones = playerZones,
+                            ObjectLocations = objectLocations }, intent.PlayerId, optionalCostTargetObjectId))
+                        return RejectWithCorePrompts(state, "传奇已无法支付休眠额外费用。", ErrorCodes.InvalidTarget);
+                    var receipt = new LegendPlayCostReceipt(stackItem.StackItemId,
+                        new(optionalCostTargetObjectId, targetState.ObjectGeneration), targetState.CardNo!,
+                        targetState.CopyFaceTransitions?.Count ?? 0, intent.PlayerId, state.Tick + 1);
+                    stackItem = stackItem with { LegendPlayCost = receipt };
+                    events.Add(new("LEGEND_PLAY_ADDITIONAL_COST_PAID", "支付打出卡牌的传奇休眠额外费用",
+                        new Dictionary<string, object?> { ["playerId"] = intent.PlayerId,
+                            ["sourceObjectId"] = optionalCostTargetObjectId, ["playedSourceObjectId"] = command.SourceObjectId,
+                            ["playId"] = stackItem.StackItemId, ["legendPlayCostHash"] = MatchStateHasher.HashValue(receipt) }));
+                }
                 cardObjects[optionalCostTargetObjectId] = targetState with { IsExhausted = true };
                 events.Add(new GameEvent(
                     "LEGEND_EXHAUSTED",
@@ -3962,7 +3978,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["playerId"] = intent.PlayerId,
                         ["sourceObjectId"] = optionalCostTargetObjectId,
                         ["playedSourceObjectId"] = command.SourceObjectId,
-                        ["reason"] = "PLAY_COST_REDUCTION"
+                        ["reason"] = extraLegendCost ? "PLAY_ADDITIONAL_COST" : "PLAY_COST_REDUCTION"
                     }));
                 continue;
             }
@@ -3976,6 +3992,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects[optionalCostTargetObjectId] = targetState;
             events.Add(exhaustedEvent);
         }
+
+        if (stackItem.LegendPlayCost is not null)
+            nextState = nextState with { StackItems = nextState.StackItems.Select(item =>
+                item.StackItemId == stackItem.StackItemId ? stackItem : item).ToArray() };
 
         using (var costReplacements = PrepareDestructionReplacements(state with { PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, plan.DestroyedAdditionalCostTargetObjectIds))
         {
@@ -5347,6 +5367,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (RequiresObservedUnitEventHistory(trigger.UnitEvent))
             payload["observedUnitEventCaptureHash"] = ObservedUnitEventCaptureHash(trigger.UnitEvent!,
                 trigger.SourceObjectId, trigger.ControllerId);
+        if (RequiresMightyPowerPaymentHistory(trigger.MightySkill))
+            payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!);
         if (trigger.UnitEvent is { EquipmentSkillTriggerHash: { } completionKey } equipmentSkill)
         {
             payload["equipmentSkillTriggerHash"] = completionKey;
@@ -18016,7 +18038,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
-                !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
+                !(behavior.MayExhaustLegendAdditionalCost && optionalCosts.Contains(ExhaustLegendPlayCostPrefix + targetObjectId, StringComparer.Ordinal)
+                    ? CanExhaustLegendForPlay(state, intent.PlayerId, targetObjectId)
+                    : CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId))))
         {
             rejection = Reject(
                 state,
@@ -19660,7 +19684,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             TurnPlayerId = nextPlayerId,
             Phase = MatchPhases.TurnStart,
             TimingState = TimingStates.NeutralClosed,
-            RunePools = ClearRunePools(state),
+            RunePools = ClearRunePools(state, resetPaidPower: true),
             PlayerZones = turnEndPlayerZones,
             CardObjects = turnEndCardObjects,
             ObjectLocations = objectLocations,
@@ -20552,12 +20576,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return PaymentCostRules.CanPayPowerCost(pool, anyPowerCost, powerCostByTrait);
     }
 
-    private static (int AnyPower, IReadOnlyDictionary<string, int> PowerByTrait) PayPowerCost(
+    private static RunePool PayPowerCost(
         RunePool pool,
         int anyPowerCost,
         IReadOnlyDictionary<string, int> powerCostByTrait)
     {
-        return PaymentCostRules.PayPowerCost(pool, anyPowerCost, powerCostByTrait);
+        return PaymentCostRules.PayPowerCost(pool, anyPowerCost, powerCostByTrait, PowerPaymentPurpose.Other);
     }
 
     private static IReadOnlyDictionary<string, int> NormalizePowerCostByTrait(
@@ -20600,11 +20624,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return playerZones;
     }
 
-    private static IReadOnlyDictionary<string, RunePool> ClearRunePools(MatchState state)
+    private static IReadOnlyDictionary<string, RunePool> ClearRunePools(MatchState state, bool resetPaidPower = false)
     {
         return state.Seats.Keys.ToDictionary(
             playerId => playerId,
-            _ => RunePool.Empty,
+            // CN316.3 clears the stored resources before MAIN. A payment
+            // during START still happened this turn; only the genuine turn
+            // switch above resets that history (CN445.1.b / SFD143).
+            playerId => RunePool.Empty with { PaidPowerThisTurn = resetPaidPower ? 0
+                : state.RunePools.GetValueOrDefault(playerId, RunePool.Empty).PaidPowerThisTurn },
             StringComparer.Ordinal);
     }
 
@@ -21812,6 +21840,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || optionalCostManaReduction > int.MaxValue - behavior.ManaReductionIfExperiencePaid) return false;
             experienceCost += selectedExperience;
             optionalCostManaReduction += behavior.ManaReductionIfExperiencePaid;
+            return true;
+        }
+
+        if (behavior.MayExhaustLegendAdditionalCost
+            && normalizedOptionalCosts.Any(cost => cost.StartsWith(ExhaustLegendPlayCostPrefix, StringComparison.Ordinal)))
+        {
+            var selected = normalizedOptionalCosts.Where(cost => cost.StartsWith(ExhaustLegendPlayCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (selected.Length != 1 || selected[0].Length == ExhaustLegendPlayCostPrefix.Length) return false;
+            var target = selected[0][ExhaustLegendPlayCostPrefix.Length..];
+            if (!CanExhaustLegendForPlay(state, playerId, target)
+                || !TryBuildOptionalCostPlan(state, playerId, normalizedOptionalCosts.Except(selected).ToArray(),
+                    behavior with { MayExhaustLegendAdditionalCost = false }, out _, out extraManaCost,
+                    out extraPowerCost, out extraPowerCostByTrait, out experienceCost, out optionalCostManaReduction,
+                    out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds, out destroyedAdditionalCostTargetObjectIds,
+                    out returnedAdditionalCostTargetObjectIds, out discardedOptionalCostTargetObjectIds)) return false;
+            exhaustedOptionalCostTargetObjectIds = exhaustedOptionalCostTargetObjectIds.Append(target).ToArray();
             return true;
         }
 
@@ -28917,7 +28961,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || target.Tags.Contains(CardObjectTags.SpellCard)
             || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
-            || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;
+            || !gear.Tags.Contains(CardObjectTags.EquipmentCard)) return false;
+        // CN435.1.f / 435.4: an already earned Agile skill can reattach
+        // its equipment even if another simultaneous skill attached it first.
         return TryAttachEquipment(state, playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
             stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
@@ -28932,9 +28978,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
-        if (!ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects))
+        if (!ConditionalSourceUnitConditionApplies(behavior, controllerId, state))
         {
             return [];
         }
@@ -28945,9 +28991,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveConditionalSourceUnitPowerBonus(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
-        return ConditionalSourceUnitConditionApplies(behavior, controllerId, untilEndOfTurnEffects)
+        return ConditionalSourceUnitConditionApplies(behavior, controllerId, state)
             ? behavior.ConditionalSourceUnitPowerBonus
             : 0;
     }
@@ -28955,16 +29001,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool ConditionalSourceUnitConditionApplies(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        MatchState state)
     {
         return behavior.ConditionalSourceUnitConditionKind switch
         {
             CardConditionalSourceUnitConditionKinds.ControllerPlayedFourPlusCostSpellThisTurn =>
-                PlayerPlayedFourPlusCostSpellThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerPlayedFourPlusCostSpellThisTurn(state.UntilEndOfTurnEffects, controllerId),
             CardConditionalSourceUnitConditionKinds.ControllerGainedExperienceThisTurn =>
-                PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerGainedExperienceThisTurn(state.UntilEndOfTurnEffects, controllerId),
             CardConditionalSourceUnitConditionKinds.ControllerDiscardedHandCardThisTurn =>
-                PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId),
+                PlayerDiscardedHandCardThisTurn(state.UntilEndOfTurnEffects, controllerId),
+            CardConditionalSourceUnitConditionKinds.ControllerPaidPowerThisTurn =>
+                behavior.ConditionalSourceUnitRequiredPaidPower > 0
+                && state.RunePools.GetValueOrDefault(controllerId, RunePool.Empty).PaidPowerThisTurn
+                    >= behavior.ConditionalSourceUnitRequiredPaidPower,
             _ => false
         };
     }

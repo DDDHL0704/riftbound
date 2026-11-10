@@ -122,7 +122,7 @@ public sealed class MightyTransitionTests
     }
 
     [Fact]
-    public async Task PublicRecoveryRejectsSelfConsistentButUnrecordedHistoricalInput()
+    public async Task PublicViewsRejectChangedMightyInputsWhileCanonicalStateIsUnchanged()
     {
         var opened = await OpenUnit(); var state = opened.State; var captured = Assert.Single(state.StackItems).MightySkill!;
         var earlier = captured.Before with { CardObjects = new Dictionary<string, CardObjectState>(captured.Before.CardObjects) {
@@ -136,10 +136,10 @@ public sealed class MightyTransitionTests
             var payload = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
             var original = payload["mightySkill"];
             payload["mightySkill"] = forged;
-            Assert.NotEmpty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
             payload["mightySkill"] = original;
         }
-        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
     }
 
     [Theory]

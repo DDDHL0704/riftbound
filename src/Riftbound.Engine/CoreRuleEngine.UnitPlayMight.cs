@@ -67,6 +67,8 @@ public sealed partial class CoreRuleEngine
 
     private static ObjectBinding? CompanionPlayedUnit(TriggerQueueItemState trigger)
         => trigger.UnitPlayMight?.PlayedUnit ?? trigger.TurnUnitPlayBoon?.Unit ?? trigger.TurnUnitPlayDraw?.Unit
+            ?? (HasArmamentPlayAttachment(trigger.UnitEvent) && trigger.UnitEvent!.ReflexiveTick is not null
+                ? trigger.UnitEvent.Other?.Binding : null)
             ?? trigger.UnitEvent?.SpellInstruction?.PlayedUnit?.Binding;
 
     private static bool CompanionPlayControllerMatches(TriggerQueueItemState companion, StackItemState item)
@@ -107,6 +109,9 @@ public sealed partial class CoreRuleEngine
             || CompanionPlayedUnit(companion) is not { } unit || unit.ObjectId != item.SourceObjectId
             || !state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId && play.Source == unit
                 && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId && play.Tick == capturedTick)) return false;
+        if (HasArmamentPlayAttachment(companion.UnitEvent))
+            return companion.UnitEvent!.ReflexiveTick == capturedTick && companion.UnitEvent.Other?.CardNo == item.CardNo
+                && ValidArmamentPlayAttachmentContext(state, companion.UnitEvent, companion.ControllerId);
         if (companion.UnitPlayMight is { } might)
             return might.CapturedTick == capturedTick
                 && RengarPlayRecoveryRules.Valid(state, might, companion.EffectKind, companion.SourceObjectId, companion.ControllerId);
