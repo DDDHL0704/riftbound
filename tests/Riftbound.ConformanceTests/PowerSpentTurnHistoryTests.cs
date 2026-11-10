@@ -39,4 +39,20 @@ public sealed class PowerSpentTurnHistoryTests
             error.Contains("power payment counter differs from original accepted debit history", StringComparison.Ordinal));
         await game.Replay();
     }
+
+    [Fact]
+    public async Task AnEmptyReplayInitialBalanceCannotClaimPastPowerPayments()
+    {
+        var initial = MatchReplayInitialStateBuilder.FromSeats("EMPTY-POWER-HISTORY",
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" });
+        var forged = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P1"] = new(0, 0, paidPowerThisTurn: 2) } };
+        Assert.Equal(RunePool.Empty, forged.RunePools["P1"]);
+        var rejected = new RecoveredCommand("P1", "no-payment", CommandTypes.EndTurn, null,
+            0, 0, 0, 0, false, "No accepted payment") { ErrorCode = ErrorCodes.PhaseNotAllowed };
+        var recovery = new MatchRecoveryFrame(initial.RoomId, 0, 0, [rejected], [],
+            new Dictionary<string, RecoveredPlayerView>(), [], initial, forged) { OpeningSeed = initial.Seed };
+        var errors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(recovery, new CoreRuleEngine(), default);
+        Assert.Contains("action-log replay initial state rune pool for P1 must be empty", errors);
+    }
 }

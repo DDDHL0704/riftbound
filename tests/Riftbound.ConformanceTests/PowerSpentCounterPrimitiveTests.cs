@@ -60,12 +60,15 @@ public sealed class PowerSpentCounterPrimitiveTests
     }
 
     [Fact]
-    public void SerializationAndEqualityRetainTheDebitHistory()
+    public void BalanceEqualityPreservesItsContractWhileSerializedHashesRetainTheDebitHistory()
     {
         var paid = new RunePool(0, 0, paidPowerThisTurn: 2);
         var restored = JsonSerializer.Deserialize<RunePool>(JsonSerializer.Serialize(paid));
         Assert.Equal(paid, restored);
-        Assert.NotEqual(RunePool.Empty, paid);
+        Assert.Equal(2, restored!.PaidPowerThisTurn);
+        Assert.Equal(RunePool.Empty, paid);
+        Assert.Equal(RunePool.Empty.GetHashCode(), paid.GetHashCode());
+        Assert.NotEqual(MatchStateHasher.HashValue(RunePool.Empty), MatchStateHasher.HashValue(paid));
         Assert.Equal(0, RunePool.Empty.PaidPowerThisTurn);
     }
 

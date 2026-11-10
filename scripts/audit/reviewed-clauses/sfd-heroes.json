@@ -1035,7 +1035,8 @@
           "path": "tests/Riftbound.ConformanceTests/PowerSpentTurnHistoryTests.cs",
           "methods": [
             "RealPrintedAndOptionalFeesProduceOneAcceptedPowerReceipt",
-            "RebuiltPublicViewsCannotAuthenticateAnAlteredPaidPowerCount"
+            "RebuiltPublicViewsCannotAuthenticateAnAlteredPaidPowerCount",
+            "AnEmptyReplayInitialBalanceCannotClaimPastPowerPayments"
           ]
         }
       ],

@@ -167,6 +167,9 @@ public sealed record RunePool
         && PowerByTrait.Values.All(value => value >= 0)
         && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower + UnitOrEquipmentPlayOnlyPower <= int.MaxValue;
 
+    // Pool equality describes current resource balances. Turn history is
+    // serialized and authenticated separately; spending and then gaining the
+    // same resources leaves equal balances, but a different authoritative hash.
     public bool Equals(RunePool? other)
     {
         if (ReferenceEquals(this, other))
@@ -183,7 +186,6 @@ public sealed record RunePool
             && SpellOnlyPower == other.SpellOnlyPower
             && EquipmentOnlyPower == other.EquipmentOnlyPower
             && UnitOrEquipmentPlayOnlyPower == other.UnitOrEquipmentPlayOnlyPower
-            && PaidPowerThisTurn == other.PaidPowerThisTurn
             && PowerByTrait.Count == other.PowerByTrait.Count
             && PowerByTrait.All(entry =>
                 other.PowerByTrait.TryGetValue(entry.Key, out var otherValue)
@@ -201,7 +203,6 @@ public sealed record RunePool
         hash.Add(SpellOnlyPower);
         hash.Add(EquipmentOnlyPower);
         hash.Add(UnitOrEquipmentPlayOnlyPower);
-        hash.Add(PaidPowerThisTurn);
         foreach (var entry in PowerByTrait.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
             hash.Add(entry.Key);

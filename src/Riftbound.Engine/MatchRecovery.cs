@@ -238,7 +238,7 @@ public static class MatchActionLogReplayer
 
             foreach (var runePool in replayInitialState.RunePools.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                if (!RunePool.Empty.Equals(runePool.Value))
+                if (!RunePool.Empty.Equals(runePool.Value) || runePool.Value.PaidPowerThisTurn != 0)
                 {
                     errors.Add($"action-log replay initial state rune pool for {runePool.Key} must be empty");
                 }
