@@ -1757,6 +1757,7 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
             "var actualPaid = (long)spent + view.PowerByTrait.Values.Sum", "pool.PaidPowerThisTurn + actualPaid",
             "PaidPowerThisTurn = paidThisTurn", "Power = pool.Power -", "PowerByTrait = paid.PowerByTrait"]),
         ("PaymentCostRules.cs", "TryCommitPayment", ["var paidPower = PayPowerCost(", "runePools[plan.PlayerId] = paidPower with"]),
+        ("PaymentCostRules.cs", "CanPayPowerCost", ["long.MaxValue - pool.PaidPowerThisTurn", "powerCostByTrait.Values.Sum"]),
         ("PaymentCostRules.cs", "PayRuneCosts", ["var paidPower = PayPowerCost(", "PowerPaymentPurpose.Other",
             "runePools[playerId] = SpendMana(paidPower, manaCost"]),
         ("CoreRuleEngine.PowerPayments.cs", "RecordPowerPayments", ["if (!result.Accepted) return result",
@@ -1780,6 +1781,9 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
         ("CoreRuleEngine.cs", "ClearRunePools", ["_ => RunePool.Empty"]),
         ("CoreRuleEngine.RuleChoiceCommits.cs", "CommitRuleChoiceResources", ["ApplyRuleChoiceResourceDifference(",
             "return RecomputeRuleDerivedKeywords(next)"]),
+        ("CoreRuleEngine.RuleChoiceCommits.cs", "ApplyRuleChoiceResourceDifference", [
+            'path.EndsWith(".paidPowerThisTurn", StringComparison.Ordinal)', 'current?.GetValue<long>()',
+            'return JsonValue.Create(count + delta)']),
         ("CoreRuleEngine.RuleChoiceCommits.cs", "CompleteRuleChoiceResourceEffects", [
             "RecordMightyTransitions(context, completed, beforeMight);\n                completed = StampNewTriggerQueueTimes(context, completed)",
             "new MightInstructionFrames(beforeMight!, after, AlreadyCaptured: true)"]),
@@ -1793,6 +1797,7 @@ def paid_power_unit_passive_route(card: dict, clause: dict, sources: Sources) ->
             "paidPowerThisTurn: frame.PaidPowerThisTurn.GetValueOrDefault(id)"]),
         ("MatchRecovery.PowerPayments.cs", "ValidatePowerPaymentHistory", ["record.Event.Payload?.ContainsKey(CoreRuleEngine.PowerPaymentReceiptKey) == true",
             "TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)",
+            'TryReadObjectLong(payload, "amount", out var amount)', 'TryReadObjectLong(payload, "paidPowerTotal", out var total)',
             "command.Accepted", "pool.PaidPowerThisTurn != expected", "ValidateMightyPowerPaymentHistory("]),
         ("CoreRuleEngine.cs", "BuildTriggerQueuedEvent", ["RequiresMightyPowerPaymentHistory(trigger.MightySkill)",
             'payload["mightyPowerPaymentHash"] = MightyPowerPaymentHistoryHash(trigger.MightySkill!)']),

@@ -79,8 +79,8 @@ public sealed class SivirPaidPowerStaticTests
         await Convert(game, 1, "SECOND");
         Assert.Equal(2, game.State.RunePools["P1"].PaidPowerThisTurn);
         Passive(game.State, true);
-        Assert.Equal(new[] { 1, 2 }, PowerSpentTurnHistoryTests.Receipts(game)
-            .Select(row => (int)PowerSpentTurnHistoryTests.Debit(row)["paidPowerTotal"]!));
+        Assert.Equal(new[] { 1L, 2L }, PowerSpentTurnHistoryTests.Receipts(game)
+            .Select(row => (long)PowerSpentTurnHistoryTests.Debit(row)["paidPowerTotal"]!));
         await game.Replay();
     }
 
@@ -284,7 +284,7 @@ public sealed class SivirPaidPowerStaticTests
         await Convert(game, 2);
         var item = Assert.Single(game.State.StackItems, item => item.MightySkill is not null);
         var context = item.MightySkill!;
-        var counts = new Dictionary<string, int>(context.After.PaidPowerThisTurn);
+        var counts = new Dictionary<string, long>(context.After.PaidPowerThisTurn);
         if (mutation == "missing") counts.Clear();
         else counts[mutation == "payer" ? "P1" : "P2"]++;
         var altered = game.State with { StackItems = game.State.StackItems.Select(row => row == item
@@ -294,7 +294,7 @@ public sealed class SivirPaidPowerStaticTests
         await game.Replay();
     }
     [Fact]
-    public async Task ARealMaximumDebitStillAllowsResourceIncomeWithoutAdvertisingAnOverflowingFee()
+    public async Task ARealMaximumDebitStillAllowsResourceIncomeAndAnotherPaymentInTheSameTurn()
     {
         var initial = RadGearTestPosition.Put(Position(), "NEXT", Sivir, "P1", "HAND");
         initial = RadGearTestPosition.Put(initial, "STELE", "SFD·117/221", "P1", "BASE");
@@ -309,12 +309,44 @@ public sealed class SivirPaidPowerStaticTests
         Assert.Equal(1, game.State.RunePools["P1"].Power);
         var command = new PlayCardCommand("NEXT", Sivir, []);
         var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
-        Assert.False(quote.CanPay);
-        await RadGearTestPosition.Reject(game.State, "P1", command);
+        Assert.True(quote.CanPay);
+        await game.Act("P1", command);
+        Assert.Equal((long)int.MaxValue + 1, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Equal(0, game.State.RunePools["P1"].Power);
         Passive(game.State, true);
         await game.Act("P1", new EndTurnCommand());
         Assert.Equal(0, game.State.RunePools["P1"].PaidPowerThisTurn);
         Passive(game.State, false);
+        await game.Replay();
+    }
+
+
+    [Fact]
+    public async Task ACommittedResourceChildRetainsAWideCounterAcrossThePausedParentAndOriginalReplay()
+    {
+        var initial = RadGearTestPosition.Put(Position(), "SPELL", "OGN·268/298", "P1", "HAND");
+        initial = RadGearTestPosition.Put(initial, "STELE", "SFD·117/221", "P1", "BASE");
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(0, int.MaxValue) } };
+        var game = new Driver(initial);
+        await Convert(game, int.MaxValue);
+        await game.Act("P1", new ActivateAbilityCommand("STELE", P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId,
+            [], [P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix + "2"]));
+        await game.Act("P1", new PlayCardCommand("SPELL", "OGN·268/298", ["BF"]));
+        await game.Top();
+        var request = game.State.PendingRuleChoice!.Request;
+        var resource = $"RESOURCE:SECOND:{P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId}:"
+            + P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix + "1";
+        Assert.Contains(request.Options, option => option.Id == resource);
+        await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [resource]));
+        Assert.Equal((long)int.MaxValue + 1, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Equal(1, game.State.RunePools["P1"].Power);
+        request = game.State.PendingRuleChoice!.Request;
+        await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["SPEND_POWER:1"]));
+        Assert.Equal((long)int.MaxValue + 2, game.State.RunePools["P1"].PaidPowerThisTurn);
+        Assert.Null(game.State.PendingRuleChoice);
+        Passive(game.State, true);
+        Assert.Equal(new[] { (long)int.MaxValue, (long)int.MaxValue + 1, (long)int.MaxValue + 2 },
+            PowerSpentTurnHistoryTests.Receipts(game).Select(item => (long)PowerSpentTurnHistoryTests.Debit(item)["paidPowerTotal"]!));
         await game.Replay();
     }
 

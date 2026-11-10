@@ -1155,6 +1155,13 @@
             "pool.PaidPowerThisTurn != expected",
             "MightyPowerPaymentHistoryHash(capture.Context)"
           ]
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RuleChoiceCommits.cs",
+          "contains": [
+            "path.EndsWith(\".paidPowerThisTurn\", StringComparison.Ordinal)",
+            "return JsonValue.Create(count + delta)"
+          ]
         }
       ],
       "tests": [
@@ -1166,7 +1173,9 @@
             "AnAcceptedConversionWhileAnInstructionIsPausedCountsOnceAndSurvivesResumeOrSurrender",
             "ACommittedResourceChildCapturesItsMightyCrossingOnceBeforeTheOuterInstructionResumes",
             "ARealControlChangeUsesTheNewControllersPaymentHistory",
-            "RebuildingViewsCannotAuthenticateAlteredMightyPaymentInputsAgainstOriginalRecords"
+            "RebuildingViewsCannotAuthenticateAlteredMightyPaymentInputsAgainstOriginalRecords",
+            "ARealMaximumDebitStillAllowsResourceIncomeAndAnotherPaymentInTheSameTurn",
+            "ACommittedResourceChildRetainsAWideCounterAcrossThePausedParentAndOriginalReplay"
           ]
         },
         {

@@ -416,7 +416,8 @@ public static class PaymentCostRules
         IReadOnlyDictionary<string, int> powerCostByTrait,
         PowerPaymentPurpose purpose = PowerPaymentPurpose.Other)
     {
-        if (anyPowerCost < 0 || !pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose))
+        if (anyPowerCost < 0 || !pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose)
+            || (long)anyPowerCost + powerCostByTrait.Values.Sum(amount => (long)amount) > long.MaxValue - pool.PaidPowerThisTurn)
         {
             return false;
         }
@@ -485,9 +486,9 @@ public static class PaymentCostRules
         // income or pool clearing. It includes trait and restricted power.
         var actualPaid = (long)spent + view.PowerByTrait.Values.Sum(value => (long)value)
             - paid.PowerByTrait.Values.Sum(value => (long)value);
-        if ((long)pool.PaidPowerThisTurn + actualPaid is < 0 or > int.MaxValue)
+        if (actualPaid < 0 || pool.PaidPowerThisTurn < 0 || actualPaid > long.MaxValue - pool.PaidPowerThisTurn)
             throw new ResourceNumericLimitException("本回合已支付符能数量");
-        var paidThisTurn = (int)(pool.PaidPowerThisTurn + actualPaid);
+        var paidThisTurn = pool.PaidPowerThisTurn + actualPaid;
         if (powerSourceSelection is { } selected)
         {
             if (!CanSpendPowerSources(pool, purpose, selected, spent))

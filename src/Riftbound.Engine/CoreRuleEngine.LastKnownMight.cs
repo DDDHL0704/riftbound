@@ -14,7 +14,7 @@ public sealed record LastKnownMightFrame(
     IReadOnlyDictionary<string, int> PlayerExperience)
 {
     public IReadOnlyList<string> ConditionalTurnHistory { get; init; } = [];
-    public IReadOnlyDictionary<string, int> PaidPowerThisTurn { get; init; } = new Dictionary<string, int>();
+    public IReadOnlyDictionary<string, long> PaidPowerThisTurn { get; init; } = new Dictionary<string, long>();
 }
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]

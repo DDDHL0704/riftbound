@@ -87,7 +87,7 @@ public sealed record RunePool
         int duelOnlyMana = 0,
         int unitOrEquipmentPlayOnlyPower = 0,
         int unitPlayOrUnitAbilityOnlyMana = 0,
-        int paidPowerThisTurn = 0)
+        long paidPowerThisTurn = 0)
     {
         // Preserve malformed input for recovery validation instead of washing
         // negative or unrepresentable resource amounts into a legal pool.
@@ -139,7 +139,7 @@ public sealed record RunePool
     // quote cannot change it; ordinary resource gains preserve the value.
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonNumberHandling(JsonNumberHandling.Strict)]
-    public int PaidPowerThisTurn { get; init; }
+    public long PaidPowerThisTurn { get; init; }
 
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public IReadOnlyDictionary<string, int> PowerByTrait { get; init; }

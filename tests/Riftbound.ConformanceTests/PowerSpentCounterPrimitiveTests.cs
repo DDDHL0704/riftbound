@@ -76,10 +76,26 @@ public sealed class PowerSpentCounterPrimitiveTests
     public void InvalidOrUnrepresentableCountersCannotBecomeAValidPaymentResult()
     {
         Assert.False(new RunePool(0, 1, paidPowerThisTurn: -1).HasSupportedAmounts);
-        var maximum = new RunePool(0, 1, paidPowerThisTurn: int.MaxValue);
+        var maximum = new RunePool(0, 1, paidPowerThisTurn: long.MaxValue);
+        Assert.False(PaymentCostRules.CanPayPowerCost(maximum, 1, new Dictionary<string, int>()));
+        Assert.True(PaymentCostRules.CanPayPowerCost(maximum, 0, new Dictionary<string, int>()));
         Assert.Throws<ResourceNumericLimitException>(() => PaymentCostRules.PayPowerCost(maximum, 1,
             new Dictionary<string, int>(), PowerPaymentPurpose.Other));
-        Assert.Equal(int.MaxValue, maximum.PaidPowerThisTurn);
+        Assert.Equal(long.MaxValue, maximum.PaidPowerThisTurn);
         Assert.Equal(1, maximum.Power);
     }
+
+    [Fact]
+    public void TheTurnCounterCanAccumulateMoreThanOneMaximumWalletWithoutNarrowing()
+    {
+        var first = new RunePool(0, int.MaxValue, paidPowerThisTurn: int.MaxValue);
+        Assert.True(PaymentCostRules.CanPayPowerCost(first, int.MaxValue, new Dictionary<string, int>()));
+        var paid = PaymentCostRules.PayPowerCost(first, int.MaxValue, new Dictionary<string, int>(), PowerPaymentPurpose.Other);
+        Assert.Equal(2L * int.MaxValue, paid.PaidPowerThisTurn);
+        Assert.Equal(0, paid.Power);
+        var restored = JsonSerializer.Deserialize<RunePool>(JsonSerializer.Serialize(paid));
+        Assert.Equal(paid.PaidPowerThisTurn, restored!.PaidPowerThisTurn);
+        Assert.Equal(MatchStateHasher.HashValue(paid), MatchStateHasher.HashValue(restored));
+    }
+
 }

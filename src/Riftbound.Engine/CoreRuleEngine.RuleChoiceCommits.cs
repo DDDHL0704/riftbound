@@ -74,8 +74,18 @@ public sealed partial class CoreRuleEngine
         // Resource gains/conversions are deltas even when an earlier uncommitted
         // instruction has spent part of the pool visible to the child.
         if (additive && (before is JsonValue || after is JsonValue))
+        {
+            if (path.EndsWith(".paidPowerThisTurn", StringComparison.Ordinal))
+            {
+                var count = current?.GetValue<long>() ?? 0;
+                var delta = (after?.GetValue<long>() ?? 0) - (before?.GetValue<long>() ?? 0);
+                if (count < 0 || delta < 0 || delta > long.MaxValue - count)
+                    throw new ResourceNumericLimitException("本回合已支付符能数量");
+                return JsonValue.Create(count + delta);
+            }
             return JsonValue.Create(checked((int)((current?.GetValue<int>() ?? 0)
                 + (long)(after?.GetValue<int>() ?? 0) - (before?.GetValue<int>() ?? 0))));
+        }
         if (before is JsonObject || after is JsonObject)
         {
             var prior = before as JsonObject ?? new(); var next = after as JsonObject ?? new();

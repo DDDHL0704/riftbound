@@ -114,3 +114,15 @@ class PaidPowerUnitPassiveAuditTests(unittest.TestCase):
                      'TryReadObjectValue(record.Event.Payload, CoreRuleEngine.PowerPaymentReceiptKey, out var payload)',
                      'ReadCurrentCounterOnly(state, out var payload)')
         self.assertEqual('missing', self.outcome())
+
+    def test_paused_resource_commits_cannot_narrow_the_counter_to_wallet_precision(self):
+        self.replace('CoreRuleEngine.RuleChoiceCommits.cs',
+                     'path.EndsWith(".paidPowerThisTurn", StringComparison.Ordinal)',
+                     'path.EndsWith(".unrelated", StringComparison.Ordinal)')
+        self.assertEqual('missing', self.outcome())
+
+    def test_original_history_must_retain_wide_cumulative_payment_values(self):
+        self.replace('MatchRecovery.PowerPayments.cs',
+                     'TryReadObjectLong(payload, "paidPowerTotal", out var total)',
+                     'TryReadObjectInt(payload, "paidPowerTotal", out var total)')
+        self.assertEqual('missing', self.outcome())

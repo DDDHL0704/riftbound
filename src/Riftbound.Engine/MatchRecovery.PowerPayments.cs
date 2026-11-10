@@ -6,7 +6,7 @@ public static partial class MatchRecoveryValidator
         IReadOnlyList<RecoveredEvent> events, List<string> errors)
     {
         if (state.Seats is null || state.RunePools is null) return;
-        var totals = state.Seats.Keys.ToDictionary(player => player, _ => 0, StringComparer.Ordinal);
+        var totals = state.Seats.Keys.ToDictionary(player => player, _ => 0L, StringComparer.Ordinal);
         var boundary = CurrentGameAcceptedEventBoundary(state, commands, events);
         foreach (var record in events.Where(record => record.Sequence > boundary
             && record.Event.Payload?.ContainsKey(CoreRuleEngine.PowerPaymentReceiptKey) == true))
@@ -22,9 +22,9 @@ public static partial class MatchRecoveryValidator
             if (!TryReadObjectString(payload, "playerId", out var player) || player is null
                 || !TryReadObjectString(record.Event.Payload, "playerId", out var actor) || actor != player
                 || !totals.TryGetValue(player, out var previous)
-                || !TryReadObjectInt(payload, "amount", out var amount) || amount <= 0
-                || !TryReadObjectInt(payload, "paidPowerTotal", out var total)
-                || (long)previous + amount != total
+                || !TryReadObjectLong(payload, "amount", out var amount) || amount <= 0
+                || !TryReadObjectLong(payload, "paidPowerTotal", out var total)
+                || amount > long.MaxValue - previous || previous + amount != total
                 || !commands.Any(command => command.Accepted && command.CompletedTick == record.Tick
                     && command.StartedEventSequence < record.Sequence && record.Sequence <= command.CompletedEventSequence))
             {

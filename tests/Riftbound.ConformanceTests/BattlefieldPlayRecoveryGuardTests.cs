@@ -359,7 +359,7 @@ public sealed class BattlefieldPlayRecoveryGuardTests(ITestOutputHelper output)
         var views = state.Seats.Keys.ToDictionary(player => player,
             player => new RecoveredPlayerView(player, state.Tick, 0, snapshots[player], state.Tick, 0, prompts[player]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
-        return MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator);
+        return MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator);
     }
 
     private static MatchRecoveryFrame Frame(MatchState initial, Journal journal, MatchState final)

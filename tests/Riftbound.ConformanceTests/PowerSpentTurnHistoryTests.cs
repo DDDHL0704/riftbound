@@ -29,8 +29,8 @@ public sealed class PowerSpentTurnHistoryTests
         Assert.DoesNotContain(game.Events(), row => row.Event.Kind == CoreRuleEngine.PowerSpentEvent);
         var debit = Debit(receipt);
         Assert.Equal("P1", debit["playerId"]);
-        Assert.Equal(paid, debit["amount"]);
-        Assert.Equal(paid, debit["paidPowerTotal"]);
+        Assert.Equal((long)paid, debit["amount"]);
+        Assert.Equal((long)paid, debit["paidPowerTotal"]);
         Assert.Equal(game.State.TurnNumber, debit["turnNumber"]);
         await game.Replay();
     }
@@ -78,7 +78,7 @@ public sealed class PowerSpentTurnHistoryTests
         var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), events, views,
             state, state.Tick, MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state));
         Assert.Contains(errors, error => error.Contains("power payment counter", StringComparison.Ordinal));
-        Assert.Equal(2, Debit(original)["amount"]);
+        Assert.Equal(2L, Debit(original)["amount"]);
         Assert.Equal("COST_PAID", original.Kind);
         await game.Replay();
     }
